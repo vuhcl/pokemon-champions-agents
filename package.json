@@ -1,0 +1,23 @@
+{
+  "name": "pokemon-champions-agents",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "extract:legality": "tsx scripts/extract_legality/write_snapshot.ts",
+    "start": "tsx services/calc/server.ts",
+    "test": "tsx --test tests/extract_legality/*.test.ts tests/calc/*.test.ts"
+  },
+  "dependencies": {
+    "@pkmn/sets": "^5.2.0",
+    "@smogon/calc": "file:vendor/smogon-calc"
+  },
+  "devDependencies": {
+    "@pkmn/data": "^0.10.11",
+    "@pkmn/dex": "^0.10.11",
+    "@pkmn/mods": "^0.10.11",
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
