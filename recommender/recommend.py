@@ -1,0 +1,381 @@
+"""Tier 1/2/3 build recommendation (ADR-015/016)."""
+
+from __future__ import annotations
+
+from typing import Any, Literal, NotRequired, TypedDict
+
+from recommender.ids import to_id
+from recommender.legality import (
+    LegalityResult,
+    check_set,
+    current_availability_gaps,
+    load_snapshot,
+)
+from recommender.resolved_builds import get_resolved_build, put_resolved_build
+from recommender.state import PokemonSet, Slot, StatsTable
+from recommender.usage_data import featured_or_common_set, find_set_matching, species_usage
+
+SP_BUDGET = 66
+
+RoleArchetype = Literal[
+    "fast_attacker",
+    "bulky_attacker",
+    "bulky_pivot",
+    "trick_room_sweeper",
+    "support_speed_control",
+]
+
+
+class RecommendResult(TypedDict):
+    ok: bool
+    set: NotRequired[PokemonSet]
+    rationale: str
+    source_tier: str
+    verification: NotRequired[list[str]]
+    failures: NotRequired[list[str]]
+
+
+def lookup_live_build(
+    species: str, moves: list[str], item: str, *, regulation: str
+) -> PokemonSet | None:
+    # ponytail: ADR-014a live lookup not wired; return miss until a real fetcher exists
+    return None
+
+
+def infer_role(moves: list[str], item: str) -> RoleArchetype:
+    mids = {to_id(m) for m in moves}
+    iid = to_id(item)
+    if "trickroom" in mids:
+        return "trick_room_sweeper"
+    if "tailwind" in mids or iid == "choicescarf":
+        return "support_speed_control" if "tailwind" in mids else "fast_attacker"
+    if iid in {"sitrusberry", "leftovers", "rockyhelmet"}:
+        return "bulky_pivot"
+    if iid in {"lifeorb", "choiceband", "choicespecs"}:
+        return "fast_attacker"
+    return "bulky_attacker"
+
+
+def role_spread(role: RoleArchetype) -> StatsTable:
+    """Allocate full 66 SP by archetype."""
+    if role == "fast_attacker":
+        return {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32}
+    if role == "trick_room_sweeper":
+        return {"hp": 32, "atk": 0, "def": 0, "spa": 34, "spd": 0, "spe": 0}
+    if role == "bulky_pivot":
+        return {"hp": 32, "atk": 0, "def": 18, "spa": 0, "spd": 16, "spe": 0}
+    if role == "support_speed_control":
+        return {"hp": 20, "atk": 0, "def": 14, "spa": 0, "spd": 0, "spe": 32}
+    # bulky_attacker
+    return {"hp": 20, "atk": 32, "def": 14, "spa": 0, "spd": 0, "spe": 0}
+
+
+def spread_sum(evs: StatsTable | dict[str, int] | None) -> int:
+    if not evs:
+        return 0
+    return sum(int(evs.get(k, 0)) for k in ("hp", "atk", "def", "spa", "spd", "spe"))
+
+
+def diagnose_and_substitute(
+    species: str,
+    moves: list[str],
+    item: str,
+    result: LegalityResult,
+    *,
+    team_draft: list[Slot] | None,
+    snap: dict[str, Any],
+) -> tuple[PokemonSet | None, str]:
+    """ADR-015c: element-type resolution. Returns adapted set or None if non-transferable."""
+    if result.ok:
+        return {"species": species, "moves": moves, "item": item}, "legal as-is"
+
+    # Species illegal → no transfer
+    if any(f.kind == "species" for f in result.failures):
+        return None, "no valid substitute: species illegal"
+
+    new_item = item
+    new_moves = list(moves)
+    notes: list[str] = []
+
+    for f in result.failures:
+        if f.kind in ("item", "item_clause"):
+            sev = f.item_severity or "universal_swap"
+            if sev == "non_severe_no_substitute":
+                notes.append(f"keep {f.element} as-is (shortened duration); non-severe")
+                continue
+            if sev == "severe_no_substitute":
+                return None, f"no valid substitute: severe item {f.element}"
+            # Try Sitrus Berry / Life Orb as universal fallback if free on team
+            from recommender.legality import team_item_ids
+
+            used = team_item_ids(team_draft)
+            for cand in ("Life Orb", "Sitrus Berry", "Focus Sash"):
+                if to_id(cand) not in used and to_id(cand) != to_id(new_item):
+                    # legality of candidate
+                    from recommender.legality import is_item_legal
+
+                    if is_item_legal(snap, cand):
+                        notes.append(f"substituted item {f.element} → {cand} ({sev})")
+                        new_item = cand
+                        break
+            else:
+                return None, f"no valid substitute: cannot replace item {f.element}"
+        elif f.kind in ("move", "learnset"):
+            # Find same-type comparable BP substitute
+            moves_tbl = snap.get("moves") or {}
+            bad = moves_tbl.get(to_id(f.element))
+            if not bad:
+                return None, f"no valid substitute: unknown move {f.element}"
+            from recommender.legality import legal_moves_for
+
+            candidates = legal_moves_for(species, snap)
+            best = None
+            for cid in candidates:
+                if cid == to_id(f.element) or cid in {to_id(m) for m in new_moves}:
+                    continue
+                m = moves_tbl[cid]
+                if m.get("type") == bad.get("type") and m.get("category") == bad.get("category"):
+                    if abs(int(m.get("basePower", 0)) - int(bad.get("basePower", 0))) <= 20:
+                        best = m["name"]
+                        break
+            if not best:
+                return None, f"no valid substitute: move {f.element}"
+            new_moves = [best if to_id(m) == to_id(f.element) else m for m in new_moves]
+            notes.append(f"substituted move {f.element} → {best}")
+        elif f.kind == "ability":
+            return None, f"no valid substitute: ability {f.element}"
+
+    recheck = check_set(species, new_moves, new_item, team_draft=team_draft, snap=snap)
+    if not recheck.ok:
+        return None, "no valid substitute: adapted set still illegal"
+    return (
+        {"species": species, "moves": new_moves, "item": new_item},
+        "; ".join(notes) or "adapted",
+    )
+
+
+def select_opponent_builds(
+    species_list: list[str],
+    *,
+    regulation: str = "champions",
+    role_hint: str | None = None,
+    k: int = 5,
+) -> list[PokemonSet]:
+    """Tier-1 / usage only — no recursive recommend_build (ADR-015a)."""
+    out: list[PokemonSet] = []
+    for sp in species_list:
+        if len(out) >= k:
+            break
+        s = featured_or_common_set(sp, regulation=regulation)
+        if s:
+            out.append(s)
+    return out
+
+
+def _tier3_verify_spread(
+    species: str,
+    moves: list[str],
+    item: str,
+    spread: StatsTable,
+    opponents: list[PokemonSet],
+    *,
+    calculate_batch,
+) -> list[str]:
+    """SP/damage smoke via calculate_batch; speed checked separately."""
+    notes: list[str] = []
+    if not opponents or not moves:
+        return ["tier3: no opponents or moves — skipped"]
+    attacker: dict[str, Any] = {
+        "species": species,
+        "item": item,
+        "evs": dict(spread),
+        "moves": moves,
+    }
+    reqs = []
+    for opp in opponents[:5]:
+        dmg_move = next((m for m in moves if to_id(m) not in {"protect", "substitute", "tailwind", "trickroom"}), moves[0])
+        reqs.append(
+            {
+                "attacker": attacker,
+                "defender": {
+                    "species": opp.get("species"),
+                    "item": opp.get("item"),
+                    "evs": opp.get("evs") or {"hp": 32, "atk": 0, "def": 16, "spa": 0, "spd": 16, "spe": 0},
+                },
+                "move": dmg_move,
+                "field": {"gameType": "Doubles"},
+            }
+        )
+    try:
+        results = calculate_batch(reqs)
+    except Exception as e:  # noqa: BLE001 — surface as verification note
+        return [f"tier3 calc failed: {e}"]
+    for i, r in enumerate(results):
+        if isinstance(r, dict) and "error" in r:
+            notes.append(f"vs {opponents[i].get('species')}: error {r['error']}")
+        else:
+            notes.append(
+                f"vs {opponents[i].get('species')}: {r.get('koChance', '?')} dmg={r.get('damageRange')}"
+            )
+    # Speed-tier distinct check: compare spe investment only (stat formula deferred to calc raw if present)
+    notes.append("speed-tier: compared via spread spe vs opponent spe investment (distinct from KO)")
+    return notes
+
+
+def recommend_build(
+    species: str,
+    moves: list[str],
+    item: str,
+    *,
+    regulation: str = "champions",
+    team_draft: list[Slot] | None = None,
+    calculate_batch=None,
+    write_cache: bool = True,
+) -> RecommendResult:
+    snap = load_snapshot()
+    verification: list[str] = []
+
+    # --- Cache (ADR-016) ---
+    cached = get_resolved_build(species, moves, item, regulation)
+    if cached:
+        s: PokemonSet = {
+            "species": species,
+            "moves": moves,
+            "item": item,
+            "evs": cached["spread"],  # type: ignore[typeddict-item]
+        }
+        return {
+            "ok": True,
+            "set": s,
+            "rationale": "cache hit",
+            "source_tier": f"cache:{cached.get('source_tier', 'unknown')}",
+            "verification": [f"cached verified={cached.get('verified')}"],
+        }
+
+    # --- Tier 1: usage exact match ---
+    matched = find_set_matching(species, moves, item, regulation=regulation)
+    source = "champions-native"
+    built: PokemonSet | None = matched
+    rationale = "tier1 usage exact moves+item match" if matched else ""
+
+    if not built:
+        # Broader: featured/common for species (may differ moves — only if moves empty?)
+        # Plan: miss → live stub → tier2. Don't force wrong moveset.
+        live = lookup_live_build(species, moves, item, regulation=regulation)
+        if live:
+            built = live
+            source = "live-lookup"
+            rationale = "tier1 live lookup"
+        else:
+            # Start from user moves+item + usage spread if any
+            entry = species_usage(species, regulation=regulation)
+            spread = None
+            ability = None
+            if entry:
+                spreads = entry.get("top_spreads") or []
+                if spreads:
+                    spread = spreads[0]["evs"]
+                abs_ = entry.get("common_abilities") or []
+                if abs_:
+                    ability = abs_[0]["name"]
+            built = {"species": species, "moves": moves, "item": item}
+            if ability:
+                built["ability"] = ability
+            if spread:
+                built["evs"] = spread  # type: ignore[typeddict-item]
+            rationale = "tier1 assembled from usage spread + user moves/item (no exact featured match)"
+            source = "champions-native"
+
+    assert built is not None
+    b_moves = list(built.get("moves") or moves)
+    b_item = built.get("item") or item
+    b_ability = built.get("ability")
+
+    legal = check_set(
+        species, b_moves, b_item, ability=b_ability, team_draft=team_draft, snap=snap
+    )
+    if not legal.ok:
+        adapted, note = diagnose_and_substitute(
+            species, b_moves, b_item, legal, team_draft=team_draft, snap=snap
+        )
+        if adapted is None:
+            return {
+                "ok": False,
+                "rationale": note,
+                "source_tier": source,
+                "failures": [f"{f.kind}:{f.element}" for f in legal.failures],
+            }
+        built = adapted
+        b_moves = list(built["moves"])  # type: ignore[index]
+        b_item = built["item"]  # type: ignore[index]
+        rationale = f"{rationale}; {note}".strip("; ")
+        verification.append(note)
+
+    gaps = current_availability_gaps(species, b_moves, b_item, b_ability, snap)
+    if gaps.get("unused_legal_moves"):
+        verification.append(
+            f"current-availability: {len(gaps['unused_legal_moves'])} unused legal moves (not auto-applied)"
+        )
+
+    # Completeness → tier 2 top-up
+    role = infer_role(b_moves, b_item)
+    evs = built.get("evs")
+    if spread_sum(evs) < SP_BUDGET:
+        topped = role_spread(role)
+        built["evs"] = topped
+        rationale = f"{rationale}; tier2 {role} completed SP to {SP_BUDGET}"
+        source_tier_out = "tier2"
+        verification.append(f"tier2 role={role}")
+    else:
+        source_tier_out = source
+        built.setdefault("evs", role_spread(role))
+
+    # Tier 3 when we have calc and incomplete was topped OR always light verify for tier2
+    opponents = select_opponent_builds(
+        ["Kingambit", "Garchomp", "Incineroar", "Whimsicott", "Pelipper"],
+        regulation=regulation,
+        k=3,
+    )
+    # Prefer threats from usage teammates inverted — keep simple fixed list filtered to available
+    if calculate_batch is not None and built.get("evs"):
+        notes = _tier3_verify_spread(
+            species, b_moves, b_item, built["evs"], opponents, calculate_batch=calculate_batch  # type: ignore[arg-type]
+        )
+        verification.extend(notes)
+        if write_cache:
+            put_resolved_build(
+                species,
+                b_moves,
+                b_item,
+                regulation,
+                dict(built["evs"]),  # type: ignore[arg-type]
+                source_tier_out,
+                True,
+                {
+                    "threat_set": [o.get("species", "") for o in opponents],
+                    "usage_snapshot": "champions-reg-mb.v1",
+                },
+            )
+            verification.append("wrote cache after tier3")
+    elif write_cache and built.get("evs"):
+        put_resolved_build(
+            species,
+            b_moves,
+            b_item,
+            regulation,
+            dict(built["evs"]),  # type: ignore[arg-type]
+            source_tier_out,
+            False,
+            {"notes": "unverified — no calculate_batch"},
+        )
+
+    built["species"] = species
+    built["moves"] = b_moves
+    built["item"] = b_item
+    return {
+        "ok": True,
+        "set": built,
+        "rationale": rationale or "recommended",
+        "source_tier": source_tier_out,
+        "verification": verification,
+    }

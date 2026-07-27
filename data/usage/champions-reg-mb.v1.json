@@ -1,0 +1,2466 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "source": "pikalytics",
+    "format_code": "battledataregmbs3",
+    "regulation": "champions-reg-mb",
+    "extracted_at": "2026-07-27T00:32:12Z"
+  },
+  "species": {
+    "garchomp": {
+      "name": "Garchomp",
+      "id": "garchomp",
+      "common_moves": [
+        {
+          "name": "Dragon Claw",
+          "pct": 89.4
+        },
+        {
+          "name": "Rock Slide",
+          "pct": 82.0
+        },
+        {
+          "name": "Earthquake",
+          "pct": 80.7
+        },
+        {
+          "name": "Protect",
+          "pct": 70.2
+        },
+        {
+          "name": "Stomping Tantrum",
+          "pct": 40.3
+        },
+        {
+          "name": "Poison Jab",
+          "pct": 18.3
+        },
+        {
+          "name": "Rock Tomb",
+          "pct": 8.0
+        },
+        {
+          "name": "Scale Shot",
+          "pct": 3.1
+        },
+        {
+          "name": "Swords Dance",
+          "pct": 2.5
+        },
+        {
+          "name": "Dragon Tail",
+          "pct": 2.0
+        }
+      ],
+      "common_abilities": [
+        {
+          "name": "Rough Skin",
+          "pct": 98.5
+        },
+        {
+          "name": "Sand Veil",
+          "pct": 1.5
+        }
+      ],
+      "common_items": [
+        {
+          "name": "Life Orb",
+          "pct": 51.5
+        },
+        {
+          "name": "Sitrus Berry",
+          "pct": 13.6
+        },
+        {
+          "name": "Choice Scarf",
+          "pct": 12.7
+        },
+        {
+          "name": "Roseli Berry",
+          "pct": 10.8
+        },
+        {
+          "name": "Soft Sand",
+          "pct": 3.6
+        },
+        {
+          "name": "White Herb",
+          "pct": 1.3
+        },
+        {
+          "name": "Focus Sash",
+          "pct": 1.1
+        },
+        {
+          "name": "Haban Berry",
+          "pct": 1.1
+        },
+        {
+          "name": "Expert Belt",
+          "pct": 0.9
+        },
+        {
+          "name": "Lum Berry",
+          "pct": 0.9
+        }
+      ],
+      "teammates": [
+        "Whimsicott",
+        "Charizard",
+        "Basculegion",
+        "Kingambit",
+        "Staraptor",
+        "Sinistcha"
+      ],
+      "featured_sets": [
+        {
+          "ability": "Rough Skin",
+          "item": "Life Orb",
+          "moves": [
+            "Rock Slide",
+            "Dragon Claw",
+            "Earthquake",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Rough Skin",
+          "item": "Life Orb",
+          "moves": [
+            "Earthquake",
+            "Rock Slide",
+            "Protect",
+            "Dragon Claw"
+          ]
+        },
+        {
+          "ability": "Rough Skin",
+          "item": "Life Orb",
+          "moves": [
+            "Earthquake",
+            "Dragon Claw",
+            "Stomping Tantrum",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Rough Skin",
+          "item": "Life Orb",
+          "moves": [
+            "Dragon Claw",
+            "Earthquake",
+            "Rock Slide",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Rough Skin",
+          "item": "Life Orb",
+          "moves": [
+            "Earthquake",
+            "Stomping Tantrum",
+            "Dragon Claw",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Rough Skin",
+          "item": "Life Orb",
+          "moves": [
+            "Earthquake",
+            "Dragon Claw",
+            "Stomping Tantrum",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Rough Skin",
+          "item": "Life Orb",
+          "moves": [
+            "Dragon Claw",
+            "Earthquake",
+            "Rock Slide",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Rough Skin",
+          "item": "Life Orb",
+          "moves": [
+            "Earthquake",
+            "Dragon Claw",
+            "Stomping Tantrum",
+            "Protect"
+          ]
+        },
+        {
+          "ability": null,
+          "item": "Nothing",
+          "moves": [
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Rough Skin",
+          "item": "Life Orb",
+          "moves": [
+            "Earthquake",
+            "Rock Slide",
+            "Dragon Claw",
+            "Protect"
+          ]
+        }
+      ],
+      "top_spreads": [
+        {
+          "evs": {
+            "hp": 2,
+            "atk": 32,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 32
+          },
+          "pct": 32.7
+        }
+      ]
+    },
+    "kingambit": {
+      "name": "Kingambit",
+      "id": "kingambit",
+      "common_moves": [
+        {
+          "name": "Sucker Punch",
+          "pct": 99.5
+        },
+        {
+          "name": "Kowtow Cleave",
+          "pct": 97.9
+        },
+        {
+          "name": "Iron Head",
+          "pct": 73.5
+        },
+        {
+          "name": "Protect",
+          "pct": 68.6
+        },
+        {
+          "name": "Low Kick",
+          "pct": 43.7
+        },
+        {
+          "name": "Swords Dance",
+          "pct": 15.0
+        },
+        {
+          "name": "Brick Break",
+          "pct": 1.1
+        },
+        {
+          "name": "Quick Guard",
+          "pct": 0.2
+        },
+        {
+          "name": "Low Sweep",
+          "pct": 0.1
+        },
+        {
+          "name": "Assurance",
+          "pct": 0.1
+        }
+      ],
+      "common_abilities": [
+        {
+          "name": "Defiant",
+          "pct": 96.1
+        },
+        {
+          "name": "Supreme Overlord",
+          "pct": 3.9
+        }
+      ],
+      "common_items": [
+        {
+          "name": "Chople Berry",
+          "pct": 42.9
+        },
+        {
+          "name": "Black Glasses",
+          "pct": 31.8
+        },
+        {
+          "name": "Focus Sash",
+          "pct": 12.8
+        },
+        {
+          "name": "Life Orb",
+          "pct": 5.7
+        },
+        {
+          "name": "Occa Berry",
+          "pct": 4.8
+        },
+        {
+          "name": "Sitrus Berry",
+          "pct": 0.4
+        },
+        {
+          "name": "Lum Berry",
+          "pct": 0.3
+        },
+        {
+          "name": "Muscle Band",
+          "pct": 0.3
+        },
+        {
+          "name": "Leftovers",
+          "pct": 0.3
+        },
+        {
+          "name": "Shuca Berry",
+          "pct": 0.2
+        }
+      ],
+      "teammates": [
+        "Garchomp",
+        "Basculegion",
+        "Whimsicott",
+        "Charizard",
+        "Sneasler",
+        "Floette-Eternal"
+      ],
+      "featured_sets": [
+        {
+          "ability": "Defiant",
+          "item": "Black Glasses",
+          "moves": [
+            "Iron Head",
+            "Protect",
+            "Kowtow Cleave",
+            "Sucker Punch"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Focus Sash",
+          "moves": [
+            "Kowtow Cleave",
+            "Iron Head",
+            "Sucker Punch",
+            "Low Kick"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Life Orb",
+          "moves": [
+            "Kowtow Cleave",
+            "Sucker Punch",
+            "Swords Dance",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Black Glasses",
+          "moves": [
+            "Kowtow Cleave",
+            "Sucker Punch",
+            "Swords Dance",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Focus Sash",
+          "moves": [
+            "Kowtow Cleave",
+            "Sucker Punch",
+            "Iron Head",
+            "Low Kick"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Black Glasses",
+          "moves": [
+            "Kowtow Cleave",
+            "Sucker Punch",
+            "Swords Dance",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Black Glasses",
+          "moves": [
+            "Kowtow Cleave",
+            "Sucker Punch",
+            "Swords Dance",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Life Orb",
+          "moves": [
+            "Low Kick",
+            "Protect",
+            "Sucker Punch",
+            "Kowtow Cleave"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Focus Sash",
+          "moves": [
+            "Kowtow Cleave",
+            "Iron Head",
+            "Sucker Punch",
+            "Low Kick"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Chople Berry",
+          "moves": [
+            "Iron Head",
+            "Sucker Punch",
+            "Protect",
+            "Low Kick"
+          ]
+        }
+      ],
+      "top_spreads": [
+        {
+          "evs": {
+            "hp": 32,
+            "atk": 32,
+            "def": 0,
+            "spa": 0,
+            "spd": 2,
+            "spe": 0
+          },
+          "pct": 13.7
+        }
+      ]
+    },
+    "incineroar": {
+      "name": "Incineroar",
+      "id": "incineroar",
+      "common_moves": [
+        {
+          "name": "Fake Out",
+          "pct": 99.9
+        },
+        {
+          "name": "Parting Shot",
+          "pct": 96.8
+        },
+        {
+          "name": "Flare Blitz",
+          "pct": 92.6
+        },
+        {
+          "name": "Throat Chop",
+          "pct": 53.7
+        },
+        {
+          "name": "Darkest Lariat",
+          "pct": 29.4
+        },
+        {
+          "name": "Protect",
+          "pct": 9.5
+        },
+        {
+          "name": "Will-O-Wisp",
+          "pct": 3.5
+        },
+        {
+          "name": "Taunt",
+          "pct": 3.4
+        },
+        {
+          "name": "Helping Hand",
+          "pct": 3.2
+        },
+        {
+          "name": "Snarl",
+          "pct": 2.4
+        }
+      ],
+      "common_abilities": [
+        {
+          "name": "Intimidate",
+          "pct": 99.8
+        },
+        {
+          "name": "Blaze",
+          "pct": 0.2
+        }
+      ],
+      "common_items": [
+        {
+          "name": "Sitrus Berry",
+          "pct": 59.8
+        },
+        {
+          "name": "Chople Berry",
+          "pct": 15.0
+        },
+        {
+          "name": "Passho Berry",
+          "pct": 12.0
+        },
+        {
+          "name": "Leftovers",
+          "pct": 4.0
+        },
+        {
+          "name": "Charcoal",
+          "pct": 3.7
+        },
+        {
+          "name": "Shuca Berry",
+          "pct": 2.6
+        },
+        {
+          "name": "White Herb",
+          "pct": 1.0
+        },
+        {
+          "name": "Life Orb",
+          "pct": 0.7
+        },
+        {
+          "name": "Lum Berry",
+          "pct": 0.5
+        },
+        {
+          "name": "Expert Belt",
+          "pct": 0.2
+        }
+      ],
+      "teammates": [
+        "Sinistcha",
+        "Garchomp",
+        "Staraptor",
+        "Whimsicott",
+        "Basculegion",
+        "Sneasler"
+      ],
+      "featured_sets": [
+        {
+          "ability": "Intimidate",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Flare Blitz",
+            "Darkest Lariat",
+            "Parting Shot",
+            "Fake Out"
+          ]
+        },
+        {
+          "ability": "Intimidate",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Flare Blitz",
+            "Throat Chop",
+            "Parting Shot",
+            "Fake Out"
+          ]
+        },
+        {
+          "ability": "Intimidate",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Overheat",
+            "Parting Shot",
+            "Fake Out",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Intimidate",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Flare Blitz",
+            "Parting Shot",
+            "Throat Chop",
+            "Fake Out"
+          ]
+        },
+        {
+          "ability": "Intimidate",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Fake Out",
+            "Flare Blitz",
+            "Throat Chop",
+            "Parting Shot"
+          ]
+        },
+        {
+          "ability": "Intimidate",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Fake Out",
+            "Flare Blitz",
+            "Darkest Lariat",
+            "Parting Shot"
+          ]
+        },
+        {
+          "ability": "Intimidate",
+          "item": "Passho Berry",
+          "moves": [
+            "Flare Blitz",
+            "Fake Out",
+            "Throat Chop",
+            "Parting Shot"
+          ]
+        },
+        {
+          "ability": "Intimidate",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Fake Out",
+            "Parting Shot",
+            "Flare Blitz",
+            "Darkest Lariat"
+          ]
+        },
+        {
+          "ability": "Intimidate",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Parting Shot",
+            "Flare Blitz",
+            "Throat Chop",
+            "Fake Out"
+          ]
+        },
+        {
+          "ability": "Intimidate",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Fake Out",
+            "Flare Blitz",
+            "Throat Chop",
+            "Parting Shot"
+          ]
+        }
+      ],
+      "top_spreads": [
+        {
+          "evs": {
+            "hp": 32,
+            "atk": 0,
+            "def": 14,
+            "spa": 0,
+            "spd": 20,
+            "spe": 0
+          },
+          "pct": 6.2
+        }
+      ]
+    },
+    "charizardmegay": {
+      "name": "Charizard-Mega-Y",
+      "id": "charizardmegay",
+      "common_moves": [],
+      "common_abilities": [],
+      "common_items": [],
+      "teammates": [],
+      "featured_sets": [
+        {
+          "ability": "Blaze",
+          "item": "Charizardite Y",
+          "moves": [
+            "Heat Wave",
+            "Weather Ball",
+            "Solar Beam",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Blaze",
+          "item": "Charizardite Y",
+          "moves": [
+            "Solar Beam",
+            "Heat Wave",
+            "Weather Ball",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Blaze",
+          "item": "Charizardite Y",
+          "moves": [
+            "Heat Wave",
+            "Solar Beam",
+            "Weather Ball",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Blaze",
+          "item": "Charizardite Y",
+          "moves": [
+            "Heat Wave",
+            "Weather Ball",
+            "Solar Beam",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Blaze",
+          "item": "Charizardite Y",
+          "moves": [
+            "Heat Wave",
+            "Protect",
+            "Solar Beam",
+            "Weather Ball"
+          ]
+        },
+        {
+          "ability": "Blaze",
+          "item": "Charizardite Y",
+          "moves": [
+            "Heat Wave",
+            "Solar Beam",
+            "Weather Ball",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Drought",
+          "item": "Charizardite Y",
+          "moves": [
+            "Heat Wave",
+            "Solar Beam",
+            "Weather Ball",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Solar Power",
+          "item": "Charizardite Y",
+          "moves": [
+            "Protect",
+            "Heat Wave",
+            "Weather Ball",
+            "Solar Beam"
+          ]
+        },
+        {
+          "ability": "Blaze",
+          "item": "Charizardite Y",
+          "moves": [
+            "Heat Wave",
+            "Solar Beam",
+            "Weather Ball",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Blaze",
+          "item": "Charizardite Y",
+          "moves": [
+            "Heat Wave",
+            "Solar Beam",
+            "Weather Ball",
+            "Protect"
+          ]
+        }
+      ],
+      "top_spreads": []
+    },
+    "whimsicott": {
+      "name": "Whimsicott",
+      "id": "whimsicott",
+      "common_moves": [
+        {
+          "name": "Tailwind",
+          "pct": 98.5
+        },
+        {
+          "name": "Moonblast",
+          "pct": 92.0
+        },
+        {
+          "name": "Encore",
+          "pct": 74.1
+        },
+        {
+          "name": "Protect",
+          "pct": 56.5
+        },
+        {
+          "name": "Charm",
+          "pct": 28.0
+        },
+        {
+          "name": "Sunny Day",
+          "pct": 11.9
+        },
+        {
+          "name": "Fake Tears",
+          "pct": 8.6
+        },
+        {
+          "name": "Tickle",
+          "pct": 5.6
+        },
+        {
+          "name": "Energy Ball",
+          "pct": 4.6
+        },
+        {
+          "name": "Taunt",
+          "pct": 3.8
+        }
+      ],
+      "common_abilities": [
+        {
+          "name": "Prankster",
+          "pct": 99.4
+        },
+        {
+          "name": "Chlorophyll",
+          "pct": 0.5
+        },
+        {
+          "name": "Infiltrator",
+          "pct": 0.0
+        }
+      ],
+      "common_items": [
+        {
+          "name": "Focus Sash",
+          "pct": 75.5
+        },
+        {
+          "name": "Fairy Feather",
+          "pct": 11.4
+        },
+        {
+          "name": "Mental Herb",
+          "pct": 3.6
+        },
+        {
+          "name": "Coba Berry",
+          "pct": 2.7
+        },
+        {
+          "name": "Sitrus Berry",
+          "pct": 1.9
+        },
+        {
+          "name": "Occa Berry",
+          "pct": 1.4
+        },
+        {
+          "name": "Kebia Berry",
+          "pct": 1.3
+        },
+        {
+          "name": "Babiri Berry",
+          "pct": 0.8
+        },
+        {
+          "name": "Light Clay",
+          "pct": 0.4
+        },
+        {
+          "name": "Heat Rock",
+          "pct": 0.3
+        }
+      ],
+      "teammates": [
+        "Garchomp",
+        "Basculegion",
+        "Staraptor",
+        "Kingambit",
+        "Charizard",
+        "Floette-Eternal"
+      ],
+      "featured_sets": [
+        {
+          "ability": "Prankster",
+          "item": "Focus Sash",
+          "moves": [
+            "Moonblast",
+            "Tailwind",
+            "Encore",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Prankster",
+          "item": "Focus Sash",
+          "moves": [
+            "Moonblast",
+            "Tailwind",
+            "Sunny Day",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Prankster",
+          "item": "Focus Sash",
+          "moves": [
+            "Moonblast",
+            "Tailwind",
+            "Fake Tears",
+            "Sunny Day"
+          ]
+        },
+        {
+          "ability": "Prankster",
+          "item": "Focus Sash",
+          "moves": [
+            "Protect",
+            "Tailwind",
+            "Moonblast",
+            "Encore"
+          ]
+        },
+        {
+          "ability": null,
+          "item": "Nothing",
+          "moves": [
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Prankster",
+          "item": "Focus Sash",
+          "moves": [
+            "Tailwind",
+            "Moonblast",
+            "Charm",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Prankster",
+          "item": "Focus Sash",
+          "moves": [
+            "Moonblast",
+            "Tailwind",
+            "Encore",
+            "Charm"
+          ]
+        },
+        {
+          "ability": "Prankster",
+          "item": "Fairy Feather",
+          "moves": [
+            "Moonblast",
+            "Encore",
+            "Protect",
+            "Tailwind"
+          ]
+        },
+        {
+          "ability": "Prankster",
+          "item": "Focus Sash",
+          "moves": [
+            "Moonblast",
+            "Tailwind",
+            "Encore",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Prankster",
+          "item": "Focus Sash",
+          "moves": [
+            "Moonblast",
+            "Tailwind",
+            "Encore",
+            "Protect"
+          ]
+        }
+      ],
+      "top_spreads": [
+        {
+          "evs": {
+            "hp": 2,
+            "atk": 0,
+            "def": 0,
+            "spa": 32,
+            "spd": 0,
+            "spe": 32
+          },
+          "pct": 50.7
+        }
+      ]
+    },
+    "pelipper": {
+      "name": "Pelipper",
+      "id": "pelipper",
+      "common_moves": [
+        {
+          "name": "Hurricane",
+          "pct": 98.9
+        },
+        {
+          "name": "Weather Ball",
+          "pct": 87.7
+        },
+        {
+          "name": "Tailwind",
+          "pct": 86.5
+        },
+        {
+          "name": "Wide Guard",
+          "pct": 51.2
+        },
+        {
+          "name": "Protect",
+          "pct": 42.5
+        },
+        {
+          "name": "Muddy Water",
+          "pct": 6.6
+        },
+        {
+          "name": "Rain Dance",
+          "pct": 6.1
+        },
+        {
+          "name": "Helping Hand",
+          "pct": 5.2
+        },
+        {
+          "name": "U-turn",
+          "pct": 4.2
+        },
+        {
+          "name": "Ice Beam",
+          "pct": 3.4
+        }
+      ],
+      "common_abilities": [
+        {
+          "name": "Drizzle",
+          "pct": 100.0
+        },
+        {
+          "name": "Keen Eye",
+          "pct": 0.0
+        }
+      ],
+      "common_items": [
+        {
+          "name": "Focus Sash",
+          "pct": 45.3
+        },
+        {
+          "name": "Sitrus Berry",
+          "pct": 31.4
+        },
+        {
+          "name": "Damp Rock",
+          "pct": 13.1
+        },
+        {
+          "name": "Choice Scarf",
+          "pct": 4.1
+        },
+        {
+          "name": "Life Orb",
+          "pct": 2.4
+        },
+        {
+          "name": "Mystic Water",
+          "pct": 0.6
+        },
+        {
+          "name": "Wacan Berry",
+          "pct": 0.6
+        },
+        {
+          "name": "Leftovers",
+          "pct": 0.5
+        },
+        {
+          "name": "Sharp Beak",
+          "pct": 0.5
+        },
+        {
+          "name": "Expert Belt",
+          "pct": 0.4
+        }
+      ],
+      "teammates": [
+        "Archaludon",
+        "Swampert",
+        "Sinistcha",
+        "Basculegion",
+        "Sableye",
+        "Grimmsnarl"
+      ],
+      "featured_sets": [
+        {
+          "ability": "Drizzle",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Hurricane",
+            "Weather Ball",
+            "Tailwind",
+            "Wide Guard"
+          ]
+        },
+        {
+          "ability": "Drizzle",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Weather Ball",
+            "Hurricane",
+            "Tailwind",
+            "Wide Guard"
+          ]
+        },
+        {
+          "ability": "Drizzle",
+          "item": "Focus Sash",
+          "moves": [
+            "Hurricane",
+            "Weather Ball",
+            "Tailwind",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Drizzle",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Hurricane",
+            "Weather Ball",
+            "Tailwind",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Drizzle",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Hydro Pump",
+            "Hurricane",
+            "Tailwind",
+            "Wide Guard"
+          ]
+        },
+        {
+          "ability": "Drizzle",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Weather Ball",
+            "Hurricane",
+            "Tailwind",
+            "Wide Guard"
+          ]
+        },
+        {
+          "ability": "Drizzle",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Weather Ball",
+            "Hurricane",
+            "Tailwind",
+            "Wide Guard"
+          ]
+        },
+        {
+          "ability": "Drizzle",
+          "item": "Focus Sash",
+          "moves": [
+            "Hurricane",
+            "Weather Ball",
+            "Tailwind",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Drizzle",
+          "item": "Focus Sash",
+          "moves": [
+            "Hurricane",
+            "Weather Ball",
+            "Tailwind",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Drizzle",
+          "item": "Focus Sash",
+          "moves": [
+            "Weather Ball",
+            "Hurricane",
+            "Tailwind",
+            "Protect"
+          ]
+        }
+      ],
+      "top_spreads": [
+        {
+          "evs": {
+            "hp": 2,
+            "atk": 0,
+            "def": 0,
+            "spa": 32,
+            "spd": 0,
+            "spe": 32
+          },
+          "pct": 30.6
+        }
+      ]
+    },
+    "sinistcha": {
+      "name": "Sinistcha",
+      "id": "sinistcha",
+      "common_moves": [
+        {
+          "name": "Rage Powder",
+          "pct": 99.2
+        },
+        {
+          "name": "Matcha Gotcha",
+          "pct": 98.8
+        },
+        {
+          "name": "Life Dew",
+          "pct": 58.7
+        },
+        {
+          "name": "Trick Room",
+          "pct": 58.6
+        },
+        {
+          "name": "Protect",
+          "pct": 54.5
+        },
+        {
+          "name": "Strength Sap",
+          "pct": 15.1
+        },
+        {
+          "name": "Shadow Ball",
+          "pct": 8.8
+        },
+        {
+          "name": "Imprison",
+          "pct": 2.2
+        },
+        {
+          "name": "Psych Up",
+          "pct": 1.1
+        },
+        {
+          "name": "Leaf Storm",
+          "pct": 0.8
+        }
+      ],
+      "common_abilities": [
+        {
+          "name": "Hospitality",
+          "pct": 99.5
+        },
+        {
+          "name": "Heatproof",
+          "pct": 0.5
+        }
+      ],
+      "common_items": [
+        {
+          "name": "Sitrus Berry",
+          "pct": 35.2
+        },
+        {
+          "name": "Kasib Berry",
+          "pct": 30.4
+        },
+        {
+          "name": "Colbur Berry",
+          "pct": 14.3
+        },
+        {
+          "name": "Leftovers",
+          "pct": 6.7
+        },
+        {
+          "name": "Coba Berry",
+          "pct": 5.1
+        },
+        {
+          "name": "Occa Berry",
+          "pct": 4.0
+        },
+        {
+          "name": "Big Root",
+          "pct": 1.4
+        },
+        {
+          "name": "Focus Sash",
+          "pct": 0.9
+        },
+        {
+          "name": "Bright Powder",
+          "pct": 0.8
+        },
+        {
+          "name": "Mental Herb",
+          "pct": 0.4
+        }
+      ],
+      "teammates": [
+        "Staraptor",
+        "Incineroar",
+        "Grimmsnarl",
+        "Garchomp",
+        "Pelipper",
+        "Archaludon"
+      ],
+      "featured_sets": [
+        {
+          "ability": "Hospitality",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Matcha Gotcha",
+            "Rage Powder",
+            "Trick Room",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Hospitality",
+          "item": "Kasib Berry",
+          "moves": [
+            "Matcha Gotcha",
+            "Rage Powder",
+            "Trick Room",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Hospitality",
+          "item": "Kasib Berry",
+          "moves": [
+            "Rage Powder",
+            "Matcha Gotcha",
+            "Trick Room",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Hospitality",
+          "item": "Kasib Berry",
+          "moves": [
+            "Trick Room",
+            "Rage Powder",
+            "Matcha Gotcha",
+            "Life Dew"
+          ]
+        },
+        {
+          "ability": "Hospitality",
+          "item": "Kasib Berry",
+          "moves": [
+            "Protect",
+            "Matcha Gotcha",
+            "Rage Powder",
+            "Life Dew"
+          ]
+        },
+        {
+          "ability": "Hospitality",
+          "item": "Kasib Berry",
+          "moves": [
+            "Matcha Gotcha",
+            "Rage Powder",
+            "Strength Sap",
+            "Trick Room"
+          ]
+        },
+        {
+          "ability": "Hospitality",
+          "item": "Kasib Berry",
+          "moves": [
+            "Matcha Gotcha",
+            "Rage Powder",
+            "Trick Room",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Hospitality",
+          "item": "Kasib Berry",
+          "moves": [
+            "Matcha Gotcha",
+            "Rage Powder",
+            "Protect",
+            "Life Dew"
+          ]
+        },
+        {
+          "ability": "Hospitality",
+          "item": "Leftovers",
+          "moves": [
+            "Trick Room",
+            "Rage Powder",
+            "Matcha Gotcha",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Hospitality",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Matcha Gotcha",
+            "Rage Powder",
+            "Life Dew",
+            "Protect"
+          ]
+        }
+      ],
+      "top_spreads": [
+        {
+          "evs": {
+            "hp": 32,
+            "atk": 0,
+            "def": 14,
+            "spa": 0,
+            "spd": 20,
+            "spe": 0
+          },
+          "pct": 20.5
+        }
+      ]
+    },
+    "basculegion": {
+      "name": "Basculegion",
+      "id": "basculegion",
+      "common_moves": [
+        {
+          "name": "Last Respects",
+          "pct": 100.0
+        },
+        {
+          "name": "Aqua Jet",
+          "pct": 94.9
+        },
+        {
+          "name": "Wave Crash",
+          "pct": 82.3
+        },
+        {
+          "name": "Protect",
+          "pct": 53.8
+        },
+        {
+          "name": "Flip Turn",
+          "pct": 43.1
+        },
+        {
+          "name": "Liquidation",
+          "pct": 17.0
+        },
+        {
+          "name": "Psychic Fangs",
+          "pct": 4.7
+        },
+        {
+          "name": "Head Smash",
+          "pct": 0.6
+        },
+        {
+          "name": "Soak",
+          "pct": 0.6
+        },
+        {
+          "name": "Waterfall",
+          "pct": 0.6
+        }
+      ],
+      "common_abilities": [
+        {
+          "name": "Adaptability",
+          "pct": 93.2
+        },
+        {
+          "name": "Swift Swim",
+          "pct": 6.8
+        },
+        {
+          "name": "Mold Breaker",
+          "pct": 0.0
+        }
+      ],
+      "common_items": [
+        {
+          "name": "Choice Scarf",
+          "pct": 44.7
+        },
+        {
+          "name": "Mystic Water",
+          "pct": 19.6
+        },
+        {
+          "name": "Focus Sash",
+          "pct": 17.6
+        },
+        {
+          "name": "Life Orb",
+          "pct": 11.8
+        },
+        {
+          "name": "Sitrus Berry",
+          "pct": 4.7
+        },
+        {
+          "name": "Colbur Berry",
+          "pct": 0.6
+        },
+        {
+          "name": "Kasib Berry",
+          "pct": 0.3
+        },
+        {
+          "name": "Spell Tag",
+          "pct": 0.3
+        },
+        {
+          "name": "Muscle Band",
+          "pct": 0.2
+        },
+        {
+          "name": "Iron Ball",
+          "pct": 0.1
+        }
+      ],
+      "teammates": [
+        "Garchomp",
+        "Whimsicott",
+        "Kingambit",
+        "Charizard",
+        "Staraptor",
+        "Floette-Eternal"
+      ],
+      "featured_sets": [
+        {
+          "ability": "Adaptability",
+          "item": "Mystic Water",
+          "moves": [
+            "Wave Crash",
+            "Protect",
+            "Last Respects",
+            "Aqua Jet"
+          ]
+        },
+        {
+          "ability": "Adaptability",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Wave Crash",
+            "Last Respects",
+            "Aqua Jet",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Adaptability",
+          "item": "Choice Scarf",
+          "moves": [
+            "Wave Crash",
+            "Last Respects",
+            "Aqua Jet",
+            "Flip Turn"
+          ]
+        },
+        {
+          "ability": "Adaptability",
+          "item": "Choice Scarf",
+          "moves": [
+            "Wave Crash",
+            "Last Respects",
+            "Aqua Jet",
+            "Flip Turn"
+          ]
+        },
+        {
+          "ability": "Adaptability",
+          "item": "Choice Scarf",
+          "moves": [
+            "Last Respects",
+            "Flip Turn",
+            "Wave Crash",
+            "Aqua Jet"
+          ]
+        },
+        {
+          "ability": "Adaptability",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Wave Crash",
+            "Last Respects",
+            "Aqua Jet",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Adaptability",
+          "item": "Life Orb",
+          "moves": [
+            "Wave Crash",
+            "Last Respects",
+            "Aqua Jet",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Adaptability",
+          "item": "Choice Scarf",
+          "moves": [
+            "Wave Crash",
+            "Flip Turn",
+            "Last Respects",
+            "Aqua Jet"
+          ]
+        },
+        {
+          "ability": "Adaptability",
+          "item": "Choice Scarf",
+          "moves": [
+            "Wave Crash",
+            "Last Respects",
+            "Aqua Jet",
+            "Flip Turn"
+          ]
+        },
+        {
+          "ability": "Adaptability",
+          "item": "Mystic Water",
+          "moves": [
+            "Protect",
+            "Aqua Jet",
+            "Wave Crash",
+            "Last Respects"
+          ]
+        }
+      ],
+      "top_spreads": [
+        {
+          "evs": {
+            "hp": 2,
+            "atk": 32,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 32
+          },
+          "pct": 33.3
+        }
+      ]
+    },
+    "farigiraf": {
+      "name": "Farigiraf",
+      "id": "farigiraf",
+      "common_moves": [
+        {
+          "name": "Trick Room",
+          "pct": 95.7
+        },
+        {
+          "name": "Psychic",
+          "pct": 60.7
+        },
+        {
+          "name": "Helping Hand",
+          "pct": 48.9
+        },
+        {
+          "name": "Protect",
+          "pct": 39.1
+        },
+        {
+          "name": "Thunderbolt",
+          "pct": 30.3
+        },
+        {
+          "name": "Hyper Voice",
+          "pct": 30.2
+        },
+        {
+          "name": "Twin Beam",
+          "pct": 24.7
+        },
+        {
+          "name": "Imprison",
+          "pct": 13.9
+        },
+        {
+          "name": "Roar",
+          "pct": 11.6
+        },
+        {
+          "name": "Foul Play",
+          "pct": 6.4
+        }
+      ],
+      "common_abilities": [
+        {
+          "name": "Armor Tail",
+          "pct": 99.9
+        },
+        {
+          "name": "Cud Chew",
+          "pct": 0.0
+        },
+        {
+          "name": "Sap Sipper",
+          "pct": 0.0
+        }
+      ],
+      "common_items": [
+        {
+          "name": "Sitrus Berry",
+          "pct": 62.0
+        },
+        {
+          "name": "Colbur Berry",
+          "pct": 24.9
+        },
+        {
+          "name": "Mental Herb",
+          "pct": 4.4
+        },
+        {
+          "name": "Focus Sash",
+          "pct": 2.9
+        },
+        {
+          "name": "Leftovers",
+          "pct": 2.2
+        },
+        {
+          "name": "Life Orb",
+          "pct": 0.8
+        },
+        {
+          "name": "Lum Berry",
+          "pct": 0.5
+        },
+        {
+          "name": "Silk Scarf",
+          "pct": 0.5
+        },
+        {
+          "name": "Twisted Spoon",
+          "pct": 0.4
+        },
+        {
+          "name": "Bright Powder",
+          "pct": 0.3
+        }
+      ],
+      "teammates": [
+        "Sylveon",
+        "Kingambit",
+        "Torkoal",
+        "Garchomp",
+        "Basculegion",
+        "Mawile"
+      ],
+      "featured_sets": [
+        {
+          "ability": "Armor Tail",
+          "item": "Colbur Berry",
+          "moves": [
+            "Psychic",
+            "Thunderbolt",
+            "Helping Hand",
+            "Trick Room"
+          ]
+        },
+        {
+          "ability": "Armor Tail",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Psychic",
+            "Thunderbolt",
+            "Trick Room",
+            "Roar"
+          ]
+        },
+        {
+          "ability": "Armor Tail",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Psychic",
+            "Trick Room",
+            "Roar",
+            "Thunderbolt"
+          ]
+        },
+        {
+          "ability": "Armor Tail",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Psychic",
+            "Thunderbolt",
+            "Trick Room",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Armor Tail",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Thunderbolt",
+            "Twin Beam",
+            "Trick Room",
+            "Helping Hand"
+          ]
+        },
+        {
+          "ability": "Armor Tail",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Psychic",
+            "Thunderbolt",
+            "Roar",
+            "Trick Room"
+          ]
+        },
+        {
+          "ability": "Armor Tail",
+          "item": "Colbur Berry",
+          "moves": [
+            "Psychic",
+            "Thunderbolt",
+            "Helping Hand",
+            "Trick Room"
+          ]
+        },
+        {
+          "ability": "Armor Tail",
+          "item": "Colbur Berry",
+          "moves": [
+            "Psychic",
+            "Light Screen",
+            "Helping Hand",
+            "Trick Room"
+          ]
+        },
+        {
+          "ability": "Armor Tail",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Psychic",
+            "Trick Room",
+            "Roar",
+            "Thunderbolt"
+          ]
+        },
+        {
+          "ability": "Armor Tail",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Psychic",
+            "Thunderbolt",
+            "Trick Room",
+            "Helping Hand"
+          ]
+        }
+      ],
+      "top_spreads": [
+        {
+          "evs": {
+            "hp": 17,
+            "atk": 0,
+            "def": 19,
+            "spa": 10,
+            "spd": 20,
+            "spe": 0
+          },
+          "pct": 7.4
+        }
+      ]
+    },
+    "sneasler": {
+      "name": "Sneasler",
+      "id": "sneasler",
+      "common_moves": [
+        {
+          "name": "Close Combat",
+          "pct": 99.3
+        },
+        {
+          "name": "Fake Out",
+          "pct": 94.4
+        },
+        {
+          "name": "Dire Claw",
+          "pct": 93.6
+        },
+        {
+          "name": "Protect",
+          "pct": 59.3
+        },
+        {
+          "name": "Coaching",
+          "pct": 21.7
+        },
+        {
+          "name": "Rock Slide",
+          "pct": 7.8
+        },
+        {
+          "name": "Gunk Shot",
+          "pct": 3.6
+        },
+        {
+          "name": "Feint",
+          "pct": 3.5
+        },
+        {
+          "name": "Throat Chop",
+          "pct": 3.2
+        },
+        {
+          "name": "Rock Tomb",
+          "pct": 2.4
+        }
+      ],
+      "common_abilities": [
+        {
+          "name": "Unburden",
+          "pct": 88.7
+        },
+        {
+          "name": "Poison Touch",
+          "pct": 11.2
+        },
+        {
+          "name": "Pressure",
+          "pct": 0.1
+        }
+      ],
+      "common_items": [
+        {
+          "name": "White Herb",
+          "pct": 71.1
+        },
+        {
+          "name": "Focus Sash",
+          "pct": 26.0
+        },
+        {
+          "name": "Sitrus Berry",
+          "pct": 0.6
+        },
+        {
+          "name": "Lum Berry",
+          "pct": 0.5
+        },
+        {
+          "name": "Life Orb",
+          "pct": 0.4
+        },
+        {
+          "name": "Black Belt",
+          "pct": 0.4
+        },
+        {
+          "name": "Expert Belt",
+          "pct": 0.2
+        },
+        {
+          "name": "Mental Herb",
+          "pct": 0.2
+        },
+        {
+          "name": "King's Rock",
+          "pct": 0.2
+        },
+        {
+          "name": "Choice Scarf",
+          "pct": 0.2
+        }
+      ],
+      "teammates": [
+        "Basculegion",
+        "Kingambit",
+        "Sinistcha",
+        "Garchomp",
+        "Whimsicott",
+        "Incineroar"
+      ],
+      "featured_sets": [
+        {
+          "ability": "Poison Touch",
+          "item": "Focus Sash",
+          "moves": [
+            "Close Combat",
+            "Poison Jab",
+            "Quick Guard",
+            "Fake Out"
+          ]
+        },
+        {
+          "ability": "Unburden",
+          "item": "White Herb",
+          "moves": [
+            "Close Combat",
+            "Gunk Shot",
+            "Fake Out",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Poison Touch",
+          "item": "Focus Sash",
+          "moves": [
+            "Quick Guard",
+            "Fake Out",
+            "Poison Jab",
+            "Close Combat"
+          ]
+        },
+        {
+          "ability": "Unburden",
+          "item": "White Herb",
+          "moves": [
+            "Fake Out",
+            "Close Combat",
+            "Dire Claw",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Poison Touch",
+          "item": "Focus Sash",
+          "moves": [
+            "Fake Out",
+            "Close Combat",
+            "Dire Claw",
+            "Quick Guard"
+          ]
+        },
+        {
+          "ability": "Unburden",
+          "item": "Focus Sash",
+          "moves": [
+            "Close Combat",
+            "Dire Claw",
+            "Fake Out",
+            "Coaching"
+          ]
+        },
+        {
+          "ability": "Poison Touch",
+          "item": "Focus Sash",
+          "moves": [
+            "Fake Out",
+            "Coaching",
+            "Close Combat",
+            "Poison Jab"
+          ]
+        },
+        {
+          "ability": "Unburden",
+          "item": "White Herb",
+          "moves": [
+            "Fake Out",
+            "Dire Claw",
+            "Close Combat",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Unburden",
+          "item": "White Herb",
+          "moves": [
+            "Protect",
+            "Close Combat",
+            "Gunk Shot",
+            "Fake Out"
+          ]
+        },
+        {
+          "ability": "Poison Touch",
+          "item": "Focus Sash",
+          "moves": [
+            "Poison Jab",
+            "Close Combat",
+            "Fake Out",
+            "Quick Guard"
+          ]
+        }
+      ],
+      "top_spreads": [
+        {
+          "evs": {
+            "hp": 2,
+            "atk": 32,
+            "def": 0,
+            "spa": 0,
+            "spd": 0,
+            "spe": 32
+          },
+          "pct": 48.2
+        }
+      ]
+    },
+    "hatterene": {
+      "name": "Hatterene",
+      "id": "hatterene",
+      "common_moves": [
+        {
+          "name": "Dazzling Gleam",
+          "pct": 99.7
+        },
+        {
+          "name": "Trick Room",
+          "pct": 87.2
+        },
+        {
+          "name": "Protect",
+          "pct": 81.7
+        },
+        {
+          "name": "Psychic",
+          "pct": 51.2
+        },
+        {
+          "name": "Expanding Force",
+          "pct": 24.1
+        },
+        {
+          "name": "Psyshock",
+          "pct": 17.7
+        },
+        {
+          "name": "Mystical Fire",
+          "pct": 16.0
+        },
+        {
+          "name": "Psychic Terrain",
+          "pct": 9.0
+        },
+        {
+          "name": "Psychic Noise",
+          "pct": 5.5
+        },
+        {
+          "name": "Magic Powder",
+          "pct": 2.6
+        }
+      ],
+      "common_abilities": [
+        {
+          "name": "Magic Bounce",
+          "pct": 98.0
+        },
+        {
+          "name": "Healer",
+          "pct": 1.5
+        },
+        {
+          "name": "Anticipation",
+          "pct": 0.6
+        }
+      ],
+      "common_items": [
+        {
+          "name": "Life Orb",
+          "pct": 48.0
+        },
+        {
+          "name": "Fairy Feather",
+          "pct": 25.6
+        },
+        {
+          "name": "Focus Sash",
+          "pct": 15.1
+        },
+        {
+          "name": "Babiri Berry",
+          "pct": 5.2
+        },
+        {
+          "name": "Sitrus Berry",
+          "pct": 3.2
+        },
+        {
+          "name": "Kebia Berry",
+          "pct": 1.5
+        },
+        {
+          "name": "Iron Ball",
+          "pct": 0.9
+        },
+        {
+          "name": "Quick Claw",
+          "pct": 0.3
+        },
+        {
+          "name": "Twisted Spoon",
+          "pct": 0.3
+        }
+      ],
+      "teammates": [
+        "Farigiraf",
+        "Torkoal",
+        "Incineroar",
+        "Kingambit",
+        "Camerupt",
+        "Mawile"
+      ],
+      "featured_sets": [],
+      "top_spreads": [
+        {
+          "evs": {
+            "hp": 32,
+            "atk": 0,
+            "def": 2,
+            "spa": 32,
+            "spd": 0,
+            "spe": 0
+          },
+          "pct": 37.8
+        }
+      ]
+    },
+    "archaludon": {
+      "name": "Archaludon",
+      "id": "archaludon",
+      "common_moves": [
+        {
+          "name": "Electro Shot",
+          "pct": 96.7
+        },
+        {
+          "name": "Flash Cannon",
+          "pct": 95.2
+        },
+        {
+          "name": "Protect",
+          "pct": 94.3
+        },
+        {
+          "name": "Dragon Pulse",
+          "pct": 73.5
+        },
+        {
+          "name": "Draco Meteor",
+          "pct": 21.2
+        },
+        {
+          "name": "Aura Sphere",
+          "pct": 12.7
+        },
+        {
+          "name": "Snarl",
+          "pct": 2.4
+        },
+        {
+          "name": "Thunderbolt",
+          "pct": 2.3
+        },
+        {
+          "name": "Steel Beam",
+          "pct": 0.3
+        },
+        {
+          "name": "Substitute",
+          "pct": 0.3
+        }
+      ],
+      "common_abilities": [
+        {
+          "name": "Stamina",
+          "pct": 93.4
+        },
+        {
+          "name": "Sturdy",
+          "pct": 5.3
+        },
+        {
+          "name": "Stalwart",
+          "pct": 1.3
+        }
+      ],
+      "common_items": [
+        {
+          "name": "Leftovers",
+          "pct": 88.6
+        },
+        {
+          "name": "Choice Scarf",
+          "pct": 2.4
+        },
+        {
+          "name": "White Herb",
+          "pct": 2.0
+        },
+        {
+          "name": "Chople Berry",
+          "pct": 1.8
+        },
+        {
+          "name": "Sitrus Berry",
+          "pct": 1.7
+        },
+        {
+          "name": "Life Orb",
+          "pct": 1.4
+        },
+        {
+          "name": "Magnet",
+          "pct": 0.4
+        },
+        {
+          "name": "Wise Glasses",
+          "pct": 0.3
+        },
+        {
+          "name": "Scope Lens",
+          "pct": 0.3
+        },
+        {
+          "name": "Dragon Fang",
+          "pct": 0.3
+        }
+      ],
+      "teammates": [
+        "Pelipper",
+        "Swampert",
+        "Sinistcha",
+        "Basculegion",
+        "Sableye",
+        "Grimmsnarl"
+      ],
+      "featured_sets": [
+        {
+          "ability": "Stamina",
+          "item": "Leftovers",
+          "moves": [
+            "Protect",
+            "Electro Shot",
+            "Dragon Pulse",
+            "Flash Cannon"
+          ]
+        },
+        {
+          "ability": "Stamina",
+          "item": "Leftovers",
+          "moves": [
+            "Electro Shot",
+            "Dragon Pulse",
+            "Flash Cannon",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Stamina",
+          "item": "Chople Berry",
+          "moves": [
+            "Electro Shot",
+            "Dragon Pulse",
+            "Aura Sphere",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Stamina",
+          "item": "Leftovers",
+          "moves": [
+            "Dragon Pulse",
+            "Flash Cannon",
+            "Electro Shot",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Stamina",
+          "item": "Leftovers",
+          "moves": [
+            "Electro Shot",
+            "Dragon Pulse",
+            "Flash Cannon",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Stamina",
+          "item": "Leftovers",
+          "moves": [
+            "Electro Shot",
+            "Dragon Pulse",
+            "Flash Cannon",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Stamina",
+          "item": "Chople Berry",
+          "moves": [
+            "Electro Shot",
+            "Dragon Pulse",
+            "Aura Sphere",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Stamina",
+          "item": "Chople Berry",
+          "moves": [
+            "Electro Shot",
+            "Dragon Pulse",
+            "Aura Sphere",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Stamina",
+          "item": "Leftovers",
+          "moves": [
+            "Electro Shot",
+            "Flash Cannon",
+            "Dragon Pulse",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Stamina",
+          "item": "Leftovers",
+          "moves": [
+            "Electro Shot",
+            "Protect",
+            "Draco Meteor",
+            "Flash Cannon"
+          ]
+        }
+      ],
+      "top_spreads": [
+        {
+          "evs": {
+            "hp": 32,
+            "atk": 0,
+            "def": 1,
+            "spa": 5,
+            "spd": 25,
+            "spe": 3
+          },
+          "pct": 8.2
+        }
+      ]
+    }
+  }
+}
