@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "extracted_at": "2026-07-27T00:41:32.505Z",
+    "source_commit": "9d8e5c22a8741473d63fe328c1b4962f1a052ce9",
+    "note": "Identifier initializers during AST extract: 'nulled' = undefined→null stored; 'skipped' = other Identifier omitted"
+  },
+  "counts": {
+    "nulled": 3,
+    "skipped": 0,
+    "total": 3
+  },
+  "entries": [
+    {
+      "file": "data/mods/champions/moves.ts",
+      "path": "Moves.belch.onDisableMove",
+      "identifier": "undefined",
+      "action": "nulled"
+    },
+    {
+      "file": "data/mods/champions/moves.ts",
+      "path": "Moves.freezedry.secondary",
+      "identifier": "undefined",
+      "action": "nulled"
+    },
+    {
+      "file": "data/mods/champions/moves.ts",
+      "path": "Moves.stuffcheeks.onDisableMove",
+      "identifier": "undefined",
+      "action": "nulled"
+    }
+  ]
+}
