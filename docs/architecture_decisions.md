@@ -3,12 +3,25 @@
 ## Purpose: preserve "why X and not Y" answers for interview defensibility — same function as
 ## the VinylIQ master resume's "why ALS not re-ranking" / "why Cloud SQL not volume-mounted" notes.
 
+---
+
 ## Amendment convention (adopted 2026-07-25)
 Amendments to an ADR are appended, never overwritten in place, and never delete a prior
 amendment — even a wrong one. Each gets a sequential same-day suffix: `Amendment YYYY-MM-DDa`,
 `...b`, `...c`, etc. A corrected amendment's `Status:` line names exactly which prior
 amendment it supersedes. This preserves an honest trail of what was believed and when,
 rather than a silently-corrected final answer.
+
+---
+
+## Note on amendment lettering (2026-07-29)
+The amendment letter sequence is not perfectly sequential across every ADR — a labeling
+mixup on 2026-07-25/26 caused some amendments to be filed under the wrong ADR number
+initially (later corrected) and caused ADR-015's own sequence to skip directly from `a` to
+`b` on 2026-07-26 (no `2026-07-26a` was ever assigned to ADR-015). This is expected and not
+a sign of lost or missing content — cross-references elsewhere in this file to specific
+amendment labels (e.g. "Amendment 2026-07-26b") are accurate as written and should not be
+renumbered to "fill the gap."
 
 ---
 
@@ -229,7 +242,7 @@ search (ADR-015).**
 ADR-014's original text anticipated this: "if a genuine case for live lookup emerges during
 development... treat it as an explicit exception to justify, not a default capability." This
 is that case. When a user's chosen moveset and/or item for a Pokémon doesn't match what's
-covered by the pre-extracted offline snapshot (ADR-007c sources, or the analogous-mainline-
+covered by the pre-extracted offline snapshot (ADR-007 Amendment 2026-07-25c sources, or the analogous-mainline-
 format fallback, ADR-015), the agent may search live for a real build matching that specific
 combination, rather than being limited to what was indexed ahead of time.
 
@@ -360,21 +373,6 @@ regulation indexing exists in Showdown's data.
 
 ---
 
-### ADR-007b — Offline legality snapshot (2026-07-25)
-
-**Decision:** Extract Showdown Champions legality offline into a committed, versioned JSON
-snapshot (`data/legality/champions.v1.json`) plus a `championsregma→champions` diff fixture.
-The future legality tool loads these artifacts only — no live Showdown at agent runtime
-(ADR-014). Schema and regenerate instructions: [`data/legality/schema.v1.md`](../data/legality/schema.v1.md).
-Extractor: `npm run extract:legality` (AST parse via TypeScript compiler API; species join by
-Showdown id onto `data/pokedex.ts`; full item merge `base → champions`; `effective_tags` =
-union along `toId(baseSpecies)`). Reproducibility anchors: `meta.source.commit` +
-`meta.source.mod`.
-
-**Status:** Decided; snapshot committed under `data/legality/`.
-
----
-
 ### ADR-007 — Amendment 2026-07-25c
 
 **Supplementary usage-data sources identified** (real gap: ADR-012a's quick-pick tool needs
@@ -409,6 +407,48 @@ meta awareness (what's actually winning), separate from this specific in-the-mom
 is found" policy. Not yet integrated — extraction/integration approach to be decided when the
 quick-pick tool is actually built (after the core recommender loop, per ADR-012's original
 sequencing).
+
+---
+
+### ADR-007 — Offline legality snapshot (2026-07-25d)
+
+**Decision:** Extract Showdown Champions legality offline into a committed, versioned JSON
+snapshot (`data/legality/champions.v1.json`) plus a `championsregma→champions` diff fixture.
+The future legality tool loads these artifacts only — no live Showdown at agent runtime
+(ADR-014). Schema and regenerate instructions: [`data/legality/schema.v1.md`](../data/legality/schema.v1.md).
+Extractor: `npm run extract:legality` (AST parse via TypeScript compiler API; species join by
+Showdown id onto `data/pokedex.ts`; full item merge `base → champions`; `effective_tags` =
+union along `toId(baseSpecies)`). Reproducibility anchors: `meta.source.commit` +
+`meta.source.mod`.
+
+**Status:** Decided; snapshot committed under `data/legality/`.
+
+---
+
+### ADR-007 — Amendment 2026-07-26a
+
+**Smogon's Strategy Pokedex added as a Champions-native source.**
+
+`smogon.com/dex/champions/formats/vgc-2026-regulation-m-b/` (and the corresponding M-A page)
+carries real written strategy analyses for Champions specifically — a separate source from
+the three usage/tournament-data sources already listed in Amendment 2026-07-25c (Pikalytics,
+Pokemon-Zone, MunchStats), which are stats/team-composition data, not written analysis. This
+is the strongest available source for ADR-015's "preserve written rationale" requirement
+(speed-tier justification, teammates, checks/counters) — better than inferring reasoning from
+a stats page, and native to Champions rather than borrowed from an analogous format.
+
+**Coverage is currently sparse, which is why the analogous-mainline-format fallback (SV
+BSS/VGC, ADR-015 tier 1) remains necessary, not redundant.** Champions is new; the volume of
+detailed Champions-native writeups is small compared to long-established formats. Tier 1's
+priority order: Champions-native writeup (this source) first if it exists for the
+species/combination in question, then usage-data sources (Amendment 2026-07-25c), then
+analogous-mainline-format writeups as fallback, then live lookup (ADR-014 Amendment
+2026-07-25a) — unchanged in spirit from ADR-015's original tiering, just adding this source
+at the top of the "native" tier.
+
+**Status:** Adds a source to the Amendment 2026-07-25c source list. Does not change tier
+ordering logic, only adds a preferred source within the existing "Champions-native first"
+step.
 
 ---
 
@@ -497,7 +537,7 @@ sequencing.
 spread, nature):
 
 1. **Known-build lookup.** Champions-native sources first (Pikalytics/Pokemon-Zone/MunchStats,
-   ADR-007c), then analogous mainline Smogon formats as fallback (SV BSS for singles, SV VGC
+   ADR-007 Amendment 2026-07-25c), then analogous mainline Smogon formats as fallback (SV BSS for singles, SV VGC
    for doubles), translating EVs to SP via the validated ÷8/round/cap mapping (confirmed
    algebraically exact at L50, ADR-003b). When neither source covers the user's specific
    moveset/item combination, live lookup is permitted for that exact combination — a scoped
@@ -515,7 +555,7 @@ spread, nature):
    **Verification requires a specific, relevant opponent — not an arbitrary or generic one.**
    A damage calculation is inherently attacker-vs-defender; "does this build survive/KO"
    is meaningless without naming what it's being checked against. Tier 3 selects opponents
-   from current meta data (the same ADR-007c sources used for tier 1 — Pikalytics/Pokemon-
+   from current meta data (the same ADR-007 Amendment 2026-07-25c sources used for tier 1 — Pikalytics/Pokemon-
    Zone/MunchStats usage and, where available, checks-and-counters/teammate data), not a
    hand-picked or generic example.
 
@@ -559,7 +599,7 @@ pipeline applied to the leftover points specifically, not a fourth mechanism. Th
 behind the top-up becomes part of the slot's `rationale` — the user sees why the extra points
 went where they did, not just a silently-completed spread.
 
-**Sourcing mechanics:** per ADR-014, offline sources (ADR-007c, analogous-format Smogon data)
+**Sourcing mechanics:** per ADR-014, offline sources (ADR-007 Amendment 2026-07-25c, analogous-format Smogon data)
 are gathered ahead of time, not queried live; the live-lookup path is the scoped exception
 per ADR-014 Amendment 2026-07-25a, not a reopening of the general policy.
 
@@ -573,6 +613,74 @@ without a calc sanity check. Revisit if this proves too permissive in practice.
 
 ---
 
+### ADR-015 amendment index
+- **2026-07-25a** — Opponent-build sourcing scope-bound to tier-1; speed-tier verification as
+  a distinct check; written-rationale preservation from Smogon analyses; speed-tier
+  reverification trigger (moves+item match).
+- **2026-07-26b** — Legality pass ≠ usable/current/optimal; present-tense current-availability
+  check replaces historical-delta reconstruction.
+- **2026-07-26c** — Legality-failure diagnosis and substitution logic by element type/severity
+  (universal/type-locked items, non-severe/severe-no-substitute, move substitution); team-aware
+  Item Clause check; "no valid substitute" as a legitimate output.
+- **2026-07-26d** — "Regulations only add, never remove" is Champions-specific and
+  observed-so-far, not guaranteed; scoped blast-radius for a hypothetical mechanic-level
+  retirement (e.g. Megas → Tera).
+- **2026-07-27a** — Theme/core detection mechanism (intrinsic signal + teammate role
+  abstraction); two-stage search architecture (mechanical interpretation, multi-axis search);
+  "close enough" reverse-lookup definition; multi-role present-options rule.
+- **2026-07-27b** — Correction: SP allocation driven by a Pokémon's own base stats/role, not
+  team composition as the primary factor.
+- **2026-07-27c** — Item/spread/moveset/role as a dependency circle (no fixed resolution
+  order); no-obligation weakness compensation; `locked_fields`-driven resolution (no
+  convergence loop); tradeoff-flagging scope; per-slot vs. team-review reasoning boundary.
+- **2026-07-27d** — Build-refinement priority (strengths before compensation) and the
+  trade-off test, including ability/move-based natural coverage, item-gated compounding
+  (Assault Vest/Archaludon), and meta-dependence.
+- **2026-07-27e** — Role vocabulary externally sourced (Role Compendium); ability/stat
+  interaction model (override/reinforce/insurance-slot); Taunt-insurance rule;
+  ruleset-conditioned "fast" threshold.
+- **2026-07-27f** — Unified move-candidate narrowing procedure (pool size → team need →
+  mechanical fit → opportunity cost); delivery-mechanism-aware matching; moveset redundancy
+  rule.
+- **2026-07-28a** — Default resolution order = the dependency circle with nothing forcing
+  anything; true unconstrained case is vanishingly rare in practice.
+- **2026-07-28b** — Internal/external reasoning unified as one narrowing-power-driven model;
+  explains the doubles/singles asymmetry (ADR-005); team-level redundancy ordering
+  (competence before redundancy); presentation format tied to narrowing power.
+- **2026-07-28c** — Pairwise threat classifier (mechanism behind gaps #7/#8): inputs, field-
+  condition contextual swap-in, four-way classification outcome, flagging rule by decision
+  context, symmetry note, HP-based severity gradient, contact-punish and multi-hit-count calc
+  gaps.
+- **2026-07-28d** — Role Compendium scope/membership model: purpose (role-specific search
+  only), source-as-seed-not-truth, doubles/singles top-level split rationale, offensive
+  5-point conjunction test, support 3-criteria test, modifier tags, Beneficiary-bucket
+  discovery-vs-narrowing, category emergence via regulation diff, singles compendium sketch,
+  regulation-driven ranking shifts (absolute capability change vs. relative devaluation).
+- **2026-07-29a** — Candidate-discovery discipline: search from regulation-scoped data, not
+  generic queries; mandatory bidirectional Mega-form checking (only when the mechanism applies
+  to both forms); usage for discovery/legality only, never ranking; near-universal moves
+  provide no narrowing power.
+- **2026-07-29b** — Refined membership/ranking criteria: offensive test collapses to the
+  3-criterion support structure; two-axis execution-risk model for deferred-payoff roles;
+  tightened Excellent-tier bar (mechanism-guaranteed, magnitude-aware); doubles-specific
+  stricter bulk requirement; membership strictness scales with candidate-pool breadth
+  (~15-20 total target); opportunity-cost-elsewhere is out of scope for single-move ranking.
+- **2026-07-29c** — Mega Evolution's item-slot lock as a genuine trade-off (base form can
+  access items the Mega can't); shared/divergent abilities across a base/Mega pair must be
+  verified per form, never assumed.
+- **2026-07-29d** — Trick Room attacker specifics: relative (not absolute) Speed-tier
+  benefit; deliberate zero-Speed-investment mechanics widening the candidate pool; setup-move
+  cost in a turn-limited role; inherent-multiplier magnitude comparison.
+- **2026-07-29e** — Usage-data consistency check: usage must be treated identically regardless
+  of which conclusion it supports; a usage/mechanical-model conflict should trigger
+  re-examining the model, not selective acceptance or dismissal.
+- **2026-07-29f** — Sleep-inducing status role specifics: delivery-mechanism reliability
+  profiles (Spore/Sleep Powder/Hypnosis/Yawn); mechanism-dependent criterion weighting
+  (Speed vs. bulk vs. delivery type); trapping-ability relevance conditional on delivery
+  mechanism; accuracy-boosting mechanisms (Compound Eyes, Coil) as confirmed reinforcement.
+
+---
+
 ### ADR-015 — Amendment 2026-07-25a
 
 **Opponent-build sourcing for tier-3 verification is scope-bounded to avoid recursive
@@ -580,7 +688,7 @@ blowup.** Selecting a relevant opponent's *own* build does not invoke the full t
 pipeline — that would mean running the whole recommendation process once per threat checked,
 for every candidate spread being evaluated. The opponent's build for verification purposes is
 sourced via tier 1 (known-build lookup) only: the real, most-common competitive build for that
-threat from the same usage data (ADR-007c). It only needs to be representative, not optimal —
+threat from the same usage data (ADR-007 Amendment 2026-07-25c). It only needs to be representative, not optimal —
 verification is checking against a plausible real opponent, not solving the opponent's build
 too.
 
@@ -715,6 +823,1026 @@ element-type-specific resolution logic. Does not change tier ordering.
 
 ---
 
+### ADR-015 — Amendment 2026-07-26d
+
+**"Regulations only add, never remove" is an observed pattern specific to Champions so far —
+not a guaranteed mechanic, and not assumed to hold indefinitely.**
+
+The M-A→M-B transition only added content (new Pokémon, moves, items) — nothing was removed.
+This is a real, useful property for the current-availability check (Amendment 2026-07-26b)
+and for the cache's cross-regulation carry-forward (ADR-016), since it means a build rarely
+needs full reconstruction across a regulation change. But it is not a property of Champions
+regulations in general, and mainline VGC regulations have both added and removed content
+across their history — the additive-only pattern holds right now specifically because
+Champions' Pokémon/item pool is still small relative to the mainline games, so early
+regulations are naturally expanding a limited roster rather than trimming an established one.
+
+**This should be re-confirmed at each regulation change, not hardcoded as a permanent
+assumption.** The dynamic is expected to shift once the pool grows enough that Game Freak
+starts trimming rather than only adding — a plausible future example being Mega Evolution
+retired in favor of Tera Type, or an equivalent mechanic-level swap. That kind of change would
+be structurally different from anything ADR-015's guardrails currently handle (which assume
+per-element legality changes — one move, one item, one Pokémon) — it would be a foundational
+mechanic disappearing, not a legality diff.
+
+**Blast radius of a hypothetical mechanic-level retirement (e.g. Megas → Tera), scoped
+correctly:** the SP stat formula and the calc service's `champions` mod handling are
+unaffected — those are engine-level infrastructure tied to how stats are calculated, not to
+which specific mechanic category happens to be legal, so swapping Megas for Tera is a legal-
+pool change like any other (ADR-002/007b), not an SP-formula change. What would genuinely
+break: cached builds (ADR-016) structurally built around a Mega slot — these would need real
+invalidation, not a per-entry legality substitution, since a Mega slot is a foundational
+structural assumption a build was organized around, not a swappable element. Similarly, tier-
+2's role taxonomy (ADR-015/016) would need an archetype actually removed or restructured if
+"Mega cornerstone"-type roles stopped being coherent, not just re-weighted in priority.
+
+**Status:** Notes a real but currently-hypothetical risk category, scoped to what it would and
+wouldn't affect. No action required now — flagged so it isn't rediscovered from scratch if
+Champions' pool ever shifts from purely additive to include removals.
+
+---
+
+### ADR-015 — Amendment 2026-07-27a
+
+**Theme/core detection mechanism, decided.**
+
+Detection runs from two independent, combinable evidence sources, either of which can operate
+alone:
+
+1. **Intrinsic signal from the seed Pokémon itself** — fixed ability/move → archetype mappings
+   (Swift Swim/Chlorophyll/Sand Rush → their respective weather; Electro Shot/Weather Ball →
+   weather-conditional) and base-stat-threshold heuristics (low Speed + high offense/bulk →
+   Trick Room candidate). Works with zero external data — even an undocumented Pokémon gets a
+   grounded theme suggestion from this alone.
+2. **Teammate role abstraction, sourced from two independent inputs:** (a) named teammates in
+   a Champions-native or analogous-format writeup, and (b) real tournament/ladder team
+   co-occurrence data (Pikalytics/Pokemon-Zone, ADR-007c — this is what finally wires Track G's
+   previously-unused team-composition data into the system). In both cases, **abstract named
+   teammates to their own role classification, not their literal species** — this is what
+   keeps the inference current rather than stale: an M-A-era writeup naming Politoed doesn't
+   recommend Politoed specifically, it recommends "a second Weather Setter," which is then
+   searched for in current data (correctly surfacing Mega Swampert-as-attacker or whatever
+   else is presently best, without the writeup ever needing updating). Tournament
+   co-occurrence data and writeup-named teammates are not alternative/competing sources — the
+   former grounds and can confirm or extend the latter empirically, especially where writeup
+   coverage is thin.
+
+Combine both sources into a needed-role list. This sometimes converges into a single named
+`archetype` (Rain, Trick Room); sometimes it doesn't (Mega Staraptor: Contrary → wants a
+stat-debuff partner; weakness profile → wants defensive-coverage partners — no single label,
+still a valid, useful `core`).
+
+**Search architecture: two-stage (mechanical interpretation, then multi-axis search), not a
+fixed specificity ladder.** Earlier framing considered a staged ladder (full spec → partial
+attribute → archetype-only). Rejected as too rigid — real inputs arrive as an open,
+arbitrary combination of hints (a species, an item, one move, an adjective, a functional
+target like "Charizard counter," a role label), not cleanly nested tiers. The actual
+resolution process is:
+1. **Stage 1 — mechanical interpretation.** Translate whatever's given into concrete,
+   checkable game terms. "Revenge killer" → high Speed tier, and/or priority-move access,
+   and/or Choice Scarf. "Charizard counter" → Fire/Flying resistance, and/or outspeeds it,
+   and/or survives its hits (multiple valid mechanical readings can coexist — present options
+   rather than silently picking one, same principle as below). A literal species/item name
+   needs no translation, it's already stage-2-ready.
+2. **Stage 2 — multi-axis search** using whatever stage 1 produced, querying species, item,
+   ability, move, speed tier, type, or any combination as filters. This replaces the earlier,
+   narrower "partial-key lookup" framing — it was never missing a specific lookup function,
+   it was missing a stage-1 interpreter in front of the search entirely.
+
+**"Close enough" reverse lookup (moveset/role → candidate species), defined concretely:** a
+candidate matches when it shares the *role-relevant* moves specifically — the moves that
+functionally define the role (e.g. Encore for a weather-setter-that-also-locks-opponents-in
+role) — not a raw moveset-overlap count. Two species sharing only incidental moves (both know
+Protect) don't count as a match.
+
+**Multi-role species: present options, don't silently collapse to one build.** Some species'
+"role" is a single fixed requirement plus a genuinely open secondary slot with several
+non-overlapping real approaches (Pelipper: must set weather; secondary varies — special
+attacker, utility, Tailwind, screens. Politoed: must set weather; secondary varies —
+disruption, speed control, trapping. Sableye: pure support, but via weather+screens, OR
+status+disruption, OR Fake Out+flex, as genuinely distinct, non-blending approaches). This is
+the same primary/secondary structure already decided for build variance (Hatterene, earlier
+session) — confirmed here to be the normal condition for most support-capable species, not a
+rare exception. When a role resolves to multiple real, distinct sub-approaches, present them
+rather than picking one silently — consistent with how ambiguous reverse-lookup candidates
+(Sableye vs. Politoed) are already handled.
+
+**Still open, not yet designed — flagged, not resolved:** tier-2's SP allocation needs to
+account for what other `team_draft` slots already provide (e.g., don't max Speed on an
+attacker when Tailwind support is already locked elsewhere) and needs to derive its role
+classification from a Pokémon's actual base stats/movepool rather than an externally-supplied
+label. Both principles are agreed; neither has an implementation mechanism designed yet.
+
+**Status:** Resolves the theme/core detection mechanism and search architecture in full.
+Leaves team-composition-aware allocation and base-stat-driven role derivation as agreed
+principles without an implementation design — separate follow-up.
+
+---
+
+### ADR-015 — Amendment 2026-07-27b
+
+**Correction to team-composition-aware allocation framing (Amendment 2026-07-27a).**
+
+That amendment's still-open item framed the missing mechanism as "don't invest in a stat
+another slot already provides" (e.g. don't max Speed on an attacker when Tailwind support is
+locked elsewhere). That framing is wrong as a rule — support like Tailwind is never
+guaranteed to be active in a given game, so an attacker can't safely assume it away entirely
+and skip Speed on that basis alone.
+
+**The actual principle:** SP investment in a stat should be judged by whether it meaningfully
+changes an outcome for *this* Pokémon in *this* role, given its own base stats — not by what
+teammates happen to provide.
+- A middling-Speed attacker (Archaludon) usually can't realistically reach a speed tier that
+  beats the format's fast threats regardless of investment, so those points are better spent
+  on bulk — true most of the time because the investment wouldn't pay off given its own base
+  stat line, not because Tailwind exists elsewhere on the team.
+- A true glass-cannon archetype maxes Speed and its attacking stat regardless of team
+  support, since outspeeding is the entire payoff of that role.
+- Trick Room inverts the logic entirely — minimizing Speed (including a hindering nature) is
+  correct there because slow-is-better is the mechanic itself, independent of teammates.
+
+Team composition can still be a secondary input (e.g., hedging against support that might not
+be up when needed), but a Pokémon's own base stats and role are the primary drivers of the
+allocation decision, not what else is on the team.
+
+**Status:** Corrects the team-composition-aware allocation framing in Amendment 2026-07-27a.
+Base-stat-driven role derivation (also flagged as open in 2026-07-27a) is unaffected by this
+correction.
+
+---
+
+### ADR-015 — Amendment 2026-07-27c
+
+**Item/spread/moveset/role as a dependency circle, not a fixed resolution sequence.**
+
+Earlier framing (Amendment 2026-07-27b) treated stat allocation as informed by team
+composition as a secondary input. Refined further: item, spread, moveset, and role are not
+resolved in a fixed sequence with speed-compensation as one optional step among others — they
+form a dependency circle with no privileged starting point. A decision on any one attribute
+can force reconsideration of the others: locking a moveset (Electro Shot) can imply a theme
+that shapes the spread; choosing an item (Choice Scarf) can flip what spread is correct
+(now max Speed is right) and simultaneously rule out certain moves (no Protect on a scarfed
+set); a spread-level finding (Speed investment not worth it given base stats) can motivate
+considering an item that changes the answer again. Whichever attribute gets pinned first (by
+the user, by tier-1 data, or by tier-2 reasoning) propagates to the others — there is no
+correct order to resolve them in.
+
+**Compensating for a stat shortfall is one option to consider, never an obligation.** When a
+stat investment is judged not worth it given a Pokémon's own base stats (per Amendment
+2026-07-27b), external compensating mechanisms — Tailwind reliance, Choice Scarf, building
+around Trick Room instead — are worth surfacing as *possibilities*, not something the system
+must resolve. Many legitimate, common builds simply accept the shortfall and lean into what
+the Pokémon is otherwise good at, with no compensating mechanism at all. That remains a fully
+valid default, not a gap to be patched.
+
+**Resolution of the dependency circle requires no internal convergence loop or iteration
+cap.** Default behavior: tier 2 proposes one coherent build and states any real, structurally
+relevant tradeoff plainly (see the tradeoff-flagging scope below — most inherent weaknesses
+are not flagged by default), rather than looping through alternatives unprompted. The circle
+only re-enters resolution when the user explicitly locks a new attribute (e.g. "give me the
+Choice Scarf set"). At that point the newly-locked attribute is fixed via `locked_fields`
+(ADR-017), and propagation runs once, outward from the fixed point — since a locked attribute
+cannot be re-flipped, this is a single deterministic pass, not an unbounded loop.
+`locked_fields` is what prevents cycling, not an iteration cap. The system reports back what
+changed as a result of the new lock (spread, moveset implications, etc.) as the close of that
+interaction.
+
+**Scoping of tradeoff-flagging: not per-build by default.** No build is perfect, and most
+inherent tradeoffs (a 4x type weakness a build doesn't cover, a common matchup a species is
+just naturally bad into) are normal and expected — flagging them on every proposal would be
+pure noise (Swampert's Grass weakness, Mega Charizard Y being walled by Dragons, etc., are not
+re-surfaced by default). Flagging is scoped to: (1) an explicit user ask about issues with a
+build/team; (2) a dedicated team-review checkpoint (see below); (3) a genuinely glaring,
+structural issue — e.g. a build with no coverage move at all — which is qualitatively
+different from an inherent tradeoff and worth surfacing proactively regardless of trigger.
+
+**Scope boundary: filling a slot is team-review-scale reasoning; refining a filled slot is
+narrow, forward-looking reasoning — a transition, not two parallel modes.** Filling an empty
+or role-only slot (deciding what role or species belongs in a slot at all) is properly
+informed by team-wide weakness analysis — "what does this team still need" depends directly
+on "what is this team weak to," the same reasoning the team-wide checks (threat-coverage,
+single-point-of-failure — see master_project_log.md, 2026-07-27 additions) perform, just
+applied toward selecting a role/species rather than producing a report. Refining an
+already-filled slot (species/role locked, resolving item/moveset/spread within the dependency
+circle above) is where narrow reasoning applies: only "what's already locked elsewhere that
+should inform this specific build" — team-level weakness analysis has already done its job by
+the time a slot reaches this stage, and re-running it here reintroduces the wrong-time noise
+the tradeoff-flagging scope above is meant to prevent. The transition point is exactly when a
+role or species gets nailed down for that slot.
+
+**Status:** Refines and partially corrects Amendment 2026-07-27b's team-composition-aware
+allocation framing into a fuller dependency-circle model, resolves the iteration-bound
+question left open there, and establishes the tradeoff-flagging and per-slot/team-review
+scoping boundaries needed for the team-wide checks flagged earlier in this session to actually
+have defined trigger conditions.
+
+---
+
+### ADR-015 — Amendment 2026-07-27d
+
+**Build-refinement priority: lean into strengths before compensating for weaknesses, and
+compensation must pass a real trade-off test.**
+
+Refining a slot's build should prioritize maximizing what a Pokémon's stat profile already
+makes it good at, before considering compensation for a weak side: a slow attacker leans into
+its natural bulk (already there, not a compensation); a frail attacker leans into Speed; a
+wall maximizes its defining bulk. Compensating a weakness sits on a spectrum from "not worth
+it" to "fully split investment," never a default action.
+
+**The trade-off test:** compensation is justified only when its marginal cost (SP points that
+could go elsewhere, a held item slot) is paid back by a real, relevant outcome — surviving
+specific hits it otherwise wouldn't, not patching a weakness reflexively just because it
+exists. Glass cannons sit at one extreme — any investment taken from Speed/offense directly
+undermines the role's entire purpose, so compensation there is rare and must be tightly
+justified against one specific named threat. A wall has real flexibility across the spectrum
+(all-in on one defensive side, split investment, or external item/move support), any of which
+is valid depending on what the team actually needs it to survive.
+
+**The trade-off test must also account for existing abilities/moves that already cover or
+reinforce a stat, separately from investment.** Some Pokémon don't need investment in a
+weak-looking stat because something else already covers it: Archaludon's Def side is strong
+from a naturally high stat plus Stamina reinforcing it further on every hit taken — this is
+"already strong and self-reinforcing," not investment being compounded. Will-O-Wisp reduces
+incoming physical damage independent of any investment, partially covering Volcarona's
+physical bulk weakness before SP is spent, while Quiver Dance lets it boost Speed/SpAtk/SpDef
+together mid-battle, changing how much needs to be front-loaded in the base spread.
+
+**Correction/clarification on genuine investment-compounding, using Archaludon as the
+example:** the case where investment itself gets amplified (not just naturally covered) is
+SpDef via Assault Vest — a flat multiplier that stacks with actual investment. Assault Vest
+is not currently available in Champions, so this specific trade-off does not currently apply,
+even though it's a real, previously-valid one for this exact species. This is gated by
+current item legality — the same "check against what's currently available, don't assume
+permanence" principle already established for build currency (ADR-015 Amendment 2026-07-26b,
+Mega Swampert/Wave Crash) — and if Assault Vest becomes available in a future regulation,
+this trade-off could become live again with nothing about Archaludon itself changing.
+
+**The trade-off's correctness can also shift with the current meta, independent of the
+Pokémon itself.** In extreme cases (e.g. a Pokémon with one stat so dominant that only its
+other defensive side is worth addressing, or vice versa — Blissey's HP/physical-vs-special
+split as the illustrative extreme, even though not currently in Champions), the correct
+trade-off can flip based on the current meta's attack distribution (physical- vs.
+special-heavy) rather than being fixed for that species. This reinforces that the trade-off
+test is evaluated against current, real threat data, not computed once and reused
+indefinitely — consistent with tier 3's opponent-selection already being threat-current
+(ADR-015 Amendment 2026-07-26c).
+
+**Status:** Establishes build-refinement priority (strengths first) and the trade-off test for
+weakness compensation, including ability/move-based natural coverage, item-gated compounding,
+and meta-dependence. Extends the Speed-specific principle in Amendment 2026-07-27b to stat
+trade-offs generally.
+
+---
+
+### ADR-015 — Amendment 2026-07-27e
+
+**Role vocabulary is externally sourced, not invented.** Role classification (for theme/core
+detection, Amendment 2026-07-27a, and for build refinement generally) classifies into a
+fixed, externally-sourced vocabulary — a "role compendium" derived from real community
+resources (e.g. Smogon's VGC Regulation M-A Role Compendium forum thread) — not an
+open-ended set of labels the system invents per-case.
+
+**Ability/stat-distribution interaction: three relationships, not additive combination.**
+When deriving a role from base stats and abilities/moves, the ability does not simply add its
+own signal alongside a stat-distribution read — it can stand in one of three relationships to
+what the stats alone would suggest, confirmed via worked examples (Grimmsnarl, Sableye,
+Whimsicott, Klefki):
+- **Override:** the ability makes a stat-based signal actively misleading and takes
+  precedence. Grimmsnarl's high Attack would suggest "attacker," but Prankster (making
+  support-move priority irrelevant to Speed) means the build should ignore that signal
+  entirely and invest in bulk (split Def/SpDef, not Def-only) to protect the support
+  gameplan instead.
+- **Reinforce:** the ability points the same direction the stats already suggest, adding
+  confidence rather than correcting anything. Sableye's flat, low stat spread already
+  suggests non-offensive/support; Prankster reinforces that read rather than overriding a
+  contradiction.
+- **Reinforce-with-an-added-insurance-slot:** covers cases like Whimsicott's support set,
+  where the ability reinforces the core read, but a viable one-move offensive option exists as
+  Taunt-insurance (see below) — the ability still reinforces the primary gameplan, it just
+  doesn't touch the one bolted-on damaging move.
+
+**Structural Taunt-insurance rule, general, not species-specific.** Any proposed moveset
+consisting entirely of non-damaging moves must be flagged for its structural vulnerability to
+Taunt (which disables all of them at once). This is why sets built around pure disruption/
+support commonly carry exactly one damaging move as insurance — the standard case is a single
+attacking move whose specific quality depends on that species' own stats/movepool (Whimsicott:
+Moonblasts's high SpAtk + neutral coverage makes for strong insurance; Klefki: Foul Play
+leverages the opponent's Attack stat instead, since Klefki's own offense is mediocre — same
+structural need, different mechanism, driven by each species' own stat profile). This applies
+uniformly regardless of role or support type (screens, disruption, redirection,
+weather-setting) — always flag an all-non-damaging moveset for this vulnerability.
+
+**"Fast" is a ruleset-conditioned threshold, not a fixed constant.** The standard ~100 base
+Speed cutoff for "fast" (used in role/theme detection) holds specifically because Champions'
+`Flat Rules` bans Restricted Legendaries and Mythicals (confirmed directly from Showdown
+source, ADR-002/007b). If Restricted Legendaries were ever legal, the effective speed
+ceiling shifts (e.g. Lunala/Miraidon-class Speed becoming the real baseline), which can flip
+what counts as "slow enough for Trick Room" even for objectively fast Pokémon. The threshold
+should be derived by checking this specific ruleset fact, not hardcoded — though for
+Champions' current rules, the standard threshold applies without adjustment.
+
+**Status:** Establishes the ability/stat interaction model and the general Taunt-insurance
+and ruleset-conditioned-Speed rules, derived from worked Prankster-support examples during the
+2026-07-27 role-play session.
+
+---
+
+### ADR-015 — Amendment 2026-07-27f
+
+**Move-candidate search: one unified narrowing procedure, not fixed relevance tiers.**
+
+Searching for a species/build by a specific move (e.g. "weather setter with Encore," a
+Prankster support option) resolves through one procedure with up to four steps, applied only
+as far as needed:
+1. **Check candidate-pool size from the move alone.** A rare, mechanically-gatekept move
+   (Follow Me, Rage Powder) already narrows to a small, meaningful set — resolved here, no
+   further steps needed.
+2. **If the pool is still too large, narrow by team-context need** — what secondary role does
+   this slot actually need to fill, informed by what's already locked elsewhere in
+   `team_draft` (reuses the theme/core team-need read, Amendment 2026-07-27a).
+3. **Or narrow by mechanical fit for executing the move well** — e.g. Prankster for a
+   setter/support move needing reliable priority, or sufficient natural Speed for a move that
+   needs to land without priority.
+4. **Then check opportunity cost per remaining candidate** — does this move actually earn its
+   slot for this specific species given what else it could run, or does it get crowded out by
+   a better option (the "Encore is learnable but rarely worth it" case).
+
+This replaces an earlier, incorrect three-tier "relevance gradient" framing (rare/gatekept vs.
+common-but-situational vs. common-and-irrelevant) — that framing described outcomes, not the
+actual mechanism; the real process is one procedure that different moves simply need
+different amounts of, based on how large their candidate pool starts out.
+
+**Delivery mechanism matters, not just move identity, when matching candidates.** Two species
+with the identical move can have entirely different reliability profiles depending on how
+that move gets its effect: a Prankster-based user of a move gets priority but is blocked by
+Dark-type immunity, Armor Tail, and Queenly Majesty; a naturally-fast non-Prankster user of the
+same move has no such blocks but can simply be outsped by something faster. This applies
+symmetrically to alternative solutions for the same functional need — e.g. Thunder Wave
+(permanent, single-target, blocked by Ground-immunity/Good as Gold/Dark-type-Prankster-
+immunity/Armor Tail-Queenly Majesty) versus Tailwind (team-wide, temporary, not subject to any
+of Thunder Wave's specific blocks) are two different-reliability-profile answers to the same
+"does my team act first" need, not interchangeable options — and which one a given support
+Pokémon actually offers is often simply fixed by its own movepool, not a live optimization
+choice.
+
+**Never duplicate a functional role within one set, except to cover a specific, nameable
+scenario.** Running two moves that satisfy the same functional need on the same Pokémon
+(Rain Dance stacked on an automatic Drizzle-setter; two speed-control moves on one set) is a
+default violation, not a reasonable redundancy, unless the second move covers a distinct,
+named failure case the first doesn't — e.g. Alolan Ninetales' own Speed letting it
+re-establish weather after a mid-turn change (a switch-in or same-turn Mega Evolution) before
+any attacker acts that turn, distinct from its passive Snow Warning trigger; or Whimsicott
+running both Stun Spore and Tailwind specifically to hedge against an opposing Tailwind user.
+This check applies at moveset-assembly time, after candidate narrowing (steps 1-4 above) has
+already identified a viable species/build.
+
+**Status:** Replaces the tiered relevance-gradient framing with a single procedural model;
+establishes delivery-mechanism-aware candidate matching and the redundancy-justification rule
+for moveset assembly.
+
+---
+
+### ADR-015 — Amendment 2026-07-28a
+
+**"Default resolution order" is not a separate mechanism from the dependency circle
+(Amendment 2026-07-27c) — it names the residual sequence once no requirement forces
+anything, and that residual case is vanishingly rare in practice.**
+
+When nothing about role, archetype, or an already-locked attribute forces a specific choice,
+resolution follows a natural order: role/archetype → species (jointly with ability,
+resolvable from either direction — a chosen ability narrows to a small species pool, or a
+chosen species narrows to at most a few real ability options with a clear best pick or a
+usage-based tiebreak) → moves → stat spread/item. By the time spread/item is reached, enough
+is already locked that the choice is driven by what came before it.
+
+This is not a competing system alongside the dependency circle — it's what the circle
+reduces to when nothing forces anything out of sequence. The moment any real requirement
+exists (a role mandating a specific move, an archetype mandating a specific ability), it
+fires immediately via the same circle mechanism (2026-07-27c), regardless of where it falls
+in the "default" sequence.
+
+**In practice, true unconstrained default order essentially only applies to a single
+completely unseeded first slot.** The moment any Pokémon exists on a team, theme/core
+detection (Amendment 2026-07-27a) already produces inferred role requirements for remaining
+slots — every subsequent slot inherits a real requirement from what's already locked, not a
+blank default order. Even a first slot is rarely truly unseeded, since a user rarely opens
+with literally zero input.
+
+**Status:** Confirms the dependency circle and default ordering are one mechanism, and scopes
+how rarely the unconstrained default case actually arises.
+
+---
+
+### ADR-015 — Amendment 2026-07-28b
+
+**Internal vs. external reasoning unified: both are the same objective (add win condition,
+eliminate threats), evaluated against whichever available constraint currently has the most
+narrowing power — not two separate phases of team-building.**
+
+Earlier framing (gaps #7/#8) treated "look inward" (core/team synergy) and "look outward"
+(threat-coverage, single-point-of-failure) as sequential phases, switching around the
+halfway point of team completion. Corrected: they're the same underlying question — what
+most improves this team's actual chances — applied to whichever source of constraint still
+has real narrowing power left. Sources, roughly in typical order of exhaustion: a slot's own
+stated requirement; the rest of the team's unmet needs; the opposing metagame. Early on, the
+slot's own requirement and the team's internal needs usually narrow hardest, so that's where
+attention concentrates; once those are largely satisfied, they stop contributing much new
+narrowing, and the opposing metagame (gaps #7/#8's domain) becomes the source with real
+power left. This is not phase-driven or slot-count-driven — a team with strong, unmet
+internal requirements keeps building inward regardless of how many slots that takes; a fuzzy
+or loosely-defined core exhausts its internal narrowing power quickly and needs to lean
+external earlier, not later.
+
+**"Internal" and "external" are relative to whatever's currently being decided, not fixed
+categories.** A single slot's own requirement is internal relative to that slot; the rest of
+the team is internal relative to the team as a whole; the opposing metagame is external
+relative to the team. Same function each time (a source of constraint that narrows the
+candidate search), different scope.
+
+**This directly explains the doubles-vs-singles asymmetry (ADR-005).** Doubles has
+substantially more built-in mechanical interdependence (spread-move interactions,
+redirection, shared speed-control payoffs like Tailwind) — more real internal narrowing power
+available before it's exhausted. Singles has comparatively little structural interdependence,
+so its internal-narrowing well runs dry almost immediately, and external/threat-facing
+reasoning dominates from very early in construction. This is a difference in how quickly
+internal value is exhausted, not a difference in kind — retroactively explains why doubles
+was the richer, more worthwhile v1 target (ADR-005).
+
+**Team-level redundancy (a direct case of gap #8, single-point-of-failure) is a real but
+comparatively low-narrowing-power filter, and must be applied after competence, not before.**
+Two slots that reduce to the same underlying vulnerability (e.g. two independent weather-
+setters, both failing the instant weather is overwritten/nullified) do not meaningfully
+improve team resilience — mirrors the moveset-level redundancy rule (Amendment 2026-07-27f)
+one level up. But redundancy only ever eliminates the one specific overlapping candidate,
+which is low narrowing power compared to filtering by whether a candidate performs the role
+competently at all (which typically eliminates most of a broad pool). Competence must be
+checked first; redundancy is then a flag on survivors, not a pre-filter — and it surfaces as
+a consideration on a presented alternative, not automatic elimination, since a competent-but-
+redundant option (e.g. Politoed alongside Pelipper) is still worth presenting as a real
+alternative. As a general rule, a redundant-but-competent pick is preferable to a non-
+redundant pick that doesn't actually perform the role — competence is the harder floor to
+clear.
+
+**Presentation format (one option vs. a bounded spread) is the same measurement as narrowing
+power, read as a UX signal — corrects/refines ADR-018's "propose default + 1-2 alternatives"
+into a variable rule rather than a fixed shape.** When available constraints have narrowed
+a decision to one clear answer, present one main option (plus perhaps a token alternative) —
+presenting a wide spread here would manufacture false choice the actual narrowing doesn't
+support. When constraints haven't narrowed much (several genuinely comparable candidates
+remain), the honest presentation is the fuller real spread — collapsing to one option here
+overstates confidence the narrowing doesn't have. Even "the full spread" stays bounded by
+real relevance/strength (same discipline as tier-3's fixed-small-threat-set scope, ADR-015
+Amendment 2026-07-25a) — not every technically-valid candidate, just the genuinely
+competitive ones.
+
+**Worked example tying the above together:** searching for a second weather-setter (Rain
+team, Pelipper already locked) — Rain Dance alone is far too broad a filter (learnable by
+dozens of species), so competence-at-the-role narrows first and hardest. Politoed survives
+that cut as a genuinely competent option and should be presented as a real alternative, not
+pre-eliminated for redundancy with Pelipper — redundancy is flagged only after competence
+filtering, as a lower-power, secondary consideration on an otherwise-valid candidate.
+
+**Status:** Unifies gaps #7/#8's internal/external framing into one narrowing-power-driven
+model, explains the doubles/singles asymmetry from this same principle, refines team-level
+redundancy ordering, and ties presentation format (ADR-018) to the same underlying
+narrowing-power measurement.
+
+---
+
+### ADR-015 — Amendment 2026-07-28c
+
+**Pairwise threat classifier: the mechanism behind gaps #7/#8 (team-wide threat-coverage,
+single-point-of-failure) and the "shared vulnerability" check (Amendment 2026-07-28b).**
+
+**Inputs:** two full builds (species, moveset, item, ability — not bare species/stats), and
+a field condition. Speed order is never a direct input — it's derived from the Speed stats
+already present on the two builds given.
+
+**Field condition defaults to a clean neutral baseline, but is contextually swapped when the
+matchup is inherently about a condition.** A generic threat check runs neutral by default
+(cheapest, broadly applicable). When the matchup is fundamentally about a specific condition
+(e.g. Pelipper vs. Mega Charizard Y is a weather question), the classifier runs under the
+actually-relevant condition(s) instead. The relevant condition can come from: (a) the team's
+own already-locked state (Tailwind already secured), or (b) a reasonable inference about what
+the specific opposing Pokémon typically brings with it (a Mega Swampert opponent is likely to
+carry its own Rain support) — both are legitimate contextual sources, not just the neutral
+default. This applies to damage-affecting conditions (weather/terrain) and separately to
+speed-order-affecting conditions (Trick Room/Tailwind), which are a distinct axis (who acts
+first, not how much damage lands).
+
+**A build's own already-locked moves/item/ability are real inputs, not just species/stats.**
+Will-O-Wisp enabling a burn-and-mitigate outcome, a specific set enabling a stall/attrition
+win, a build that hard-walls an attacker outright — these are properties of the *specific
+build* in that slot, not the species in the abstract. The classifier always evaluates full,
+concrete builds.
+
+**Classification outcome is four-way, not binary:**
+1. **Clean kill** — wins in a vacuum, no dependency.
+2. **Intentional non-KO answer** — mitigates, stalls, or walls without a clean kill (denial via
+   forced switch, attrition over turns, damage reduction) — a legitimate, deliberately-built
+   answer type, not a lesser result.
+3. **Conditionally-dependent answer** — loses in a vacuum, but a specific condition (own
+   team's locked support, or an assumed opponent condition) flips it to a win "most of the
+   time" — kept qualitative, not a false-precision threshold.
+4. **No answer** — loses regardless. (A no-answer that could theoretically be flipped by some
+   hypothetical unbuilt Pokémon is out of scope — not chased.)
+
+**Flagging rule: driven by decision context, not answer type.** The classifier itself is
+purpose-agnostic (same species-in/outcome-out function regardless of caller) — whether a
+result gets surfaced to the user is entirely the calling context's responsibility, not
+something the classifier encodes:
+- **Checking an already-locked build against a threat:** intentional non-KO answers (case 2)
+  are not flagged — the user already built that set with that intention, this isn't new
+  information requiring a decision.
+- **Selecting a candidate specifically to answer a threat (not yet locked):** the same case-2
+  outcome must be flagged with its caveat plainly stated (e.g. "this only walls them, they'll
+  likely switch out") — the user hasn't committed to anything, and presenting it without the
+  caveat overstates what's actually being offered.
+- **Conditionally-dependent answers (case 3) are always flagged**, regardless of context —
+  proposed to the user in the agent's own voice (e.g. "loses in a vacuum, but with Tailwind
+  already locked, this turns into a win — a soft threat, not a clean answer") — matching
+  ADR-018's proactive-default-plus-real-option pattern, not a silent unilateral accept/reject
+  by the agent.
+
+**Symmetry note:** the vacuum-level result (case 1/4, clean kill or no answer under a shared
+neutral field) is strictly symmetric — a hard win for A over B necessarily means a hard loss
+for B against A, since both describe the same underlying fact. This symmetry does not extend
+to conditionally-dependent results (case 3): injecting context relevant to only one side (a
+locked team condition, an assumed opponent-specific condition) makes the question inherently
+directional, not a reversible relation — flipping perspective without granting the other side
+an equivalent context is a different question, not the mirror of the same one. This matches
+the classifier's actual intended use (gaps #7/#8): always evaluated one-directionally, from
+the fully-known side (our own locked team) toward a representative opposing build, not
+symmetrically in both directions.
+
+**Outcome severity gradient applies uniformly across all four classification outcomes
+(clean kill, intentional non-KO answer, conditionally-dependent answer, and losses too) —
+not a separate scale per case.** Severity is measured by HP remaining after the exchange,
+using the real in-game HP-bar thresholds (confirmed: green ≥50%, yellow 20–50%, red <20%,
+stable from Gen V onward): Decisive (≥50%), Costly (20–50%), Toss-up (<20%, close enough
+that damage-roll variance could flip the result). This replaces an initially-proposed padded
+buffer (2/3 instead of the real 50% line, sized against typical chip-damage magnitudes like
+Stealth Rock at ~12.5%) — the padding isn't warranted as a *default* given hazard stacking is
+uncommon in Champions doubles compared to hazard-heavy 6v6 singles formats. Known, relevant
+hazard/status chip (Stealth Rock, Spikes, burn, poison, an ability like Rough Skin) is folded
+into the calc call explicitly when actually applicable to the specific matchup, not padded
+for generically — same "use the real known value when available, real game-default otherwise"
+pattern as the field-condition contextual swap-in.
+
+**Two gaps confirmed in the raw calc output, requiring explicit handling on top of it —
+triggered only when a known, applicable specific exists, not run speculatively by default:**
+
+1. **Contact-punish abilities/items are not reflected in the calc's damage output.** A
+   "guaranteed OHKO" via a contact move against a confirmed Rough Skin/Iron Barbs/Flame
+   Body/Static/Rocky Helmet-type defender omits real damage the attacker actually takes back
+   — this should be folded into severity classification (turning an apparent Decisive result
+   into Costly) specifically when the defender's ability/item is confirmed and the move
+   actually makes contact. Not checked as a standing default — same "known and applicable
+   specific overrides the baseline" pattern as hazard/status chip (this amendment, above).
+
+2. **Multi-hit move "guaranteed" results bake in an assumed, not-actually-guaranteed hit
+   count.** The calculator defaults to an assumed number of strikes per multi-hit move
+   (e.g. Population Bomb assumed at 10 hits, ~34.86% real likelihood without Wide Lens;
+   Bullet Seed assumed at 3-of-5 unless Skill Link is confirmed, which locks in a true 5). An
+   apparent "guaranteed OHKO/2HKO" resting on an unconfirmed high hit count is not reliably
+   Decisive — it should be treated as closer to Toss-up/conditional unless the specific build
+   actually confirms the higher hit count (Skill Link, Wide Lens).
+
+**Confirmed already correct, no extra handling needed:** immunities (Dry Skin, Lightning Rod,
+Armor Tail blocking Fake Out, etc.) correctly return 0% from the calculator; recoil damage
+against the attacker is already included in its output.
+
+**Status:** Establishes the pairwise threat classifier as the concrete mechanism for gaps
+#7/#8 (single-point-of-failure/team-wide threat-coverage) and the shared-vulnerability check
+(Amendment 2026-07-28b) — resolves how "does this team have an answer" is actually computed,
+not just when it's checked.
+
+---
+
+### ADR-015 — Amendment 2026-07-28d
+
+**Role Compendium: scope, membership model, and category structure.**
+
+**Purpose, settled first since it shapes everything else:** the compendium exists to serve
+"I need something that fulfills a specific functional role" (Weather Setter, Redirection,
+Trick Room Setter). It is not the mechanism for "I just need something strong" — that's
+already served directly by stats/coverage search against real usage data (the mechanical-
+interpretation-then-multi-axis-search procedure, Amendment 2026-07-27a/f), with no category
+needed. A category only earns a place in this model if it genuinely helps narrow a role-
+specific search — not for taxonomic completeness. This is why "generalist attacker" isn't a
+doubles category: its singles counterpart, "Wallbreaker," is defined in opposition to a
+"Wall" role that doesn't exist in doubles (no forced matchups, per below) — with no role to
+break through, there's nothing for the category to be named against.
+
+**Source role: taxonomy/category seed only — never membership or tier truth.** Two real
+Smogon community compendiums (VGC Reg M-A, SV OU) were reviewed directly. Both are useful
+for discovering which functional buckets real competitive players consider worth naming, and
+nothing more. Confirmed unreliable for membership and ranking, via multiple concrete cases:
+Volcarona ranked "Red" despite being the only relevant Quiver Dance user in the format;
+Milotic listed as a "Green" attacker despite its actual strategy being Hypnosis-stall, not
+offense; Maushold's real attacker case (Technician + Population Bomb + Tidy Up) absent
+entirely; weather/condition "beneficiary" buckets padded with popular Pokémon that have no
+differential mechanical benefit from the condition at all (Mega Froslass, Alolan Ninetales,
+Mega Gardevoir — good, popular attackers on those archetypes' teams, not genuine beneficiaries
+of the condition itself); a freeze-chance-driven "Green" ranking for a 10% incidental Blizzard
+proc nobody actually plays around. This is systemic to how the source ranks, not isolated
+error — do not import tier/rank from the source under any circumstance. Membership and
+ranking are both independently computed per the model below.
+
+**Doubles vs. singles determines the top-level category split — not battle length or dex
+size (an earlier, incorrect hypothesis this amendment corrects).** In singles, an opponent
+can force an unfavorable matchup onto a fixed target, making sustained defense ("Wall") a
+real, distinct role. In doubles, target selection is always a choice, so a slow/tanky
+Pokémon isn't filling a structural role the way a singles wall does — it's a build trait, not
+a category. This is why doubles has no "Defensive" top-level category and singles does;
+"Support" vs. "Utility" naming is a cosmetic difference only.
+
+**Offensive membership — a conjunction of criteria, not any single one:**
+1. A genuine setup mechanism (move or ability) is present.
+2. Base stats support the resulting stat line — **unless** access to the mechanism is itself
+   rare enough to be its own signal (the same rarity-substitutes-for-stat-gating principle as
+   the move-narrowing procedure, Amendment 2026-07-27f's step 1).
+3. Real, usable attacking moves exist to convert the boosted stat into actual damage — access
+   to a setup move alone (e.g. Swords Dance with no worthwhile physical coverage) is not
+   sufficient.
+4. **The set as a whole must actually exploit what's provided** — a nominally offensive move
+   or ability present alongside a set whose real strategy is something else entirely does not
+   qualify (Milotic/Coil: Attack boost present, but the set's actual plan is Hypnosis-stall,
+   not attacking). This is the general test, stated once: does the rest of the set exploit
+   this, or is it just present.
+5. **Conditional-trigger abilities (e.g. Competitive) only count if the set's strategy
+   actively engineers or reliably benefits from the trigger** — not merely possesses the
+   ability. Contrast with Defiant users (e.g. Kingambit): these already qualify as attackers
+   on base stats/moves alone, with Defiant as a bonus, not the sole justification — so no
+   special "actively engineered" handling is actually needed there; it only matters when an
+   ability is the *only* offered justification (Milotic's Competitive) and the base
+   stat/moveset case otherwise fails.
+
+**Support membership — three criteria, since support is inherently other-directed (no
+"self-exploitation" test applies the way it does for offense):**
+1. **Does an ability directly provide/enable the function?** Ability-based delivery is
+   inherently more reliable than move-based (automatic, no turn cost, no moveslot
+   competition, not preventable by the opponent acting first) — ranks above a move-based
+   version of the same function when both exist (explains why weather-setting skews
+   overwhelmingly ability-based; rare move-based cases like Alolan Ninetales tend to be
+   secondary/insurance on a Pokémon whose primary identity is something else, not a
+   competitive primary delivery method).
+2. **How likely is successful execution?** Covers delivery-mechanism reliability (priority
+   source and its failure modes, per Amendment 2026-07-27f — Prankster-priority vs.
+   natural-Speed vs. no-priority; Thunder Wave vs. Tailwind's differing block conditions) and
+   role-specific structural requirements the function itself imposes (a Trick Room setter
+   needs bulk, since going last under normal turn order means it must survive to act).
+3. **Does it stack a genuine second supportive role?** The existing primary/secondary
+   multi-role structure (Amendment 2026-07-27a/e — Pelipper, Politoed, Sableye) is itself a
+   real quality signal — covering two functions in one slot is more valuable than one,
+   equally well.
+
+**Modifier tags, distinct from primary-role categories.** Some abilities (Prankster,
+Regenerator) don't define a role themselves — they modify how well or how safely an existing
+role is executed, and attach to whatever primary role a build actually has (an offensive
+pivot, a wall, a generalist attacker) rather than becoming their own Offensive/Support/
+Defensive bucket. Regenerator specifically was considered for its own category and rejected
+on this basis — it doesn't define what a Pokémon does, only how safely it can keep doing it.
+
+**Weather/condition "Beneficiary" buckets are usage-discovered mechanical facts, not a
+separate third membership type, and exclude setters by convention.** Two genuine membership
+types exist: (a) catalogued, directly-enumerable interactions (Swift Swim, Electro Shot,
+Hurricane — found by searching ability/move tables directly), and (b) obscure-but-real
+interactions discoverable only through usage (Mega Meganium's ability+typing interaction
+under Rain, Palafin's high Water-move density) — real mechanisms, just not ones a direct
+table search would surface, so usage data's role here is *discovery*, not narrowing. A
+condition's own setters (Mega Froslass, Alolan Ninetales under Snow; any Trick Room setter)
+are excluded from the Beneficiary bucket by convention unless they independently qualify
+through (a) or (b) — a setter inherently plays on that archetype's team already, so inclusion
+in "Beneficiary" on that basis alone is circular, not independent evidence.
+
+**Category emergence from future regulation changes is not a new mechanism.** A new category
+(e.g. Terrain-based roles, if a Terrain-setting ability ever enters Champions' legal pool)
+should surface via the same category-level diff-on-regulation-change mechanism already
+designed for contingent-value detection (ADR-016 Amendment 2026-07-26b) — not manually
+anticipated ahead of time.
+
+**Singles compendium, sketched now (per Amendment 2026-07-27a/28a's doubles-first
+sequencing, ADR-005) though not consumed until singles support is built:**
+- Offensive: same membership test as doubles, largely transferable as-is (Wallbreakers,
+  Choice-item users, Setup sweepers, Priority, plus Wallbreaker specifically since singles
+  has a Wall role to break).
+- Support/Utility: same three-criteria test as doubles, but relevant sub-roles shift toward
+  entry hazards and hazard control (Stealth Rock, Spikes, Toxic Spikes, Sticky Web, Defog,
+  Rapid Spin, Magic Bounce, Court Change) — far more load-bearing in longer 6v6 games than in
+  Champions doubles.
+- Defensive (does not exist in doubles, per the top-level split rationale above):
+  - Walls — membership via base stats, defensive-relevant abilities, and status access
+    (e.g. a genuine Hypnosis-stall set).
+  - Pivots — membership via move access alone (U-turn/Volt Switch/Flip Turn/Parting
+    Shot/Teleport), then sub-split into offensive vs. defensive pivot depending on what the
+    rest of the kit actually does — same "what does the rest of the set do" test as
+    everywhere else.
+
+**Regulation change can also shift ranking/relative standing within an already-existing
+category, independent of category emergence (see above) or individual build/cache
+invalidation (Amendment 2026-07-26b, ADR-016).** Two distinct sub-cases:
+- **Absolute capability change:** a Pokémon gains real new move/item access that improves its
+  own execution of a role it already belongs to (e.g. Alolan Ninetales gaining a genuine Light
+  Clay pairing for Aurora Veil, if Mega Froslass's Mega Evolution item-lock prevents the same
+  pairing).
+- **Relative/comparative devaluation:** an existing member's standing declines purely because
+  a new, better competitor enters the same category — nothing about the existing member
+  changes at all (Grimmsnarl's arrival in M-B making Sableye a comparatively weaker dual-
+  screens pick, without any change to Sableye itself).
+
+This confirms two hard requirements for whatever ranking/tier mechanism resolves the still-
+open item above: (1) ranking must be recomputed on regulation change, using the same trigger
+already established for category-diff/contingent-value detection (ADR-016 Amendment
+2026-07-26b) and cache re-validation — not a separate schedule; (2) ranking must be
+comparative across all current members of a category, never an absolute per-Pokémon score
+computed in isolation, since a member's standing can change entirely due to someone else's
+introduction rather than any fact about the member itself.
+
+**Status:** Fully resolves the Role Compendium's scope (taxonomy seed only), membership
+model (offensive conjunction test, support three-criteria test, modifier tags, beneficiary-
+bucket discovery vs. narrowing), and top-level category structure (doubles/singles split
+rationale corrected from an earlier, wrong hypothesis). Ranking/tier computation itself
+remains open — flagged, not resolved: our own tier should likely draw on the pairwise threat-
+classifier's severity gradient (Amendment 2026-07-28c) and/or real usage/tournament placement
+data already pulled, but which signal(s) and how they combine into a category-membership tier
+has not been decided.
+
+---
+
+### ADR-015 — Amendment 2026-07-29a
+
+**Candidate discovery discipline — corrected after repeated failures during mock-run
+testing (2026-07-28/29 sessions).**
+
+**Search must start from regulation-scoped, structured data — never a generic "who learns
+move X" query.** Generic web search repeatedly missed real, legal, currently-used candidates
+(Mega Clefable for Redirection; Volcarona, Mega Scovillain, Vivillon, Ariados for Rage Powder,
+found only after being told to search Champions-specific usage data directly rather than a
+curated third-party "top picks" list). A curated list from any single source — even a
+seemingly authoritative one — must never be treated as exhaustive without independently
+confirming it, per the standing "verify against the primary source" practice (already a
+tracked working preference). Where the authoritative source itself is inaccessible (see
+tool-limitation note in master_project_log.md), this must be stated as a real gap, not
+papered over with a lower-quality substitute presented as equivalent.
+
+**Mega-form evaluation must be explicit and bidirectional, but only when the specific
+mechanism in question genuinely applies to both forms.** Missed in both directions this
+session: Mega Tyranitar's stat/sequencing advantage over base Tyranitar for Sand-setting was
+initially collapsed into one entry; conversely, Mega Clefable was initially treated as a
+Redirection candidate by default access-inheritance, when its real kit (Magic Bounce, Calm
+Mind attacker) abandons the role entirely. The correct rule: check both forms independently,
+but only meaningfully split them when both have a genuine, comparable claim to the mechanism
+being evaluated — a base form's nominal, non-competitive access to a move/ability (e.g. base
+Charizard's Sunny Day vs. Mega Charizard Y's Drought) does not warrant a full second
+candidate entry.
+
+**Usage/real-team data is legitimate only for discovery and legality confirmation — never as
+ranking evidence.** Repeatedly misused this session as implicit evidence for a candidate's
+quality (citing "real teams do X" as if it were a mechanical argument) rather than purely to
+confirm a candidate exists and is legal. This directly contradicts the ranking model's
+foundational premise (ADR-015 Amendment 2026-07-28d): ranking must be independent of
+popularity, which measures team-synergy fit, not role-execution quality.
+
+**Near-universal-access moves cannot be used to narrow or differentiate a candidate field.**
+Protect is learnable by nearly every Pokémon; treating "has Protect" as a differentiating
+factor (as initially attempted for setup-sweeper survival) provides zero narrowing power and
+must be excluded from consideration on that basis alone — the same principle already
+established for broadly-learnable moves in the search-narrowing procedure (Amendment
+2026-07-27f), now confirmed by a concrete failure case.
+
+**Status:** Corrects repeated process failures in candidate discovery, observed across four
+mock-run role evaluations (Weather Setter Rain/Sand, Redirection, Swords Dance Attacker).
+
+---
+
+### ADR-015 — Amendment 2026-07-29b
+
+**Refined membership/ranking criteria, corrected through extensive mock-run testing.**
+
+**Offensive membership collapses to the same 3-criterion structure as support (Amendment
+2026-07-28d), not a separate 5-part test.** Restated: (1) does an ability directly reinforce
+the role's actual function (not merely exist) — e.g. Huge Power/Adaptability amplifying
+output, Stance Change preserving stat boosts across a forme switch — distinguished from an
+ability that is real but irrelevant to the payoff (Prankster does not boost the attacking
+move that follows a self-buff, since it only affects the status move itself — a real,
+repeated confusion this session, since Prankster's benefit for weather/screens moves comes
+from the move's own effect being instant, while a setup move's payoff is deferred to the next
+turn, which Prankster never touches); (2) does the moveset deliver the payoff and address
+execution risk (see below); (3) does a genuinely distinct secondary function exist, unrelated
+to the primary payoff (e.g. Intimidate on a Swords Dance user is a real secondary, not a
+reinforcement of the setup-sweep function itself).
+
+**Setup/sweeper roles (deferred payoff) have a distinct two-axis execution-risk model,
+unlike instant-payoff roles (weather-setting) or same-turn-execution roles (redirection).**
+A candidate must solve at least one of: (a) survive the setup turn to still be alive to
+attack, or (b) outspeed/have priority on the follow-up attack to actually capitalize —
+**only one is required for membership, but both independently raise ranking.** Protect cannot
+satisfy (a): it cannot be used in the same turn as the setup move, so "has Protect" never
+addresses setup-turn survival risk (a real, repeated error this session) — genuine solutions
+to (a) are bulk/typing, a damage-reducing or deterrent ability (Rough Skin, Weak Armor,
+Flame Body), a guaranteed damage-negation effect (Disguise), or a persistent decoy mechanism
+distinct from Protect (e.g. Substitute, which can absorb hits across multiple turns).
+
+**Tier bar, tightened after early over-generosity: "Excellent" requires an unconditional,
+mechanism-guaranteed solution — not merely adequate stats — and, where relevant, the *type*
+of mechanism at the top of a role matters, not just the presence of one.** For setup
+sweepers specifically, the line between Excellent and Good is not "has priority" alone (many
+Good-tier entries have real priority) — it is **priority backed by an ability that further
+amplifies that specific move's damage** (Technician/Adaptability/ability-stacking on Bullet
+Punch/Sucker Punch), versus priority with no amplifying mechanism (real but comparatively
+modest output). Raw damage magnitude must be estimated (rough BP × effective stat math is
+sufficient at scale — exact calc verification is not required nor practical across dozens of
+candidates) and weighed alongside execution reliability; a mechanism that reliably executes
+but produces weak output (e.g. a guaranteed free turn on a low base-Attack Pokémon) does not
+automatically earn the top tier over one with both reliable execution and strong output.
+
+**Doubles specifically imposes a stricter bulk requirement than singles for setup-turn
+survival, due to focus-fire risk (two attackers, or an attacker plus a spread move, in one
+turn).** A stat/ability profile that would clear survival easily in singles may not in
+doubles — this must be checked as its own, format-specific factor, not assumed equivalent
+across formats.
+
+**Membership strictness must scale to the raw breadth of the candidate pool, with a target
+total of roughly 15-20 candidates spread as evenly as practical across three tiers** (fewer
+where the raw pool is inherently small — e.g. an ability held by only 2-3 species). A broadly
+learnable mechanism (e.g. Swords Dance, dozens of real legal learners) requires the
+membership test itself to carry much more of the filtering burden, or tiers become
+uselessly large and stop differentiating anything (observed directly: an early pass placed
+14+ candidates in "Excellent" before the bar was corrected).
+
+**A real, better move/strategy existing elsewhere for a given species (e.g. Shell Smash over
+Swords Dance on Barbaracle; Dragon Dance over Swords Dance on Mega Charizard X) is a genuine
+opportunity-cost fact, but is out of scope for single-move membership/ranking exercises** —
+it belongs in the actual move-selection loop (the "best remaining move" procedure,
+established much earlier), not in evaluating candidacy for one specific move in isolation.
+
+**Status:** Refines and unifies the offensive/support membership tests, establishes the
+two-axis execution-risk model for deferred-payoff roles, and tightens the tier bar with a
+concrete target scale — derived from repeated correction across the Weather Setter,
+Redirection, and Swords Dance Attacker mock runs.
+
+---
+
+### ADR-015 — Amendment 2026-07-29c
+
+**Mega Evolution's item-slot lock is a genuine trade-off, not merely a Mega-vs-base stat
+comparison.** Mega Evolution locks the item slot to the Mega Stone — a base form can access
+items (e.g. Life Orb) its own Mega counterpart structurally cannot. This means a base form is
+sometimes the mechanically stronger pick for raw output despite lower stats, not just a
+fallback when a Mega isn't used (confirmed concretely: base Blaziken/Scizor with Life Orb;
+Mimikyu with Life Orb). This must be checked explicitly whenever comparing a base form
+against its Mega, not assumed away as the Mega automatically superseding the base.
+
+**Shared vs. divergent abilities across a base/Mega pair must be verified per form, never
+assumed.** Confirmed failures both directions this session: assumed Mega Gallade retained
+base Gallade's Sharpness (it does not — Mega Gallade has Inner Focus instead); dropped base
+Scizor from consideration despite it sharing Technician identically with its Mega form. The
+rule is simple but was violated repeatedly: check each form's actual ability list
+independently, every time, regardless of what seems likely.
+
+**Status:** Narrow but concrete corrections to Mega-form comparison discipline, arising from
+specific verification failures during the Swords Dance Attacker mock run.
+
+---
+
+### ADR-015 — Amendment 2026-07-29d
+
+**Trick Room attacker evaluation: relative speed, SP-investment mechanics, and setup-move
+cost — derived from extensive mock-run correction (Trick Room Attacker role, 2026-07-29).**
+
+**"Slow enough to benefit from Trick Room" is relative to current top-threat speed tiers,
+not an absolute base-Speed threshold — confirmed via a real correction, not just restated
+from the earlier weather-beneficiary precedent.** A Pokémon with base Speed at or near a
+common benchmark (e.g. 100) still gains a real, relevant advantage under Trick Room against
+the many threats faster than that benchmark, even though the same stat reads as "fast" by
+ordinary standards (mirrors the Mega Gardevoir precedent already established for theme/role
+detection, Amendment 2026-07-27a). An absolute low-Speed cutoff (e.g. treating base Speed
+~100 as automatically disqualifying) incorrectly excludes real, legitimate candidates —
+confirmed directly: Mega Kangaskhan (base Speed 100) was wrongly excluded on this basis, then
+correctly reinstated.
+
+**Deliberate SP investment can lower effective Speed far below a Pokémon's base stat,
+widening the real candidate pool beyond naturally very-slow species.** A Trick Room build
+on a middling-to-high base-Speed Pokémon (under roughly 80, and workable even at 100 with
+more deliberate investment) typically uses zero Speed investment plus a Speed-hindering
+nature — this both guarantees acting first under Trick Room (well below the raw base stat)
+and frees the un-invested SP for bulk instead, a genuine double benefit, not a trade-off.
+This means role membership should be evaluated against a Pokémon's effective, buildable
+Speed under a real Trick Room SP allocation, not its raw base stat read in isolation.
+
+**In a deferred-payoff, turn-limited role (Trick Room lasts ~5 turns), a manual setup move
+is a genuine cost, not a free bonus — inherent, automatic, no-turn-cost damage
+amplification should rank above access to a setup move that spends one of very few
+available turns.** This is a sharper, role-specific version of the general "does this
+actually pay off, or just sound like it should" discipline — confirmed via direct
+correction: Hatterene's case rested partly on Calm Mind access, which was incorrectly
+credited as a plus before being correctly identified as a cost specific to this
+turn-limited role. Distinguish an inherent multiplier (an ability like Pixilate, Mega
+Launcher, Huge Power, Iron Fist — automatic, every relevant turn, no setup cost) from a
+manual setup path (a move that must be selected and pays off only afterward) when ranking
+within a deferred-payoff role specifically.
+
+**Relative magnitude of an inherent multiplier matters, not just its presence — confirmed
+via direct comparison.** Iron Fist (20%), Pixilate (20%), Mega Launcher (50%), Huge Power
+(100%), and Parental Bond (~effective 125% total) are not interchangeable just because each
+is "an inherent ability boost" — the actual magnitude must be compared directly when ranking
+within a tier, the same discipline already established for rough BP-based output comparison
+in the Swords Dance run (Amendment 2026-07-29b), now confirmed to matter for ability-based
+multipliers too, not just move base power.
+
+**Status:** Extends the setup-sweeper/deferred-payoff model (Amendment 2026-07-29b) with
+role-specific refinements for Trick Room specifically, derived from repeated correction
+during mock-run testing.
+
+---
+
+### ADR-015 — Amendment 2026-07-29e
+
+**Usage-data consistency check — a real inconsistency caught and corrected during mock-run
+testing (2026-07-29).**
+
+Usage/real-team data must be treated identically regardless of which conclusion it happens
+to support — it is discovery/legality evidence only (Amendment 2026-07-29a), never ranking
+evidence, and this applies the same way whether the candidate in question seems intuitively
+strong or intuitively weak on paper. Confirmed failure case: heavy real usage on Mega
+Gardevoir (an already-expected strong candidate) was treated as confirming evidence to trust
+and mechanically verify; heavy real usage on Mega Kangaskhan (a candidate that initially
+failed an incorrect absolute-Speed gate) was instead treated as a "false positive" requiring
+correction via the mechanical model — two opposite epistemic stances applied to the same
+kind of signal, based on which candidate's outcome had already been assumed rather than
+checked. The correct, single standard: usage always means "this is real and worth verifying
+mechanically" — never "this confirms my prior expectation" in one direction and "this must
+be explained away" in the other. Once verified, both candidates in this specific case turned
+out to have genuine, real mechanisms (relative-speed advantage under Trick Room) — the
+usage signal was equally valid for both from the start; only the mechanical verification
+step was being applied inconsistently.
+
+**General principle:** when a candidate's usage-confirmed real-world presence conflicts with
+an initial mechanical read, treat this as a signal to re-examine the mechanical model for a
+missed factor (as happened here — the absolute-vs-relative Speed gate was wrong) rather than
+either accepting the usage data as sufficient on its own, or dismissing it as noise, in
+either direction.
+
+**Status:** Records a specific, confirmed reasoning-consistency failure and its correction,
+generalized into a standing check against directionally-biased use of usage/discovery data.
+
+---
+
+### ADR-015 — Amendment 2026-07-29f
+
+**Sleep-inducing status role: delivery-mechanism-specific criteria, and two role-general
+principles confirmed via mock-run correction (2026-07-29).**
+
+**Real delivery mechanisms and their distinct reliability profiles, confirmed directly:**
+Spore (100% accuracy) — but confirmed that all four Spore-line species (Breloom, Amoonguss,
+Parasect, Toedscruel) are unavailable in Champions; this pathway does not exist in the
+current compendium at all. Sleep Powder (75% accuracy, blocked by Grass-types/
+Overcoat/Safety Goggles/Insomnia/Vital Spirit/Sap Sipper). Hypnosis (60% accuracy, blocked
+by Dark-types). Yawn (100% accuracy to land, but the sleep effect is delayed a full turn —
+the opponent can simply switch out during the delay window, a fundamentally different and
+more easily-countered profile than an immediate-effect move, regardless of that 100% landing
+rate).
+
+**Criterion weighting is delivery-mechanism-dependent within a single role, not uniform —
+confirmed via two concrete corrections:**
+- **Speed matters enormously for immediate-effect delivery (Sleep Powder, Hypnosis) since
+  landing the move before being hit denies the opponent an action entirely** — but is
+  largely irrelevant for Yawn specifically, since the delayed effect means acting first
+  buys nothing toward the actual lockout; Yawn's real counterplay is the switch-window
+  during the delay, a team-composition question, not a stat the user itself can solve.
+- **Bulk's relevance is conditional on how imperfect the move's accuracy is** — a real,
+  secondary "insurance against a missed roll" asset that scales with miss probability (real
+  and meaningful for Sleep Powder's 75%, would matter more for 60%, and is nearly irrelevant
+  for a near-guaranteed-accuracy case like Vivillon's Compound-Eyes-corrected Sleep Powder).
+  This is not the same kind of reinforcement as an ability/mechanism that improves execution
+  directly — it's a lesser, fallback-case asset, and should not be weighted equally against
+  an active execution-improving mechanism (Chlorophyll's speed advantage, Compound Eyes'
+  accuracy correction) when ranking within a tier.
+
+**Trapping abilities only reinforce delivery mechanisms that have an escape window to
+close** — confirmed via direct correction: Shadow Tag provides real, major reinforcement
+paired with a delayed-effect move (Yawn, closing the switch-window before the delayed sleep
+triggers), but provides essentially no reinforcement paired with an immediate-effect move
+like Hypnosis, which has no window to escape through in the first place. A reinforcement
+mechanism must be checked against what specific failure mode it actually addresses, not
+credited generically as "a strong ability" independent of the delivery mechanism it's paired
+with.
+
+**Confirmed accuracy-boosting mechanisms are real, direct criterion-2 reinforcement and were
+initially missed by not checking each candidate's own full kit directly:** Compound Eyes
+(+30% accuracy, checked directly against Vivillon rather than assumed) and Coil (+1 accuracy
+stage among its effects, checked directly against Milotic) both meaningfully improve
+execution reliability and were confirmed via direct verification, not assumption — both had
+been initially missed by relying on partial recollection rather than checking the specific
+candidate's kit.
+
+**Status:** Establishes delivery-mechanism-specific criteria weighting for this role
+(reusable pattern: check whether a general criterion's precondition actually holds for the
+specific delivery mechanism in question, rather than applying it uniformly across a role).
+
+---
+
 ## ADR-016: Resolved-build cache — tier-1 accumulates verified knowledge over time
 
 **Decision:** Maintain a persistent, shareable local store of resolved builds — species +
@@ -761,7 +1889,7 @@ for append-friendly growth), checked into the repo — not a binary DB — since
 mergeability matter once this is meant to be shared, not just used locally.
 
 Each entry must carry: `regulation` (explicit field, not inferred from file-update time),
-`source_tier` (Champions-native / analogous-format / live-lookup, per ADR-007c/ADR-014a),
+`source_tier` (Champions-native / analogous-format / live-lookup, per ADR-007 Amendment 2026-07-25c/ADR-014a),
 `verified` (bool — tier-3-confirmed, or just tier-1-sourced), `date_resolved`, and where
 applicable a `variants` structure capturing documented alternate spreads rather than a single
 value. A shared cache with unlabeled provenance is just numbers with no way to judge trust —
@@ -785,7 +1913,7 @@ staleness/expiry framing applies to the build data itself.
 Tier-3 verification checks a build against "the top 3–5 relevant threats by usage" *at the
 time it ran* (ADR-015's fixed small-number scope). That specific threat set is a snapshot of
 a moving target — usage rankings shift over a season even within one regulation (Pokemon-
-Zone's season-scoping, ADR-007c) — so a build verified months ago may have been checked
+Zone's season-scoping, ADR-007 Amendment 2026-07-25c) — so a build verified months ago may have been checked
 against threats that are no longer the current top answers, even though the build itself is
 unchanged and still sound. This isn't the build being wrong; it's the verification claim
 being scoped to whenever it was run. Accordingly, each cache entry's `verified` field should
@@ -885,3 +2013,285 @@ structurally available) only changes when the legal pool itself changes.
 **Status:** Adds a narrow, rare-case detection mechanism triggered by regulation change,
 feeding the same cache infrastructure as the rest of ADR-016. Does not require prose parsing
 or ongoing/periodic execution.
+
+---
+
+### ADR-016 — Amendment 2026-07-27a
+
+**Confirmed: get_resolved_build does not chain backward through archived regulation files.
+This is a real, current gap, not a design choice to leave as-is.**
+
+Confirmed directly (Cursor): `get_resolved_build` resolves the path for the requested
+regulation only and returns `None` on a miss — it does not walk into prior regulations'
+archived files (e.g. `champions-reg-ma.jsonl`) automatically. Carry-forward currently only
+happens when explicitly written via `put_resolved_build(..., carried_forward_from=...)` into
+the *current* regulation's file — it is not a live fallback at lookup time.
+
+**Why this matters, concretely:** Smogon's Champions Strategy Dex pages are additive and
+per-debut-regulation, not cumulative — the M-B page only covers Pokémon that debuted in M-B;
+a Pokémon available since M-A (e.g. Charizard-Mega-Y) keeps its writeup on the M-A page
+indefinitely, even after M-B ships, since nothing is removed from Champions' legal pool so
+far (ADR-015 Amendment 2026-07-26d). Without a lookup-time fallback, a query for the current
+regulation's cache will silently miss a real, valid, still-applicable writeup that happens to
+live in an older regulation's archived file — even though the underlying build is still
+completely legal and current.
+
+**Resolution:** `get_resolved_build` should walk backward through archived regulation files
+(current → most recent prior → etc.) on a miss, not rely solely on explicit
+`carried_forward_from` writes into the current file. Explicit carry-forward writes remain
+useful (e.g. once a build has been re-validated for the current regulation, per ADR-016's
+existing re-validation requirement) but should not be the only path to finding an
+older-regulation entry — the chain-lookup is what prevents silently missing real, still-valid
+data.
+
+**Separately, confirmed: writeup coverage is not tied to regulation-change events at all.**
+Smogon can publish a new writeup for a Pokémon available since an earlier regulation at any
+time, independent of whether a newer regulation has since launched — unlike legality data,
+which only changes when the regulation does. Re-scanning for new writeup coverage across all
+regulation pages should happen on-demand ("when convenient"), not on a fixed schedule and not
+tied to the regulation-change trigger already established for legality/current-availability
+checks (ADR-015 Amendment 2026-07-26b, ADR-016 Amendment 2026-07-26b's contingent-value
+diff). The existing analogous-format (SV) fallback covers the gap in between rescans, so
+there's no urgency requiring a standing background process.
+
+**Status:** Identifies a real gap in the current implementation (no chain-lookup on cache
+miss) and resolves the separate open question of writeup-rescan cadence (on-demand, no fixed
+schedule). Implementation of the chain-lookup fix is a follow-up task, not yet built.
+
+---
+
+## ADR-017: RecommenderState extensions — team theme/core, granular locking, constraint scope
+
+**Team theme/core.** `RecommenderState` gains two related concepts, populated by a detection
+process (see ADR-015 Amendment 2026-07-27a for the mechanism):
+- `core`: the working set of team slots and their inferred roles. Always populated once
+  theme/core detection runs — even when no clean named archetype emerges (e.g. Mega
+  Staraptor's Contrary/weakness-driven needs), `core` still holds the derived set of needed
+  support functions.
+- `archetype`: an optional named label (Rain, Trick Room, etc.), set only when a strong,
+  clean pattern actually emerges. Not every team has one, and that's a valid, expected
+  outcome, not a detection failure.
+
+`core` is not a separate structure alongside `team_draft` — it *is* `team_draft` in its
+earliest, most-unresolved state: a user-named seed Pokémon becomes a slot with only `species`
+locked; each inferred needed role becomes a slot with only `role` locked. Detection and
+steering use the same underlying representation throughout.
+
+**Granular, per-attribute locking.** Replaces the single `locked: bool` on each slot with
+`locked_fields: {role, species, item, moveset, spread}`, each independently toggleable.
+Rationale: different attributes get "decided" at different points and for different reasons,
+and users change their minds about one without wanting to reopen all of them (e.g., locking a
+moveset while still being open to a different species that can run it).
+
+**Default lock rule:** lock exactly whatever was the actual stated or inferred reason a slot
+exists, nothing more. A user-named species locks only `species`. A theme-inferred role locks
+only `role`. Nothing gets locked by inference beyond what was actually grounded in a real
+stated or derived reason.
+
+**Reason-tracking for cascading revisability.** Every inferred value (locked field, archetype,
+a core's needed-role entry) must record *why* it was set, not just its current value. This
+lets a later reversal ("actually, Sun instead of Rain") correctly cascade only to the things
+that depended on the reversed reason — a role-locked slot that existed *because* of the old
+archetype gets revisited; a species-locked slot the user wants regardless of weather does not.
+This generalizes the existing `still_active` mechanism already present on `constraints` to
+apply project-wide, not just to the constraints list.
+
+**Constraint scope: per-slot vs. team-wide, and a groundedness spectrum.** `constraints`
+gains a `scope: per_slot | team_wide` field. Team-wide freeform constraints (monotype, "all
+Eeveelutions," "girlypop Pokémon only," "all monkeys") use the existing loose `predicate: str`
+shape — no new structured field needed, since these are inherently open-ended and can't be
+enumerated in advance.
+
+Each constraint additionally carries a groundedness label reflecting how it can actually be
+satisfied, not a value judgment on its legitimacy:
+- `mechanically-checkable`: a real data field exists (monotype/type, ability/move-based
+  rules).
+- `enumerable-but-uncoded`: a real, definite category exists but isn't sitting in a data field
+  yet (Eeveelutions, "monkeys") — derivable once, then checkable like anything mechanical.
+- `judgment-only`: no data-groundable definition exists at all ("girlypop") — resolved by
+  LLM judgment, with that fact stated plainly rather than implied to be as grounded as the
+  others.
+
+**Edge case, not a fourth category:** some constraints have both a mechanical interpretation
+and a plausible looser judgment-based one that could disagree (e.g. "red Pokémon" — an
+official color categorization exists, but a visual/aesthetic read might diverge from it).
+Check the mechanical interpretation first, but surface the ambiguity rather than silently
+assume the official categorization is what was meant.
+
+**Status:** New ADR, all points decided during the 2026-07-27 role-play design session.
+Implementation not yet built.
+
+---
+
+## ADR-018: Agent decision-making triggers, proactive defaults, and deferral handling
+
+**When the agent decides for the user — three cases, not "insufficient input."** Nearly
+every real search is under-specified (multiple species can satisfy almost any role), so
+"the agent must decide" isn't triggered by input being sparse — it's triggered by:
+1. Explicit deferral ("you pick").
+2. Too many valid options to reasonably present.
+3. Rejection of a suggestion without a reason or further requirement.
+A structural fourth case — no interaction channel exists at all (the quick-pick tool,
+ADR-012a) — is a distinct, separate case: there the agent must decide because there's no
+back-and-forth to have, not because the user deferred.
+
+**Timeout is its own case, not "proceed with best judgment."** Silently proceeding on a
+stalled conversation spends resources (tokens/compute) the user may not want spent, without
+consent — a real cost decision made on the user's behalf. Also rejected: prompting for
+permission on timeout ("do you want me to fill this out?") — if a user has gone quiet long
+enough to time out, they are not there to answer that prompt either. Correct behavior: do not
+act, do not prompt. Let it sit until the user actually returns.
+
+**Standing default: proactive, concrete, named-default-plus-alternatives — not open
+questions.** Rather than asking "what do you want here?", propose a concrete grounded default
+with 1-2 named real alternatives (e.g. "the most common weather setter here is Pelipper — go
+with that, or an alternative like Politoed?"). This is the standing default for all users,
+not a response calibrated to inferred experience level — an experienced user with a real
+preference states it regardless of what's nudged, costing them nothing; a less experienced
+user gets a concrete, easy-to-react-to anchor instead of an open-ended prompt they may
+struggle to answer from nothing.
+
+**No user-experience-level model is needed.** A nudge's rejection produces a stated reason
+("I don't want X because Y"), which is inherently more informative than a bare preference
+volunteered cold — nudging is a better information-gathering strategy than open questions,
+independent of who's being asked. Where explanation depth actually needs to adapt, the
+signal is available directly in the moment it matters (see below), without needing to
+infer or track experience level at all.
+
+**Deferral phrasing indicates what kind of explanation is wanted, not whether one is
+warranted.** Every agent-made decision is explained regardless of how the deferral was
+phrased — a bare "you pick" does not mean no explanation, only that the user isn't weighing
+in on which option gets chosen. What varies by phrasing is the *kind* of explanation:
+"I don't know the difference, care to explain?" calls for a conceptual explanation; "why
+might Politoed be better here?" calls for the specific reasoning behind this decision; a
+bare "you pick" calls for a minimal rationale alongside the choice made.
+
+**Explanation depth also scales with how much the agent decided unilaterally, independent of
+phrasing.** Deferring one narrow decision (e.g. species alone, with role/moves/item/spread
+already fixed) only needs reasoning for that one choice. Deferring something broader (an
+entire slot — role, species, moves, item, spread all left open) means every one of those
+coupled decisions was made unilaterally, and the explanation needs to cover the whole chain,
+not just the final result.
+
+**Verification stays constant; narrating it does not.** Every claim, including user pushback,
+is checked against real data the same way regardless of who's asking or how confident they
+sound — user pushback being correct does not mean it was right *because* the user said it
+confidently, and a user's demonstrated track record does not reduce verification rigor
+anywhere. But routine verification is not narrated by default — a correct pushback gets
+"you're right" or the agent simply proceeding with the update, not a recitation of what was
+checked. Verification becomes visible specifically when it changes the answer (the user
+was wrong about something and it's being corrected), not as a standing disclosure. Stating
+"I verified this" on every routine confirmation reads as distrust and adds noise, mirroring
+the existing rule against flagging every inherent build tradeoff by default (Amendment
+2026-07-27c).
+
+**Status:** Establishes agent decision-trigger cases, timeout handling, proactive-default
+behavior, and the deferral/verification-narration rules from the 2026-07-27 role-play session.
+
+---
+
+## ADR-019: Role Compendium construction and maintenance pipeline
+
+**Construction requires a separate constructor/critic split, not self-review.** Extensive
+mock-run testing (2026-07-27 through 2026-07-29, across six roles) showed that a single
+pass doing both construction and self-checking reliably misses real, checklist-level errors
+— missed mandatory Mega-form splits (in both directions), inconsistent criteria application
+across tiers within the same role, treating usage as ranking evidence after explicitly
+deciding not to, and failing to cross-check a new placement against its actual tier-neighbors.
+These are framework-adherence failures, not novel judgment calls the framework has no answer
+for — a dedicated critic pass, explicitly tasked with auditing a constructed entry against
+the established checklist, is expected to catch most of this mechanically. Reviewing one's
+own construction in the same pass is weak self-checking, since the generation step has
+already committed to a framing before any independent skepticism is applied.
+
+**Exhaustive category sweeps, not opportunistic noticing, are required during construction.**
+Confirmed failure pattern: real, direct reinforcement mechanisms (Compound Eyes on Vivillon,
+Coil on Milotic) were missed despite "check for accuracy-boosting effects" already being an
+established criterion, because each candidate's full kit was only checked when something
+external prompted a closer look, not as a mandatory, exhaustive step run against every
+candidate regardless of other context. The fix: run a mandatory sweep of every candidate's
+complete ability list against the fixed taxonomy of effect-types already known to matter
+(accuracy, power, priority, execution-risk-mitigation, etc.) for every entry, rather than
+relying on incidental notice.
+
+**Each criterion in the taxonomy carries a precondition and only applies when it holds.**
+E.g. accuracy-boosting effects are only relevant when the delivery mechanism's base accuracy
+is meaningfully below 100% and the role's success genuinely depends on that roll — checking
+for this against an already-100%-accurate or ability-guaranteed mechanism is wasted effort
+and should be skipped automatically, not evaluated and found irrelevant each time.
+
+**Usage-based validation runs as a targeted review-trigger, never as ranking evidence
+itself** (extends Amendment 2026-07-29a's usage-for-discovery-only principle to the
+validation stage specifically):
+1. **Pool-breadth is a prerequisite check, computed per delivery pathway (not per role, and
+   not from raw learnset counts) using the effective candidate count after real mechanical
+   narrowing.** A narrow pool (e.g. only 2 legal Drizzle-users) makes market-share numbers
+   structurally uninformative on their own; a wide, genuinely competitive pool makes them
+   meaningful. Two delivery pathways within the same role are treated as separate pools only
+   when they differ in *reliability class* (e.g. ability-guaranteed vs. move-based-and-
+   conditional) — pathways of the same reliability class (e.g. Follow Me vs. Rage Powder,
+   both +2-priority moves) stay one combined pool; splitting further is unnecessary
+   overhead when the combined numbers already agree with what the mechanical model predicts.
+2. **Cheap check first: does raw/coarse usage already match what the mechanical
+   reliability-class hierarchy predicts?** If yes, no further work is needed — the
+   fine-grained pathway split would reveal nothing not already confirmed. Only a genuine
+   mismatch (an expected-worse pathway showing surprisingly high share, or vice versa)
+   triggers the more expensive, fine-grained investigation.
+3. **When a mismatch is confirmed, two independent confounds must be checked before
+   treating it as a real signal:** (a) candidate-level — does the candidate's low share in
+   this specific role decompose sensibly across other roles it's independently confirmed
+   strong at (a genuinely versatile piece diluting its own per-role numbers is not a
+   weakness); (b) role-level — is the role itself generally lower-demand across the
+   metagame, independent of any specific candidate's quality, requiring the "surprising"
+   threshold to be calibrated per-role rather than by one fixed bar everywhere.
+4. Only a mismatch surviving all of the above triggers an actual entry review — the default
+   is to accept an entry without added scrutiny.
+
+**Maintenance is a two-phase, event-triggered cycle — never a standing periodic re-run**
+(consistent with the "no scheduled cadence" principle already established for contingent-
+value detection, ADR-016 Amendment 2026-07-26b, and Smogon-writeup rescanning):
+1. **Regulation-change trigger, immediate, mechanical (no usage data required):** a critic
+   pass checks every existing entry touched by the change against four distinct trigger
+   types:
+   - Species added to or removed from the legal pool.
+   - **An entire reliability class introduced or removed for a role** (e.g. an
+     ability-based pathway entering a role that was previously move-only) — this devalues
+     or revalues an entire existing population at once, not just one new candidate; flags
+     the whole affected population for re-ranking, not just the new addition. (Confirmed
+     already observed in practice: Spore's total absence pushed every remaining Sleep-role
+     candidate's relative standing up; the same logic applies symmetrically if a
+     reliability class were ever removed rather than added.)
+   - **An item entering or leaving the legal pool, filtered by a fixed, permanent
+     item-lock property (Mega Evolution, and potentially future Z-move-style mechanics) —
+     not a per-candidate, per-regulation check.** A Mega-locked candidate can never benefit
+     from any new item and should be excluded from this check entirely, rather than
+     re-evaluated each time; this was previously mis-modeled as a per-candidate
+     availability fact (the Aurora Veil Mega Froslass/Alolan Ninetales case) when it is
+     actually a fixed structural property.
+   - **A move's own parameters changing directly via balance patch** (accuracy, power,
+     effect chance), independent of any species or item change (e.g. Dark Void's accuracy
+     nerf reducing Darkrai's standing with no other change involved).
+   - **Contingent-value detection, generalized from a binary check to a graded one, driven
+     by a persisted dependency registry rather than brute-force re-checking every
+     candidate's full movepool.** Extends ADR-016 Amendment 2026-07-26b: a condition→
+     dependent relationship (e.g. "Expanding Force's value is contingent on Psychic
+     Terrain uptime") is recorded as its own queryable structure at construction time —
+     not left buried in one entry's prose — so a future regulation's category-level diff
+     (e.g. "Psychic Surge just became available") can directly look up which existing
+     entries are registered as depending on that condition, rather than re-deriving the
+     dependency from scratch or checking every candidate's entire movepool against every
+     new addition. This also generalizes beyond "did this become viable/non-viable" to
+     "did this remain viable but become comparatively better or worse" — nothing about the
+     dependent candidate needs to change for its real standing to shift.
+2. **Usage-based mismatch detection, once enough real usage accumulates post-regulation**
+   (the cheap-check-then-confound-check procedure above) — deliberately the later, slower
+   phase, since no usage data exists to compare against immediately after a regulation
+   change.
+3. **No standing periodic re-run in either phase** — both are strictly event-triggered.
+
+**Status:** Establishes the full compendium construction/maintenance pipeline: constructor/
+critic separation, exhaustive-sweep-with-preconditions discipline, the four-part regulation-
+change trigger taxonomy, the dependency-registry mechanism for contingent-value detection,
+and the two-phase (mechanical-then-usage) maintenance cycle. Supersedes the ad hoc,
+single-pass construction approach used during the 2026-07-27 through 2026-07-29 mock-run
+testing.

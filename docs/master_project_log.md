@@ -27,6 +27,17 @@ Portfolio project closing an "agentic AI" skill gap flagged across multiple job 
 Identified from direct hands-on experience using Claude and Google AI (Gemini) for team-building help before starting this project. These are not hypothetical risks — they are observed, repeated failures, and the project's core value proposition is catching what general-purpose LLMs get wrong here.
 
 1. **Cross-game/format contamination (most common failure).** Recommending Pokémon, items, or strategies from **SV OU** (mainline Scarlet/Violet's most popular competitive format) that are **not legal in Pokémon Champions** at all, or not legal in the current regulation. This is the single most frequent and most damaging failure mode — it's not a subtle edge case, it's the default failure when a general LLM isn't grounded in Champions-specific, regulation-specific legality data.
+
+### Addition to Known LLM Failure Mode #1 (cross-game/format contamination)
+
+Confirmed as a *live* instance, not just a documented risk: during the 2026-07-27 role-play
+design session, the assistant itself pulled Sinistcha's common singles-format moveset/role
+reasoning when the actual context was VGC doubles — the exact failure mode #1 describes,
+occurring in the assistant's own reasoning rather than as a hypothetical example. Reinforces
+that format-scoping must be enforced structurally by whatever performs the real move/ability
+lookup (ADR-002's tool-grounding principle), not relied upon as something a model gets right
+by default, even within this project's own design process.
+
 2. **Item legality errors.** Same root cause as #1 — recommending items that are banned, not yet released, or not implemented in the current regulation.
 3. **Format/game confusion generally.** Beyond species/items specifically — rules, clauses, team size, and mechanics get blended across games/formats when the model isn't explicitly anchored to "this is Champions, this is Reg M-B, this is BSS/VGC" for every single recommendation.
 4. **Unverified mechanical claims ("thinking things through" failure).** Model asserts conclusions about speed tiers, damage ranges, or matchup outcomes **without actually running the calculation** — sounds confident, isn't checked. This is a reasoning-rigor failure, not a knowledge-gap failure, and it's the hardest one to catch by inspection since the output reads as plausible.
@@ -38,8 +49,6 @@ recommended with the same item, which is illegal under Item Clause. Observed dir
 hands-on testing (same category as the other failure modes above: confident output that
 silently ignores a real constraint). Design implication: item selection must be checked
 against `RecommenderState.team_draft` as a whole, not decided per-slot in isolation.
-
-**Design implication:** Failure modes #1–#3 all point to the same root fix — legality (species + item + format + regulation) must be **checked programmatically against real Champions/regulation data**, never inferred or assumed by an LLM from general training knowledge. Failure mode #4 points to a second required fix — any mechanical claim (speed comparison, damage calc, matchup assessment) must be backed by an actual calculation/simulation call, not a generated assertion. These two fixes are the real "agentic" core of the project: tool-grounded legality checks + tool-grounded mechanical verification, not just a chat wrapper around Pokémon knowledge.
 
 ---
 
@@ -64,6 +73,19 @@ against `RecommenderState.team_draft` as a whole, not decided per-slot in isolat
 - Train a **new** RL policy specifically for Pokémon Champions / current regulation (see below) — old policy is not reusable
 - Design the mechanical-verification tool call (speed/damage calculation) as a first-class component, not an afterthought bolted onto the recommender at the end
 
+### New flagged gaps — real, agreed as needed, not yet designed
+
+- **Team-wide threat-coverage check:** "does this team, as a whole, have a real answer to
+  threat X" is a distinct, higher-level question from tier 3's per-slot breakpoint
+  verification. No mechanism designed yet.
+- **Single-point-of-failure detection:** identifying that a team's win condition depends
+  entirely on one Pokémon surviving/acting, with no redundancy (surfaced via the Mega
+  Charizard Y / weather-war example) is a distinct capability from the above — a structural
+  read of `team_draft` as a whole, not a per-threat check. No mechanism designed yet.
+- Both are explicitly *pre-battle, team-composition* concerns (does the team have the tools)
+  — not in-battle sequencing/positioning (timing, baiting switches), which remains correctly
+  out of scope per ADR-012a, belonging to the deferred phase-3 battle-log/RL work.
+
 ---
 
 ## KEY LEARNINGS & DECISIONS
@@ -78,6 +100,71 @@ Given the failure-mode analysis above, the project's central technical bet is th
 ### Sequencing decision (recorded explicitly to prevent later re-litigation)
 Team recommender ships first. Showdown eval is phase 2 and is explicitly allowed to slip or be simplified if it proves harder than expected — this was decided in advance specifically so that eval scope creep doesn't block the core deliverable. If eval must be cut for time, the recommender alone (with steering + legality grounding working correctly) still counts as project completion for portfolio purposes.
 
+### Design philosophy note, worth keeping in mind generally
+
+Several resolutions during the 2026-07-27 session turned out to be "here's another valid
+dimension," not "here's the right answer instead of a wrong one" — e.g., weather-setting via
+ability vs. via move are both legitimate mechanisms, and bulk-and-answer vs. speed-and-remove
+are both legitimate approaches to the same threat. Consistent with the multi-role
+"present options, don't silently collapse" principle above — worth defaulting to surfacing
+genuine alternatives where they exist, rather than the system converging on one as if it were
+uniquely correct.
+
+### Interaction-design note (2026-07-28)
+
+The role-play design session itself surfaced a real UX shortcoming directly: excessive
+open-ended questioning ("what do you want here?") creates friction and is harder for a user
+to respond to than a concrete, named default with alternatives. This is now the standing
+design principle (ADR-018) rather than something to re-derive per interaction — propose
+first, let the user react, rather than asking before proposing.
+
+### Domain mechanics notes, confirmed during 2026-07-28/29 mock-run testing
+
+- **Aegislash's stat stages persist across its Stance Change forme switch (Shield ↔ Blade).**
+  This enables a genuine, high-value sequence: set up Swords Dance safely in defensive Shield
+  Forme, then attack from Blade Forme with the boost already applied — a rare case where a
+  single mechanic solves both the setup-turn survival and payoff-turn output questions at
+  once. King's Shield (a separate move) also lowers a contacting attacker's Attack stat,
+  adding a further deterrent on top of Shield Forme's natural bulk.
+- **Champions-specific priority values differ from older mainline generations for at least
+  Follow Me/Rage Powder: both are +2 priority in Champions, not +3** as in some earlier
+  generations — confirmed directly against Champions-specific sources, not assumed from
+  general Pokémon knowledge.
+- **Huge Power doubles the final, calculated stat — not the base stat** — a materially
+  different result. Concrete example: Diggersby's level-50 Attack with max investment and a
+  beneficial nature is 118, doubled by Huge Power to 236 — exceeding Mega Blaziken's 233 at
+  equal investment, despite Blaziken's base Attack (160) being nearly triple Diggersby's (56).
+- **A priority-granting ability (e.g. Prankster) does not extend to a follow-up attacking
+  move after a self-targeting setup move** — Prankster boosts the setup move's own priority
+  only; the deferred attack that follows gets no benefit from it. This is a materially
+  different situation from Prankster boosting an instant-payoff move (weather-setting,
+  screens), where the whole benefit resolves in the same priority-boosted action.
+- **Weather-setting activation order among simultaneously-triggering automatic abilities
+  respects Speed order, with the *slower* Pokémon's weather persisting** (since each
+  activates in Speed order and later activations overwrite earlier ones) — being the slower
+  of two simultaneous automatic setters is the actual advantage for guaranteeing your weather
+  sticks, the reverse of the usual faster-is-better instinct.
+- **A candidate's real competitive standing can be entirely conditioned on a specific,
+  time-bound matchup against a specific top threat**, not a fixed property — e.g. Ariados's
+  real value in Reg M-A came specifically from resisting both of a then-dominant Sneasler's
+  STAB types; that value fades as the specific threat's prevalence changes, independent of
+  anything about Ariados itself. Same pattern as Klefki's Charizard-Y/Garchomp exposure and
+  Maushold's Wide Lens-availability dependency, confirmed again in a new case.
+
+### Tool/environment limitation, confirmed 2026-07-29
+
+Smogon's Strategy Pokedex (`smogon.com/dex/*`) is a client-rendered SPA; its actual data is
+served via a `POST` to a `dex/_rpc/{dump-format,dump-pokemon,dump-basics}` endpoint (with a
+JSON body) — discovered by Cursor in an earlier session using tooling not available in this
+conversational environment. From within this chat, `web_fetch` cannot execute JavaScript or
+issue a POST with a body, and `smogon.com` is not in this environment's allowed
+`bash_tool` network list, so this endpoint cannot be reached at all here. Any mock-run or
+design discussion needing a *complete* Smogon-sourced learnset/candidate list (as opposed to
+what ordinary web search happens to surface) requires either the person supplying the data
+directly (as done for the Swords Dance run), or deferring to the actual Cursor-side
+implementation, which has real access to this endpoint. This is a structural limitation of
+this chat environment, not something resolvable by searching harder.
+
 ---
 
 ## TOOLS & RESOURCES
@@ -90,3 +177,28 @@ Team recommender ships first. Showdown eval is phase 2 and is explicitly allowed
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
 
 *(To be populated as the project develops — mirrors the structure of the VinylIQ master resume's Deep Technical Details section. Capture: why the legality-checking approach was designed the way it was, what regulation-versioning approach was chosen and why, any case where the agent's recommendation was wrong and what that revealed, RL training details once retrained, and any eval surprises once Showdown simulation work starts.)*
+
+### Domain knowledge: weather/phase-order mechanics (2026-07-27)
+
+- **Simultaneous automatic (switch-in) weather-setters resolve in Speed order, and the
+  slower one's effect persists** — since weather-setting simply overwrites whatever's
+  currently active, being the *slower* of two simultaneously-triggering automatic setters is
+  the actual advantage for guaranteeing your weather sticks, the reverse of the usual
+  faster-is-better instinct.
+- **Champions' phase order is strict and sequential, not speed-contested, across switch-in
+  effects → Mega Evolution → moves.** A same-turn Mega Evolution's weather-setting ability
+  (e.g. Mega Charizard Y's Drought) always resolves after any automatic switch-in
+  weather-setter (e.g. Pelipper's Drizzle), regardless of either Pokémon's Speed stat — this
+  is a phase-structure guarantee, not a race. Correctly explains why the Mega Charizard Y
+  weather-flip threat (flagged earlier this session) works the way it does.
+- **A fast weather-re-setting move's real value is "before any attacker acts this turn,"
+  not "faster than the opponent's setter."** E.g. Alolan Ninetales using a weather move isn't
+  racing another setter — it's re-establishing weather after a mid-turn change (a switch-in
+  or Mega Evolution) before either side's attacks resolve that turn, which is a broader and
+  more accurate threat model than a setter-vs-setter framing.
+
+These are concrete mechanics the still-open team-wide threat-coverage and single-point-of-
+failure checks (flagged 2026-07-27, not yet designed) will need to reason about correctly
+once built.
+
+**Design implication:** Failure modes #1–#3 all point to the same root fix — legality (species + item + format + regulation) must be **checked programmatically against real Champions/regulation data**, never inferred or assumed by an LLM from general training knowledge. Failure mode #4 points to a second required fix — any mechanical claim (speed comparison, damage calc, matchup assessment) must be backed by an actual calculation/simulation call, not a generated assertion. These two fixes are the real "agentic" core of the project: tool-grounded legality checks + tool-grounded mechanical verification, not just a chat wrapper around Pokémon knowledge.
