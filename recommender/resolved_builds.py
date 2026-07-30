@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, NotRequired, TypedDict
 
-from recommender.ids import regulation_file_tag, to_id
+from recommender.ids import regulation_file_tag, regulation_lookup_chain, to_id
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DIR = REPO_ROOT / "data" / "resolved-builds"
@@ -31,6 +31,9 @@ class ResolvedBuild(TypedDict):
     date_resolved: str
     variants: NotRequired[list[dict[str, int]]]
     carried_forward_from: NotRequired[str]
+    rationale: NotRequired[str]
+    source_format: NotRequired[str]
+    found_in_regulation: NotRequired[str]
 
 
 def _key(species: str, moves: list[str], item: str) -> tuple[str, tuple[str, ...], str]:
@@ -66,13 +69,18 @@ def get_resolved_build(
     regulation: str,
     *,
     root: Path = DEFAULT_DIR,
+    chain: bool = True,
 ) -> ResolvedBuild | None:
-    path = _path(regulation, root=root)
+    tags = (
+        regulation_lookup_chain(regulation)
+        if chain
+        else [regulation_file_tag(regulation)]
+    )
     want = _key(species, moves, item)
-    for row in _load(path):
-        k = _key(row["species"], row["moves"], row["item"])
-        if k == want:
-            return row  # type: ignore[return-value]
+    for tag in tags:
+        for row in _load(root / f"{tag}.jsonl"):
+            if _key(row["species"], row["moves"], row["item"]) == want:
+                return {**row, "found_in_regulation": tag}  # type: ignore[return-value]
     return None
 
 
@@ -89,7 +97,10 @@ def put_resolved_build(
     *,
     root: Path = DEFAULT_DIR,
     carried_forward_from: str | None = None,
-) -> None:
+    rationale: str | None = None,
+    source_format: str | None = None,
+) -> bool:
+    """Write or replace an unverified row. Returns False if existing verified=True (skip)."""
     path = _path(regulation, root=root)
     tag = regulation_file_tag(regulation)
     entry: dict[str, Any] = {
@@ -107,18 +118,25 @@ def put_resolved_build(
         entry["variants"] = variants
     if carried_forward_from is not None:
         entry["carried_forward_from"] = carried_forward_from
+    if rationale is not None:
+        entry["rationale"] = rationale
+    if source_format is not None:
+        entry["source_format"] = source_format
 
     want = _key(species, moves, item)
     rows = _load(path)
     replaced = False
     for i, row in enumerate(rows):
         if _key(row["species"], row["moves"], row["item"]) == want:
+            if row.get("verified") is True and not verified:
+                return False
             rows[i] = entry
             replaced = True
             break
     if not replaced:
         rows.append(entry)
     _write_all(path, rows)
+    return True
 
 
 def archive_regulation(old_tag: str, new_tag: str, *, root: Path = DEFAULT_DIR) -> None:

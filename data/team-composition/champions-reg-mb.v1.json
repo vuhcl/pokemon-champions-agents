@@ -1,0 +1,3085 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "source": "pokemon-zone",
+    "source_detail": "Limitless",
+    "regulation": "champions-reg-mb",
+    "format_label": "Regulation M-B",
+    "paths": {
+      "home": "/champions/",
+      "teams": "/champions/teams/",
+      "team_cores": "/champions/team-cores/",
+      "pokemon": "/champions/pokemon/<slug>/",
+      "import_api": "/champions/api/team-builder/import/pokemon-set/?ids="
+    },
+    "slug_convention": "Pokemon-Zone uses /champions/...; UI label Regulation M-B (not Smogon/Pikalytics slugs)",
+    "extracted_at": "2026-07-27T18:31:38Z",
+    "note": "Species-level co-occurrence/cores only; no spreads. Not wired into tier-1/3."
+  },
+  "cores": [
+    {
+      "matches": 770,
+      "site_ids": [
+        18,
+        127,
+        239,
+        303
+      ],
+      "species": [
+        "kingambit",
+        "lycanroc-dusk-form",
+        "sneasler",
+        "froslass"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 68.7
+    },
+    {
+      "matches": 757,
+      "site_ids": [
+        18,
+        123,
+        127,
+        241
+      ],
+      "species": [
+        "kingambit",
+        "scovillain",
+        "lycanroc-dusk-form",
+        "basculegion"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 68.7
+    },
+    {
+      "matches": 752,
+      "site_ids": [
+        18,
+        123,
+        239,
+        303
+      ],
+      "species": [
+        "kingambit",
+        "scovillain",
+        "sneasler",
+        "froslass"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 68.6
+    },
+    {
+      "matches": 754,
+      "site_ids": [
+        123,
+        239,
+        241,
+        303
+      ],
+      "species": [
+        "scovillain",
+        "sneasler",
+        "basculegion",
+        "froslass"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 68.6
+    },
+    {
+      "matches": 756,
+      "site_ids": [
+        18,
+        123,
+        241,
+        303
+      ],
+      "species": [
+        "kingambit",
+        "scovillain",
+        "basculegion",
+        "froslass"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 68.4
+    },
+    {
+      "matches": 752,
+      "site_ids": [
+        18,
+        127,
+        241,
+        303
+      ],
+      "species": [
+        "kingambit",
+        "lycanroc-dusk-form",
+        "basculegion",
+        "froslass"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 68.4
+    },
+    {
+      "matches": 1508,
+      "site_ids": [
+        18,
+        239,
+        264,
+        691
+      ],
+      "species": [
+        "kingambit",
+        "sneasler",
+        "sinistcha",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 2,
+      "win_rate_pct": 67.5
+    },
+    {
+      "matches": 745,
+      "site_ids": [
+        127,
+        239,
+        241,
+        303
+      ],
+      "species": [
+        "lycanroc-dusk-form",
+        "sneasler",
+        "basculegion",
+        "froslass"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 68.3
+    },
+    {
+      "matches": 750,
+      "site_ids": [
+        18,
+        127,
+        239,
+        241
+      ],
+      "species": [
+        "kingambit",
+        "lycanroc-dusk-form",
+        "sneasler",
+        "basculegion"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 68.3
+    },
+    {
+      "matches": 1532,
+      "site_ids": [
+        18,
+        239,
+        322,
+        691
+      ],
+      "species": [
+        "kingambit",
+        "sneasler",
+        "incineroar",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 2,
+      "win_rate_pct": 67.2
+    },
+    {
+      "matches": 768,
+      "site_ids": [
+        18,
+        123,
+        239,
+        241
+      ],
+      "species": [
+        "kingambit",
+        "scovillain",
+        "sneasler",
+        "basculegion"
+      ],
+      "usage_pct": 1.1,
+      "win_rate_pct": 68
+    },
+    {
+      "matches": 1618,
+      "site_ids": [
+        18,
+        264,
+        322,
+        691
+      ],
+      "species": [
+        "kingambit",
+        "sinistcha",
+        "incineroar",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 2.2,
+      "win_rate_pct": 66.9
+    },
+    {
+      "matches": 859,
+      "site_ids": [
+        18,
+        322,
+        356,
+        691
+      ],
+      "species": [
+        "kingambit",
+        "incineroar",
+        "delphox",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 1.2,
+      "win_rate_pct": 67.2
+    },
+    {
+      "matches": 1073,
+      "site_ids": [
+        18,
+        239,
+        241,
+        303
+      ],
+      "species": [
+        "kingambit",
+        "sneasler",
+        "basculegion",
+        "froslass"
+      ],
+      "usage_pct": 1.5,
+      "win_rate_pct": 66.7
+    },
+    {
+      "matches": 2206,
+      "site_ids": [
+        239,
+        264,
+        322,
+        691
+      ],
+      "species": [
+        "sneasler",
+        "sinistcha",
+        "incineroar",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 3,
+      "win_rate_pct": 66
+    },
+    {
+      "matches": 864,
+      "site_ids": [
+        18,
+        264,
+        356,
+        691
+      ],
+      "species": [
+        "kingambit",
+        "sinistcha",
+        "delphox",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 1.2,
+      "win_rate_pct": 66.9
+    },
+    {
+      "matches": 3106,
+      "site_ids": [
+        18,
+        241,
+        331,
+        691
+      ],
+      "species": [
+        "kingambit",
+        "basculegion",
+        "whimsicott",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 4.2,
+      "win_rate_pct": 65.3
+    },
+    {
+      "matches": 3122,
+      "site_ids": [
+        241,
+        249,
+        331,
+        691
+      ],
+      "species": [
+        "basculegion",
+        "charizard",
+        "whimsicott",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 4.2,
+      "win_rate_pct": 65.2
+    },
+    {
+      "matches": 985,
+      "site_ids": [
+        239,
+        322,
+        356,
+        691
+      ],
+      "species": [
+        "sneasler",
+        "incineroar",
+        "delphox",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 1.3,
+      "win_rate_pct": 66.3
+    },
+    {
+      "matches": 2871,
+      "site_ids": [
+        18,
+        239,
+        264,
+        322
+      ],
+      "species": [
+        "kingambit",
+        "sneasler",
+        "sinistcha",
+        "incineroar"
+      ],
+      "usage_pct": 3.9,
+      "win_rate_pct": 65.2
+    },
+    {
+      "matches": 991,
+      "site_ids": [
+        239,
+        264,
+        356,
+        691
+      ],
+      "species": [
+        "sneasler",
+        "sinistcha",
+        "delphox",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 1.4,
+      "win_rate_pct": 66.1
+    },
+    {
+      "matches": 3197,
+      "site_ids": [
+        7,
+        241,
+        249,
+        691
+      ],
+      "species": [
+        "garchomp",
+        "basculegion",
+        "charizard",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 4.3,
+      "win_rate_pct": 65
+    },
+    {
+      "matches": 1240,
+      "site_ids": [
+        264,
+        322,
+        356,
+        691
+      ],
+      "species": [
+        "sinistcha",
+        "incineroar",
+        "delphox",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 1.7,
+      "win_rate_pct": 65.8
+    },
+    {
+      "matches": 3282,
+      "site_ids": [
+        7,
+        249,
+        331,
+        691
+      ],
+      "species": [
+        "garchomp",
+        "charizard",
+        "whimsicott",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 4.4,
+      "win_rate_pct": 64.8
+    },
+    {
+      "matches": 799,
+      "site_ids": [
+        18,
+        239,
+        356,
+        691
+      ],
+      "species": [
+        "kingambit",
+        "sneasler",
+        "delphox",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 1.1,
+      "win_rate_pct": 66
+    },
+    {
+      "matches": 2814,
+      "site_ids": [
+        18,
+        241,
+        249,
+        691
+      ],
+      "species": [
+        "kingambit",
+        "basculegion",
+        "charizard",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 3.8,
+      "win_rate_pct": 64.5
+    },
+    {
+      "matches": 3392,
+      "site_ids": [
+        7,
+        241,
+        331,
+        691
+      ],
+      "species": [
+        "garchomp",
+        "basculegion",
+        "whimsicott",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 4.6,
+      "win_rate_pct": 64.4
+    },
+    {
+      "matches": 2786,
+      "site_ids": [
+        18,
+        249,
+        331,
+        691
+      ],
+      "species": [
+        "kingambit",
+        "charizard",
+        "whimsicott",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 3.8,
+      "win_rate_pct": 64.4
+    },
+    {
+      "matches": 2910,
+      "site_ids": [
+        7,
+        18,
+        241,
+        691
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "basculegion",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 3.9,
+      "win_rate_pct": 64.3
+    },
+    {
+      "matches": 2950,
+      "site_ids": [
+        7,
+        18,
+        331,
+        691
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "whimsicott",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 4,
+      "win_rate_pct": 64.1
+    },
+    {
+      "matches": 2174,
+      "site_ids": [
+        18,
+        239,
+        322,
+        356
+      ],
+      "species": [
+        "kingambit",
+        "sneasler",
+        "incineroar",
+        "delphox"
+      ],
+      "usage_pct": 3,
+      "win_rate_pct": 64.3
+    },
+    {
+      "matches": 1384,
+      "site_ids": [
+        64,
+        249,
+        352,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "charizard",
+        "venusaur",
+        "grimmsnarl"
+      ],
+      "usage_pct": 1.9,
+      "win_rate_pct": 64.7
+    },
+    {
+      "matches": 2865,
+      "site_ids": [
+        7,
+        18,
+        249,
+        691
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "charizard",
+        "floette-eternal-flower"
+      ],
+      "usage_pct": 3.9,
+      "win_rate_pct": 64
+    },
+    {
+      "matches": 2319,
+      "site_ids": [
+        18,
+        264,
+        322,
+        356
+      ],
+      "species": [
+        "kingambit",
+        "sinistcha",
+        "incineroar",
+        "delphox"
+      ],
+      "usage_pct": 3.2,
+      "win_rate_pct": 64.1
+    },
+    {
+      "matches": 2068,
+      "site_ids": [
+        64,
+        325,
+        352,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "archaludon",
+        "venusaur",
+        "grimmsnarl"
+      ],
+      "usage_pct": 2.9,
+      "win_rate_pct": 64.1
+    },
+    {
+      "matches": 1405,
+      "site_ids": [
+        249,
+        325,
+        352,
+        829
+      ],
+      "species": [
+        "charizard",
+        "archaludon",
+        "venusaur",
+        "grimmsnarl"
+      ],
+      "usage_pct": 2,
+      "win_rate_pct": 64.5
+    },
+    {
+      "matches": 2282,
+      "site_ids": [
+        18,
+        239,
+        264,
+        356
+      ],
+      "species": [
+        "kingambit",
+        "sneasler",
+        "sinistcha",
+        "delphox"
+      ],
+      "usage_pct": 3.2,
+      "win_rate_pct": 64
+    },
+    {
+      "matches": 1478,
+      "site_ids": [
+        64,
+        241,
+        352,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "basculegion",
+        "venusaur",
+        "grimmsnarl"
+      ],
+      "usage_pct": 2.1,
+      "win_rate_pct": 64.4
+    },
+    {
+      "matches": 1479,
+      "site_ids": [
+        64,
+        249,
+        325,
+        352
+      ],
+      "species": [
+        "pelipper",
+        "charizard",
+        "archaludon",
+        "venusaur"
+      ],
+      "usage_pct": 2.1,
+      "win_rate_pct": 64.4
+    },
+    {
+      "matches": 1408,
+      "site_ids": [
+        64,
+        249,
+        325,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "charizard",
+        "archaludon",
+        "grimmsnarl"
+      ],
+      "usage_pct": 2,
+      "win_rate_pct": 64.4
+    },
+    {
+      "matches": 1484,
+      "site_ids": [
+        241,
+        325,
+        352,
+        829
+      ],
+      "species": [
+        "basculegion",
+        "archaludon",
+        "venusaur",
+        "grimmsnarl"
+      ],
+      "usage_pct": 2.1,
+      "win_rate_pct": 64.2
+    },
+    {
+      "matches": 5148,
+      "site_ids": [
+        7,
+        241,
+        249,
+        331
+      ],
+      "species": [
+        "garchomp",
+        "basculegion",
+        "charizard",
+        "whimsicott"
+      ],
+      "usage_pct": 7.1,
+      "win_rate_pct": 63.2
+    },
+    {
+      "matches": 1322,
+      "site_ids": [
+        241,
+        249,
+        352,
+        829
+      ],
+      "species": [
+        "basculegion",
+        "charizard",
+        "venusaur",
+        "grimmsnarl"
+      ],
+      "usage_pct": 1.9,
+      "win_rate_pct": 64.2
+    },
+    {
+      "matches": 1734,
+      "site_ids": [
+        64,
+        241,
+        325,
+        352
+      ],
+      "species": [
+        "pelipper",
+        "basculegion",
+        "archaludon",
+        "venusaur"
+      ],
+      "usage_pct": 2.5,
+      "win_rate_pct": 63.8
+    },
+    {
+      "matches": 892,
+      "site_ids": [
+        7,
+        241,
+        249,
+        322
+      ],
+      "species": [
+        "garchomp",
+        "basculegion",
+        "charizard",
+        "incineroar"
+      ],
+      "usage_pct": 1.2,
+      "win_rate_pct": 64.5
+    },
+    {
+      "matches": 2956,
+      "site_ids": [
+        239,
+        264,
+        322,
+        356
+      ],
+      "species": [
+        "sneasler",
+        "sinistcha",
+        "incineroar",
+        "delphox"
+      ],
+      "usage_pct": 4.1,
+      "win_rate_pct": 63.2
+    },
+    {
+      "matches": 1298,
+      "site_ids": [
+        64,
+        241,
+        249,
+        352
+      ],
+      "species": [
+        "pelipper",
+        "basculegion",
+        "charizard",
+        "venusaur"
+      ],
+      "usage_pct": 1.8,
+      "win_rate_pct": 63.9
+    },
+    {
+      "matches": 1299,
+      "site_ids": [
+        64,
+        241,
+        249,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "basculegion",
+        "charizard",
+        "grimmsnarl"
+      ],
+      "usage_pct": 1.8,
+      "win_rate_pct": 63.8
+    },
+    {
+      "matches": 1320,
+      "site_ids": [
+        241,
+        249,
+        325,
+        352
+      ],
+      "species": [
+        "basculegion",
+        "charizard",
+        "archaludon",
+        "venusaur"
+      ],
+      "usage_pct": 1.9,
+      "win_rate_pct": 63.7
+    },
+    {
+      "matches": 1458,
+      "site_ids": [
+        18,
+        239,
+        322,
+        386
+      ],
+      "species": [
+        "kingambit",
+        "sneasler",
+        "incineroar",
+        "blastoise"
+      ],
+      "usage_pct": 2,
+      "win_rate_pct": 63.6
+    },
+    {
+      "matches": 1472,
+      "site_ids": [
+        18,
+        239,
+        264,
+        386
+      ],
+      "species": [
+        "kingambit",
+        "sneasler",
+        "sinistcha",
+        "blastoise"
+      ],
+      "usage_pct": 2,
+      "win_rate_pct": 63.5
+    },
+    {
+      "matches": 1770,
+      "site_ids": [
+        64,
+        241,
+        325,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "basculegion",
+        "archaludon",
+        "grimmsnarl"
+      ],
+      "usage_pct": 2.5,
+      "win_rate_pct": 63.3
+    },
+    {
+      "matches": 3758,
+      "site_ids": [
+        7,
+        18,
+        241,
+        331
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "basculegion",
+        "whimsicott"
+      ],
+      "usage_pct": 5.2,
+      "win_rate_pct": 62.7
+    },
+    {
+      "matches": 1313,
+      "site_ids": [
+        241,
+        249,
+        325,
+        829
+      ],
+      "species": [
+        "basculegion",
+        "charizard",
+        "archaludon",
+        "grimmsnarl"
+      ],
+      "usage_pct": 1.8,
+      "win_rate_pct": 63.6
+    },
+    {
+      "matches": 3647,
+      "site_ids": [
+        18,
+        241,
+        249,
+        331
+      ],
+      "species": [
+        "kingambit",
+        "basculegion",
+        "charizard",
+        "whimsicott"
+      ],
+      "usage_pct": 5,
+      "win_rate_pct": 62.6
+    },
+    {
+      "matches": 1482,
+      "site_ids": [
+        18,
+        264,
+        322,
+        386
+      ],
+      "species": [
+        "kingambit",
+        "sinistcha",
+        "incineroar",
+        "blastoise"
+      ],
+      "usage_pct": 2,
+      "win_rate_pct": 63.2
+    },
+    {
+      "matches": 1415,
+      "site_ids": [
+        49,
+        264,
+        351,
+        795
+      ],
+      "species": [
+        "tyranitar",
+        "sinistcha",
+        "excadrill",
+        "staraptor"
+      ],
+      "usage_pct": 1.9,
+      "win_rate_pct": 63.2
+    },
+    {
+      "matches": 1123,
+      "site_ids": [
+        49,
+        265,
+        795,
+        827
+      ],
+      "species": [
+        "tyranitar",
+        "milotic",
+        "staraptor",
+        "gholdengo"
+      ],
+      "usage_pct": 1.5,
+      "win_rate_pct": 63.3
+    },
+    {
+      "matches": 1159,
+      "site_ids": [
+        49,
+        264,
+        265,
+        795
+      ],
+      "species": [
+        "tyranitar",
+        "sinistcha",
+        "milotic",
+        "staraptor"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 63.2
+    },
+    {
+      "matches": 815,
+      "site_ids": [
+        35,
+        276,
+        322,
+        807
+      ],
+      "species": [
+        "gengar",
+        "politoed",
+        "incineroar",
+        "swampert"
+      ],
+      "usage_pct": 1.1,
+      "win_rate_pct": 63.7
+    },
+    {
+      "matches": 1109,
+      "site_ids": [
+        265,
+        351,
+        795,
+        827
+      ],
+      "species": [
+        "milotic",
+        "excadrill",
+        "staraptor",
+        "gholdengo"
+      ],
+      "usage_pct": 1.5,
+      "win_rate_pct": 63.2
+    },
+    {
+      "matches": 1149,
+      "site_ids": [
+        264,
+        265,
+        795,
+        827
+      ],
+      "species": [
+        "sinistcha",
+        "milotic",
+        "staraptor",
+        "gholdengo"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 63.1
+    },
+    {
+      "matches": 891,
+      "site_ids": [
+        7,
+        241,
+        322,
+        331
+      ],
+      "species": [
+        "garchomp",
+        "basculegion",
+        "incineroar",
+        "whimsicott"
+      ],
+      "usage_pct": 1.3,
+      "win_rate_pct": 63.4
+    },
+    {
+      "matches": 1161,
+      "site_ids": [
+        49,
+        264,
+        265,
+        827
+      ],
+      "species": [
+        "tyranitar",
+        "sinistcha",
+        "milotic",
+        "gholdengo"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 63
+    },
+    {
+      "matches": 1139,
+      "site_ids": [
+        264,
+        265,
+        351,
+        827
+      ],
+      "species": [
+        "sinistcha",
+        "milotic",
+        "excadrill",
+        "gholdengo"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 63
+    },
+    {
+      "matches": 1199,
+      "site_ids": [
+        49,
+        265,
+        351,
+        795
+      ],
+      "species": [
+        "tyranitar",
+        "milotic",
+        "excadrill",
+        "staraptor"
+      ],
+      "usage_pct": 1.7,
+      "win_rate_pct": 63
+    },
+    {
+      "matches": 752,
+      "site_ids": [
+        276,
+        322,
+        325,
+        807
+      ],
+      "species": [
+        "politoed",
+        "incineroar",
+        "archaludon",
+        "swampert"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 63.6
+    },
+    {
+      "matches": 1153,
+      "site_ids": [
+        264,
+        265,
+        351,
+        795
+      ],
+      "species": [
+        "sinistcha",
+        "milotic",
+        "excadrill",
+        "staraptor"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 63
+    },
+    {
+      "matches": 1162,
+      "site_ids": [
+        49,
+        265,
+        351,
+        827
+      ],
+      "species": [
+        "tyranitar",
+        "milotic",
+        "excadrill",
+        "gholdengo"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 62.9
+    },
+    {
+      "matches": 1349,
+      "site_ids": [
+        18,
+        239,
+        356,
+        386
+      ],
+      "species": [
+        "kingambit",
+        "sneasler",
+        "delphox",
+        "blastoise"
+      ],
+      "usage_pct": 1.9,
+      "win_rate_pct": 62.7
+    },
+    {
+      "matches": 1341,
+      "site_ids": [
+        18,
+        322,
+        356,
+        386
+      ],
+      "species": [
+        "kingambit",
+        "incineroar",
+        "delphox",
+        "blastoise"
+      ],
+      "usage_pct": 1.9,
+      "win_rate_pct": 62.7
+    },
+    {
+      "matches": 1985,
+      "site_ids": [
+        239,
+        264,
+        322,
+        386
+      ],
+      "species": [
+        "sneasler",
+        "sinistcha",
+        "incineroar",
+        "blastoise"
+      ],
+      "usage_pct": 2.8,
+      "win_rate_pct": 62.3
+    },
+    {
+      "matches": 770,
+      "site_ids": [
+        35,
+        322,
+        325,
+        807
+      ],
+      "species": [
+        "gengar",
+        "incineroar",
+        "archaludon",
+        "swampert"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 63.4
+    },
+    {
+      "matches": 1196,
+      "site_ids": [
+        49,
+        351,
+        795,
+        827
+      ],
+      "species": [
+        "tyranitar",
+        "excadrill",
+        "staraptor",
+        "gholdengo"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 62.8
+    },
+    {
+      "matches": 1180,
+      "site_ids": [
+        264,
+        351,
+        795,
+        827
+      ],
+      "species": [
+        "sinistcha",
+        "excadrill",
+        "staraptor",
+        "gholdengo"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 62.8
+    },
+    {
+      "matches": 1362,
+      "site_ids": [
+        18,
+        264,
+        356,
+        386
+      ],
+      "species": [
+        "kingambit",
+        "sinistcha",
+        "delphox",
+        "blastoise"
+      ],
+      "usage_pct": 1.9,
+      "win_rate_pct": 62.6
+    },
+    {
+      "matches": 1233,
+      "site_ids": [
+        49,
+        264,
+        795,
+        827
+      ],
+      "species": [
+        "tyranitar",
+        "sinistcha",
+        "staraptor",
+        "gholdengo"
+      ],
+      "usage_pct": 1.7,
+      "win_rate_pct": 62.6
+    },
+    {
+      "matches": 1427,
+      "site_ids": [
+        64,
+        241,
+        249,
+        325
+      ],
+      "species": [
+        "pelipper",
+        "basculegion",
+        "charizard",
+        "archaludon"
+      ],
+      "usage_pct": 2,
+      "win_rate_pct": 62.4
+    },
+    {
+      "matches": 873,
+      "site_ids": [
+        241,
+        249,
+        322,
+        331
+      ],
+      "species": [
+        "basculegion",
+        "charizard",
+        "incineroar",
+        "whimsicott"
+      ],
+      "usage_pct": 1.2,
+      "win_rate_pct": 63
+    },
+    {
+      "matches": 1216,
+      "site_ids": [
+        49,
+        264,
+        351,
+        827
+      ],
+      "species": [
+        "tyranitar",
+        "sinistcha",
+        "excadrill",
+        "gholdengo"
+      ],
+      "usage_pct": 1.7,
+      "win_rate_pct": 62.6
+    },
+    {
+      "matches": 3939,
+      "site_ids": [
+        7,
+        18,
+        249,
+        331
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "charizard",
+        "whimsicott"
+      ],
+      "usage_pct": 5.5,
+      "win_rate_pct": 61.5
+    },
+    {
+      "matches": 1124,
+      "site_ids": [
+        7,
+        68,
+        249,
+        322
+      ],
+      "species": [
+        "garchomp",
+        "toxapex",
+        "charizard",
+        "incineroar"
+      ],
+      "usage_pct": 1.5,
+      "win_rate_pct": 62.5
+    },
+    {
+      "matches": 4141,
+      "site_ids": [
+        7,
+        18,
+        241,
+        249
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "basculegion",
+        "charizard"
+      ],
+      "usage_pct": 5.7,
+      "win_rate_pct": 61.4
+    },
+    {
+      "matches": 3618,
+      "site_ids": [
+        7,
+        22,
+        25,
+        249
+      ],
+      "species": [
+        "garchomp",
+        "farigiraf",
+        "sylveon",
+        "charizard"
+      ],
+      "usage_pct": 5.3,
+      "win_rate_pct": 61.4
+    },
+    {
+      "matches": 3098,
+      "site_ids": [
+        7,
+        22,
+        25,
+        631
+      ],
+      "species": [
+        "garchomp",
+        "farigiraf",
+        "sylveon",
+        "aerodactyl"
+      ],
+      "usage_pct": 4.5,
+      "win_rate_pct": 61.5
+    },
+    {
+      "matches": 758,
+      "site_ids": [
+        35,
+        276,
+        325,
+        807
+      ],
+      "species": [
+        "gengar",
+        "politoed",
+        "archaludon",
+        "swampert"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 62.9
+    },
+    {
+      "matches": 1050,
+      "site_ids": [
+        68,
+        249,
+        322,
+        352
+      ],
+      "species": [
+        "toxapex",
+        "charizard",
+        "incineroar",
+        "venusaur"
+      ],
+      "usage_pct": 1.4,
+      "win_rate_pct": 62.5
+    },
+    {
+      "matches": 3205,
+      "site_ids": [
+        22,
+        25,
+        249,
+        631
+      ],
+      "species": [
+        "farigiraf",
+        "sylveon",
+        "charizard",
+        "aerodactyl"
+      ],
+      "usage_pct": 4.7,
+      "win_rate_pct": 61.4
+    },
+    {
+      "matches": 1818,
+      "site_ids": [
+        239,
+        322,
+        356,
+        386
+      ],
+      "species": [
+        "sneasler",
+        "incineroar",
+        "delphox",
+        "blastoise"
+      ],
+      "usage_pct": 2.6,
+      "win_rate_pct": 61.8
+    },
+    {
+      "matches": 1260,
+      "site_ids": [
+        49,
+        264,
+        265,
+        351
+      ],
+      "species": [
+        "tyranitar",
+        "sinistcha",
+        "milotic",
+        "excadrill"
+      ],
+      "usage_pct": 1.7,
+      "win_rate_pct": 62.1
+    },
+    {
+      "matches": 1838,
+      "site_ids": [
+        264,
+        322,
+        356,
+        386
+      ],
+      "species": [
+        "sinistcha",
+        "incineroar",
+        "delphox",
+        "blastoise"
+      ],
+      "usage_pct": 2.6,
+      "win_rate_pct": 61.7
+    },
+    {
+      "matches": 718,
+      "site_ids": [
+        22,
+        25,
+        249,
+        322
+      ],
+      "species": [
+        "farigiraf",
+        "sylveon",
+        "charizard",
+        "incineroar"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 62.8
+    },
+    {
+      "matches": 1847,
+      "site_ids": [
+        239,
+        264,
+        356,
+        386
+      ],
+      "species": [
+        "sneasler",
+        "sinistcha",
+        "delphox",
+        "blastoise"
+      ],
+      "usage_pct": 2.6,
+      "win_rate_pct": 61.7
+    },
+    {
+      "matches": 3180,
+      "site_ids": [
+        7,
+        22,
+        249,
+        631
+      ],
+      "species": [
+        "garchomp",
+        "farigiraf",
+        "charizard",
+        "aerodactyl"
+      ],
+      "usage_pct": 4.6,
+      "win_rate_pct": 61.2
+    },
+    {
+      "matches": 2865,
+      "site_ids": [
+        18,
+        22,
+        25,
+        631
+      ],
+      "species": [
+        "kingambit",
+        "farigiraf",
+        "sylveon",
+        "aerodactyl"
+      ],
+      "usage_pct": 4.2,
+      "win_rate_pct": 61.2
+    },
+    {
+      "matches": 965,
+      "site_ids": [
+        7,
+        68,
+        322,
+        352
+      ],
+      "species": [
+        "garchomp",
+        "toxapex",
+        "incineroar",
+        "venusaur"
+      ],
+      "usage_pct": 1.3,
+      "win_rate_pct": 62.3
+    },
+    {
+      "matches": 957,
+      "site_ids": [
+        7,
+        68,
+        249,
+        352
+      ],
+      "species": [
+        "garchomp",
+        "toxapex",
+        "charizard",
+        "venusaur"
+      ],
+      "usage_pct": 1.3,
+      "win_rate_pct": 62.3
+    },
+    {
+      "matches": 797,
+      "site_ids": [
+        7,
+        22,
+        249,
+        322
+      ],
+      "species": [
+        "garchomp",
+        "farigiraf",
+        "charizard",
+        "incineroar"
+      ],
+      "usage_pct": 1.1,
+      "win_rate_pct": 62.5
+    },
+    {
+      "matches": 2815,
+      "site_ids": [
+        7,
+        18,
+        22,
+        631
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "farigiraf",
+        "aerodactyl"
+      ],
+      "usage_pct": 4.1,
+      "win_rate_pct": 61.1
+    },
+    {
+      "matches": 2838,
+      "site_ids": [
+        7,
+        18,
+        22,
+        25
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "farigiraf",
+        "sylveon"
+      ],
+      "usage_pct": 4.1,
+      "win_rate_pct": 61
+    },
+    {
+      "matches": 2918,
+      "site_ids": [
+        18,
+        22,
+        25,
+        249
+      ],
+      "species": [
+        "kingambit",
+        "farigiraf",
+        "sylveon",
+        "charizard"
+      ],
+      "usage_pct": 4.3,
+      "win_rate_pct": 61
+    },
+    {
+      "matches": 2865,
+      "site_ids": [
+        18,
+        22,
+        249,
+        631
+      ],
+      "species": [
+        "kingambit",
+        "farigiraf",
+        "charizard",
+        "aerodactyl"
+      ],
+      "usage_pct": 4.2,
+      "win_rate_pct": 60.9
+    },
+    {
+      "matches": 2963,
+      "site_ids": [
+        7,
+        18,
+        22,
+        249
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "farigiraf",
+        "charizard"
+      ],
+      "usage_pct": 4.3,
+      "win_rate_pct": 60.8
+    },
+    {
+      "matches": 1134,
+      "site_ids": [
+        64,
+        325,
+        352,
+        807
+      ],
+      "species": [
+        "pelipper",
+        "archaludon",
+        "venusaur",
+        "swampert"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 61.6
+    },
+    {
+      "matches": 4618,
+      "site_ids": [
+        7,
+        25,
+        249,
+        631
+      ],
+      "species": [
+        "garchomp",
+        "sylveon",
+        "charizard",
+        "aerodactyl"
+      ],
+      "usage_pct": 6.7,
+      "win_rate_pct": 60.3
+    },
+    {
+      "matches": 4004,
+      "site_ids": [
+        7,
+        18,
+        25,
+        631
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "sylveon",
+        "aerodactyl"
+      ],
+      "usage_pct": 5.8,
+      "win_rate_pct": 60.2
+    },
+    {
+      "matches": 3211,
+      "site_ids": [
+        64,
+        325,
+        807,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "archaludon",
+        "swampert",
+        "grimmsnarl"
+      ],
+      "usage_pct": 4.7,
+      "win_rate_pct": 60.3
+    },
+    {
+      "matches": 3997,
+      "site_ids": [
+        18,
+        25,
+        249,
+        631
+      ],
+      "species": [
+        "kingambit",
+        "sylveon",
+        "charizard",
+        "aerodactyl"
+      ],
+      "usage_pct": 5.8,
+      "win_rate_pct": 60.1
+    },
+    {
+      "matches": 1345,
+      "site_ids": [
+        325,
+        807,
+        821,
+        829
+      ],
+      "species": [
+        "archaludon",
+        "swampert",
+        "metagross",
+        "grimmsnarl"
+      ],
+      "usage_pct": 2,
+      "win_rate_pct": 60.6
+    },
+    {
+      "matches": 1059,
+      "site_ids": [
+        25,
+        249,
+        322,
+        631
+      ],
+      "species": [
+        "sylveon",
+        "charizard",
+        "incineroar",
+        "aerodactyl"
+      ],
+      "usage_pct": 1.5,
+      "win_rate_pct": 60.8
+    },
+    {
+      "matches": 1101,
+      "site_ids": [
+        7,
+        25,
+        322,
+        631
+      ],
+      "species": [
+        "garchomp",
+        "sylveon",
+        "incineroar",
+        "aerodactyl"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 60.7
+    },
+    {
+      "matches": 1327,
+      "site_ids": [
+        7,
+        249,
+        322,
+        331
+      ],
+      "species": [
+        "garchomp",
+        "charizard",
+        "incineroar",
+        "whimsicott"
+      ],
+      "usage_pct": 1.9,
+      "win_rate_pct": 60.4
+    },
+    {
+      "matches": 745,
+      "site_ids": [
+        7,
+        18,
+        25,
+        322
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "sylveon",
+        "incineroar"
+      ],
+      "usage_pct": 1.1,
+      "win_rate_pct": 61.1
+    },
+    {
+      "matches": 4142,
+      "site_ids": [
+        7,
+        18,
+        249,
+        631
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "charizard",
+        "aerodactyl"
+      ],
+      "usage_pct": 6,
+      "win_rate_pct": 59.3
+    },
+    {
+      "matches": 4306,
+      "site_ids": [
+        7,
+        18,
+        25,
+        249
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "sylveon",
+        "charizard"
+      ],
+      "usage_pct": 6.3,
+      "win_rate_pct": 59.3
+    },
+    {
+      "matches": 1381,
+      "site_ids": [
+        64,
+        807,
+        821,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "swampert",
+        "metagross",
+        "grimmsnarl"
+      ],
+      "usage_pct": 2,
+      "win_rate_pct": 60.2
+    },
+    {
+      "matches": 1426,
+      "site_ids": [
+        64,
+        325,
+        821,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "archaludon",
+        "metagross",
+        "grimmsnarl"
+      ],
+      "usage_pct": 2.1,
+      "win_rate_pct": 60.1
+    },
+    {
+      "matches": 1950,
+      "site_ids": [
+        64,
+        325,
+        807,
+        821
+      ],
+      "species": [
+        "pelipper",
+        "archaludon",
+        "swampert",
+        "metagross"
+      ],
+      "usage_pct": 2.9,
+      "win_rate_pct": 59.6
+    },
+    {
+      "matches": 1609,
+      "site_ids": [
+        7,
+        25,
+        249,
+        322
+      ],
+      "species": [
+        "garchomp",
+        "sylveon",
+        "charizard",
+        "incineroar"
+      ],
+      "usage_pct": 2.3,
+      "win_rate_pct": 59.7
+    },
+    {
+      "matches": 2313,
+      "site_ids": [
+        64,
+        264,
+        325,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "sinistcha",
+        "archaludon",
+        "grimmsnarl"
+      ],
+      "usage_pct": 3.4,
+      "win_rate_pct": 59.3
+    },
+    {
+      "matches": 1812,
+      "site_ids": [
+        7,
+        249,
+        322,
+        352
+      ],
+      "species": [
+        "garchomp",
+        "charizard",
+        "incineroar",
+        "venusaur"
+      ],
+      "usage_pct": 2.5,
+      "win_rate_pct": 59.5
+    },
+    {
+      "matches": 723,
+      "site_ids": [
+        18,
+        249,
+        322,
+        631
+      ],
+      "species": [
+        "kingambit",
+        "charizard",
+        "incineroar",
+        "aerodactyl"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 60.6
+    },
+    {
+      "matches": 2273,
+      "site_ids": [
+        264,
+        325,
+        807,
+        829
+      ],
+      "species": [
+        "sinistcha",
+        "archaludon",
+        "swampert",
+        "grimmsnarl"
+      ],
+      "usage_pct": 3.3,
+      "win_rate_pct": 59.3
+    },
+    {
+      "matches": 1011,
+      "site_ids": [
+        35,
+        276,
+        322,
+        325
+      ],
+      "species": [
+        "gengar",
+        "politoed",
+        "incineroar",
+        "archaludon"
+      ],
+      "usage_pct": 1.4,
+      "win_rate_pct": 60
+    },
+    {
+      "matches": 1161,
+      "site_ids": [
+        264,
+        325,
+        821,
+        829
+      ],
+      "species": [
+        "sinistcha",
+        "archaludon",
+        "metagross",
+        "grimmsnarl"
+      ],
+      "usage_pct": 1.7,
+      "win_rate_pct": 59.8
+    },
+    {
+      "matches": 2295,
+      "site_ids": [
+        64,
+        264,
+        807,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "sinistcha",
+        "swampert",
+        "grimmsnarl"
+      ],
+      "usage_pct": 3.4,
+      "win_rate_pct": 59.1
+    },
+    {
+      "matches": 1209,
+      "site_ids": [
+        7,
+        249,
+        322,
+        631
+      ],
+      "species": [
+        "garchomp",
+        "charizard",
+        "incineroar",
+        "aerodactyl"
+      ],
+      "usage_pct": 1.7,
+      "win_rate_pct": 59.7
+    },
+    {
+      "matches": 841,
+      "site_ids": [
+        7,
+        241,
+        331,
+        827
+      ],
+      "species": [
+        "garchomp",
+        "basculegion",
+        "whimsicott",
+        "gholdengo"
+      ],
+      "usage_pct": 1.3,
+      "win_rate_pct": 60.2
+    },
+    {
+      "matches": 1170,
+      "site_ids": [
+        264,
+        807,
+        821,
+        829
+      ],
+      "species": [
+        "sinistcha",
+        "swampert",
+        "metagross",
+        "grimmsnarl"
+      ],
+      "usage_pct": 1.7,
+      "win_rate_pct": 59.7
+    },
+    {
+      "matches": 1587,
+      "site_ids": [
+        264,
+        325,
+        807,
+        821
+      ],
+      "species": [
+        "sinistcha",
+        "archaludon",
+        "swampert",
+        "metagross"
+      ],
+      "usage_pct": 2.4,
+      "win_rate_pct": 59.3
+    },
+    {
+      "matches": 1668,
+      "site_ids": [
+        64,
+        264,
+        807,
+        821
+      ],
+      "species": [
+        "pelipper",
+        "sinistcha",
+        "swampert",
+        "metagross"
+      ],
+      "usage_pct": 2.5,
+      "win_rate_pct": 59.2
+    },
+    {
+      "matches": 1604,
+      "site_ids": [
+        64,
+        264,
+        325,
+        821
+      ],
+      "species": [
+        "pelipper",
+        "sinistcha",
+        "archaludon",
+        "metagross"
+      ],
+      "usage_pct": 2.4,
+      "win_rate_pct": 59
+    },
+    {
+      "matches": 1209,
+      "site_ids": [
+        64,
+        264,
+        821,
+        829
+      ],
+      "species": [
+        "pelipper",
+        "sinistcha",
+        "metagross",
+        "grimmsnarl"
+      ],
+      "usage_pct": 1.8,
+      "win_rate_pct": 59.2
+    },
+    {
+      "matches": 714,
+      "site_ids": [
+        7,
+        18,
+        322,
+        631
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "incineroar",
+        "aerodactyl"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 59.5
+    },
+    {
+      "matches": 726,
+      "site_ids": [
+        18,
+        25,
+        249,
+        322
+      ],
+      "species": [
+        "kingambit",
+        "sylveon",
+        "charizard",
+        "incineroar"
+      ],
+      "usage_pct": 1,
+      "win_rate_pct": 58.8
+    },
+    {
+      "matches": 4025,
+      "site_ids": [
+        64,
+        264,
+        325,
+        807
+      ],
+      "species": [
+        "pelipper",
+        "sinistcha",
+        "archaludon",
+        "swampert"
+      ],
+      "usage_pct": 6,
+      "win_rate_pct": 56.8
+    },
+    {
+      "matches": 956,
+      "site_ids": [
+        7,
+        18,
+        249,
+        322
+      ],
+      "species": [
+        "garchomp",
+        "kingambit",
+        "charizard",
+        "incineroar"
+      ],
+      "usage_pct": 1.4,
+      "win_rate_pct": 57.3
+    },
+    {
+      "matches": 666,
+      "site_ids": [
+        7,
+        331,
+        795,
+        827
+      ],
+      "species": [
+        "garchomp",
+        "whimsicott",
+        "staraptor",
+        "gholdengo"
+      ],
+      "usage_pct": 1.1,
+      "win_rate_pct": 57.4
+    },
+    {
+      "matches": 1772,
+      "site_ids": [
+        64,
+        73,
+        325,
+        807
+      ],
+      "species": [
+        "pelipper",
+        "sableye",
+        "archaludon",
+        "swampert"
+      ],
+      "usage_pct": 2.7,
+      "win_rate_pct": 55.8
+    },
+    {
+      "matches": 1086,
+      "site_ids": [
+        7,
+        25,
+        241,
+        249
+      ],
+      "species": [
+        "garchomp",
+        "sylveon",
+        "basculegion",
+        "charizard"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 55.6
+    },
+    {
+      "matches": 1077,
+      "site_ids": [
+        64,
+        241,
+        325,
+        807
+      ],
+      "species": [
+        "pelipper",
+        "basculegion",
+        "archaludon",
+        "swampert"
+      ],
+      "usage_pct": 1.6,
+      "win_rate_pct": 55.5
+    }
+  ],
+  "pairs": [
+    {
+      "a": "charizard",
+      "b": "garchomp",
+      "count": 22
+    },
+    {
+      "a": "basculegion",
+      "b": "charizard",
+      "count": 15
+    },
+    {
+      "a": "charizard",
+      "b": "kingambit",
+      "count": 15
+    },
+    {
+      "a": "garchomp",
+      "b": "kingambit",
+      "count": 15
+    },
+    {
+      "a": "archaludon",
+      "b": "pelipper",
+      "count": 15
+    },
+    {
+      "a": "kingambit",
+      "b": "sneasler",
+      "count": 14
+    },
+    {
+      "a": "incineroar",
+      "b": "kingambit",
+      "count": 14
+    },
+    {
+      "a": "charizard",
+      "b": "incineroar",
+      "count": 14
+    },
+    {
+      "a": "garchomp",
+      "b": "incineroar",
+      "count": 13
+    },
+    {
+      "a": "basculegion",
+      "b": "kingambit",
+      "count": 12
+    },
+    {
+      "a": "floette-eternal-flower",
+      "b": "kingambit",
+      "count": 12
+    },
+    {
+      "a": "grimmsnarl",
+      "b": "pelipper",
+      "count": 12
+    },
+    {
+      "a": "archaludon",
+      "b": "grimmsnarl",
+      "count": 12
+    },
+    {
+      "a": "archaludon",
+      "b": "swampert",
+      "count": 12
+    },
+    {
+      "a": "charizard",
+      "b": "sylveon",
+      "count": 11
+    },
+    {
+      "a": "basculegion",
+      "b": "garchomp",
+      "count": 10
+    },
+    {
+      "a": "garchomp",
+      "b": "whimsicott",
+      "count": 10
+    },
+    {
+      "a": "garchomp",
+      "b": "sylveon",
+      "count": 10
+    },
+    {
+      "a": "kingambit",
+      "b": "sinistcha",
+      "count": 9
+    },
+    {
+      "a": "sinistcha",
+      "b": "sneasler",
+      "count": 9
+    },
+    {
+      "a": "incineroar",
+      "b": "sneasler",
+      "count": 9
+    },
+    {
+      "a": "incineroar",
+      "b": "sinistcha",
+      "count": 9
+    },
+    {
+      "a": "delphox",
+      "b": "incineroar",
+      "count": 9
+    },
+    {
+      "a": "delphox",
+      "b": "kingambit",
+      "count": 9
+    },
+    {
+      "a": "delphox",
+      "b": "sinistcha",
+      "count": 9
+    },
+    {
+      "a": "basculegion",
+      "b": "whimsicott",
+      "count": 9
+    },
+    {
+      "a": "delphox",
+      "b": "sneasler",
+      "count": 9
+    },
+    {
+      "a": "charizard",
+      "b": "venusaur",
+      "count": 9
+    },
+    {
+      "a": "aerodactyl",
+      "b": "garchomp",
+      "count": 9
+    },
+    {
+      "a": "aerodactyl",
+      "b": "charizard",
+      "count": 9
+    },
+    {
+      "a": "pelipper",
+      "b": "swampert",
+      "count": 9
+    },
+    {
+      "a": "charizard",
+      "b": "whimsicott",
+      "count": 8
+    },
+    {
+      "a": "charizard",
+      "b": "farigiraf",
+      "count": 8
+    },
+    {
+      "a": "aerodactyl",
+      "b": "sylveon",
+      "count": 8
+    },
+    {
+      "a": "aerodactyl",
+      "b": "kingambit",
+      "count": 8
+    },
+    {
+      "a": "kingambit",
+      "b": "sylveon",
+      "count": 8
+    },
+    {
+      "a": "pelipper",
+      "b": "venusaur",
+      "count": 7
+    },
+    {
+      "a": "archaludon",
+      "b": "venusaur",
+      "count": 7
+    },
+    {
+      "a": "basculegion",
+      "b": "pelipper",
+      "count": 7
+    },
+    {
+      "a": "archaludon",
+      "b": "basculegion",
+      "count": 7
+    },
+    {
+      "a": "gholdengo",
+      "b": "staraptor",
+      "count": 7
+    },
+    {
+      "a": "farigiraf",
+      "b": "garchomp",
+      "count": 7
+    },
+    {
+      "a": "farigiraf",
+      "b": "sylveon",
+      "count": 7
+    },
+    {
+      "a": "floette-eternal-flower",
+      "b": "sinistcha",
+      "count": 6
+    },
+    {
+      "a": "floette-eternal-flower",
+      "b": "sneasler",
+      "count": 6
+    },
+    {
+      "a": "floette-eternal-flower",
+      "b": "incineroar",
+      "count": 6
+    },
+    {
+      "a": "delphox",
+      "b": "floette-eternal-flower",
+      "count": 6
+    },
+    {
+      "a": "basculegion",
+      "b": "floette-eternal-flower",
+      "count": 6
+    },
+    {
+      "a": "floette-eternal-flower",
+      "b": "whimsicott",
+      "count": 6
+    },
+    {
+      "a": "kingambit",
+      "b": "whimsicott",
+      "count": 6
+    },
+    {
+      "a": "charizard",
+      "b": "floette-eternal-flower",
+      "count": 6
+    },
+    {
+      "a": "floette-eternal-flower",
+      "b": "garchomp",
+      "count": 6
+    },
+    {
+      "a": "charizard",
+      "b": "grimmsnarl",
+      "count": 6
+    },
+    {
+      "a": "charizard",
+      "b": "pelipper",
+      "count": 6
+    },
+    {
+      "a": "grimmsnarl",
+      "b": "venusaur",
+      "count": 6
+    },
+    {
+      "a": "archaludon",
+      "b": "charizard",
+      "count": 6
+    },
+    {
+      "a": "basculegion",
+      "b": "grimmsnarl",
+      "count": 6
+    },
+    {
+      "a": "basculegion",
+      "b": "venusaur",
+      "count": 6
+    },
+    {
+      "a": "blastoise",
+      "b": "incineroar",
+      "count": 6
+    },
+    {
+      "a": "blastoise",
+      "b": "kingambit",
+      "count": 6
+    },
+    {
+      "a": "blastoise",
+      "b": "sneasler",
+      "count": 6
+    },
+    {
+      "a": "blastoise",
+      "b": "sinistcha",
+      "count": 6
+    },
+    {
+      "a": "excadrill",
+      "b": "sinistcha",
+      "count": 6
+    },
+    {
+      "a": "excadrill",
+      "b": "staraptor",
+      "count": 6
+    },
+    {
+      "a": "excadrill",
+      "b": "tyranitar",
+      "count": 6
+    },
+    {
+      "a": "sinistcha",
+      "b": "staraptor",
+      "count": 6
+    },
+    {
+      "a": "sinistcha",
+      "b": "tyranitar",
+      "count": 6
+    },
+    {
+      "a": "staraptor",
+      "b": "tyranitar",
+      "count": 6
+    },
+    {
+      "a": "gholdengo",
+      "b": "milotic",
+      "count": 6
+    },
+    {
+      "a": "gholdengo",
+      "b": "tyranitar",
+      "count": 6
+    },
+    {
+      "a": "milotic",
+      "b": "staraptor",
+      "count": 6
+    },
+    {
+      "a": "milotic",
+      "b": "tyranitar",
+      "count": 6
+    },
+    {
+      "a": "milotic",
+      "b": "sinistcha",
+      "count": 6
+    },
+    {
+      "a": "excadrill",
+      "b": "gholdengo",
+      "count": 6
+    },
+    {
+      "a": "excadrill",
+      "b": "milotic",
+      "count": 6
+    },
+    {
+      "a": "gholdengo",
+      "b": "sinistcha",
+      "count": 6
+    },
+    {
+      "a": "blastoise",
+      "b": "delphox",
+      "count": 6
+    },
+    {
+      "a": "aerodactyl",
+      "b": "farigiraf",
+      "count": 6
+    },
+    {
+      "a": "incineroar",
+      "b": "sylveon",
+      "count": 6
+    },
+    {
+      "a": "farigiraf",
+      "b": "kingambit",
+      "count": 6
+    },
+    {
+      "a": "grimmsnarl",
+      "b": "swampert",
+      "count": 6
+    },
+    {
+      "a": "archaludon",
+      "b": "metagross",
+      "count": 6
+    },
+    {
+      "a": "grimmsnarl",
+      "b": "metagross",
+      "count": 6
+    },
+    {
+      "a": "metagross",
+      "b": "swampert",
+      "count": 6
+    },
+    {
+      "a": "metagross",
+      "b": "pelipper",
+      "count": 6
+    },
+    {
+      "a": "archaludon",
+      "b": "sinistcha",
+      "count": 6
+    },
+    {
+      "a": "grimmsnarl",
+      "b": "sinistcha",
+      "count": 6
+    },
+    {
+      "a": "pelipper",
+      "b": "sinistcha",
+      "count": 6
+    },
+    {
+      "a": "sinistcha",
+      "b": "swampert",
+      "count": 6
+    },
+    {
+      "a": "metagross",
+      "b": "sinistcha",
+      "count": 6
+    },
+    {
+      "a": "froslass",
+      "b": "kingambit",
+      "count": 5
+    },
+    {
+      "a": "froslass",
+      "b": "sneasler",
+      "count": 5
+    },
+    {
+      "a": "basculegion",
+      "b": "froslass",
+      "count": 5
+    },
+    {
+      "a": "basculegion",
+      "b": "sneasler",
+      "count": 5
+    },
+    {
+      "a": "aerodactyl",
+      "b": "incineroar",
+      "count": 5
+    },
+    {
+      "a": "kingambit",
+      "b": "lycanroc-dusk-form",
+      "count": 4
+    },
+    {
+      "a": "basculegion",
+      "b": "lycanroc-dusk-form",
+      "count": 4
+    },
+    {
+      "a": "basculegion",
+      "b": "scovillain",
+      "count": 4
+    },
+    {
+      "a": "kingambit",
+      "b": "scovillain",
+      "count": 4
+    },
+    {
+      "a": "froslass",
+      "b": "lycanroc-dusk-form",
+      "count": 3
+    },
+    {
+      "a": "lycanroc-dusk-form",
+      "b": "sneasler",
+      "count": 3
+    },
+    {
+      "a": "froslass",
+      "b": "scovillain",
+      "count": 3
+    },
+    {
+      "a": "scovillain",
+      "b": "sneasler",
+      "count": 3
+    },
+    {
+      "a": "basculegion",
+      "b": "incineroar",
+      "count": 3
+    },
+    {
+      "a": "gengar",
+      "b": "incineroar",
+      "count": 3
+    },
+    {
+      "a": "gengar",
+      "b": "politoed",
+      "count": 3
+    },
+    {
+      "a": "gengar",
+      "b": "swampert",
+      "count": 3
+    },
+    {
+      "a": "incineroar",
+      "b": "politoed",
+      "count": 3
+    },
+    {
+      "a": "incineroar",
+      "b": "swampert",
+      "count": 3
+    },
+    {
+      "a": "politoed",
+      "b": "swampert",
+      "count": 3
+    },
+    {
+      "a": "incineroar",
+      "b": "whimsicott",
+      "count": 3
+    },
+    {
+      "a": "archaludon",
+      "b": "incineroar",
+      "count": 3
+    },
+    {
+      "a": "archaludon",
+      "b": "politoed",
+      "count": 3
+    },
+    {
+      "a": "archaludon",
+      "b": "gengar",
+      "count": 3
+    },
+    {
+      "a": "charizard",
+      "b": "toxapex",
+      "count": 3
+    },
+    {
+      "a": "garchomp",
+      "b": "toxapex",
+      "count": 3
+    },
+    {
+      "a": "incineroar",
+      "b": "toxapex",
+      "count": 3
+    },
+    {
+      "a": "incineroar",
+      "b": "venusaur",
+      "count": 3
+    },
+    {
+      "a": "toxapex",
+      "b": "venusaur",
+      "count": 3
+    },
+    {
+      "a": "garchomp",
+      "b": "venusaur",
+      "count": 3
+    },
+    {
+      "a": "farigiraf",
+      "b": "incineroar",
+      "count": 2
+    },
+    {
+      "a": "garchomp",
+      "b": "gholdengo",
+      "count": 2
+    },
+    {
+      "a": "gholdengo",
+      "b": "whimsicott",
+      "count": 2
+    },
+    {
+      "a": "lycanroc-dusk-form",
+      "b": "scovillain",
+      "count": 1
+    },
+    {
+      "a": "swampert",
+      "b": "venusaur",
+      "count": 1
+    },
+    {
+      "a": "basculegion",
+      "b": "gholdengo",
+      "count": 1
+    },
+    {
+      "a": "garchomp",
+      "b": "staraptor",
+      "count": 1
+    },
+    {
+      "a": "staraptor",
+      "b": "whimsicott",
+      "count": 1
+    },
+    {
+      "a": "archaludon",
+      "b": "sableye",
+      "count": 1
+    },
+    {
+      "a": "pelipper",
+      "b": "sableye",
+      "count": 1
+    },
+    {
+      "a": "sableye",
+      "b": "swampert",
+      "count": 1
+    },
+    {
+      "a": "basculegion",
+      "b": "sylveon",
+      "count": 1
+    },
+    {
+      "a": "basculegion",
+      "b": "swampert",
+      "count": 1
+    }
+  ]
+}

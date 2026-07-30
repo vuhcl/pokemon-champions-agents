@@ -11,6 +11,12 @@ _MOD_TO_TAG = {
     "champions-reg-ma": "champions-reg-ma",
 }
 
+# Newest first. Extend when a regulation is archived (do not infer from filenames).
+REGULATION_ARCHIVE_ORDER: tuple[str, ...] = (
+    "champions-reg-mb",
+    "champions-reg-ma",
+)
+
 
 def to_id(text: str) -> str:
     """Match scripts/extract_legality/to_id.ts: lowercase, strip non-alphanumeric."""
@@ -27,3 +33,13 @@ def regulation_file_tag(regulation: str) -> str:
     if key.startswith("champions-reg-"):
         return key
     raise ValueError(f"unknown regulation: {regulation!r}")
+
+
+def regulation_lookup_chain(regulation: str) -> list[str]:
+    """Requested tag then older archives (newest → oldest). No walk forward."""
+    tag = regulation_file_tag(regulation)
+    try:
+        i = REGULATION_ARCHIVE_ORDER.index(tag)
+    except ValueError:
+        return [tag]  # soft champions-reg-* not yet on the chain
+    return list(REGULATION_ARCHIVE_ORDER[i:])

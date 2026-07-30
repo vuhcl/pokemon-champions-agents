@@ -8,3 +8,6 @@ changes, archive the prior file under its own tag — do not delete or merge
 (Showdown mod-retirement pattern).
 
 Key: species + moveset + item (Showdown `to_id` form), scoped by file.
+
+Optional provenance: `rationale` (writeup prose), `source_format` (e.g.
+`champions/vgc-2026-regulation-m-b`, `sv/vgc`).
