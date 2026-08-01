@@ -156,10 +156,10 @@ def team_item_ids(team_draft: list[Slot] | None, *, exclude_slot: int | None = N
     used: set[str] = set()
     if not team_draft:
         return used
-    for slot in team_draft:
-        if exclude_slot is not None and slot.get("slot_index") == exclude_slot:
+    for i, slot in enumerate(team_draft):
+        if exclude_slot is not None and i == exclude_slot:
             continue
-        item = (slot.get("set") or {}).get("item")
+        item = slot.item.value
         if item:
             used.add(to_id(item))
     return used
