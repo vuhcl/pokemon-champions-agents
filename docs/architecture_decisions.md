@@ -678,6 +678,10 @@ without a calc sanity check. Revisit if this proves too permissive in practice.
   profiles (Spore/Sleep Powder/Hypnosis/Yawn); mechanism-dependent criterion weighting
   (Speed vs. bulk vs. delivery type); trapping-ability relevance conditional on delivery
   mechanism; accuracy-boosting mechanisms (Compound Eyes, Coil) as confirmed reinforcement.
+- **2026-07-31a** — Matchup classifier turn-economy correction: charge-move delay (with
+  per-move instant-weather conditions) and recharge-move in-sim vulnerability skip;
+  move-selection ranking fix decoupled from simulation physics; accepted limitations
+  (Power Herb, single-note A-centric reporting, no reverse-call).
 
 ---
 
@@ -1706,6 +1710,24 @@ specific verification failures during the Swords Dance Attacker mock run.
 
 ---
 
+### ADR-015 — Amendment 2026-07-29c — Scope broadened to typing (2026-07-29)
+
+This amendment's per-form verification discipline ("check each form's actual ability list
+independently, every time") is confirmed to apply equally to **typing**, not just abilities —
+surfaced by a live error during reconciliation design (ADR-020): Mega Staraptor's typing
+(Flying/Fighting) was asserted from memory as its base form's typing (Normal/Flying) without
+checking, a second confirmed live failure-mode-#1 instance (see master_project_log.md). Any
+type-changing Mega (Staraptor, Charizard X, Gyarados, Altaria, others) requires the same
+per-form verification already mandated for abilities. ADR-020's tier-1 reconciliation check is
+built form-aware from the start on this basis, rather than assuming a single typing per
+species.
+
+**Status:** Broadens this amendment's stated scope from abilities to abilities-and-typing
+together. Does not change the original ability-specific findings (Mega Gallade/Sharpness,
+base-vs-Mega Scizor/Technician).
+
+---
+
 ### ADR-015 — Amendment 2026-07-29d
 
 **Trick Room attacker evaluation: relative speed, SP-investment mechanics, and setup-move
@@ -1840,6 +1862,73 @@ candidate's kit.
 **Status:** Establishes delivery-mechanism-specific criteria weighting for this role
 (reusable pattern: check whether a general criterion's precondition actually holds for the
 specific delivery mechanism in question, rather than applying it uniformly across a role).
+
+---
+
+### ADR-015 — Amendment 2026-07-31a
+
+**Turn-economy correction to the pairwise matchup classifier (Amendment 2026-07-28c) —
+charge and recharge moves.**
+
+Two additional gaps confirmed in classify_matchup's raw calc output, same category as
+Amendment 2026-07-28c's original contact-punish and multi-hit-count gaps — calc computes
+per-hit damage assuming the move lands this turn unconditionally, which is wrong for two
+move categories:
+
+**Charge moves** (Solar Beam, Solar Blade, Sky Attack, Razor Wind, Skull Bash, Dig, Dive,
+Fly, Bounce, Phantom Force, Shadow Force, Sky Drop, Freeze Shock, Ice Burn, Meteor Beam,
+Geomancy, Electro Shot — sourced from Pokemon Showdown's data/moves.ts `flags.charge: 1`,
+not from @smogon/calc, which has neither flag). A charge move doesn't deal damage on the
+turn it's used unless an instant-fire condition is met — verified per-move rather than
+assumed uniform: Solar Beam/Solar Blade fire instantly under Sun/Harsh Sunshine, Electro
+Shot fires instantly under Rain/Heavy Rain (a genuinely new finding — the instant-condition
+mapping is per-move and per-weather-type, not a single shared rule). If the condition isn't
+met, the defender gets a full, live turn to act first — checkable within the classifier's
+existing single-opponent, single-build frame, since it only needs the two builds already
+given. This can flip an outcome entirely, not just delay it (worked motivating case: Mega
+Swampert vs. Mega Charizard Y under a neutral field — Solar Beam doesn't fire turn one,
+Swampert acts first and wins the exchange outright; under Sun, the naive calc read is
+closer to correct).
+
+**Recharge moves** (Hyper Beam, Giga Impact, Blast Burn, Frenzy Plant, Hydro Cannon, Rock
+Wrecker, Roar of Time, Eternabeam, Meteor Assault, Prismatic Laser — same source,
+`flags.recharge: 1`). Structurally distinct from charge moves: the hit lands on schedule,
+but the user cannot act the turn after. Irrelevant if the hit is an outright OHKO. If not,
+the following turn is a fully live, guaranteed free action for the opponent already given
+to the classifier — a real, additional in-simulation turn-skip (not a lookup, not a
+post-hoc flip), since the recharge-user simply has no action available that turn. This
+was corrected during implementation to be a genuine in-sim skip (must_recharge state
+consumed on the actor's next turn within the same exchange simulation) rather than a
+separate "compute normally, then check afterward whether to flip" pass — the latter was
+identified during plan review as producing wrong results, since it would let the recharge
+user act on the turn it should be unable to.
+
+**Move selection also required a correction independent of the simulation itself**: ranking
+candidate moves by raw turns-to-KO could prefer a charge move that looks better on paper
+(higher raw damage) over an instant move that actually resolves faster, once the charge
+delay is accounted for. Fixed via an effective-turns-to-KO penalty (+1 when charge-delayed)
+applied only in the move-selection comparison key — the simulation itself always uses the
+real, un-penalized turn count, keeping move-ranking and simulated turn physics deliberately
+decoupled so a fix to one can't silently corrupt the other.
+
+**Accepted, stated limitations (not open questions):**
+- Power Herb (item-based charge-skip override) is not handled — charge-delay is currently
+  evaluated on weather/field alone. A real, known gap, deferred rather than silently missed.
+- turn_economy_note is single-valued and attacker(A)-centric: if both sides have a
+  turn-economy quirk in the same exchange, only one is surfaced (recharge takes precedence
+  over charge if both apply). This is a deliberate, bounded simplification, not a defect —
+  consistent with the classifier's original single-opponent scope never claiming to model
+  everything about both sides simultaneously.
+- No reverse-classify_matchup call is used for the recharge-vulnerability check (an earlier
+  design draft proposed this); the in-simulation must_recharge skip, using the same
+  already-batched calc results for both directions, was used instead — simpler, avoids an
+  HP-reset/recursion risk a literal reverse-call approach would have introduced.
+
+**Status:** Implements the two gaps flagged during Amendment 2026-07-28c's original design
+discussion, found post-shipment. 58 tests passing (up from 52), 5 skipped. Classifier's
+scope is unchanged — still pairwise, single-opponent, per Amendment 2026-07-28c's original
+design; this only corrects what it computes within that frame, consistent with the
+contact-punish/multi-hit corrections Amendment 2026-07-28c already documents.
 
 ---
 
@@ -2060,6 +2149,20 @@ schedule). Implementation of the chain-lookup fix is a follow-up task, not yet b
 
 ---
 
+### ADR-016 — Amendment 2026-07-27a — Status update (2026-07-29)
+
+**Chain-lookup implemented, committed, and pushed.** The gap this amendment identified
+(get_resolved_build not walking backward through archived regulation files on a miss) is
+resolved in code: REGULATION_ARCHIVE_ORDER + regulation_lookup_chain() in recommender/ids.py,
+get_resolved_build(..., chain=True) walking tags newest→oldest and recording
+found_in_regulation, chain=False preserved for direct-only lookups. Covered by
+tests/recommender/test_resolved_builds.py::test_chain_lookup_from_archived_ma.
+
+**Status:** Implemented. Supersedes this amendment's prior "not yet built" framing —
+the design conclusion stands, the gap it describes no longer exists in the codebase.
+
+---
+
 ## ADR-017: RecommenderState extensions — team theme/core, granular locking, constraint scope
 
 **Team theme/core.** `RecommenderState` gains two related concepts, populated by a detection
@@ -2118,8 +2221,23 @@ official color categorization exists, but a visual/aesthetic read might diverge 
 Check the mechanical interpretation first, but surface the ambiguity rather than silently
 assume the official categorization is what was meant.
 
-**Status:** New ADR, all points decided during the 2026-07-27 role-play design session.
-Implementation not yet built.
+**Status (2026-07-29):** Implemented. RecommenderState migrated to the Attr-per-field model:
+`Slot` holds `Attr[T]` wrappers (value/locked/reason/still_active) for role, species, item,
+moveset, spread, replacing the prior single `locked: bool`/`set: PokemonSet`/`slot_index`
+shape. `core` is a computed helper over `team_draft`, not stored state. `archetype: Attr[str]`
+added at top level; `verification_log` removed (confirmed zero appenders at time of removal —
+verification lives per-slot). `Constraint` gains `scope`/`groundedness`, `type` unchanged
+(`Literal["hard","soft"]`, preserved not narrowed). PokemonSet remains a separate type at the
+calc/export boundary, not folded into Slot. Migration confirmed narrow: recommend.py,
+quick_pick.py, and graph/nodes steering stubs untouched in type or behavior — only
+legality.py's Item Clause check and nodes.py's slot initialization needed call-site updates.
+31 tests passing, 5 skipped. No Slot Attr writers exist yet; default lock rule (inference →
+locked=False, explicit user statement/lock → locked=True) is documented for whichever future
+work writes to Slot fields first (steering, tier-2 rework, theme detection) — not yet
+exercised in code.
+`archetype`'s intended consumer is ADR-015 Amendment 2026-07-27a's theme/core detection
+mechanism (intrinsic signal + teammate role abstraction → needed-role list) — see
+master_project_log.md's flagged-gaps section for the wiring dependency, not yet implemented.
 
 ---
 
@@ -2295,3 +2413,228 @@ change trigger taxonomy, the dependency-registry mechanism for contingent-value 
 and the two-phase (mechanical-then-usage) maintenance cycle. Supersedes the ad hoc,
 single-pass construction approach used during the 2026-07-27 through 2026-07-29 mock-run
 testing.
+
+---
+
+## ADR-020: Theme/archetype reconciliation — mechanism for re-evaluating locked values when
+team-level commitments or sibling attributes change
+
+**Decision:** When the team's archetype, a team-wide constraint, or a locked sibling attribute
+within the same slot changes, previously-locked values must be re-evaluated against the new
+state — not silently kept, and not silently discarded. This ADR defines the check mechanism,
+the trigger conditions, and the recovery path.
+
+**Alternatives considered:** No reconciliation (locked stays locked regardless of later
+changes) — rejected, since it silently accumulates stale/contradictory picks (a Swift Swim
+sweeper on a team that's switched to Sun). Full team wipe on any theme change — rejected except
+as an explicit, separate user intent (see `reset`, below), since it discards genuinely
+unrelated, still-valid locked choices (a species locked "regardless of theme").
+
+**Why this matters:** surfaced via a role-play mock conversation and extensive follow-on
+scenario-testing this session (Fire-type-under-Rain, Sneasler-under-TrickRoom,
+Mega-Staraptor-vs-mono-type, base-vs-Mega-form disagreement, Skarmory-IronPress-vs-Mega-
+Skarmero, TailRoom composite archetypes) — a materially real gap, not a hypothetical edge case,
+and one that came close to being addressed with ad hoc, per-mechanic hardcoded rules before
+being generalized. Building it as one general, tiered mechanism instead of one bespoke checker
+per mechanic is the central design commitment of this ADR.
+
+### Trigger conditions (two distinct paths, one shared check)
+
+1. **Team-level commitment change** — `archetype` changes, or a new team-wide `constraint` is
+   recorded. Re-evaluate every currently-locked attribute across all slots against the new
+   commitment.
+2. **Same-slot dependency-circle propagation** (ADR-015 Amendment 2026-07-27c) — a locked
+   attribute within a slot changes (e.g. `species` swapped from base to Mega form). Re-evaluate
+   that slot's *other* locked attributes (item, moveset, spread) against the new value, since
+   they may have been built around the old one. This is the dependency circle already designed
+   for build resolution, now also firing on a *revision* to an already-locked value, not just
+   during initial resolution.
+
+Both paths call the same `check_theme_fit`/`check_archetype_fit` machinery below — they differ
+only in what's being checked against what.
+
+### Check mechanism: four tiers, cheapest/most-certain first, no bespoke per-mechanic rules
+
+```python
+def check_theme_fit(slot: Slot, commitment: str) -> FitResult:
+    # Tier 1: direct attribute check against already-known species/build data
+    # (typing, base stats, ability name, item name — from the legality snapshot,
+    # no calc call needed). Must be FORM-AWARE: check every forme the build could
+    # reach (e.g. base + Mega), not just the currently-active one — a type-changing
+    # Mega (Staraptor, Charizard X, Gyarados, Altaria) can disagree with its base
+    # form; if forms disagree, return ambiguous=True rather than silently picking one.
+    ...
+    # Tier 2: calc recompute-and-diff. Re-run the slot's existing verification
+    # (ADR-003 calc client) under the new field condition (weather/terrain/screens)
+    # or against the new base-stat line (post-Mega-Evolution), and diff against the
+    # stored result. Produces a graded magnitude (via FitResult.severity, reusing
+    # ADR-015 Amendment 2026-07-28c's Decisive/Costly/Toss-up scale), not a bare bool
+    # — e.g. IronPress-on-Mega-Skarmory isn't illegal, just less effective given
+    # Mega Skarmory's lower Def.
+    ...
+    # Tier 3: role-membership test reuse. Re-run whatever mechanism admits a
+    # candidate to slot.role.value in the first place (tier-2 heuristic today; Role
+    # Compendium membership test once built, ADR-019) against the NEW commitment's
+    # context — e.g. Sneasler's fast-Unburden-sweeper role tested against Trick
+    # Room's effective-Speed requirement (ADR-015 Amendment 2026-07-29d). No new
+    # rule per archetype; the role's own membership definition IS the rule.
+    ...
+    # Tier 4: judgment-only. No data hook exists (e.g. "girlypop"). LLM judgment,
+    # stated plainly as ungrounded, per ADR-017's groundedness model.
+```
+
+`FitResult` is graded, not binary:
+
+```python
+@dataclass
+class FitResult:
+    satisfies: bool
+    groundedness: Literal["mechanically-checkable","enumerable-but-uncoded","judgment-only"]
+    severity: Optional[Literal["decisive","costly","toss-up"]] = None
+    ambiguous: bool = False
+    detail: Optional[str] = None
+```
+
+### Composite archetypes (e.g. "TailRoom" = Tailwind + Trick Room together)
+
+`archetype` is a **component set**, not a single string:
+
+```python
+class RecommenderState(TypedDict):
+    ...
+    archetype: Attr[list[str]]   # e.g. ["Tailwind", "TrickRoom"] — was Attr[str]
+```
+
+A composite label (e.g. "TailRoom") is a narration convenience only, resolved via a lookup
+table never consulted by reconciliation logic itself — reconciliation always operates on the
+component list directly.
+
+**Composition semantics are OR, not per-slot assignment.** A slot fits a composite archetype if
+it's compatible with *at least one* current component — this includes slots whose entire value
+is being compatible with multiple components simultaneously (e.g. Archaludon's middling Speed
+benefiting from either Tailwind or Trick Room, agnostic to which — a legitimate, positive
+membership case per the flagged Role Compendium gap above, not a fallback):
+
+```python
+def check_archetype_fit(slot: Slot, components: list[str]) -> FitResult:
+    per_component = [check_theme_fit(slot, c) for c in components]
+    if any(r.satisfies for r in per_component):
+        return FitResult(satisfies=True, ...)
+    return FitResult(satisfies=False, ...)
+```
+
+Reconciliation on a component-set change only touches slots that fit *zero* remaining
+components: adding a component (Trick Room → TailRoom) never invalidates anything already
+locked, since gaining an additional acceptable role can't cause an existing valid pick to fail;
+removing a component (TailRoom → solo Trick Room) only reopens slots with no remaining fit.
+
+### Recovery: exemption and restore
+
+**`Attr` gains `exempt_from_theme: bool`.** Set when the user explicitly overrides theme
+relevance ("I want Garchomp regardless of weather"). Exemption changes what happens on a
+mismatch, never whether the check runs — verification stays constant per ADR-018's existing
+principle; only the action varies:
+
+- Not exempt, mismatch, mechanically-checkable → auto-reopen (unlock, log to `superseded`).
+- Not exempt, mismatch, judgment-only → flag, don't auto-decide.
+- Exempt, mismatch, mechanically-checkable → **flag as `flag_exempt_conflict`, never
+  auto-removed** — e.g. Mega Charizard X explicitly locked "regardless of theme," then team
+  switches to Rain: Blaze/Solar Power's real synergy is Sun-conditioned, a genuine mechanical
+  mismatch, but the user's explicit override is respected by never silently dropping it —
+  only surfaced.
+- Exempt, mismatch, judgment-only → silently respected, no flag (an explicit override on a
+  vibes-level mismatch isn't worth re-litigating).
+
+**`RecommenderState` gains `superseded: list[SupersededEntry]`** — a recoverable log, distinct
+from `pending_flags` (undecided items). Every auto-reopen logs what was removed and why
+(human-readable, for narration: *"it didn't fit Rain because Fire-type STAB is halved"*).
+Pushback ("hey, I actually wanted that") is a new `classify_input` intent that reads the most
+recent matching entry and restores it via the same lock machinery, reason set to
+`user_stated`. Chaining beyond one level of undo (a restore displacing something
+`propose_team_draft` had already filled in) is an open question, not resolved here.
+
+### Reset
+
+**"Start from scratch"** is a distinct, separate intent (`reset`), not routed through
+reconciliation at all — full wipe of `team_draft`, `constraints`, and `archetype`, re-seeded
+with whatever new archetype/constraint accompanied the reset statement. Simpler than a themed
+reversal and shouldn't be forced through the same machinery.
+
+**Status:** Decided in design (2026-07-29 reconciliation session). Implemented 2026-07-30
+(`recommender/reconcile.py`). Depends on ADR-017 schema (landed) for `Attr`/`archetype`
+shape; depends on ADR-019's Role Compendium (not yet built) for full tier-3 coverage —
+until then, tier 3 is bounded to tier-2's five hardcoded archetypes, a known and bounded
+gap (see master_project_log.md flagged gaps).
+
+**Status update (2026-07-29):** `archetype: Attr[list[str]]` landed in `recommender/state.py`
+— corrects the type ADR-017's original migration shipped (`Attr[str]`), which predated
+ADR-020's composite-archetype design. One-line schema change; no consumer exists yet
+(`nodes.initialize` still constructs a bare `Attr()`, `value=None`), so blast radius was
+confirmed near-zero via grep before the edit, and held. 31 tests passing, 5 skipped.
+Reconciliation logic itself (`check_theme_fit`/`check_archetype_fit`/`FitResult`,
+`COMPOSITE_ARCHETYPE_LABELS`, `superseded`/`pending_flags`/`exempt_from_theme`) remains
+unimplemented — this update is schema-only, per the scoped follow-up task.
+
+**Status update (2026-07-30):** Reconciliation logic landed in `recommender/reconcile.py`
+and wired into `handle_archetype_change`, `apply_lock` (sibling propagation), and
+`restore_superseded` graph node. `FitResult.severity` imports `Severity` from
+`recommender.matchup`. Tier 3 still bounded to `infer_role`'s five hardcoded archetypes
+until ADR-019 Role Compendium.
+
+---
+
+### ADR-020 — Amendment 2026-07-29a
+
+**Reconciliation check corrected: forward-looking and tag-agnostic, not gated on
+prior component tagging.**
+
+The original design checked a locked attribute's fit against the specific archetype
+component being *removed*, gated on whether `reason.ref` matched that component. Both
+are wrong: checking fit against a component that's leaving is backwards (the live
+question is always "does this satisfy something still active"), and gating on the
+tag being correct means an unintentionally multi-fitting pick (e.g. a team that
+organically ends up Rain+TailRoom without the user ever declaring "TailRoom") could
+be incorrectly reopened, since the tag only reflects why it was *originally* added,
+not everything it happens to satisfy now.
+
+**Fix:** on any archetype component-set change, re-run `check_archetype_fit` (OR
+semantics) against the full *current* component set for every locked, non-exempt
+attribute, regardless of its stored `reason.ref`. A slot only reopens if it fails
+against every currently active component. This makes unintentional archetype overlap
+safe by construction — nothing needs to detect, name, or correctly tag the overlap
+for it to be preserved correctly.
+
+**Status:** Corrects the reconciliation check in ADR-020's original text. No schema
+change; `reason.ref` remains useful for narration ("this was originally picked for
+Rain") but is no longer load-bearing for the reopen decision.
+
+---
+
+### ADR-020 — Implementation landed (2026-07-29)
+
+Multi-turn steering graph (checkpointer + thread_id, classify_input routing, apply_lock/
+record_constraint/record_rejection/reset_team/handle_archetype_change handlers) and ADR-020's
+reconciliation logic (check_theme_fit's four tiers, check_archetype_fit's OR-composition,
+reconcile_on_archetype_change/reconcile_on_sibling_change, exempt_from_theme, superseded log,
+restore_superseded) are both implemented, via a three-track orchestrated build:
+- Task 1 (steering skeleton) and Task 3 (pairwise matchup classifier, ADR-015 Amendment
+  2026-07-28c) ran in parallel on isolated worktrees, disjoint files.
+- Task 2 (this ADR's reconciliation logic) gated on Task 1 landing first, per the dependency
+  it has on the handler nodes Task 1 builds.
+- Severity literal shared cleanly across ADR-015's classifier and this ADR's FitResult:
+  recommender.matchup.Severity defined once by Task 3, imported (not redefined) by Task 2's
+  work — confirmed via an explicit handoff brief rather than left as an open flag.
+
+52 tests passing (up from 31), 5 skipped, no regressions.
+
+Known, deliberate scope boundaries carried from design into implementation:
+- Tier 3 (role-membership reuse) remains bounded to tier-2's five hardcoded archetypes —
+  full coverage depends on the Role Compendium (ADR-019), not yet built.
+- Rejecting a locked species keeps the lock (default; user must explicitly unlock/relock
+  to actually change a locked pick).
+- reset_team leaves `rejected` history intact across a wipe.
+- Restore (superseded-log recovery) supports one level of undo only; chained/multi-level
+  restore was explicitly deferred, not designed.
+
+**Status:** Implemented. Reconciliation's tier-3 ceiling and the Compendium dependency are
+tracked in master_project_log.md's flagged-gaps section, not repeated here.
