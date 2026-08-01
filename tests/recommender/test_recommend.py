@@ -48,8 +48,8 @@ def test_mega_swampert_inherits_wavecrash():
 
 
 def test_item_clause_failure():
-    draft = [empty_slot(i) for i in range(6)]
-    draft[0]["set"] = {"species": "Garchomp", "item": "Life Orb", "moves": ["Earthquake"]}
+    draft = [empty_slot() for _ in range(6)]
+    draft[0].item.value = "Life Orb"
     r = check_set(
         "Kingambit",
         ["Sucker Punch", "Kowtow Cleave", "Swords Dance", "Protect"],
