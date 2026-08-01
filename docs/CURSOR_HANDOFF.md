@@ -164,3 +164,9 @@ turns into a defensible interview answer later.
 
 Amendment format and logging-promptness rules now live in `.cursor/rules/project-context.md`
 (enforced every session) rather than duplicated here.
+
+**Enforcement note:** `docs/architecture_decisions.md` and `docs/master_project_log.md` in
+this repo are read-only mirrors, not editable by Cursor under any circumstance — see
+`.cursor/rules/project-context.md` for the hard rule. If a task plan ever includes a step
+that would touch either file, flag it back rather than executing it, even for a change as
+small as a single type annotation.
