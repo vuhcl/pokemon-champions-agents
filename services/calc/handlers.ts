@@ -48,7 +48,6 @@ export type FieldSpec = Partial<{
     | 'Sand'
     | 'Sun'
     | 'Rain'
-    | 'Hail'
     | 'Snow'
     | 'Harsh Sunshine'
     | 'Heavy Rain'

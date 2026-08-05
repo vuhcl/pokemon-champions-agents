@@ -1,0 +1,438 @@
+"""query_counters — data-only threat lookup (ADR-022 raw mechanical reasoning).
+
+Two binary axes: KO-threshold (merged STAB + coverage) and wall-check.
+No classify_matchup / calc-service calls.
+
+# gap: STAT-FRAGILITY axis (ADR-022 typing/stats/kit) deferred —
+# needs ruleset-conditioned Speed/bulk thresholds (Amendment 2026-07-27e).
+# gap: ability-conditional damage (Adaptability, Technician) and Coil/move
+# accuracy mods deferred to ADR-021 Amendment 2026-08-01b.
+"""
+
+from __future__ import annotations
+
+import json
+from functools import lru_cache
+from pathlib import Path
+from typing import Any
+
+from recommender.calc_client import PokemonSpecOptional
+from recommender.ids import to_id
+from recommender.legality import is_species_legal, load_snapshot
+from recommender.matchup import effective_accuracy, expected_hit_factor
+from recommender.ranking import rank_and_cut
+from recommender.state import ThreatCandidate
+from recommender.usage_data import featured_or_common_set, ingame_species_map
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+_ACCURACY_PATH = REPO_ROOT / "data" / "moves" / "gen9_accuracy.v1.json"
+
+# Probe (top-20 anchors × ladder species w/ featured sets): all-pairs clear-rate
+# 180→38.7% / 200→28.2%; SE-pairs 180→87.4% / 200→76.8%. Locked at 200.
+KO_THRESHOLD_BP = 200
+
+# Multiplicative bonus room: bound = round(1.5 * n). Proportional headroom;
+# wall-only admit at n=20 is via usage-primary within-tier key, not this slack.
+QUERY_COUNTERS_SLACK = 1.5
+
+DEFAULT_REGULATION = "champions-reg-mb"
+
+# Assumption A — fainted-teammate scaling (Supreme Overlord, Last Respects only).
+# Average of the nonzero states {1,2,3} (=2), not {0,1,2,3} (=1.5): a rational
+# player uses these specifically once the boost is worth using.
+ASSUMED_FAINTED_TEAMMATES = 2
+
+# Assumption B — hits-taken scaling (Rage Fist only). Independently justified:
+# accumulating hits requires repeatedly surviving attacks (each survived hit is a
+# real event the opponent failed to capitalize on); likelihood and danger both
+# rise with count, so a flat average is the wrong shape. Low/conservative default;
+# real ceiling belongs to deferred axis-tagged verification (ADR-021 Amendment
+# 2026-08-01b). Do not inherit ASSUMED_FAINTED_TEAMMATES.
+ASSUMED_HITS_TAKEN = 1
+
+# Champions = SS type chart (@smogon/calc TYPE_CHART[0]).
+TYPE_CHART: dict[str, dict[str, float]] = {
+    "Normal": {
+        "Normal": 1, "Grass": 1, "Fire": 1, "Water": 1, "Electric": 1, "Ice": 1,
+        "Flying": 1, "Bug": 1, "Poison": 1, "Ground": 1, "Rock": 0.5, "Fighting": 1,
+        "Psychic": 1, "Ghost": 0, "Dragon": 1, "Dark": 1, "Steel": 0.5, "Fairy": 1,
+    },
+    "Grass": {
+        "Normal": 1, "Grass": 0.5, "Fire": 0.5, "Water": 2, "Electric": 1, "Ice": 1,
+        "Flying": 0.5, "Bug": 0.5, "Poison": 0.5, "Ground": 2, "Rock": 2, "Fighting": 1,
+        "Psychic": 1, "Ghost": 1, "Dragon": 0.5, "Dark": 1, "Steel": 0.5, "Fairy": 1,
+    },
+    "Fire": {
+        "Normal": 1, "Grass": 2, "Fire": 0.5, "Water": 0.5, "Electric": 1, "Ice": 2,
+        "Flying": 1, "Bug": 2, "Poison": 1, "Ground": 1, "Rock": 0.5, "Fighting": 1,
+        "Psychic": 1, "Ghost": 1, "Dragon": 0.5, "Dark": 1, "Steel": 2, "Fairy": 1,
+    },
+    "Water": {
+        "Normal": 1, "Grass": 0.5, "Fire": 2, "Water": 0.5, "Electric": 1, "Ice": 1,
+        "Flying": 1, "Bug": 1, "Poison": 1, "Ground": 2, "Rock": 2, "Fighting": 1,
+        "Psychic": 1, "Ghost": 1, "Dragon": 0.5, "Dark": 1, "Steel": 1, "Fairy": 1,
+    },
+    "Electric": {
+        "Normal": 1, "Grass": 0.5, "Fire": 1, "Water": 2, "Electric": 0.5, "Ice": 1,
+        "Flying": 2, "Bug": 1, "Poison": 1, "Ground": 0, "Rock": 1, "Fighting": 1,
+        "Psychic": 1, "Ghost": 1, "Dragon": 0.5, "Dark": 1, "Steel": 1, "Fairy": 1,
+    },
+    "Ice": {
+        "Normal": 1, "Grass": 2, "Fire": 0.5, "Water": 0.5, "Electric": 1, "Ice": 0.5,
+        "Flying": 2, "Bug": 1, "Poison": 1, "Ground": 2, "Rock": 1, "Fighting": 1,
+        "Psychic": 1, "Ghost": 1, "Dragon": 2, "Dark": 1, "Steel": 0.5, "Fairy": 1,
+    },
+    "Flying": {
+        "Normal": 1, "Grass": 2, "Fire": 1, "Water": 1, "Electric": 0.5, "Ice": 1,
+        "Flying": 1, "Bug": 2, "Poison": 1, "Ground": 1, "Rock": 0.5, "Fighting": 2,
+        "Psychic": 1, "Ghost": 1, "Dragon": 1, "Dark": 1, "Steel": 0.5, "Fairy": 1,
+    },
+    "Bug": {
+        "Normal": 1, "Grass": 2, "Fire": 0.5, "Water": 1, "Electric": 1, "Ice": 1,
+        "Flying": 0.5, "Bug": 1, "Poison": 0.5, "Ground": 1, "Rock": 1, "Fighting": 0.5,
+        "Psychic": 2, "Ghost": 0.5, "Dragon": 1, "Dark": 2, "Steel": 0.5, "Fairy": 0.5,
+    },
+    "Poison": {
+        "Normal": 1, "Grass": 2, "Fire": 1, "Water": 1, "Electric": 1, "Ice": 1,
+        "Flying": 1, "Bug": 1, "Poison": 0.5, "Ground": 0.5, "Rock": 0.5, "Fighting": 1,
+        "Psychic": 1, "Ghost": 0.5, "Dragon": 1, "Dark": 1, "Steel": 0, "Fairy": 2,
+    },
+    "Ground": {
+        "Normal": 1, "Grass": 0.5, "Fire": 2, "Water": 1, "Electric": 2, "Ice": 1,
+        "Flying": 0, "Bug": 0.5, "Poison": 2, "Ground": 1, "Rock": 2, "Fighting": 1,
+        "Psychic": 1, "Ghost": 1, "Dragon": 1, "Dark": 1, "Steel": 2, "Fairy": 1,
+    },
+    "Rock": {
+        "Normal": 1, "Grass": 1, "Fire": 2, "Water": 1, "Electric": 1, "Ice": 2,
+        "Flying": 2, "Bug": 2, "Poison": 1, "Ground": 0.5, "Rock": 1, "Fighting": 0.5,
+        "Psychic": 1, "Ghost": 1, "Dragon": 1, "Dark": 1, "Steel": 0.5, "Fairy": 1,
+    },
+    "Fighting": {
+        "Normal": 2, "Grass": 1, "Fire": 1, "Water": 1, "Electric": 1, "Ice": 2,
+        "Flying": 0.5, "Bug": 0.5, "Poison": 0.5, "Ground": 1, "Rock": 2, "Fighting": 1,
+        "Psychic": 0.5, "Ghost": 0, "Dragon": 1, "Dark": 2, "Steel": 2, "Fairy": 0.5,
+    },
+    "Psychic": {
+        "Normal": 1, "Grass": 1, "Fire": 1, "Water": 1, "Electric": 1, "Ice": 1,
+        "Flying": 1, "Bug": 1, "Poison": 2, "Ground": 1, "Rock": 1, "Fighting": 2,
+        "Psychic": 0.5, "Ghost": 1, "Dragon": 1, "Dark": 0, "Steel": 0.5, "Fairy": 1,
+    },
+    "Ghost": {
+        "Normal": 0, "Grass": 1, "Fire": 1, "Water": 1, "Electric": 1, "Ice": 1,
+        "Flying": 1, "Bug": 1, "Poison": 1, "Ground": 1, "Rock": 1, "Fighting": 1,
+        "Psychic": 2, "Ghost": 2, "Dragon": 1, "Dark": 0.5, "Steel": 1, "Fairy": 1,
+    },
+    "Dragon": {
+        "Normal": 1, "Grass": 1, "Fire": 1, "Water": 1, "Electric": 1, "Ice": 1,
+        "Flying": 1, "Bug": 1, "Poison": 1, "Ground": 1, "Rock": 1, "Fighting": 1,
+        "Psychic": 1, "Ghost": 1, "Dragon": 2, "Dark": 1, "Steel": 0.5, "Fairy": 0,
+    },
+    "Dark": {
+        "Normal": 1, "Grass": 1, "Fire": 1, "Water": 1, "Electric": 1, "Ice": 1,
+        "Flying": 1, "Bug": 1, "Poison": 1, "Ground": 1, "Rock": 1, "Fighting": 0.5,
+        "Psychic": 2, "Ghost": 2, "Dragon": 1, "Dark": 0.5, "Steel": 1, "Fairy": 0.5,
+    },
+    "Steel": {
+        "Normal": 1, "Grass": 1, "Fire": 0.5, "Water": 0.5, "Electric": 0.5, "Ice": 2,
+        "Flying": 1, "Bug": 1, "Poison": 1, "Ground": 1, "Rock": 2, "Fighting": 1,
+        "Psychic": 1, "Ghost": 1, "Dragon": 1, "Dark": 1, "Steel": 0.5, "Fairy": 2,
+    },
+    "Fairy": {
+        "Normal": 1, "Grass": 1, "Fire": 0.5, "Water": 1, "Electric": 1, "Ice": 1,
+        "Flying": 1, "Bug": 1, "Poison": 0.5, "Ground": 1, "Rock": 1, "Fighting": 2,
+        "Psychic": 1, "Ghost": 1, "Dragon": 2, "Dark": 2, "Steel": 0.5, "Fairy": 1,
+    },
+}
+
+# Classic type-absorbing abilities → immunized attack type (wall-check only).
+ABILITY_TYPE_IMMUNITY: dict[str, str] = {
+    "flashfire": "Fire",
+    "waterabsorb": "Water",
+    "stormdrain": "Water",
+    "dryskin": "Water",
+    "voltabsorb": "Electric",
+    "lightningrod": "Electric",
+    "motordrive": "Electric",
+    "levitate": "Ground",
+    "eartheater": "Ground",
+    "sapsipper": "Grass",
+    "wellbakedbody": "Fire",
+}
+
+
+@lru_cache(maxsize=1)
+def load_move_accuracy() -> dict[str, dict[str, Any]]:
+    if not _ACCURACY_PATH.exists():
+        return {}
+    return json.loads(_ACCURACY_PATH.read_text())
+
+
+def type_effectiveness(attack_type: str, defend_types: list[str]) -> float:
+    row = TYPE_CHART.get(attack_type)
+    if not row:
+        return 1.0
+    mult = 1.0
+    for t in defend_types:
+        mult *= row.get(t, 1.0)
+    return mult
+
+
+def _species_types(snap: dict[str, Any], species: str) -> list[str]:
+    entry = snap["species"].get(to_id(species))
+    if not entry:
+        return []
+    return list(entry.get("types") or [])
+
+
+def _species_name(snap: dict[str, Any], species: str) -> str:
+    entry = snap["species"].get(to_id(species))
+    if entry and entry.get("name"):
+        return str(entry["name"])
+    return species
+
+
+def _legality_ability(snap: dict[str, Any], species: str) -> str | None:
+    entry = snap["species"].get(to_id(species))
+    if not entry:
+        return None
+    abilities = entry.get("abilities") or {}
+    raw = abilities.get("0") or abilities.get(0)
+    return str(raw) if raw else None
+
+
+def _damaging_move_types(
+    snap: dict[str, Any], moves: list[str] | None
+) -> list[str]:
+    if not moves:
+        return []
+    out: list[str] = []
+    for mv in moves:
+        meta = snap["moves"].get(to_id(mv))
+        if not meta or meta.get("category") == "Status":
+            continue
+        if int(meta.get("basePower") or 0) <= 0:
+            continue
+        t = meta.get("type")
+        if t:
+            out.append(str(t))
+    return out
+
+
+def _anchor_attack_types(
+    snap: dict[str, Any], pokemon: PokemonSpecOptional, anchor_types: list[str]
+) -> list[str]:
+    """Damaging move types, or STAB types if none (avoids vacuous wall)."""
+    typed = _damaging_move_types(snap, pokemon.get("moves"))
+    return typed if typed else list(anchor_types)
+
+
+def _incoming_effectiveness(
+    attack_type: str, defend_types: list[str], ability: str | None
+) -> float:
+    aid = to_id(ability or "")
+    immune_to = ABILITY_TYPE_IMMUNITY.get(aid)
+    if immune_to and immune_to == attack_type:
+        return 0.0
+    return type_effectiveness(attack_type, defend_types)
+
+
+def _walls(
+    attack_types: list[str],
+    cand_types: list[str],
+    ability: str | None,
+) -> bool:
+    if not attack_types:
+        return False  # should not happen after STAB fallback
+    return all(
+        _incoming_effectiveness(t, cand_types, ability) <= 0.5 for t in attack_types
+    )
+
+
+def _move_base_accuracy(move_id: str) -> int | bool | None:
+    entry = load_move_accuracy().get(move_id)
+    if not entry:
+        return None
+    return entry.get("accuracy")
+
+
+def _scaled_base_power(move_id: str, snapshot_bp: int) -> int:
+    """Apply battle-state BP assumptions for Last Respects / Rage Fist."""
+    if move_id == "lastrespects":
+        # Assumption A: BP = 50 × (1 + fainted allies).
+        return 50 * (1 + ASSUMED_FAINTED_TEAMMATES)
+    if move_id == "ragefist":
+        # Assumption B: BP = 50 × (1 + hits taken) — not fainted allies.
+        return 50 * (1 + ASSUMED_HITS_TAKEN)
+    return snapshot_bp
+
+
+def _ko_best_move(
+    snap: dict[str, Any],
+    *,
+    moves: list[str],
+    cand_types: list[str],
+    anchor_types: list[str],
+    ability: str | None,
+) -> tuple[float, bool]:
+    """Return (best effective_bp, best_was_stab)."""
+    best_bp = 0.0
+    best_stab = False
+    aid = to_id(ability or "")
+    so_mult = (
+        1.0 + 0.1 * ASSUMED_FAINTED_TEAMMATES
+        if aid == "supremeoverlord"
+        else 1.0
+    )
+    for mv in moves:
+        mid = to_id(mv)
+        meta = snap["moves"].get(mid)
+        if not meta or meta.get("category") == "Status":
+            continue
+        bp = _scaled_base_power(mid, int(meta.get("basePower") or 0))
+        at = meta.get("type")
+        if bp <= 0 or not at:
+            continue
+        at_s = str(at)
+        stab = at_s in cand_types
+        type_mult = type_effectiveness(at_s, anchor_types)
+        acc = effective_accuracy(_move_base_accuracy(mid), ability)
+        hits, folded = expected_hit_factor(mid, ability, acc)
+        ebp = bp * type_mult * (1.5 if stab else 1.0) * hits * so_mult
+        if not folded:
+            ebp *= acc
+        if ebp > best_bp:
+            best_bp = ebp
+            best_stab = stab
+    return best_bp, best_stab
+
+
+def threat_tier(kinds: frozenset[str]) -> int:
+    """Axis-count tier: both axes → 0, one → 1."""
+    n = len(kinds & {"ko_threshold", "wall"})
+    return max(0, 2 - n)
+
+
+def query_counters(
+    pokemon: PokemonSpecOptional,
+    n: int = 20,
+    candidate_pool: list[PokemonSpecOptional] | None = None,
+) -> list[ThreatCandidate]:
+    """Cheap data-only threats for ``pokemon`` (ADR-022 stage-1, cap ``n``).
+
+    ``candidate_pool`` restricts which species are searched as threats.
+    ``None`` = full legal set (unchanged default); non-None (incl. ``[]``) = only
+    those ids.
+    """
+    species = pokemon.get("species")
+    if not species:
+        return []
+
+    snap = load_snapshot()
+    if not is_species_legal(snap, species):
+        return []
+
+    anchor_id = to_id(species)
+    anchor_types = _species_types(snap, species)
+    if not anchor_types:
+        return []
+
+    allowed: set[str] | None = None
+    if candidate_pool is not None:
+        allowed = {
+            to_id(p["species"]) for p in candidate_pool if p.get("species")
+        }
+
+    attack_types = _anchor_attack_types(snap, pokemon, anchor_types)
+    ig = ingame_species_map(DEFAULT_REGULATION)
+    pool: list[ThreatCandidate] = []
+
+    for sid, entry in snap["species"].items():
+        if sid == anchor_id or not is_species_legal(snap, sid):
+            continue
+        if allowed is not None and sid not in allowed:
+            continue
+
+        cand_types = list(entry.get("types") or [])
+        if not cand_types:
+            continue
+
+        usage_set = featured_or_common_set(sid, regulation=DEFAULT_REGULATION)
+        ability = None
+        if usage_set and usage_set.get("ability"):
+            ability = str(usage_set["ability"])
+        else:
+            ability = _legality_ability(snap, sid)
+
+        kinds: set[str] = set()
+        ko_score = 0.0
+        ko_stab = False
+
+        if usage_set and usage_set.get("moves"):
+            best_bp, ko_stab = _ko_best_move(
+                snap,
+                moves=list(usage_set["moves"]),
+                cand_types=cand_types,
+                anchor_types=anchor_types,
+                ability=ability,
+            )
+            ko_score = min(1.0, best_bp / KO_THRESHOLD_BP) if KO_THRESHOLD_BP else 0.0
+            if ko_score >= 1.0:
+                kinds.add("ko_threshold")
+
+        if _walls(attack_types, cand_types, ability):
+            kinds.add("wall")
+
+        if not kinds:
+            continue
+
+        ig_entry = ig.get(sid) or {}
+        rank = ig_entry.get("usage_rank")
+        rank_i = int(rank) if rank is not None else None
+        name = str(ig_entry.get("name") or entry.get("name") or sid)
+
+        spec: PokemonSpecOptional = {"species": name}
+        if usage_set:
+            if usage_set.get("ability"):
+                spec["ability"] = str(usage_set["ability"])
+            if usage_set.get("item"):
+                spec["item"] = str(usage_set["item"])
+            if usage_set.get("moves"):
+                spec["moves"] = list(usage_set["moves"])
+            if usage_set.get("nature"):
+                spec["nature"] = str(usage_set["nature"])
+            if usage_set.get("evs"):
+                spec["evs"] = dict(usage_set["evs"])  # type: ignore[typeddict-item]
+
+        pool.append(
+            ThreatCandidate(
+                ladder_species=name,
+                usage_rank=rank_i,
+                form=name,
+                showdown_usage_pct=None,
+                showdown_formes=(),
+                spec=spec,
+                build_source="ingame",
+                threat_kinds=frozenset(kinds),
+                ko_threshold_score=ko_score,
+                ko_best_was_stab=ko_stab if "ko_threshold" in kinds else False,
+            )
+        )
+
+    def _key(c: ThreatCandidate) -> tuple[float, float]:
+        # Within-tier: popularity primary so wall-only are not starved by capped
+        # KO scores (=1.0); ko_threshold_score is tiebreak.
+        pop = (
+            -float(c.usage_rank)
+            if c.usage_rank is not None
+            else float("-inf")
+        )
+        return (pop, c.ko_threshold_score)
+
+    return rank_and_cut(
+        pool,
+        key=_key,
+        n=n,
+        tier=lambda c: threat_tier(c.threat_kinds),
+        slack=QUERY_COUNTERS_SLACK,
+        order="descending",
+    )

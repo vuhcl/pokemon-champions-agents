@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "extract:legality": "tsx scripts/extract_legality/write_snapshot.ts",
+    "extract:move-accuracy": "tsx scripts/extract_moves/extract_accuracy.ts",
     "start": "tsx services/calc/server.ts",
     "test": "tsx --test tests/extract_legality/*.test.ts tests/calc/*.test.ts"
   },
