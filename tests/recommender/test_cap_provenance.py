@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from recommender.ability_classification import load_abilities
 from recommender.legality import is_move_legal, is_species_legal, load_snapshot
 
@@ -44,12 +46,14 @@ def test_every_ability_has_is_nonstandard_key():
     assert any(e["is_nonstandard"] == "Future" for e in abilities.values())
 
 
+@pytest.mark.skipif(not ACCURACY_PATH.is_file(), reason='move accuracy snapshot lands with feat/query-counters')
 def test_cap_moves_flagged_in_accuracy_table():
     acc = json.loads(ACCURACY_PATH.read_text())
     for mid in CAP_MOVES:
         assert acc[mid]["is_nonstandard"] == "CAP", mid
 
 
+@pytest.mark.skipif(not ACCURACY_PATH.is_file(), reason='move accuracy snapshot lands with feat/query-counters')
 def test_every_accuracy_entry_has_is_nonstandard():
     acc = json.loads(ACCURACY_PATH.read_text())
     for mid, e in acc.items():
