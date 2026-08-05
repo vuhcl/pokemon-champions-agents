@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "extract:legality": "tsx scripts/extract_legality/write_snapshot.ts",
+    "extract:abilities": "tsx scripts/extract_abilities/extract.ts && uv run python scripts/extract_abilities/apply_phase_b.py && uv run python scripts/extract_abilities/retarget_ally_opponent.py",
     "start": "tsx services/calc/server.ts",
     "test": "tsx --test tests/extract_legality/*.test.ts tests/calc/*.test.ts"
   },
