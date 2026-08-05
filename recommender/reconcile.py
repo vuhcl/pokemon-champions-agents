@@ -24,7 +24,10 @@ Groundedness = Literal[
     "judgment-only",
 ]
 
-SLOT_ATTRS = ("role", "species", "item", "moveset", "spread")
+SLOT_ATTRS = ("role", "species", "item", "moveset", "spread", "nature")
+
+_CHOICE_ITEMS = frozenset({"choiceband", "choicespecs", "choicescarf"})
+_ITEM_SWAP_MOVES = frozenset({"trick", "switcheroo"})
 
 # Narration/classify only — never used by fit-check logic.
 COMPOSITE_ARCHETYPE_LABELS: dict[str, list[str]] = {
@@ -59,7 +62,6 @@ _WEATHER_COMMITMENTS: dict[str, str] = {
     "Sun": "Sun",
     "Sand": "Sand",
     "Snow": "Snow",
-    "Hail": "Hail",
 }
 
 _COMPONENT_ROLE_FIT: dict[str, frozenset[str]] = {
@@ -254,13 +256,95 @@ def _check_sibling_fit(
     target_attr: str,
     components: list[str] | None,
 ) -> FitResult:
-    """Sibling checks prefer calc diff on verification; fall back to archetype if needed."""
+    """Sibling checks: mechanical attr-pair first, then calc diff, then archetype."""
+    pair = {changed_attr, target_attr}
+    if pair & {"item", "moveset"}:
+        mech = _tier1_choice_status_moves(slot) or _tier1_speed_direction(slot)
+        if mech is not None:
+            return mech
     tier2 = _tier2_sibling_diff(slot, changed_attr, target_attr)
     if tier2 is not None:
         return tier2
     if components:
         return check_archetype_fit(slot, components)
     return FitResult(satisfies=True, groundedness="judgment-only")
+
+
+def _locked_choice_item_id(slot: Slot) -> str | None:
+    if not slot.item.locked or not slot.item.value:
+        return None
+    iid = to_id(slot.item.value)
+    return iid if iid in _CHOICE_ITEMS else None
+
+
+def _moveset_has_disallowed_status(slot: Slot, snap: dict[str, Any]) -> bool:
+    if not slot.moveset.locked or not slot.moveset.value:
+        return False
+    moves_meta = snap.get("moves") or {}
+    for m in slot.moveset.value:
+        mid = to_id(m)
+        if mid in _ITEM_SWAP_MOVES:
+            continue
+        meta = moves_meta.get(mid) or {}
+        if (meta.get("category") or "") == "Status":
+            return True
+    return False
+
+
+def _moveset_has_trick_room(slot: Slot) -> bool:
+    if not slot.moveset.locked or not slot.moveset.value:
+        return False
+    return any(to_id(m) == "trickroom" for m in slot.moveset.value)
+
+
+def _tier1_choice_status_moves(
+    slot: Slot, snap: dict[str, Any] | None = None
+) -> FitResult | None:
+    """Choice item + non-damaging move (except Trick/Switcheroo) is a mismatch."""
+    if _locked_choice_item_id(slot) is None:
+        return None
+    snap = snap or load_snapshot()
+    if not _moveset_has_disallowed_status(slot, snap):
+        return None
+    return FitResult(
+        satisfies=False,
+        groundedness="mechanically-checkable",
+        detail="choice item incompatible with non-damaging move",
+    )
+
+
+def _tier1_speed_direction(slot: Slot) -> FitResult | None:
+    """Choice Scarf + Trick Room moveset: opposite Speed directions."""
+    if _locked_choice_item_id(slot) != "choicescarf":
+        return None
+    if not _moveset_has_trick_room(slot):
+        return None
+    return FitResult(
+        satisfies=False,
+        groundedness="mechanically-checkable",
+        detail="Choice Scarf conflicts with Trick Room Speed direction",
+    )
+
+
+def simultaneous_lock_conflicts(
+    slot: Slot, snap: dict[str, Any] | None = None
+) -> list[tuple[str, ...]]:
+    """Attr groups that conflict under Part 2 rules (for N-attr simultaneous locks)."""
+    snap = snap or load_snapshot()
+    groups: list[tuple[str, ...]] = []
+    seen: set[tuple[str, ...]] = set()
+
+    def add(group: tuple[str, ...]) -> None:
+        key = tuple(sorted(group))
+        if key not in seen:
+            seen.add(key)
+            groups.append(key)
+
+    if _tier1_choice_status_moves(slot, snap) is not None:
+        add(("item", "moveset"))
+    if _tier1_speed_direction(slot) is not None:
+        add(("item", "moveset"))
+    return groups
 
 
 def _apply_mismatch(
