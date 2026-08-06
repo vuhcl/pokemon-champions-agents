@@ -39,8 +39,10 @@ TurnEconomyNote = Literal[
     "recharge_vulnerable_moot",
 ]
 
-_CONTACT_PUNISH_ABILITIES = frozenset(
-    {"roughskin", "ironbarbs", "flamebody", "static"}
+# HP-chip path only (1/8). Status-on-contact is a separate set with no chip math yet.
+_CONTACT_PUNISH_HP_ABILITIES = frozenset({"roughskin", "ironbarbs"})
+_CONTACT_PUNISH_STATUS_ABILITIES = frozenset(
+    {"flamebody", "static", "poisonpoint", "effectspore", "cutecharm"}
 )
 _CONTACT_PUNISH_ITEMS = frozenset({"rockyhelmet"})
 _MULTI_HIT_MOVES = frozenset(
@@ -53,6 +55,13 @@ _MULTI_HIT_MOVES = frozenset(
         "tailslap",
         "scaleshot",
         "surgingstrikes",
+        "bonerush",
+        "doublehit",
+        "dragondarts",
+        "dualwingbeat",
+        "tripleaxel",
+        "twinbeam",
+        "watershuriken",
     }
 )
 _GUARANTEED_HIT_COUNT = frozenset({"skilllink"})
@@ -80,29 +89,175 @@ _NON_DAMAGING = frozenset(
         "roost",
     }
 )
-# ponytail: contact detection is name-list, not calc flags — extend as needed
+# ponytail: static Showdown contact snapshot (std); upgrade = extract flags.contact like gen9_accuracy
 _CONTACT_MOVES = frozenset(
     {
-        "earthquake",
-        "closecombat",
-        "dragonclaw",
-        "flareblitz",
-        "knockoff",
-        "fakeout",
-        "uturn",
-        "icepunch",
+        "accelerock",
+        "acrobatics",
+        "aerialace",
         "aquajet",
-        "suckerpunch",
-        "bulletpunch",
-        "machpunch",
-        "shadowsneak",
+        "aquastep",
+        "aquatail",
+        "assurance",
+        "avalanche",
+        "axekick",
+        "bind",
+        "bite",
+        "bitterblade",
+        "blazekick",
         "bodypress",
-        "wavecrash",
-        "flipturn",
+        "bodyslam",
+        "bounce",
+        "bravebird",
+        "breakingswipe",
+        "brickbreak",
+        "brutalswing",
+        "bugbite",
+        "bulletpunch",
+        "ceaselessedge",
+        "circlethrow",
+        "closecombat",
+        "comeuppance",
+        "counter",
+        "covet",
+        "crabhammer",
+        "crosschop",
+        "crosspoison",
+        "crunch",
+        "crushclaw",
+        "darkestlariat",
+        "dig",
         "direclaw",
-        "stompingtantrum",
+        "dive",
+        "doubleedge",
+        "doublehit",
         "dragonclaw",
+        "dragonrush",
+        "dragontail",
+        "drainingkiss",
+        "drainpunch",
+        "drillpeck",
+        "drillrun",
+        "dualwingbeat",
+        "dynamicpunch",
+        "endeavor",
+        "extremespeed",
+        "facade",
+        "fakeout",
+        "fellstinger",
+        "firefang",
+        "firelash",
+        "firepunch",
+        "firstimpression",
+        "flail",
+        "flamecharge",
+        "flareblitz",
+        "flipturn",
+        "fly",
+        "flyingpress",
+        "focuspunch",
+        "foulplay",
+        "gigaimpact",
+        "grassknot",
+        "grassyglide",
+        "guillotine",
+        "gyroball",
+        "hammerarm",
+        "hardpress",
+        "headlongrush",
+        "headsmash",
+        "heatcrash",
+        "heavyslam",
+        "highhorsepower",
+        "highjumpkick",
+        "horndrill",
+        "hornleech",
+        "icefang",
+        "icehammer",
+        "icepunch",
+        "icespinner",
+        "infestation",
+        "ironhead",
+        "irontail",
+        "jetpunch",
+        "knockoff",
+        "kowtowcleave",
+        "lashout",
+        "lastresort",
+        "leafblade",
+        "leechlife",
+        "liquidation",
+        "lowkick",
+        "lowsweep",
+        "lunge",
+        "machpunch",
+        "megahorn",
+        "megakick",
+        "meteormash",
+        "mortalspin",
+        "nightslash",
+        "nuzzle",
+        "outrage",
+        "payback",
+        "petaldance",
+        "phantomforce",
+        "playrough",
+        "pluck",
+        "poisonfang",
+        "poisonjab",
         "populationbomb",
+        "pounce",
+        "pound",
+        "powertrip",
+        "powerwhip",
+        "psychicfangs",
+        "psyshieldbash",
+        "quickattack",
+        "ragefist",
+        "ragingbull",
+        "rapidspin",
+        "razorshell",
+        "reversal",
+        "sacredsword",
+        "seismictoss",
+        "shadowclaw",
+        "shadowpunch",
+        "shadowsneak",
+        "skittersmack",
+        "smartstrike",
+        "snaptrap",
+        "solarblade",
+        "spiritbreak",
+        "steelroller",
+        "steelwing",
+        "stompingtantrum",
+        "stoneaxe",
+        "stormthrow",
+        "struggle",
+        "suckerpunch",
+        "supercellslam",
+        "superfang",
+        "superpower",
+        "tailslap",
+        "temperflare",
+        "thief",
+        "thrash",
+        "throatchop",
+        "thunderfang",
+        "thunderpunch",
+        "trailblaze",
+        "tripleaxel",
+        "tropkick",
+        "upperhand",
+        "uturn",
+        "volttackle",
+        "waterfall",
+        "wavecrash",
+        "wildcharge",
+        "woodhammer",
+        "wrap",
+        "xscissor",
+        "zenheadbutt",
     }
 )
 
@@ -655,7 +810,7 @@ def _contact_punish_applies(defender: PokemonSpecOptional, move: str) -> bool:
         return False
     ability = to_id(defender.get("ability") or "")
     item = to_id(defender.get("item") or "")
-    return ability in _CONTACT_PUNISH_ABILITIES or item in _CONTACT_PUNISH_ITEMS
+    return ability in _CONTACT_PUNISH_HP_ABILITIES or item in _CONTACT_PUNISH_ITEMS
 
 
 def _contact_punish_chip(defender: PokemonSpecOptional, attacker_max_hp: int) -> int:
@@ -686,3 +841,72 @@ def _downgrade_for_multi_hit(severity: Severity, profile: _MoveProfile) -> Sever
             return "costly"
         return "toss-up"
     return severity
+
+
+# --- Static expected-hit / accuracy helpers (query_counters; no calc) ---
+
+_DIST_2_5 = ((2, 0.35), (3, 0.35), (4, 0.15), (5, 0.15))  # Gen5+; E=3.1
+_FIXED_MULTI_HITS = {
+    "surgingstrikes": 3.0,
+    "doublehit": 2.0,
+    "dragondarts": 2.0,
+    "dualwingbeat": 2.0,
+    "twinbeam": 2.0,
+}
+_MULTIACCURACY_HITS = {"populationbomb": 10, "tripleaxel": 3}
+_NO_GUARD = "noguard"
+_COMPOUND_EYES = "compoundeyes"
+
+
+def effective_accuracy(base_accuracy: int | bool | None, ability: str | None) -> float:
+    """Move accuracy in [0, 1] after static ability modifiers (No Guard / Compound Eyes).
+
+    Coil and other move-based accuracy mods are out of scope (ADR-021b).
+    """
+    aid = to_id(ability or "")
+    if aid == _NO_GUARD:
+        return 1.0
+    if base_accuracy is True or base_accuracy is None:
+        base = 1.0
+    else:
+        v = float(base_accuracy)
+        base = v / 100.0 if v > 1.0 else v
+    if aid == _COMPOUND_EYES:
+        return min(1.0, base * 1.3)
+    return min(1.0, max(0.0, base))
+
+
+def expected_hit_factor(
+    move: str, ability: str | None, accuracy: float
+) -> tuple[float, bool]:
+    """Expected hit count (or accuracy-folded EV) for a move.
+
+    Returns ``(factor, accuracy_already_folded)``. When the second value is True
+    (multiaccuracy without Skill Link), the caller must not multiply by accuracy again.
+    """
+    mid = to_id(move)
+    aid = to_id(ability or "")
+    guaranteed = aid in _GUARANTEED_HIT_COUNT
+
+    if mid in _FIXED_MULTI_HITS:
+        return _FIXED_MULTI_HITS[mid], False
+
+    if mid in _MULTIACCURACY_HITS:
+        n = _MULTIACCURACY_HITS[mid]
+        if guaranteed:
+            # Skill Link: full n-hit sequence is certain — do not also × accuracy.
+            return float(n), True
+        # multiaccuracy: E[hits] = sum_{i=1}^{n} acc^i
+        total = 0.0
+        p = accuracy
+        for _ in range(n):
+            total += p
+            p *= accuracy
+        return total, True
+
+    if mid in _MULTI_HIT_MOVES:
+        if guaranteed:
+            return 5.0, False
+        return sum(h * p for h, p in _DIST_2_5), False
+
+    return 1.0, False

@@ -10,6 +10,9 @@ from recommender.calc_client import CalcClient, CalcRequest
 from recommender.matchup import (
     MatchupResult,
     Severity,
+    _CONTACT_MOVES,
+    _contact_punish_applies,
+    _makes_contact,
     classify_matchup,
     clear_matchup_memo,
 )
@@ -301,13 +304,8 @@ def test_conditionally_dependent_answer_with_rain():
     assert result.severity == "decisive"
 
 
-def test_contact_punish_downgrades_severity():
-    rough_skin = {
-        **KINGAMBIT,
-        "ability": "Rough Skin",
-        "item": None,
-    }
-    client = MockCalcClient(
+def _contact_punish_exchange_client() -> MockCalcClient:
+    return MockCalcClient(
         {
             ("Garchomp", "Kingambit", "Earthquake"): _calc(
                 ko_chance="100% 2HKO",
@@ -341,10 +339,58 @@ def test_contact_punish_downgrades_severity():
             ),
         }
     )
-    result = classify_matchup(GARCHOMP, rough_skin, client=client)
+
+
+def test_contact_moves_membership():
+    assert len(_CONTACT_MOVES) == 166
+    assert _makes_contact("Earthquake") is False
+    assert _makes_contact("Dragon Claw") is True
+    assert _makes_contact("Iron Head") is True
+    assert _makes_contact("Play Rough") is True
+    assert _contact_punish_applies(
+        {**KINGAMBIT, "ability": "Rough Skin", "item": None}, "Earthquake"
+    ) is False
+
+
+def _dc_only_garchomp() -> dict[str, Any]:
+    return {**GARCHOMP, "moves": ["Dragon Claw", "Protect"]}
+
+
+def test_earthquake_no_contact_punish_chip():
+    rough_skin = {**KINGAMBIT, "ability": "Rough Skin", "item": None}
+    result = classify_matchup(
+        GARCHOMP, rough_skin, client=_contact_punish_exchange_client()
+    )
+    assert result.outcome == "clean_kill"
+    assert result.caveats.contact_punish_applied is False
+
+
+def test_contact_punish_downgrades_severity():
+    rough_skin = {**KINGAMBIT, "ability": "Rough Skin", "item": None}
+    result = classify_matchup(
+        _dc_only_garchomp(), rough_skin, client=_contact_punish_exchange_client()
+    )
     assert result.outcome == "clean_kill"
     assert result.caveats.contact_punish_applied is True
     assert result.severity == "costly"
+
+
+def test_flame_body_no_hp_chip():
+    flame = {**KINGAMBIT, "ability": "Flame Body", "item": None}
+    result = classify_matchup(
+        _dc_only_garchomp(), flame, client=_contact_punish_exchange_client()
+    )
+    assert result.outcome == "clean_kill"
+    assert result.caveats.contact_punish_applied is False
+
+
+def test_static_no_hp_chip():
+    static = {**KINGAMBIT, "ability": "Static", "item": None}
+    result = classify_matchup(
+        _dc_only_garchomp(), static, client=_contact_punish_exchange_client()
+    )
+    assert result.outcome == "clean_kill"
+    assert result.caveats.contact_punish_applied is False
 
 
 def test_multi_hit_downgrade():

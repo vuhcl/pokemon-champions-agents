@@ -11,13 +11,18 @@ from recommender.coverage import (
     get_relevant_threats,
 )
 from recommender.format import resolve_format
-from recommender.reconcile import reconcile_on_archetype_change, reconcile_on_sibling_change
+from recommender.reconcile import (
+    reconcile_on_archetype_change,
+    reconcile_on_sibling_change,
+    simultaneous_lock_conflicts,
+)
 from recommender.state import (
     ArchetypeChangePayload,
     Attr,
     Constraint,
     ConstraintPayload,
     LockPayload,
+    PendingFlag,
     ReasonRef,
     RecommenderState,
     RejectedEntry,
@@ -29,7 +34,7 @@ from recommender.state import (
     empty_slot,
 )
 
-SLOT_ATTRS = ("role", "species", "item", "moveset", "spread")
+SLOT_ATTRS = ("role", "species", "item", "moveset", "spread", "nature")
 
 
 def classify_pending(text: str) -> dict[str, Any]:
@@ -83,6 +88,12 @@ def classify_input(state: RecommenderState) -> dict:
 
 def apply_lock(state: RecommenderState) -> dict:
     payload: LockPayload = state["turn_payload"]  # type: ignore[assignment]
+    if payload.get("locks"):
+        return _apply_locks_batch(state, payload)
+    return _apply_lock_single(state, payload)
+
+
+def _apply_lock_single(state: RecommenderState, payload: LockPayload) -> dict:
     slot_index = payload["slot_index"]
     attr_name = payload["attr"]
     draft = list(state["team_draft"])
@@ -121,6 +132,103 @@ def apply_lock(state: RecommenderState) -> dict:
 
     draft[slot_index] = slot
     out["team_draft"] = draft
+    return out
+
+
+def _apply_locks_batch(state: RecommenderState, payload: LockPayload) -> dict:
+    """N-attr simultaneous lock: lock conflict-free attrs; flag conflicting pairs."""
+    slot_index = payload["slot_index"]
+    locks = list(payload["locks"] or [])
+    draft = list(state["team_draft"])
+    slot = draft[slot_index]
+    turn = state.get("turn", 0)
+    components = (state.get("archetype") or Attr()).value
+    out: dict = {}
+
+    incoming: dict[str, object] = {}
+    for entry in locks:
+        attr = entry.get("attr")
+        if not isinstance(attr, str) or attr not in SLOT_ATTRS:
+            continue
+        if "value" not in entry:
+            continue
+        incoming[attr] = entry["value"]
+
+    # Provisional: all incoming as locked (detection only).
+    provisional = slot
+    for attr, value in incoming.items():
+        provisional = replace(
+            provisional,
+            **{
+                attr: Attr(
+                    value=value,
+                    locked=True,
+                    reason=ReasonRef(kind="user_stated"),
+                )
+            },
+        )
+
+    groups = simultaneous_lock_conflicts(provisional)
+    blocked: set[str] = set()
+    for g in groups:
+        blocked.update(a for a in g if a in incoming)
+
+    pending: list[PendingFlag] = []
+    for g in groups:
+        if not any(a in incoming for a in g):
+            continue
+        values = {a: incoming[a] for a in g if a in incoming}
+        pending.append(
+            PendingFlag(
+                slot_index=slot_index,
+                attr=g[0],  # type: ignore[typeddict-item]
+                value={"conflict": list(g), "values": values},
+                flag_kind="simultaneous_lock_conflict",
+            )
+        )
+
+    newly_locked: list[str] = []
+    for attr, value in incoming.items():
+        if attr in blocked:
+            continue
+        current: Attr[Any] = getattr(slot, attr)
+        slot = replace(
+            slot,
+            **{
+                attr: Attr(
+                    value=value,
+                    locked=True,
+                    reason=ReasonRef(kind="user_stated"),
+                    exempt_from_theme=current.exempt_from_theme,
+                )
+            },
+        )
+        newly_locked.append(attr)
+
+    all_superseded: list[SupersededEntry] = []
+    all_flags: list[PendingFlag] = list(pending)
+    for attr in newly_locked:
+        siblings_locked = any(
+            getattr(slot, a).locked for a in SLOT_ATTRS if a != attr
+        )
+        if not siblings_locked:
+            continue
+        slot, superseded, flags = reconcile_on_sibling_change(
+            slot,
+            attr,
+            slot_index=slot_index,
+            turn=turn,
+            components=components,
+        )
+        all_superseded.extend(superseded)
+        all_flags.extend(flags)
+
+    draft[slot_index] = slot
+    out["team_draft"] = draft
+    if all_superseded:
+        out["superseded"] = [*state.get("superseded", []), *all_superseded]
+    if all_flags:
+        out["pending_flags"] = [*state.get("pending_flags", []), *all_flags]
     return out
 
 
@@ -223,7 +331,9 @@ def reset_team(state: RecommenderState) -> dict:
 
 
 def propose_team_draft(state: RecommenderState) -> dict:
-    return {}
+    from recommender.propose import fill_team_draft
+
+    return fill_team_draft(state)
 
 
 def generate_team_review(state: RecommenderState, config: RunnableConfig) -> dict:
