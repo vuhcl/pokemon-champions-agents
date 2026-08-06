@@ -17,12 +17,17 @@ WEATHER_SETTERS = {
     "drought": "weather_setter",
     "sandstream": "weather_setter",
     "snowwarning": "weather_setter",
+    "orichalcumpulse": "weather_setter",
+    "desolateland": "weather_setter",
+    "primordialsea": "weather_setter",
+    "deltastream": "weather_setter",
 }
 TERRAIN_SETTERS = {
     "psychicsurge": "terrain_setter",
     "electricsurge": "terrain_setter",
     "grassysurge": "terrain_setter",
     "mistysurge": "terrain_setter",
+    "hadronengine": "terrain_setter",
 }
 REDIRECT_MOVES = {"followme", "ragepowder"}
 

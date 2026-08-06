@@ -143,6 +143,7 @@ def classify_item_failure(item: str, moves: list[str], snap: dict[str, Any]) -> 
         "blackbelt": "Fighting",
         "metalcoat": "Steel",
         "fairyfeather": "Fairy",
+        "silkscarf": "Normal",
     }
     if iid in type_locked:
         return "type_locked_swap"

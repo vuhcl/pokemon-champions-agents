@@ -11,11 +11,14 @@ from langgraph.checkpoint.memory import MemorySaver
 
 from recommender.calc_client import CalcClient, CalcRequest
 from recommender.coverage import (
+    ABILITY_TO_FIELD,
     compute_team_coverage,
     detect_spof,
     get_relevant_threats,
 )
+from recommender.contingent_value import TERRAIN_SETTERS, WEATHER_SETTERS
 from recommender.graph import compile_graph
+from recommender.legality import classify_item_failure, load_snapshot
 from recommender.matchup import clear_matchup_memo
 from recommender.state import (
     Attr,
@@ -446,3 +449,39 @@ def test_team_review_intent_graph_smoke():
 def test_empty_threats_returns_empty():
     assert compute_team_coverage([_slot(GARCHOMP)], [], client=MockCalcClient({})) == []
     assert detect_spof([_slot(GARCHOMP)], [], client=MockCalcClient({})) == []
+
+
+def test_hadron_orichalcum_in_ability_to_field():
+    assert ABILITY_TO_FIELD["hadronengine"] == {
+        "terrain": "Electric",
+        "gameType": "Doubles",
+    }
+    assert ABILITY_TO_FIELD["orichalcumpulse"] == {
+        "weather": "Sun",
+        "gameType": "Doubles",
+    }
+    assert "hadronengine" in TERRAIN_SETTERS
+    assert "orichalcumpulse" in WEATHER_SETTERS
+
+
+def test_primal_weather_in_ability_to_field():
+    assert ABILITY_TO_FIELD["desolateland"] == {
+        "weather": "Harsh Sunshine",
+        "gameType": "Doubles",
+    }
+    assert ABILITY_TO_FIELD["primordialsea"] == {
+        "weather": "Heavy Rain",
+        "gameType": "Doubles",
+    }
+    assert ABILITY_TO_FIELD["deltastream"] == {
+        "weather": "Strong Winds",
+        "gameType": "Doubles",
+    }
+    assert "desolateland" in WEATHER_SETTERS
+    assert "primordialsea" in WEATHER_SETTERS
+    assert "deltastream" in WEATHER_SETTERS
+
+
+def test_silkscarf_type_locked_severity():
+    snap = load_snapshot()
+    assert classify_item_failure("Silk Scarf", [], snap) == "type_locked_swap"

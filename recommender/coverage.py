@@ -9,6 +9,7 @@ from recommender.calc_client import CalcClient, FieldSpec, PokemonSpecOptional
 from recommender.contingent_value import TERRAIN_SETTERS, WEATHER_SETTERS
 from recommender.ids import to_id
 from recommender.matchup import MatchupResult, Severity, classify_matchup
+from recommender.ranking import rank_and_cut
 from recommender.state import (
     RecommenderState,
     Slot,
@@ -33,10 +34,15 @@ ABILITY_TO_FIELD: dict[str, FieldSpec] = {
     "drought": {"weather": "Sun", "gameType": "Doubles"},
     "sandstream": {"weather": "Sand", "gameType": "Doubles"},
     "snowwarning": {"weather": "Snow", "gameType": "Doubles"},
+    "orichalcumpulse": {"weather": "Sun", "gameType": "Doubles"},
+    "desolateland": {"weather": "Harsh Sunshine", "gameType": "Doubles"},
+    "primordialsea": {"weather": "Heavy Rain", "gameType": "Doubles"},
+    "deltastream": {"weather": "Strong Winds", "gameType": "Doubles"},
     "electricsurge": {"terrain": "Electric", "gameType": "Doubles"},
     "grassysurge": {"terrain": "Grassy", "gameType": "Doubles"},
     "psychicsurge": {"terrain": "Psychic", "gameType": "Doubles"},
     "mistysurge": {"terrain": "Misty", "gameType": "Doubles"},
+    "hadronengine": {"terrain": "Electric", "gameType": "Doubles"},
 }
 
 _NEUTRAL_COVER = frozenset({"clean_kill", "intentional_non_ko_answer"})
@@ -272,6 +278,11 @@ def _better_outcome(a: MatchupResult, b: MatchupResult | None) -> MatchupResult:
     return a if ra >= rb else b
 
 
+def _threat_usage_rank_key(entry: dict[str, Any]) -> tuple:
+    """Ordinal usage_rank: lower rank number = more popular (ascending)."""
+    return (entry.get("usage_rank") is None, entry.get("usage_rank") or 10**9)
+
+
 def get_relevant_threats(
     state: RecommenderState,
     n: int | None = None,
@@ -279,8 +290,9 @@ def get_relevant_threats(
 ) -> list[ThreatCandidate]:
     """Top-n in-game ladder species, expanded to Showdown formes when multi-form.
 
-    ``n`` counts ladder species *before* forme expand (return length may exceed ``n``).
-    Defaults: TEAM_THREAT_N (50) without filter; SLOT_THREAT_N (10) with filter.
+    ``n`` counts ladder species that survive expand+filter (return length may exceed
+    ``n`` due to forme expand). Defaults: TEAM_THREAT_N (50) without filter;
+    SLOT_THREAT_N (10) with filter.
     """
     regulation = state.get("regulation_mod") or "champions"
     if n is None:
@@ -288,24 +300,24 @@ def get_relevant_threats(
 
     ig = ingame_species_map(regulation)
     sd = showdown_species_map(regulation)
-    ranked = sorted(
-        ig.items(),
-        key=lambda kv: (kv[1].get("usage_rank") is None, kv[1].get("usage_rank") or 10**9),
-    )
-
-    out: list[ThreatCandidate] = []
-    used = 0
-    for sid, entry in ranked:
-        if used >= n:
-            break
+    # Expand+filter first so empty survivors do not consume n; rank ordinal ascending.
+    survivors: list[tuple[str, dict[str, Any], list[ThreatCandidate]]] = []
+    for sid, entry in ig.items():
         cands = _expand_ladder_species(sid, entry, regulation=regulation, sd=sd)
         if relevance_filter is not None:
             cands = [c for c in cands if relevance_filter(c.spec)]
-        if not cands:
-            continue
-        out.extend(cands)
-        used += 1
-    return out
+        if cands:
+            survivors.append((sid, entry, cands))
+
+    ranked = rank_and_cut(
+        survivors,
+        key=lambda row: _threat_usage_rank_key(row[1]),
+        n=n,
+        tier=None,
+        slack=-1,
+        order="ascending",
+    )
+    return [c for _, _, cands in ranked for c in cands]
 
 
 def compute_team_coverage(
