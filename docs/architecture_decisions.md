@@ -2416,6 +2416,94 @@ testing.
 
 ---
 
+### ADR-019 — Amendment 2026-08-01a
+
+**Tiered admission generalizes beyond move-narrowing to Compendium construction itself.**
+
+ADR-022's tiered-admission-to-a-tractable-cap pattern (mechanically-obvious candidates
+first, mechanically-secondary second, usage-flagged-unexplained third, only as room
+allows under a ~20 cap) is not specific to move-narrowing's step 3 — it is the same
+shape already implicit in this ADR's pool-breadth gate and exhaustive-sweep discipline,
+now stated explicitly as the general admission policy for **any** bounded-candidate-pool
+construction in this project, including Role Compendium category membership itself.
+When constructing a Compendium category, admit clear/direct members first, secondary/
+conditional members second, and usage-flagged-but-unexplained candidates last (subject
+to the same construction/critic verification discipline this ADR already mandates)
+rather than treating pool admission as a single flat pass.
+
+**Status:** Generalizes an already-adjacent pattern; no change to ADR-019's core
+construction/critic pipeline or its four-part regulation-change trigger taxonomy.
+
+---
+
+### ADR-019 — Amendment 2026-08-04a
+
+**Critic-pass requirements, formalized from concrete corrections across the 2026-07-29
+mock-run series (Weather Setter, Redirection, Swords Dance Attacker, Trick Room Attacker,
+Sleep Status Spreader).** These are not new design — they are the actual behavior already
+demonstrated and corrected during construction, now stated as explicit, checkable
+requirements for any future critic pass (human or automated), so they don't have to be
+rediscovered per-category.
+
+**1. Tiers are defined by a criteria bar, not a target size or a desire to rank everyone
+distinctly.** Membership in a tier is binary — a candidate either clears the tier's stated
+criteria at the required strength, or it doesn't. Ranking *within* a tier is only imposed
+when a real, criteria-based difference in degree actually exists between candidates —
+otherwise the tier is a genuine, unordered cluster. Confirmed pattern across multiple runs:
+Pelipper and Politoed (Weather Setter) were initially force-ranked over a real-but-minor
+secondary-kit difference, corrected to one unordered Excellent tier; the Swords Dance
+Attacker run's Excellent tier settled as six unordered members (Kingambit, Scizor
+base+Mega, Mega Mawile, Blaziken base+Mega, Aegislash) all clearing the same stated bar
+(STAB priority + a damage-amplifying mechanism + adequate bulk), with Ceruledge and Mega
+Lucario correctly excluded for lacking one required component despite sharing a trait with
+the group; the Trick Room Attacker run correctly produced an unordered Farigiraf/Oranguru
+pair in Excellent on the first pass, without requiring correction, once this principle had
+been established. When checking a constructed ranking, the critic's default question for
+any apparent gap between two candidates should be "does this reflect a real, criteria-based
+difference in degree, or an incidental one" — only the former justifies separating them
+into different tiers.
+
+**2. A conclusion already reached earlier in the same construction pass must be carried
+through to the final output, not silently reverted.** Confirmed failure: during the
+Redirection run, Sinistcha vs. Clefable had already been correctly resolved (Sinistcha's
+superior bulk, typing immunities, and resistance-to-live-threats profile) earlier in the
+same session, but the final tier list reverted to the old, incorrect ordering without
+applying that conclusion. The critic must check a constructed ranking against the
+construction pass's own prior reasoning, not just against the criteria in isolation — a
+self-consistency check, distinct from a correctness check.
+
+**3. A candidate's trait only counts toward a criterion if it serves that criterion's
+actual stated mechanical purpose — not merely because it resembles the right general
+category of thing.** Confirmed failure and later correct self-application:
+- Redirection (failure, corrected): Clefable's Magic Guard/Unaware were initially credited
+  as reinforcing the role, but both protect only Clefable itself — the role's actual
+  purpose is protecting an *ally*. Maushold's Friend Guard directly reduces ally damage
+  taken, a genuine functional fit the self-protective abilities were not. Once corrected,
+  Clefable's supposed edge over Maushold evaporated (both share Helping Hand as a wash on
+  the tertiary criterion).
+- Trick Room Attacker (correct self-application, no correction needed): Sinistcha's
+  Hospitality was correctly identified as contributing nothing to Sinistcha's OWN
+  execution likelihood for this specific role, since it's other-directed (heals an ally)
+  rather than protecting Sinistcha's own setup turn — unlike Farigiraf's Armor Tail or
+  Oranguru's Inner Focus, which directly protect the bearer's own ability to act.
+- This generalizes a pattern already noted even earlier in the same mock-run series (the
+  trapping-ability finding: reinforcement must be checked against the specific failure
+  mode it actually addresses, not credited generically as "a strong ability"). The critic
+  must verify, for each candidate's claimed reinforcing trait, that it mechanically serves
+  the SPECIFIC function the criterion requires (protects the bearer vs. protects an ally;
+  addresses this delivery mechanism's specific execution risk vs. a different one) —
+  resemblance to the right general category (e.g., "a defensive ability," "a reinforcing
+  ability") is not sufficient on its own.
+
+**Status:** Formalizes critic-pass behavior already demonstrated and corrected across five
+mock-run role constructions into explicit, reusable requirements for ADR-019's construction/
+critic pipeline. No change to the pipeline's structure (constructor/critic split, exhaustive
+sweeps, regulation-change triggers) — this amendment specifies what the critic pass must
+actually check, closing a gap where the behavior existed as demonstrated practice but not
+as a stated rule.
+
+---
+
 ## ADR-020: Theme/archetype reconciliation — mechanism for re-evaluating locked values when
 team-level commitments or sibling attributes change
 
@@ -2638,3 +2726,805 @@ Known, deliberate scope boundaries carried from design into implementation:
 
 **Status:** Implemented. Reconciliation's tier-3 ceiling and the Compendium dependency are
 tracked in master_project_log.md's flagged-gaps section, not repeated here.
+
+---
+
+## ADR-021: Open-ended reasoning must be verification-gated before affecting any decision
+
+**Decision:** Whenever the system needs to reason about something open-ended or judgment-
+based — one that can't be reduced to a fixed, enumerable checklist — the reasoning step
+itself may be as open-ended and LLM-driven as necessary, but no specific claim it produces
+is allowed to affect an actual decision (ranking, locking, proposing, flagging) until that
+claim is checked against real, structured data. The LLM's role is to *notice candidate
+possibilities*; real data's role is to *confirm* them. Never the reverse — an unverified LLM
+claim is never treated as sufficient grounds for a system action on its own.
+
+**Alternatives considered:** Maintain a fixed, growing taxonomy of known interaction types
+(the approach initially proposed for move/ability kit-interaction checking) — rejected as
+insufficient once it became clear the space of possible ability/move/stat interactions
+(Tough Claws + contact moves, Adaptability + STAB, Contrary + self-debuffing moves, a
+priority move mattering differently for a slow setup sweeper, etc.) is genuinely open-ended,
+not enumerable even with continuous additions. A checklist approach is always one
+undiscovered interaction behind, no matter how large it grows.
+
+**Why:** This generalizes a pattern already present piecemeal throughout the project —
+tier-2's role-heuristic proposals being "a draft until tier-3 confirms it" (ADR-015),
+`check_theme_fit`'s tiered structure explicitly separating mechanically-checkable judgment
+from judgment-only cases (ADR-017/020), and ADR-002/003's foundational rule that legality
+and mechanical claims are always tool calls, never model assertions — into one explicit,
+standing architectural principle: **mechanics touch nearly every corner of this system, and
+almost every future task will eventually need to reason about *some* open-ended mechanical
+interaction.** Rather than rediscovering and re-arguing this same shape of problem each time
+a new open-ended reasoning need arises (as happened when scoping move-narrowing's kit-
+reinforcement checks), this principle should be checked against explicitly for any future
+task involving judgment, ranking, or proposal logic.
+
+**Concrete shape:** an LLM reasoning step proposes candidate interactions given a specific
+context (e.g. "this candidate's Tough Claws should boost this move, since it's a contact
+move"). Each proposed interaction is then verified against real, structured data before being
+allowed to affect ranking/scoring/proposing: is the move actually flagged as contact in real
+move data? Does the ability actually have the claimed effect in real ability data? Does the
+calc client's actual output differ when the ability/interaction is applied vs. not? Only
+interactions that survive this verification step affect any downstream decision; a proposed
+interaction that doesn't check out against real data is discarded, not applied.
+
+**Status:** Decided. Applies retroactively as the stated rationale for tier-2/tier-3's
+existing draft-then-verify relationship and `check_theme_fit`'s tiered groundedness model
+(no implementation change to those); applies going forward as a standing check for any new
+task involving open-ended judgment, starting with move-narrowing's kit-reinforcement
+follow-up.
+
+---
+
+### ADR-021 — Amendment 2026-08-01a
+
+**Usage-flagged-but-unexplained candidates are a legitimate, structured proposal
+source, subject to the same verification-gating discipline.**
+
+ADR-022's tiered admission policy treats a candidate whose only justification is real
+usage data (no cheap mechanical filter explains its presence) as an implicit
+**proposal** — functionally equivalent to an LLM-proposed kit-interaction under this
+ADR's original design, except the candidate proposes itself via data rather than an
+explicit reasoning step. The same rule applies without modification: this proposal
+affects no ranking or decision until deep reasoning actually finds and confirms a real,
+verifiable mechanism behind it. A usage-flagged candidate that deep reasoning cannot
+explain gets discarded, not kept on the strength of usage alone — usage is discovery
+evidence, never sufficient justification by itself, consistent with this project's
+standing usage-data discipline (Amendment 2026-07-29a/e).
+
+**Status:** Extends ADR-021's verification-gating principle to a second concrete
+trigger (usage-flagged admission), alongside its original trigger (open-ended
+LLM-proposed kit interactions). No change to the core propose-then-verify mechanism.
+
+---
+
+### ADR-021 — Amendment 2026-08-01b
+
+**Extension: verification-gated reasoning must also identify WHICH mechanical axis an
+interaction affects, not only whether a valid interaction exists.**
+
+ADR-021's original scope covers proposing a candidate kit-interaction and verifying it
+against real data before it affects ranking. This amendment extends that verification step
+to also tag which specific mechanical axis (power, accuracy, priority, or other) a verified
+interaction addresses — surfaced while designing tier assignment for move-narrowing
+candidate search's tier-0 definition (which power-boosting or accuracy-fixing abilities/
+moves qualify a candidate for the "obvious, mechanically justified" tier for a given move),
+and confirmed to be the same underlying operation already specified for Role Compendium
+ranking (Amendment 2026-07-28d: "does this ability directly reinforce the role's actual
+function").
+
+**Why axis-tagging is necessary, not just convenient:** a move's real weakness is not
+always the same axis, and abilities/moves that boost different axes are not interchangeable
+or rankable against each other on one shared scale. Motivating case: Zap Cannon (base power
+120, accuracy 50%) is effectively unusable without addressing its accuracy, not its power —
+an ability that boosts power (e.g. Electric Surge boosting Electric-type move power) does
+nothing to fix Zap Cannon's actual bottleneck, while an ability that bypasses accuracy
+checks (No Guard) directly solves it. Ranking these two ability types against each other on
+a single "how good is this boost" scale would misrepresent what's actually happening — they
+answer different questions about what makes the move usable at all. Determining which axis
+is the real bottleneck for a given move is itself a judgment call (how low is "low enough"
+to matter, does priority matter for this specific role, which move flags are relevant) —
+this is explicitly NOT a fixed threshold to hardcode; it stays inside the reasoning step,
+per ADR-021's original principle, evaluated per-move-and-context rather than pre-decided.
+
+**Verification must be kit-aware and candidate-specific, not a flat ability-to-effect
+table.** Two confirmed cases where a naive, ability-name-keyed lookup would be wrong:
+
+1. **Adaptability is candidate-and-move-conditional, not a fixed ability-level fact.**
+   Adaptability boosts STAB damage — whether a given move receives STAB at all depends on
+   the relationship between the move's type and the specific candidate's own typing. A
+   flat table keyed only on "has Adaptability" would incorrectly apply its boost to a
+   candidate for whom the move in question isn't even STAB. Verification must check
+   `ability_effect(ability, move, candidate)`, not `ability_effect(ability)` alone.
+
+2. **The mechanism addressing a constraint is not always an ability.** Milotic can address
+   Hypnosis's imperfect accuracy via Coil (a MOVE it has access to, raising accuracy among
+   its other effects), not via any innate ability. A verification step scoped only to a
+   candidate's ability would miss this entirely, despite it being mechanically identical in
+   effect (and equally real, equally checkable) to an ability-based fix. Verification must
+   scan the candidate's full kit — ability, typing-derived properties, AND moveset — not
+   ability alone. This reuses the same multi-source kit-scan already implicit in ADR-021's
+   original kit-reinforcement check for move-narrowing; it does not require a separate
+   mechanism.
+
+**Consolidation, not proliferation.** These findings do not require building separate new
+standalone tools (a move-profile lookup, an ability-effect table) alongside ADR-021's
+existing verification step — attempting to enumerate every case in advance (as this
+amendment's own design process tried, and found genuinely difficult to break past the
+motivating cases above) is exactly the checklist trap ADR-021 already exists to avoid. The
+correct scope is one extension to the existing propose-then-verify mechanism: when
+verifying a proposed kit-interaction, also determine and tag which axis it addresses,
+checked against the candidate's real, full kit (ability + typing + moveset together), with
+the "what counts as a relevant constraint" judgment staying inside the reasoning step per
+ADR-021's original design, never hardcoded as a fixed threshold or table.
+
+**Status:** Extends ADR-021's verification mechanism with axis-tagging. Confirms (rather
+than introduces) that this same mechanism is the correct basis for both move-narrowing
+candidate search's tier assignment (this amendment's motivating case) and Role Compendium
+ranking (Amendment 2026-07-28d) — both should consume one shared reasoning/verification
+function, not separately-built, separately-drifting implementations of the same judgment.
+Implementation of the shared function itself is not yet scoped — this amendment establishes
+the design principle; a concrete build task remains a follow-up.
+
+---
+
+## ADR-022: Slot-filling as a generalized narrowing loop
+
+**Decision:** Replace the implicit assumption that slot-filling is a fixed sequence of
+named steps (establish theme → pick core → find teammates → refine slot) with a single
+generalized loop: repeatedly check whether the current candidate pool is presentable
+(per ADR-018's existing judgment), and if not, apply whichever narrowing tool is
+appropriate given current state, then re-check. What varies between an empty team, a
+locked theme, and an anchor Pokémon is not the mechanism — it's which narrowing tools are
+available and relevant at that point in the loop.
+
+**Why a loop, not a fixed cascade:** An earlier draft of this design treated "refine an
+existing slot," "fill a slot from a theme," "fill a slot from an existing anchor," and
+"ask the user when nothing exists" as four distinct named mechanisms with fixed hand-off
+order. This broke down on two real cases: (1) a stated theme can be real and constraining
+without being specific enough to imply an anchor (mono-Fairy narrows legality but suggests
+no particular Pokémon — see below), and (2) the same underlying operation (narrow a pool,
+check presentability, narrow again) recurs at every level regardless of what's already
+known. Collapsing to one loop with state-dependent tool availability removes the need for
+a fixed level structure and matches this project's existing house style (tier-1→2→3
+escalation, ADR-015's dependency circle) of cascading fallback rather than upfront
+branching.
+
+**The loop:**
+
+    loop:
+      pool = current_candidate_set(state)
+      if pool is presentable (per ADR-018: one concrete default + 1-2 real alternatives,
+         or the honest fuller spread when nothing has narrowed much, per Amendment
+         2026-07-28b):
+        -> present it, STOP
+      else:
+        -> pick the next available narrowing tool given current state
+        -> apply it, shrinking or reshaping the pool
+        -> LOOP (re-check presentability)
+
+**Termination is judged separately from tractability.** ADR-018's presentation judgment
+(is this small/concrete enough to show a human) is a different question from whether a
+pool is small enough to reason over deeply (see the two-stage pattern below). Do not
+conflate the two thresholds — they were conflated in early drafts of this design and
+produced confusion about what "small enough" actually meant at each stage.
+
+### Two-stage pattern: cheap-filter-to-tractable, then deep-reason-to-presentable
+
+Every instance of this loop that involves a real candidate search (not just a binary
+theme check) follows the same two-stage shape already established independently by
+move-narrowing (Amendment 2026-07-27f) and specified for Role Compendium construction
+(ADR-019):
+
+1. **Cheap filtering, tiered admission, to a tractable cap (not a fixed count).** Apply
+   mechanical/data-cheap filters (legality, theme-fit, delivery-mechanism grouping,
+   typing/weakness lookups) to build a working set bounded by a tractability cap
+   (~20, matching Amendment 2026-07-29b's precedent) — this cap exists so that the
+   subsequent deep-reasoning stage has a computationally reasonable set to work with,
+   **not** because 20 is the right number to ever show a user. Admission within the cap
+   is **tiered, not flat**: admit mechanically-obvious candidates first (e.g., an
+   automatic ability-based delivery mechanism), then mechanically-secondary candidates
+   (e.g., a reliable-but-non-automatic delivery mechanism), and only then — if room
+   remains under the cap — admit candidates whose presence is justified by real usage
+   data alone, with no cheap mechanical explanation yet found. This third tier is a
+   **discovery signal** (per Amendment 2026-07-29a's "usage for discovery, never
+   ranking"), not noise to be filtered out — it surfaces candidates that later,
+   confirmed a real mechanism deep reasoning wouldn't otherwise have looked for.
+
+2. **Deep reasoning as a bidirectional quality gate**, applied only to the bounded
+   working set: verification-gated kit-interaction checks (ADR-021), counter-lookup
+   chains, cooccurrence validation, calc-backed breakpoint checks, whatever is
+   appropriate to the specific slot-filling context. This stage can **promote** a
+   usage-flagged-but-unexplained candidate (deep reasoning finds and confirms a real
+   mechanism — a genuine discovery) or **eject** any candidate, including ones admitted
+   on mechanically-obvious grounds, that doesn't actually hold up under closer
+   inspection. Cheap filters are deliberately permissive on the way in; deep reasoning
+   is the real quality gate on the way out.
+
+3. Only after deep reasoning does the result get cut down further to whatever ADR-018's
+   presentation judgment actually calls for (typically far fewer than 20) — this final
+   cut, plus the working memoized/cached result, happens after stage 2, not as part of
+   the tractability cap itself.
+
+### Ordering principle: archetype/role membership before raw mechanical reasoning
+
+"How well-defined is this candidate's teammate/support/threat profile" is not an
+independent quality to estimate — **it collapses exactly onto "does this candidate
+belong to a known archetype/role."** A candidate with a clean archetype match (e.g. a
+Sun-abuser under a Fire-type theme) inherits that archetype's already-encoded teammate/
+support/threat reasoning for free (via tier-2's five hardcoded archetypes today, the
+Role Compendium once built, ADR-019). A candidate with no clean archetype match (the
+motivating case throughout this design: Mega Staraptor, whose real needs — a
+stat-debuff partner, defensive-coverage support — have no categorized label) requires
+the more expensive raw-mechanical-reasoning tools below instead.
+
+**Ordering rule:** always attempt archetype/role-membership lookup first (cheap, reuses
+existing infrastructure); fall through to raw counter-lookup/support-needs reasoning
+only when no archetype match exists. This is the same tier-1-before-tier-2,
+cheap-before-expensive discipline already used everywhere else in this project.
+
+**Usage must inform this check, not be overridden by it.** A candidate with a clean
+archetype match but low real-world usage may be well-defined *because it's
+underexplored*, not because it's mechanically sound — clarity from data sparsity is not
+the same as clarity from genuine strength (same caution already logged in Amendment
+2026-07-29e's usage-consistency check). Archetype-membership and usage-popularity should
+both weigh into candidate ranking; neither should be treated as sufficient alone.
+
+### New tools required (none yet built)
+
+These are genuinely new, Compendium-independent tools the loop needs when raw mechanical
+reasoning is required (no archetype match, or when reasoning about a currently-locked
+anchor's own needs):
+
+- **`query_counters(pokemon)`** — given a Pokémon's typing/stats/kit, what real,
+  currently-relevant threats exploit it. A cheap, mechanically-grounded lookup (typing
+  chart + real usage-popularity filtering to 3-5 actually-relevant threats — **usage
+  here means simple popularity of the threat itself**, not cooccurrence; see below),
+  not open-ended reasoning.
+- **`query_counter_of_counters(threat)`** — same tool, called once per relevant threat
+  identified above (not recursively beyond one level) — "who beats this threat" becomes
+  the candidate teammate pool. Depth is fixed at one additional level, not open-ended
+  recursion, per the explicit design decision: `query_counters` → popularity-filter to
+  3-5 → `query_counter_of_counters` once per filtered threat → compose.
+- **`query_support_needs(pokemon)`** — a second, independent branch from
+  `query_counters`, reasoning over the anchor's **own** kit (ability, stats, weaknesses,
+  existing moveset) rather than any specific opponent: what functional support would
+  help it perform, resolved either **by move** (routes to move-narrowing, already
+  built) or **by role** (routes to archetype/Compendium lookup, or the same
+  no-clean-role fallback Staraptor itself demonstrates). Runs in parallel with the
+  threat-driven branch, not sequentially after it — they answer different questions
+  from the same anchor.
+- **`query_theme_refinement_candidates(theme)`** — given a locked-but-under-constrained
+  theme (mono-Fairy), propose narrower, mechanically-compatible sub-themes (this is
+  *not* the same operation as picking a specific anchor Pokémon within the theme — it
+  narrows the theme itself, e.g. mono-Fire → Sun team is checkable-compatible via the
+  same type/ability-interaction data already used elsewhere in this project; mono-Fairy
+  → Rain team is not, since nothing about Fairy-typing relates to Rain). Both
+  theme-refinement and anchor-selection are legitimate, parallel narrowing actions
+  available at the same decision point when a theme is real but under-constrained —
+  worth surfacing both as real path options (per ADR-018) rather than the system
+  silently picking one.
+
+**Cross-branch reconciliation is valuable in its own right.** A candidate that
+satisfies both the threat-driven branch (denies/counters a real threat) *and* the
+support-needs branch (fills a genuine gap in the anchor's own kit) is strictly more
+valuable than one that satisfies only one — this mirrors what was already observed
+empirically in yesterday's redundancy-validation work (Amendment 2026-07-27f's Mega
+Froslass/Rain-Dance case: threat-denial and self-serving-sequencing benefit,
+satisfied by the same single move). The composition step after both branches run should
+check for this overlap explicitly, not just merge two separate candidate lists.
+
+### Three distinct usage signals — do not conflate
+
+This design uses real usage/co-occurrence data (ADR-007 Amendment 2026-07-25c) in three
+genuinely different ways at three different points. Each is a separate query with a
+separate shape:
+
+1. **Popularity (species-alone usage)** — used to filter `query_counters`' raw output
+   down to 3-5 *actually-relevant* threats (of everything a Pokémon is typologically
+   weak to, which ones are commonly played), and to weigh candidates during
+   archetype-ordered ranking (the anti-obscurity check above). Same signal
+   `get_relevant_threats` already sources.
+2. **Discovery (usage-flagged-but-mechanically-unexplained admission)** — used only
+   during the tiered cheap-filtering stage, to admit candidates the mechanical filters
+   alone wouldn't have surfaced, subject to deep-reasoning confirmation before being
+   trusted (per ADR-021).
+3. **Cooccurrence (pair-level usage)** — used only at final candidate validation: does
+   real team-composition data actually support this specific candidate as a teammate
+   *for this specific anchor*, not just "beats one of its threats" in isolation. A
+   genuinely different query shape (pair statistics) from the other two (single-species
+   statistics) — implementations must not reuse one query for the other's purpose.
+
+### Integration with existing systems
+
+- **Multiple slots proposed/locked at once** (e.g. one teammate covering multiple
+  threats might justify proposing more than one lock in a single turn) must route
+  through the existing `simultaneous_lock_conflicts`/N-attribute batch-lock machinery
+  (built during the dependency-circle propagation work) rather than a new,
+  separate multi-lock mechanism.
+- **Hand-off to `propose_team_draft`'s existing refinement path**: once this loop
+  produces a filled slot (species locked), refinement of that slot's remaining
+  attributes (moveset/item/spread) is already fully handled by existing,
+  already-shipped logic (tier-1 cache → move-narrowing → dependency-circle
+  propagation) — this ADR's loop is only responsible for getting a slot from
+  "empty/theme-only" to "species decided," not for anything after that.
+- **The "nothing exists yet" case** — no theme, no anchor, no constraints — is the
+  loop's first-pass state: the only available narrowing tool is `ask_user`, surfacing
+  real archetype/core-Pokémon/general-theme options directly (per ADR-018), not an
+  open-ended question.
+- **Under-constrained-theme case** (mono-Fairy): both `query_theme_refinement_
+  candidates` and direct anchor-selection (archetype-ordered, usage-weighted, per the
+  ordering principle above) are available narrowing actions; when surfacing anchor
+  candidates specifically, **prefer core-attacker candidates over support candidates**,
+  since an attacker's own teammate/support/threat profile is comparably well-defined
+  (real counter-lookup/support-needs signal to reason from), whereas support-Pokémon
+  are often defined *by* their teammates rather than independently — a support-first
+  anchor is a structurally weaker starting point for the rest of the loop to build
+  from.
+
+**Status:** Decided in design (2026-08-01 session). No implementation yet. Depends on
+tier-2's existing five archetypes / eventual Role Compendium (ADR-019) for the
+archetype-membership-first ordering to have real content; the raw-mechanical-reasoning
+fallback tools (`query_counters`, `query_counter_of_counters`, `query_support_needs`,
+`query_theme_refinement_candidates`) are new and Compendium-independent, and could be
+built and tested before the Compendium exists.
+
+### ADR-022 — Amendment 2026-08-02a
+
+**Correction: rename query_counter_of_counters to query_threat_counters; correct the
+described sequencing to match the shipped, deliberately-refined design.**
+
+Two corrections to this ADR's original text, both surfaced during implementation:
+
+**1. Naming.** The tool originally named `query_counter_of_counters` is implemented and
+should be referred to going forward as `query_threat_counters` — the original name was
+confusing in spoken/written discussion ("counter of counters" reads ambiguously) and the
+new name states its actual purpose directly (finding candidates that counter an anchor's
+threats).
+
+**2. Sequencing.** This ADR's original text described popularity-filtering the anchor's
+threat list down to 3-5 BEFORE recursing into `query_counters` per threat. This is not
+what was built, and the actual shipped design is a deliberate improvement, not a deviation
+to be reconciled after the fact:
+
+- `query_counters(anchor)` runs at its own full, untrimmed output — not pre-cut to 3-5.
+- `query_counters(threat)` runs FULL for every threat in that untrimmed list, not a
+  pre-cut subset.
+- Only AFTER merging candidates across all threats (tracking, per candidate, how many
+  distinct threats it counters) does any trimming occur — via `rank_and_cut` on the
+  merged pool (count-of-threats-countered + usage composite key), cut to ~10.
+
+**Why this ordering is correct, not just different:** a candidate's true value under this
+tool's whole premise — countering multiple threats — is only visible once evaluated across
+the full cross-product of threats and candidates. Trimming the threat list to 3-5 before
+ever running the per-threat candidate search would discard exactly the information this
+tool exists to surface: a candidate that looks unremarkable against any single threat in
+isolation, but is valuable specifically because it recurs across several. Early trimming
+optimizes for a cost saving (fewer `query_counters` calls) at the expense of the tool's
+actual purpose; since `query_counters` itself is a cheap, calc-free, data-only lookup (per
+its own design), this cost saving was never necessary in the first place.
+
+**Verification-threat selection is a separate, later step, not the same operation as the
+threat-list trim described above.** A SECOND, independent `rank_and_cut` call re-ranks the
+original, full anchor-threat list by usage alone (ignoring `query_counters`' own mechanical-
+danger-first tiering) to select the top 5 threats worth spending real `classify_matchup`
+calls verifying candidates against. This is a distinct operation from the merged-candidate-
+pool trim above, serving a different purpose (selecting which threats are realistic to
+actually face, for the sake of bounding expensive verification calls specifically) — it
+should not be conflated with, or read as a restatement of, the originally-described
+popularity-filter step.
+
+**Verification is the real final ranking step, not a confirm/discard gate.** `classify_
+matchup` outcomes (four-way outcome + severity, per ADR-015 Amendment 2026-07-28c) against
+the selected top-5 threats determine final candidate order — a candidate with fewer
+statically-counted counters but stronger verified performance can and should outrank one
+with a higher static count but weaker verified results. The static, merged-pool ranking
+exists only to produce a tractable candidate set worth the cost of real verification calls,
+not to determine final standing on its own.
+
+**Status:** Corrects this ADR's tool name and originally-described sequencing to match the
+shipped, deliberately-refined design (recommender/threat_counters.py, 2026-08-02). No change
+to this ADR's broader two-stage pattern or usage-signal principles — this amendment only
+corrects one tool's specific described mechanics within that pattern.
+
+---
+
+### ADR-022 — Amendment 2026-08-02b
+
+**Clarification: role/archetype classification is the orchestrator's own first step, not
+something any individual raw-reasoning tool (query_counters, query_threat_counters,
+query_support_needs) computes for itself.**
+
+Surfaced while designing query_support_needs: role-shape classification (is this anchor
+attacker-primary or support-primary, tanky-by-design or glass-cannon-by-design, etc.) kept
+resisting a fixed, mechanical rule at every attempt (stat-asymmetry alone, tanky-gating,
+attacker-vs-support-gating by attacking-move count) — each attempted rule had a real,
+ordinary counterexample (Archaludon's asymmetric bulk only mattering because it's an
+offense-primary tank; a glass cannon's low bulk being an accepted tradeoff, not a gap;
+Farigiraf carrying multiple strong attacking moves while still being fundamentally a
+Trick-Room/priority-denial support piece, its attacking moves serving as insurance per the
+same Taunt-insurance principle as Amendment 2026-07-27e). This confirmed role-shape
+classification is genuinely open-ended judgment (an ADR-021-shaped reasoning problem, not a
+lookup), not something to force into a fixed heuristic tree.
+
+This ADR already specifies the correct place for this classification to happen: "always
+attempt archetype/role-membership lookup first (cheap, reuses existing infrastructure);
+fall through to raw counter-lookup/support-needs reasoning only when no archetype match
+exists." This amendment makes explicit what was previously implicit — this classification
+attempt is the ORCHESTRATOR's own first move in the generalized narrowing loop, run once,
+before any of the three raw-reasoning tools are called. It is NOT something query_counters,
+query_threat_counters, or query_support_needs each re-derive internally.
+
+**Concretely:** the orchestrator attempts role/archetype classification (today: tier-2's
+five hardcoded archetypes; eventually: Role Compendium membership, per Amendment 2026-
+07-28d's offensive/support criteria) before deciding whether a raw-reasoning tool needs to
+run at all. If classification resolves cleanly, that result IS the answer for whatever
+question is being asked (e.g., "what role is this" or "does this anchor already have a
+known need-profile via its archetype"). If classification does NOT resolve cleanly (the
+Staraptor case; possibly not the Farigiraf case, which may resolve via an existing "Trick
+Room setter" archetype and never need the raw-reasoning fallback at all — check against
+current archetype coverage before assuming a given anchor needs the hard path), the
+orchestrator falls through to the raw-reasoning tools — and PASSES WHATEVER PARTIAL
+CLASSIFICATION SIGNAL IT ALREADY PRODUCED (even if inconclusive) into that tool as context,
+rather than having the tool re-run classification from scratch.
+
+**Status:** Clarifies existing ADR-022 text (the ordering principle already stated this in
+spirit); makes explicit that classification is orchestrator-level and its result/context is
+an INPUT to the raw-reasoning tools, not something each tool independently computes. No
+change to the ordering principle itself.
+
+---
+
+### ADR-022 — Amendment 2026-08-02c
+
+**Corrections: signature and scope description for query_support_needs updated to match
+the shipped implementation.**
+
+1. This ADR's original text did not specify query_support_needs' actual signature. As
+   shipped: query_support_needs(pokemon, role_shape_context, team_draft) — team_draft is
+   required for the Speed-axis's condition-dependent-ability check (Layer 2: does the team
+   already have the enabling weather/terrain secured elsewhere), not just role_shape_context
+   alone as earlier text implied.
+
+2. This ADR's original text described move/role resolution (the "by move" or "by role"
+   dispatch for a chosen need) as potentially happening inside this tool. As shipped and
+   as corrected during design discussion, query_support_needs stops at surfacing named
+   need options — it does NOT resolve a need to move-narrowing candidate search, Compendium
+   lookup, or any ability-based search. That dispatch is a separate, later step (the
+   orchestrator's job, once a specific need is chosen), consistent with the "orchestrator
+   decides which tool to call" framing already established in Amendment 2026-08-02b.
+
+**Status:** Corrects ADR-022's description of query_support_needs to match the shipped
+recommender/support_needs.py (2026-08-02). No change to the tool's underlying design intent
+— these are documentation corrections, not behavior changes.
+
+---
+
+### ADR-022 — Amendment 2026-08-02d
+
+**Uniform candidate-pool interface: every tool in ADR-022's toolkit should accept an
+optional candidate pool as input, and any tool producing a species list is a valid source
+for that pool — establishing composable, stackable tool chaining rather than a fixed
+pipeline order.**
+
+Surfaced while designing what was originally scoped as a fourth, separate tool
+(query_theme_refinement_candidates — given an under-constrained locked theme like mono-
+Fairy, propose narrower compatible sub-themes). That original framing required enumerating
+the space of possible sub-themes directly, which has no natural, bounded answer ("what
+sub-themes exist below mono-type?" is not an enumerable question the way "which species
+satisfy mono-Fairy" is). The design collapsed once reframed: rather than enumerating
+themes, enumerate the LEGALITY-FILTERED SPECIES POOL under the locked constraint (already
+a solved, bounded problem) and let theme inference happen per-candidate, reusing existing
+archetype classification — at which point the operation became identical in shape to
+query_counters/query_threat_counters, just with a narrower starting pool instead of the
+full legal species set.
+
+**This generalizes into a standing interface requirement, not a one-off fix:**
+
+1. Every query tool (query_counters, query_threat_counters, query_support_needs where
+   applicable, and any future tool) SHOULD accept an optional `candidate_pool` parameter,
+   defaulting to the full legal species pool when omitted.
+2. Any tool or mechanism that produces a species list — a legality/theme filter, a Role
+   Compendium category lookup (once ADR-019 is built), query_by_usage's own output (see
+   below), or even a prior query_counters/query_threat_counters call's ranked result — is a
+   VALID SOURCE for another tool's candidate_pool input. There is no fixed, required
+   pipeline order; tools compose by whichever pool-producing step precedes them in a given
+   reasoning chain.
+3. query_theme_refinement_candidates as a separately-named fourth tool is RETIRED — its
+   function is now: theme-lock a legality filter to produce a narrowed pool, call
+   query_by_usage (see companion amendment/task) on that pool to get a starting anchor
+   candidate, and let the normal per-candidate reasoning pipeline (theme inference,
+   query_counters, etc.) proceed from there. No new dedicated tool is needed.
+
+**New tool: query_by_usage(pool=None).** The bootstrap/starting-point tool — ranks a
+candidate pool (full legal pool by default, or any narrower pool per point 2 above) by
+usage alone via rank_and_cut, cut to a presentable set. This is the concrete mechanism for
+two previously-unimplemented cases already named in this ADR's original text: the "nothing
+exists yet" branch of the narrowing loop (no theme, no anchor -> ask_user, surfacing real
+usage-grounded options rather than an invented pick), and the under-constrained-theme
+branch (mono-Fairy has no single natural anchor -> query_by_usage on the theme-narrowed
+pool provides real starting candidates to present).
+
+**Note on scope asymmetry:** for tools with both an "anchor/threat" side and a "candidate/
+teammate" side (query_threat_counters specifically), pool-restriction applies only to the
+candidate/teammate-producing side, never to threat identification — a locked team theme
+narrows who's being searched FOR, not what threatens the anchor, which remains sourced from
+the full, unrestricted meta regardless of the team's own theme.
+
+**Status:** Retires query_theme_refinement_candidates as a planned fourth tool; establishes
+the uniform pool-in/pool-out interface as a standing contract for this and future tools;
+introduces query_by_usage as the toolkit's bootstrap mechanism.
+
+---
+
+## ADR-023: Orchestrator consumption procedure — how ADR-022's tool outputs actually get
+combined, held, and merged across a single slot-fill
+
+**Decision:** ADR-022 specified WHICH tools exist and WHEN to call them (the narrowing
+loop), but never specified the concrete procedure for HOLDING their outputs across a
+multi-tool sequence, COMBINING outputs from different branches into one final answer, or
+TERMINATING the loop with a real action. This gap was directly responsible for a real,
+observed orchestration failure (see below) — ADR-022's own cross-branch overlap note was
+descriptive prose relying on the orchestrator to "remember" to check it, and the loop had
+no specified exit at all. This ADR closes both gaps with a real, structural procedure.
+
+**Why this is a distinct problem from anything ADR-022 already covers:** ADR-022 designed
+the capability layer (four tools, each independently correct) but not the consumption
+layer (how a caller actually sequences and combines them, and how the loop actually ends).
+Prose instructions embedded in an ADR ("the composition step should check for this overlap
+explicitly") are not a structural guarantee — this project has already established,
+repeatedly, that anything this important needs to be a callable step with a real trigger,
+not a reasoning-step courtesy (same lesson behind ADR-021's verification gating, the fixed
+intrinsic-signal tables, and rank_and_cut's tiered-admission rules rather than relying on
+judgment calls).
+
+**Motivating failure (role-play session, 2026-08-02):** building around Kingambit,
+Farigiraf simultaneously satisfied the threat-counter branch (answers Psychic-type
+pressure from Staraptor/Sneasler), the support-needs branch (resolves an open Trick-Room-
+setter need), and had real cooccurrence data supporting the pairing — but the orchestrator
+did not connect these until explicitly prompted. Separately and more fundamentally, the
+orchestrator ran the three query tools and then simply stopped — it never reached a point
+of presenting options to the user, taking a choice, and locking a slot. Both are named as
+orchestration/composition failures distinct from factual errors: proof that (a) the
+cross-branch check needs a hard structural home, not orchestrator judgment, and (b) the
+loop's exit needs to be a mandatory, concrete action chain, not assumed to happen once the
+tool calls are done.
+
+### The procedure
+
+**1. SlotFillContext — new, explicit scratch state for one narrowing-loop invocation.**
+Not part of `RecommenderState`/`team_draft` (which holds committed/proposed team state) —
+a lightweight, per-invocation structure holding intermediate tool outputs across the
+several calls one slot-fill operation may involve:
+
+    @dataclass
+    class SlotFillContext:
+        anchor: PokemonSpecOptional
+        role_shape_context: RoleShapeContext
+        threat_counter_results: list[ThreatCounterCandidate] | None = None
+        support_needs: list[SupportNeed] | None = None
+        chosen_need: SupportNeed | None = None
+        need_resolved_candidates: list[...] | None = None
+        annotated_candidates: list[...] | None = None   # see step 3
+
+**2. Branch execution — both branches run, but on different timelines.**
+- Threat-driven branch (`query_threat_counters`) is fully self-contained and deterministic
+  (already internally verified via `classify_matchup`) — runs to completion with no user
+  interaction required, populating `threat_counter_results`.
+- Support-driven branch (`query_support_needs`) only surfaces named need OPTIONS — it
+  cannot produce a candidate list until a human (or the orchestrator, per ADR-018's
+  propose-a-default framing) picks one AND that need is resolved via whichever dispatch
+  path fits (move-narrowing candidate search / Compendium lookup / ability-search, per
+  ADR-022's original three-path design). This is inherently a later, round-trip-dependent
+  step — `support_needs` populates immediately, `chosen_need`/`need_resolved_candidates`
+  populate only after a choice is made.
+
+**3. MANDATORY ANNOTATION STEP — runs as soon as BOTH `threat_counter_results` and
+`support_needs` exist, BEFORE any need is chosen.** This is the structural fix for the
+Farigiraf-shaped failure: for every candidate already present in `threat_counter_results`,
+check whether it INDEPENDENTLY satisfies any of the surfaced need categories in
+`support_needs` — reusing existing archetype/ability classification, no new tool calls,
+no waiting on a user choice. This is cheap and must not be skipped:
+
+    def annotate_overlap(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
+        # for each candidate in ctx.threat_counter_results, check membership against
+        # each need category in ctx.support_needs; attach matching needs as metadata
+
+A candidate satisfying both a verified threat-answer AND an independently-surfaced need
+category is exactly the Farigiraf case, and this step surfaces it BEFORE the user ever has
+to explicitly pick a need — it becomes the natural, boosted default candidate per ADR-018's
+"propose a concrete default" principle, since it answers more than one open question at
+once.
+
+**4. IF the user explicitly chooses to search by a specific surfaced need** (rather than
+accepting a boosted default from step 3), THAT triggers the full resolution pipeline
+(dispatch to move-narrowing/Compendium/ability-search) producing `need_resolved_candidates`
+— and a SECOND, equally mandatory merge step runs: intersect/score overlap between
+`need_resolved_candidates` and `threat_counter_results` the same way, since a candidate
+newly surfaced by the chosen-need search might also independently answer a threat that
+wasn't obvious from the cheap step-3 annotation alone (step 3 only checks candidates
+ALREADY in `threat_counter_results`; a need-search can surface entirely new candidates not
+in that list at all).
+
+**5. TERMINAL ACTION — present, receive choice, lock, hand off. Not optional, not a one-
+line gesture; the loop is not considered complete until this executes end to end.** This
+is the piece most directly responsible for the observed stall: the orchestrator's entry
+(ADR-022) and middle (steps 1-4 above) were concrete, but nothing previously specified what
+to actually DO with an annotated candidate pool once produced. Step 5 chains entirely
+EXISTING, already-shipped mechanisms — no new machinery is required, only the explicit,
+mandatory sequencing of what already exists:
+
+   a. **Present.** Call `pick_default_and_alternatives` (already shipped, move-narrowing's
+      ADR-018 bridge — reuse directly, do not build a second presentation mechanism)
+      against the annotated/merged candidate pool from steps 3-4. A candidate satisfying
+      multiple branches (the Farigiraf case) surfaces as the default; single-branch matches
+      are the alternatives. This produces the actual message/options shown to the user —
+      the loop does not terminate at "I have a ranked list," it terminates at "the user
+      has been shown something and can react."
+
+   b. **Receive.** The user's response (accept the default, pick an alternative, reject all
+      and ask for something else, or — per ADR-022's multi-slot-lock note — indicate more
+      than one candidate should be locked at once, e.g. a candidate that resolves two open
+      slots) is the actual continuation trigger. This is not a new mechanism — it is
+      `classify_input`'s existing intent-routing (the "lock" intent, already shipped as
+      part of multi-turn steering), receiving this specific presentation's output as its
+      context.
+
+   c. **Lock.** On acceptance, call the EXISTING lock mechanism (`apply_lock`, with
+      `simultaneous_lock_conflicts` handling if more than one slot is being committed at
+      once, per ADR-020/the dependency-circle work) to actually commit the chosen
+      candidate(s) to `team_draft`. This is not new machinery — it is the same mechanism
+      every other user-lock action in this system already uses; SlotFillContext's job ends
+      here, its output becomes a real, committed team_draft change.
+
+   d. **Hand off.** Once a slot is locked (species now committed), control returns to
+      ADR-022's own stated integration point: refinement of that slot's remaining
+      attributes (moveset/item/spread) proceeds via the EXISTING refinement path (tier-1
+      cache -> move-narrowing candidate search -> dependency-circle propagation) — this is
+      not this ADR's concern, ADR-022 already correctly scopes this hand-off; step 5 just
+      needed to actually REACH that hand-off point rather than stalling before it.
+
+   **One legitimate exit that is NOT a stall:** if the user explicitly defers ("not now,"
+   "let's come back to this slot later," or an equivalent per ADR-018's deferral handling)
+   — that is a valid, designed terminal state, distinct from the loop simply running out of
+   specified steps. SlotFillContext should be discardable/re-enterable in this case, not
+   treated as an error.
+
+**Why this had to be explicit rather than assumed:** every individual piece referenced in
+step 5 (`pick_default_and_alternatives`, `classify_input`'s lock intent, `apply_lock`, the
+refinement hand-off) already exists and is already correctly specified elsewhere in this
+project. The gap was never a missing mechanism — it was that no single place stated "after
+annotation, call these in this order, and do not stop until the loop has actually reached a
+locked slot or an explicit user deferral." A procedure whose steps all exist individually
+but are never chained into a mandatory sequence is exactly as prone to silently stalling as
+a check that exists in prose but has no structural trigger — this correction closes both
+failure shapes the same way: by making the full chain, start to terminal action, a single
+specified, non-optional procedure.
+
+### What this ADR resolves vs. leaves open
+
+**Resolves:** the cross-branch overlap check (now a mandatory, structurally-triggered step,
+twice — cheap annotation as soon as both branches' initial outputs exist, full merge if a
+need-search is explicitly triggered); the loop's missing terminal action (now a mandatory,
+concrete chain of entirely existing mechanisms — present, receive, lock, hand off).
+
+**Does NOT resolve** (remain open, tracked separately, NOT silently absorbed by this ADR):
+- Speed-axis bidirectionality (Trick Room vs. Tailwind as mutually exclusive answers) —
+  a `query_support_needs` output-shape question, orthogonal to consumption-layer design.
+- Team-state-scaling abilities (Supreme Overlord) having no tool home.
+- `query_threat_counters`'s two internal `rank_and_cut` passes diverging — this ADR
+  specifies what happens to that tool's OUTPUT once produced, not its internal logic;
+  divergence within the tool itself is unaddressed.
+- Ability-flipped threats (Defiant/Intimidate) — a `query_counters` axis gap.
+- Champions' single-Mega-per-team constraint — a real team-composition constraint with
+  no checking mechanism anywhere yet, including in this ADR's procedure. Worth flagging as
+  a natural candidate for a future global-constraint check within SlotFillContext or
+  team_draft-level validation, but not designed here.
+- `classify_matchup`'s single-`build_a` signature vs. ADR-016's range-of-variants cache —
+  a verification-input-sourcing question, not a consumption-procedure question.
+
+**Status:** New ADR. No implementation yet. Directly informed by real, observed
+orchestration failures during role-play testing (2026-08-02) — see master_project_log.md
+for the full session summary. Six additional gaps from the same session remain open and
+untracked by this ADR; each needs its own resolution.
+
+---
+
+### ADR-023 — Amendment 2026-08-02a
+
+**Resolution of the six remaining gaps flagged during the 2026-08-02 role-play session.**
+
+Two gaps dissolved on closer inspection (they were misdiagnosed, not real design holes);
+two received concrete resolutions; one is accepted as risk; one is reframed and deferred to
+future quick-pick design rather than resolved now.
+
+**Dissolved — gap 1 (Speed-axis "bidirectionality"):** the original finding assumed Trick
+Room and Tailwind must be presented as mutually exclusive answers to query_support_needs'
+Speed-axis trigger. This is incorrect — this project already established TailRoom
+(Tailwind+TrickRoom as a real, valid composite archetype, ADR-020) confirming a team can
+legitimately want both simultaneously. No fix needed: query_support_needs already surfaces
+named need options rather than forcing a single pick, which correctly accommodates this.
+No change to the tool's design.
+
+**Dissolved — gap 4 (ability-flipped threats, e.g. Defiant/Intimidate):** this collapses
+into the already-accepted, already-logged scope limitation from ADR-021 Amendment
+2026-08-01b — query_counters' KO-threshold axis deliberately does not chase ability-
+conditional interactions (no calc-service calls, static/known multipliers only). An
+ability-flip case is a specific instance of this same, already-documented deferral, not a
+new or separate gap. No additional tracking needed beyond the existing amendment.
+
+**Resolved — gap 2 (team-state-scaling moves/abilities: Supreme Overlord, Rage Fist, Last
+Respect):** these three (one ability, two moves) share the same pattern — effective power
+scales with a team-battle-state count (fainted teammates) not knowable at team-building
+time. Resolution: use a fixed, stated assumed count for the KO-threshold BP estimate,
+rather than treating this as unknowable or building real battle-state simulation. Given the
+scaling only matters once nonzero (a rational player uses these specifically when the
+boost is worth it), use the AVERAGE OF THE NONZERO STATES (1, 2, 3 teammates down -> average
+2), not the average across all four possible states including zero (which would be 1.5).
+This is a stated, reasoned assumption (not empirically probed, since there's no real usage
+data to check it against the way threshold/margin values were checked elsewhere this
+session) — document the choice and reasoning directly in code, consistent with this
+project's standing practice of stating and justifying numeric defaults rather than leaving
+them implicit.
+
+**Accepted as risk — gap 3 (query_threat_counters' two rank_and_cut passes diverging):** no
+reconciliation check is built, and none is planned. Accepted, consistent with several other
+residual-risk-not-blocker findings from today's design work (tier-0 overshoot, incomplete
+multi-hit tables, etc.).
+
+**Reframed and deferred — gap 5 (Mega-count constraint):** the original finding
+mischaracterized this as a hard, Item-Clause-style legality rule. It is not — Champions
+places no legality restriction on how many Mega-Stone-capable Pokemon a team_draft can
+contain; the real constraint (only one can actually Mega Evolve per battle) applies at
+PICK time (quick-pick, ADR-012a), not team-composition time, and nothing is illegal about
+holding several. The actual insight is a SOFT, efficiency-driven heuristic derivable from
+the format's pick count: max USEFUL Mega-Stone holders during team-building ≈
+1 + (team_size - pick_count) — e.g. doubles (6 Pokemon, pick 4): 1 + 2 = 3; singles (pick
+3): 1 + 3 = 4. This is NOT a team_draft validation rule (does not belong near Item Clause's
+hard-check logic) — it is a candidate for soft, ADR-018-style guidance ("you already have N
+other Mega-Stone holders locked, worth knowing") surfaced during team-composition-stage
+narrowing, informed by an anticipated picker-time constraint. Quick-pick itself has not
+been designed at all yet. DEFERRED: do not build this now; revisit once quick-pick design
+begins, since the exact numbers depend on knowing the format's real pick count and
+quick-pick's own eventual behavior.
+
+**Resolved — gap 6 (classify_matchup's single build_a vs. ADR-016's range of cached
+variants):** use the single MOST COMMON cached build for verification. If no cached build
+exists for a species at all, construct one from top usage data (reusing tier-1/tier-2's
+existing fallback relationship — this is not new logic, it's the same cache-miss-falls-
+through-to-usage-sourced-build pattern already established elsewhere in this project, e.g.
+propose_team_draft's own tier-1-then-tier-2 fallback). Do not attempt to verify against
+every cached variant — one representative build per species is sufficient for this tool's
+purpose.
+
+**Status:** Closes out all six gaps flagged during the 2026-08-02 role-play session
+(alongside the terminal-action and cross-branch fixes already in ADR-023's main text). Two
+dissolved as misdiagnoses, two resolved with concrete, stated defaults, one accepted as
+risk, one correctly reframed and deferred to future quick-pick design rather than solved
+prematurely.
+
+---
+
+### ADR-023 — Amendment 2026-08-03a
+
+**Need-resolution consumption: auto-resolve all surfaced needs (species-only presentation).**
+
+Step 4 of ADR-023's main text described need resolution as triggered when the user
+explicitly chooses a surfaced need. That framing is superseded for orchestrator behavior:
+`query_support_needs` still only surfaces named need tags, but the orchestrator
+auto-resolves every teammate-path need behind the scenes (`resolve_all_support_needs` in
+`recommender/slot_fill.py`), merges into the annotated candidate pool, and presents species
+(default + alternatives per ADR-018). Needs remain annotation metadata explaining why a
+species was suggested — never a user-facing need menu.
+
+`SlotFillContext.chosen_need` remains optional for single-need / test cursors;
+`merge_need_resolved` no longer requires it when `need_resolved_candidates` is set.
+
+Dispatch paths (shipped): move-narrowing (incl. multi-move union for healing/screens/FO);
+ability-search for `condition_setter` (`ABILITY_TO_FIELD` ∩ trigger) and FO priority-denial
+abilities; `stat_lowering_partner` (Contrary) excluded from teammate resolve (anchor-kit
+gap, empty list); `defensive_coverage` still Compendium-deferred.
+
+**Status:** Documents shipped slot_fill behavior (2026-08-03). Does not build Role
+Compendium or expand `ABILITY_TO_FIELD` for Hadron/Orichalcum.
+
