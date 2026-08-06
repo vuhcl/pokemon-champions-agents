@@ -26,7 +26,6 @@ SideWeather = Literal[
     "Sand",
     "Sun",
     "Rain",
-    "Hail",
     "Snow",
     "Harsh Sunshine",
     "Heavy Rain",

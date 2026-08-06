@@ -31,6 +31,7 @@ class ReasonRef:
         "core_detection",
         "role_compendium",
         "tier2_heuristic",
+        "tier1_cache",
     ]
     ref: Optional[str] = None
 
@@ -89,10 +90,14 @@ class RejectionPayload(TypedDict, total=False):
     reason: str
 
 
+SlotAttrName = Literal["role", "species", "item", "moveset", "spread", "nature"]
+
+
 class LockPayload(TypedDict, total=False):
     slot_index: int
-    attr: Literal["role", "species", "item", "moveset", "spread"]
+    attr: SlotAttrName
     value: object
+    locks: list[dict[str, object]]  # [{attr, value}, ...] for N-attr simultaneous lock
 
 
 class ArchetypeChangePayload(TypedDict):
@@ -106,12 +111,12 @@ class ResetPayload(TypedDict, total=False):
 
 class RestorePayload(TypedDict):
     slot_index: int
-    attr: Literal["role", "species", "item", "moveset", "spread"]
+    attr: SlotAttrName
 
 
 class SupersededEntry(TypedDict):
     slot_index: int
-    attr: Literal["role", "species", "item", "moveset", "spread"]
+    attr: SlotAttrName
     value: object
     reason: str
     turn_removed: int
@@ -119,7 +124,7 @@ class SupersededEntry(TypedDict):
 
 class PendingFlag(TypedDict):
     slot_index: int
-    attr: Literal["role", "species", "item", "moveset", "spread"]
+    attr: SlotAttrName
     value: object
     flag_kind: str
 
@@ -148,6 +153,7 @@ class Slot:
     item: Attr[str] = field(default_factory=Attr)
     moveset: Attr[list[str]] = field(default_factory=Attr)
     spread: Attr[dict[str, int]] = field(default_factory=Attr)
+    nature: Attr[str] = field(default_factory=Attr)
     rationale: str = ""
     verification: list[VerificationEntry] = field(default_factory=list)
 
@@ -177,6 +183,21 @@ class ThreatCandidate:
     showdown_formes: tuple[tuple[str, float], ...]
     spec: PokemonSpecOptional
     build_source: str  # showdown_form | ingame | showdown_partial_fallback
+    # query_counters axis tags (empty for get_relevant_threats path)
+    threat_kinds: frozenset[str] = frozenset()  # "ko_threshold" | "wall"
+    ko_threshold_score: float = 0.0
+    ko_best_was_stab: bool = False
+
+
+@dataclass(frozen=True)
+class ThreatCounterCandidate:
+    """Teammate candidate from query_threat_counters (ADR-022 depth-one)."""
+
+    candidate: ThreatCandidate
+    threats_countered: tuple[str, ...]  # to_id species keys credited in merge
+    threats_countered_count: int
+    verified_score: float
+    verified_vs: tuple[tuple[str, MatchupResult], ...]
 
 
 @dataclass(frozen=True)
