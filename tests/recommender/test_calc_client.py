@@ -165,7 +165,20 @@ def test_module_wrappers_use_client():
     get_client.assert_called_with("http://x")
 
 
-def test_calc_service_start_and_stop():
+def test_calculate_forwards_boosts():
+    client = CalcClient("http://127.0.0.1:9")
+    with patch.object(
+        client,
+        "_json_request",
+        return_value=(200, CALC_SUCCESS),
+    ) as req:
+        client.calculate(
+            {**GARCHOMP, "boosts": {"atk": 2}},
+            KINGAMBIT,
+            "Earthquake",
+        )
+    body = req.call_args.args[2]
+    assert body["attacker"]["boosts"] == {"atk": 2}
     proc = MagicMock()
     proc.pid = 4242
     proc.poll.return_value = None
