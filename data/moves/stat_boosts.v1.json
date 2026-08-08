@@ -1,0 +1,927 @@
+{
+  "meta": {
+    "source": "pokemon-showdown/data/moves.ts",
+    "filter": "champions-legal"
+  },
+  "moves": {
+    "acidarmor": {
+      "name": "Acid Armor",
+      "category": "Status",
+      "boosts": {
+        "def": 2
+      },
+      "target": "self"
+    },
+    "acidspray": {
+      "name": "Acid Spray",
+      "category": "Special",
+      "boosts": {
+        "spd": -2
+      },
+      "target": "normal"
+    },
+    "agility": {
+      "name": "Agility",
+      "category": "Status",
+      "boosts": {
+        "spe": 2
+      },
+      "target": "self"
+    },
+    "amnesia": {
+      "name": "Amnesia",
+      "category": "Status",
+      "boosts": {
+        "spd": 2
+      },
+      "target": "self"
+    },
+    "ancientpower": {
+      "name": "Ancient Power",
+      "category": "Special",
+      "boosts": {
+        "atk": 1,
+        "def": 1,
+        "spa": 1,
+        "spd": 1,
+        "spe": 1
+      },
+      "target": "normal"
+    },
+    "appleacid": {
+      "name": "Apple Acid",
+      "category": "Special",
+      "boosts": {
+        "spd": -1
+      },
+      "target": "normal"
+    },
+    "aquastep": {
+      "name": "Aqua Step",
+      "category": "Physical",
+      "boosts": {
+        "spe": 1
+      },
+      "target": "normal"
+    },
+    "armorcannon": {
+      "name": "Armor Cannon",
+      "category": "Special",
+      "boosts": {
+        "def": -1,
+        "spd": -1
+      },
+      "target": "normal"
+    },
+    "aromaticmist": {
+      "name": "Aromatic Mist",
+      "category": "Status",
+      "boosts": {
+        "spd": 1
+      },
+      "target": "adjacentAlly"
+    },
+    "aurawheel": {
+      "name": "Aura Wheel",
+      "category": "Physical",
+      "boosts": {
+        "spe": 1
+      },
+      "target": "normal"
+    },
+    "babydolleyes": {
+      "name": "Baby-Doll Eyes",
+      "category": "Status",
+      "boosts": {
+        "atk": -1
+      },
+      "target": "normal"
+    },
+    "bittermalice": {
+      "name": "Bitter Malice",
+      "category": "Special",
+      "boosts": {
+        "atk": -1
+      },
+      "target": "normal"
+    },
+    "breakingswipe": {
+      "name": "Breaking Swipe",
+      "category": "Physical",
+      "boosts": {
+        "atk": -1
+      },
+      "target": "allAdjacentFoes"
+    },
+    "bugbuzz": {
+      "name": "Bug Buzz",
+      "category": "Special",
+      "boosts": {
+        "spd": -1
+      },
+      "target": "normal"
+    },
+    "bulkup": {
+      "name": "Bulk Up",
+      "category": "Status",
+      "boosts": {
+        "atk": 1,
+        "def": 1
+      },
+      "target": "self"
+    },
+    "bulldoze": {
+      "name": "Bulldoze",
+      "category": "Physical",
+      "boosts": {
+        "spe": -1
+      },
+      "target": "allAdjacent"
+    },
+    "calmmind": {
+      "name": "Calm Mind",
+      "category": "Status",
+      "boosts": {
+        "spa": 1,
+        "spd": 1
+      },
+      "target": "self"
+    },
+    "charge": {
+      "name": "Charge",
+      "category": "Status",
+      "boosts": {
+        "spd": 1
+      },
+      "target": "self"
+    },
+    "chargebeam": {
+      "name": "Charge Beam",
+      "category": "Special",
+      "boosts": {
+        "spa": 1
+      },
+      "target": "normal"
+    },
+    "charm": {
+      "name": "Charm",
+      "category": "Status",
+      "boosts": {
+        "atk": -2
+      },
+      "target": "normal"
+    },
+    "chillingwater": {
+      "name": "Chilling Water",
+      "category": "Special",
+      "boosts": {
+        "atk": -1
+      },
+      "target": "normal"
+    },
+    "clangingscales": {
+      "name": "Clanging Scales",
+      "category": "Special",
+      "boosts": {
+        "def": -1
+      },
+      "target": "allAdjacentFoes"
+    },
+    "clangoroussoul": {
+      "name": "Clangorous Soul",
+      "category": "Status",
+      "boosts": {
+        "atk": 1,
+        "def": 1,
+        "spa": 1,
+        "spd": 1,
+        "spe": 1
+      },
+      "target": "self"
+    },
+    "closecombat": {
+      "name": "Close Combat",
+      "category": "Physical",
+      "boosts": {
+        "def": -1,
+        "spd": -1
+      },
+      "target": "normal"
+    },
+    "coaching": {
+      "name": "Coaching",
+      "category": "Status",
+      "boosts": {
+        "atk": 1,
+        "def": 1
+      },
+      "target": "adjacentAlly"
+    },
+    "coil": {
+      "name": "Coil",
+      "category": "Status",
+      "boosts": {
+        "atk": 1,
+        "def": 1,
+        "accuracy": 1
+      },
+      "target": "self"
+    },
+    "cosmicpower": {
+      "name": "Cosmic Power",
+      "category": "Status",
+      "boosts": {
+        "def": 1,
+        "spd": 1
+      },
+      "target": "self"
+    },
+    "cottonguard": {
+      "name": "Cotton Guard",
+      "category": "Status",
+      "boosts": {
+        "def": 3
+      },
+      "target": "self"
+    },
+    "cottonspore": {
+      "name": "Cotton Spore",
+      "category": "Status",
+      "boosts": {
+        "spe": -2
+      },
+      "target": "allAdjacentFoes"
+    },
+    "crunch": {
+      "name": "Crunch",
+      "category": "Physical",
+      "boosts": {
+        "def": -1
+      },
+      "target": "normal"
+    },
+    "crushclaw": {
+      "name": "Crush Claw",
+      "category": "Physical",
+      "boosts": {
+        "def": -1
+      },
+      "target": "normal"
+    },
+    "curse": {
+      "name": "Curse",
+      "category": "Status",
+      "boosts": {
+        "spe": -1,
+        "atk": 1,
+        "def": 1
+      },
+      "target": "normal"
+    },
+    "decorate": {
+      "name": "Decorate",
+      "category": "Status",
+      "boosts": {
+        "atk": 2,
+        "spa": 2
+      },
+      "target": "normal"
+    },
+    "doubleteam": {
+      "name": "Double Team",
+      "category": "Status",
+      "boosts": {
+        "evasion": 1
+      },
+      "target": "self"
+    },
+    "dracometeor": {
+      "name": "Draco Meteor",
+      "category": "Special",
+      "boosts": {
+        "spa": -2
+      },
+      "target": "normal"
+    },
+    "dragondance": {
+      "name": "Dragon Dance",
+      "category": "Status",
+      "boosts": {
+        "atk": 1,
+        "spe": 1
+      },
+      "target": "self"
+    },
+    "earthpower": {
+      "name": "Earth Power",
+      "category": "Special",
+      "boosts": {
+        "spd": -1
+      },
+      "target": "normal"
+    },
+    "eerieimpulse": {
+      "name": "Eerie Impulse",
+      "category": "Status",
+      "boosts": {
+        "spa": -2
+      },
+      "target": "normal"
+    },
+    "electroweb": {
+      "name": "Electroweb",
+      "category": "Special",
+      "boosts": {
+        "spe": -1
+      },
+      "target": "allAdjacentFoes"
+    },
+    "energyball": {
+      "name": "Energy Ball",
+      "category": "Special",
+      "boosts": {
+        "spd": -1
+      },
+      "target": "normal"
+    },
+    "faketears": {
+      "name": "Fake Tears",
+      "category": "Status",
+      "boosts": {
+        "spd": -2
+      },
+      "target": "normal"
+    },
+    "featherdance": {
+      "name": "Feather Dance",
+      "category": "Status",
+      "boosts": {
+        "atk": -2
+      },
+      "target": "normal"
+    },
+    "fierydance": {
+      "name": "Fiery Dance",
+      "category": "Special",
+      "boosts": {
+        "spa": 1
+      },
+      "target": "normal"
+    },
+    "firelash": {
+      "name": "Fire Lash",
+      "category": "Physical",
+      "boosts": {
+        "def": -1
+      },
+      "target": "normal"
+    },
+    "flamecharge": {
+      "name": "Flame Charge",
+      "category": "Physical",
+      "boosts": {
+        "spe": 1
+      },
+      "target": "normal"
+    },
+    "flashcannon": {
+      "name": "Flash Cannon",
+      "category": "Special",
+      "boosts": {
+        "spd": -1
+      },
+      "target": "normal"
+    },
+    "flatter": {
+      "name": "Flatter",
+      "category": "Status",
+      "boosts": {
+        "spa": 1
+      },
+      "target": "normal"
+    },
+    "focusblast": {
+      "name": "Focus Blast",
+      "category": "Special",
+      "boosts": {
+        "spd": -1
+      },
+      "target": "normal"
+    },
+    "gravapple": {
+      "name": "Grav Apple",
+      "category": "Physical",
+      "boosts": {
+        "def": -1
+      },
+      "target": "normal"
+    },
+    "growth": {
+      "name": "Growth",
+      "category": "Status",
+      "boosts": {
+        "atk": 1,
+        "spa": 1
+      },
+      "target": "self"
+    },
+    "hammerarm": {
+      "name": "Hammer Arm",
+      "category": "Physical",
+      "boosts": {
+        "spe": -1
+      },
+      "target": "normal"
+    },
+    "headlongrush": {
+      "name": "Headlong Rush",
+      "category": "Physical",
+      "boosts": {
+        "def": -1,
+        "spd": -1
+      },
+      "target": "normal"
+    },
+    "howl": {
+      "name": "Howl",
+      "category": "Status",
+      "boosts": {
+        "atk": 1
+      },
+      "target": "allies"
+    },
+    "icehammer": {
+      "name": "Ice Hammer",
+      "category": "Physical",
+      "boosts": {
+        "spe": -1
+      },
+      "target": "normal"
+    },
+    "icywind": {
+      "name": "Icy Wind",
+      "category": "Special",
+      "boosts": {
+        "spe": -1
+      },
+      "target": "allAdjacentFoes"
+    },
+    "irondefense": {
+      "name": "Iron Defense",
+      "category": "Status",
+      "boosts": {
+        "def": 2
+      },
+      "target": "self"
+    },
+    "irontail": {
+      "name": "Iron Tail",
+      "category": "Physical",
+      "boosts": {
+        "def": -1
+      },
+      "target": "normal"
+    },
+    "leafstorm": {
+      "name": "Leaf Storm",
+      "category": "Special",
+      "boosts": {
+        "spa": -2
+      },
+      "target": "normal"
+    },
+    "liquidation": {
+      "name": "Liquidation",
+      "category": "Physical",
+      "boosts": {
+        "def": -1
+      },
+      "target": "normal"
+    },
+    "lowsweep": {
+      "name": "Low Sweep",
+      "category": "Physical",
+      "boosts": {
+        "spe": -1
+      },
+      "target": "normal"
+    },
+    "luminacrash": {
+      "name": "Lumina Crash",
+      "category": "Special",
+      "boosts": {
+        "spd": -2
+      },
+      "target": "normal"
+    },
+    "lunge": {
+      "name": "Lunge",
+      "category": "Physical",
+      "boosts": {
+        "atk": -1
+      },
+      "target": "normal"
+    },
+    "makeitrain": {
+      "name": "Make It Rain",
+      "category": "Special",
+      "boosts": {
+        "spa": -1
+      },
+      "target": "allAdjacentFoes"
+    },
+    "memento": {
+      "name": "Memento",
+      "category": "Status",
+      "boosts": {
+        "atk": -2,
+        "spa": -2
+      },
+      "target": "normal"
+    },
+    "metalsound": {
+      "name": "Metal Sound",
+      "category": "Status",
+      "boosts": {
+        "spd": -2
+      },
+      "target": "normal"
+    },
+    "meteormash": {
+      "name": "Meteor Mash",
+      "category": "Physical",
+      "boosts": {
+        "atk": 1
+      },
+      "target": "normal"
+    },
+    "minimize": {
+      "name": "Minimize",
+      "category": "Status",
+      "boosts": {
+        "evasion": 2
+      },
+      "target": "self"
+    },
+    "moonblast": {
+      "name": "Moonblast",
+      "category": "Special",
+      "boosts": {
+        "spa": -1
+      },
+      "target": "normal"
+    },
+    "muddywater": {
+      "name": "Muddy Water",
+      "category": "Special",
+      "boosts": {
+        "accuracy": -1
+      },
+      "target": "allAdjacentFoes"
+    },
+    "mudshot": {
+      "name": "Mud Shot",
+      "category": "Special",
+      "boosts": {
+        "spe": -1
+      },
+      "target": "normal"
+    },
+    "mudslap": {
+      "name": "Mud-Slap",
+      "category": "Special",
+      "boosts": {
+        "accuracy": -1
+      },
+      "target": "normal"
+    },
+    "mysticalfire": {
+      "name": "Mystical Fire",
+      "category": "Special",
+      "boosts": {
+        "spa": -1
+      },
+      "target": "normal"
+    },
+    "nastyplot": {
+      "name": "Nasty Plot",
+      "category": "Status",
+      "boosts": {
+        "spa": 2
+      },
+      "target": "self"
+    },
+    "nightdaze": {
+      "name": "Night Daze",
+      "category": "Special",
+      "boosts": {
+        "accuracy": -1
+      },
+      "target": "normal"
+    },
+    "nobleroar": {
+      "name": "Noble Roar",
+      "category": "Status",
+      "boosts": {
+        "atk": -1,
+        "spa": -1
+      },
+      "target": "normal"
+    },
+    "noretreat": {
+      "name": "No Retreat",
+      "category": "Status",
+      "boosts": {
+        "atk": 1,
+        "def": 1,
+        "spa": 1,
+        "spd": 1,
+        "spe": 1
+      },
+      "target": "self"
+    },
+    "overheat": {
+      "name": "Overheat",
+      "category": "Special",
+      "boosts": {
+        "spa": -2
+      },
+      "target": "normal"
+    },
+    "playrough": {
+      "name": "Play Rough",
+      "category": "Physical",
+      "boosts": {
+        "atk": -1
+      },
+      "target": "normal"
+    },
+    "pounce": {
+      "name": "Pounce",
+      "category": "Physical",
+      "boosts": {
+        "spe": -1
+      },
+      "target": "normal"
+    },
+    "psychic": {
+      "name": "Psychic",
+      "category": "Special",
+      "boosts": {
+        "spd": -1
+      },
+      "target": "normal"
+    },
+    "psyshieldbash": {
+      "name": "Psyshield Bash",
+      "category": "Physical",
+      "boosts": {
+        "def": 1
+      },
+      "target": "normal"
+    },
+    "quiverdance": {
+      "name": "Quiver Dance",
+      "category": "Status",
+      "boosts": {
+        "spa": 1,
+        "spd": 1,
+        "spe": 1
+      },
+      "target": "self"
+    },
+    "rapidspin": {
+      "name": "Rapid Spin",
+      "category": "Physical",
+      "boosts": {
+        "spe": 1
+      },
+      "target": "normal"
+    },
+    "razorshell": {
+      "name": "Razor Shell",
+      "category": "Physical",
+      "boosts": {
+        "def": -1
+      },
+      "target": "normal"
+    },
+    "rockpolish": {
+      "name": "Rock Polish",
+      "category": "Status",
+      "boosts": {
+        "spe": 2
+      },
+      "target": "self"
+    },
+    "rocktomb": {
+      "name": "Rock Tomb",
+      "category": "Physical",
+      "boosts": {
+        "spe": -1
+      },
+      "target": "normal"
+    },
+    "scaleshot": {
+      "name": "Scale Shot",
+      "category": "Physical",
+      "boosts": {
+        "def": -1,
+        "spe": 1
+      },
+      "target": "normal"
+    },
+    "scaryface": {
+      "name": "Scary Face",
+      "category": "Status",
+      "boosts": {
+        "spe": -2
+      },
+      "target": "normal"
+    },
+    "screech": {
+      "name": "Screech",
+      "category": "Status",
+      "boosts": {
+        "def": -2
+      },
+      "target": "normal"
+    },
+    "shadowball": {
+      "name": "Shadow Ball",
+      "category": "Special",
+      "boosts": {
+        "spd": -1
+      },
+      "target": "normal"
+    },
+    "shellsmash": {
+      "name": "Shell Smash",
+      "category": "Status",
+      "boosts": {
+        "def": -1,
+        "spd": -1,
+        "atk": 2,
+        "spa": 2,
+        "spe": 2
+      },
+      "target": "self"
+    },
+    "shelter": {
+      "name": "Shelter",
+      "category": "Status",
+      "boosts": {
+        "def": 2
+      },
+      "target": "self"
+    },
+    "skittersmack": {
+      "name": "Skitter Smack",
+      "category": "Physical",
+      "boosts": {
+        "spa": -1
+      },
+      "target": "normal"
+    },
+    "snarl": {
+      "name": "Snarl",
+      "category": "Special",
+      "boosts": {
+        "spa": -1
+      },
+      "target": "allAdjacentFoes"
+    },
+    "spicyextract": {
+      "name": "Spicy Extract",
+      "category": "Status",
+      "boosts": {
+        "atk": 2,
+        "def": -2
+      },
+      "target": "normal"
+    },
+    "spiritbreak": {
+      "name": "Spirit Break",
+      "category": "Physical",
+      "boosts": {
+        "spa": -1
+      },
+      "target": "normal"
+    },
+    "steelwing": {
+      "name": "Steel Wing",
+      "category": "Physical",
+      "boosts": {
+        "def": 1
+      },
+      "target": "normal"
+    },
+    "stringshot": {
+      "name": "String Shot",
+      "category": "Status",
+      "boosts": {
+        "spe": -2
+      },
+      "target": "allAdjacentFoes"
+    },
+    "strugglebug": {
+      "name": "Struggle Bug",
+      "category": "Special",
+      "boosts": {
+        "spa": -1
+      },
+      "target": "allAdjacentFoes"
+    },
+    "superpower": {
+      "name": "Superpower",
+      "category": "Physical",
+      "boosts": {
+        "atk": -1,
+        "def": -1
+      },
+      "target": "normal"
+    },
+    "swagger": {
+      "name": "Swagger",
+      "category": "Status",
+      "boosts": {
+        "atk": 2
+      },
+      "target": "normal"
+    },
+    "sweetscent": {
+      "name": "Sweet Scent",
+      "category": "Status",
+      "boosts": {
+        "evasion": -2
+      },
+      "target": "allAdjacentFoes"
+    },
+    "swordsdance": {
+      "name": "Swords Dance",
+      "category": "Status",
+      "boosts": {
+        "atk": 2
+      },
+      "target": "self"
+    },
+    "tearfullook": {
+      "name": "Tearful Look",
+      "category": "Status",
+      "boosts": {
+        "atk": -1,
+        "spa": -1
+      },
+      "target": "normal"
+    },
+    "tickle": {
+      "name": "Tickle",
+      "category": "Status",
+      "boosts": {
+        "atk": -1,
+        "def": -1
+      },
+      "target": "normal"
+    },
+    "torchsong": {
+      "name": "Torch Song",
+      "category": "Special",
+      "boosts": {
+        "spa": 1
+      },
+      "target": "normal"
+    },
+    "toxicthread": {
+      "name": "Toxic Thread",
+      "category": "Status",
+      "boosts": {
+        "spe": -1
+      },
+      "target": "normal"
+    },
+    "trailblaze": {
+      "name": "Trailblaze",
+      "category": "Physical",
+      "boosts": {
+        "spe": 1
+      },
+      "target": "normal"
+    },
+    "triplearrows": {
+      "name": "Triple Arrows",
+      "category": "Physical",
+      "boosts": {
+        "def": -1
+      },
+      "target": "normal"
+    },
+    "tropkick": {
+      "name": "Trop Kick",
+      "category": "Physical",
+      "boosts": {
+        "atk": -1
+      },
+      "target": "normal"
+    }
+  }
+}
