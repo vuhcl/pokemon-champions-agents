@@ -1,0 +1,1487 @@
+{
+  "category": "swords_dance_attacker",
+  "condition": "",
+  "built_at": "2026-08-08T00:34:01.890562+00:00",
+  "sub_criteria": {
+    "kind": "setup_attacker",
+    "condition": "",
+    "move_id": "swordsdance",
+    "boost_stat": "atk",
+    "boost_stages": 2
+  },
+  "tiers": {
+    "Excellent": [
+      "Absol-Mega",
+      "Blaziken-Mega",
+      "Gallade-Mega",
+      "Kingambit",
+      "Mawile-Mega",
+      "Mimikyu",
+      "Skarmory-Mega"
+    ],
+    "Good": [
+      "Absol",
+      "Aegislash",
+      "Beedrill-Mega",
+      "Blaziken",
+      "Excadrill-Mega",
+      "Feraligatr",
+      "Feraligatr-Mega",
+      "Garchomp",
+      "Pinsir-Mega"
+    ],
+    "Acceptable": [
+      "Ceruledge",
+      "Charizard-Mega-X",
+      "Decidueye",
+      "Garchomp-Mega",
+      "Heracross-Mega",
+      "Leafeon",
+      "Overqwil",
+      "Scizor",
+      "Scizor-Mega",
+      "Scrafty-Mega"
+    ]
+  },
+  "notes": [
+    "delivery move locked by self +2 atk-only Status rule \u2192 swordsdance",
+    "threat_panel=usage_informed (Garchomp/Life Orb, Garchomp-Mega/Garchompite, Incineroar/Sitrus Berry, Kingambit/Black Glasses, Sinistcha/Sitrus Berry, Charizard/Life Orb, Charizard-Mega-X/Charizardite X, Charizard-Mega-Y/Charizardite Y)",
+    "Showdown attribution (Skarmory/Skarmory-Mega): base discounted",
+    "Showdown attribution (Lopunny/Lopunny-Mega): base discounted",
+    "Showdown attribution (Meganium/Meganium-Mega): base discounted",
+    "Showdown attribution (Barbaracle/Barbaracle-Mega): base discounted",
+    "Showdown attribution (Beedrill/Beedrill-Mega): base discounted",
+    "Showdown attribution (Heracross/Heracross-Mega): base discounted",
+    "Showdown attribution (Falinks/Falinks-Mega): base discounted",
+    "Showdown attribution (Mawile/Mawile-Mega): base discounted",
+    "Showdown attribution (Victreebel/Victreebel-Mega): base discounted",
+    "Showdown attribution (Chesnaught/Chesnaught-Mega): base discounted",
+    "Showdown attribution (Scrafty/Scrafty-Mega): base discounted",
+    "Showdown attribution (Sceptile/Sceptile-Mega): base discounted",
+    "Showdown attribution (Banette/Banette-Mega): base discounted",
+    "Showdown attribution (Scolipede/Scolipede-Mega): base discounted",
+    "Showdown attribution (Pinsir/Pinsir-Mega): base discounted",
+    "Showdown attribution (Abomasnow/Abomasnow-Mega): base discounted",
+    "Excellent damage floor = 2nd-highest adjusted \u00d7 0.95 \u2192 1.156 (top: Kingambit=1.571, Gallade-Mega=1.217)",
+    "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.809"
+  ],
+  "candidates": [
+    {
+      "species": "Absol",
+      "species_id": "absol",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.090 raw=0.807 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Sucker Punch",
+        "calc_species": "Absol",
+        "damage_score_raw": "0.807",
+        "damage_score": "1.090",
+        "score_boosts": "priority_x1.35"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Sucker Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.090 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 1.090 (floor 1.156); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Absol-Mega",
+      "species_id": "absolmega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.191 raw=0.882 floor=1.156 excellent_exec=True",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Sucker Punch",
+        "calc_species": "Absol-Mega",
+        "damage_score_raw": "0.882",
+        "damage_score": "1.191",
+        "score_boosts": "priority_x1.35"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Sucker Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.191 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Excellent: branches=A; calc 1.191 (floor 1.156); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_branch_a"
+    },
+    {
+      "species": "Aegislash",
+      "species_id": "aegislash",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.920 raw=0.491 floor=1.156 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A+B",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Shadow Sneak",
+        "calc_species": "Aegislash-Blade",
+        "damage_score_raw": "0.491",
+        "damage_score": "0.920",
+        "score_boosts": "priority_x1.5+both_div_0.8"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Shadow Sneak",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.920 vs panel; branches=A+B"
+        },
+        {
+          "name": "Stance Change",
+          "criterion": "secondary_role",
+          "purpose_claimed": "high-impact ability secondary (reliability\u00d7impact)"
+        }
+      ],
+      "reasoning": "Good: branches=A+B; calc 0.920 (floor 1.156); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "good_calc_both_branches"
+    },
+    {
+      "species": "Beedrill-Mega",
+      "species_id": "beedrillmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.041 raw=1.041 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Poison Jab",
+        "calc_species": "Beedrill-Mega",
+        "damage_score_raw": "1.041",
+        "damage_score": "1.041",
+        "score_boosts": "none",
+        "calc_error": "Kingambit:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Poison Jab",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.041 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 1.041 (floor 1.156); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Blaziken",
+      "species_id": "blaziken",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.130 raw=1.130 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Close Combat",
+        "calc_species": "Blaziken",
+        "damage_score_raw": "1.130",
+        "damage_score": "1.130",
+        "score_boosts": "none",
+        "calc_error": "Sinistcha:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.130 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 1.130 (floor 1.156); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Blaziken-Mega",
+      "species_id": "blazikenmega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.210 raw=1.210 floor=1.156 excellent_exec=True",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Close Combat",
+        "calc_species": "Blaziken-Mega",
+        "damage_score_raw": "1.210",
+        "damage_score": "1.210",
+        "score_boosts": "none",
+        "calc_error": "Sinistcha:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.210 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Excellent: branches=A; calc 1.210 (floor 1.156); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_branch_a"
+    },
+    {
+      "species": "Ceruledge",
+      "species_id": "ceruledge",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.680 raw=0.454 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Shadow Sneak",
+        "calc_species": "Ceruledge",
+        "damage_score_raw": "0.454",
+        "damage_score": "0.680",
+        "score_boosts": "priority_x1.5"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Shadow Sneak",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.680 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.680 (floor 1.156); secondary=False",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.680, branches=A)",
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Charizard-Mega-X",
+      "species_id": "charizardmegax",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.699 raw=0.699 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Dragon Claw",
+        "calc_species": "Charizard-Mega-X",
+        "damage_score_raw": "0.699",
+        "damage_score": "0.699",
+        "score_boosts": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Dragon Claw",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.699 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.699 (floor 1.156); secondary=False",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.699, branches=A)",
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Decidueye",
+      "species_id": "decidueye",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.635 raw=0.470 floor=1.156 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Sucker Punch",
+        "calc_species": "Decidueye",
+        "damage_score_raw": "0.470",
+        "damage_score": "0.635",
+        "score_boosts": "priority_x1.35"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Sucker Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.635 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.635 (floor 1.156); secondary=True",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.635, branches=A)",
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Excadrill-Mega",
+      "species_id": "excadrillmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.099 raw=1.099 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "High Horsepower",
+        "calc_species": "Excadrill-Mega",
+        "damage_score_raw": "1.099",
+        "damage_score": "1.099",
+        "score_boosts": "none",
+        "calc_error": "Charizard:damage[damage.length - 1] === 0.;Charizard-Mega-Y:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "High Horsepower",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.099 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 1.099 (floor 1.156); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Feraligatr",
+      "species_id": "feraligatr",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.869 raw=0.579 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Aqua Jet",
+        "calc_species": "Feraligatr",
+        "damage_score_raw": "0.579",
+        "damage_score": "0.869",
+        "score_boosts": "priority_x1.5"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Aqua Jet",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.869 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 0.869 (floor 1.156); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Feraligatr-Mega",
+      "species_id": "feraligatrmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.064 raw=0.709 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Aqua Jet",
+        "calc_species": "Feraligatr-Mega",
+        "damage_score_raw": "0.709",
+        "damage_score": "1.064",
+        "score_boosts": "priority_x1.5"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Aqua Jet",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.064 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 1.064 (floor 1.156); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Gallade-Mega",
+      "species_id": "gallademega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.217 raw=1.217 floor=1.156 excellent_exec=True",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Close Combat",
+        "calc_species": "Gallade-Mega",
+        "damage_score_raw": "1.217",
+        "damage_score": "1.217",
+        "score_boosts": "none",
+        "calc_error": "Sinistcha:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.217 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Excellent: branches=A; calc 1.217 (floor 1.156); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "calc_branch_a"
+    },
+    {
+      "species": "Garchomp",
+      "species_id": "garchomp",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.013 raw=1.013 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Dragon Claw",
+        "calc_species": "Garchomp",
+        "damage_score_raw": "1.013",
+        "damage_score": "1.013",
+        "score_boosts": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Dragon Claw",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.013 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 1.013 (floor 1.156); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Garchomp-Mega",
+      "species_id": "garchompmega",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.557 raw=0.557 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "B",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Stomping Tantrum",
+        "calc_species": "Garchomp-Mega",
+        "damage_score_raw": "0.557",
+        "damage_score": "0.557",
+        "score_boosts": "none",
+        "calc_error": "Charizard:damage[damage.length - 1] === 0.;Charizard-Mega-Y:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Stomping Tantrum",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.557 vs panel; branches=B"
+        }
+      ],
+      "reasoning": "Acceptable: branches=B; calc 0.557 (floor 1.156); secondary=False",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.557, branches=B)",
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_b"
+    },
+    {
+      "species": "Heracross-Mega",
+      "species_id": "heracrossmega",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.363 raw=0.363 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Lunge",
+        "calc_species": "Heracross-Mega",
+        "damage_score_raw": "0.363",
+        "damage_score": "0.363",
+        "score_boosts": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Lunge",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.363 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.363 (floor 1.156); secondary=False",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.363, branches=A)",
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Kingambit",
+      "species_id": "kingambit",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.571 raw=0.931 floor=1.156 excellent_exec=True",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A+B",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Sucker Punch",
+        "calc_species": "Kingambit",
+        "damage_score_raw": "0.931",
+        "damage_score": "1.571",
+        "score_boosts": "priority_x1.35+both_div_0.8"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Sucker Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.571 vs panel; branches=A+B"
+        },
+        {
+          "name": "Defiant",
+          "criterion": "secondary_role",
+          "purpose_claimed": "high-impact ability secondary (reliability\u00d7impact)"
+        }
+      ],
+      "reasoning": "Excellent: branches=A+B; calc 1.571 (floor 1.156); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "calc_both_branches"
+    },
+    {
+      "species": "Leafeon",
+      "species_id": "leafeon",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.416 raw=0.277 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Quick Attack",
+        "calc_species": "Leafeon",
+        "damage_score_raw": "0.277",
+        "damage_score": "0.416",
+        "score_boosts": "priority_x1.5",
+        "calc_error": "Sinistcha:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Quick Attack",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.416 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.416 (floor 1.156); secondary=False",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.416, branches=A)",
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Mawile-Mega",
+      "species_id": "mawilemega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.213 raw=0.898 floor=1.156 excellent_exec=True",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Sucker Punch",
+        "calc_species": "Mawile-Mega",
+        "damage_score_raw": "0.898",
+        "damage_score": "1.213",
+        "score_boosts": "priority_x1.35"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Sucker Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.213 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Excellent: branches=A; calc 1.213 (floor 1.156); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_branch_a"
+    },
+    {
+      "species": "Mimikyu",
+      "species_id": "mimikyu",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.191 raw=0.953 floor=1.156 excellent_exec=True",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A+B",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Play Rough",
+        "calc_species": "Mimikyu",
+        "damage_score_raw": "0.953",
+        "damage_score": "1.191",
+        "score_boosts": "both_div_0.8"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Play Rough",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.191 vs panel; branches=A+B"
+        }
+      ],
+      "reasoning": "Excellent: branches=A+B; calc 1.191 (floor 1.156); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "calc_both_branches"
+    },
+    {
+      "species": "Overqwil",
+      "species_id": "overqwil",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.307 raw=0.307 floor=1.156 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Gunk Shot",
+        "calc_species": "Overqwil",
+        "damage_score_raw": "0.307",
+        "damage_score": "0.307",
+        "score_boosts": "none",
+        "calc_error": "Kingambit:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Gunk Shot",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.307 vs panel; branches=A"
+        },
+        {
+          "name": "Intimidate",
+          "criterion": "secondary_role",
+          "purpose_claimed": "high-impact ability secondary (reliability\u00d7impact)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.307 (floor 1.156); secondary=True",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.307, branches=A)",
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Pinsir-Mega",
+      "species_id": "pinsirmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.138 raw=1.138 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Body Slam",
+        "calc_species": "Pinsir-Mega",
+        "damage_score_raw": "1.138",
+        "damage_score": "1.138",
+        "score_boosts": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Body Slam",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.138 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 1.138 (floor 1.156); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Scizor",
+      "species_id": "scizor",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.466 raw=0.310 floor=1.156 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Bullet Punch",
+        "calc_species": "Scizor",
+        "damage_score_raw": "0.310",
+        "damage_score": "0.466",
+        "score_boosts": "priority_x1.5"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Bullet Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.466 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.466 (floor 1.156); secondary=False",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.466, branches=A)",
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Scizor-Mega",
+      "species_id": "scizormega",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.768 raw=0.512 floor=1.156 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Bullet Punch",
+        "calc_species": "Scizor-Mega",
+        "damage_score_raw": "0.512",
+        "damage_score": "0.768",
+        "score_boosts": "priority_x1.5"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Bullet Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.768 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.768 (floor 1.156); secondary=True",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.768, branches=A)",
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Scrafty-Mega",
+      "species_id": "scraftymega",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.581 raw=0.310 floor=1.156 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A+B",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Fake Out",
+        "calc_species": "Scrafty-Mega",
+        "damage_score_raw": "0.310",
+        "damage_score": "0.581",
+        "score_boosts": "priority_x1.5+both_div_0.8",
+        "calc_error": "Sinistcha:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Fake Out",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.581 vs panel; branches=A+B"
+        },
+        {
+          "name": "Intimidate",
+          "criterion": "secondary_role",
+          "purpose_claimed": "high-impact ability secondary (reliability\u00d7impact)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A+B; calc 0.581 (floor 1.156); secondary=True",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.581, branches=A+B)",
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "acceptable_calc_both_branches"
+    },
+    {
+      "species": "Skarmory-Mega",
+      "species_id": "skarmorymega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.157 raw=1.157 floor=1.156 excellent_exec=True",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Brave Bird",
+        "calc_species": "Skarmory-Mega",
+        "damage_score_raw": "1.157",
+        "damage_score": "1.157",
+        "score_boosts": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Brave Bird",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.157 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Excellent: branches=A; calc 1.157 (floor 1.156); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "calc_branch_a"
+    }
+  ],
+  "considered_rejected": [
+    {
+      "species": "Abomasnow",
+      "species_id": "abomasnow",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Abomasnow-Mega",
+      "species_id": "abomasnowmega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Aegislash-Blade",
+      "species_id": "aegislashblade",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Archaludon",
+      "species_id": "archaludon",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Ariados",
+      "species_id": "ariados",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Banette",
+      "species_id": "banette",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Banette-Mega",
+      "species_id": "banettemega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Barbaracle",
+      "species_id": "barbaracle",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Barbaracle-Mega",
+      "species_id": "barbaraclemega",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Beartic",
+      "species_id": "beartic",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Beedrill",
+      "species_id": "beedrill",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Charizard",
+      "species_id": "charizard",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Charizard-Mega-Y",
+      "species_id": "charizardmegay",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Chesnaught",
+      "species_id": "chesnaught",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Chesnaught-Mega",
+      "species_id": "chesnaughtmega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Clawitzer",
+      "species_id": "clawitzer",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Decidueye-Hisui",
+      "species_id": "decidueyehisui",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Diggersby",
+      "species_id": "diggersby",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Empoleon",
+      "species_id": "empoleon",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Excadrill",
+      "species_id": "excadrill",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Falinks",
+      "species_id": "falinks",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Falinks-Mega",
+      "species_id": "falinksmega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Gallade",
+      "species_id": "gallade",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Gliscor",
+      "species_id": "gliscor",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Greninja",
+      "species_id": "greninja",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Greninja-Mega",
+      "species_id": "greninjamega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Hatterene",
+      "species_id": "hatterene",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Hawlucha",
+      "species_id": "hawlucha",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Hawlucha-Mega",
+      "species_id": "hawluchamega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Heracross",
+      "species_id": "heracross",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Incineroar",
+      "species_id": "incineroar",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Infernape",
+      "species_id": "infernape",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Kleavor",
+      "species_id": "kleavor",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Kommo-o",
+      "species_id": "kommoo",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Lopunny",
+      "species_id": "lopunny",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Lopunny-Mega",
+      "species_id": "lopunnymega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Lucario",
+      "species_id": "lucario",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Lucario-Mega",
+      "species_id": "lucariomega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Lycanroc",
+      "species_id": "lycanroc",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Lycanroc-Dusk",
+      "species_id": "lycanrocdusk",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Lycanroc-Midnight",
+      "species_id": "lycanrocmidnight",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Meganium",
+      "species_id": "meganium",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Meganium-Mega",
+      "species_id": "meganiummega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Pangoro",
+      "species_id": "pangoro",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Pinsir",
+      "species_id": "pinsir",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Quaquaval",
+      "species_id": "quaquaval",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Qwilfish",
+      "species_id": "qwilfish",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Rampardos",
+      "species_id": "rampardos",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Rhyperior",
+      "species_id": "rhyperior",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Roserade",
+      "species_id": "roserade",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Samurott",
+      "species_id": "samurott",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Samurott-Hisui",
+      "species_id": "samurotthisui",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Sceptile",
+      "species_id": "sceptile",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Sceptile-Mega",
+      "species_id": "sceptilemega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Scolipede-Mega",
+      "species_id": "scolipedemega",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Serperior",
+      "species_id": "serperior",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Sneasler",
+      "species_id": "sneasler",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Talonflame",
+      "species_id": "talonflame",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Tinkaton",
+      "species_id": "tinkaton",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Torterra",
+      "species_id": "torterra",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Toucannon",
+      "species_id": "toucannon",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Toxicroak",
+      "species_id": "toxicroak",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Venusaur",
+      "species_id": "venusaur",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Venusaur-Mega",
+      "species_id": "venusaurmega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Victreebel",
+      "species_id": "victreebel",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Victreebel-Mega",
+      "species_id": "victreebelmega",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Vileplume",
+      "species_id": "vileplume",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Watchog",
+      "species_id": "watchog",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Weavile",
+      "species_id": "weavile",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Zoroark",
+      "species_id": "zoroark",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Zoroark-Hisui",
+      "species_id": "zoroarkhisui",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Mawile",
+      "species_id": "mawile",
+      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.013% < 0.25\u00d7 mega 9.452%))",
+      "change_reason": null
+    },
+    {
+      "species": "Scolipede",
+      "species_id": "scolipede",
+      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.092% < 0.25\u00d7 mega 0.576%))",
+      "change_reason": null
+    },
+    {
+      "species": "Scrafty",
+      "species_id": "scrafty",
+      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.740% < 0.25\u00d7 mega 3.642%))",
+      "change_reason": null
+    },
+    {
+      "species": "Skarmory",
+      "species_id": "skarmory",
+      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.038% < 0.25\u00d7 mega 0.304%))",
+      "change_reason": null
+    }
+  ]
+}

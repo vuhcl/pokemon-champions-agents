@@ -1,0 +1,134 @@
+{
+  "category": "weather_setter",
+  "condition": "Sand",
+  "built_at": "2026-08-06T17:41:55.288756+00:00",
+  "sub_criteria": {
+    "kind": "weather_setter",
+    "condition": "Sand",
+    "ability_ids": [
+      "sandstream"
+    ],
+    "move_id": "sandstorm",
+    "priority_abilities": [
+      "prankster"
+    ]
+  },
+  "tiers": {
+    "Excellent": [
+      "Hippowdon",
+      "Tyranitar",
+      "Tyranitar-Mega"
+    ],
+    "Good": [],
+    "Acceptable": []
+  },
+  "notes": [
+    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=3.602 base=1.759; both kept (independent usage)"
+  ],
+  "candidates": [
+    {
+      "species": "Hippowdon",
+      "species_id": "hippowdon",
+      "tier": "Excellent",
+      "delivery_class": "ability",
+      "mechanism": "Sand Stream",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (more reliable than move)",
+        "execution": "automatic on switch-in; no moveslot / priority risk",
+        "secondary_role": "none observed in usage common_moves",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sand Stream",
+          "criterion": "delivery",
+          "purpose_claimed": "set Sand via ability"
+        },
+        {
+          "name": "Sand Stream",
+          "criterion": "execution",
+          "purpose_claimed": "automatic on switch-in; no turn cost"
+        }
+      ],
+      "reasoning": "Sand Stream ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (none observed in usage common_moves; excellent_secondary=False).",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "ability_delivery"
+    },
+    {
+      "species": "Tyranitar",
+      "species_id": "tyranitar",
+      "tier": "Excellent",
+      "delivery_class": "ability",
+      "mechanism": "Sand Stream",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (more reliable than move)",
+        "execution": "automatic on switch-in; no moveslot / priority risk",
+        "secondary_role": "none observed in usage common_moves",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "attribution": "showdown form-separated usage",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sand Stream",
+          "criterion": "delivery",
+          "purpose_claimed": "set Sand via ability"
+        },
+        {
+          "name": "Sand Stream",
+          "criterion": "execution",
+          "purpose_claimed": "automatic on switch-in; no turn cost"
+        }
+      ],
+      "reasoning": "Sand Stream ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (none observed in usage common_moves; excellent_secondary=False).",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "ability_delivery"
+    },
+    {
+      "species": "Tyranitar-Mega",
+      "species_id": "tyranitarmega",
+      "tier": "Excellent",
+      "delivery_class": "ability",
+      "mechanism": "Sand Stream",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (more reliable than move)",
+        "execution": "automatic on switch-in; no moveslot / priority risk",
+        "secondary_role": "none observed in usage common_moves",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "attribution": "showdown form-separated usage",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sand Stream",
+          "criterion": "delivery",
+          "purpose_claimed": "set Sand via ability"
+        },
+        {
+          "name": "Sand Stream",
+          "criterion": "execution",
+          "purpose_claimed": "automatic on switch-in; no turn cost"
+        }
+      ],
+      "reasoning": "Sand Stream ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (none observed in usage common_moves; excellent_secondary=False).",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "ability_delivery"
+    }
+  ],
+  "considered_rejected": [
+    {
+      "species": "Klefki",
+      "species_id": "klefki",
+      "reason": "Prankster+Sandstorm learnset but no usage evidence of Sandstorm delivery",
+      "change_reason": null
+    }
+  ]
+}

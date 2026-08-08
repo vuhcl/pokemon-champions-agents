@@ -1,0 +1,302 @@
+{
+  "category": "weather_setter",
+  "condition": "Rain",
+  "built_at": "2026-08-06T17:41:54.430725+00:00",
+  "sub_criteria": {
+    "kind": "weather_setter",
+    "condition": "Rain",
+    "ability_ids": [
+      "drizzle"
+    ],
+    "move_id": "raindance",
+    "priority_abilities": [
+      "prankster"
+    ]
+  },
+  "tiers": {
+    "Excellent": [
+      "Pelipper",
+      "Politoed"
+    ],
+    "Good": [
+      "Klefki",
+      "Liepard",
+      "Meowstic",
+      "Sableye"
+    ],
+    "Acceptable": []
+  },
+  "notes": [],
+  "candidates": [
+    {
+      "species": "Pelipper",
+      "species_id": "pelipper",
+      "tier": "Excellent",
+      "delivery_class": "ability",
+      "mechanism": "Drizzle",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (more reliable than move)",
+        "execution": "automatic on switch-in; no moveslot / priority risk",
+        "secondary_role": "Tailwind, Helping Hand",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Drizzle",
+          "criterion": "delivery",
+          "purpose_claimed": "set Rain via ability"
+        },
+        {
+          "name": "Drizzle",
+          "criterion": "execution",
+          "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Tailwind",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Drizzle ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Tailwind, Helping Hand; excellent_secondary=True).",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "ability_delivery"
+    },
+    {
+      "species": "Politoed",
+      "species_id": "politoed",
+      "tier": "Excellent",
+      "delivery_class": "ability",
+      "mechanism": "Drizzle",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (more reliable than move)",
+        "execution": "automatic on switch-in; no moveslot / priority risk",
+        "secondary_role": "Encore, Helping Hand",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Drizzle",
+          "criterion": "delivery",
+          "purpose_claimed": "set Rain via ability"
+        },
+        {
+          "name": "Drizzle",
+          "criterion": "execution",
+          "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Drizzle ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Encore, Helping Hand; excellent_secondary=False).",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "ability_delivery"
+    },
+    {
+      "species": "Klefki",
+      "species_id": "klefki",
+      "tier": "Good",
+      "delivery_class": "move_priority",
+      "mechanism": "Rain Dance",
+      "criteria_notes": {
+        "delivery": "move-based (less reliable than ability)",
+        "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
+        "secondary_role": "Light Screen, Reflect, Trick Room",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Rain Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "set Rain via move"
+        },
+        {
+          "name": "Prankster",
+          "criterion": "execution",
+          "purpose_claimed": "priority on status setup move"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Prankster Rain Dance clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Reflect, Trick Room.",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "move_priority"
+    },
+    {
+      "species": "Liepard",
+      "species_id": "liepard",
+      "tier": "Good",
+      "delivery_class": "move_priority",
+      "mechanism": "Rain Dance",
+      "criteria_notes": {
+        "delivery": "move-based (less reliable than ability)",
+        "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
+        "secondary_role": "Encore",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Rain Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "set Rain via move"
+        },
+        {
+          "name": "Prankster",
+          "criterion": "execution",
+          "purpose_claimed": "priority on status setup move"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Prankster Rain Dance clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Encore.",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "move_priority"
+    },
+    {
+      "species": "Meowstic",
+      "species_id": "meowstic",
+      "tier": "Good",
+      "delivery_class": "move_priority",
+      "mechanism": "Rain Dance",
+      "criteria_notes": {
+        "delivery": "move-based (less reliable than ability)",
+        "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
+        "secondary_role": "Light Screen, Reflect, Trick Room",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Rain Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "set Rain via move"
+        },
+        {
+          "name": "Prankster",
+          "criterion": "execution",
+          "purpose_claimed": "priority on status setup move"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Prankster Rain Dance clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Reflect, Trick Room.",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "move_priority"
+    },
+    {
+      "species": "Sableye",
+      "species_id": "sableye",
+      "tier": "Good",
+      "delivery_class": "move_priority",
+      "mechanism": "Rain Dance",
+      "criteria_notes": {
+        "delivery": "move-based (less reliable than ability)",
+        "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
+        "secondary_role": "Light Screen, Encore, Reflect",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Rain Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "set Rain via move"
+        },
+        {
+          "name": "Prankster",
+          "criterion": "execution",
+          "purpose_claimed": "priority on status setup move"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Prankster Rain Dance clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Encore, Reflect.",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "move_priority"
+    }
+  ],
+  "considered_rejected": [
+    {
+      "species": "Banette-Mega",
+      "species_id": "banettemega",
+      "reason": "Prankster+Rain Dance learnset but no usage evidence of Rain Dance delivery",
+      "change_reason": null
+    }
+  ]
+}

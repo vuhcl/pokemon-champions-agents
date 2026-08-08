@@ -1,0 +1,257 @@
+{
+  "category": "weather_setter",
+  "condition": "Snow",
+  "built_at": "2026-08-06T17:41:56.187449+00:00",
+  "sub_criteria": {
+    "kind": "weather_setter",
+    "condition": "Snow",
+    "ability_ids": [
+      "snowwarning"
+    ],
+    "move_id": "snowscape",
+    "priority_abilities": [
+      "prankster"
+    ]
+  },
+  "tiers": {
+    "Excellent": [
+      "Abomasnow-Mega",
+      "Aurorus",
+      "Froslass-Mega",
+      "Ninetales-Alola",
+      "Vanilluxe"
+    ],
+    "Good": [],
+    "Acceptable": [
+      "Abomasnow"
+    ]
+  },
+  "notes": [
+    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.525 base=0.083; base discounted as attribution artifact"
+  ],
+  "candidates": [
+    {
+      "species": "Abomasnow",
+      "species_id": "abomasnow",
+      "tier": "Acceptable",
+      "delivery_class": "ability",
+      "mechanism": "Snow Warning",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (more reliable than move)",
+        "execution": "automatic on switch-in; usage discounted vs Mega form",
+        "secondary_role": "Aurora Veil",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "attribution": "showdown usage discounted (base 0.083% < 0.25\u00d7 mega 0.525%)",
+        "usage_proven": "False"
+      },
+      "claimed_traits": [
+        {
+          "name": "Snow Warning",
+          "criterion": "delivery",
+          "purpose_claimed": "set Snow via ability"
+        },
+        {
+          "name": "Snow Warning",
+          "criterion": "execution",
+          "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Aurora Veil",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Snow Warning clears Acceptable (mech Excellent, Showdown usage discounted; excellent_secondary=False).",
+      "change_reason": "usage discount demote / mech Excellent \u2192 Acceptable (showdown usage discounted (base 0.083% < 0.25\u00d7 mega 0.525%))",
+      "reinforce_class": "",
+      "excellence_basis": "usage_discounted"
+    },
+    {
+      "species": "Abomasnow-Mega",
+      "species_id": "abomasnowmega",
+      "tier": "Excellent",
+      "delivery_class": "ability",
+      "mechanism": "Snow Warning",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (more reliable than move)",
+        "execution": "automatic on switch-in; no moveslot / priority risk",
+        "secondary_role": "none observed in usage common_moves",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "attribution": "showdown form-separated usage",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Snow Warning",
+          "criterion": "delivery",
+          "purpose_claimed": "set Snow via ability"
+        },
+        {
+          "name": "Snow Warning",
+          "criterion": "execution",
+          "purpose_claimed": "automatic on switch-in; no turn cost"
+        }
+      ],
+      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (none observed in usage common_moves; excellent_secondary=False).",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "ability_delivery"
+    },
+    {
+      "species": "Aurorus",
+      "species_id": "aurorus",
+      "tier": "Excellent",
+      "delivery_class": "ability",
+      "mechanism": "Snow Warning",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (more reliable than move)",
+        "execution": "automatic on switch-in; no moveslot / priority risk",
+        "secondary_role": "Aurora Veil",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Snow Warning",
+          "criterion": "delivery",
+          "purpose_claimed": "set Snow via ability"
+        },
+        {
+          "name": "Snow Warning",
+          "criterion": "execution",
+          "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Aurora Veil",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil; excellent_secondary=False).",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "ability_delivery"
+    },
+    {
+      "species": "Froslass-Mega",
+      "species_id": "froslassmega",
+      "tier": "Excellent",
+      "delivery_class": "ability",
+      "mechanism": "Snow Warning",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (more reliable than move)",
+        "execution": "automatic on switch-in; no moveslot / priority risk",
+        "secondary_role": "Aurora Veil",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Snow Warning",
+          "criterion": "delivery",
+          "purpose_claimed": "set Snow via ability"
+        },
+        {
+          "name": "Snow Warning",
+          "criterion": "execution",
+          "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Aurora Veil",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil; excellent_secondary=False).",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "ability_delivery"
+    },
+    {
+      "species": "Ninetales-Alola",
+      "species_id": "ninetalesalola",
+      "tier": "Excellent",
+      "delivery_class": "ability",
+      "mechanism": "Snow Warning",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (more reliable than move)",
+        "execution": "automatic on switch-in; no moveslot / priority risk",
+        "secondary_role": "Aurora Veil, Encore",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Snow Warning",
+          "criterion": "delivery",
+          "purpose_claimed": "set Snow via ability"
+        },
+        {
+          "name": "Snow Warning",
+          "criterion": "execution",
+          "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Aurora Veil",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil, Encore; excellent_secondary=False).",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "ability_delivery"
+    },
+    {
+      "species": "Vanilluxe",
+      "species_id": "vanilluxe",
+      "tier": "Excellent",
+      "delivery_class": "ability",
+      "mechanism": "Snow Warning",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (more reliable than move)",
+        "execution": "automatic on switch-in; no moveslot / priority risk",
+        "secondary_role": "Aurora Veil",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Snow Warning",
+          "criterion": "delivery",
+          "purpose_claimed": "set Snow via ability"
+        },
+        {
+          "name": "Snow Warning",
+          "criterion": "execution",
+          "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Aurora Veil",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil; excellent_secondary=False).",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "ability_delivery"
+    }
+  ],
+  "considered_rejected": []
+}
