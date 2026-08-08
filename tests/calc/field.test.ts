@@ -182,4 +182,20 @@ describe('Field HTTP', () => {
       );
     }
   });
+
+  it('attacker boosts raise Earthquake damage vs unboosted', () => {
+    const plain = runCalculate({
+      attacker: GARCHOMP,
+      defender: KINGAMBIT,
+      move: 'Earthquake',
+      field: {gameType: 'Doubles'},
+    });
+    const boosted = runCalculate({
+      attacker: {...GARCHOMP, boosts: {atk: 2}},
+      defender: KINGAMBIT,
+      move: 'Earthquake',
+      field: {gameType: 'Doubles'},
+    });
+    assert.ok(boosted.damageRange[1] > plain.damageRange[1]);
+  });
 });

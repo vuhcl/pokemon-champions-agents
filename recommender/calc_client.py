@@ -69,6 +69,7 @@ class PokemonSpecOptional(PokemonSpec, total=False):
     nature: str
     evs: StatSpreadJson
     level: int
+    boosts: StatSpreadJson
 
 
 class CalcRequest(TypedDict):

@@ -28,6 +28,8 @@ export type PokemonSpec = {
   evs?: StatSpread;
   /** Accepted but ignored for gen 0 — calc forces level 50. */
   level?: number;
+  /** Stat stages (−6…+6), forwarded to @smogon/calc. */
+  boosts?: StatSpread;
 };
 
 export type SideSpec = Partial<{
@@ -116,6 +118,7 @@ function toPokemon(spec: PokemonSpec): Pokemon {
     moves: spec.moves,
     nature: spec.nature,
     evs: spec.evs,
+    boosts: spec.boosts,
   });
 }
 
