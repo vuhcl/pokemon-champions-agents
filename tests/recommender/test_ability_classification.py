@@ -6,6 +6,7 @@ from recommender.ability_classification import (
     abilities_with_tag,
     actionable_abilities,
     get_ability,
+    hit_triggered_opponent_disrupt_ids,
     load_abilities,
 )
 
@@ -134,3 +135,49 @@ def test_actionable_abilities_live_join():
     assert "notarealabilityxyz" not in found
     data = load_abilities()
     assert found <= set(data["abilities"])
+
+
+# Oracle of description+KO filter over opponent+triggered+disrupt — not a runtime source.
+_HIT_TRIGGERED_OPPONENT_DISRUPT_EXPECTED = frozenset(
+    {
+        "cottondown",
+        "cursedbody",
+        "cutecharm",
+        "effectspore",
+        "flamebody",
+        "gooey",
+        "gulpmissile",
+        "ironbarbs",
+        "lingeringaroma",
+        "mummy",
+        "perishbody",
+        "poisonpoint",
+        "roughskin",
+        "spicyspray",
+        "static",
+        "tanglinghair",
+        "toxicdebris",
+        "wanderingspirit",
+    }
+)
+
+
+def test_hit_triggered_opponent_disrupt_ids():
+    load_abilities.cache_clear()
+    hit_triggered_opponent_disrupt_ids.cache_clear()
+    got = hit_triggered_opponent_disrupt_ids()
+    assert got == _HIT_TRIGGERED_OPPONENT_DISRUPT_EXPECTED
+    assert "spicyspray" in got and "flamebody" in got
+    for excluded in (
+        "baddreams",
+        "aftermath",
+        "innardsout",
+        "synchronize",
+        "magicbounce",
+        "liquidooze",
+        "mirrorarmor",
+        "poisonpuppeteer",
+        "rebound",
+        "teraformzero",
+    ):
+        assert excluded not in got
