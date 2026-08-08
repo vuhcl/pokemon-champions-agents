@@ -1,0 +1,1539 @@
+{
+  "category": "trick_room_setter",
+  "condition": "",
+  "built_at": "2026-08-08T02:14:26.234369+00:00",
+  "sub_criteria": {
+    "kind": "trick_room_setter",
+    "condition": "",
+    "move_ids": [
+      "trickroom"
+    ],
+    "ability_ids": []
+  },
+  "tiers": {
+    "Excellent": [
+      "Farigiraf",
+      "Gallade-Mega",
+      "Oranguru"
+    ],
+    "Good": [
+      "Aromatisse",
+      "Banette-Mega",
+      "Chandelure",
+      "Chandelure-Mega",
+      "Cofagrigus",
+      "Espeon",
+      "Gourgeist",
+      "Gourgeist-Large",
+      "Gourgeist-Small",
+      "Hatterene",
+      "Mimikyu",
+      "Polteageist",
+      "Runerigus",
+      "Sinistcha",
+      "Slowbro",
+      "Slowking",
+      "Spiritomb",
+      "Trevenant"
+    ],
+    "Acceptable": [
+      "Armarouge",
+      "Audino",
+      "Audino-Mega",
+      "Chimecho-Mega",
+      "Gallade",
+      "Gardevoir-Mega",
+      "Klefki",
+      "Malamar",
+      "Malamar-Mega",
+      "Meowstic",
+      "Mr. Rime",
+      "Musharna",
+      "Reuniclus",
+      "Slowbro-Galar",
+      "Slowbro-Mega",
+      "Slowking-Galar",
+      "Wyrdeer"
+    ]
+  },
+  "notes": [
+    "delivery does not differentiate: Trick Room is move-only (no ability sets it) and its priority is fixed at -7, so every candidate resolves last regardless of how it accesses the move",
+    "usage evidence prefers Champions in-game data where a row exists; Showdown is a fallback only for formes with no Champions row",
+    "unproven usage costs two tiers (Excellent \u2192 Acceptable, Good \u2192 out), matching the Showdown-discount demotion rule",
+    "membership requires bulk (HP+Def+SpD) \u2265 210, waived for one-hit absorption (Disguise / Ice Face)",
+    "tiers grade self-provided cover of the shared Fake Out / Taunt exposure: ability flinch denial > Ghost Fake Out immunity or Taunt immunity > none",
+    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.272 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=3.353 base=0.328; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.203 base=0.122; stone-heuristic fallback unused",
+    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=1.150 base=0.392; stone-heuristic fallback unused",
+    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.179 base=0.018; stone-heuristic fallback unused",
+    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=4.563 base=0.019; stone-heuristic fallback unused",
+    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.141 base=0.168; stone-heuristic fallback unused",
+    "Showdown attribution (Chandelure/Chandelure-Mega): mega usage_pct=0.612 base=0.513; stone-heuristic fallback unused",
+    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=1.983 base=0.486; stone-heuristic fallback unused",
+    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.496 base=0.052; stone-heuristic fallback unused",
+    "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.189 base=0.208; stone-heuristic fallback unused",
+    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.085 base=0.100; stone-heuristic fallback unused",
+    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.174 base=1.398; stone-heuristic fallback unused"
+  ],
+  "candidates": [
+    {
+      "species": "Armarouge",
+      "species_id": "armarouge",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=85/100/80; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "265",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Aromatisse",
+      "species_id": "aromatisse",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=101/72/89; self-provided Taunt immunity \u2014 Aroma Veil (This Pokemon and its allies cannot become affected by Attract, Disable, Encore, Heal Block, Taunt, or Torment.)",
+        "secondary_role": "Encore",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "taunt_denial",
+        "bulk": "262",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Aroma Veil",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Taunt immunity; no teammate dependency for the cast"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=taunt_denial, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "taunt_denial"
+    },
+    {
+      "species": "Audino",
+      "species_id": "audino",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=103/86/86; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "Life Dew, Helping Hand, Encore",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "275",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Life Dew",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Audino-Mega",
+      "species_id": "audinomega",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=103/126/126; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "355",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none) / showdown form-separated usage.",
+      "change_reason": "tier 'Good' \u2192 'Acceptable' (showdown form-separated usage)",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Banette-Mega",
+      "species_id": "banettemega",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=64/75/83; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "222",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection) / showdown form-separated usage.",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Chandelure",
+      "species_id": "chandelure",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=60/90/90; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "240",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Chandelure-Mega",
+      "species_id": "chandeluremega",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=60/110/110; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "280",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection) / showdown form-separated usage.",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Chimecho-Mega",
+      "species_id": "chimechomega",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=75/110/120; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "305",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none) / showdown form-separated usage.",
+      "change_reason": "tier 'Good' \u2192 'Acceptable' (showdown form-separated usage)",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Cofagrigus",
+      "species_id": "cofagrigus",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=58/145/105; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "308",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Espeon",
+      "species_id": "espeon",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=65/60/95; self-provided Taunt immunity \u2014 Magic Bounce (This Pokemon is unaffected by certain non-damaging moves directed at it and will instead use such moves against the o...)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "taunt_denial",
+        "bulk": "220",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Magic Bounce",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Taunt immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=taunt_denial, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "taunt_denial"
+    },
+    {
+      "species": "Farigiraf",
+      "species_id": "farigiraf",
+      "tier": "Excellent",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=120/70/70; self-provided flinch denial \u2014 Armor Tail (Priority moves used by opposing Pokemon targeting this Pokemon or its allies are prevented from having an effect.)",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "flinch_denial",
+        "bulk": "260",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Armor Tail",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided flinch denial; no teammate dependency for the cast"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Trick Room clears Excellent (basis=flinch_denial, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "flinch_denial"
+    },
+    {
+      "species": "Gallade",
+      "species_id": "gallade",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=68/65/115; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "248",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Gallade-Mega",
+      "species_id": "gallademega",
+      "tier": "Excellent",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=68/95/115; self-provided flinch denial \u2014 Inner Focus (This Pokemon cannot be made to flinch. This Pokemon is immune to the effect of the Intimidate Ability.)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "flinch_denial",
+        "bulk": "278",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Inner Focus",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided flinch denial; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Excellent (basis=flinch_denial, usage_proven=True, self_protection=self_protection) / showdown form-separated usage.",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "flinch_denial"
+    },
+    {
+      "species": "Gardevoir-Mega",
+      "species_id": "gardevoirmega",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=68/65/135; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "268",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none) / showdown form-separated usage.",
+      "change_reason": "tier 'Good' \u2192 'Acceptable' (showdown form-separated usage)",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Gourgeist",
+      "species_id": "gourgeist",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=65/122/75; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "262",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Gourgeist-Large",
+      "species_id": "gourgeistlarge",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=75/122/75; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "272",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Gourgeist-Small",
+      "species_id": "gourgeistsmall",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=55/122/75; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "252",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Hatterene",
+      "species_id": "hatterene",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=57/95/103; self-provided Taunt immunity \u2014 Magic Bounce (This Pokemon is unaffected by certain non-damaging moves directed at it and will instead use such moves against the o...)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "taunt_denial",
+        "bulk": "255",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Magic Bounce",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Taunt immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=taunt_denial, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "taunt_denial"
+    },
+    {
+      "species": "Klefki",
+      "species_id": "klefki",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=57/91/87; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "Light Screen, Reflect",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "235",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Malamar",
+      "species_id": "malamar",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=86/88/75; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "249",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Malamar-Mega",
+      "species_id": "malamarmega",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=86/88/120; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "294",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none) / showdown form-separated usage.",
+      "change_reason": "tier 'Good' \u2192 'Acceptable' (showdown form-separated usage)",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Meowstic",
+      "species_id": "meowstic",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=74/76/81; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "Light Screen, Reflect",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "231",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Mimikyu",
+      "species_id": "mimikyu",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=55/80/105; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources); Disguise absorbs one hit outright, substituting for raw bulk",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "240",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Mr. Rime",
+      "species_id": "mrrime",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=80/75/100; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "255",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Musharna",
+      "species_id": "musharna",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=116/85/95; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "296",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Oranguru",
+      "species_id": "oranguru",
+      "tier": "Excellent",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=90/80/110; self-provided flinch denial \u2014 Inner Focus (This Pokemon cannot be made to flinch. This Pokemon is immune to the effect of the Intimidate Ability.)",
+        "secondary_role": "Encore",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "flinch_denial",
+        "bulk": "280",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Inner Focus",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided flinch denial; no teammate dependency for the cast"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Trick Room clears Excellent (basis=flinch_denial, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "flinch_denial"
+    },
+    {
+      "species": "Polteageist",
+      "species_id": "polteageist",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=60/65/114; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "239",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Reuniclus",
+      "species_id": "reuniclus",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=110/75/85; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "270",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Runerigus",
+      "species_id": "runerigus",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=58/145/105; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "308",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Sinistcha",
+      "species_id": "sinistcha",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=71/106/80; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "Life Dew",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "257",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        },
+        {
+          "name": "Life Dew",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Slowbro",
+      "species_id": "slowbro",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=95/110/80; self-provided Taunt immunity \u2014 Oblivious (This Pokemon cannot be infatuated or taunted. Gaining this Ability while infatuated or taunted cures it. This Pokemon...)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "taunt_denial",
+        "bulk": "285",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Oblivious",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Taunt immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=taunt_denial, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "taunt_denial"
+    },
+    {
+      "species": "Slowbro-Galar",
+      "species_id": "slowbrogalar",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=95/95/70; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "260",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Slowbro-Mega",
+      "species_id": "slowbromega",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=95/180/80; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "355",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none) / showdown form-separated usage.",
+      "change_reason": "tier 'Good' \u2192 'Acceptable' (showdown form-separated usage)",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Slowking",
+      "species_id": "slowking",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=95/80/110; self-provided Taunt immunity \u2014 Oblivious (This Pokemon cannot be infatuated or taunted. Gaining this Ability while infatuated or taunted cures it. This Pokemon...)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "taunt_denial",
+        "bulk": "285",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Oblivious",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Taunt immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=taunt_denial, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "taunt_denial"
+    },
+    {
+      "species": "Slowking-Galar",
+      "species_id": "slowkinggalar",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=95/80/110; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "285",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    },
+    {
+      "species": "Spiritomb",
+      "species_id": "spiritomb",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=50/108/108; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "266",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Trevenant",
+      "species_id": "trevenant",
+      "tier": "Good",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=85/76/82; Ghost typing is immune to Normal, so Fake Out cannot land (narrower than Armor Tail / Inner Focus: no cover vs other flinch sources)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "self_protection",
+        "self_protection": "ghost_fakeout_immunity",
+        "bulk": "243",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Ghost typing",
+          "criterion": "execution",
+          "purpose_claimed": "self-provided Fake Out immunity; no teammate dependency for the cast"
+        }
+      ],
+      "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
+      "change_reason": null,
+      "reinforce_class": "self_protection",
+      "excellence_basis": "ghost_fakeout_immunity"
+    },
+    {
+      "species": "Wyrdeer",
+      "species_id": "wyrdeer",
+      "tier": "Acceptable",
+      "delivery_class": "move_trick_room",
+      "mechanism": "Trick Room",
+      "criteria_notes": {
+        "delivery": "move-only delivery at fixed -7 priority; identical for every candidate",
+        "execution": "bulk HP/Def/SpD=103/72/75; no self-provided protection \u2014 depends on a teammate to cover Fake Out / Taunt",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "self_protection": "none",
+        "bulk": "250",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Trick Room",
+          "criterion": "delivery",
+          "purpose_claimed": "invert turn order for the side"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
+      "change_reason": "tier 'Good' \u2192 'Acceptable'",
+      "reinforce_class": "none",
+      "excellence_basis": "unprotected"
+    }
+  ],
+  "considered_rejected": [
+    {
+      "species": "Alakazam",
+      "species_id": "alakazam",
+      "reason": "bulk 195 below the 210 membership floor; moving last means it must survive to cast",
+      "change_reason": "bulk floor 210 membership requirement"
+    },
+    {
+      "species": "Alakazam-Mega",
+      "species_id": "alakazammega",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection",
+      "change_reason": null
+    },
+    {
+      "species": "Banette",
+      "species_id": "banette",
+      "reason": "bulk 192 below the 210 membership floor; moving last means it must survive to cast",
+      "change_reason": null
+    },
+    {
+      "species": "Chimecho",
+      "species_id": "chimecho",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection (showdown usage discounted (base 0.018% < 0.25\u00d7 mega 0.179%))",
+      "change_reason": null
+    },
+    {
+      "species": "Delphox",
+      "species_id": "delphox",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection (Champions usage data shows no Trick Room on this species)",
+      "change_reason": null
+    },
+    {
+      "species": "Delphox-Mega",
+      "species_id": "delphoxmega",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection",
+      "change_reason": null
+    },
+    {
+      "species": "Espathra",
+      "species_id": "espathra",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection (Champions usage data shows no Trick Room on this species)",
+      "change_reason": null
+    },
+    {
+      "species": "Gardevoir",
+      "species_id": "gardevoir",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection (showdown usage discounted (base 0.486% < 0.25\u00d7 mega 1.983%))",
+      "change_reason": null
+    },
+    {
+      "species": "Gengar",
+      "species_id": "gengar",
+      "reason": "bulk 195 below the 210 membership floor; moving last means it must survive to cast",
+      "change_reason": null
+    },
+    {
+      "species": "Gengar-Mega",
+      "species_id": "gengarmega",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery; two-tier demotion from Good falls below Acceptable (showdown form-separated usage)",
+      "change_reason": null
+    },
+    {
+      "species": "Medicham",
+      "species_id": "medicham",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection (Champions usage data shows no Trick Room on this species)",
+      "change_reason": null
+    },
+    {
+      "species": "Medicham-Mega",
+      "species_id": "medichammega",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection",
+      "change_reason": null
+    },
+    {
+      "species": "Meowscarada",
+      "species_id": "meowscarada",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection (Champions usage data shows no Trick Room on this species)",
+      "change_reason": null
+    },
+    {
+      "species": "Meowstic-F-Mega",
+      "species_id": "meowsticfmega",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection",
+      "change_reason": null
+    },
+    {
+      "species": "Meowstic-M-Mega",
+      "species_id": "meowsticmmega",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection",
+      "change_reason": null
+    },
+    {
+      "species": "Starmie",
+      "species_id": "starmie",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection",
+      "change_reason": null
+    },
+    {
+      "species": "Starmie-Mega",
+      "species_id": "starmiemega",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection",
+      "change_reason": null
+    },
+    {
+      "species": "Whimsicott",
+      "species_id": "whimsicott",
+      "reason": "Trick Room learnset but no usage evidence of Trick Room delivery and no self-provided Fake Out / Taunt protection (Champions usage data shows no Trick Room on this species)",
+      "change_reason": null
+    }
+  ]
+}

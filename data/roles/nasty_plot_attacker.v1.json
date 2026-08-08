@@ -1,0 +1,662 @@
+{
+  "category": "nasty_plot_attacker",
+  "condition": "",
+  "built_at": "2026-08-08T00:34:11.828285+00:00",
+  "sub_criteria": {
+    "kind": "setup_attacker",
+    "condition": "",
+    "move_id": "nastyplot",
+    "boost_stat": "spa",
+    "boost_stages": 2
+  },
+  "tiers": {
+    "Excellent": [
+      "Alakazam-Mega",
+      "Delphox-Mega",
+      "Meowstic-F-Mega"
+    ],
+    "Good": [
+      "Froslass-Mega",
+      "Houndoom-Mega",
+      "Raichu-Mega-Y"
+    ],
+    "Acceptable": []
+  },
+  "notes": [
+    "delivery move locked by self +2 spa-only Status rule \u2192 nastyplot",
+    "threat_panel=usage_informed (Garchomp/Life Orb, Garchomp-Mega/Garchompite, Incineroar/Sitrus Berry, Kingambit/Black Glasses, Sinistcha/Sitrus Berry, Charizard/Life Orb, Charizard-Mega-X/Charizardite X, Charizard-Mega-Y/Charizardite Y)",
+    "Showdown attribution (Delphox/Delphox-Mega): base discounted",
+    "Showdown attribution (Froslass/Froslass-Mega): base discounted",
+    "Showdown attribution (Houndoom/Houndoom-Mega): base discounted",
+    "Showdown attribution (Gengar/Gengar-Mega): base discounted",
+    "Showdown attribution (Banette/Banette-Mega): base discounted",
+    "Excellent damage floor = 2nd-highest adjusted \u00d7 0.95 \u2192 1.171 (top: Alakazam-Mega=1.250, Delphox-Mega=1.233)",
+    "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.820"
+  ],
+  "candidates": [
+    {
+      "species": "Alakazam-Mega",
+      "species_id": "alakazammega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.250 raw=1.250 floor=1.171 excellent_exec=True",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Psychic",
+        "calc_species": "Alakazam-Mega",
+        "damage_score_raw": "1.250",
+        "damage_score": "1.250",
+        "score_boosts": "none",
+        "calc_error": "Incineroar:damage[damage.length - 1] === 0.;Kingambit:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Psychic",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.250 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Excellent: branches=A; calc 1.250 (floor 1.171); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_branch_a"
+    },
+    {
+      "species": "Delphox-Mega",
+      "species_id": "delphoxmega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.233 raw=1.233 floor=1.171 excellent_exec=True",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Psychic",
+        "calc_species": "Delphox-Mega",
+        "damage_score_raw": "1.233",
+        "damage_score": "1.233",
+        "score_boosts": "none",
+        "calc_error": "Incineroar:damage[damage.length - 1] === 0.;Kingambit:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Psychic",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.233 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Excellent: branches=A; calc 1.233 (floor 1.171); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_branch_a"
+    },
+    {
+      "species": "Froslass-Mega",
+      "species_id": "froslassmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.049 raw=1.049 floor=1.171 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Frost Breath",
+        "calc_species": "Froslass-Mega",
+        "damage_score_raw": "1.049",
+        "damage_score": "1.049",
+        "score_boosts": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Frost Breath",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.049 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 1.049 (floor 1.171); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Houndoom-Mega",
+      "species_id": "houndoommega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.958 raw=0.958 floor=1.171 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Dark Pulse",
+        "calc_species": "Houndoom-Mega",
+        "damage_score_raw": "0.958",
+        "damage_score": "0.958",
+        "score_boosts": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Dark Pulse",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.958 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 0.958 (floor 1.171); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Meowstic-F-Mega",
+      "species_id": "meowsticfmega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.197 raw=1.197 floor=1.171 excellent_exec=True",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Psychic",
+        "calc_species": "Meowstic-F-Mega",
+        "damage_score_raw": "1.197",
+        "damage_score": "1.197",
+        "score_boosts": "none",
+        "calc_error": "Incineroar:damage[damage.length - 1] === 0.;Kingambit:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Psychic",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.197 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Excellent: branches=A; calc 1.197 (floor 1.171); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_branch_a"
+    },
+    {
+      "species": "Raichu-Mega-Y",
+      "species_id": "raichumegay",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.164 raw=1.164 floor=1.171 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_move": "Zap Cannon",
+        "calc_species": "Raichu-Mega-Y",
+        "damage_score_raw": "1.164",
+        "damage_score": "1.164",
+        "score_boosts": "none",
+        "calc_error": "Garchomp:damage[damage.length - 1] === 0.;Garchomp-Mega:damage[damage.length - 1] === 0."
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Zap Cannon",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.164 vs panel; branches=A"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 1.164 (floor 1.171); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    }
+  ],
+  "considered_rejected": [
+    {
+      "species": "Alakazam",
+      "species_id": "alakazam",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Aromatisse",
+      "species_id": "aromatisse",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Banette",
+      "species_id": "banette",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Banette-Mega",
+      "species_id": "banettemega",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Cofagrigus",
+      "species_id": "cofagrigus",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Corviknight",
+      "species_id": "corviknight",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Decidueye",
+      "species_id": "decidueye",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Decidueye-Hisui",
+      "species_id": "decidueyehisui",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Delphox",
+      "species_id": "delphox",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Farigiraf",
+      "species_id": "farigiraf",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Froslass",
+      "species_id": "froslass",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Gengar",
+      "species_id": "gengar",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Gengar-Mega",
+      "species_id": "gengarmega",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Gholdengo",
+      "species_id": "gholdengo",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Gourgeist",
+      "species_id": "gourgeist",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Gourgeist-Large",
+      "species_id": "gourgeistlarge",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Gourgeist-Small",
+      "species_id": "gourgeistsmall",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Grimmsnarl",
+      "species_id": "grimmsnarl",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Hydrapple",
+      "species_id": "hydrapple",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Hydreigon",
+      "species_id": "hydreigon",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Incineroar",
+      "species_id": "incineroar",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Infernape",
+      "species_id": "infernape",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Liepard",
+      "species_id": "liepard",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Lucario",
+      "species_id": "lucario",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Lucario-Mega",
+      "species_id": "lucariomega",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Malamar",
+      "species_id": "malamar",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Malamar-Mega",
+      "species_id": "malamarmega",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Meowscarada",
+      "species_id": "meowscarada",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Meowstic",
+      "species_id": "meowstic",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Meowstic-M-Mega",
+      "species_id": "meowsticmmega",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Morpeko",
+      "species_id": "morpeko",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Mr. Rime",
+      "species_id": "mrrime",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Ninetales",
+      "species_id": "ninetales",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Ninetales-Alola",
+      "species_id": "ninetalesalola",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Oranguru",
+      "species_id": "oranguru",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Pikachu",
+      "species_id": "pikachu",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Polteageist",
+      "species_id": "polteageist",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Raichu",
+      "species_id": "raichu",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Raichu-Alola",
+      "species_id": "raichualola",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Raichu-Mega-X",
+      "species_id": "raichumegax",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Rotom",
+      "species_id": "rotom",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Rotom-Fan",
+      "species_id": "rotomfan",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Rotom-Frost",
+      "species_id": "rotomfrost",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Rotom-Heat",
+      "species_id": "rotomheat",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Rotom-Mow",
+      "species_id": "rotommow",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Rotom-Wash",
+      "species_id": "rotomwash",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Runerigus",
+      "species_id": "runerigus",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Sableye",
+      "species_id": "sableye",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Sableye-Mega",
+      "species_id": "sableyemega",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Salazzle",
+      "species_id": "salazzle",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Simipour",
+      "species_id": "simipour",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Simisage",
+      "species_id": "simisage",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Simisear",
+      "species_id": "simisear",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Sinistcha",
+      "species_id": "sinistcha",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Slowbro",
+      "species_id": "slowbro",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Slowbro-Galar",
+      "species_id": "slowbrogalar",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Slowbro-Mega",
+      "species_id": "slowbromega",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Slowking",
+      "species_id": "slowking",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Slowking-Galar",
+      "species_id": "slowkinggalar",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Sneasler",
+      "species_id": "sneasler",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Spiritomb",
+      "species_id": "spiritomb",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Toxicroak",
+      "species_id": "toxicroak",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Watchog",
+      "species_id": "watchog",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Weavile",
+      "species_id": "weavile",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Zoroark",
+      "species_id": "zoroark",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Zoroark-Hisui",
+      "species_id": "zoroarkhisui",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Houndoom",
+      "species_id": "houndoom",
+      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.039% < 0.25\u00d7 mega 0.195%))",
+      "change_reason": null
+    }
+  ]
+}
