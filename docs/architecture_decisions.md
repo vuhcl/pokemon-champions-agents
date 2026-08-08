@@ -274,6 +274,45 @@ exception clause. Does not reopen or weaken the general no-live-search policy.
 
 ---
 
+### ADR-014 — Amendment 2026-08-05a
+
+**First exercised instance of the ADR's own anticipated exception: construction-time live
+fetch against an already-verified, structured data source.**
+
+ADR-014's original status line explicitly anticipated this case ("if a genuine case for
+live lookup emerges... treat it as an explicit exception to justify, not a default
+capability"). Surfaced during Redirection role construction: the offline usage snapshot
+(data/usage/champions-reg-mb.v1.json, TEAM_LADDER_N=50) only captures the in-game ladder's
+top 50 species, silently excluding real, relevant candidates below that cutoff (Clefable,
+confirmed via direct site inspection to run Follow Me as its most common move, was entirely
+absent from the snapshot and therefore invisible to the Redirection construction pass).
+
+**Clarification of what ADR-014's "no live web search" rule actually prohibits:** it targets
+UNSTRUCTURED, model-directed search — the LLM deciding what to query and interpreting
+free-form results, which is the actual mechanism behind cross-game/format contamination
+(failure mode #1 — e.g. pulling SV data instead of Champions data). It does not prohibit
+every live network call in every context. A live fetch against an ALREADY-IDENTIFIED,
+ALREADY-VERIFIED, STRUCTURALLY-PARSED data source (the same championsbattledata.com/
+MunchStats-CBD pipeline already trusted for the offline snapshot, using the same
+extraction/parsing logic already built) carries none of the risk the original rule exists
+to prevent — no model judgment is involved in what to fetch or how to interpret it,
+identical to the offline extraction's own trust model, just triggered per-candidate rather
+than batched once upfront.
+
+**Scope of the exception, kept deliberately narrow:** permitted ONLY at construction/data-
+prep time (Role Compendium construction, snapshot refresh/backfill) via the same structured,
+already-built extraction path — NOT a general runtime-recommendation-path capability, and
+NOT permission for open-ended web search anywhere in the system. Any future case invoking
+this exception should cite this amendment and confirm it fits the same shape (known source,
+known parser, no free-form interpretation) rather than assuming a blanket loosening.
+
+**Status:** Exercises ADR-014's own pre-anticipated exception mechanism for the first time.
+No change to the core rule (no unstructured/model-directed live search anywhere in the
+system) — this narrowly permits per-candidate structured fetches against an
+already-verified source, at construction time only.
+
+---
+
 ## ADR-004: RL policy — retrain, do not reuse
 **Decision:** Train a new RL policy specifically for Pokémon Champions and the current regulation, rather than adapting the ~6-year-old SARSA policy from the original Pokémon Battler project.
 **Alternatives considered:** Fine-tune/adapt the old policy; use the old policy's reward structure unchanged with new state representation.
@@ -2501,6 +2540,49 @@ critic pipeline. No change to the pipeline's structure (constructor/critic split
 sweeps, regulation-change triggers) — this amendment specifies what the critic pass must
 actually check, closing a gap where the behavior existed as demonstrated practice but not
 as a stated rule.
+
+---
+
+### ADR-019 — Amendment 2026-08-05b
+
+**Fourth critic principle: execution_conflict — a candidate's real usage and real
+move/ability access don't guarantee it can actually be piloted to fulfill a role, if its
+own established playstyle structurally competes with executing that role on the turns it
+matters. This principle informs tier placement (demotion), not membership eligibility — it
+never acts as an unconditional exclusion gate, matching how the three principles from
+Amendment 2026-08-04a already work.**
+
+Surfaced during Redirection role construction: Volcarona has real Rage Powder access and
+real usage, satisfying the role's basic delivery-mechanism and execution-reliability
+criteria on their own terms. But real team data shows Volcarona's dominant, established
+identity is as a Quiver Dance sweeper (verified: 60.8% Quiver Dance usage vs. 27.3% Rage
+Powder usage) — a Pokemon cannot spend the same turn both setting up/attacking and
+redirecting for an ally, so a Pokemon whose primary usage pattern is self-sweeping is
+structurally unlikely to be the one pulling redirection duty when it matters.
+
+**This is a genuinely different check than function_fit** (Amendment 2026-08-04a),
+worth distinguishing precisely: function_fit asks whether a candidate's TRAIT serves the
+role's stated purpose (a static property check — does this ability protect an ally or only
+the bearer). execution_conflict asks whether a candidate's OWN USAGE PATTERN allows it to
+actually execute the role at all, given real, structural turn-economy competition with a
+different, dominant identity (a dynamic, usage-grounded check).
+
+**Design correction made during implementation, worth recording:** the FIRST version of
+this check was implemented as an unconditional exclusion gate (Volcarona ->
+considered_rejected) — this was WRONG, and traced to a real process failure: the exclusion
+was based on an incomplete reconstruction of a prior conversation's conclusion, asserted as
+settled without re-verifying it first. The actual prior conclusion was that Volcarona
+clears real membership via an independent, verified reinforcement (Flame Body, 30% contact
+burn) despite the competing-identity signal. Corrected: execution_conflict informs
+placement (a real, verified competing identity caps a candidate below the unconflicted
+Excellent cluster) rather than excluding outright — a candidate with real, independent
+reinforcement can still clear membership at a lower tier. This makes execution_conflict
+consistent with how tied_cluster, self_consistency, and function_fit already operate: all
+four principles inform tier placement/flagging, none act as a unilateral exclusion gate.
+
+**Status:** Adds a fourth critic principle to Amendment 2026-08-04a's three. Corrects an
+initial, incorrect exclusion-gate implementation to a placement-informing design consistent
+with the other three principles.
 
 ---
 

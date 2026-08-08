@@ -1365,6 +1365,322 @@ against the smaller pool. Persistence stays scoped to the general, unconstrained
 result only (the expensive, reusable case) — constrained results are cheap enough to
 compute on demand and don't need caching.
 
+### 2026-08-04/05: Role Compendium — Redirection construction, second real category run
+
+Second category built on the construction/critic pipeline (recommender/role_compendium.py,
+proven on Rain Setter 2026-08-04). Chosen deliberately as the next category BECAUSE Rain
+Setter's own report had honestly flagged its function_fit check as under-exercised — this
+run was meant to be the first real stress test of the self-vs-ally-protection distinction,
+and it substantially over-delivered on that goal, surfacing five distinct real corrections
+and a genuinely new, fourth critic principle.
+
+**Critic principles formalized before this run started (ADR-019 Amendment 2026-08-04a):**
+reviewing five prior mock-run role constructions (Weather Setter, Redirection, Swords Dance
+Attacker, Trick Room Attacker, Sleep Status Spreader) surfaced three real, recurring critic
+requirements, now written into the ADR rather than left as demonstrated-but-unstated
+practice: (1) tied_cluster — tiers are defined by a criteria bar, not a target size;
+candidates clearing the same bar equally belong in one unordered tier, not force-ranked
+over an immaterial difference. (2) self_consistency — a conclusion already reached earlier
+in the same construction pass must be carried through to the final output, not silently
+reverted. (3) function_fit — a trait only counts toward a criterion if it serves that
+criterion's actual stated purpose, not merely because it resembles the right general
+category (the Clefable/Maushold self-vs-ally-protection correction being the canonical
+example).
+
+**Corrections found during this run, in the order surfaced:**
+
+1. Candidate discovery gap: initial construction (mirroring an old, curated-site-list-based
+   analysis) missed real candidates found only by an exhaustive, live-CBD-informed sweep —
+   the same shape of gap already found for Rain Setter's Prankster+Rain-Dance list.
+
+2. Excellent-tier crowding (7 members, later 6): criterion 3 (secondary-role stacking) was
+   being applied superficially — any allowlisted trait cleared the bar with no check on
+   whether it actually, reliably reinforced the role. Fixed by requiring a CLOSED, verified
+   allowlist (Phase 1) and later a genuine two-axis check (reliability + impact, not
+   presence alone) for Excellent-tier specifically (_excellent_secondary) — reducing
+   Excellent to a tighter, better-justified 4-member tier (Ariados, Maushold, Sinistcha,
+   Vivillon).
+
+3. Base/Mega usage-attribution bug: base Scovillain's tiny usage figure (an artifact of
+   ladder logging capturing pre-Mega-Evolution state) was initially treated as real,
+   independent usage. Fixed via a direct query against Showdown's own form-separated ladder
+   data (confirmed: Mega 2.053% vs base 0.083%, ~4% of Mega's share) — established as a new,
+   general architectural exception (ADR-014 Amendment 2026-08-05a): construction-time live
+   fetches against an ALREADY-VERIFIED, structured data source are permitted, distinct from
+   the unstructured/model-directed search ADR-014's core rule actually prohibits.
+
+4. A genuine PROCESS FAILURE, not a data gap: Volcarona was excluded from membership
+   (considered_rejected) based on an incomplete reconstruction of a prior conversation's
+   conclusion, asserted as settled fact in a task rather than verified first. The actual,
+   final prior conclusion was that Volcarona clears membership via Flame Body's real,
+   independent reinforcement (verified: 30% contact burn) despite a real, separate
+   turn-economy conflict with its Quiver Dance identity (verified: 60.8% QD vs 27.3% Rage
+   Powder usage). Corrected to Good tier — real reinforcement caps but doesn't exclude,
+   given a genuine competing-identity signal. This produced the FOURTH critic principle,
+   execution_conflict (see ADR-019 Amendment 2026-08-05b below), redesigned to inform
+   tier placement (demote) rather than act as an unconditional exclusion gate, consistent
+   with how the other three principles already work.
+
+5. A repeated instance of the SAME root failure (surfaced twice more in this run, worth
+   logging honestly rather than treating as separate incidents): (a) an ownership/executor
+   check (_flamebody_ok) was hardcoded to one literal ability name because that's the only
+   one that came up in the original conversation, missing Spicy Spray — a mechanically
+   identical (and stronger: 100% vs 30% trigger rate) ability. (b) Claude's own first draft
+   of the fix task repeated the same mistake, proposing to add Spicy Spray as a second
+   hardcoded entry rather than immediately requiring a full re-sweep. Corrected to a
+   general, ability-table-derived check (hit_triggered_opponent_disrupt_ids /
+   execution_reinforce_abilities) — 28 raw tag matches, mechanically filtered by
+   description-text pattern (not a hand-assembled include/exclude list) to an exact,
+   reproducible 18/10 split. Final tiers were UNCHANGED by this fix (Mega Scovillain still
+   Good, now correctly crediting Spicy Spray but still lacking excellent_secondary) —
+   confirming the earlier two-axis fix and this sweep fix were genuinely independent,
+   non-overlapping corrections that both needed to happen.
+
+**Final Redirection tiers:** Excellent — Ariados, Maushold, Sinistcha, Vivillon. Good —
+Clefable, Scovillain-Mega, Volcarona. Rejected — base Scovillain, Clefable-Mega.
+
+41 tests passing (test_role_compendium_redirection.py + rain, cumulative).
+
+**Honest note on process, not just outcome:** this run's real value was in how many times a
+plausible-looking-but-wrong conclusion got caught and corrected — including twice by
+Claude's own error (asserting Volcarona's fate from an incomplete memory of a prior
+conversation instead of checking it; then proposing a hardcoded patch for Spicy Spray
+instead of a full sweep, the exact pattern already flagged once earlier in this same
+session). A new, generalized memory entry was added specifically to prevent this recurring
+independent of any single incident: treat "was this derived from a real, systematic sweep,
+or from what happened to come up in conversation" as a mandatory first check before
+proposing or accepting any list/mapping/classification as complete.
+
+Deliberately deferred, not oversights: the third role category (would further test
+execution_conflict and the two-axis secondary-role framework against new cases); the
+remaining seven weather/terrain sub-categories; wiring compendium output into
+query_support_needs' defensive_coverage dispatch path.
+
+### 2026-08-06: Weather Setter — Sun, Sand, Snow constructed in parallel; discounted-usage
+rejection softened to a two-tier demotion
+
+Third through fifth categories built on the construction/critic pipeline, run in parallel
+as three independent constructions rather than sequentially with heavy intervention (unlike
+Redirection, 2026-08-04/05). Deliberately scoped this way based on the expectation that
+Sun/Sand/Snow are mechanically closer to Rain Setter's shape (a single delivery-mechanism
+criterion, no self-vs-ally or turn-economy-conflict dimension) than to Redirection's — the
+expectation held: all three critic passes approved on the first attempt, zero new critic
+principles needed.
+
+Two real base/Mega attribution questions were checked directly against real data rather
+than assumed, with genuinely different, correctly-differentiated outcomes:
+- Sand Setter: Tyranitar and Mega Tyranitar BOTH kept as independent Excellent members.
+  Verified via the Showdown-ladder ratio check (base ~1.76% / Mega ~3.60% = ~0.49, well
+  above the 0.25 discount threshold) plus base Tyranitar's own near-universal Sand Stream
+  rate (~98.9%) — confirming genuine, independent usage, not a Scovillain-style artifact,
+  consistent with the previously-logged finding that Mega Tyranitar's Sand-setting
+  sequencing flexibility (Unnerve on base, reveal Sand Stream via Mega Evolution) is a
+  real, distinct strategy rather than "the same Pokemon logged twice."
+- Snow Setter: base Abomasnow initially REJECTED under the (then-strict) discount rule
+  (Showdown discount: base 0.083% vs Mega 0.525%, well below the 0.25 threshold) — the
+  Scovillain-shaped artifact case, correctly caught and reported as a real divergence from
+  a naive "both forms Excellent" expectation rather than smoothed over.
+
+Sun Setter's ability list was deliberately scoped to Drought + Orichalcum Pulse only,
+excluding Desolate Land despite the earlier primal-weather-equivalence work establishing
+Harsh Sunshine satisfies Sun-category checks for CONSUMERS (Chlorophyll, Solar Power).
+Desolate Land's own ability description doesn't literally name "Sunny Day" the way Drought
+does — construction needs the setter's own described function to match the criterion
+directly, a different question from whether a downstream consumer's condition-check should
+treat the two as equivalent. The equivalence logic and construction logic correctly stayed
+separate concerns rather than being conflated.
+
+**Follow-up, same day: discounted-usage rejection softened.** Base Abomasnow's outright
+rejection prompted reconsidering the rule: having Snow Warning (the objectively correct,
+strongest-tier delivery mechanism) but thin usage evidence is a meaningfully different case
+than lacking the right mechanism at all — full rejection discarded real, checkable
+information (the mechanism IS correct) that a softer outcome could preserve. Corrected to a
+two-tier demotion: a candidate that would clear EXCELLENT on mechanism/execution-reliability
+alone, but has discounted usage and no independent reinforcement, now demotes to ACCEPTABLE
+(a newly-added third tier) rather than being rejected outright. A floor preserves the
+original rule's protection: any candidate that would only have earned Good or Acceptable to
+begin with still gets rejected — there's no tier to demote two steps into, and this
+correctly keeps every previously-rejected move-based candidate (Klefki, Liepard, Meowstic,
+Banette-Mega, etc.) fully rejected, verified directly rather than assumed. Discounted
+Acceptable-tier members are tagged excellence_basis="usage_discounted" so tied_cluster
+doesn't mistakenly merge them with genuinely usage-proven Excellent members two tiers away.
+The rule was deliberately generalized to apply regardless of delivery mechanism (not scoped
+to automatic-ability candidates only) after confirming — not assuming — that no currently-
+rejected move-based candidate anywhere in the shipped categories would ever have cleared
+Excellent on mechanism alone in the first place, making the universal and mechanism-scoped
+versions of the rule behaviorally identical for everything shipped so far, while the
+universal version is honestly simpler and more general.
+
+Final tiers (after the discount-softening fix):
+- Sun: Excellent — Charizard-Mega-Y, Ninetales, Torkoal. Good — Liepard, Meowstic, Sableye,
+  Whimsicott. Rejected — Banette-Mega, Klefki. (No Acceptable-tier members.)
+- Sand: Excellent — Hippowdon, Tyranitar, Tyranitar-Mega. Rejected — Klefki. (No Acceptable-
+  tier members.)
+- Snow: Excellent — Abomasnow-Mega, Aurorus, Froslass-Mega, Ninetales-Alola, Vanilluxe.
+  Acceptable — Abomasnow (base; discounted usage, mechanism-Excellent). No longer rejected.
+- Rain: unaffected — no Acceptable-tier members from this rule.
+- Redirection: checked (not re-persisted) — confirmed no membership delta, since its
+  rejected candidates were all move-based and already capped below Excellent on mechanism.
+
+47 tests passing (cumulative, weather-setter + redirection).
+
+This closes out the full Weather Setter category (Rain + Sun + Sand + Snow, all four
+sub-categories) with a real, generalized refinement to the rejection rule discovered and
+fixed in the same session. Terrain sub-categories (Electric/Grassy/Psychic/Misty) remain
+deliberately deferred, not yet scheduled.
+
+### 2026-08-07: Swords Dance Attacker / Nasty Plot Attacker — sixth and seventh role
+categories; first offense-role construction; largest single-category correction chain
+this project has done
+
+Deliberately chosen as the next category specifically to stress-test whether the pipeline
+(proven on four support-role Weather Setter sub-categories and one support-role
+Redirection) generalizes to a genuinely different role shape — an offense role. It did,
+but only after real, substantial pipeline generalization, not a drop-in reuse of the
+existing three-criteria support-role test.
+
+**Category definition, verified not assumed:** scoped specifically to Swords Dance and
+Nasty Plot as TWO SEPARATE compendium entries (physical vs. special attacker are different
+team-building questions), defined by an exact, checkable mechanical rule — a status move
+raising exactly one offensive stat by exactly 2 stages, nothing else. Verified against real
+move data that these are the ONLY two Champions-legal moves matching this exact definition
+(Tail Glow matches the shape but at 3 stages and is confirmed not Champions-legal; Growth
+correctly excluded for boosting both offensive stats). Explicitly distinguished from Calm
+Mind/Bulk Up/Curse-class (also boosts bulk) and Dragon Dance/Tidy Up-class (also boosts
+Speed) moves, which solve their own execution-risk as a side effect of setup and are
+structurally different categories.
+
+**Pipeline required real generalization:** a new construct_role_category branch
+(kind == "setup_attacker" -> _construct_setup_attacker) was needed — this role's shape did
+not fit the existing support-role three-criteria test. Membership is a two-branch OR, not
+delivery/execution/secondary: a candidate qualifies if it can EITHER neutralize the
+opponent before being threatened (via real priority OR sufficient raw Speed — two
+mechanisms for one requirement) OR survive and sustain through repeated exposure (real
+bulk AND genuine recovery, not bulk alone). Ranking above bare membership required a
+NEW, real, calc-backed damage-output score — reusing the existing calc-service
+infrastructure (calculate_batch) rather than estimating, a first for role construction.
+
+**The Excellent-floor calibration went through a long, evidence-driven correction chain,
+worth recording honestly rather than compressed:**
+- Initial approach (a single portable floor calibrated from Mega Blaziken's score, shared
+  across both categories) failed decisively: under it, only Mega Blaziken itself cleared
+  Excellent across BOTH categories combined — even Raichu-Mega-Y, whose own score had
+  RISEN under a later panel-realism fix, fell below a floor imported from an unrelated
+  category. This was the clean, decisive evidence the mechanism was broken, not just
+  imperfect.
+- Corrected to category-independent floors, each anchored to its OWN field's 2nd-highest
+  real score × 0.95 (not the top score, since a single top performer can be an outlier for
+  reasons specific to its own mechanism — exactly what Blaziken-Mega turned out to be,
+  its case resting almost entirely on Speed Boost's compounding, game-long advantage).
+- A separate, real calc-service bug was found and fixed en route: Aegislash's damage score
+  computed to a literal 0.000, traced to _best_payoff_move selecting Poltergeist (which
+  deals zero damage against an itemless target) against a threat panel that was, at the
+  time, deliberately built without held items. Root-caused precisely, and fixed at the
+  actual source: the panel was rebuilt from real, usage-informed common-set data
+  (species + commonly-held item + moveset), since real opponents overwhelmingly carry
+  items — an itemless panel was never representing a realistic scenario. This also
+  corrected every other candidate's score, not just Aegislash's, since the panel fix was
+  general.
+- A real Mega-form data-source gap was found: several Mega forms (Houndoom-Mega,
+  Scizor-Mega, Lucario-Mega, Lopunny-Mega) were being rejected outright at the delivery
+  gate because the live CBD (championsbattledata.com) API 404s on Mega formes entirely —
+  not a lookup bug, a genuine source limitation — while the offline snapshot only had
+  partial, inconsistent Mega coverage (explaining why Mawile-Mega worked and others
+  silently didn't). Fixed by extending the already-established Showdown-ladder fallback
+  (built days earlier for Scovillain's base/Mega attribution) to also cover missing-Mega
+  delivery proof, not just discount comparison. Lucario-Mega/Lopunny-Mega remain
+  unresolved even on the Showdown ladder — a genuine data floor, not a bug, deferred.
+
+**A separate, parallel correction chain on the damage-scoring formula itself:**
+- Turn-order validity: the damage score originally credited a "clean KO" against a panel
+  member without checking whether the candidate would actually act first against THAT
+  specific threat — meaning some scored KOs were fictional (the candidate could be
+  KO'd/disrupted before ever landing the counted hit). Fixed to weight by real turn-order
+  per panel member (priority / relative Speed / tie-handling / explicit zero-credit for
+  provably-fictional KOs).
+- The original hard 100%-damage cap (no credit for overkill) was producing severe,
+  misleading score compression — multiple mechanically different candidates landing at an
+  identical 1.000, erasing real differentiation. Replaced with a soft, bounded overkill
+  credit (cap 1.25), which correctly decompressed the field (Gallade-Mega/Blaziken-Mega
+  separated into 1.217/1.210 rather than tied at 1.000).
+- Speed Boost (and by extension any similarly compounding, in-battle-escalating ability)
+  was confirmed entirely unaccounted for in scoring — directly explaining Mega Blaziken's
+  collapse from original floor-calibrator to an undifferentiated score once other fixes
+  landed. Fixed via a Speed multiplier applied specifically for turn-order qualification.
+- Disguise (Mimikyu) was confirmed missing from Branch B (survive-and-sustain) — its
+  one-time free hit-absorption is a real survival mechanism, mechanically distinct from
+  Speed Boost's compounding shape (correctly NOT treated as the same category of fix).
+  Fixed; Mimikyu newly qualifies for both branches as a result.
+- Stance Change (Aegislash) was checked and confirmed NOT to need a fix — Aegislash
+  already qualified for both execution-risk branches without any credit for it, so there
+  was no membership or survival gap to close.
+- A real, confirmed double-counting bug: the priority-execution boost was initially being
+  applied to any candidate that merely LEARNED a priority move, even when a different,
+  non-priority move was the actual selected payoff — crediting a reliability trade-off
+  the candidate never actually made. Fixed to apply only when the priority move IS the
+  scored payoff move.
+- Sucker Punch and other conditional-priority moves (success depends on the opponent
+  using a damaging move — likely but not guaranteed in real doubles play) were confirmed
+  receiving the same flat boost as unconditional priority (Extreme Speed-class). Corrected
+  to an intermediate ×1.35 multiplier (vs. ×1.5 for unconditional), reflecting the real,
+  high-but-not-certain success rate rather than treating either extreme as true.
+- Five payoff-move exclusion mechanics were built as hard exclusions from payoff
+  candidacy (not scoring penalties — a banned move never enters the comparison at all):
+  self-debuffing offensive moves (Overheat/Draco Meteor-class, curated per-stat since the
+  underlying move-data file conflates self-drops with foe secondaries — a separate, small,
+  flagged data-quality issue), charge moves (Solar Blade/Beam-class — reuses the existing,
+  already-verified classify_matchup charge-move correction), recharge moves (Giga
+  Impact-class — confirmed load-bearing: without this exclusion, Pinsir-Mega's Giga
+  Impact would incorrectly clear Excellent), delayed-payoff moves (Future Sight/Doom
+  Desire's genuinely delayed damage, and Focus Punch's opponent-acts-first-and-can-cancel
+  mechanic, both failing the same same-turn-cashout requirement despite being
+  mechanically different from each other), and lock-in moves (Outrage/Petal Dance/
+  Thrash/Raging Fury — confirmed live and load-bearing: Garchomp was actively using
+  Outrage as its shipped payoff before this fix, falling back to Dragon Claw afterward
+  with no tier change).
+
+**Acceptable-tier boundary, established with real, comparative evidence:** rather than an
+arbitrary cutoff, the real score distributions for both categories were checked for a
+natural structural gap. Swords Dance has one, decisively (a 0.101-wide gap between
+Feraligatr and Scizor-Mega, the widest in the field) — Nasty Plot does not (its weakest
+member sits comfortably above any plausible cutoff). The proposed mechanism (Acceptable
+below Excellent-floor × 0.70, per category) was chosen specifically for producing a wide,
+stable plateau of equivalent cutoff values around the real SD gap (any value in
+0.664-0.752 gives an identical partition; 0.70 sits safely mid-plateau, unlike 2/3 or 0.75,
+both shown to be within 0.003 of flipping), and was checked against three real
+alternatives (a recursive top-anchored rule, largest relative gap, largest absolute gap)
+each rejected for concrete, evidence-based reasons (tracking leaders instead of the weak
+tail; noise-prone on short fields; incomparable across categories with different floors).
+Nasty Plot correctly produces ZERO Acceptable members under this mechanism — treated as a
+feature (the method declines to manufacture structure the data doesn't support), not a gap
+in the analysis.
+
+**Final results:**
+- Swords Dance Attacker (7 Excellent / 9 Good / 10 Acceptable): Excellent — Kingambit,
+  Gallade-Mega, Mawile-Mega, Blaziken-Mega, Absol-Mega, Mimikyu, Skarmory-Mega.
+- Nasty Plot Attacker (3 Excellent / 3 Good / 0 Acceptable): Excellent — Alakazam-Mega,
+  Delphox-Mega, Meowstic-F-Mega.
+
+**A real, initially-surprising result independently validated twice:** base Garchomp
+(Good, 1.013) outranks Mega Garchomp (Acceptable, 0.557) — confirmed correct via (1) real
+community/player consensus that base Garchomp is the stronger Swords Dance user, and (2)
+direct mechanical reasoning: Mega Garchomp's base Speed (92) sits below the ~100
+"reliably fast" threshold already established elsewhere in this project, and its ability
+(Sand Rush) is conditional on Sand being active — making its real profile weaker and more
+conditional than base Garchomp's clean, unconditional Branch A qualification via a
+working, undiscounted payoff move. Not a bug; a correct, now-visible consequence of
+real, calc-backed scoring.
+
+324 tests passing (up from 208 at the start of this session's earlier work).
+
+Deliberately deferred, not oversights: Lucario-Mega/Lopunny-Mega remain genuinely
+unresolvable via either the offline snapshot or the live Showdown-ladder fallback (a real
+data floor); the curated self-debuff move list's underlying data-quality issue in
+data/moves/stat_boosts.v1.json (foe-secondary/self-drop conflation) noted but not fixed at
+the source; whether the various scoring multiplier constants (×1.5/×1.35/×0.85 etc.) need
+retuning given how much the underlying formula has changed shape — considered low priority
+given current results are stable and pass real-world plausibility checks.
+
 ---
 
 ## TOOLS & RESOURCES
