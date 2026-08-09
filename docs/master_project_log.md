@@ -2590,6 +2590,116 @@ loop" gap that opened this entire session's arc, for every phase — `single_loc
 `multi_locked` both now have real, tested candidate discovery grounded in the ADR-022/023
 toolkit, `complete` auto-reviews, and `empty` remains the one honestly-labeled stub left.
 
+### 2026-08-08 (cont.): empty-team bootstrap — implemented in two sequential tracks,
+closing the last remaining stub phase from the team-phase routing arc
+
+Closes `empty`, the last of the four team phases still behaving as a routing stub since
+team-phase routing first shipped. Discovery/design work found, and directly measured rather
+than assumed, that the target-role vocabulary gap already known from the anchor-role pipeline
+and multi-locked (both times correctly deferred as "structured unresolved, not a taxonomy
+change in this task") had become a real blocker here — the third consecutive task to hit it,
+and this time load-bearing rather than cosmetic: real-injection testing found roughly
+one-third of bootstrap's realistically-presented directions would dead-end on selection
+without expansion, disproportionately the mechanically-distinct options (weather setters,
+redirection, setup attackers) the alternative-diversity design specifically needed to surface
+meaningful, non-redundant choices.
+
+**Design/verification process, same discipline as every other task this session.** First
+discovery/design submission needed a real second pass on the ranking-diversity claim's
+practical impact — rather than accept "structured unresolved" as sufficient without checking
+how often it would actually fire, sent a targeted verification-and-decision task. That
+verification ran real code injection (four actual species through the real provisional-build
+path) rather than estimate from static reading, and gave an honest range (33-67%) rather than
+false precision on the harder-to-measure "diverse trio" question. Consumer audit confirmed
+domain expansion was safe — no exhaustive match statement, fixed-size enum, or serialization
+ordinal depended on the original seven-value domain.
+
+**Track 1 — target-role vocabulary expansion (prerequisite, sequenced strictly before Track
+2, same relationship ability persistence had to the anchor-role pipeline's later tracks).**
+`TargetRoleId` expanded from seven values to fourteen (`rain_setter`/`sun_setter`/
+`sand_setter`/`snow_setter`/`redirection`/`swords_dance_attacker`/`nasty_plot_attacker`
+added). New exact-evidence producer (`target_role_from_strategic_evidence`) constructs a
+decision only from a present needed/wanted active-build mechanism or exact Compendium
+evidence — never from species-only membership or a rejected Compendium row (verified via a
+Gholdengo test case specifically chosen because its Compendium row is rejected while its
+active Nasty Plot mechanism is real, proving the two evidence paths are genuinely
+independent). Verified with four real-species injection tests reaching complete
+`ProvisionalSlot`s and an all-14-role round-trip test proving no value is lost across
+presentation/selection/refinement/commit.
+
+**Track 2 — full bootstrap implementation.** Combined direction+available-pool intake in one
+prompt; exact-ID-only pool validation with every unresolved label surfaced in original
+spelling order (never guessed or aliased — confirmed `Eternal Floette` stays unresolved while
+`Floette-Eternal` is accepted); `ownership_mode_source` distinguishing default-`off` from a
+user's explicit request to disable ownership bias; deterministic diverse direction discovery
+combining `query_by_usage`'s existing owned-bias ranking (built earlier this session, reused
+without a new ranking algorithm) with Track 1's evidence tiers; four structurally separated
+`CandidateEvidence` provenance rows per option (usage/ownership/compendium/policy — never
+collapsed into one claim); full reuse of the existing provisional-build/confirmation/
+atomic-commit lifecycle with no bootstrap-specific terminal path.
+
+**First real LLM invocation in the runtime graph, confirmed rather than assumed.** Two
+candidate "prior seams" were directly checked and ruled out (`classify_pending` fully
+deterministic; `KitInteractionProposer` an unused-at-runtime type) before concluding this is
+genuinely ADR-013's first live consumer, not a second parallel abstraction. Injected via
+`build_graph(..., bootstrap_intake_parser=...)`, provider-neutral, with an optional Ollama
+development adapter — no hardcoded provider or model. Structured Pydantic schema, strict
+post-model validation, user text delimited as data with prompt-injection resistance, no raw
+content logged. Failure handling verified fail-closed: missing parser, provider exception, or
+malformed output all retain the intake presentation and mutate no pool/bootstrap facts,
+confirmed by a named test asserting the complete unchanged-state list, not just "an error is
+shown."
+
+**Deterministic mapping kept strictly separate from LLM extraction, at two levels — the real
+architectural point of this task.** Extracted direction text is matched against an explicit,
+longest-match-first phrase table (deterministic), not a second model judgment. An unmappable
+direction re-prompts for clarification — verified by a test that directly patches `_pick_role`
+and asserts it is *never called*, a structural guard against the specific failure mode this
+whole session's slot-fill arc traces back to (a wrongly-guessed role shape producing
+fabricated downstream needs, first found in the Kingambit false-positive case). Separately,
+`TargetRoleDecision` construction has explicit precedence: Track 1's exact-evidence producer
+wins whenever it returns a result; a coarse `kit_role` fallback only fires on `None`. A third,
+mechanism-based fallback path was proposed mid-plan-review and explicitly cut for duplicating
+the exact producer's logic rather than kept as harmless redundancy — verified by a named
+precedence-regression test using real Tyranitar data (both paths could apply; asserts the
+high-confidence path wins).
+
+**`_BASIS_RANK` extended additively, verified via explicit before/after diff** (not just
+asserted) after this exact map's history of real correction in the immediately preceding
+multi-locked task — `ownership_backed` added at rank 0 alongside `synthesized`, reasoned
+explicitly (ownership preference already has its own dedicated mechanism via `rank_and_cut`'s
+`owned_first`/`owned_last`, so a separate evidence-quality tier would double-count the same
+signal), no existing key's rank moved, no existing rank assertion loosened.
+
+**Legacy graph edge removed cleanly.** The unconditional `empty -> propose_team_draft` edge
+and its now-unreachable registration were removed; confirmed `fill_team_draft`/
+`propose_team_draft` remain intact and still correctly reachable by `discover_single_locked`
+and `discover_multi_locked`'s own partial-slot fallback paths — nothing orphaned.
+
+578 tests passing (up from 385 at the start of this session's whole slot-fill arc), 6 skipped
+(5 pre-existing live-calc-service skips confirmed unrelated to this task, 1 new opt-in Ollama
+live smoke test, not run by default). Full Python and TypeScript suites clean throughout both
+tracks. Read-only mirrors confirmed untouched by this task specifically (both files carry
+pre-existing modifications from this session's own accumulated ADR/log-entry drafting,
+correctly distinguished from anything this task did).
+
+This closes the team-phase routing arc in full: all four phases (`empty`, `single_locked`,
+`multi_locked`, `complete`) now have real, tested behavior grounded in the ADR-022/023
+toolkit, closing the "almost none of this machinery is wired into the live proposal loop" gap
+that opened this entire session.
+
+**Deliberately deferred, tracked as separate future scope:** canonical name/form resolution
+beyond exact-ID acceptance (still the same deferred item since the very first discovery
+report); condition-resilience assessment; selected-four modeling; general first-turn intent
+classification beyond `bootstrap_intake` specifically; further target-role taxonomy work
+beyond Track 1's fourteen values; low-data Compendium member build synthesis (confirmed
+independent of the vocabulary gap); checkpointer choice (still blocks msgpack allowlisting);
+breadth-versus-severity aggregate ranking policy (from the multi-locked task, still open);
+move/ability conditional mechanics (Electro Shot -> Rain, Liquid Voice, Freeze-Dry, Phantom
+Force).
+
+---
+
 ## TOOLS & RESOURCES
 
 - **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.
