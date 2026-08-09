@@ -6,10 +6,12 @@ Usage data is ordinal (usage_rank: 1 = most used), not percentage — order asce
 
 from __future__ import annotations
 
+from collections.abc import Collection
+
 from recommender.calc_client import PokemonSpecOptional
 from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot
-from recommender.ranking import rank_and_cut
+from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.state import ThreatCandidate
 from recommender.usage_data import ingame_species_map
 
@@ -25,6 +27,9 @@ def _usage_key(c: ThreatCandidate) -> tuple:
 def query_by_usage(
     pool: list[PokemonSpecOptional] | None = None,
     n: int = 20,
+    *,
+    available_species: Collection[str] = (),
+    ownership_mode: OwnershipMode = "off",
 ) -> list[ThreatCandidate]:
     """Rank a candidate pool by usage alone; cut to ``n``.
 
@@ -34,11 +39,14 @@ def query_by_usage(
     """
     snap = load_snapshot()
     ig = ingame_species_map(_REGULATION)
+    owned = {sid for species in available_species if (sid := to_id(species))}
     cands: list[ThreatCandidate] = []
 
     if pool is None:
         for sid, entry in snap["species"].items():
             if not is_species_legal(snap, sid):
+                continue
+            if ownership_mode == "owned_only" and sid not in owned:
                 continue
             ig_entry = ig.get(sid) or {}
             rank = ig_entry.get("usage_rank")
@@ -64,6 +72,8 @@ def query_by_usage(
             sid = to_id(species)
             if sid in seen or not is_species_legal(snap, sid):
                 continue
+            if ownership_mode == "owned_only" and sid not in owned:
+                continue
             seen.add(sid)
             entry = snap["species"].get(sid) or {}
             ig_entry = ig.get(sid) or {}
@@ -83,4 +93,12 @@ def query_by_usage(
             )
 
     # tier=None → slack unused; flat sort-and-slice.
-    return rank_and_cut(cands, key=_usage_key, n=n, tier=None, order="ascending")
+    return rank_and_cut(
+        cands,
+        key=_usage_key,
+        n=n,
+        tier=None,
+        order="ascending",
+        ownership_mode=ownership_mode,
+        is_owned=lambda candidate: to_id(candidate.spec.get("species") or "") in owned,
+    )

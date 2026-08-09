@@ -1,7 +1,7 @@
 {
   "category": "nasty_plot_attacker",
   "condition": "",
-  "built_at": "2026-08-08T00:34:11.828285+00:00",
+  "built_at": "2026-08-08T04:46:41.260761+00:00",
   "sub_criteria": {
     "kind": "setup_attacker",
     "condition": "",
@@ -25,11 +25,16 @@
   "notes": [
     "delivery move locked by self +2 spa-only Status rule \u2192 nastyplot",
     "threat_panel=usage_informed (Garchomp/Life Orb, Garchomp-Mega/Garchompite, Incineroar/Sitrus Berry, Kingambit/Black Glasses, Sinistcha/Sitrus Berry, Charizard/Life Orb, Charizard-Mega-X/Charizardite X, Charizard-Mega-Y/Charizardite Y)",
-    "Showdown attribution (Delphox/Delphox-Mega): base discounted",
-    "Showdown attribution (Froslass/Froslass-Mega): base discounted",
-    "Showdown attribution (Houndoom/Houndoom-Mega): base discounted",
-    "Showdown attribution (Gengar/Gengar-Mega): base discounted",
-    "Showdown attribution (Banette/Banette-Mega): base discounted",
+    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=1.150 base=0.392; stone-heuristic fallback unused",
+    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.151 base=8.125; stone-heuristic fallback unused",
+    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.621 base=0.362; stone-heuristic fallback unused",
+    "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.189 base=0.208; stone-heuristic fallback unused",
+    "Showdown attribution (Houndoom/Houndoom-Mega): mega usage_pct=0.195 base=0.039; stone-heuristic fallback unused",
+    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=3.353 base=0.328; stone-heuristic fallback unused",
+    "Showdown attribution (Froslass/Froslass-Mega): mega usage_pct=4.299 base=0.043; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.203 base=0.122; stone-heuristic fallback unused",
+    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=4.563 base=0.019; stone-heuristic fallback unused",
+    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.272 base=0.000; stone-heuristic fallback unused",
     "Excellent damage floor = 2nd-highest adjusted \u00d7 0.95 \u2192 1.171 (top: Alakazam-Mega=1.250, Delphox-Mega=1.233)",
     "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.820"
   ],
@@ -271,13 +276,13 @@
     {
       "species": "Banette",
       "species_id": "banette",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
       "species": "Banette-Mega",
       "species_id": "banettemega",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
@@ -295,13 +300,13 @@
     {
       "species": "Decidueye",
       "species_id": "decidueye",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
       "species": "Decidueye-Hisui",
       "species_id": "decidueyehisui",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
@@ -343,25 +348,31 @@
     {
       "species": "Gourgeist",
       "species_id": "gourgeist",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
       "species": "Gourgeist-Large",
       "species_id": "gourgeistlarge",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
       "species": "Gourgeist-Small",
       "species_id": "gourgeistsmall",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
       "species": "Grimmsnarl",
       "species_id": "grimmsnarl",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Houndoom",
+      "species_id": "houndoom",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
@@ -379,7 +390,7 @@
     {
       "species": "Incineroar",
       "species_id": "incineroar",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
@@ -439,13 +450,13 @@
     {
       "species": "Morpeko",
       "species_id": "morpeko",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
       "species": "Mr. Rime",
       "species_id": "mrrime",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
@@ -469,13 +480,13 @@
     {
       "species": "Pikachu",
       "species_id": "pikachu",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
       "species": "Polteageist",
       "species_id": "polteageist",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
@@ -541,13 +552,13 @@
     {
       "species": "Sableye",
       "species_id": "sableye",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
       "species": "Sableye-Mega",
       "species_id": "sableyemega",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
@@ -619,7 +630,7 @@
     {
       "species": "Spiritomb",
       "species_id": "spiritomb",
-      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
@@ -650,12 +661,6 @@
       "species": "Zoroark-Hisui",
       "species_id": "zoroarkhisui",
       "reason": "learnset has nastyplot but no usage evidence of the setup move",
-      "change_reason": null
-    },
-    {
-      "species": "Houndoom",
-      "species_id": "houndoom",
-      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.039% < 0.25\u00d7 mega 0.195%))",
       "change_reason": null
     }
   ]

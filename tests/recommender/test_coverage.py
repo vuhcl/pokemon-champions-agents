@@ -12,6 +12,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from recommender.calc_client import CalcClient, CalcRequest
 from recommender.coverage import (
     ABILITY_TO_FIELD,
+    _slot_to_spec,
     compute_team_coverage,
     detect_spof,
     get_relevant_threats,
@@ -148,6 +149,7 @@ PELIPPER = {
 def _slot(spec: dict[str, Any], *, locked: bool = False) -> Slot:
     return Slot(
         species=Attr(value=spec["species"], locked=locked),
+        ability=Attr(value=spec.get("ability")),
         item=Attr(value=spec.get("item")),
         moveset=Attr(value=list(spec.get("moves") or [])),
         spread=Attr(value=dict(spec.get("evs") or {})),
@@ -161,6 +163,18 @@ def _patch_specs(mapping: dict[str, dict[str, Any]]):
         return dict(mapping[slot.species.value])
 
     return patch("recommender.coverage._slot_to_spec", side_effect=_fn)
+
+
+def test_slot_to_spec_prefers_persisted_ability_over_usage():
+    slot = Slot(
+        species=Attr(value="Pelipper", locked=True),
+        ability=Attr(value="Keen Eye", locked=True),
+    )
+    with patch(
+        "recommender.coverage.featured_or_common_set",
+        return_value={"ability": "Drizzle"},
+    ):
+        assert _slot_to_spec(slot)["ability"] == "Keen Eye"  # type: ignore[index]
 
 
 _CHOMP_VS_KING = {

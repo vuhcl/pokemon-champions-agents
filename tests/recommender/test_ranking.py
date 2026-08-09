@@ -183,3 +183,126 @@ def test_n_zero_tiered_keeps_tier0_only():
 def test_negative_n_raises():
     with pytest.raises(ValueError):
         rank_and_cut(["a"], key=lambda x: x, n=-1)
+
+
+def test_owned_first_is_primary_for_scalar_and_tuple_keys():
+    xs = [Scored("best-unowned", 10), Scored("owned", 1), Scored("other", 5)]
+    scalar = rank_and_cut(
+        xs,
+        key=lambda x: x.score,
+        n=3,
+        ownership_mode="owned_first",
+        is_owned=lambda x: x.name == "owned",
+    )
+    composite = rank_and_cut(
+        xs,
+        key=lambda x: (x.score, x.name),
+        n=3,
+        ownership_mode="owned_first",
+        is_owned=lambda x: x.name == "owned",
+    )
+    assert scalar[0].name == "owned"
+    assert composite[0].name == "owned"
+
+
+def test_owned_last_only_breaks_complete_existing_key_ties():
+    xs = [
+        Scored("better-unowned", 10),
+        Scored("tied-unowned", 5),
+        Scored("tied-owned", 5),
+    ]
+    out = rank_and_cut(
+        xs,
+        key=lambda x: (x.score, 0),
+        n=3,
+        ownership_mode="owned_last",
+        is_owned=lambda x: x.name == "tied-owned",
+    )
+    assert [x.name for x in out] == [
+        "better-unowned",
+        "tied-owned",
+        "tied-unowned",
+    ]
+
+
+def test_soft_ownership_prefers_owned_in_ascending_order():
+    xs = [Scored("unowned-low", 1), Scored("owned-high", 9)]
+    first = rank_and_cut(
+        xs,
+        key=lambda x: x.score,
+        n=2,
+        order="ascending",
+        ownership_mode="owned_first",
+        is_owned=lambda x: x.name == "owned-high",
+    )
+    assert [x.name for x in first] == ["owned-high", "unowned-low"]
+
+    tied = [Scored("unowned", 1), Scored("owned", 1)]
+    last = rank_and_cut(
+        tied,
+        key=lambda x: x.score,
+        n=2,
+        order="ascending",
+        ownership_mode="owned_last",
+        is_owned=lambda x: x.name == "owned",
+    )
+    assert [x.name for x in last] == ["owned", "unowned"]
+
+
+def test_tiered_ownership_changes_order_not_admission():
+    xs = [
+        Scored("tier0-high", 10, tier=0),
+        Scored("tier0-low", 1, tier=0),
+        Scored("tier1-owned", 5, tier=1),
+    ]
+    off = rank_and_cut(
+        xs,
+        key=lambda x: x.score,
+        n=3,
+        tier=lambda x: x.tier,
+        ownership_mode="off",
+    )
+    first = rank_and_cut(
+        xs,
+        key=lambda x: x.score,
+        n=3,
+        tier=lambda x: x.tier,
+        ownership_mode="owned_first",
+        is_owned=lambda x: x.name == "tier1-owned",
+    )
+    last = rank_and_cut(
+        xs,
+        key=lambda x: x.score,
+        n=3,
+        tier=lambda x: x.tier,
+        ownership_mode="owned_last",
+        is_owned=lambda x: x.name == "tier1-owned",
+    )
+    assert {x.name for x in first} == {x.name for x in off}
+    assert first[0].name == "tier1-owned"
+    assert [x.name for x in last] == [x.name for x in off]
+
+
+def test_off_and_owned_only_do_not_require_ownership_predicate():
+    xs = [Scored("low", 1), Scored("high", 2)]
+    expected = rank_and_cut(xs, key=lambda x: x.score, n=2)
+    assert (
+        rank_and_cut(xs, key=lambda x: x.score, n=2, ownership_mode="off")
+        == expected
+    )
+    assert (
+        rank_and_cut(xs, key=lambda x: x.score, n=2, ownership_mode="owned_only")
+        == expected
+    )
+
+
+def test_invalid_ownership_configuration_raises():
+    with pytest.raises(ValueError, match="unsupported ownership_mode"):
+        rank_and_cut(
+            ["a"],
+            key=lambda x: x,
+            n=1,
+            ownership_mode="invalid",  # type: ignore[arg-type]
+        )
+    with pytest.raises(ValueError, match="requires is_owned"):
+        rank_and_cut(["a"], key=lambda x: x, n=1, ownership_mode="owned_first")

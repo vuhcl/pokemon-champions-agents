@@ -13,13 +13,12 @@ from recommender.calc_client import FieldSpec, PokemonSpecOptional
 from recommender.coverage import ABILITY_TO_FIELD, get_relevant_threats
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
-from recommender.propose import effective_spe
 from recommender.state import Attr, RecommenderState, Slot
 from recommender.usage_data import SLOT_THREAT_N, featured_or_common_set
+from recommender.usage_spreads import effective_spe
 
 PrimaryFunction = Literal["offense", "support", "unknown"]
 Tankiness = Literal["tanky", "glass", "unknown"]
-MatchStatus = Literal["clean", "partial", "none"]
 NeedCategory = Literal[
     "stat_lowering_partner",
     "defensive_coverage",
@@ -134,14 +133,30 @@ _OFFENSIVE_PRIORITY_MOVES = frozenset(
 )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, init=False)
 class RoleShapeContext:
-    match_status: MatchStatus
     primary_function: PrimaryFunction = "unknown"
     tankiness: Tankiness = "unknown"
-    setup_dependent: bool = False
-    archetype_id: str | None = None
-    partial_signals: tuple[str, ...] = ()
+    requires_setup_turn: bool = False
+
+    def __init__(
+        self,
+        primary_function: PrimaryFunction = "unknown",
+        tankiness: Tankiness = "unknown",
+        requires_setup_turn: bool = False,
+        *,
+        match_status: str | None = None,
+        setup_dependent: bool | None = None,
+    ) -> None:
+        """Build the minimal shape; legacy keywords are accepted but not retained."""
+        del match_status
+        object.__setattr__(self, "primary_function", primary_function)
+        object.__setattr__(self, "tankiness", tankiness)
+        object.__setattr__(
+            self,
+            "requires_setup_turn",
+            requires_setup_turn if setup_dependent is None else setup_dependent,
+        )
 
 
 @dataclass(frozen=True)
@@ -308,8 +323,10 @@ def _secured_fields(
         if not slot.species.value or not slot.species.locked:
             continue
         species = slot.species.value
-        featured = featured_or_common_set(species, regulation=regulation)
-        ability = (featured or {}).get("ability") if featured else None
+        ability = slot.ability.value
+        if not ability:
+            featured = featured_or_common_set(species, regulation=regulation)
+            ability = (featured or {}).get("ability") if featured else None
         aid = to_id(ability or "")
         field = ABILITY_TO_FIELD.get(aid)
         if not field:
@@ -429,6 +446,8 @@ def _speed_needs(
     moves: list[str],
     primary_function: PrimaryFunction,
     species: str,
+    evs: dict[str, int],
+    nature: str,
     team_draft: list[Slot] | None,
     state: RecommenderState | None,
     regulation: str,
@@ -461,7 +480,7 @@ def _speed_needs(
         return out
 
     threat_speeds = _threat_speeds(state, regulation)
-    anchor_spe = effective_spe(species, {"spe": 0}, "Hardy")
+    anchor_spe = effective_spe(species, evs, nature)
     tier = _spe_tier(anchor_spe, threat_speeds)
     if tier is None:
         return out
@@ -478,9 +497,6 @@ def query_support_needs(
     regulation: str = "champions-reg-mb",
 ) -> list[SupportNeed]:
     """Named support-need categories for an anchor; no ranking or candidate search."""
-    if role_shape_context.match_status == "clean":
-        return []
-
     species = pokemon.get("species") or ""
     if not species:
         return []
@@ -565,11 +581,11 @@ def query_support_needs(
 
     # --- Fake Out / redirection (setup execution risk OR glass offense) ---
     # Taunt stays setup-only — not a glass-offense universal.
-    if role_shape_context.setup_dependent or (
+    if role_shape_context.requires_setup_turn or (
         primary == "offense" and tankiness == "glass"
     ):
-        if role_shape_context.setup_dependent:
-            fo_trigger = "setup_dependent:fake_out"
+        if role_shape_context.requires_setup_turn:
+            fo_trigger = "requires_setup_turn:fake_out"
             fo_desc = "Turn-limited/setup-dependent role wants Fake Out protection."
         else:
             fo_trigger = "glass_offense:fake_out"
@@ -585,7 +601,7 @@ def query_support_needs(
                 notes="Known counters: Psychic Terrain, Armor Tail, Queenly Majesty",
             )
         )
-    if role_shape_context.setup_dependent:
+    if role_shape_context.requires_setup_turn:
         needs.append(
             SupportNeed(
                 category="taunt_disruption",
@@ -594,7 +610,7 @@ def query_support_needs(
                     "Setup-dependent role wants a teammate that can Taunt first "
                     "or otherwise disrupt the opponent's Taunt user."
                 ),
-                trigger="setup_dependent:taunt",
+                trigger="requires_setup_turn:taunt",
                 notes="No clean mechanical counter identified",
             )
         )
@@ -606,6 +622,8 @@ def query_support_needs(
             moves=moves,
             primary_function=primary,
             species=species,
+            evs=dict(pokemon.get("evs") or {}),
+            nature=str(pokemon.get("nature") or "Hardy"),
             team_draft=team_draft,
             state=state,
             regulation=regulation,

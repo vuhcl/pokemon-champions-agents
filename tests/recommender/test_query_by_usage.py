@@ -54,3 +54,36 @@ def test_composes_into_query_counters():
     anchor = top[0].spec
     counters = query_counters(anchor, n=10)
     assert counters  # end-to-end composition works
+
+
+def test_usage_admission_honors_ownership_before_cut():
+    top = query_by_usage(n=2)
+    pool = [row.spec for row in top]
+    owned = str(pool[1]["species"])
+    assert [
+        row.spec["species"]
+        for row in query_by_usage(
+            pool,
+            n=2,
+            available_species=[owned],
+            ownership_mode="owned_first",
+        )
+    ][0] == owned
+    assert [
+        row.spec["species"]
+        for row in query_by_usage(
+            pool,
+            n=2,
+            available_species=[owned],
+            ownership_mode="owned_last",
+        )
+    ][0] == pool[0]["species"]
+    assert [
+        row.spec["species"]
+        for row in query_by_usage(
+            pool,
+            n=2,
+            available_species=[owned],
+            ownership_mode="owned_only",
+        )
+    ] == [owned]

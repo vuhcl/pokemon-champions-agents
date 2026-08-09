@@ -1,9 +1,5 @@
 # CURSOR HANDOFF — Pokémon Champions Agentic Team-Building System
 
-> **Current status (2026-08-08):** This document is a historical initial-scaffolding handoff.
-> For the authoritative current implementation state and decisions, see
-> `master_project_log.md` and `architecture_decisions.md`.
-
 This doc is implementation-focused, written for building, not for narrative/portfolio framing
 (that lives in the paired Claude project — see "Feedback loop" at the bottom). Use this to
 scaffold the repo and resolve the open decisions before writing the recommender's core logic.

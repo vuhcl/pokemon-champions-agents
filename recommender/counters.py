@@ -20,7 +20,7 @@ from recommender.calc_client import PokemonSpecOptional
 from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot
 from recommender.matchup import effective_accuracy, expected_hit_factor
-from recommender.ranking import rank_and_cut
+from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.state import ThreatCandidate
 from recommender.usage_data import featured_or_common_set, ingame_species_map
 
@@ -316,12 +316,16 @@ def query_counters(
     pokemon: PokemonSpecOptional,
     n: int = 20,
     candidate_pool: list[PokemonSpecOptional] | None = None,
+    *,
+    available_pool: list[str] | None = None,
+    ownership_mode: OwnershipMode = "off",
 ) -> list[ThreatCandidate]:
     """Cheap data-only threats for ``pokemon`` (ADR-022 stage-1, cap ``n``).
 
     ``candidate_pool`` restricts which species are searched as threats.
     ``None`` = full legal set (unchanged default); non-None (incl. ``[]``) = only
-    those ids.
+    those ids. ``available_pool`` is a species-level boolean signal: duplicate
+    ids do not add weight. ``owned_only`` intersects it with ``candidate_pool``.
     """
     species = pokemon.get("species")
     if not species:
@@ -341,6 +345,9 @@ def query_counters(
         allowed = {
             to_id(p["species"]) for p in candidate_pool if p.get("species")
         }
+    owned = {sid for species in available_pool or [] if (sid := to_id(species))}
+    if ownership_mode == "owned_only":
+        allowed = owned if allowed is None else allowed & owned
 
     attack_types = _anchor_attack_types(snap, pokemon, anchor_types)
     ig = ingame_species_map(DEFAULT_REGULATION)
@@ -435,4 +442,6 @@ def query_counters(
         tier=lambda c: threat_tier(c.threat_kinds),
         slack=QUERY_COUNTERS_SLACK,
         order="descending",
+        ownership_mode=ownership_mode,
+        is_owned=lambda c: to_id(c.spec.get("species") or c.form) in owned,
     )
