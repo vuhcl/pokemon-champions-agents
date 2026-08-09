@@ -367,6 +367,31 @@ flagging) as follow-up work, not resolved here.
 
 ---
 
+### ADR-014 — Amendment 2026-08-08a
+
+Second separately-confirmed runtime exception: tier-2 spread reasoning may fetch structured
+per-species spread variants when bundled usage data has no coverage.
+
+Surfaced while implementing select_usage_spread: the offline usage snapshot's top-species
+cap leaves otherwise legal species without the real spread variants needed for contextual
+tier-2 selection.
+
+This follows the purpose/mechanism distinction established by Amendment 2026-08-07a. The
+runtime exception is implemented through the dedicated fetch_live_spreads mechanism, using
+known MunchStats/CBD endpoints, known structured schemas, and deterministic parsing. It
+does not call the construction-scoped usage_cbd.py or usage_showdown.py fetchers and does
+not authorize free-form or model-directed search.
+
+The fetch occurs only when the species has no offline usage row. Failure, unsupported
+regulation, or unusable data returns no candidates, allowing explicit fallback to tier-3
+role_spread.
+
+Status: Adds a second, separately justified runtime exception for tier-2 spread evidence
+only. Tier-1 lookup_live_build, construction-fetcher restrictions, and ADR-014's general
+prohibition on runtime web search remain unchanged.
+
+---
+
 ## ADR-004: RL policy — retrain, do not reuse
 **Decision:** Train a new RL policy specifically for Pokémon Champions and the current regulation, rather than adapting the ~6-year-old SARSA policy from the original Pokémon Battler project.
 **Alternatives considered:** Fine-tune/adapt the old policy; use the old policy's reward structure unchanged with new state representation.

@@ -14,6 +14,7 @@ from recommender.legality import (
 from recommender.resolved_builds import get_resolved_build, put_resolved_build
 from recommender.state import PokemonSet, Slot, StatsTable
 from recommender.usage_data import featured_or_common_set, find_set_matching, species_usage
+from recommender.usage_spreads import select_usage_spread
 
 SP_BUDGET = 66
 
@@ -61,19 +62,55 @@ def role_spread(role: RoleArchetype) -> StatsTable:
     if role == "fast_attacker":
         return {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32}
     if role == "trick_room_sweeper":
-        return {"hp": 32, "atk": 0, "def": 0, "spa": 34, "spd": 0, "spe": 0}
+        return {"hp": 32, "atk": 0, "def": 2, "spa": 32, "spd": 0, "spe": 0}
     if role == "bulky_pivot":
         return {"hp": 32, "atk": 0, "def": 18, "spa": 0, "spd": 16, "spe": 0}
     if role == "support_speed_control":
         return {"hp": 20, "atk": 0, "def": 14, "spa": 0, "spd": 0, "spe": 32}
-    # bulky_attacker
-    return {"hp": 20, "atk": 32, "def": 14, "spa": 0, "spd": 0, "spe": 0}
+    if role == "bulky_attacker":
+        return {"hp": 20, "atk": 32, "def": 14, "spa": 0, "spd": 0, "spe": 0}
+    raise ValueError(f"unsupported role archetype: {role!r}")
+
+
+_STAT_KEYS = ("hp", "atk", "def", "spa", "spd", "spe")
+_SP_CAP = 32
 
 
 def spread_sum(evs: StatsTable | dict[str, int] | None) -> int:
     if not evs:
         return 0
-    return sum(int(evs.get(k, 0)) for k in ("hp", "atk", "def", "spa", "spd", "spe"))
+    return sum(int(evs.get(k, 0)) for k in _STAT_KEYS)
+
+
+def _allocate_remainder(
+    partial: StatsTable | dict[str, int], role: RoleArchetype
+) -> tuple[StatsTable, dict[str, int]]:
+    """Keep partial allocation; spend leftover SP toward role_spread targets.
+
+    Returns (completed_spread, synthesized_per_stat) where synthesized counts only
+    the points added in this step — not the preserved tier-1 base.
+    """
+    target = role_spread(role)
+    out: StatsTable = {k: int(partial.get(k, 0)) for k in _STAT_KEYS}
+    synthesized = {k: 0 for k in _STAT_KEYS}
+    need = SP_BUDGET - sum(out.values())
+    while need > 0:
+        deficits = [
+            (k, target[k] - out[k])
+            for k in _STAT_KEYS
+            if out[k] < _SP_CAP and target[k] > out[k]
+        ]
+        if deficits:
+            k = max(deficits, key=lambda kv: kv[1])[0]
+        else:
+            room = [(k, _SP_CAP - out[k]) for k in _STAT_KEYS if out[k] < _SP_CAP]
+            if not room:
+                break
+            k = max(room, key=lambda kv: kv[1])[0]
+        out[k] = int(out[k]) + 1
+        synthesized[k] += 1
+        need -= 1
+    return out, synthesized
 
 
 def diagnose_and_substitute(
@@ -255,7 +292,10 @@ def recommend_build(
     # --- Tier 1: usage exact match ---
     matched = find_set_matching(species, moves, item, regulation=regulation)
     source = "champions-native"
-    built: PokemonSet | None = matched
+    built: PokemonSet | None = dict(matched) if matched else None
+    if built:
+        # Usage spread is a species-level marginal, not correlated with this set.
+        built.pop("evs", None)
     rationale = "tier1 usage exact moves+item match" if matched else ""
 
     if not built:
@@ -267,23 +307,17 @@ def recommend_build(
             source = "live-lookup"
             rationale = "tier1 live lookup"
         else:
-            # Start from user moves+item + usage spread if any
+            # Start from user moves+item; species-level spreads are selected below.
             entry = species_usage(species, regulation=regulation)
-            spread = None
             ability = None
             if entry:
-                spreads = entry.get("top_spreads") or []
-                if spreads:
-                    spread = spreads[0]["evs"]
                 abs_ = entry.get("common_abilities") or []
                 if abs_:
                     ability = abs_[0]["name"]
             built = {"species": species, "moves": moves, "item": item}
             if ability:
                 built["ability"] = ability
-            if spread:
-                built["evs"] = spread  # type: ignore[typeddict-item]
-            rationale = "tier1 assembled from usage spread + user moves/item (no exact featured match)"
+            rationale = "assembled from user moves/item (no exact featured match)"
             source = "champions-native"
 
     assert built is not None
@@ -317,25 +351,62 @@ def recommend_build(
             f"current-availability: {len(gaps['unused_legal_moves'])} unused legal moves (not auto-applied)"
         )
 
-    # Completeness → tier 2 top-up
-    role = infer_role(b_moves, b_item)
-    evs = built.get("evs")
-    if spread_sum(evs) < SP_BUDGET:
-        topped = role_spread(role)
-        built["evs"] = topped
-        rationale = f"{rationale}; tier2 {role} completed SP to {SP_BUDGET}"
-        source_tier_out = "tier2"
-        verification.append(f"tier2 role={role}")
-    else:
-        source_tier_out = source
-        built.setdefault("evs", role_spread(role))
-
-    # Tier 3 when we have calc and incomplete was topped OR always light verify for tier2
     opponents = select_opponent_builds(
         ["Kingambit", "Garchomp", "Incineroar", "Whimsicott", "Pelipper"],
         regulation=regulation,
         k=3,
     )
+
+    # Completeness: exact partials retain their real base; missing spreads use tier 2.
+    role = infer_role(b_moves, b_item)
+    evs = built.get("evs")
+    used = spread_sum(evs)
+    if used >= SP_BUDGET:
+        source_tier_out = source
+    elif not evs or used == 0:
+        choice = select_usage_spread(
+            species,
+            role,
+            b_moves,
+            regulation=regulation,
+            threats=opponents,
+            snap=snap,
+        )
+        if choice:
+            built["evs"] = choice.spread
+            if choice.nature:
+                built["nature"] = choice.nature
+            source_tier_out = choice.source
+            verification.append(choice.rationale)
+            rationale = f"{rationale}; {choice.rationale}".strip("; ")
+        else:
+            built["evs"] = role_spread(role)
+            source_tier_out = "tier3_role"
+            verification.append(
+                f"tier2 exhausted; tier3 role={role} synthesized full {SP_BUDGET}"
+            )
+            rationale = (
+                f"{rationale}; tier3 {role} synthesized full SP ({SP_BUDGET})"
+            ).strip("; ")
+    else:
+        # Partial: preserve real allocation; synthesize remainder toward role targets.
+        assert evs is not None
+        completed, synth = _allocate_remainder(evs, role)
+        built["evs"] = completed
+        # Real tier-1 points exist but were short of budget — not full tier-1 confidence,
+        # and not a wipe to tier2 that erases the real base.
+        source_tier_out = "tier1_partial"
+        synth_bits = ",".join(f"{k}+{n}" for k, n in synth.items() if n)
+        verification.append(
+            f"incomplete-spread: used {used}/{SP_BUDGET}; remainder synthesized via role={role}"
+            + (f" ({synth_bits})" if synth_bits else "")
+        )
+        rationale = (
+            f"{rationale}; tier1_partial: kept {used} SP, "
+            f"synthesized {SP_BUDGET - used} via {role}"
+        ).strip("; ")
+
+    # Tier 3 when we have calc and incomplete was topped OR always light verify for tier2
     # Prefer threats from usage teammates inverted — keep simple fixed list filtered to available
     if calculate_batch is not None and built.get("evs"):
         notes = _tier3_verify_spread(

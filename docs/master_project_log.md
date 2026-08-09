@@ -1904,6 +1904,67 @@ assumes available_pool arrives as already-structured species data); capturing th
 ownership_mode preference from conversation or settings (assumed to arrive as an already-
 resolved parameter for this task).
 
+### 2026-08-08 (cont.): role_spread legality fix + new tier-2 usage-informed spread
+reasoning; second ADR-014 live-fetch exception
+
+Surfaced while investigating the _pick_role redesign's prerequisites (a consumer audit
+found role_spread silently defaulting unrecognized roles to the bulky_attacker spread).
+Turned into a substantially larger, three-part fix once a real, separate legality bug was
+found alongside it, and once a much better long-term design became apparent given data
+infrastructure already built for other purposes.
+
+**Legality bug, confirmed and fixed:** a full sweep of all five hardcoded role_spread
+entries (not just the one suspected) found ONE real violation — trick_room_sweeper
+allocated 34 points to Special Attack, exceeding Champions' real 32-point per-stat cap
+(total still summed to a legal 66, so this wasn't caught by any total-budget check). Fixed
+to 32 HP / 2 Def / 32 SpA. The other four spreads were checked and confirmed already legal.
+
+**Fallthrough bug, confirmed and fixed:** role_spread's final branch was an unconditional
+`return`, never actually guarded to "bulky_attacker" specifically — Python doesn't enforce
+the RoleArchetype Literal type at runtime, so any unrecognized role value silently landed
+in that branch and got bulky_attacker's spread with no signal anything was wrong. Fixed to
+raise ValueError on an unrecognized role, consistent with this project's standing "fail
+loud, not silent" discipline — confirmed safe against existing callers, since
+_refine_defaults already resolves unknown roles via infer_role BEFORE calling role_spread
+(per the earlier consumer audit).
+
+**New tier-2 usage-informed spread reasoning (recommender/usage_spreads.py,
+select_usage_spread), a genuine architectural addition:** role_spread's fixed, role-keyed
+lookup table was recognized as backwards relative to everything else this project has
+built since it was written — this project already extracts real, per-species spread+nature
+usage data (species_usage(...).top_spreads, up to 8 real, ranked variants per species,
+already part of the same CBD/Showdown pipeline used for movesets/items) via the same
+infrastructure used everywhere else. Confirmed the real data shape before designing
+anything: Showdown's top_spreads carries nature but its pct field is an UNNORMALIZED
+MunchStats chaos weight, not a true percentage (a real, live footgun if ever conflated with
+a genuine percentage elsewhere); CBD's pct IS a real percentage but lacks nature. Real
+examples confirmed genuinely distinct strategies coexist unlabeled in the same list
+(Incineroar: offensive vs. bulky-special vs. bulky-physical variants; Farigiraf similarly
+varied) — nothing in the data explains which variant fits which strategic context, and
+no field proves a spread co-occurred with any specific moveset/item (each is independently
+top-ranked). This meant the new tier-2 mechanism couldn't be a simple top-1 lookup (which
+is what the existing featured_or_common_set already does, and was confirmed insufficient
+for this purpose, since it discards the real variation this task exists to use) — it needed
+genuine reasoning: given the real, available variants and real context (role, team state,
+threats/needs already established), select the one that best fits, the same propose-then-
+verify shape already proven for _best_payoff_move's selection in the setup-attacker work.
+
+**Corrected spread-sourcing hierarchy**: tier-1 (exact cached build, unchanged) -> tier-2
+(new: contextual reasoning over real top_spreads variants, offline or via a dedicated live
+fetch for out-of-coverage species) -> tier-3 (role_spread's now-corrected, legal hardcoded
+table, genuine last resort only). Integrated into both recommend.py and the slot-fill path.
+
+**Second ADR-014 live-fetch exception (Amendment 2026-08-08a):** the offline usage
+snapshot's top-50-species-plus-lineage cap (the same boundary that caused the earlier
+Clefable gap) leaves otherwise-legal species with no real spread variants for tier-2 to
+reason over. Resolved the same way as lookup_live_build's exception (Amendment
+2026-08-07a) — confirmed this is a second, separately-justified instance of the same
+purpose/mechanism distinction, not a blanket loosening: a dedicated fetch_live_spreads
+mechanism (known MunchStats/CBD endpoints, known structured schemas, deterministic parsing,
+explicitly NOT reusing the construction-scoped usage_cbd.py/usage_showdown.py fetchers)
+fires only when a species has no offline usage row; any failure, unsupported regulation, or
+unusable data returns no candidates and falls through cleanly to tier-3.
+
 ## TOOLS & RESOURCES
 
 - **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.
