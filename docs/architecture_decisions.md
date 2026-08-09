@@ -3798,3 +3798,53 @@ required.
 
 ---
 
+## ADR-025: Team-phase routing — confirmed-lock-count phases with a per-lock recompute
+trigger, not a fixed threshold
+
+**Decision:** Route slot-fill behavior through four phases derived purely from the count of
+fully confirmed (`all_locked`) slots — `empty` (0), `single_locked` (1), `multi_locked` (2+,
+single bucket), `complete` (all slots locked) — via an explicit `route_team_phase` graph node,
+rather than a single undifferentiated proposal sequence that never changes as the team fills.
+Team-wide signals (coverage, SPOF) are recomputed on every entry to `multi_locked`, not cached
+at phase entry and not gated behind any fixed lock-count threshold beyond the 2-lock floor.
+Each phase gets exactly the behavior its available evidence supports — `single_locked`
+dispatches to the real, tested Track C anchored-discovery chain; `multi_locked` gets real
+signal recomputation but not full multi-member candidate ranking (shared-teammate
+intersection, condition resilience, and selected-four evidence remain unavailable and are
+explicitly not simulated); `empty` and `complete` get real routing to what already exists
+(`bootstrap_direction` as a stub, `generate_team_review` made automatic) without inventing
+capability that doesn't exist yet.
+
+**Alternatives considered:** Keep the pre-existing single fixed proposal path regardless of
+team fill state. Use a fixed "switch modes at N locked" threshold — the original slot-fill
+discovery report proposed "roughly three locked" as the anchor-to-team-wide transition point.
+Cache team-wide signals once at phase entry rather than recomputing on every lock.
+
+**Why:** A real, observed failure (Cursor slot-fill discovery role-play, Archaludon scenario)
+showed the actual bug was not a threshold problem — the orchestrator kept relying on
+Archaludon's stale teammate list after team composition had already changed, producing a
+redundant Rain-offense pick (Basculegion) once Mega Swampert already filled that role. A
+targeted follow-up check against the actual role-play transcripts (not the discovery report's
+own summary of them) confirmed shared-teammate and coverage signals were already computable
+and were correctly used at exactly 2 locked members (Archaludon + Pelipper), one full lock
+before the report's proposed 3-lock boundary — meaning "roughly three locked" overstated the
+importance of the count itself. The real fix is a recompute trigger (refresh team-wide signals
+on every lock), not a boundary at any particular N. A second transcript (mono-Fairy, six
+slots) confirmed no orchestrator behavior changes at any count boundary past 2 locked (checked
+explicitly at 3/4/5/6) — supporting one `multi_locked` bucket rather than finer count-based
+phases — while six-lock terminal review was confirmed materially distinct in kind (validating
+a finished roster, not generating a next candidate), justifying `complete` as its own phase
+rather than folding it into `multi_locked`.
+
+**Status:** Implemented and verified (`recommender/nodes.py`, `recommender/graph.py`;
+`tests/recommender/test_team_phase_routing.py`; 440 tests passing, up from 431, 5 skipped).
+Deliberately deferred, not oversights: `empty`'s combined direction+available-pool interaction
+(new UX design, not a missing backend capability — left as a documented stub); `single_locked`'s
+owned-first propagation, target-role Compendium dispatch, and complete target-role resolution
+for threat-only candidates; `multi_locked`'s shared-teammate intersection, condition
+resilience, role-duplication scoring, and selected-four evidence, none of which have a
+built mechanism yet. The labeled static fallback for an unavailable calc service remains a
+separate, unresolved gap — coverage/SPOF still fail hard, unchanged by this pass.
+
+---
+

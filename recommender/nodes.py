@@ -53,6 +53,11 @@ SLOT_ATTRS = ("role", "species", "ability", "item", "moveset", "spread", "nature
 TeamPhase = Literal["empty", "single_locked", "multi_locked", "complete"]
 
 
+def query_shared_teammates(*_args, **_kwargs):
+    """P7 integration seam; no teammate signal exists before that slice."""
+    return None
+
+
 _AFFIRMATIVE_REPLIES = frozenset(
     {
         "yes",
@@ -1072,7 +1077,9 @@ def refresh_team_signals(state: RecommenderState, config: RunnableConfig) -> dic
     return {
         "coverage": review.coverage,
         "spofs": review.spofs,
-        "shared_teammates": None,
+        "shared_teammates": query_shared_teammates(
+            locked_species, state.get("regulation_mod") or "champions"
+        ),
         "last_team_review": None,
         "candidate_discovery_error": review.error,
     }
@@ -1084,17 +1091,6 @@ def discover_multi_locked(
     """Collect all locked-member evidence and present the next blank slot."""
     from recommender.propose import fill_team_draft
     from recommender.slot_fill import SlotFillContext, run_slot_fill_terminal
-    from recommender.team_candidates import (
-        annotate_composition_impact,
-        build_team_threat_objective,
-        collect_locked_anchor_contexts,
-        material_completion_preferences,
-        merge_multi_locked_candidates,
-        owned_species_ids,
-        rank_multi_locked_candidates,
-    )
-    from recommender.threat_counters import query_candidates_for_threats
-    from recommender.usage_data import lineage_ids
 
     open_slots = [
         (index, slot)
@@ -1105,19 +1101,15 @@ def discover_multi_locked(
         return {"candidate_discovery_error": None}
     slot_index, target = open_slots[0]
     ownership_mode = state.get("ownership_mode", "off")
-    owned = owned_species_ids(state)
-    available = [
-        str(row["species"])
-        for row in state.get("available_pool", [])
-        if row.get("species")
-    ]
     locked_species = [
         str(slot.species.value)
         for slot in state["team_draft"]
         if all_locked(slot) and slot.species.value
     ]
     review = _compute_team_review(state, config)
-    shared = None
+    shared = query_shared_teammates(
+        locked_species, state.get("regulation_mod") or "champions"
+    )
     signals = {
         "coverage": review.coverage,
         "spofs": review.spofs,
@@ -1159,6 +1151,24 @@ def discover_multi_locked(
             "pending_presentation": None,
         }
 
+    from recommender.team_candidates import (
+        annotate_composition_impact,
+        build_team_threat_objective,
+        collect_locked_anchor_contexts,
+        material_completion_preferences,
+        merge_multi_locked_candidates,
+        owned_species_ids,
+        rank_multi_locked_candidates,
+    )
+    from recommender.threat_counters import query_candidates_for_threats
+    from recommender.usage_data import lineage_ids
+
+    owned = owned_species_ids(state)
+    available = [
+        str(row["species"])
+        for row in state.get("available_pool", [])
+        if row.get("species")
+    ]
     objective = build_team_threat_objective(review)
     excluded = {
         lineage for species in locked_species for lineage in lineage_ids(species)

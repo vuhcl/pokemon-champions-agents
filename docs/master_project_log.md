@@ -2241,6 +2241,76 @@ scoped work; general team-phase routing (the four-phase design from the flow-dis
 report) is still only conceptually specified, not wired into the live graph beyond what
 Track C's transitions required.
 
+### 2026-08-08 (cont.): team-phase routing — implemented, closing out the slot-fill flow
+discovery arc's remaining major gap
+
+Implements the four-phase design corrected earlier this session (see ADR-025) into the live
+graph. Before this pass, `accept_available_pool` routed directly to the legacy proposal path
+with no phase decision point at all, and Track C's anchored-discovery chain and atomic-commit
+path — both real, tested code — had no caller connecting them to team-fill state.
+
+**Verified current-state check done before implementation** (not assumed from the original
+discovery report, which was already several implementation passes stale): confirmed
+`route_team_phase`/`bootstrap_direction` did not exist in any form; confirmed empty-team's
+fallback to `_pick_role`'s generic `bulky_attacker` default traces to a concrete mechanism —
+coverage computed against a literal empty draft trivially yields `has_gap=True`; confirmed
+`compute_team_coverage`/`detect_spof` were callable but not persisted in `RecommenderState`;
+confirmed the shared-teammate query API is still genuinely absent; confirmed
+`generate_team_review` was reachable only via explicit `team_review` intent, never
+automatically. Separately, confirmed the six 2026-08-02 ADR-022 design gaps were NOT an
+untouched backlog as originally assumed — ADR-023 Amendment 2026-08-02a had already closed
+all six (two dissolved as misdiagnoses, two resolved with stated defaults, one accepted as
+risk, one correctly reframed as deferred quick-pick work) — corrected before this task's
+backlog list was finalized, avoiding restating already-closed items as open.
+
+**Shipped:** phase derivation counting only `all_locked` slots (a partial six-slot draft
+correctly stays `multi_locked`, never falsely reads as `complete`); `route_team_phase` wired
+into the graph with four destinations, reached from pool acceptance and every mutation/commit
+handler; `single_locked` real-dispatches the existing Track C chain (`build_anchored_slot_
+fill_context -> annotate_overlap -> resolve_all_support_needs -> merge_need_resolved ->
+run_slot_fill_terminal`) with structured unresolved-target-role results preserved rather than
+forced defaults; `multi_locked` real-recomputes coverage/SPOF on every entry (the actual fix
+for the Basculegion-shaped staleness bug, not a threshold); `complete` auto-dispatches to
+`generate_team_review`, making full-roster review automatic for the first time (explicit
+`team_review` intent still supported). Signal freshness enforced structurally: every phase
+handler clears stale coverage/SPOF/review state before producing its next output; no phase can
+expose a prior phase's review as current.
+
+**Explicitly NOT real, labeled as such rather than silently gapped:** `empty` remains a
+routing stub — the combined direction+pool interaction is new UX design, not built here.
+`single_locked`'s real dispatch still lacks owned-first propagation, target-role Compendium
+dispatch, and target-role resolution for threat-only candidates. `multi_locked`'s signal
+refresh is coverage/SPOF only — shared-teammate intersection, condition resilience, role
+duplication, and selected-four evidence remain unavailable, and this pass does not simulate
+them.
+
+**Memoization disambiguated, not conflated:** confirmed the shipped full-result, thread-scoped
+matchup LRU (2026-07-31) is what's reused by the shared review computation here. Breakpoint
+memoization (learning reusable KO/speed thresholds across EV/nature/level variants) remains a
+separate, deferred task, unaffected by this pass — flagged explicitly after an earlier draft of
+this report used ambiguous wording that could have read as closing out the deferred item.
+
+440 tests passing (up from 431), 5 skipped. `git diff --check` passes. Full suite and three
+focused command groups (routing/slot-fill, routing/coverage/steering, routing/cache-binding)
+all run clean.
+
+**Deliberately deferred, tracked as separate future scope, not folded into this task:**
+canonical name/form resolution; ownership propagation across forms; teammate query API +
+shared-teammate intersection; condition-resilience assessment; move/ability conditional
+mechanics (Electro Shot -> Rain, Liquid Voice + Hyper Voice, Freeze-Dry -> Water, Phantom Force
+positioning); labeled static fallback for unavailable calc; selected-four/bring-four
+compatibility modeling; tier-3 refinement completeness guarantees; Mimikyu usage-snapshot gap;
+`_union_move_candidates` frozenset nondeterminism; teammate percentages; `classify_matchup`
+breakpoint memoization; Mega-count soft guidance (blocked on quick-pick design, which hasn't
+started).
+
+This closes out the major structural gap identified at the start of this session's arc — "no
+production graph node calls any of ADR-022/023's machinery" — for the specific pieces this
+session scoped. Remaining open threads: production checkpointer choice (blocks msgpack
+allowlisting for the new immutable state dataclasses); the full deferred-backlog list above;
+quick-pick design (unblocks Mega-count guidance); v2 singles extension (ADR-005, future
+milestone).
+
 ## TOOLS & RESOURCES
 
 - **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.
