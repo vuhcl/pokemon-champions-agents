@@ -3691,3 +3691,110 @@ Compendium or expand `ABILITY_TO_FIELD` for Hadron/Orichalcum.
 
 ---
 
+### ADR-023 — Amendment 2026-08-08a
+
+**Terminal procedure corrected: candidate acceptance no longer commits species before the
+complete build is confirmed.**
+
+**Decision:** Split ADR-023's original terminal chain into two stages. Candidate acceptance
+now produces `PendingSlotIntent` (cross-turn, pre-commit) rather than calling `apply_lock`
+directly. That intent is built into `ProvisionalSlot` — which requires all seven complete-
+build fields (species, ability, item, moveset, nature, spread, role) or returns a structured
+unresolved result rather than a partial one — then presented for confirmation, then
+committed via a new atomic full-slot lock that prevalidates everything (fingerprint/stage
+consistency, role/species agreement, seven-field completeness, exactly four moves, spread
+bounds/budget, legality/item clause, simultaneous conflicts) and either locks every field
+together or changes nothing on failure. `_apply_locks_batch` is left unchanged and remains
+the correct path for ordinary partial steering (single-attribute constraint/lock updates
+mid-conversation) — this amendment adds a second, stricter commit path, it does not replace
+the first.
+
+**Alternatives considered:** Keep the original immediate-commit-then-refine chain and instead
+try to make refinement itself more reliable, so a bad commit becomes less likely without
+restructuring the terminal sequence. Alternatively, make `_apply_locks_batch` itself
+transactional/all-or-nothing and reuse it for this path instead of building a separate one.
+
+**Why:** ADR-023's original chain (present -> receive -> lock -> hand off to refinement)
+committed the species via `apply_lock` *before* refinement ran, on the assumption that
+refinement was a reliable, always-complete hand-off. A real slot-fill discovery session
+(Cursor role-play, 2026-08-08) disproved that assumption directly: Kingambit's build locked
+with a missing nature despite usage evidence supplying one, because nothing gated commitment
+on refinement actually completing. Improving refinement's reliability alone doesn't fix the
+structural problem — an incomplete or wrong build could still slip through a future
+refinement bug the same way, because nothing in the terminal chain *required* completeness
+before commit. Reusing `_apply_locks_batch` was rejected because it is deliberately
+conflict-skipping (it commits the conflict-free remainder and emits pending flags for the
+rest) — correct behavior for incremental partial steering, wrong behavior for a "this
+candidate is now the confirmed slot" commitment, which needs all-or-nothing semantics.
+
+**Status:** Implemented and verified (431 tests passing, up from 385) as part of the
+anchor-role/target-role pipeline (Tracks A-C, 2026-08-08). Does not affect `_apply_locks_batch`
+or ordinary partial-steering behavior, confirmed by unchanged passing tests on that path.
+
+---
+
+## ADR-024: Anchor-role classification is a separate producer from target-role decision
+
+**Decision:** `RoleShapeContext` (which describes an anchor's strategic role shape, feeding
+`query_support_needs`) and `_pick_role`'s output (which describes what the *open slot* should
+become) are produced by two separate, non-competing mechanisms — not one "role decision"
+concept applied at two points. A new producer, `classify_anchor_role -> AnchorRoleDecision`,
+classifies an existing anchor's strategic role, kit evidence, and mechanism-level execution
+detail; `_pick_role`, redesigned, stays scoped to producing `TargetRoleDecision` for the open
+slot only. `AnchorRoleDecision` feeds a narrowed `RoleShapeContext` (exactly three fields:
+`primary_function`, `tankiness`, `requires_setup_turn`) via a separate, narrow projection
+function (`derive_role_shape_context`) that performs no role-identity reasoning of its own.
+
+Supporting design, load-bearing to this decision rather than separable from it:
+- **Mechanism evidence uses a three-tier model** (`needed` / `wanted` / `secondary`) per
+  mechanic (e.g. Sucker Punch, Drizzle, Tailwind), each tagged with activation mode,
+  interruptibility, and whether the anchor self-supplies the effect or expects a teammate.
+  `requires_setup_turn` (renamed from `setup_dependent`) derives only from a present
+  `needed`/`wanted` mechanism that is itself an exposed, interruptible action the anchor must
+  complete before its own payoff — never from a role name, a species-level compendium
+  membership the active build doesn't use, or condition-dependence on a teammate-supplied
+  effect. `secondary_role_ids` is sourced from `needed`/`wanted`-tier mechanisms supporting a
+  distinct role from the primary, not from incidental `secondary`-tier ones.
+- **`match_status`, `archetype_id`, and `partial_signals` are removed from `RoleShapeContext`.**
+  Match quality moves to `AnchorRoleDecision` as diagnostic classification metadata, never a
+  routing shortcut — a clean role/build match does not imply raw support-needs analysis can
+  be skipped (disproved directly by Archaludon, whose cleanly-classified build still surfaced
+  real support needs). `archetype_id`/`partial_signals` had zero production consumers and
+  zero production constructors, confirmed by direct repository search on two separate
+  occasions.
+
+**Alternatives considered:** Redesign `_pick_role` alone to handle both the anchor's shape and
+the open slot's target role, on the theory that "role decision" is one concept applied twice.
+Alternatively, keep `RoleShapeContext`'s original six fields and just fix the one field
+(`setup_dependent`) that was observed to produce a wrong value.
+
+**Why:** The single-producer framing was the actual root cause of a real, observed bug, not
+just an abstraction preference. Reconstructing the Kingambit slot-fill transcript found three
+simultaneously-present, non-interchangeable role concepts for one Pokémon — `infer_role`'s
+kit inference (`bulky_attacker`), the user's stated strategic identity (`trick_room_sweeper`),
+and the eventual partner's target role (`trick_room_setter`) — and a single unqualified "role
+decision" cannot hold all three without collapsing distinctions that matter. The originally-
+guessed `RoleShapeContext` (built by treating the strategic label as sufficient) set
+`setup_dependent=True` and produced two fabricated needs (Fake Out protection, Taunt
+disruption) that the anchor's actual kit (no setup move) didn't warrant. Correcting only that
+one field, without separating anchor-shape classification from target-role decision as
+distinct producers, would have fixed this one instance without fixing the structural cause —
+the same class of conflation could recur with a different anchor/role pair. Removing
+`match_status` as a routing signal specifically was necessary because the "clean means skip
+analysis" assumption, while intuitive, was directly falsified by real execution against a
+second anchor (Archaludon) rather than assumed correct from the Kingambit case alone.
+
+**Status:** Implemented and verified (Tracks A-C, 2026-08-08) — `AnchorRoleDecision`,
+`classify_anchor_role`, `derive_role_shape_context`, and the narrowed `RoleShapeContext` are
+shipped and tested against Kingambit, Archaludon, Pelipper, and Farigiraf as named acceptance
+cases. Ability persistence (`Slot.ability`, required for `all_locked()`) was a prerequisite
+sequenced before this work, since several role identities here (Pelipper/Drizzle,
+Archaludon/Stamina) are ability-defining and building the classifier on an unverifiable
+ability field would have baked that gap into every derived decision. Deliberately deferred,
+not resolved by this ADR: a permanent canonical strategic-role taxonomy (`role_id` remains an
+opaque identifier, not an enumerated vocabulary); move-derived condition dependence (e.g.
+Electro Shot -> Rain), explicitly scoped out to avoid drift beyond what this decision
+required.
+
+---
+

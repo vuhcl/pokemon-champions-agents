@@ -320,6 +320,10 @@ class MatchupResult:
     turn_economy_note: TurnEconomyNote | None = None
 
 
+class MatchupEvidenceError(Exception):
+    """Calc batch evidence is incomplete and cannot support a matchup claim."""
+
+
 @dataclass
 class _MoveProfile:
     move: str

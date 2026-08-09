@@ -25,7 +25,7 @@ def _by_cat(needs: list[SupportNeed], cat: str) -> list[SupportNeed]:
     return [n for n in needs if n.category == cat]
 
 
-def test_clean_match_returns_empty():
+def test_clean_classification_does_not_suppress_raw_analysis():
     out = query_support_needs(
         {"species": "Archaludon"},
         RoleShapeContext(
@@ -35,7 +35,7 @@ def test_clean_match_returns_empty():
             setup_dependent=True,
         ),
     )
-    assert out == []
+    assert out
 
 
 def test_archaludon_offense_tank_coverage_and_healing():
@@ -133,7 +133,7 @@ def test_setup_dependent_fake_out_and_taunt():
     )
     fo = _by_cat(out, "fake_out_protection")
     assert len(fo) == 1
-    assert fo[0].trigger == "setup_dependent:fake_out"
+    assert fo[0].trigger == "requires_setup_turn:fake_out"
     taunt = _by_cat(out, "taunt_disruption")
     assert len(taunt) == 1
     assert taunt[0].notes and "no clean mechanical counter" in taunt[0].notes.lower()
@@ -153,7 +153,7 @@ def test_setup_offense_kingambit_still_fake_out():
     )
     fo = _by_cat(out, "fake_out_protection")
     assert len(fo) == 1
-    assert fo[0].trigger == "setup_dependent:fake_out"
+    assert fo[0].trigger == "requires_setup_turn:fake_out"
     assert "taunt_disruption" in _cats(out)
 
 
@@ -615,3 +615,38 @@ def test_no_ranking_or_resolution_fields():
     for n in out:
         assert not hasattr(n, "score")
         assert n.stance is None or n.stance in ("need", "want")
+
+
+def test_role_shape_context_has_only_projection_fields():
+    assert {f.name for f in fields(RoleShapeContext)} == {
+        "primary_function",
+        "tankiness",
+        "requires_setup_turn",
+    }
+
+
+def test_speed_analysis_uses_anchor_evs_and_nature(monkeypatch):
+    seen: list[tuple[dict[str, int], str]] = []
+
+    def fake_effective_spe(
+        species: str,
+        spread: dict[str, int],
+        nature: str,
+        **_: object,
+    ) -> int:
+        seen.append((spread, nature))
+        return 100
+
+    monkeypatch.setattr("recommender.support_needs.effective_spe", fake_effective_spe)
+    monkeypatch.setattr("recommender.support_needs._threat_speeds", lambda *_: [120])
+    query_support_needs(
+        {
+            "species": "Archaludon",
+            "ability": "Stamina",
+            "moves": ["Dragon Pulse"],
+            "evs": {"spe": 32},
+            "nature": "Timid",
+        },
+        RoleShapeContext(primary_function="offense"),
+    )
+    assert seen[0] == ({"spe": 32}, "Timid")

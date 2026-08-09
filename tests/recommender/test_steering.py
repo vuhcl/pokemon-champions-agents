@@ -1,9 +1,18 @@
 from unittest.mock import patch
 
+import pytest
 from langgraph.checkpoint.memory import MemorySaver
 
 from recommender.graph import compile_graph
-from recommender.state import Attr, ReasonRef, Slot
+from recommender.nodes import classify_input
+from recommender.state import (
+    Attr,
+    CandidateEvidence,
+    ReasonRef,
+    Slot,
+    TargetRoleDecision,
+    all_locked,
+)
 
 VGC_MB = "[Gen 9 Champions] VGC 2026 Reg M-B"
 
@@ -23,6 +32,54 @@ def _seed_first_turn(graph, suffix: str):
 def _second_turn(graph, suffix: str, text, classification):
     with patch("recommender.nodes.classify_pending", return_value=classification):
         return graph.invoke({"pending_input": text}, config=_thread(suffix))
+
+
+def _seed_pending_presentation(graph, suffix: str):
+    state = _seed_first_turn(graph, suffix)
+    pending = {
+        "schema_version": 1,
+        "kind": "candidate_selection",
+        "slot_index": 1,
+        "options": [
+            {
+                "species": "Farigiraf",
+                "source": "both",
+                "evidence": (
+                    CandidateEvidence(
+                        "compendium_backed",
+                        "medium",
+                        "role_category_evidence",
+                        ("role:trick_room_setter",),
+                    ),
+                ),
+                "target_role_decision": TargetRoleDecision(
+                    role_id="trick_room_setter",
+                    source="support_need",
+                    evidence=("trick_room",),
+                ),
+            },
+            {"species": "Incineroar", "source": "threat"},
+        ],
+    }
+    graph.update_state(_thread(suffix), {"pending_presentation": pending})
+    return state, pending
+
+
+def test_completion_preference_schema_v2_updates_state_key():
+    result = classify_input(
+        {
+            "pending_input": "support",
+            "pending_presentation": {
+                "schema_version": 2,
+                "kind": "completion_preference",
+                "preference_options": ("attacker", "support", "balanced"),
+            },
+            "team_draft": [],
+        }  # type: ignore[arg-type]
+    )
+    assert result["turn_intent"] == "continue"
+    assert result["team_completion_preference"] == "support"
+    assert result["pending_presentation"] is None
 
 
 def test_first_turn_initializes():
@@ -85,6 +142,130 @@ def test_lock_turn_confirm_without_value():
     assert slot.species.value == "Kingambit"
     assert slot.species.locked
     assert slot.species.reason == reason
+
+
+def test_pending_presentation_second_option_creates_intent_across_turn_boundary():
+    graph = _graph()
+    suffix = "pending-second"
+    _seed_pending_presentation(graph, suffix)
+
+    result = graph.invoke(
+        {"pending_input": "the second one"}, config=_thread(suffix)
+    )
+
+    assert result["team_draft"][1].species.value is None
+    assert result["pending_slot_intent"].species == "Incineroar"
+    assert result["pending_slot_intent"].evidence == ()
+    assert result["provisional_refinement"].reason == "unresolved_target_role"
+    assert result["pending_presentation"] is None
+
+
+@pytest.mark.parametrize("reply", ["Incineroar", "option 2"])
+def test_pending_presentation_explicit_selection(reply: str):
+    graph = _graph()
+    suffix = f"pending-explicit-{reply}"
+    _seed_pending_presentation(graph, suffix)
+
+    result = graph.invoke({"pending_input": reply}, config=_thread(suffix))
+
+    assert result["team_draft"][1].species.value is None
+    assert result["pending_slot_intent"].species == "Incineroar"
+    assert result["pending_presentation"] is None
+
+
+def test_pending_presentation_affirmative_selects_default_without_locking():
+    graph = _graph()
+    suffix = "pending-default"
+    _seed_pending_presentation(graph, suffix)
+
+    result = graph.invoke({"pending_input": "yes"}, config=_thread(suffix))
+
+    assert result["team_draft"][1].species.value is None
+    assert result["pending_slot_intent"].species == "Farigiraf"
+    assert result["pending_slot_intent"].evidence[0].basis == "compendium_backed"
+
+
+def test_full_build_confirmation_atomically_locks_slot():
+    graph = _graph()
+    suffix = "pending-full-confirm"
+    _seed_pending_presentation(graph, suffix)
+    moves = ["Psychic", "Hyper Voice", "Trick Room", "Protect"]
+    spread = {"hp": 32, "atk": 0, "def": 0, "spa": 32, "spd": 2, "spe": 0}
+    with (
+        patch(
+            "recommender.propose.featured_or_common_set",
+            return_value={
+                "species": "Farigiraf",
+                "ability": "Armor Tail",
+                "moves": moves,
+                "item": "Sitrus Berry",
+                "nature": "Modest",
+            },
+        ),
+        patch(
+            "recommender.propose.get_resolved_build",
+            return_value={"spread": spread, "source_tier": "test", "verified": True},
+        ),
+    ):
+        selected = graph.invoke({"pending_input": "yes"}, config=_thread(suffix))
+
+    assert selected["pending_presentation"]["kind"] == "full_build_confirmation"
+    assert selected["provisional_slot"].target_role_decision.role_id == "trick_room_setter"
+
+    with patch(
+        "recommender.slot_fill.build_anchored_slot_fill_context"
+    ) as next_slot_discovery:
+        next_slot_discovery.return_value.context = None
+        committed = graph.invoke({"pending_input": "yes"}, config=_thread(suffix))
+    slot = committed["team_draft"][1]
+    assert all_locked(slot)
+    assert slot.role.value == "trick_room_setter"
+    assert slot.species.value == "Farigiraf"
+    assert slot.ability.value == "Armor Tail"
+    assert slot.moveset.value == moves
+    assert committed["pending_slot_intent"] is None
+    assert committed["provisional_slot"] is None
+
+
+def test_pending_presentation_defer_clears_without_locking():
+    graph = _graph()
+    suffix = "pending-defer"
+    before, _pending = _seed_pending_presentation(graph, suffix)
+
+    result = graph.invoke({"pending_input": "not now"}, config=_thread(suffix))
+
+    assert result["pending_presentation"] is None
+    assert result["team_draft"] == before["team_draft"]
+
+
+@pytest.mark.parametrize(
+    "reply", ["none", "option 9", "yes, second one", "surprise me"]
+)
+def test_pending_presentation_unresolved_reply_is_safe(reply: str):
+    graph = _graph()
+    suffix = f"pending-unresolved-{reply}"
+    before, pending = _seed_pending_presentation(graph, suffix)
+
+    result = graph.invoke({"pending_input": reply}, config=_thread(suffix))
+
+    assert result["pending_presentation"]["kind"] == pending["kind"]
+    assert [
+        option["species"] for option in result["pending_presentation"]["options"]
+    ] == [option["species"] for option in pending["options"]]
+    assert result["team_draft"] == before["team_draft"]
+
+
+def test_unknown_pending_schema_is_cleared_without_mutating_team():
+    graph = _graph()
+    suffix = "pending-unknown-schema"
+    before, pending = _seed_pending_presentation(graph, suffix)
+    graph.update_state(
+        _thread(suffix), {"pending_presentation": {**pending, "schema_version": 99}}
+    )
+    result = graph.invoke({"pending_input": "yes"}, config=_thread(suffix))
+    assert result["pending_presentation"] is None
+    assert result["team_draft"] == before["team_draft"]
+    assert "unsupported pending schema" in result["slot_commit_error"]
 
 
 def test_constraint_turn():
