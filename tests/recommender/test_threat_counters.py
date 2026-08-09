@@ -4,11 +4,16 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from recommender.matchup import MatchupResult
-from recommender.state import ThreatCandidate, ThreatCounterCandidate
+from recommender.matchup import MatchupEvidenceError, MatchupResult
+from recommender.state import (
+    TeamThreatObjectiveRow,
+    ThreatCandidate,
+    ThreatCounterCandidate,
+)
 from recommender.threat_counters import (
     aggregate_verified,
     pair_score,
+    query_candidates_for_threats,
     query_threat_counters,
 )
 
@@ -50,6 +55,46 @@ def test_empty_anchor():
     ) as qc:
         assert query_threat_counters({"species": "Blaziken-Mega"}) == []
         assert qc.call_count == 1
+
+
+def test_explicit_team_objective_verifies_every_admitted_candidate_against_all_rows():
+    objective = (
+        TeamThreatObjectiveRow(_tc("T1"), frozenset({"uncovered"})),
+        TeamThreatObjectiveRow(_tc("T2"), frozenset({"spof"})),
+    )
+
+    def fake_qc(pokemon, **_kwargs):
+        return [_tc("Cand")] if pokemon["species"] == "T1" else []
+
+    with (
+        patch("recommender.threat_counters.query_counters", side_effect=fake_qc),
+        patch(
+            "recommender.threat_counters.classify_matchup",
+            return_value=MatchupResult("clean_kill", "costly"),
+        ),
+    ):
+        result = query_candidates_for_threats(objective)
+
+    assert result.status == "available"
+    assert [threat_id for threat_id, _ in result.candidates[0].verified_vs] == [
+        "t1",
+        "t2",
+    ]
+
+
+def test_explicit_team_objective_reports_incomplete_calc_evidence():
+    objective = (TeamThreatObjectiveRow(_tc("T1"), frozenset({"uncovered"})),)
+    with (
+        patch("recommender.threat_counters.query_counters", return_value=[_tc("Cand")]),
+        patch(
+            "recommender.threat_counters.classify_matchup",
+            side_effect=MatchupEvidenceError("bad row"),
+        ),
+    ):
+        result = query_candidates_for_threats(objective)
+    assert result.status == "unavailable"
+    assert result.error is not None
+    assert result.error.kind == "calc_incomplete"
 
 
 def test_full_steps_1_and_2_call_count():
@@ -331,6 +376,103 @@ def test_candidate_pool_asymmetry_threat_id_unrestricted():
     # Final candidates ⊆ restrictive pool.
     assert out
     assert {c.candidate.form for c in out} <= pool_names
+
+
+def test_owned_first_reaches_candidate_stages_but_not_threat_stages():
+    threats = [_tc("ThreatOutsideBox", usage_rank=1)]
+    calls: list[tuple[str, dict]] = []
+    classified_threats: list[str] = []
+
+    def fake_qc(pokemon, n=20, **kwargs):
+        species = pokemon.get("species") or ""
+        calls.append((species, kwargs))
+        if species == "Anchor":
+            return list(threats)
+        return [
+            _tc("PopularUnowned", usage_rank=1),
+            _tc("RareOwned", usage_rank=99),
+        ]
+
+    def fake_classify(a, b, field=None, client=None):
+        classified_threats.append(b.get("species") or "")
+        return MatchupResult(outcome="clean_kill", severity="decisive")
+
+    with (
+        patch("recommender.threat_counters.query_counters", side_effect=fake_qc),
+        patch(
+            "recommender.threat_counters.classify_matchup",
+            side_effect=fake_classify,
+        ),
+    ):
+        out = query_threat_counters(
+            {"species": "Anchor"},
+            n=1,
+            available_pool=["RareOwned", "RareOwned"],
+            ownership_mode="owned_first",
+        )
+
+    assert [c.candidate.form for c in out] == ["RareOwned"]
+    assert calls[0] == ("Anchor", {})
+    assert all(
+        kwargs == {
+            "available_pool": ["RareOwned", "RareOwned"],
+            "ownership_mode": "owned_first",
+        }
+        for _, kwargs in calls[1:]
+    )
+    assert classified_threats == ["ThreatOutsideBox"]
+
+
+def test_owned_last_breaks_final_candidate_tie():
+    threats = [_tc("Threat", usage_rank=1)]
+
+    def fake_qc(pokemon, n=20, **kwargs):
+        if pokemon.get("species") == "Anchor":
+            return list(threats)
+        return [_tc("Unowned", usage_rank=5), _tc("Owned", usage_rank=5)]
+
+    with (
+        patch("recommender.threat_counters.query_counters", side_effect=fake_qc),
+        patch(
+            "recommender.threat_counters.classify_matchup",
+            return_value=MatchupResult(outcome="clean_kill", severity="decisive"),
+        ),
+    ):
+        out = query_threat_counters(
+            {"species": "Anchor"},
+            n=2,
+            available_pool=["Owned"],
+            ownership_mode="owned_last",
+        )
+
+    assert [c.candidate.form for c in out] == ["Owned", "Unowned"]
+
+
+def test_owned_only_empty_pool_returns_empty_without_verification():
+    threats = [_tc("Threat", usage_rank=1)]
+    candidate_calls: list[dict] = []
+
+    def fake_qc(pokemon, n=20, **kwargs):
+        if pokemon.get("species") == "Anchor":
+            return list(threats)
+        candidate_calls.append(kwargs)
+        return []
+
+    with (
+        patch("recommender.threat_counters.query_counters", side_effect=fake_qc),
+        patch("recommender.threat_counters.classify_matchup") as classify,
+    ):
+        out = query_threat_counters(
+            {"species": "Anchor"},
+            available_pool=[],
+            ownership_mode="owned_only",
+        )
+
+    assert out == []
+    assert candidate_calls == [
+        {"available_pool": [], "ownership_mode": "owned_only"}
+    ]
+    classify.assert_not_called()
 
 
 def test_most_common_verify_spec_cache_hit_and_usage_fallback():

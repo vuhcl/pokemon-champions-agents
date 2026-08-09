@@ -13,16 +13,23 @@ from collections.abc import Collection, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
-from recommender.calc_client import CalcClient, PokemonSpecOptional
+from recommender.calc_client import CalcClient, CalcClientError, PokemonSpecOptional
 from recommender.counters import query_counters
 from recommender.ids import to_id
-from recommender.matchup import MatchupResult, classify_matchup
+from recommender.matchup import MatchupEvidenceError, MatchupResult, classify_matchup
 from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.resolved_builds import get_resolved_build
-from recommender.state import ThreatCandidate, ThreatCounterCandidate
+from recommender.state import (
+    CandidateDiscoveryError,
+    TeamThreatDiscovery,
+    TeamThreatObjectiveRow,
+    ThreatCandidate,
+    ThreatCounterCandidate,
+)
 from recommender.usage_data import featured_or_common_set
 
-# Outcome dominates; severity scales within an outcome (existing MatchupResult fields).
+# Caller-local scalar: outcome and severity multipliers trade off; this is not a
+# repository-wide lexicographic precedence policy.
 _OUTCOME_POINTS: dict[str, float] = {
     "clean_kill": 4.0,
     "intentional_non_ko_answer": 2.0,
@@ -267,3 +274,94 @@ def query_threat_counters(
         ownership_mode=ownership_mode,
         is_owned=lambda c: _species_id(c.candidate) in owned,
     )
+
+
+def query_candidates_for_threats(
+    objective: Sequence[TeamThreatObjectiveRow],
+    *,
+    n: int = 20,
+    client: CalcClient | None = None,
+    candidate_pool: list[PokemonSpecOptional] | None = None,
+    available_pool: list[str] | None = None,
+    ownership_mode: OwnershipMode = "off",
+    excluded_species: Collection[str] = (),
+) -> TeamThreatDiscovery:
+    """Discover once per team objective, then verify every admitted candidate."""
+    if not objective:
+        return TeamThreatDiscovery(status="available", candidates=())
+
+    threats = tuple(row.threat for row in objective)
+    merged, threats_by_id = _collect_candidates(
+        threats,
+        candidate_pool=candidate_pool,
+        available_pool=available_pool,
+        ownership_mode=ownership_mode,
+        excluded_species=excluded_species,
+    )
+    if not merged:
+        return TeamThreatDiscovery(status="available", candidates=())
+
+    static = _static_cut(
+        merged,
+        n=n,
+        available_pool=available_pool,
+        ownership_mode=ownership_mode,
+    )
+    objective_ids = sorted(threats_by_id)
+    try:
+        rows: list[ThreatCounterCandidate] = []
+        for merged_row in static:
+            species = (
+                merged_row.candidate.spec.get("species")
+                or merged_row.candidate.form
+                or merged_row.candidate.ladder_species
+            )
+            candidate_spec = _most_common_verify_spec(species)
+            verified: list[tuple[str, MatchupResult]] = []
+            for threat_id in objective_ids:
+                threat = threats_by_id[threat_id]
+                threat_species = (
+                    threat.spec.get("species")
+                    or threat.form
+                    or threat.ladder_species
+                )
+                verified.append(
+                    (
+                        threat_id,
+                        classify_matchup(
+                            candidate_spec,
+                            _most_common_verify_spec(threat_species),
+                            None,
+                            client=client,
+                        ),
+                    )
+                )
+            rows.append(
+                ThreatCounterCandidate(
+                    candidate=merged_row.candidate,
+                    threats_countered=tuple(sorted(merged_row.threat_ids)),
+                    threats_countered_count=merged_row.count,
+                    verified_score=aggregate_verified(
+                        [result for _, result in verified]
+                    ),
+                    verified_vs=tuple(verified),
+                )
+            )
+        return TeamThreatDiscovery(status="available", candidates=tuple(rows))
+    except (CalcClientError, MatchupEvidenceError) as exc:
+        return TeamThreatDiscovery(
+            status="unavailable",
+            candidates=(),
+            error=CandidateDiscoveryError(
+                kind=(
+                    "calc_unavailable"
+                    if isinstance(exc, CalcClientError)
+                    else "calc_incomplete"
+                ),
+                stage="candidate_verification",
+                message=str(exc),
+                retryable=True,
+                exception_type=type(exc).__name__,
+                status_code=exc.status if isinstance(exc, CalcClientError) else None,
+            ),
+        )

@@ -3950,3 +3950,109 @@ separate, unresolved gap — coverage/SPOF still fail hard, unchanged by this pa
 
 ---
 
+## ADR-026: Multi-locked candidate discovery/ranking — team-portfolio evidence aggregation,
+not a generalized single-anchor chain
+
+**Decision:** For a team with 2+ fully locked members and an open slot, candidate discovery
+and ranking is a genuinely different operation from `single_locked`'s anchor-relative chain
+(Track C) — not a parameterized generalization of it. `multi_locked` collects evidence
+independently from every locked anchor before any global cut, derives a team-wide threat
+objective from coverage/SPOF gaps rather than concatenating per-anchor threat searches, adds
+`shared_teammates` as a bounded candidate-generation source, and ranks candidates through a
+severity-aware staged comparison rather than a single scalar or opaque weighted sum.
+
+Supporting design, each load-bearing to this decision rather than separable from it:
+
+- **Aggregation without anchor privilege.** Every locked anchor runs through the same
+  `resolve_anchor_build -> classify_anchor_role -> derive_role_shape_context ->
+  query_support_needs` sequence, with no "primary" or first-listed anchor. Cross-anchor
+  breadth is measured by distinct anchors/needs supported, never raw evidence-row count —
+  otherwise a verbose anchor emitting several correlated needs could dominate ranking despite
+  every anchor being queried exactly once.
+- **Team threat objective, not per-anchor concatenation.** The objective is built from
+  coverage rows with no covering slot plus threats named in SPOF findings, deduplicated by
+  normalized identity — then the full candidate search runs against that objective, with the
+  tractable cut happening only after every candidate is evaluated against the complete
+  objective. Independently querying `query_threat_counters` per anchor and merging top-N
+  outputs was rejected: each invocation would locally cut before the team could observe
+  cross-anchor value, preserving the same anchor-privilege problem the aggregation is meant
+  to eliminate.
+- **`shared_teammates` as a candidate source, not merely a ranking modifier.** A
+  modifier-only design couldn't surface a shared teammate absent from every threat/support
+  branch, and the original flow-discovery report explicitly called for teammate/cohesion
+  candidates as their own evidence source. Bounded by design: only exact-attribution rows
+  admit a candidate; unavailable, empty, or ambiguous evidence adds no candidate and no
+  penalty; a shared-only candidate receives no automatic rank boost and must still clear
+  every other ranking stage.
+- **Severity-aware staged ranking, resolved through two rounds of correction, not the
+  original design's binary ordering.** Team-threat-improvement was decomposed into severity
+  bands (decisive/costly/toss-up/conditional/SPOF) with composition fit inserted between the
+  high- and low-severity bands — so a severe composition problem (e.g. a second redundant
+  Rain attacker) can outrank a *minor* threat gain, while a decisive or costly verified
+  closure still wins even against a compositionally redundant candidate. `clean_kill` and
+  `intentional_non_ko_answer` are treated as equally valid closures at matching severity,
+  directly per ADR-015's own text ("a legitimate, deliberately-built answer type, not a
+  lesser result") — verified this doesn't conflict with `query_threat_counters`'s existing
+  `verified_score` scalar, since that scalar's own arithmetic doesn't actually implement
+  strict outcome-then-severity ordering (a costly clean kill ties a decisive non-KO; a
+  toss-up clean kill scores below a decisive non-KO) — it's a caller-local heuristic for
+  single-matchup scoring, not a repository-wide invariant this task was obligated to match.
+- **Usage as evidence-confidence, not popularity, per ADR-015.** A standalone
+  usage-popularity tiebreak (the original design document's stage 7) was removed as a direct
+  instance of what ADR-015 Amendment 2026-07-29a already prohibits — "real teams do X" as
+  quality evidence independent of anything verified. `usage_backed` survives as one tier of
+  `CandidateEvidence.basis`, but only when tied to a specific confirmed claim
+  (`commitment_pct` — does this species carry this specific move, not how popular the
+  species is overall) — a different, permitted claim under the same ADR's "discovery and
+  legality confirmation" carve-out, and the same commitment metric this project has depended
+  on since its original `commitment_rate` sourcing decision. Threat-candidate evidence
+  retains `usage_rank`, reversed after being incorrectly removed during implementation —
+  confirmed via prior-session history as deliberate, load-bearing design (`get_relevant_
+  threats`' usage-based prioritization and `query_threat_counters`' deterministic
+  merge-tiebreak), not an incidental detail available for removal.
+- **`TargetRoleDecision` stays candidate-specific, never a context-level default.** A
+  candidate satisfying incompatible support roles gets an explicit `UnresolvedTargetRoleDecision`
+  rather than a forced pick; threat-only and shared-only candidates retain no target role.
+  Same principle Track C already established for threat-only alternatives, extended to the
+  multi-anchor case.
+- **Calc failure is structurally honest, never silently degraded.** Transport failures
+  (`CalcClientError`) and protocol/evidence failures on partial batches (`MatchupEvidenceError`,
+  covering malformed batches, wrong result counts, and per-row error responses previously at
+  risk of being silently treated as `no_answer`) both map to a structured
+  `CandidateDiscoveryError` and stop discovery without presenting a partial or falsely-
+  authoritative ranking. No static/legacy matchup fallback runs in this path.
+
+**Alternatives considered:** Generalize Track C directly by looping its single-anchor chain
+over each locked member and merging outputs afterward. Use a single opaque weighted-sum
+ranking score instead of staged lexicographic comparison. Reuse `query_threat_counters`'s
+existing `verified_score` scalar directly for portfolio-level ranking. Keep the original
+design document's strict team-threat-improvement-before-composition-fit ordering.
+
+**Why:** A naive per-anchor loop-and-merge would still let whichever anchor's local search
+runs first (or has more emitted needs) dominate the combined pool — the exact anchor-privilege
+failure this design exists to eliminate, just relocated rather than fixed. An opaque weighted
+sum would hide exactly the kind of policy question this task had to resolve explicitly
+multiple times (composition-vs-threat-severity precedence, outcome-vs-severity precedence) —
+staged comparison keeps each policy decision auditable and independently testable, consistent
+with this project's standing preference for documented, defensible tiered/lexicographic rules
+over unexplained scalar combinations (the same discipline behind `rank_and_cut`'s tiered
+admission and the compendium-priority leading-key correction). `verified_score` doesn't
+transfer to portfolio ranking because it scores one candidate against one matchup, while
+multi-locked counts verified closures across an entire team-threat objective — there's no
+single scalar to reuse, and the aggregation itself is the actual missing capability.
+
+**Status:** Implemented and verified (513 tests passing, up from 385 at the start of this
+session's slot-fill arc; 5 skipped, unrelated live-service tests). Went through two
+substantive correction rounds during design/plan review (ranking-order decomposition;
+import-cycle verification gate that caught a real second-order cycle and a LangGraph
+`get_type_hints` runtime requirement) and two real corrections during confirmation
+(usage-evidence conflation between threat and support candidates; a near-miss removal of
+deliberate prior-session `usage_rank` design, reversed after direct verification). Deliberately
+deferred, not oversights: condition-resilience assessment; selected-four/bring-four modeling;
+canonical name/form resolution; calc-unavailable static fallback; breadth-versus-severity
+aggregate policy (one decisive closure currently outranks arbitrarily many costly closures,
+explicitly left as a separate, unresolved policy question); target-role vocabulary completion
+beyond shipped support-derived cases.
+
+---
+

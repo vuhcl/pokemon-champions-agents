@@ -2455,6 +2455,141 @@ this task held to); condition-resilience assessment; selected-four modeling; cal
 static fallback; checkpointer choice (still blocks msgpack allowlisting); empty-team bootstrap
 UX design.
 
+### 2026-08-08 (cont.): multi_locked real candidate discovery/ranking — implemented,
+closing ADR-025's largest deferred item; three separate design corrections caught during
+review and one significant near-miss during confirmation
+
+Closes the largest remaining piece of deferred capability flagged when `multi_locked` first
+shipped — real candidate discovery/ranking for a team with 2+ locked members, replacing the
+"legacy proposal/refinement, signals only" behavior that phase has had since team-phase
+routing was built. This task went through more review-and-correction cycles than any other
+this session, several of them substantive rather than cosmetic — worth logging honestly
+rather than summarized down to the clean final numbers.
+
+**Verification + design phase.** First discovery/design submission was rejected outright —
+it read as a plan describing what a design document *would* contain ("the proposal will
+recommend...") rather than the actual document, the same failure shape as an earlier
+plan-review scorecard this session. The real document, once produced, held up well:
+confirmed via direct source citation that `multi_locked` calls none of the four ADR-022
+query tools, bypasses compendium-first resolution and `CandidateEvidence` entirely, and that
+`fill_team_draft` flattens a resolved `TargetRoleDecision` down to a bare role `Attr`,
+discarding its constraints/confidence/provenance. One real gap flagged before approval: the
+proposed ranking order (team-threat-improvement strictly before composition-fit) wasn't
+argued for as carefully as the other stage placements, and the residual-risks section didn't
+flag it as adjustable. Sent back for resolution.
+
+**Ranking-order resolution — a real design correction, not a reordering.** The response
+didn't just swap two stages; it decomposed "team threat improvement" into severity bands
+(decisive/costly/toss-up/conditional/SPOF) and inserted composition fit between the
+high-severity and low-severity bands — so a severe composition problem can now outrank a
+*minor* threat gain, while a decisive/costly verified closure still wins even against a
+compositionally redundant candidate. More nuanced and more correct than the binary ordering
+question originally asked.
+
+**Implementation plan review — same "summary instead of substance" pattern recurred, and one
+real correctness question got resolved by direct verification.** First plan submission was
+again a confidence-scored summary rather than actual plan content; rejected on the same
+grounds as before. The real plan, once produced: cited the exact ranking tuple (verified
+consistent with the design invariants it's meant to satisfy), specified concrete calc-failure
+contracts (`CalcClientError`/`MatchupEvidenceError`, mapped to `calc_unavailable`/
+`calc_incomplete`), and — notably — the Basculegion regression fixture was checked for
+vacuousness *before* being written: the real snapshot has no Mega Swampert teammate data, so
+a typed synthetic fixture was used instead of a test that would have silently passed for the
+wrong reason. Directly verified the plan's ADR-015 citation (usage/real-team data limited to
+discovery/legality confirmation, never ranking evidence) against the actual project file —
+line numbers didn't match due to snapshot staleness, but the quoted principle was real and
+correctly applied to removing a standalone usage-popularity tiebreak from the design
+document's original stage 7.
+
+**One item flagged for the wrong reason initially — the import-cycle "blocker" fix was
+explained but not demonstrated.** Pushed back before implementation; Cursor's honest
+correction: the cycle was statically predicted, not runtime-reproduced, since the new module
+didn't exist yet. Made an import smoke test a hard Track A exit gate rather than trust the
+theoretical argument. This paid off directly: the real gate caught something the smoke test
+alone couldn't have — LangGraph's `get_type_hints(RecommenderState)` call fails at runtime on
+`TYPE_CHECKING`-only names, and a second-order cycle (`state -> teammates -> legality ->
+state`) not in the original predicted graph, fixed via dependency-neutral contract extraction.
+
+**Confirmation pass surfaced a real gap the implementation report's summary had missed.**
+Asked four direct questions before treating the task as closed. Three came back clean
+(Track 0 design-doc update confirmed by citation; the 5 skipped tests confirmed as unrelated
+live-service tests, not core coverage). The fourth — "is usage genuinely removed from final
+ranking" — initially failed: `usage_backed` was still present in `_BASIS_RANK`, feeding
+`best_evidence_basis_rank`. Investigation distinguished two different claims that had gotten
+conflated (usage-as-standalone-popularity-signal, correctly removed, vs. `usage_backed` as an
+evidence-*confidence* tier answering whether a specific claimed execution was confirmed, not
+whether a candidate is popular) — and the investigation, done properly, found the conflation
+was real but broader than what was asked: threat evidence was using raw `usage_rank` alone as
+basis, and move evidence accepted species-level `usage_pct` without move-specific commitment
+confirmation. Both fixed, correctly separating confirmed-execution evidence
+(`commitment_pct`, the same in-game-specific commitment metric this project has depended on
+since its very first usage-sourcing decision) from raw popularity.
+
+**Significant near-miss, caught only because it was directly questioned rather than
+accepted.** Agreed with the `usage_rank` removal from threat-candidate evidence on
+first pass, reasoning from this session's visible context alone. Directly challenged
+("are you sure this is something implemented during this session or was it implemented
+before") — a search of past conversations confirmed `query_threat_counters`'s `usage_rank`
+ranking was deliberate, load-bearing, prior-session design: a real bug had been found and
+fixed there (missing `usage_rank` traced to curated seed order instead of real chart
+position), and `usage_rank` was explicitly chosen as the deterministic merge-tiebreak
+mechanism. The current session alone made a three-week-old, deliberately-built mechanism
+look like an incidental implementation detail worth removing. Reverted for threat candidates
+specifically (support-candidate `commitment_pct` gating, a genuinely different and correct
+fix, left untouched). **New standing practice added to memory as a result**: before agreeing
+to remove or override any existing mechanism as a principle violation, search past
+conversations first when the mechanism is old, specific, or oddly persistent — treat that
+persistence itself as the signal to check, not just explicit requests to check.
+
+**Follow-up check on the same class of risk — resolved cleanly, but only after real
+verification, not assumption.** Asked whether anything else got silently overwritten.
+Checked `verified_score`'s clean-kill-vs-non-KO weighting specifically, since the plan had
+explicitly chosen not to reuse it. First search round found the underlying four-way outcome
+classification and severity gradient are genuinely deliberate design — and, notably, that the
+*original* reasoning for keeping `clean_kill`/`intentional_non_ko_answer` distinct was about
+user-facing flagging, not ranking weight, which if anything supported multi-locked's
+equal-treatment approach rather than contradicting it. Couldn't confirm the specific numeric
+weighting was itself deliberated, so sent a direct code-level check rather than resting on
+inference. That check found a real, deliberate comment (`_OUTCOME_POINTS`, "outcome
+dominates; severity scales within an outcome") and confirmed the scalar feeds both
+`query_threat_counters` and `single_locked`'s existing ranking — genuine evidence, initially
+read as requiring `verified_score` to be "restored." Pushed back on that conclusion as
+premature: `verified_score` is a single-matchup scalar with no direct portfolio-level
+equivalent, and the claimed "outcome dominates severity" policy needed arithmetic
+verification, not just the comment's word for it. That verification found the comment was
+**mathematically inaccurate** relative to what the code actually computes — the real formula
+is multiplicative, and a costly clean kill ties a decisive non-KO while a toss-up clean kill
+scores *below* a decisive non-KO, meaning outcome never strictly dominated severity even in
+its original context. Combined with the actual ADR-015 text (verified directly: intentional
+non-KO answers are "a legitimate, deliberately-built answer type, not a lesser result"),
+multi-locked's equal-treatment-at-equal-severity approach was confirmed consistent with, not
+a violation of, the established design. Resolution: no change to the ranking tuple; corrected
+the inaccurate code comment; added tests that would fail if outcome-specific buckets were
+later reintroduced (specifically a two-objective portfolio tie case); `query_threat_counters`
+and `single_locked` explicitly documented as caller-local scalar policy, not a repo-wide
+lexicographic invariant.
+
+**Process discipline that emerged and held for the rest of the task:** hash-baseline-then-
+verify-exact-match for the read-only mirrors, added unprompted after the earlier ADR-014
+file-edit incident — confirmed exact match at task close, no drift.
+
+513 tests passing (up from 509 at initial implementation, 385 at session start of this whole
+arc), 5 skipped (all live-service, unrelated to this task). Compilation, lints, and diff
+checks clean throughout every correction round.
+
+**Deliberately deferred, tracked as separate future scope, not folded into this task:**
+condition-resilience assessment, selected-four/bring-four modeling, canonical name/form
+resolution, calc-unavailable static fallback, target-role vocabulary completion beyond
+shipped support-derived cases, breadth-versus-severity aggregate policy (one decisive closure
+currently outranks arbitrarily many costly closures — explicitly left unchanged, flagged as
+its own separate policy question), and `single_locked`'s existing raw `usage_rank` sort
+(confirmed untouched, confirmed pre-existing, not in this task's scope to reconcile further).
+
+This closes the "almost none of ADR-022/023's machinery is wired into the live proposal
+loop" gap that opened this entire session's arc, for every phase — `single_locked` and
+`multi_locked` both now have real, tested candidate discovery grounded in the ADR-022/023
+toolkit, `complete` auto-reviews, and `empty` remains the one honestly-labeled stub left.
+
 ## TOOLS & RESOURCES
 
 - **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.
