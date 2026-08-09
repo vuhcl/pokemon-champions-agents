@@ -1681,7 +1681,184 @@ the source; whether the various scoring multiplier constants (×1.5/×1.35/×0.8
 retuning given how much the underlying formula has changed shape — considered low priority
 given current results are stable and pass real-world plausibility checks.
 
----
+### 2026-08-07: Trick Room Setter; Role Compendium read-path + namespace unification;
+lookup_live_build ADR reconciliation; tier-1 incomplete-spread fix
+
+Substantial batch of work done partly while offline from this conversation (Cursor
+continued independently), reviewed and reconciled afterward.
+
+**Trick Room Setter (eighth role category) — shipped, 355 tests passing at ship time.**
+Built on the existing ADR-019 support-role pipeline (delivery / execution-reliability /
+secondary-role stacking) — no new pipeline mechanism needed, confirming this category fits
+the established support-role shape rather than needing setup-attacker-style branch logic.
+Real, verified findings:
+- Delivery mechanism confirmed INERT for this category — Trick Room's fixed -7 priority
+  means every candidate resolves last regardless of ability- vs. move-based access, unlike
+  every prior support-role category where automatic delivery beat manual delivery. First
+  category where criterion 1 carries no ranking weight.
+- Execution-reliability carries the real ranking, graded by how a candidate covers the
+  UNIVERSAL Fake-Out/Taunt exposure every Trick Room setter faces (not a membership branch
+  the way setup-attacker's neutralize-first-or-survive was — every candidate faces this
+  equally; what differs is who covers it alone vs. depends on a teammate). Self-provided
+  ability-based flinch denial (Armor Tail/Inner Focus) → Excellent. Ghost-typing Fake-Out
+  immunity or Taunt immunity → Good. Neither → Acceptable (externally-dependent).
+- Real mechanical nuance checked and correctly resolved: Disguise does NOT stop Fake Out
+  (its ability text only prevents damage, not flinch) — credited instead toward a separate
+  bulk-floor waiver, not miscredited as flinch denial.
+- A real, independently-discovered divergence from precedent: the prior reference point
+  (Farigiraf + Oranguru as an unordered Excellent pair) was NOT treated as exhaustive —
+  fresh construction found Gallade-Mega also qualifies via Inner Focus, a genuine third
+  Excellent member the precedent had missed.
+- Usage-evidence sourcing decision: Champions in-game data preferred as primary, Showdown
+  only as fallback for missing rows — this superseded an earlier, separately-designed
+  effective-share statistical floor (0.005, anchored on a real but comparatively thin gap)
+  that was worked out in detail but not ultimately needed once the simpler, more direct
+  in-game-usage-first approach proved sufficient.
+- A real, general attribution bug was found and fixed with cross-category impact: the
+  shared Mega/base usage-discount logic (checking whether base usage should be discounted
+  against Mega usage) never checked whether the MEGA FORM ITSELF actually used the move
+  being attributed to it — meaning a base form's genuine, standalone usage of a move
+  (e.g. base Gengar's real Trick Room usage) could be wrongly discounted against a Mega
+  form popular for a completely different, unrelated strategy (Mega Gengar's real identity
+  is a Shadow Tag/Perish Song trapper, not a Trick Room setter at all). Verified via direct
+  investigation that this premise genuinely held for Gardevoir (Mega Gardevoir DOES run
+  Trick Room, same rate as base — the original, correctly-modeled Scovillain-shaped case)
+  but did NOT hold for Gengar or Delphox (their Mega forms don't use the move at all).
+  Fixed by extracting the shared discount logic into one function (_mega_usage_attribution,
+  used by both Redirection and Trick Room Setter) with a mega_delivers gate added — checked
+  for zero-diff impact on already-shipped Redirection (the gap existed there too but had
+  never actually fired, confirmed via direct audit, not assumed).
+- Final shape: 3 Excellent / 18 Good / 17 Acceptable.
+
+**Role Compendium read path opened.** Construction had been writing data/roles/*.v1.json
+since 2026-08-05 with nothing reading it back — added load_role_category/role_candidates
+(strongest tier first), composed from already-existing helpers.
+
+**Decision: compendium categories and slot.role.value share ONE namespace — no alias
+table.** Verified directly (not accepted from summary) before treating as confirmed: two
+real, checkable "dead code" facts support this — move_narrowing.team_need_flags already
+tests "redirection" in present_roles, a string nothing in the current codebase produces as
+a role value (confirmed via full-repo search); ReasonRef.kind already declares
+"role_compendium" as a valid kind, used nowhere. Both read as machinery already built in
+anticipation of this exact unification, not just a clean-looking design choice. Confirmed
+safe: Slot.role is Attr[str] with no runtime enum, and _refine_defaults already falls back
+to infer_role for any unrecognized value — widening the vocabulary cannot break an
+existing consumer. Conditioned roles (weather_setter's four sub-conditions) use a
+two-argument lookup (role_candidates(category, condition="")) rather than a compound key,
+since the team's actual weather is already team-level state (state["archetype"]) —
+duplicating it into a compound per-slot role string would create a new drift case
+(archetype says Sun, slot says weather_setter_rain — which wins?) that doesn't currently
+exist. Deliberately NOT wired into propose.py's role→species step yet — that remains
+flagged, pending a separate, undesigned question (whether role→species should filter
+against the user's own box, given accept_available_pool is currently a no-op read nowhere
+in production).
+
+**lookup_live_build: apparent ADR conflict resolved (ADR-014 Amendment 2026-08-07a).**
+Amendment 2026-07-25a (a narrow runtime exception for tier-1 exact moveset/item live
+lookup) and Amendment 2026-08-05a (construction-time-only scoping for the CBD/Showdown
+fetchers) looked contradictory when Cursor attempted to wire the fetchers into
+lookup_live_build. Resolved as a mechanism-scoping distinction, not a policy conflict: the
+runtime exception still stands, but the specific fetchers built for Compendium construction
+are explicitly off-limits for this runtime use case per 2026-08-05a's own text ("NOT a
+general runtime-recommendation-path capability"). Satisfying the exception requires its own,
+separately-justified fetch mechanism — not built in this pass. lookup_live_build remains a
+stub (return None), now with the reasoning documented so a future attempt doesn't repeat
+the same mechanism-scoping mistake. A separate, independent structural gap was also found:
+both fetchers hardcode featured_sets: [], meaning even a permitted live lookup would
+currently ignore the user's requested moveset entirely — the opposite of the stub's
+intended contract. Not fixed; noted as a prerequisite for any future implementation.
+
+**Tier-1 incomplete-spread flagging fix.** A real, live gap on the ALREADY-SHIPPED offline
+tier-1 path (not hypothetical): an incomplete spread (fewer than 66 SP allocated) was being
+silently topped up and source_tier silently overwritten to "tier2" — erasing the fact that
+real, partial tier-1 data existed, and never flagging that synthesis occurred at all,
+contrary to Amendment 2026-07-25a's original completeness-check guardrail ("a signal, not
+an automatic pass"). Fixed with a three-way distinction: a full spread keeps its original
+provenance unchanged; a MISSING spread (no real data) synthesizes fully via tier-2 and is
+flagged as such, keeping source_tier="tier2" (accurate — there was no real tier-1
+allocation to preserve); a PARTIAL spread (real but short) preserves the actual tier-1
+base points, completes only the remainder via reasoned role-target allocation, and is
+labeled source_tier="tier1_partial" — a new, distinct value chosen specifically so partial-
+but-real tier-1 data is neither overstated as full confidence nor erased as if no real data
+existed. Verified test_recommend_live's existing full-66-SP assertion still holds (a
+dedicated test asserts the exact assertion line remains present, not just inspected by eye).
+
+367 tests passing (up from 355 at Trick Room Setter's ship point).
+
+Deliberately deferred, not oversights: the setup-attacker discount-path re-verification for
+Scolipede/Scrafty/Skarmory/Houndoom (unreachable without a live rebuild, flagged during the
+Trick Room mega_delivers work but out of scope for that fix); wiring compendium categories
+into propose.py's role→species step (blocked on the available_pool design question); a
+dedicated, properly-scoped live-fetch mechanism for lookup_live_build (not started); Sleep
+Status Spreader and any further role categories beyond the eight now shipped; terrain
+sub-categories (still deliberately low-priority).
+
+### 2026-08-08: Swords Dance / Nasty Plot Attacker — priority-mechanics and base/Mega
+usage-plausibility corrections
+
+A focused follow-up chain, triggered by re-verifying four candidates (Scolipede, Scrafty,
+Skarmory, Houndoom) whose setup-attacker discount-driven rejections had been left
+unconfirmed since the original construction (unreachable offline at the time). The live
+rebuild surfaced Scrafty, Skarmory, and Houndoom clearing Acceptable-tier membership —
+which turned out to expose several real, previously-uncaught gaps in priority-move handling
+and usage-attribution trust, not a single fix.
+
+**Priority-move handling corrections (four, all implemented as general rules, swept across
+both categories, not scoped to the specific candidates that surfaced them):**
+- Fake Out removed from both Branch A priority-qualification AND payoff-move candidacy —
+  it can only be used the turn its user switches in, making it structurally incompatible
+  with ever following a setup move (the setup-then-attack sequence this whole category is
+  about). Not a matter of degree like Sucker Punch's conditional success rate — a hard,
+  mechanical exclusion, same in kind as the existing charge/recharge/lock-in payoff bans.
+  Incineroar, previously admitted on Fake-Out-only Branch A qualification, now correctly
+  fails membership entirely.
+- Upper Hand checked and confirmed ALREADY correctly implemented with the same ×1.35
+  conditional-priority discount as Sucker Punch — no fix needed, locked with a regression
+  test rather than redundantly "fixed" again.
+- Feint given its own, narrower ×1.15 discount (not Sucker Punch/Upper Hand's ×1.35) —
+  its trigger (opponent must be using a protection move) is meaningfully more situational
+  than either, since a rational opponent facing a setup sweeper often simply won't Protect.
+- Priority-move category must match the candidate's boosted stat: Houndoom's only priority
+  access (Sucker Punch) is Physical, while it's a Nasty Plot (Special) candidate — crediting
+  mismatched-category priority for Branch A qualification was a real, general gap. Fixed as
+  a category-match rule, not a Houndoom-specific patch. Houndoom (base) drops from Nasty
+  Plot entirely as a result (no Branch B either); Houndoom-Mega retained Good-tier
+  membership on its own real Speed (115), unaffected.
+
+**Usage-attribution plausibility fix, the more consequential correction:** Skarmory's
+Acceptable-tier admission (base CBD Swords Dance usage 19.5%) was investigated directly
+after the number was flagged as implausible — Skarmory-Mega's own real Swords Dance rate is
+only ~9.2%, meaning the base figure exceeded the Mega's, the same shape already confirmed
+as a logging artifact for base Scovillain (mid-battle, pre-Mega-Evolution turns bleeding
+into the base species' logged figures). The existing base_delivers gate only checked
+whether Showdown was silent on the move before skipping the usage discount entirely — it
+never checked whether the CBD figure was itself plausible relative to the Mega's own
+confirmed rate for the same move. Fixed generally: when CBD's base usage exceeds the Mega's
+own Showdown move-rate for the same setup move, CBD alone is no longer trusted, and
+admission falls back to requiring genuine Showdown base-form delivery. Swept the full
+setup-attacker pool, not just Skarmory — Scrafty was independently caught by the same
+check (CBD 7.0% vs. Mega's real 2.3%), correctly rejected on the same grounds; several
+other candidates (Absol, Feraligatr, Scizor, Scolipede, and others) had CBD figures
+exceeding their Mega counterparts too but were correctly RETAINED, since they have genuine,
+independent Showdown-base confirmation Skarmory and Scrafty lack.
+
+**Acceptable-tier lower bound — investigated, correctly declined.** Checked the current,
+post-all-fixes Acceptable-tier score distribution in both categories for a real structural
+gap, the same discipline already used for the Excellent floor and the Good/Acceptable
+boundary. Swords Dance's largest internal gap (0.091, Scizor→Garchomp-Mega) is not
+meaningfully larger than its neighbors (0.078, 0.069, 0.056 — a smooth decline, not a real
+break), unlike the Good/Acceptable boundary's genuine 0.664-0.752 stable plateau. No lower
+bound added — the existing floor×0.70 upper boundary is sufficient on its own, and
+manufacturing a cutoff here would repeat exactly the mistake already avoided once for
+Nasty Plot's originally-empty Acceptable tier.
+
+373 tests passing (up from 367).
+
+This closes out the setup-attacker discount-path re-verification that was left open since
+the original construction — confirms the mega_delivers-shaped attribution bug family (first
+found for Trick Room's Gengar/Delphox case) has a real, distinct cousin (usage-magnitude
+implausibility, not just move-absence) that also needed its own dedicated fix, and that
+both needed to be checked independently rather than assumed to be the same problem.
 
 ## TOOLS & RESOURCES
 

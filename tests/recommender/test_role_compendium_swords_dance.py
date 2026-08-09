@@ -13,13 +13,19 @@ from recommender.role_compendium import (
     _SETUP_BOTH_BRANCH_SCORE_DIV,
     _SETUP_CONDITIONAL_PRIORITY_MULT,
     _SETUP_DAMAGE_FRAC_CAP,
+    _SETUP_NARROW_CONDITIONAL_PRIORITY_MULT,
     _SETUP_PRIORITY_SCORE_MULT,
     _setup_adjusted_score,
+    _setup_branch_a,
     _setup_branch_a_via_priority,
     _setup_excellent_floor,
     _setup_mech_tier,
+    _setup_payoff_candidates,
     _setup_priority_kind,
     _setup_priority_mult,
+    _setup_priority_mult_for,
+    _setup_self_drop_moves,
+    _self_boosts,
     construct_role_category,
     critique_role_ranking,
     exclusive_self_boost_move,
@@ -119,16 +125,22 @@ def _members(draft, tier: str) -> set[str]:
 
 
 def test_exclusive_self_boost_atk():
+    # Raises unless exactly one Champions-legal move qualifies.
     assert exclusive_self_boost_move(boost_stat="atk") == "swordsdance"
-    data = load_stat_boosts()
-    hits = [
-        mid
-        for mid, ent in data["moves"].items()
-        if ent.get("category") == "Status"
-        and ent.get("target") == "self"
-        and ent.get("boosts") == {"atk": 2}
-    ]
-    assert hits == ["swordsdance"]
+
+
+def test_stat_boosts_attributes_drops_to_the_right_side():
+    """Overheat lowers its own user's SpA; Acid Spray lowers the target's SpD."""
+    moves = load_stat_boosts()["moves"]
+    assert _self_boosts(moves["overheat"]) == {"spa": -2}
+    assert _self_boosts(moves["acidspray"]) == {}
+    # A chance-gated self boost is not a guaranteed one (Charge Beam, 70%).
+    assert _self_boosts(moves["chargebeam"]) == {}
+
+    assert "overheat" in _setup_self_drop_moves("spa")
+    assert "acidspray" not in _setup_self_drop_moves("spa")
+    # Close Combat drops Def/SpD, never the Attack a Swords Dance set banked.
+    assert "closecombat" not in _setup_self_drop_moves("atk")
 
 
 def test_setup_adjusted_score_composition():
@@ -153,7 +165,21 @@ def test_setup_adjusted_score_composition():
     ) < 1e-9
     assert _setup_priority_kind("aquajet") == "unconditional"
     assert _setup_priority_kind("suckerpunch") == "conditional"
+    assert _setup_priority_kind("upperhand") == "conditional"
+    assert _setup_priority_kind("feint") == "conditional"
     assert _setup_priority_kind("closecombat") == "none"
+    assert _setup_priority_mult("conditional") == _SETUP_CONDITIONAL_PRIORITY_MULT
+    assert _setup_priority_mult_for("upperhand") == _SETUP_CONDITIONAL_PRIORITY_MULT
+    assert _setup_priority_mult_for("feint") == _SETUP_NARROW_CONDITIONAL_PRIORITY_MULT
+    assert (
+        _setup_adjusted_score(
+            1.0,
+            priority_kind="conditional",
+            both_branches=False,
+            priority_mult=_SETUP_NARROW_CONDITIONAL_PRIORITY_MULT,
+        )
+        == _SETUP_NARROW_CONDITIONAL_PRIORITY_MULT
+    )
 
 
 def test_setup_excellent_floor_second_times_095():
@@ -197,15 +223,96 @@ def test_acceptable_floor_note_emitted():
     assert any("Acceptable floor = Excellent floor ×" in n for n in draft.notes)
 
 
+def test_cbd_move_implausible_vs_mega_helper():
+    from recommender.role_compendium import _cbd_base_move_implausible_vs_mega
+
+    base = {"common_moves": [{"name": "Swords Dance", "pct": 19.5}]}
+    mega = {"common_moves": [{"name": "Swords Dance", "pct": 9.2}]}
+    assert _cbd_base_move_implausible_vs_mega(base, mega, "swordsdance")
+    assert not _cbd_base_move_implausible_vs_mega(
+        {"common_moves": [{"name": "Swords Dance", "pct": 5.0}]},
+        mega,
+        "swordsdance",
+    )
+    # Mega does not run the move → not this check.
+    assert not _cbd_base_move_implausible_vs_mega(
+        base,
+        {"common_moves": [{"name": "Brave Bird", "pct": 40.0}]},
+        "swordsdance",
+    )
+
+
+def test_cbd_inflated_vs_mega_rejects_without_showdown_base_delivery():
+    """Skarmory-shaped: CBD SD% > Mega Showdown SD%, Showdown base has no SD."""
+
+    def sd_fetch(name: str) -> dict[str, Any] | None:
+        sid = to_id(name)
+        if sid == "skarmorymega":
+            return {
+                "name": name,
+                "usage_pct": 0.3,
+                "common_moves": [{"name": "Swords Dance", "pct": 9.2}],
+            }
+        if sid == "skarmory":
+            return {
+                "name": name,
+                "usage_pct": 0.04,
+                "common_moves": [{"name": "Brave Bird", "pct": 40.0}],
+            }
+        return None
+
+    snap = load_snapshot()
+    draft = construct_role_category(
+        "swords_dance_attacker",
+        SWORDS_DANCE_ATTACKER_CRITERIA,
+        [n for n in legal_species_pool(snap) if to_id(n) in {"skarmory", "skarmorymega"}],
+        snap=snap,
+        live_fetch=lambda n: (
+            {
+                "name": n,
+                "id": to_id(n),
+                "common_moves": [{"name": "Swords Dance", "pct": 19.5}],
+                "common_items": [{"name": "Skarmorite", "pct": 79.0}],
+            }
+            if to_id(n) == "skarmory"
+            else {
+                "name": n,
+                "id": to_id(n),
+                "common_moves": [{"name": "Swords Dance", "pct": 40.0}],
+            }
+            if to_id(n) == "skarmorymega"
+            else None
+        ),
+        showdown_fetch=sd_fetch,
+        calculate_batch=_mock_calc,
+    )
+    rej = {r.species: r.reason for r in draft.considered_rejected}
+    assert "Skarmory" in rej
+    assert "no usage evidence" in rej["Skarmory"]
+    assert any("CBD move-rate plausibility" in n for n in draft.notes)
+
+
 def test_discounted_base_in_acceptable_band_is_rejected():
-    """Discount + mech below Good rejects outright; only mech Excellent demotes."""
+    """Discount + mech below Good rejects outright; only mech Excellent demotes.
+
+    Both forms must show the setup move on Showdown — otherwise the shared
+    attribution helper refuses to treat the base as a pre-Mega artifact.
+    """
 
     def sd_fetch(name: str) -> dict[str, Any] | None:
         sid = to_id(name)
         if sid == "scizormega":
-            return {"name": name, "usage_pct": 5.0}
+            return {
+                "name": name,
+                "usage_pct": 5.0,
+                "common_moves": [{"name": "Swords Dance", "pct": 20.0}],
+            }
         if sid == "scizor":
-            return {"name": name, "usage_pct": 0.01}
+            return {
+                "name": name,
+                "usage_pct": 0.01,
+                "common_moves": [{"name": "Swords Dance", "pct": 15.0}],
+            }
         return None
 
     snap = load_snapshot()
@@ -233,24 +340,151 @@ def test_discounted_base_in_acceptable_band_is_rejected():
     assert "discounted" in rej["Scizor"]
 
 
+def test_setup_does_not_discount_when_mega_lacks_setup_move():
+    """Same usage ratio as the discount case, but Mega never runs Swords Dance."""
+
+    def sd_fetch(name: str) -> dict[str, Any] | None:
+        sid = to_id(name)
+        if sid == "scizormega":
+            return {
+                "name": name,
+                "usage_pct": 5.0,
+                "common_moves": [{"name": "Bullet Punch", "pct": 40.0}],
+            }
+        if sid == "scizor":
+            return {
+                "name": name,
+                "usage_pct": 0.01,
+                "common_moves": [{"name": "Swords Dance", "pct": 15.0}],
+            }
+        return None
+
+    snap = load_snapshot()
+    draft = construct_role_category(
+        "swords_dance_attacker",
+        SWORDS_DANCE_ATTACKER_CRITERIA,
+        legal_species_pool(snap),
+        snap=snap,
+        live_fetch=lambda n: (
+            {
+                "name": n,
+                "id": to_id(n),
+                "common_moves": [{"name": "Swords Dance", "pct": 40.0}],
+                "common_items": [{"name": "Life Orb", "pct": 20.0}],
+            }
+            if to_id(n) in {"scizor", "scizormega"}
+            else None
+        ),
+        showdown_fetch=sd_fetch,
+        calculate_batch=_mock_calc,
+    )
+    rej = {r.species: r.reason for r in draft.considered_rejected}
+    # Must not be rejected solely for Showdown usage discount.
+    assert "discounted" not in (rej.get("Scizor") or "")
+    assert any("Scizor/Scizor-Mega" in n for n in draft.notes)
+
+
 def test_branch_a_via_priority_sole_path():
+    snap = {
+        "moves": {
+            "quickattack": {"category": "Physical"},
+            "suckerpunch": {"category": "Physical"},
+        }
+    }
     # Spe >= 100 → not via priority even with priority moves.
     assert not _setup_branch_a_via_priority(
         learnset={"quickattack"},
         abs_map={},
         stats={"spe": 100},
+        snap=snap,
+        boost_stat="atk",
     )
     # Speed Boost → not via priority.
     assert not _setup_branch_a_via_priority(
         learnset={"quickattack"},
         abs_map={"speedboost": "Speed Boost"},
         stats={"spe": 80},
+        snap=snap,
+        boost_stat="atk",
     )
     # Priority only.
     assert _setup_branch_a_via_priority(
         learnset={"suckerpunch"},
         abs_map={},
         stats={"spe": 50},
+        snap=snap,
+        boost_stat="atk",
+    )
+
+
+def test_fakeout_does_not_clear_branch_a():
+    snap = {"moves": {"fakeout": {"category": "Physical"}, "upperhand": {"category": "Physical"}}}
+    assert not _setup_branch_a(
+        learnset={"fakeout"},
+        abs_map={},
+        stats={"spe": 50},
+        snap=snap,
+        boost_stat="atk",
+    )
+    assert not _setup_branch_a_via_priority(
+        learnset={"fakeout"},
+        abs_map={},
+        stats={"spe": 50},
+        snap=snap,
+        boost_stat="atk",
+    )
+    assert _setup_branch_a(
+        learnset={"upperhand"},
+        abs_map={},
+        stats={"spe": 50},
+        snap=snap,
+        boost_stat="atk",
+    )
+
+
+def test_fakeout_banned_from_setup_payoff():
+    snap = load_snapshot()
+    hits = _setup_payoff_candidates(
+        snap, boost_stat="atk", usage_move_ids={"fakeout", "bravebird", "ironhead"}
+    )
+    assert "fakeout" not in hits
+    assert "bravebird" in hits or "ironhead" in hits
+
+
+def test_branch_a_priority_category_must_match_boost_stat():
+    snap = {
+        "moves": {
+            "suckerpunch": {"category": "Physical"},
+            "vacuumwave": {"category": "Special"},
+        }
+    }
+    assert not _setup_branch_a(
+        learnset={"suckerpunch"},
+        abs_map={},
+        stats={"spe": 50},
+        snap=snap,
+        boost_stat="spa",
+    )
+    assert _setup_branch_a(
+        learnset={"suckerpunch"},
+        abs_map={},
+        stats={"spe": 50},
+        snap=snap,
+        boost_stat="atk",
+    )
+    assert _setup_branch_a(
+        learnset={"vacuumwave"},
+        abs_map={},
+        stats={"spe": 50},
+        snap=snap,
+        boost_stat="spa",
+    )
+    assert not _setup_branch_a(
+        learnset={"vacuumwave"},
+        abs_map={},
+        stats={"spe": 50},
+        snap=snap,
+        boost_stat="atk",
     )
 
 
@@ -275,7 +509,7 @@ def test_priority_boost_only_when_payoff_is_priority():
     boosts = king.criteria_notes.get("score_boosts") or ""
     kind = _setup_priority_kind(payoff)
     pri_label = (
-        f"priority_x{_setup_priority_mult(kind):g}" if kind != "none" else ""
+        f"priority_x{_setup_priority_mult_for(payoff):g}" if kind != "none" else ""
     )
     if payoff in _OFFENSIVE_PRIORITY_MOVES:
         assert pri_label in boosts
@@ -286,7 +520,7 @@ def test_priority_boost_only_when_payoff_is_priority():
     both = both_label in boosts
     expected = (
         raw
-        * _setup_priority_mult(kind)
+        * _setup_priority_mult_for(payoff)
         / (_SETUP_BOTH_BRANCH_SCORE_DIV if both else 1.0)
     )
     assert abs(adj - expected) < 1e-3
@@ -517,6 +751,8 @@ def test_disguise_clears_branch_b_without_bulk():
         abs_map={"disguise": "Disguise"},
         stats={"hp": 55, "def": 80, "spd": 105, "spe": 96},  # bulk 295 < 400
         entry=None,
+        snap={"moves": {"shadowsneak": {"category": "Physical"}}},
+        boost_stat="atk",
     )
     assert "B" in branches
 
