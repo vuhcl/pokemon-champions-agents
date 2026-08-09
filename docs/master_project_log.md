@@ -1860,6 +1860,50 @@ found for Trick Room's Gengar/Delphox case) has a real, distinct cousin (usage-m
 implausibility, not just move-absence) that also needed its own dedicated fix, and that
 both needed to be checked independently rather than assumed to be the same problem.
 
+### 2026-08-08 (cont.): available_pool ownership-preference mechanism — shipped
+
+Resolved the long-open available_pool design question (accept_available_pool had been a
+no-op since the schema's original design, with every test seeding it as []) — confirmed
+this is real, originally-stated project scope (the screenshot-upload-your-box feature), not
+vestigial, and worked out the actual mechanism before implementing.
+
+Two structurally different behaviors under one user-facing ownership_mode parameter:
+- Three SOFT-RANKING modes (owned_first / owned_last / off) operate inside rank_and_cut's
+  existing composite-key pattern — ownership becomes one tuple component, and its POSITION
+  in the tuple (primary vs. final tiebreak vs. absent) determines the mode. The full
+  candidate pool stays visible in all three; a not-owned candidate is never hidden, just
+  ranked differently.
+- One HARD-FILTER mode (owned_only, the strictest) removes non-owned candidates from the
+  pool entirely before ranking, reusing the existing candidate_pool restriction pattern
+  already proven for theme/legality narrowing — not a new filtering mechanism.
+
+Real design decisions made before implementation: ownership is a per-species BOOLEAN
+signal, never weighted by duplicate count — the user's box can hold multiple copies of a
+species, but Species Clause means only one instance can ever occupy a team slot regardless,
+so 3 copies owned isn't "more owned" than 1. Soft preference (not a universal hard filter)
+was chosen deliberately, motivated by the mono-Fairy-with-exactly-6-Fairy-types case: a
+constrained pool should let ownership matter as much as the situation demands (approaching
+a de facto requirement when the owned pool barely covers a slot) without a rigid filter-
+first design that would behave identically to a hard filter in exactly the cases where a
+softer touch matters most.
+
+Shipped: all four modes added to rank_and_cut; wired into query_counters and
+query_threat_counters (both already supported candidate_pool, the natural first
+consumers); tests covering each mode independently, the duplicate-species boolean
+collapse, owned_only reducing to a near-empty pool (handled gracefully, not an error), tier
+ordering, and query_threat_counters' pool-restriction asymmetry (ownership affects only the
+candidate/teammate side, never threat identification — same asymmetry already established
+for that tool's general candidate_pool parameter).
+
+385 tests passing (up from 373).
+
+Deliberately deferred, not oversights: wiring into propose.py's role→species step (the
+mechanism now exists but isn't yet load-bearing in the live recommendation flow); the
+screenshot-to-available_pool input pipeline (a separate, unbuilt future feature — this task
+assumes available_pool arrives as already-structured species data); capturing the user's
+ownership_mode preference from conversation or settings (assumed to arrive as an already-
+resolved parameter for this task).
+
 ## TOOLS & RESOURCES
 
 - **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.

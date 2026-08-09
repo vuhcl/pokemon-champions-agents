@@ -262,6 +262,98 @@ def test_candidate_pool_empty_returns_empty():
     )
 
 
+def test_ownership_off_and_owned_first_with_duplicate_box_entries():
+    full = query_counters({"species": "Blaziken-Mega"}, n=1000)
+    by_tier: dict[int, list[ThreatCandidate]] = {}
+    for candidate in full:
+        by_tier.setdefault(threat_tier(candidate.threat_kinds), []).append(candidate)
+    same_tier = next(group for group in by_tier.values() if len(group) >= 3)[:3]
+    candidate_pool = [{"species": c.form} for c in same_tier]
+    owned = same_tier[-1].form
+
+    baseline = query_counters(
+        {"species": "Blaziken-Mega"}, n=20, candidate_pool=candidate_pool
+    )
+    off = query_counters(
+        {"species": "Blaziken-Mega"},
+        n=20,
+        candidate_pool=candidate_pool,
+        available_pool=[owned],
+        ownership_mode="off",
+    )
+    once = query_counters(
+        {"species": "Blaziken-Mega"},
+        n=20,
+        candidate_pool=candidate_pool,
+        available_pool=[owned],
+        ownership_mode="owned_first",
+    )
+    duplicates = query_counters(
+        {"species": "Blaziken-Mega"},
+        n=20,
+        candidate_pool=candidate_pool,
+        available_pool=[owned, owned, owned],
+        ownership_mode="owned_first",
+    )
+
+    assert off == baseline
+    assert once == duplicates
+    assert to_id(once[0].form) == to_id(owned)
+    assert {to_id(c.form) for c in once} == {to_id(c.form) for c in baseline}
+
+
+def test_owned_last_only_breaks_a_complete_query_key_tie():
+    full = query_counters({"species": "Blaziken-Mega"}, n=1000)
+    ties: dict[tuple[int, int | None, float], list[ThreatCandidate]] = {}
+    for candidate in full:
+        key = (
+            threat_tier(candidate.threat_kinds),
+            candidate.usage_rank,
+            candidate.ko_threshold_score,
+        )
+        ties.setdefault(key, []).append(candidate)
+    tied = next(group for group in ties.values() if len(group) >= 2)[:2]
+    candidate_pool = [{"species": c.form} for c in tied]
+    owned = tied[-1].form
+
+    out = query_counters(
+        {"species": "Blaziken-Mega"},
+        n=20,
+        candidate_pool=candidate_pool,
+        available_pool=[owned],
+        ownership_mode="owned_last",
+    )
+    assert to_id(out[0].form) == to_id(owned)
+    assert {to_id(c.form) for c in out} == {
+        to_id(p["species"]) for p in candidate_pool
+    }
+
+
+def test_owned_only_intersects_candidate_pool_and_handles_empty():
+    full = query_counters({"species": "Blaziken-Mega"}, n=20)
+    assert len(full) >= 3
+    narrowed = [{"species": c.form} for c in full[:3]]
+    owned = full[1].form
+
+    one = query_counters(
+        {"species": "Blaziken-Mega"},
+        n=20,
+        candidate_pool=narrowed,
+        available_pool=[owned, owned, "NotInNarrowedPool"],
+        ownership_mode="owned_only",
+    )
+    empty = query_counters(
+        {"species": "Blaziken-Mega"},
+        n=20,
+        candidate_pool=narrowed,
+        available_pool=[],
+        ownership_mode="owned_only",
+    )
+
+    assert [to_id(c.form) for c in one] == [to_id(owned)]
+    assert empty == []
+
+
 def test_battle_state_bp_assumptions_not_conflated():
     """Fainted-ally=2 vs hits-taken=1 are independent (ADR-023 follow-up)."""
     assert ASSUMED_FAINTED_TEAMMATES == 2

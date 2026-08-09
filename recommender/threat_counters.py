@@ -9,6 +9,7 @@ Orchestrates query_counters + classify_matchup; does not modify either.
 
 from __future__ import annotations
 
+from collections.abc import Collection, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -16,7 +17,7 @@ from recommender.calc_client import CalcClient, PokemonSpecOptional
 from recommender.counters import query_counters
 from recommender.ids import to_id
 from recommender.matchup import MatchupResult, classify_matchup
-from recommender.ranking import rank_and_cut
+from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.resolved_builds import get_resolved_build
 from recommender.state import ThreatCandidate, ThreatCounterCandidate
 from recommender.usage_data import featured_or_common_set
@@ -116,6 +117,60 @@ def _most_common_verify_spec(
     return spec
 
 
+def _collect_candidates(
+    threats: Sequence[ThreatCandidate],
+    *,
+    candidate_pool: list[PokemonSpecOptional] | None,
+    available_pool: list[str] | None,
+    ownership_mode: OwnershipMode,
+    excluded_species: Collection[str],
+) -> tuple[dict[str, _Merged], dict[str, ThreatCandidate]]:
+    excluded = {to_id(species) for species in excluded_species}
+    threats_by_id: dict[str, ThreatCandidate] = {}
+    merged: dict[str, _Merged] = {}
+    for threat in threats:
+        tid = _species_id(threat)
+        if not tid:
+            continue
+        threats_by_id.setdefault(tid, threat)
+        kwargs: dict[str, Any] = {}
+        if candidate_pool is not None:
+            kwargs["candidate_pool"] = candidate_pool
+        if ownership_mode != "off":
+            kwargs["available_pool"] = available_pool
+            kwargs["ownership_mode"] = ownership_mode
+        for candidate in query_counters(threat.spec, **kwargs):
+            cid = _species_id(candidate)
+            if not cid or cid in excluded:
+                continue
+            row = merged.get(cid)
+            if row is None:
+                merged[cid] = _Merged(candidate=candidate, threat_ids={tid})
+            else:
+                row.candidate = _better_usage(row.candidate, candidate)
+                row.threat_ids.add(tid)
+    return merged, threats_by_id
+
+
+def _static_cut(
+    merged: dict[str, _Merged],
+    *,
+    n: int,
+    available_pool: list[str] | None,
+    ownership_mode: OwnershipMode,
+) -> list[_Merged]:
+    owned = {sid for species in available_pool or [] if (sid := to_id(species))}
+    return rank_and_cut(
+        list(merged.values()),
+        key=lambda row: (row.count, _usage_popularity(row.candidate)),
+        n=n,
+        tier=None,
+        order="descending",
+        ownership_mode=ownership_mode,
+        is_owned=lambda row: _species_id(row.candidate) in owned,
+    )
+
+
 def query_threat_counters(
     anchor: PokemonSpecOptional,
     *,
@@ -123,60 +178,40 @@ def query_threat_counters(
     verify_threats_n: int = 5,
     client: CalcClient | None = None,
     candidate_pool: list[PokemonSpecOptional] | None = None,
+    available_pool: list[str] | None = None,
+    ownership_mode: OwnershipMode = "off",
 ) -> list[ThreatCounterCandidate]:
     """Candidates that counter the anchor's threats; final order from verified matchups.
 
     ``candidate_pool`` restricts teammate/candidate search (step 2+) only — never
     threat identification (step 1), which always uses the full unrestricted meta.
+    Ownership follows the same candidate-side-only boundary.
     """
     if not anchor.get("species"):
         return []
-
-    anchor_id = to_id(anchor["species"])
 
     # --- 1. Full threat list (query_counters default n) — never pass candidate_pool ---
     threats = query_counters(anchor)
     if not threats:
         return []
 
-    threats_by_id: dict[str, ThreatCandidate] = {}
-    for t in threats:
-        tid = _species_id(t)
-        if tid and tid not in threats_by_id:
-            threats_by_id[tid] = t
-
     # --- 2–3. Depth-one expand + merge (pool restricts candidates only) ---
-    merged: dict[str, _Merged] = {}
-    for threat in threats:
-        tid = _species_id(threat)
-        # Pass candidate_pool only when set so existing (pokemon, n=20) mocks stay valid.
-        if candidate_pool is not None:
-            cands = query_counters(threat.spec, candidate_pool=candidate_pool)
-        else:
-            cands = query_counters(threat.spec)
-        for cand in cands:
-            cid = _species_id(cand)
-            if not cid or cid == anchor_id:
-                continue
-            row = merged.get(cid)
-            if row is None:
-                merged[cid] = _Merged(candidate=cand, threat_ids={tid})
-            else:
-                row.candidate = _better_usage(row.candidate, cand)
-                row.threat_ids.add(tid)
-
+    merged, threats_by_id = _collect_candidates(
+        threats,
+        candidate_pool=candidate_pool,
+        available_pool=available_pool,
+        ownership_mode=ownership_mode,
+        excluded_species=(str(anchor["species"]),),
+    )
     if not merged:
         return []
 
-    pool = list(merged.values())
-
     # --- 4. Static cut: count primary, usage tiebreak ---
-    static = rank_and_cut(
-        pool,
-        key=lambda m: (m.count, _usage_popularity(m.candidate)),
+    static = _static_cut(
+        merged,
         n=n,
-        tier=None,
-        order="descending",
+        available_pool=available_pool,
+        ownership_mode=ownership_mode,
     )
 
     # --- 5. Usage-only re-select of verification threats (independent ranking) ---
@@ -222,10 +257,13 @@ def query_threat_counters(
             )
         )
 
+    owned = {sid for species in available_pool or [] if (sid := to_id(species))}
     return rank_and_cut(
         out_rows,
         key=lambda c: (c.verified_score, _usage_popularity(c.candidate)),
         n=len(out_rows),
         tier=None,
         order="descending",
+        ownership_mode=ownership_mode,
+        is_owned=lambda c: _species_id(c.candidate) in owned,
     )

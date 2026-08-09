@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
+from recommender.ids import to_id
 from recommender.move_narrowing import (
     BACKSTOP_CEILING,
     ProposedInteraction,
@@ -45,6 +46,25 @@ def test_follow_me_stops_at_small_pool():
     assert len(r.candidates) == len(learners_of("followme"))
 
 
+def test_small_pool_applies_ownership_before_return():
+    pool = learners_of("followme")
+    owned = pool[-1]
+    only = narrow_candidates_for_move(
+        "followme",
+        _state(),
+        available_species=[owned],
+        ownership_mode="owned_only",
+    )
+    assert only.candidates == [owned]
+    first = narrow_candidates_for_move(
+        "followme",
+        _state(),
+        available_species=[owned],
+        ownership_mode="owned_first",
+    )
+    assert first.candidates[0] == owned
+
+
 def test_follow_me_forced_past_step1_skips_grouping():
     r = narrow_candidates_for_move("followme", _state(), small_pool=0)
     assert r.grouping_skipped is True
@@ -56,6 +76,7 @@ def test_trick_room_priority_skips_grouping():
     r = narrow_candidates_for_move("trickroom", _state(), small_pool=0)
     assert r.grouping_skipped is True
     assert r.stopped_at == 3
+    assert set(r.candidate_meta) == {to_id(name) for name in r.candidates}
 
 
 def test_encore_delivery_groups_prankster_first():

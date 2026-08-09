@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Collection
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
@@ -17,7 +17,7 @@ from recommender.legality import (
     species_can_have_ability,
 )
 from recommender.matchup import _CHARGE_INSTANT_WEATHER, _makes_contact
-from recommender.ranking import rank_and_cut
+from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.state import RecommenderState, Slot
 from recommender.usage_data import ingame_species_map, species_usage
 
@@ -96,6 +96,7 @@ class NarrowResult:
     candidates: list[str]
     stopped_at: int
     delivery: dict[str, Delivery] = field(default_factory=dict)
+    candidate_meta: dict[str, CandidateMeta] = field(default_factory=dict)
     verified_reinforcements: dict[str, int] = field(default_factory=dict)
     backstop_applied: bool = False
     grouping_skipped: bool = False
@@ -357,6 +358,8 @@ def narrow_candidates_for_move(
     calc_client: CalcClient | None = None,
     commitment_override: dict[str, float | None] | None = None,
     usage_override: dict[str, float | None] | None = None,
+    available_species: Collection[str] = (),
+    ownership_mode: OwnershipMode = "off",
 ) -> NarrowResult:
     snap = snap or load_snapshot()
     regulation = state.get("regulation_mod") or "champions-reg-mb"
@@ -364,8 +367,18 @@ def narrow_candidates_for_move(
     if regulation == "champions":
         regulation = "champions-reg-mb"
 
+    owned = {sid for species in available_species if (sid := to_id(species))}
     pool = learners_of(move, snap=snap)
+    if ownership_mode == "owned_only":
+        pool = [name for name in pool if to_id(name) in owned]
+
+    def ownership_order(names: list[str]) -> list[str]:
+        if ownership_mode not in {"owned_first", "owned_last"}:
+            return names
+        return sorted(names, key=lambda name: to_id(name) not in owned)
+
     if len(pool) <= small_pool:
+        pool = ownership_order(pool)
         delivery = {
             n: ("prankster" if _has_prankster(snap, n) else "natural_speed") for n in pool
         }
@@ -383,6 +396,7 @@ def narrow_candidates_for_move(
         if narrowed:
             filtered = narrowed
             if len(filtered) <= small_pool:
+                filtered = ownership_order(filtered)
                 delivery = {
                     n: ("prankster" if _has_prankster(snap, n) else "natural_speed")
                     for n in filtered
@@ -417,7 +431,9 @@ def narrow_candidates_for_move(
     if grouping_skipped:
         metas = [meta_for(n, "natural_speed") for n in filtered]
         _apply_kit(metas, move, snap=snap, proposer=proposer, calc_client=calc_client)
-        final, backstop = _admit_candidates(metas)
+        final, backstop = _admit_candidates(
+            metas, ownership_mode=ownership_mode, owned=owned
+        )
     else:
         prank = [n for n in filtered if _has_prankster(snap, n)]
         nat = [n for n in filtered if not _has_prankster(snap, n)]
@@ -426,7 +442,9 @@ def narrow_candidates_for_move(
         _apply_kit(p_metas, move, snap=snap, proposer=proposer, calc_client=calc_client)
         _apply_kit(n_metas, move, snap=snap, proposer=proposer, calc_client=calc_client)
         prepared = _prepare_delivery_group(p_metas) + _prepare_delivery_group(n_metas)
-        final, backstop = _admit_prepared(prepared)
+        final, backstop = _admit_prepared(
+            prepared, ownership_mode=ownership_mode, owned=owned
+        )
 
     # ponytail: step 4 opportunity-cost ranking needs move-usage density we don't have;
     # learnsets alone are not enough. Upgrade when per-move set-inclusion ranks exist.
@@ -436,6 +454,7 @@ def narrow_candidates_for_move(
         candidates=[m.species for m in final],
         stopped_at=3,
         delivery=delivery_map,
+        candidate_meta={to_id(m.species): m for m in final},
         verified_reinforcements=reinf,
         backstop_applied=backstop,
         grouping_skipped=grouping_skipped,
@@ -468,6 +487,9 @@ def _delivery_tier(m: CandidateMeta) -> int:
 
 def _admit_prepared(
     prepared: list[CandidateMeta],
+    *,
+    ownership_mode: OwnershipMode = "off",
+    owned: Collection[str] = (),
 ) -> tuple[list[CandidateMeta], bool]:
     pos = {id(m): i for i, m in enumerate(prepared)}
     final = rank_and_cut(
@@ -477,15 +499,24 @@ def _admit_prepared(
         tier=_delivery_tier,
         slack=-1,
         order="ascending",
+        ownership_mode=ownership_mode,
+        is_owned=lambda meta: to_id(meta.species) in owned,
     )
     return final, len(prepared) > BACKSTOP_CEILING
 
 
 def _admit_candidates(
     metas: list[CandidateMeta],
+    *,
+    ownership_mode: OwnershipMode = "off",
+    owned: Collection[str] = (),
 ) -> tuple[list[CandidateMeta], bool]:
     """Single delivery group (e.g. grouping_skipped → all natural_speed)."""
-    return _admit_prepared(_prepare_delivery_group(metas))
+    return _admit_prepared(
+        _prepare_delivery_group(metas),
+        ownership_mode=ownership_mode,
+        owned=owned,
+    )
 
 
 def pick_default_and_alternatives(
