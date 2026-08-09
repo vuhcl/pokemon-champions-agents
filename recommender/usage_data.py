@@ -193,8 +193,9 @@ def _display_ability(raw: str) -> str:
 
 
 def lineage_ids(ladder_species: str) -> list[str]:
-    """Base id plus legality kids with base_species_id == base."""
-    base = to_id(ladder_species)
+    """Base id plus legality children, even when called with an exact child form."""
+    requested = to_id(ladder_species)
+    base = (_legality_species().get(requested) or {}).get("base_species_id") or requested
     kids = [base]
     for sid, ent in _legality_species().items():
         if ent.get("base_species_id") == base and sid not in kids:

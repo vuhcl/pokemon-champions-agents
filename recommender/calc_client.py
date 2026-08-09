@@ -184,7 +184,13 @@ class CalcClient:
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
             with urllib.request.urlopen(req) as resp:
-                parsed = json.loads(resp.read().decode())
+                raw = resp.read()
+                try:
+                    parsed = json.loads(raw.decode())
+                except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+                    raise CalcClientError(
+                        resp.status, {"error": f"invalid JSON response: {exc}"}
+                    ) from exc
                 return resp.status, parsed
         except urllib.error.HTTPError as exc:
             raw = exc.read().decode()
@@ -193,6 +199,8 @@ class CalcClient:
             except json.JSONDecodeError:
                 parsed = {"error": raw or exc.reason}
             return exc.code, parsed
+        except (urllib.error.URLError, TimeoutError) as exc:
+            raise CalcClientError(0, {"error": str(exc)}) from exc
 
     def health(self) -> HealthResponse:
         status, body = self._json_request("GET", "/health")
@@ -225,7 +233,12 @@ class CalcClient:
         status, body = self._json_request(
             "POST", "/calculate/batch", {"requests": requests}
         )
-        if status < 200 or status >= 300:
+        if (
+            status < 200
+            or status >= 300
+            or not isinstance(body, dict)
+            or not isinstance(body.get("results"), list)
+        ):
             raise CalcClientError(status, body)
         return body["results"]
 

@@ -215,6 +215,8 @@ def _slot_to_spec(slot: Slot, *, regulation: str = "champions") -> PokemonSpecOp
     if not species:
         return None
     spec: PokemonSpecOptional = {"species": species}
+    if slot.ability.value:
+        spec["ability"] = slot.ability.value
     if slot.item.value:
         spec["item"] = slot.item.value
     if slot.moveset.value:
