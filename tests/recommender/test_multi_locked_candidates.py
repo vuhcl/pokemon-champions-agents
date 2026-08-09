@@ -1,0 +1,815 @@
+from __future__ import annotations
+
+from dataclasses import replace
+from types import SimpleNamespace
+from unittest.mock import patch
+
+import pytest
+
+from recommender.matchup import MatchupEvidenceError, MatchupResult
+from recommender.nodes import classify_pending, commit_full_slot, discover_multi_locked
+from recommender.slot_fill import (
+    AnnotatedCandidate,
+    AnchoredSupportNeed,
+    NeedResolvedCandidate,
+    SlotFillContext,
+    SlotFillResponse,
+    build_provisional_slot,
+    run_slot_fill_terminal,
+)
+from recommender.state import (
+    Attr,
+    CandidateDiscoveryError,
+    CandidateEvidence,
+    RecommenderState,
+    SPOFFinding,
+    Slot,
+    TeamReviewResult,
+    TeamThreatDiscovery,
+    TeamThreatObjectiveRow,
+    TargetRoleDecision,
+    ThreatCandidate,
+    ThreatCounterCandidate,
+    ThreatCoverageResult,
+    UnresolvedTargetRoleDecision,
+    empty_slot,
+)
+from recommender.support_needs import SupportNeed
+from recommender.team_candidates import (
+    annotate_composition_impact,
+    build_team_threat_objective,
+    material_completion_preferences,
+    merge_multi_locked_candidates,
+    rank_multi_locked_candidates,
+)
+from recommender.teammate_types import (
+    SharedAnchorEvidence,
+    SharedTeammate,
+    SharedTeammateQueryResult,
+)
+from recommender.threat_counters import aggregate_verified
+
+
+def _threat(species: str, usage_rank: int | None = 1) -> ThreatCandidate:
+    return ThreatCandidate(
+        ladder_species=species,
+        usage_rank=usage_rank,
+        form=species,
+        showdown_usage_pct=None,
+        showdown_formes=(),
+        spec={"species": species},
+        build_source="test",
+    )
+
+
+def _counter(
+    species: str,
+    *,
+    threat_id: str = "target",
+    outcome: str = "clean_kill",
+    severity: str = "costly",
+    usage_rank: int | None = 1,
+    matchups: tuple[tuple[str, str, str], ...] | None = None,
+) -> ThreatCounterCandidate:
+    rows = matchups or ((threat_id, outcome, severity),)
+    verified = tuple(
+        (
+            row_threat_id,
+            MatchupResult(outcome=row_outcome, severity=row_severity),  # type: ignore[arg-type]
+        )
+        for row_threat_id, row_outcome, row_severity in rows
+    )
+    return ThreatCounterCandidate(
+        candidate=_threat(species, usage_rank=usage_rank),
+        threats_countered=tuple(row[0] for row in rows),
+        threats_countered_count=len(rows),
+        verified_score=aggregate_verified([result for _, result in verified]),
+        verified_vs=verified,
+    )
+
+
+def _objective(
+    *,
+    threat_id: str = "target",
+    kinds: frozenset[str] = frozenset({"uncovered"}),
+) -> TeamThreatObjectiveRow:
+    return TeamThreatObjectiveRow(_threat(threat_id), kinds)  # type: ignore[arg-type]
+
+
+def _need(category: str, trigger: str | None = None) -> SupportNeed:
+    return SupportNeed(
+        category=category,  # type: ignore[arg-type]
+        name=category,
+        description=category,
+        trigger=trigger,
+    )
+
+
+def _evidence(
+    basis: str = "mechanical_only",
+    *,
+    branch: str = "need",
+    anchor_id: str | None = None,
+) -> CandidateEvidence:
+    return CandidateEvidence(
+        basis=basis,  # type: ignore[arg-type]
+        confidence="medium",
+        producer_name="test",
+        branch=branch,  # type: ignore[arg-type]
+        origin_anchor_id=anchor_id,
+    )
+
+
+def _candidate(
+    species: str,
+    *,
+    fit: str = "neutral",
+    threat: ThreatCounterCandidate | None = None,
+    anchors: frozenset[str] = frozenset(),
+    needs: tuple[AnchoredSupportNeed, ...] = (),
+    evidence: tuple[CandidateEvidence, ...] = (),
+    spec: dict | None = None,
+) -> AnnotatedCandidate:
+    return AnnotatedCandidate(
+        species=species,
+        matching_needs=tuple(row.need for row in needs),
+        source="threat" if threat else "need",
+        threat_row=threat,
+        spec=spec or {"species": species},
+        evidence=evidence or (_evidence(),),
+        branches=frozenset({"threat" if threat else "need"}),
+        anchor_ids=anchors,
+        composition_fit=fit,  # type: ignore[arg-type]
+        anchored_needs=needs,
+    )
+
+
+def _locked(
+    species: str,
+    *,
+    role: str = "bulky_attacker",
+    ability: str = "Pressure",
+    item: str = "Leftovers",
+    moves: list[str] | None = None,
+) -> Slot:
+    return Slot(
+        role=Attr(role, locked=True),
+        species=Attr(species, locked=True),
+        ability=Attr(ability, locked=True),
+        item=Attr(item, locked=True),
+        moveset=Attr(moves or ["Tackle", "Protect", "Rest", "Sleep Talk"], locked=True),
+        spread=Attr(
+            {"hp": 32, "atk": 32, "def": 2, "spa": 0, "spd": 0, "spe": 0},
+            locked=True,
+        ),
+        nature=Attr("Adamant", locked=True),
+    )
+
+
+def _state(draft: list[Slot] | None = None) -> RecommenderState:
+    return {
+        "format_id": "[Gen 9 Champions] VGC 2026 Reg M-B",
+        "game_type": "doubles",
+        "regulation_mod": "champions-reg-mb",
+        "picked_team_size": 4,
+        "available_pool": [],
+        "team_draft": draft or [empty_slot() for _ in range(6)],
+        "archetype": Attr(),
+        "rejected": [],
+        "constraints": [],
+        "messages": [],
+    }
+
+
+def _shared(*rows: SharedTeammate, status: str = "available"):
+    return SharedTeammateQueryResult(
+        anchor_results=(),
+        status=status,  # type: ignore[arg-type]
+        rows=rows if status == "available" else None,
+        unavailable_anchors=(),
+        ordering="test",
+        caveats=(),
+    )
+
+
+def _shared_row(species: str, attribution: str = "exact") -> SharedTeammate:
+    return SharedTeammate(
+        species_id=species.lower(),
+        name=species,
+        per_anchor=(SharedAnchorEvidence("a", 2, 20.0),),
+        worst_rank=2,
+        min_conditional_pct=20.0,
+        attribution_status=attribution,  # type: ignore[arg-type]
+    )
+
+
+def test_locked_slot_order_does_not_change_multi_rank():
+    need = _need("screens")
+    first = _candidate(
+        "Alpha",
+        anchors=frozenset({"a"}),
+        needs=(AnchoredSupportNeed(0, "a", need),),
+    )
+    permuted = replace(
+        first,
+        anchor_slot_indices=frozenset({4}),
+        anchored_needs=(AnchoredSupportNeed(4, "a", need),),
+    )
+    beta = _candidate("Beta")
+    kwargs = dict(
+        objective=(),
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert [row.species for row in rank_multi_locked_candidates([first, beta], **kwargs)] == [
+        row.species for row in rank_multi_locked_candidates([permuted, beta], **kwargs)
+    ]
+
+
+def test_all_anchors_contribute_before_global_cut():
+    late = AnchoredSupportNeed(5, "late", _need("screens"))
+    resolved = NeedResolvedCandidate(
+        "Farigiraf", (late.need,), (_evidence(anchor_id="late"),), (late,)
+    )
+    contexts = [
+        SimpleNamespace(resolved_build=SimpleNamespace(species="A"), support_needs=()),
+        SimpleNamespace(resolved_build=SimpleNamespace(species="B"), support_needs=(late,)),
+    ]
+    with patch(
+        "recommender.team_candidates.resolve_all_support_needs",
+        return_value=[resolved],
+    ):
+        rows = merge_multi_locked_candidates(
+            _state(),
+            contexts,  # type: ignore[arg-type]
+            (),
+            None,
+            ownership_mode="off",
+            owned_species=frozenset(),
+        )
+    assert [row.species for row in rows] == ["Farigiraf"]
+    assert rows[0].anchor_ids == frozenset({"late"})
+
+
+def test_duplicate_need_rows_do_not_inflate_anchor_breadth():
+    need = _need("screens")
+    duplicate = _candidate(
+        "Alpha",
+        anchors=frozenset({"a"}),
+        needs=(
+            AnchoredSupportNeed(0, "a", need),
+            AnchoredSupportNeed(0, "a", need),
+        ),
+    )
+    broad = _candidate(
+        "Beta",
+        anchors=frozenset({"a", "b"}),
+        needs=(
+            AnchoredSupportNeed(0, "a", need),
+            AnchoredSupportNeed(1, "b", need),
+        ),
+    )
+    ranked = rank_multi_locked_candidates(
+        [duplicate, broad],
+        objective=(),
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert ranked[0].species == "Beta"
+
+
+def test_team_wide_threat_objective_ignores_anchor_local_false_gap():
+    covered = ThreatCoverageResult(
+        {"species": "Covered"},
+        MatchupResult("clean_kill", "costly"),
+        [1],
+        None,
+        False,
+    )
+    uncovered = ThreatCoverageResult(
+        {"species": "Gap"},
+        MatchupResult("no_answer", "toss-up"),
+        [],
+        None,
+        True,
+    )
+    objective = build_team_threat_objective(
+        TeamReviewResult([_threat("Covered"), _threat("Gap")], [covered, uncovered], [])
+    )
+    assert [row.threat.form for row in objective] == ["Gap"]
+
+
+def test_spof_improvement_rewards_second_verified_answer():
+    baseline = ThreatCoverageResult(
+        {"species": "Target"},
+        MatchupResult("clean_kill", "costly"),
+        [0],
+        None,
+        False,
+    )
+    objective = build_team_threat_objective(
+        TeamReviewResult(
+            [_threat("Target")],
+            [baseline],
+            [SPOFFinding(0, [{"species": "Target"}], {"target": "costly"})],
+        )
+    )
+    ranked = rank_multi_locked_candidates(
+        [_candidate("Answer", threat=_counter("Answer")), _candidate("Other")],
+        objective=objective,
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert objective[0].kinds == frozenset({"spof"})
+    assert ranked[0].species == "Answer"
+
+
+def test_candidate_local_provenance_survives_merge_and_selection():
+    need = AnchoredSupportNeed(0, "anchor", _need("trick_room"))
+    support = NeedResolvedCandidate(
+        "Farigiraf",
+        (need.need,),
+        (_evidence("compendium_backed", anchor_id="anchor"),),
+        (need,),
+    )
+    shared = _shared(_shared_row("Farigiraf"))
+    with patch(
+        "recommender.team_candidates.resolve_all_support_needs",
+        return_value=[support],
+    ):
+        rows = merge_multi_locked_candidates(
+            _state(),
+            [SimpleNamespace(resolved_build=SimpleNamespace(species="A"), support_needs=(need,))],  # type: ignore[list-item]
+            (_counter("Farigiraf"),),
+            shared,
+            ownership_mode="off",
+            owned_species=frozenset(),
+        )
+    ctx = SlotFillContext(None, None, annotated_candidates=rows, candidates_pre_ranked=True)
+    terminal = run_slot_fill_terminal(
+        ctx, _state(), slot_index=0, response=SlotFillResponse("choose", "Farigiraf")
+    )
+    intent = terminal.state_updates["pending_slot_intent"]
+    assert {item.branch for item in intent.evidence} == {"threat", "need", "teammate"}
+    assert intent.source == "mixed"
+
+
+def test_target_role_is_candidate_local():
+    trick = AnchoredSupportNeed(0, "a", _need("trick_room"))
+    support = NeedResolvedCandidate(
+        "Farigiraf", (trick.need,), (_evidence(anchor_id="a"),), (trick,)
+    )
+    with patch(
+        "recommender.team_candidates.resolve_all_support_needs",
+        return_value=[support],
+    ):
+        rows = merge_multi_locked_candidates(
+            _state(),
+            [SimpleNamespace(resolved_build=SimpleNamespace(species="A"), support_needs=(trick,))],  # type: ignore[list-item]
+            (_counter("Incineroar"),),
+            _shared(_shared_row("Rillaboom")),
+            ownership_mode="off",
+            owned_species=frozenset(),
+        )
+    by_species = {row.species: row for row in rows}
+    assert by_species["Farigiraf"].target_role_decision is not None
+    assert by_species["Incineroar"].target_role_decision is None
+    assert by_species["Rillaboom"].target_role_decision is None
+
+
+def test_incompatible_candidate_support_roles_remain_unresolved():
+    needs = (
+        AnchoredSupportNeed(0, "a", _need("trick_room")),
+        AnchoredSupportNeed(1, "b", _need("tailwind")),
+    )
+    support = NeedResolvedCandidate(
+        "Farigiraf",
+        tuple(row.need for row in needs),
+        (_evidence(),),
+        needs,
+    )
+    with patch(
+        "recommender.team_candidates.resolve_all_support_needs",
+        return_value=[support],
+    ):
+        row = merge_multi_locked_candidates(
+            _state(),
+            [SimpleNamespace(resolved_build=SimpleNamespace(species="A"), support_needs=needs)],  # type: ignore[list-item]
+            (),
+            None,
+            ownership_mode="off",
+            owned_species=frozenset(),
+        )[0]
+    assert isinstance(row.target_role_decision, UnresolvedTargetRoleDecision)
+    assert row.target_role_decision.reason == "incompatible_support_roles"
+
+
+def test_compendium_stays_first_and_rejections_still_apply():
+    from recommender.slot_fill import resolve_need_candidates
+
+    rows = resolve_need_candidates(_need("trick_room"), _state())
+    assert rows
+    assert rows[0].evidence[0].basis == "compendium_backed"
+
+
+@pytest.mark.parametrize(
+    ("mode", "expected"),
+    [
+        ("off", {"Owned", "Unowned"}),
+        ("owned_first", {"Owned", "Unowned"}),
+        ("owned_last", {"Owned", "Unowned"}),
+        ("owned_only", {"Owned"}),
+    ],
+)
+def test_ownership_mode_applies_uniformly_to_every_candidate_branch(mode, expected):
+    shared = _shared(_shared_row("Owned"), _shared_row("Unowned"))
+    rows = merge_multi_locked_candidates(
+        _state(),
+        [],
+        (_counter("Owned"), _counter("Unowned")),
+        shared,
+        ownership_mode=mode,
+        owned_species=frozenset({"owned"}),
+    )
+    assert {row.species for row in rows} == expected
+
+
+@pytest.mark.parametrize(
+    "shared",
+    [
+        _shared(status="unavailable"),
+        _shared(),
+        _shared(_shared_row("Ambiguous", "ambiguous")),
+    ],
+)
+def test_shared_teammate_unavailable_empty_and_nonexact_are_neutral(shared):
+    rows = merge_multi_locked_candidates(
+        _state(),
+        [],
+        (),
+        shared,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert rows == []
+
+
+def test_shared_only_candidate_cannot_win_without_team_fit():
+    ranked = rank_multi_locked_candidates(
+        [
+            _candidate("Shared", fit="neutral", evidence=(_evidence("teammate_backed"),)),
+            _candidate("Fit", fit="complementary"),
+        ],
+        objective=(),
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert ranked[0].species == "Fit"
+
+
+def test_basculegion_regression_does_not_rank_redundant_rain_attacker_first():
+    draft = [
+        _locked("Archaludon", role="bulky_rain_attacker", ability="Stamina", moves=["Dragon Pulse", "Electro Shot", "Protect", "Body Press"]),
+        _locked("Pelipper", role="rain_support", ability="Drizzle", moves=["Hurricane", "Tailwind", "Wide Guard", "Protect"]),
+        _locked("Mega Swampert", role="physical_rain_attacker", ability="Swift Swim", item="Swampertite", moves=["Wave Crash", "Earthquake", "Ice Punch", "Protect"]),
+        *[empty_slot() for _ in range(3)],
+    ]
+    screens = AnchoredSupportNeed(0, "archaludon", _need("screens"))
+    support = NeedResolvedCandidate(
+        "Grimmsnarl",
+        (screens.need,),
+        (_evidence(anchor_id="archaludon"),),
+        (screens,),
+    )
+    contexts = [
+        SimpleNamespace(
+            resolved_build=SimpleNamespace(species=species),
+            support_needs=(screens,) if species == "Archaludon" else (),
+        )
+        for species in ("Archaludon", "Pelipper", "Mega Swampert")
+    ]
+    shared = _shared(_shared_row("Basculegion"), _shared_row("Grimmsnarl"))
+    with patch(
+        "recommender.team_candidates.resolve_all_support_needs",
+        return_value=[support],
+    ):
+        candidates = merge_multi_locked_candidates(
+            _state(draft),
+            contexts,  # type: ignore[arg-type]
+            (),
+            shared,
+            ownership_mode="off",
+            owned_species=frozenset(),
+        )
+    specs = {
+        "Basculegion": {"species": "Basculegion", "ability": "Swift Swim", "moves": ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"]},
+        "Grimmsnarl": {"species": "Grimmsnarl", "ability": "Prankster", "item": "Light Clay", "moves": ["Reflect", "Light Screen", "Parting Shot", "Fake Out"]},
+    }
+    candidates = [replace(row, spec=specs[row.species]) for row in candidates]
+    annotated = annotate_composition_impact(candidates, _state(draft))
+    ranked = rank_multi_locked_candidates(
+        annotated,
+        objective=(),
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert ranked[0].species == "Grimmsnarl"
+    basculegion = next(row for row in ranked if row.species == "Basculegion")
+    assert any(item.branch == "teammate" for item in basculegion.evidence)
+
+
+def test_unknown_candidate_composition_is_neutral_not_guessed():
+    row = annotate_composition_impact(
+        [_candidate("Missingmon", spec={"species": "Missingmon"})],
+        _state([_locked("Kingambit"), _locked("Pelipper"), *[empty_slot() for _ in range(4)]]),
+    )[0]
+    assert row.composition_fit == "neutral"
+
+
+def test_completion_preference_only_prompts_when_rank_would_change():
+    candidates = [_candidate("Attacker"), _candidate("Support")]
+    with patch(
+        "recommender.team_candidates._primary_function",
+        side_effect=lambda row, _reg: "offense" if row.species == "Attacker" else "support",
+    ):
+        assert material_completion_preferences(
+            candidates,
+            objective=(),
+            ownership_mode="off",
+            owned_species=frozenset(),
+        ) == ("attacker", "support", "balanced")
+    result = classify_pending(
+        "support",
+        {
+            "schema_version": 2,
+            "kind": "completion_preference",
+            "preference_options": ("attacker", "support", "balanced"),
+        },
+    )
+    assert result["turn_intent"] == "continue"
+    assert result["team_completion_preference"] == "support"
+
+
+def test_multi_selection_reuses_existing_atomic_commit_lifecycle():
+    decision = TargetRoleDecision(
+        role_id="trick_room_setter",
+        source="support_need",
+        evidence=("trick_room",),
+    )
+    candidate = replace(
+        _candidate("Farigiraf"), target_role_decision=decision  # type: ignore[arg-type]
+    )
+    compendium = _candidate(
+        "Amoonguss", evidence=(_evidence("compendium_backed"),)
+    )
+    ctx = SlotFillContext(
+        None,
+        None,
+        annotated_candidates=[candidate, compendium],
+        candidates_pre_ranked=True,
+    )
+    terminal = run_slot_fill_terminal(ctx, _state(), slot_index=0)
+    assert terminal.presentation.default == "Farigiraf"
+    assert terminal.state_updates["pending_presentation"]["options"][0]["species"] == "Farigiraf"
+    selected = run_slot_fill_terminal(
+        ctx,
+        _state(),
+        slot_index=0,
+        response=SlotFillResponse("choose", "Farigiraf"),
+    )
+    intent = selected.state_updates["pending_slot_intent"]
+    moves = ["Psychic", "Hyper Voice", "Trick Room", "Protect"]
+    spread = {"hp": 32, "atk": 0, "def": 0, "spa": 32, "spd": 2, "spe": 0}
+    with (
+        patch(
+            "recommender.propose.featured_or_common_set",
+            return_value={
+                "species": "Farigiraf",
+                "ability": "Armor Tail",
+                "moves": moves,
+                "item": "Sitrus Berry",
+                "nature": "Modest",
+            },
+        ),
+        patch(
+            "recommender.propose.get_resolved_build",
+            return_value={
+                "spread": spread,
+                "source_tier": "champions-native",
+                "verified": True,
+            },
+        ),
+    ):
+        provisional = build_provisional_slot(intent, _state())
+    state = {
+        **_state(),
+        "pending_slot_intent": intent,
+        "provisional_slot": provisional,
+        "pending_presentation": {
+            "schema_version": 1,
+            "kind": "full_build_confirmation",
+            "slot_index": 0,
+            "provisional_fingerprint": provisional.fingerprint,
+        },
+    }
+    committed = commit_full_slot(state)
+    assert committed["team_draft"][0].species.value == "Farigiraf"
+    assert committed["team_draft"][0].species.locked
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        MatchupEvidenceError("bad row"),
+        MatchupEvidenceError("count mismatch"),
+    ],
+)
+def test_calc_evidence_failure_aborts_multi_discovery_without_partial_ranking(error):
+    state = _state([_locked("A"), _locked("B"), *[empty_slot() for _ in range(4)]])
+    discovery_error = CandidateDiscoveryError(
+        "calc_incomplete",
+        "coverage",
+        str(error),
+        True,
+        type(error).__name__,
+    )
+    review = TeamReviewResult(
+        [], [], [], status="unavailable", error=discovery_error
+    )
+    with (
+        patch("recommender.nodes._compute_team_review", return_value=review),
+        patch("recommender.nodes.query_shared_teammates", return_value=_shared()),
+    ):
+        result = discover_multi_locked(state, {})  # type: ignore[arg-type]
+    assert result["pending_presentation"] is None
+    assert result["candidate_discovery_error"] is discovery_error
+
+
+def test_severe_composition_repair_outranks_minor_threat_gain():
+    ranked = rank_multi_locked_candidates(
+        [
+            _candidate("Repair", fit="complementary"),
+            _candidate(
+                "Minor",
+                fit="severe_duplication",
+                threat=_counter("Minor", outcome="clean_kill", severity="toss-up"),
+            ),
+        ],
+        objective=(_objective(),),
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert ranked[0].species == "Repair"
+
+
+def test_equal_impact_band_prefers_verified_threat_gain():
+    ranked = rank_multi_locked_candidates(
+        [
+            _candidate("Answer", threat=_counter("Answer", severity="costly")),
+            _candidate("Equal"),
+        ],
+        objective=(_objective(),),
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert ranked[0].species == "Answer"
+
+
+def test_composition_beats_toss_up_or_spof_gain():
+    test_severe_composition_repair_outranks_minor_threat_gain()
+
+
+def test_decisive_or_costly_uncovered_closure_precedes_composition():
+    ranked = rank_multi_locked_candidates(
+        [
+            _candidate("Composition", fit="complementary"),
+            _candidate(
+                "Answer",
+                fit="severe_duplication",
+                threat=_counter("Answer", severity="decisive"),
+            ),
+        ],
+        objective=(_objective(),),
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert ranked[0].species == "Answer"
+
+
+@pytest.mark.parametrize("severity", ["decisive", "costly", "toss-up"])
+def test_clean_kill_and_intentional_non_ko_answer_share_severity_precedence(
+    severity,
+):
+    rows = [
+        _candidate(
+            "Alpha",
+            threat=_counter("Alpha", outcome="clean_kill", severity=severity),
+        ),
+        _candidate(
+            "Beta",
+            threat=_counter(
+                "Beta",
+                outcome="intentional_non_ko_answer",
+                severity=severity,
+            ),
+        ),
+    ]
+    ranked = rank_multi_locked_candidates(
+        rows,
+        objective=(_objective(),),
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert [row.species for row in ranked] == ["Alpha", "Beta"]
+
+
+def test_multi_threat_portfolio_counts_unconditional_answer_types_equally():
+    objective = (
+        _objective(threat_id="targeta"),
+        _objective(threat_id="targetb"),
+    )
+    mixed = _candidate(
+        "Alpha",
+        threat=_counter(
+            "Alpha",
+            matchups=(
+                ("targeta", "clean_kill", "costly"),
+                ("targetb", "intentional_non_ko_answer", "costly"),
+            ),
+        ),
+    )
+    clean = _candidate(
+        "Beta",
+        threat=_counter(
+            "Beta",
+            matchups=(
+                ("targeta", "clean_kill", "costly"),
+                ("targetb", "clean_kill", "costly"),
+            ),
+        ),
+    )
+    ranked = rank_multi_locked_candidates(
+        [clean, mixed],
+        objective=objective,
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert [row.species for row in ranked] == ["Alpha", "Beta"]
+
+
+def test_usage_does_not_break_equal_candidate_ties():
+    merged = merge_multi_locked_candidates(
+        _state(),
+        [],
+        (
+            _counter("Alpha", usage_rank=100),
+            _counter("Beta", usage_rank=1),
+        ),
+        None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert {
+        evidence.basis for row in merged for evidence in row.evidence
+    } == {"usage_backed"}
+    without_usage = merge_multi_locked_candidates(
+        _state(),
+        [],
+        (_counter("No Usage", usage_rank=None),),
+        None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert without_usage[0].evidence[0].basis == "mechanical_only"
+    assert [
+        row.species
+        for row in rank_multi_locked_candidates(
+            list(reversed(merged)),
+            objective=(),
+            preference=None,
+            ownership_mode="off",
+            owned_species=frozenset(),
+        )
+    ] == ["Alpha", "Beta"]
+
+
+def test_empty_team_threat_objective_allows_support_and_shared_ranking():
+    result = TeamThreatDiscovery("available", ())
+    assert result.status == "available"
+    assert rank_multi_locked_candidates(
+        [_candidate("Support")],
+        objective=(),
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
