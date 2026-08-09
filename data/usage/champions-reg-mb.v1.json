@@ -1,6 +1,6 @@
 {
   "meta": {
-    "schema_version": 2,
+    "schema_version": 3,
     "regulation": "champions-reg-mb",
     "extracted_at": "2026-07-31T20:16:25Z",
     "showdown_rating": 1500,
@@ -10,7 +10,21 @@
     "sources": [
       "championsbattledata",
       "munchstats-showdown"
-    ]
+    ],
+    "showdown_battles": 1163315,
+    "showdown_teammates_extracted_at": "2026-08-09T02:01:06Z",
+    "showdown_teammates": {
+      "source_field": "Teammates",
+      "weight_kind": "chaos_weight",
+      "percentage_kind": "conditional_probability",
+      "denominator_rule": "max(sum(valid Abilities), sum(valid Teammates) / 6, 1)",
+      "limit": 10,
+      "caveats": [
+        "weighted ladder estimate, not independent sample count",
+        "not curated tournament data",
+        "retained top-10 rows only"
+      ]
+    }
   },
   "ingame_doubles": {
     "species": {
@@ -10469,6 +10483,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 27473.17280483299,
+            "conditional_pct": 39.788
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 2,
+            "chaos_weight": 17356.978405941914,
+            "conditional_pct": 25.137
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 3,
+            "chaos_weight": 15005.937412477768,
+            "conditional_pct": 21.732
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 4,
+            "chaos_weight": 12986.011809069736,
+            "conditional_pct": 18.807
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 5,
+            "chaos_weight": 12560.271600884258,
+            "conditional_pct": 18.19
+          },
+          {
+            "id": "sceptilemega",
+            "name": "Sceptile-Mega",
+            "rank": 6,
+            "chaos_weight": 12552.218963390127,
+            "conditional_pct": 18.179
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 7,
+            "chaos_weight": 12266.22479020129,
+            "conditional_pct": 17.764
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 8,
+            "chaos_weight": 12081.588030727497,
+            "conditional_pct": 17.497
+          },
+          {
+            "id": "rotomheat",
+            "name": "Rotom-Heat",
+            "rank": 9,
+            "chaos_weight": 11341.589129247568,
+            "conditional_pct": 16.425
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 10,
+            "chaos_weight": 11027.774290984615,
+            "conditional_pct": 15.971
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 69049.7346488127,
+          "denominator_kind": "ability_weight",
+          "raw_count": 144590,
+          "source_row_count": 302,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "aerodactylmega": {
@@ -10648,6 +10744,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 1,
+            "chaos_weight": 26675.79208085539,
+            "conditional_pct": 42.873
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 2,
+            "chaos_weight": 25750.65146518903,
+            "conditional_pct": 41.386
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 3,
+            "chaos_weight": 23534.28331013174,
+            "conditional_pct": 37.824
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 4,
+            "chaos_weight": 19242.74057718525,
+            "conditional_pct": 30.926
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 5,
+            "chaos_weight": 14443.368476077616,
+            "conditional_pct": 23.213
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 6,
+            "chaos_weight": 13155.406073422628,
+            "conditional_pct": 21.143
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 7,
+            "chaos_weight": 10479.780392646942,
+            "conditional_pct": 16.843
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 8,
+            "chaos_weight": 10293.350675274643,
+            "conditional_pct": 16.543
+          },
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 9,
+            "chaos_weight": 9472.624817124664,
+            "conditional_pct": 15.224
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 10,
+            "chaos_weight": 9101.371111545524,
+            "conditional_pct": 14.627
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 62221.13210855601,
+          "denominator_kind": "ability_weight",
+          "raw_count": 102961,
+          "source_row_count": 299,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "annihilape": {
@@ -10879,6 +11057,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "maushold",
+            "name": "Maushold",
+            "rank": 1,
+            "chaos_weight": 22517.849314475974,
+            "conditional_pct": 32.452
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 2,
+            "chaos_weight": 19351.209817075982,
+            "conditional_pct": 27.889
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 3,
+            "chaos_weight": 16489.193255837206,
+            "conditional_pct": 23.764
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 4,
+            "chaos_weight": 13275.520259715517,
+            "conditional_pct": 19.132
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 5,
+            "chaos_weight": 12098.801503907313,
+            "conditional_pct": 17.437
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 6,
+            "chaos_weight": 11309.194116403309,
+            "conditional_pct": 16.299
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 7,
+            "chaos_weight": 10596.371377017003,
+            "conditional_pct": 15.271
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 8,
+            "chaos_weight": 8718.909738207989,
+            "conditional_pct": 12.566
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 9,
+            "chaos_weight": 7637.1565166686105,
+            "conditional_pct": 11.007
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 10,
+            "chaos_weight": 7326.3439838404,
+            "conditional_pct": 10.559
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 69387.52474484257,
+          "denominator_kind": "ability_weight",
+          "raw_count": 132021,
+          "source_row_count": 300,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "archaludon": {
@@ -11110,6 +11370,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 1,
+            "chaos_weight": 150735.49551466218,
+            "conditional_pct": 75.636
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 2,
+            "chaos_weight": 124072.26209990928,
+            "conditional_pct": 62.257
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 3,
+            "chaos_weight": 88419.08362932251,
+            "conditional_pct": 44.367
+          },
+          {
+            "id": "sableye",
+            "name": "Sableye",
+            "rank": 4,
+            "chaos_weight": 52313.203744018,
+            "conditional_pct": 26.25
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 5,
+            "chaos_weight": 49270.651748508615,
+            "conditional_pct": 24.723
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 6,
+            "chaos_weight": 46770.808610027234,
+            "conditional_pct": 23.469
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 7,
+            "chaos_weight": 29387.371818908887,
+            "conditional_pct": 14.746
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 8,
+            "chaos_weight": 23707.000070331596,
+            "conditional_pct": 11.896
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 9,
+            "chaos_weight": 23447.676597617185,
+            "conditional_pct": 11.766
+          },
+          {
+            "id": "venusaurmega",
+            "name": "Venusaur-Mega",
+            "rank": 10,
+            "chaos_weight": 14170.835095522249,
+            "conditional_pct": 7.111
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 199290.78816483132,
+          "denominator_kind": "ability_weight",
+          "raw_count": 355583,
+          "source_row_count": 308,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "basculegion": {
@@ -11341,6 +11683,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 1,
+            "chaos_weight": 131997.3124414651,
+            "conditional_pct": 36.709
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 2,
+            "chaos_weight": 122260.89516128047,
+            "conditional_pct": 34.002
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 3,
+            "chaos_weight": 87640.80171154033,
+            "conditional_pct": 24.374
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 4,
+            "chaos_weight": 62244.336445629124,
+            "conditional_pct": 17.311
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 5,
+            "chaos_weight": 60227.90755372218,
+            "conditional_pct": 16.75
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 6,
+            "chaos_weight": 59320.46946916822,
+            "conditional_pct": 16.497
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 7,
+            "chaos_weight": 58503.807917493345,
+            "conditional_pct": 16.27
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 8,
+            "chaos_weight": 55367.04047264827,
+            "conditional_pct": 15.398
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 9,
+            "chaos_weight": 54085.61882432424,
+            "conditional_pct": 15.042
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 10,
+            "chaos_weight": 51486.33148783491,
+            "conditional_pct": 14.319
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 359572.66405475675,
+          "denominator_kind": "ability_weight",
+          "raw_count": 604057,
+          "source_row_count": 308,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "basculegionf": {
@@ -11572,6 +11996,88 @@
             "nature": "Modest"
           }
         ],
+        "teammates": [
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 1,
+            "chaos_weight": 1628.6935916619432,
+            "conditional_pct": 27.803
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 2,
+            "chaos_weight": 1553.7562026426926,
+            "conditional_pct": 26.524
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 3,
+            "chaos_weight": 1227.2730310285644,
+            "conditional_pct": 20.95
+          },
+          {
+            "id": "sableye",
+            "name": "Sableye",
+            "rank": 4,
+            "chaos_weight": 1148.9533425967054,
+            "conditional_pct": 19.613
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 5,
+            "chaos_weight": 1047.8024349127306,
+            "conditional_pct": 17.887
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 6,
+            "chaos_weight": 1043.3682075588888,
+            "conditional_pct": 17.811
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 7,
+            "chaos_weight": 1003.1983069187515,
+            "conditional_pct": 17.125
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 8,
+            "chaos_weight": 824.1754372361946,
+            "conditional_pct": 14.069
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 9,
+            "chaos_weight": 744.2912035801779,
+            "conditional_pct": 12.706
+          },
+          {
+            "id": "tsareena",
+            "name": "Tsareena",
+            "rank": 10,
+            "chaos_weight": 741.4281361601262,
+            "conditional_pct": 12.657
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 5857.985917393285,
+          "denominator_kind": "ability_weight",
+          "raw_count": 17147,
+          "source_row_count": 269,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "blastoise": {
@@ -11799,6 +12305,88 @@
             "nature": "Quiet"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 782.5652239798866,
+            "conditional_pct": 24.807
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 2,
+            "chaos_weight": 637.5907963725884,
+            "conditional_pct": 20.211
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 3,
+            "chaos_weight": 424.6986828157145,
+            "conditional_pct": 13.463
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 4,
+            "chaos_weight": 396.1354780991873,
+            "conditional_pct": 12.557
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 377.5480044779342,
+            "conditional_pct": 11.968
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 6,
+            "chaos_weight": 362.999658957856,
+            "conditional_pct": 11.507
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 7,
+            "chaos_weight": 356.90877422540115,
+            "conditional_pct": 11.314
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 8,
+            "chaos_weight": 321.214523624434,
+            "conditional_pct": 10.182
+          },
+          {
+            "id": "maushold",
+            "name": "Maushold",
+            "rank": 9,
+            "chaos_weight": 311.6311403056996,
+            "conditional_pct": 9.879
+          },
+          {
+            "id": "mawilemega",
+            "name": "Mawile-Mega",
+            "rank": 10,
+            "chaos_weight": 273.6943708051254,
+            "conditional_pct": 8.676
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 3154.600759760183,
+          "denominator_kind": "ability_weight",
+          "raw_count": 7141,
+          "source_row_count": 281,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "blastoisemega": {
@@ -11978,6 +12566,88 @@
             "nature": "Modest"
           }
         ],
+        "teammates": [
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 1,
+            "chaos_weight": 13769.310507793582,
+            "conditional_pct": 42.428
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 2,
+            "chaos_weight": 13201.555729067048,
+            "conditional_pct": 40.678
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 3,
+            "chaos_weight": 7202.3520439022595,
+            "conditional_pct": 22.193
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 4,
+            "chaos_weight": 6937.664262461685,
+            "conditional_pct": 21.377
+          },
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 5,
+            "chaos_weight": 6169.590166243975,
+            "conditional_pct": 19.01
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 6,
+            "chaos_weight": 5503.273471727345,
+            "conditional_pct": 16.957
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 7,
+            "chaos_weight": 5446.743676842145,
+            "conditional_pct": 16.783
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 8,
+            "chaos_weight": 5143.326692608711,
+            "conditional_pct": 15.848
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 9,
+            "chaos_weight": 4468.20054683579,
+            "conditional_pct": 13.768
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 10,
+            "chaos_weight": 3549.2851997540397,
+            "conditional_pct": 10.936
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 32453.712008107872,
+          "denominator_kind": "ability_weight",
+          "raw_count": 56955,
+          "source_row_count": 299,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "blaziken": {
@@ -12205,6 +12875,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 1,
+            "chaos_weight": 4346.682477044343,
+            "conditional_pct": 36.255
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 2,
+            "chaos_weight": 4227.378859312029,
+            "conditional_pct": 35.26
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 3,
+            "chaos_weight": 2631.0084805258675,
+            "conditional_pct": 21.945
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 4,
+            "chaos_weight": 2086.1335027363107,
+            "conditional_pct": 17.4
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 5,
+            "chaos_weight": 2072.312173980596,
+            "conditional_pct": 17.285
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 6,
+            "chaos_weight": 2000.1514945864462,
+            "conditional_pct": 16.683
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 7,
+            "chaos_weight": 1928.230282083607,
+            "conditional_pct": 16.083
+          },
+          {
+            "id": "aerodactylmega",
+            "name": "Aerodactyl-Mega",
+            "rank": 8,
+            "chaos_weight": 1553.4813820501038,
+            "conditional_pct": 12.957
+          },
+          {
+            "id": "rotomwash",
+            "name": "Rotom-Wash",
+            "rank": 9,
+            "chaos_weight": 1214.6629730923132,
+            "conditional_pct": 10.131
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 10,
+            "chaos_weight": 1212.6864124545193,
+            "conditional_pct": 10.115
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 11989.306013885976,
+          "denominator_kind": "ability_weight",
+          "raw_count": 25374,
+          "source_row_count": 288,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "blazikenmega": {
@@ -12384,6 +13136,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 1,
+            "chaos_weight": 19474.119010964263,
+            "conditional_pct": 50.273
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 2,
+            "chaos_weight": 17144.683089831346,
+            "conditional_pct": 44.259
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 3,
+            "chaos_weight": 10349.251210421677,
+            "conditional_pct": 26.717
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 4,
+            "chaos_weight": 9437.342012941213,
+            "conditional_pct": 24.363
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 5,
+            "chaos_weight": 9123.647540039448,
+            "conditional_pct": 23.553
+          },
+          {
+            "id": "aerodactylmega",
+            "name": "Aerodactyl-Mega",
+            "rank": 6,
+            "chaos_weight": 7574.699561021908,
+            "conditional_pct": 19.554
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 7,
+            "chaos_weight": 5832.919925070229,
+            "conditional_pct": 15.058
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 8,
+            "chaos_weight": 5780.002885464523,
+            "conditional_pct": 14.921
+          },
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 9,
+            "chaos_weight": 5587.750424958449,
+            "conditional_pct": 14.425
+          },
+          {
+            "id": "ninetalesalola",
+            "name": "Ninetales-Alola",
+            "rank": 10,
+            "chaos_weight": 5485.642922063486,
+            "conditional_pct": 14.161
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 38736.79766021866,
+          "denominator_kind": "ability_weight",
+          "raw_count": 72729,
+          "source_row_count": 294,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "ceruledge": {
@@ -12611,6 +13445,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 14839.716630645209,
+            "conditional_pct": 41.383
+          },
+          {
+            "id": "milotic",
+            "name": "Milotic",
+            "rank": 2,
+            "chaos_weight": 12576.054576567918,
+            "conditional_pct": 35.07
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 3,
+            "chaos_weight": 10810.646561813848,
+            "conditional_pct": 30.147
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 4,
+            "chaos_weight": 9774.902552129653,
+            "conditional_pct": 27.259
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 5,
+            "chaos_weight": 8160.777274184399,
+            "conditional_pct": 22.757
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 6,
+            "chaos_weight": 5832.36415666014,
+            "conditional_pct": 16.264
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 7,
+            "chaos_weight": 5298.217028563183,
+            "conditional_pct": 14.775
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 8,
+            "chaos_weight": 4752.309872157415,
+            "conditional_pct": 13.252
+          },
+          {
+            "id": "mawilemega",
+            "name": "Mawile-Mega",
+            "rank": 9,
+            "chaos_weight": 4662.263285132179,
+            "conditional_pct": 13.001
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 10,
+            "chaos_weight": 4530.2553445090225,
+            "conditional_pct": 12.633
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 35859.846640957774,
+          "denominator_kind": "ability_weight",
+          "raw_count": 63976,
+          "source_row_count": 292,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "charizard": {
@@ -12838,6 +13754,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 1,
+            "chaos_weight": 615.5887208966964,
+            "conditional_pct": 42.942
+          },
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 2,
+            "chaos_weight": 544.6282884292526,
+            "conditional_pct": 37.992
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 3,
+            "chaos_weight": 296.8292802741554,
+            "conditional_pct": 20.706
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 4,
+            "chaos_weight": 267.9028949062488,
+            "conditional_pct": 18.688
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 5,
+            "chaos_weight": 241.07177704414642,
+            "conditional_pct": 16.816
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 6,
+            "chaos_weight": 194.517947223386,
+            "conditional_pct": 13.569
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 7,
+            "chaos_weight": 188.54443984604683,
+            "conditional_pct": 13.152
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 8,
+            "chaos_weight": 188.32310046339128,
+            "conditional_pct": 13.137
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 9,
+            "chaos_weight": 180.4691917702322,
+            "conditional_pct": 12.589
+          },
+          {
+            "id": "sableye",
+            "name": "Sableye",
+            "rank": 10,
+            "chaos_weight": 161.37189008959174,
+            "conditional_pct": 11.257
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 1433.5442927470344,
+          "denominator_kind": "ability_weight",
+          "raw_count": 3804,
+          "source_row_count": 238,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "charizardmegax": {
@@ -13017,6 +14015,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 4027.991993168462,
+            "conditional_pct": 50.148
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 2,
+            "chaos_weight": 3420.5593409301864,
+            "conditional_pct": 42.586
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 3,
+            "chaos_weight": 2565.5784291368745,
+            "conditional_pct": 31.941
+          },
+          {
+            "id": "milotic",
+            "name": "Milotic",
+            "rank": 4,
+            "chaos_weight": 2210.1784875073126,
+            "conditional_pct": 27.516
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 1554.6286025882912,
+            "conditional_pct": 19.355
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 6,
+            "chaos_weight": 1478.0928541141595,
+            "conditional_pct": 18.402
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 7,
+            "chaos_weight": 1169.2978275142784,
+            "conditional_pct": 14.558
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 8,
+            "chaos_weight": 1075.6893845881884,
+            "conditional_pct": 13.392
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 9,
+            "chaos_weight": 1062.427788666621,
+            "conditional_pct": 13.227
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 10,
+            "chaos_weight": 1057.657462190502,
+            "conditional_pct": 13.168
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 8032.197069231725,
+          "denominator_kind": "ability_weight",
+          "raw_count": 16262,
+          "source_row_count": 266,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "charizardmegay": {
@@ -13196,6 +14276,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 105358.53067326512,
+            "conditional_pct": 67.1
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 2,
+            "chaos_weight": 76811.44700940634,
+            "conditional_pct": 48.919
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 3,
+            "chaos_weight": 55367.04047264827,
+            "conditional_pct": 35.262
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 4,
+            "chaos_weight": 52473.17635609947,
+            "conditional_pct": 33.419
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 34276.82513876825,
+            "conditional_pct": 21.83
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 6,
+            "chaos_weight": 31997.685121430353,
+            "conditional_pct": 20.378
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 7,
+            "chaos_weight": 29536.458982345317,
+            "conditional_pct": 18.811
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 8,
+            "chaos_weight": 26029.77430299943,
+            "conditional_pct": 16.578
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 9,
+            "chaos_weight": 19168.706907713015,
+            "conditional_pct": 12.208
+          },
+          {
+            "id": "venusaur",
+            "name": "Venusaur",
+            "rank": 10,
+            "chaos_weight": 17636.37759530598,
+            "conditional_pct": 11.232
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 157017.00525298793,
+          "denominator_kind": "ability_weight",
+          "raw_count": 258306,
+          "source_row_count": 302,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "delphox": {
@@ -13423,6 +14585,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 1,
+            "chaos_weight": 46.98476164107297,
+            "conditional_pct": 17.46
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 2,
+            "chaos_weight": 40.94975431601767,
+            "conditional_pct": 15.218
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 3,
+            "chaos_weight": 39.359605014770565,
+            "conditional_pct": 14.627
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 4,
+            "chaos_weight": 38.54671527464347,
+            "conditional_pct": 14.325
+          },
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 5,
+            "chaos_weight": 36.994993753448455,
+            "conditional_pct": 13.748
+          },
+          {
+            "id": "clefable",
+            "name": "Clefable",
+            "rank": 6,
+            "chaos_weight": 35.562637886019346,
+            "conditional_pct": 13.216
+          },
+          {
+            "id": "ninetalesalola",
+            "name": "Ninetales-Alola",
+            "rank": 7,
+            "chaos_weight": 35.24509020369139,
+            "conditional_pct": 13.098
+          },
+          {
+            "id": "meowstic",
+            "name": "Meowstic",
+            "rank": 8,
+            "chaos_weight": 32.72465942683228,
+            "conditional_pct": 12.161
+          },
+          {
+            "id": "eelektrossmega",
+            "name": "Eelektross-Mega",
+            "rank": 9,
+            "chaos_weight": 31.40124347337637,
+            "conditional_pct": 11.669
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 10,
+            "chaos_weight": 30.987475928102977,
+            "conditional_pct": 11.515
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 269.0950849477413,
+          "denominator_kind": "ability_weight",
+          "raw_count": 1043,
+          "source_row_count": 195,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "delphoxmega": {
@@ -13602,6 +14846,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 26870.28675463391,
+            "conditional_pct": 42.925
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 2,
+            "chaos_weight": 25735.90880199733,
+            "conditional_pct": 41.112
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 3,
+            "chaos_weight": 18883.357585831556,
+            "conditional_pct": 30.166
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 4,
+            "chaos_weight": 17422.47674926573,
+            "conditional_pct": 27.832
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 16664.15769360589,
+            "conditional_pct": 26.621
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 6,
+            "chaos_weight": 16162.525759187693,
+            "conditional_pct": 25.819
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 7,
+            "chaos_weight": 13332.459092302224,
+            "conditional_pct": 21.298
+          },
+          {
+            "id": "maushold",
+            "name": "Maushold",
+            "rank": 8,
+            "chaos_weight": 11626.033345505906,
+            "conditional_pct": 18.572
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 9,
+            "chaos_weight": 11600.307138206681,
+            "conditional_pct": 18.531
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 10,
+            "chaos_weight": 10136.370605555681,
+            "conditional_pct": 16.193
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 62598.891169486036,
+          "denominator_kind": "ability_weight",
+          "raw_count": 106732,
+          "source_row_count": 302,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "dragonite": {
@@ -13829,6 +15155,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 1,
+            "chaos_weight": 6854.169827217049,
+            "conditional_pct": 33.193
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 2,
+            "chaos_weight": 5187.153469358813,
+            "conditional_pct": 25.12
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 3,
+            "chaos_weight": 5108.092813004446,
+            "conditional_pct": 24.737
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 4,
+            "chaos_weight": 4596.685449482964,
+            "conditional_pct": 22.261
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 3949.4772675840604,
+            "conditional_pct": 19.126
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 6,
+            "chaos_weight": 3093.8106096140664,
+            "conditional_pct": 14.983
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 7,
+            "chaos_weight": 3074.6056392427818,
+            "conditional_pct": 14.89
+          },
+          {
+            "id": "ninetalesalola",
+            "name": "Ninetales-Alola",
+            "rank": 8,
+            "chaos_weight": 2853.647224627729,
+            "conditional_pct": 13.82
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 9,
+            "chaos_weight": 2813.687798532917,
+            "conditional_pct": 13.626
+          },
+          {
+            "id": "gengarmega",
+            "name": "Gengar-Mega",
+            "rank": 10,
+            "chaos_weight": 2520.672037632744,
+            "conditional_pct": 12.207
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 20649.3750673299,
+          "denominator_kind": "ability_weight",
+          "raw_count": 48025,
+          "source_row_count": 295,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "dragonitemega": {
@@ -14008,6 +15416,88 @@
             "nature": "Modest"
           }
         ],
+        "teammates": [
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 1,
+            "chaos_weight": 13931.66610998734,
+            "conditional_pct": 43.472
+          },
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 2,
+            "chaos_weight": 12088.680540588635,
+            "conditional_pct": 37.721
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 3,
+            "chaos_weight": 10433.338614201619,
+            "conditional_pct": 32.556
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 4,
+            "chaos_weight": 9039.994543881776,
+            "conditional_pct": 28.208
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 5,
+            "chaos_weight": 8814.765892306366,
+            "conditional_pct": 27.505
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 6,
+            "chaos_weight": 7579.048566788333,
+            "conditional_pct": 23.649
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 7,
+            "chaos_weight": 6177.35493825033,
+            "conditional_pct": 19.276
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 8,
+            "chaos_weight": 5934.028174304141,
+            "conditional_pct": 18.516
+          },
+          {
+            "id": "sableye",
+            "name": "Sableye",
+            "rank": 9,
+            "chaos_weight": 4665.728858629956,
+            "conditional_pct": 14.559
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 10,
+            "chaos_weight": 3163.242773389942,
+            "conditional_pct": 9.87
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 32047.569461033727,
+          "denominator_kind": "ability_weight",
+          "raw_count": 61927,
+          "source_row_count": 303,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "excadrill": {
@@ -14239,6 +15729,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "tyranitarmega",
+            "name": "Tyranitar-Mega",
+            "rank": 1,
+            "chaos_weight": 17125.388751714916,
+            "conditional_pct": 56.254
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 2,
+            "chaos_weight": 10498.215980789362,
+            "conditional_pct": 34.485
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 3,
+            "chaos_weight": 7153.624612363559,
+            "conditional_pct": 23.498
+          },
+          {
+            "id": "rotomwash",
+            "name": "Rotom-Wash",
+            "rank": 4,
+            "chaos_weight": 6937.462524833784,
+            "conditional_pct": 22.788
+          },
+          {
+            "id": "tyranitar",
+            "name": "Tyranitar",
+            "rank": 5,
+            "chaos_weight": 5259.325863837759,
+            "conditional_pct": 17.276
+          },
+          {
+            "id": "houndstone",
+            "name": "Houndstone",
+            "rank": 6,
+            "chaos_weight": 5213.689977883677,
+            "conditional_pct": 17.126
+          },
+          {
+            "id": "corviknight",
+            "name": "Corviknight",
+            "rank": 7,
+            "chaos_weight": 4808.9840425835955,
+            "conditional_pct": 15.797
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 8,
+            "chaos_weight": 4475.927713223752,
+            "conditional_pct": 14.703
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 9,
+            "chaos_weight": 3833.781374695568,
+            "conditional_pct": 12.593
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 10,
+            "chaos_weight": 2913.145396658251,
+            "conditional_pct": 9.569
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 30442.998099140572,
+          "denominator_kind": "ability_weight",
+          "raw_count": 59404,
+          "source_row_count": 298,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "excadrillmega": {
@@ -14418,6 +15990,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 664.423505130231,
+            "conditional_pct": 22.209
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 2,
+            "chaos_weight": 655.3984777884881,
+            "conditional_pct": 21.907
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 3,
+            "chaos_weight": 636.3817717949419,
+            "conditional_pct": 21.272
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 4,
+            "chaos_weight": 491.7542831243853,
+            "conditional_pct": 16.437
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 5,
+            "chaos_weight": 488.98559655786727,
+            "conditional_pct": 16.345
+          },
+          {
+            "id": "talonflame",
+            "name": "Talonflame",
+            "rank": 6,
+            "chaos_weight": 356.3832992996605,
+            "conditional_pct": 11.912
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 7,
+            "chaos_weight": 354.87423803829216,
+            "conditional_pct": 11.862
+          },
+          {
+            "id": "tyranitar",
+            "name": "Tyranitar",
+            "rank": 8,
+            "chaos_weight": 309.77754898938235,
+            "conditional_pct": 10.355
+          },
+          {
+            "id": "milotic",
+            "name": "Milotic",
+            "rank": 9,
+            "chaos_weight": 306.1612849597833,
+            "conditional_pct": 10.234
+          },
+          {
+            "id": "rotomwash",
+            "name": "Rotom-Wash",
+            "rank": 10,
+            "chaos_weight": 299.45924871438694,
+            "conditional_pct": 10.01
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 2991.6918083643523,
+          "denominator_kind": "ability_weight",
+          "raw_count": 8482,
+          "source_row_count": 276,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "farigiraf": {
@@ -14649,6 +16303,88 @@
             "nature": "Sassy"
           }
         ],
+        "teammates": [
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 1,
+            "chaos_weight": 84784.73836946533,
+            "conditional_pct": 30.554
+          },
+          {
+            "id": "mawilemega",
+            "name": "Mawile-Mega",
+            "rank": 2,
+            "chaos_weight": 78232.9298761617,
+            "conditional_pct": 28.193
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 3,
+            "chaos_weight": 58765.08327098757,
+            "conditional_pct": 21.177
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 4,
+            "chaos_weight": 53122.87105843914,
+            "conditional_pct": 19.144
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 5,
+            "chaos_weight": 51395.659217209555,
+            "conditional_pct": 18.521
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 6,
+            "chaos_weight": 45131.958036423086,
+            "conditional_pct": 16.264
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 7,
+            "chaos_weight": 43965.828318578606,
+            "conditional_pct": 15.844
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 8,
+            "chaos_weight": 42076.244142405325,
+            "conditional_pct": 15.163
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 9,
+            "chaos_weight": 38476.87808539504,
+            "conditional_pct": 13.866
+          },
+          {
+            "id": "pyroarmega",
+            "name": "Pyroar-Mega",
+            "rank": 10,
+            "chaos_weight": 32256.571564414873,
+            "conditional_pct": 11.624
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 277492.8629620968,
+          "denominator_kind": "ability_weight",
+          "raw_count": 476332,
+          "source_row_count": 309,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "floetteeternal": {
@@ -14876,6 +16612,88 @@
             "nature": "Modest"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 754.6827088058021,
+            "conditional_pct": 36.746
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 2,
+            "chaos_weight": 597.0574847021338,
+            "conditional_pct": 29.071
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 3,
+            "chaos_weight": 520.3840622653836,
+            "conditional_pct": 25.338
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 4,
+            "chaos_weight": 513.8393960155421,
+            "conditional_pct": 25.019
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 501.4142568999996,
+            "conditional_pct": 24.414
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 6,
+            "chaos_weight": 488.95362823250497,
+            "conditional_pct": 23.807
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 7,
+            "chaos_weight": 398.5334363535302,
+            "conditional_pct": 19.405
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 8,
+            "chaos_weight": 314.0614595610708,
+            "conditional_pct": 15.292
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 9,
+            "chaos_weight": 254.20619168968827,
+            "conditional_pct": 12.377
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 10,
+            "chaos_weight": 212.01640434270237,
+            "conditional_pct": 10.323
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 2053.7954254382903,
+          "denominator_kind": "ability_weight",
+          "raw_count": 3792,
+          "source_row_count": 225,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "floettemega": {
@@ -15055,6 +16873,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 1,
+            "chaos_weight": 62244.336445629124,
+            "conditional_pct": 40.449
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 2,
+            "chaos_weight": 59763.78953846873,
+            "conditional_pct": 38.837
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 3,
+            "chaos_weight": 56973.48260510763,
+            "conditional_pct": 37.024
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 4,
+            "chaos_weight": 50635.464203036405,
+            "conditional_pct": 32.905
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 48806.87130630215,
+            "conditional_pct": 31.717
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 6,
+            "chaos_weight": 38484.50718581693,
+            "conditional_pct": 25.009
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 7,
+            "chaos_weight": 26230.952797657075,
+            "conditional_pct": 17.046
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 8,
+            "chaos_weight": 26029.77430299943,
+            "conditional_pct": 16.915
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 9,
+            "chaos_weight": 21296.152960674008,
+            "conditional_pct": 13.839
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 10,
+            "chaos_weight": 18897.445271955712,
+            "conditional_pct": 12.28
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 153882.9458128895,
+          "denominator_kind": "ability_weight",
+          "raw_count": 239898,
+          "source_row_count": 302,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "froslass": {
@@ -15282,6 +17182,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 127.56737715574158,
+            "conditional_pct": 20.839
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 2,
+            "chaos_weight": 107.20295941534215,
+            "conditional_pct": 17.512
+          },
+          {
+            "id": "taurospaldeablaze",
+            "name": "Tauros-Paldea-Blaze",
+            "rank": 3,
+            "chaos_weight": 103.55671824122768,
+            "conditional_pct": 16.917
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 4,
+            "chaos_weight": 100.32128522247238,
+            "conditional_pct": 16.388
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 5,
+            "chaos_weight": 87.73092631583583,
+            "conditional_pct": 14.331
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 6,
+            "chaos_weight": 74.24530367616542,
+            "conditional_pct": 12.128
+          },
+          {
+            "id": "meowscarada",
+            "name": "Meowscarada",
+            "rank": 7,
+            "chaos_weight": 70.77344939194168,
+            "conditional_pct": 11.561
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 8,
+            "chaos_weight": 64.81967041845448,
+            "conditional_pct": 10.589
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 9,
+            "chaos_weight": 59.1480295239998,
+            "conditional_pct": 9.662
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 10,
+            "chaos_weight": 58.84433359964447,
+            "conditional_pct": 9.613
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 612.1604234316765,
+          "denominator_kind": "ability_weight",
+          "raw_count": 2106,
+          "source_row_count": 243,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "froslassmega": {
@@ -15461,6 +17443,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 1,
+            "chaos_weight": 22336.279052631726,
+            "conditional_pct": 37.952
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 2,
+            "chaos_weight": 21031.531843714693,
+            "conditional_pct": 35.735
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 3,
+            "chaos_weight": 18604.414146889412,
+            "conditional_pct": 31.611
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 4,
+            "chaos_weight": 15722.60878356109,
+            "conditional_pct": 26.714
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 13784.390359143954,
+            "conditional_pct": 23.421
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 6,
+            "chaos_weight": 13667.67623418631,
+            "conditional_pct": 23.223
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 7,
+            "chaos_weight": 9951.56014391688,
+            "conditional_pct": 16.909
+          },
+          {
+            "id": "lycanrocdusk",
+            "name": "Lycanroc-Dusk",
+            "rank": 8,
+            "chaos_weight": 6494.660463563164,
+            "conditional_pct": 11.035
+          },
+          {
+            "id": "scovillainmega",
+            "name": "Scovillain-Mega",
+            "rank": 9,
+            "chaos_weight": 5523.374461613841,
+            "conditional_pct": 9.385
+          },
+          {
+            "id": "milotic",
+            "name": "Milotic",
+            "rank": 10,
+            "chaos_weight": 4508.236127251885,
+            "conditional_pct": 7.66
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 58854.39476920777,
+          "denominator_kind": "ability_weight",
+          "raw_count": 103580,
+          "source_row_count": 304,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "garchomp": {
@@ -15688,6 +17752,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 1,
+            "chaos_weight": 164721.9632659225,
+            "conditional_pct": 39.456
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 2,
+            "chaos_weight": 122260.89516128047,
+            "conditional_pct": 29.285
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 3,
+            "chaos_weight": 105358.53067326512,
+            "conditional_pct": 25.237
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 4,
+            "chaos_weight": 95639.22342294961,
+            "conditional_pct": 22.909
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 5,
+            "chaos_weight": 91241.53975240838,
+            "conditional_pct": 21.855
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 6,
+            "chaos_weight": 86887.3292582643,
+            "conditional_pct": 20.812
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 7,
+            "chaos_weight": 82963.27028721561,
+            "conditional_pct": 19.872
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 8,
+            "chaos_weight": 69413.9201788734,
+            "conditional_pct": 16.627
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 9,
+            "chaos_weight": 59763.78953846873,
+            "conditional_pct": 14.315
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 10,
+            "chaos_weight": 54345.570594569755,
+            "conditional_pct": 13.018
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 417480.2542505403,
+          "denominator_kind": "ability_weight",
+          "raw_count": 736366,
+          "source_row_count": 306,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "garchompmega": {
@@ -15867,6 +18013,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 1982.987992649585,
+            "conditional_pct": 26.01
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 2,
+            "chaos_weight": 1873.14681742434,
+            "conditional_pct": 24.57
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 3,
+            "chaos_weight": 1761.2386854728609,
+            "conditional_pct": 23.102
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 4,
+            "chaos_weight": 1457.2788048010357,
+            "conditional_pct": 19.115
+          },
+          {
+            "id": "tyranitar",
+            "name": "Tyranitar",
+            "rank": 5,
+            "chaos_weight": 1292.1580217894766,
+            "conditional_pct": 16.949
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 6,
+            "chaos_weight": 1196.0904256418414,
+            "conditional_pct": 15.689
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 7,
+            "chaos_weight": 1079.5945339961875,
+            "conditional_pct": 14.161
+          },
+          {
+            "id": "rotomwash",
+            "name": "Rotom-Wash",
+            "rank": 8,
+            "chaos_weight": 1076.9951308849213,
+            "conditional_pct": 14.127
+          },
+          {
+            "id": "tyranitarmega",
+            "name": "Tyranitar-Mega",
+            "rank": 9,
+            "chaos_weight": 1001.3594569148356,
+            "conditional_pct": 13.135
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 10,
+            "chaos_weight": 989.9016883847652,
+            "conditional_pct": 12.984
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 7623.860399968086,
+          "denominator_kind": "ability_weight",
+          "raw_count": 17770,
+          "source_row_count": 295,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "gardevoir": {
@@ -16098,6 +18326,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 2229.302212411071,
+            "conditional_pct": 32.855
+          },
+          {
+            "id": "sceptilemega",
+            "name": "Sceptile-Mega",
+            "rank": 2,
+            "chaos_weight": 1520.0044534589429,
+            "conditional_pct": 22.402
+          },
+          {
+            "id": "talonflame",
+            "name": "Talonflame",
+            "rank": 3,
+            "chaos_weight": 1492.2746781497112,
+            "conditional_pct": 21.993
+          },
+          {
+            "id": "rotomheat",
+            "name": "Rotom-Heat",
+            "rank": 4,
+            "chaos_weight": 1284.2971107637684,
+            "conditional_pct": 18.928
+          },
+          {
+            "id": "mamoswine",
+            "name": "Mamoswine",
+            "rank": 5,
+            "chaos_weight": 1043.215483849161,
+            "conditional_pct": 15.375
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 6,
+            "chaos_weight": 911.7118032955462,
+            "conditional_pct": 13.437
+          },
+          {
+            "id": "gyarados",
+            "name": "Gyarados",
+            "rank": 7,
+            "chaos_weight": 866.0143380115484,
+            "conditional_pct": 12.763
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 8,
+            "chaos_weight": 804.2275896244994,
+            "conditional_pct": 11.853
+          },
+          {
+            "id": "eelektrossmega",
+            "name": "Eelektross-Mega",
+            "rank": 9,
+            "chaos_weight": 759.5034049051937,
+            "conditional_pct": 11.194
+          },
+          {
+            "id": "rotomwash",
+            "name": "Rotom-Wash",
+            "rank": 10,
+            "chaos_weight": 738.4483938077306,
+            "conditional_pct": 10.883
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 6785.173574682719,
+          "denominator_kind": "ability_weight",
+          "raw_count": 14763,
+          "source_row_count": 280,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "gardevoirmega": {
@@ -16277,6 +18587,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 8120.02648006961,
+            "conditional_pct": 29.862
+          },
+          {
+            "id": "maushold",
+            "name": "Maushold",
+            "rank": 2,
+            "chaos_weight": 7199.417225867142,
+            "conditional_pct": 26.476
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 3,
+            "chaos_weight": 7063.155547113639,
+            "conditional_pct": 25.975
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 4,
+            "chaos_weight": 6735.593736285933,
+            "conditional_pct": 24.77
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 6674.062363669774,
+            "conditional_pct": 24.544
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 6,
+            "chaos_weight": 6148.12588390468,
+            "conditional_pct": 22.61
+          },
+          {
+            "id": "talonflame",
+            "name": "Talonflame",
+            "rank": 7,
+            "chaos_weight": 5076.424341132835,
+            "conditional_pct": 18.669
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 8,
+            "chaos_weight": 4720.954107404591,
+            "conditional_pct": 17.361
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 9,
+            "chaos_weight": 4005.377565891631,
+            "conditional_pct": 14.73
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 10,
+            "chaos_weight": 3236.698158527987,
+            "conditional_pct": 11.903
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 27192.109825414565,
+          "denominator_kind": "ability_weight",
+          "raw_count": 48732,
+          "source_row_count": 295,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "gengar": {
@@ -16500,6 +18892,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 1275.770193819231,
+            "conditional_pct": 28.158
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 2,
+            "chaos_weight": 874.2674985756591,
+            "conditional_pct": 19.296
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 3,
+            "chaos_weight": 811.4202656548683,
+            "conditional_pct": 17.909
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 4,
+            "chaos_weight": 740.4429394833182,
+            "conditional_pct": 16.343
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 5,
+            "chaos_weight": 634.2733872401934,
+            "conditional_pct": 13.999
+          },
+          {
+            "id": "talonflame",
+            "name": "Talonflame",
+            "rank": 6,
+            "chaos_weight": 570.3931655621737,
+            "conditional_pct": 12.589
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 7,
+            "chaos_weight": 563.3065617438548,
+            "conditional_pct": 12.433
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 8,
+            "chaos_weight": 552.0609716790826,
+            "conditional_pct": 12.185
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 9,
+            "chaos_weight": 537.327798701035,
+            "conditional_pct": 11.86
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 10,
+            "chaos_weight": 451.50953675670235,
+            "conditional_pct": 9.965
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 4530.762546305257,
+          "denominator_kind": "ability_weight",
+          "raw_count": 11453,
+          "source_row_count": 281,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "gengarmega": {
@@ -16679,6 +19153,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 1,
+            "chaos_weight": 28641.88967077112,
+            "conditional_pct": 62.06
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 2,
+            "chaos_weight": 15265.185710378437,
+            "conditional_pct": 33.076
+          },
+          {
+            "id": "politoed",
+            "name": "Politoed",
+            "rank": 3,
+            "chaos_weight": 12689.85917428083,
+            "conditional_pct": 27.496
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 4,
+            "chaos_weight": 8444.45700110727,
+            "conditional_pct": 18.297
+          },
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 5,
+            "chaos_weight": 7452.483116201165,
+            "conditional_pct": 16.148
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 6,
+            "chaos_weight": 6806.606070867974,
+            "conditional_pct": 14.748
+          },
+          {
+            "id": "ninetalesalola",
+            "name": "Ninetales-Alola",
+            "rank": 7,
+            "chaos_weight": 6446.391013529602,
+            "conditional_pct": 13.968
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 8,
+            "chaos_weight": 6201.68908245538,
+            "conditional_pct": 13.438
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 9,
+            "chaos_weight": 5848.068422305766,
+            "conditional_pct": 12.671
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 10,
+            "chaos_weight": 5483.192547045797,
+            "conditional_pct": 11.881
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 46151.72200532091,
+          "denominator_kind": "ability_weight",
+          "raw_count": 89335,
+          "source_row_count": 303,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "gholdengo": {
@@ -16902,6 +19458,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 69413.9201788734,
+            "conditional_pct": 42.033
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 2,
+            "chaos_weight": 65555.59139749465,
+            "conditional_pct": 39.697
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 3,
+            "chaos_weight": 57731.37133211586,
+            "conditional_pct": 34.959
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 4,
+            "chaos_weight": 38779.649353577166,
+            "conditional_pct": 23.483
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 5,
+            "chaos_weight": 38628.17900802129,
+            "conditional_pct": 23.391
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 6,
+            "chaos_weight": 38087.80575644223,
+            "conditional_pct": 23.064
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 7,
+            "chaos_weight": 32622.03464650471,
+            "conditional_pct": 19.754
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 8,
+            "chaos_weight": 23404.251983155216,
+            "conditional_pct": 14.172
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 9,
+            "chaos_weight": 15739.896896396946,
+            "conditional_pct": 9.531
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 10,
+            "chaos_weight": 14539.690352738779,
+            "conditional_pct": 8.804
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 165140.2048805032,
+          "denominator_kind": "ability_weight",
+          "raw_count": 297007,
+          "source_row_count": 304,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "glimmora": {
@@ -17129,6 +19767,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 1,
+            "chaos_weight": 10989.154946158542,
+            "conditional_pct": 41.731
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 2,
+            "chaos_weight": 8988.613309341275,
+            "conditional_pct": 34.134
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 3,
+            "chaos_weight": 6396.697067214225,
+            "conditional_pct": 24.291
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 4,
+            "chaos_weight": 5745.405370379749,
+            "conditional_pct": 21.818
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 5386.02762178638,
+            "conditional_pct": 20.453
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 6,
+            "chaos_weight": 5209.835106793722,
+            "conditional_pct": 19.784
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 7,
+            "chaos_weight": 5131.602536217858,
+            "conditional_pct": 19.487
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 8,
+            "chaos_weight": 4969.270891021009,
+            "conditional_pct": 18.871
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 9,
+            "chaos_weight": 3258.0272921138753,
+            "conditional_pct": 12.372
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 10,
+            "chaos_weight": 3046.0760907000604,
+            "conditional_pct": 11.567
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 26333.142114051137,
+          "denominator_kind": "ability_weight",
+          "raw_count": 48227,
+          "source_row_count": 297,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "glimmoramega": {
@@ -17308,6 +20028,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 1,
+            "chaos_weight": 5426.550631982612,
+            "conditional_pct": 38.858
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 2,
+            "chaos_weight": 2927.2773561970134,
+            "conditional_pct": 20.962
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 3,
+            "chaos_weight": 2907.8835812424427,
+            "conditional_pct": 20.823
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 4,
+            "chaos_weight": 2906.774133479593,
+            "conditional_pct": 20.815
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 5,
+            "chaos_weight": 2660.2593476534103,
+            "conditional_pct": 19.05
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 6,
+            "chaos_weight": 2592.3577955271976,
+            "conditional_pct": 18.563
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 7,
+            "chaos_weight": 2347.5758002110215,
+            "conditional_pct": 16.811
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 8,
+            "chaos_weight": 1561.2609865578008,
+            "conditional_pct": 11.18
+          },
+          {
+            "id": "ninetalesalola",
+            "name": "Ninetales-Alola",
+            "rank": 9,
+            "chaos_weight": 1468.4512004407563,
+            "conditional_pct": 10.515
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 10,
+            "chaos_weight": 1419.5491860607115,
+            "conditional_pct": 10.165
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 13964.927877106,
+          "denominator_kind": "ability_weight",
+          "raw_count": 26857,
+          "source_row_count": 288,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "grimmsnarl": {
@@ -17539,6 +20341,88 @@
             "nature": "Careful"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 111090.621381584,
+            "conditional_pct": 49.422
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 2,
+            "chaos_weight": 69650.82629604575,
+            "conditional_pct": 30.986
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 3,
+            "chaos_weight": 54509.773684477885,
+            "conditional_pct": 24.25
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 4,
+            "chaos_weight": 54345.570594569755,
+            "conditional_pct": 24.177
+          },
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 5,
+            "chaos_weight": 46770.808610027234,
+            "conditional_pct": 20.807
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 6,
+            "chaos_weight": 45206.12904574869,
+            "conditional_pct": 20.111
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 7,
+            "chaos_weight": 44539.88517271812,
+            "conditional_pct": 19.815
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 8,
+            "chaos_weight": 42499.98474149748,
+            "conditional_pct": 18.907
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 9,
+            "chaos_weight": 32622.03464650471,
+            "conditional_pct": 14.513
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 10,
+            "chaos_weight": 31073.94485363756,
+            "conditional_pct": 13.824
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 224778.75339543624,
+          "denominator_kind": "ability_weight",
+          "raw_count": 440427,
+          "source_row_count": 308,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "hydreigon": {
@@ -17762,6 +20646,88 @@
             "nature": "Modest"
           }
         ],
+        "teammates": [
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 1,
+            "chaos_weight": 29485.973031651283,
+            "conditional_pct": 42.863
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 2,
+            "chaos_weight": 17684.558894884307,
+            "conditional_pct": 25.707
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 3,
+            "chaos_weight": 16366.211204821608,
+            "conditional_pct": 23.791
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 4,
+            "chaos_weight": 15472.597749817813,
+            "conditional_pct": 22.492
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 5,
+            "chaos_weight": 13042.405905398085,
+            "conditional_pct": 18.959
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 6,
+            "chaos_weight": 11336.334128239361,
+            "conditional_pct": 16.479
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 7,
+            "chaos_weight": 11161.674411294352,
+            "conditional_pct": 16.225
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 8,
+            "chaos_weight": 10264.757219626832,
+            "conditional_pct": 14.921
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 9,
+            "chaos_weight": 9088.834278707647,
+            "conditional_pct": 13.212
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 10,
+            "chaos_weight": 8621.235260349118,
+            "conditional_pct": 12.532
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 68791.97662446255,
+          "denominator_kind": "ability_weight",
+          "raw_count": 119489,
+          "source_row_count": 303,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "incineroar": {
@@ -17989,6 +20955,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 140328.03016941276,
+            "conditional_pct": 39.723
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 2,
+            "chaos_weight": 86887.3292582643,
+            "conditional_pct": 24.596
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 3,
+            "chaos_weight": 72438.80564002623,
+            "conditional_pct": 20.506
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 4,
+            "chaos_weight": 59130.68717174166,
+            "conditional_pct": 16.738
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 5,
+            "chaos_weight": 58765.08327098757,
+            "conditional_pct": 16.635
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 6,
+            "chaos_weight": 58503.807917493345,
+            "conditional_pct": 16.561
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 7,
+            "chaos_weight": 52463.06351794383,
+            "conditional_pct": 14.851
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 8,
+            "chaos_weight": 48806.87130630215,
+            "conditional_pct": 13.816
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 9,
+            "chaos_weight": 42499.98474149748,
+            "conditional_pct": 12.031
+          },
+          {
+            "id": "mawilemega",
+            "name": "Mawile-Mega",
+            "rank": 10,
+            "chaos_weight": 41193.19105508976,
+            "conditional_pct": 11.661
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 353264.599610066,
+          "denominator_kind": "ability_weight",
+          "raw_count": 664399,
+          "source_row_count": 309,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "kangaskhan": {
@@ -18220,6 +21268,88 @@
             "nature": "Brave"
           }
         ],
+        "teammates": [
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 1,
+            "chaos_weight": 15965.873187966192,
+            "conditional_pct": 55.802
+          },
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 2,
+            "chaos_weight": 12244.454628570671,
+            "conditional_pct": 42.796
+          },
+          {
+            "id": "mawilemega",
+            "name": "Mawile-Mega",
+            "rank": 3,
+            "chaos_weight": 10043.384729965937,
+            "conditional_pct": 35.103
+          },
+          {
+            "id": "staraptor",
+            "name": "Staraptor",
+            "rank": 4,
+            "chaos_weight": 4493.031197756867,
+            "conditional_pct": 15.704
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 5,
+            "chaos_weight": 3914.4685160493677,
+            "conditional_pct": 13.681
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 6,
+            "chaos_weight": 3900.3204918289425,
+            "conditional_pct": 13.632
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 7,
+            "chaos_weight": 3745.780846883742,
+            "conditional_pct": 13.092
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 8,
+            "chaos_weight": 3139.119934941624,
+            "conditional_pct": 10.972
+          },
+          {
+            "id": "cameruptmega",
+            "name": "Camerupt-Mega",
+            "rank": 9,
+            "chaos_weight": 2843.7764331083035,
+            "conditional_pct": 9.939
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 10,
+            "chaos_weight": 2842.7778940317853,
+            "conditional_pct": 9.936
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 28611.488234595214,
+          "denominator_kind": "ability_weight",
+          "raw_count": 48142,
+          "source_row_count": 298,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "kangaskhanmega": {
@@ -18399,6 +21529,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 1,
+            "chaos_weight": 7257.646356931843,
+            "conditional_pct": 50.335
+          },
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 2,
+            "chaos_weight": 6143.099616525479,
+            "conditional_pct": 42.605
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 3,
+            "chaos_weight": 3700.3656154787786,
+            "conditional_pct": 25.664
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 4,
+            "chaos_weight": 2966.9569129404167,
+            "conditional_pct": 20.577
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 2340.2671429081365,
+            "conditional_pct": 16.231
+          },
+          {
+            "id": "vileplume",
+            "name": "Vileplume",
+            "rank": 6,
+            "chaos_weight": 2035.9672222951053,
+            "conditional_pct": 14.12
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 7,
+            "chaos_weight": 2033.163237668327,
+            "conditional_pct": 14.101
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 8,
+            "chaos_weight": 2001.3594966290823,
+            "conditional_pct": 13.88
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 9,
+            "chaos_weight": 1934.773606064569,
+            "conditional_pct": 13.418
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 10,
+            "chaos_weight": 1739.0331299202855,
+            "conditional_pct": 12.061
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 14418.726917381622,
+          "denominator_kind": "ability_weight",
+          "raw_count": 24571,
+          "source_row_count": 285,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "kingambit": {
@@ -18630,6 +21842,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 95639.22342294961,
+            "conditional_pct": 36.581
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 2,
+            "chaos_weight": 87640.80171154033,
+            "conditional_pct": 33.522
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 3,
+            "chaos_weight": 76431.60475630262,
+            "conditional_pct": 29.234
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 4,
+            "chaos_weight": 53955.55549400542,
+            "conditional_pct": 20.637
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 5,
+            "chaos_weight": 52473.17635609947,
+            "conditional_pct": 20.07
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 6,
+            "chaos_weight": 49505.734051917774,
+            "conditional_pct": 18.935
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 7,
+            "chaos_weight": 42557.18186903939,
+            "conditional_pct": 16.278
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 8,
+            "chaos_weight": 42076.244142405325,
+            "conditional_pct": 16.094
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 9,
+            "chaos_weight": 40890.05063827515,
+            "conditional_pct": 15.64
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 10,
+            "chaos_weight": 38484.50718581693,
+            "conditional_pct": 14.72
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 261444.63811797628,
+          "denominator_kind": "ability_weight",
+          "raw_count": 452422,
+          "source_row_count": 306,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "mawile": {
@@ -18861,6 +22155,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 1,
+            "chaos_weight": 34.7010169427683,
+            "conditional_pct": 18.761
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 2,
+            "chaos_weight": 31.743213026293564,
+            "conditional_pct": 17.162
+          },
+          {
+            "id": "eelektrossmega",
+            "name": "Eelektross-Mega",
+            "rank": 3,
+            "chaos_weight": 27.229653487298904,
+            "conditional_pct": 14.722
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 4,
+            "chaos_weight": 25.288640299216546,
+            "conditional_pct": 13.673
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 5,
+            "chaos_weight": 25.24690406982378,
+            "conditional_pct": 13.65
+          },
+          {
+            "id": "corviknight",
+            "name": "Corviknight",
+            "rank": 6,
+            "chaos_weight": 24.49089128403881,
+            "conditional_pct": 13.241
+          },
+          {
+            "id": "dragalgemega",
+            "name": "Dragalge-Mega",
+            "rank": 7,
+            "chaos_weight": 17.966521955985705,
+            "conditional_pct": 9.714
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 8,
+            "chaos_weight": 17.313256105249412,
+            "conditional_pct": 9.361
+          },
+          {
+            "id": "rotomwash",
+            "name": "Rotom-Wash",
+            "rank": 9,
+            "chaos_weight": 14.481835264774134,
+            "conditional_pct": 7.83
+          },
+          {
+            "id": "ninetalesalola",
+            "name": "Ninetales-Alola",
+            "rank": 10,
+            "chaos_weight": 13.888880500305598,
+            "conditional_pct": 7.509
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 184.95874555396315,
+          "denominator_kind": "ability_weight",
+          "raw_count": 756,
+          "source_row_count": 207,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "mawilemega": {
@@ -19040,6 +22416,88 @@
             "nature": "Brave"
           }
         ],
+        "teammates": [
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 1,
+            "chaos_weight": 78232.9298761617,
+            "conditional_pct": 59.915
+          },
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 2,
+            "chaos_weight": 43016.81412787705,
+            "conditional_pct": 32.944
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 3,
+            "chaos_weight": 42742.1299875291,
+            "conditional_pct": 32.734
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 4,
+            "chaos_weight": 41193.19105508976,
+            "conditional_pct": 31.548
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 5,
+            "chaos_weight": 19541.65505714182,
+            "conditional_pct": 14.966
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 6,
+            "chaos_weight": 17934.837381442074,
+            "conditional_pct": 13.735
+          },
+          {
+            "id": "staraptor",
+            "name": "Staraptor",
+            "rank": 7,
+            "chaos_weight": 16869.57514707476,
+            "conditional_pct": 12.92
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 8,
+            "chaos_weight": 16590.833290619223,
+            "conditional_pct": 12.706
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 9,
+            "chaos_weight": 12943.858344931017,
+            "conditional_pct": 9.913
+          },
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 10,
+            "chaos_weight": 11380.01165327387,
+            "conditional_pct": 8.715
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 130574.14485945684,
+          "denominator_kind": "ability_weight",
+          "raw_count": 217170,
+          "source_row_count": 304,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "meowscarada": {
@@ -19267,6 +22725,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 1,
+            "chaos_weight": 4216.457011611745,
+            "conditional_pct": 20.93
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 2,
+            "chaos_weight": 3735.491907924032,
+            "conditional_pct": 18.542
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 3,
+            "chaos_weight": 3262.911552623929,
+            "conditional_pct": 16.196
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 4,
+            "chaos_weight": 3109.5956119746434,
+            "conditional_pct": 15.435
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 2910.8577041208064,
+            "conditional_pct": 14.449
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 6,
+            "chaos_weight": 2682.246932952187,
+            "conditional_pct": 13.314
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 7,
+            "chaos_weight": 2678.8542798953717,
+            "conditional_pct": 13.297
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 8,
+            "chaos_weight": 2336.4398938505196,
+            "conditional_pct": 11.598
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 9,
+            "chaos_weight": 2247.7561696873136,
+            "conditional_pct": 11.157
+          },
+          {
+            "id": "talonflame",
+            "name": "Talonflame",
+            "rank": 10,
+            "chaos_weight": 1979.6245629853029,
+            "conditional_pct": 9.826
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 20145.947528452903,
+          "denominator_kind": "ability_weight",
+          "raw_count": 48467,
+          "source_row_count": 306,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "metagross": {
@@ -19494,6 +23034,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 2854.547491113701,
+            "conditional_pct": 24.277
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 2,
+            "chaos_weight": 2677.0084592933413,
+            "conditional_pct": 22.767
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 3,
+            "chaos_weight": 2452.8100271208455,
+            "conditional_pct": 20.86
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 4,
+            "chaos_weight": 2446.1956627311574,
+            "conditional_pct": 20.804
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 5,
+            "chaos_weight": 2331.126793591575,
+            "conditional_pct": 19.826
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 6,
+            "chaos_weight": 1513.7818345370574,
+            "conditional_pct": 12.874
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 7,
+            "chaos_weight": 1428.8126975147188,
+            "conditional_pct": 12.152
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 8,
+            "chaos_weight": 1339.4765725647087,
+            "conditional_pct": 11.392
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 9,
+            "chaos_weight": 1337.7897862312054,
+            "conditional_pct": 11.377
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 10,
+            "chaos_weight": 1319.917763100806,
+            "conditional_pct": 11.226
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 11758.208731096838,
+          "denominator_kind": "ability_weight",
+          "raw_count": 28159,
+          "source_row_count": 293,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "metagrossmega": {
@@ -19673,6 +23295,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 64764.95492359822,
+            "conditional_pct": 36.886
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 2,
+            "chaos_weight": 54345.22905168189,
+            "conditional_pct": 30.952
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 3,
+            "chaos_weight": 45206.12904574869,
+            "conditional_pct": 25.747
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 4,
+            "chaos_weight": 41207.49206335072,
+            "conditional_pct": 23.469
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 38623.50742281194,
+            "conditional_pct": 21.998
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 6,
+            "chaos_weight": 38132.33512878152,
+            "conditional_pct": 21.718
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 7,
+            "chaos_weight": 37248.73798121454,
+            "conditional_pct": 21.215
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 8,
+            "chaos_weight": 31809.69574229503,
+            "conditional_pct": 18.117
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 9,
+            "chaos_weight": 31184.887500517645,
+            "conditional_pct": 17.761
+          },
+          {
+            "id": "hydreigon",
+            "name": "Hydreigon",
+            "rank": 10,
+            "chaos_weight": 29485.973031651283,
+            "conditional_pct": 16.793
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 175579.96064490255,
+          "denominator_kind": "ability_weight",
+          "raw_count": 306559,
+          "source_row_count": 306,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "milotic": {
@@ -19904,6 +23608,88 @@
             "nature": "Bold"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 31569.890379745415,
+            "conditional_pct": 37.597
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 2,
+            "chaos_weight": 26025.531755814274,
+            "conditional_pct": 30.994
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 3,
+            "chaos_weight": 19258.7849410668,
+            "conditional_pct": 22.935
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 4,
+            "chaos_weight": 16204.903808833758,
+            "conditional_pct": 19.298
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 5,
+            "chaos_weight": 14794.336566303105,
+            "conditional_pct": 17.619
+          },
+          {
+            "id": "ceruledge",
+            "name": "Ceruledge",
+            "rank": 6,
+            "chaos_weight": 12576.054576567918,
+            "conditional_pct": 14.977
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 7,
+            "chaos_weight": 11803.120704184284,
+            "conditional_pct": 14.056
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 8,
+            "chaos_weight": 11518.419122210049,
+            "conditional_pct": 13.717
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 9,
+            "chaos_weight": 11319.088687613328,
+            "conditional_pct": 13.48
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 10,
+            "chaos_weight": 10958.421269093893,
+            "conditional_pct": 13.05
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 83970.11176399888,
+          "denominator_kind": "ability_weight",
+          "raw_count": 159833,
+          "source_row_count": 303,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "ninetales": {
@@ -20131,6 +23917,88 @@
             "nature": "Modest"
           }
         ],
+        "teammates": [
+          {
+            "id": "pyroarmega",
+            "name": "Pyroar-Mega",
+            "rank": 1,
+            "chaos_weight": 15414.50270757137,
+            "conditional_pct": 72.33
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 2,
+            "chaos_weight": 14505.99575064195,
+            "conditional_pct": 68.067
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 3,
+            "chaos_weight": 12731.143043169452,
+            "conditional_pct": 59.739
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 4,
+            "chaos_weight": 12265.863886797995,
+            "conditional_pct": 57.556
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 5,
+            "chaos_weight": 10711.597581186945,
+            "conditional_pct": 50.262
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 6,
+            "chaos_weight": 2173.098625289718,
+            "conditional_pct": 10.197
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 7,
+            "chaos_weight": 1737.5084671563802,
+            "conditional_pct": 8.153
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 8,
+            "chaos_weight": 1109.8678306900147,
+            "conditional_pct": 5.208
+          },
+          {
+            "id": "venusaur",
+            "name": "Venusaur",
+            "rank": 9,
+            "chaos_weight": 1019.5325419148191,
+            "conditional_pct": 4.784
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 10,
+            "chaos_weight": 1004.4169807014753,
+            "conditional_pct": 4.713
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 21311.317965857947,
+          "denominator_kind": "ability_weight",
+          "raw_count": 39442,
+          "source_row_count": 291,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "ninetalesalola": {
@@ -20358,6 +24226,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 23639.63667658346,
+            "conditional_pct": 30.567
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 2,
+            "chaos_weight": 22118.30351028085,
+            "conditional_pct": 28.599
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 3,
+            "chaos_weight": 18233.88086074021,
+            "conditional_pct": 23.577
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 4,
+            "chaos_weight": 15733.345875848483,
+            "conditional_pct": 20.344
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 5,
+            "chaos_weight": 15406.532165599103,
+            "conditional_pct": 19.921
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 6,
+            "chaos_weight": 15283.943454185222,
+            "conditional_pct": 19.762
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 7,
+            "chaos_weight": 11943.177947236785,
+            "conditional_pct": 15.443
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 8,
+            "chaos_weight": 11778.0198358449,
+            "conditional_pct": 15.229
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 9,
+            "chaos_weight": 11755.484958437113,
+            "conditional_pct": 15.2
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 10,
+            "chaos_weight": 9173.54643611861,
+            "conditional_pct": 11.862
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 77338.2111346197,
+          "denominator_kind": "ability_weight",
+          "raw_count": 141939,
+          "source_row_count": 303,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "pelipper": {
@@ -20589,6 +24539,88 @@
             "nature": "Modest"
           }
         ],
+        "teammates": [
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 1,
+            "chaos_weight": 150735.49551466218,
+            "conditional_pct": 62.773
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 2,
+            "chaos_weight": 149375.76670527988,
+            "conditional_pct": 62.207
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 3,
+            "chaos_weight": 104247.76223344887,
+            "conditional_pct": 43.414
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 4,
+            "chaos_weight": 59320.46946916822,
+            "conditional_pct": 24.704
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 5,
+            "chaos_weight": 54509.773684477885,
+            "conditional_pct": 22.7
+          },
+          {
+            "id": "sableye",
+            "name": "Sableye",
+            "rank": 6,
+            "chaos_weight": 50613.18542266157,
+            "conditional_pct": 21.078
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 7,
+            "chaos_weight": 41207.49206335072,
+            "conditional_pct": 17.161
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 8,
+            "chaos_weight": 33170.50324447163,
+            "conditional_pct": 13.814
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 9,
+            "chaos_weight": 29112.661709323333,
+            "conditional_pct": 12.124
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 10,
+            "chaos_weight": 19129.684176099945,
+            "conditional_pct": 7.967
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 240126.38318787495,
+          "denominator_kind": "ability_weight",
+          "raw_count": 443539,
+          "source_row_count": 308,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "politoed": {
@@ -20820,6 +24852,88 @@
             "nature": "Calm"
           }
         ],
+        "teammates": [
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 1,
+            "chaos_weight": 14703.554983105176,
+            "conditional_pct": 41.247
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 2,
+            "chaos_weight": 13668.90074194775,
+            "conditional_pct": 38.344
+          },
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 3,
+            "chaos_weight": 13147.32591099667,
+            "conditional_pct": 36.881
+          },
+          {
+            "id": "gengarmega",
+            "name": "Gengar-Mega",
+            "rank": 4,
+            "chaos_weight": 12689.85917428083,
+            "conditional_pct": 35.598
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 5,
+            "chaos_weight": 7902.352264561565,
+            "conditional_pct": 22.168
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 6,
+            "chaos_weight": 4683.38283264981,
+            "conditional_pct": 13.138
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 7,
+            "chaos_weight": 4328.409257337005,
+            "conditional_pct": 12.142
+          },
+          {
+            "id": "mawilemega",
+            "name": "Mawile-Mega",
+            "rank": 8,
+            "chaos_weight": 3927.314849905377,
+            "conditional_pct": 11.017
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 9,
+            "chaos_weight": 3672.913423887391,
+            "conditional_pct": 10.303
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 10,
+            "chaos_weight": 3631.6248701011214,
+            "conditional_pct": 10.188
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 35647.67301826669,
+          "denominator_kind": "ability_weight",
+          "raw_count": 68322,
+          "source_row_count": 302,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "primarina": {
@@ -21047,6 +25161,88 @@
             "nature": "Modest"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 14439.539068447413,
+            "conditional_pct": 31.82
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 2,
+            "chaos_weight": 11500.085395785147,
+            "conditional_pct": 25.342
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 3,
+            "chaos_weight": 10928.84270507896,
+            "conditional_pct": 24.083
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 4,
+            "chaos_weight": 8924.7207874039,
+            "conditional_pct": 19.667
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 7395.008190098784,
+            "conditional_pct": 16.296
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 6,
+            "chaos_weight": 6403.830206436922,
+            "conditional_pct": 14.112
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 7,
+            "chaos_weight": 6343.578517996863,
+            "conditional_pct": 13.979
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 8,
+            "chaos_weight": 6162.045676757585,
+            "conditional_pct": 13.579
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 9,
+            "chaos_weight": 5670.319580716645,
+            "conditional_pct": 12.495
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 10,
+            "chaos_weight": 5661.152787051048,
+            "conditional_pct": 12.475
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 45379.24336309835,
+          "denominator_kind": "ability_weight",
+          "raw_count": 87596,
+          "source_row_count": 304,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "raichu": {
@@ -21274,6 +25470,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 1,
+            "chaos_weight": 13042.651470847442,
+            "conditional_pct": 48.878
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 2,
+            "chaos_weight": 9978.577840154301,
+            "conditional_pct": 37.395
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 3,
+            "chaos_weight": 7369.734608195946,
+            "conditional_pct": 27.618
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 4,
+            "chaos_weight": 6323.739543576038,
+            "conditional_pct": 23.698
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 5,
+            "chaos_weight": 5308.307120713022,
+            "conditional_pct": 19.893
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 6,
+            "chaos_weight": 4449.11504538904,
+            "conditional_pct": 16.673
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 7,
+            "chaos_weight": 4338.3498030965175,
+            "conditional_pct": 16.258
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 8,
+            "chaos_weight": 4201.687133850081,
+            "conditional_pct": 15.746
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 9,
+            "chaos_weight": 4146.647074559407,
+            "conditional_pct": 15.54
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 10,
+            "chaos_weight": 2998.6834346288074,
+            "conditional_pct": 11.238
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 26684.266631171035,
+          "denominator_kind": "ability_weight",
+          "raw_count": 60585,
+          "source_row_count": 301,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "raichualola": {
@@ -21497,6 +25775,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "sceptilemega",
+            "name": "Sceptile-Mega",
+            "rank": 1,
+            "chaos_weight": 169.05143931507922,
+            "conditional_pct": 25.309
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 2,
+            "chaos_weight": 151.4825010471305,
+            "conditional_pct": 22.679
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 3,
+            "chaos_weight": 125.3067447680784,
+            "conditional_pct": 18.76
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 4,
+            "chaos_weight": 120.57490330315485,
+            "conditional_pct": 18.051
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 99.98216938241801,
+            "conditional_pct": 14.968
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 6,
+            "chaos_weight": 82.25931788780464,
+            "conditional_pct": 12.315
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 7,
+            "chaos_weight": 78.99697409417323,
+            "conditional_pct": 11.827
+          },
+          {
+            "id": "aerodactyl",
+            "name": "Aerodactyl",
+            "rank": 8,
+            "chaos_weight": 68.0492060523062,
+            "conditional_pct": 10.188
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 9,
+            "chaos_weight": 63.708097409332645,
+            "conditional_pct": 9.538
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 10,
+            "chaos_weight": 62.879880525712785,
+            "conditional_pct": 9.414
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 667.9516461025886,
+          "denominator_kind": "ability_weight",
+          "raw_count": 2472,
+          "source_row_count": 245,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "raichumegax": {
@@ -21680,6 +26040,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 1,
+            "chaos_weight": 10113.026602102995,
+            "conditional_pct": 36.151
+          },
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 2,
+            "chaos_weight": 9308.209690010444,
+            "conditional_pct": 33.274
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 3,
+            "chaos_weight": 8103.2687098466595,
+            "conditional_pct": 28.967
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 4,
+            "chaos_weight": 6420.687238850816,
+            "conditional_pct": 22.952
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 5,
+            "chaos_weight": 5106.179867457873,
+            "conditional_pct": 18.253
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 6,
+            "chaos_weight": 4790.569833507693,
+            "conditional_pct": 17.125
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 7,
+            "chaos_weight": 4511.789376638739,
+            "conditional_pct": 16.128
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 8,
+            "chaos_weight": 4398.177735646017,
+            "conditional_pct": 15.722
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 9,
+            "chaos_weight": 3623.388778902579,
+            "conditional_pct": 12.953
+          },
+          {
+            "id": "jolteon",
+            "name": "Jolteon",
+            "rank": 10,
+            "chaos_weight": 2968.140601719516,
+            "conditional_pct": 10.61
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 27974.02819595088,
+          "denominator_kind": "ability_weight",
+          "raw_count": 60777,
+          "source_row_count": 300,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "raichumegay": {
@@ -21863,6 +26305,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 1,
+            "chaos_weight": 47463.616888760494,
+            "conditional_pct": 33.25
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 2,
+            "chaos_weight": 43057.73880274161,
+            "conditional_pct": 30.163
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 3,
+            "chaos_weight": 38730.8750456576,
+            "conditional_pct": 27.132
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 4,
+            "chaos_weight": 38055.49787410572,
+            "conditional_pct": 26.659
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 37227.60774913146,
+            "conditional_pct": 26.079
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 6,
+            "chaos_weight": 23404.251983155216,
+            "conditional_pct": 16.395
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 7,
+            "chaos_weight": 21978.669904296145,
+            "conditional_pct": 15.397
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 8,
+            "chaos_weight": 19178.45862851872,
+            "conditional_pct": 13.435
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 9,
+            "chaos_weight": 18629.146937497615,
+            "conditional_pct": 13.05
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 10,
+            "chaos_weight": 17081.98013417887,
+            "conditional_pct": 11.967
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 142748.13292746682,
+          "denominator_kind": "ability_weight",
+          "raw_count": 273299,
+          "source_row_count": 303,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "rotom": {
@@ -22086,6 +26610,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 1,
+            "chaos_weight": 191.51529079657837,
+            "conditional_pct": 39.729
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 2,
+            "chaos_weight": 156.77348419832362,
+            "conditional_pct": 32.522
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 3,
+            "chaos_weight": 155.54333695753746,
+            "conditional_pct": 32.267
+          },
+          {
+            "id": "sceptilemega",
+            "name": "Sceptile-Mega",
+            "rank": 4,
+            "chaos_weight": 144.23884211110695,
+            "conditional_pct": 29.922
+          },
+          {
+            "id": "kleavor",
+            "name": "Kleavor",
+            "rank": 5,
+            "chaos_weight": 114.37872146885785,
+            "conditional_pct": 23.727
+          },
+          {
+            "id": "dragalge",
+            "name": "Dragalge",
+            "rank": 6,
+            "chaos_weight": 109.07941972972286,
+            "conditional_pct": 22.628
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 7,
+            "chaos_weight": 59.01095163746943,
+            "conditional_pct": 12.242
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 8,
+            "chaos_weight": 58.43219081258613,
+            "conditional_pct": 12.122
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 9,
+            "chaos_weight": 56.11103082671499,
+            "conditional_pct": 11.64
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 10,
+            "chaos_weight": 47.695858484341656,
+            "conditional_pct": 9.894
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 482.0518591316482,
+          "denominator_kind": "ability_weight",
+          "raw_count": 1328,
+          "source_row_count": 206,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "rotomwash": {
@@ -22309,6 +26915,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 30744.132615022198,
+            "conditional_pct": 35.586
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 2,
+            "chaos_weight": 23049.351147821846,
+            "conditional_pct": 26.679
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 3,
+            "chaos_weight": 22567.192518037155,
+            "conditional_pct": 26.121
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 4,
+            "chaos_weight": 19513.182181351753,
+            "conditional_pct": 22.586
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 5,
+            "chaos_weight": 16850.378874675527,
+            "conditional_pct": 19.504
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 6,
+            "chaos_weight": 14837.771855541674,
+            "conditional_pct": 17.175
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 7,
+            "chaos_weight": 13847.495563785078,
+            "conditional_pct": 16.028
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 8,
+            "chaos_weight": 10923.259742920902,
+            "conditional_pct": 12.644
+          },
+          {
+            "id": "sceptilemega",
+            "name": "Sceptile-Mega",
+            "rank": 9,
+            "chaos_weight": 10501.963436167875,
+            "conditional_pct": 12.156
+          },
+          {
+            "id": "tyranitarmega",
+            "name": "Tyranitar-Mega",
+            "rank": 10,
+            "chaos_weight": 9194.428308187436,
+            "conditional_pct": 10.642
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 86393.59636321267,
+          "denominator_kind": "ability_weight",
+          "raw_count": 183291,
+          "source_row_count": 298,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "sableye": {
@@ -22540,6 +27228,88 @@
             "nature": "Calm"
           }
         ],
+        "teammates": [
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 1,
+            "chaos_weight": 52313.203744018,
+            "conditional_pct": 46.931
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 2,
+            "chaos_weight": 50613.18542266157,
+            "conditional_pct": 45.406
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 3,
+            "chaos_weight": 49279.793968369006,
+            "conditional_pct": 44.21
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 4,
+            "chaos_weight": 37312.897054439825,
+            "conditional_pct": 33.474
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 5,
+            "chaos_weight": 24161.483137350224,
+            "conditional_pct": 21.676
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 6,
+            "chaos_weight": 13092.726695584503,
+            "conditional_pct": 11.746
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 7,
+            "chaos_weight": 12548.215822925933,
+            "conditional_pct": 11.257
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 8,
+            "chaos_weight": 12442.412962017366,
+            "conditional_pct": 11.162
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 9,
+            "chaos_weight": 10378.171996477482,
+            "conditional_pct": 9.31
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 10,
+            "chaos_weight": 10177.635161633541,
+            "conditional_pct": 9.131
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 111468.10570971904,
+          "denominator_kind": "ability_weight",
+          "raw_count": 225944,
+          "source_row_count": 306,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "sableyemega": {
@@ -22719,6 +27489,88 @@
             "nature": "Sassy"
           }
         ],
+        "teammates": [
+          {
+            "id": "milotic",
+            "name": "Milotic",
+            "rank": 1,
+            "chaos_weight": 584.6305162789521,
+            "conditional_pct": 27.822
+          },
+          {
+            "id": "gengarmega",
+            "name": "Gengar-Mega",
+            "rank": 2,
+            "chaos_weight": 565.084005081403,
+            "conditional_pct": 26.891
+          },
+          {
+            "id": "maushold",
+            "name": "Maushold",
+            "rank": 3,
+            "chaos_weight": 554.5822146904623,
+            "conditional_pct": 26.392
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 4,
+            "chaos_weight": 509.2236074896452,
+            "conditional_pct": 24.233
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 380.52584768660125,
+            "conditional_pct": 18.109
+          },
+          {
+            "id": "hydreigon",
+            "name": "Hydreigon",
+            "rank": 6,
+            "chaos_weight": 340.4737759534718,
+            "conditional_pct": 16.203
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 7,
+            "chaos_weight": 327.3995042565496,
+            "conditional_pct": 15.58
+          },
+          {
+            "id": "toxapex",
+            "name": "Toxapex",
+            "rank": 8,
+            "chaos_weight": 291.68872421113093,
+            "conditional_pct": 13.881
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 9,
+            "chaos_weight": 263.2185758988201,
+            "conditional_pct": 12.526
+          },
+          {
+            "id": "flapple",
+            "name": "Flapple",
+            "rank": 10,
+            "chaos_weight": 241.67367715959318,
+            "conditional_pct": 11.501
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 2101.3484904596985,
+          "denominator_kind": "ability_weight",
+          "raw_count": 5504,
+          "source_row_count": 269,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "sceptile": {
@@ -22946,6 +27798,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 1,
+            "chaos_weight": 254.83570433287233,
+            "conditional_pct": 15.009
+          },
+          {
+            "id": "milotic",
+            "name": "Milotic",
+            "rank": 2,
+            "chaos_weight": 252.87715932682326,
+            "conditional_pct": 14.893
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 3,
+            "chaos_weight": 247.52913539084204,
+            "conditional_pct": 14.578
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 4,
+            "chaos_weight": 246.1756396335352,
+            "conditional_pct": 14.499
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 5,
+            "chaos_weight": 242.05145967935476,
+            "conditional_pct": 14.256
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 6,
+            "chaos_weight": 238.90577146235478,
+            "conditional_pct": 14.071
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 7,
+            "chaos_weight": 224.92243783684742,
+            "conditional_pct": 13.247
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 8,
+            "chaos_weight": 211.234561642792,
+            "conditional_pct": 12.441
+          },
+          {
+            "id": "sableye",
+            "name": "Sableye",
+            "rank": 9,
+            "chaos_weight": 196.9457816636501,
+            "conditional_pct": 11.599
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 10,
+            "chaos_weight": 193.22436370199145,
+            "conditional_pct": 11.38
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 1697.909958507405,
+          "denominator_kind": "ability_weight",
+          "raw_count": 5193,
+          "source_row_count": 264,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "sceptilemega": {
@@ -23125,6 +28059,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "rotomheat",
+            "name": "Rotom-Heat",
+            "rank": 1,
+            "chaos_weight": 25771.716547802123,
+            "conditional_pct": 43.991
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 2,
+            "chaos_weight": 20685.186333440797,
+            "conditional_pct": 35.309
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 3,
+            "chaos_weight": 17064.799080660643,
+            "conditional_pct": 29.129
+          },
+          {
+            "id": "aerodactyl",
+            "name": "Aerodactyl",
+            "rank": 4,
+            "chaos_weight": 12552.218963390127,
+            "conditional_pct": 21.426
+          },
+          {
+            "id": "rotomwash",
+            "name": "Rotom-Wash",
+            "rank": 5,
+            "chaos_weight": 10501.963436167875,
+            "conditional_pct": 17.926
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 6,
+            "chaos_weight": 9009.643609369246,
+            "conditional_pct": 15.379
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 7,
+            "chaos_weight": 7085.912065661299,
+            "conditional_pct": 12.095
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 8,
+            "chaos_weight": 7072.481015364321,
+            "conditional_pct": 12.072
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 9,
+            "chaos_weight": 6924.746561531611,
+            "conditional_pct": 11.82
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 10,
+            "chaos_weight": 6851.607236290565,
+            "conditional_pct": 11.695
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 58583.77988982163,
+          "denominator_kind": "ability_weight",
+          "raw_count": 128041,
+          "source_row_count": 302,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "sinistcha": {
@@ -23352,6 +28368,88 @@
             "nature": "Bold"
           }
         ],
+        "teammates": [
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 1,
+            "chaos_weight": 140328.03016941276,
+            "conditional_pct": 30.731
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 2,
+            "chaos_weight": 111090.621381584,
+            "conditional_pct": 24.329
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 3,
+            "chaos_weight": 104247.76223344887,
+            "conditional_pct": 22.83
+          },
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 4,
+            "chaos_weight": 88419.08362932251,
+            "conditional_pct": 19.364
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 5,
+            "chaos_weight": 87705.49582534084,
+            "conditional_pct": 19.207
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 6,
+            "chaos_weight": 85575.53425667596,
+            "conditional_pct": 18.741
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 7,
+            "chaos_weight": 82963.27028721561,
+            "conditional_pct": 18.169
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 8,
+            "chaos_weight": 67259.0936213159,
+            "conditional_pct": 14.73
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 9,
+            "chaos_weight": 64764.95492359822,
+            "conditional_pct": 14.183
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 10,
+            "chaos_weight": 60227.90755372218,
+            "conditional_pct": 13.19
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 456626.9802439787,
+          "denominator_kind": "ability_weight",
+          "raw_count": 860069,
+          "source_row_count": 308,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "sneasler": {
@@ -23583,6 +28681,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 67259.0936213159,
+            "conditional_pct": 29.795
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 2,
+            "chaos_weight": 52528.3695333554,
+            "conditional_pct": 23.269
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 3,
+            "chaos_weight": 52463.06351794383,
+            "conditional_pct": 23.241
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 4,
+            "chaos_weight": 51486.33148783491,
+            "conditional_pct": 22.808
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 49505.734051917774,
+            "conditional_pct": 21.931
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 6,
+            "chaos_weight": 45410.768401572495,
+            "conditional_pct": 20.116
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 7,
+            "chaos_weight": 37248.73798121454,
+            "conditional_pct": 16.501
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 8,
+            "chaos_weight": 33170.50324447163,
+            "conditional_pct": 14.694
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 9,
+            "chaos_weight": 26230.952797657075,
+            "conditional_pct": 11.62
+          },
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 10,
+            "chaos_weight": 23447.676597617185,
+            "conditional_pct": 10.387
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 225739.1861542852,
+          "denominator_kind": "ability_weight",
+          "raw_count": 432061,
+          "source_row_count": 309,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "staraptor": {
@@ -23810,6 +28990,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 1,
+            "chaos_weight": 27186.526893729573,
+            "conditional_pct": 56.832
+          },
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 2,
+            "chaos_weight": 21433.52705353854,
+            "conditional_pct": 44.806
+          },
+          {
+            "id": "mawilemega",
+            "name": "Mawile-Mega",
+            "rank": 3,
+            "chaos_weight": 16869.57514707476,
+            "conditional_pct": 35.265
+          },
+          {
+            "id": "vileplume",
+            "name": "Vileplume",
+            "rank": 4,
+            "chaos_weight": 8248.00825892037,
+            "conditional_pct": 17.242
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 5,
+            "chaos_weight": 7229.7628579826405,
+            "conditional_pct": 15.114
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 6,
+            "chaos_weight": 7003.272232932416,
+            "conditional_pct": 14.64
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 7,
+            "chaos_weight": 6938.700275756394,
+            "conditional_pct": 14.505
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 8,
+            "chaos_weight": 5668.845223247908,
+            "conditional_pct": 11.851
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 9,
+            "chaos_weight": 5551.467890660766,
+            "conditional_pct": 11.605
+          },
+          {
+            "id": "kangaskhan",
+            "name": "Kangaskhan",
+            "rank": 10,
+            "chaos_weight": 4493.031197756867,
+            "conditional_pct": 9.393
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 47836.281076531515,
+          "denominator_kind": "ability_weight",
+          "raw_count": 79502,
+          "source_row_count": 298,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "staraptormega": {
@@ -23993,6 +29255,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 1,
+            "chaos_weight": 103783.16744096858,
+            "conditional_pct": 46.189
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 2,
+            "chaos_weight": 91241.53975240838,
+            "conditional_pct": 40.608
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 3,
+            "chaos_weight": 87705.49582534084,
+            "conditional_pct": 39.034
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 4,
+            "chaos_weight": 69650.82629604575,
+            "conditional_pct": 30.999
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 59130.68717174166,
+            "conditional_pct": 26.317
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 6,
+            "chaos_weight": 57731.37133211586,
+            "conditional_pct": 25.694
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 7,
+            "chaos_weight": 54085.61882432424,
+            "conditional_pct": 24.071
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 8,
+            "chaos_weight": 29561.515219198624,
+            "conditional_pct": 13.157
+          },
+          {
+            "id": "maushold",
+            "name": "Maushold",
+            "rank": 9,
+            "chaos_weight": 18650.361539211084,
+            "conditional_pct": 8.3
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 10,
+            "chaos_weight": 18629.146937497615,
+            "conditional_pct": 8.291
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 224690.49643441377,
+          "denominator_kind": "ability_weight",
+          "raw_count": 428748,
+          "source_row_count": 308,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "swampert": {
@@ -24220,6 +29564,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 1289.0345282936294,
+            "conditional_pct": 24.155
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 2,
+            "chaos_weight": 1170.5270044388676,
+            "conditional_pct": 21.934
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 3,
+            "chaos_weight": 964.2272015307611,
+            "conditional_pct": 18.068
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 4,
+            "chaos_weight": 954.4644473377477,
+            "conditional_pct": 17.885
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 5,
+            "chaos_weight": 813.3966045906059,
+            "conditional_pct": 15.242
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 6,
+            "chaos_weight": 701.827317745258,
+            "conditional_pct": 13.151
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 7,
+            "chaos_weight": 586.7757473957882,
+            "conditional_pct": 10.995
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 8,
+            "chaos_weight": 585.1565722909451,
+            "conditional_pct": 10.965
+          },
+          {
+            "id": "mawilemega",
+            "name": "Mawile-Mega",
+            "rank": 9,
+            "chaos_weight": 538.5290091682767,
+            "conditional_pct": 10.091
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 10,
+            "chaos_weight": 513.346416848905,
+            "conditional_pct": 9.619
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 5336.536429636477,
+          "denominator_kind": "ability_weight",
+          "raw_count": 12395,
+          "source_row_count": 285,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "swampertmega": {
@@ -24399,6 +29825,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 1,
+            "chaos_weight": 149375.76670527988,
+            "conditional_pct": 81.604
+          },
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 2,
+            "chaos_weight": 124072.26209990928,
+            "conditional_pct": 67.781
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 3,
+            "chaos_weight": 85575.53425667596,
+            "conditional_pct": 46.75
+          },
+          {
+            "id": "sableye",
+            "name": "Sableye",
+            "rank": 4,
+            "chaos_weight": 49279.793968369006,
+            "conditional_pct": 26.922
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 5,
+            "chaos_weight": 44539.88517271812,
+            "conditional_pct": 24.332
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 6,
+            "chaos_weight": 32340.919200960758,
+            "conditional_pct": 17.668
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 7,
+            "chaos_weight": 31184.887500517645,
+            "conditional_pct": 17.036
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 8,
+            "chaos_weight": 23308.56551197346,
+            "conditional_pct": 12.733
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 9,
+            "chaos_weight": 22215.910772829986,
+            "conditional_pct": 12.137
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 10,
+            "chaos_weight": 13583.224734509999,
+            "conditional_pct": 7.421
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 183049.75921347798,
+          "denominator_kind": "ability_weight",
+          "raw_count": 319208,
+          "source_row_count": 304,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "sylveon": {
@@ -24626,6 +30134,88 @@
             "nature": "Modest"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 52344.82144564992,
+            "conditional_pct": 33.875
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 2,
+            "chaos_weight": 42557.18186903939,
+            "conditional_pct": 27.541
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 3,
+            "chaos_weight": 38476.87808539504,
+            "conditional_pct": 24.901
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 4,
+            "chaos_weight": 37529.420196326,
+            "conditional_pct": 24.287
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 5,
+            "chaos_weight": 31997.685121430353,
+            "conditional_pct": 20.708
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 6,
+            "chaos_weight": 31169.526079204144,
+            "conditional_pct": 20.172
+          },
+          {
+            "id": "aerodactylmega",
+            "name": "Aerodactyl-Mega",
+            "rank": 7,
+            "chaos_weight": 26675.79208085539,
+            "conditional_pct": 17.263
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 8,
+            "chaos_weight": 25287.062805767684,
+            "conditional_pct": 16.365
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 9,
+            "chaos_weight": 24905.54315459964,
+            "conditional_pct": 16.118
+          },
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 10,
+            "chaos_weight": 20503.49844861646,
+            "conditional_pct": 13.269
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 154521.70645174352,
+          "denominator_kind": "ability_weight",
+          "raw_count": 263154,
+          "source_row_count": 305,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "talonflame": {
@@ -24853,6 +30443,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 27300.405913456038,
+            "conditional_pct": 40.14
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 2,
+            "chaos_weight": 16192.299747102355,
+            "conditional_pct": 23.808
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 3,
+            "chaos_weight": 12598.681753446117,
+            "conditional_pct": 18.524
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 4,
+            "chaos_weight": 11088.816442160532,
+            "conditional_pct": 16.304
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 11047.932886417104,
+            "conditional_pct": 16.244
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 6,
+            "chaos_weight": 10765.040853780758,
+            "conditional_pct": 15.828
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 7,
+            "chaos_weight": 9623.082352799369,
+            "conditional_pct": 14.149
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 8,
+            "chaos_weight": 9147.246460440647,
+            "conditional_pct": 13.449
+          },
+          {
+            "id": "ninetalesalola",
+            "name": "Ninetales-Alola",
+            "rank": 9,
+            "chaos_weight": 8945.398935654699,
+            "conditional_pct": 13.152
+          },
+          {
+            "id": "rotomwash",
+            "name": "Rotom-Wash",
+            "rank": 10,
+            "chaos_weight": 7483.73171844322,
+            "conditional_pct": 11.003
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 68013.24218990447,
+          "denominator_kind": "ability_weight",
+          "raw_count": 133930,
+          "source_row_count": 307,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "torkoal": {
@@ -25084,6 +30756,88 @@
             "nature": "Quiet"
           }
         ],
+        "teammates": [
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 1,
+            "chaos_weight": 84784.73836946533,
+            "conditional_pct": 62.041
+          },
+          {
+            "id": "mawilemega",
+            "name": "Mawile-Mega",
+            "rank": 2,
+            "chaos_weight": 43016.81412787705,
+            "conditional_pct": 31.478
+          },
+          {
+            "id": "pyroarmega",
+            "name": "Pyroar-Mega",
+            "rank": 3,
+            "chaos_weight": 25306.41809519152,
+            "conditional_pct": 18.518
+          },
+          {
+            "id": "vileplume",
+            "name": "Vileplume",
+            "rank": 4,
+            "chaos_weight": 24877.468415516887,
+            "conditional_pct": 18.204
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 23920.6673246054,
+            "conditional_pct": 17.504
+          },
+          {
+            "id": "staraptor",
+            "name": "Staraptor",
+            "rank": 6,
+            "chaos_weight": 21433.52705353854,
+            "conditional_pct": 15.684
+          },
+          {
+            "id": "sylveon",
+            "name": "Sylveon",
+            "rank": 7,
+            "chaos_weight": 20503.49844861646,
+            "conditional_pct": 15.003
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 8,
+            "chaos_weight": 19118.10613538769,
+            "conditional_pct": 13.99
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 9,
+            "chaos_weight": 18902.730595664496,
+            "conditional_pct": 13.832
+          },
+          {
+            "id": "scraftymega",
+            "name": "Scrafty-Mega",
+            "rank": 10,
+            "chaos_weight": 18343.29602265286,
+            "conditional_pct": 13.423
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 136658.84014947363,
+          "denominator_kind": "ability_weight",
+          "raw_count": 239061,
+          "source_row_count": 306,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "toxapex": {
@@ -25315,6 +31069,88 @@
             "nature": "Bold"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 10363.14202962115,
+            "conditional_pct": 36.252
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 2,
+            "chaos_weight": 10249.497845600023,
+            "conditional_pct": 35.854
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 3,
+            "chaos_weight": 10040.943519017728,
+            "conditional_pct": 35.125
+          },
+          {
+            "id": "hydreigon",
+            "name": "Hydreigon",
+            "rank": 4,
+            "chaos_weight": 8225.809721170495,
+            "conditional_pct": 28.775
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 7826.778509441701,
+            "conditional_pct": 27.379
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 6,
+            "chaos_weight": 6976.133024102402,
+            "conditional_pct": 24.404
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 7,
+            "chaos_weight": 6936.88474221026,
+            "conditional_pct": 24.266
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 8,
+            "chaos_weight": 3480.2743145012973,
+            "conditional_pct": 12.175
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 9,
+            "chaos_weight": 3389.9579085485634,
+            "conditional_pct": 11.859
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 10,
+            "chaos_weight": 2345.0095643523105,
+            "conditional_pct": 8.203
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 28586.39667764688,
+          "denominator_kind": "ability_weight",
+          "raw_count": 61722,
+          "source_row_count": 302,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "tsareena": {
@@ -25546,6 +31382,88 @@
             "nature": "Jolly"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 7257.755671826897,
+            "conditional_pct": 20.119
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 2,
+            "chaos_weight": 6892.695352890799,
+            "conditional_pct": 19.107
+          },
+          {
+            "id": "raichumegay",
+            "name": "Raichu-Mega-Y",
+            "rank": 3,
+            "chaos_weight": 6731.682736196643,
+            "conditional_pct": 18.66
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 4,
+            "chaos_weight": 6315.859061021536,
+            "conditional_pct": 17.508
+          },
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 5,
+            "chaos_weight": 5576.732330556879,
+            "conditional_pct": 15.459
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 6,
+            "chaos_weight": 4763.363949408202,
+            "conditional_pct": 13.204
+          },
+          {
+            "id": "talonflame",
+            "name": "Talonflame",
+            "rank": 7,
+            "chaos_weight": 4607.8067448933425,
+            "conditional_pct": 12.773
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 8,
+            "chaos_weight": 4606.323175087273,
+            "conditional_pct": 12.769
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 9,
+            "chaos_weight": 4381.08462156346,
+            "conditional_pct": 12.144
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 10,
+            "chaos_weight": 4318.59932215942,
+            "conditional_pct": 11.971
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 36074.696057976565,
+          "denominator_kind": "ability_weight",
+          "raw_count": 71091,
+          "source_row_count": 302,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "tyranitar": {
@@ -25773,6 +31691,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 7047.868458709834,
+            "conditional_pct": 29.197
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 2,
+            "chaos_weight": 5632.009735807606,
+            "conditional_pct": 23.332
+          },
+          {
+            "id": "excadrill",
+            "name": "Excadrill",
+            "rank": 3,
+            "chaos_weight": 5259.325863837759,
+            "conditional_pct": 21.788
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 4,
+            "chaos_weight": 4711.881813862032,
+            "conditional_pct": 19.52
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 5,
+            "chaos_weight": 4219.774290530869,
+            "conditional_pct": 17.481
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 6,
+            "chaos_weight": 4131.131886945396,
+            "conditional_pct": 17.114
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 7,
+            "chaos_weight": 3562.3481761119638,
+            "conditional_pct": 14.758
+          },
+          {
+            "id": "metagrossmega",
+            "name": "Metagross-Mega",
+            "rank": 8,
+            "chaos_weight": 3361.6454832499494,
+            "conditional_pct": 13.926
+          },
+          {
+            "id": "rotomwash",
+            "name": "Rotom-Wash",
+            "rank": 9,
+            "chaos_weight": 3316.501875210748,
+            "conditional_pct": 13.739
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 10,
+            "chaos_weight": 2615.3479469531144,
+            "conditional_pct": 10.835
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 24138.928041037692,
+          "denominator_kind": "ability_weight",
+          "raw_count": 49568,
+          "source_row_count": 301,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "tyranitarmega": {
@@ -25952,6 +31952,88 @@
             "nature": "Adamant"
           }
         ],
+        "teammates": [
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 1,
+            "chaos_weight": 20655.451445445007,
+            "conditional_pct": 42.07
+          },
+          {
+            "id": "excadrill",
+            "name": "Excadrill",
+            "rank": 2,
+            "chaos_weight": 17125.388751714916,
+            "conditional_pct": 34.88
+          },
+          {
+            "id": "rotomwash",
+            "name": "Rotom-Wash",
+            "rank": 3,
+            "chaos_weight": 9194.428308187436,
+            "conditional_pct": 18.727
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 4,
+            "chaos_weight": 9137.403004406702,
+            "conditional_pct": 18.61
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 5,
+            "chaos_weight": 8791.130828431313,
+            "conditional_pct": 17.905
+          },
+          {
+            "id": "corviknight",
+            "name": "Corviknight",
+            "rank": 6,
+            "chaos_weight": 8509.2002727406,
+            "conditional_pct": 17.331
+          },
+          {
+            "id": "sneasler",
+            "name": "Sneasler",
+            "rank": 7,
+            "chaos_weight": 7871.790540399713,
+            "conditional_pct": 16.033
+          },
+          {
+            "id": "houndstone",
+            "name": "Houndstone",
+            "rank": 8,
+            "chaos_weight": 7167.567218799513,
+            "conditional_pct": 14.598
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 9,
+            "chaos_weight": 6170.473507056993,
+            "conditional_pct": 12.568
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 10,
+            "chaos_weight": 5812.513547844474,
+            "conditional_pct": 11.839
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 49098.2249300019,
+          "denominator_kind": "ability_weight",
+          "raw_count": 90231,
+          "source_row_count": 301,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "venusaur": {
@@ -26179,6 +32261,88 @@
             "nature": "Modest"
           }
         ],
+        "teammates": [
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 1,
+            "chaos_weight": 17636.37759530598,
+            "conditional_pct": 49.126
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 2,
+            "chaos_weight": 14088.532934145616,
+            "conditional_pct": 39.243
+          },
+          {
+            "id": "torkoal",
+            "name": "Torkoal",
+            "rank": 3,
+            "chaos_weight": 13135.15172849306,
+            "conditional_pct": 36.588
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 4,
+            "chaos_weight": 12524.388107753563,
+            "conditional_pct": 34.886
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 5,
+            "chaos_weight": 9527.908713283961,
+            "conditional_pct": 26.54
+          },
+          {
+            "id": "pyroarmega",
+            "name": "Pyroar-Mega",
+            "rank": 6,
+            "chaos_weight": 8630.082359248756,
+            "conditional_pct": 24.039
+          },
+          {
+            "id": "whimsicott",
+            "name": "Whimsicott",
+            "rank": 7,
+            "chaos_weight": 7300.568825364681,
+            "conditional_pct": 20.336
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 8,
+            "chaos_weight": 5257.3521780720075,
+            "conditional_pct": 14.644
+          },
+          {
+            "id": "scraftymega",
+            "name": "Scrafty-Mega",
+            "rank": 9,
+            "chaos_weight": 4951.981479404554,
+            "conditional_pct": 13.794
+          },
+          {
+            "id": "mamoswine",
+            "name": "Mamoswine",
+            "rank": 10,
+            "chaos_weight": 4294.12640368306,
+            "conditional_pct": 11.961
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 35900.514303385324,
+          "denominator_kind": "ability_weight",
+          "raw_count": 71506,
+          "source_row_count": 292,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "venusaurmega": {
@@ -26358,6 +32522,88 @@
             "nature": "Modest"
           }
         ],
+        "teammates": [
+          {
+            "id": "pelipper",
+            "name": "Pelipper",
+            "rank": 1,
+            "chaos_weight": 14786.596167905793,
+            "conditional_pct": 39.133
+          },
+          {
+            "id": "archaludon",
+            "name": "Archaludon",
+            "rank": 2,
+            "chaos_weight": 14170.835095522249,
+            "conditional_pct": 37.503
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 3,
+            "chaos_weight": 12440.268931446897,
+            "conditional_pct": 32.923
+          },
+          {
+            "id": "swampertmega",
+            "name": "Swampert-Mega",
+            "rank": 4,
+            "chaos_weight": 11125.536200359515,
+            "conditional_pct": 29.444
+          },
+          {
+            "id": "sableye",
+            "name": "Sableye",
+            "rank": 5,
+            "chaos_weight": 9953.01354403873,
+            "conditional_pct": 26.341
+          },
+          {
+            "id": "grimmsnarl",
+            "name": "Grimmsnarl",
+            "rank": 6,
+            "chaos_weight": 7249.923118603871,
+            "conditional_pct": 19.187
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 7,
+            "chaos_weight": 6851.7004379783375,
+            "conditional_pct": 18.133
+          },
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 8,
+            "chaos_weight": 6371.797922359859,
+            "conditional_pct": 16.863
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 9,
+            "chaos_weight": 4338.168867940449,
+            "conditional_pct": 11.481
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 10,
+            "chaos_weight": 4140.273026172979,
+            "conditional_pct": 10.957
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 37785.53398015787,
+          "denominator_kind": "ability_weight",
+          "raw_count": 62090,
+          "source_row_count": 290,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       },
       "whimsicott": {
@@ -26589,6 +32835,88 @@
             "nature": "Timid"
           }
         ],
+        "teammates": [
+          {
+            "id": "garchomp",
+            "name": "Garchomp",
+            "rank": 1,
+            "chaos_weight": 164721.9632659225,
+            "conditional_pct": 45.233
+          },
+          {
+            "id": "basculegion",
+            "name": "Basculegion",
+            "rank": 2,
+            "chaos_weight": 131997.3124414651,
+            "conditional_pct": 36.247
+          },
+          {
+            "id": "staraptormega",
+            "name": "Staraptor-Mega",
+            "rank": 3,
+            "chaos_weight": 103783.16744096858,
+            "conditional_pct": 28.499
+          },
+          {
+            "id": "charizardmegay",
+            "name": "Charizard-Mega-Y",
+            "rank": 4,
+            "chaos_weight": 76811.44700940634,
+            "conditional_pct": 21.093
+          },
+          {
+            "id": "kingambit",
+            "name": "Kingambit",
+            "rank": 5,
+            "chaos_weight": 76431.60475630262,
+            "conditional_pct": 20.988
+          },
+          {
+            "id": "incineroar",
+            "name": "Incineroar",
+            "rank": 6,
+            "chaos_weight": 72438.80564002623,
+            "conditional_pct": 19.892
+          },
+          {
+            "id": "gholdengo",
+            "name": "Gholdengo",
+            "rank": 7,
+            "chaos_weight": 65555.59139749465,
+            "conditional_pct": 18.002
+          },
+          {
+            "id": "floettemega",
+            "name": "Floette-Mega",
+            "rank": 8,
+            "chaos_weight": 56973.48260510763,
+            "conditional_pct": 15.645
+          },
+          {
+            "id": "farigiraf",
+            "name": "Farigiraf",
+            "rank": 9,
+            "chaos_weight": 53122.87105843914,
+            "conditional_pct": 14.588
+          },
+          {
+            "id": "sinistcha",
+            "name": "Sinistcha",
+            "rank": 10,
+            "chaos_weight": 48587.990546613335,
+            "conditional_pct": 13.342
+          }
+        ],
+        "teammates_meta": {
+          "status": "available",
+          "denominator_weight": 364161.47889577755,
+          "denominator_kind": "ability_weight",
+          "raw_count": 689998,
+          "source_row_count": 308,
+          "retained_count": 10,
+          "limit": 10,
+          "truncated": true
+        },
         "source": "munchstats-showdown"
       }
     }

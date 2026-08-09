@@ -2372,6 +2372,89 @@ This closes both items flagged "unclear, needs checking" from the post-arc backl
 both were genuinely open, not partially covered by adjacent work, consistent with this
 project's standing practice of verifying claimed coverage rather than inferring it.
 
+### 2026-08-08 (cont.): exact-form teammate extraction + query surface — implemented,
+with three unapproved scope expansions caught and corrected during review
+
+Two sequential tracks, following the verification pass that found CBD structurally cannot
+distinguish Pokémon forms for teammate data (confirmed: `Swampert`/`Swampert-Mega` carry
+materially different real teammate lists — Archaludon 0.117% vs. 62.257%, Pelipper similarly
+skewed) while Showdown/MunchStats' exact-form chaos records do distinguish them but were
+never extracted (`fetch_usage_mb.py` previously pulled moves/items/abilities/spreads only,
+dropping `Teammates` entirely).
+
+**Track 1 — extraction.** Exact-form `Teammates` now extracted per form into a new
+schema-v3 snapshot namespace (`showdown_vgc_mb.species[*].teammates`/`teammates_meta`), with
+an audited normalization function: `conditional_pct(T|anchor) = 100 * teammate_weight[T] /
+max(ability_weight, teammate_weight/6, 1)` — confirmed as the correct unconditional-max
+reading of MunchStats' own source logic (`app.py:1740-1760`), not the initially-assumed
+conditional fallback. Represents `P(teammate present | exact anchor form present)` under
+ladder weighting — explicitly not a sum-to-100 distribution (values can exceed 500% in
+aggregate across a 6-member roster) and not reused via the existing sum-to-100
+`_munch_to_common` pattern, which would have been wrong here. Regression-gated against real
+independently-sourced values (MunchStats' own rendered Mega Swampert page, 1500 cutoff, June
+2026: Pelipper 81.604%, Archaludon 67.781%, Sinistcha 46.750%) — caught and corrected before
+implementation that an earlier draft of this fixture had been computed from the proposed
+formula itself rather than an independent source, which would have made the "regression
+test" tautological rather than a real correctness check.
+
+**Track 2 — query surface.** `query_teammates`/`query_shared_teammates` added
+(`recommender/teammates.py`): offline-first exact-form Showdown lookup, MunchStats live fetch
+only on genuine offline-row absence (ADR-014 Amendment 2026-08-08b), CBD as a conservative
+offline-only rank-only fallback with explicit ambiguous/unresolved form-attribution status
+when evidence can't prove an exact form. Strict all-N shared intersection excludes each locked
+anchor's own legality lineage from its own results, preserves every directional
+`P(candidate|anchor)` observation rather than averaging into a false symmetric probability,
+and distinguishes genuine empty intersection from unavailable source data at the envelope
+level (`available`/`partial`/`unavailable` status, never conflating `null` and `[]`).
+Percentage-aware maximin ordering (weakest shared relationship first, then geometric mean for
+consistency) applies only when all anchor observations are comparable exact-form Showdown
+evidence; falls back to rank-based ordering under mixed/CBD evidence. Published additively to
+`multi_locked`'s `refresh_team_signals` alongside (not replacing) coverage/SPOF; source
+failure returns an unavailable envelope without failing coverage/SPOF.
+
+**Three unapproved scope expansions found and corrected during review, not discovered until
+directly checked against the approved plan:**
+1. `generate_team_review` (the `complete` phase) had been extended to compute and publish a
+   fresh six-member shared-teammate signal — the approved plan explicitly scoped
+   complete-roster teammate review as out of scope, intending only stale-state clearing on
+   the complete transition. Corrected to `shared_teammates: None` with no query.
+2. CBD fallback had been implemented with an additional, unapproved live fetch
+   (`live_cbd_fetch`, hitting `championsbattledata.com`'s live API) beyond the approved
+   offline-only read. Removed after explicit reasoning (not just plan-conformance): CBD
+   fallback is already three evidence-levels deep and rank-only/ambiguous regardless of
+   freshness — a fourth network dependency for marginal freshness on the weakest-quality
+   fallback wasn't justified.
+3. Live Showdown fetch's trigger condition was broader than the approved `fetch_live_spreads`
+   precedent — it fired both on offline-row absence AND on a present-but-malformed offline
+   row. Corrected to trigger strictly on absence, matching the existing precedent's `if entry
+   is None` condition exactly. Reasoning stated explicitly: a malformed existing row signals
+   an extraction bug, not transient unavailability — silently falling through to live fetch
+   in that case would mask a real snapshot-integrity problem rather than surface it.
+
+**Process failure also worth naming plainly:** the approved plan itself included a step
+directing an edit to `docs/architecture_decisions.md` ("Amend ADR-014... before enabling this
+path") — a file `CURSOR_HANDOFF.md` explicitly marks as a read-only mirror not editable under
+any circumstance. That should have been flagged back during plan review rather than approved;
+it wasn't, and the file was actually edited during implementation (later confirmed and
+reverted, along with an equivalent unauthorized edit to `master_project_log.md`). Both
+mirrors confirmed unchanged (hash-verified) after the final correction round. The real ADR-014
+amendment went through the normal path afterward — proposed as text for review, not written
+directly to the file.
+
+464 tests passing (up from 450), 5 skipped. Focused/adjacent/full suite all clean, no lint or
+whitespace errors.
+
+This closes out the teammate-query thread from the post-arc backlog review. Remaining
+deferred, not oversights: user-input name/shorthand resolution (the "Eternal Floette" case,
+still a separate, unscoped subsystem); general form-aware ownership propagation beyond
+teammate-record correctness; Pokémon-Zone dataset adoption (excluded — pair counts lack a
+denominator, core percentages apply only to exact four-species cores, current extractor
+can't reproduce its fields); candidate-evidence merging/ranking consumption of shared-teammate
+signal (published but not yet consumed by ranking, per the "publish, but do not rank on" scope
+this task held to); condition-resilience assessment; selected-four modeling; calc-unavailable
+static fallback; checkpointer choice (still blocks msgpack allowlisting); empty-team bootstrap
+UX design.
+
 ## TOOLS & RESOURCES
 
 - **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.

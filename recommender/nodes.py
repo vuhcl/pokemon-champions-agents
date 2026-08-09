@@ -48,14 +48,10 @@ from recommender.state import (
     empty_slot,
     slot_fingerprint,
 )
+from recommender.teammates import query_shared_teammates
 
 SLOT_ATTRS = ("role", "species", "ability", "item", "moveset", "spread", "nature")
 TeamPhase = Literal["empty", "single_locked", "multi_locked", "complete"]
-
-
-def query_shared_teammates(*_args, **_kwargs):
-    """P7 integration seam; no teammate signal exists before that slice."""
-    return None
 
 
 _AFFIRMATIVE_REPLIES = frozenset(

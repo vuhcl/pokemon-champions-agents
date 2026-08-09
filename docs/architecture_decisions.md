@@ -392,6 +392,38 @@ prohibition on runtime web search remain unchanged.
 
 ---
 
+### ADR-014 — Amendment 2026-08-08b
+
+**Structured runtime teammate lookup exception.**
+
+Exact-form teammate queries may fetch one structured MunchStats species record when the
+bundled snapshot has no usable teammate record (offline row absent — matching the existing
+`fetch_live_spreads` trigger condition exactly; a malformed-but-present offline row returns
+explicit unavailable evidence, it does not trigger live fetch). No live CBD fetch is
+authorized for teammate queries — CBD fallback reads only the existing offline/bundled
+record.
+
+This extends the existing per-species runtime exception from spread evidence to teammate
+co-occurrence evidence, using the same `recommender/usage_live.py` mechanism: fixed
+regulation/month/rating mappings, known endpoints, deterministic parsing, cached misses, and
+no model-directed or free-form search. Construction-scoped extractors remain unavailable to
+runtime paths.
+
+MunchStats preserves exact-form IDs and ladder-weighted conditional percentages. CBD labels
+that cannot establish an exact form remain explicitly ambiguous or unresolved; missing
+percentages are not inferred.
+
+This exception applies only to callable individual queries and shared signals during the
+`multi_locked` phase. Complete-roster teammate review and candidate-ranking consumption
+remain out of scope — `complete` phase publishes `shared_teammates: None` without querying.
+
+**Status:** Broadens the bounded structured per-species runtime exception to include
+exact-form teammate co-occurrence, MunchStats live fetch only, gated strictly on offline-row
+absence. CBD fallback is offline-only, not a second live exception. ADR-014's general
+prohibition on runtime web search remains unchanged.
+
+---
+
 ## ADR-004: RL policy — retrain, do not reuse
 **Decision:** Train a new RL policy specifically for Pokémon Champions and the current regulation, rather than adapting the ~6-year-old SARSA policy from the original Pokémon Battler project.
 **Alternatives considered:** Fine-tune/adapt the old policy; use the old policy's reward structure unchanged with new state representation.
