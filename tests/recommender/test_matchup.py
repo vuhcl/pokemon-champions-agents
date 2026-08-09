@@ -8,11 +8,13 @@ import pytest
 
 from recommender.calc_client import CalcClient, CalcRequest
 from recommender.matchup import (
+    MatchupEvidenceError,
     MatchupResult,
     Severity,
     _CONTACT_MOVES,
     _contact_punish_applies,
     _makes_contact,
+    _profiles_from_batch,
     classify_matchup,
     clear_matchup_memo,
 )
@@ -67,6 +69,19 @@ class MockCalcClient(CalcClient):
                 raise KeyError(f"unexpected calc request: {key}")
             out.append(self._responses[key])
         return out
+
+
+@pytest.mark.parametrize(
+    "results",
+    [
+        [],
+        [{"error": "move failed"}],
+        [None],
+    ],
+)
+def test_incomplete_batch_evidence_raises(results):
+    with pytest.raises(MatchupEvidenceError):
+        _profiles_from_batch(["Tackle"], results)
 
 
 GARCHOMP = {

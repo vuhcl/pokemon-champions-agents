@@ -21,30 +21,23 @@ from recommender.state import (
     RecommenderState,
     Slot,
     StatsTable,
+    TargetRoleDecision,
+    TargetRoleId,
+    TargetRoleResult,
+    UnresolvedTargetRoleDecision,
     all_locked,
 )
 from recommender.usage_data import SLOT_THREAT_N, TEAM_THREAT_N, featured_or_common_set
+from recommender.usage_spreads import effective_spe, select_usage_spread
 
-_COMPONENT_TO_ROLE: dict[str, str] = {
-    "TrickRoom": "trick_room_sweeper",
-    "Tailwind": "support_speed_control",
+_COMPONENT_TO_ROLE: dict[str, TargetRoleId] = {
+    "TrickRoom": "trick_room_setter",
+    "Tailwind": "tailwind_setter",
 }
 
 _ROLE_ARCHETYPES = frozenset(get_args(RoleArchetype))
 _CHOICE_ITEMS = frozenset({"choiceband", "choicespecs", "choicescarf"})
 _ITEM_SWAP_MOVES = frozenset({"trick", "switcheroo"})
-
-# Nature: (plus_stat, minus_stat) — Spe-boosting natures listed for overshoot check.
-_NATURE_MODS: dict[str, tuple[str, str]] = {
-    "Hardy": ("", ""),
-    "Adamant": ("atk", "spa"),
-    "Modest": ("spa", "atk"),
-    "Jolly": ("spe", "spa"),
-    "Timid": ("spe", "atk"),
-    "Brave": ("atk", "spe"),
-    "Quiet": ("spa", "spe"),
-}
-
 
 def fill_team_draft(state: RecommenderState) -> dict:
     draft = list(state["team_draft"])
@@ -86,8 +79,9 @@ def fill_team_draft(state: RecommenderState) -> dict:
             # only when no locked moveset pin will set it.
             if not (slot.moveset.locked and slot.moveset.value):
                 picked = _pick_role(draft, components, has_gap, default_role_used)
-                if picked is not None:
-                    role_name, ref = picked
+                if isinstance(picked, TargetRoleDecision):
+                    role_name = picked.role_id
+                    ref = picked.provenance[0]
                     if ref == "coverage_gap":
                         default_role_used = True
                     draft[i] = replace(
@@ -114,15 +108,44 @@ def _pick_role(
     components: list[str],
     has_gap: bool,
     default_role_used: bool,
-) -> tuple[str, str] | None:
+) -> TargetRoleResult | None:
+    """Choose an actionable role for an open slot, never an anchor classification."""
     present = {s.role.value for s in draft if s.role.value}
-    for comp in components:
-        role = _COMPONENT_TO_ROLE.get(comp)
-        if role and role not in present:
-            return role, comp
+    candidates = tuple(
+        (comp, role)
+        for comp in components
+        if (role := _COMPONENT_TO_ROLE.get(comp)) and role not in present
+    )
+    role_ids = tuple(dict.fromkeys(role for _, role in candidates))
+    if len(role_ids) > 1:
+        return UnresolvedTargetRoleDecision(
+            reason="ambiguous_speed_control",
+            ambiguity=role_ids,
+            source="_pick_role",
+            evidence=tuple(comp for comp, _ in candidates),
+            needed_constraints=tuple(f"role:{role}" for role in role_ids),
+            provenance=("archetype_components",),
+        )
+    if candidates:
+        comp, role = candidates[0]
+        return TargetRoleDecision(
+            role_id=role,
+            source="_pick_role",
+            evidence=(comp,),
+            needed_constraints=(f"role:{role}",),
+            confidence="high",
+            provenance=(comp,),
+        )
 
     if has_gap and not default_role_used and not present:
-        return "bulky_attacker", "coverage_gap"
+        return TargetRoleDecision(
+            role_id="bulky_attacker",
+            source="_pick_role",
+            evidence=("coverage_gap",),
+            wanted_constraints=("improve_team_coverage",),
+            confidence="low",
+            provenance=("coverage_gap",),
+        )
     return None
 
 
@@ -203,6 +226,7 @@ def _refine_defaults(
     species = slot.species.value
     assert species is not None
 
+    need_ability = not slot.ability.locked and slot.ability.value is None
     need_moves = not slot.moveset.locked and slot.moveset.value is None
     need_item = not slot.item.locked and slot.item.value is None
     need_spread = not slot.spread.locked and slot.spread.value is None
@@ -210,9 +234,13 @@ def _refine_defaults(
 
     moves = list(slot.moveset.value) if slot.moveset.value else None
     item = slot.item.value
+    usage = (
+        featured_or_common_set(species, regulation=regulation)
+        if need_ability or need_moves or need_item
+        else None
+    )
     usage_missed = False
     if (need_moves or need_item) and (moves is None or item is None):
-        usage = featured_or_common_set(species, regulation=regulation)
         if not usage:
             usage_missed = True
             if need_moves:
@@ -233,6 +261,18 @@ def _refine_defaults(
 
     updates: dict[str, Attr[Any]] = {}
     spread = dict(slot.spread.value) if slot.spread.value else None
+    if need_ability and usage and usage.get("ability"):
+        updates["ability"] = Attr(
+            value=str(usage["ability"]),
+            locked=False,
+            reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
+        )
+    if need_nature and usage and usage.get("nature"):
+        updates["nature"] = Attr(
+            value=str(usage["nature"]),
+            locked=False,
+            reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
+        )
 
     # Usage-miss moveset can land without an item (assemble path).
     if need_moves and moves and usage_missed:
@@ -273,10 +313,34 @@ def _refine_defaults(
                         pass
                     else:
                         role_name = slot.role.value
-                        if role_name in _ROLE_ARCHETYPES:
-                            spread = dict(role_spread(role_name))  # type: ignore[arg-type]
+                        role = (
+                            role_name
+                            if role_name in _ROLE_ARCHETYPES
+                            else infer_role(moves, item)
+                        )
+                        choice = select_usage_spread(
+                            species,
+                            role,
+                            moves,
+                            regulation=regulation,
+                            threats=get_relevant_threats(state, n=SLOT_THREAT_N),
+                        )
+                        if choice:
+                            spread = dict(choice.spread)
+                            reason = ReasonRef(
+                                kind="tier2_heuristic", ref=choice.source
+                            )
+                            if need_nature and choice.nature:
+                                updates["nature"] = Attr(
+                                    value=choice.nature,
+                                    locked=False,
+                                    reason=reason,
+                                )
                         else:
-                            spread = dict(role_spread(infer_role(moves, item)))
+                            spread = dict(role_spread(role))  # type: ignore[arg-type]
+                            reason = ReasonRef(
+                                kind="tier2_heuristic", ref="tier3_role"
+                            )
 
             if need_moves and not usage_missed:
                 updates["moveset"] = Attr(value=moves, locked=False, reason=reason)
@@ -324,37 +388,6 @@ def _bias_choice_moveset(moves: list[str]) -> list[str]:
             continue
         out.append(m)
     return out or moves
-
-
-def effective_spe(
-    species: str,
-    spread: dict[str, int],
-    nature: str,
-    *,
-    scarf: bool = False,
-    level: int = 50,
-) -> int:
-    """Approx Champions Spe: floor((2*base+31+SP)*level/100+5) * nature * scarf.
-
-    SP stored in spread['spe'] as elsewhere (calc `evs` field).
-    """
-    snap = load_snapshot()
-    sid = to_id(species)
-    entry = (snap.get("species") or {}).get(sid) or {}
-    base = int((entry.get("base_stats") or {}).get("spe") or 0)
-    sp = int(spread.get("spe", 0))
-    # Map SP points loosely onto EV-like contribution (SP is 0–66 scale).
-    # ponytail: exact Champions algebra lives in calc; this is for Scarf tier checks.
-    ev_like = min(252, sp * 4)
-    raw = ((2 * base + 31 + ev_like // 4) * level) // 100 + 5
-    plus, minus = _NATURE_MODS.get(nature, ("", ""))
-    if plus == "spe":
-        raw = int(raw * 1.1)
-    elif minus == "spe":
-        raw = int(raw * 0.9)
-    if scarf:
-        raw = int(raw * 1.5)
-    return raw
 
 
 def scarf_clears_benchmarks(

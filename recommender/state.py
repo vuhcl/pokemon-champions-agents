@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass, field
 from typing import Annotated, Generic, Literal, NotRequired, Optional, TypeVar, TypedDict, Union
 
@@ -7,6 +9,8 @@ from langgraph.graph.message import add_messages
 
 from recommender.calc_client import FieldSpec, PokemonSpecOptional
 from recommender.matchup import MatchupResult, Severity
+from recommender.ranking import OwnershipMode
+from recommender.teammate_types import SharedTeammateQueryResult
 
 T = TypeVar("T")
 
@@ -90,7 +94,9 @@ class RejectionPayload(TypedDict, total=False):
     reason: str
 
 
-SlotAttrName = Literal["role", "species", "item", "moveset", "spread", "nature"]
+SlotAttrName = Literal[
+    "role", "species", "ability", "item", "moveset", "spread", "nature"
+]
 
 
 class LockPayload(TypedDict, total=False):
@@ -114,6 +120,17 @@ class RestorePayload(TypedDict):
     attr: SlotAttrName
 
 
+OwnershipModeSource = Literal["default", "user"]
+
+
+class BootstrapResponsePayload(TypedDict):
+    direction_text: str | None
+    anchor_text: str | None
+    pool_entries: tuple[str, ...] | None
+    delegated: bool
+    ownership_mode: OwnershipMode | None
+
+
 class SupersededEntry(TypedDict):
     slot_index: int
     attr: SlotAttrName
@@ -129,6 +146,181 @@ class PendingFlag(TypedDict):
     flag_kind: str
 
 
+PresentationSource = Literal[
+    "threat", "need", "both", "teammate", "mixed", "bootstrap"
+]
+CandidateEvidenceBasis = Literal[
+    "usage_backed",
+    "compendium_backed",
+    "mechanical_only",
+    "synthesized",
+    "teammate_backed",
+    "ownership_backed",
+]
+CandidateConfidence = Literal["high", "medium", "low"]
+CandidateBranch = Literal["threat", "need", "teammate"]
+CompositionFit = Literal[
+    "severe_duplication", "duplicative", "neutral", "complementary"
+]
+TeamCompletionPreference = Literal["attacker", "support", "balanced"]
+TargetRoleId = Literal[
+    "fast_attacker",
+    "bulky_attacker",
+    "bulky_pivot",
+    "fast_pivot",
+    "trick_room_sweeper",
+    "trick_room_setter",
+    "tailwind_setter",
+    "rain_setter",
+    "sun_setter",
+    "sand_setter",
+    "snow_setter",
+    "redirection",
+    "swords_dance_attacker",
+    "nasty_plot_attacker",
+]
+TargetRoleConfidence = Literal["high", "medium", "low"]
+TargetRoleSource = Literal["_pick_role", "support_need", "user_choice", "other"]
+
+
+@dataclass(frozen=True)
+class CandidateEvidence:
+    """Why one presented species entered the candidate set."""
+
+    basis: CandidateEvidenceBasis
+    confidence: CandidateConfidence
+    producer_name: str
+    evidence: tuple[str, ...] = ()
+    branch: CandidateBranch | None = None
+    origin_slot_index: int | None = None
+    origin_anchor_id: str | None = None
+    subject_id: str | None = None
+
+
+@dataclass(frozen=True)
+class CandidateDiscoveryError:
+    kind: Literal[
+        "calc_unavailable",
+        "calc_incomplete",
+        "no_candidates",
+        "unsupported_constraint",
+    ]
+    stage: Literal[
+        "constraint_validation",
+        "coverage",
+        "spof",
+        "candidate_verification",
+        "candidate_merge",
+    ]
+    message: str
+    retryable: bool
+    exception_type: str | None = None
+    status_code: int | None = None
+
+
+@dataclass(frozen=True)
+class TargetRoleDecision:
+    """Resolved, open-slot role intent kept separate from anchor classification."""
+
+    role_id: TargetRoleId
+    source: TargetRoleSource
+    evidence: tuple[str, ...] = ()
+    needed_constraints: tuple[str, ...] = ()
+    wanted_constraints: tuple[str, ...] = ()
+    confidence: TargetRoleConfidence = "medium"
+    ambiguity: tuple[TargetRoleId, ...] = ()
+    provenance: tuple[str, ...] = ()
+    producer_name: str | None = None
+
+
+@dataclass(frozen=True)
+class UnresolvedTargetRoleDecision:
+    """A role choice that must not be silently collapsed to one option."""
+
+    reason: Literal["ambiguous_speed_control", "incompatible_support_roles"]
+    ambiguity: tuple[TargetRoleId, ...]
+    source: TargetRoleSource
+    evidence: tuple[str, ...] = ()
+    needed_constraints: tuple[str, ...] = ()
+    wanted_constraints: tuple[str, ...] = ()
+    confidence: Literal["unresolved"] = "unresolved"
+    provenance: tuple[str, ...] = ()
+    producer_name: str | None = None
+
+
+TargetRoleResult = TargetRoleDecision | UnresolvedTargetRoleDecision
+
+
+class PendingPresentationOption(TypedDict):
+    species: str
+    source: PresentationSource
+    target_role_decision: NotRequired[TargetRoleResult]
+    evidence: NotRequired[tuple[CandidateEvidence, ...]]
+    direction_label: NotRequired[str]
+    strategic_role_id: NotRequired[str]
+    primary_function: NotRequired[Literal["offense", "support", "unknown"]]
+    mechanism_ids: NotRequired[tuple[str, ...]]
+
+
+class PendingPresentation(TypedDict, total=False):
+    schema_version: int
+    kind: Literal[
+        "candidate_selection",
+        "full_build_confirmation",
+        "completion_preference",
+        "bootstrap_intake",
+    ]
+    slot_index: int
+    options: list[PendingPresentationOption]
+    preference_options: tuple[TeamCompletionPreference, ...]
+    provisional_fingerprint: str
+    prompt_text: str
+    existing_pool_labels: tuple[str, ...]
+    notices: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class PendingSlotIntent:
+    schema_version: int
+    slot_index: int
+    species: str
+    target_role_decision: TargetRoleResult | None
+    source: PresentationSource
+    evidence: tuple[CandidateEvidence, ...] = ()
+    base_slot_fingerprint: str = ""
+    stage: Literal["candidate_selected"] = "candidate_selected"
+
+
+@dataclass(frozen=True)
+class ProvisionalSlot:
+    schema_version: int
+    slot_index: int
+    target_role_decision: TargetRoleDecision
+    species: str
+    ability: str
+    item: str
+    moves: tuple[str, str, str, str]
+    nature: str
+    spread: tuple[tuple[str, int], ...]
+    base_slot_fingerprint: str = ""
+    fingerprint: str = ""
+
+    @property
+    def role(self) -> TargetRoleId:
+        return self.target_role_decision.role_id
+
+    def spread_dict(self) -> dict[str, int]:
+        return dict(self.spread)
+
+
+@dataclass(frozen=True)
+class UnresolvedSlotRefinement:
+    schema_version: int
+    intent: PendingSlotIntent
+    unresolved_fields: tuple[str, ...]
+    reason: Literal["incomplete_build", "unresolved_target_role"] = "incomplete_build"
+
+
 TurnPayload = Union[
     ConstraintPayload,
     RejectionPayload,
@@ -136,6 +328,7 @@ TurnPayload = Union[
     ArchetypeChangePayload,
     ResetPayload,
     RestorePayload,
+    BootstrapResponsePayload,
 ]
 
 
@@ -150,6 +343,7 @@ class VerificationEntry(TypedDict):
 class Slot:
     role: Attr[str] = field(default_factory=Attr)
     species: Attr[str] = field(default_factory=Attr)
+    ability: Attr[str] = field(default_factory=Attr)
     item: Attr[str] = field(default_factory=Attr)
     moveset: Attr[list[str]] = field(default_factory=Attr)
     spread: Attr[dict[str, int]] = field(default_factory=Attr)
@@ -221,6 +415,26 @@ class TeamReviewResult:
     threats: list[ThreatCandidate]
     coverage: list[ThreatCoverageResult]
     spofs: list[SPOFFinding]
+    status: Literal["available", "unavailable"] = "available"
+    error: CandidateDiscoveryError | None = None
+
+
+ThreatObjectiveKind = Literal["uncovered", "spof"]
+
+
+@dataclass(frozen=True)
+class TeamThreatObjectiveRow:
+    threat: ThreatCandidate
+    kinds: frozenset[ThreatObjectiveKind]
+    spof_slot_indices: tuple[int, ...] = ()
+    baseline_outcome: MatchupResult | None = None
+
+
+@dataclass(frozen=True)
+class TeamThreatDiscovery:
+    status: Literal["available", "unavailable"]
+    candidates: tuple[ThreatCounterCandidate, ...]
+    error: CandidateDiscoveryError | None = None
 
 
 class RecommenderState(TypedDict):
@@ -243,13 +457,44 @@ class RecommenderState(TypedDict):
     turn: NotRequired[int]
     superseded: NotRequired[list[SupersededEntry]]
     pending_flags: NotRequired[list[PendingFlag]]
+    pending_presentation: NotRequired[Optional[PendingPresentation]]
+    pending_slot_intent: NotRequired[Optional[PendingSlotIntent]]
+    provisional_slot: NotRequired[Optional[ProvisionalSlot]]
+    provisional_refinement: NotRequired[Optional[UnresolvedSlotRefinement]]
+    slot_commit_error: NotRequired[Optional[str]]
     last_team_review: NotRequired[Optional[TeamReviewResult]]
+    coverage: NotRequired[list[ThreatCoverageResult]]
+    spofs: NotRequired[list[SPOFFinding]]
+    shared_teammates: NotRequired[Optional["SharedTeammateQueryResult"]]
+    ownership_mode: NotRequired["OwnershipMode"]
+    ownership_mode_source: NotRequired[OwnershipModeSource]
+    bootstrap_intake_complete: NotRequired[bool]
+    bootstrap_response: NotRequired[Optional[BootstrapResponsePayload]]
+    bootstrap_intake_error: NotRequired[Optional[str]]
+    unresolved_pool_entries: NotRequired[tuple[str, ...]]
+    team_completion_preference: NotRequired[Optional[TeamCompletionPreference]]
+    candidate_discovery_error: NotRequired[Optional[CandidateDiscoveryError]]
 
 
 def all_locked(slot: Slot) -> bool:
     return all(
-        getattr(slot, f).locked for f in ("role", "species", "item", "moveset", "spread")
+        getattr(slot, f).locked
+        for f in ("role", "species", "ability", "item", "moveset", "spread", "nature")
     )
+
+
+def slot_fingerprint(slot: Slot) -> str:
+    """Stable value/lock fingerprint used to reject stale full-slot commits."""
+    payload = {
+        name: {
+            "value": getattr(slot, name).value,
+            "locked": getattr(slot, name).locked,
+        }
+        for name in ("role", "species", "ability", "item", "moveset", "spread", "nature")
+    }
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
 
 
 def core(state: RecommenderState) -> list[Slot]:

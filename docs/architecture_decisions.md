@@ -313,6 +313,63 @@ already-verified source, at construction time only.
 
 ---
 
+### ADR-014 — Amendment 2026-08-08a
+
+Second separately-confirmed runtime exception: tier-2 spread reasoning may fetch structured
+per-species spread variants when bundled usage data has no coverage.
+
+Surfaced while implementing select_usage_spread: the offline usage snapshot's top-species
+cap leaves otherwise legal species without the real spread variants needed for contextual
+tier-2 selection.
+
+This follows the purpose/mechanism distinction established by Amendment 2026-08-07a. The
+runtime exception is implemented through the dedicated fetch_live_spreads mechanism, using
+known MunchStats/CBD endpoints, known structured schemas, and deterministic parsing. It
+does not call the construction-scoped usage_cbd.py or usage_showdown.py fetchers and does
+not authorize free-form or model-directed search.
+
+The fetch occurs only when the species has no offline usage row. Failure, unsupported
+regulation, or unusable data returns no candidates, allowing explicit fallback to tier-3
+role_spread.
+
+Status: Adds a second, separately justified runtime exception for tier-2 spread evidence
+only. Tier-1 lookup_live_build, construction-fetcher restrictions, and ADR-014's general
+prohibition on runtime web search remain unchanged.
+
+---
+
+### ADR-014 — Amendment 2026-08-08b
+
+**Structured runtime teammate lookup exception.**
+
+Exact-form teammate queries may fetch one structured MunchStats species record when the
+bundled snapshot has no usable teammate record (offline row absent — matching the existing
+`fetch_live_spreads` trigger condition exactly; a malformed-but-present offline row returns
+explicit unavailable evidence, it does not trigger live fetch). No live CBD fetch is
+authorized for teammate queries — CBD fallback reads only the existing offline/bundled
+record.
+
+This extends the existing per-species runtime exception from spread evidence to teammate
+co-occurrence evidence, using the same `recommender/usage_live.py` mechanism: fixed
+regulation/month/rating mappings, known endpoints, deterministic parsing, cached misses, and
+no model-directed or free-form search. Construction-scoped extractors remain unavailable to
+runtime paths.
+
+MunchStats preserves exact-form IDs and ladder-weighted conditional percentages. CBD labels
+that cannot establish an exact form remain explicitly ambiguous or unresolved; missing
+percentages are not inferred.
+
+This exception applies only to callable individual queries and shared signals during the
+`multi_locked` phase. Complete-roster teammate review and candidate-ranking consumption
+remain out of scope — `complete` phase publishes `shared_teammates: None` without querying.
+
+**Status:** Broadens the bounded structured per-species runtime exception to include
+exact-form teammate co-occurrence, MunchStats live fetch only, gated strictly on offline-row
+absence. CBD fallback is offline-only, not a second live exception. ADR-014's general
+prohibition on runtime web search remains unchanged.
+
+---
+
 ## ADR-004: RL policy — retrain, do not reuse
 **Decision:** Train a new RL policy specifically for Pokémon Champions and the current regulation, rather than adapting the ~6-year-old SARSA policy from the original Pokémon Battler project.
 **Alternatives considered:** Fine-tune/adapt the old policy; use the old policy's reward structure unchanged with new state representation.
@@ -3610,3 +3667,425 @@ gap, empty list); `defensive_coverage` still Compendium-deferred.
 **Status:** Documents shipped slot_fill behavior (2026-08-03). Does not build Role
 Compendium or expand `ABILITY_TO_FIELD` for Hadron/Orichalcum.
 
+### ADR-023 — Amendment 2026-08-08a
+
+**Terminal procedure corrected: candidate acceptance no longer commits species before the
+complete build is confirmed.**
+
+**Decision:** Split ADR-023's original terminal chain into two stages. Candidate acceptance
+now produces `PendingSlotIntent` (cross-turn, pre-commit) rather than calling `apply_lock`
+directly. That intent is built into `ProvisionalSlot` — which requires all seven complete-
+build fields (species, ability, item, moveset, nature, spread, role) or returns a structured
+unresolved result rather than a partial one — then presented for confirmation, then
+committed via a new atomic full-slot lock that prevalidates everything (fingerprint/stage
+consistency, role/species agreement, seven-field completeness, exactly four moves, spread
+bounds/budget, legality/item clause, simultaneous conflicts) and either locks every field
+together or changes nothing on failure. `_apply_locks_batch` is left unchanged and remains
+the correct path for ordinary partial steering (single-attribute constraint/lock updates
+mid-conversation) — this amendment adds a second, stricter commit path, it does not replace
+the first.
+
+**Alternatives considered:** Keep the original immediate-commit-then-refine chain and instead
+try to make refinement itself more reliable, so a bad commit becomes less likely without
+restructuring the terminal sequence. Alternatively, make `_apply_locks_batch` itself
+transactional/all-or-nothing and reuse it for this path instead of building a separate one.
+
+**Why:** ADR-023's original chain (present -> receive -> lock -> hand off to refinement)
+committed the species via `apply_lock` *before* refinement ran, on the assumption that
+refinement was a reliable, always-complete hand-off. A real slot-fill discovery session
+(Cursor role-play, 2026-08-08) disproved that assumption directly: Kingambit's build locked
+with a missing nature despite usage evidence supplying one, because nothing gated commitment
+on refinement actually completing. Improving refinement's reliability alone doesn't fix the
+structural problem — an incomplete or wrong build could still slip through a future
+refinement bug the same way, because nothing in the terminal chain *required* completeness
+before commit. Reusing `_apply_locks_batch` was rejected because it is deliberately
+conflict-skipping (it commits the conflict-free remainder and emits pending flags for the
+rest) — correct behavior for incremental partial steering, wrong behavior for a "this
+candidate is now the confirmed slot" commitment, which needs all-or-nothing semantics.
+
+**Status:** Implemented and verified (431 tests passing, up from 385) as part of the
+anchor-role/target-role pipeline (Tracks A-C, 2026-08-08). Does not affect `_apply_locks_batch`
+or ordinary partial-steering behavior, confirmed by unchanged passing tests on that path.
+
+---
+
+### ADR-023 — Amendment 2026-08-08b
+
+**Compendium-first need resolution and per-candidate evidence provenance.**
+
+**Decision:** For support-need categories with a mapped Role Compendium category (`trick_room`
+→ Trick Room Setter; `condition_setter` → Weather Setter per trigger label among Rain/Sun/
+Sand/Snow; `fake_out_protection` → Redirection, as partial coverage alongside existing
+mechanical avenues), candidate resolution now checks the compendium first via a new
+`role_category_evidence` reader, rather than dispatching straight to raw legal-learner search.
+Categories with no current compendium mapping (`tailwind`, `taunt_disruption`,
+`healing_cleric`, `screens`, `stat_lowering_partner`, `defensive_coverage`) are unchanged —
+this is "compendium first where one exists," not a blanket requirement. A rejection under one
+role/condition/mechanism claim (e.g. rejected as a Rain setter) does not suppress a separately
+supported claim for the same species (e.g. admitted as a Sun setter); rejection scope matches
+the specific claim it was evaluated against, not the species globally.
+
+Each presented candidate now carries typed `CandidateEvidence` (basis: `usage_backed` /
+`compendium_backed` / `mechanical_only` / `synthesized`; confidence: `high` / `medium` /
+`low`), threaded unchanged through `SlotFillPresentation` → `PendingPresentationOption` →
+`PendingSlotIntent`. `AnchorRoleDecision` is explicitly NOT copied into this evidence — it
+classifies the locked anchor, not the discovered candidate; candidate provenance is new,
+purpose-built evidence, not a repurposed anchor-classification struct.
+
+`_sort_annotated`'s ranking is corrected: compendium confidence is now the **leading** sort
+key (exact/high-confidence compendium → species/medium-confidence compendium → no compendium
+evidence, each tier then ordered by the existing matched-needs/verified-score/usage-rank
+keys), bounded by an **active-need invariant** — compendium evidence with zero matching needs
+is rejected by assertion and cannot exist as a candidate state, not merely deprioritized by
+sort order. Above that bound, compendium priority is unconditional and intentional: pre-
+verified compendium evidence outranks raw usage/threat signal even when the raw-signal
+candidate would win on every other existing criterion.
+
+**Alternatives considered:** Rely on stable-sort insertion order (compendium-admitted rows
+appended before mechanical extras) to produce compendium-first ranking, rather than an
+explicit leading sort key. Copy `AnchorRoleDecision`'s evidence directly into presented-
+candidate provenance instead of building a separate `CandidateEvidence` type. Make compendium
+priority conditional on also being competitive on existing criteria, rather than unconditional
+above the active-need bar.
+
+**Why:** The insertion-order approach was caught in plan review, not after implementation —
+`_sort_annotated`'s actual keys (matched-need count, threat-verification score, usage rank)
+are primary sort criteria, not tie-breaks, so stable-sort insertion order only preserved
+compendium-first behavior among candidates already tied on all three; a mechanical-only
+candidate with a stronger usage rank could otherwise outrank a compendium-admitted one,
+silently violating the intended guarantee. Verified by an adversarial test
+(`test_compendium_priority_beats_all_existing_sort_pressure`) constructing exactly that
+case. `AnchorRoleDecision` reuse was rejected because it answers a different question (what
+is the anchor's role) than candidate provenance needs (why is this specific species being
+suggested) — conflating them would misattribute anchor-classification confidence to
+candidates the anchor decision was never evaluated against. Unconditional-above-the-bound
+priority was made explicit, not left implicit in key ordering, because compendium membership
+is pre-verified evidence (consistent with ADR-021's verification-gating principle) and should
+outrank raw signal on that basis — but the active-need bound was necessary because a
+compendium member with zero relevance to what's actually being searched for has no business
+jumping the queue regardless of how verified its unrelated membership is. Verified by
+`test_compendium_priority_requires_an_active_matching_need`, which enforces the bound as a
+construction-time invariant (an inadmissible candidate state cannot be built) rather than a
+ranking outcome (a lower-priority candidate that could still slip through under different
+sort pressure) — a stronger guarantee than what was originally scoped.
+
+**Status:** Implemented and verified (450 tests passing, up from 440, 5 skipped; live dispatch
+smoke test passed; no linter errors). Plan file left unmodified by implementation, per this
+project's standing documentation-hygiene practice. Deliberately deferred, not oversights:
+compendium categories for `tailwind`/`taunt_disruption`/`healing_cleric`/`screens`/
+`stat_lowering_partner`/`defensive_coverage` (no compendium exists yet for these); Psychic
+Terrain under `fake_out_protection` (current resolver doesn't implement it); new compendium
+construction of any kind (out of scope for this task).
+
+---
+
+## ADR-024: Anchor-role classification is a separate producer from target-role decision
+
+**Decision:** `RoleShapeContext` (which describes an anchor's strategic role shape, feeding
+`query_support_needs`) and `_pick_role`'s output (which describes what the *open slot* should
+become) are produced by two separate, non-competing mechanisms — not one "role decision"
+concept applied at two points. A new producer, `classify_anchor_role -> AnchorRoleDecision`,
+classifies an existing anchor's strategic role, kit evidence, and mechanism-level execution
+detail; `_pick_role`, redesigned, stays scoped to producing `TargetRoleDecision` for the open
+slot only. `AnchorRoleDecision` feeds a narrowed `RoleShapeContext` (exactly three fields:
+`primary_function`, `tankiness`, `requires_setup_turn`) via a separate, narrow projection
+function (`derive_role_shape_context`) that performs no role-identity reasoning of its own.
+
+Supporting design, load-bearing to this decision rather than separable from it:
+- **Mechanism evidence uses a three-tier model** (`needed` / `wanted` / `secondary`) per
+  mechanic (e.g. Sucker Punch, Drizzle, Tailwind), each tagged with activation mode,
+  interruptibility, and whether the anchor self-supplies the effect or expects a teammate.
+  `requires_setup_turn` (renamed from `setup_dependent`) derives only from a present
+  `needed`/`wanted` mechanism that is itself an exposed, interruptible action the anchor must
+  complete before its own payoff — never from a role name, a species-level compendium
+  membership the active build doesn't use, or condition-dependence on a teammate-supplied
+  effect. `secondary_role_ids` is sourced from `needed`/`wanted`-tier mechanisms supporting a
+  distinct role from the primary, not from incidental `secondary`-tier ones.
+- **`match_status`, `archetype_id`, and `partial_signals` are removed from `RoleShapeContext`.**
+  Match quality moves to `AnchorRoleDecision` as diagnostic classification metadata, never a
+  routing shortcut — a clean role/build match does not imply raw support-needs analysis can
+  be skipped (disproved directly by Archaludon, whose cleanly-classified build still surfaced
+  real support needs). `archetype_id`/`partial_signals` had zero production consumers and
+  zero production constructors, confirmed by direct repository search on two separate
+  occasions.
+
+**Alternatives considered:** Redesign `_pick_role` alone to handle both the anchor's shape and
+the open slot's target role, on the theory that "role decision" is one concept applied twice.
+Alternatively, keep `RoleShapeContext`'s original six fields and just fix the one field
+(`setup_dependent`) that was observed to produce a wrong value.
+
+**Why:** The single-producer framing was the actual root cause of a real, observed bug, not
+just an abstraction preference. Reconstructing the Kingambit slot-fill transcript found three
+simultaneously-present, non-interchangeable role concepts for one Pokémon — `infer_role`'s
+kit inference (`bulky_attacker`), the user's stated strategic identity (`trick_room_sweeper`),
+and the eventual partner's target role (`trick_room_setter`) — and a single unqualified "role
+decision" cannot hold all three without collapsing distinctions that matter. The originally-
+guessed `RoleShapeContext` (built by treating the strategic label as sufficient) set
+`setup_dependent=True` and produced two fabricated needs (Fake Out protection, Taunt
+disruption) that the anchor's actual kit (no setup move) didn't warrant. Correcting only that
+one field, without separating anchor-shape classification from target-role decision as
+distinct producers, would have fixed this one instance without fixing the structural cause —
+the same class of conflation could recur with a different anchor/role pair. Removing
+`match_status` as a routing signal specifically was necessary because the "clean means skip
+analysis" assumption, while intuitive, was directly falsified by real execution against a
+second anchor (Archaludon) rather than assumed correct from the Kingambit case alone.
+
+**Status:** Implemented and verified (Tracks A-C, 2026-08-08) — `AnchorRoleDecision`,
+`classify_anchor_role`, `derive_role_shape_context`, and the narrowed `RoleShapeContext` are
+shipped and tested against Kingambit, Archaludon, Pelipper, and Farigiraf as named acceptance
+cases. Ability persistence (`Slot.ability`, required for `all_locked()`) was a prerequisite
+sequenced before this work, since several role identities here (Pelipper/Drizzle,
+Archaludon/Stamina) are ability-defining and building the classifier on an unverifiable
+ability field would have baked that gap into every derived decision. Deliberately deferred,
+not resolved by this ADR: a permanent canonical strategic-role taxonomy (`role_id` remains an
+opaque identifier, not an enumerated vocabulary); move-derived condition dependence (e.g.
+Electro Shot -> Rain), explicitly scoped out to avoid drift beyond what this decision
+required.
+
+---
+
+## ADR-025: Team-phase routing — confirmed-lock-count phases with a per-lock recompute
+trigger, not a fixed threshold
+
+**Decision:** Route slot-fill behavior through four phases derived purely from the count of
+fully confirmed (`all_locked`) slots — `empty` (0), `single_locked` (1), `multi_locked` (2+,
+single bucket), `complete` (all slots locked) — via an explicit `route_team_phase` graph node,
+rather than a single undifferentiated proposal sequence that never changes as the team fills.
+Team-wide signals (coverage, SPOF) are recomputed on every entry to `multi_locked`, not cached
+at phase entry and not gated behind any fixed lock-count threshold beyond the 2-lock floor.
+Each phase gets exactly the behavior its available evidence supports — `single_locked`
+dispatches to the real, tested Track C anchored-discovery chain; `multi_locked` gets real
+signal recomputation but not full multi-member candidate ranking (shared-teammate
+intersection, condition resilience, and selected-four evidence remain unavailable and are
+explicitly not simulated); `empty` and `complete` get real routing to what already exists
+(`bootstrap_direction` as a stub, `generate_team_review` made automatic) without inventing
+capability that doesn't exist yet.
+
+**Alternatives considered:** Keep the pre-existing single fixed proposal path regardless of
+team fill state. Use a fixed "switch modes at N locked" threshold — the original slot-fill
+discovery report proposed "roughly three locked" as the anchor-to-team-wide transition point.
+Cache team-wide signals once at phase entry rather than recomputing on every lock.
+
+**Why:** A real, observed failure (Cursor slot-fill discovery role-play, Archaludon scenario)
+showed the actual bug was not a threshold problem — the orchestrator kept relying on
+Archaludon's stale teammate list after team composition had already changed, producing a
+redundant Rain-offense pick (Basculegion) once Mega Swampert already filled that role. A
+targeted follow-up check against the actual role-play transcripts (not the discovery report's
+own summary of them) confirmed shared-teammate and coverage signals were already computable
+and were correctly used at exactly 2 locked members (Archaludon + Pelipper), one full lock
+before the report's proposed 3-lock boundary — meaning "roughly three locked" overstated the
+importance of the count itself. The real fix is a recompute trigger (refresh team-wide signals
+on every lock), not a boundary at any particular N. A second transcript (mono-Fairy, six
+slots) confirmed no orchestrator behavior changes at any count boundary past 2 locked (checked
+explicitly at 3/4/5/6) — supporting one `multi_locked` bucket rather than finer count-based
+phases — while six-lock terminal review was confirmed materially distinct in kind (validating
+a finished roster, not generating a next candidate), justifying `complete` as its own phase
+rather than folding it into `multi_locked`.
+
+**Status:** Implemented and verified (`recommender/nodes.py`, `recommender/graph.py`;
+`tests/recommender/test_team_phase_routing.py`; 440 tests passing, up from 431, 5 skipped).
+Deliberately deferred, not oversights: `empty`'s combined direction+available-pool interaction
+(new UX design, not a missing backend capability — left as a documented stub); `single_locked`'s
+owned-first propagation, target-role Compendium dispatch, and complete target-role resolution
+for threat-only candidates; `multi_locked`'s shared-teammate intersection, condition
+resilience, role-duplication scoring, and selected-four evidence, none of which have a
+built mechanism yet. The labeled static fallback for an unavailable calc service remains a
+separate, unresolved gap — coverage/SPOF still fail hard, unchanged by this pass.
+
+---
+
+## ADR-026: Multi-locked candidate discovery/ranking — team-portfolio evidence aggregation,
+not a generalized single-anchor chain
+
+**Decision:** For a team with 2+ fully locked members and an open slot, candidate discovery
+and ranking is a genuinely different operation from `single_locked`'s anchor-relative chain
+(Track C) — not a parameterized generalization of it. `multi_locked` collects evidence
+independently from every locked anchor before any global cut, derives a team-wide threat
+objective from coverage/SPOF gaps rather than concatenating per-anchor threat searches, adds
+`shared_teammates` as a bounded candidate-generation source, and ranks candidates through a
+severity-aware staged comparison rather than a single scalar or opaque weighted sum.
+
+Supporting design, each load-bearing to this decision rather than separable from it:
+
+- **Aggregation without anchor privilege.** Every locked anchor runs through the same
+  `resolve_anchor_build -> classify_anchor_role -> derive_role_shape_context ->
+  query_support_needs` sequence, with no "primary" or first-listed anchor. Cross-anchor
+  breadth is measured by distinct anchors/needs supported, never raw evidence-row count —
+  otherwise a verbose anchor emitting several correlated needs could dominate ranking despite
+  every anchor being queried exactly once.
+- **Team threat objective, not per-anchor concatenation.** The objective is built from
+  coverage rows with no covering slot plus threats named in SPOF findings, deduplicated by
+  normalized identity — then the full candidate search runs against that objective, with the
+  tractable cut happening only after every candidate is evaluated against the complete
+  objective. Independently querying `query_threat_counters` per anchor and merging top-N
+  outputs was rejected: each invocation would locally cut before the team could observe
+  cross-anchor value, preserving the same anchor-privilege problem the aggregation is meant
+  to eliminate.
+- **`shared_teammates` as a candidate source, not merely a ranking modifier.** A
+  modifier-only design couldn't surface a shared teammate absent from every threat/support
+  branch, and the original flow-discovery report explicitly called for teammate/cohesion
+  candidates as their own evidence source. Bounded by design: only exact-attribution rows
+  admit a candidate; unavailable, empty, or ambiguous evidence adds no candidate and no
+  penalty; a shared-only candidate receives no automatic rank boost and must still clear
+  every other ranking stage.
+- **Severity-aware staged ranking, resolved through two rounds of correction, not the
+  original design's binary ordering.** Team-threat-improvement was decomposed into severity
+  bands (decisive/costly/toss-up/conditional/SPOF) with composition fit inserted between the
+  high- and low-severity bands — so a severe composition problem (e.g. a second redundant
+  Rain attacker) can outrank a *minor* threat gain, while a decisive or costly verified
+  closure still wins even against a compositionally redundant candidate. `clean_kill` and
+  `intentional_non_ko_answer` are treated as equally valid closures at matching severity,
+  directly per ADR-015's own text ("a legitimate, deliberately-built answer type, not a
+  lesser result") — verified this doesn't conflict with `query_threat_counters`'s existing
+  `verified_score` scalar, since that scalar's own arithmetic doesn't actually implement
+  strict outcome-then-severity ordering (a costly clean kill ties a decisive non-KO; a
+  toss-up clean kill scores below a decisive non-KO) — it's a caller-local heuristic for
+  single-matchup scoring, not a repository-wide invariant this task was obligated to match.
+- **Usage as evidence-confidence, not popularity, per ADR-015.** A standalone
+  usage-popularity tiebreak (the original design document's stage 7) was removed as a direct
+  instance of what ADR-015 Amendment 2026-07-29a already prohibits — "real teams do X" as
+  quality evidence independent of anything verified. `usage_backed` survives as one tier of
+  `CandidateEvidence.basis`, but only when tied to a specific confirmed claim
+  (`commitment_pct` — does this species carry this specific move, not how popular the
+  species is overall) — a different, permitted claim under the same ADR's "discovery and
+  legality confirmation" carve-out, and the same commitment metric this project has depended
+  on since its original `commitment_rate` sourcing decision. Threat-candidate evidence
+  retains `usage_rank`, reversed after being incorrectly removed during implementation —
+  confirmed via prior-session history as deliberate, load-bearing design (`get_relevant_
+  threats`' usage-based prioritization and `query_threat_counters`' deterministic
+  merge-tiebreak), not an incidental detail available for removal.
+- **`TargetRoleDecision` stays candidate-specific, never a context-level default.** A
+  candidate satisfying incompatible support roles gets an explicit `UnresolvedTargetRoleDecision`
+  rather than a forced pick; threat-only and shared-only candidates retain no target role.
+  Same principle Track C already established for threat-only alternatives, extended to the
+  multi-anchor case.
+- **Calc failure is structurally honest, never silently degraded.** Transport failures
+  (`CalcClientError`) and protocol/evidence failures on partial batches (`MatchupEvidenceError`,
+  covering malformed batches, wrong result counts, and per-row error responses previously at
+  risk of being silently treated as `no_answer`) both map to a structured
+  `CandidateDiscoveryError` and stop discovery without presenting a partial or falsely-
+  authoritative ranking. No static/legacy matchup fallback runs in this path.
+
+**Alternatives considered:** Generalize Track C directly by looping its single-anchor chain
+over each locked member and merging outputs afterward. Use a single opaque weighted-sum
+ranking score instead of staged lexicographic comparison. Reuse `query_threat_counters`'s
+existing `verified_score` scalar directly for portfolio-level ranking. Keep the original
+design document's strict team-threat-improvement-before-composition-fit ordering.
+
+**Why:** A naive per-anchor loop-and-merge would still let whichever anchor's local search
+runs first (or has more emitted needs) dominate the combined pool — the exact anchor-privilege
+failure this design exists to eliminate, just relocated rather than fixed. An opaque weighted
+sum would hide exactly the kind of policy question this task had to resolve explicitly
+multiple times (composition-vs-threat-severity precedence, outcome-vs-severity precedence) —
+staged comparison keeps each policy decision auditable and independently testable, consistent
+with this project's standing preference for documented, defensible tiered/lexicographic rules
+over unexplained scalar combinations (the same discipline behind `rank_and_cut`'s tiered
+admission and the compendium-priority leading-key correction). `verified_score` doesn't
+transfer to portfolio ranking because it scores one candidate against one matchup, while
+multi-locked counts verified closures across an entire team-threat objective — there's no
+single scalar to reuse, and the aggregation itself is the actual missing capability.
+
+**Status:** Implemented and verified (513 tests passing, up from 385 at the start of this
+session's slot-fill arc; 5 skipped, unrelated live-service tests). Went through two
+substantive correction rounds during design/plan review (ranking-order decomposition;
+import-cycle verification gate that caught a real second-order cycle and a LangGraph
+`get_type_hints` runtime requirement) and two real corrections during confirmation
+(usage-evidence conflation between threat and support candidates; a near-miss removal of
+deliberate prior-session `usage_rank` design, reversed after direct verification). Deliberately
+deferred, not oversights: condition-resilience assessment; selected-four/bring-four modeling;
+canonical name/form resolution; calc-unavailable static fallback; breadth-versus-severity
+aggregate policy (one decisive closure currently outranks arbitrarily many costly closures,
+explicitly left as a separate, unresolved policy question); target-role vocabulary completion
+beyond shipped support-derived cases.
+
+---
+
+## ADR-027: Empty-team bootstrap — LLM-backed free-form extraction behind a
+deterministic-verification boundary; ADR-013's first real runtime consumer
+
+**Decision:** For the `empty` team phase's combined direction/available-pool intake, use an
+injected, model-agnostic LLM parser (`bootstrap_intake_parser`) to extract a draft payload
+(`direction_text`, `anchor_text`, `pool_entries`, `delegated`, optional `ownership_mode`) from
+free-form user text — the only pending-presentation kind in the graph that does this. The
+other three existing closed-set kinds (candidate selection, full-build confirmation,
+completion preference) remain fully deterministic, since they match against a small displayed
+option set rather than open-ended text. Everything the LLM extracts is treated strictly as a
+draft: legality, exact species identity, ownership, strategic-role evidence, and ranking all
+remain deterministic and tool-verified downstream, with no extracted field trusted as fact on
+its own.
+
+Confirmed via direct investigation, not assumed: this is genuinely the first place the
+runtime graph invokes a live LLM at all. Two candidate "existing seams" were checked and
+ruled out — `classify_pending` is fully deterministic (tests monkeypatch it), and
+`KitInteractionProposer` is an unused-at-runtime callable type with no live caller. No
+prior-existing provider abstraction was bypassed or duplicated.
+
+**Failure handling is fail-closed and non-mutating.** A missing parser, provider exception,
+or malformed/inconsistent model output retains the intake presentation unchanged, mutates no
+pool or bootstrap state, and surfaces an observable bootstrap-specific error — verified by a
+named test asserting the full unchanged-state list (presentation, pool, completion flag,
+saved response, unresolved diagnostics) after each of the three failure modes.
+
+**Deterministic mapping stays strictly separate from extraction, at two levels:**
+- Direction text extracted by the LLM is matched against a small, explicit, longest-match-first
+  phrase table mapping to known strategic labels (weather names, "X offense," Redirection/
+  Follow Me/Rage Powder, Trick Room setter/sweeper, Tailwind, Swords Dance, Nasty Plot,
+  fast/bulky attacker, fast/bulky pivot) — deterministic pattern matching, not a second LLM
+  judgment call. An unmappable or opaque direction re-prompts with clarification rather than
+  guessing, verified by a test that directly patches `_pick_role` and asserts it is never
+  called — a structural guard against the exact failure this whole session's slot-fill arc
+  traces back to (a wrongly-guessed role shape producing fabricated downstream needs).
+- `TargetRoleDecision` construction itself has two explicit, ordered evidence tiers: Track 1's
+  exact strategic-evidence producer (mechanism or Compendium evidence, high confidence) runs
+  first and wins whenever it returns a result; a coarse `kit_role`-to-`TargetRoleId` match
+  (medium confidence) only fires when the exact producer returns `None`. A third,
+  mechanism-based fallback was proposed during plan review and explicitly removed for
+  duplicating the exact producer's own logic rather than kept as harmless redundancy.
+
+**Alternatives considered:** A deterministic bounded grammar for the combined intake response.
+Requiring callers to submit an already-structured payload instead of free text. Reusing
+`_pick_role`'s existing coarse-fallback path for unmapped/ambiguous directions instead of a
+dedicated re-prompt.
+
+**Why:** A bounded grammar would need to already solve species-name recognition from free
+text to handle the pool half of the intake — functionally most of canonical name resolution,
+which is separately and deliberately deferred. A structured-payload requirement would abandon
+the actual point of a combined intake (respond naturally in one message) rather than solve the
+parsing problem. Reusing `_pick_role`'s fallback for unmapped directions was rejected because
+it's the generic, low-confidence default this entire task exists to route around — bootstrap
+should surface "I couldn't map that" rather than silently substitute a coarse guess.
+
+**Status:** Implemented in two sequential tracks. **Track 1** (prerequisite, target-role
+vocabulary expansion): added `rain_setter`/`sun_setter`/`sand_setter`/`snow_setter`/
+`redirection`/`swords_dance_attacker`/`nasty_plot_attacker` to `TargetRoleId`'s domain
+(previously seven values, now fourteen) plus the exact-evidence producer
+(`target_role_from_strategic_evidence`), justified by direct measurement — roughly one-third
+of realistic bootstrap-presented directions would otherwise dead-end on selection,
+disproportionately the mechanically-distinct options the alternative-diversity rule is
+specifically designed to surface. Verified via four real-species injection tests (Sinistcha/
+redirection, Pelipper/rain_setter, Tyranitar/sand_setter, Gholdengo/nasty_plot_attacker,
+each reaching a complete `ProvisionalSlot`) and an all-14-role round-trip test through
+selection/refinement/commit. **Track 2** (full bootstrap implementation): combined direction+
+pool intake, exact-ID-only pool validation with unresolved labels surfaced (never guessed —
+`Eternal Floette` stays unresolved, `Floette-Eternal` is accepted), ownership-mode derivation
+distinguishing default-`off` from user-requested-`off`, deterministic diverse direction
+discovery (`query_by_usage` seed set -> `resolve_anchor_build`/`classify_anchor_role` ->
+Track 1's evidence tiers), four-way separated `CandidateEvidence` provenance
+(usage/ownership/compendium/policy, never collapsed), and full reuse of the existing
+provisional-build/confirmation/atomic-commit terminal lifecycle — no bootstrap-specific commit
+path. `_BASIS_RANK` extended additively with `ownership_backed` sharing rank 0 with
+`synthesized` (ownership preference already has its own dedicated mechanism via `rank_and_cut`,
+so a separate evidence-quality tier would double-count the same signal) — confirmed via
+explicit before/after diff that no existing key's rank moved and no existing rank assertion
+needed loosening.
+
+578 tests passing (up from 513 at the start of this task, 385 at the start of this session's
+whole slot-fill arc), 6 skipped (5 pre-existing live-calc-service skips, 1 new opt-in Ollama
+live smoke test — accounted for exactly, not assumed). Full Python and TypeScript suites
+clean; `git diff --check` clean; diff scope confirmed limited to the expected file list.
+
+**Deliberately deferred, tracked as separate future scope:** canonical name/form resolution
+beyond exact-ID acceptance; condition-resilience assessment; selected-four modeling; general
+first-turn intent classification beyond the `bootstrap_intake` response specifically; further
+target-role taxonomy work beyond Track 1's fourteen values; low-data Compendium member build
+synthesis (confirmed independent of the vocabulary gap, separately reported).

@@ -13,6 +13,11 @@ import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
+from recommender.teammates import (
+    TEAMMATE_LIMIT,
+    normalize_munch_teammates,
+    without_snapshot_teammates,
+)
 from recommender.usage_cbd import (
     CBD_API,
     fetch_ingame_doubles_species,
@@ -136,10 +141,11 @@ def _munch_spreads(d: dict) -> list[dict]:
     return out
 
 
-def extract_showdown(needed_ids: set[str]) -> dict[str, dict]:
+def extract_showdown(needed_ids: set[str]) -> tuple[dict[str, dict], dict]:
     index = fetch_json(f"{MUNCH_BASE}/_index.json")
     if not isinstance(index, dict):
         raise SystemExit("MunchStats _index.json failed")
+    source_info = index.get("info") if isinstance(index.get("info"), dict) else {}
     poke = index.get("pokemon") or {}
     # Map display name -> usage
     by_id: dict[str, tuple[str, float]] = {}
@@ -167,6 +173,9 @@ def extract_showdown(needed_ids: set[str]) -> dict[str, dict]:
             continue
         name, usage = by_id[sid]
         detail = fetch_json(f"{MUNCH_BASE}/{urllib.parse.quote(name)}.json")
+        teammates = normalize_munch_teammates(
+            detail if isinstance(detail, dict) else None
+        )
         if not isinstance(detail, dict):
             # rank-only stub
             out[sid] = {
@@ -178,6 +187,8 @@ def extract_showdown(needed_ids: set[str]) -> dict[str, dict]:
                 "common_items": [],
                 "top_spreads": [],
                 "featured_sets": [],
+                "teammates": teammates.snapshot_rows(),
+                "teammates_meta": teammates.snapshot_meta(),
                 "source": "munchstats-showdown",
             }
             continue
@@ -205,10 +216,12 @@ def extract_showdown(needed_ids: set[str]) -> dict[str, dict]:
             "common_items": items,
             "top_spreads": spreads,
             "featured_sets": featured,
+            "teammates": teammates.snapshot_rows(),
+            "teammates_meta": teammates.snapshot_meta(),
             "source": "munchstats-showdown",
         }
         print(f"  showdown {sid} usage={usage*100:.2f}%", file=sys.stderr)
-    return out
+    return out, dict(source_info)
 
 
 def _merge_species_flat(ingame: dict[str, dict], showdown: dict[str, dict]) -> dict[str, dict]:
@@ -234,38 +247,72 @@ def _merge_species_flat(ingame: dict[str, dict], showdown: dict[str, dict]) -> d
             merged["source"] = "merged"
             flat[sid] = merged
         else:
-            flat[sid] = dict(e)
+            flat[sid] = without_snapshot_teammates(e)
     return flat
+
+
+def build_snapshot(
+    ingame: dict[str, dict],
+    showdown: dict[str, dict],
+    showdown_info: dict,
+    *,
+    base_meta: dict | None = None,
+) -> dict:
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    meta = dict(base_meta or {})
+    meta.update(
+        {
+            "schema_version": 3,
+            "regulation": "champions-reg-mb",
+            "showdown_rating": SHOWDOWN_USAGE_RATING,
+            "showdown_format": SHOWDOWN_FORMAT,
+            "showdown_month": SHOWDOWN_MONTH,
+            "showdown_battles": showdown_info.get("number of battles"),
+            "showdown_teammates_extracted_at": now,
+            "showdown_teammates": {
+                "source_field": "Teammates",
+                "weight_kind": "chaos_weight",
+                "percentage_kind": "conditional_probability",
+                "denominator_rule": (
+                    "max(sum(valid Abilities), sum(valid Teammates) / 6, 1)"
+                ),
+                "limit": TEAMMATE_LIMIT,
+                "caveats": [
+                    "weighted ladder estimate, not independent sample count",
+                    "not curated tournament data",
+                    "retained top-10 rows only",
+                ],
+            },
+            "attribution": (
+                "In-game doubles: championsbattledata.com. "
+                "Showdown VGC M-B: MunchStats mirror of Smogon chaos stats."
+            ),
+            "sources": ["championsbattledata", "munchstats-showdown"],
+        }
+    )
+    if not base_meta:
+        meta["extracted_at"] = now
+    return {
+        "meta": meta,
+        "ingame_doubles": {"species": ingame},
+        "showdown_vgc_mb": {"species": showdown},
+        "species": _merge_species_flat(ingame, showdown),
+    }
 
 
 def main() -> int:
     print("extracting in-game doubles ladder...", file=sys.stderr)
     ingame = extract_ingame(TEAM_LADDER_N)
     print(f"extracting showdown@{SHOWDOWN_USAGE_RATING} for lineage of {len(ingame)}...", file=sys.stderr)
-    showdown = extract_showdown(set(ingame))
-    flat = _merge_species_flat(ingame, showdown)
-
-    snap = {
-        "meta": {
-            "schema_version": 2,
-            "regulation": "champions-reg-mb",
-            "extracted_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "showdown_rating": SHOWDOWN_USAGE_RATING,
-            "showdown_format": SHOWDOWN_FORMAT,
-            "showdown_month": SHOWDOWN_MONTH,
-            "attribution": (
-                "In-game doubles: championsbattledata.com. "
-                "Showdown VGC M-B: MunchStats mirror of Smogon chaos stats."
-            ),
-            "sources": ["championsbattledata", "munchstats-showdown"],
-        },
-        "ingame_doubles": {"species": ingame},
-        "showdown_vgc_mb": {"species": showdown},
-        "species": flat,
-    }
+    showdown, showdown_info = extract_showdown(set(ingame))
+    snap = build_snapshot(ingame, showdown, showdown_info)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(snap, indent=2) + "\n")
-    print(f"Wrote {OUT} ingame={len(ingame)} showdown={len(showdown)} flat={len(flat)}", file=sys.stderr)
+    print(
+        f"Wrote {OUT} ingame={len(ingame)} showdown={len(showdown)} "
+        f"flat={len(snap['species'])}",
+        file=sys.stderr,
+    )
     return 0
 
 

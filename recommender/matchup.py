@@ -320,6 +320,10 @@ class MatchupResult:
     turn_economy_note: TurnEconomyNote | None = None
 
 
+class MatchupEvidenceError(Exception):
+    """Calc batch evidence is incomplete and cannot support a matchup claim."""
+
+
 @dataclass
 class _MoveProfile:
     move: str
@@ -574,10 +578,20 @@ def _damaging_moves(build: PokemonSpecOptional) -> list[str]:
 def _profiles_from_batch(
     moves: list[str], results: list[object]
 ) -> list[_MoveProfile]:
+    if len(results) != len(moves):
+        raise MatchupEvidenceError(
+            f"calc batch count mismatch: expected {len(moves)}, got {len(results)}"
+        )
     profiles: list[_MoveProfile] = []
     for move, raw in zip(moves, results):
-        if not isinstance(raw, dict) or "error" in raw:
-            continue
+        if not isinstance(raw, dict):
+            raise MatchupEvidenceError(
+                f"calc batch row for {move!r} is not an object"
+            )
+        if "error" in raw:
+            raise MatchupEvidenceError(
+                f"calc batch row for {move!r} failed: {raw['error']}"
+            )
         calc = raw  # CalcSuccessResponse
         turns, guaranteed = _parse_ko_turns(str(calc.get("koChance") or ""), calc)
         dmg_range = calc.get("damageRange") or calc.get("raw", {}).get("range") or [0, 0]

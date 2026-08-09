@@ -125,6 +125,41 @@ def test_calculate_batch():
     assert results[1]["error"] == "move is required"
 
 
+def test_connection_error_is_normalized():
+    client = CalcClient("http://127.0.0.1:9")
+    with patch(
+        "recommender.calc_client.urllib.request.urlopen",
+        side_effect=calc_client.urllib.error.URLError("refused"),
+    ):
+        with pytest.raises(CalcClientError) as exc:
+            client.health()
+    assert exc.value.status == 0
+    assert "refused" in str(exc.value.body)
+
+
+def test_invalid_json_response_is_normalized():
+    client = CalcClient("http://127.0.0.1:9")
+    response = MagicMock()
+    response.status = 200
+    response.read.return_value = b"{"
+    response.__enter__ = MagicMock(return_value=response)
+    response.__exit__ = MagicMock(return_value=False)
+    with patch(
+        "recommender.calc_client.urllib.request.urlopen", return_value=response
+    ):
+        with pytest.raises(CalcClientError) as exc:
+            client.health()
+    assert exc.value.status == 200
+
+
+@pytest.mark.parametrize("body", [{}, {"results": None}, []])
+def test_malformed_batch_body_is_rejected(body):
+    client = CalcClient("http://127.0.0.1:9")
+    with patch.object(client, "_json_request", return_value=(200, body)):
+        with pytest.raises(CalcClientError):
+            client.calculate_batch([])
+
+
 def test_sets_endpoints():
     client = CalcClient("http://127.0.0.1:9")
     sample_set = {"species": "Garchomp", "moves": ["Earthquake"]}

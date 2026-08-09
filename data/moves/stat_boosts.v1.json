@@ -7,921 +7,1589 @@
     "acidarmor": {
       "name": "Acid Armor",
       "category": "Status",
-      "boosts": {
-        "def": 2
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": 2
+          }
+        }
+      ]
     },
     "acidspray": {
       "name": "Acid Spray",
       "category": "Special",
-      "boosts": {
-        "spd": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spd": -2
+          }
+        }
+      ]
     },
     "agility": {
       "name": "Agility",
       "category": "Status",
-      "boosts": {
-        "spe": 2
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spe": 2
+          }
+        }
+      ]
     },
     "amnesia": {
       "name": "Amnesia",
       "category": "Status",
-      "boosts": {
-        "spd": 2
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spd": 2
+          }
+        }
+      ]
     },
     "ancientpower": {
       "name": "Ancient Power",
       "category": "Special",
-      "boosts": {
-        "atk": 1,
-        "def": 1,
-        "spa": 1,
-        "spd": 1,
-        "spe": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 10,
+          "stats": {
+            "atk": 1,
+            "def": 1,
+            "spa": 1,
+            "spd": 1,
+            "spe": 1
+          }
+        }
+      ]
     },
     "appleacid": {
       "name": "Apple Acid",
       "category": "Special",
-      "boosts": {
-        "spd": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spd": -1
+          }
+        }
+      ]
     },
     "aquastep": {
       "name": "Aqua Step",
       "category": "Physical",
-      "boosts": {
-        "spe": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spe": 1
+          }
+        }
+      ]
     },
     "armorcannon": {
       "name": "Armor Cannon",
       "category": "Special",
-      "boosts": {
-        "def": -1,
-        "spd": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": -1,
+            "spd": -1
+          }
+        }
+      ]
     },
     "aromaticmist": {
       "name": "Aromatic Mist",
       "category": "Status",
-      "boosts": {
-        "spd": 1
-      },
-      "target": "adjacentAlly"
+      "target": "adjacentAlly",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spd": 1
+          }
+        }
+      ]
     },
     "aurawheel": {
       "name": "Aura Wheel",
       "category": "Physical",
-      "boosts": {
-        "spe": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spe": 1
+          }
+        }
+      ]
     },
     "babydolleyes": {
       "name": "Baby-Doll Eyes",
       "category": "Status",
-      "boosts": {
-        "atk": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -1
+          }
+        }
+      ]
     },
     "bittermalice": {
       "name": "Bitter Malice",
       "category": "Special",
-      "boosts": {
-        "atk": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -1
+          }
+        }
+      ]
     },
     "breakingswipe": {
       "name": "Breaking Swipe",
       "category": "Physical",
-      "boosts": {
-        "atk": -1
-      },
-      "target": "allAdjacentFoes"
+      "target": "allAdjacentFoes",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -1
+          }
+        }
+      ]
     },
     "bugbuzz": {
       "name": "Bug Buzz",
       "category": "Special",
-      "boosts": {
-        "spd": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 10,
+          "stats": {
+            "spd": -1
+          }
+        }
+      ]
     },
     "bulkup": {
       "name": "Bulk Up",
       "category": "Status",
-      "boosts": {
-        "atk": 1,
-        "def": 1
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "atk": 1,
+            "def": 1
+          }
+        }
+      ]
     },
     "bulldoze": {
       "name": "Bulldoze",
       "category": "Physical",
-      "boosts": {
-        "spe": -1
-      },
-      "target": "allAdjacent"
+      "target": "allAdjacent",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -1
+          }
+        }
+      ]
     },
     "calmmind": {
       "name": "Calm Mind",
       "category": "Status",
-      "boosts": {
-        "spa": 1,
-        "spd": 1
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spa": 1,
+            "spd": 1
+          }
+        }
+      ]
     },
     "charge": {
       "name": "Charge",
       "category": "Status",
-      "boosts": {
-        "spd": 1
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spd": 1
+          }
+        }
+      ]
     },
     "chargebeam": {
       "name": "Charge Beam",
       "category": "Special",
-      "boosts": {
-        "spa": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 70,
+          "stats": {
+            "spa": 1
+          }
+        }
+      ]
     },
     "charm": {
       "name": "Charm",
       "category": "Status",
-      "boosts": {
-        "atk": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -2
+          }
+        }
+      ]
     },
     "chillingwater": {
       "name": "Chilling Water",
       "category": "Special",
-      "boosts": {
-        "atk": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -1
+          }
+        }
+      ]
     },
     "clangingscales": {
       "name": "Clanging Scales",
       "category": "Special",
-      "boosts": {
-        "def": -1
-      },
-      "target": "allAdjacentFoes"
+      "target": "allAdjacentFoes",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": -1
+          }
+        }
+      ]
     },
     "clangoroussoul": {
       "name": "Clangorous Soul",
       "category": "Status",
-      "boosts": {
-        "atk": 1,
-        "def": 1,
-        "spa": 1,
-        "spd": 1,
-        "spe": 1
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "atk": 1,
+            "def": 1,
+            "spa": 1,
+            "spd": 1,
+            "spe": 1
+          }
+        }
+      ]
     },
     "closecombat": {
       "name": "Close Combat",
       "category": "Physical",
-      "boosts": {
-        "def": -1,
-        "spd": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": -1,
+            "spd": -1
+          }
+        }
+      ]
     },
     "coaching": {
       "name": "Coaching",
       "category": "Status",
-      "boosts": {
-        "atk": 1,
-        "def": 1
-      },
-      "target": "adjacentAlly"
+      "target": "adjacentAlly",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": 1,
+            "def": 1
+          }
+        }
+      ]
     },
     "coil": {
       "name": "Coil",
       "category": "Status",
-      "boosts": {
-        "atk": 1,
-        "def": 1,
-        "accuracy": 1
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "atk": 1,
+            "def": 1,
+            "accuracy": 1
+          }
+        }
+      ]
     },
     "cosmicpower": {
       "name": "Cosmic Power",
       "category": "Status",
-      "boosts": {
-        "def": 1,
-        "spd": 1
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": 1,
+            "spd": 1
+          }
+        }
+      ]
     },
     "cottonguard": {
       "name": "Cotton Guard",
       "category": "Status",
-      "boosts": {
-        "def": 3
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": 3
+          }
+        }
+      ]
     },
     "cottonspore": {
       "name": "Cotton Spore",
       "category": "Status",
-      "boosts": {
-        "spe": -2
-      },
-      "target": "allAdjacentFoes"
+      "target": "allAdjacentFoes",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -2
+          }
+        }
+      ]
     },
     "crunch": {
       "name": "Crunch",
       "category": "Physical",
-      "boosts": {
-        "def": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 20,
+          "stats": {
+            "def": -1
+          }
+        }
+      ]
     },
     "crushclaw": {
       "name": "Crush Claw",
       "category": "Physical",
-      "boosts": {
-        "def": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 50,
+          "stats": {
+            "def": -1
+          }
+        }
+      ]
     },
     "curse": {
       "name": "Curse",
       "category": "Status",
-      "boosts": {
-        "spe": -1,
-        "atk": 1,
-        "def": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spe": -1,
+            "atk": 1,
+            "def": 1
+          },
+          "note": "non-Ghost user only; a Ghost user gets no stat change"
+        }
+      ]
     },
     "decorate": {
       "name": "Decorate",
       "category": "Status",
-      "boosts": {
-        "atk": 2,
-        "spa": 2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": 2,
+            "spa": 2
+          }
+        }
+      ]
     },
     "doubleteam": {
       "name": "Double Team",
       "category": "Status",
-      "boosts": {
-        "evasion": 1
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "evasion": 1
+          }
+        }
+      ]
     },
     "dracometeor": {
       "name": "Draco Meteor",
       "category": "Special",
-      "boosts": {
-        "spa": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spa": -2
+          }
+        }
+      ]
     },
     "dragondance": {
       "name": "Dragon Dance",
       "category": "Status",
-      "boosts": {
-        "atk": 1,
-        "spe": 1
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "atk": 1,
+            "spe": 1
+          }
+        }
+      ]
     },
     "earthpower": {
       "name": "Earth Power",
       "category": "Special",
-      "boosts": {
-        "spd": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 10,
+          "stats": {
+            "spd": -1
+          }
+        }
+      ]
     },
     "eerieimpulse": {
       "name": "Eerie Impulse",
       "category": "Status",
-      "boosts": {
-        "spa": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spa": -2
+          }
+        }
+      ]
     },
     "electroweb": {
       "name": "Electroweb",
       "category": "Special",
-      "boosts": {
-        "spe": -1
-      },
-      "target": "allAdjacentFoes"
+      "target": "allAdjacentFoes",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -1
+          }
+        }
+      ]
     },
     "energyball": {
       "name": "Energy Ball",
       "category": "Special",
-      "boosts": {
-        "spd": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 10,
+          "stats": {
+            "spd": -1
+          }
+        }
+      ]
     },
     "faketears": {
       "name": "Fake Tears",
       "category": "Status",
-      "boosts": {
-        "spd": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spd": -2
+          }
+        }
+      ]
     },
     "featherdance": {
       "name": "Feather Dance",
       "category": "Status",
-      "boosts": {
-        "atk": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -2
+          }
+        }
+      ]
     },
     "fierydance": {
       "name": "Fiery Dance",
       "category": "Special",
-      "boosts": {
-        "spa": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 50,
+          "stats": {
+            "spa": 1
+          }
+        }
+      ]
     },
     "firelash": {
       "name": "Fire Lash",
       "category": "Physical",
-      "boosts": {
-        "def": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "def": -1
+          }
+        }
+      ]
     },
     "flamecharge": {
       "name": "Flame Charge",
       "category": "Physical",
-      "boosts": {
-        "spe": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spe": 1
+          }
+        }
+      ]
     },
     "flashcannon": {
       "name": "Flash Cannon",
       "category": "Special",
-      "boosts": {
-        "spd": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 10,
+          "stats": {
+            "spd": -1
+          }
+        }
+      ]
     },
     "flatter": {
       "name": "Flatter",
       "category": "Status",
-      "boosts": {
-        "spa": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spa": 1
+          }
+        }
+      ]
     },
     "focusblast": {
       "name": "Focus Blast",
       "category": "Special",
-      "boosts": {
-        "spd": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 10,
+          "stats": {
+            "spd": -1
+          }
+        }
+      ]
     },
     "gravapple": {
       "name": "Grav Apple",
       "category": "Physical",
-      "boosts": {
-        "def": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "def": -1
+          }
+        }
+      ]
     },
     "growth": {
       "name": "Growth",
       "category": "Status",
-      "boosts": {
-        "atk": 1,
-        "spa": 1
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "atk": 1,
+            "spa": 1
+          }
+        }
+      ]
     },
     "hammerarm": {
       "name": "Hammer Arm",
       "category": "Physical",
-      "boosts": {
-        "spe": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spe": -1
+          }
+        }
+      ]
     },
     "headlongrush": {
       "name": "Headlong Rush",
       "category": "Physical",
-      "boosts": {
-        "def": -1,
-        "spd": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": -1,
+            "spd": -1
+          }
+        }
+      ]
     },
     "howl": {
       "name": "Howl",
       "category": "Status",
-      "boosts": {
-        "atk": 1
-      },
-      "target": "allies"
+      "target": "allies",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "atk": 1
+          }
+        },
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": 1
+          }
+        }
+      ]
     },
     "icehammer": {
       "name": "Ice Hammer",
       "category": "Physical",
-      "boosts": {
-        "spe": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spe": -1
+          }
+        }
+      ]
     },
     "icywind": {
       "name": "Icy Wind",
       "category": "Special",
-      "boosts": {
-        "spe": -1
-      },
-      "target": "allAdjacentFoes"
+      "target": "allAdjacentFoes",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -1
+          }
+        }
+      ]
     },
     "irondefense": {
       "name": "Iron Defense",
       "category": "Status",
-      "boosts": {
-        "def": 2
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": 2
+          }
+        }
+      ]
     },
     "irontail": {
       "name": "Iron Tail",
       "category": "Physical",
-      "boosts": {
-        "def": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 30,
+          "stats": {
+            "def": -1
+          }
+        }
+      ]
     },
     "leafstorm": {
       "name": "Leaf Storm",
       "category": "Special",
-      "boosts": {
-        "spa": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spa": -2
+          }
+        }
+      ]
     },
     "liquidation": {
       "name": "Liquidation",
       "category": "Physical",
-      "boosts": {
-        "def": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 20,
+          "stats": {
+            "def": -1
+          }
+        }
+      ]
     },
     "lowsweep": {
       "name": "Low Sweep",
       "category": "Physical",
-      "boosts": {
-        "spe": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -1
+          }
+        }
+      ]
     },
     "luminacrash": {
       "name": "Lumina Crash",
       "category": "Special",
-      "boosts": {
-        "spd": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spd": -2
+          }
+        }
+      ]
     },
     "lunge": {
       "name": "Lunge",
       "category": "Physical",
-      "boosts": {
-        "atk": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -1
+          }
+        }
+      ]
     },
     "makeitrain": {
       "name": "Make It Rain",
       "category": "Special",
-      "boosts": {
-        "spa": -1
-      },
-      "target": "allAdjacentFoes"
+      "target": "allAdjacentFoes",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spa": -2
+          }
+        }
+      ]
     },
     "memento": {
       "name": "Memento",
       "category": "Status",
-      "boosts": {
-        "atk": -2,
-        "spa": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -2,
+            "spa": -2
+          }
+        }
+      ]
     },
     "metalsound": {
       "name": "Metal Sound",
       "category": "Status",
-      "boosts": {
-        "spd": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spd": -2
+          }
+        }
+      ]
     },
     "meteormash": {
       "name": "Meteor Mash",
       "category": "Physical",
-      "boosts": {
-        "atk": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 20,
+          "stats": {
+            "atk": 1
+          }
+        }
+      ]
     },
     "minimize": {
       "name": "Minimize",
       "category": "Status",
-      "boosts": {
-        "evasion": 2
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "evasion": 2
+          }
+        }
+      ]
     },
     "moonblast": {
       "name": "Moonblast",
       "category": "Special",
-      "boosts": {
-        "spa": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 10,
+          "stats": {
+            "spa": -1
+          }
+        }
+      ]
     },
     "muddywater": {
       "name": "Muddy Water",
       "category": "Special",
-      "boosts": {
-        "accuracy": -1
-      },
-      "target": "allAdjacentFoes"
+      "target": "allAdjacentFoes",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 30,
+          "stats": {
+            "accuracy": -1
+          }
+        }
+      ]
     },
     "mudshot": {
       "name": "Mud Shot",
       "category": "Special",
-      "boosts": {
-        "spe": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -1
+          }
+        }
+      ]
     },
     "mudslap": {
       "name": "Mud-Slap",
       "category": "Special",
-      "boosts": {
-        "accuracy": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "accuracy": -1
+          }
+        }
+      ]
     },
     "mysticalfire": {
       "name": "Mystical Fire",
       "category": "Special",
-      "boosts": {
-        "spa": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spa": -1
+          }
+        }
+      ]
     },
     "nastyplot": {
       "name": "Nasty Plot",
       "category": "Status",
-      "boosts": {
-        "spa": 2
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spa": 2
+          }
+        }
+      ]
     },
     "nightdaze": {
       "name": "Night Daze",
       "category": "Special",
-      "boosts": {
-        "accuracy": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 40,
+          "stats": {
+            "accuracy": -1
+          }
+        }
+      ]
     },
     "nobleroar": {
       "name": "Noble Roar",
       "category": "Status",
-      "boosts": {
-        "atk": -1,
-        "spa": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -1,
+            "spa": -1
+          }
+        }
+      ]
     },
     "noretreat": {
       "name": "No Retreat",
       "category": "Status",
-      "boosts": {
-        "atk": 1,
-        "def": 1,
-        "spa": 1,
-        "spd": 1,
-        "spe": 1
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "atk": 1,
+            "def": 1,
+            "spa": 1,
+            "spd": 1,
+            "spe": 1
+          }
+        }
+      ]
     },
     "overheat": {
       "name": "Overheat",
       "category": "Special",
-      "boosts": {
-        "spa": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spa": -2
+          }
+        }
+      ]
     },
     "playrough": {
       "name": "Play Rough",
       "category": "Physical",
-      "boosts": {
-        "atk": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 10,
+          "stats": {
+            "atk": -1
+          }
+        }
+      ]
     },
     "pounce": {
       "name": "Pounce",
       "category": "Physical",
-      "boosts": {
-        "spe": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -1
+          }
+        }
+      ]
     },
     "psychic": {
       "name": "Psychic",
       "category": "Special",
-      "boosts": {
-        "spd": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 10,
+          "stats": {
+            "spd": -1
+          }
+        }
+      ]
     },
     "psyshieldbash": {
       "name": "Psyshield Bash",
       "category": "Physical",
-      "boosts": {
-        "def": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": 1
+          }
+        }
+      ]
     },
     "quiverdance": {
       "name": "Quiver Dance",
       "category": "Status",
-      "boosts": {
-        "spa": 1,
-        "spd": 1,
-        "spe": 1
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spa": 1,
+            "spd": 1,
+            "spe": 1
+          }
+        }
+      ]
     },
     "rapidspin": {
       "name": "Rapid Spin",
       "category": "Physical",
-      "boosts": {
-        "spe": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spe": 1
+          }
+        }
+      ]
     },
     "razorshell": {
       "name": "Razor Shell",
       "category": "Physical",
-      "boosts": {
-        "def": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 50,
+          "stats": {
+            "def": -1
+          }
+        }
+      ]
     },
     "rockpolish": {
       "name": "Rock Polish",
       "category": "Status",
-      "boosts": {
-        "spe": 2
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spe": 2
+          }
+        }
+      ]
     },
     "rocktomb": {
       "name": "Rock Tomb",
       "category": "Physical",
-      "boosts": {
-        "spe": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -1
+          }
+        }
+      ]
     },
     "scaleshot": {
       "name": "Scale Shot",
       "category": "Physical",
-      "boosts": {
-        "def": -1,
-        "spe": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": -1,
+            "spe": 1
+          }
+        }
+      ]
     },
     "scaryface": {
       "name": "Scary Face",
       "category": "Status",
-      "boosts": {
-        "spe": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -2
+          }
+        }
+      ]
     },
     "screech": {
       "name": "Screech",
       "category": "Status",
-      "boosts": {
-        "def": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "def": -2
+          }
+        }
+      ]
     },
     "shadowball": {
       "name": "Shadow Ball",
       "category": "Special",
-      "boosts": {
-        "spd": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 20,
+          "stats": {
+            "spd": -1
+          }
+        }
+      ]
     },
     "shellsmash": {
       "name": "Shell Smash",
       "category": "Status",
-      "boosts": {
-        "def": -1,
-        "spd": -1,
-        "atk": 2,
-        "spa": 2,
-        "spe": 2
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": -1,
+            "spd": -1,
+            "atk": 2,
+            "spa": 2,
+            "spe": 2
+          }
+        }
+      ]
     },
     "shelter": {
       "name": "Shelter",
       "category": "Status",
-      "boosts": {
-        "def": 2
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "def": 2
+          }
+        }
+      ]
     },
     "skittersmack": {
       "name": "Skitter Smack",
       "category": "Physical",
-      "boosts": {
-        "spa": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spa": -1
+          }
+        }
+      ]
     },
     "snarl": {
       "name": "Snarl",
       "category": "Special",
-      "boosts": {
-        "spa": -1
-      },
-      "target": "allAdjacentFoes"
+      "target": "allAdjacentFoes",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spa": -1
+          }
+        }
+      ]
     },
     "spicyextract": {
       "name": "Spicy Extract",
       "category": "Status",
-      "boosts": {
-        "atk": 2,
-        "def": -2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": 2,
+            "def": -2
+          }
+        }
+      ]
     },
     "spiritbreak": {
       "name": "Spirit Break",
       "category": "Physical",
-      "boosts": {
-        "spa": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spa": -1
+          }
+        }
+      ]
     },
     "steelwing": {
       "name": "Steel Wing",
       "category": "Physical",
-      "boosts": {
-        "def": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 10,
+          "stats": {
+            "def": 1
+          }
+        }
+      ]
     },
     "stringshot": {
       "name": "String Shot",
       "category": "Status",
-      "boosts": {
-        "spe": -2
-      },
-      "target": "allAdjacentFoes"
+      "target": "allAdjacentFoes",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -2
+          }
+        }
+      ]
     },
     "strugglebug": {
       "name": "Struggle Bug",
       "category": "Special",
-      "boosts": {
-        "spa": -1
-      },
-      "target": "allAdjacentFoes"
+      "target": "allAdjacentFoes",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spa": -1
+          }
+        }
+      ]
     },
     "superpower": {
       "name": "Superpower",
       "category": "Physical",
-      "boosts": {
-        "atk": -1,
-        "def": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "atk": -1,
+            "def": -1
+          }
+        }
+      ]
     },
     "swagger": {
       "name": "Swagger",
       "category": "Status",
-      "boosts": {
-        "atk": 2
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": 2
+          }
+        }
+      ]
     },
     "sweetscent": {
       "name": "Sweet Scent",
       "category": "Status",
-      "boosts": {
-        "evasion": -2
-      },
-      "target": "allAdjacentFoes"
+      "target": "allAdjacentFoes",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "evasion": -2
+          }
+        }
+      ]
     },
     "swordsdance": {
       "name": "Swords Dance",
       "category": "Status",
-      "boosts": {
-        "atk": 2
-      },
-      "target": "self"
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "atk": 2
+          }
+        }
+      ]
     },
     "tearfullook": {
       "name": "Tearful Look",
       "category": "Status",
-      "boosts": {
-        "atk": -1,
-        "spa": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -1,
+            "spa": -1
+          }
+        }
+      ]
     },
     "tickle": {
       "name": "Tickle",
       "category": "Status",
-      "boosts": {
-        "atk": -1,
-        "def": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -1,
+            "def": -1
+          }
+        }
+      ]
     },
     "torchsong": {
       "name": "Torch Song",
       "category": "Special",
-      "boosts": {
-        "spa": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spa": 1
+          }
+        }
+      ]
     },
     "toxicthread": {
       "name": "Toxic Thread",
       "category": "Status",
-      "boosts": {
-        "spe": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -2
+          }
+        }
+      ]
     },
     "trailblaze": {
       "name": "Trailblaze",
       "category": "Physical",
-      "boosts": {
-        "spe": 1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spe": 1
+          }
+        }
+      ]
     },
     "triplearrows": {
       "name": "Triple Arrows",
       "category": "Physical",
-      "boosts": {
-        "def": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 50,
+          "stats": {
+            "def": -1
+          }
+        }
+      ]
     },
     "tropkick": {
       "name": "Trop Kick",
       "category": "Physical",
-      "boosts": {
-        "atk": -1
-      },
-      "target": "normal"
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "atk": -1
+          }
+        }
+      ]
     }
   }
 }

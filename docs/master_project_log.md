@@ -1683,6 +1683,913 @@ given current results are stable and pass real-world plausibility checks.
 
 ---
 
+### 2026-08-08: Swords Dance / Nasty Plot Attacker — priority-mechanics and base/Mega
+usage-plausibility corrections
+
+A focused follow-up chain, triggered by re-verifying four candidates (Scolipede, Scrafty,
+Skarmory, Houndoom) whose setup-attacker discount-driven rejections had been left
+unconfirmed since the original construction (unreachable offline at the time). The live
+rebuild surfaced Scrafty, Skarmory, and Houndoom clearing Acceptable-tier membership —
+which turned out to expose several real, previously-uncaught gaps in priority-move handling
+and usage-attribution trust, not a single fix.
+
+**Priority-move handling corrections (four, all implemented as general rules, swept across
+both categories, not scoped to the specific candidates that surfaced them):**
+- Fake Out removed from both Branch A priority-qualification AND payoff-move candidacy —
+  it can only be used the turn its user switches in, making it structurally incompatible
+  with ever following a setup move (the setup-then-attack sequence this whole category is
+  about). Not a matter of degree like Sucker Punch's conditional success rate — a hard,
+  mechanical exclusion, same in kind as the existing charge/recharge/lock-in payoff bans.
+  Incineroar, previously admitted on Fake-Out-only Branch A qualification, now correctly
+  fails membership entirely.
+- Upper Hand checked and confirmed ALREADY correctly implemented with the same ×1.35
+  conditional-priority discount as Sucker Punch — no fix needed, locked with a regression
+  test rather than redundantly "fixed" again.
+- Feint given its own, narrower ×1.15 discount (not Sucker Punch/Upper Hand's ×1.35) —
+  its trigger (opponent must be using a protection move) is meaningfully more situational
+  than either, since a rational opponent facing a setup sweeper often simply won't Protect.
+- Priority-move category must match the candidate's boosted stat: Houndoom's only priority
+  access (Sucker Punch) is Physical, while it's a Nasty Plot (Special) candidate — crediting
+  mismatched-category priority for Branch A qualification was a real, general gap. Fixed as
+  a category-match rule, not a Houndoom-specific patch. Houndoom (base) drops from Nasty
+  Plot entirely as a result (no Branch B either); Houndoom-Mega retained Good-tier
+  membership on its own real Speed (115), unaffected.
+
+**Usage-attribution plausibility fix, the more consequential correction:** Skarmory's
+Acceptable-tier admission (base CBD Swords Dance usage 19.5%) was investigated directly
+after the number was flagged as implausible — Skarmory-Mega's own real Swords Dance rate is
+only ~9.2%, meaning the base figure exceeded the Mega's, the same shape already confirmed
+as a logging artifact for base Scovillain (mid-battle, pre-Mega-Evolution turns bleeding
+into the base species' logged figures). The existing base_delivers gate only checked
+whether Showdown was silent on the move before skipping the usage discount entirely — it
+never checked whether the CBD figure was itself plausible relative to the Mega's own
+confirmed rate for the same move. Fixed generally: when CBD's base usage exceeds the Mega's
+own Showdown move-rate for the same setup move, CBD alone is no longer trusted, and
+admission falls back to requiring genuine Showdown base-form delivery. Swept the full
+setup-attacker pool, not just Skarmory — Scrafty was independently caught by the same
+check (CBD 7.0% vs. Mega's real 2.3%), correctly rejected on the same grounds; several
+other candidates (Absol, Feraligatr, Scizor, Scolipede, and others) had CBD figures
+exceeding their Mega counterparts too but were correctly RETAINED, since they have genuine,
+independent Showdown-base confirmation Skarmory and Scrafty lack.
+
+**Acceptable-tier lower bound — investigated, correctly declined.** Checked the current,
+post-all-fixes Acceptable-tier score distribution in both categories for a real structural
+gap, the same discipline already used for the Excellent floor and the Good/Acceptable
+boundary. Swords Dance's largest internal gap (0.091, Scizor→Garchomp-Mega) is not
+meaningfully larger than its neighbors (0.078, 0.069, 0.056 — a smooth decline, not a real
+break), unlike the Good/Acceptable boundary's genuine 0.664-0.752 stable plateau. No lower
+bound added — the existing floor×0.70 upper boundary is sufficient on its own, and
+manufacturing a cutoff here would repeat exactly the mistake already avoided once for
+Nasty Plot's originally-empty Acceptable tier.
+
+373 tests passing (up from 367).
+
+This closes out the setup-attacker discount-path re-verification that was left open since
+the original construction — confirms the mega_delivers-shaped attribution bug family (first
+found for Trick Room's Gengar/Delphox case) has a real, distinct cousin (usage-magnitude
+implausibility, not just move-absence) that also needed its own dedicated fix, and that
+both needed to be checked independently rather than assumed to be the same problem.
+
+### 2026-08-08 (cont.): available_pool ownership-preference mechanism — shipped
+
+Resolved the long-open available_pool design question (accept_available_pool had been a
+no-op since the schema's original design, with every test seeding it as []) — confirmed
+this is real, originally-stated project scope (the screenshot-upload-your-box feature), not
+vestigial, and worked out the actual mechanism before implementing.
+
+Two structurally different behaviors under one user-facing ownership_mode parameter:
+- Three SOFT-RANKING modes (owned_first / owned_last / off) operate inside rank_and_cut's
+  existing composite-key pattern — ownership becomes one tuple component, and its POSITION
+  in the tuple (primary vs. final tiebreak vs. absent) determines the mode. The full
+  candidate pool stays visible in all three; a not-owned candidate is never hidden, just
+  ranked differently.
+- One HARD-FILTER mode (owned_only, the strictest) removes non-owned candidates from the
+  pool entirely before ranking, reusing the existing candidate_pool restriction pattern
+  already proven for theme/legality narrowing — not a new filtering mechanism.
+
+Real design decisions made before implementation: ownership is a per-species BOOLEAN
+signal, never weighted by duplicate count — the user's box can hold multiple copies of a
+species, but Species Clause means only one instance can ever occupy a team slot regardless,
+so 3 copies owned isn't "more owned" than 1. Soft preference (not a universal hard filter)
+was chosen deliberately, motivated by the mono-Fairy-with-exactly-6-Fairy-types case: a
+constrained pool should let ownership matter as much as the situation demands (approaching
+a de facto requirement when the owned pool barely covers a slot) without a rigid filter-
+first design that would behave identically to a hard filter in exactly the cases where a
+softer touch matters most.
+
+Shipped: all four modes added to rank_and_cut; wired into query_counters and
+query_threat_counters (both already supported candidate_pool, the natural first
+consumers); tests covering each mode independently, the duplicate-species boolean
+collapse, owned_only reducing to a near-empty pool (handled gracefully, not an error), tier
+ordering, and query_threat_counters' pool-restriction asymmetry (ownership affects only the
+candidate/teammate side, never threat identification — same asymmetry already established
+for that tool's general candidate_pool parameter).
+
+385 tests passing (up from 373).
+
+Deliberately deferred, not oversights: wiring into propose.py's role→species step (the
+mechanism now exists but isn't yet load-bearing in the live recommendation flow); the
+screenshot-to-available_pool input pipeline (a separate, unbuilt future feature — this task
+assumes available_pool arrives as already-structured species data); capturing the user's
+ownership_mode preference from conversation or settings (assumed to arrive as an already-
+resolved parameter for this task).
+
+### 2026-08-08 (cont.): role_spread legality fix + new tier-2 usage-informed spread
+reasoning; second ADR-014 live-fetch exception
+
+Surfaced while investigating the _pick_role redesign's prerequisites (a consumer audit
+found role_spread silently defaulting unrecognized roles to the bulky_attacker spread).
+Turned into a substantially larger, three-part fix once a real, separate legality bug was
+found alongside it, and once a much better long-term design became apparent given data
+infrastructure already built for other purposes.
+
+**Legality bug, confirmed and fixed:** a full sweep of all five hardcoded role_spread
+entries (not just the one suspected) found ONE real violation — trick_room_sweeper
+allocated 34 points to Special Attack, exceeding Champions' real 32-point per-stat cap
+(total still summed to a legal 66, so this wasn't caught by any total-budget check). Fixed
+to 32 HP / 2 Def / 32 SpA. The other four spreads were checked and confirmed already legal.
+
+**Fallthrough bug, confirmed and fixed:** role_spread's final branch was an unconditional
+`return`, never actually guarded to "bulky_attacker" specifically — Python doesn't enforce
+the RoleArchetype Literal type at runtime, so any unrecognized role value silently landed
+in that branch and got bulky_attacker's spread with no signal anything was wrong. Fixed to
+raise ValueError on an unrecognized role, consistent with this project's standing "fail
+loud, not silent" discipline — confirmed safe against existing callers, since
+_refine_defaults already resolves unknown roles via infer_role BEFORE calling role_spread
+(per the earlier consumer audit).
+
+**New tier-2 usage-informed spread reasoning (recommender/usage_spreads.py,
+select_usage_spread), a genuine architectural addition:** role_spread's fixed, role-keyed
+lookup table was recognized as backwards relative to everything else this project has
+built since it was written — this project already extracts real, per-species spread+nature
+usage data (species_usage(...).top_spreads, up to 8 real, ranked variants per species,
+already part of the same CBD/Showdown pipeline used for movesets/items) via the same
+infrastructure used everywhere else. Confirmed the real data shape before designing
+anything: Showdown's top_spreads carries nature but its pct field is an UNNORMALIZED
+MunchStats chaos weight, not a true percentage (a real, live footgun if ever conflated with
+a genuine percentage elsewhere); CBD's pct IS a real percentage but lacks nature. Real
+examples confirmed genuinely distinct strategies coexist unlabeled in the same list
+(Incineroar: offensive vs. bulky-special vs. bulky-physical variants; Farigiraf similarly
+varied) — nothing in the data explains which variant fits which strategic context, and
+no field proves a spread co-occurred with any specific moveset/item (each is independently
+top-ranked). This meant the new tier-2 mechanism couldn't be a simple top-1 lookup (which
+is what the existing featured_or_common_set already does, and was confirmed insufficient
+for this purpose, since it discards the real variation this task exists to use) — it needed
+genuine reasoning: given the real, available variants and real context (role, team state,
+threats/needs already established), select the one that best fits, the same propose-then-
+verify shape already proven for _best_payoff_move's selection in the setup-attacker work.
+
+**Corrected spread-sourcing hierarchy**: tier-1 (exact cached build, unchanged) -> tier-2
+(new: contextual reasoning over real top_spreads variants, offline or via a dedicated live
+fetch for out-of-coverage species) -> tier-3 (role_spread's now-corrected, legal hardcoded
+table, genuine last resort only). Integrated into both recommend.py and the slot-fill path.
+
+**Second ADR-014 live-fetch exception (Amendment 2026-08-08a):** the offline usage
+snapshot's top-50-species-plus-lineage cap (the same boundary that caused the earlier
+Clefable gap) leaves otherwise-legal species with no real spread variants for tier-2 to
+reason over. Resolved the same way as lookup_live_build's exception (Amendment
+2026-08-07a) — confirmed this is a second, separately-justified instance of the same
+purpose/mechanism distinction, not a blanket loosening: a dedicated fetch_live_spreads
+mechanism (known MunchStats/CBD endpoints, known structured schemas, deterministic parsing,
+explicitly NOT reusing the construction-scoped usage_cbd.py/usage_showdown.py fetchers)
+fires only when a species has no offline usage row; any failure, unsupported regulation, or
+unusable data returns no candidates and falls through cleanly to tier-3.
+
+### 2026-08-08 (cont.): _pick_role redesign — design work, not yet implemented; discovered
+the wiring gap is larger than assumed
+
+Attempted to redesign _pick_role's output vocabulary (to support Compendium-shaped role
+names alongside coarse fallback values) and design a top-level dispatcher connecting it to
+SlotFillContext's discovery machinery. Real design progress was made, but the session
+surfaced that the actual scope is bigger than a _pick_role redesign — the end-to-end
+wiring flow connecting the many individually-built pieces has never actually been
+specified, and almost none of it is live in production today.
+
+**Vocabulary corrections worked out for _pick_role's RoleArchetype set:**
+- support_speed_control confirmed as illegitimate output — not because it's too coarse,
+  but because it names a CATEGORY of need (which itself requires further resolution:
+  Trick Room? Tailwind? Sticky Web? Icy-Wind-class coverage?) rather than a terminal
+  decision. Every other _pick_role output is directly actionable by a downstream
+  mechanism; this one wasn't. Fix: _pick_role should output whichever SPECIFIC kind
+  actually fits (same mechanism as any other role — name it if context favors one; if
+  genuinely ambiguous among several real options — e.g. the TailRoom case, where Trick
+  Room AND Tailwind can both apply simultaneously — that ambiguity needs its own
+  resolution, not forced into a single coarse label).
+- bulky_pivot confirmed to hide a real internal split (bulky/absorb-then-pivot vs. fast/
+  pivot-before-being-hit) and should become two values, bulky_pivot/fast_pivot. Confirmed
+  pivoting is NOT a universal need the way speed control was (fully opponent-dependent,
+  "every team considers it, none highly prioritizes it") — meaning, unlike speed control,
+  there's no better-positioned upstream mechanism to resolve it instead, so it correctly
+  stays as a low-priority, coverage-gap-style _pick_role output.
+
+**The more consequential finding: _pick_role and SlotFillContext are not two competing
+decision paths (the "which branch fires first" framing this session started with was
+wrong) — they answer genuinely different-grained questions.** Confirmed via direct
+inspection of _pick_role's real implementation (previously only known from a summary
+description): it decides WHAT KIND of role a slot needs (a coarse label), while
+SlotFillContext's query-tool machinery (query_threat_counters, query_support_needs)
+decides WHICH SPECIFIC SPECIES fills a role once one is known. This reframes the design
+from "a three-way dispatcher choosing between competing reasoning systems" to a two-stage
+pipeline: decide role first (deterministic, _pick_role's actual job), then discover
+species for that role (SlotFillContext's job) — sequential, not alternative.
+
+Also confirmed directly (not assumed) that _pick_role's "archetype components" and
+"coverage-gap default" branches are less cleanly separated than their names suggest: the
+coverage-gap branch has two materially different paths depending on whether any species
+already exists in the draft (a coarse, threat-blind shortcut when one does; real
+threat/coverage/SPOF machinery, calling classify_matchup, only when the draft is
+completely empty of species) — the two reasoning "kinds" partially overlap in practice.
+
+**The most important finding: almost none of ADR-022/023's machinery is actually wired
+into the live proposal loop.** A repository-wide call-site search confirmed
+query_threat_counters, query_support_needs, SlotFillContext, run_slot_fill_terminal, and
+role_candidates are all instantiated ONLY in tests today — _pick_role, narrow as it is, is
+the ONLY role/species-decision logic actually running in production. This means the real
+next step isn't refining _pick_role's design further in isolation — it's specifying the
+actual end-to-end flow that connects everything, which has never been done.
+
+**Decided: rather than continue designing the flow abstractly, run a third role-play
+session (via Cursor, with real code/tool access) explicitly framed as DISCOVERY rather
+than validation** — given how many individually-correct, individually-tested pieces now
+exist with no specified connecting sequence, the fastest way to find the actual natural
+flow (and every gap in it) is to have Cursor attempt to actually use the tools end-to-end
+for a real slot-fill and report where it breaks down, rather than keep whiteboarding the
+sequence without testing it against the real pieces.
+
+No code shipped this session on this thread. Deliberately deferred: the actual
+_pick_role/dispatcher implementation (blocked on the role-play's findings); the
+AnnotatedCandidate three-source generalization; the theme-filtered-pool producer for
+case-3 slot-fill (from the earlier wiring-design thread, still unresolved and now folded
+into the larger "what's the real flow" question this role-play session is meant to answer).
+
+Next session should start by reading the Cursor role-play report before any further
+design work — that report is expected to be the primary input for actually specifying the
+end-to-end wiring flow.
+
+### 2026-08-08 (cont.): slot-fill flow discovery (Cursor role-play) — end-to-end sequence
+specified; phase routing corrected via follow-up
+
+Read Cursor's slot-fill discovery report (four scenarios, real tool/data calls, not
+role-play-in-chat) as the primary input for resuming the paused _pick_role redesign. This
+report is higher-confidence than prior chat-based stress-tests since it exercised real
+repository functions and surfaced failures directly rather than by simulation.
+
+**Confirms the paused session's core framing.** _pick_role deciding WHAT KIND of role and
+SlotFillContext's query machinery deciding WHICH SPECIES are sequential stages, not
+competing paths — Scenario 1 (Kingambit) demonstrates this directly: the user's "Trick
+Room" choice had to resolve to a role decision before the query tools could do anything
+useful with it. The concrete missing piece, confirmed by direct inspection rather than
+assumed: **no live node currently produces RoleShapeContext from real state.** This is the
+paused _pick_role redesign's actual next job — _pick_role's output (or its redesigned
+successor's) becomes the RoleShapeContext producer feeding SlotFillContext.
+
+**Real structural bug in ADR-023, not just an unwired edge.** ADR-023's terminal chain
+("hand off to refinement pipeline") commits species via apply_lock BEFORE refinement runs,
+per Scenario 1 step 15 — an incomplete/wrong build (missing nature despite usage evidence)
+gets locked before anyone sees it. Fix (from the report, adopted): split candidate
+selection from build commitment — candidate chosen -> provisional full build -> user
+confirmation -> atomic slot lock. This amends ADR-023's terminal procedure, not just
+propose_team_draft's wiring.
+
+**Team-phase routing confirmed necessary, but the report's own proposed boundary was
+wrong** — flagged this directly rather than adopting it as-is (the "roughly three locked"
+threshold read as anecdote-derived, not structurally justified: shared-teammate
+intersection and coverage aggregation are computable at 2 locked, not 3). Sent a targeted
+follow-up question to Cursor (which retains the role-play transcripts) rather than argue
+from the report's summary. Cursor's transcript-level answer, confirmed against actual
+scenario events rather than the report's own prose:
+
+- Archaludon scenario: team-wide reassessment already happened correctly immediately after
+  the 2nd lock (events 40-41 — Pelipper's Tailwind satisfaction detected, screens gap
+  identified, Grimmsnarl selected before any 3rd-lock threshold). The later Basculegion
+  failure (redundant Rain offense) was NOT a count-threshold problem — it was continuing to
+  prioritize Archaludon's stale teammate list after team composition had changed, and the
+  specific "duplicates Mega Swampert" objection literally couldn't fire before Mega
+  Swampert existed to duplicate.
+- Mono-Fairy scenario: no new orchestrator behavior appears at any count boundary past 2
+  locked (checked at 3/4/5/6 explicitly) — later discoveries were candidate-specific
+  (missing usage data, ability/move modeling gaps, Mega-roster semantics), not phase-
+  specific. Six-lock review is terminal roster validation, materially different in kind
+  from generating a next candidate — a real fourth phase, not folded into multi_locked.
+
+**Corrected finding: the fix is a recompute trigger, not a phase boundary.** "Switch modes
+at N locks" was the wrong shape of rule regardless of which N — team-wide signals must be
+recomputed after every lock (or provisional candidate), not cached from whatever state
+existed when a phase was entered.
+
+**Final phase design (four phases, confirmed via transcript, not the report's original
+three-way split):**
+1. `empty` — no locked members, no anchor evidence exists.
+2. `single_locked` — anchor-only evidence; unmodified from today's Scenario-1-shaped
+   sequence.
+3. `multi_locked` (2+, single bucket, no further count split) — team-wide signals active
+   and MUST be recomputed after every lock, not cached at phase entry. Ranking receives
+   changing parameters (remaining slot count, role/matchup deficits, attacker/support/
+   balance preference, shared-teammate evidence, condition resilience, candidate
+   redundancy) — not additional phase branches.
+4. `complete` — terminal roster review (legality, item uniqueness, monotype, residual
+   threats) once the roster is full; validates a finished roster rather than generating a
+   next candidate, confirmed structurally distinct from `multi_locked` via the mono-Fairy
+   trace.
+
+**Scoped down from the report's full proposal, deliberately.** The report's "natural
+end-to-end flow" (10 steps) and seven proposed module boundaries bundle in substantial
+additional design surface — canonical name/form resolution at the input boundary,
+ownership propagation across base/Mega forms, a teammate query API + shared-teammate
+intersection, condition-resilience assessment, selected-four/bring-four compatibility
+modeling, a labeled static fallback for calc-unavailable — that is real, individually
+valid future work (several map to already-documented failure modes) but is NOT required to
+answer the paused session's actual blocking question. Deliberately kept out of this pass's
+scope rather than adopted wholesale under "wiring the flow."
+
+**Minimal flow now specified to design the _pick_role dispatcher against:**
+`route_team_phase` (the four phases above) -> `discover_slot_candidates` (redesigned
+_pick_role produces role decision -> feeds RoleShapeContext -> SlotFillContext ->
+existing ADR-022 query tools -> ADR-023's overlap/merge, corrected per above) -> present
+-> provisional build -> user confirmation -> atomic lock -> post_lock_review (must
+actually invalidate/refresh multi_locked's team-wide signals, not just re-route).
+
+No code shipped this session. No ADR entries written yet, consistent with this project's
+standing practice — this session specifies the flow; ADR-023's amendment and any new ADR
+for phase routing should be drafted once the _pick_role dispatcher redesign is actually
+finished against this flow, not before.
+
+**Deliberately deferred, tracked as separate future scope, not folded into this task:**
+canonical name/form resolution at input boundary; ownership propagation across base/Mega
+forms; teammate query API + shared-teammate intersection mechanism; condition-resilience
+assessment framework; selected-four/bring-four compatibility modeling; labeled static
+fallback when calc is unavailable; Mimikyu usage-snapshot gap; `_union_move_candidates`
+frozenset-iteration nondeterminism.
+
+Next step: specify what `discover_slot_candidates` does with _pick_role's output to
+actually construct RoleShapeContext — this is the concrete design surface that finishes
+the paused _pick_role redesign.
+
+### 2026-08-08 (cont.): anchor-role / target-role pipeline — Tracks A-C implemented,
+closing out the slot-fill flow discovery arc
+
+Closes the design arc opened by the paused `_pick_role` redesign and the Cursor slot-fill
+discovery report earlier this session. Four discovery/design documents fed this
+implementation, in order: `slot_fill_flow_discovery_2026-08-08.md` (four-phase team
+routing, provisional/confirm/atomic-lock correction to ADR-023), `role_shape_context_
+derivation_discovery_2026-08-08.md` (first pass at RoleShapeContext derivation — later
+partially superseded), `anchor_role_and_target_role_discovery_2026-08-08.md` (the
+consequential correction: RoleShapeContext describes the anchor, `_pick_role` has only
+ever described the open slot — these are two different missing producers, not one), and a
+final implementation plan that went through one correction round before being built.
+
+**Core structural finding, worth restating plainly since an earlier statement in this same
+session was wrong:** `_pick_role`'s redesign was never sufficient on its own to unblock the
+slot-fill flow. A second, entirely new producer — `classify_anchor_role -> AnchorRoleDecision`
+— was required and did not exist anywhere in the repo before this work. `_pick_role` stays
+scoped to `TargetRoleDecision` (the open slot); `classify_anchor_role` is new, for the
+existing anchor. Confirmed via direct transcript reconstruction of the Kingambit case: three
+non-interchangeable role concepts were in play simultaneously (`infer_role`'s kit inference
+-> `bulky_attacker`; user's strategic label -> `trick_room_sweeper`; the eventual open-slot
+target role -> `trick_room_setter`), and nothing in the codebase previously separated them.
+
+**Real correction to the first RoleShapeContext report, caught by testing against a second
+anchor rather than trusting Kingambit alone:** that report proposed `match_status="clean"`
+should mean "skip raw support-needs analysis." Direct execution against Archaludon (a build
+that cleanly matches its proposed strategic identity) disproved this — clean classification
+still surfaced real, useful needs (screens, healing, Tailwind). `match_status`/`match_quality`
+is diagnostic classification quality, never a routing shortcut; orchestration always decides
+whether raw support analysis runs.
+
+**Shipped, three tracks:**
+- **Track A (prerequisite):** `Slot.ability` persistence added; `all_locked()` now requires
+  all seven complete-build fields (species, ability, item, moveset, nature, spread, role).
+  Confirmed ability wins over usage-derived ability; usage-derived remains distinguishable
+  via provenance, never silently promoted to confirmed. Sequenced strictly before Tracks
+  B/C, consistent with this project's standing "don't build new logic on an unverified
+  foundation" precedent (same shape as the earlier role_spread fallthrough fix).
+- **Track B:** `resolve_anchor_build -> ResolvedAnchorBuild` (per-field provenance domain:
+  user_confirmed/provisional/usage_derived/cached/synthesized/legality_only/unknown;
+  fingerprinted for recomputation triggers) and `classify_anchor_role -> AnchorRoleDecision`
+  (role_id, secondary_role_ids, structured mechanisms each tagged needed/wanted/secondary,
+  kit_role as coarse infer_role evidence only, never promoted). `RoleShapeContext` narrowed
+  to exactly `primary_function`, `tankiness`, `requires_setup_turn` (renamed from
+  `setup_dependent`) — `match_status`, `archetype_id`, `partial_signals` removed (zero
+  consumers, zero production constructors, confirmed twice across two reports).
+- **Track C:** `TargetRoleDecision` (immutable, threaded through `SlotFillContext`,
+  `AnnotatedCandidate`, and pending presentation — candidate-specific, not a single
+  context-level field, so threat-only alternatives don't silently inherit a role they don't
+  provide) and the provisional-build correction: candidate acceptance now produces
+  `PendingSlotIntent`, not an immediate species lock; `ProvisionalSlot` requires all seven
+  fields complete or returns a structured unresolved result; atomic full-slot commit
+  prevalidates and locks all fields together or changes nothing. `_apply_locks_batch` left
+  unchanged for ordinary partial steering — the new atomic path is additive, not a
+  replacement.
+
+**`_pick_role` vocabulary corrections (from the earlier paused session) confirmed carried
+forward:** `support_speed_control` excluded from the target-role domain; `bulky_pivot`/
+`fast_pivot` kept distinct. Deliberately does NOT invent a pivot-selection heuristic where
+current inputs give no signal — this project's "don't build for a case you can't yet
+verify" discipline applied correctly by Cursor without being asked.
+
+**One real bug caught and fixed during plan review, before implementation:** the first
+submitted plan sourced `secondary_role_ids` from `secondary`-tier (incidental) mechanisms —
+inverted from the field's own definition, which needs `needed`/`wanted`-tier mechanisms
+supporting a role other than the primary. Traced explicitly through Pelipper in the
+corrected plan: needed automatic Drizzle -> primary `rain_setter`; wanted Tailwind -> distinct
+`secondary_role_ids=("tailwind_setter",)`. Caught because the plan was reviewed as actual
+content, not accepted from a summary confidence score (an intermediate "97.9% confidence"
+scorecard-style review from Cursor was explicitly rejected as insufficient evidence and
+resubmission of real plan text was required — worth normalizing as standing practice for any
+future AI-generated review summary, not just this one).
+
+**Deliberately deferred, not oversights:** Electro Shot -> Rain move-derived condition
+detection (explicitly proposed for inclusion mid-plan, explicitly cut back out for scope
+consistency with the discovery reports' own "Next priority, not this pass" categorization —
+Archaludon's Stamina evidence still ships, Rain detection does not); canonical name/form
+resolution; teammate query API; condition-resilience assessment; selected-four modeling;
+calc-unavailable static fallback; a permanent strategic-role taxonomy (role_id stays an
+opaque identifier); general team-phase routing beyond the specific candidate-selection ->
+provisional-refinement -> full-build-confirmation -> atomic-commit transitions actually
+needed here.
+
+**One real open risk, not yet resolved:** the production checkpointer is undefined in
+`recommender/graph.py` (tests use `MemorySaver`, which proves persistence-across-invokes but
+not restart durability). If a strict-msgpack checkpointer is eventually deployed, the new
+immutable state dataclasses (`TargetRoleDecision`, `PendingSlotIntent`, `ProvisionalSlot`,
+etc.) will need explicit allowlisting to serialize. Deliberately NOT implemented speculatively
+against an undetermined checkpointer interface — tracked as a required follow-up tied to the
+actual checkpointer selection decision, not built ahead of that decision.
+
+431 tests passing (up from 385), 5 skipped. Compile and diff checks pass. Verified directly
+(not just "tests pass"): ability persistence and seven-field completion; Kingambit,
+Archaludon, Pelipper, and Farigiraf acceptance cases by name; structured (non-silent-default)
+ambiguous speed-control result; provisional refinement and atomic full-slot commit behavior.
+
+Plan file itself left untouched by the implementation, per the discipline this project
+already applies to source docs — implementation followed the plan, didn't rewrite its
+record.
+
+Next: resolve production checkpointer choice (blocks the msgpack-allowlisting follow-up);
+Electro Shot -> Rain and other move-derived condition detection remain open, separately
+scoped work; general team-phase routing (the four-phase design from the flow-discovery
+report) is still only conceptually specified, not wired into the live graph beyond what
+Track C's transitions required.
+
+### 2026-08-08 (cont.): team-phase routing — implemented, closing out the slot-fill flow
+discovery arc's remaining major gap
+
+Implements the four-phase design corrected earlier this session (see ADR-025) into the live
+graph. Before this pass, `accept_available_pool` routed directly to the legacy proposal path
+with no phase decision point at all, and Track C's anchored-discovery chain and atomic-commit
+path — both real, tested code — had no caller connecting them to team-fill state.
+
+**Verified current-state check done before implementation** (not assumed from the original
+discovery report, which was already several implementation passes stale): confirmed
+`route_team_phase`/`bootstrap_direction` did not exist in any form; confirmed empty-team's
+fallback to `_pick_role`'s generic `bulky_attacker` default traces to a concrete mechanism —
+coverage computed against a literal empty draft trivially yields `has_gap=True`; confirmed
+`compute_team_coverage`/`detect_spof` were callable but not persisted in `RecommenderState`;
+confirmed the shared-teammate query API is still genuinely absent; confirmed
+`generate_team_review` was reachable only via explicit `team_review` intent, never
+automatically. Separately, confirmed the six 2026-08-02 ADR-022 design gaps were NOT an
+untouched backlog as originally assumed — ADR-023 Amendment 2026-08-02a had already closed
+all six (two dissolved as misdiagnoses, two resolved with stated defaults, one accepted as
+risk, one correctly reframed as deferred quick-pick work) — corrected before this task's
+backlog list was finalized, avoiding restating already-closed items as open.
+
+**Shipped:** phase derivation counting only `all_locked` slots (a partial six-slot draft
+correctly stays `multi_locked`, never falsely reads as `complete`); `route_team_phase` wired
+into the graph with four destinations, reached from pool acceptance and every mutation/commit
+handler; `single_locked` real-dispatches the existing Track C chain (`build_anchored_slot_
+fill_context -> annotate_overlap -> resolve_all_support_needs -> merge_need_resolved ->
+run_slot_fill_terminal`) with structured unresolved-target-role results preserved rather than
+forced defaults; `multi_locked` real-recomputes coverage/SPOF on every entry (the actual fix
+for the Basculegion-shaped staleness bug, not a threshold); `complete` auto-dispatches to
+`generate_team_review`, making full-roster review automatic for the first time (explicit
+`team_review` intent still supported). Signal freshness enforced structurally: every phase
+handler clears stale coverage/SPOF/review state before producing its next output; no phase can
+expose a prior phase's review as current.
+
+**Explicitly NOT real, labeled as such rather than silently gapped:** `empty` remains a
+routing stub — the combined direction+pool interaction is new UX design, not built here.
+`single_locked`'s real dispatch still lacks owned-first propagation, target-role Compendium
+dispatch, and target-role resolution for threat-only candidates. `multi_locked`'s signal
+refresh is coverage/SPOF only — shared-teammate intersection, condition resilience, role
+duplication, and selected-four evidence remain unavailable, and this pass does not simulate
+them.
+
+**Memoization disambiguated, not conflated:** confirmed the shipped full-result, thread-scoped
+matchup LRU (2026-07-31) is what's reused by the shared review computation here. Breakpoint
+memoization (learning reusable KO/speed thresholds across EV/nature/level variants) remains a
+separate, deferred task, unaffected by this pass — flagged explicitly after an earlier draft of
+this report used ambiguous wording that could have read as closing out the deferred item.
+
+440 tests passing (up from 431), 5 skipped. `git diff --check` passes. Full suite and three
+focused command groups (routing/slot-fill, routing/coverage/steering, routing/cache-binding)
+all run clean.
+
+**Deliberately deferred, tracked as separate future scope, not folded into this task:**
+canonical name/form resolution; ownership propagation across forms; teammate query API +
+shared-teammate intersection; condition-resilience assessment; move/ability conditional
+mechanics (Electro Shot -> Rain, Liquid Voice + Hyper Voice, Freeze-Dry -> Water, Phantom Force
+positioning); labeled static fallback for unavailable calc; selected-four/bring-four
+compatibility modeling; tier-3 refinement completeness guarantees; Mimikyu usage-snapshot gap;
+`_union_move_candidates` frozenset nondeterminism; teammate percentages; `classify_matchup`
+breakpoint memoization; Mega-count soft guidance (blocked on quick-pick design, which hasn't
+started).
+
+This closes out the major structural gap identified at the start of this session's arc — "no
+production graph node calls any of ADR-022/023's machinery" — for the specific pieces this
+session scoped. Remaining open threads: production checkpointer choice (blocks msgpack
+allowlisting for the new immutable state dataclasses); the full deferred-backlog list above;
+quick-pick design (unblocks Mega-count guidance); v2 singles extension (ADR-005, future
+milestone).
+
+### 2026-08-08 (cont.): compendium-first need resolution + candidate evidence provenance —
+implemented, closing the two "unclear" verification-pass findings
+
+Follows a targeted verification pass that confirmed two backlog items — "wire need
+categories to the Role Compendium before raw learnset search" and "richer provenance/
+confidence labels on presentation" — were open, and were in fact the same underlying gap
+surfacing at two pipeline points: richer evidence gets built (compendium data,
+`AnchorRoleDecision`'s mechanism evidence), then something downstream reaches past it for a
+thinner one (raw learnset search; bare species names in presentation). Verification cited
+exact source lines for both drop points before any fix was scoped, avoiding inferring
+closure from an adjacent mechanism's existence (`classify_anchor_role`'s compendium split
+does not mean need-resolution uses the compendium — it didn't).
+
+**Shipped:** compendium-first dispatch for `trick_room` (Trick Room Setter, full category
+coverage), `condition_setter` (Weather Setter per Rain/Sun/Sand/Snow trigger; terrain labels
+remain mechanical), and `fake_out_protection` (Redirection as partial coverage alongside
+existing Fake Out/redirect-move/Armor Tail/Queenly Majesty/Dazzling mechanical avenues;
+Psychic Terrain explicitly out of scope, current resolver doesn't implement it). Categories
+with no compendium mapping (`tailwind`, `taunt_disruption`, `healing_cleric`, `screens`,
+`stat_lowering_partner`, `defensive_coverage`) preserve current behavior exactly — no new
+compendium construction attempted. Role/condition-scoped rejection correctly does not
+suppress a separately-supported claim for the same species (rejected as Rain setter ≠
+excluded as Sun setter), avoiding the over-broad-exclusion mistake this project already
+caught once with Kingambit's Swords Dance Attacker membership.
+
+New `CandidateEvidence` (basis: usage_backed/compendium_backed/mechanical_only/synthesized;
+confidence: high/medium/low) threads per-candidate, not anchor-level, through
+`SlotFillPresentation` -> `PendingPresentationOption` -> `PendingSlotIntent`, surviving the
+graph-turn boundary. Deliberately does NOT reuse `AnchorRoleDecision` for this — it
+classifies the anchor, not the candidate, and copying it would misattribute anchor-
+classification confidence to species it was never evaluated against.
+
+**Real correction caught in plan review, not after implementation:** the first submitted
+plan proposed compendium-first ranking via insertion order + stable sort, which only actually
+guarantees compendium-first behavior among candidates already tied on `_sort_annotated`'s
+three existing primary keys (matched-need count, threat-verification score, usage rank) — not
+against them. Caught by asking Cursor to confirm `_sort_annotated`'s actual key structure
+directly rather than accepting "stable sort preserves order" as sufficient. Corrected to make
+compendium confidence the leading sort key, bounded by an active-need invariant (zero-match
+compendium evidence is rejected by assertion at construction time, not merely deprioritized —
+a stronger guarantee than originally scoped) so a compendium member irrelevant to the actual
+search can't jump the queue. Above that bound, priority is unconditional and explicit,
+justified directly: pre-verified compendium evidence outranks raw usage/threat signal even
+when the raw-signal candidate wins on every other criterion, consistent with ADR-021's
+verification-gating principle. Verified by two named adversarial tests:
+`test_compendium_priority_beats_all_existing_sort_pressure` (mechanical candidate wins on all
+three existing keys, compendium candidate still ranks first) and
+`test_compendium_priority_requires_an_active_matching_need` (zero-match compendium evidence
+cannot be constructed as a candidate state at all).
+
+Also fixed in the same pass, confirmed genuinely touched by the diff rather than pulled in
+for backlog proximity: `_union_move_candidates`'s frozenset-iteration nondeterminism, now
+sorted deterministically.
+
+450 tests passing (up from 440), 5 skipped. Live dispatch smoke test passed, no linter
+errors. Plan file left unmodified by implementation.
+
+This closes both items flagged "unclear, needs checking" from the post-arc backlog review —
+both were genuinely open, not partially covered by adjacent work, consistent with this
+project's standing practice of verifying claimed coverage rather than inferring it.
+
+### 2026-08-08 (cont.): exact-form teammate extraction + query surface — implemented,
+with three unapproved scope expansions caught and corrected during review
+
+Two sequential tracks, following the verification pass that found CBD structurally cannot
+distinguish Pokémon forms for teammate data (confirmed: `Swampert`/`Swampert-Mega` carry
+materially different real teammate lists — Archaludon 0.117% vs. 62.257%, Pelipper similarly
+skewed) while Showdown/MunchStats' exact-form chaos records do distinguish them but were
+never extracted (`fetch_usage_mb.py` previously pulled moves/items/abilities/spreads only,
+dropping `Teammates` entirely).
+
+**Track 1 — extraction.** Exact-form `Teammates` now extracted per form into a new
+schema-v3 snapshot namespace (`showdown_vgc_mb.species[*].teammates`/`teammates_meta`), with
+an audited normalization function: `conditional_pct(T|anchor) = 100 * teammate_weight[T] /
+max(ability_weight, teammate_weight/6, 1)` — confirmed as the correct unconditional-max
+reading of MunchStats' own source logic (`app.py:1740-1760`), not the initially-assumed
+conditional fallback. Represents `P(teammate present | exact anchor form present)` under
+ladder weighting — explicitly not a sum-to-100 distribution (values can exceed 500% in
+aggregate across a 6-member roster) and not reused via the existing sum-to-100
+`_munch_to_common` pattern, which would have been wrong here. Regression-gated against real
+independently-sourced values (MunchStats' own rendered Mega Swampert page, 1500 cutoff, June
+2026: Pelipper 81.604%, Archaludon 67.781%, Sinistcha 46.750%) — caught and corrected before
+implementation that an earlier draft of this fixture had been computed from the proposed
+formula itself rather than an independent source, which would have made the "regression
+test" tautological rather than a real correctness check.
+
+**Track 2 — query surface.** `query_teammates`/`query_shared_teammates` added
+(`recommender/teammates.py`): offline-first exact-form Showdown lookup, MunchStats live fetch
+only on genuine offline-row absence (ADR-014 Amendment 2026-08-08b), CBD as a conservative
+offline-only rank-only fallback with explicit ambiguous/unresolved form-attribution status
+when evidence can't prove an exact form. Strict all-N shared intersection excludes each locked
+anchor's own legality lineage from its own results, preserves every directional
+`P(candidate|anchor)` observation rather than averaging into a false symmetric probability,
+and distinguishes genuine empty intersection from unavailable source data at the envelope
+level (`available`/`partial`/`unavailable` status, never conflating `null` and `[]`).
+Percentage-aware maximin ordering (weakest shared relationship first, then geometric mean for
+consistency) applies only when all anchor observations are comparable exact-form Showdown
+evidence; falls back to rank-based ordering under mixed/CBD evidence. Published additively to
+`multi_locked`'s `refresh_team_signals` alongside (not replacing) coverage/SPOF; source
+failure returns an unavailable envelope without failing coverage/SPOF.
+
+**Three unapproved scope expansions found and corrected during review, not discovered until
+directly checked against the approved plan:**
+1. `generate_team_review` (the `complete` phase) had been extended to compute and publish a
+   fresh six-member shared-teammate signal — the approved plan explicitly scoped
+   complete-roster teammate review as out of scope, intending only stale-state clearing on
+   the complete transition. Corrected to `shared_teammates: None` with no query.
+2. CBD fallback had been implemented with an additional, unapproved live fetch
+   (`live_cbd_fetch`, hitting `championsbattledata.com`'s live API) beyond the approved
+   offline-only read. Removed after explicit reasoning (not just plan-conformance): CBD
+   fallback is already three evidence-levels deep and rank-only/ambiguous regardless of
+   freshness — a fourth network dependency for marginal freshness on the weakest-quality
+   fallback wasn't justified.
+3. Live Showdown fetch's trigger condition was broader than the approved `fetch_live_spreads`
+   precedent — it fired both on offline-row absence AND on a present-but-malformed offline
+   row. Corrected to trigger strictly on absence, matching the existing precedent's `if entry
+   is None` condition exactly. Reasoning stated explicitly: a malformed existing row signals
+   an extraction bug, not transient unavailability — silently falling through to live fetch
+   in that case would mask a real snapshot-integrity problem rather than surface it.
+
+**Process failure also worth naming plainly:** the approved plan itself included a step
+directing an edit to `docs/architecture_decisions.md` ("Amend ADR-014... before enabling this
+path") — a file `CURSOR_HANDOFF.md` explicitly marks as a read-only mirror not editable under
+any circumstance. That should have been flagged back during plan review rather than approved;
+it wasn't, and the file was actually edited during implementation (later confirmed and
+reverted, along with an equivalent unauthorized edit to `master_project_log.md`). Both
+mirrors confirmed unchanged (hash-verified) after the final correction round. The real ADR-014
+amendment went through the normal path afterward — proposed as text for review, not written
+directly to the file.
+
+464 tests passing (up from 450), 5 skipped. Focused/adjacent/full suite all clean, no lint or
+whitespace errors.
+
+This closes out the teammate-query thread from the post-arc backlog review. Remaining
+deferred, not oversights: user-input name/shorthand resolution (the "Eternal Floette" case,
+still a separate, unscoped subsystem); general form-aware ownership propagation beyond
+teammate-record correctness; Pokémon-Zone dataset adoption (excluded — pair counts lack a
+denominator, core percentages apply only to exact four-species cores, current extractor
+can't reproduce its fields); candidate-evidence merging/ranking consumption of shared-teammate
+signal (published but not yet consumed by ranking, per the "publish, but do not rank on" scope
+this task held to); condition-resilience assessment; selected-four modeling; calc-unavailable
+static fallback; checkpointer choice (still blocks msgpack allowlisting); empty-team bootstrap
+UX design.
+
+### 2026-08-08 (cont.): multi_locked real candidate discovery/ranking — implemented,
+closing ADR-025's largest deferred item; three separate design corrections caught during
+review and one significant near-miss during confirmation
+
+Closes the largest remaining piece of deferred capability flagged when `multi_locked` first
+shipped — real candidate discovery/ranking for a team with 2+ locked members, replacing the
+"legacy proposal/refinement, signals only" behavior that phase has had since team-phase
+routing was built. This task went through more review-and-correction cycles than any other
+this session, several of them substantive rather than cosmetic — worth logging honestly
+rather than summarized down to the clean final numbers.
+
+**Verification + design phase.** First discovery/design submission was rejected outright —
+it read as a plan describing what a design document *would* contain ("the proposal will
+recommend...") rather than the actual document, the same failure shape as an earlier
+plan-review scorecard this session. The real document, once produced, held up well:
+confirmed via direct source citation that `multi_locked` calls none of the four ADR-022
+query tools, bypasses compendium-first resolution and `CandidateEvidence` entirely, and that
+`fill_team_draft` flattens a resolved `TargetRoleDecision` down to a bare role `Attr`,
+discarding its constraints/confidence/provenance. One real gap flagged before approval: the
+proposed ranking order (team-threat-improvement strictly before composition-fit) wasn't
+argued for as carefully as the other stage placements, and the residual-risks section didn't
+flag it as adjustable. Sent back for resolution.
+
+**Ranking-order resolution — a real design correction, not a reordering.** The response
+didn't just swap two stages; it decomposed "team threat improvement" into severity bands
+(decisive/costly/toss-up/conditional/SPOF) and inserted composition fit between the
+high-severity and low-severity bands — so a severe composition problem can now outrank a
+*minor* threat gain, while a decisive/costly verified closure still wins even against a
+compositionally redundant candidate. More nuanced and more correct than the binary ordering
+question originally asked.
+
+**Implementation plan review — same "summary instead of substance" pattern recurred, and one
+real correctness question got resolved by direct verification.** First plan submission was
+again a confidence-scored summary rather than actual plan content; rejected on the same
+grounds as before. The real plan, once produced: cited the exact ranking tuple (verified
+consistent with the design invariants it's meant to satisfy), specified concrete calc-failure
+contracts (`CalcClientError`/`MatchupEvidenceError`, mapped to `calc_unavailable`/
+`calc_incomplete`), and — notably — the Basculegion regression fixture was checked for
+vacuousness *before* being written: the real snapshot has no Mega Swampert teammate data, so
+a typed synthetic fixture was used instead of a test that would have silently passed for the
+wrong reason. Directly verified the plan's ADR-015 citation (usage/real-team data limited to
+discovery/legality confirmation, never ranking evidence) against the actual project file —
+line numbers didn't match due to snapshot staleness, but the quoted principle was real and
+correctly applied to removing a standalone usage-popularity tiebreak from the design
+document's original stage 7.
+
+**One item flagged for the wrong reason initially — the import-cycle "blocker" fix was
+explained but not demonstrated.** Pushed back before implementation; Cursor's honest
+correction: the cycle was statically predicted, not runtime-reproduced, since the new module
+didn't exist yet. Made an import smoke test a hard Track A exit gate rather than trust the
+theoretical argument. This paid off directly: the real gate caught something the smoke test
+alone couldn't have — LangGraph's `get_type_hints(RecommenderState)` call fails at runtime on
+`TYPE_CHECKING`-only names, and a second-order cycle (`state -> teammates -> legality ->
+state`) not in the original predicted graph, fixed via dependency-neutral contract extraction.
+
+**Confirmation pass surfaced a real gap the implementation report's summary had missed.**
+Asked four direct questions before treating the task as closed. Three came back clean
+(Track 0 design-doc update confirmed by citation; the 5 skipped tests confirmed as unrelated
+live-service tests, not core coverage). The fourth — "is usage genuinely removed from final
+ranking" — initially failed: `usage_backed` was still present in `_BASIS_RANK`, feeding
+`best_evidence_basis_rank`. Investigation distinguished two different claims that had gotten
+conflated (usage-as-standalone-popularity-signal, correctly removed, vs. `usage_backed` as an
+evidence-*confidence* tier answering whether a specific claimed execution was confirmed, not
+whether a candidate is popular) — and the investigation, done properly, found the conflation
+was real but broader than what was asked: threat evidence was using raw `usage_rank` alone as
+basis, and move evidence accepted species-level `usage_pct` without move-specific commitment
+confirmation. Both fixed, correctly separating confirmed-execution evidence
+(`commitment_pct`, the same in-game-specific commitment metric this project has depended on
+since its very first usage-sourcing decision) from raw popularity.
+
+**Significant near-miss, caught only because it was directly questioned rather than
+accepted.** Agreed with the `usage_rank` removal from threat-candidate evidence on
+first pass, reasoning from this session's visible context alone. Directly challenged
+("are you sure this is something implemented during this session or was it implemented
+before") — a search of past conversations confirmed `query_threat_counters`'s `usage_rank`
+ranking was deliberate, load-bearing, prior-session design: a real bug had been found and
+fixed there (missing `usage_rank` traced to curated seed order instead of real chart
+position), and `usage_rank` was explicitly chosen as the deterministic merge-tiebreak
+mechanism. The current session alone made a three-week-old, deliberately-built mechanism
+look like an incidental implementation detail worth removing. Reverted for threat candidates
+specifically (support-candidate `commitment_pct` gating, a genuinely different and correct
+fix, left untouched). **New standing practice added to memory as a result**: before agreeing
+to remove or override any existing mechanism as a principle violation, search past
+conversations first when the mechanism is old, specific, or oddly persistent — treat that
+persistence itself as the signal to check, not just explicit requests to check.
+
+**Follow-up check on the same class of risk — resolved cleanly, but only after real
+verification, not assumption.** Asked whether anything else got silently overwritten.
+Checked `verified_score`'s clean-kill-vs-non-KO weighting specifically, since the plan had
+explicitly chosen not to reuse it. First search round found the underlying four-way outcome
+classification and severity gradient are genuinely deliberate design — and, notably, that the
+*original* reasoning for keeping `clean_kill`/`intentional_non_ko_answer` distinct was about
+user-facing flagging, not ranking weight, which if anything supported multi-locked's
+equal-treatment approach rather than contradicting it. Couldn't confirm the specific numeric
+weighting was itself deliberated, so sent a direct code-level check rather than resting on
+inference. That check found a real, deliberate comment (`_OUTCOME_POINTS`, "outcome
+dominates; severity scales within an outcome") and confirmed the scalar feeds both
+`query_threat_counters` and `single_locked`'s existing ranking — genuine evidence, initially
+read as requiring `verified_score` to be "restored." Pushed back on that conclusion as
+premature: `verified_score` is a single-matchup scalar with no direct portfolio-level
+equivalent, and the claimed "outcome dominates severity" policy needed arithmetic
+verification, not just the comment's word for it. That verification found the comment was
+**mathematically inaccurate** relative to what the code actually computes — the real formula
+is multiplicative, and a costly clean kill ties a decisive non-KO while a toss-up clean kill
+scores *below* a decisive non-KO, meaning outcome never strictly dominated severity even in
+its original context. Combined with the actual ADR-015 text (verified directly: intentional
+non-KO answers are "a legitimate, deliberately-built answer type, not a lesser result"),
+multi-locked's equal-treatment-at-equal-severity approach was confirmed consistent with, not
+a violation of, the established design. Resolution: no change to the ranking tuple; corrected
+the inaccurate code comment; added tests that would fail if outcome-specific buckets were
+later reintroduced (specifically a two-objective portfolio tie case); `query_threat_counters`
+and `single_locked` explicitly documented as caller-local scalar policy, not a repo-wide
+lexicographic invariant.
+
+**Process discipline that emerged and held for the rest of the task:** hash-baseline-then-
+verify-exact-match for the read-only mirrors, added unprompted after the earlier ADR-014
+file-edit incident — confirmed exact match at task close, no drift.
+
+513 tests passing (up from 509 at initial implementation, 385 at session start of this whole
+arc), 5 skipped (all live-service, unrelated to this task). Compilation, lints, and diff
+checks clean throughout every correction round.
+
+**Deliberately deferred, tracked as separate future scope, not folded into this task:**
+condition-resilience assessment, selected-four/bring-four modeling, canonical name/form
+resolution, calc-unavailable static fallback, target-role vocabulary completion beyond
+shipped support-derived cases, breadth-versus-severity aggregate policy (one decisive closure
+currently outranks arbitrarily many costly closures — explicitly left unchanged, flagged as
+its own separate policy question), and `single_locked`'s existing raw `usage_rank` sort
+(confirmed untouched, confirmed pre-existing, not in this task's scope to reconcile further).
+
+This closes the "almost none of ADR-022/023's machinery is wired into the live proposal
+loop" gap that opened this entire session's arc, for every phase — `single_locked` and
+`multi_locked` both now have real, tested candidate discovery grounded in the ADR-022/023
+toolkit, `complete` auto-reviews, and `empty` remains the one honestly-labeled stub left.
+
+### 2026-08-08 (cont.): empty-team bootstrap — implemented in two sequential tracks,
+closing the last remaining stub phase from the team-phase routing arc
+
+Closes `empty`, the last of the four team phases still behaving as a routing stub since
+team-phase routing first shipped. Discovery/design work found, and directly measured rather
+than assumed, that the target-role vocabulary gap already known from the anchor-role pipeline
+and multi-locked (both times correctly deferred as "structured unresolved, not a taxonomy
+change in this task") had become a real blocker here — the third consecutive task to hit it,
+and this time load-bearing rather than cosmetic: real-injection testing found roughly
+one-third of bootstrap's realistically-presented directions would dead-end on selection
+without expansion, disproportionately the mechanically-distinct options (weather setters,
+redirection, setup attackers) the alternative-diversity design specifically needed to surface
+meaningful, non-redundant choices.
+
+**Design/verification process, same discipline as every other task this session.** First
+discovery/design submission needed a real second pass on the ranking-diversity claim's
+practical impact — rather than accept "structured unresolved" as sufficient without checking
+how often it would actually fire, sent a targeted verification-and-decision task. That
+verification ran real code injection (four actual species through the real provisional-build
+path) rather than estimate from static reading, and gave an honest range (33-67%) rather than
+false precision on the harder-to-measure "diverse trio" question. Consumer audit confirmed
+domain expansion was safe — no exhaustive match statement, fixed-size enum, or serialization
+ordinal depended on the original seven-value domain.
+
+**Track 1 — target-role vocabulary expansion (prerequisite, sequenced strictly before Track
+2, same relationship ability persistence had to the anchor-role pipeline's later tracks).**
+`TargetRoleId` expanded from seven values to fourteen (`rain_setter`/`sun_setter`/
+`sand_setter`/`snow_setter`/`redirection`/`swords_dance_attacker`/`nasty_plot_attacker`
+added). New exact-evidence producer (`target_role_from_strategic_evidence`) constructs a
+decision only from a present needed/wanted active-build mechanism or exact Compendium
+evidence — never from species-only membership or a rejected Compendium row (verified via a
+Gholdengo test case specifically chosen because its Compendium row is rejected while its
+active Nasty Plot mechanism is real, proving the two evidence paths are genuinely
+independent). Verified with four real-species injection tests reaching complete
+`ProvisionalSlot`s and an all-14-role round-trip test proving no value is lost across
+presentation/selection/refinement/commit.
+
+**Track 2 — full bootstrap implementation.** Combined direction+available-pool intake in one
+prompt; exact-ID-only pool validation with every unresolved label surfaced in original
+spelling order (never guessed or aliased — confirmed `Eternal Floette` stays unresolved while
+`Floette-Eternal` is accepted); `ownership_mode_source` distinguishing default-`off` from a
+user's explicit request to disable ownership bias; deterministic diverse direction discovery
+combining `query_by_usage`'s existing owned-bias ranking (built earlier this session, reused
+without a new ranking algorithm) with Track 1's evidence tiers; four structurally separated
+`CandidateEvidence` provenance rows per option (usage/ownership/compendium/policy — never
+collapsed into one claim); full reuse of the existing provisional-build/confirmation/
+atomic-commit lifecycle with no bootstrap-specific terminal path.
+
+**First real LLM invocation in the runtime graph, confirmed rather than assumed.** Two
+candidate "prior seams" were directly checked and ruled out (`classify_pending` fully
+deterministic; `KitInteractionProposer` an unused-at-runtime type) before concluding this is
+genuinely ADR-013's first live consumer, not a second parallel abstraction. Injected via
+`build_graph(..., bootstrap_intake_parser=...)`, provider-neutral, with an optional Ollama
+development adapter — no hardcoded provider or model. Structured Pydantic schema, strict
+post-model validation, user text delimited as data with prompt-injection resistance, no raw
+content logged. Failure handling verified fail-closed: missing parser, provider exception, or
+malformed output all retain the intake presentation and mutate no pool/bootstrap facts,
+confirmed by a named test asserting the complete unchanged-state list, not just "an error is
+shown."
+
+**Deterministic mapping kept strictly separate from LLM extraction, at two levels — the real
+architectural point of this task.** Extracted direction text is matched against an explicit,
+longest-match-first phrase table (deterministic), not a second model judgment. An unmappable
+direction re-prompts for clarification — verified by a test that directly patches `_pick_role`
+and asserts it is *never called*, a structural guard against the specific failure mode this
+whole session's slot-fill arc traces back to (a wrongly-guessed role shape producing
+fabricated downstream needs, first found in the Kingambit false-positive case). Separately,
+`TargetRoleDecision` construction has explicit precedence: Track 1's exact-evidence producer
+wins whenever it returns a result; a coarse `kit_role` fallback only fires on `None`. A third,
+mechanism-based fallback path was proposed mid-plan-review and explicitly cut for duplicating
+the exact producer's logic rather than kept as harmless redundancy — verified by a named
+precedence-regression test using real Tyranitar data (both paths could apply; asserts the
+high-confidence path wins).
+
+**`_BASIS_RANK` extended additively, verified via explicit before/after diff** (not just
+asserted) after this exact map's history of real correction in the immediately preceding
+multi-locked task — `ownership_backed` added at rank 0 alongside `synthesized`, reasoned
+explicitly (ownership preference already has its own dedicated mechanism via `rank_and_cut`'s
+`owned_first`/`owned_last`, so a separate evidence-quality tier would double-count the same
+signal), no existing key's rank moved, no existing rank assertion loosened.
+
+**Legacy graph edge removed cleanly.** The unconditional `empty -> propose_team_draft` edge
+and its now-unreachable registration were removed; confirmed `fill_team_draft`/
+`propose_team_draft` remain intact and still correctly reachable by `discover_single_locked`
+and `discover_multi_locked`'s own partial-slot fallback paths — nothing orphaned.
+
+578 tests passing (up from 385 at the start of this session's whole slot-fill arc), 6 skipped
+(5 pre-existing live-calc-service skips confirmed unrelated to this task, 1 new opt-in Ollama
+live smoke test, not run by default). Full Python and TypeScript suites clean throughout both
+tracks. Read-only mirrors confirmed untouched by this task specifically (both files carry
+pre-existing modifications from this session's own accumulated ADR/log-entry drafting,
+correctly distinguished from anything this task did).
+
+This closes the team-phase routing arc in full: all four phases (`empty`, `single_locked`,
+`multi_locked`, `complete`) now have real, tested behavior grounded in the ADR-022/023
+toolkit, closing the "almost none of this machinery is wired into the live proposal loop" gap
+that opened this entire session.
+
+**Deliberately deferred, tracked as separate future scope:** canonical name/form resolution
+beyond exact-ID acceptance (still the same deferred item since the very first discovery
+report); condition-resilience assessment; selected-four modeling; general first-turn intent
+classification beyond `bootstrap_intake` specifically; further target-role taxonomy work
+beyond Track 1's fourteen values; low-data Compendium member build synthesis (confirmed
+independent of the vocabulary gap); checkpointer choice (still blocks msgpack allowlisting);
+breadth-versus-severity aggregate ranking policy (from the multi-locked task, still open);
+move/ability conditional mechanics (Electro Shot -> Rain, Liquid Voice, Freeze-Dry, Phantom
+Force).
+
+---
+
 ## TOOLS & RESOURCES
 
 - **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.
