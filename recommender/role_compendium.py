@@ -10,6 +10,7 @@ import shutil
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal, cast
 
@@ -43,6 +44,10 @@ _STAT_BOOSTS_PATH = ROOT / "data" / "moves" / "stat_boosts.v1.json"
 
 LiveFetch = Callable[[str], dict[str, Any] | None]
 CalculateBatch = Callable[[list[dict[str, Any]]], list[dict[str, Any]]]
+
+# Strongest first — the order a consumer should prefer members in, rather than
+# whatever order the tiers happen to appear in the JSON.
+ROLE_TIER_ORDER = ("Excellent", "Good", "Acceptable")
 
 # Redirection Phase 2: Quiver Dance vs redirect turn-economy.
 _COMPETING_IDENTITY_MOVES = frozenset({"quiverdance"})
@@ -83,6 +88,12 @@ _SETUP_PRIORITY_SCORE_MULT = 1.5
 # Conditional priority (Sucker Punch etc.): usage-mix proxy ≈70% success → 1+0.7*(1.5-1).
 _SETUP_CONDITIONAL_PRIORITY = frozenset({"suckerpunch", "thunderclap", "upperhand"})
 _SETUP_CONDITIONAL_PRIORITY_MULT = 1.35
+# Narrower conditional (Feint: Protect-that-turn) — still kind "conditional".
+# Same formula with p≈0.30 (~3/7 of SP's p≈0.70) → 1+0.30*(1.5-1) = 1.15.
+_SETUP_NARROW_CONDITIONAL_PRIORITY = frozenset({"feint"})
+_SETUP_NARROW_CONDITIONAL_PRIORITY_MULT = 1.15
+# Switch-in-only: cannot follow Swords Dance / Nasty Plot (Branch A + payoff).
+_SETUP_BRANCH_A_PRIORITY = _OFFENSIVE_PRIORITY_MOVES - frozenset({"fakeout"})
 # Soft overkill cap: credit up to 25% beyond a KO (hard 1.0 flattened useful signal).
 _SETUP_DAMAGE_FRAC_CAP = 1.25
 # A+B: inverse of the former both-branch Excellent gate discount (floor × div).
@@ -93,28 +104,12 @@ _SETUP_FLOOR_SECOND_MULT = 0.95
 _SETUP_ACCEPTABLE_FLOOR_MULT = 0.70
 
 SetupPriorityKind = Literal["none", "unconditional", "conditional"]
-# ponytail: curated Showdown self.boosts offense drops — legality/stat_boosts conflate foe secondaries.
-_SETUP_SELF_DROP_SPA = frozenset(
-    {
-        "overheat",
-        "leafstorm",
-        "dracometeor",
-        "fleurcannon",
-        "psychoboost",
-        "makeitrain",
-    }
-)
-_SETUP_SELF_DROP_ATK = frozenset(
-    {
-        "superpower",
-        "vcreate",
-    }
-)
 # Lock-in: 2-3 forced turns then self-confusion — same unmodeled multi-turn cost as charge/recharge.
 _SETUP_LOCKIN_MOVES = frozenset({"outrage", "petaldance", "thrash", "ragingfury"})
 # Same-turn unreliable / delayed / recharge / lock-in — not valid setup cash-out payoffs.
+# Fake Out: switch-in-only; cannot cash out after SD/NP.
 _SETUP_BANNED_PAYOFF = (
-    frozenset({"focuspunch", "futuresight", "doomdesire"})
+    frozenset({"focuspunch", "futuresight", "doomdesire", "fakeout"})
     | _CHARGE_MOVES
     | _RECHARGE_MOVES
     | _SETUP_LOCKIN_MOVES
@@ -978,6 +973,24 @@ def _move_pct(entry: dict[str, Any] | None, move_id: str) -> float:
     return 0.0
 
 
+def _cbd_base_move_implausible_vs_mega(
+    base_cbd: dict[str, Any] | None,
+    mega_sd: dict[str, Any] | None,
+    move_id: str,
+) -> bool:
+    """True when CBD base move% exceeds Mega's Showdown move% for the same move.
+
+    CBD often collapses Mega into the base page, so a base move rate higher than the
+    Mega's own form-separated rate is Scovillain/Skarmory-shaped contamination — not
+    trustworthy standalone base usage. Requires Mega to actually run the move.
+    """
+    if not base_cbd or not mega_sd:
+        return False
+    if not _entry_has_move(mega_sd, move_id):
+        return False
+    return _move_pct(base_cbd, move_id) > _move_pct(mega_sd, move_id)
+
+
 def _showdown_entry(
     species: str,
     *,
@@ -1152,20 +1165,43 @@ def load_stat_boosts() -> dict[str, Any]:
     return json.loads(_STAT_BOOSTS_PATH.read_text())
 
 
+def _self_boosts(entry: dict[str, Any]) -> dict[str, int]:
+    """Stat changes the move always applies to its own user (chance-gated ones excluded)."""
+    out: dict[str, int] = {}
+    for eff in entry.get("boosts") or []:
+        if eff.get("to") != "self" or eff.get("chance") != 100:
+            continue
+        for stat, stages in (eff.get("stats") or {}).items():
+            out[stat] = out.get(stat, 0) + int(stages)
+    return out
+
+
 def exclusive_self_boost_move(*, boost_stat: str, stages: int = 2) -> str:
-    """Champions-legal Status/self move with boosts == {boost_stat: stages} only."""
-    data = load_stat_boosts()
-    want = {boost_stat: stages}
+    """Champions-legal Status move whose only stat change is +stages to the user's boost_stat."""
+    want = [{"to": "self", "chance": 100, "stats": {boost_stat: stages}}]
     hits = [
         mid
-        for mid, ent in (data.get("moves") or {}).items()
-        if ent.get("category") == "Status"
-        and ent.get("target") == "self"
-        and ent.get("boosts") == want
+        for mid, ent in (load_stat_boosts().get("moves") or {}).items()
+        if ent.get("category") == "Status" and ent.get("boosts") == want
     ]
     if len(hits) != 1:
         raise ValueError(f"expected one self +{stages} {boost_stat}-only move, got {hits}")
     return hits[0]
+
+
+def _setup_priority_for_branch(
+    learnset: set[str],
+    snap: dict[str, Any],
+    boost_stat: str,
+) -> set[str]:
+    """Priority moves that can open Branch A for this boost_stat (category-matched)."""
+    want = "Physical" if boost_stat == "atk" else "Special"
+    moves = snap.get("moves") or {}
+    out: set[str] = set()
+    for mid in learnset & _SETUP_BRANCH_A_PRIORITY:
+        if (moves.get(mid) or {}).get("category") == want:
+            out.add(mid)
+    return out
 
 
 def _setup_branch_a(
@@ -1173,8 +1209,10 @@ def _setup_branch_a(
     learnset: set[str],
     abs_map: dict[str, str],
     stats: dict[str, int],
+    snap: dict[str, Any],
+    boost_stat: str,
 ) -> bool:
-    if learnset & _OFFENSIVE_PRIORITY_MOVES:
+    if _setup_priority_for_branch(learnset, snap, boost_stat):
         return True
     if set(abs_map) & _SETUP_SPEED_ABILITIES:
         return True
@@ -1196,16 +1234,18 @@ def _setup_branch_a_via_priority(
     learnset: set[str],
     abs_map: dict[str, str],
     stats: dict[str, int],
+    snap: dict[str, Any],
+    boost_stat: str,
 ) -> bool:
     """True when Branch A clears only via priority (not Spe / Speed Boost)."""
-    if not (learnset & _OFFENSIVE_PRIORITY_MOVES):
+    if not _setup_priority_for_branch(learnset, snap, boost_stat):
         return False
     return not _setup_speed_path_a(abs_map=abs_map, stats=stats)
 
 
 def _setup_priority_kind(move_id: str) -> SetupPriorityKind:
     mid = to_id(move_id)
-    if mid in _SETUP_CONDITIONAL_PRIORITY:
+    if mid in _SETUP_CONDITIONAL_PRIORITY | _SETUP_NARROW_CONDITIONAL_PRIORITY:
         return "conditional"
     if mid in _OFFENSIVE_PRIORITY_MOVES:
         return "unconditional"
@@ -1213,10 +1253,23 @@ def _setup_priority_kind(move_id: str) -> SetupPriorityKind:
 
 
 def _setup_priority_mult(kind: SetupPriorityKind) -> float:
+    """Kind-only mult (broad conditional → ×1.35). Prefer _setup_priority_mult_for(move)."""
     if kind == "unconditional":
         return _SETUP_PRIORITY_SCORE_MULT
     if kind == "conditional":
         return _SETUP_CONDITIONAL_PRIORITY_MULT
+    return 1.0
+
+
+def _setup_priority_mult_for(move_id: str) -> float:
+    """Move-aware priority score mult (Feint ×1.15 vs SP/UH ×1.35 vs unconditional ×1.5)."""
+    mid = to_id(move_id)
+    if mid in _SETUP_NARROW_CONDITIONAL_PRIORITY:
+        return _SETUP_NARROW_CONDITIONAL_PRIORITY_MULT
+    if mid in _SETUP_CONDITIONAL_PRIORITY:
+        return _SETUP_CONDITIONAL_PRIORITY_MULT
+    if mid in _OFFENSIVE_PRIORITY_MOVES:
+        return _SETUP_PRIORITY_SCORE_MULT
     return 1.0
 
 
@@ -1250,10 +1303,16 @@ def _setup_turn_order_weight(
 def _setup_adjusted_score(
     raw: float,
     *,
-    priority_kind: SetupPriorityKind,
+    priority_kind: SetupPriorityKind = "none",
     both_branches: bool,
+    priority_mult: float | None = None,
 ) -> float:
-    adjusted = raw * _setup_priority_mult(priority_kind)
+    mult = (
+        priority_mult
+        if priority_mult is not None
+        else _setup_priority_mult(priority_kind)
+    )
+    adjusted = raw * mult
     if both_branches:
         adjusted /= _SETUP_BOTH_BRANCH_SCORE_DIV
     return adjusted
@@ -1279,12 +1338,15 @@ def _setup_mech_tier(adjusted: float, floor: float) -> str:
     return "Good"
 
 
+@lru_cache(maxsize=None)
 def _setup_self_drop_moves(boost_stat: str) -> frozenset[str]:
-    if boost_stat == "spa":
-        return _SETUP_SELF_DROP_SPA
-    if boost_stat == "atk":
-        return _SETUP_SELF_DROP_ATK
-    return frozenset()
+    """Damaging moves that always lower the user's own boost_stat — cashing out a
+    setup with one of these immediately undoes the setup it is cashing out."""
+    return frozenset(
+        mid
+        for mid, ent in (load_stat_boosts().get("moves") or {}).items()
+        if ent.get("category") != "Status" and _self_boosts(ent).get(boost_stat, 0) < 0
+    )
 
 
 def _setup_banned_payoffs(boost_stat: str) -> frozenset[str]:
@@ -1402,9 +1464,17 @@ def _setup_branches(
     abs_map: dict[str, str],
     stats: dict[str, int],
     entry: dict[str, Any] | None,
+    snap: dict[str, Any],
+    boost_stat: str,
 ) -> list[str]:
     cleared: list[str] = []
-    if _setup_branch_a(learnset=learnset, abs_map=abs_map, stats=stats):
+    if _setup_branch_a(
+        learnset=learnset,
+        abs_map=abs_map,
+        stats=stats,
+        snap=snap,
+        boost_stat=boost_stat,
+    ):
         cleared.append("A")
     if (set(abs_map) & _SETUP_SURVIVE_ABILITIES) or (
         _setup_bulk_ok(stats) and _setup_sustain_ok(learnset=learnset, entry=entry)
@@ -1577,7 +1647,12 @@ def _select_setup_payoff(
             calculate_batch=calculate_batch,
         )
         kind = _setup_priority_kind(mid)
-        adj = _setup_adjusted_score(raw, priority_kind=kind, both_branches=False)
+        adj = _setup_adjusted_score(
+            raw,
+            priority_kind=kind,
+            both_branches=False,
+            priority_mult=_setup_priority_mult_for(mid),
+        )
         key = (adj, raw, mid, err, kind)
         if best is None or (adj, raw) > (best[0], best[1]):
             best = key
@@ -1747,33 +1822,21 @@ def _construct_setup_attacker(
         eligible[sid] = name
 
     # Showdown discount among eligible mega pairs (Acceptable path).
-    skip_discount: set[str] = set()
-    pair_attr: dict[str, str] = {}
+    # Reuse move-aware attribution: ratio-only discount is invalid when Mega does
+    # not run the setup move. Stone-fallback notes are intentionally NOT mapped
+    # into skip_discount (setup previously skipped discount when mega_sd was None).
     sd_cache: dict[str, dict[str, Any] | None] = {}
-    seen_pairs: set[tuple[str, str]] = set()
-    for sid in eligible:
-        pair = _mega_pair_ids(sid, snap, set(eligible))
-        if not pair or pair in seen_pairs:
-            continue
-        seen_pairs.add(pair)
-        base_sid, mega_sid = pair
-        base_name, mega_name = eligible[base_sid], eligible[mega_sid]
-        base_sd = _showdown_entry(base_name, cache=sd_cache, showdown_fetch=showdown_fetch)
-        mega_sd = _showdown_entry(mega_name, cache=sd_cache, showdown_fetch=showdown_fetch)
-        if mega_sd is None:
-            continue
-        mega_pct = float(mega_sd.get("usage_pct") or 0.0)
-        base_pct = float((base_sd or {}).get("usage_pct") or 0.0) if base_sd else 0.0
-        if mega_pct > base_pct and base_pct < _SHOWDOWN_BASE_USAGE_RATIO * mega_pct:
-            skip_discount.add(base_sid)
-            pair_attr[base_sid] = (
-                f"showdown usage discounted "
-                f"(base {base_pct:.3f}% < {_SHOWDOWN_BASE_USAGE_RATIO}× "
-                f"mega {mega_pct:.3f}%)"
-            )
-            notes.append(
-                f"Showdown attribution ({base_name}/{mega_name}): base discounted"
-            )
+    _pair_usage, pair_notes, _stone = _mega_usage_attribution(
+        eligible,
+        frozenset({move_id}),
+        snap=snap,
+        uctx=uctx,
+        sd_cache=sd_cache,
+        showdown_fetch=showdown_fetch,
+        notes=notes,
+    )
+    skip_discount = {sid for sid, note in pair_notes.items() if "discounted" in note}
+    pair_attr = {sid: pair_notes[sid] for sid in skip_discount}
 
     # Pass 1: evaluate admitted candidates (no Excellent yet).
     provisional: list[dict[str, Any]] = []
@@ -1783,7 +1846,12 @@ def _construct_setup_attacker(
         stats = _base_stats(snap, sid)
         entry = uctx.entry_for(name)
         branches = _setup_branches(
-            learnset=learnset, abs_map=abs_map, stats=stats, entry=entry
+            learnset=learnset,
+            abs_map=abs_map,
+            stats=stats,
+            entry=entry,
+            snap=snap,
+            boost_stat=boost_stat,
         )
         if not branches:
             rejected.append(
@@ -1801,13 +1869,45 @@ def _construct_setup_attacker(
             continue
 
         usage_proven = uctx.delivers(name, move_id)
+        # CBD base move% > Mega Showdown move% → CBD is Mega-contaminated; only
+        # trust Showdown form-separated base delivery (full-pool, not Skarmory-only).
+        if usage_proven:
+            pair_pool = set(eligible)
+            mega_guess = f"{sid}mega"
+            if mega_guess in (snap.get("species") or {}):
+                pair_pool.add(mega_guess)
+            pair = _mega_pair_ids(sid, snap, pair_pool)
+            if pair and sid == pair[0]:
+                _base_sid, mega_sid = pair
+                mega_name = eligible.get(mega_sid) or str(
+                    (snap.get("species") or {}).get(mega_sid, {}).get("name")
+                    or mega_sid
+                )
+                mega_sd = _showdown_entry(
+                    mega_name, cache=sd_cache, showdown_fetch=showdown_fetch
+                )
+                if _cbd_base_move_implausible_vs_mega(entry, mega_sd, move_id):
+                    base_sd = _showdown_entry(
+                        name, cache=sd_cache, showdown_fetch=showdown_fetch
+                    )
+                    usage_proven = _entry_has_move(base_sd, move_id)
+                    notes.append(
+                        f"CBD move-rate plausibility ({name}/{mega_name}): "
+                        f"CBD {_move_pct(entry, move_id):.1f}% {move_id} > "
+                        f"Mega Showdown {_move_pct(mega_sd, move_id):.1f}%; "
+                        f"usage_proven={'Showdown base' if usage_proven else 'rejected'}"
+                    )
         if not usage_proven:
             rejected.append(
                 RejectedCandidate(
                     species=name,
                     species_id=sid,
                     reason=f"learnset has {move_id} but no usage evidence of the setup move",
-                    change_reason=None,
+                    change_reason=(
+                        f"CBD/Showdown usage re-eval / tier {prior.get(sid)!r} → rejected"
+                        if prior.get(sid)
+                        else None
+                    ),
                 )
             )
             continue
@@ -1850,12 +1950,16 @@ def _construct_setup_attacker(
         )
 
         both = set(branches) >= {"A", "B"}
+        pri_mult = _setup_priority_mult_for(payoff_id)
         adjusted = _setup_adjusted_score(
-            raw_score, priority_kind=priority_kind, both_branches=both
+            raw_score,
+            priority_kind=priority_kind,
+            both_branches=both,
+            priority_mult=pri_mult,
         )
         boosts: list[str] = []
         if priority_kind != "none":
-            boosts.append(f"priority_x{_setup_priority_mult(priority_kind):g}")
+            boosts.append(f"priority_x{pri_mult:g}")
         if both:
             boosts.append(f"both_div_{_SETUP_BOTH_BRANCH_SCORE_DIV:g}")
 
@@ -3017,6 +3121,155 @@ def load_prior_compendium(path: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None
     return json.loads(path.read_text())
+
+
+def load_role_category(
+    category: str,
+    condition: str = "",
+    *,
+    roles_dir: Path | None = None,
+) -> dict[str, Any] | None:
+    """Shipped compendium entry for a role, or None when no entry has been built.
+
+    Conditioned roles pass their condition separately (weather_setter + "Rain"),
+    matching how construction names the file.
+    """
+    roles_dir = roles_dir or DEFAULT_ROLES_DIR
+    return load_prior_compendium(
+        roles_dir / _roles_filename(category, {"condition": condition})
+    )
+
+
+def role_candidates(
+    category: str,
+    condition: str = "",
+    *,
+    roles_dir: Path | None = None,
+) -> list[str]:
+    """Species admitted to a role, best tier first. Empty when the role has no entry."""
+    evidence = role_category_evidence(category, condition, roles_dir=roles_dir)
+    return [row.species for row in evidence.species]
+
+
+@dataclass(frozen=True)
+class CompendiumRoleEvidence:
+    """One reverse lookup result, kept distinct by evidence strength."""
+
+    species: str
+    role_id: str
+    category: str
+    condition: str
+    tier: str | None
+    mechanism: str | None
+    source_file: str
+    reason: str | None = None
+
+
+@dataclass(frozen=True)
+class ReverseCompendiumEvidence:
+    exact: tuple[CompendiumRoleEvidence, ...] = ()
+    species: tuple[CompendiumRoleEvidence, ...] = ()
+    rejected: tuple[CompendiumRoleEvidence, ...] = ()
+
+
+def _strategic_role_id(category: str, condition: str) -> str:
+    if category == "weather_setter" and condition:
+        return f"{to_id(condition)}_setter"
+    return category.strip().lower().replace("-", "_").replace(" ", "_")
+
+
+def _entry_evidence(raw: dict[str, Any], source_file: str) -> ReverseCompendiumEvidence:
+    category = str(raw.get("category") or "")
+    condition = str(raw.get("condition") or "")
+    role_id = _strategic_role_id(category, condition)
+    candidates = {
+        to_id(str(row.get("species_id") or row.get("species") or "")): row
+        for row in raw.get("candidates") or []
+    }
+    admitted: list[CompendiumRoleEvidence] = []
+    for tier in ROLE_TIER_ORDER:
+        for species in (raw.get("tiers") or {}).get(tier) or []:
+            candidate = candidates.get(to_id(str(species))) or {}
+            admitted.append(
+                CompendiumRoleEvidence(
+                    species=str(candidate.get("species") or species),
+                    role_id=role_id,
+                    category=category,
+                    condition=condition,
+                    tier=tier,
+                    mechanism=str(candidate.get("mechanism") or "") or None,
+                    source_file=source_file,
+                )
+            )
+    rejected = tuple(
+        CompendiumRoleEvidence(
+            species=str(candidate.get("species") or candidate.get("species_id") or ""),
+            role_id=role_id,
+            category=category,
+            condition=condition,
+            tier=None,
+            mechanism=str(candidate.get("mechanism") or "") or None,
+            source_file=source_file,
+            reason=str(candidate.get("reason") or ""),
+        )
+        for candidate in raw.get("considered_rejected") or []
+    )
+    return ReverseCompendiumEvidence(species=tuple(admitted), rejected=rejected)
+
+
+def role_category_evidence(
+    category: str,
+    condition: str = "",
+    *,
+    roles_dir: Path | None = None,
+) -> ReverseCompendiumEvidence:
+    """Forward role evidence; no concrete build exists to promote into exact."""
+    root = roles_dir or DEFAULT_ROLES_DIR
+    path = root / _roles_filename(category, {"condition": condition})
+    raw = load_prior_compendium(path)
+    return _entry_evidence(raw, path.name) if raw is not None else ReverseCompendiumEvidence()
+
+
+def reverse_compendium_evidence(
+    species: str,
+    *,
+    moves: list[str] | tuple[str, ...] = (),
+    ability: str | None = None,
+    roles_dir: Path | None = None,
+) -> ReverseCompendiumEvidence:
+    """Find exact-build, species-only, and rejected compendium evidence.
+
+    Exact means the candidate's named delivery mechanism is present in this
+    build. Other positive membership remains species evidence; it is never
+    promoted across a different set.
+    """
+    root = roles_dir or DEFAULT_ROLES_DIR
+    sid = to_id(species)
+    present = {to_id(m) for m in moves}
+    if ability:
+        present.add(to_id(ability))
+    exact: list[CompendiumRoleEvidence] = []
+    species_only: list[CompendiumRoleEvidence] = []
+    rejected: list[CompendiumRoleEvidence] = []
+    for path in sorted(root.glob("*.v1.json")):
+        rows = _entry_evidence(json.loads(path.read_text()), path.name)
+        for row in rows.species:
+            if to_id(row.species) != sid:
+                continue
+            (
+                exact
+                if row.mechanism and to_id(row.mechanism) in present
+                else species_only
+            ).append(row)
+        for row in rows.rejected:
+            if to_id(row.species) != sid:
+                continue
+            rejected.append(row)
+    return ReverseCompendiumEvidence(
+        exact=tuple(exact),
+        species=tuple(species_only),
+        rejected=tuple(rejected),
+    )
 
 
 def persist_approved(

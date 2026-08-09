@@ -313,6 +313,60 @@ already-verified source, at construction time only.
 
 ---
 
+### ADR-014 — Amendment 2026-08-07a
+
+**Resolving an apparent conflict between Amendment 2026-07-25a (runtime tier-1 live-lookup
+exception) and Amendment 2026-08-05a (construction-time-only fetcher scoping): both stand,
+they govern different things, and lookup_live_build may NOT reuse the construction-scoped
+fetchers to satisfy the runtime exception.**
+
+Surfaced while attempting to wire recommend.py's lookup_live_build (a stub since ADR-015's
+tier-1 design) using the CBD/Showdown fetchers (usage_cbd.py/usage_showdown.py) built for
+Role Compendium construction. This is not a real conflict between the two amendments' policy
+— it's a mechanism-scoping issue: Amendment 2026-07-25a grants a narrow runtime exception for
+a specific PURPOSE (tier-1 exact moveset/item build lookup when the offline snapshot doesn't
+cover the user's specific combination); Amendment 2026-08-05a scopes a specific MECHANISM
+("those fetchers" — the CBD/Showdown extraction/parsing path) to construction/data-prep time
+only, explicitly stating it is "NOT a general runtime-recommendation-path capability."
+
+**Resolution:** Amendment 2026-07-25a's runtime exception remains valid and is NOT retracted
+or narrowed by this amendment. However, satisfying it by reusing usage_cbd.py/usage_showdown.py
+directly violates 2026-08-05a's explicit scope sentence — those specific fetchers may not be
+called from a runtime-recommendation-path function, including lookup_live_build. If tier-1's
+live-lookup exception is to be implemented, it requires its OWN, separately-justified,
+separately-scoped fetch mechanism (following the same "known source, known parser, no
+free-form interpretation" template already established by 2026-08-05a for the construction-
+time case) — not a reuse of the construction-scoped tools.
+
+**Separate, independent finding, not resolved by this amendment:** both usage_cbd.py and
+usage_showdown.py currently hardcode featured_sets: [], and the adapter that would connect
+them to a live-build lookup only performs exact moves+item matching against featured_sets.
+Routed through as-is, any "live lookup" would silently fall back to top common moves and
+IGNORE the user's requested moveset — the opposite of what tier-1's exception exists to
+provide. This means even a properly-scoped, dedicated fetcher would need real, populated
+featured-set data to satisfy the original guardrails, not just a data-source swap.
+
+**Status quo, pending further work:** lookup_live_build remains a stub (returns None) until
+a dedicated, properly-scoped fetch mechanism is designed and built. This is not a regression
+— it was already a stub — this amendment records why the obvious-looking fix (reuse the
+existing fetchers) is not a valid shortcut, so a future attempt doesn't repeat the same
+mechanism-scoping mistake.
+
+**Also noted, a live gap independent of this question:** of Amendment 2026-07-25a's three
+mandatory guardrails (legality check, EV→SP conversion, completeness check on unused
+points), only the legality check is currently implemented on the EXISTING offline tier-1
+path in recommend.py — which currently silently tops up an incomplete spread and overwrites
+source_tier to "tier2" rather than flagging the incompleteness as the amendment requires.
+This applies to the already-shipped offline path today, not just the hypothetical live one —
+worth its own, separate fix.
+
+**Status:** Resolves the apparent 2026-07-25a/2026-08-05a conflict as a mechanism-scoping
+distinction, not a policy contradiction. Both amendments stand unchanged. Identifies two
+separate, real gaps (featured_sets population; the offline path's incomplete-spread
+flagging) as follow-up work, not resolved here.
+
+---
+
 ## ADR-004: RL policy — retrain, do not reuse
 **Decision:** Train a new RL policy specifically for Pokémon Champions and the current regulation, rather than adapting the ~6-year-old SARSA policy from the original Pokémon Battler project.
 **Alternatives considered:** Fine-tune/adapt the old policy; use the old policy's reward structure unchanged with new state representation.
@@ -3609,4 +3663,6 @@ gap, empty list); `defensive_coverage` still Compendium-deferred.
 
 **Status:** Documents shipped slot_fill behavior (2026-08-03). Does not build Role
 Compendium or expand `ABILITY_TO_FIELD` for Hadron/Orichalcum.
+
+---
 

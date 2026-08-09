@@ -1,7 +1,7 @@
 {
   "category": "swords_dance_attacker",
   "condition": "",
-  "built_at": "2026-08-08T00:34:01.890562+00:00",
+  "built_at": "2026-08-08T04:46:31.532989+00:00",
   "sub_criteria": {
     "kind": "setup_attacker",
     "condition": "",
@@ -46,22 +46,39 @@
   "notes": [
     "delivery move locked by self +2 atk-only Status rule \u2192 swordsdance",
     "threat_panel=usage_informed (Garchomp/Life Orb, Garchomp-Mega/Garchompite, Incineroar/Sitrus Berry, Kingambit/Black Glasses, Sinistcha/Sitrus Berry, Charizard/Life Orb, Charizard-Mega-X/Charizardite X, Charizard-Mega-Y/Charizardite Y)",
-    "Showdown attribution (Skarmory/Skarmory-Mega): base discounted",
-    "Showdown attribution (Lopunny/Lopunny-Mega): base discounted",
-    "Showdown attribution (Meganium/Meganium-Mega): base discounted",
-    "Showdown attribution (Barbaracle/Barbaracle-Mega): base discounted",
-    "Showdown attribution (Beedrill/Beedrill-Mega): base discounted",
-    "Showdown attribution (Heracross/Heracross-Mega): base discounted",
-    "Showdown attribution (Falinks/Falinks-Mega): base discounted",
-    "Showdown attribution (Mawile/Mawile-Mega): base discounted",
-    "Showdown attribution (Victreebel/Victreebel-Mega): base discounted",
-    "Showdown attribution (Chesnaught/Chesnaught-Mega): base discounted",
-    "Showdown attribution (Scrafty/Scrafty-Mega): base discounted",
-    "Showdown attribution (Sceptile/Sceptile-Mega): base discounted",
-    "Showdown attribution (Banette/Banette-Mega): base discounted",
-    "Showdown attribution (Scolipede/Scolipede-Mega): base discounted",
-    "Showdown attribution (Pinsir/Pinsir-Mega): base discounted",
-    "Showdown attribution (Abomasnow/Abomasnow-Mega): base discounted",
+    "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.304 base=0.038; stone-heuristic fallback unused",
+    "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=3.642 base=0.740; stone-heuristic fallback unused",
+    "Showdown attribution (Pinsir/Pinsir-Mega): mega usage_pct=0.113 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=2.791 base=2.598; stone-heuristic fallback unused",
+    "Showdown attribution (Mawile/Mawile-Mega): mega usage_pct=9.452 base=0.013; stone-heuristic fallback unused",
+    "Showdown attribution (Heracross/Heracross-Mega): mega usage_pct=0.191 base=0.011; stone-heuristic fallback unused",
+    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=1.076 base=0.829; stone-heuristic fallback unused",
+    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.128 base=0.028; stone-heuristic fallback unused",
+    "Showdown attribution (Hawlucha/Hawlucha-Mega): mega usage_pct=0.296 base=0.118; stone-heuristic fallback unused",
+    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.174 base=1.398; stone-heuristic fallback unused",
+    "Showdown attribution (Meganium/Meganium-Mega): mega usage_pct=1.532 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.292 base=0.061; stone-heuristic fallback unused",
+    "Showdown attribution (Scolipede/Scolipede-Mega): mega usage_pct=0.576 base=0.092; stone-heuristic fallback unused",
+    "Showdown attribution (Excadrill/Excadrill-Mega): mega usage_pct=0.215 base=2.224; stone-heuristic fallback unused",
+    "Showdown attribution (Barbaracle/Barbaracle-Mega): mega usage_pct=0.590 base=0.046; stone-heuristic fallback unused",
+    "Showdown attribution (Garchomp/Garchomp-Mega): mega usage_pct=0.559 base=30.287; stone-heuristic fallback unused",
+    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.658 base=0.023; stone-heuristic fallback unused",
+    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.525 base=0.083; stone-heuristic fallback unused",
+    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.621 base=0.362; stone-heuristic fallback unused",
+    "Showdown attribution (Lopunny/Lopunny-Mega): mega usage_pct=0.767 base=0.022; stone-heuristic fallback unused",
+    "Showdown attribution (Blaziken/Blaziken-Mega): mega usage_pct=2.803 base=0.873; stone-heuristic fallback unused",
+    "Showdown attribution (Sceptile/Sceptile-Mega): mega usage_pct=4.146 base=0.120; stone-heuristic fallback unused",
+    "Showdown attribution (Greninja/Greninja-Mega): mega usage_pct=0.351 base=0.332; stone-heuristic fallback unused",
+    "Showdown attribution (Absol/Absol-Mega): mega usage_pct=0.042 base=0.043; stone-heuristic fallback unused",
+    "Showdown attribution (Beedrill/Beedrill-Mega): mega usage_pct=0.113 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Feraligatr/Feraligatr-Mega): mega usage_pct=0.228 base=0.105; stone-heuristic fallback unused",
+    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.272 base=0.000; stone-heuristic fallback unused",
+    "CBD move-rate plausibility (Absol/Absol-Mega): CBD 9.9% swordsdance > Mega Showdown 2.9%; usage_proven=Showdown base",
+    "CBD move-rate plausibility (Feraligatr/Feraligatr-Mega): CBD 6.9% swordsdance > Mega Showdown 3.0%; usage_proven=Showdown base",
+    "CBD move-rate plausibility (Scizor/Scizor-Mega): CBD 53.7% swordsdance > Mega Showdown 19.0%; usage_proven=Showdown base",
+    "CBD move-rate plausibility (Scolipede/Scolipede-Mega): CBD 71.1% swordsdance > Mega Showdown 17.2%; usage_proven=Showdown base",
+    "CBD move-rate plausibility (Scrafty/Scrafty-Mega): CBD 7.0% swordsdance > Mega Showdown 2.3%; usage_proven=rejected",
+    "CBD move-rate plausibility (Skarmory/Skarmory-Mega): CBD 19.5% swordsdance > Mega Showdown 9.2%; usage_proven=rejected",
     "Excellent damage floor = 2nd-highest adjusted \u00d7 0.95 \u2192 1.156 (top: Kingambit=1.571, Gallade-Mega=1.217)",
     "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.809"
   ],
@@ -322,7 +339,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.680 (floor 1.156); secondary=False",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.680, branches=A)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -358,7 +375,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.699 (floor 1.156); secondary=False",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.699, branches=A)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -394,7 +411,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.635 (floor 1.156); secondary=True",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.635, branches=A)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -613,7 +630,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=B; calc 0.557 (floor 1.156); secondary=False",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.557, branches=B)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_b"
     },
@@ -649,7 +666,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.363 (floor 1.156); secondary=False",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.363, branches=A)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -727,7 +744,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.416 (floor 1.156); secondary=False",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.416, branches=A)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -841,7 +858,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.307 (floor 1.156); secondary=True",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.307, branches=A)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -913,7 +930,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.466 (floor 1.156); secondary=False",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.466, branches=A)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -949,7 +966,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.768 (floor 1.156); secondary=True",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.768, branches=A)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -961,16 +978,16 @@
       "mechanism": "Swords Dance",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.581 raw=0.310 floor=1.156 excellent_exec=False",
+        "execution": "damage_score=0.446 raw=0.357 floor=1.156 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A+B",
         "usage_proven": "True",
         "attribution": "none",
-        "payoff_move": "Fake Out",
+        "payoff_move": "Close Combat",
         "calc_species": "Scrafty-Mega",
-        "damage_score_raw": "0.310",
-        "damage_score": "0.581",
-        "score_boosts": "priority_x1.5+both_div_0.8",
+        "damage_score_raw": "0.357",
+        "damage_score": "0.446",
+        "score_boosts": "both_div_0.8",
         "calc_error": "Sinistcha:damage[damage.length - 1] === 0."
       },
       "claimed_traits": [
@@ -980,9 +997,9 @@
           "purpose_claimed": "setup via swordsdance (+2 atk)"
         },
         {
-          "name": "Fake Out",
+          "name": "Close Combat",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.581 vs panel; branches=A+B"
+          "purpose_claimed": "calc damage fraction 0.446 vs panel; branches=A+B"
         },
         {
           "name": "Intimidate",
@@ -990,8 +1007,8 @@
           "purpose_claimed": "high-impact ability secondary (reliability\u00d7impact)"
         }
       ],
-      "reasoning": "Acceptable: branches=A+B; calc 0.581 (floor 1.156); secondary=True",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Acceptable' (score=0.581, branches=A+B)",
+      "reasoning": "Acceptable: branches=A+B; calc 0.446 (floor 1.156); secondary=True",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_both_branches"
     },
@@ -1216,7 +1233,7 @@
     {
       "species": "Incineroar",
       "species_id": "incineroar",
-      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
@@ -1364,10 +1381,22 @@
       "change_reason": null
     },
     {
+      "species": "Scrafty",
+      "species_id": "scrafty",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": "CBD/Showdown usage re-eval / tier 'Acceptable' \u2192 rejected"
+    },
+    {
       "species": "Serperior",
       "species_id": "serperior",
       "reason": "learnset has swordsdance but no usage evidence of the setup move",
       "change_reason": null
+    },
+    {
+      "species": "Skarmory",
+      "species_id": "skarmory",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": "CBD/Showdown usage re-eval / tier 'Acceptable' \u2192 rejected"
     },
     {
       "species": "Sneasler",
@@ -1469,18 +1498,6 @@
       "species": "Scolipede",
       "species_id": "scolipede",
       "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.092% < 0.25\u00d7 mega 0.576%))",
-      "change_reason": null
-    },
-    {
-      "species": "Scrafty",
-      "species_id": "scrafty",
-      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.740% < 0.25\u00d7 mega 3.642%))",
-      "change_reason": null
-    },
-    {
-      "species": "Skarmory",
-      "species_id": "skarmory",
-      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.038% < 0.25\u00d7 mega 0.304%))",
       "change_reason": null
     }
   ]
