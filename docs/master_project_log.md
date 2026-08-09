@@ -2311,6 +2311,67 @@ allowlisting for the new immutable state dataclasses); the full deferred-backlog
 quick-pick design (unblocks Mega-count guidance); v2 singles extension (ADR-005, future
 milestone).
 
+### 2026-08-08 (cont.): compendium-first need resolution + candidate evidence provenance —
+implemented, closing the two "unclear" verification-pass findings
+
+Follows a targeted verification pass that confirmed two backlog items — "wire need
+categories to the Role Compendium before raw learnset search" and "richer provenance/
+confidence labels on presentation" — were open, and were in fact the same underlying gap
+surfacing at two pipeline points: richer evidence gets built (compendium data,
+`AnchorRoleDecision`'s mechanism evidence), then something downstream reaches past it for a
+thinner one (raw learnset search; bare species names in presentation). Verification cited
+exact source lines for both drop points before any fix was scoped, avoiding inferring
+closure from an adjacent mechanism's existence (`classify_anchor_role`'s compendium split
+does not mean need-resolution uses the compendium — it didn't).
+
+**Shipped:** compendium-first dispatch for `trick_room` (Trick Room Setter, full category
+coverage), `condition_setter` (Weather Setter per Rain/Sun/Sand/Snow trigger; terrain labels
+remain mechanical), and `fake_out_protection` (Redirection as partial coverage alongside
+existing Fake Out/redirect-move/Armor Tail/Queenly Majesty/Dazzling mechanical avenues;
+Psychic Terrain explicitly out of scope, current resolver doesn't implement it). Categories
+with no compendium mapping (`tailwind`, `taunt_disruption`, `healing_cleric`, `screens`,
+`stat_lowering_partner`, `defensive_coverage`) preserve current behavior exactly — no new
+compendium construction attempted. Role/condition-scoped rejection correctly does not
+suppress a separately-supported claim for the same species (rejected as Rain setter ≠
+excluded as Sun setter), avoiding the over-broad-exclusion mistake this project already
+caught once with Kingambit's Swords Dance Attacker membership.
+
+New `CandidateEvidence` (basis: usage_backed/compendium_backed/mechanical_only/synthesized;
+confidence: high/medium/low) threads per-candidate, not anchor-level, through
+`SlotFillPresentation` -> `PendingPresentationOption` -> `PendingSlotIntent`, surviving the
+graph-turn boundary. Deliberately does NOT reuse `AnchorRoleDecision` for this — it
+classifies the anchor, not the candidate, and copying it would misattribute anchor-
+classification confidence to species it was never evaluated against.
+
+**Real correction caught in plan review, not after implementation:** the first submitted
+plan proposed compendium-first ranking via insertion order + stable sort, which only actually
+guarantees compendium-first behavior among candidates already tied on `_sort_annotated`'s
+three existing primary keys (matched-need count, threat-verification score, usage rank) — not
+against them. Caught by asking Cursor to confirm `_sort_annotated`'s actual key structure
+directly rather than accepting "stable sort preserves order" as sufficient. Corrected to make
+compendium confidence the leading sort key, bounded by an active-need invariant (zero-match
+compendium evidence is rejected by assertion at construction time, not merely deprioritized —
+a stronger guarantee than originally scoped) so a compendium member irrelevant to the actual
+search can't jump the queue. Above that bound, priority is unconditional and explicit,
+justified directly: pre-verified compendium evidence outranks raw usage/threat signal even
+when the raw-signal candidate wins on every other criterion, consistent with ADR-021's
+verification-gating principle. Verified by two named adversarial tests:
+`test_compendium_priority_beats_all_existing_sort_pressure` (mechanical candidate wins on all
+three existing keys, compendium candidate still ranks first) and
+`test_compendium_priority_requires_an_active_matching_need` (zero-match compendium evidence
+cannot be constructed as a candidate state at all).
+
+Also fixed in the same pass, confirmed genuinely touched by the diff rather than pulled in
+for backlog proximity: `_union_move_candidates`'s frozenset-iteration nondeterminism, now
+sorted deterministically.
+
+450 tests passing (up from 440), 5 skipped. Live dispatch smoke test passed, no linter
+errors. Plan file left unmodified by implementation.
+
+This closes both items flagged "unclear, needs checking" from the post-arc backlog review —
+both were genuinely open, not partially covered by adjacent work, consistent with this
+project's standing practice of verifying claimed coverage rather than inferring it.
+
 ## TOOLS & RESOURCES
 
 - **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.

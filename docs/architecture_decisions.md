@@ -3733,6 +3733,76 @@ or ordinary partial-steering behavior, confirmed by unchanged passing tests on t
 
 ---
 
+### ADR-023 — Amendment 2026-08-08b
+
+**Compendium-first need resolution and per-candidate evidence provenance.**
+
+**Decision:** For support-need categories with a mapped Role Compendium category (`trick_room`
+→ Trick Room Setter; `condition_setter` → Weather Setter per trigger label among Rain/Sun/
+Sand/Snow; `fake_out_protection` → Redirection, as partial coverage alongside existing
+mechanical avenues), candidate resolution now checks the compendium first via a new
+`role_category_evidence` reader, rather than dispatching straight to raw legal-learner search.
+Categories with no current compendium mapping (`tailwind`, `taunt_disruption`,
+`healing_cleric`, `screens`, `stat_lowering_partner`, `defensive_coverage`) are unchanged —
+this is "compendium first where one exists," not a blanket requirement. A rejection under one
+role/condition/mechanism claim (e.g. rejected as a Rain setter) does not suppress a separately
+supported claim for the same species (e.g. admitted as a Sun setter); rejection scope matches
+the specific claim it was evaluated against, not the species globally.
+
+Each presented candidate now carries typed `CandidateEvidence` (basis: `usage_backed` /
+`compendium_backed` / `mechanical_only` / `synthesized`; confidence: `high` / `medium` /
+`low`), threaded unchanged through `SlotFillPresentation` → `PendingPresentationOption` →
+`PendingSlotIntent`. `AnchorRoleDecision` is explicitly NOT copied into this evidence — it
+classifies the locked anchor, not the discovered candidate; candidate provenance is new,
+purpose-built evidence, not a repurposed anchor-classification struct.
+
+`_sort_annotated`'s ranking is corrected: compendium confidence is now the **leading** sort
+key (exact/high-confidence compendium → species/medium-confidence compendium → no compendium
+evidence, each tier then ordered by the existing matched-needs/verified-score/usage-rank
+keys), bounded by an **active-need invariant** — compendium evidence with zero matching needs
+is rejected by assertion and cannot exist as a candidate state, not merely deprioritized by
+sort order. Above that bound, compendium priority is unconditional and intentional: pre-
+verified compendium evidence outranks raw usage/threat signal even when the raw-signal
+candidate would win on every other existing criterion.
+
+**Alternatives considered:** Rely on stable-sort insertion order (compendium-admitted rows
+appended before mechanical extras) to produce compendium-first ranking, rather than an
+explicit leading sort key. Copy `AnchorRoleDecision`'s evidence directly into presented-
+candidate provenance instead of building a separate `CandidateEvidence` type. Make compendium
+priority conditional on also being competitive on existing criteria, rather than unconditional
+above the active-need bar.
+
+**Why:** The insertion-order approach was caught in plan review, not after implementation —
+`_sort_annotated`'s actual keys (matched-need count, threat-verification score, usage rank)
+are primary sort criteria, not tie-breaks, so stable-sort insertion order only preserved
+compendium-first behavior among candidates already tied on all three; a mechanical-only
+candidate with a stronger usage rank could otherwise outrank a compendium-admitted one,
+silently violating the intended guarantee. Verified by an adversarial test
+(`test_compendium_priority_beats_all_existing_sort_pressure`) constructing exactly that
+case. `AnchorRoleDecision` reuse was rejected because it answers a different question (what
+is the anchor's role) than candidate provenance needs (why is this specific species being
+suggested) — conflating them would misattribute anchor-classification confidence to
+candidates the anchor decision was never evaluated against. Unconditional-above-the-bound
+priority was made explicit, not left implicit in key ordering, because compendium membership
+is pre-verified evidence (consistent with ADR-021's verification-gating principle) and should
+outrank raw signal on that basis — but the active-need bound was necessary because a
+compendium member with zero relevance to what's actually being searched for has no business
+jumping the queue regardless of how verified its unrelated membership is. Verified by
+`test_compendium_priority_requires_an_active_matching_need`, which enforces the bound as a
+construction-time invariant (an inadmissible candidate state cannot be built) rather than a
+ranking outcome (a lower-priority candidate that could still slip through under different
+sort pressure) — a stronger guarantee than what was originally scoped.
+
+**Status:** Implemented and verified (450 tests passing, up from 440, 5 skipped; live dispatch
+smoke test passed; no linter errors). Plan file left unmodified by implementation, per this
+project's standing documentation-hygiene practice. Deliberately deferred, not oversights:
+compendium categories for `tailwind`/`taunt_disruption`/`healing_cleric`/`screens`/
+`stat_lowering_partner`/`defensive_coverage` (no compendium exists yet for these); Psychic
+Terrain under `fake_out_protection` (current resolver doesn't implement it); new compendium
+construction of any kind (out of scope for this task).
+
+---
+
 ## ADR-024: Anchor-role classification is a separate producer from target-role decision
 
 **Decision:** `RoleShapeContext` (which describes an anchor's strategic role shape, feeding
