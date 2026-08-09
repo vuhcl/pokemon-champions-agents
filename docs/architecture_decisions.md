@@ -4056,3 +4056,92 @@ beyond shipped support-derived cases.
 
 ---
 
+## ADR-027: Empty-team bootstrap — LLM-backed free-form extraction behind a
+deterministic-verification boundary; ADR-013's first real runtime consumer
+
+**Decision:** For the `empty` team phase's combined direction/available-pool intake, use an
+injected, model-agnostic LLM parser (`bootstrap_intake_parser`) to extract a draft payload
+(`direction_text`, `anchor_text`, `pool_entries`, `delegated`, optional `ownership_mode`) from
+free-form user text — the only pending-presentation kind in the graph that does this. The
+other three existing closed-set kinds (candidate selection, full-build confirmation,
+completion preference) remain fully deterministic, since they match against a small displayed
+option set rather than open-ended text. Everything the LLM extracts is treated strictly as a
+draft: legality, exact species identity, ownership, strategic-role evidence, and ranking all
+remain deterministic and tool-verified downstream, with no extracted field trusted as fact on
+its own.
+
+Confirmed via direct investigation, not assumed: this is genuinely the first place the
+runtime graph invokes a live LLM at all. Two candidate "existing seams" were checked and
+ruled out — `classify_pending` is fully deterministic (tests monkeypatch it), and
+`KitInteractionProposer` is an unused-at-runtime callable type with no live caller. No
+prior-existing provider abstraction was bypassed or duplicated.
+
+**Failure handling is fail-closed and non-mutating.** A missing parser, provider exception,
+or malformed/inconsistent model output retains the intake presentation unchanged, mutates no
+pool or bootstrap state, and surfaces an observable bootstrap-specific error — verified by a
+named test asserting the full unchanged-state list (presentation, pool, completion flag,
+saved response, unresolved diagnostics) after each of the three failure modes.
+
+**Deterministic mapping stays strictly separate from extraction, at two levels:**
+- Direction text extracted by the LLM is matched against a small, explicit, longest-match-first
+  phrase table mapping to known strategic labels (weather names, "X offense," Redirection/
+  Follow Me/Rage Powder, Trick Room setter/sweeper, Tailwind, Swords Dance, Nasty Plot,
+  fast/bulky attacker, fast/bulky pivot) — deterministic pattern matching, not a second LLM
+  judgment call. An unmappable or opaque direction re-prompts with clarification rather than
+  guessing, verified by a test that directly patches `_pick_role` and asserts it is never
+  called — a structural guard against the exact failure this whole session's slot-fill arc
+  traces back to (a wrongly-guessed role shape producing fabricated downstream needs).
+- `TargetRoleDecision` construction itself has two explicit, ordered evidence tiers: Track 1's
+  exact strategic-evidence producer (mechanism or Compendium evidence, high confidence) runs
+  first and wins whenever it returns a result; a coarse `kit_role`-to-`TargetRoleId` match
+  (medium confidence) only fires when the exact producer returns `None`. A third,
+  mechanism-based fallback was proposed during plan review and explicitly removed for
+  duplicating the exact producer's own logic rather than kept as harmless redundancy.
+
+**Alternatives considered:** A deterministic bounded grammar for the combined intake response.
+Requiring callers to submit an already-structured payload instead of free text. Reusing
+`_pick_role`'s existing coarse-fallback path for unmapped/ambiguous directions instead of a
+dedicated re-prompt.
+
+**Why:** A bounded grammar would need to already solve species-name recognition from free
+text to handle the pool half of the intake — functionally most of canonical name resolution,
+which is separately and deliberately deferred. A structured-payload requirement would abandon
+the actual point of a combined intake (respond naturally in one message) rather than solve the
+parsing problem. Reusing `_pick_role`'s fallback for unmapped directions was rejected because
+it's the generic, low-confidence default this entire task exists to route around — bootstrap
+should surface "I couldn't map that" rather than silently substitute a coarse guess.
+
+**Status:** Implemented in two sequential tracks. **Track 1** (prerequisite, target-role
+vocabulary expansion): added `rain_setter`/`sun_setter`/`sand_setter`/`snow_setter`/
+`redirection`/`swords_dance_attacker`/`nasty_plot_attacker` to `TargetRoleId`'s domain
+(previously seven values, now fourteen) plus the exact-evidence producer
+(`target_role_from_strategic_evidence`), justified by direct measurement — roughly one-third
+of realistic bootstrap-presented directions would otherwise dead-end on selection,
+disproportionately the mechanically-distinct options the alternative-diversity rule is
+specifically designed to surface. Verified via four real-species injection tests (Sinistcha/
+redirection, Pelipper/rain_setter, Tyranitar/sand_setter, Gholdengo/nasty_plot_attacker,
+each reaching a complete `ProvisionalSlot`) and an all-14-role round-trip test through
+selection/refinement/commit. **Track 2** (full bootstrap implementation): combined direction+
+pool intake, exact-ID-only pool validation with unresolved labels surfaced (never guessed —
+`Eternal Floette` stays unresolved, `Floette-Eternal` is accepted), ownership-mode derivation
+distinguishing default-`off` from user-requested-`off`, deterministic diverse direction
+discovery (`query_by_usage` seed set -> `resolve_anchor_build`/`classify_anchor_role` ->
+Track 1's evidence tiers), four-way separated `CandidateEvidence` provenance
+(usage/ownership/compendium/policy, never collapsed), and full reuse of the existing
+provisional-build/confirmation/atomic-commit terminal lifecycle — no bootstrap-specific commit
+path. `_BASIS_RANK` extended additively with `ownership_backed` sharing rank 0 with
+`synthesized` (ownership preference already has its own dedicated mechanism via `rank_and_cut`,
+so a separate evidence-quality tier would double-count the same signal) — confirmed via
+explicit before/after diff that no existing key's rank moved and no existing rank assertion
+needed loosening.
+
+578 tests passing (up from 513 at the start of this task, 385 at the start of this session's
+whole slot-fill arc), 6 skipped (5 pre-existing live-calc-service skips, 1 new opt-in Ollama
+live smoke test — accounted for exactly, not assumed). Full Python and TypeScript suites
+clean; `git diff --check` clean; diff scope confirmed limited to the expected file list.
+
+**Deliberately deferred, tracked as separate future scope:** canonical name/form resolution
+beyond exact-ID acceptance; condition-resilience assessment; selected-four modeling; general
+first-turn intent classification beyond the `bootstrap_intake` response specifically; further
+target-role taxonomy work beyond Track 1's fourteen values; low-data Compendium member build
+synthesis (confirmed independent of the vocabulary gap, separately reported).
