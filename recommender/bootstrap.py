@@ -30,6 +30,7 @@ from recommender.state import (
     UnresolvedSlotRefinement,
     slot_fingerprint,
 )
+from recommender.team_candidates import owned_species_ids
 
 
 _EXTRACTION_SYSTEM_PROMPT = """Extract only the user's empty-team bootstrap response.
@@ -332,16 +333,11 @@ def discover_bootstrap_directions(
             f"Couldn't identify anchor: {response['anchor_text']}",
         )
 
-    available = tuple(
-        str(row["species"])
-        for row in state.get("available_pool", [])
-        if row.get("species")
-    )
-    owned_ids = frozenset(to_id(species) for species in available)
+    owned = owned_species_ids(state)
     usage = query_by_usage(
         pool=None,
         n=20,
-        available_species=available,
+        available_species=sorted(owned),
         ownership_mode=state.get("ownership_mode", "off"),
     )
     if explicit_anchor is not None:
@@ -381,7 +377,7 @@ def discover_bootstrap_directions(
             target_role_decision=decision,
             spec=dict(usage_row.spec),
             evidence=_candidate_evidence(
-                species, usage_row.usage_rank, anchor_role, owned_ids
+                species, usage_row.usage_rank, anchor_role, owned
             ),
             direction_label=_direction_label(decision.role_id),
             strategic_role_id=decision.role_id,

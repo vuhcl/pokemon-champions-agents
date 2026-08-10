@@ -650,6 +650,41 @@ def test_calc_evidence_failure_aborts_multi_discovery_without_partial_ranking(er
     assert result["candidate_discovery_error"] is discovery_error
 
 
+def test_multi_locked_threat_branch_receives_expanded_owned_ids():
+    state = _state([_locked("A"), _locked("B"), *[empty_slot() for _ in range(4)]])
+    state["available_pool"] = [{"species": "Swampert"}]
+    state["ownership_mode"] = "owned_only"
+    review = TeamReviewResult([_threat("Target")], [], [])
+    captured: dict = {}
+
+    def capture_threats(objective, **kwargs):
+        captured.update(kwargs)
+        return TeamThreatDiscovery(status="available", candidates=(), error=None)
+
+    with (
+        patch("recommender.nodes._compute_team_review", return_value=review),
+        patch("recommender.nodes.query_shared_teammates", return_value=_shared()),
+        patch(
+            "recommender.threat_counters.query_candidates_for_threats",
+            side_effect=capture_threats,
+        ),
+        patch(
+            "recommender.team_candidates.collect_locked_anchor_contexts",
+            return_value=(),
+        ),
+        patch(
+            "recommender.team_candidates.merge_multi_locked_candidates",
+            return_value=[],
+        ),
+    ):
+        discover_multi_locked(state, {})  # type: ignore[arg-type]
+
+    pool = set(captured.get("available_pool") or ())
+    assert "swampert" in pool
+    assert "swampertmega" in pool
+    assert captured.get("ownership_mode") == "owned_only"
+
+
 def test_severe_composition_repair_outranks_minor_threat_gain():
     ranked = rank_multi_locked_candidates(
         [
@@ -813,3 +848,5 @@ def test_empty_team_threat_objective_allows_support_and_shared_ranking():
         ownership_mode="off",
         owned_species=frozenset(),
     )
+
+
