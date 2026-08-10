@@ -2082,6 +2082,80 @@ contact-punish/multi-hit corrections Amendment 2026-07-28c already documents.
 
 ---
 
+### ADR-015 — Amendment 2026-08-09a
+
+**Tier-3 last-resort build synthesis, gated by a correctness fix to ADR-024's mechanism-
+evidence model.**
+
+**Decision:** When usage/cache lookup misses (ADR-015's tiers 1-2 fail to produce a complete
+build), the slot-fill refine path now attempts deterministic last-resort synthesis for item,
+moves, spread, and nature — reusing existing mechanisms only (`diagnose_and_substitute`'s
+item candidates, extended `assemble_moveset_fallback` role-pref pools, the existing spread/
+`role_spread` gate, a small nature-derivation helper in the spirit of `_scarf_nature_
+correction`). Ability synthesis is deliberately narrower: filled only via
+`resolve_anchor_build`'s existing `_unique_legal_ability` discipline (exactly one legal
+option) or a role constraint uniquely selecting one among several — never a guess among
+multiple ambiguous options. If moves still fall short of four after exhaustive legal
+narrowing, or ability remains genuinely ambiguous, the build honestly stays
+`UnresolvedSlotRefinement` rather than padding with arbitrary learnset noise or a guessed
+ability.
+
+**Prerequisite correctness fix (ADR-024's `_mechanisms`, not a separate architectural
+decision but load-bearing to this one):** confirmed via direct probe that ability-derived
+mechanism evidence previously treated `build.ability` as a flat fact regardless of provenance
+— a synthesized, entirely guessed Drizzle produced `present=True`, `confidence="high"`, and
+`match_quality="clean"`, indistinguishable from a real confirmed ability at the exact point
+role classification depends on it. Fixed by gating ability-derived mechanism emission on
+provenance: `present=True` with real confidence only for `user_confirmed`/`usage_derived`/
+`legality_only` sources; `synthesized`/`provisional` sources omit the mechanism entirely.
+Shipped as its own sequenced prerequisite task, merged before any synthesizer code could write
+`synthesized` abilities — not bundled speculatively.
+
+A second, related gap was found and fixed during confirmation, in code neither planned task
+had touched: `_role_decision` (candidate scoring, not anchor classification) labeled every
+candidate kit ability `provisional`, which the new gate correctly omits — causing a real,
+already-confirmed candidate ability (e.g. a genuine Drizzle from usage data) to stop
+registering as a mechanism provider during composition-fit scoring. The first proposed fix
+(unconditionally locking any `spec["ability"]` value) was rejected before acceptance — it
+would have reopened the same gap this amendment closes, resting on an unverified "usually
+comes from usage" assumption and falsely labeling the result `user_confirmed`. Corrected via
+a real call-site trace confirming production paths reaching `_role_decision` populate ability
+strictly from `featured_or_common_set`; the fix elevates a kit ability only when it actually
+matches that data, labeled `usage_derived` with `confirmed=False` — grounded in a real check,
+not trusted by convention.
+
+**Alternatives considered:** picking an arbitrary legal ability among multiple options at low
+confidence, labeled `synthesized`, when no role-mechanism match exists. Treating usage-
+coverage expansion (more species entering the offline snapshot) as sufficient to close this
+gap on its own. Role-adjacent species build-borrowing as a last resort.
+
+**Why:** The arbitrary-ability-guess approach was proven unsafe, not just stylistically
+rejected — six separate downstream consumers (`derive_role_shape_context`, `target_role_
+from_strategic_evidence`, `condition_resilience`, `team_candidates` duplication checks, and
+others) all key off `MechanismEvidence.present`/`importance` with no provenance branching, so
+recording `source=synthesized` alone would not have protected any of them. Reusing the
+existing unique-ability discipline instead of inventing new guessing logic meant there was no
+guess left to carefully label. Usage-coverage expansion was rejected as a complete fix
+(confirmed complementary only) via a direct experiment: mocking away both live and offline
+spreads and running pure `tier3_role` synthesis still left nature and ability empty, proving
+an algorithm gap exists independent of data coverage — thin competitive usage and live-fetch
+failure are permanent edge cases, not something more ingestion eventually resolves. Role-
+adjacent borrowing was rejected as too contamination-prone for v1, consistent with ADR-015's
+own original preference for role-pattern-plus-verification over cross-species copying.
+
+**Status:** Implemented as two sequenced tasks (the `_mechanisms` gate merged independently
+before synthesizer code began) plus one confirmation-phase correction, all verified with
+named regression tests including both the original synthesized-Drizzle probe and a negative
+case (an unusual ability like Damp correctly staying non-authoritative). 659 tests passing at
+ship, up from 385 at the start of this session's slot-fill arc. Deliberately deferred:
+Mimikyu/usage-coverage expansion (complementary, not a substitute); role-adjacent species
+borrowing; recursive `recommend_build` calls for opponent builds; the hardcoded opponent list
+inside `_tier3_verify_spread` (a separate, orthogonal ADR-015 fidelity gap); calc verification
+wiring into provisional build emission; `recommend_build`'s own nature path (untouched by this
+amendment — only slot-fill's `_refine_defaults` was in scope).
+
+---
+
 ### ADR-015 — Amendment 2026-08-09b
 
 **`infer_role` (tier 2) vocabulary redesign — three-axis offense classification, driven by
@@ -4215,3 +4289,110 @@ beyond exact-ID acceptance; condition-resilience assessment; selected-four model
 first-turn intent classification beyond the `bootstrap_intake` response specifically; further
 target-role taxonomy work beyond Track 1's fourteen values; low-data Compendium member build
 synthesis (confirmed independent of the vocabulary gap, separately reported).
+## ADR-028: Condition classification and redundancy checks — generation-primary signal with
+a scoped composition_fit override, not a new ranking stage
+
+**Decision:** For a locked team with 2+ members, classify each tracked condition (Rain, Sun,
+Sand, Snow, Trick Room, Tailwind) as `essential`/`preferred`/`optional` based on how many
+locked members actually depend on it (not on whether it's merely present), and compute
+provider cardinality (0/1/2+) independent of contest reliability. Publish as a team-wide
+signal alongside coverage/SPOF/`shared_teammates` in `multi_locked`. Consumed two ways:
+generation-primary (a gapped essential/preferred condition generates backup-setter candidates
+through existing need-resolution paths — no new discovery mechanism) and as a scoped override
+inside `annotate_composition_impact`, which prevents a gap-filling candidate from being
+demoted as `duplicative`/`severe_duplication` for the specific condition it's closing, while
+leaving unrelated duplication demoted as before. No new lexicographic ranking stage.
+
+Supporting design: a `condition:{Canonical}` evidence tag stamped at mechanism-emission time
+so classification never re-scans kits or re-imports move/ability tables to infer a condition
+— emission and consumption share one source of truth. Two threshold-like policies
+(`MIN_WANTED_DEPENDENTS_FOR_ESSENTIAL`, the `wanted×2` essential trigger; `_preferred_
+setter_direction`, the softer "team is clearly on this plan" heuristic) shipped as named,
+calibratable constants/functions with dedicated tests rather than silently baked in. Gap-need
+generation deduplicates against needs already surfaced through each anchor's own
+`query_support_needs` resolution, firing independently only for the aggregate-only case
+(`wanted×2 -> essential`) that no single anchor's own ask would ever surface.
+
+**Alternatives considered:** a new ranking-tuple stage for condition resilience, parallel to
+the existing severity bands. Ranking-only consumption (annotate existing candidates, generate
+nothing new). An unconditional `composition_fit` exemption for any `*_setter`-role candidate.
+
+**Why:** `composition_fit` would have actively fought this feature if left unconnected — a
+second Rain setter next to a `provider_count=1` essential Rain anchor repeats
+`Drizzle`/`rain_setter` mechanics and would be ranked `duplicative` by the existing logic,
+exactly in the scenario where it's the real fix for a genuine gap. Generating a backup-setter
+candidate to close a resilience gap and then demoting it for "duplicating" the missing
+capability would have shipped as contradictory, self-defeating behavior — found and designed
+around before implementation. A new ranking stage was rejected because the fix belongs at the
+point where duplication gets judged, not as a parallel signal competing for tuple position.
+Ranking-only consumption was rejected because it can't surface a candidate no other branch
+would generate. The unconditional exemption was rejected because it would blanket-protect
+setter-type candidates regardless of whether they're actually closing a real gap — the scoped
+version (`_candidate_fills_condition_gap`) was verified via a dedicated test proving unrelated
+duplication is still correctly demoted.
+
+**Status:** Implemented and verified end-to-end — a real `discover_multi_locked` run
+(`test_discover_multi_locked_publishes_resilience_and_keeps_backup_rain_setter_complementary`)
+confirmed the same `assess_condition_resilience` object published to state is what the
+override actually consumes, not a manually reconstructed report. A real need-double-counting
+bug was caught and fixed during plan review before implementation — a gap-driven need for a
+condition already surfaced through an anchor's own per-anchor ask would have inflated
+`distinct_needs` for any candidate satisfying both. 609 tests passing at ship. Deliberately
+deferred: condition-independent fallback-mode demonstration (e.g. Icy Wind substituting for
+Trick Room); weather-war contest reliability (who wins when two automatic setters contest, as
+distinct from provider count); terrains as tracked conditions; Protosynthesis's Booster Energy
+exemption (v1 always emits Sun-wanted regardless of item).
+
+---
+
+## ADR-029: Calc-unavailable static fallback — labeled degraded discovery for single_locked,
+fail-closed unchanged for multi_locked and coverage/SPOF claims
+
+**Decision:** Apply ADR-015's discovery-vs-ranking split to calc availability specifically.
+`single_locked` degrades gracefully on calc failure — `query_threat_counters` returns a
+structured `TeamThreatDiscovery(status="degraded", ...)` instead of letting the exception
+propagate, with candidates built from already-computed static data
+(`estimate_kind="static"`, `basis="mechanical_only"`, `confidence="low"`, explicit
+degradation tokens, never `verified_score`). `multi_locked`'s authoritative team-threat
+ranking and `complete`'s coverage/SPOF claims stay fail-closed without exception — static
+axes cannot honestly populate ranking stages defined on verified closures.
+`generate_team_review` no longer silently clears the graph-facing `candidate_discovery_error`
+on failure; it now surfaces the real `calc_unavailable`/`calc_incomplete` distinction it
+already computes internally.
+
+Structural firewall, not just an evidence-string convention: `ThreatCounterCandidate.
+estimate_kind` (`"verified"`/`"static"`) is a row-level type tag that `_sort_annotated` gates
+on directly, so a static row cannot outrank a verified one even if a bug elsewhere left
+`verified_score` nonzero on a static row — verified with an adversarial test constructing
+exactly that falsified case. `candidate_discovery_error` stays set in both degraded branches
+(empty result and presenting-candidates result) — not cleared when candidates are shown,
+since clearing it there would have silently undermined the same honesty goal the
+`generate_team_review` fix exists for.
+
+**Alternatives considered:** letting static estimates feed `multi_locked`'s verified ranking
+tuple. A new `CandidateEvidence.basis` value for degraded rows. Clearing
+`candidate_discovery_error` when degraded candidates are actually presented (the first
+submitted plan's choice, reverted after review).
+
+**Why:** Multi-locked ranking is defined on verified closures (`clean_kill`/severity bands/
+SPOF closure); static type-effectiveness axes have no honest way to populate those stages
+without fabricating decisive/costly claims. A new evidence basis was rejected as unnecessary
+per this project's established reuse discipline — `mechanical_only`/`low` confidence plus
+explicit degradation tokens already carry the distinction without a second evidence model.
+Clearing the graph error field when presenting degraded candidates was rejected because it
+reintroduced, one layer downstream, the exact problem the bundled `generate_team_review` fix
+existed to close: a caller watching only the graph-level error field would get a false
+all-clear precisely when something potentially misleading (unverified static candidates) was
+being shown. Traced whether any consumer actually depended on the old behavior before
+reversing it — none did; bootstrap already pairs an error with a presentation elsewhere in
+the codebase, so the fix made `single_locked` consistent with an existing pattern rather than
+introducing a new one.
+
+**Status:** Implemented and verified — consumer sweep found exactly one production caller of
+`query_threat_counters` before its return type changed; `multi_locked`'s existing calc-failure
+test confirmed byte-identical to its pre-task body; sort firewall confirmed adversarial via a
+static row with a deliberately falsified high `verified_score`. 649 tests passing at ship.
+Deliberately deferred: weather/terrain-aware static discovery (`query_counters` still never
+passes field context — accepted, documented ceiling); support/shared-only presentation with an
+explicit "team-threat ranking unavailable" banner for `multi_locked` under calc failure
+(default remains hard stop).
