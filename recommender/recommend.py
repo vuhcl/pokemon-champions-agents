@@ -19,12 +19,70 @@ from recommender.usage_spreads import select_usage_spread
 SP_BUDGET = 66
 
 RoleArchetype = Literal[
-    "fast_attacker",
-    "bulky_attacker",
+    "fast_physical_attacker",
+    "fast_special_attacker",
+    "fast_mixed_attacker",
+    "standard_physical_attacker",
+    "standard_special_attacker",
+    "standard_mixed_attacker",
+    "bulky_physical_attacker",
+    "bulky_special_attacker",
+    "bulky_mixed_attacker",
     "bulky_pivot",
+    "fast_pivot",
     "trick_room_sweeper",
     "support_speed_control",
+    "screens_support",
 ]
+
+_DEPRECATED_ROLE_ALIASES = {
+    "fast_attacker": "fast_physical_attacker",
+    "bulky_attacker": "bulky_physical_attacker",
+}
+
+_PIVOT_MOVES = frozenset({"uturn", "voltswitch", "flipturn", "partingshot", "teleport"})
+_SCREEN_MOVES = frozenset({"lightscreen", "reflect", "auroraveil"})
+_BULKY_ITEMS = frozenset({"sitrusberry", "leftovers", "rockyhelmet"})
+_FAST_ITEMS = frozenset({"lifeorb", "choiceband", "choicespecs", "choicescarf"})
+_WEATHER_SPEED = frozenset({"swiftswim", "chlorophyll", "sandrush", "slushrush"})
+# ponytail: snapshot has no multihit field — keep explicit set; extend with matchup._MULTI_HIT_MOVES if needed
+_MULTI_HIT = frozenset(
+    {
+        "populationbomb",
+        "bulletseed",
+        "iciclespear",
+        "rockblast",
+        "pinmissile",
+        "tailslap",
+        "scaleshot",
+        "surgingstrikes",
+        "bonerush",
+        "doublehit",
+        "dragondarts",
+        "dualwingbeat",
+        "tripleaxel",
+        "twinbeam",
+        "watershuriken",
+        "armthrust",
+    }
+)
+
+_ROLE_SPREADS: dict[str, StatsTable] = {
+    "fast_physical_attacker": {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32},
+    "fast_special_attacker": {"hp": 2, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 32},
+    "fast_mixed_attacker": {"hp": 2, "atk": 16, "def": 0, "spa": 16, "spd": 0, "spe": 32},
+    "standard_physical_attacker": {"hp": 12, "atk": 32, "def": 8, "spa": 0, "spd": 0, "spe": 14},
+    "standard_special_attacker": {"hp": 12, "atk": 0, "def": 0, "spa": 32, "spd": 8, "spe": 14},
+    "standard_mixed_attacker": {"hp": 12, "atk": 16, "def": 8, "spa": 16, "spd": 0, "spe": 14},
+    "bulky_physical_attacker": {"hp": 20, "atk": 32, "def": 14, "spa": 0, "spd": 0, "spe": 0},
+    "bulky_special_attacker": {"hp": 20, "atk": 0, "def": 14, "spa": 32, "spd": 0, "spe": 0},
+    "bulky_mixed_attacker": {"hp": 20, "atk": 16, "def": 14, "spa": 16, "spd": 0, "spe": 0},
+    "fast_pivot": {"hp": 12, "atk": 16, "def": 6, "spa": 0, "spd": 0, "spe": 32},
+    "screens_support": {"hp": 24, "atk": 0, "def": 18, "spa": 0, "spd": 18, "spe": 6},
+    "trick_room_sweeper": {"hp": 32, "atk": 0, "def": 2, "spa": 32, "spd": 0, "spe": 0},
+    "bulky_pivot": {"hp": 32, "atk": 0, "def": 18, "spa": 0, "spd": 16, "spe": 0},
+    "support_speed_control": {"hp": 20, "atk": 0, "def": 14, "spa": 0, "spd": 0, "spe": 32},
+}
 
 
 class RecommendResult(TypedDict):
@@ -43,33 +101,69 @@ def lookup_live_build(
     return None
 
 
-def infer_role(moves: list[str], item: str) -> RoleArchetype:
+def _damage_bias(moves: list[str]) -> str:
+    from recommender.usage_spreads import move_category_counts
+
+    physical, special = move_category_counts(moves)
+    if physical == 0 and special == 0:
+        return "status_only"
+    if physical > 0 and special > 0:
+        return "mixed"
+    if physical > special:
+        return "physical"
+    return "special"
+
+
+def _attacker_role(axis: str, bias: str) -> RoleArchetype:
+    if bias == "status_only":
+        return f"{axis}_special_attacker"  # type: ignore[return-value]
+    return f"{axis}_{bias}_attacker"  # type: ignore[return-value]
+
+
+def infer_role(
+    moves: list[str],
+    item: str,
+    ability: str | None = None,
+) -> RoleArchetype:
     mids = {to_id(m) for m in moves}
     iid = to_id(item)
+    aid = to_id(ability) if ability else ""
+    screens = mids & _SCREEN_MOVES
+    has_pivot = bool(mids & _PIVOT_MOVES)
+    technician_fast = aid == "technician" and bool(mids & _MULTI_HIT)
+    weather_fast = aid in _WEATHER_SPEED
+    bias = _damage_bias(moves)
+
     if "trickroom" in mids:
         return "trick_room_sweeper"
-    if "tailwind" in mids or iid == "choicescarf":
-        return "support_speed_control" if "tailwind" in mids else "fast_attacker"
-    if iid in {"sitrusberry", "leftovers", "rockyhelmet"}:
+    if len(screens) >= 2 or (iid == "lightclay" and screens):
+        return "screens_support"
+    if "tailwind" in mids:
+        return "support_speed_control"
+    if has_pivot:
+        if iid == "choicescarf" or technician_fast:
+            return "fast_pivot"
         return "bulky_pivot"
-    if iid in {"lifeorb", "choiceband", "choicespecs"}:
-        return "fast_attacker"
-    return "bulky_attacker"
+    if iid in _BULKY_ITEMS:
+        if bias == "status_only":
+            return "screens_support" if screens else "bulky_special_attacker"
+        return _attacker_role("bulky", bias)
+    if (
+        iid in _FAST_ITEMS or technician_fast or iid == "focussash" or weather_fast
+    ) and bias != "status_only":
+        return _attacker_role("fast", bias)
+    if bias == "status_only":
+        return "standard_special_attacker"
+    return _attacker_role("standard", bias)
 
 
-def role_spread(role: RoleArchetype) -> StatsTable:
-    """Allocate full 66 SP by archetype."""
-    if role == "fast_attacker":
-        return {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32}
-    if role == "trick_room_sweeper":
-        return {"hp": 32, "atk": 0, "def": 2, "spa": 32, "spd": 0, "spe": 0}
-    if role == "bulky_pivot":
-        return {"hp": 32, "atk": 0, "def": 18, "spa": 0, "spd": 16, "spe": 0}
-    if role == "support_speed_control":
-        return {"hp": 20, "atk": 0, "def": 14, "spa": 0, "spd": 0, "spe": 32}
-    if role == "bulky_attacker":
-        return {"hp": 20, "atk": 32, "def": 14, "spa": 0, "spd": 0, "spe": 0}
-    raise ValueError(f"unsupported role archetype: {role!r}")
+def role_spread(role: str) -> StatsTable:
+    """Allocate full 66 SP by archetype (resolves deprecated TargetRoleId aliases)."""
+    key = _DEPRECATED_ROLE_ALIASES.get(role, role)
+    try:
+        return dict(_ROLE_SPREADS[key])
+    except KeyError as e:
+        raise ValueError(f"unsupported role archetype: {role!r}") from e
 
 
 _STAT_KEYS = ("hp", "atk", "def", "spa", "spd", "spe")
@@ -83,7 +177,7 @@ def spread_sum(evs: StatsTable | dict[str, int] | None) -> int:
 
 
 def _allocate_remainder(
-    partial: StatsTable | dict[str, int], role: RoleArchetype
+    partial: StatsTable | dict[str, int], role: str
 ) -> tuple[StatsTable, dict[str, int]]:
     """Keep partial allocation; spend leftover SP toward role_spread targets.
 
@@ -358,7 +452,7 @@ def recommend_build(
     )
 
     # Completeness: exact partials retain their real base; missing spreads use tier 2.
-    role = infer_role(b_moves, b_item)
+    role = infer_role(b_moves, b_item, b_ability)
     evs = built.get("evs")
     used = spread_sum(evs)
     if used >= SP_BUDGET:

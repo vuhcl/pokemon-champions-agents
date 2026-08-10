@@ -66,7 +66,16 @@ _WEATHER_COMMITMENTS: dict[str, str] = {
 
 _COMPONENT_ROLE_FIT: dict[str, frozenset[str]] = {
     "TrickRoom": frozenset({"trick_room_sweeper"}),
-    "Tailwind": frozenset({"support_speed_control", "fast_attacker"}),
+    "Tailwind": frozenset(
+        {
+            "support_speed_control",
+            "fast_attacker",
+            "fast_physical_attacker",
+            "fast_special_attacker",
+            "fast_mixed_attacker",
+            "fast_pivot",
+        }
+    ),
 }
 
 
@@ -614,7 +623,7 @@ def _tier3_role(slot: Slot, commitment: str) -> FitResult | None:
     item = slot.item.value or ""
     if not moves and not item:
         return None
-    role = infer_role(moves, item)
+    role = infer_role(moves, item, slot.ability.value)
     if role in allowed:
         return FitResult(
             satisfies=True,

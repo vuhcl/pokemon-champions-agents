@@ -103,6 +103,7 @@ _CONDITION_DEPENDENT_ABILITIES: dict[str, tuple[FieldSpec, ...]] = {
         {"terrain": "Psychic", **_DOUBLES},
     ),
 }
+CONDITION_DEPENDENT_ABILITIES = _CONDITION_DEPENDENT_ABILITIES
 
 # Spe×2 field dependents only — suppress Layer 3 TR/TW when condition_setter path fires.
 _SPEED_DOUBLING_ABILITIES = frozenset(

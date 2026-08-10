@@ -2082,6 +2082,76 @@ contact-punish/multi-hit corrections Amendment 2026-07-28c already documents.
 
 ---
 
+### ADR-015 — Amendment 2026-08-09b
+
+**`infer_role` (tier 2) vocabulary redesign — three-axis offense classification, driven by
+a full usage scan rather than incremental patching.**
+
+**Decision:** Replace `infer_role`'s two-value offense output (`fast_attacker`/
+`bulky_attacker`) with a nine-value vocabulary spanning two independent axes: speed/
+investment signal (`fast`/`bulky`/`standard`) × damage category (`physical`/`special`/
+`mixed`), derived from real move-category damage bias on the active kit, not base-stat
+inference. Two non-offense archetypes added (`fast_pivot`, `screens_support`);
+`trick_room_sweeper` and `support_speed_control` retained unchanged. A backward-compatible
+alias layer (`_DEPRECATED_ROLE_ALIASES`) maps the old two-value strings to their new
+equivalents for any caller still holding a locked `TargetRoleId` using the prior vocabulary.
+
+The redesign was driven by a full 180-build usage scan (50 in-game top-usage species + 77
+Showdown featured sets + ability/dual-set variants) rather than patching the single case that
+motivated it — confirming `infer_role`'s fallback wins 126 of 180 builds (70%), the majority
+classification path for real top-usage kits, and that every multi-ability species in the
+scanned corpus either under-differentiated on ability or only differed because an unrelated
+signal happened to already fix the label.
+
+**Alternatives considered:** patching the single motivating case (a Technician-ability
+Maushold build) in isolation. Escalating differentiating-but-narrow patterns found by the
+scan (Fake Out/Intimidate support, screens-heavy kits) directly into new Role Compendium
+categories. A single bulky/fast axis with Mega-stone builds resolved into whichever bucket
+seemed more common.
+
+**Why:** Patching only the motivating case would have left the same gap open for the other
+125 majority-path builds the scan actually found, and risked repeated incremental
+redesigns of a vocabulary "never put much thought into" in the first place — better to see
+the full shape once than patch it repeatedly. Widely-differentiating gap-table patterns were
+kept at mechanism tier rather than promoted to Compendium categories, per this project's
+existing tier-worthiness criterion (ADR-015 Amendment 2026-07-28d: role-specific search with
+contested membership, not "just needs something strong" or taxonomic completeness) — Fake Out
+support specifically was judged genuinely Compendium-plausible but held back pending actual
+product role-search need, not escalated on differentiation alone. A single-axis Mega-stone
+resolution was rejected after checking real post-Mega stat data: several Mega formes
+(Metagross, Kangaskhan, Dragonite) carry simultaneous high-Speed *and* high-bulk signal where
+a Speed-led rule and a bulk-led rule would disagree on the same Pokémon — confirming Mega
+stones genuinely lack the single-direction signal that items like Leftovers or Life Orb
+reliably carry, so the `standard_*` (no-signal) bucket is the honest answer, not a convenience.
+
+A real dependency-circle risk was found and resolved during design review, not after
+implementation: the tier-3 pin's spread half (`role_spread("trick_room_sweeper")`) is a
+hardcoded literal, independent of `infer_role`; its role half
+(`_propagate_and_refine`'s direct `infer_role` call) is not, and depends on `infer_role`
+still returning `trick_room_sweeper` for Trick Room movesets — a different call site than the
+one the original "effectively dead" removal reasoning actually covered. Resolved by keeping
+the return rather than updating the pin, preserving existing tested behavior exactly.
+
+**Status:** Implemented and verified — every gap-table `infer_role` row mapped to a named
+before/after test (Mega-stone special attackers no longer land on bare `bulky_attacker`;
+Archaludon's Leftovers/Electro Shot kit no longer misclassifies as a pivot; Garchomp/
+Hydreigon differentiate correctly on physical/special; Technician Maushold reaches the fast
+axis via the multi-hit hook). `role_spread` coverage verified complete via a parametrized
+test over the full vocabulary plus both legacy aliases (14 values, each summing to exactly 66
+points), not a manual spot-check. Signature changes threading ability through `anchor_roles`,
+`propose`, `reconcile`, and `recommend_build` confirmed via a real repo-wide search for every
+production caller, not assumed complete from the sites already touched. 709 tests passing (up
+from 659), 7 skipped, matching the established baseline exactly.
+
+**Deliberately deferred, tracked as separate future scope:** Fake Out support as a Role
+Compendium category (candidate-only, pending product need); screens/Encore/Hospitality
+mechanism emission (roster role-structure grouping's separately-tracked "Step A"
+precondition); a `to_id` display-name mismatch confirmed to silently defeat exact Compendium
+matching for usage-sourced form-qualified names (e.g. "Maushold Family of Four") — a concrete,
+live cost of still-deferred canonical name/form resolution, not fixed here.
+
+---
+
 ## ADR-016: Resolved-build cache — tier-1 accumulates verified knowledge over time
 
 **Decision:** Maintain a persistent, shareable local store of resolved builds — species +
