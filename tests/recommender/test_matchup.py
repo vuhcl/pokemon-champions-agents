@@ -683,3 +683,375 @@ def test_recharge_non_ohko_defender_cannot_capitalize():
     result = classify_matchup(HYPER_BEAM_USER, SNORLAX, client=client)
     assert result.outcome == "clean_kill"
     assert result.turn_economy_note == "recharge_vulnerable_won"
+
+
+# --- Track B: move usability caveats ---
+
+STEEL_ROLLER = {
+    "species": "Copperajah",
+    "ability": "Heavy Metal",
+    "item": "Leftovers",
+    "moves": ["Steel Roller"],
+    "nature": "Adamant",
+    "evs": {"hp": 32, "atk": 32},
+}
+POLTERGEIST = {
+    "species": "Gengar",
+    "ability": "Cursed Body",
+    "item": "Focus Sash",
+    "moves": ["Poltergeist"],
+    "nature": "Timid",
+    "evs": {"spa": 32, "spe": 32},
+}
+EXPANDING_FORCE = {
+    "species": "Armarouge",
+    "ability": "Flash Fire",
+    "item": "Life Orb",
+    "moves": ["Expanding Force"],
+    "nature": "Modest",
+    "evs": {"spa": 32, "spe": 32},
+}
+DUMMY_FOE = {
+    "species": "Blissey",
+    "ability": "Natural Cure",
+    "item": "Leftovers",
+    "moves": ["Seismic Toss"],
+    "nature": "Bold",
+    "evs": {"hp": 32, "def": 32},
+}
+
+
+def test_steel_roller_fails_without_terrain():
+    client = MockCalcClient(
+        {
+            ("Copperajah", "Blissey", "Steel Roller"): _calc(
+                ko_chance="0%", damage_range=[0, 0], kochance_n=0, kochance_chance=0
+            ),
+            ("Blissey", "Copperajah", "Seismic Toss"): _calc(
+                ko_chance="2HKO",
+                damage_range=[50, 60],
+                attacker_spe=50,
+                defender_hp=200,
+                kochance_n=2,
+            ),
+        }
+    )
+    result = classify_matchup(STEEL_ROLLER, DUMMY_FOE, client=client)
+    assert result.outcome == "no_answer"
+
+
+def test_steel_roller_damages_with_psychic_terrain():
+    client = MockCalcClient(
+        {
+            ("Copperajah", "Blissey", "Steel Roller"): _calc(
+                ko_chance="OHKO",
+                damage_range=[200, 240],
+                attacker_spe=40,
+                defender_hp=200,
+            ),
+            ("Blissey", "Copperajah", "Seismic Toss"): _calc(
+                ko_chance="3HKO",
+                damage_range=[40, 50],
+                attacker_spe=50,
+                defender_hp=180,
+                kochance_n=3,
+            ),
+        }
+    )
+    result = classify_matchup(
+        STEEL_ROLLER,
+        DUMMY_FOE,
+        field={"terrain": "Psychic"},
+        client=client,
+    )
+    assert result.outcome == "clean_kill"
+    assert result.caveats.condition_fail is None
+
+
+def test_poltergeist_fails_without_defender_item():
+    foe = {
+        "species": "Blissey",
+        "ability": "Natural Cure",
+        "moves": ["Seismic Toss"],
+        "nature": "Bold",
+        "evs": {"hp": 32, "def": 32},
+    }
+    client = MockCalcClient(
+        {
+            ("Gengar", "Blissey", "Poltergeist"): _calc(
+                ko_chance="0%", damage_range=[0, 0], kochance_n=0, kochance_chance=0
+            ),
+            ("Blissey", "Gengar", "Seismic Toss"): _calc(
+                ko_chance="OHKO",
+                damage_range=[100, 120],
+                attacker_spe=50,
+                defender_hp=100,
+            ),
+        }
+    )
+    result = classify_matchup(POLTERGEIST, foe, client=client)
+    assert result.outcome == "no_answer"
+
+
+def test_poltergeist_damages_with_item():
+    client = MockCalcClient(
+        {
+            ("Gengar", "Blissey", "Poltergeist"): _calc(
+                ko_chance="OHKO",
+                damage_range=[200, 240],
+                attacker_spe=110,
+                defender_hp=200,
+            ),
+            ("Blissey", "Gengar", "Seismic Toss"): _calc(
+                ko_chance="2HKO",
+                damage_range=[40, 50],
+                attacker_spe=50,
+                defender_hp=100,
+                kochance_n=2,
+            ),
+        }
+    )
+    result = classify_matchup(POLTERGEIST, DUMMY_FOE, client=client)
+    assert result.outcome == "clean_kill"
+    assert result.caveats.condition_fail is None
+
+
+def test_expanding_force_boosted_caveat_under_psychic_terrain():
+    client = MockCalcClient(
+        {
+            ("Armarouge", "Blissey", "Expanding Force"): _calc(
+                ko_chance="2HKO",
+                damage_range=[100, 120],
+                attacker_spe=80,
+                defender_hp=200,
+                kochance_n=2,
+            ),
+            ("Blissey", "Armarouge", "Seismic Toss"): _calc(
+                ko_chance="3HKO",
+                damage_range=[30, 40],
+                attacker_spe=50,
+                defender_hp=120,
+                kochance_n=3,
+            ),
+        }
+    )
+    result = classify_matchup(
+        EXPANDING_FORCE,
+        DUMMY_FOE,
+        field={"terrain": "Psychic", "gameType": "Doubles"},
+        client=client,
+    )
+    assert result.caveats.expanding_force_boosted is True
+
+
+def test_expanding_force_no_boost_caveat_without_terrain():
+    client = MockCalcClient(
+        {
+            ("Armarouge", "Blissey", "Expanding Force"): _calc(
+                ko_chance="2HKO",
+                damage_range=[80, 100],
+                attacker_spe=80,
+                defender_hp=200,
+                kochance_n=2,
+            ),
+            ("Blissey", "Armarouge", "Seismic Toss"): _calc(
+                ko_chance="3HKO",
+                damage_range=[30, 40],
+                attacker_spe=50,
+                defender_hp=120,
+                kochance_n=3,
+            ),
+        }
+    )
+    result = classify_matchup(EXPANDING_FORCE, DUMMY_FOE, client=client)
+    assert result.caveats.expanding_force_boosted is False
+
+
+def test_electro_shot_rain_charge_skip_unaffected():
+    """Regression: Rain still skips Electro Shot charge delay."""
+    from recommender.matchup import _charge_delayed
+
+    assert _charge_delayed("Electro Shot", {"weather": "Rain"}) is False
+    assert _charge_delayed("Electro Shot", None) is True
+
+
+# --- Track C: doubles tactical caveats ---
+
+BRICK_BREAK = {
+    "species": "Machamp",
+    "ability": "Guts",
+    "item": "Flame Orb",
+    "moves": ["Brick Break"],
+    "nature": "Adamant",
+    "evs": {"atk": 32, "spe": 32},
+}
+PSYCHIC_FANGS = {
+    "species": "Gyarados",
+    "ability": "Intimidate",
+    "item": "Leftovers",
+    "moves": ["Psychic Fangs"],
+    "nature": "Adamant",
+    "evs": {"atk": 32, "spe": 32},
+}
+RAGING_BULL = {
+    "species": "Tauros-Paldea-Combat",
+    "ability": "Intimidate",
+    "item": "Leftovers",
+    "moves": ["Raging Bull"],
+    "nature": "Adamant",
+    "evs": {"atk": 32, "spe": 32},
+}
+UNSEEN_FIST = {
+    "species": "Golurk-Mega",
+    "ability": "Unseen Fist",
+    "item": "Leftovers",
+    "moves": ["Earthquake"],
+    "nature": "Adamant",
+    "evs": {"atk": 32, "spe": 32},
+}
+PIERCING_DRILL = {
+    "species": "Excadrill-Mega",
+    "ability": "Piercing Drill",
+    "item": "Leftovers",
+    "moves": ["Iron Head"],
+    "nature": "Adamant",
+    "evs": {"atk": 32, "spe": 32},
+}
+SCREEN_FOE = {
+    "species": "Blissey",
+    "ability": "Natural Cure",
+    "item": "Leftovers",
+    "moves": ["Seismic Toss"],
+    "nature": "Bold",
+    "evs": {"hp": 32, "def": 32},
+}
+
+
+def _ohko_pair(attacker: str, defender: str, move: str, foe_move: str = "Seismic Toss"):
+    return {
+        (attacker, defender, move): _calc(
+            ko_chance="OHKO",
+            damage_range=[200, 240],
+            attacker_spe=90,
+            defender_hp=200,
+        ),
+        (defender, attacker, foe_move): _calc(
+            ko_chance="3HKO",
+            damage_range=[30, 40],
+            attacker_spe=50,
+            defender_hp=150,
+            kochance_n=3,
+        ),
+    }
+
+
+def test_brick_break_sets_screen_clear_caveat_when_reflect_up():
+    client = MockCalcClient(
+        _ohko_pair("Machamp", "Blissey", "Brick Break")
+    )
+    result = classify_matchup(
+        BRICK_BREAK,
+        SCREEN_FOE,
+        field={"defenderSide": {"isReflect": True}},
+        client=client,
+    )
+    assert result.caveats.screen_clear_applied is True
+
+
+def test_psychic_fangs_screen_clear_caveat():
+    client = MockCalcClient(
+        _ohko_pair("Gyarados", "Blissey", "Psychic Fangs")
+    )
+    result = classify_matchup(
+        PSYCHIC_FANGS,
+        SCREEN_FOE,
+        field={"defenderSide": {"isLightScreen": True}},
+        client=client,
+    )
+    assert result.caveats.screen_clear_applied is True
+
+
+def test_raging_bull_screen_clear_caveat():
+    client = MockCalcClient(
+        _ohko_pair("Tauros-Paldea-Combat", "Blissey", "Raging Bull")
+    )
+    result = classify_matchup(
+        RAGING_BULL,
+        SCREEN_FOE,
+        field={"defenderSide": {"isAuroraVeil": True}},
+        client=client,
+    )
+    assert result.caveats.screen_clear_applied is True
+
+
+def test_non_clear_move_no_screen_caveat():
+    client = MockCalcClient(
+        _ohko_pair("Machamp", "Blissey", "Brick Break")
+    )
+    # No screens up
+    result = classify_matchup(BRICK_BREAK, SCREEN_FOE, client=client)
+    assert result.caveats.screen_clear_applied is False
+
+
+def test_unseen_fist_contact_sets_protect_bypass_when_protected():
+    attacker = {**UNSEEN_FIST, "moves": ["Close Combat"]}
+    client = MockCalcClient(_ohko_pair("Golurk-Mega", "Blissey", "Close Combat"))
+    result = classify_matchup(
+        attacker,
+        SCREEN_FOE,
+        field={"defenderSide": {"isProtected": True}},
+        client=client,
+    )
+    assert result.caveats.protect_bypass_applied is True
+
+
+def test_piercing_drill_contact_sets_protect_bypass_when_protected():
+    client = MockCalcClient(
+        _ohko_pair("Excadrill-Mega", "Blissey", "Iron Head")
+    )
+    result = classify_matchup(
+        PIERCING_DRILL,
+        SCREEN_FOE,
+        field={"defenderSide": {"isProtected": True}},
+        client=client,
+    )
+    assert result.caveats.protect_bypass_applied is True
+
+
+def test_protect_blocks_contact_without_bypass():
+    attacker = {
+        "species": "Excadrill",
+        "ability": "Sand Rush",
+        "item": "Leftovers",
+        "moves": ["Iron Head"],
+        "nature": "Adamant",
+        "evs": {"atk": 32, "spe": 32},
+    }
+    client = MockCalcClient(
+        _ohko_pair("Excadrill", "Blissey", "Iron Head")
+    )
+    result = classify_matchup(
+        attacker,
+        SCREEN_FOE,
+        field={"defenderSide": {"isProtected": True}},
+        client=client,
+    )
+    assert result.caveats.protect_bypass_applied is False
+
+
+def test_non_contact_move_no_protect_bypass_caveat():
+    # Aura Sphere is non-contact; Unseen Fist should not bypass for it.
+    attacker = {
+        **UNSEEN_FIST,
+        "moves": ["Shadow Ball"],
+    }
+    client = MockCalcClient(
+        _ohko_pair("Golurk-Mega", "Blissey", "Shadow Ball")
+    )
+    result = classify_matchup(
+        attacker,
+        SCREEN_FOE,
+        field={"defenderSide": {"isProtected": True}},
+        client=client,
+    )
+    assert result.caveats.protect_bypass_applied is False

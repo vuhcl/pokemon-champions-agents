@@ -2821,4 +2821,109 @@ hosted chat UI becoming a real plan); msgpack allowlisting (contingent on strict
 policy); `compile_cli_graph`/full CLI REPL (contingent on ADR-010 actually being built);
 normalize-on-read tuple restoration (no current caller needs real tuple semantics
 post-restart, so not built ahead of an actual need).
+### 2026-08-09 (cont.): move/ability conditional mechanics — grounded two-pass enumeration
+and implementation, closing the "Next priority" tier's move/ability mechanics item
+
+Closes the backlog item that started as a three-item anecdote (Electro Shot→Rain, Liquid
+Voice, Freeze-Dry, Phantom Force — the specific things that happened to surface during
+role-play walkthroughs). Explicitly not treated as the actual scope: an anecdote-derived list
+carries the same risk this project has hit before (the original redirection candidate list
+built from a curated site instead of a real sweep; Sand Force missed because it wasn't
+already part of the discussion).
+
+**Method corrected mid-thread before any implementation started.** First framing proposed
+scanning `@smogon/calc`'s source for every special-cased mechanic as the single grounded
+source. Caught as incomplete before proceeding: calc is a static damage calculator, not a
+battle simulator, so it structurally cannot and will never encode turn-flow/battle-state
+mechanics (semi-invulnerability, multi-turn locks, forced switches) no matter how thoroughly
+scanned — Phantom Force was never going to appear there, and treating its absence as a sweep
+failure would have been the wrong conclusion. Revised to two independently grounded passes:
+Pass 1 (calc's own special-cased damage-math mechanics) and Pass 2 (Showdown move-flag data
+for turn-flow mechanics) — plus an explicit residual-limitation statement that even both
+passes together aren't a logical proof of completeness (scripted `onTryMove`/volatile
+behaviors, item overrides like Power Herb, and Champions-only callbacks could still exist
+outside both sources).
+
+**Discovery found real value beyond the original three items.** Pass 1's enumeration —
+filtered specifically to Champions' own mechanics file (`champions.js`), not a generic gen9
+source; caught and excluded Punk Rock specifically because its sound-modifier logic lives in
+`gen789.js` and Champions has no legal Punk Rock holder anyway, avoiding a wrong-ruleset trap
+— surfaced a substantially richer recommender-reasoning-relevant set than anyone had
+previously considered: Flying Press (dual-type effectiveness), Expanding Force (Psychic
+Terrain spread-conversion), Steel Roller/Poltergeist (conditional fail states), Scrappy,
+screen-clearing moves (Brick Break/Psychic Fangs/Raging Bull), and protect-bypass abilities
+(Unseen Fist/Piercing Drill) — none of which were in the original anecdote list. Pass 2
+confirmed as genuinely blocked: no committed project data carries Showdown's battle-flow
+flags at all (checked every candidate source — legality extract, accuracy/stat-boost data,
+calc's own `MoveFlags` interface, `matchup.py`'s hand-curated frozensets — none sufficient),
+stated as an explicit gap rather than silently substituted with the incomplete hand-curated
+lists already in the codebase.
+
+**Two follow-up questions caught real inventory-exclusion claims that needed direct
+verification rather than assumption.** Asked why Galvanize/Normalize were excluded from the
+ate-ability set; confirmed both for the same underlying reason (zero Reg M-B-legal holders —
+Galvanize's only holder is the Alola-Golem line, Normalize's only holder is the Delcatty
+line, neither legal in Champions) rather than the mechanically-plausible-sounding explanation
+initially guessed (that Normalize works in the opposite conversion direction and needed
+separate handling) — worth correcting plainly once checked rather than let the wrong
+reasoning stand next to the right one.
+
+**Implementation ran as four parallel-then-sequenced tracks** (Track D: Pass 2 ingest
+pipeline, independent; Track B: move-usability caveats, independent; Track A: type-identity
+resolution, dependent on D's committed flags artifact for Liquid Voice's sound-flag lookup;
+Track C: doubles-tactical mechanics, dependent on B's reserved `MatchupCaveats` fields) —
+real technical dependencies, not just organizational grouping. Plan review caught a real
+landmine before implementation: existing `MatchupCaveats` construction sites rebuilt the
+dataclass directly, which would have silently clobbered fields added by parallel tracks;
+fixed by requiring `dataclasses.replace()` hygiene everywhere, confirmed at close-out via
+direct grep that no full reconstruction path remained on any touched call site. Also caught:
+Piercing Drill's ability catalog marks it "Future" (normally excluded), but a real Reg
+M-B-legal holder exists via Excadrill-Mega — included correctly rather than excluded on the
+generic flag alone.
+
+**Shipped:** `effective_move_type`/`type_effectiveness` (`recommender/counters.py`) handling
+Freeze-Dry's Water-effectiveness override, Flying Press's dual-chart application, Liquid
+Voice's sound-flag-driven type rewrite, ate-abilities' Normal-move conversion, and Scrappy's
+Ghost-immunity bypass — wired into every existing threat-evaluation call site (`_walls`,
+`_ko_best_move`, `_damaging_move_types`), not a parallel resolver. `MatchupCaveats` extended
+with `condition_fail`/`expanding_force_boosted` (Track B) and `screen_clear_applied`/
+`protect_bypass_applied` (Track C, reserved by B, populated by C after B lands).
+`recommender/tactical_mechanics.py` for screen-clearing and protect-bypass logic;
+`isProtected` added to `SideSpec` on both the Python and TypeScript sides of the calc
+boundary so protect state survives the round trip. `data/moves/flags.v1.json` (500
+Champions-legal moves) as the real Pass 2 artifact, extracted via the same base⊕Champions
+merge discipline already established for other move data — confirmed Phantom Force correctly
+carries `flags.charge`/`breaksProtect` in the artifact, proven by named tests on both the
+Node extraction side and the Python consumption side, not just asserted present.
+
+**Confirmed at close-out, not assumed:** the Ceruledge wall-test cut needing to widen from
+`n=20` to `n=25` was traced to its actual cause rather than accepted as a summary claim —
+Liquid Voice correctly promotes Primarina (now a genuine dual-axis wall+KO-threshold threat
+against Blaziken-Mega via Water-typed Hyper Voice) ahead of Ceruledge in the ranking, pushing
+Ceruledge's still-accurate wall-only classification one slot past the old cut. The new
+mechanic working correctly displaced a ranking, not a test quietly loosened to hide a
+regression — exactly the kind of claim this project checks rather than accepts, given past
+incidents where a plausible-sounding test change turned out to mask a real problem.
+Positive/negative test pairs (Blizzard-not-super-effective-vs-Water, Fighting-vs-Ghost-zero-
+without-Scrappy, protect-blocks-without-bypass, Electro-Shot-charge-skip-unaffected) confirmed
+to pin concrete opposite-direction assertions, not pass vacuously. Confirmed by direct trace
+that `flags.v1.json` has exactly one live consumer (Liquid Voice's sound-flag lookup) — no
+recommender decision reads `charge`/`breaksProtect` for positioning/timing yet; Phantom
+Force's actual turn-economy value remains unconsumed, exactly as scoped.
+
+642 tests passing (up from 609), 7 skipped — confirmed unchanged from the established
+baseline (5 live-calc + 2 Ollama). `architecture_decisions.md` confirmed clean; the
+`master_project_log.md` drift confirmed as this session's own already-known unpasted entries,
+not authored by this task.
+
+**Deliberately deferred, tracked as separate future scope:** consuming Pass 2's inventory
+(Phantom Force's actual positioning/timing value in recommender reasoning, and any other
+turn-flow mechanic the real artifact surfaces) — the ingest pipeline and inventory are real
+and committed, but implementing what they enable is an explicit follow-up decision, not part
+of this task. Also deferred: Weather Ball/Terrain Pulse field-awareness inside `query_
+counters` (team-wide coverage already gets field context via calc; static counters do not,
+accepted as a narrower gap); Expanding Force's full doubles-targeting UX (the caveat flags
+terrain boost, but pairwise `classify_matchup` still models a single defender); semi-
+invulnerability, Power Herb, and other script-only mechanics remaining outside both grounded
+sources, stated as a residual limitation rather than claimed solved.
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from collections import OrderedDict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Hashable, Literal
 
 from recommender.calc_client import (
@@ -303,12 +303,19 @@ _CHARGE_INSTANT_WEATHER: dict[str, frozenset[str]] = {
     "solarblade": frozenset({"Sun", "Harsh Sunshine"}),
     "electroshot": frozenset({"Rain", "Heavy Rain"}),
 }
+CHARGE_INSTANT_WEATHER = _CHARGE_INSTANT_WEATHER
 
 
 @dataclass(frozen=True)
 class MatchupCaveats:
     contact_punish_applied: bool = False
     multi_hit_assumed: bool = False
+    # Track B usability:
+    condition_fail: Literal["no_terrain", "no_item"] | None = None
+    expanding_force_boosted: bool = False
+    # Track C reserved (defaults; apply_tactical_caveats sets these):
+    screen_clear_applied: bool = False
+    protect_bypass_applied: bool = False
 
 
 @dataclass(frozen=True)
@@ -361,6 +368,7 @@ def _side_fingerprint(side: dict[str, Any] | None) -> tuple[Any, ...]:
         "isHelpingHand",
         "isFriendGuard",
         "isBattery",
+        "isProtected",
         "isSR",
     )
     return tuple((f, bool(side.get(f))) for f in flags) + (("spikes", side.get("spikes") or 0),)
@@ -489,6 +497,7 @@ def _is_neutral_field(field: FieldSpec) -> bool:
                 "isHelpingHand",
                 "isFriendGuard",
                 "isBattery",
+                "isProtected",
                 "isSR",
             )
         ):
@@ -534,20 +543,28 @@ def _evaluate_exchange(
     severity = _severity_from_hp(a_hp_remaining, a_hp)
     note = _turn_economy_note(a_best, b_best, outcome, field)
 
+    caveats = replace(caveats, **_usability_caveat_fields(a_best.move, build_b, field))
+
     if outcome in {"clean_kill", "intentional_non_ko_answer"} and _contact_punish_applies(
         build_b, a_best.move
     ):
         chip = _contact_punish_chip(build_b, a_hp)
         a_hp_remaining = max(0, a_hp_remaining - chip)
-        caveats = MatchupCaveats(contact_punish_applied=True)
+        caveats = replace(caveats, contact_punish_applied=True)
         severity = _severity_from_hp(a_hp_remaining, a_hp)
 
     if _multi_hit_assumed(build_a, a_best.move, a_best):
-        caveats = MatchupCaveats(
-            contact_punish_applied=caveats.contact_punish_applied,
-            multi_hit_assumed=True,
-        )
+        caveats = replace(caveats, multi_hit_assumed=True)
         severity = _downgrade_for_multi_hit(severity, a_best)
+
+    from recommender.tactical_mechanics import apply_tactical_caveats
+
+    caveats = apply_tactical_caveats(
+        move_id=a_best.move,
+        attacker_ability=build_a.get("ability"),
+        field=field,
+        caveats=caveats,
+    )
 
     return MatchupResult(
         outcome=outcome,
@@ -654,7 +671,8 @@ def _effective_turns_to_ko(
 def _pick_best_offense(
     profiles: list[_MoveProfile], field: FieldSpec | None = None
 ) -> _MoveProfile | None:
-    if not profiles:
+    viable = [p for p in profiles if p.max_damage > 0]
+    if not viable:
         return None
 
     def key(p: _MoveProfile) -> tuple[int, int, int]:
@@ -662,7 +680,24 @@ def _pick_best_offense(
         guaranteed = 0 if p.ko_guaranteed else 1
         return (turns, guaranteed, -p.max_damage)
 
-    return min(profiles, key=key)
+    return min(viable, key=key)
+
+
+def _usability_caveat_fields(
+    move: str,
+    defender: PokemonSpecOptional,
+    field: FieldSpec | None,
+) -> dict[str, Any]:
+    """Track B condition_fail / expanding_force_boosted fields for replace()."""
+    mid = to_id(move)
+    out: dict[str, Any] = {}
+    if mid == "steelroller" and not (field and field.get("terrain")):
+        out["condition_fail"] = "no_terrain"
+    elif mid == "poltergeist" and not defender.get("item"):
+        out["condition_fail"] = "no_item"
+    if mid == "expandingforce" and field and field.get("terrain") == "Psychic":
+        out["expanding_force_boosted"] = True
+    return out
 
 
 def _defender_hp(calc: CalcSuccessResponse) -> int:

@@ -40,6 +40,7 @@ export type SideSpec = Partial<{
   isHelpingHand: boolean;
   isFriendGuard: boolean;
   isBattery: boolean;
+  isProtected: boolean;
   spikes: number;
   isSR: boolean;
 }>;
