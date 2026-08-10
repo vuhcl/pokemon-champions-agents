@@ -13,7 +13,12 @@ from typing import Any, get_args
 from recommender.coverage import compute_team_coverage, detect_spof, get_relevant_threats
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
-from recommender.recommend import RoleArchetype, infer_role, role_spread
+from recommender.recommend import (
+    RoleArchetype,
+    _DEPRECATED_ROLE_ALIASES,
+    infer_role,
+    role_spread,
+)
 from recommender.resolved_builds import get_resolved_build
 from recommender.state import (
     Attr,
@@ -35,9 +40,29 @@ _COMPONENT_TO_ROLE: dict[str, TargetRoleId] = {
     "Tailwind": "tailwind_setter",
 }
 
-_ROLE_ARCHETYPES = frozenset(get_args(RoleArchetype))
+_ROLE_ARCHETYPES = frozenset(get_args(RoleArchetype)) | frozenset(_DEPRECATED_ROLE_ALIASES)
 _CHOICE_ITEMS = frozenset({"choiceband", "choicespecs", "choicescarf"})
 _ITEM_SWAP_MOVES = frozenset({"trick", "switcheroo"})
+_OFFENSE_ROLES = frozenset(
+    {
+        "fast_attacker",
+        "bulky_attacker",
+        "fast_physical_attacker",
+        "fast_special_attacker",
+        "fast_mixed_attacker",
+        "standard_physical_attacker",
+        "standard_special_attacker",
+        "standard_mixed_attacker",
+        "bulky_physical_attacker",
+        "bulky_special_attacker",
+        "bulky_mixed_attacker",
+        "fast_pivot",
+        "trick_room_sweeper",
+        "swords_dance_attacker",
+        "nasty_plot_attacker",
+    }
+)
+
 
 def fill_team_draft(state: RecommenderState) -> dict:
     draft = list(state["team_draft"])
@@ -163,7 +188,8 @@ def _propagate_and_refine(
     # --- Propagation from locked pins (no overwrite of existing values) ---
     if moves is not None and slot.role.value is None and not slot.role.locked:
         item_for_role = slot.item.value or ""
-        implied["role"] = infer_role(moves, item_for_role)
+        ability_for_role = slot.ability.value if slot.ability.value else None
+        implied["role"] = infer_role(moves, item_for_role, ability_for_role)
 
     if item_id in _CHOICE_ITEMS:
         if slot.spread.value is None and not slot.spread.locked:
@@ -218,9 +244,54 @@ def _choice_spread(item_id: str) -> StatsTable:
     return {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32}
 
 
+def _default_item_candidates(role: str | None) -> tuple[str, ...]:
+    if role in _OFFENSE_ROLES or (role or "").endswith("_attacker"):
+        return ("Life Orb", "Sitrus Berry", "Focus Sash")
+    return ("Sitrus Berry", "Life Orb", "Focus Sash")
+
+
+def _synthesize_item(slot: Slot, state: RecommenderState) -> str | None:
+    from recommender.legality import is_item_legal, team_item_ids
+
+    snap = load_snapshot()
+    used = team_item_ids(list(state.get("team_draft") or []))
+    for cand in _default_item_candidates(slot.role.value):
+        if to_id(cand) in used:
+            continue
+        if is_item_legal(snap, cand):
+            return cand
+    return None
+
+
+def _nature_for_spread(spread: StatsTable, role: str | None) -> str:
+    spe = int(spread.get("spe", 0))
+    atk = int(spread.get("atk", 0))
+    spa = int(spread.get("spa", 0))
+    defense = int(spread.get("def", 0))
+    spd = int(spread.get("spd", 0))
+    bulky_attacker = role == "bulky_attacker" or (
+        bool(role) and role.startswith("bulky_") and role.endswith("_attacker")
+    )
+    if spe == 0:
+        return "Quiet" if spa >= atk else "Brave"
+    if spe >= 28:
+        if atk >= spa:
+            return "Adamant" if bulky_attacker else "Jolly"
+        return "Modest" if bulky_attacker else "Timid"
+    if atk > spa and atk > 0:
+        return "Adamant"
+    if spa > atk and spa > 0:
+        return "Modest"
+    if defense >= spd:
+        return "Bold" if spa >= atk else "Impish"
+    return "Calm" if spa >= atk else "Careful"
+
+
 def _refine_defaults(
     slot: Slot, state: RecommenderState, *, regulation: str
 ) -> tuple[Slot, bool]:
+    # Calc verify stays optional post-complete elsewhere; never required to emit ProvisionalSlot.
+    from recommender.anchor_roles import _ability_for_target_role, _unique_legal_ability
     from recommender.move_narrowing import assemble_moveset_fallback
 
     species = slot.species.value
@@ -240,116 +311,155 @@ def _refine_defaults(
         else None
     )
     usage_missed = False
-    if (need_moves or need_item) and (moves is None or item is None):
-        if not usage:
-            usage_missed = True
-            if need_moves:
-                assembled = assemble_moveset_fallback(species, slot, state)
-                moves = assembled or None
-            if not moves and not need_spread and not need_nature:
-                return slot, False
-        else:
-            if moves is None:
-                moves = list(usage.get("moves") or [])
-            if item is None:
-                item = usage.get("item")
+    updates: dict[str, Attr[Any]] = {}
+    spread = dict(slot.spread.value) if slot.spread.value else None
+
+    if usage:
+        if need_ability and usage.get("ability"):
+            updates["ability"] = Attr(
+                value=str(usage["ability"]),
+                locked=False,
+                reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
+            )
+        if need_nature and usage.get("nature"):
+            updates["nature"] = Attr(
+                value=str(usage["nature"]),
+                locked=False,
+                reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
+            )
+        if need_moves and moves is None:
+            moves = list(usage.get("moves") or [])
+        if need_item and item is None:
+            item = usage.get("item")
+    else:
+        usage_missed = bool(need_moves or need_item or need_ability)
+        # 1. Ability (unique legality_only, else role-constraint synthesized)
+        if need_ability:
+            unique = _unique_legal_ability(species)
+            if unique:
+                updates["ability"] = Attr(
+                    value=unique,
+                    locked=False,
+                    reason=ReasonRef(kind="tier2_heuristic", ref="legality_only"),
+                )
+            else:
+                role_ability = _ability_for_target_role(species, slot.role.value)
+                if role_ability:
+                    updates["ability"] = Attr(
+                        value=role_ability,
+                        locked=False,
+                        reason=ReasonRef(
+                            kind="tier2_heuristic", ref="tier3_role_ability"
+                        ),
+                    )
+        # 2. Item defaults
+        if need_item and item is None:
+            item = _synthesize_item(slot, state)
+        # 3. Moves via extended prefs
+        if need_moves and moves is None:
+            assembled = assemble_moveset_fallback(species, slot, state)
+            moves = assembled or None
 
     # Soft Choice moveset bias when item locked Choice and moveset empty
     item_id = to_id(item) if item else ""
     if need_moves and moves and item_id in _CHOICE_ITEMS:
         moves = _bias_choice_moveset(moves)
 
-    updates: dict[str, Attr[Any]] = {}
-    spread = dict(slot.spread.value) if slot.spread.value else None
-    if need_ability and usage and usage.get("ability"):
-        updates["ability"] = Attr(
-            value=str(usage["ability"]),
+    if need_moves and moves and (usage_missed or not usage):
+        if usage_missed:
+            updates["moveset"] = Attr(
+                value=moves,
+                locked=False,
+                reason=ReasonRef(kind="tier2_heuristic", ref="move_narrowing"),
+            )
+
+    if need_item and item and usage_missed:
+        updates["item"] = Attr(
+            value=item,
             locked=False,
-            reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
-        )
-    if need_nature and usage and usage.get("nature"):
-        updates["nature"] = Attr(
-            value=str(usage["nature"]),
-            locked=False,
-            reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
+            reason=ReasonRef(kind="tier2_heuristic", ref="tier3_item_default"),
         )
 
-    # Usage-miss moveset can land without an item (assemble path).
-    if need_moves and moves and usage_missed:
-        updates["moveset"] = Attr(
-            value=moves,
-            locked=False,
-            reason=ReasonRef(kind="tier2_heuristic", ref="move_narrowing"),
-        )
-
-    if need_moves or need_item or need_spread:
-        if not moves or not item:
-            # May still do Scarf nature if spread already set
-            pass
-        else:
-            cached = get_resolved_build(species, moves, item, regulation)
-            if cached and need_spread and spread is None:
-                # Only use cache spread if no contradictory lock pins left spread empty
-                # intentionally (Scarf+TR). If need_spread and pins didn't set it due to
-                # contradiction, skip cache too when both Scarf and TR locked.
-                if not (
-                    slot.item.locked
-                    and to_id(slot.item.value or "") == "choicescarf"
-                    and slot.moveset.locked
-                    and slot.moveset.value
-                    and any(to_id(m) == "trickroom" for m in slot.moveset.value)
-                ):
-                    spread = dict(cached["spread"])
-                    reason = ReasonRef(kind="tier1_cache", ref=species)
-                else:
-                    reason = ReasonRef(kind="tier2_heuristic", ref=species)
-            elif cached:
+    # 4. Spread once moves+item exist
+    reason = ReasonRef(kind="tier2_heuristic", ref=species)
+    if (need_moves or need_item or need_spread) and moves and item:
+        cached = get_resolved_build(species, moves, item, regulation)
+        if cached and need_spread and spread is None:
+            if not (
+                slot.item.locked
+                and to_id(slot.item.value or "") == "choicescarf"
+                and slot.moveset.locked
+                and slot.moveset.value
+                and any(to_id(m) == "trickroom" for m in slot.moveset.value)
+            ):
+                spread = dict(cached["spread"])
                 reason = ReasonRef(kind="tier1_cache", ref=species)
             else:
                 reason = ReasonRef(kind="tier2_heuristic", ref=species)
-                if need_spread and spread is None:
-                    if slot.item.locked and item_id in _CHOICE_ITEMS:
-                        # Already handled in propagate; if still empty, contradiction
-                        pass
+        elif cached:
+            reason = ReasonRef(kind="tier1_cache", ref=species)
+        else:
+            reason = ReasonRef(kind="tier2_heuristic", ref=species)
+            if need_spread and spread is None:
+                if slot.item.locked and item_id in _CHOICE_ITEMS:
+                    pass
+                else:
+                    role_name = slot.role.value
+                    role = (
+                        role_name
+                        if role_name in _ROLE_ARCHETYPES
+                        else infer_role(moves, item, slot.ability.value)
+                    )
+                    choice = select_usage_spread(
+                        species,
+                        role,
+                        moves,
+                        regulation=regulation,
+                        threats=get_relevant_threats(state, n=SLOT_THREAT_N),
+                    )
+                    if choice:
+                        spread = dict(choice.spread)
+                        reason = ReasonRef(
+                            kind="tier2_heuristic", ref=choice.source
+                        )
+                        if need_nature and choice.nature and "nature" not in updates:
+                            updates["nature"] = Attr(
+                                value=choice.nature,
+                                locked=False,
+                                reason=reason,
+                            )
                     else:
-                        role_name = slot.role.value
-                        role = (
-                            role_name
-                            if role_name in _ROLE_ARCHETYPES
-                            else infer_role(moves, item, slot.ability.value)
+                        spread = dict(role_spread(role))  # type: ignore[arg-type]
+                        reason = ReasonRef(
+                            kind="tier2_heuristic", ref="tier3_role"
                         )
-                        choice = select_usage_spread(
-                            species,
-                            role,
-                            moves,
-                            regulation=regulation,
-                            threats=get_relevant_threats(state, n=SLOT_THREAT_N),
-                        )
-                        if choice:
-                            spread = dict(choice.spread)
-                            reason = ReasonRef(
-                                kind="tier2_heuristic", ref=choice.source
-                            )
-                            if need_nature and choice.nature:
-                                updates["nature"] = Attr(
-                                    value=choice.nature,
-                                    locked=False,
-                                    reason=reason,
-                                )
-                        else:
-                            spread = dict(role_spread(role))  # type: ignore[arg-type]
-                            reason = ReasonRef(
-                                kind="tier2_heuristic", ref="tier3_role"
-                            )
 
-            if need_moves and not usage_missed:
-                updates["moveset"] = Attr(value=moves, locked=False, reason=reason)
-            if need_item:
-                updates["item"] = Attr(value=item, locked=False, reason=reason)
-            if need_spread and spread is not None:
-                updates["spread"] = Attr(value=spread, locked=False, reason=reason)
+        if need_moves and not usage_missed:
+            updates["moveset"] = Attr(value=moves, locked=False, reason=reason)
+        if need_item and not usage_missed:
+            updates["item"] = Attr(value=item, locked=False, reason=reason)
+        if need_spread and spread is not None:
+            updates["spread"] = Attr(value=spread, locked=False, reason=reason)
 
     working = replace(slot, **updates) if updates else slot
+
+    # 5. Nature companion when still unset and spread exists
+    if (
+        need_nature
+        and "nature" not in updates
+        and working.nature.value is None
+        and working.spread.value
+    ):
+        nature = _nature_for_spread(working.spread.value, working.role.value)
+        updates = {
+            **updates,
+            "nature": Attr(
+                value=nature,
+                locked=False,
+                reason=ReasonRef(kind="tier2_heuristic", ref="tier3_nature"),
+            ),
+        }
+        working = replace(slot, **updates)
 
     # Secondary Scarf Spe overshoot → nature correction
     if (

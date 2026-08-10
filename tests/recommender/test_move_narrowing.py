@@ -301,7 +301,7 @@ def test_pick_default_and_alternatives():
     assert pick["alternatives"] == ["B", "C"]
 
 
-def test_propose_usage_miss_lands_moveset_without_item():
+def test_propose_usage_miss_lands_moveset_and_default_item():
     slot = Slot(
         species=Attr(value="Whimsicott", locked=True),
         role=Attr(value="support_speed_control", locked=True),
@@ -315,7 +315,9 @@ def test_propose_usage_miss_lands_moveset_without_item():
     s = out["team_draft"][0]
     assert s.moveset.value is not None
     assert len(s.moveset.value) >= 1
-    assert s.item.value is None
+    assert s.item.value == "Sitrus Berry"
+    assert s.item.reason is not None
+    assert s.item.reason.ref == "tier3_item_default"
     assert s.moveset.reason is not None
     assert s.moveset.reason.ref == "move_narrowing"
     assert s.moveset.reason.kind == "tier2_heuristic"
