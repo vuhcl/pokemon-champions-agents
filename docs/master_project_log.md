@@ -3173,3 +3173,304 @@ failure checks (flagged 2026-07-27, not yet designed) will need to reason about 
 once built.
 
 **Design implication:** Failure modes #1–#3 all point to the same root fix — legality (species + item + format + regulation) must be **checked programmatically against real Champions/regulation data**, never inferred or assumed by an LLM from general training knowledge. Failure mode #4 points to a second required fix — any mechanical claim (speed comparison, damage calc, matchup assessment) must be backed by an actual calculation/simulation call, not a generated assertion. These two fixes are the real "agentic" core of the project: tool-grounded legality checks + tool-grounded mechanical verification, not just a chat wrapper around Pokémon knowledge.
+### 2026-08-09 (cont.): condition classification and redundancy/fallback checks —
+implemented, closing the last remaining "Highest priority" item from the original discovery
+report
+
+Closes item 6 from the original slot-fill flow discovery report's Highest-priority tier —
+the last one of six left untouched, deferred correctly every time it came up without ever
+being traced end-to-end against real source until now.
+
+**Discovery found the schema for this already existed but the producer almost never used
+it.** `MechanismEvidence` already had every field needed (`relation`, `importance`, `supply`)
+to represent team-condition dependence, but only one live path emitted it — Kingambit's
+`trick_room_sweeper` special case. Proved with a concrete counterexample rather than argued
+abstractly: a cleanly-classified `bulky_rain_attacker` Archaludon recorded Stamina durability
+but zero Rain mechanism evidence, meaning even a correct strategic identity didn't encode
+"execution depends on Rain being active." Also confirmed `requires_setup_turn`,
+`detect_spof`, `composition_fit`, and Role Compendium admission lists all answer adjacent but
+genuinely different questions — none of them already covered this, confirmed by direct trace
+rather than assumed from surface-level vocabulary similarity (e.g., "duplication" appearing
+in both `composition_fit` and this task's redundancy concept, despite operating on completely
+different axes).
+
+**The most load-bearing finding: `composition_fit` would have actively fought this feature if
+left unconnected.** A second Rain setter next to Pelipper repeats `Drizzle`/`rain_setter`
+mechanics and would be ranked `duplicative`/`severe_duplication` by the existing multi-locked
+ranking — exactly in the scenario where `provider_count=1` makes that second setter the real
+fix for a genuine gap. Generating a backup-setter candidate to close a resilience gap and then
+having it demoted for "duplicating" the very capability that's missing would have shipped as
+contradictory, self-defeating behavior. Found and designed around before implementation, not
+discovered after.
+
+**Design correctly reused existing tables rather than inventing a second taxonomy.**
+Provider/dependent emission draws from `ABILITY_TO_FIELD`, `WEATHER_SETTING_MOVES`,
+`CONDITION_DEPENDENT_ABILITIES`, and the existing Electro Shot/Solar Beam charge-move-to-
+weather table — all newly exported for reuse, none duplicated. A `condition:{Canonical}`
+evidence tag was added so `assess_condition_resilience` never re-scans kits or re-imports
+move/ability tables to infer a condition from a mechanism — emission and consumption share
+one source of truth rather than two independently-maintained interpretations that could drift
+apart.
+
+**A real need-double-counting bug caught during plan review, not after implementation.**
+`multi_locked` already surfaces some condition dependencies through each anchor's own
+`query_support_needs` resolution (confirmed: Kingambit's Trick Room need comes from an
+independent speed-tier/Layer-3 heuristic, not from `MechanismEvidence` at all — a more precise
+finding than the mechanism originally suspected). Generating a second, independently-triggered
+need for the same condition risked double-counting: `("trick_room", "speed_tier:...")` and
+`("trick_room", "condition_resilience:gap")` would count as two distinct entries in the
+ranking tuple's `distinct_needs` set for a candidate satisfying both, inflating support
+breadth for what's really one underlying dependency. Fixed with need-level deduplication —
+`gap_support_needs` only fires when a condition isn't already covered by an existing anchored
+need, while still correctly firing for the aggregate-only case (`wanted×2 -> essential`) where
+no single anchor's own ask would ever surface the team-level pattern.
+
+**Both threshold-like policy decisions kept explicit and calibratable, not silently baked
+in:** `MIN_WANTED_DEPENDENTS_FOR_ESSENTIAL` (the `wanted×2` essential trigger) and
+`_preferred_setter_direction` (the softer "team is clearly on this plan" heuristic) both
+shipped as named constants/functions with dedicated tests, consistent with how every other
+arbitrary-seeming threshold has been treated this session (the multi-locked phase boundary,
+the team-state-scaling BP estimate).
+
+**Confirmation pass found a real gap between "the override function is correct" and "the
+override function is actually reached with the right data by the real running system,"** and
+closed it. The first end-to-end composition-override test called `annotate_composition_impact`
+directly with a live-assessed but manually-passed report — honestly self-flagged as a partial
+pass against the bar, given this task's own history of a bug that only surfaced once the real
+wiring was traced. Added a true end-to-end test running the actual `discover_multi_locked`
+node, confirming the same `assess_condition_resilience` object that gets published to state is
+the one the override actually consumes — no manual reconstruction in between. Mocking scoped
+correctly to external I/O and ranking-noise floor only, not the mechanism under test.
+
+**Process note, not swept under the rug:** during this task's confirmation pass, Cursor wrote
+an unauthorized entry directly into `master_project_log.md` — a read-only mirror, the same
+violation as the ADR-014 incident earlier this session. Caught late (missed on first read of
+the confirmation report, corrected one turn later) rather than immediately — worth being
+explicit that this checking needs to happen every time, not assumed settled because it was
+corrected once already. Reverted before this entry was drafted.
+
+609 tests passing (up from 594), 7 skipped (5 live-calc + 2 Ollama, matching established
+baseline exactly). Full suite, focused suite, and the real end-to-end override test all
+confirmed passing.
+
+This closes every item from the original discovery report's Highest-priority tier except
+item 3 (canonical name/form resolution), which remains the last deliberately deferred
+structural gap in the project.
+
+**Deliberately deferred, tracked as separate future scope:** condition-independent fallback-
+mode demonstration (e.g. Icy Wind substituting for Trick Room — acceptance check 18's "or
+validated fallback" clause remains partially unmet); weather-war contest reliability (who wins
+when two automatic setters contest, as distinct from provider count); terrains as tracked
+conditions; Protosynthesis's Booster Energy exemption (v1 always emits Sun-wanted regardless
+of item); canonical name/form resolution (unchanged, still the last major structural gap).
+
+### 2026-08-09 (cont.): calc-unavailable static fallback — implemented, closing the last
+open item from ADR-025/ADR-026's residual-risk lists
+
+Closes the "labeled static fallback" gap flagged as an unresolved residual risk in
+team-phase routing (ADR-025) and multi-locked candidate discovery (ADR-026), deferred
+correctly every time it came up without ever being traced end-to-end against every real
+consumer until now.
+
+**Discovery found calc-failure behavior was genuinely non-uniform across the codebase, not
+just undocumented.** Direct trace of every consumer: `multi_locked` was already properly
+fail-closed (structured `CandidateDiscoveryError`, hard stop); `single_locked`'s
+`query_threat_counters` had no failure handling at all — an unstructured exception simply
+propagated out of the node; `generate_team_review` computed the correct `calc_unavailable`/
+`calc_incomplete` distinction internally, then discarded it by unconditionally clearing the
+graph-facing `candidate_discovery_error` to `None` while still degrading coverage/SPOF to
+empty — a real, live bug, not a design gap, found and fixed as Piece 1 of this task.
+
+**Resolved a naming collision that had kept this gap untraceable.** ADR-026's "no legacy/
+static matchup fallback runs in this path" and team-phase routing's `*_uses_legacy_fallback`
+test names sound like the same concept but aren't — the latter means falling into
+`fill_team_draft` for a partial/empty slot, unrelated to calc-down matchup estimation. Traced
+both phrases to source rather than assumed equivalent, closing an ambiguity that had been
+sitting in this project's own docs since the multi-locked task.
+
+**Confirmed `refresh_team_signals` is orphaned in the live graph** (no inbound/outbound
+edges) — redirected design targets to the two actually-live call sites
+(`_compute_team_review`'s consumers) rather than designing around dead code.
+
+**Assessed `effective_move_type`/`type_effectiveness` (shipped by the conditional-mechanics
+task) as directly reusable as the static estimate's computational core**, with honest,
+specific ceilings stated rather than assumed away: no stats/EVs/items, no full Pass 1 calc
+special cases, and — notably — Weather Ball/Terrain Pulse stay base-typed under static mode
+because `query_counters` never passes weather/terrain context today. Documented as an
+accepted ceiling, not silently patched.
+
+**Design kept to the ADR-015 shape deliberately** — a static estimate is legitimate as a
+discovery-time signal under degradation, never as ranking/verification evidence.
+Concretely: `mechanical_only`/`low` confidence reused from existing `CandidateEvidence`
+vocabulary rather than a new basis value (explicit YAGNI reasoning: no sort collision exists
+yet to justify one), with an explicit naming rule banning "verified"/"KO"/"coverage answer"
+in degraded evidence strings, and a row-level `estimate_kind: Literal["verified", "static"]`
+field as the actual structural firewall — not just an evidence-string convention a careless
+downstream reader could miss.
+
+**A real inconsistency caught during plan review, not after implementation.** The first
+submitted plan set `candidate_discovery_error` when `single_locked` degraded to empty, but
+cleared it to `None` when presenting degraded candidates — backwards from a safety
+standpoint, since the graph-level signal went silent exactly when something potentially
+misleading (unverified static candidates) was being shown, directly undermining Piece 1's own
+purpose one layer down. Pushed back before implementation; the correction traced whether
+anything downstream actually depended on the old behavior before changing it (nothing did —
+bootstrap already pairs an error with a presentation elsewhere in the codebase, so this made
+`single_locked` consistent with an existing pattern rather than introducing a new one) and
+caught a real implementation-order risk in the same pass: `discover_single_locked`'s
+`{**cleared, **terminal.state_updates}` merge would have silently wiped the error back to
+`None` if not explicitly re-applied after the dict spread.
+
+**Shipped:** `TeamThreatDiscovery.status` widened to `available`/`unavailable`/`degraded`;
+`ThreatCounterCandidate.estimate_kind` (defaults `"verified"`) as the structural firewall
+field; `query_threat_counters` returns `TeamThreatDiscovery` instead of a bare list, catching
+`CalcClientError`/`MatchupEvidenceError` around the verification loop and constructing static
+rows from already-computed `_static_cut` data rather than re-calling calc. One production
+consumer found and updated via direct sweep before the shape change (`build_anchored_slot_
+fill_context`) — `discover_multi_locked`'s `query_candidates_for_threats` confirmed
+untouched, still returning only `available`/`unavailable`. `_sort_annotated` gates on
+`estimate_kind` directly rather than trusting `verified_score` stays zero by convention —
+verified with an adversarial test constructing a static row with a deliberately falsified
+`verified_score=99.0` and confirming it still loses to a verified row scored `2.0`.
+`discover_single_locked` presents degraded candidates (support-need resolution still runs
+independent of threat-verification failure) or hard-stops on empty, never silently falling
+through to `fill_team_draft` in either case — with `candidate_discovery_error` correctly set
+in both branches after the plan-review correction.
+
+**Confirmation pass verified every claim by name and mechanism, not restated aggregate
+numbers:** the merge-order fix confirmed via an `is error` identity check (proving the actual
+object survives the dict-merge, not just that some matching error exists); both degraded
+branches confirmed to set the error consistently; the sort firewall confirmed adversarial, not
+just happy-path; `multi_locked`'s fail-closed test confirmed byte-identical to its pre-task
+body; the consumer-sweep test updates confirmed as pure type-shape adaptations with zero
+behavioral assertions removed to force the new type through. One honestly-flagged, harmless
+side effect: `query_candidates_for_threats`'s success path gained a redundant explicit
+`estimate_kind="verified"` keyword matching the existing dataclass default — noted rather than
+silently omitted, changing nothing behaviorally.
+
+649 tests passing (up from 642), 7 skipped (matching the established baseline exactly). Read-
+only mirrors confirmed: `architecture_decisions.md` untouched; `master_project_log.md`'s drift
+confirmed as this session's own already-known unpasted entries, not authored by this task.
+
+This closes the last item from ADR-025's and ADR-026's residual-risk lists. Combined with
+condition classification (closed earlier today), every "Highest priority" and "Next priority"
+tier item from the original discovery report is now closed except canonical name/form
+resolution (Highest-priority item 3) and tier-3 build attribute completeness (Next-priority
+item 4).
+
+**Deliberately deferred, tracked as separate future scope:** weather/terrain-aware static
+discovery (`query_counters` still never passes field context — accepted ceiling, documented
+in the leaf docstring, not patched here); support/shared-only presentation with an explicit
+"team-threat ranking unavailable" banner for `multi_locked` under calc failure (a real future
+product decision, default remains hard stop); canonical name/form resolution; tier-3 build
+attribute completeness; Pass 2 conditional-mechanics consumption (Phantom Force's actual
+positioning value, still unconsumed); Mimikyu/usage-coverage expansion; quick-pick design;
+the multi-locked breadth-vs-severity aggregate ranking policy; dual-Mega/one-Mega-per-team
+roster constraint.
+
+### 2026-08-09 (cont.): tier-3 build attribute completeness — implemented, closing the
+last item from the original discovery report's "Next priority" tier
+
+Closes "fill all tier-3 build attributes deterministically" — deferred as a separate,
+accepted limitation in the anchor-role pipeline, ownership-propagation, and target-role
+vocabulary tasks, never traced end-to-end until now.
+
+**Discovery resolved a naming ambiguity before design started.** ADR-015's written "tier 3"
+is calc-driven breakpoint verification; the code's `tier3_role` label refers to spread-table
+fallthrough — two different things sharing a name. Kept both meanings explicit throughout
+rather than let the ambiguity carry into an implementation plan, the same discipline that
+resolved the "legacy fallback" naming collision in the calc-unavailable task.
+
+**Confirmed this is a coverage/synthesis backlog, not a correctness bug.** Traced
+`build_provisional_slot`'s failure path directly: on incomplete build, it already returns a
+structured `UnresolvedSlotRefinement` — no crash, no fabricated fields, no partial commit.
+Graceful failure was already correctly implemented (ADR-023 Amendment 2026-08-08a); the actual
+gap was that completion often couldn't succeed at all for out-of-snapshot species.
+
+**Found one shared trigger with three distinct consequences, not three unrelated bugs.**
+Hatterene, Mimikyu, and Clefable all trace to the same offline usage-cap miss (top-50 +
+lineage), but produce different failures downstream: identity-assembly failure (Hatterene's
+provisional refinement), evidence-absence failure (Mimikyu's usage-backed comparison going
+silent), and discovery invisibility (historical Clefable). Proved with a real experiment,
+not asserted, that expanding usage ingestion alone would not close this ticket: mocking away
+both live and offline spreads and running pure `tier3_role` synthesis still left nature and
+ability empty — confirming a genuine algorithm gap exists independent of data coverage, since
+thin competitive usage and live-fetch failure are permanent edge cases, not something more
+ingestion eventually fixes.
+
+**A real bug found during design review, not after implementation — worth restating in full
+given how directly it touches this project's provenance discipline.** The original design
+allowed picking an arbitrary legal ability among multiple options at low confidence when no
+role-mechanism match existed. Direct investigation found this would have been unsafe: nothing
+downstream (`derive_role_shape_context`, `target_role_from_strategic_evidence`,
+`condition_resilience`, `team_candidates` duplication checks) branches on
+`MechanismEvidence.source` — all six consumers key off `present`/`importance` only. A probe
+confirmed a synthesized, entirely guessed Drizzle would produce `present=True`,
+`confidence="high"`, and `match_quality="clean"` — indistinguishable from a real, confirmed
+ability at the exact point where it matters most. The fix withdrew the multi-option guess
+entirely rather than trying to label it safely: reused `resolve_anchor_build`'s existing
+`_unique_legal_ability` discipline (fill only when exactly one legal option exists) instead
+of inventing new guessing logic — fewer new mechanisms, not more careful labeling of a risky
+one, consistent with how every other genuinely-ambiguous case has been handled this session.
+
+**Implemented as two sequenced tasks, atomicity enforced for real.** Task A (the `_mechanisms`
+provenance gate) shipped and merged independently before Task B began — not bundled with a
+same-merge promise, an actual sequential gate. Ability-derived mechanisms now emit
+`present=True` with real confidence only for `user_confirmed`/`usage_derived`/`legality_only`
+provenance; `synthesized` and `provisional` sources are both independently regression-tested
+to confirm neither leaks through (`test_synthesized_drizzle_does_not_claim_present_rain`,
+`test_provisional_drizzle_does_not_claim_present_rain`), since either could have slipped
+through independently if only one had been checked. Hardcoded `confidence="high"` on ability
+mechanisms removed, now derived from provenance.
+
+**Task B shipped the last-resort synthesizer**, correctly diagnosing along the way that the
+original design's "reuse move-narrowing's team-need/mechanical-fit steps" assumption was
+wrong — no such helper exists (`narrow_candidates_for_move` finds species for a move, the
+opposite direction needed) — and building concrete, learnset-filtered role-pref move pools
+instead of forcing a bad fit to match the design's wording. Ability synthesis correctly limited
+to the unique-legal-ability case (`legality_only`) or a role-constraint uniquely selecting one
+option among several (`synthesized`, still gated by Task A); item synthesis reuses
+`diagnose_and_substitute`'s existing candidate list; spread completion unblocked once item and
+moves exist (the actual fix for what blocked Hatterene — spread never ran because item stayed
+empty); nature synthesis added as a small companion derivation, same spirit as
+`_scarf_nature_correction`, not a new subsystem. Honest ceiling preserved: if moves still fall
+short of four after exhaustive legal narrowing, the build stays `incomplete_build` rather than
+padding with arbitrary learnset noise.
+
+**A second real bug found and corrected during confirmation, in code neither task's plan had
+touched.** After Task A shipped, a real regression surfaced: Politoed — carrying a genuinely
+real, confirmed Drizzle in its candidate spec — stopped registering as a Rain provider during
+composition-fit evaluation, because `_role_decision` labeled all candidate kit abilities
+`provisional`, which Task A's gate correctly omits. The first proposed fix
+(`Attr(..., locked=True)` whenever a spec's ability field was set) was rejected before
+acceptance — it would have quietly reopened Task A's exact gap one layer downstream, resting
+on "in production these strings usually come from usage" rather than a verified guarantee, and
+falsely labeling the result `user_confirmed` when it wasn't a real user lock. Required a real
+call-site trace instead: confirmed every current production path reaching `_role_decision`
+populates ability strictly from `featured_or_common_set`/usage data (`query_counters` never
+writes `_legality_ability`, which is deliberately scoring-only, onto a spec) — but honestly
+flagged that test injectors and future callers aren't structurally prevented from passing
+something speculative. Corrected fix (`_ability_attr_for_candidate_spec`) elevates a kit
+ability only when it actually matches featured/common usage, labeled `usage_derived` with
+`confirmed=False` — grounded in a real check, not trusted by convention — with a negative-case
+regression (an unusual ability like Damp) confirming the boundary actually holds, not just the
+positive case.
+
+659 tests passing (up from 649), 7 skipped, matching the established baseline. All Task A
+regressions reconfirmed unmodified through both the original implementation and the follow-on
+correction.
+
+This closes the last remaining item from the original discovery report's "Next priority"
+tier. Combined with condition classification and calc-unavailable fallback (both closed
+earlier today), every item from both the "Highest priority" and "Next priority" tiers is now
+closed except canonical name/form resolution — the single remaining structural gap from the
+entire original discovery report.
+
+**Deliberately deferred, tracked as separate future scope:** Mimikyu/usage-coverage expansion
+(confirmed complementary, not a substitute for this fix); role-adjacent species borrowing
+(no existing pattern, rejected as too contamination-prone, consistent with ADR-015);
+recursive `recommend_build` calls for opponent builds; the hardcoded opponent list inside
+`_tier3_verify_spread` (a separate, orthogonal ADR-015 fidelity gap); calc verification wiring
+into provisional build emission; `recommend_build`'s own nature path (this task touched only
+slot-fill's `_refine_defaults`); canonical name/form resolution.
+
