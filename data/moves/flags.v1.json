@@ -1,0 +1,5018 @@
+{
+  "meta": {
+    "source": "pokemon-showdown/data/moves.ts ⊕ mods/champions/moves.ts",
+    "filter": "champions-legal"
+  },
+  "moves": {
+    "accelerock": {
+      "name": "Accelerock",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "acidarmor": {
+      "name": "Acid Armor",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "acidspray": {
+      "name": "Acid Spray",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "acrobatics": {
+      "name": "Acrobatics",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1
+      }
+    },
+    "acupressure": {
+      "name": "Acupressure",
+      "category": "Status",
+      "flags": {
+        "metronome": 1
+      }
+    },
+    "aerialace": {
+      "name": "Aerial Ace",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "afteryou": {
+      "name": "After You",
+      "category": "Status",
+      "flags": {
+        "bypasssub": 1,
+        "allyanim": 1
+      }
+    },
+    "agility": {
+      "name": "Agility",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "aircutter": {
+      "name": "Air Cutter",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1,
+        "wind": 1
+      }
+    },
+    "airslash": {
+      "name": "Air Slash",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "alluringvoice": {
+      "name": "Alluring Voice",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "allyswitch": {
+      "name": "Ally Switch",
+      "category": "Status",
+      "flags": {
+        "metronome": 1
+      }
+    },
+    "amnesia": {
+      "name": "Amnesia",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "ancientpower": {
+      "name": "Ancient Power",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "appleacid": {
+      "name": "Apple Acid",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "aquacutter": {
+      "name": "Aqua Cutter",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "aquajet": {
+      "name": "Aqua Jet",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "aquaring": {
+      "name": "Aqua Ring",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "aquaring"
+    },
+    "aquastep": {
+      "name": "Aqua Step",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "dance": 1,
+        "metronome": 1
+      }
+    },
+    "aquatail": {
+      "name": "Aqua Tail",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "armorcannon": {
+      "name": "Armor Cannon",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "aromaticmist": {
+      "name": "Aromatic Mist",
+      "category": "Status",
+      "flags": {
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "assurance": {
+      "name": "Assurance",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "attract": {
+      "name": "Attract",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "attract"
+    },
+    "aurasphere": {
+      "name": "Aura Sphere",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1,
+        "bullet": 1,
+        "pulse": 1
+      }
+    },
+    "aurawheel": {
+      "name": "Aura Wheel",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "auroraveil": {
+      "name": "Aurora Veil",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "avalanche": {
+      "name": "Avalanche",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "axekick": {
+      "name": "Axe Kick",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "babydolleyes": {
+      "name": "Baby-Doll Eyes",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "banefulbunker": {
+      "name": "Baneful Bunker",
+      "category": "Status",
+      "flags": {
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "stallingMove": true,
+      "volatileStatus": "banefulbunker"
+    },
+    "barbbarrage": {
+      "name": "Barb Barrage",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "batonpass": {
+      "name": "Baton Pass",
+      "category": "Status",
+      "flags": {
+        "metronome": 1
+      },
+      "selfSwitch": "copyvolatile"
+    },
+    "beakblast": {
+      "name": "Beak Blast",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "failmefirst": 1,
+        "nosleeptalk": 1,
+        "noassist": 1,
+        "failcopycat": 1,
+        "failinstruct": 1,
+        "bullet": 1
+      }
+    },
+    "beatup": {
+      "name": "Beat Up",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "belch": {
+      "name": "Belch",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "failmefirst": 1,
+        "nosleeptalk": 1,
+        "noassist": 1,
+        "failcopycat": 1,
+        "failmimic": 1,
+        "failinstruct": 1
+      }
+    },
+    "bellydrum": {
+      "name": "Belly Drum",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "bind": {
+      "name": "Bind",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "partiallytrapped"
+    },
+    "bite": {
+      "name": "Bite",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bite": 1
+      }
+    },
+    "bitterblade": {
+      "name": "Bitter Blade",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "heal": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "bittermalice": {
+      "name": "Bitter Malice",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "blastburn": {
+      "name": "Blast Burn",
+      "category": "Special",
+      "flags": {
+        "recharge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "mustrecharge"
+    },
+    "blazekick": {
+      "name": "Blaze Kick",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "blizzard": {
+      "name": "Blizzard",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "wind": 1
+      }
+    },
+    "block": {
+      "name": "Block",
+      "category": "Status",
+      "flags": {
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "bodypress": {
+      "name": "Body Press",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "bodyslam": {
+      "name": "Body Slam",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1,
+        "minimize": 1
+      }
+    },
+    "bonerush": {
+      "name": "Bone Rush",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "boomburst": {
+      "name": "Boomburst",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "bounce": {
+      "name": "Bounce",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "charge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "gravity": 1,
+        "distance": 1,
+        "metronome": 1,
+        "nosleeptalk": 1,
+        "noassist": 1,
+        "failinstruct": 1
+      }
+    },
+    "bravebird": {
+      "name": "Brave Bird",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1
+      }
+    },
+    "breakingswipe": {
+      "name": "Breaking Swipe",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "brickbreak": {
+      "name": "Brick Break",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "brutalswing": {
+      "name": "Brutal Swing",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "bugbite": {
+      "name": "Bug Bite",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "bugbuzz": {
+      "name": "Bug Buzz",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "bulkup": {
+      "name": "Bulk Up",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "bulldoze": {
+      "name": "Bulldoze",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "bulletpunch": {
+      "name": "Bullet Punch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "metronome": 1
+      }
+    },
+    "bulletseed": {
+      "name": "Bullet Seed",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "burningjealousy": {
+      "name": "Burning Jealousy",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "burnup": {
+      "name": "Burn Up",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "defrost": 1,
+        "metronome": 1
+      }
+    },
+    "calmmind": {
+      "name": "Calm Mind",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "ceaselessedge": {
+      "name": "Ceaseless Edge",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "charge": {
+      "name": "Charge",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "charge"
+    },
+    "chargebeam": {
+      "name": "Charge Beam",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "charm": {
+      "name": "Charm",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "chillingwater": {
+      "name": "Chilling Water",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "chillyreception": {
+      "name": "Chilly Reception",
+      "category": "Status",
+      "flags": {},
+      "selfSwitch": true
+    },
+    "circlethrow": {
+      "name": "Circle Throw",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "forceSwitch": true
+    },
+    "clangingscales": {
+      "name": "Clanging Scales",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "clangoroussoul": {
+      "name": "Clangorous Soul",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "sound": 1,
+        "dance": 1
+      }
+    },
+    "clearsmog": {
+      "name": "Clear Smog",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "closecombat": {
+      "name": "Close Combat",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "coaching": {
+      "name": "Coaching",
+      "category": "Status",
+      "flags": {
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "coil": {
+      "name": "Coil",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "comeuppance": {
+      "name": "Comeuppance",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "failmefirst": 1
+      }
+    },
+    "confuseray": {
+      "name": "Confuse Ray",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "confusion"
+    },
+    "copycat": {
+      "name": "Copycat",
+      "category": "Status",
+      "flags": {
+        "failencore": 1,
+        "nosleeptalk": 1,
+        "noassist": 1,
+        "failcopycat": 1,
+        "failmimic": 1,
+        "failinstruct": 1
+      }
+    },
+    "corrosivegas": {
+      "name": "Corrosive Gas",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "cosmicpower": {
+      "name": "Cosmic Power",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "cottonguard": {
+      "name": "Cotton Guard",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "cottonspore": {
+      "name": "Cotton Spore",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "powder": 1
+      }
+    },
+    "counter": {
+      "name": "Counter",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "failmefirst": 1,
+        "noassist": 1,
+        "failcopycat": 1
+      }
+    },
+    "covet": {
+      "name": "Covet",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "failmefirst": 1,
+        "noassist": 1,
+        "failcopycat": 1
+      }
+    },
+    "crabhammer": {
+      "name": "Crabhammer",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "crosschop": {
+      "name": "Cross Chop",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "crosspoison": {
+      "name": "Cross Poison",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "crunch": {
+      "name": "Crunch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bite": 1
+      }
+    },
+    "crushclaw": {
+      "name": "Crush Claw",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "curse": {
+      "name": "Curse",
+      "category": "Status",
+      "flags": {
+        "bypasssub": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "curse"
+    },
+    "darkestlariat": {
+      "name": "Darkest Lariat",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "darkpulse": {
+      "name": "Dark Pulse",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1,
+        "pulse": 1
+      }
+    },
+    "dazzlinggleam": {
+      "name": "Dazzling Gleam",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "decorate": {
+      "name": "Decorate",
+      "category": "Status",
+      "flags": {
+        "allyanim": 1
+      }
+    },
+    "defog": {
+      "name": "Defog",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "destinybond": {
+      "name": "Destiny Bond",
+      "category": "Status",
+      "flags": {
+        "bypasssub": 1,
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "volatileStatus": "destinybond"
+    },
+    "detect": {
+      "name": "Detect",
+      "category": "Status",
+      "flags": {
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "stallingMove": true,
+      "volatileStatus": "protect"
+    },
+    "dig": {
+      "name": "Dig",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "charge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1,
+        "nosleeptalk": 1,
+        "noassist": 1,
+        "failinstruct": 1
+      }
+    },
+    "direclaw": {
+      "name": "Dire Claw",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "disable": {
+      "name": "Disable",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "disable"
+    },
+    "discharge": {
+      "name": "Discharge",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "dive": {
+      "name": "Dive",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "charge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "allyanim": 1,
+        "metronome": 1,
+        "nosleeptalk": 1,
+        "noassist": 1,
+        "failinstruct": 1
+      }
+    },
+    "doubleedge": {
+      "name": "Double-Edge",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "doublehit": {
+      "name": "Double Hit",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "doubleteam": {
+      "name": "Double Team",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "dracometeor": {
+      "name": "Draco Meteor",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "dragoncheer": {
+      "name": "Dragon Cheer",
+      "category": "Status",
+      "flags": {
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1,
+        "sound": 1
+      },
+      "volatileStatus": "dragoncheer"
+    },
+    "dragonclaw": {
+      "name": "Dragon Claw",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "dragondance": {
+      "name": "Dragon Dance",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "dance": 1,
+        "metronome": 1
+      }
+    },
+    "dragondarts": {
+      "name": "Dragon Darts",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "noparentalbond": 1
+      }
+    },
+    "dragonpulse": {
+      "name": "Dragon Pulse",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1,
+        "pulse": 1
+      }
+    },
+    "dragonrush": {
+      "name": "Dragon Rush",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "minimize": 1
+      }
+    },
+    "dragontail": {
+      "name": "Dragon Tail",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "forceSwitch": true
+    },
+    "drainingkiss": {
+      "name": "Draining Kiss",
+      "category": "Special",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "drainpunch": {
+      "name": "Drain Punch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "drillpeck": {
+      "name": "Drill Peck",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1
+      }
+    },
+    "drillrun": {
+      "name": "Drill Run",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "dualwingbeat": {
+      "name": "Dual Wingbeat",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "dynamicpunch": {
+      "name": "Dynamic Punch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "metronome": 1
+      }
+    },
+    "earthpower": {
+      "name": "Earth Power",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "earthquake": {
+      "name": "Earthquake",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "eerieimpulse": {
+      "name": "Eerie Impulse",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "eeriespell": {
+      "name": "Eerie Spell",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "electricterrain": {
+      "name": "Electric Terrain",
+      "category": "Status",
+      "flags": {
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "electrify": {
+      "name": "Electrify",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "electrify"
+    },
+    "electroball": {
+      "name": "Electro Ball",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "electroshot": {
+      "name": "Electro Shot",
+      "category": "Special",
+      "flags": {
+        "charge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "electroweb": {
+      "name": "Electroweb",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "encore": {
+      "name": "Encore",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "metronome": 1,
+        "failencore": 1
+      },
+      "volatileStatus": "encore"
+    },
+    "endeavor": {
+      "name": "Endeavor",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "noparentalbond": 1
+      }
+    },
+    "endure": {
+      "name": "Endure",
+      "category": "Status",
+      "flags": {
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "stallingMove": true,
+      "volatileStatus": "endure"
+    },
+    "energyball": {
+      "name": "Energy Ball",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "entrainment": {
+      "name": "Entrainment",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "eruption": {
+      "name": "Eruption",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "expandingforce": {
+      "name": "Expanding Force",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "explosion": {
+      "name": "Explosion",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "noparentalbond": 1
+      }
+    },
+    "extrasensory": {
+      "name": "Extrasensory",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "extremespeed": {
+      "name": "Extreme Speed",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "facade": {
+      "name": "Facade",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "fairylock": {
+      "name": "Fairy Lock",
+      "category": "Status",
+      "flags": {
+        "mirror": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "fakeout": {
+      "name": "Fake Out",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "faketears": {
+      "name": "Fake Tears",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "featherdance": {
+      "name": "Feather Dance",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "dance": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "feint": {
+      "name": "Feint",
+      "category": "Physical",
+      "flags": {
+        "mirror": 1,
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "breaksProtect": true
+    },
+    "fellstinger": {
+      "name": "Fell Stinger",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "ficklebeam": {
+      "name": "Fickle Beam",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "fierydance": {
+      "name": "Fiery Dance",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "dance": 1,
+        "metronome": 1
+      }
+    },
+    "finalgambit": {
+      "name": "Final Gambit",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "metronome": 1,
+        "noparentalbond": 1
+      }
+    },
+    "fireblast": {
+      "name": "Fire Blast",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "firefang": {
+      "name": "Fire Fang",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bite": 1
+      }
+    },
+    "firelash": {
+      "name": "Fire Lash",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "firepunch": {
+      "name": "Fire Punch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "metronome": 1
+      }
+    },
+    "firespin": {
+      "name": "Fire Spin",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "partiallytrapped"
+    },
+    "firstimpression": {
+      "name": "First Impression",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "fissure": {
+      "name": "Fissure",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "flail": {
+      "name": "Flail",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "flamecharge": {
+      "name": "Flame Charge",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "flamethrower": {
+      "name": "Flamethrower",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "flareblitz": {
+      "name": "Flare Blitz",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "defrost": 1,
+        "metronome": 1
+      }
+    },
+    "flashcannon": {
+      "name": "Flash Cannon",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "flatter": {
+      "name": "Flatter",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "confusion"
+    },
+    "fling": {
+      "name": "Fling",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1,
+        "noparentalbond": 1
+      }
+    },
+    "flipturn": {
+      "name": "Flip Turn",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "selfSwitch": true
+    },
+    "flowertrick": {
+      "name": "Flower Trick",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "fly": {
+      "name": "Fly",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "charge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "gravity": 1,
+        "distance": 1,
+        "metronome": 1,
+        "nosleeptalk": 1,
+        "noassist": 1,
+        "failinstruct": 1
+      }
+    },
+    "flyingpress": {
+      "name": "Flying Press",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "gravity": 1,
+        "distance": 1,
+        "nonsky": 1,
+        "metronome": 1,
+        "minimize": 1
+      }
+    },
+    "focusblast": {
+      "name": "Focus Blast",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "focusenergy": {
+      "name": "Focus Energy",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "focusenergy"
+    },
+    "focuspunch": {
+      "name": "Focus Punch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "punch": 1,
+        "failmefirst": 1,
+        "nosleeptalk": 1,
+        "noassist": 1,
+        "failcopycat": 1,
+        "failinstruct": 1
+      }
+    },
+    "followme": {
+      "name": "Follow Me",
+      "category": "Status",
+      "flags": {
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "volatileStatus": "followme"
+    },
+    "forestscurse": {
+      "name": "Forest's Curse",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "foulplay": {
+      "name": "Foul Play",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "freezedry": {
+      "name": "Freeze-Dry",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "frenzyplant": {
+      "name": "Frenzy Plant",
+      "category": "Special",
+      "flags": {
+        "recharge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "mustrecharge"
+    },
+    "frostbreath": {
+      "name": "Frost Breath",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "futuresight": {
+      "name": "Future Sight",
+      "category": "Special",
+      "flags": {
+        "allyanim": 1,
+        "metronome": 1,
+        "futuremove": 1
+      }
+    },
+    "gastroacid": {
+      "name": "Gastro Acid",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "gastroacid"
+    },
+    "gigadrain": {
+      "name": "Giga Drain",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "gigaimpact": {
+      "name": "Giga Impact",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "recharge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "mustrecharge"
+    },
+    "gigatonhammer": {
+      "name": "Gigaton Hammer",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "cantusetwice": 1
+      }
+    },
+    "glare": {
+      "name": "Glare",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "grassknot": {
+      "name": "Grass Knot",
+      "category": "Special",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "grassyglide": {
+      "name": "Grassy Glide",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "grassyterrain": {
+      "name": "Grassy Terrain",
+      "category": "Status",
+      "flags": {
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "gravapple": {
+      "name": "Grav Apple",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "gravity": {
+      "name": "Gravity",
+      "category": "Status",
+      "flags": {
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "growth": {
+      "name": "Growth",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "guardsplit": {
+      "name": "Guard Split",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "guardswap": {
+      "name": "Guard Swap",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "guillotine": {
+      "name": "Guillotine",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "gunkshot": {
+      "name": "Gunk Shot",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "gyroball": {
+      "name": "Gyro Ball",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "hammerarm": {
+      "name": "Hammer Arm",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "metronome": 1
+      }
+    },
+    "hardpress": {
+      "name": "Hard Press",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "haze": {
+      "name": "Haze",
+      "category": "Status",
+      "flags": {
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "headlongrush": {
+      "name": "Headlong Rush",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "metronome": 1
+      }
+    },
+    "headsmash": {
+      "name": "Head Smash",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "healbell": {
+      "name": "Heal Bell",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "sound": 1,
+        "distance": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "healingwish": {
+      "name": "Healing Wish",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "healpulse": {
+      "name": "Heal Pulse",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "distance": 1,
+        "heal": 1,
+        "allyanim": 1,
+        "metronome": 1,
+        "pulse": 1
+      }
+    },
+    "heatcrash": {
+      "name": "Heat Crash",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1,
+        "minimize": 1
+      }
+    },
+    "heatwave": {
+      "name": "Heat Wave",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "wind": 1
+      }
+    },
+    "heavyslam": {
+      "name": "Heavy Slam",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1,
+        "minimize": 1
+      }
+    },
+    "helpinghand": {
+      "name": "Helping Hand",
+      "category": "Status",
+      "flags": {
+        "bypasssub": 1,
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "volatileStatus": "helpinghand"
+    },
+    "hex": {
+      "name": "Hex",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "highhorsepower": {
+      "name": "High Horsepower",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "highjumpkick": {
+      "name": "High Jump Kick",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "gravity": 1,
+        "metronome": 1
+      }
+    },
+    "horndrill": {
+      "name": "Horn Drill",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "hornleech": {
+      "name": "Horn Leech",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "howl": {
+      "name": "Howl",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "hurricane": {
+      "name": "Hurricane",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1,
+        "wind": 1
+      }
+    },
+    "hydrocannon": {
+      "name": "Hydro Cannon",
+      "category": "Special",
+      "flags": {
+        "recharge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "mustrecharge"
+    },
+    "hydropump": {
+      "name": "Hydro Pump",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "hyperbeam": {
+      "name": "Hyper Beam",
+      "category": "Special",
+      "flags": {
+        "recharge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "mustrecharge"
+    },
+    "hypervoice": {
+      "name": "Hyper Voice",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "hypnosis": {
+      "name": "Hypnosis",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "icebeam": {
+      "name": "Ice Beam",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "icefang": {
+      "name": "Ice Fang",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bite": 1
+      }
+    },
+    "icehammer": {
+      "name": "Ice Hammer",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "metronome": 1
+      }
+    },
+    "icepunch": {
+      "name": "Ice Punch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "metronome": 1
+      }
+    },
+    "iceshard": {
+      "name": "Ice Shard",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "icespinner": {
+      "name": "Ice Spinner",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "iciclecrash": {
+      "name": "Icicle Crash",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "iciclespear": {
+      "name": "Icicle Spear",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "icywind": {
+      "name": "Icy Wind",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "wind": 1
+      }
+    },
+    "imprison": {
+      "name": "Imprison",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "bypasssub": 1,
+        "metronome": 1,
+        "mustpressure": 1
+      },
+      "volatileStatus": "imprison"
+    },
+    "infernalparade": {
+      "name": "Infernal Parade",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "inferno": {
+      "name": "Inferno",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "infestation": {
+      "name": "Infestation",
+      "category": "Special",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "partiallytrapped"
+    },
+    "ingrain": {
+      "name": "Ingrain",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "nonsky": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "ingrain"
+    },
+    "instruct": {
+      "name": "Instruct",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "bypasssub": 1,
+        "allyanim": 1,
+        "failinstruct": 1
+      }
+    },
+    "irondefense": {
+      "name": "Iron Defense",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "ironhead": {
+      "name": "Iron Head",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "irontail": {
+      "name": "Iron Tail",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "jetpunch": {
+      "name": "Jet Punch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1
+      }
+    },
+    "kingsshield": {
+      "name": "King's Shield",
+      "category": "Status",
+      "flags": {
+        "noassist": 1,
+        "failcopycat": 1,
+        "failinstruct": 1
+      },
+      "stallingMove": true,
+      "volatileStatus": "kingsshield"
+    },
+    "knockoff": {
+      "name": "Knock Off",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "kowtowcleave": {
+      "name": "Kowtow Cleave",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "lashout": {
+      "name": "Lash Out",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "lastresort": {
+      "name": "Last Resort",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "lastrespects": {
+      "name": "Last Respects",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "lavaplume": {
+      "name": "Lava Plume",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "leafblade": {
+      "name": "Leaf Blade",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "leafstorm": {
+      "name": "Leaf Storm",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "leechlife": {
+      "name": "Leech Life",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "leechseed": {
+      "name": "Leech Seed",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "leechseed"
+    },
+    "lifedew": {
+      "name": "Life Dew",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "bypasssub": 1
+      }
+    },
+    "lightofruin": {
+      "name": "Light of Ruin",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "lightscreen": {
+      "name": "Light Screen",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "liquidation": {
+      "name": "Liquidation",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "lockon": {
+      "name": "Lock-On",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "lowkick": {
+      "name": "Low Kick",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "lowsweep": {
+      "name": "Low Sweep",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "luminacrash": {
+      "name": "Lumina Crash",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "lunge": {
+      "name": "Lunge",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "machpunch": {
+      "name": "Mach Punch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "metronome": 1
+      }
+    },
+    "magicpowder": {
+      "name": "Magic Powder",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1,
+        "powder": 1
+      }
+    },
+    "magicroom": {
+      "name": "Magic Room",
+      "category": "Status",
+      "flags": {
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "magneticflux": {
+      "name": "Magnetic Flux",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "distance": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "magnetrise": {
+      "name": "Magnet Rise",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "gravity": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "magnetrise"
+    },
+    "makeitrain": {
+      "name": "Make It Rain",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "matchagotcha": {
+      "name": "Matcha Gotcha",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "defrost": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "meanlook": {
+      "name": "Mean Look",
+      "category": "Status",
+      "flags": {
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "megahorn": {
+      "name": "Megahorn",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "megakick": {
+      "name": "Mega Kick",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "memento": {
+      "name": "Memento",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "metalburst": {
+      "name": "Metal Burst",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "failmefirst": 1
+      }
+    },
+    "metalsound": {
+      "name": "Metal Sound",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "meteorbeam": {
+      "name": "Meteor Beam",
+      "category": "Special",
+      "flags": {
+        "charge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "meteormash": {
+      "name": "Meteor Mash",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "metronome": 1
+      }
+    },
+    "minimize": {
+      "name": "Minimize",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "minimize"
+    },
+    "mirrorcoat": {
+      "name": "Mirror Coat",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "failmefirst": 1,
+        "noassist": 1
+      }
+    },
+    "mistyexplosion": {
+      "name": "Misty Explosion",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "mistyterrain": {
+      "name": "Misty Terrain",
+      "category": "Status",
+      "flags": {
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "moonblast": {
+      "name": "Moonblast",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "moonlight": {
+      "name": "Moonlight",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "morningsun": {
+      "name": "Morning Sun",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "mortalspin": {
+      "name": "Mortal Spin",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "mountaingale": {
+      "name": "Mountain Gale",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "muddywater": {
+      "name": "Muddy Water",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "mudshot": {
+      "name": "Mud Shot",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "mudslap": {
+      "name": "Mud-Slap",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "mysticalfire": {
+      "name": "Mystical Fire",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "nastyplot": {
+      "name": "Nasty Plot",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "nightdaze": {
+      "name": "Night Daze",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "nightshade": {
+      "name": "Night Shade",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "nightslash": {
+      "name": "Night Slash",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "nobleroar": {
+      "name": "Noble Roar",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "noretreat": {
+      "name": "No Retreat",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "noretreat"
+    },
+    "nuzzle": {
+      "name": "Nuzzle",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "outrage": {
+      "name": "Outrage",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "failinstruct": 1
+      },
+      "volatileStatus": "lockedmove"
+    },
+    "overheat": {
+      "name": "Overheat",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "painsplit": {
+      "name": "Pain Split",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "paraboliccharge": {
+      "name": "Parabolic Charge",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "partingshot": {
+      "name": "Parting Shot",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      },
+      "selfSwitch": true
+    },
+    "payback": {
+      "name": "Payback",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "perishsong": {
+      "name": "Perish Song",
+      "category": "Status",
+      "flags": {
+        "sound": 1,
+        "distance": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "petalblizzard": {
+      "name": "Petal Blizzard",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "wind": 1
+      }
+    },
+    "petaldance": {
+      "name": "Petal Dance",
+      "category": "Special",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "dance": 1,
+        "metronome": 1,
+        "failinstruct": 1
+      },
+      "volatileStatus": "lockedmove"
+    },
+    "phantomforce": {
+      "name": "Phantom Force",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "charge": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "nosleeptalk": 1,
+        "noassist": 1,
+        "failinstruct": 1
+      },
+      "breaksProtect": true
+    },
+    "pinmissile": {
+      "name": "Pin Missile",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "playrough": {
+      "name": "Play Rough",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "pluck": {
+      "name": "Pluck",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1
+      }
+    },
+    "poisonfang": {
+      "name": "Poison Fang",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bite": 1
+      }
+    },
+    "poisonjab": {
+      "name": "Poison Jab",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "poisonpowder": {
+      "name": "Poison Powder",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "powder": 1
+      }
+    },
+    "pollenpuff": {
+      "name": "Pollen Puff",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "poltergeist": {
+      "name": "Poltergeist",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "populationbomb": {
+      "name": "Population Bomb",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "slicing": 1
+      }
+    },
+    "pounce": {
+      "name": "Pounce",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "pound": {
+      "name": "Pound",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "powergem": {
+      "name": "Power Gem",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "powershift": {
+      "name": "Power Shift",
+      "category": "Status",
+      "flags": {
+        "snatch": 1
+      },
+      "volatileStatus": "powershift"
+    },
+    "powersplit": {
+      "name": "Power Split",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "powerswap": {
+      "name": "Power Swap",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "powertrick": {
+      "name": "Power Trick",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "powertrick"
+    },
+    "powertrip": {
+      "name": "Power Trip",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "powerwhip": {
+      "name": "Power Whip",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "protect": {
+      "name": "Protect",
+      "category": "Status",
+      "flags": {
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "stallingMove": true,
+      "volatileStatus": "protect"
+    },
+    "psychic": {
+      "name": "Psychic",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "psychicfangs": {
+      "name": "Psychic Fangs",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bite": 1
+      }
+    },
+    "psychicnoise": {
+      "name": "Psychic Noise",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "psychicterrain": {
+      "name": "Psychic Terrain",
+      "category": "Status",
+      "flags": {
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "psychocut": {
+      "name": "Psycho Cut",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "psychup": {
+      "name": "Psych Up",
+      "category": "Status",
+      "flags": {
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "psyshieldbash": {
+      "name": "Psyshield Bash",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "psyshock": {
+      "name": "Psyshock",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "quash": {
+      "name": "Quash",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "quickattack": {
+      "name": "Quick Attack",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "quickguard": {
+      "name": "Quick Guard",
+      "category": "Status",
+      "flags": {
+        "snatch": 1
+      }
+    },
+    "quiverdance": {
+      "name": "Quiver Dance",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "dance": 1,
+        "metronome": 1
+      }
+    },
+    "ragefist": {
+      "name": "Rage Fist",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1
+      }
+    },
+    "ragepowder": {
+      "name": "Rage Powder",
+      "category": "Status",
+      "flags": {
+        "noassist": 1,
+        "failcopycat": 1,
+        "powder": 1
+      },
+      "volatileStatus": "ragepowder"
+    },
+    "ragingbull": {
+      "name": "Raging Bull",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "ragingfury": {
+      "name": "Raging Fury",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      },
+      "volatileStatus": "lockedmove"
+    },
+    "raindance": {
+      "name": "Rain Dance",
+      "category": "Status",
+      "flags": {
+        "metronome": 1
+      }
+    },
+    "rapidspin": {
+      "name": "Rapid Spin",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "razorshell": {
+      "name": "Razor Shell",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "recover": {
+      "name": "Recover",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "recycle": {
+      "name": "Recycle",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "reflect": {
+      "name": "Reflect",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "reflecttype": {
+      "name": "Reflect Type",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "rest": {
+      "name": "Rest",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "reversal": {
+      "name": "Reversal",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "risingvoltage": {
+      "name": "Rising Voltage",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "roar": {
+      "name": "Roar",
+      "category": "Status",
+      "flags": {
+        "reflectable": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1,
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "forceSwitch": true
+    },
+    "rockblast": {
+      "name": "Rock Blast",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "rockpolish": {
+      "name": "Rock Polish",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "rockslide": {
+      "name": "Rock Slide",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "rocktomb": {
+      "name": "Rock Tomb",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "rockwrecker": {
+      "name": "Rock Wrecker",
+      "category": "Physical",
+      "flags": {
+        "recharge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      },
+      "volatileStatus": "mustrecharge"
+    },
+    "roleplay": {
+      "name": "Role Play",
+      "category": "Status",
+      "flags": {
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "roost": {
+      "name": "Roost",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "roost"
+    },
+    "round": {
+      "name": "Round",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "sacredsword": {
+      "name": "Sacred Sword",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "safeguard": {
+      "name": "Safeguard",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "saltcure": {
+      "name": "Salt Cure",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "sandstorm": {
+      "name": "Sandstorm",
+      "category": "Status",
+      "flags": {
+        "metronome": 1,
+        "wind": 1
+      }
+    },
+    "sandtomb": {
+      "name": "Sand Tomb",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "partiallytrapped"
+    },
+    "scald": {
+      "name": "Scald",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "defrost": 1,
+        "metronome": 1
+      }
+    },
+    "scaleshot": {
+      "name": "Scale Shot",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "scaryface": {
+      "name": "Scary Face",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "scorchingsands": {
+      "name": "Scorching Sands",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "defrost": 1,
+        "metronome": 1
+      }
+    },
+    "screech": {
+      "name": "Screech",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "seedbomb": {
+      "name": "Seed Bomb",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "seismictoss": {
+      "name": "Seismic Toss",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "selfdestruct": {
+      "name": "Self-Destruct",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "noparentalbond": 1
+      }
+    },
+    "shadowball": {
+      "name": "Shadow Ball",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "shadowclaw": {
+      "name": "Shadow Claw",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "shadowpunch": {
+      "name": "Shadow Punch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "metronome": 1
+      }
+    },
+    "shadowsneak": {
+      "name": "Shadow Sneak",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "shedtail": {
+      "name": "Shed Tail",
+      "category": "Status",
+      "flags": {},
+      "selfSwitch": "shedtail",
+      "volatileStatus": "substitute"
+    },
+    "sheercold": {
+      "name": "Sheer Cold",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "shellsidearm": {
+      "name": "Shell Side Arm",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "shellsmash": {
+      "name": "Shell Smash",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "shelter": {
+      "name": "Shelter",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "simplebeam": {
+      "name": "Simple Beam",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "sing": {
+      "name": "Sing",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "skillswap": {
+      "name": "Skill Swap",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "skittersmack": {
+      "name": "Skitter Smack",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "skyattack": {
+      "name": "Sky Attack",
+      "category": "Physical",
+      "flags": {
+        "charge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1,
+        "nosleeptalk": 1,
+        "failinstruct": 1
+      }
+    },
+    "slackoff": {
+      "name": "Slack Off",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "sleeppowder": {
+      "name": "Sleep Powder",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "powder": 1
+      }
+    },
+    "sleeptalk": {
+      "name": "Sleep Talk",
+      "category": "Status",
+      "flags": {
+        "failencore": 1,
+        "nosleeptalk": 1,
+        "noassist": 1,
+        "failcopycat": 1,
+        "failmimic": 1,
+        "failinstruct": 1
+      }
+    },
+    "sludgebomb": {
+      "name": "Sludge Bomb",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "sludgewave": {
+      "name": "Sludge Wave",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "smackdown": {
+      "name": "Smack Down",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "smackdown"
+    },
+    "smartstrike": {
+      "name": "Smart Strike",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "snaptrap": {
+      "name": "Snap Trap",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1
+      },
+      "volatileStatus": "partiallytrapped"
+    },
+    "snarl": {
+      "name": "Snarl",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1
+      }
+    },
+    "snore": {
+      "name": "Snore",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1
+      }
+    },
+    "snowscape": {
+      "name": "Snowscape",
+      "category": "Status",
+      "flags": {}
+    },
+    "soak": {
+      "name": "Soak",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "softboiled": {
+      "name": "Soft-Boiled",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "solarbeam": {
+      "name": "Solar Beam",
+      "category": "Special",
+      "flags": {
+        "charge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "nosleeptalk": 1,
+        "failinstruct": 1
+      }
+    },
+    "solarblade": {
+      "name": "Solar Blade",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "charge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "nosleeptalk": 1,
+        "failinstruct": 1,
+        "slicing": 1
+      }
+    },
+    "sparklingaria": {
+      "name": "Sparkling Aria",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "speedswap": {
+      "name": "Speed Swap",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "spicyextract": {
+      "name": "Spicy Extract",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1
+      }
+    },
+    "spikes": {
+      "name": "Spikes",
+      "category": "Status",
+      "flags": {
+        "reflectable": 1,
+        "nonsky": 1,
+        "metronome": 1,
+        "mustpressure": 1
+      }
+    },
+    "spikyshield": {
+      "name": "Spiky Shield",
+      "category": "Status",
+      "flags": {
+        "noassist": 1,
+        "failcopycat": 1
+      },
+      "stallingMove": true,
+      "volatileStatus": "spikyshield"
+    },
+    "spiritbreak": {
+      "name": "Spirit Break",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "spiritshackle": {
+      "name": "Spirit Shackle",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "spite": {
+      "name": "Spite",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "spitup": {
+      "name": "Spit Up",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "metronome": 1
+      }
+    },
+    "spore": {
+      "name": "Spore",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "powder": 1
+      }
+    },
+    "stealthrock": {
+      "name": "Stealth Rock",
+      "category": "Status",
+      "flags": {
+        "reflectable": 1,
+        "metronome": 1,
+        "mustpressure": 1
+      }
+    },
+    "steelbeam": {
+      "name": "Steel Beam",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "steelroller": {
+      "name": "Steel Roller",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "steelwing": {
+      "name": "Steel Wing",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "stickyweb": {
+      "name": "Sticky Web",
+      "category": "Status",
+      "flags": {
+        "reflectable": 1,
+        "metronome": 1
+      }
+    },
+    "stockpile": {
+      "name": "Stockpile",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "stockpile"
+    },
+    "stompingtantrum": {
+      "name": "Stomping Tantrum",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "stoneaxe": {
+      "name": "Stone Axe",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "stoneedge": {
+      "name": "Stone Edge",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "storedpower": {
+      "name": "Stored Power",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "stormthrow": {
+      "name": "Storm Throw",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "strengthsap": {
+      "name": "Strength Sap",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "stringshot": {
+      "name": "String Shot",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "struggle": {
+      "name": "Struggle",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "failencore": 1,
+        "failmefirst": 1,
+        "nosleeptalk": 1,
+        "noassist": 1,
+        "failcopycat": 1,
+        "failmimic": 1,
+        "failinstruct": 1,
+        "nosketch": 1
+      }
+    },
+    "strugglebug": {
+      "name": "Struggle Bug",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "stuffcheeks": {
+      "name": "Stuff Cheeks",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
+    "stunspore": {
+      "name": "Stun Spore",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "powder": 1
+      }
+    },
+    "substitute": {
+      "name": "Substitute",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "nonsky": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "substitute"
+    },
+    "suckerpunch": {
+      "name": "Sucker Punch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "sunnyday": {
+      "name": "Sunny Day",
+      "category": "Status",
+      "flags": {
+        "metronome": 1
+      }
+    },
+    "supercellslam": {
+      "name": "Supercell Slam",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "minimize": 1
+      }
+    },
+    "superfang": {
+      "name": "Super Fang",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "superpower": {
+      "name": "Superpower",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "surf": {
+      "name": "Surf",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "nonsky": 1,
+        "metronome": 1
+      }
+    },
+    "swagger": {
+      "name": "Swagger",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "confusion"
+    },
+    "swallow": {
+      "name": "Swallow",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "sweetkiss": {
+      "name": "Sweet Kiss",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "confusion"
+    },
+    "sweetscent": {
+      "name": "Sweet Scent",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "switcheroo": {
+      "name": "Switcheroo",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "noassist": 1,
+        "failcopycat": 1
+      }
+    },
+    "swordsdance": {
+      "name": "Swords Dance",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "dance": 1,
+        "metronome": 1
+      }
+    },
+    "synthesis": {
+      "name": "Synthesis",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "syrupbomb": {
+      "name": "Syrup Bomb",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "tailslap": {
+      "name": "Tail Slap",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "tailwind": {
+      "name": "Tailwind",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1,
+        "wind": 1
+      }
+    },
+    "taunt": {
+      "name": "Taunt",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "taunt"
+    },
+    "tearfullook": {
+      "name": "Tearful Look",
+      "category": "Status",
+      "flags": {
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "teatime": {
+      "name": "Teatime",
+      "category": "Status",
+      "flags": {
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "teeterdance": {
+      "name": "Teeter Dance",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "dance": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "confusion"
+    },
+    "temperflare": {
+      "name": "Temper Flare",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "terrainpulse": {
+      "name": "Terrain Pulse",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "pulse": 1
+      }
+    },
+    "thief": {
+      "name": "Thief",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "failmefirst": 1,
+        "noassist": 1,
+        "failcopycat": 1
+      }
+    },
+    "thrash": {
+      "name": "Thrash",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "failinstruct": 1
+      },
+      "volatileStatus": "lockedmove"
+    },
+    "throatchop": {
+      "name": "Throat Chop",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "thunder": {
+      "name": "Thunder",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "thunderbolt": {
+      "name": "Thunderbolt",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "thunderfang": {
+      "name": "Thunder Fang",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bite": 1
+      }
+    },
+    "thunderpunch": {
+      "name": "Thunder Punch",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1,
+        "metronome": 1
+      }
+    },
+    "thunderwave": {
+      "name": "Thunder Wave",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "tickle": {
+      "name": "Tickle",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "tidyup": {
+      "name": "Tidy Up",
+      "category": "Status",
+      "flags": {}
+    },
+    "topsyturvy": {
+      "name": "Topsy-Turvy",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "torchsong": {
+      "name": "Torch Song",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      }
+    },
+    "torment": {
+      "name": "Torment",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "torment"
+    },
+    "toxic": {
+      "name": "Toxic",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "toxicspikes": {
+      "name": "Toxic Spikes",
+      "category": "Status",
+      "flags": {
+        "reflectable": 1,
+        "nonsky": 1,
+        "metronome": 1,
+        "mustpressure": 1
+      }
+    },
+    "toxicthread": {
+      "name": "Toxic Thread",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "trailblaze": {
+      "name": "Trailblaze",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "transform": {
+      "name": "Transform",
+      "category": "Status",
+      "flags": {
+        "allyanim": 1,
+        "failencore": 1,
+        "noassist": 1,
+        "failcopycat": 1,
+        "failmimic": 1,
+        "failinstruct": 1
+      }
+    },
+    "triattack": {
+      "name": "Tri Attack",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "trick": {
+      "name": "Trick",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "noassist": 1,
+        "failcopycat": 1
+      }
+    },
+    "trickortreat": {
+      "name": "Trick-or-Treat",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "trickroom": {
+      "name": "Trick Room",
+      "category": "Status",
+      "flags": {
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "triplearrows": {
+      "name": "Triple Arrows",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "tripleaxel": {
+      "name": "Triple Axel",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "tropkick": {
+      "name": "Trop Kick",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "twinbeam": {
+      "name": "Twin Beam",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
+      }
+    },
+    "upperhand": {
+      "name": "Upper Hand",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "uproar": {
+      "name": "Uproar",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1,
+        "metronome": 1,
+        "nosleeptalk": 1,
+        "failinstruct": 1
+      },
+      "volatileStatus": "uproar"
+    },
+    "uturn": {
+      "name": "U-turn",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "selfSwitch": true
+    },
+    "vacuumwave": {
+      "name": "Vacuum Wave",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "venoshock": {
+      "name": "Venoshock",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "voltswitch": {
+      "name": "Volt Switch",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "selfSwitch": true
+    },
+    "volttackle": {
+      "name": "Volt Tackle",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "waterfall": {
+      "name": "Waterfall",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "waterpulse": {
+      "name": "Water Pulse",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "distance": 1,
+        "metronome": 1,
+        "pulse": 1
+      }
+    },
+    "watershuriken": {
+      "name": "Water Shuriken",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "waterspout": {
+      "name": "Water Spout",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "wavecrash": {
+      "name": "Wave Crash",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "weatherball": {
+      "name": "Weather Ball",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "whirlpool": {
+      "name": "Whirlpool",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "partiallytrapped"
+    },
+    "whirlwind": {
+      "name": "Whirlwind",
+      "category": "Status",
+      "flags": {
+        "reflectable": 1,
+        "mirror": 1,
+        "bypasssub": 1,
+        "allyanim": 1,
+        "metronome": 1,
+        "noassist": 1,
+        "failcopycat": 1,
+        "wind": 1
+      },
+      "forceSwitch": true
+    },
+    "wideguard": {
+      "name": "Wide Guard",
+      "category": "Status",
+      "flags": {
+        "snatch": 1
+      }
+    },
+    "wildcharge": {
+      "name": "Wild Charge",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "willowisp": {
+      "name": "Will-O-Wisp",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "wish": {
+      "name": "Wish",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
+        "metronome": 1
+      }
+    },
+    "wonderroom": {
+      "name": "Wonder Room",
+      "category": "Status",
+      "flags": {
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "woodhammer": {
+      "name": "Wood Hammer",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "worryseed": {
+      "name": "Worry Seed",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "allyanim": 1,
+        "metronome": 1
+      }
+    },
+    "wrap": {
+      "name": "Wrap",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "partiallytrapped"
+    },
+    "xscissor": {
+      "name": "X-Scissor",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
+      }
+    },
+    "yawn": {
+      "name": "Yawn",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "reflectable": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "yawn"
+    },
+    "zapcannon": {
+      "name": "Zap Cannon",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bullet": 1
+      }
+    },
+    "zenheadbutt": {
+      "name": "Zen Headbutt",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    }
+  }
+}
