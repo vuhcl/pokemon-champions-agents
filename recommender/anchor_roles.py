@@ -7,8 +7,11 @@ import json
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
+from recommender.matchup import CHARGE_INSTANT_WEATHER
+from recommender.move_narrowing import WEATHER_SETTING_MOVES
 from recommender.recommend import infer_role
 from recommender.resolved_builds import get_resolved_build
 from recommender.role_compendium import (
@@ -17,7 +20,7 @@ from recommender.role_compendium import (
     reverse_compendium_evidence,
 )
 from recommender.state import Attr, Slot
-from recommender.support_needs import RoleShapeContext
+from recommender.support_needs import CONDITION_DEPENDENT_ABILITIES, RoleShapeContext
 from recommender.usage_data import featured_or_common_set, find_set_matching
 from recommender.usage_spreads import select_usage_spread
 
@@ -30,6 +33,9 @@ FieldSource = Literal[
     "legality_only",
     "unknown",
 ]
+_AUTHORITATIVE_ABILITY_SOURCES = frozenset(
+    {"user_confirmed", "usage_derived", "legality_only"}
+)
 MechanismImportance = Literal["needed", "wanted", "secondary"]
 PrimaryFunction = Literal["offense", "support", "unknown"]
 DurabilityIntent = Literal["tanky", "glass", "balanced", "unknown"]
@@ -148,6 +154,64 @@ def _unique_legal_ability(species: str) -> str | None:
     return next(iter(abilities)) if len(abilities) == 1 else None
 
 
+def _ability_for_target_role(species: str, role_id: str | None) -> str | None:
+    """Return the sole legal ability that uniquely satisfies a setter role, else None."""
+    if not role_id or not species:
+        return None
+    wanted_weathers = {
+        weather
+        for weather, setter in _SETTER_ROLE.items()
+        if setter == role_id
+    }
+    if not wanted_weathers:
+        return None
+    entry = (load_snapshot().get("species") or {}).get(to_id(species)) or {}
+    matches: list[str] = []
+    for raw in (entry.get("abilities") or {}).values():
+        if not raw:
+            continue
+        name = str(raw)
+        field = ABILITY_TO_FIELD.get(to_id(name))
+        if not field:
+            continue
+        weather = field.get("weather")
+        if not weather:
+            continue
+        canonical = _canonical_weather(str(weather))
+        if canonical in wanted_weathers and to_id(name) != "deltastream":
+            matches.append(name)
+    # Deduplicate by id while preserving first display name.
+    by_id: dict[str, str] = {}
+    for name in matches:
+        by_id.setdefault(to_id(name), name)
+    if len(by_id) != 1:
+        return None
+    return next(iter(by_id.values()))
+
+
+def _ability_mechanism_confidence(
+    source: FieldSource,
+) -> Literal["high", "medium"] | None:
+    """Confidence for ability-derived mechanisms, or None to omit the mechanism."""
+    if source not in _AUTHORITATIVE_ABILITY_SOURCES:
+        return None
+    return "high" if source == "user_confirmed" else "medium"
+
+
+def _ability_source_from_slot_attr(attr: Attr[Any]) -> FieldSource:
+    """Map unlocked Slot.ability ReasonRef into FieldProvenance.source."""
+    if attr.locked:
+        return "user_confirmed"
+    ref = attr.reason.ref if attr.reason is not None else None
+    if ref in {"usage", "usage_derived"}:
+        return "usage_derived"
+    if ref == "legality_only":
+        return "legality_only"
+    if ref in {"tier3_role_ability", "synthesized"}:
+        return "synthesized"
+    return "provisional"
+
+
 def _fingerprint(
     values: dict[str, Any], regulation: str, provenance: dict[str, FieldProvenance]
 ) -> str:
@@ -187,7 +251,11 @@ def resolve_anchor_build(
         attr = _slot_value(slot, field)
         if attr.value is not None:
             values[field] = attr.value
-            source: FieldSource = "user_confirmed" if attr.locked else "provisional"
+            source: FieldSource = (
+                _ability_source_from_slot_attr(attr)
+                if field == "ability"
+                else ("user_confirmed" if attr.locked else "provisional")
+            )
             provenance[field] = FieldProvenance(
                 field, source, confirmed=attr.locked
             )
@@ -312,31 +380,103 @@ _SETUP_MOVES = {
     "bulkup": ("Bulk Up", "setup_attacker"),
 }
 
+_NEEDED_CONDITION_ABILITIES = frozenset(
+    {"swiftswim", "chlorophyll", "sandrush", "slushrush"}
+)
+_WANTED_CONDITION_ABILITIES = frozenset(
+    {
+        "sandforce",
+        "solarpower",
+        "flowergift",
+        "sandveil",
+        "snowcloak",
+        "raindish",
+        "icebody",
+        "hydration",
+        "leafguard",
+        "dryskin",
+        "protosynthesis",
+        "forecast",
+    }
+)
+_WEATHER_CANONICAL = {
+    "Rain": "Rain",
+    "Heavy Rain": "Rain",
+    "Sun": "Sun",
+    "Harsh Sunshine": "Sun",
+    "Sand": "Sand",
+    "Snow": "Snow",
+}
+_SETTER_ROLE = {
+    "Rain": "rain_setter",
+    "Sun": "sun_setter",
+    "Sand": "sand_setter",
+    "Snow": "snow_setter",
+}
+
 
 def _role_id(value: str) -> str:
     return value.strip().lower().replace("-", "_").replace(" ", "_")
 
 
+def _canonical_weather(label: str) -> str | None:
+    return _WEATHER_CANONICAL.get(label)
+
+
+def _display_name(raw: str) -> str:
+    return raw.replace("-", " ").title() if raw == to_id(raw) else raw
+
+
 def _mechanisms(build: ResolvedAnchorBuild) -> list[MechanismEvidence]:
     out: list[MechanismEvidence] = []
     ability = to_id(build.ability or "")
+    ability_name = build.ability or ""
+    ability_source = build.source_for("ability")
+    ability_confidence = _ability_mechanism_confidence(ability_source)
     move_ids = {to_id(m): m for m in build.moves}
-    if ability == "drizzle":
+
+    field = ABILITY_TO_FIELD.get(ability)
+    weather = field.get("weather") if field else None
+    if weather and ability != "deltastream" and ability_confidence is not None:
+        canonical = _canonical_weather(str(weather))
+        if canonical:
+            out.append(
+                MechanismEvidence(
+                    _display_name(ability_name or ability),
+                    "automatic_condition_setting",
+                    "provides",
+                    "needed",
+                    _SETTER_ROLE[canonical],
+                    True,
+                    False,
+                    "automatic",
+                    False,
+                    ability_source,
+                    "self_supplied",
+                    (f"condition:{canonical}", f"ability:{ability}"),
+                    ability_confidence,
+                )
+            )
+
+    if ability == "stamina" and ability_confidence is not None:
         out.append(
             MechanismEvidence(
-                "Drizzle", "automatic_condition_setting", "provides", "needed",
-                "rain_setter", True, False, "automatic", False,
-                build.source_for("ability"), "self_supplied", ("ability:drizzle",), "high",
+                "Stamina",
+                "reactive_durability",
+                "mitigates",
+                "secondary",
+                None,
+                True,
+                False,
+                "passive_reactive",
+                False,
+                ability_source,
+                "self_supplied",
+                ("ability:stamina",),
+                ability_confidence,
             )
         )
-    if ability == "stamina":
-        out.append(
-            MechanismEvidence(
-                "Stamina", "reactive_durability", "mitigates", "secondary",
-                None, True, False, "passive_reactive", False,
-                build.source_for("ability"), "self_supplied", ("ability:stamina",), "high",
-            )
-        )
+
     for move_id, (name, role_id) in _SETUP_MOVES.items():
         if move_id in move_ids:
             out.append(
@@ -346,12 +486,39 @@ def _mechanisms(build: ResolvedAnchorBuild) -> list[MechanismEvidence]:
                     "self_supplied", (f"move:{move_id}",), "high",
                 )
             )
+
+    for move_id, weather_label in WEATHER_SETTING_MOVES.items():
+        if move_id not in move_ids:
+            continue
+        canonical = _canonical_weather(weather_label)
+        if not canonical:
+            continue
+        name = move_ids[move_id]
+        out.append(
+            MechanismEvidence(
+                name,
+                "manual_condition_setting",
+                "provides",
+                "wanted",
+                _SETTER_ROLE[canonical],
+                True,
+                False,
+                "move",
+                True,
+                build.source_for("moves"),
+                "self_supplied",
+                (f"condition:{canonical}", f"move:{move_id}"),
+                "high",
+            )
+        )
+
     if "tailwind" in move_ids:
         out.append(
             MechanismEvidence(
                 "Tailwind", "speed_control", "provides", "wanted",
                 "tailwind_setter", True, False, "move", True,
-                build.source_for("moves"), "self_supplied", ("move:tailwind",), "high",
+                build.source_for("moves"), "self_supplied",
+                ("condition:Tailwind", "move:tailwind"), "high",
             )
         )
     if "trickroom" in move_ids:
@@ -359,9 +526,71 @@ def _mechanisms(build: ResolvedAnchorBuild) -> list[MechanismEvidence]:
             MechanismEvidence(
                 "Trick Room", "speed_control", "provides", "needed",
                 "trick_room_setter", True, True, "move", True,
-                build.source_for("moves"), "self_supplied", ("move:trickroom",), "high",
+                build.source_for("moves"), "self_supplied",
+                ("condition:Trick Room", "move:trickroom"), "high",
             )
         )
+
+    if (
+        ability_confidence is not None
+        and (
+            ability in _NEEDED_CONDITION_ABILITIES
+            or ability in _WANTED_CONDITION_ABILITIES
+        )
+    ):
+        importance: MechanismImportance = (
+            "needed" if ability in _NEEDED_CONDITION_ABILITIES else "wanted"
+        )
+        for spec in CONDITION_DEPENDENT_ABILITIES.get(ability, ()):
+            w = spec.get("weather")
+            if not w:
+                continue
+            canonical = _canonical_weather(str(w))
+            if not canonical:
+                continue
+            out.append(
+                MechanismEvidence(
+                    _display_name(ability_name or ability),
+                    "teammate_condition_benefit",
+                    "benefits_from",
+                    importance,
+                    None,
+                    True,
+                    False,
+                    "passive_reactive",
+                    False,
+                    ability_source,
+                    "teammate_expected",
+                    (f"condition:{canonical}", f"ability:{ability}"),
+                    ability_confidence,
+                )
+            )
+
+    for move_id, weathers in CHARGE_INSTANT_WEATHER.items():
+        if move_id not in move_ids:
+            continue
+        canonicals = {
+            c for w in weathers if (c := _canonical_weather(w)) is not None
+        }
+        for canonical in sorted(canonicals):
+            out.append(
+                MechanismEvidence(
+                    move_ids[move_id],
+                    "teammate_condition_benefit",
+                    "benefits_from",
+                    "needed",
+                    None,
+                    True,
+                    False,
+                    "move",
+                    False,
+                    build.source_for("moves"),
+                    "teammate_expected",
+                    (f"condition:{canonical}", f"move:{move_id}"),
+                    "high",
+                )
+            )
+
     if "suckerpunch" in move_ids:
         out.append(
             MechanismEvidence(
@@ -380,16 +609,26 @@ def _mechanisms(build: ResolvedAnchorBuild) -> list[MechanismEvidence]:
     return out
 
 
+def _has_present_benefit(mechanisms: list[MechanismEvidence], condition: str) -> bool:
+    tag = f"condition:{condition}"
+    return any(
+        m.relation == "benefits_from"
+        and m.present
+        and tag in m.evidence
+        for m in mechanisms
+    )
+
+
 def _primary_function(role_id: str) -> PrimaryFunction:
     if role_id.endswith("_attacker") or role_id in {
-        "fast_attacker",
-        "bulky_attacker",
         "bulky_pivot",
+        "fast_pivot",
         "trick_room_sweeper",
     }:
         return "offense"
     if role_id.endswith("_setter") or role_id in {
         "support_speed_control",
+        "screens_support",
         "redirection",
     }:
         return "support"
@@ -476,11 +715,29 @@ def classify_anchor_role(
                 interruptible=False,
                 source="user_confirmed" if declared else "unknown",
                 supply="teammate_expected",
-                evidence=("strategy:trick_room_sweeper",),
+                evidence=("condition:Trick Room", "strategy:trick_room_sweeper"),
                 confidence="medium",
             )
         )
         conflicts.append("strategic Trick Room role is not established by the active kit")
+    if role_id == "bulky_rain_attacker" and not _has_present_benefit(mechanisms, "Rain"):
+        mechanisms.append(
+            MechanismEvidence(
+                mechanic="Rain",
+                kind="teammate_condition_benefit",
+                relation="benefits_from",
+                importance="wanted",
+                role_id=None,
+                present=False,
+                prerequisite=False,
+                activation="passive_reactive",
+                interruptible=False,
+                source="user_confirmed" if declared else "unknown",
+                supply="teammate_expected",
+                evidence=("condition:Rain", "strategy:bulky_rain_attacker"),
+                confidence="medium",
+            )
+        )
     if role_id == "bulky_pivot" and not {
         "uturn", "voltswitch", "flipturn", "partingshot", "teleport"
     }.intersection(to_id(m) for m in build.moves):

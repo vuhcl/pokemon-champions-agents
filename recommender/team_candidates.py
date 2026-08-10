@@ -10,6 +10,11 @@ from recommender.anchor_roles import (
     derive_role_shape_context,
     resolve_anchor_build,
 )
+from recommender.condition_resilience import (
+    ConditionResilienceReport,
+    gap_support_needs,
+    mechanism_condition,
+)
 from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot
 from recommender.ranking import OwnershipMode, rank_and_cut
@@ -19,12 +24,16 @@ from recommender.slot_fill import (
     LockedAnchorContext,
     SlotFillContext,
     resolve_all_support_needs,
+    resolve_need_candidates,
     target_role_from_anchored_needs,
 )
 from recommender.state import (
+    Attr,
     CandidateBranch,
     CandidateEvidence,
+    ReasonRef,
     RecommenderState,
+    Slot,
     TeamCompletionPreference,
     TeamReviewResult,
     TeamThreatObjectiveRow,
@@ -34,9 +43,8 @@ from recommender.state import (
 )
 from recommender.support_needs import query_support_needs
 from recommender.teammates import SharedTeammateQueryResult
-from recommender.usage_data import lineage_ids
+from recommender.usage_data import featured_or_common_set, lineage_ids
 from recommender.usage_spreads import move_category_counts
-
 
 # Champions: only Eternal Flower Floette can Mega Evolve (not plain Floette).
 _FLOETTE_DENY_SID = "floette"
@@ -208,6 +216,7 @@ def merge_multi_locked_candidates(
     *,
     ownership_mode: OwnershipMode,
     owned_species: frozenset[str],
+    condition_resilience: ConditionResilienceReport | None = None,
 ) -> list[AnnotatedCandidate]:
     """Merge threat, anchored-need, and exact shared evidence by species ID."""
     locked_lineages = {
@@ -301,6 +310,74 @@ def merge_multi_locked_candidates(
             anchored_needs=anchored,
         )
 
+    if condition_resilience is not None:
+        for gap_need in gap_support_needs(condition_resilience, anchored_needs):
+            try:
+                gap_rows = resolve_need_candidates(
+                    gap_need,
+                    state,
+                    available_species=owned_species,
+                    ownership_mode=ownership_mode,
+                )
+            except NotImplementedError:
+                continue
+            synthetic = AnchoredSupportNeed(
+                anchor_slot_index=-1,
+                anchor_id="condition_resilience",
+                need=gap_need,
+            )
+            for row in gap_rows:
+                if not eligible(row.species):
+                    continue
+                species_id = to_id(row.species)
+                existing = by_id.get(species_id)
+                branches = frozenset(
+                    (*((existing.branches) if existing else ()), "need")
+                )
+                anchored = tuple(
+                    dict.fromkeys(
+                        (
+                            *((existing.anchored_needs) if existing else ()),
+                            synthetic,
+                        )
+                    )
+                )
+                evidence = tuple(
+                    replace(
+                        item,
+                        branch="need",
+                        producer_name="condition_resilience_gap",
+                        subject_id=(
+                            f"{gap_need.category}:{to_id(gap_need.trigger or '')}"
+                        ),
+                    )
+                    for item in row.evidence
+                )
+                by_id[species_id] = AnnotatedCandidate(
+                    species=existing.species if existing else row.species,
+                    matching_needs=tuple(
+                        dict.fromkeys(
+                            (
+                                *((existing.matching_needs) if existing else ()),
+                                *row.matching_needs,
+                            )
+                        )
+                    ),
+                    source=_source(branches),
+                    target_role_decision=target_role_from_anchored_needs(anchored),
+                    threat_row=existing.threat_row if existing else None,
+                    spec=existing.spec if existing else {"species": row.species},
+                    evidence=_merge_evidence(
+                        existing.evidence if existing else (), evidence
+                    ),
+                    branches=branches,
+                    anchor_ids=frozenset(need.anchor_id for need in anchored),
+                    anchor_slot_indices=frozenset(
+                        need.anchor_slot_index for need in anchored
+                    ),
+                    anchored_needs=anchored,
+                )
+
     if shared is not None and shared.status == "available":
         for teammate in shared.rows or ():
             if teammate.attribution_status != "exact" or not eligible(teammate.name):
@@ -353,10 +430,45 @@ def merge_multi_locked_candidates(
     return [by_id[key] for key in sorted(by_id)]
 
 
+def _ability_attr_for_candidate_spec(
+    species: str, ability: object, *, regulation: str
+) -> Attr[str]:
+    """Elevate kit ability only when it matches usage-backed featured/common set.
+
+    Production producers that put ability on candidate specs
+    (``query_counters``, ``_set_to_spec`` / featured usage) are usage-backed.
+    Tests and future callers may inject other values — those stay provisional so
+    Task A's mechanism gate omits them instead of a false ``user_confirmed`` lock.
+    """
+    if not ability:
+        return Attr()
+    stated = str(ability)
+    usage = featured_or_common_set(species, regulation=regulation)
+    usage_ability = usage.get("ability") if usage else None
+    if usage_ability and to_id(stated) == to_id(str(usage_ability)):
+        return Attr(
+            value=str(usage_ability),
+            locked=False,
+            reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
+        )
+    return Attr(value=stated, locked=False)
+
+
 def _role_decision(species: str, spec: dict, regulation: str):
+    slot = Slot(
+        species=Attr(value=species),
+        ability=_ability_attr_for_candidate_spec(
+            species, spec.get("ability"), regulation=regulation
+        ),
+    )
+    provisional = {
+        key: value
+        for key, value in spec.items()
+        if key not in {"species", "ability"} and value is not None
+    }
     build = resolve_anchor_build(
-        species,
-        provisional=spec,
+        slot,
+        provisional=provisional or None,
         regulation=regulation,
     )
     return build, classify_anchor_role(build)
@@ -367,6 +479,7 @@ def annotate_composition_impact(
     state: RecommenderState,
     *,
     locked_anchors: Sequence[LockedAnchorContext] | None = None,
+    condition_resilience: ConditionResilienceReport | None = None,
 ) -> list[AnnotatedCandidate]:
     regulation = state.get("regulation_mod") or "champions-reg-mb"
     locked = (
@@ -422,7 +535,13 @@ def annotate_composition_impact(
             decision.primary_function != "unknown"
             and primary_counts.get(decision.primary_function, 0) == 0
         )
-        if candidate.anchored_needs or missing_primary or corrects_skew:
+        fills_gap = _candidate_fills_condition_gap(decision, condition_resilience)
+        if (
+            candidate.anchored_needs
+            or missing_primary
+            or corrects_skew
+            or fills_gap
+        ):
             fit = "complementary"
         elif decision.primary_function == "unknown":
             fit = "neutral"
@@ -434,6 +553,27 @@ def annotate_composition_impact(
             fit = "neutral"
         out.append(replace(candidate, composition_fit=fit))
     return out
+
+
+def _candidate_fills_condition_gap(
+    decision,
+    report: ConditionResilienceReport | None,
+) -> bool:
+    if report is None:
+        return False
+    for row in report.conditions:
+        if row.gap not in {"missing_provider", "single_provider_spof"}:
+            continue
+        if row.classification not in {"essential", "preferred"}:
+            continue
+        if any(
+            mechanism.present
+            and mechanism.relation == "provides"
+            and mechanism_condition(mechanism) == row.condition
+            for mechanism in decision.mechanisms
+        ):
+            return True
+    return False
 
 
 _FIT_RANK = {

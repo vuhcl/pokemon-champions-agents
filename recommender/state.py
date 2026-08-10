@@ -8,6 +8,7 @@ from typing import Annotated, Generic, Literal, NotRequired, Optional, TypeVar, 
 from langgraph.graph.message import add_messages
 
 from recommender.calc_client import FieldSpec, PokemonSpecOptional
+from recommender.condition_types import ConditionResilienceReport
 from recommender.matchup import MatchupResult, Severity
 from recommender.ranking import OwnershipMode
 from recommender.teammate_types import SharedTeammateQueryResult
@@ -392,6 +393,7 @@ class ThreatCounterCandidate:
     threats_countered_count: int
     verified_score: float
     verified_vs: tuple[tuple[str, MatchupResult], ...]
+    estimate_kind: Literal["verified", "static"] = "verified"
 
 
 @dataclass(frozen=True)
@@ -432,7 +434,7 @@ class TeamThreatObjectiveRow:
 
 @dataclass(frozen=True)
 class TeamThreatDiscovery:
-    status: Literal["available", "unavailable"]
+    status: Literal["available", "unavailable", "degraded"]
     candidates: tuple[ThreatCounterCandidate, ...]
     error: CandidateDiscoveryError | None = None
 
@@ -466,6 +468,7 @@ class RecommenderState(TypedDict):
     coverage: NotRequired[list[ThreatCoverageResult]]
     spofs: NotRequired[list[SPOFFinding]]
     shared_teammates: NotRequired[Optional["SharedTeammateQueryResult"]]
+    condition_resilience: NotRequired[Optional[ConditionResilienceReport]]
     ownership_mode: NotRequired["OwnershipMode"]
     ownership_mode_source: NotRequired[OwnershipModeSource]
     bootstrap_intake_complete: NotRequired[bool]

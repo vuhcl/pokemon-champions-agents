@@ -850,3 +850,366 @@ def test_empty_team_threat_objective_allows_support_and_shared_ranking():
     )
 
 
+def test_backup_setter_not_duplicative_when_filling_condition_gap():
+    from recommender.condition_resilience import assess_condition_resilience
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
+    draft = [
+        _locked("Pelipper", role="rain_setter", ability="Drizzle", moves=["Hurricane", "Protect", "Tailwind", "U-turn"]),
+        _locked(
+            "Archaludon",
+            role="bulky_rain_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    report = assess_condition_resilience(contexts)
+    rain = next(row for row in report.conditions if row.condition == "Rain")
+    assert rain.classification == "essential"
+    assert rain.provider_count == 1
+    assert rain.gap == "single_provider_spof"
+
+    candidates = [
+        _candidate(
+            "Politoed",
+            spec={"species": "Politoed", "ability": "Drizzle", "moves": ["Protect"]},
+        )
+    ]
+    annotated = annotate_composition_impact(
+        candidates, state, locked_anchors=contexts, condition_resilience=report
+    )
+    assert annotated[0].species == "Politoed"
+    assert annotated[0].composition_fit == "complementary"
+
+
+def test_candidate_kit_ability_keeps_present_rain_provider_for_composition_gap():
+    """Regression for the post-Task-A `_role_decision` follow-on.
+
+    Threat/composition candidates carry ability on their kit ``spec`` (same shape as
+    usage-backed ``_set_to_spec`` / ``query_counters``). After Task A's gate, feeding
+    that ability only via ``resolve_anchor_build(..., provisional=spec)`` labeled it
+    ``provisional`` and omitted Drizzle from mechanisms — so a real backup Rain setter
+    scored ``duplicative`` instead of filling ``single_provider_spof``.
+
+    ``_role_decision`` must admit the ability as ``usage_derived`` when it matches
+    featured/common usage (not a false ``user_confirmed`` lock), so Task A's gate
+    keeps it mechanism-visible for the correct reason.
+    """
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.condition_resilience import (
+        assess_condition_resilience,
+        mechanism_condition,
+    )
+    from recommender.team_candidates import _role_decision, collect_locked_anchor_contexts
+
+    draft = [
+        _locked(
+            "Pelipper",
+            role="rain_setter",
+            ability="Drizzle",
+            moves=["Hurricane", "Protect", "Tailwind", "U-turn"],
+        ),
+        _locked(
+            "Archaludon",
+            role="bulky_rain_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    report = assess_condition_resilience(contexts)
+    rain = next(row for row in report.conditions if row.condition == "Rain")
+    assert rain.gap == "single_provider_spof"
+
+    spec = {"species": "Politoed", "ability": "Drizzle", "moves": ["Protect"]}
+
+    # Contrast: provisional-only resolve still omits (Task A unchanged).
+    provisional_build = resolve_anchor_build("Politoed", provisional=spec)
+    assert provisional_build.source_for("ability") == "provisional"
+    provisional_decision = classify_anchor_role(provisional_build)
+    assert not any(
+        m.present
+        and m.relation == "provides"
+        and mechanism_condition(m) == "Rain"
+        for m in provisional_decision.mechanisms
+    )
+
+    # Candidate path: usage-matched kit ability is usage_derived, not user lock.
+    build, decision = _role_decision("Politoed", spec, "champions-reg-mb")
+    assert build.ability == "Drizzle"
+    assert build.source_for("ability") == "usage_derived"
+    assert build.confirmed("ability") is False
+    assert any(
+        m.mechanic == "Drizzle"
+        and m.present
+        and m.relation == "provides"
+        and mechanism_condition(m) == "Rain"
+        for m in decision.mechanisms
+    )
+
+    # Non-usage ability on the same species stays provisional (no mechanism claim).
+    damp_build, damp_decision = _role_decision(
+        "Politoed",
+        {"species": "Politoed", "ability": "Damp", "moves": ["Protect"]},
+        "champions-reg-mb",
+    )
+    assert damp_build.ability == "Damp"
+    assert damp_build.source_for("ability") == "provisional"
+    assert not any(
+        m.present
+        and m.relation == "provides"
+        and mechanism_condition(m) == "Rain"
+        for m in damp_decision.mechanisms
+    )
+
+    annotated = annotate_composition_impact(
+        [_candidate("Politoed", spec=spec)],
+        state,
+        locked_anchors=contexts,
+        condition_resilience=report,
+    )
+    assert annotated[0].composition_fit == "complementary"
+
+
+def test_discover_multi_locked_publishes_resilience_and_keeps_backup_rain_setter_complementary():
+    """Override must fire on the wired discover path with the published report."""
+    from recommender.team_candidates import annotate_composition_impact as real_annotate
+
+    draft = [
+        _locked(
+            "Pelipper",
+            role="rain_setter",
+            ability="Drizzle",
+            moves=["Hurricane", "Protect", "Tailwind", "U-turn"],
+        ),
+        _locked(
+            "Archaludon",
+            role="bulky_rain_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    # Skip the completion-preference fork so we reach candidate_selection.
+    state["team_completion_preference"] = "balanced"
+
+    politoed = replace(
+        _counter("Politoed"),
+        candidate=replace(
+            _counter("Politoed").candidate,
+            spec={
+                "species": "Politoed",
+                "ability": "Drizzle",
+                "moves": ["Scald", "Protect", "Perish Song", "Encore"],
+            },
+        ),
+    )
+    review = TeamReviewResult(threats=[_threat("Target")], coverage=[], spofs=[])
+    discovery = TeamThreatDiscovery(
+        status="available", candidates=(politoed,), error=None
+    )
+    annotated_by_discover: list[AnnotatedCandidate] = []
+    annotate_report = None
+
+    def capture_annotate(*args, **kwargs):
+        nonlocal annotate_report
+        annotate_report = kwargs.get("condition_resilience")
+        annotated = real_annotate(*args, **kwargs)
+        annotated_by_discover[:] = list(annotated)
+        return annotated
+
+    with (
+        patch("recommender.nodes._compute_team_review", return_value=review),
+        patch("recommender.nodes.query_shared_teammates", return_value=_shared()),
+        patch(
+            "recommender.threat_counters.query_candidates_for_threats",
+            return_value=discovery,
+        ),
+        # Keep assess/annotate/merge real; only quiet Spe/ability need floods so
+        # the injected Rain provider is not cut before presentation.
+        patch(
+            "recommender.team_candidates.resolve_all_support_needs",
+            return_value=[],
+        ),
+        patch(
+            "recommender.team_candidates.resolve_need_candidates",
+            return_value=[],
+        ),
+        patch(
+            "recommender.team_candidates.annotate_composition_impact",
+            side_effect=capture_annotate,
+        ),
+    ):
+        result = discover_multi_locked(state, {})  # type: ignore[arg-type]
+
+    report = result["condition_resilience"]
+    assert report is not None
+    assert annotate_report is report
+    rain = next(row for row in report.conditions if row.condition == "Rain")
+    assert rain.classification == "essential"
+    assert rain.provider_count == 1
+    assert rain.gap == "single_provider_spof"
+
+    politoed_row = next(row for row in annotated_by_discover if row.species == "Politoed")
+    assert politoed_row.composition_fit == "complementary"
+
+    presentation = result["pending_presentation"]
+    assert presentation is not None
+    assert presentation["kind"] == "candidate_selection"
+    assert any(opt["species"] == "Politoed" for opt in presentation["options"])
+
+
+def test_unrelated_mechanic_duplication_still_demoted():
+    from recommender.condition_resilience import assess_condition_resilience
+    from recommender.team_candidates import (
+        _candidate_fills_condition_gap,
+        _role_decision,
+        collect_locked_anchor_contexts,
+    )
+
+    draft = [
+        _locked("Pelipper", role="rain_setter", ability="Drizzle"),
+        _locked(
+            "Archaludon",
+            role="bulky_rain_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    report = assess_condition_resilience(contexts)
+    rain = next(row for row in report.conditions if row.condition == "Rain")
+    assert rain.gap == "single_provider_spof"
+
+    spec = {
+        "species": "Blissey",
+        "ability": "Natural Cure",
+        "item": "Leftovers",
+        "moves": ["Soft-Boiled", "Seismic Toss", "Toxic", "Protect"],
+    }
+    _, decision = _role_decision("Blissey", spec, "champions-reg-mb")
+    assert _candidate_fills_condition_gap(decision, report) is False
+
+    candidates = [_candidate("Blissey", spec=spec)]
+    annotated = annotate_composition_impact(
+        candidates, state, locked_anchors=contexts, condition_resilience=report
+    )
+    assert annotated[0].composition_fit in {"duplicative", "severe_duplication"}
+
+
+def test_gap_need_deduped_when_anchored_trick_room_already_present():
+    from recommender.condition_resilience import assess_condition_resilience, gap_support_needs
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
+    draft = [
+        _locked("Kingambit", role="trick_room_sweeper"),
+        *[empty_slot() for _ in range(5)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    report = assess_condition_resilience(contexts)
+    anchored = tuple(need for ctx in contexts for need in ctx.support_needs)
+    tr_anchored = next(n for n in anchored if n.need.category == "trick_room")
+    assert tr_anchored.need.trigger is not None
+    assert tr_anchored.need.trigger.startswith("speed_tier:")
+
+    residual = gap_support_needs(report, anchored)
+    assert not any(n.category == "trick_room" for n in residual)
+    # Without dedupe, a gap need would use this trigger and double-count in ranking.
+    assert ("trick_room", "condition_resilience:gap") not in {
+        (n.category, n.trigger) for n in residual
+    }
+
+    with patch(
+        "recommender.team_candidates.resolve_all_support_needs",
+        return_value=[
+            NeedResolvedCandidate(
+                "Farigiraf",
+                matching_needs=(tr_anchored.need,),
+                evidence=(_evidence("compendium_backed"),),
+                anchored_needs=(tr_anchored,),
+            )
+        ],
+    ), patch(
+        "recommender.team_candidates.resolve_need_candidates",
+        return_value=[],
+    ):
+        merged = merge_multi_locked_candidates(
+            state,
+            contexts,
+            (),
+            None,
+            ownership_mode="off",
+            owned_species=frozenset(),
+            condition_resilience=report,
+        )
+    farig = next(row for row in merged if row.species == "Farigiraf")
+    distinct_needs = {
+        (n.need.category, n.need.trigger) for n in farig.anchored_needs
+    }
+    assert ("trick_room", tr_anchored.need.trigger) in distinct_needs
+    assert ("trick_room", "condition_resilience:gap") not in distinct_needs
+    assert len({k for k in distinct_needs if k[0] == "trick_room"}) == 1
+
+
+def test_residual_gap_attaches_single_synthetic_anchored_need():
+    from recommender.condition_resilience import (
+        ConditionResilienceReport,
+        ConditionResilienceRow,
+    )
+
+    report = ConditionResilienceReport(
+        conditions=(
+            ConditionResilienceRow(
+                condition="Trick Room",
+                classification="essential",
+                provider_count=0,
+                providers=(),
+                dependents=(),
+                gap="missing_provider",
+            ),
+        )
+    )
+    gap_need = SupportNeed(
+        category="trick_room",
+        name="Trick Room",
+        description="gap",
+        trigger="condition_resilience:gap",
+        stance="need",
+    )
+    with patch(
+        "recommender.team_candidates.gap_support_needs", return_value=(gap_need,)
+    ), patch(
+        "recommender.team_candidates.resolve_all_support_needs", return_value=[]
+    ), patch(
+        "recommender.team_candidates.resolve_need_candidates",
+        return_value=[
+            NeedResolvedCandidate(
+                "Farigiraf",
+                matching_needs=(gap_need,),
+                evidence=(_evidence("compendium_backed"),),
+            )
+        ],
+    ):
+        merged = merge_multi_locked_candidates(
+            _state([_locked("Kingambit"), *[empty_slot() for _ in range(5)]]),
+            [],
+            (),
+            None,
+            ownership_mode="off",
+            owned_species=frozenset(),
+            condition_resilience=report,
+        )
+    farig = next(row for row in merged if row.species == "Farigiraf")
+    assert any(n.anchor_id == "condition_resilience" for n in farig.anchored_needs)
+    assert len(farig.anchored_needs) == 1
+    assert farig.target_role_decision is not None
+    assert farig.target_role_decision.role_id == "trick_room_setter"  # type: ignore[union-attr]
