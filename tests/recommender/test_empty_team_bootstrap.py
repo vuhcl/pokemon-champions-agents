@@ -11,6 +11,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from pydantic import ValidationError
 
 from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+from recommender.recommend import RoleArchetype
 from recommender.bootstrap import (
     BootstrapExtraction,
     BootstrapIntakeParseError,
@@ -33,7 +34,6 @@ from recommender.graph import compile_graph
 from recommender.state import (
     BootstrapResponsePayload,
     TargetRoleDecision,
-    TargetRoleId,
 )
 from recommender.team_candidates import _BASIS_RANK
 
@@ -240,6 +240,29 @@ def test_owned_first_prefers_owned_default_without_excluding_global_alternatives
     assert any(row.species != "Pelipper" for row in discovery.candidates)
 
 
+def test_bootstrap_passes_expanded_owned_ids_to_query_by_usage():
+    state = _record(
+        _state(ownership_mode="owned_only"),
+        _payload(pool=("Swampert",), delegated=True),
+    )
+    captured: dict = {}
+
+    def capture_usage(*, available_species=(), ownership_mode="off", **kwargs):
+        captured["available_species"] = list(available_species)
+        captured["ownership_mode"] = ownership_mode
+        return []
+
+    with patch(
+        "recommender.bootstrap.query_by_usage", side_effect=capture_usage
+    ):
+        discover_bootstrap_directions(state)
+
+    species = set(captured.get("available_species") or ())
+    assert "swampert" in species
+    assert "swampertmega" in species
+    assert captured.get("ownership_mode") == "owned_only"
+
+
 def test_owned_only_without_recognized_pool_is_visible_and_does_not_fallback():
     state = _record(
         _state(ownership_mode="owned_only"),
@@ -331,7 +354,7 @@ def test_unmappable_direction_reprompts_without_coarse_default():
 
 def test_track1_strategic_evidence_precedes_real_anchor_coarse_kit_role():
     anchor_role = classify_anchor_role(resolve_anchor_build("Tyranitar"))
-    assert anchor_role.kit_role in get_args(TargetRoleId)
+    assert anchor_role.kit_role in get_args(RoleArchetype)
     assert anchor_role.kit_role != "sand_setter"
     state = _record(
         _state(),

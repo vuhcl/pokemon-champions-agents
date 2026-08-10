@@ -975,6 +975,7 @@ def discover_single_locked(state: RecommenderState) -> dict:
         resolve_all_support_needs,
         run_slot_fill_terminal,
     )
+    from recommender.team_candidates import owned_species_ids
 
     cleared = {
         "coverage": [],
@@ -1005,8 +1006,26 @@ def discover_single_locked(state: RecommenderState) -> dict:
 
     context = discovery.context
     annotate_overlap(context)
-    resolve_all_support_needs(context, state)
+    resolve_all_support_needs(
+        context,
+        state,
+        available_species=owned_species_ids(state),
+        ownership_mode=state.get("ownership_mode", "off"),
+    )
     merge_need_resolved(context)
+    if context.threat_discovery_status == "degraded":
+        if not context.annotated_candidates:
+            return {
+                **cleared,
+                "candidate_discovery_error": context.threat_discovery_error,
+                "pending_presentation": None,
+            }
+        terminal = run_slot_fill_terminal(context, state, slot_index=slot_index)
+        return {
+            **cleared,
+            **terminal.state_updates,
+            "candidate_discovery_error": context.threat_discovery_error,
+        }
     if not context.annotated_candidates:
         return {**cleared, **fill_team_draft({**state, **cleared})}
     terminal = run_slot_fill_terminal(context, state, slot_index=slot_index)

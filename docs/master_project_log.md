@@ -2926,4 +2926,104 @@ accepted as a narrower gap); Expanding Force's full doubles-targeting UX (the ca
 terrain boost, but pairwise `classify_matchup` still models a single defender); semi-
 invulnerability, Power Herb, and other script-only mechanics remaining outside both grounded
 sources, stated as a residual limitation rather than claimed solved.
+### 2026-08-09 (cont.): general ownership propagation across forms — implemented, closing
+the "Highest priority" item deferred since the original slot-fill discovery report
+
+Closes the last remaining item from the original discovery report's "Highest priority" tier
+(item 4: form-aware ownership and teammate attribution) — the teammate-record half shipped
+earlier this session; this closes the general-ownership half. Deferred correctly three times
+before (multi-locked, teammate-query, bootstrap design) with the same honest note each time:
+never previously traced end-to-end against real source.
+
+**Verification found the precedent everyone had been citing wasn't actually an ownership
+mechanism.** The teammate-query design pointed at "existing item-to-Mega and conservative
+usage-ratio behavior" as reusable precedent. Direct trace found that mechanism
+(`_item_mega_forme`, stone-suffix mapping) has no ownership caller at all — it's used only
+for slot-reconciliation reachable-formes and Role Compendium usage-attribution fallback,
+answering "whose ladder usage is this" not "does the user own this." Correctly not reused for
+ownership.
+
+**Chose `lineage_ids` over `_item_mega_forme` on evidence, not convenience.** A direct
+equivalence probe across all 76 legal Reg M-B Mega IDs found a real divergence: Meowstic's
+gendered Megas (`meowsticfmega`/`meowsticmmega`) are reachable via `lineage_ids` but not via
+`_item_mega_forme`, which builds the nonexistent `meowsticmega` since its base-argument
+matching requires the base to already be `meowsticf`/`meowsticm`. `lineage_ids` — already
+used for locked-slot exclusion — is the more complete grouping for this format, not just a
+simpler one.
+
+**Design premise changed mid-thread, and the change was itself checked rather than assumed.**
+Original design required stone evidence on the pool row (conservative, matching the teammate
+task's discipline). Revised to unconditional base→Mega propagation on the reasoning that Mega
+Stones are trivially obtainable once a player is competitively active — but rather than take
+that premise on faith, sent it for verification against real external sources. Found four
+real exceptions (Chesnaughtite/Delphoxite/Greninjite/Floettite, gated behind Legends: Z-A
+progression via HOME transfer) that partially undercut the premise. Decision made explicitly
+with the exception known, not despite not knowing: keep the blanket rule for all stones,
+justified unevenly by design — Floette-Eternal's case is airtight (the Pokémon itself is
+Z-A-story-locked, so owning it already implies clearing the same gate the stone requires);
+the other three are kept for consistency, not because the same airtight reasoning applies.
+Documented as such rather than implying uniform justification.
+
+**A genuine correctness bug caught during design review, not implementation.** The
+unconditional rule as originally specified would have let ownership propagate through any
+lineage member sharing a Mega's base — including regional variants. Confirmed directly
+(regional variants cannot Mega Evolve in this game's mechanics): owning `Raichu-Alola` must
+not imply owning `Raichu-Mega`. Fixed by requiring the owned row's own species to be the
+Mega's actual recorded base (`sid == mega_base`), not merely lineage-adjacent to one.
+
+**A second, more subtle bug then surfaced from applying that very fix.** Walking the
+corrected general rule against `sid="floette"` directly: `floettemega`'s recorded base is
+`"floette"` (per the snapshot), so `sid == mega_base` evaluates true — meaning the corrected
+rule alone would have granted **plain Floette** Mega access, when only Floette-Eternal can
+actually Mega Evolve. Caught before implementation: added an explicit deny for plain Floette
+(checked before the general rule) plus a named `floetteeternal -> floettemega` exception,
+deliberately implemented as a named pair rather than a general "illegal recorded base -> sole
+legal sibling" heuristic — the heuristic would silently stop firing (and Eternal would
+silently lose Mega ownership) if plain Floette ever becomes format-legal in a future
+regulation. Confirmed directly by the person with real game knowledge: regular Floette cannot
+Mega Evolve at all, validating the exception's scope as exactly correct, not overbroad.
+
+**Shipped:** `owned_species_ids` (`recommender/team_candidates.py`) as the single expansion
+choke point — base-form-only Mega propagation via `lineage_ids`, gated by `sid == mega_base`,
+plus the named Floette deny/exception. Item field on pool rows genuinely ignored (unconditional
+rule, no stone-evidence check). Duplicate species-only extractions in `discover_multi_locked`'s
+threat branch and `discover_bootstrap_directions` both replaced with the same expanded set
+(`sorted(owned)` when order matters, avoiding the nondeterministic-ordering class of bug
+already caught once this session with `_union_move_candidates`). `discover_single_locked`
+wired to pass real `ownership_mode` and the expanded owned-ID set into
+`resolve_all_support_needs`, replacing hardcoded `off`/empty defaults — confirmed as required
+scope, not an optional follow-up, since leaving it unwired would have meant Mega candidates
+silently never appearing on the single-anchor path after every other phase gained them.
+
+**Confirmation pass caught a real gap between "wiring correct" and "behavior correct."** The
+implementation report's own test only confirmed `resolve_all_support_needs` received the
+right kwargs — not that a real candidate list actually surfaced the expanded Mega ID. Asked
+for a genuine end-to-end test; the response caught its own test-design mistake in the
+process: a Swampert-based test would have failed for an unrelated reason (Mega Swampert
+doesn't learn any current need-satisfier move), producing a confusing false negative rather
+than a true one. Correctly swapped to Slowbro, which genuinely satisfies a real resolved need
+(Archaludon's Trick Room) through the real compendium-first need-resolution path — proving
+the propagation rule actually works, not just that a species happened to pass. The one
+deliberate stub (`query_threat_counters` → `[]`) was chosen specifically to make the test
+*harder* to pass by accident, isolating the need-resolution path from the (correctly
+unfiltered) threat-identification path.
+
+594 tests passing (up from 578 before the checkpointer task), 7 skipped — confirmed
+individually as 5 pre-existing live-calc skips plus 2 Ollama-dependency skips (not a mystery
+count). Read-only mirrors confirmed: `architecture_decisions.md` untouched;
+`master_project_log.md`'s drift confirmed as this session's own unpasted entries (the SQLite
+checkpointer entry), not anything from this task. Diff correctly spans the ownership file set
+plus the SQLite task's own already-known unrelated changes — nothing unexplained.
+
+This closes the original discovery report's "Highest priority" tier item 4 in full. Remaining
+open items from that original report: canonical name/form resolution (item 3, still
+deliberately deferred — this task explicitly did not touch it), condition classification and
+redundancy/fallback checks (item 6, untouched).
+
+**Deliberately deferred, tracked as separate future scope:** canonical name/shorthand
+resolution; new form-legality or stone-obtainability databases; Rotom appliance, general
+regional, and battle-forme ownership inference; per-stone Z-A/Battle-Pass gating (decision
+settled — blanket rule); selected-four/one-Mega-per-team roster modeling (dual-Mega bases
+like Charizard/Raichu/Meowstic now mark both Mega IDs owned simultaneously, with no
+constraint yet on fielding more than one Mega per team).
 

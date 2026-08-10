@@ -11,6 +11,7 @@ from recommender.anchor_roles import (
     resolve_anchor_build,
 )
 from recommender.ids import to_id
+from recommender.legality import is_species_legal, load_snapshot
 from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.slot_fill import (
     AnnotatedCandidate,
@@ -35,6 +36,16 @@ from recommender.support_needs import query_support_needs
 from recommender.teammates import SharedTeammateQueryResult
 from recommender.usage_data import lineage_ids
 from recommender.usage_spreads import move_category_counts
+
+
+# Champions: only Eternal Flower Floette can Mega Evolve (not plain Floette).
+_FLOETTE_DENY_SID = "floette"
+_FLOETTE_ETERNAL_SID = "floetteeternal"
+_FLOETTE_MEGA_SID = "floettemega"
+
+
+def _is_mega_sid(species_id: str) -> bool:
+    return species_id.endswith(("mega", "megax", "megay"))
 
 
 def _threat_id(threat: ThreatCandidate) -> str:
@@ -101,11 +112,25 @@ def build_team_threat_objective(
 
 
 def owned_species_ids(state: RecommenderState) -> frozenset[str]:
-    return frozenset(
-        species_id
-        for row in state.get("available_pool", [])
-        if (species_id := to_id(row.get("species") or ""))
-    )
+    """Exact pool species IDs plus base-form-only Mega ownership expansion."""
+    snap = load_snapshot()
+    owned: set[str] = set()
+    for row in state.get("available_pool", []):
+        sid = to_id(row.get("species") or "")
+        if not sid:
+            continue
+        owned.add(sid)
+        if sid == _FLOETTE_DENY_SID:
+            continue
+        if sid == _FLOETTE_ETERNAL_SID and is_species_legal(snap, _FLOETTE_MEGA_SID):
+            owned.add(_FLOETTE_MEGA_SID)
+            continue
+        for kid in lineage_ids(sid):
+            if not _is_mega_sid(kid) or not is_species_legal(snap, kid):
+                continue
+            if sid == lineage_ids(kid)[0]:
+                owned.add(kid)
+    return frozenset(owned)
 
 
 def collect_locked_anchor_contexts(

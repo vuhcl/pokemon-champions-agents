@@ -26,6 +26,9 @@ from recommender.state import (
     RecommenderState,
     Slot,
     TeamReviewResult,
+    TeamThreatDiscovery,
+    ThreatCandidate,
+    ThreatCounterCandidate,
     empty_slot,
 )
 from recommender.support_needs import RoleShapeContext
@@ -96,7 +99,7 @@ def test_single_locked_runs_existing_helpers_in_required_order():
         ctx.annotated_candidates = []
         return []
 
-    def resolve(ctx, _state):
+    def resolve(ctx, _state, **_kwargs):
         order.append("resolve")
         ctx.need_resolved_candidates = ["Farigiraf"]
         return ["Farigiraf"]
@@ -143,6 +146,82 @@ def test_single_locked_runs_existing_helpers_in_required_order():
     assert result["coverage"] == []
     assert result["spofs"] == []
     assert result["shared_teammates"] is None
+
+
+def test_single_locked_passes_ownership_mode_and_expanded_owned_ids():
+    from recommender.team_candidates import owned_species_ids
+
+    state = _state([_locked("Kingambit"), *[empty_slot() for _ in range(5)]])
+    state["available_pool"] = [{"species": "Swampert"}]
+    state["ownership_mode"] = "owned_only"
+    context = SlotFillContext(
+        anchor={"species": "Kingambit"},
+        role_shape_context=RoleShapeContext(),
+        threat_counter_results=[],
+        support_needs=[],
+    )
+    captured: dict = {}
+
+    def resolve(ctx, _state, **kwargs):
+        captured.update(kwargs)
+        ctx.need_resolved_candidates = []
+        return []
+
+    with (
+        patch(
+            "recommender.slot_fill.build_anchored_slot_fill_context",
+            return_value=AnchoredSlotDiscovery(context, object(), object(), False),
+        ),
+        patch("recommender.slot_fill.annotate_overlap", return_value=[]),
+        patch("recommender.slot_fill.resolve_all_support_needs", side_effect=resolve),
+        patch("recommender.slot_fill.merge_need_resolved", return_value=[]),
+        patch("recommender.propose.fill_team_draft", return_value={}),
+    ):
+        discover_single_locked(state)
+
+    assert captured.get("ownership_mode") == "owned_only"
+    assert captured.get("available_species") == owned_species_ids(state)
+    assert "swampertmega" in captured["available_species"]
+
+
+def test_single_locked_owned_only_presents_expanded_mega_from_real_need_resolution():
+    """End-to-end: real resolve_all_support_needs + merge + present.
+
+    Threat counters are emptied so candidates must come from need resolution (threats
+    are not ownership-filtered in single_locked). Slowbro→Slowbro-Mega is used because
+    Mega Swampert does not learn any current need-satisfier move; Slowbro-Mega learns
+    Trick Room and exercises the same base→Mega ownership expansion.
+    """
+    from recommender.ids import to_id
+
+    archaludon = Slot(
+        role=Attr("bulky_rain_attacker", locked=True),
+        species=Attr("Archaludon", locked=True),
+        ability=Attr("Stamina", locked=True),
+        item=Attr("Assault Vest", locked=True),
+        moveset=Attr(
+            ["Dragon Pulse", "Electro Shot", "Body Press", "Flash Cannon"],
+            locked=True,
+        ),
+        spread=Attr(dict(SPREAD), locked=True),
+        nature=Attr("Modest", locked=True),
+    )
+    state = _state([archaludon, *[empty_slot() for _ in range(5)]])
+    state["available_pool"] = [{"species": "Slowbro"}]
+    state["ownership_mode"] = "owned_only"
+
+    with patch(
+        "recommender.threat_counters.query_threat_counters",
+        return_value=TeamThreatDiscovery(status="available", candidates=()),
+    ):
+        result = discover_single_locked(state)
+
+    pending = result["pending_presentation"]
+    assert pending is not None
+    assert pending["kind"] == "candidate_selection"
+    options = [option["species"] for option in pending["options"]]
+    option_ids = {to_id(name) for name in options}
+    assert "slowbromega" in option_ids, options
 
 
 def test_single_locked_partial_open_slot_uses_legacy_fallback():
@@ -236,17 +315,18 @@ def test_only_multi_refresh_publishes_shared_signal_result():
     assert compute.call_count == 2
     query_shared.assert_called_once()
     query_shared.assert_called_with(["A", "B"], "champions")
-    assert refreshed == {
-        "coverage": [],
-        "spofs": [],
-        "shared_teammates": shared,
-        "last_team_review": None,
-        "candidate_discovery_error": None,
-    }
+    assert refreshed["coverage"] == []
+    assert refreshed["spofs"] == []
+    assert refreshed["shared_teammates"] is shared
+    assert refreshed["last_team_review"] is None
+    assert refreshed["candidate_discovery_error"] is None
+    assert "condition_resilience" in refreshed
     assert completed["last_team_review"] is review
     assert completed["coverage"] is review.coverage
     assert completed["spofs"] is review.spofs
     assert completed["shared_teammates"] is None
+    assert completed["condition_resilience"] is None
+    assert completed["candidate_discovery_error"] is None
 
 
 def test_multi_signal_refresh_binds_full_result_cache_to_graph_thread():
@@ -262,13 +342,12 @@ def test_multi_signal_refresh_binds_full_result_cache_to_graph_thread():
         result = refresh_team_signals(state, config)  # type: ignore[arg-type]
 
     bind.assert_called_once_with("phase-signals")
-    assert result == {
-        "coverage": [],
-        "spofs": [],
-        "shared_teammates": None,
-        "last_team_review": None,
-        "candidate_discovery_error": None,
-    }
+    assert result["coverage"] == []
+    assert result["spofs"] == []
+    assert result["shared_teammates"] is None
+    assert result["last_team_review"] is None
+    assert result["candidate_discovery_error"] is None
+    assert "condition_resilience" in result
 
 
 def test_second_lock_routes_through_multi_discovery():
