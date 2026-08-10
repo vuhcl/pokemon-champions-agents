@@ -43,6 +43,7 @@ class SideSpec(TypedDict, total=False):
     isHelpingHand: bool
     isFriendGuard: bool
     isBattery: bool
+    isProtected: bool
     spikes: int
     isSR: bool
 
