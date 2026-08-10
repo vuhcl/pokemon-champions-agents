@@ -49,11 +49,15 @@ def test_pair_score_and_aggregate():
 
 
 def test_empty_anchor():
-    assert query_threat_counters({}) == []
+    empty = query_threat_counters({})
+    assert empty.status == "available"
+    assert empty.candidates == ()
     with patch(
         "recommender.threat_counters.query_counters", return_value=[]
     ) as qc:
-        assert query_threat_counters({"species": "Blaziken-Mega"}) == []
+        empty2 = query_threat_counters({"species": "Blaziken-Mega"})
+        assert empty2.status == "available"
+        assert empty2.candidates == ()
         assert qc.call_count == 1
 
 
@@ -146,7 +150,8 @@ def test_merge_count_across_threats():
             return_value=MatchupResult(outcome="clean_kill", severity="decisive"),
         ),
     ):
-        out = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        out = result.candidates
 
     assert len(out) == 1
     assert out[0].threats_countered_count == 3
@@ -170,7 +175,8 @@ def test_stage4_cuts_to_n_by_count():
             return_value=MatchupResult(outcome="no_answer", severity="toss-up"),
         ),
     ):
-        out = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        out = result.candidates
 
     assert len(out) == 10
 
@@ -250,7 +256,8 @@ def test_verify_as_rank_strong_beats_high_static_count():
             "recommender.threat_counters.classify_matchup", side_effect=fake_classify
         ),
     ):
-        out = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        out = result.candidates
 
     names = [c.candidate.form for c in out]
     assert names[0] == "NarrowStrong"
@@ -292,7 +299,8 @@ def test_credit_outside_verify_set_is_neutral():
             "recommender.threat_counters.classify_matchup", side_effect=fake_classify
         ),
     ):
-        out = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=1)
+        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=1)
+        out = result.candidates
 
     assert "Obscure" not in classified_vs
     assert "Popular" in classified_vs
@@ -319,7 +327,8 @@ def test_excludes_anchor_species_from_merge():
             return_value=MatchupResult(outcome="clean_kill", severity="decisive"),
         ),
     ):
-        out = query_threat_counters({"species": "Anchor"}, n=10)
+        result = query_threat_counters({"species": "Anchor"}, n=10)
+        out = result.candidates
 
     assert all(c.candidate.form != "Anchor" for c in out)
     assert any(c.candidate.form == "Other" for c in out)
@@ -357,12 +366,13 @@ def test_candidate_pool_asymmetry_threat_id_unrestricted():
             return_value=MatchupResult(outcome="clean_kill", severity="decisive"),
         ),
     ):
-        out = query_threat_counters(
+        result = query_threat_counters(
             {"species": "Anchor"},
             n=10,
             verify_threats_n=5,
             candidate_pool=restrictive,
         )
+        out = result.candidates
 
     # Call 0 = step-1 anchor: no pool passed (None).
     assert calls[0] == ("Anchor", None)
@@ -404,12 +414,13 @@ def test_owned_first_reaches_candidate_stages_but_not_threat_stages():
             side_effect=fake_classify,
         ),
     ):
-        out = query_threat_counters(
+        result = query_threat_counters(
             {"species": "Anchor"},
             n=1,
             available_pool=["RareOwned", "RareOwned"],
             ownership_mode="owned_first",
         )
+        out = result.candidates
 
     assert [c.candidate.form for c in out] == ["RareOwned"]
     assert calls[0] == ("Anchor", {})
@@ -438,12 +449,13 @@ def test_owned_last_breaks_final_candidate_tie():
             return_value=MatchupResult(outcome="clean_kill", severity="decisive"),
         ),
     ):
-        out = query_threat_counters(
+        result = query_threat_counters(
             {"species": "Anchor"},
             n=2,
             available_pool=["Owned"],
             ownership_mode="owned_last",
         )
+        out = result.candidates
 
     assert [c.candidate.form for c in out] == ["Owned", "Unowned"]
 
@@ -462,13 +474,14 @@ def test_owned_only_empty_pool_returns_empty_without_verification():
         patch("recommender.threat_counters.query_counters", side_effect=fake_qc),
         patch("recommender.threat_counters.classify_matchup") as classify,
     ):
-        out = query_threat_counters(
+        result = query_threat_counters(
             {"species": "Anchor"},
             available_pool=[],
             ownership_mode="owned_only",
         )
+        out = result.candidates
 
-    assert out == []
+    assert out == ()
     assert candidate_calls == [
         {"available_pool": [], "ownership_mode": "owned_only"}
     ]
@@ -555,3 +568,33 @@ def test_classify_matchup_receives_most_common_verify_specs():
     assert a.get("item") == "CandA-Item"
     assert b.get("item") == "Threat0-Item"
     assert a.get("evs") == {"hp": 1}
+
+
+def test_query_threat_counters_degraded_on_calc_failure():
+    from recommender.calc_client import CalcClientError
+
+    threats = [_tc("T1", usage_rank=1)]
+
+    def fake_qc(pokemon, n=20, **kwargs):
+        sp = pokemon.get("species") or ""
+        if sp == "Anchor":
+            return list(threats)
+        return [_tc("CandA", usage_rank=10, kinds=frozenset({"wall"}))]
+
+    with (
+        patch("recommender.threat_counters.query_counters", side_effect=fake_qc),
+        patch(
+            "recommender.threat_counters.classify_matchup",
+            side_effect=CalcClientError(503, {"error": "down"}),
+        ),
+    ):
+        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+
+    assert result.status == "degraded"
+    assert result.error is not None
+    assert result.error.kind == "calc_unavailable"
+    assert result.candidates
+    for row in result.candidates:
+        assert row.estimate_kind == "static"
+        assert row.verified_vs == ()
+        assert row.verified_score == 0.0

@@ -1276,5 +1276,5 @@ def generate_team_review(state: RecommenderState, config: RunnableConfig) -> dic
         "spofs": review.spofs,
         "shared_teammates": None,
         "last_team_review": review,
-        "candidate_discovery_error": None,
+        "candidate_discovery_error": review.error,
     }

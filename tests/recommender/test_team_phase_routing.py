@@ -278,6 +278,186 @@ def test_single_locked_empty_candidate_set_uses_legacy_fallback():
     }
 
 
+def test_single_locked_degraded_empty_does_not_call_fill_team_draft():
+    state = _state([_locked("Kingambit"), *[empty_slot() for _ in range(5)]])
+    error = CandidateDiscoveryError(
+        kind="calc_unavailable",
+        stage="candidate_verification",
+        message="calc down",
+        retryable=True,
+        exception_type="CalcClientError",
+    )
+    context = SlotFillContext(
+        anchor={"species": "Kingambit"},
+        role_shape_context=RoleShapeContext(),
+        threat_counter_results=[],
+        support_needs=[],
+        threat_discovery_status="degraded",
+        threat_discovery_error=error,
+    )
+    with (
+        patch(
+            "recommender.slot_fill.build_anchored_slot_fill_context",
+            return_value=AnchoredSlotDiscovery(context, object(), object(), False),
+        ),
+        patch("recommender.slot_fill.annotate_overlap", return_value=[]),
+        patch("recommender.slot_fill.resolve_all_support_needs", return_value=[]),
+        patch("recommender.slot_fill.merge_need_resolved", return_value=[]),
+        patch("recommender.propose.fill_team_draft", return_value={}) as fill,
+        patch("recommender.slot_fill.run_slot_fill_terminal") as terminal,
+    ):
+        result = discover_single_locked(state)
+
+    fill.assert_not_called()
+    terminal.assert_not_called()
+    assert result["candidate_discovery_error"] is error
+    assert result["pending_presentation"] is None
+
+
+def test_single_locked_degraded_with_candidates_presents_without_fill_team_draft():
+    state = _state([_locked("Kingambit"), *[empty_slot() for _ in range(5)]])
+    error = CandidateDiscoveryError(
+        kind="calc_unavailable",
+        stage="candidate_verification",
+        message="calc down",
+        retryable=True,
+        exception_type="CalcClientError",
+    )
+    static_row = ThreatCounterCandidate(
+        candidate=ThreatCandidate(
+            ladder_species="Incineroar",
+            usage_rank=1,
+            form="Incineroar",
+            showdown_usage_pct=None,
+            showdown_formes=(),
+            spec={"species": "Incineroar"},
+            build_source="ingame",
+            threat_kinds=frozenset({"wall"}),
+        ),
+        threats_countered=("t1",),
+        threats_countered_count=1,
+        verified_score=0.0,
+        verified_vs=(),
+        estimate_kind="static",
+    )
+    context = SlotFillContext(
+        anchor={"species": "Kingambit"},
+        role_shape_context=RoleShapeContext(),
+        threat_counter_results=[static_row],
+        support_needs=[],
+        threat_discovery_status="degraded",
+        threat_discovery_error=error,
+    )
+
+    def fake_merge(ctx: SlotFillContext) -> list:
+        ctx.annotated_candidates = [
+            AnnotatedCandidate(
+                species="Incineroar",
+                matching_needs=(),
+                source="threat",
+                threat_row=static_row,
+                evidence=(),
+            )
+        ]
+        return ctx.annotated_candidates
+
+    pending = {
+        "schema_version": 1,
+        "kind": "candidate_selection",
+        "slot_index": 1,
+        "options": [{"species": "Incineroar", "source": "threat", "evidence": ()}],
+    }
+    with (
+        patch(
+            "recommender.slot_fill.build_anchored_slot_fill_context",
+            return_value=AnchoredSlotDiscovery(context, object(), object(), False),
+        ),
+        patch("recommender.slot_fill.annotate_overlap", return_value=[]),
+        patch("recommender.slot_fill.resolve_all_support_needs", return_value=[]),
+        patch("recommender.slot_fill.merge_need_resolved", side_effect=fake_merge),
+        patch("recommender.propose.fill_team_draft", return_value={}) as fill,
+        patch(
+            "recommender.slot_fill.run_slot_fill_terminal",
+            return_value=SlotFillTerminalResult(
+                presentation=SlotFillPresentation(
+                    slot_index=1,
+                    candidates=(
+                        PresentedCandidate(
+                            species="Incineroar", source="threat", evidence=()
+                        ),
+                    ),
+                ),
+                state_updates={"pending_presentation": pending},
+                deferred=False,
+            ),
+        ) as terminal,
+    ):
+        result = discover_single_locked(state)
+
+    fill.assert_not_called()
+    terminal.assert_called_once()
+    assert result["pending_presentation"] == pending
+    assert result["candidate_discovery_error"] is error
+    assert result["candidate_discovery_error"].kind == "calc_unavailable"
+
+
+def test_single_locked_degraded_evidence_tokens():
+    from recommender.slot_fill import _threat_evidence
+
+    error = CandidateDiscoveryError(
+        kind="calc_unavailable",
+        stage="candidate_verification",
+        message="calc down",
+        retryable=True,
+    )
+    row = ThreatCounterCandidate(
+        candidate=ThreatCandidate(
+            ladder_species="Incineroar",
+            usage_rank=1,
+            form="Incineroar",
+            showdown_usage_pct=None,
+            showdown_formes=(),
+            spec={"species": "Incineroar"},
+            build_source="ingame",
+            threat_kinds=frozenset({"wall", "ko_threshold"}),
+        ),
+        threats_countered=("t1",),
+        threats_countered_count=1,
+        verified_score=99.0,
+        verified_vs=(),
+        estimate_kind="static",
+    )
+    evidence = _threat_evidence(row, degradation_kind="calc_unavailable")
+    assert len(evidence) == 1
+    assert evidence[0].basis == "mechanical_only"
+    assert evidence[0].confidence == "low"
+    assert "static_type_estimate" in evidence[0].evidence
+    assert "calc_unavailable" in evidence[0].evidence
+    assert "wall_axis" in evidence[0].evidence
+    assert "ko_threshold_proxy" in evidence[0].evidence
+    assert not any(item.startswith("verified_score:") for item in evidence[0].evidence)
+
+    state = _state([_locked("Kingambit"), *[empty_slot() for _ in range(5)]])
+    context = SlotFillContext(
+        anchor={"species": "Kingambit"},
+        role_shape_context=RoleShapeContext(),
+        threat_counter_results=[row],
+        support_needs=[],
+        need_resolved_candidates=[],
+        threat_discovery_status="degraded",
+        threat_discovery_error=error,
+    )
+    from recommender.slot_fill import annotate_overlap, merge_need_resolved
+
+    annotate_overlap(context)
+    merge_need_resolved(context)
+    threat_ev = context.annotated_candidates[0].evidence[0]
+    assert threat_ev.basis == "mechanical_only"
+    assert threat_ev.confidence == "low"
+    assert "static_type_estimate" in threat_ev.evidence
+    assert not any(item.startswith("verified_score:") for item in threat_ev.evidence)
+
+
 def test_empty_bootstrap_clears_stale_signals_and_prompts_for_intake():
     state = _state([empty_slot() for _ in range(6)])
     state.update(
@@ -327,6 +507,47 @@ def test_only_multi_refresh_publishes_shared_signal_result():
     assert completed["shared_teammates"] is None
     assert completed["condition_resilience"] is None
     assert completed["candidate_discovery_error"] is None
+
+
+def test_generate_team_review_surfaces_calc_unavailable_error():
+    state = _state([_locked(f"Member{i}") for i in range(6)])
+    error = CandidateDiscoveryError(
+        kind="calc_unavailable",
+        stage="coverage",
+        message="calc down",
+        retryable=True,
+        exception_type="CalcClientError",
+    )
+    review = TeamReviewResult(
+        [], [], [], status="unavailable", error=error
+    )
+    config = {"configurable": {"thread_id": "review-unavailable"}}
+    with patch("recommender.nodes._compute_team_review", return_value=review):
+        result = generate_team_review(state, config)  # type: ignore[arg-type]
+    assert result["candidate_discovery_error"] is error
+    assert result["candidate_discovery_error"].kind == "calc_unavailable"
+    assert result["last_team_review"] is review
+    assert result["coverage"] == []
+    assert result["spofs"] == []
+
+
+def test_generate_team_review_surfaces_calc_incomplete_error():
+    state = _state([_locked(f"Member{i}") for i in range(6)])
+    error = CandidateDiscoveryError(
+        kind="calc_incomplete",
+        stage="spof",
+        message="bad batch",
+        retryable=True,
+        exception_type="MatchupEvidenceError",
+    )
+    review = TeamReviewResult(
+        [], [], [], status="unavailable", error=error
+    )
+    config = {"configurable": {"thread_id": "review-incomplete"}}
+    with patch("recommender.nodes._compute_team_review", return_value=review):
+        result = generate_team_review(state, config)  # type: ignore[arg-type]
+    assert result["candidate_discovery_error"] is error
+    assert result["candidate_discovery_error"].kind == "calc_incomplete"
 
 
 def test_multi_signal_refresh_binds_full_result_cache_to_graph_thread():
