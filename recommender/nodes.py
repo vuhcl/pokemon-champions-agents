@@ -1083,18 +1083,23 @@ def _unavailable_team_review(
 
 def refresh_team_signals(state: RecommenderState, config: RunnableConfig) -> dict:
     """Recompute callable multi-member signals before the legacy proposal step."""
+    from recommender.condition_resilience import assess_condition_resilience
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
     review = _compute_team_review(state, config)
     locked_species = [
         str(slot.species.value)
         for slot in state["team_draft"]
         if all_locked(slot) and slot.species.value
     ]
+    contexts = collect_locked_anchor_contexts(state)
     return {
         "coverage": review.coverage,
         "spofs": review.spofs,
         "shared_teammates": query_shared_teammates(
             locked_species, state.get("regulation_mod") or "champions"
         ),
+        "condition_resilience": assess_condition_resilience(contexts),
         "last_team_review": None,
         "candidate_discovery_error": review.error,
     }
@@ -1104,6 +1109,7 @@ def discover_multi_locked(
     state: RecommenderState, config: RunnableConfig
 ) -> dict:
     """Collect all locked-member evidence and present the next blank slot."""
+    from recommender.condition_resilience import assess_condition_resilience
     from recommender.propose import fill_team_draft
     from recommender.slot_fill import SlotFillContext, run_slot_fill_terminal
     from recommender.team_candidates import (
@@ -1128,11 +1134,6 @@ def discover_multi_locked(
     slot_index, target = open_slots[0]
     ownership_mode = state.get("ownership_mode", "off")
     owned = owned_species_ids(state)
-    available = [
-        str(row["species"])
-        for row in state.get("available_pool", [])
-        if row.get("species")
-    ]
     locked_species = [
         str(slot.species.value)
         for slot in state["team_draft"]
@@ -1142,10 +1143,13 @@ def discover_multi_locked(
     shared = query_shared_teammates(
         locked_species, state.get("regulation_mod") or "champions"
     )
+    contexts = collect_locked_anchor_contexts(state)
+    resilience = assess_condition_resilience(contexts)
     signals = {
         "coverage": review.coverage,
         "spofs": review.spofs,
         "shared_teammates": shared,
+        "condition_resilience": resilience,
         "last_team_review": None,
     }
     if review.status == "unavailable":
@@ -1189,7 +1193,7 @@ def discover_multi_locked(
     }
     threat_discovery = query_candidates_for_threats(
         objective,
-        available_pool=available,
+        available_pool=sorted(owned),
         ownership_mode=ownership_mode,
         excluded_species=excluded,
     )
@@ -1200,7 +1204,6 @@ def discover_multi_locked(
             "pending_presentation": None,
         }
 
-    contexts = collect_locked_anchor_contexts(state)
     merged = merge_multi_locked_candidates(
         state,
         contexts,
@@ -1208,9 +1211,13 @@ def discover_multi_locked(
         shared,
         ownership_mode=ownership_mode,
         owned_species=owned,
+        condition_resilience=resilience,
     )
     candidates = annotate_composition_impact(
-        merged, state, locked_anchors=contexts
+        merged,
+        state,
+        locked_anchors=contexts,
+        condition_resilience=resilience,
     )
     preference = state.get("team_completion_preference")
     if preference is None:
@@ -1275,6 +1282,7 @@ def generate_team_review(state: RecommenderState, config: RunnableConfig) -> dic
         "coverage": review.coverage,
         "spofs": review.spofs,
         "shared_teammates": None,
+        "condition_resilience": None,
         "last_team_review": review,
-        "candidate_discovery_error": None,
+        "candidate_discovery_error": review.error,
     }
