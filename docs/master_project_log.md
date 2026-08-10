@@ -3027,3 +3027,149 @@ settled — blanket rule); selected-four/one-Mega-per-team roster modeling (dual
 like Charizard/Raichu/Meowstic now mark both Mega IDs owned simultaneously, with no
 constraint yet on fielding more than one Mega per team).
 
+### 2026-08-09 (cont.): infer_role vocabulary expansion — full usage scan, coherent
+three-axis redesign, and implementation, closing a systemic classification gap surfaced by
+the roster role-structure grouping design
+
+Opened by a real gap found while reviewing the (separately planned, not yet implemented)
+roster role-structure grouping design: a Technician-ability, fast-physical-attacker-plus-
+disruption Maushold build defaulted to the generic `bulky_attacker` label via `infer_role`'s
+ability-blind fallback. Rather than patch that one case, the decision was made to scope a
+full usage-driven vocabulary expansion first — sequenced *before* roster grouping's
+implementation specifically because both would touch the same `_mechanisms`/classification
+machinery, and shipping grouping first would have meant reworking its fixture-based tests
+almost immediately once the broader picture landed.
+
+**Discovery correctly refused to default to "add a Compendium category."** Traced all five
+sources of `role_id` precisely (declared, exact Compendium, mechanism-based match,
+`infer_role` fallback, unresolved) with exact cost-to-extend for each, and grounded
+"Compendium-worthy" in the criterion the Role Compendium was actually designed around
+(ADR-015 Amendment 2026-07-28d: role-specific search with contested membership, not
+taxonomic completeness or "just needs something strong" — modifier-only abilities like
+Prankster/Regenerator were already explicitly rejected as primary categories on this basis).
+
+**The full 180-build scan reframed the whole task's importance.** Not a Maushold-specific
+edge case: `infer_role`'s coarse fallback won 126 of 180 classified builds — 70%, the
+majority classification path for real top-usage kits, not a corner case dressed up as one.
+The ability-sensitivity check found the pattern was systemic across the whole corpus: every
+multi-ability species in the top 50 either under-differentiated or only differed because some
+other signal (a move, not the ability) happened to already fix the label — zero cases where
+ability alone changed the primary classification.
+
+**Tiering discipline held under real pressure to escalate.** Fake Out/Intimidate support (a
+widely-differentiating, genuinely contested-membership pattern across 8+ species) was
+explicitly kept at mechanism tier, marked only as a future Compendium *candidate* pending
+actual product need — not auto-promoted just because it met the surface-level criteria that
+might have justified it. Screens/Grimmsnarl-shaped and Friend-Guard-vs-Technician
+under-differentiation were both correctly resolved without new Compendium categories,
+recognized as modifiers on existing categories or emission gaps, not new taxonomic slots.
+
+**A real dependency risk caught before it could ship as a regression.** The first proposal
+removed `trick_room_sweeper` from `infer_role`'s decision tree, reasoning it was "effectively
+dead" since mechanism-based classification catches Trick Room first on the
+`classify_anchor_role` path. Direct trace found this reasoning never applied to a second,
+separate call site: `_propagate_and_refine` (the tier-3 dependency-circle pin) calls
+`infer_role` directly, bypassing that cascade entirely, and an existing test
+(`test_trick_room_moveset_implies_role_and_spread`) locked in the exact behavior the removal
+would have broken. Resolved by keeping the `trick_room_sweeper` return — the smaller, safer
+change — rather than updating the pin, since the original justification was reasoning about
+a different code path than the one that would have actually broken.
+
+**A third offense axis added mid-design, and verified with real data rather than assumed
+correct.** The original two-axis split (`fast_*`/`bulky_*`) forced every item-agnostic
+default (Mega stones, Black Glasses, Wide Lens) into `bulky_*`, conflating "confirmed bulky
+via a defensive item" with "no signal either way." Added `standard_*` to separate them. Before
+finalizing, checked whether Mega-stone builds specifically deserved their own signal (Mega
+Evolution changes base stats, often with a real bulk/offense lean) rather than being folded
+into the no-signal default — found real conflicting double-signal cases (Metagross-Mega,
+Kangaskhan-Mega, Dragonite-Mega: simultaneously Spe ≥100 and bulk ≥280, where a Speed-led rule
+and a bulk-led rule would disagree on the same Pokémon), confirming `standard_*` is the honest
+answer for Mega stones specifically, not a convenient default — verified against actual
+post-Mega stat data across 35 resolved Mega formes, not asserted from general intuition.
+
+**Shipped:** nine offense labels (`{fast,bulky,standard} × {physical,special,mixed}`) driven
+by real move-category damage bias (not base-stat inference), `fast_pivot` (new, Choice Scarf
+or Technician-multi-hit plus a pivot move), `screens_support` (new), pivot-move-gating fix for
+the false-pivot cases (Archaludon's Leftovers/Electro Shot kit no longer misclassifies as
+`bulky_pivot`), `trick_room_sweeper` kept unchanged, Technician×multi-hit and weather-speed
+ability hooks wired into the cascade. A backward-compatible alias layer
+(`_DEPRECATED_ROLE_ALIASES`) maps the old `fast_attacker`/`bulky_attacker` strings (still valid
+`TargetRoleId` values) to their new equivalents for inbound use — confirmed necessary, not
+cosmetic: without it, an already-locked slot using the old vocabulary would silently fall
+through to re-inference on the new axis and overwrite the user's locked semantics with no
+error, and `role_spread` would raise on the old string. `role_spread` template coverage
+verified complete via a parametrized test over the full `RoleArchetype` set plus both
+aliases (14 values, each summing to exactly 66 points) — not a manual spot-check, an actual
+invariant proof.
+
+**Confirmation pass caught a real gap between a focused test run and the actual full suite.**
+The initial implementation report cited "150 passed, 2 skipped" — a focused subset, not the
+established 7-skip baseline. Full suite re-run confirmed 709 passed, 7 skipped (5 live-calc,
+2 Ollama), matching baseline exactly. Named tests confirmed individually for every specific
+gap-table claim (Mega special attacker → `standard_special_attacker`; Archaludon's false
+pivot fixed; Garchomp/Hydreigon physical/special differentiation; Technician Maushold landing
+on the fast axis) rather than accepted as covered by the aggregate count. Signature-change
+blast radius confirmed via a real repo-wide search for every production caller of
+`infer_role` (four sites: `anchor_roles`, `propose`, `reconcile`, `recommend_build`, all
+correctly threading ability through) rather than assumed complete from the sites that
+happened to already be touched.
+
+Two real, systemic classification gaps found along the way, explicitly named for future
+scope rather than fixed here: `to_id` mismatch on usage display-name variants (e.g.
+`"Maushold Family of Four"`) silently defeats exact Compendium matching that would otherwise
+correctly fire on the plain species id — a concrete, live cost of the still-deferred
+canonical name/form resolution work; and several Compendium/mechanism-tier emission gaps
+(screens, Encore, Hospitality) confirmed real by this scan's frequency data but correctly kept
+on the separately-tracked roster role-structure grouping "Step A" precondition list rather
+than merged into this task.
+
+709 tests passing (up from 659 at the start of this arc), 7 skipped, matching the established
+baseline exactly. Read-only mirrors confirmed untouched by this task; existing drift
+reconfirmed as prior same-day work (ADR-015 amendment, SQLite checkpointer entries) already
+present before this implementation began.
+
+**Deliberately deferred, tracked as separate future scope:** Fake Out support as a
+Compendium category (marked candidate-only, pending product role-search need); screens/
+Encore/Hospitality mechanism emission (roster role-structure grouping's Step A, separately
+tracked); any new Compendium file; canonical name/form resolution (the Maushold/Vivillon
+display-name mismatches stay deferred); roster role-structure grouping's own implementation
+(design already reviewed and approved, now unblocked to proceed against a substantially more
+accurate classifier than when it was first designed).
+
+---
+
+## TOOLS & RESOURCES
+
+- **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.
+- **Original RL project** — reference only, for lessons learned on state representation and reward design, not for reuse of the trained artifact.
+
+---
+
+## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
+
+*(To be populated as the project develops — mirrors the structure of the VinylIQ master resume's Deep Technical Details section. Capture: why the legality-checking approach was designed the way it was, what regulation-versioning approach was chosen and why, any case where the agent's recommendation was wrong and what that revealed, RL training details once retrained, and any eval surprises once Showdown simulation work starts.)*
+
+### Domain knowledge: weather/phase-order mechanics (2026-07-27)
+
+- **Simultaneous automatic (switch-in) weather-setters resolve in Speed order, and the
+  slower one's effect persists** — since weather-setting simply overwrites whatever's
+  currently active, being the *slower* of two simultaneously-triggering automatic setters is
+  the actual advantage for guaranteeing your weather sticks, the reverse of the usual
+  faster-is-better instinct.
+- **Champions' phase order is strict and sequential, not speed-contested, across switch-in
+  effects → Mega Evolution → moves.** A same-turn Mega Evolution's weather-setting ability
+  (e.g. Mega Charizard Y's Drought) always resolves after any automatic switch-in
+  weather-setter (e.g. Pelipper's Drizzle), regardless of either Pokémon's Speed stat — this
+  is a phase-structure guarantee, not a race. Correctly explains why the Mega Charizard Y
+  weather-flip threat (flagged earlier this session) works the way it does.
+- **A fast weather-re-setting move's real value is "before any attacker acts this turn,"
+  not "faster than the opponent's setter."** E.g. Alolan Ninetales using a weather move isn't
+  racing another setter — it's re-establishing weather after a mid-turn change (a switch-in
+  or Mega Evolution) before either side's attacks resolve that turn, which is a broader and
+  more accurate threat model than a setter-vs-setter framing.
+
+These are concrete mechanics the still-open team-wide threat-coverage and single-point-of-
+failure checks (flagged 2026-07-27, not yet designed) will need to reason about correctly
+once built.
+
+**Design implication:** Failure modes #1–#3 all point to the same root fix — legality (species + item + format + regulation) must be **checked programmatically against real Champions/regulation data**, never inferred or assumed by an LLM from general training knowledge. Failure mode #4 points to a second required fix — any mechanical claim (speed comparison, damage calc, matchup assessment) must be backed by an actual calculation/simulation call, not a generated assertion. These two fixes are the real "agentic" core of the project: tool-grounded legality checks + tool-grounded mechanical verification, not just a chat wrapper around Pokémon knowledge.

@@ -141,6 +141,17 @@ def test_allocate_remainder_preserves_base():
         "bulky_pivot",
         "support_speed_control",
         "bulky_attacker",
+        "fast_physical_attacker",
+        "fast_special_attacker",
+        "fast_mixed_attacker",
+        "standard_physical_attacker",
+        "standard_special_attacker",
+        "standard_mixed_attacker",
+        "bulky_physical_attacker",
+        "bulky_special_attacker",
+        "bulky_mixed_attacker",
+        "fast_pivot",
+        "screens_support",
     ],
 )
 def test_role_spreads_are_legal(role):

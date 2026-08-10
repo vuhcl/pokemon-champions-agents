@@ -444,7 +444,7 @@ def classify_anchor_role(
             source = role_mechanism.source
             evidence.append(AnchorRoleEvidence("primary_role", source, role_mechanism.mechanic))
         elif build.moves or build.item:
-            role_id = infer_role(list(build.moves), build.item or "")
+            role_id = infer_role(list(build.moves), build.item or "", build.ability)
             source = build.source_for("moves")
             evidence.append(AnchorRoleEvidence("primary_role", source, "infer_role fallback"))
         else:
@@ -504,7 +504,7 @@ def classify_anchor_role(
         durability_intent=_durability(build, mechanisms),
         mechanisms=tuple(mechanisms),
         kit_role=(
-            infer_role(list(build.moves), build.item or "")
+            infer_role(list(build.moves), build.item or "", build.ability)
             if build.moves or build.item
             else None
         ),

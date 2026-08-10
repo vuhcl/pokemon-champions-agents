@@ -293,13 +293,17 @@ def _choice_score(
     bulk = _bulk_score(spread, threats, snap)
     speed = _speed_score(species, evidence, threats, snap)
     rank = -evidence.rank
-    if role == "fast_attacker":
+    if role == "fast_attacker" or role.startswith("fast_"):
         return speed, offense, bulk, rank
     if role == "trick_room_sweeper":
         return -speed[1], offense, bulk, rank
     if role == "support_speed_control":
         return speed, bulk, offense, rank
-    if role == "bulky_pivot":
+    if (
+        role == "bulky_attacker"
+        or role.startswith("bulky_")
+        or role == "screens_support"
+    ):
         return bulk, spread["hp"], offense, rank
     return offense, bulk, speed, rank
 

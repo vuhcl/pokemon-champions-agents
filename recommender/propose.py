@@ -316,7 +316,7 @@ def _refine_defaults(
                         role = (
                             role_name
                             if role_name in _ROLE_ARCHETYPES
-                            else infer_role(moves, item)
+                            else infer_role(moves, item, slot.ability.value)
                         )
                         choice = select_usage_spread(
                             species,
