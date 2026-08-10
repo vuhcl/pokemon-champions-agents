@@ -8,8 +8,9 @@
     "extract:abilities": "tsx scripts/extract_abilities/extract.ts && uv run python scripts/extract_abilities/apply_phase_b.py && uv run python scripts/extract_abilities/retarget_ally_opponent.py",
     "extract:move-accuracy": "tsx scripts/extract_moves/extract_accuracy.ts",
     "extract:move-stat-boosts": "tsx scripts/extract_moves/extract_stat_boosts.ts",
+    "extract:move-flags": "tsx scripts/extract_moves/extract_flags.ts",
     "start": "tsx services/calc/server.ts",
-    "test": "tsx --test tests/extract_legality/*.test.ts tests/calc/*.test.ts"
+    "test": "tsx --test tests/extract_legality/*.test.ts tests/extract_moves/*.test.ts tests/calc/*.test.ts"
   },
   "dependencies": {
     "@pkmn/sets": "^5.2.0",

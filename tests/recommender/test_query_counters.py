@@ -110,8 +110,10 @@ def test_vacuous_wall_status_only_falls_back_to_stab():
 
 
 def test_blaziken_mega_ceruledge_wall():
-    # Usage-primary within-tier key admits wall-only Ceruledge at default n=20.
-    out = query_counters({"species": "Blaziken-Mega"}, n=20)
+    # Usage-primary within-tier key admits wall-only Ceruledge near the default cut.
+    # n=25: Pass 1 type rewrites (e.g. Liquid Voice) correctly raise some KO scores,
+    # which can bump Ceruledge just past the old n=20 boundary without losing the wall.
+    out = query_counters({"species": "Blaziken-Mega"}, n=25)
     cer = next(c for c in out if to_id(c.form) == "ceruledge")
     assert "wall" in cer.threat_kinds
     # Fire/Ghost typing does not SE into Fire/Fighting — wall-only, not KO.

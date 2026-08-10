@@ -26,6 +26,7 @@ from recommender.usage_data import featured_or_common_set, ingame_species_map
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 _ACCURACY_PATH = REPO_ROOT / "data" / "moves" / "gen9_accuracy.v1.json"
+_FLAGS_PATH = REPO_ROOT / "data" / "moves" / "flags.v1.json"
 
 # Probe (top-20 anchors × ladder species w/ featured sets): all-pairs clear-rate
 # 180→38.7% / 200→28.2%; SE-pairs 180→87.4% / 200→76.8%. Locked at 200.
@@ -50,6 +51,35 @@ ASSUMED_FAINTED_TEAMMATES = 2
 # 2026-08-01b). Do not inherit ASSUMED_FAINTED_TEAMMATES.
 ASSUMED_HITS_TAKEN = 1
 
+_ATE_ABILITIES: dict[str, str] = {
+    "aerilate": "Flying",
+    "dragonize": "Dragon",
+    "pixilate": "Fairy",
+    "refrigerate": "Ice",
+}
+
+_RAGING_BULL_TYPES: dict[str, str] = {
+    "taurospaldeacombat": "Fighting",
+    "taurospaldeablaze": "Fire",
+    "taurospaldeaaqua": "Water",
+}
+
+_WEATHER_BALL_TYPES: dict[str, str] = {
+    "Sun": "Fire",
+    "Harsh Sunshine": "Fire",
+    "Rain": "Water",
+    "Heavy Rain": "Water",
+    "Sand": "Rock",
+    "Hail": "Ice",
+    "Snow": "Ice",
+}
+
+_TERRAIN_PULSE_TYPES: dict[str, str] = {
+    "Electric": "Electric",
+    "Grassy": "Grass",
+    "Misty": "Fairy",
+    "Psychic": "Psychic",
+}
 # Champions = SS type chart (@smogon/calc TYPE_CHART[0]).
 TYPE_CHART: dict[str, dict[str, float]] = {
     "Normal": {
@@ -167,13 +197,97 @@ def load_move_accuracy() -> dict[str, dict[str, Any]]:
     return json.loads(_ACCURACY_PATH.read_text())
 
 
-def type_effectiveness(attack_type: str, defend_types: list[str]) -> float:
-    row = TYPE_CHART.get(attack_type)
-    if not row:
-        return 1.0
+@lru_cache(maxsize=1)
+def load_move_flags() -> dict[str, dict[str, Any]]:
+    if not _FLAGS_PATH.exists():
+        return {}
+    data = json.loads(_FLAGS_PATH.read_text())
+    return dict(data.get("moves") or {})
+
+
+def _move_has_sound_flag(move_id: str) -> bool:
+    entry = load_move_flags().get(move_id) or {}
+    flags = entry.get("flags") or {}
+    return flags.get("sound") == 1
+
+
+def effective_move_type(
+    snap: dict[str, Any],
+    move: str,
+    *,
+    ability: str | None = None,
+    species: str | None = None,
+    weather: str | None = None,
+    terrain: str | None = None,
+) -> str | None:
+    """Single STAB/display type after Pass 1 rewrites. None if non-damaging.
+
+    Flying Press stays Fighting here; dual-chart lives in ``type_effectiveness``.
+    """
+    mid = to_id(move)
+    meta = snap["moves"].get(mid)
+    if not meta or meta.get("category") == "Status":
+        return None
+    if int(meta.get("basePower") or 0) <= 0:
+        return None
+    base = meta.get("type")
+    if not base:
+        return None
+    t = str(base)
+    aid = to_id(ability or "")
+    sid = to_id(species or "")
+
+    if mid == "weatherball":
+        if weather and weather in _WEATHER_BALL_TYPES:
+            return _WEATHER_BALL_TYPES[weather]
+        if aid == "megasol":
+            return "Fire"
+        return t
+    if mid == "terrainpulse" and terrain and terrain in _TERRAIN_PULSE_TYPES:
+        return _TERRAIN_PULSE_TYPES[terrain]
+    if mid == "aurawheel":
+        if sid == "morpekohangry":
+            return "Dark"
+        if sid.startswith("morpeko"):
+            return "Electric"
+        return t
+    if mid == "ragingbull":
+        return _RAGING_BULL_TYPES.get(sid, t)
+
+    no_ate = mid in {"weatherball", "terrainpulse", "struggle"}
+    if not no_ate:
+        if aid == "liquidvoice" and _move_has_sound_flag(mid):
+            return "Water"
+        if t == "Normal" and aid in _ATE_ABILITIES:
+            return _ATE_ABILITIES[aid]
+    return t
+
+
+def type_effectiveness(
+    attack_type: str,
+    defend_types: list[str],
+    *,
+    move_id: str | None = None,
+    attacker_ability: str | None = None,
+) -> float:
+    """TYPE_CHART multiply + Freeze-Dry / Flying Press / Scrappy overrides."""
+    mid = to_id(move_id or "")
+    aid = to_id(attacker_ability or "")
+    scrappy = aid == "scrappy" and attack_type in {"Normal", "Fighting"}
+
     mult = 1.0
     for t in defend_types:
-        mult *= row.get(t, 1.0)
+        if mid == "freezedry" and t == "Water":
+            leg = 2.0
+        elif scrappy and t == "Ghost":
+            leg = 1.0
+        else:
+            row = TYPE_CHART.get(attack_type) or {}
+            leg = float(row.get(t, 1.0))
+        if mid == "flyingpress":
+            fly_row = TYPE_CHART.get("Flying") or {}
+            leg *= float(fly_row.get(t, 1.0))
+        mult *= leg
     return mult
 
 
@@ -201,20 +315,19 @@ def _legality_ability(snap: dict[str, Any], species: str) -> str | None:
 
 
 def _damaging_move_types(
-    snap: dict[str, Any], moves: list[str] | None
+    snap: dict[str, Any],
+    moves: list[str] | None,
+    *,
+    ability: str | None = None,
+    species: str | None = None,
 ) -> list[str]:
     if not moves:
         return []
     out: list[str] = []
     for mv in moves:
-        meta = snap["moves"].get(to_id(mv))
-        if not meta or meta.get("category") == "Status":
-            continue
-        if int(meta.get("basePower") or 0) <= 0:
-            continue
-        t = meta.get("type")
+        t = effective_move_type(snap, mv, ability=ability, species=species)
         if t:
-            out.append(str(t))
+            out.append(t)
     return out
 
 
@@ -222,29 +335,50 @@ def _anchor_attack_types(
     snap: dict[str, Any], pokemon: PokemonSpecOptional, anchor_types: list[str]
 ) -> list[str]:
     """Damaging move types, or STAB types if none (avoids vacuous wall)."""
-    typed = _damaging_move_types(snap, pokemon.get("moves"))
+    typed = _damaging_move_types(
+        snap,
+        pokemon.get("moves"),
+        ability=pokemon.get("ability"),
+        species=pokemon.get("species"),
+    )
     return typed if typed else list(anchor_types)
 
 
 def _incoming_effectiveness(
-    attack_type: str, defend_types: list[str], ability: str | None
+    attack_type: str,
+    defend_types: list[str],
+    ability: str | None,
+    *,
+    move_id: str | None = None,
+    attacker_ability: str | None = None,
 ) -> float:
     aid = to_id(ability or "")
     immune_to = ABILITY_TYPE_IMMUNITY.get(aid)
     if immune_to and immune_to == attack_type:
         return 0.0
-    return type_effectiveness(attack_type, defend_types)
+    return type_effectiveness(
+        attack_type,
+        defend_types,
+        move_id=move_id,
+        attacker_ability=attacker_ability,
+    )
 
 
 def _walls(
     attack_types: list[str],
     cand_types: list[str],
     ability: str | None,
+    *,
+    attacker_ability: str | None = None,
 ) -> bool:
     if not attack_types:
         return False  # should not happen after STAB fallback
     return all(
-        _incoming_effectiveness(t, cand_types, ability) <= 0.5 for t in attack_types
+        _incoming_effectiveness(
+            t, cand_types, ability, attacker_ability=attacker_ability
+        )
+        <= 0.5
+        for t in attack_types
     )
 
 
@@ -273,6 +407,7 @@ def _ko_best_move(
     cand_types: list[str],
     anchor_types: list[str],
     ability: str | None,
+    species: str | None = None,
 ) -> tuple[float, bool]:
     """Return (best effective_bp, best_was_stab)."""
     best_bp = 0.0
@@ -289,12 +424,13 @@ def _ko_best_move(
         if not meta or meta.get("category") == "Status":
             continue
         bp = _scaled_base_power(mid, int(meta.get("basePower") or 0))
-        at = meta.get("type")
-        if bp <= 0 or not at:
+        at_s = effective_move_type(snap, mv, ability=ability, species=species)
+        if bp <= 0 or not at_s:
             continue
-        at_s = str(at)
         stab = at_s in cand_types
-        type_mult = type_effectiveness(at_s, anchor_types)
+        type_mult = type_effectiveness(
+            at_s, anchor_types, move_id=mid, attacker_ability=ability
+        )
         acc = effective_accuracy(_move_base_accuracy(mid), ability)
         hits, folded = expected_hit_factor(mid, ability, acc)
         ebp = bp * type_mult * (1.5 if stab else 1.0) * hits * so_mult
@@ -381,12 +517,18 @@ def query_counters(
                 cand_types=cand_types,
                 anchor_types=anchor_types,
                 ability=ability,
+                species=sid,
             )
             ko_score = min(1.0, best_bp / KO_THRESHOLD_BP) if KO_THRESHOLD_BP else 0.0
             if ko_score >= 1.0:
                 kinds.add("ko_threshold")
 
-        if _walls(attack_types, cand_types, ability):
+        if _walls(
+            attack_types,
+            cand_types,
+            ability,
+            attacker_ability=pokemon.get("ability"),
+        ):
             kinds.add("wall")
 
         if not kinds:
