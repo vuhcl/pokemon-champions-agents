@@ -232,3 +232,149 @@ def test_nodes_wrapper_delegates():
         out = propose_team_draft(_base_state())
     assert out == {"team_draft": []}
     m.assert_called_once()
+
+
+def test_no_usage_hatterene_fills_kit_but_leaves_ability_unresolved():
+    from recommender.slot_fill import build_provisional_slot
+    from recommender.state import PendingSlotIntent, UnresolvedSlotRefinement
+
+    intent = PendingSlotIntent(
+        schema_version=1,
+        slot_index=2,
+        species="Hatterene",
+        source="mechanical",
+        target_role_decision=TargetRoleDecision(
+            role_id="trick_room_setter",
+            source="other",
+            evidence=(),
+            needed_constraints=("move:trickroom",),
+            confidence="high",
+            provenance=("test",),
+        ),
+        base_slot_fingerprint="x",
+    )
+    state = _base_state(archetype=Attr(value=["TrickRoom"], locked=True))
+    with patch("recommender.propose.featured_or_common_set", return_value=None):
+        result = build_provisional_slot(intent, state)
+    assert isinstance(result, UnresolvedSlotRefinement)
+    assert result.reason == "incomplete_build"
+    assert result.unresolved_fields == ("ability",)
+
+
+def test_no_usage_mimikyu_refines_to_provisional_slot():
+    from recommender.slot_fill import build_provisional_slot
+    from recommender.state import PendingSlotIntent, ProvisionalSlot
+
+    intent = PendingSlotIntent(
+        schema_version=1,
+        slot_index=5,
+        species="Mimikyu",
+        source="owned",
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_attacker",
+            source="other",
+            evidence=(),
+            needed_constraints=(),
+            confidence="medium",
+            provenance=("test",),
+        ),
+        base_slot_fingerprint="x",
+    )
+    with patch("recommender.propose.featured_or_common_set", return_value=None):
+        result = build_provisional_slot(intent, _base_state())
+    assert isinstance(result, ProvisionalSlot)
+    assert result.ability == "Disguise"
+    assert result.item
+    assert result.nature
+    assert len(result.moves) == 4
+    assert "protect" in {m.lower() for m in result.moves}
+    assert sum(result.spread_dict().values()) == 66
+
+
+def test_usage_hit_sinistcha_keeps_usage_provenance():
+    slot = Slot(
+        species=Attr(value="Sinistcha", locked=True),
+        role=Attr(value="redirection"),
+    )
+    filler = Slot(role=Attr(value="bulky_attacker"))
+    state = _base_state(team_draft=[slot, filler, *[empty_slot() for _ in range(4)]])
+    out = fill_team_draft(state)
+    s = out["team_draft"][0]
+    assert s.ability.value
+    assert s.item.value
+    assert s.moveset.value and len(s.moveset.value) == 4
+    assert s.ability.reason is not None
+    assert s.ability.reason.ref == "usage"
+    assert s.item.reason is not None
+    assert s.item.reason.ref != "tier3_item_default"
+
+
+def test_tier3_role_spread_sets_nature_when_usage_spreads_miss():
+    moves = ["Trick Room", "Psychic", "Dazzling Gleam", "Protect"]
+    item = "Life Orb"
+    slot = Slot(
+        species=Attr(value="Hatterene", locked=True),
+        role=Attr(value="trick_room_setter"),
+        moveset=Attr(value=moves, locked=False),
+        item=Attr(value=item, locked=False),
+    )
+    filler = Slot(role=Attr(value="bulky_attacker"))
+    state = _base_state(team_draft=[slot, filler, *[empty_slot() for _ in range(4)]])
+    with (
+        patch("recommender.propose.featured_or_common_set", return_value=None),
+        patch("recommender.propose.get_resolved_build", return_value=None),
+        patch("recommender.propose.select_usage_spread", return_value=None),
+        patch("recommender.propose.get_relevant_threats", return_value=[]),
+    ):
+        out = fill_team_draft(state)
+    s = out["team_draft"][0]
+    assert s.spread.value is not None
+    assert sum(s.spread.value.values()) == 66
+    assert s.spread.reason is not None
+    assert s.spread.reason.ref == "tier3_role"
+    assert s.nature.value is not None
+    assert s.nature.reason == ReasonRef(kind="tier2_heuristic", ref="tier3_nature")
+
+
+def test_multi_ability_without_role_match_leaves_ability_unresolved():
+    slot = Slot(
+        species=Attr(value="Hatterene", locked=True),
+        role=Attr(value="fast_attacker"),
+    )
+    filler = Slot(role=Attr(value="bulky_attacker"))
+    state = _base_state(team_draft=[slot, filler, *[empty_slot() for _ in range(4)]])
+    with patch("recommender.propose.featured_or_common_set", return_value=None):
+        out = fill_team_draft(state)
+    assert out["team_draft"][0].ability.value is None
+
+
+def test_role_constraint_ability_is_synthesized_and_not_present_mechanism():
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.role_compendium import ReverseCompendiumEvidence
+
+    slot = Slot(
+        species=Attr(value="Pelipper", locked=True),
+        role=Attr(value="rain_setter"),
+    )
+    filler = Slot(role=Attr(value="bulky_attacker"))
+    state = _base_state(team_draft=[slot, filler, *[empty_slot() for _ in range(4)]])
+    with (
+        patch("recommender.propose.featured_or_common_set", return_value=None),
+        patch("recommender.propose.get_resolved_build", return_value=None),
+        patch("recommender.propose.select_usage_spread", return_value=None),
+        patch("recommender.propose.get_relevant_threats", return_value=[]),
+    ):
+        out = fill_team_draft(state)
+    ability = out["team_draft"][0].ability
+    assert ability.value == "Drizzle"
+    assert ability.reason == ReasonRef(kind="tier2_heuristic", ref="tier3_role_ability")
+
+    resolved = resolve_anchor_build(out["team_draft"][0])
+    assert resolved.source_for("ability") == "synthesized"
+    decision = classify_anchor_role(
+        resolved, compendium=ReverseCompendiumEvidence()
+    )
+    assert not any(
+        m.kind == "automatic_condition_setting" and m.present
+        for m in decision.mechanisms
+    )
