@@ -26,6 +26,7 @@ from recommender.role_compendium import (
 from recommender.state import (
     Attr,
     CandidateBranch,
+    CandidateDiscoveryError,
     CandidateEvidence,
     CompositionFit,
     PendingPresentation,
@@ -147,6 +148,10 @@ class SlotFillContext:
     need_resolved_candidates: list[NeedResolvedCandidate] | None = None
     annotated_candidates: list[AnnotatedCandidate] | None = None
     candidates_pre_ranked: bool = False
+    threat_discovery_status: Literal["available", "unavailable", "degraded"] = (
+        "available"
+    )
+    threat_discovery_error: CandidateDiscoveryError | None = None
 
 
 @dataclass(frozen=True)
@@ -197,11 +202,15 @@ def build_anchored_slot_fill_context(
         state=state,
         regulation=regulation,
     )
-    threats = (
-        threat_counter_results
-        if threat_counter_results is not None
-        else query_threat_counters(pokemon)
-    )
+    if threat_counter_results is not None:
+        threats = list(threat_counter_results)
+        discovery_status: Literal["available", "unavailable", "degraded"] = "available"
+        discovery_error: CandidateDiscoveryError | None = None
+    else:
+        discovery = query_threat_counters(pokemon)
+        threats = list(discovery.candidates)
+        discovery_status = discovery.status
+        discovery_error = discovery.error
     return AnchoredSlotDiscovery(
         SlotFillContext(
             anchor=pokemon,
@@ -209,6 +218,8 @@ def build_anchored_slot_fill_context(
             target_role_decision=target_role_decision,
             threat_counter_results=threats,
             support_needs=needs,
+            threat_discovery_status=discovery_status,
+            threat_discovery_error=discovery_error,
         ),
         resolved,
         decision,
@@ -497,8 +508,32 @@ def _merge_evidence(
     return tuple(dict.fromkeys(row for group in groups for row in group))
 
 
-def _threat_evidence(row: ThreatCounterCandidate) -> tuple[CandidateEvidence, ...]:
+def _threat_evidence(
+    row: ThreatCounterCandidate,
+    *,
+    degradation_kind: Literal["calc_unavailable", "calc_incomplete"] | None = None,
+) -> tuple[CandidateEvidence, ...]:
     candidate = row.candidate
+    if row.estimate_kind == "static":
+        axis_tags = []
+        if "wall" in candidate.threat_kinds:
+            axis_tags.append("wall_axis")
+        if "ko_threshold" in candidate.threat_kinds:
+            axis_tags.append("ko_threshold_proxy")
+        return (
+            CandidateEvidence(
+                basis="mechanical_only",
+                confidence="low",
+                producer_name="query_threat_counters",
+                evidence=(
+                    "static_type_estimate",
+                    degradation_kind or "calc_unavailable",
+                    *axis_tags,
+                    f"threats_countered:{','.join(row.threats_countered)}",
+                    f"build_source:{candidate.build_source}",
+                ),
+            ),
+        )
     details = (
         f"verified_score:{row.verified_score}",
         f"threats_countered:{','.join(row.threats_countered)}",
@@ -525,6 +560,19 @@ def _threat_evidence(row: ThreatCounterCandidate) -> tuple[CandidateEvidence, ..
             evidence=details,
         ),
     )
+
+
+def _degradation_kind(
+    ctx: SlotFillContext,
+) -> Literal["calc_unavailable", "calc_incomplete"] | None:
+    error = ctx.threat_discovery_error
+    if (
+        ctx.threat_discovery_status == "degraded"
+        and error is not None
+        and error.kind in ("calc_unavailable", "calc_incomplete")
+    ):
+        return error.kind  # type: ignore[return-value]
+    return None
 
 
 def _promote_exact_compendium(
@@ -568,6 +616,7 @@ def annotate_overlap(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
     derive_target_role(ctx)
     snap = load_snapshot()
     regulation = "champions-reg-mb"
+    degradation_kind = _degradation_kind(ctx)
     out: list[AnnotatedCandidate] = []
     for row in ctx.threat_counter_results:
         species = (
@@ -586,7 +635,7 @@ def annotate_overlap(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
                 target_role_decision=_candidate_target_role(ctx, matched),
                 threat_row=row,
                 spec=dict(row.candidate.spec) or {"species": species},
-                evidence=_threat_evidence(row),
+                evidence=_threat_evidence(row, degradation_kind=degradation_kind),
             )
         )
     ctx.annotated_candidates = out
@@ -606,6 +655,7 @@ def merge_need_resolved(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
         needs = [*needs, ctx.chosen_need]
     snap = load_snapshot()
     regulation = "champions-reg-mb"
+    degradation_kind = _degradation_kind(ctx)
 
     by_id: dict[str, AnnotatedCandidate] = {}
     for row in ctx.threat_counter_results:
@@ -623,7 +673,7 @@ def merge_need_resolved(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
             target_role_decision=_candidate_target_role(ctx, matched),
             threat_row=row,
             spec=dict(row.candidate.spec) or {"species": species},
-            evidence=_threat_evidence(row),
+            evidence=_threat_evidence(row, degradation_kind=degradation_kind),
         )
 
     for resolved in ctx.need_resolved_candidates:
@@ -1142,7 +1192,11 @@ def _sort_annotated(rows: list[AnnotatedCandidate]) -> list[AnnotatedCandidate]:
         key=lambda r: (
             _compendium_rank(r),
             -len(r.matching_needs),
-            -(r.threat_row.verified_score if r.threat_row else 0.0),
+            -(
+                r.threat_row.verified_score
+                if r.threat_row is not None and r.threat_row.estimate_kind == "verified"
+                else 0.0
+            ),
             _usage_rank_key(r),
         ),
     )

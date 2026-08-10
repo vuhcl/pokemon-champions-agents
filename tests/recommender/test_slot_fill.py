@@ -22,6 +22,8 @@ from recommender.slot_fill import (
     SlotFillContext,
     SlotFillResponse,
     _FO_PROTECTION_ABILITIES,
+    _sort_annotated,
+    _threat_evidence,
     _union_move_candidates,
     _field_label_matches,
     annotate_overlap,
@@ -1092,4 +1094,43 @@ def test_union_move_candidates_uses_deterministic_move_order():
 
     assert calls == ["aromatherapy", "wish"]
     assert names == ["Aromatherapy", "Shared", "Wish"]
+
+
+def test_static_row_cannot_outrank_verified_in_sort_annotated():
+    verified = _tc("VerifiedMon", usage_rank=50, verified_score=2.0)
+    # Replace with explicit estimate_kind — _tc defaults verified
+    verified = ThreatCounterCandidate(
+        candidate=verified.candidate,
+        threats_countered=verified.threats_countered,
+        threats_countered_count=verified.threats_countered_count,
+        verified_score=2.0,
+        verified_vs=verified.verified_vs,
+        estimate_kind="verified",
+    )
+    static = ThreatCounterCandidate(
+        candidate=_tc("StaticMon", usage_rank=1).candidate,
+        threats_countered=("t1",),
+        threats_countered_count=1,
+        verified_score=99.0,  # falsely high — firewall must ignore
+        verified_vs=(),
+        estimate_kind="static",
+    )
+    rows = [
+        AnnotatedCandidate(
+            species="StaticMon",
+            matching_needs=(),
+            source="threat",
+            threat_row=static,
+            evidence=_threat_evidence(static, degradation_kind="calc_unavailable"),
+        ),
+        AnnotatedCandidate(
+            species="VerifiedMon",
+            matching_needs=(),
+            source="threat",
+            threat_row=verified,
+            evidence=_threat_evidence(verified),
+        ),
+    ]
+    ordered = _sort_annotated(rows)
+    assert [row.species for row in ordered] == ["VerifiedMon", "StaticMon"]
 

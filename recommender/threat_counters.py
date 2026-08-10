@@ -178,6 +178,20 @@ def _static_cut(
     )
 
 
+def _static_threat_rows(static: list[_Merged]) -> tuple[ThreatCounterCandidate, ...]:
+    return tuple(
+        ThreatCounterCandidate(
+            candidate=row.candidate,
+            threats_countered=tuple(sorted(row.threat_ids)),
+            threats_countered_count=row.count,
+            verified_score=0.0,
+            verified_vs=(),
+            estimate_kind="static",
+        )
+        for row in static
+    )
+
+
 def query_threat_counters(
     anchor: PokemonSpecOptional,
     *,
@@ -187,20 +201,25 @@ def query_threat_counters(
     candidate_pool: list[PokemonSpecOptional] | None = None,
     available_pool: list[str] | None = None,
     ownership_mode: OwnershipMode = "off",
-) -> list[ThreatCounterCandidate]:
+) -> TeamThreatDiscovery:
     """Candidates that counter the anchor's threats; final order from verified matchups.
 
     ``candidate_pool`` restricts teammate/candidate search (step 2+) only — never
     threat identification (step 1), which always uses the full unrestricted meta.
     Ownership follows the same candidate-side-only boundary.
+
+    On calc failure returns ``status="degraded"`` with static type-effectiveness
+    discovery rows (from ``query_counters`` / ``_static_cut``), not verified
+    matchups. Weather/terrain are not passed into static type rewrites today —
+    Weather Ball / Terrain Pulse stay base-typed under that ceiling.
     """
     if not anchor.get("species"):
-        return []
+        return TeamThreatDiscovery(status="available", candidates=())
 
     # --- 1. Full threat list (query_counters default n) — never pass candidate_pool ---
     threats = query_counters(anchor)
     if not threats:
-        return []
+        return TeamThreatDiscovery(status="available", candidates=())
 
     # --- 2–3. Depth-one expand + merge (pool restricts candidates only) ---
     merged, threats_by_id = _collect_candidates(
@@ -211,7 +230,7 @@ def query_threat_counters(
         excluded_species=(str(anchor["species"]),),
     )
     if not merged:
-        return []
+        return TeamThreatDiscovery(status="available", candidates=())
 
     # --- 4. Static cut: count primary, usage tiebreak ---
     static = _static_cut(
@@ -232,48 +251,68 @@ def query_threat_counters(
     verify_ids = {_species_id(t) for t in verify_threats}
 
     # --- 6. classify_matchup on credited ∩ verify set; verified score is real rank ---
-    out_rows: list[ThreatCounterCandidate] = []
-    for m in static:
-        verified: list[tuple[str, MatchupResult]] = []
-        cand_species = (
-            m.candidate.spec.get("species")
-            or m.candidate.form
-            or m.candidate.ladder_species
-        )
-        cand_spec = _most_common_verify_spec(cand_species)
-        for tid in sorted(m.threat_ids):
-            if tid not in verify_ids:
-                continue
-            threat = threats_by_id.get(tid)
-            if threat is None:
-                continue
-            threat_species = (
-                threat.spec.get("species") or threat.form or threat.ladder_species
+    try:
+        out_rows: list[ThreatCounterCandidate] = []
+        for m in static:
+            verified: list[tuple[str, MatchupResult]] = []
+            cand_species = (
+                m.candidate.spec.get("species")
+                or m.candidate.form
+                or m.candidate.ladder_species
             )
-            threat_spec = _most_common_verify_spec(threat_species)
-            result = classify_matchup(cand_spec, threat_spec, None, client=client)
-            verified.append((tid, result))
-        score = aggregate_verified([r for _, r in verified])
-        out_rows.append(
-            ThreatCounterCandidate(
-                candidate=m.candidate,
-                threats_countered=tuple(sorted(m.threat_ids)),
-                threats_countered_count=m.count,
-                verified_score=score,
-                verified_vs=tuple(verified),
+            cand_spec = _most_common_verify_spec(cand_species)
+            for tid in sorted(m.threat_ids):
+                if tid not in verify_ids:
+                    continue
+                threat = threats_by_id.get(tid)
+                if threat is None:
+                    continue
+                threat_species = (
+                    threat.spec.get("species") or threat.form or threat.ladder_species
+                )
+                threat_spec = _most_common_verify_spec(threat_species)
+                result = classify_matchup(cand_spec, threat_spec, None, client=client)
+                verified.append((tid, result))
+            score = aggregate_verified([r for _, r in verified])
+            out_rows.append(
+                ThreatCounterCandidate(
+                    candidate=m.candidate,
+                    threats_countered=tuple(sorted(m.threat_ids)),
+                    threats_countered_count=m.count,
+                    verified_score=score,
+                    verified_vs=tuple(verified),
+                    estimate_kind="verified",
+                )
             )
-        )
 
-    owned = {sid for species in available_pool or [] if (sid := to_id(species))}
-    return rank_and_cut(
-        out_rows,
-        key=lambda c: (c.verified_score, _usage_popularity(c.candidate)),
-        n=len(out_rows),
-        tier=None,
-        order="descending",
-        ownership_mode=ownership_mode,
-        is_owned=lambda c: _species_id(c.candidate) in owned,
-    )
+        owned = {sid for species in available_pool or [] if (sid := to_id(species))}
+        ranked = rank_and_cut(
+            out_rows,
+            key=lambda c: (c.verified_score, _usage_popularity(c.candidate)),
+            n=len(out_rows),
+            tier=None,
+            order="descending",
+            ownership_mode=ownership_mode,
+            is_owned=lambda c: _species_id(c.candidate) in owned,
+        )
+        return TeamThreatDiscovery(status="available", candidates=tuple(ranked))
+    except (CalcClientError, MatchupEvidenceError) as exc:
+        return TeamThreatDiscovery(
+            status="degraded",
+            candidates=_static_threat_rows(static),
+            error=CandidateDiscoveryError(
+                kind=(
+                    "calc_unavailable"
+                    if isinstance(exc, CalcClientError)
+                    else "calc_incomplete"
+                ),
+                stage="candidate_verification",
+                message=str(exc),
+                retryable=True,
+                exception_type=type(exc).__name__,
+                status_code=exc.status if isinstance(exc, CalcClientError) else None,
+            ),
+        )
 
 
 def query_candidates_for_threats(
@@ -345,6 +384,7 @@ def query_candidates_for_threats(
                         [result for _, result in verified]
                     ),
                     verified_vs=tuple(verified),
+                    estimate_kind="verified",
                 )
             )
         return TeamThreatDiscovery(status="available", candidates=tuple(rows))
