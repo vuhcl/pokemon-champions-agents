@@ -2735,3 +2735,90 @@ failure checks (flagged 2026-07-27, not yet designed) will need to reason about 
 once built.
 
 **Design implication:** Failure modes #1–#3 all point to the same root fix — legality (species + item + format + regulation) must be **checked programmatically against real Champions/regulation data**, never inferred or assumed by an LLM from general training knowledge. Failure mode #4 points to a second required fix — any mechanical claim (speed comparison, damage calc, matchup assessment) must be backed by an actual calculation/simulation call, not a generated assertion. These two fixes are the real "agentic" core of the project: tool-grounded legality checks + tool-grounded mechanical verification, not just a chat wrapper around Pokémon knowledge.
+### 2026-08-09: SQLite checkpointer — implemented, closing the deferred msgpack-allowlisting
+question with real evidence
+
+Resolves the checkpointer choice flagged as open since the anchor-role/target-role pipeline
+shipped its new immutable state dataclasses. Decision: `SqliteSaver` now, for the project's
+actual current shape (CLI interface, single user, no concurrency, no hosted service) — not
+Postgres or Redis, which solve problems (shared state across server instances, real
+concurrent access) this deployment doesn't have. Explicitly deferred rather than built
+speculatively: if a hosted chat UI becomes a real, scheduled plan later, that's the trigger to
+choose between Postgres (the standard production path per current LangChain guidance) and
+Redis (favored when real-time token-streaming UX is also wanted, on top of checkpointing) —
+checked against current documentation rather than assumed, since this part of the ecosystem
+moves fast. Not decided now because the checkpointer interface is specifically designed to
+make this swap cheap later, the same swappability property already proven out by the
+model-agnostic LLM interface (Ollama for dev, Claude API for demo, no rewrite required).
+
+**The deferred msgpack question is now closed with direct evidence, not re-deferred again.**
+Installed `langgraph-checkpoint-sqlite==3.1.1` and checked the actual serialization mechanism
+against real installed source (`langgraph-checkpoint 4.1.1`, `ormsgpack 1.12.2`):
+`SqliteSaver`'s default serde is `JsonPlusSerializer`, writing via `ormsgpack`'s `dumps_typed`
+(`"msgpack"` tag, not pickle). Frozen dataclasses (`TargetRoleDecision`, `PendingSlotIntent`,
+`ProvisionalSlot`, `CandidateEvidence`, etc.) serialize and deserialize **without explicit
+allowlist registration** under the library's default permissive mode
+(`allowed_msgpack_modules=True` unless `LANGGRAPH_STRICT_MSGPACK` is set) — unregistered types
+warn but still round-trip correctly. Verified with a real post-install gate: constructed an
+actual `TargetRoleDecision`, confirmed `dumps_typed`/`loads_typed` round-trips it correctly,
+not just asserted from documentation. Allowlisting explicitly not implemented now; residual
+risk correctly scoped to a concrete trigger condition (library flips the strict default, or
+`LANGGRAPH_STRICT_MSGPACK` becomes project policy) rather than treated as permanently settled
+either way.
+
+**One real quirk found and fully traced to its actual blast radius, not just noted and
+moved past.** Tuple fields revive from a restart as lists, not tuples — types and scalar
+values survive, but tuple identity/equality does not (`() != []`). Rather than accept "seems
+fine" as the verdict, the actual consumers were checked: no `__post_init__` validators on any
+of the five affected dataclasses reject list-in-tuple-annotated-field construction; no
+runtime call site in the round-trip path does `isinstance(x, tuple)`, uses these objects as
+set members or dict keys, or does whole-object equality across a real restart boundary (the
+one existing whole-object `==` assertion in the test suite is same-process/`MemorySaver`-only,
+confirmed not affected). Real, currently-unused semantic loss identified precisely: revived
+instances lose hashability (`TypeError: unhashable type: 'list'`) — documented as a genuine
+constraint for future code, not swept into "harmless."
+
+**`commit_full_slot`'s post-restart equality check specifically verified sound by
+construction, not by coincidence.** Confirmed `build_provisional_slot` never constructs a
+fresh `TargetRoleDecision` — it aliases the intent's existing object
+(`decision = intent.target_role_decision`), so `intent` and `provisional` never independently
+hold separate copies capable of diverging in *how* they're corrupted by a restart. Traced
+every real write path (candidate selection, refinement, terminal presentation, defer/reset/
+commit) confirming nothing writes a fresh decision onto `provisional` independently of
+`intent`. Named the one theoretical path that would break this invariant (`update_state`
+injecting a fresh `PendingSlotIntent` while an old revived `ProvisionalSlot` remains, bypassing
+`refine_provisional_slot`'s aliasing) — confirmed not reachable via any currently-wired graph
+route, but documented as the boundary condition to watch if routing changes later.
+
+**Shipped:** `recommender/checkpointer.py` (`default_db_path()`, `open_sqlite_checkpointer()`),
+caller-owned connection lifetime (no short-lived `from_conn_string` context manager — matters
+for a long-running CLI process). `.db` location: platform user-data directory via stdlib only
+(macOS: `~/Library/Application Support/pokemon-champions-agents/`; else XDG
+`~/.local/share/pokemon-champions-agents/`), override via
+`POKEMON_CHAMPIONS_CHECKPOINT_DB` — chosen over project-relative specifically so durability
+survives `git clean`/worktree switches without needing a `*.db` gitignore rule. Schema
+auto-created on first connect (`CREATE TABLE IF NOT EXISTS`); missing path creates a fresh
+empty DB rather than erroring. `compile_graph` itself unchanged — no default swap to SQLite
+inside it, keeping tests (still on `MemorySaver`) free of file I/O by default. `compile_cli_graph`
+deliberately not built — ADR-010's CLI REPL doesn't exist yet, and wrapping a connection
+lifetime for an interactive loop that isn't there yet would be exactly the kind of speculative
+work this project keeps correctly declining; factory function + test are the contract until
+the CLI actually lands.
+
+**Verification:** real restart simulation, not same-process reuse — persisted through
+`single_locked` (fully locked Garchomp) plus candidate selection to produce a real
+`PendingSlotIntent`/`ProvisionalSlot`, closed the connection, opened a fresh `SqliteSaver` on
+the same file, confirmed `team_phase`, locked species, intent species/`role_id`, and every
+provisional field (ability/item/nature/moves/spread/nested `TargetRoleDecision`) survived by
+field-level comparison (not whole-object equality, correctly avoiding the tuple/list quirk
+rather than being masked by it). Live probe: committed a real slot (Farigiraf) post-restart
+with no error. 581 tests passing (up from 578), 7 skipped (existing 6 plus nothing new added
+to the skip list). Full suite and focused checkpointer tests both clean; `MemorySaver` test
+suite confirmed unchanged.
+
+**Deliberately deferred, tracked as separate future scope:** Postgres/Redis (contingent on a
+hosted chat UI becoming a real plan); msgpack allowlisting (contingent on strict mode becoming
+policy); `compile_cli_graph`/full CLI REPL (contingent on ADR-010 actually being built);
+normalize-on-read tuple restoration (no current caller needs real tuple semantics
+post-restart, so not built ahead of an actual need).
+
