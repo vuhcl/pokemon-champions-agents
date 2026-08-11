@@ -49,6 +49,7 @@ _WEATHER_MANUAL: dict[str, str] = {
     "snowscape": "Snow",
     "chillyreception": "Snow",
 }
+WEATHER_SETTING_MOVES = _WEATHER_MANUAL
 _HARD_REQUIRE_WEATHER: dict[str, str] = {
     "auroraveil": "Snow",
 }
