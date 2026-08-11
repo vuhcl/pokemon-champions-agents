@@ -278,6 +278,7 @@ REVIEWED_STRATEGIC_TARGET_ROLES: dict[str, TargetRoleId] = {
     "snowsetter": "snow_setter",
     "redirection": "redirection",
     "trickroomsetter": "trick_room_setter",
+    "tailwindsetter": "tailwind_setter",
     "swordsdanceattacker": "swords_dance_attacker",
     "nastyplotattacker": "nasty_plot_attacker",
 }
