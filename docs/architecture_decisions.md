@@ -4102,6 +4102,60 @@ required.
 
 ---
 
+### ADR-024 — Amendment 2026-08-11a (confirm letter against current file)
+
+**Move-derived weather need-resolution — closing a self-documented gap in
+`query_support_needs`'s `condition_setter` branch.**
+
+**Decision:** `RoleShapeContext` gains a `needed_weathers: tuple[str, ...]` field, projected by
+`derive_role_shape_context` from present `benefits_from` mechanisms (`needed`/`wanted`,
+present or teammate-expected, tagged `condition:{Weather}`) — the same evidentiary bar already
+used for condition-resilience dependents. `query_support_needs`'s `condition_setter` branch
+now consults this field in addition to `_CONDITION_DEPENDENT_ABILITIES`, emitting a
+`condition_setter`/`field_condition:any:{label}` need for any uncovered move-derived weather
+dependency across all four tracked weathers (Rain/Sun/Sand/Snow), not a Rain-specific patch.
+Labeling generalized via a new `_CONDITION_SETTER_TARGET_ROLES` companion map — `condition_
+setter` is one need category mapping to four possible target roles depending on the resolved
+weather label, modeled as a 1:many map alongside `_NEED_TARGET_ROLES` rather than forced into
+that map's existing 1:1 shape.
+
+**Alternatives considered:** a Rain-only patch, scoped narrowly to the specific bug that
+surfaced it. Forcing `condition_setter` into a single `_NEED_TARGET_ROLES` row. Reusing
+`CHARGE_INSTANT_WEATHER`'s move-to-weather table directly inside `query_support_needs` rather
+than routing through the mechanism-evidence layer already built for this purpose.
+
+**Why:** The gap was real and predated this fix by two days — `query_support_needs` had a
+self-documented comment ("condition_setter is ability-only today... re-check if move-derived
+weather needs are ever added") anticipating exactly this scenario, which the conditional-
+mechanics work's Electro Shot→Rain emission then triggered without anyone closing the loop.
+Scoping the fix to Rain only would have left the identical gap open for Sun/Sand/Snow the
+moment any comparable move-derived mechanism needed it — confirmed as a real, not
+hypothetical, risk by testing Sun via Solar Beam/Blaze Charizard specifically (not
+Chlorophyll, which would only re-test the already-working ability path) as part of this same
+fix. A single `_NEED_TARGET_ROLES` row was rejected because the category genuinely maps to
+four different roles depending on the resolved weather — collapsing that into a 1:1 structure
+would have required a different kind of workaround, not a simplification. Re-scanning
+`CHARGE_INSTANT_WEATHER` directly inside `query_support_needs` was rejected in favor of
+routing through the same mechanism-evidence layer already used elsewhere, keeping one source
+of truth for "does this anchor need this condition" rather than two independently-maintained
+interpretations.
+
+**Status:** Implemented and verified. Dedup against `multi_locked`'s gap-need generation
+confirmed via a dedicated regression test
+(`test_gap_need_deduped_when_anchored_rain_already_present`, mirroring the original Trick Room
+dedup fix) rather than assumed to generalize from the existing trigger-string-equality
+mechanism. 792 tests passing (up from 786), 6 skipped, matching the established baseline.
+**Confirmed still incomplete at the presentation layer, not silently treated as fully
+closed:** `_format_candidate_selection` has no handling for `UnresolvedTargetRoleDecision`
+(only reads `.role_id`, which that type doesn't have), so an ambiguous candidate carrying Rain
+as a real possibility currently renders with no role label at all — filed as its own explicit
+follow-up, not resolved by this amendment. `_sort_annotated`'s need-overlap ranking still
+doesn't account for condition rarity, so a correctly-labeled rain-setter candidate can still
+rank below multi-need Trick Room matches in the actual presented order — explicitly out of
+scope for this fix, unchanged.
+
+---
+
 ## ADR-025: Team-phase routing — confirmed-lock-count phases with a per-lock recompute
 trigger, not a fixed threshold
 

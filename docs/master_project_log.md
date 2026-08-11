@@ -3183,6 +3183,122 @@ real edge case. One minor, low-priority naming drift noted: `CURSOR_HANDOFF.md` 
 references the old `.md` filename in its pointer to the rule file, left as-is for now (cosmetic,
 not a functional gap — the `.mdc` file itself is what's actually loaded).
 
+### 2026-08-11 (cont.): trick_room_setter/Rain need-resolution bug — root cause found and
+fixed; presentation gap found and confirmed still open
+
+Closes the diagnosis opened earlier today: an Archaludon anchor (Electro Shot-kit, Rain-
+dependent) presented three partner options uniformly labeled `trick_room_setter`, with no
+rain-setter option surfaced and no apparent connection to Archaludon's actual needs.
+
+**Root cause, confirmed precisely, not assumed.** Ruled out both plausible severe
+explanations directly rather than by inference: not a hardcoded fallback (Archaludon's own
+`AnchorRoleDecision` correctly carried a present, `needed` Rain-`benefits_from` mechanism —
+the conditional-mechanics work was doing its job), and not calc-related (identical results
+reproduced with `threat_counter_results=[]` and under live `calc_incomplete` conditions —
+compendium/learnset need resolution never touches calc). The real cause: `query_support_
+needs`'s `condition_setter` branch only consulted ability-based weather dependence
+(`_CONDITION_DEPENDENT_ABILITIES`) — it never consulted move-derived `benefits_from`
+mechanisms at all. The codebase had already flagged this exact gap with an inline comment
+predating the conditional-mechanics work ("condition_setter is ability-only today — inert
+here; re-check if move-derived weather needs are ever added") — the trigger condition it
+warned about actually happened when Electro Shot→Rain shipped two days earlier, and nothing
+went back to close the loop. Two individually-correct pieces of work (move-derived emission;
+an honest, appropriately-scoped consumption note) simply never got reconnected once both
+existed.
+
+**A second, related defect found on the partially-working path.** `multi_locked`'s gap-need
+generation correctly detected the missing Rain provider and correctly found real candidates
+(Pelipper, Politoed), but `_NEED_TARGET_ROLES` had no entry for `condition_setter`, so those
+candidates came back unlabeled rather than tagged `rain_setter`.
+
+**Fix, reviewed and implemented with real cross-task verification.** Added `needed_weathers`
+to `RoleShapeContext` (correctly caught as a real implementation hazard: the type uses a
+custom `__init__` via `object.__setattr__`, so a naive dataclass-field-only addition would
+have silently never populated). `derive_role_shape_context` now projects canonical weather
+labels from present `benefits_from` mechanisms. `query_support_needs` emits a
+`condition_setter`/`field_condition:any:{label}` need for any uncovered move-derived weather
+dependency, reusing the exact trigger-string shape (`_condition_need_copy`) the ability path
+already produces — confirmed, not assumed, that this makes the existing dedup mechanism cover
+the new source automatically, with a dedicated regression test
+(`test_gap_need_deduped_when_anchored_rain_already_present`, mirroring the original Trick
+Room dedup fix) added anyway rather than relying on the reasoning alone. Labeling generalized
+via a new `_CONDITION_SETTER_TARGET_ROLES` companion map (`condition_setter` is one category
+mapping to four possible roles depending on the actual weather — correctly modeled as a
+1:many map rather than forced into the existing 1:1 `_NEED_TARGET_ROLES` shape).
+
+**Test coverage deliberately exercises the move-derived path specifically, not just Rain.**
+The Sun regression uses Solar Beam/Blaze Charizard, not Chlorophyll — confirmed deliberate,
+with the reasoning stated explicitly in the test's own docstring: Chlorophyll would only
+re-test the already-working ability path, Solar Beam exercises the same `benefits_from`-gap
+class as Electro Shot→Rain. Same "test against a comparable case, not just the one that
+surfaced the bug" discipline applied throughout this project.
+
+**Confirmed correct at the data layer; confirmed still broken at the presentation layer —
+recorded honestly as both, not closed prematurely.** A real end-to-end check (Archaludon,
+single anchor, live top-3) confirmed Rain is now correctly present in the candidate data —
+Meowstic carries `UnresolvedTargetRoleDecision(ambiguity=('rain_setter',
+'trick_room_setter'))` — but the actual rendered CLI output shows no trace of it:
+`_format_candidate_selection` only reads `.role_id`, which `UnresolvedTargetRoleDecision`
+doesn't have, so Meowstic renders with **no role label at all**, and the other two options
+still show `trick_room_setter` cleanly. The user-visible symptom that originally prompted this
+whole investigation is therefore **not resolved** by this fix alone — the underlying
+computation is now correct, but nothing surfaces that correctness to the person actually using
+the CLI. Filed as its own explicit follow-up task (render `UnresolvedTargetRoleDecision`
+ambiguity in candidate presentation) rather than folded into this fix's closure or left
+implied as done.
+
+**Ranking residual risk confirmed present, as anticipated and explicitly scoped out.** Even
+with Rain correctly ambiguity-tagged, `_sort_annotated`'s existing need-overlap-count ranking
+still favors the two multi-need Trick Room learners over the ambiguous Rain candidate in the
+actual presented order — flagged as an explicit, deliberate non-goal of this task in the
+original plan, not a new discovery.
+
+786 tests passing, 6 skipped — confirmed precisely against the established baseline, not
+assumed: 5 live-calc plus 1 Ollama live-smoke skip; the previously-seen 7th skip
+(`test_ollama_factory_uses_json_schema_and_include_raw_without_live_model`) is passing again
+in this environment because `langchain_ollama` happens to be installed locally — the same
+already-understood pattern from an earlier skip-count check, not a new or lost category.
+Read-only mirrors confirmed untouched.
+
+**Deliberately deferred, tracked as separate future scope:** rendering ambiguous target-role
+decisions in candidate presentation (the real remaining piece of the original user complaint);
+`_sort_annotated`'s need-overlap ranking not accounting for condition rarity/severity (Rain
+underrepresented vs. multi-need Trick Room matches, even once correctly labeled).
+
+### 2026-08-11 (cont.): calc service — startup reachability warning + README documentation
+
+Closes the calc-service half of the earlier consolidated follow-up (the trick_room_setter/
+Rain investigation was the other half, closed separately). Motivated by a real gap found
+during manual CLI testing: the calc service being unstarted produced repeated, cryptic
+`damage[...] === 0` failures deep into a session with no upfront indication of the actual
+cause, unlike the LLM provider, which already had a clear startup warning.
+
+**Auto-start considered and explicitly rejected before implementation**, given real edge
+cases: orphaned processes if the CLI exits via crash or hard Ctrl+C without tearing down a
+spawned service; risk of spawning a duplicate instance on a transient health-check failure
+against an already-running service; portability of the start command across environments; and
+conflict with a possible future hosted deployment, where a CLI-managed local subprocess
+wouldn't make sense at all. Settled on detect-and-warn plus documentation instead — smaller,
+no process-lifecycle risk, sufficient for a single-user local CLI tool.
+
+**Shipped:** `CalcClient.health()` gains an optional `timeout` parameter (default `None`,
+preserving existing unbounded behavior for every real production call site — `calculate`,
+`calculate_batch`, `sets_pack`/`unpack`/`import`/`export` all confirmed unaffected, verified
+individually per call site rather than assumed safe by construction); a `calc_startup_
+warning()` check via a real `/health` endpoint (verified to genuinely exist in the calc
+service's Node source, `services/calc/server.ts`, before building on it — not assumed).
+Startup prints a clear stderr warning if unreachable, alongside the existing provider
+warning, without blocking CLI startup. README gains a Quick Start callout mirroring the
+existing LLM-provider pattern, plus a full "Calc service setup" section (the real start
+command verified against `package.json`, what a healthy start looks like, what degraded/
+fail-closed behavior actually looks like to a user) — wording kept identical between the
+printed warning and the README's troubleshooting text, not independently reworded.
+
+792 tests passing, 6 skipped, matching the established baseline. Read-only mirrors untouched.
+
+This clears the last item paused behind the trick_room_setter/calc-service work — the root
+public-facing README and repo-hygiene task can now proceed.
+
 ---
 
 ## TOOLS & RESOURCES
