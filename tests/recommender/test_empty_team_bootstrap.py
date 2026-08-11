@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+from dataclasses import replace
 from typing import get_args
 from unittest.mock import MagicMock, patch
 
@@ -10,16 +11,22 @@ from langchain_core.runnables import RunnableLambda
 from langgraph.checkpoint.memory import MemorySaver
 from pydantic import ValidationError
 
-from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
-from recommender.recommend import RoleArchetype
+from recommender.anchor_roles import (
+    MechanismEvidence,
+    classify_anchor_role,
+    resolve_anchor_build,
+)
 from recommender.bootstrap import (
     BootstrapExtraction,
     BootstrapIntakeParseError,
+    build_anthropic_bootstrap_intake_parser,
     build_ollama_bootstrap_intake_parser,
     discover_bootstrap_directions,
     parse_bootstrap_intake,
     resolve_bootstrap_direction,
+    _target_role,
 )
+from recommender.graph import compile_graph
 from recommender.nodes import (
     bootstrap_direction,
     classify_input,
@@ -30,10 +37,12 @@ from recommender.nodes import (
     refine_provisional_slot,
     reset_team,
 )
-from recommender.graph import compile_graph
+from recommender.recommend import RoleArchetype
+from recommender.role_compendium import ReverseCompendiumEvidence
 from recommender.state import (
     BootstrapResponsePayload,
     TargetRoleDecision,
+    UnresolvedTargetRoleDecision,
 )
 from recommender.team_candidates import _BASIS_RANK
 
@@ -195,6 +204,134 @@ def test_exact_explicit_anchor_is_inserted_ahead_of_usage_cut():
 
     assert discovery.candidates[0].species == "Sinistcha"
     assert discovery.candidates[0].strategic_role_id == "redirection"
+
+
+def test_explicit_anchor_maps_kit_role_alias_to_target_role():
+    """RoleArchetype kit labels promote by identity (Fork A), not collapse."""
+    state = _record(
+        _state(),
+        _payload(anchor="Archaludon", pool=(), delegated=False),
+    )
+
+    discovery = discover_bootstrap_directions(state)
+
+    assert discovery.clarification is None
+    assert discovery.candidates[0].species == "Archaludon"
+    assert discovery.candidates[0].strategic_role_id == "bulky_special_attacker"
+    decision = discovery.candidates[0].target_role_decision
+    assert isinstance(decision, TargetRoleDecision)
+    assert decision.producer_name == "bootstrap_kit_role_policy"
+    assert decision.confidence == "medium"
+
+
+def test_explicit_anchor_survives_mismatched_direction_filter():
+    """Named anchor is admitted even when its kit role ≠ mapped direction."""
+    state = _record(
+        _state(),
+        _payload(direction="Rain", anchor="Archaludon", pool=(), delegated=False),
+    )
+
+    discovery = discover_bootstrap_directions(state)
+
+    assert discovery.clarification is None
+    assert discovery.candidates[0].species == "Archaludon"
+    assert discovery.candidates[0].strategic_role_id == "bulky_special_attacker"
+    assert any(c.strategic_role_id == "rain_setter" for c in discovery.candidates)
+
+
+def _speed_mech(role_id: str, mechanic: str) -> MechanismEvidence:
+    return MechanismEvidence(
+        mechanic=mechanic,
+        kind="speed_control",
+        relation="provides",
+        importance="wanted",
+        role_id=role_id,
+        present=True,
+        prerequisite=False,
+        activation="move",
+        interruptible=True,
+        source="synthesized",
+        supply="self_supplied",
+    )
+
+
+def test_standard_special_attacker_promotes_by_identity():
+    base = classify_anchor_role(resolve_anchor_build("Archaludon"))
+    anchor = replace(
+        base,
+        kit_role="standard_special_attacker",
+        role_id="standard_special_attacker",
+        mechanisms=(),
+        compendium=ReverseCompendiumEvidence(),
+    )
+    decision = _target_role(anchor)
+    assert isinstance(decision, TargetRoleDecision)
+    assert decision.role_id == "standard_special_attacker"
+    assert decision.producer_name == "bootstrap_kit_role_policy"
+
+
+def test_support_speed_control_without_tw_tr_stays_identity():
+    base = classify_anchor_role(resolve_anchor_build("Whimsicott"))
+    anchor = replace(
+        base,
+        kit_role="support_speed_control",
+        role_id="support_speed_control",
+        mechanisms=(),
+        compendium=ReverseCompendiumEvidence(),
+    )
+    decision = _target_role(anchor)
+    assert isinstance(decision, TargetRoleDecision)
+    assert decision.role_id == "support_speed_control"
+    assert decision.producer_name == "bootstrap_kit_role_policy"
+
+
+def test_whimsicott_resolves_tailwind_via_strategic_evidence():
+    decision = _target_role(classify_anchor_role(resolve_anchor_build("Whimsicott")))
+    assert isinstance(decision, TargetRoleDecision)
+    assert decision.role_id == "tailwind_setter"
+    assert decision.producer_name == "target_role_from_strategic_evidence"
+    assert decision.confidence == "high"
+
+
+def test_pelipper_prefers_rain_over_incidental_tailwind():
+    """Drizzle identity must win before a single TW mechanism short-circuits."""
+    decision = _target_role(classify_anchor_role(resolve_anchor_build("Pelipper")))
+    assert isinstance(decision, TargetRoleDecision)
+    assert decision.role_id == "rain_setter"
+
+
+def test_tw_and_tr_mechanisms_yield_unresolved_speed_control():
+    base = classify_anchor_role(resolve_anchor_build("Whimsicott"))
+    anchor = replace(
+        base,
+        mechanisms=(
+            _speed_mech("tailwind_setter", "Tailwind"),
+            _speed_mech("trick_room_setter", "Trick Room"),
+        ),
+    )
+    decision = _target_role(anchor)
+    assert isinstance(decision, UnresolvedTargetRoleDecision)
+    assert decision.reason == "ambiguous_speed_control"
+    assert set(decision.ambiguity) == {"tailwind_setter", "trick_room_setter"}
+    assert decision.producer_name == "bootstrap_speed_control_pre_pass"
+
+
+def test_explicit_anchor_ambiguous_speed_control_asks_clarification():
+    unresolved = UnresolvedTargetRoleDecision(
+        reason="ambiguous_speed_control",
+        ambiguity=("tailwind_setter", "trick_room_setter"),
+        source="other",
+        producer_name="bootstrap_speed_control_pre_pass",
+    )
+    with patch("recommender.bootstrap._target_role", return_value=unresolved):
+        state = _record(
+            _state(),
+            _payload(anchor="Whimsicott", pool=(), delegated=False),
+        )
+        discovery = discover_bootstrap_directions(state)
+    assert discovery.candidates == ()
+    assert discovery.clarification is not None
+    assert "ambiguous speed control" in discovery.clarification
 
 
 def test_handler_round_trip_does_not_repeat_intake():
@@ -502,6 +639,25 @@ def test_ollama_factory_uses_json_schema_and_include_raw_without_live_model():
     assert parser is not None
     constructor.assert_called_once_with(
         model="test-model", temperature=0, num_ctx=2048
+    )
+    chat.with_structured_output.assert_called_once_with(
+        BootstrapExtraction,
+        method="json_schema",
+        include_raw=True,
+    )
+
+
+def test_anthropic_factory_uses_json_schema_and_include_raw_without_live_model():
+    chat = MagicMock()
+    chat.with_structured_output.return_value = RunnableLambda(lambda value: value)
+    fake_mod = MagicMock()
+    fake_mod.ChatAnthropic = MagicMock(return_value=chat)
+    with patch.dict("sys.modules", {"langchain_anthropic": fake_mod}):
+        parser = build_anthropic_bootstrap_intake_parser("claude-test")
+
+    assert parser is not None
+    fake_mod.ChatAnthropic.assert_called_once_with(
+        model="claude-test", temperature=0
     )
     chat.with_structured_output.assert_called_once_with(
         BootstrapExtraction,
