@@ -20,6 +20,8 @@ The thread id is printed on stderr at startup: `(thread team-…)`.
 
 **Bootstrap free-form replies need an LLM provider** (default: Ollama). See [LLM provider setup](#llm-provider-setup). Without one, empty-team intake fails closed.
 
+**Matchup verification and coverage/threat analysis need the calc service running.** See [Calc service setup](#calc-service-setup). Without it, `single_locked` degrades to lower-confidence estimates; `multi_locked` fails closed with a clear error rather than presenting anything.
+
 ## CLI flags
 
 Entry point: `python -m recommender` (`recommender/cli.py`).
@@ -87,6 +89,39 @@ Disables the bootstrap parser. Startup warning:
 
 Replying to the bootstrap prompt then surfaces `Bootstrap intake error: bootstrap intake parser is not configured`.
 
+## Calc service setup
+
+A separate local Node process that runs verified damage calculations (`@smogon/calc`). Matchup verification and team-wide coverage/threat analysis call it over HTTP. Without it, those paths degrade to labeled static estimates where possible (`single_locked`) or fail closed (`multi_locked`, ADR-029) rather than inventing numbers.
+
+### How to start
+
+From the repo root (Node deps installed via `npm install`):
+
+```bash
+npm start
+```
+
+That runs `tsx services/calc/server.ts`. A healthy process logs:
+
+```text
+calc-service listening on http://127.0.0.1:4173
+```
+
+Default bind is `127.0.0.1:4173` (override the port with `PORT`). The CLI probes `http://127.0.0.1:4173` by default.
+
+The CLI does **not** auto-start the service (orphaned processes on crash/Ctrl+C, port conflicts, portability, and a possible future hosted deploy). Start it yourself before a session that needs calcs.
+
+### If it is not running
+
+At startup the CLI prints to stderr:
+
+> Calc service not reachable at http://127.0.0.1:4173 — matchup verification and coverage/threat analysis will fail until it's started. Recommendations will degrade to labeled static estimates where possible, or fail closed.
+
+Startup still succeeds. Observable mid-session behavior:
+
+- **`single_locked`:** labeled-degraded path — lower-confidence / static estimates, discovery error banner when applicable
+- **`multi_locked`:** fail-closed with a clear error (ADR-029); no candidate list is presented
+
 ## Meta commands
 
 Typed at the `>` prompt (exact match after strip):
@@ -135,6 +170,7 @@ Messages below are the real CLI / presentation text.
 | `Bootstrap intake error: bootstrap intake parser is not configured` | No working LLM provider for free-form bootstrap (see [LLM provider setup](#llm-provider-setup)). |
 | `Bootstrap intake error: …` | Other intake / parse failure from the provider. |
 | Startup warning about `BOOTSTRAP_OLLAMA_MODEL` / `BOOTSTRAP_ANTHROPIC_MODEL` / `ANTHROPIC_API_KEY` / missing langchain package | Parser was not configured; bootstrap free-form will fail until fixed. |
+| `Calc service not reachable at http://127.0.0.1:4173 — …` | Calc service was down at CLI startup (see [Calc service setup](#calc-service-setup)); session still starts. |
 | `Unknown thread: …` | `--thread` id is not in the checkpoint DB. |
 | `Interrupted. Session saved under thread …` | Ctrl+C at the input prompt; session kept. |
 

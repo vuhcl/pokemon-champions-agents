@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from recommender import calc_client
-from recommender.calc_client import CalcClient, CalcClientError
+from recommender.calc_client import CalcClient, CalcClientError, calc_startup_warning
 from recommender.calc_service import CalcService, DEFAULT_REPO_ROOT
 
 GARCHOMP = {
@@ -135,6 +135,35 @@ def test_connection_error_is_normalized():
             client.health()
     assert exc.value.status == 0
     assert "refused" in str(exc.value.body)
+
+
+def test_calc_startup_warning_unreachable():
+    with patch(
+        "recommender.calc_client.urllib.request.urlopen",
+        side_effect=calc_client.urllib.error.URLError("refused"),
+    ):
+        warning = calc_startup_warning("http://127.0.0.1:9")
+    assert warning is not None
+    assert "http://127.0.0.1:9" in warning
+    assert "not reachable" in warning
+    assert "fail closed" in warning
+    assert "static estimates" in warning
+
+
+def test_calc_startup_warning_reachable():
+    with patch.object(
+        CalcClient, "health", return_value={"status": "ok"}
+    ):
+        assert calc_startup_warning("http://127.0.0.1:9") is None
+
+
+def test_calc_startup_warning_non_ok_status():
+    with patch.object(
+        CalcClient, "health", return_value={"status": "down"}
+    ):
+        warning = calc_startup_warning("http://127.0.0.1:9")
+    assert warning is not None
+    assert "not reachable" in warning
 
 
 def test_invalid_json_response_is_normalized():

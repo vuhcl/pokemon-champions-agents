@@ -55,6 +55,31 @@ def test_first_turn_invoke_is_format_id_only(tmp_path: Path, monkeypatch):
     assert "pending_input" not in payloads[0]
 
 
+def test_main_prints_calc_startup_warning_to_stderr(tmp_path: Path, monkeypatch, capsys):
+    db = tmp_path / "calc-warn.db"
+    monkeypatch.setattr(
+        "recommender.cli.calc_startup_warning",
+        lambda: "Calc service not reachable at http://127.0.0.1:4173 — test",
+    )
+    monkeypatch.setattr(
+        "builtins.input", lambda *_a, **_k: (_ for _ in ()).throw(EOFError())
+    )
+    code = main(["--new", "--db", str(db), "--provider", "none"])
+    assert code == 0
+    err = capsys.readouterr().err
+    assert "Calc service not reachable at http://127.0.0.1:4173" in err
+
+
+def test_main_no_calc_warning_when_reachable(tmp_path: Path, monkeypatch, capsys):
+    db = tmp_path / "calc-ok.db"
+    monkeypatch.setattr("recommender.cli.calc_startup_warning", lambda: None)
+    monkeypatch.setattr(
+        "builtins.input", lambda *_a, **_k: (_ for _ in ()).throw(EOFError())
+    )
+    code = main(["--new", "--db", str(db), "--provider", "none"])
+    assert code == 0
+    err = capsys.readouterr().err
+    assert "Calc service not reachable" not in err
 
 
 def test_handle_line_pre_guard_skips_invoke_without_pending():
