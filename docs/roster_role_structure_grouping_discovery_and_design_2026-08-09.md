@@ -1,6 +1,7 @@
 # Roster role-structure grouping — discovery and design (2026-08-09)
 
-**Status:** Discovery + design only. No implementation in this pass.
+**Status:** Design landed; on-demand summary implemented in
+`recommender/roster_role_structure.py` (not graph-wired).
 
 **Scope (confirmed narrow):** identify which locked roster members share a role/function
 (implicitly competing for the same bring-4 slot) and which provide something no other locked
@@ -25,6 +26,11 @@ Gotcha function-key decision — see §Part 1.4–1.7 below.
 **Amendment 2026-08-09c:** original-probe independence audit — the first Maushold call did
 **not** pass Friend Guard (ability omitted → resolved `None`); `bulky_attacker` came from
 `infer_role` default with **zero** `MechanismEvidence` rows. See §1.4a.
+
+**Amendment 2026-08-10:** re-probe on current source — Technician-Maushold now classifies
+`role_id=fast_physical_attacker` (Technician × multi-hit), still `primary_function=offense`,
+so it still joins the coarse contested `attacker` group. Implementation ships available
+fields only; Step A utility/Hospitality emission remains deferred.
 
 **Related but separate:**
 [`docs/condition_classification_and_redundancy_discovery_and_design_2026-08-09.md`](condition_classification_and_redundancy_discovery_and_design_2026-08-09.md)
@@ -106,7 +112,7 @@ example's unique-utility half.**
 | Archaludon (`user_role=bulky_rain_attacker`) | `bulky_rain_attacker` | `()` | `offense` | Stamina; Electro Shot `benefits_from` Rain |
 | Mega-Swampert (`user_role=physical_rain_attacker`) | `physical_rain_attacker` | `()` | `offense` | Swift Swim `benefits_from` Rain |
 | Sinistcha | `redirection` | `trick_room_setter` | `support` | Trick Room `provides` (Rage Powder / Hospitality **not** mechanism rows) |
-| Maushold (**Technician** locked) | `bulky_attacker` | `()` | `offense` | *(none)* — Encore / Bite / Tidy Up / Technician emit nothing |
+| Maushold (**Technician** locked) | `fast_physical_attacker` | `()` | `offense` | *(none)* — Encore / Bite / Tidy Up / Technician emit nothing |
 
 Implications for "what function does this member provide?":
 
@@ -115,7 +121,7 @@ Implications for "what function does this member provide?":
    compendium + Rain Dance mechanism; Pelipper via Drizzle). This overlaps condition-
    resilience's Rain provider list, by design.
 2. **Attacker competition is *not* readable from exact `role_id`.** The three attackers have
-   three different ids (`bulky_rain_attacker`, `physical_rain_attacker`, `bulky_attacker`).
+   three different ids (`bulky_rain_attacker`, `physical_rain_attacker`, `fast_physical_attacker`).
    They **do** share `primary_function == "offense"`. Grouping attackers therefore needs the
    coarse function bucket (or an explicit alias of it), not exact-id equality.
 3. **Support must *not* coarsen the same way.** Collapsing all `primary_function == "support"`
@@ -580,4 +586,4 @@ design — that would smuggle ranking / bring-4 selection back into scope.
 - [X] Part 2 algorithm / output / reuse / surface written
 - [X] Amendment 2026-08-09b: Technician-Maushold probe, build-level contrast, phys/special
   OOS, Matcha Gotcha no-key decision
-- [ ] Implementation (explicitly deferred)
+- [X] Implementation (on-demand `summarize_roster_role_structure`; Step A emission deferred)
