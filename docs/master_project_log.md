@@ -200,6 +200,77 @@ EV/nature/level vary; clear-side resolution only; no fuzzy similarity bucketing.
 task — not ADR-016 and not the coverage/SPOF PR. (Also logged in Claude's memory system for
 this project so it isn't lost between sessions.)
 
+**Backlog item — tier-3 no-usage moveset fallback: confirmed incomplete for Hatterene/
+Mimikyu-shaped roles, not just a residual risk**
+
+**Status:** Confirmed bug, not a hypothetical limitation. Found during roster role-structure
+grouping's confirmation pass (2026-08-10) while verifying two test failures were genuinely
+pre-existing and unrelated — they were, but investigating them surfaced a real, reproducible
+defect in tier-3's own shipped move-synthesis path.
+
+**What's broken:** `assemble_moveset_fallback`'s preferred-move-id pools
+(`_ROLE_PREF_MOVES`) are incomplete for at least two real role/species combinations under the
+no-usage-data path:
+- `trick_room_setter` (Hatterene-shaped): only Trick Room itself is keyed, so the fallback
+  can only fill 2 of 4 required moves (Trick Room + Protect) before running out of
+  preferences, leaving `moves` in `unresolved_fields` alongside `ability`.
+- `fast_attacker` (Mimikyu-shaped): **zero** preferred moves are keyed for this role at all
+  (only `support_speed_control`/`trick_room_sweeper` have entries) — the fallback can only
+  fill Protect, leaving the build entirely unable to reach `ProvisionalSlot` completion
+  no-usage, regardless of species.
+
+**Why this wasn't caught at tier-3's original ship:** both are tier-3's own named acceptance
+tests (`test_no_usage_hatterene_fills_kit_but_leaves_ability_unresolved`,
+`test_no_usage_mimikyu_refines_to_provisional_slot`), but a separately-introduced broken
+import (`WEATHER_SETTING_MOVES`, condition resilience's uncommitted export) made
+`test_propose.py` uncollectible on every commit since tier-3 shipped until roster grouping's
+prerequisite fix landed. Tier-3's "659 passed" close-out count was true only because these
+tests were silently never exercised, not because they passed — confirmed via direct
+bisection across three trees, byte-identical failures on all of them, ruling out any
+connection to roster grouping's own code.
+
+**Scope for the eventual fix (not scoped in detail here — flag for its own discovery/design
+pass, don't patch reactively):**
+1. Expand `_ROLE_PREF_MOVES` coverage for `trick_room_setter` beyond the setter move itself
+   (utility moves appropriate to a Trick Room support role).
+2. Add real preferred-move entries for `fast_attacker` (currently the only vocabulary-tier
+   `RoleArchetype` value with zero keyed preferences) — post the three-axis vocabulary
+   redesign, confirm which of the nine offense archetypes actually need dedicated pools
+   versus which can share a common physical/special offense pool.
+3. Check whether this is representative of a broader gap — audit whether any other
+   `RoleArchetype`/`TargetRoleId` value has similarly sparse or empty `_ROLE_PREF_MOVES`
+   coverage, rather than fixing only the two cases these specific tests happened to catch.
+
+**Not yet triaged for priority** — raised here as a confirmed, reproducible defect for the
+backlog, not assessed against other open items yet.
+
+**Backlog item — Mega-ability legality failure at commit time, distinct from the tier-3
+moveset gap**
+
+**Status:** Confirmed bug, found during CLI stress testing (2026-08-10). Not yet triaged for
+priority.
+
+**What's broken:** A provisional build can successfully complete refinement (reaching a real
+`ProvisionalSlot`) and then fail at atomic commit with `illegal provisional slot:
+ability:noability` — observed with Raichu-Mega-X during a Pelipper-rain-core autopilot run at
+lock 5→6. This is a legality/ability-resolution failure specific to Mega provisional builds,
+not the thin `_ROLE_PREF_MOVES` coverage gap already tracked from the tier-3 moveset fix
+(that gap produces `incomplete_build` during refinement itself; this one passes refinement
+and fails later, at commit).
+
+**Observed consequence:** rediscovery re-offers the same Mega candidate repeatedly, producing
+an autopilot spin rather than a clean failure or a different candidate.
+
+**Scope for the eventual fix (not scoped here):** trace why a Mega provisional slot can reach
+`ProvisionalSlot` status with an unresolved/invalid ability field in the first place — this
+sounds like it could intersect with the tier-3 ability-synthesis provenance gate work (the
+`_mechanisms` provenance fix, ADR-015 Amendment 2026-08-09a) but needs its own verification
+before assuming that connection, not assumed to be the same root cause.
+
+**Not yet triaged for priority** — raised here as a confirmed, reproducible defect for the
+backlog, alongside the already-tracked tier-3 thin-moveset gap; these are two separate causes
+of the same "autopilot rarely reaches lock 6" symptom, not one.
+
 ---
 
 ## KEY LEARNINGS & DECISIONS
@@ -2698,6 +2769,420 @@ breadth-versus-severity aggregate ranking policy (from the multi-locked task, st
 move/ability conditional mechanics (Electro Shot -> Rain, Liquid Voice, Freeze-Dry, Phantom
 Force).
 
+**Backlog item — tier-3 no-usage moveset fallback: confirmed incomplete for Hatterene/
+Mimikyu-shaped roles, not just a residual risk**
+
+**Status:** Confirmed bug, not a hypothetical limitation. Found during roster role-structure
+grouping's confirmation pass (2026-08-10) while verifying two test failures were genuinely
+pre-existing and unrelated — they were, but investigating them surfaced a real, reproducible
+defect in tier-3's own shipped move-synthesis path.
+
+**What's broken:** `assemble_moveset_fallback`'s preferred-move-id pools
+(`_ROLE_PREF_MOVES`) are incomplete for at least two real role/species combinations under the
+no-usage-data path:
+- `trick_room_setter` (Hatterene-shaped): only Trick Room itself is keyed, so the fallback
+  can only fill 2 of 4 required moves (Trick Room + Protect) before running out of
+  preferences, leaving `moves` in `unresolved_fields` alongside `ability`.
+- `fast_attacker` (Mimikyu-shaped): **zero** preferred moves are keyed for this role at all
+  (only `support_speed_control`/`trick_room_sweeper` have entries) — the fallback can only
+  fill Protect, leaving the build entirely unable to reach `ProvisionalSlot` completion
+  no-usage, regardless of species.
+
+**Why this wasn't caught at tier-3's original ship:** both are tier-3's own named acceptance
+tests (`test_no_usage_hatterene_fills_kit_but_leaves_ability_unresolved`,
+`test_no_usage_mimikyu_refines_to_provisional_slot`), but a separately-introduced broken
+import (`WEATHER_SETTING_MOVES`, condition resilience's uncommitted export) made
+`test_propose.py` uncollectible on every commit since tier-3 shipped until roster grouping's
+prerequisite fix landed. Tier-3's "659 passed" close-out count was true only because these
+tests were silently never exercised, not because they passed — confirmed via direct
+bisection across three trees, byte-identical failures on all of them, ruling out any
+connection to roster grouping's own code.
+
+**Scope for the eventual fix (not scoped in detail here — flag for its own discovery/design
+pass, don't patch reactively):**
+1. Expand `_ROLE_PREF_MOVES` coverage for `trick_room_setter` beyond the setter move itself
+   (utility moves appropriate to a Trick Room support role).
+2. Add real preferred-move entries for `fast_attacker` (currently the only vocabulary-tier
+   `RoleArchetype` value with zero keyed preferences) — post the three-axis vocabulary
+   redesign, confirm which of the nine offense archetypes actually need dedicated pools
+   versus which can share a common physical/special offense pool.
+3. Check whether this is representative of a broader gap — audit whether any other
+   `RoleArchetype`/`TargetRoleId` value has similarly sparse or empty `_ROLE_PREF_MOVES`
+   coverage, rather than fixing only the two cases these specific tests happened to catch.
+
+**Not yet triaged for priority** — raised here as a confirmed, reproducible defect for the
+backlog, not assessed against other open items yet.
+
+### 2026-08-10 (cont.): tier-3 no-usage moveset fallback — fixed, closing the bug
+confirmed during roster role-structure grouping's confirmation pass
+
+Closes the tier-3 moveset-completion defect found yesterday: `_ROLE_PREF_MOVES`' preferred-
+move pools were left largely empty since tier-3's original ship (Task B's planned pools never
+actually landed in `move_narrowing.py`, and the three-axis vocabulary redesign's nine new
+offense archetypes never got pools either), masked from detection for a full session by an
+unrelated broken import that made the two affected acceptance tests uncollectible.
+
+**Audit found a second, independent defect in the same function, not just missing data.**
+Beyond the empty pools, `assemble_moveset_fallback` itself had two bugs: an alphabetical
+tiebreak that could silently drop role-defining moves once real pools existed (found by
+simulating Task B's planned pools against Hatterene and watching Trick Room itself get
+dropped), and a truncate-after-append pattern that lost Protect whenever preferred moves
+already filled all four slots — present on both the initial assemble path and the post-
+redundancy rebuild path identically. Fixed by sorting on original preference-list order
+instead of alphabetical, and by reserving Protect explicitly (`_with_protect`) before
+truncation on both code paths.
+
+**A real scope question resolved correctly, catching its own circularity.** The submitted
+plan initially proposed padding `redirection`'s pool with the shared special-attacker moves
+(Moonblast/Psychic/Hydro Pump/etc.) so a no-usage Sinistcha could reach four moves. Pushed
+back: redirection is a support role, and padding it with generic offensive moves to hit a
+completeness target would be exactly the "arbitrary learnset noise" this project has
+consistently avoided, not real coverage. On review, the only thing actually requiring
+redirection to reach four moves turned out to be the plan's own proposed test — no real
+acceptance requirement from Task B or tier-3's original ship. Resolved by keeping redirection
+(and weather setters, and `trick_room_sweeper`) in the honestly-short category rather than
+force-completing it — a real support-move allowlist (`_REDIRECTION_SECONDARY_MOVES` in
+`role_compendium.py`) was found to already exist for compendium scoring, but correctly left
+unwired here since nothing currently needs it (YAGNI), rather than reused just to manufacture
+a complete-looking build.
+
+**Shipped:** shared physical/special move pools (10 moves each) wired to all nine offense
+archetypes plus `swords_dance_attacker`/`nasty_plot_attacker`, a shared pivot-move pool
+(U-turn/Volt Switch/Flip Turn/Parting Shot/Teleport) for both pivot archetypes, a screens pool
+for `screens_support`, and a role-specific pool for `trick_room_setter` (Trick Room plus the
+shared special pool, reasoned as correct since Trick Room setters are predominantly special-
+offense in VGC). Weather setters, `trick_room_sweeper`, and `redirection` deliberately stay
+mechanism-moves-only, correctly degrading to `incomplete_build` with `moves` in
+`unresolved_fields` rather than being padded to look complete.
+
+**Confirmation pass required exact assertions, not aggregate pass counts, given the prior
+day's chronology confusion traced back to exactly this kind of unverified claim.** Both
+originally-failing tests confirmed with their literal assertions matching, not just reported
+green: Hatterene's `unresolved_fields` now exactly `("ability",)`, not `("ability", "moves")`;
+Mimikyu reaching a real `ProvisionalSlot` with all four moves (including Protect), complete
+ability/item/nature, and a 66-point spread. Redirection and weather-setter honesty confirmed
+by their own dedicated tests, not assumed unaffected. One real coverage gap caught and closed
+during confirmation: the dedicated assemble-order/Protect unit test only exercised the initial
+path, not the post-redundancy rebuild — flagged honestly by the implementation itself rather
+than presented as fully covered. Closed with a test using a spy wrapping the real
+`validate_moveset_redundancy` (not a stubbed return) against a genuine redundancy case
+(Whimsicott's Tailwind/Trick Room overlap under `support_speed_control`), proving Protect
+survives an actual rebuild rather than a constructed stand-in for one.
+
+726 tests passing (up from 717 with 2 known failures the day before), 7 skipped, matching the
+established baseline exactly (5 live-calc, 2 Ollama, no new categories). Diff confirmed scoped
+to exactly `recommender/move_narrowing.py` and its two test files, per the plan's own stated
+boundary — no `propose.py`/`slot_fill.py` changes, none needed. Read-only mirrors confirmed
+untouched by this task specifically.
+
+**Deliberately deferred, tracked as separate future scope:** validating the shared physical/
+special/pivot pools against real usage data rather than the small acceptance-species set they
+were originally built against — the existing 180-build role_id gap scan corpus is available
+for this without new data collection, but not urgent, since the current honest-incompleteness
+behavior means a thin pool degrades to a correctly-flagged gap rather than a wrong result;
+commitment-sort's pre-existing "no commitment sorts before measured commitment" polarity
+(noted as out of scope, unrelated to this fix); usage-coverage expansion for Mimikyu/other
+low-data species (separate, already-tracked backlog item).
+
+### 2026-08-10 (cont.): ADR-010 CLI REPL — graph now reachable by a human
+
+Closes the deliberate deferral of `compile_cli_graph` / full CLI from the SQLite checkpointer
+ship: the interactive loop now exists, so the thin wrapper is justified.
+
+**Shipped:** `recommender/present_text.py` (`format_turn` MECE renderer); `recommender/session.py`
+(mint / list / newest-incomplete resume; list materializes `saver.list(None)` before
+`get_state` to avoid SqliteSaver cursor deadlock); `recommender/llm_provider.py` + Anthropic
+bootstrap factory mirroring Ollama's structured-output + `include_raw` shape;
+`compile_cli_graph` in `graph.py`; `recommender/cli.py` + `python -m recommender` entry
+(`--new` / `--thread` / `--list-threads` / `--format` / `--provider` / `--db`). Meta commands
+`:q`, `:thread`, `:team`, `:new`, `:reset` (mint-new alias, not graph `reset` intent) stay
+outside `classify_pending`.
+
+**Verification:** focused CLI/presentation/session/provider tests green; full recommender
+suite 754 passed, 7 skipped. Automated E2E smoke: new session → stub bootstrap → pick →
+confirm → reopen Sqlite on same thread with locked species surviving.
+
+**Still out of scope:** generic free-form classification without pending; web UI; canonical
+name resolution; rich TUI.
+
+### 2026-08-10 (cont.): CLI REPL (ADR-010) — implemented, closing the last remaining gap
+for a usable v1
+
+Closes ADR-010, the last item in the "finish v1" priority reset from two days ago. Every
+prior task this whole multi-day arc built and tested the graph itself — nodes, routing,
+ranking, ownership, condition resilience, calc-degradation handling — entirely through
+`pytest`; nothing let an actual person run it. This closes that gap: `python -m recommender`
+now starts or resumes a durable SQLite-backed session, renders plain-text turns, and survives
+interruption and restart.
+
+**Discovery found ADR-010 committed to almost nothing** ("CLI for v1. No dedicated UI." —
+the entire decision text), meaning essentially every real design question (input model,
+rendering, session lifecycle, error/interrupt behavior) was genuinely open work, not
+something to look up. The single most load-bearing finding: **no plain-text rendering layer
+existed anywhere in the codebase.** Every presentation kind stores structured state
+(`PendingPresentation`, `CandidateEvidence`), but only bootstrap consistently populates
+human-readable `prompt_text`/`notices` — every other kind (candidate selection, full-build
+confirmation, completion preference) leaves its human-facing content scattered across
+adjacent state fields with no existing renderer. Correctly scoped as real new presentation-
+layer work rather than assumed to be "just print `prompt_text`."
+
+**A specific implementation landmine was found by tracing dispatch logic before it could
+crash a real session:** calling `graph.invoke` with free-form text when `pending_presentation`
+is `None` raises `NotImplementedError` (generic classification without a pending context
+remains deliberately unimplemented, per ADR-027's closed-set boundary). The design added a
+pre-invoke guard specifically to avoid ever making that call rather than only catching the
+exception after the fact — verified with two separate tests (the guard preventing the call
+entirely, and `invoke_user_text` raising directly when the guard is bypassed), not collapsed
+into one test exercising only one path.
+
+**Session identity and resumption were fully designed from scratch** (nothing existed —
+every prior multi-turn test hardcoded a thread id string). Settled: resume the newest-updated
+incomplete thread by default (not always-silent-resume, not always-requiring `--new` — both
+alternatives explicitly rejected with reasoning), `--thread ID`/`--list-threads`/`--new` as
+explicit overrides, "incomplete" defined as `team_phase != "complete"` OR any pending/
+provisional state set, with an explicit empty-state guard (`graph.get_state` on an unknown
+thread returns `{}`, confirmed via live probe) so listing never crashes on a fresh or unknown
+thread.
+
+**A real, reproducible SQLite deadlock was found and fixed during implementation, not
+theoretical.** `list_thread_summaries` originally nested a `get_state` query inside an open
+`saver.list(None)` cursor on the same connection — confirmed via an actual test hang (not a
+speculative concern) that a standalone probe also reproduced. Fixed by fully materializing
+the thread list before issuing any per-thread `get_state` queries, preserving newest-first
+ordering (first sighting of each thread id while walking the list still wins) and leaving the
+reviewed `ThreadSummary`/`pick_newest_incomplete`/`resolve_thread_id` contracts unchanged —
+only internal cursor discipline changed.
+
+**Provider wiring follows the established model-agnostic pattern rather than inventing a new
+one** — `POKEMON_CHAMPIONS_LLM_PROVIDER` env-driven selection between Ollama (reusing the
+existing dev factory) and a new Anthropic factory built to mirror the Ollama factory's
+structured-output/`include_raw` pattern against the same `BootstrapExtraction` schema, with
+`none`/missing-parser correctly compiling anyway and printing a startup warning rather than
+surprising the user mid-conversation with a first-turn failure.
+
+**Meta commands (`:q`/`:thread`/`:team`/`:new`/`:reset`) are structurally incapable of
+reaching graph-level reset, not just behaviorally observed not to.** `:reset` stays a mint-
+new-thread alias rather than being wired to the graph's `reset` intent — confirmed via a test
+proving the meta-command path never issues a `pending_input` invoke at all, a stronger
+guarantee than "natural-language reset text doesn't trigger it" would have been, since it's
+structurally impossible for that path to reach a reset intent regardless of input text.
+
+**Confirmation pass required real specifics on two things worth restating.** The "28 new
+tests" arithmetic from the initial report didn't cleanly isolate to just this task, given the
+shared dirty worktree with other same-day work (roster role-structure grouping) — corrected
+honestly to 27 CLI-specific tests rather than forcing a clean number that didn't actually
+hold. And `master_project_log.md`'s edit was correctly distinguished as this task's own
+required shipped-note bullet, separate from pre-existing drift already attributed to other
+closed tasks (the ADR-026 amendment, tier-3 moveset work) sitting in the same worktree.
+
+**Shipped:** `recommender/present_text.py` (`format_turn`, evidence one-liners, roster
+summary — pure presentation logic, no I/O), `recommender/session.py` (thread minting,
+listing, newest-incomplete resolution), `recommender/llm_provider.py` (env/flag provider
+resolution), `recommender/cli.py` + `recommender/__main__.py` (the REPL loop and meta
+commands), `compile_cli_graph` in `graph.py`, `build_anthropic_bootstrap_intake_parser` in
+`bootstrap.py`, optional `anthropic` extra in `pyproject.toml`. A real, automated end-to-end
+smoke test (not just documented as a manual step) exercises the full sequence — bootstrap
+intake, candidate selection via a stub parser, build confirmation and lock via the same
+patching pattern already established by the SQLite checkpointer tests, connection close and
+reopen, and confirmed state survival on resume.
+
+754 tests passing (up from 726 before this task began), 7 skipped, matching the established
+baseline exactly (5 live-calc, 2 Ollama, no new skip category). Read-only mirror
+`architecture_decisions.md` confirmed untouched by this task; `master_project_log.md`'s edit
+confirmed as this task's own required entry, distinguished from concurrent unrelated drift.
+
+**This closes the "finish v1" priority list in full** — every item identified two days ago
+(CLI REPL, canonical name/form resolution reprioritized as load-bearing, the small quick-pick/
+roster role-structure grouping piece, the multi-locked ranking policy question) is now either
+shipped or explicitly resolved. Canonical name/form resolution remains the one open item, now
+genuinely load-bearing rather than backlog polish, since a real person can now type at a real
+prompt.
+
+**Deliberately deferred, tracked as separate future scope:** generic free-form classification
+without a pending presentation (would reopen ADR-027's closed-set boundary — the CLI
+deliberately avoids this path rather than implementing it); web/hosted UI and any Postgres/
+Redis checkpointer (both still contingent on a hosted deployment becoming a real plan); rich
+TUI/colors/pager (plain stdout judged sufficient for v1); canonical name/form resolution
+(now the last remaining structural gap in the whole project).
+
+### 2026-08-10 (cont.): CLI stress testing — TargetRoleId Fork A shipped, three real
+dead-end bugs found via real Ollama-backed sessions, one fix correctly caught and reverted
+before it could ship as a silent regression
+
+Opened by manually running the newly-shipped CLI end to end with a real Ollama-backed parser
+— the first time any human-shaped input stream had actually exercised the bootstrap-to-
+single_locked handoff, since the E2E smoke test used a stub parser and had never covered this
+path. Surfaced real, reproducible bugs immediately, none of which the automated test suite had
+caught.
+
+**Msgpack unregistered-type warnings, confirmed live under default settings, not deferred
+risk.** The SQLite checkpointer task's original framing treated allowlisting as a "someday"
+concern, gated behind `LANGGRAPH_STRICT_MSGPACK` becoming policy. A real resumed session
+showed `Attr` and `Slot` — two of the most fundamental, ubiquitous state types — printing
+unregistered-type warnings directly to the user's terminal under today's actual default
+settings. Fixed by registering the checkpoint dataclasses on the SQLite serde.
+
+**The Archaludon anchor-resolution bug, and Fork A shipped as its real fix** — covered in full
+in ADR-027 Amendment 2026-08-10a. Summary: an explicit anchor with a fine-grained kit role
+(`bulky_special_attacker`) had no `TargetRoleId` to resolve to, so bootstrap silently
+substituted three unrelated generic alternatives with no indication the requested anchor had
+been dropped. Root-caused to the `RoleArchetype`/`TargetRoleId` vocabulary gap already flagged
+as a known future item two days earlier — this session made it real and forced the already-
+commissioned Fork A expansion to actually land, plus caught and fixed two further defects in
+an interim stopgap patch along the way (the `standard_*`-to-`bulky_attacker` and
+`support_speed_control`-to-`tailwind_setter` collapses, both verified wrong, not just coarse).
+
+**Three stress-test bugs beyond Fork A, tracked individually — two shipped, one correctly
+reverted after review caught it wasn't honestly labeled.**
+
+- **3a — threat-only partner candidates dead-ending refinement, fixed and shipped.** A
+  partner candidate surfaced with no target-role decision (correctly, since inheriting the
+  open slot's support role onto a threat-only row would have been wrong) had nothing filling
+  a fallback identity afterward — selecting it produced `UnresolvedSlotRefinement` and ended
+  the turn with no new prompt, a silent CLI dead-end. Fixed with a kit-role fallback
+  (`_kit_fallback_target_role`) applied at merge and again inside `build_provisional_slot` if
+  still absent, careful not to overwrite a genuine `UnresolvedTargetRoleDecision` where one
+  was actually warranted (e.g., ambiguous speed control). Verified with
+  `test_threat_only_choice_gets_kit_fallback_not_open_slot_role`; existing steering tests
+  updated to expect `full_build_confirmation` rather than an unresolved dead-end.
+- **3b — `multi_locked` clearing pending presentation on calc-unavailable review: found,
+  changed, then correctly reverted before shipping as a silent regression.** Initial stress
+  fix removed `multi_locked`'s ADR-029 hard-stop on calc failure, continuing into candidate
+  presentation to fix the same category of dead-end 3a addressed. Caught during review,
+  before being accepted into the doc record: verified directly that the "continuing" path did
+  **not** carry any of single_locked's established honesty markers for degraded discovery
+  (`estimate_kind="static"`, `mechanical_only`/`low`-confidence evidence, degradation tokens,
+  the sort firewall) — coverage/SPOF returning empty under failure meant the team-threat
+  discovery branch was silently skipped entirely (an empty objective, not a labeled degraded
+  one), while need/support/shared candidates still got ranked and presented through the
+  ordinary machinery with nothing distinguishing them from a fully healthy turn. A live probe
+  confirmed the actual user-facing result: "Milotic — usage_backed, medium confidence,"
+  indistinguishable from normal output, with only an easy-to-miss side-channel banner as the
+  sole honesty signal. Judged a real regression against ADR-029's core principle (ranking is
+  defined on verified closures; static/incomplete data must never silently populate it), not
+  an acceptable labeled policy revision — **reverted**. ADR-029's original hard stop
+  (`pending_presentation=None`, `candidate_discovery_error` preserved) restored; the
+  misleading "continues degraded" test removed rather than repurposed; the original
+  `test_calc_evidence_failure_aborts_multi_discovery_without_partial_ranking` restored intact.
+  The underlying usability problem (autopilot/CLI dead-ending at 2+ locks under calc failure)
+  remains real and is tracked as its own future design task — matching single_locked's actual
+  honesty bar (real row-level labeling or an explicit "team-threat ranking unavailable, showing
+  support-only" banner), not shipped in an unfinished, silently-dishonest interim state.
+- **3c — failed refine leaving no new prompt, fixed and shipped, with a real regression
+  test added on request.** `refine_provisional_slot → END` was an unconditional graph edge;
+  an unresolved refinement (e.g., incomplete moveset) still routed to `END` with pending
+  already cleared, producing a second silent dead-end. Fixed via a conditional edge
+  (`_route_after_refine`): a real provisional result routes to `END` as before; an unresolved
+  result routes back through `route_team_phase` to rediscover and produce a fresh prompt.
+  Initially shipped with only indirect stress-observation coverage (no dedicated test) —
+  flagged as a real gap rather than left uncovered; closed with
+  `test_route_after_refine_sends_unresolved_back_to_team_phase` (unit-level branch coverage)
+  and `test_unresolved_refine_rediscovers_pending_presentation` (real graph-path coverage
+  proving a genuinely new prompt is produced, not a silent empty turn).
+
+**Founding-scenario replay against the real CLI, scoped honestly rather than overclaimed.**
+Replayed closed-set reconstructions of the Kingambit, Archaludon+Pelipper Rain-core, mono-Fairy
+phase-boundary, and Vu's real Rain-team roster-grouping scenarios through the actual
+`handle_line`/graph path — explicitly *not* a replay of the original free-text role-play
+transcripts, since those were tool-side conversations, not CLI sessions. What was actually
+verified, precisely: Kingambit locks correctly with Trick-Room-appropriate partners, no
+Swords-Dance false positive; Archaludon locks as `bulky_special_attacker` with no observed
+Basculegion-leading result on inspected candidate lists; the phase map's first three
+transitions (`empty → single_locked → multi_locked`) matched the established four-phase design
+with no anomalous names and no mono-type hard filter — `complete` was never reached in this
+reconstruction, so the terminal-phase claim from the original mono-Fairy transcript stays
+unverified by this replay, not confirmed; the roster role-structure grouping's contested/
+uncontested claims are confirmed authoritative via direct `summarize_roster_role_structure`
+invocation against the real Rain fixture. What was explicitly **not** reached and should not
+be claimed as verified: the full "three distinct role concepts" narrative beyond partner-option
+inspection; the exact Archaludon→Pelipper→Mega-Swampert lock order (Swampert was often never
+offered in the sessions run); locks 3-6 of the mono-Fairy build and the `complete` phase itself;
+and building Vu's actual six-member roster end to end via the CLI (a related but different
+five-member Rain lineup locked instead) — the grouping design's own correctness is still fully
+verified, just not via a successful CLI-built exact match. One additional finding worth
+tracking, not a bug: the Ollama parser sometimes extracts Pelipper over an explicit Archaludon
+anchor when a "rain..." phrase and the named anchor compete in the same input — labeled
+product-acceptable for delegated intent rather than a defect, since the case that actually
+matters (an explicit anchor never getting silently dropped once correctly extracted) is
+covered by `test_explicit_anchor_survives_mismatched_direction_filter`.
+
+**A third, distinct bug found and correctly kept separate from the already-tracked tier-3
+moveset gap.** Autopilot runs rarely reaching a fully locked 6-member team traced to two
+independent causes, not one: the already-known thin `_ROLE_PREF_MOVES` coverage (producing
+`incomplete_build` during refinement itself), and a newly-found Mega-ability legality failure
+at commit time (`illegal provisional slot: ability:noability`, observed with Raichu-Mega-X) —
+a provisional build reaching real `ProvisionalSlot` status and then failing atomic commit,
+producing an autopilot spin as rediscovery re-offers the same candidate repeatedly. Filed as
+its own separate backlog item rather than folded into the tier-3 tracking, since conflating
+two different root causes under one label would have made either one harder to actually fix
+later.
+
+**Skip-count discrepancy investigated and corrected precisely, not left as an unexplained
+delta.** 778 passing (final), 6 skipped — down from the previously-established 7. Traced
+exactly: `uv sync --extra ollama` (run earlier in this thread to enable live manual testing)
+installed `langchain_ollama` into this environment, which caused a previously-skipped
+factory-level test (`test_ollama_factory_uses_json_schema_and_include_raw_without_live_model`)
+to actually run and pass — not, as first guessed, one of the two live-Ollama-smoke skips
+converting to a pass. The live Ollama smoke test still correctly skips, since
+`BOOTSTRAP_OLLAMA_MODEL` remains unset in the pytest process itself even though it was set for
+manual CLI runs. Net: 5 live-calc + 1 live-Ollama-smoke = 6, confirmed precisely rather than
+accepted on a plausible-sounding guess.
+
+This closes the CLI stress-testing arc for this session. 778 tests passing, 6 skipped
+(baseline shape unchanged; one prior skip now genuinely running due to a local dependency
+install, not a masked regression).
+
+**Deliberately deferred, tracked as separate future scope:** `multi_locked`'s honestly-labeled
+degraded discovery under calc failure (ADR-029's own originally-deferred "support/shared-only
+banner" work — now with a concrete, rejected non-solution on record to avoid re-attempting
+the same unlabeled approach); the Mega-ability legality-at-commit bug (separate from, not
+folded into, the tier-3 moveset gap); `_DIRECTION_PHRASES` expansion for Fork A's newly-
+absorbed fine-grained labels; canonical name/form resolution.
+
+### 2026-08-10 (cont.): read-only mirror enforcement — root cause found and fixed, not just
+re-worded
+
+The read-only mirror rule (`docs/architecture_decisions.md`/`docs/master_project_log.md` never
+editable by Cursor) had been violated more than once earlier this session despite
+`CURSOR_HANDOFF.md` already stating it in fairly direct prose. Rather than simply strengthen
+the wording again, investigated why the existing wording hadn't worked — found two distinct,
+stacked root causes, not one.
+
+**Delivery failure, more fundamental than the wording itself.**
+`.cursor/rules/project-context.md` — the file `CURSOR_HANDOFF.md` pointed to as "the hard
+rule, enforced every session" — had no YAML frontmatter and was a plain `.md` file, not
+`.mdc`. It was never actually auto-injected into context the way properly-configured rule
+files (e.g. `ponytail.mdc`, with `alwaysApply: true`) are. Every prior violation happened in a
+session where the rule was structurally absent from context, not one where it was present and
+misapplied — this was never really a discipline failure, it was a rule that was silently never
+being read most of the time.
+
+**Semantic failure on the occasions the rule was seen.** The prior wording banned *intent*
+("never edit... flag it back") without naming the banned *action* (a file-write tool call
+against a specific path) or stating the required alternative concretely. Traced against the
+two known incidents precisely: the ADR-014 violation happened because a reviewed plan's own
+step literally said "Amend ADR-014 in docs/architecture_decisions.md" — a path-named
+instruction beat a vaguely-worded prohibition with no operational alternative attached. The
+condition-resilience violation happened because nothing had asked for a doc edit at all — a
+"helpful logging" impulse filled the gap left by the rule never stating what to do instead of
+editing directly.
+
+**Fixed at both root causes, not just the second.** `project-context.md` renamed to
+`project-context.mdc` with `alwaysApply: true`, matching the pattern already working correctly
+for other rules — closing the delivery gap. Both `CURSOR_HANDOFF.md` and the rule file rewritten
+as an explicit action-ban (naming the exact two file paths and the banned tool operations, not
+just the intent), with the required alternative stated concretely (propose text in a normal
+chat response for manual pasting, never a file-write call against either path) and an explicit
+plan-gate clause (a submitted plan step touching either file should be flagged and excluded
+before implementation begins, not executed and corrected afterward).
+
+**Not yet tested against a real violation attempt** — the fix is in place and confirmed on
+disk, but its effectiveness hasn't been proven the way a positive test would; worth treating as
+provisionally fixed rather than conclusively solved until it's actually seen holding under a
+real edge case. One minor, low-priority naming drift noted: `CURSOR_HANDOFF.md` still
+references the old `.md` filename in its pointer to the rule file, left as-is for now (cosmetic,
+not a functional gap — the `.mdc` file itself is what's actually loaded).
+
 ---
 
 ## TOOLS & RESOURCES
@@ -3473,4 +3958,3 @@ recursive `recommend_build` calls for opponent builds; the hardcoded opponent li
 `_tier3_verify_spread` (a separate, orthogonal ADR-015 fidelity gap); calc verification wiring
 into provisional build emission; `recommend_build`'s own nature path (this task touched only
 slot-fill's `_refine_defaults`); canonical name/form resolution.
-

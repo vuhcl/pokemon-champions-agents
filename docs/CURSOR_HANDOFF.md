@@ -166,11 +166,17 @@ interview talking points, the same way VinylIQ's build history did — so err on
 recording *why* a decision was made, not just *what* was built, since that's the part that
 turns into a defensible interview answer later.
 
-Amendment format and logging-promptness rules now live in `.cursor/rules/project-context.md`
-(enforced every session) rather than duplicated here.
+Amendment format and logging-promptness rules now live in
+`.cursor/rules/project-context.mdc` (alwaysApply; enforced every session) rather than
+duplicated here.
 
-**Enforcement note:** `docs/architecture_decisions.md` and `docs/master_project_log.md` in
-this repo are read-only mirrors, not editable by Cursor under any circumstance — see
-`.cursor/rules/project-context.md` for the hard rule. If a task plan ever includes a step
-that would touch either file, flag it back rather than executing it, even for a change as
-small as a single type annotation.
+**Enforcement note (action ban):** Never issue a file-write / edit tool call targeting
+`docs/architecture_decisions.md` or `docs/master_project_log.md`. Those two exact paths are
+read-only mirrors — see `.cursor/rules/project-context.mdc` for the hard rule. This is a ban
+on the tool call's target path, not on whether the request "sounds like editing docs":
+indirect phrasing ("amend ADR-014," "add a ship note to the log," "sync open items") still
+counts. When an edit seems warranted, output the proposed text in your chat response for the
+human to review and paste manually — never as a write to either path. If a submitted plan
+contains a step that would touch either path, flag and exclude that step **before
+implementation begins**; do not execute it and correct afterward. "Implement the plan as
+specified" does not override this ban.
