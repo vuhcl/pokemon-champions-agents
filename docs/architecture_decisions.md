@@ -625,6 +625,64 @@ step.
 
 ---
 
+### ADR-010 — Amendment 2026-08-10a
+
+**REPL shape, session policy, rendering layer, and provider wiring — filling in ADR-010's
+originally undecided scope.**
+
+**Decision:** A thin stdlib REPL (`recommender/cli.py`/`__main__.py`) owns process lifetime
+directly — no framework, no `compile_cli_graph` wrapper beyond a literal
+`open_sqlite_checkpointer() + resolve_bootstrap_parser() + compile_graph(...)` composition.
+Terminal rendering is a genuinely separate presentation layer (`recommender/present_text.py`,
+pure `format_turn(state) -> str`, no I/O), not formatting logic embedded in graph nodes.
+Session identity/resumption: newest-updated incomplete thread resumes by default with no
+flags; `--new`/`--thread ID`/`--list-threads` as explicit overrides; "incomplete" is
+`team_phase != "complete"` OR any pending/provisional state set. Meta commands
+(`:q`/`:thread`/`:team`/`:new`/`:reset`) are handled entirely outside the graph — `:reset`
+specifically stays a mint-new-thread alias rather than routing to the graph's `reset` intent,
+structurally incapable of issuing a `pending_input` invoke at all. LLM provider selection for
+bootstrap intake is env/flag-driven (`POKEMON_CHAMPIONS_LLM_PROVIDER`), mirroring ADR-013's
+existing Ollama-for-dev/hosted-for-demo pattern with a new Anthropic factory built against the
+same structured-output schema as the existing Ollama factory.
+
+**Alternatives considered:** always-silently-resume the last session with no override. Always
+require an explicit `--new`/`--thread` flag (no default resume). Wiring `:reset` to the
+graph's actual `reset` intent. A richer TUI/framework-based interface.
+
+**Why:** Always-silent-resume was rejected because a finished six-member team and a half-built
+experiment would share one database with no escape hatch — a real risk of a demo session
+silently continuing a stale, unrelated team. Always-requiring an explicit flag was rejected
+because it fights the entire point of the SQLite checkpointer work (continuation after
+restart) by making resumption opt-in every single time rather than the natural default.
+Wiring `:reset` to the graph's real reset intent was rejected because it would have required
+building a pending-free classification bypass, reopening ADR-027's deliberate closed-set-vs-
+LLM boundary for a convenience that a simple mint-new-thread alias already achieves without
+touching that boundary at all. A richer TUI was rejected as unnecessary scope for v1 — plain
+stdout is sufficient, and colors/paging can be added later without any structural rework,
+since rendering is already a separate, pure function.
+
+A genuine SQLite concurrency defect was found and fixed during implementation, worth recording
+as a real technical constraint rather than an incidental bug: nesting a `graph.get_state`
+query inside an open `saver.list(None)` cursor on the same `SqliteSaver` connection deadlocks
+— confirmed via an actual reproducible hang, not theoretical. Fixed by fully materializing the
+thread list before issuing any per-thread `get_state` query. Worth noting as a constraint for
+any future code composing these two APIs on a shared connection.
+
+**Status:** Implemented and verified — 754 tests passing (up from 726), 7 skipped matching
+baseline. A real automated end-to-end smoke test exercises the full session lifecycle
+(bootstrap → candidate selection → build confirmation → lock → connection close/reopen →
+resume) rather than relying on manual testing. The first-turn landmine (never sending
+`pending_input` on a brand-new session) and the pre-invoke `NotImplementedError` guard are
+each covered by dedicated tests proving the specific mechanism, not just end-to-end happy-path
+behavior.
+
+**Deliberately deferred, tracked as separate future scope:** generic free-form classification
+without a pending presentation (deliberately avoided rather than implemented, per ADR-027);
+web/hosted UI and any Postgres/Redis checkpointer; rich TUI/colors/pager; canonical name/form
+resolution (now the last remaining structural gap in the project, unrelated to this ADR).
+
+---
+
 ## ADR-012: Team-selection-at-Team-Preview as a recommender extension
 **Decision:** In addition to building the initial 6-Pokémon team, extend the recommender to handle the "given my 6 and the opponent's revealed 6, which 4 do I bring" decision. This is a static decision problem solvable with the same legality/matchup-calc tools already in scope — it does not require the battle-log parser or the RL policy, so it's a natural extension of the recommender (phase 1/1.5), not tied to the harder piloting/RL phase (phase 3).
 **Status:** Decided as a scoped extension. Build after the core 6-Pokémon recommender loop works; don't build simultaneously with the first working version.
@@ -4200,6 +4258,51 @@ beyond shipped support-derived cases.
 
 ---
 
+### ADR-026 — Amendment 2026-08-10a
+
+**Breadth-vs-severity residual risk investigated and closed as intentional design, not left
+open.**
+
+**Decision:** The strict lexicographic ordering of `uncovered_verified_decisive_count` before
+`uncovered_verified_costly_count` in `rank_multi_locked_candidates`' ranking key — meaning any
+candidate with even one more decisive closure outranks another candidate regardless of how
+many costly closures that candidate answers — is confirmed as intentional, correctly-designed
+behavior. Reclassified from open residual risk to documented policy.
+
+**Why this doesn't need a fix:** verified the "arbitrarily many costly closures" framing
+overstated the real scenario. The team-threat objective is bounded (~50 ladder species,
+~79 form-level threats in the current snapshot), and a live probe found realistic contested
+costly deltas are single-digit (a strong generalist reached roughly 5-7 costly closures
+against the largest usable objectives; smaller objectives typically show 0-1). No shipped
+test, role-play transcript, or prior session ever reproduced this as an actual ranking
+mistake — it was flagged out of appropriate caution when multi-locked shipped, never observed
+to matter.
+
+Confirmed this is the same underlying policy already validated by the composition-fit
+severity-band work, not a separate problem needing its own answer: that work established
+"a genuine, verified closure beats softening many things weakly" (decisive/costly verified
+uncovered closures outrank composition; composition outranks toss-up/conditional/SPOF
+improvements). Decisive-before-costly is the identical principle applied one level finer,
+inside the already-verified-closure band — preferring one cleaner win (≥50% HP remaining)
+over several weaker ones (20-50% HP remaining) is consistent with, not a departure from, the
+tuple's existing design.
+
+**Alternative considered and rejected:** introducing a breadth threshold (e.g., some N costly
+closures collectively outweighing 1 decisive closure). Rejected because it would have been
+calibrated against no real data and no observed failure — inventing an arbitrary threshold to
+guard against a scenario that's never actually occurred would trade one undocumented arbitrary
+property for a different, equally arbitrary one, with no evidence either is more correct.
+
+**Status:** Closed, not deferred. No ranking-stage rework performed; no interaction with
+`MIN_WANTED_DEPENDENTS_FOR_ESSENTIAL`, `_preferred_setter_direction`, or the outcome/severity
+reconciliation from ADR-023 Amendment 2026-08-08b. **Explicit revisit condition, not
+indefinite closure:** reopen only if a concrete session demonstrates a real case where a
+specialist's single decisive closure wrongly buries a clearly better multi-costly generalist
+candidate — at that point there would finally be real calibration data to design against,
+which is exactly what was missing to justify a change now.
+
+---
+
 ## ADR-027: Empty-team bootstrap — LLM-backed free-form extraction behind a
 deterministic-verification boundary; ADR-013's first real runtime consumer
 
@@ -4289,6 +4392,84 @@ beyond exact-ID acceptance; condition-resilience assessment; selected-four model
 first-turn intent classification beyond the `bootstrap_intake` response specifically; further
 target-role taxonomy work beyond Track 1's fourteen values; low-data Compendium member build
 synthesis (confirmed independent of the vocabulary gap, separately reported).
+
+---
+
+### ADR-027 — Amendment 2026-08-10a
+
+**`TargetRoleId` Fork A: absorb the `RoleArchetype` vocabulary wholesale, replace the interim
+collapsing map with mechanism-resolved speed-control identity, and fix no-provider bootstrap
+UX.**
+
+**Decision:** Expand `TargetRoleId` from 14 to 25 values by absorbing every `RoleArchetype`
+identity label (all nine fine-grained `{fast,standard,bulky} × {physical,special,mixed}`
+attacker combinations, `support_speed_control`, `screens_support`), while keeping the
+pre-existing umbrella values (`fast_attacker`, `bulky_attacker`, weather/setup setters,
+pivots) unchanged. Delete the interim `_KIT_ROLE_TO_TARGET` collapsing map introduced during
+initial CLI testing; kit-role promotion is now identity membership via
+`bootstrap_kit_role_policy`, applied only after Track 1's strategic-evidence resolution fails
+to produce a decision.
+
+Speed-control resolution is now mechanism-driven rather than defaulted: added
+`"tailwindsetter": "tailwind_setter"` to `REVIEWED_STRATEGIC_TARGET_ROLES` (previously
+missing entirely — the actual root cause of Whimsicott-shaped anchors falling through to kit
+collapse regardless of the interim map), and added a `_speed_control_pre_pass` that resolves
+present Tailwind/Trick Room mechanisms: two or more distinct speed-control roles present
+produces `UnresolvedTargetRoleDecision(reason="ambiguous_speed_control")` (a clarification
+prompt on an explicit anchor, silent exclusion for a non-explicit alternative); exactly one
+resolves to that role at high confidence; zero falls through to kit identity. The pre-pass is
+deliberately deferred until *after* the remaining non-speed Track 1 strategic loop runs, not
+before — this was corrected during implementation specifically to prevent Pelipper's
+incidental Tailwind from short-circuiting its established primary `rain_setter` identity
+before Rain's own strategic evidence gets a chance to resolve first.
+
+Bootstrap's no-provider UX is fixed: when `bootstrap_intake_error` is
+`BOOTSTRAP_PARSER_NOT_CONFIGURED`, presentation omits the generic `Didn't catch that.` prefix
+and surfaces an actionable `BOOTSTRAP_PARSER_FIX_HINT` (also appended to startup provider
+warnings) — replacing the prior behavior where every reply, regardless of content, produced
+an identical unhelpful message and re-prompted as if retrying could work when it fundamentally
+couldn't without a configured parser.
+
+**Alternatives considered:** keeping the interim `_KIT_ROLE_TO_TARGET` collapsing map as the
+permanent solution. Running the speed-control pre-pass before the remaining Track 1 strategic
+loop. Silently picking one speed-control role when an anchor has both Tailwind and Trick Room
+mechanisms present, rather than surfacing ambiguity.
+
+**Why:** The interim map was found to be actively wrong in two specific, verified ways — not
+just coarse. `standard_{physical,special,mixed}_attacker → bulky_attacker` asserted a
+bulky-item-driven claim the anchor's classification never made (`standard_*` specifically
+means no fast/bulky signal was detected at all). `support_speed_control → tailwind_setter`
+picked one specific mechanism out of a category explicitly designed to need further
+resolution — the same mistake the original `_pick_role` redesign had already found and fixed
+once, reintroduced by a different path. Running the pre-pass before the remaining strategic
+loop was rejected after discovering it would have broken Pelipper's established `rain_setter`
+identity, which every worked example this project has used all session depends on — deferring
+it until after non-speed evidence resolves first prevents an incidental secondary mechanism
+from stealing precedence over a real primary one. Silent ambiguity resolution was rejected
+because Tailwind and Trick Room are both real, independently self-supplied mechanisms with no
+principled way to prefer one over the other absent stronger evidence — surfacing the
+ambiguity (clarification on an explicit anchor, exclusion for an alternative) is consistent
+with this project's standing "don't guess when evidence doesn't decide" discipline.
+
+**Status:** Implemented and verified. Named tests confirm the Pelipper-ordering fix at the
+bootstrap `_target_role` layer specifically (`test_pelipper_prefers_rain_over_incidental_
+tailwind`, distinct from and not to be conflated with the pre-existing anchor-classification
+contract `test_pelipper_primary_rain_secondary_tailwind_without_setup`, which covers a
+different layer — primary/secondary `AnchorRoleDecision`, not open-slot `TargetRoleDecision`).
+TW+TR ambiguity confirmed via `test_tw_and_tr_mechanisms_yield_unresolved_speed_control` and
+`test_explicit_anchor_ambiguous_speed_control_asks_clarification`. Explicit-anchor survival
+under a mismatched direction filter confirmed via
+`test_explicit_anchor_survives_mismatched_direction_filter` (Archaludon correctly surfaces as
+`bulky_special_attacker` under a Rain-direction payload, with a `rain_setter`-class
+alternative like Pelipper still present rather than the anchor being dropped). 778 tests
+passing at the close of this arc. Deliberately deferred: `_DIRECTION_PHRASES` expansion for
+the newly-absorbed fine-grained labels; `role_spread`/`_ROLE_PREF_MOVES` coverage gaps for
+weather/setup `TargetRoleId`s (pre-existing, unchanged by this amendment); deleting the
+`RoleArchetype` type itself (still needed as the underlying classification vocabulary,
+`TargetRoleId` absorption is additive, not a replacement); canonical name/form resolution.
+
+---
+
 ## ADR-028: Condition classification and redundancy checks — generation-primary signal with
 a scoped composition_fit override, not a new ranking stage
 
