@@ -102,6 +102,7 @@ def test_role_shape_context_is_only_the_projection():
         "primary_function",
         "tankiness",
         "requires_setup_turn",
+        "needed_weathers",
     }
 
 

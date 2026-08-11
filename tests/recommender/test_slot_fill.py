@@ -35,6 +35,7 @@ from recommender.slot_fill import (
     resolve_all_support_needs,
     resolve_need_candidates,
     run_slot_fill_terminal,
+    target_role_from_needs,
     target_role_from_strategic_evidence,
 )
 from recommender.state import (
@@ -665,7 +666,12 @@ def test_clean_anchor_classification_still_runs_raw_support_analysis():
     assert result.anchor_role_decision.match_quality == "clean"
     assert result.context is not None
     assert result.context.support_needs
-    assert not any(need.name == "Rain setter" for need in result.context.support_needs)
+    # Clean match still runs raw needs — including move-derived Rain from Electro Shot.
+    assert any(
+        need.category == "condition_setter"
+        and need.trigger == "field_condition:any:rain"
+        for need in result.context.support_needs
+    )
 
 
 def _commit_state(*, ability: str = "Armor Tail", item: str = "Sitrus Berry", base: str | None = None):
@@ -1157,4 +1163,67 @@ def test_static_row_cannot_outrank_verified_in_sort_annotated():
     ]
     ordered = _sort_annotated(rows)
     assert [row.species for row in ordered] == ["VerifiedMon", "StaticMon"]
+
+
+def test_target_role_from_needs_maps_rain_condition_setter():
+    need = SupportNeed(
+        category="condition_setter",
+        name="Rain setter",
+        description="Needs Rain",
+        trigger="field_condition:any:rain",
+        notes="Requires Rain",
+    )
+    decision = target_role_from_needs([need])
+    assert isinstance(decision, TargetRoleDecision)
+    assert decision.role_id == "rain_setter"
+
+
+def test_archaludon_single_locked_pool_labels_rain_setter():
+    from recommender.team_candidates import owned_species_ids
+
+    slot = Slot(
+        species=Attr("Archaludon", locked=True),
+        role=Attr("bulky_special_attacker", locked=True),
+        ability=Attr("Stamina", locked=True),
+        item=Attr("Leftovers", locked=True),
+        nature=Attr("Timid", locked=True),
+        moveset=Attr(
+            ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Aura Sphere"],
+            locked=True,
+        ),
+        spread=Attr(
+            {"hp": 2, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 32},
+            locked=True,
+        ),
+    )
+    state = _base_state()
+    state["team_draft"] = [slot, empty_slot()]
+    disc = build_anchored_slot_fill_context(state, slot, threat_counter_results=[])
+    ctx = disc.context
+    assert ctx is not None
+    assert any(
+        n.category == "condition_setter" and n.trigger == "field_condition:any:rain"
+        for n in (ctx.support_needs or [])
+    )
+    derive_target_role(ctx)
+    annotate_overlap(ctx)
+    resolve_all_support_needs(
+        ctx, state, available_species=owned_species_ids(state), ownership_mode="off"
+    )
+    merge_need_resolved(ctx)
+    labeled = [
+        row
+        for row in (ctx.annotated_candidates or [])
+        if isinstance(row.target_role_decision, TargetRoleDecision)
+        and row.target_role_decision.role_id == "rain_setter"
+    ]
+    ambiguous_rain = [
+        row
+        for row in (ctx.annotated_candidates or [])
+        if isinstance(row.target_role_decision, UnresolvedTargetRoleDecision)
+        and "rain_setter" in row.target_role_decision.ambiguity
+    ]
+    assert any(to_id(row.species) == "politoed" for row in labeled) or any(
+        to_id(row.species) == "pelipper" for row in (*labeled, *ambiguous_rain)
+    )
 
