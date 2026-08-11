@@ -6,6 +6,7 @@ import argparse
 import sys
 from typing import Any, Mapping
 
+from recommender.calc_client import calc_startup_warning
 from recommender.graph import compile_cli_graph
 from recommender.llm_provider import resolve_bootstrap_parser
 from recommender.present_text import (
@@ -134,6 +135,9 @@ def main(argv: list[str] | None = None) -> int:
     parser, warning = resolve_bootstrap_parser(args.provider)
     if warning:
         print(warning, file=sys.stderr)
+    calc_warning = calc_startup_warning()
+    if calc_warning:
+        print(calc_warning, file=sys.stderr)
 
     graph, saver = compile_cli_graph(
         path=args.db, bootstrap_intake_parser=parser

@@ -174,7 +174,12 @@ class CalcClient:
         self.base_url = base_url.rstrip("/")
 
     def _json_request(
-        self, method: str, path: str, body: dict[str, Any] | None = None
+        self,
+        method: str,
+        path: str,
+        body: dict[str, Any] | None = None,
+        *,
+        timeout: float | None = None,
     ) -> tuple[int, Any]:
         url = f"{self.base_url}{path}"
         data: bytes | None = None
@@ -184,7 +189,7 @@ class CalcClient:
             headers["Content-Type"] = "application/json"
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
-            with urllib.request.urlopen(req) as resp:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
                 raw = resp.read()
                 try:
                     parsed = json.loads(raw.decode())
@@ -203,8 +208,11 @@ class CalcClient:
         except (urllib.error.URLError, TimeoutError) as exc:
             raise CalcClientError(0, {"error": str(exc)}) from exc
 
-    def health(self) -> HealthResponse:
-        status, body = self._json_request("GET", "/health")
+    def health(self, *, timeout: float | None = None) -> HealthResponse:
+        if timeout is None:
+            status, body = self._json_request("GET", "/health")
+        else:
+            status, body = self._json_request("GET", "/health", timeout=timeout)
         if status < 200 or status >= 300:
             raise CalcClientError(status, body)
         return body
@@ -313,3 +321,21 @@ def sets_import(text: str, *, base_url: str | None = None) -> dict[str, Any]:
 
 def sets_export(set_data: dict[str, Any], *, base_url: str | None = None) -> str:
     return _client(base_url).sets_export(set_data)
+
+
+def calc_startup_warning(
+    base_url: str = DEFAULT_BASE_URL, *, timeout: float = 0.5
+) -> str | None:
+    """Return a stderr-ready warning if the calc service is unreachable, else None."""
+    url = base_url.rstrip("/")
+    try:
+        body = CalcClient(url).health(timeout=timeout)
+    except CalcClientError:
+        body = None
+    if body is not None and body.get("status") == "ok":
+        return None
+    return (
+        f"Calc service not reachable at {url} — matchup verification and "
+        "coverage/threat analysis will fail until it's started. Recommendations "
+        "will degrade to labeled static estimates where possible, or fail closed."
+    )
