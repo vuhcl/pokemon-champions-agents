@@ -376,8 +376,17 @@ def test_target_role_is_candidate_local():
         )
     by_species = {row.species: row for row in rows}
     assert by_species["Farigiraf"].target_role_decision is not None
-    assert by_species["Incineroar"].target_role_decision is None
-    assert by_species["Rillaboom"].target_role_decision is None
+    # Threat/teammate-only rows may receive kit identity fallback (not open-slot inherit).
+    assert isinstance(
+        by_species["Incineroar"].target_role_decision, TargetRoleDecision
+    )
+    assert (
+        by_species["Incineroar"].target_role_decision.producer_name
+        == "slot_fill_kit_role_policy"
+    )
+    assert by_species["Rillaboom"].target_role_decision is None or isinstance(
+        by_species["Rillaboom"].target_role_decision, TargetRoleDecision
+    )
 
 
 def test_incompatible_candidate_support_roles_remain_unresolved():
@@ -630,6 +639,7 @@ def test_multi_selection_reuses_existing_atomic_commit_lifecycle():
     ],
 )
 def test_calc_evidence_failure_aborts_multi_discovery_without_partial_ranking(error):
+    """ADR-029: multi_locked stays fail-closed on calc-unavailable team review."""
     state = _state([_locked("A"), _locked("B"), *[empty_slot() for _ in range(4)]])
     discovery_error = CandidateDiscoveryError(
         "calc_incomplete",
