@@ -1,15 +1,10 @@
-"""SqliteSaver durability: serde + restart round-trip for immutable state dataclasses.
-
-Under default JsonPlusSerializer (ormsgpack), custom dataclasses need no msgpack
-allowlist. Set LANGGRAPH_STRICT_MSGPACK=true to require explicit registration.
-"""
+"""SqliteSaver durability: serde + restart round-trip for immutable state dataclasses."""
 
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 from unittest.mock import patch
-
-from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 
 from recommender.checkpointer import default_db_path, open_sqlite_checkpointer
 from recommender.graph import compile_graph
@@ -50,40 +45,49 @@ def test_default_db_path_respects_env(monkeypatch, tmp_path: Path):
     assert default_db_path() == target
 
 
-def test_serde_msgpack_round_trips_immutable_dataclasses():
-    serde = JsonPlusSerializer()
-    decision = TargetRoleDecision(
-        role_id="trick_room_setter",
-        source="support_need",
-        evidence=("trick_room",),
-    )
-    intent = PendingSlotIntent(
-        schema_version=1,
-        slot_index=1,
-        species="Farigiraf",
-        target_role_decision=decision,
-        source="need",
-        evidence=(
-            CandidateEvidence(
-                "compendium_backed",
-                "medium",
-                "role_category_evidence",
-                ("role:trick_room_setter",),
+def test_serde_msgpack_round_trips_immutable_dataclasses(tmp_path: Path):
+    saver = open_sqlite_checkpointer(tmp_path / "serde.db")
+    try:
+        serde = saver.serde
+        slot = _fully_locked("Garchomp")
+        decision = TargetRoleDecision(
+            role_id="trick_room_setter",
+            source="support_need",
+            evidence=("trick_room",),
+        )
+        intent = PendingSlotIntent(
+            schema_version=1,
+            slot_index=1,
+            species="Farigiraf",
+            target_role_decision=decision,
+            source="need",
+            evidence=(
+                CandidateEvidence(
+                    "compendium_backed",
+                    "medium",
+                    "role_category_evidence",
+                    ("role:trick_room_setter",),
+                ),
             ),
-        ),
-        base_slot_fingerprint="fp",
-    )
-    for obj in (decision, intent):
-        tag, blob = serde.dumps_typed(obj)
-        assert tag == "msgpack"
-        back = serde.loads_typed((tag, blob))
-        assert type(back) is type(obj)
-        if isinstance(obj, TargetRoleDecision):
-            assert back.role_id == obj.role_id
-            assert list(back.evidence) == list(obj.evidence)
-        else:
-            assert back.species == obj.species
-            assert back.target_role_decision.role_id == "trick_room_setter"
+            base_slot_fingerprint="fp",
+        )
+        restored = {}
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            for obj in (slot, decision, intent):
+                tag, blob = serde.dumps_typed(obj)
+                assert tag == "msgpack"
+                back = serde.loads_typed((tag, blob))
+                assert type(back) is type(obj)
+                restored[type(obj)] = back
+        assert not any("unregistered type" in str(w.message) for w in caught)
+        assert restored[Slot].species.value == "Garchomp"
+        assert restored[Slot].species.locked is True
+        assert restored[PendingSlotIntent].species == "Farigiraf"
+        assert restored[TargetRoleDecision].role_id == "trick_room_setter"
+        assert list(restored[TargetRoleDecision].evidence) == ["trick_room"]
+    finally:
+        saver.conn.close()
 
 
 def test_first_run_creates_missing_db(tmp_path: Path):
