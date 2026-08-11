@@ -348,7 +348,12 @@ def test_present_only_persists_ordered_options_with_sources():
     assert pending["options"][1]["source"] == "threat"
 
 
-def test_threat_only_choice_does_not_inherit_target_role():
+def test_threat_only_choice_gets_kit_fallback_not_open_slot_role():
+    """Threat-only rows must not inherit the open-slot support role.
+
+    They may still receive an identity kit TargetRoleDecision so refine is not a
+    dead-end (CLI pending cleared + unresolved refine with no re-prompt).
+    """
     ctx = SlotFillContext(
         anchor={"species": "Kingambit"},
         role_shape_context=_shape(),
@@ -366,10 +371,11 @@ def test_threat_only_choice_does_not_inherit_target_role():
 
     intent = result.state_updates["pending_slot_intent"]
     assert isinstance(intent, PendingSlotIntent)
-    assert intent.target_role_decision is None
-    unresolved = build_provisional_slot(intent, _base_state())
-    assert isinstance(unresolved, UnresolvedSlotRefinement)
-    assert unresolved.reason == "unresolved_target_role"
+    assert isinstance(intent.target_role_decision, TargetRoleDecision)
+    assert intent.target_role_decision.role_id != "trick_room_setter"
+    assert intent.target_role_decision.producer_name == "slot_fill_kit_role_policy"
+    provisional = build_provisional_slot(intent, _base_state())
+    assert isinstance(provisional, ProvisionalSlot)
 
 
 def test_ambiguous_speed_control_is_structured_and_unresolved():
@@ -412,6 +418,19 @@ _NEW_TARGET_ROLES = {
     "swords_dance_attacker",
     "nasty_plot_attacker",
 }
+_ARCHETYPE_TARGET_ROLES = {
+    "fast_physical_attacker",
+    "fast_special_attacker",
+    "fast_mixed_attacker",
+    "standard_physical_attacker",
+    "standard_special_attacker",
+    "standard_mixed_attacker",
+    "bulky_physical_attacker",
+    "bulky_special_attacker",
+    "bulky_mixed_attacker",
+    "support_speed_control",
+    "screens_support",
+}
 
 
 def _strategic_decision(species: str, role_id: str) -> TargetRoleDecision | None:
@@ -426,10 +445,15 @@ def _strategic_decision(species: str, role_id: str) -> TargetRoleDecision | None
 def test_reviewed_strategic_roles_cover_shipped_compendium_and_preserve_legacy():
     vocabulary = set(get_args(TargetRoleId))
 
-    assert vocabulary == _LEGACY_TARGET_ROLES | _NEW_TARGET_ROLES
+    assert vocabulary == (
+        _LEGACY_TARGET_ROLES | _NEW_TARGET_ROLES | _ARCHETYPE_TARGET_ROLES
+    )
+    assert len(vocabulary) == 25
     assert set(REVIEWED_STRATEGIC_TARGET_ROLES.values()) == _NEW_TARGET_ROLES | {
-        "trick_room_setter"
+        "trick_room_setter",
+        "tailwind_setter",
     }
+    assert REVIEWED_STRATEGIC_TARGET_ROLES["tailwindsetter"] == "tailwind_setter"
     assert set(REVIEWED_STRATEGIC_TARGET_ROLES.values()) <= vocabulary
 
 

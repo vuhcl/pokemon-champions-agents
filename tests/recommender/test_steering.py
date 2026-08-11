@@ -2,16 +2,20 @@ from unittest.mock import patch
 
 import pytest
 from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import END
 
-from recommender.graph import compile_graph
+from recommender.graph import _route_after_refine, compile_graph
 from recommender.nodes import classify_input
 from recommender.state import (
     Attr,
     CandidateEvidence,
+    PendingSlotIntent,
     ReasonRef,
     Slot,
     TargetRoleDecision,
+    UnresolvedSlotRefinement,
     all_locked,
+    empty_slot,
 )
 
 VGC_MB = "[Gen 9 Champions] VGC 2026 Reg M-B"
@@ -156,8 +160,10 @@ def test_pending_presentation_second_option_creates_intent_across_turn_boundary(
     assert result["team_draft"][1].species.value is None
     assert result["pending_slot_intent"].species == "Incineroar"
     assert result["pending_slot_intent"].evidence == ()
-    assert result["provisional_refinement"].reason == "unresolved_target_role"
-    assert result["pending_presentation"] is None
+    # Threat-only option had no role on the presentation; refine recovers via kit.
+    assert result["provisional_slot"] is not None
+    assert result["provisional_slot"].species == "Incineroar"
+    assert result["pending_presentation"]["kind"] == "full_build_confirmation"
 
 
 @pytest.mark.parametrize("reply", ["Incineroar", "option 2"])
@@ -170,7 +176,7 @@ def test_pending_presentation_explicit_selection(reply: str):
 
     assert result["team_draft"][1].species.value is None
     assert result["pending_slot_intent"].species == "Incineroar"
-    assert result["pending_presentation"] is None
+    assert result["pending_presentation"]["kind"] == "full_build_confirmation"
 
 
 def test_pending_presentation_affirmative_selects_default_without_locking():
@@ -183,6 +189,114 @@ def test_pending_presentation_affirmative_selects_default_without_locking():
     assert result["team_draft"][1].species.value is None
     assert result["pending_slot_intent"].species == "Farigiraf"
     assert result["pending_slot_intent"].evidence[0].basis == "compendium_backed"
+
+
+def test_route_after_refine_sends_unresolved_back_to_team_phase():
+    assert _route_after_refine({"provisional_slot": None}) == "route_team_phase"
+    assert _route_after_refine({}) == "route_team_phase"
+    assert _route_after_refine({"provisional_slot": object()}) is END
+
+
+def test_unresolved_refine_rediscovers_pending_presentation():
+    """Failed refine must not end the turn with no prompt (3c dead-end).
+
+    UnresolvedSlotRefinement clears provisional_slot → `_route_after_refine` →
+    `route_team_phase` → phase discovery, which must install a new pending.
+    """
+
+    spread = {"hp": 32, "atk": 32, "def": 2, "spa": 0, "spd": 0, "spe": 0}
+    locked = Slot(
+        role=Attr("standard_physical_attacker", locked=True),
+        species=Attr("Kingambit", locked=True),
+        ability=Attr("Defiant", locked=True),
+        item=Attr("Black Glasses", locked=True),
+        moveset=Attr(
+            ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"], locked=True
+        ),
+        spread=Attr(dict(spread), locked=True),
+        nature=Attr("Adamant", locked=True),
+    )
+    pending = {
+        "schema_version": 1,
+        "kind": "candidate_selection",
+        "slot_index": 1,
+        "options": [
+            {
+                "species": "Tsareena",
+                "source": "need",
+                "evidence": (
+                    CandidateEvidence(
+                        "mechanical_only",
+                        "low",
+                        "narrow_candidates_for_move",
+                        ("need:screens",),
+                    ),
+                ),
+                "target_role_decision": TargetRoleDecision(
+                    role_id="screens_support",
+                    source="other",
+                    evidence=("kit_role:screens_support",),
+                    needed_constraints=("role:screens_support",),
+                    confidence="medium",
+                    producer_name="slot_fill_kit_role_policy",
+                ),
+            }
+        ],
+    }
+    rediscovered = {
+        "coverage": [],
+        "spofs": [],
+        "shared_teammates": None,
+        "last_team_review": None,
+        "candidate_discovery_error": None,
+        "pending_presentation": {
+            "schema_version": 1,
+            "kind": "candidate_selection",
+            "slot_index": 1,
+            "options": [{"species": "Sinistcha", "source": "need"}],
+        },
+    }
+    unresolved = UnresolvedSlotRefinement(
+        schema_version=1,
+        intent=PendingSlotIntent(
+            schema_version=1,
+            slot_index=1,
+            species="Tsareena",
+            target_role_decision=None,
+            source="need",
+        ),
+        unresolved_fields=("moves",),
+        reason="incomplete_build",
+    )
+
+    with patch(
+        "recommender.nodes.discover_single_locked", return_value=rediscovered
+    ) as discover:
+        graph = compile_graph(checkpointer=MemorySaver())
+        suffix = "refine-rediscover"
+        config = _thread(suffix)
+        graph.invoke({"format_id": VGC_MB}, config=config)
+        graph.update_state(
+            config,
+            {
+                "team_draft": [locked, *[empty_slot() for _ in range(5)]],
+                "pending_presentation": pending,
+            },
+        )
+        with patch(
+            "recommender.slot_fill.build_provisional_slot", return_value=unresolved
+        ):
+            result = graph.invoke({"pending_input": "1"}, config=config)
+
+    discover.assert_called_once()
+    assert result["provisional_slot"] is None
+    assert isinstance(result["provisional_refinement"], UnresolvedSlotRefinement)
+    assert result["provisional_refinement"].reason == "incomplete_build"
+    assert result["slot_commit_error"] is not None
+    assert "Tsareena" in result["slot_commit_error"]
+    assert result["pending_presentation"] is not None
+    assert result["pending_presentation"]["kind"] == "candidate_selection"
+    assert result["pending_presentation"]["options"][0]["species"] == "Sinistcha"
 
 
 def test_full_build_confirmation_atomically_locks_slot():

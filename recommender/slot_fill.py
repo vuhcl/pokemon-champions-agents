@@ -5,9 +5,14 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field, replace
-from typing import Any, Literal
+from typing import Any, Literal, get_args
 
-from recommender.anchor_roles import AnchorRoleDecision, ResolvedAnchorBuild
+from recommender.anchor_roles import (
+    AnchorRoleDecision,
+    ResolvedAnchorBuild,
+    classify_anchor_role,
+    resolve_anchor_build,
+)
 from recommender.by_usage import query_by_usage
 from recommender.calc_client import PokemonSpecOptional
 from recommender.contingent_value import REDIRECT_MOVES
@@ -278,6 +283,7 @@ REVIEWED_STRATEGIC_TARGET_ROLES: dict[str, TargetRoleId] = {
     "snowsetter": "snow_setter",
     "redirection": "redirection",
     "trickroomsetter": "trick_room_setter",
+    "tailwindsetter": "tailwind_setter",
     "swordsdanceattacker": "swords_dance_attacker",
     "nastyplotattacker": "nasty_plot_attacker",
 }
@@ -415,6 +421,42 @@ def _candidate_target_role(
         and matched.role_id == decision.role_id
         else None
     )
+
+
+def _kit_fallback_target_role(species: str) -> TargetRoleDecision | None:
+    """Identity kit/role promotion when threat/support evidence yields no TargetRoleDecision.
+
+    Without this, degraded threat-only rows are presented then dead-end on refine
+    (pending cleared, UnresolvedSlotRefinement, no confirmation prompt).
+    """
+
+    vocabulary = frozenset(get_args(TargetRoleId))
+    build = resolve_anchor_build(species, regulation="champions-reg-mb")
+    anchor = classify_anchor_role(build)
+    for raw in (anchor.kit_role, anchor.role_id):
+        if not raw or raw not in vocabulary:
+            continue
+        return TargetRoleDecision(
+            role_id=raw,  # type: ignore[arg-type]
+            source="other",
+            evidence=(f"kit_role:{raw}",),
+            needed_constraints=(f"role:{raw}",),
+            confidence="medium",
+            provenance=("anchor_role:kit_role",),
+            producer_name="slot_fill_kit_role_policy",
+        )
+    return None
+
+
+def _resolved_candidate_target_role(
+    ctx: SlotFillContext, species: str, matching_needs: tuple[SupportNeed, ...]
+) -> TargetRoleResult | None:
+    decision = _candidate_target_role(ctx, matching_needs)
+    if isinstance(decision, TargetRoleDecision):
+        return decision
+    if isinstance(decision, UnresolvedTargetRoleDecision):
+        return decision
+    return _kit_fallback_target_role(species)
 
 
 def derive_target_role(ctx: SlotFillContext) -> TargetRoleResult | None:
@@ -632,7 +674,9 @@ def annotate_overlap(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
                 species=species,
                 matching_needs=matched,
                 source="both" if matched else "threat",
-                target_role_decision=_candidate_target_role(ctx, matched),
+                target_role_decision=_resolved_candidate_target_role(
+                    ctx, species, matched
+                ),
                 threat_row=row,
                 spec=dict(row.candidate.spec) or {"species": species},
                 evidence=_threat_evidence(row, degradation_kind=degradation_kind),
@@ -670,7 +714,9 @@ def merge_need_resolved(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
             species=species,
             matching_needs=matched,
             source="both" if matched else "threat",
-            target_role_decision=_candidate_target_role(ctx, matched),
+            target_role_decision=_resolved_candidate_target_role(
+                ctx, species, matched
+            ),
             threat_row=row,
             spec=dict(row.candidate.spec) or {"species": species},
             evidence=_threat_evidence(row, degradation_kind=degradation_kind),
@@ -692,7 +738,9 @@ def merge_need_resolved(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
                 species=existing.species,
                 matching_needs=matched,
                 source="both",
-                target_role_decision=_candidate_target_role(ctx, matched),
+                target_role_decision=_resolved_candidate_target_role(
+                    ctx, existing.species, matched
+                ),
                 threat_row=existing.threat_row,
                 spec=existing.spec,
                 evidence=evidence,
@@ -705,7 +753,9 @@ def merge_need_resolved(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
             species=resolved.species,
             matching_needs=matched,
             source="need",
-            target_role_decision=_candidate_target_role(ctx, matched),
+            target_role_decision=_resolved_candidate_target_role(
+                ctx, resolved.species, matched
+            ),
             threat_row=None,
             spec={"species": resolved.species},
             evidence=resolved.evidence,
@@ -1345,6 +1395,8 @@ def build_provisional_slot(
 ) -> ProvisionalSlot | UnresolvedSlotRefinement:
     """Refine a selected candidate without mutating the persisted team draft."""
     decision = intent.target_role_decision
+    if not isinstance(decision, TargetRoleDecision):
+        decision = _kit_fallback_target_role(intent.species)
     if not isinstance(decision, TargetRoleDecision):
         return UnresolvedSlotRefinement(
             schema_version=1,
