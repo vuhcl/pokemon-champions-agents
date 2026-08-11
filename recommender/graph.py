@@ -116,3 +116,16 @@ def compile_graph(checkpointer=None, *, bootstrap_intake_parser=None):
         bootstrap_intake_parser=bootstrap_intake_parser
     ).compile(checkpointer=checkpointer)
 
+
+def compile_cli_graph(*, path=None, bootstrap_intake_parser=None):
+    """Open the SQLite checkpointer and compile. Returns ``(graph, saver)``.
+
+    Caller owns ``saver.conn`` for process lifetime.
+    """
+    from recommender.checkpointer import open_sqlite_checkpointer
+
+    saver = open_sqlite_checkpointer(path)
+    graph = compile_graph(
+        checkpointer=saver, bootstrap_intake_parser=bootstrap_intake_parser
+    )
+    return graph, saver

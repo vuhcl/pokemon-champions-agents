@@ -15,6 +15,7 @@ from recommender.format import resolve_format
 from recommender.ids import to_id
 from recommender.legality import check_set, is_species_legal, load_snapshot
 from recommender.matchup import MatchupEvidenceError
+from recommender.present_text import BOOTSTRAP_PARSER_NOT_CONFIGURED
 from recommender.recommend import SP_BUDGET, spread_sum
 from recommender.reconcile import (
     reconcile_on_archetype_change,
@@ -122,7 +123,7 @@ def classify_pending(
         if bootstrap_intake_parser is None:
             return {
                 "turn_intent": "pending_response",
-                "bootstrap_intake_error": "bootstrap intake parser is not configured",
+                "bootstrap_intake_error": BOOTSTRAP_PARSER_NOT_CONFIGURED,
             }
         from recommender.bootstrap import (
             BootstrapIntakeParseError,
