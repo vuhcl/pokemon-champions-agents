@@ -23,6 +23,7 @@ from recommender.slot_fill import (
     AnchoredSupportNeed,
     LockedAnchorContext,
     SlotFillContext,
+    _kit_fallback_target_role,
     resolve_all_support_needs,
     resolve_need_candidates,
     target_role_from_anchored_needs,
@@ -34,6 +35,7 @@ from recommender.state import (
     ReasonRef,
     RecommenderState,
     Slot,
+    TargetRoleDecision,
     TeamCompletionPreference,
     TeamReviewResult,
     TeamThreatObjectiveRow,
@@ -427,7 +429,15 @@ def merge_multi_locked_candidates(
                 shared_worst_rank=teammate.worst_rank,
                 anchored_needs=existing.anchored_needs if existing else (),
             )
-    return [by_id[key] for key in sorted(by_id)]
+    rows: list[AnnotatedCandidate] = []
+    for key in sorted(by_id):
+        row = by_id[key]
+        if row.target_role_decision is None:
+            fallback = _kit_fallback_target_role(row.species)
+            if fallback is not None:
+                row = replace(row, target_role_decision=fallback)
+        rows.append(row)
+    return rows
 
 
 def _ability_attr_for_candidate_spec(

@@ -27,7 +27,9 @@ from recommender.state import (
     RecommenderState,
     TargetRoleDecision,
     TargetRoleId,
+    TargetRoleResult,
     UnresolvedSlotRefinement,
+    UnresolvedTargetRoleDecision,
     slot_fingerprint,
 )
 from recommender.team_candidates import owned_species_ids
@@ -126,6 +128,15 @@ def parse_bootstrap_intake(
     )
 
 
+def _bootstrap_intake_prompt_chain(structured: Any) -> BootstrapIntakeParser:
+    return ChatPromptTemplate.from_messages(
+        [
+            ("system", _EXTRACTION_SYSTEM_PROMPT),
+            ("human", _EXTRACTION_USER_PROMPT),
+        ]
+    ) | structured
+
+
 def build_ollama_bootstrap_intake_parser(
     model: str, **chat_kwargs: Any
 ) -> BootstrapIntakeParser:
@@ -139,13 +150,23 @@ def build_ollama_bootstrap_intake_parser(
         method="json_schema",
         include_raw=True,
     )
-    return ChatPromptTemplate.from_messages(
-        [
-            ("system", _EXTRACTION_SYSTEM_PROMPT),
-            ("human", _EXTRACTION_USER_PROMPT),
-        ]
-    ) | structured
+    return _bootstrap_intake_prompt_chain(structured)
 
+
+def build_anthropic_bootstrap_intake_parser(
+    model: str, **chat_kwargs: Any
+) -> BootstrapIntakeParser:
+    """Hosted/demo adapter mirroring the Ollama structured-output + include_raw shape."""
+
+    from langchain_anthropic import ChatAnthropic
+
+    chat = ChatAnthropic(model=model, temperature=0, **chat_kwargs)
+    structured = chat.with_structured_output(
+        BootstrapExtraction,
+        method="json_schema",
+        include_raw=True,
+    )
+    return _bootstrap_intake_prompt_chain(structured)
 
 @dataclass(frozen=True)
 class BootstrapDirectionDiscovery:
@@ -185,6 +206,13 @@ _DIRECTION_PHRASES: tuple[tuple[str, TargetRoleId], ...] = tuple(
     )
 )
 _TARGET_ROLE_IDS = frozenset(get_args(TargetRoleId))
+_SPEED_CONTROL_ROLES = frozenset({"tailwind_setter", "trick_room_setter"})
+
+
+def _map_kit_role(role: str | None) -> TargetRoleId | None:
+    if not role or role not in _TARGET_ROLE_IDS:
+        return None
+    return role  # type: ignore[return-value]
 
 
 def resolve_bootstrap_direction(text: str | None) -> TargetRoleId | None:
@@ -217,7 +245,60 @@ def _exact_legal_species(raw: str | None) -> str | None:
     return str(entry.get("name") or raw)
 
 
-def _target_role(anchor_role) -> TargetRoleDecision | None:
+def _speed_control_pre_pass(anchor_role) -> TargetRoleResult | None:
+    """Resolve TW/TR from present mechanisms.
+
+    2+ distinct speed-control roles → unresolved. A single speed-control hit is
+    returned only as a deferred Track-1 result (callers must try non-speed
+    strategic evidence first) so weather/setup identities like Pelipper+Drizzle
+    are not stolen by an incidental Tailwind mechanism.
+    """
+
+    role_ids = tuple(
+        dict.fromkeys(
+            mechanism.role_id
+            for mechanism in anchor_role.mechanisms
+            if mechanism.present
+            and mechanism.importance in ("needed", "wanted")
+            and mechanism.role_id in _SPEED_CONTROL_ROLES
+        )
+    )
+    resolved: list[TargetRoleDecision] = []
+    for role_id in role_ids:
+        decision = target_role_from_strategic_evidence(
+            role_id,
+            anchor_role=anchor_role,
+            compendium=anchor_role.compendium,
+        )
+        if decision is not None:
+            resolved.append(decision)
+    if len(resolved) > 1:
+        ambiguity = tuple(dict.fromkeys(row.role_id for row in resolved))
+        return UnresolvedTargetRoleDecision(
+            reason="ambiguous_speed_control",
+            ambiguity=ambiguity,
+            source="other",
+            evidence=tuple(
+                token for row in resolved for token in row.evidence
+            ),
+            needed_constraints=tuple(
+                token for row in resolved for token in row.needed_constraints
+            ),
+            provenance=tuple(
+                token for row in resolved for token in row.provenance
+            ),
+            producer_name="bootstrap_speed_control_pre_pass",
+        )
+    if len(resolved) == 1:
+        return resolved[0]
+    return None
+
+
+def _target_role(anchor_role) -> TargetRoleResult | None:
+    speed = _speed_control_pre_pass(anchor_role)
+    if isinstance(speed, UnresolvedTargetRoleDecision):
+        return speed
+
     strategic_ids = tuple(
         dict.fromkeys(
             (
@@ -232,6 +313,8 @@ def _target_role(anchor_role) -> TargetRoleDecision | None:
         )
     )
     for role_id in strategic_ids:
+        if role_id in _SPEED_CONTROL_ROLES:
+            continue
         decision = target_role_from_strategic_evidence(
             role_id,
             anchor_role=anchor_role,
@@ -240,18 +323,23 @@ def _target_role(anchor_role) -> TargetRoleDecision | None:
         if decision is not None:
             return decision
 
-    kit_role = anchor_role.kit_role
-    if kit_role not in _TARGET_ROLE_IDS:
-        return None
-    return TargetRoleDecision(
-        role_id=kit_role,
-        source="other",
-        evidence=(f"kit_role:{kit_role}",),
-        needed_constraints=(f"role:{kit_role}",),
-        confidence="medium",
-        provenance=("anchor_role:kit_role",),
-        producer_name="bootstrap_coarse_role_policy",
-    )
+    if isinstance(speed, TargetRoleDecision):
+        return speed
+
+    for raw in (anchor_role.kit_role, anchor_role.role_id):
+        mapped = _map_kit_role(raw)
+        if mapped is None:
+            continue
+        return TargetRoleDecision(
+            role_id=mapped,
+            source="other",
+            evidence=(f"kit_role:{raw}",),
+            needed_constraints=(f"role:{mapped}",),
+            confidence="medium",
+            provenance=("anchor_role:kit_role",),
+            producer_name="bootstrap_kit_role_policy",
+        )
+    return None
 
 
 def _candidate_evidence(
@@ -360,7 +448,23 @@ def discover_bootstrap_directions(
         decision = _target_role(anchor_role)
         if decision is None:
             continue
-        if requested_role is not None and decision.role_id != requested_role:
+        if isinstance(decision, UnresolvedTargetRoleDecision):
+            if explicit_anchor is not None and to_id(species) == to_id(explicit_anchor):
+                return BootstrapDirectionDiscovery(
+                    (),
+                    f"Couldn't resolve a starting role for {explicit_anchor}: "
+                    "ambiguous speed control.",
+                )
+            continue
+        # Direction filters alternative diversity, not the user's named anchor.
+        if (
+            requested_role is not None
+            and decision.role_id != requested_role
+            and (
+                explicit_anchor is None
+                or to_id(species) != to_id(explicit_anchor)
+            )
+        ):
             continue
         mechanisms = tuple(
             dict.fromkeys(
@@ -399,6 +503,14 @@ def discover_bootstrap_directions(
         if isinstance(refinement, UnresolvedSlotRefinement):
             continue
         candidates.append(candidate)
+
+    if explicit_anchor is not None and not any(
+        to_id(row.species) == to_id(explicit_anchor) for row in candidates
+    ):
+        return BootstrapDirectionDiscovery(
+            (),
+            f"Couldn't resolve a starting role for {explicit_anchor}.",
+        )
 
     selected: list[AnnotatedCandidate] = []
     signatures: set[tuple[str, str, tuple[str, ...]]] = set()

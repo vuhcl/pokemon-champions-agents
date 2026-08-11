@@ -15,6 +15,7 @@ from recommender.format import resolve_format
 from recommender.ids import to_id
 from recommender.legality import check_set, is_species_legal, load_snapshot
 from recommender.matchup import MatchupEvidenceError
+from recommender.present_text import BOOTSTRAP_PARSER_NOT_CONFIGURED
 from recommender.recommend import SP_BUDGET, spread_sum
 from recommender.reconcile import (
     reconcile_on_archetype_change,
@@ -122,7 +123,7 @@ def classify_pending(
         if bootstrap_intake_parser is None:
             return {
                 "turn_intent": "pending_response",
-                "bootstrap_intake_error": "bootstrap intake parser is not configured",
+                "bootstrap_intake_error": BOOTSTRAP_PARSER_NOT_CONFIGURED,
             }
         from recommender.bootstrap import (
             BootstrapIntakeParseError,
@@ -455,15 +456,23 @@ def refine_provisional_slot(state: RecommenderState) -> dict:
 
     result = build_provisional_slot(intent, state)
     if isinstance(result, UnresolvedSlotRefinement):
+        reason = result.reason or "unresolved_fields:" + ",".join(
+            result.unresolved_fields
+        )
         return {
             "provisional_slot": None,
             "provisional_refinement": result,
-            "slot_commit_error": None,
+            "slot_commit_error": f"Could not refine {intent.species}: {reason}",
         }
     return {
         "provisional_slot": result,
         "provisional_refinement": None,
         "slot_commit_error": None,
+        "pending_slot_intent": replace(
+            intent, target_role_decision=result.target_role_decision
+        )
+        if intent.target_role_decision != result.target_role_decision
+        else intent,
         "pending_presentation": PendingPresentation(
             schema_version=1,
             kind="full_build_confirmation",
