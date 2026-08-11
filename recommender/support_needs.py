@@ -134,17 +134,22 @@ _OFFENSIVE_PRIORITY_MOVES = frozenset(
 )
 
 
+_TRACKED_WEATHERS = frozenset({"Rain", "Sun", "Sand", "Snow"})
+
+
 @dataclass(frozen=True, init=False)
 class RoleShapeContext:
     primary_function: PrimaryFunction = "unknown"
     tankiness: Tankiness = "unknown"
     requires_setup_turn: bool = False
+    needed_weathers: tuple[str, ...] = ()
 
     def __init__(
         self,
         primary_function: PrimaryFunction = "unknown",
         tankiness: Tankiness = "unknown",
         requires_setup_turn: bool = False,
+        needed_weathers: tuple[str, ...] = (),
         *,
         match_status: str | None = None,
         setup_dependent: bool | None = None,
@@ -158,6 +163,7 @@ class RoleShapeContext:
             "requires_setup_turn",
             requires_setup_turn if setup_dependent is None else setup_dependent,
         )
+        object.__setattr__(self, "needed_weathers", needed_weathers)
 
 
 @dataclass(frozen=True)
@@ -244,8 +250,8 @@ _RAIN_WEATHERS = frozenset({"rain", "heavyrain"})
 
 
 # ponytail: Hydro Steam is the only Sun-boost-on-Water calc nuance (Harsh Sunshine fails
-# Water moves). condition_setter is ability-only today — inert here; re-check if
-# move-derived weather needs are ever added.
+# Water moves). Move-derived weather needs come from RoleShapeContext.needed_weathers
+# (projected from benefits_from mechanisms); ability path stays in _speed_needs.
 def _weather_category_match(required: str, secured: str) -> bool:
     a, b = to_id(required), to_id(secured)
     if a == b:
@@ -630,6 +636,32 @@ def query_support_needs(
             regulation=regulation,
         )
     )
+
+    # --- Move-derived weather (RoleShapeContext.needed_weathers) ---
+    covered_labels: set[str] = set()
+    for need in needs:
+        if need.category == "condition_setter" and need.trigger:
+            covered_labels.update(field_labels_from_trigger(need.trigger))
+    for weather in role_shape_context.needed_weathers:
+        if weather not in _TRACKED_WEATHERS:
+            continue
+        label = to_id(weather)
+        if label in covered_labels:
+            continue
+        requireds: tuple[FieldSpec, ...] = ({"weather": weather},)
+        if _condition_secured(requireds, team_draft, regulation=regulation):
+            continue
+        name, desc, trigger, notes = _condition_need_copy(requireds)
+        needs.append(
+            SupportNeed(
+                category="condition_setter",
+                name=name,
+                description=desc,
+                trigger=trigger,
+                notes=notes,
+            )
+        )
+        covered_labels.add(label)
 
     order = {c: i for i, c in enumerate(_CATEGORY_ORDER)}
     needs.sort(key=lambda n: order.get(n.category, 99))
