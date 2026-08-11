@@ -182,7 +182,7 @@ def test_pick_role_returns_actionable_immutable_target_decision():
     assert decision.needed_constraints == ("role:tailwind_setter",)
     vocabulary = set(get_args(TargetRoleId))
     assert {"bulky_pivot", "fast_pivot"} <= vocabulary
-    assert "support_speed_control" not in vocabulary
+    assert "support_speed_control" in vocabulary
 
 
 def test_pick_role_preserves_ambiguous_speed_control():
@@ -289,6 +289,89 @@ def test_no_usage_mimikyu_refines_to_provisional_slot():
     assert len(result.moves) == 4
     assert "protect" in {m.lower() for m in result.moves}
     assert sum(result.spread_dict().values()) == 66
+
+
+def _no_usage_provisional(species: str, role_id: str, **decision_kw):
+    from recommender.slot_fill import build_provisional_slot
+    from recommender.state import PendingSlotIntent
+
+    intent = PendingSlotIntent(
+        schema_version=1,
+        slot_index=0,
+        species=species,
+        source="owned",
+        target_role_decision=TargetRoleDecision(
+            role_id=role_id,  # type: ignore[arg-type]
+            source="other",
+            evidence=(),
+            needed_constraints=decision_kw.get("needed_constraints", ()),
+            confidence=decision_kw.get("confidence", "medium"),
+            provenance=("test",),
+        ),
+        base_slot_fingerprint="x",
+    )
+    state = decision_kw.get("state") or _base_state()
+    with patch("recommender.propose.featured_or_common_set", return_value=None):
+        return build_provisional_slot(intent, state)
+
+
+def test_no_usage_mimikyu_fast_physical_attacker_fills():
+    from recommender.state import ProvisionalSlot
+
+    result = _no_usage_provisional("Mimikyu", "fast_physical_attacker")
+    assert isinstance(result, ProvisionalSlot)
+    assert result.ability == "Disguise"
+    assert len(result.moves) == 4
+    assert "protect" in {m.lower() for m in result.moves}
+    assert sum(result.spread_dict().values()) == 66
+
+
+def test_no_usage_mimikyu_swords_dance_attacker_fills():
+    from recommender.ids import to_id
+    from recommender.state import ProvisionalSlot
+
+    result = _no_usage_provisional("Mimikyu", "swords_dance_attacker")
+    assert isinstance(result, ProvisionalSlot)
+    mids = {to_id(m) for m in result.moves}
+    assert "swordsdance" in mids
+    assert "protect" in mids
+    assert len(result.moves) == 4
+
+
+def test_no_usage_incineroar_bulky_pivot_moves_fill_ability_unresolved():
+    from recommender.state import UnresolvedSlotRefinement
+
+    result = _no_usage_provisional("Incineroar", "bulky_pivot")
+    assert isinstance(result, UnresolvedSlotRefinement)
+    assert result.reason == "incomplete_build"
+    assert result.unresolved_fields == ("ability",)
+
+
+def test_no_usage_sinistcha_redirection_leaves_moves_short():
+    from recommender.state import UnresolvedSlotRefinement
+
+    result = _no_usage_provisional("Sinistcha", "redirection")
+    assert isinstance(result, UnresolvedSlotRefinement)
+    assert result.reason == "incomplete_build"
+    assert "moves" in result.unresolved_fields
+
+
+def test_no_usage_klefki_screens_support_moves_fill_ability_unresolved():
+    from recommender.state import UnresolvedSlotRefinement
+
+    result = _no_usage_provisional("Klefki", "screens_support")
+    assert isinstance(result, UnresolvedSlotRefinement)
+    assert result.reason == "incomplete_build"
+    assert result.unresolved_fields == ("ability",)
+
+
+def test_no_usage_pelipper_rain_setter_leaves_moves_short():
+    from recommender.state import UnresolvedSlotRefinement
+
+    result = _no_usage_provisional("Pelipper", "rain_setter")
+    assert isinstance(result, UnresolvedSlotRefinement)
+    assert result.reason == "incomplete_build"
+    assert "moves" in result.unresolved_fields
 
 
 def test_usage_hit_sinistcha_keeps_usage_provenance():

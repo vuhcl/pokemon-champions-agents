@@ -442,6 +442,63 @@ def test_assemble_pads_protect():
     assert len(moves) <= 4
 
 
+def test_assemble_preserves_pref_order_and_reserves_protect():
+    """Role-defining prefs beat alphabetical tiebreak; Protect stays when legal."""
+    slot = Slot(
+        species=Attr(value="Hatterene", locked=True),
+        role=Attr(value="trick_room_setter", locked=True),
+    )
+    with patch(
+        "recommender.move_narrowing._commitment_pct",
+        return_value=None,
+    ):
+        moves = assemble_moveset_fallback(
+            "Hatterene",
+            slot,
+            _state(team_draft=[slot]),
+        )
+    assert len(moves) == 4
+    assert to_id(moves[0]) == "trickroom"
+    assert to_id(moves[-1]) == "protect"
+
+
+def test_assemble_reserves_protect_after_redundancy_rebuild():
+    """Post-redundancy `_with_protect` path: real drop, Protect still reserved.
+
+    Whimsicott support_speed_control naturally yields seeming redundancy that
+    drops Tailwind (not Protect). Spy the real validator so we prove the
+    rebuild branch ran — do not stub its return value.
+    """
+    slot = Slot(
+        species=Attr(value="Whimsicott", locked=True),
+        role=Attr(value="support_speed_control", locked=True),
+    )
+    state = _state(team_draft=[slot])
+    captured: list = []
+
+    real = validate_moveset_redundancy
+
+    def _spy(species, moves, **kwargs):
+        result = real(species, moves, **kwargs)
+        captured.append(result)
+        return result
+
+    with patch(
+        "recommender.move_narrowing.validate_moveset_redundancy",
+        side_effect=_spy,
+    ):
+        moves = assemble_moveset_fallback("Whimsicott", slot, state)
+
+    assert len(captured) == 1
+    red = captured[0]
+    assert red.seeming is True
+    assert red.justified is False
+    assert red.drop_moves
+    assert all(to_id(m) != "protect" for m in red.drop_moves)
+    assert "protect" in {to_id(m) for m in moves}
+    assert len(moves) <= 4
+
+
 def test_chilly_reception_weather_maps():
     assert _WEATHER_MANUAL["chillyreception"] == "Snow"
     assert _ARCHETYPE_PREF_MOVES["Snow"] == ["snowscape", "chillyreception"]
