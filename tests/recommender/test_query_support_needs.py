@@ -622,6 +622,7 @@ def test_role_shape_context_has_only_projection_fields():
         "primary_function",
         "tankiness",
         "requires_setup_turn",
+        "needed_weathers",
     }
 
 
@@ -650,3 +651,49 @@ def test_speed_analysis_uses_anchor_evs_and_nature(monkeypatch):
         RoleShapeContext(primary_function="offense"),
     )
     assert seen[0] == ({"spe": 32}, "Timid")
+
+
+def test_archaludon_electro_shot_surfaces_rain_condition_setter():
+    from recommender.anchor_roles import (
+        classify_anchor_role,
+        derive_role_shape_context,
+        resolve_anchor_build,
+    )
+
+    build = resolve_anchor_build("Archaludon")
+    decision = classify_anchor_role(build)
+    shape = derive_role_shape_context(decision)
+    assert "Rain" in shape.needed_weathers
+    out = query_support_needs(build.as_pokemon(), shape)
+    cond = _by_cat(out, "condition_setter")
+    assert any(n.trigger == "field_condition:any:rain" for n in cond)
+
+
+def test_solar_beam_surfaces_sun_condition_setter_move_derived_not_chlorophyll():
+    """Solar Beam (not Chlorophyll): move-derived Sun need.
+
+    Deliberately exercises the move-derived benefits_from path (same gap class as
+    Electro Shot→Rain), distinct from the already-covered ability-derived path
+    (Chlorophyll / _CONDITION_DEPENDENT_ABILITIES).
+    """
+    from recommender.anchor_roles import (
+        classify_anchor_role,
+        derive_role_shape_context,
+        resolve_anchor_build,
+    )
+
+    slot = Slot(
+        species=Attr("Charizard", locked=True),
+        ability=Attr("Blaze", locked=True),
+        moveset=Attr(
+            ["Solar Beam", "Heat Wave", "Air Slash", "Protect"],
+            locked=True,
+        ),
+    )
+    build = resolve_anchor_build(slot)
+    decision = classify_anchor_role(build)
+    shape = derive_role_shape_context(decision)
+    assert "Sun" in shape.needed_weathers
+    out = query_support_needs(build.as_pokemon(), shape)
+    cond = _by_cat(out, "condition_setter")
+    assert any(n.trigger == "field_condition:any:sun" for n in cond)

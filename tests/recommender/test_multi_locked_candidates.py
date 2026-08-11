@@ -1170,6 +1170,42 @@ def test_gap_need_deduped_when_anchored_trick_room_already_present():
     assert len({k for k in distinct_needs if k[0] == "trick_room"}) == 1
 
 
+def test_gap_need_deduped_when_anchored_rain_already_present():
+    """Anchored move-derived Rain need must suppress gap Rain (trigger-parity invariant)."""
+    from recommender.condition_resilience import assess_condition_resilience, gap_support_needs
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Dragon Pulse", "Flash Cannon", "Aura Sphere"],
+        ),
+        *[empty_slot() for _ in range(5)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    report = assess_condition_resilience(contexts)
+    anchored = tuple(need for ctx in contexts for need in ctx.support_needs)
+    rain_anchored = next(
+        n
+        for n in anchored
+        if n.need.category == "condition_setter"
+        and n.need.trigger == "field_condition:any:rain"
+    )
+    assert rain_anchored.need.trigger == "field_condition:any:rain"
+
+    residual = gap_support_needs(report, anchored)
+    assert not any(
+        n.category == "condition_setter" and n.trigger == "field_condition:any:rain"
+        for n in residual
+    )
+    assert ("condition_setter", "field_condition:any:rain") not in {
+        (n.category, n.trigger) for n in residual
+    }
+
+
 def test_residual_gap_attaches_single_synthetic_anchored_need():
     from recommender.condition_resilience import (
         ConditionResilienceReport,

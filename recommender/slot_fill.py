@@ -276,6 +276,12 @@ _NEED_TARGET_ROLES: dict[NeedCategory, tuple[TargetRoleId, str]] = {
     "trick_room": ("trick_room_setter", "move:trickroom"),
     "tailwind": ("tailwind_setter", "move:tailwind"),
 }
+_CONDITION_SETTER_TARGET_ROLES: dict[str, tuple[TargetRoleId, str]] = {
+    "rain": ("rain_setter", "role:rain_setter"),
+    "sun": ("sun_setter", "role:sun_setter"),
+    "sand": ("sand_setter", "role:sand_setter"),
+    "snow": ("snow_setter", "role:snow_setter"),
+}
 REVIEWED_STRATEGIC_TARGET_ROLES: dict[str, TargetRoleId] = {
     "rainsetter": "rain_setter",
     "sunsetter": "sun_setter",
@@ -337,30 +343,40 @@ def target_role_from_needs(
     needs: tuple[SupportNeed, ...] | list[SupportNeed],
 ) -> TargetRoleResult | None:
     """Resolve actionable need roles while preserving speed-control ambiguity."""
-    relevant = [
-        (need, _NEED_TARGET_ROLES[need.category])
-        for need in needs
-        if need.category in _NEED_TARGET_ROLES
-    ]
+    relevant: list[tuple[SupportNeed, TargetRoleId, str]] = []
+    for need in needs:
+        mapped = _NEED_TARGET_ROLES.get(need.category)
+        if mapped is not None:
+            role_id, constraint = mapped
+            relevant.append((need, role_id, constraint))
+            continue
+        if need.category != "condition_setter" or not need.trigger:
+            continue
+        for label in field_labels_from_trigger(need.trigger):
+            weather_mapped = _CONDITION_SETTER_TARGET_ROLES.get(label)
+            if weather_mapped is None:
+                continue
+            role_id, constraint = weather_mapped
+            relevant.append((need, role_id, constraint))
     if not relevant:
         return None
 
-    role_ids = tuple(dict.fromkeys(role_id for _, (role_id, _) in relevant))
+    role_ids = tuple(dict.fromkeys(role_id for _, role_id, _ in relevant))
     needed = tuple(
         constraint
-        for need, (_, constraint) in relevant
+        for need, _, constraint in relevant
         if need.stance != "want"
     )
     wanted = tuple(
         constraint
-        for need, (_, constraint) in relevant
+        for need, _, constraint in relevant
         if need.stance == "want"
     )
     evidence = tuple(
         f"{need.category}:{need.trigger}" if need.trigger else need.category
-        for need, _ in relevant
+        for need, _, _ in relevant
     )
-    provenance = tuple(f"support_need:{need.category}" for need, _ in relevant)
+    provenance = tuple(f"support_need:{need.category}" for need, _, _ in relevant)
     if len(role_ids) > 1:
         return UnresolvedTargetRoleDecision(
             reason="ambiguous_speed_control",

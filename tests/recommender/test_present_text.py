@@ -5,8 +5,10 @@ from __future__ import annotations
 from recommender.present_text import (
     BOOTSTRAP_PARSER_FIX_HINT,
     BOOTSTRAP_PARSER_NOT_CONFIGURED,
+    NO_PENDING_MESSAGE,
     UNMATCHED_REPLY_PREFIX,
     format_evidence_summary,
+    format_no_pending,
     format_roster,
     format_turn,
 )
@@ -18,6 +20,7 @@ from recommender.state import (
     Slot,
     TargetRoleDecision,
     TeamReviewResult,
+    UnresolvedTargetRoleDecision,
 )
 
 
@@ -106,6 +109,56 @@ def test_candidate_selection_evidence_line():
     assert "1. Pelipper" in text
     assert "usage_backed, high confidence" in text
     assert "rain_setter" in text
+
+
+def test_candidate_selection_renders_unresolved_role_ambiguity():
+    """Meowstic-shaped unresolved rain|TR must show both roles, not a blank label."""
+    text = format_turn(
+        {
+            "pending_presentation": {
+                "kind": "candidate_selection",
+                "slot_index": 0,
+                "options": [
+                    {
+                        "species": "Meowstic",
+                        "source": "need",
+                        "target_role_decision": UnresolvedTargetRoleDecision(
+                            reason="ambiguous_speed_control",
+                            ambiguity=("rain_setter", "trick_room_setter"),
+                            source="support_need",
+                        ),
+                        "evidence": (
+                            CandidateEvidence(
+                                "compendium_backed",
+                                "medium",
+                                "role_category_evidence",
+                                ("role:trick_room_setter",),
+                            ),
+                        ),
+                    },
+                    {
+                        "species": "Gardevoir-Mega",
+                        "source": "need",
+                        "target_role_decision": TargetRoleDecision(
+                            role_id="trick_room_setter",
+                            source="support_need",
+                        ),
+                        "evidence": (
+                            CandidateEvidence(
+                                "compendium_backed",
+                                "medium",
+                                "role_category_evidence",
+                                ("role:trick_room_setter",),
+                            ),
+                        ),
+                    },
+                ],
+            }
+        }
+    )
+    assert "1. Meowstic" in text
+    assert "rain_setter or trick_room_setter (unresolved)" in text
+    assert "2. Gardevoir-Mega — trick_room_setter" in text
 
 
 def test_candidate_selection_surfaces_degradation_tokens():
@@ -231,3 +284,26 @@ def test_no_parser_omits_unmatched_prefix_and_shows_fix_hint():
 
 def test_format_roster_empty():
     assert "no locked members" in format_roster({"team_draft": []})
+
+
+def test_no_pending_message_reports_discovery_error():
+    error = CandidateDiscoveryError(
+        kind="calc_unavailable",
+        stage="coverage",
+        message="calc service down",
+        retryable=True,
+    )
+    text = format_no_pending(
+        {"pending_presentation": None, "candidate_discovery_error": error}
+    )
+    assert "calc_unavailable" in text
+    assert "won't resolve on its own" in text
+    assert "check the calc service" in text
+    assert NO_PENDING_MESSAGE not in text
+    assert "wait for a prompt" not in text
+
+
+def test_no_pending_message_idle_unchanged():
+    assert (
+        format_no_pending({"pending_presentation": None}) == NO_PENDING_MESSAGE
+    )

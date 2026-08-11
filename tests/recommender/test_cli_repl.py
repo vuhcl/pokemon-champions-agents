@@ -11,6 +11,7 @@ from recommender.cli import handle_line, invoke_user_text, main
 from recommender.graph import compile_cli_graph, compile_graph
 from recommender.present_text import NO_PENDING_MESSAGE
 from recommender.session import DEFAULT_FORMAT_ID, thread_config
+from recommender.state import CandidateDiscoveryError
 
 
 def _rain_parser():
@@ -94,6 +95,28 @@ def test_handle_line_pre_guard_skips_invoke_without_pending():
     assert new_state is state
     assert tid == "t"
 
+
+def test_handle_line_pre_guard_reports_fail_closed_discovery():
+    graph = MagicMock()
+    state = {
+        "pending_presentation": None,
+        "team_draft": [],
+        "candidate_discovery_error": CandidateDiscoveryError(
+            kind="calc_unavailable",
+            stage="coverage",
+            message="calc service down",
+            retryable=True,
+        ),
+    }
+    _, _, _, output, should_exit = handle_line(
+        graph, thread_config("t"), state, "hello", format_id=DEFAULT_FORMAT_ID, thread_id="t"
+    )
+    assert output is not None
+    assert "calc_unavailable" in output
+    assert "won't resolve on its own" in output
+    assert "wait for a prompt" not in output
+    assert should_exit is False
+    graph.invoke.assert_not_called()
 
 
 def test_invoke_user_text_raises_without_pending(tmp_path: Path):

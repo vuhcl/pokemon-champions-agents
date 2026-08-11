@@ -23,6 +23,7 @@ BOOTSTRAP_PARSER_FIX_HINT = (
 )
 
 _DEGRADATION_TOKENS = frozenset({"calc_unavailable", "static_type_estimate"})
+_CALC_DISCOVERY_KINDS = frozenset({"calc_unavailable", "calc_incomplete"})
 
 _FOOTERS: dict[str, str] = {
     "bootstrap_intake": (
@@ -75,6 +76,27 @@ def format_roster(state: Mapping[str, Any]) -> str:
     return "Team:\n" + "\n".join(lines)
 
 
+def format_no_pending(state: Mapping[str, Any]) -> str:
+    """Idle pending-None vs fail-closed discovery: do not say wait for a prompt."""
+
+    error = state.get("candidate_discovery_error")
+    if error is None:
+        return NO_PENDING_MESSAGE
+    if isinstance(error, CandidateDiscoveryError):
+        kind = error.kind
+    else:
+        kind = error.get("kind")
+    hint = (
+        "check the calc service, or use :new to start over."
+        if kind in _CALC_DISCOVERY_KINDS
+        else "use :new to start over."
+    )
+    return (
+        f"Discovery stopped due to a {kind} error and hasn't produced a new question. "
+        f"This won't resolve on its own; {hint}"
+    )
+
+
 def _format_discovery_error(error: CandidateDiscoveryError | Mapping[str, Any]) -> str:
     if isinstance(error, CandidateDiscoveryError):
         kind = error.kind
@@ -92,6 +114,23 @@ def _format_discovery_error(error: CandidateDiscoveryError | Mapping[str, Any]) 
     )
 
 
+def _format_option_role_bit(role: object) -> str | None:
+    """Single-role id, or ambiguity joined with 'or' + (unresolved)."""
+    if role is None:
+        return None
+    role_id = getattr(role, "role_id", None)
+    if role_id is None and isinstance(role, Mapping):
+        role_id = role.get("role_id")
+    if role_id:
+        return str(role_id)
+    ambiguity = getattr(role, "ambiguity", None)
+    if ambiguity is None and isinstance(role, Mapping):
+        ambiguity = role.get("ambiguity")
+    if ambiguity:
+        return f"{' or '.join(str(r) for r in ambiguity)} (unresolved)"
+    return None
+
+
 def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
     lines: list[str] = []
     prompt = pending.get("prompt_text")
@@ -103,14 +142,9 @@ def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
         bits = [f"{i}. {species}"]
         if option.get("direction_label"):
             bits.append(str(option["direction_label"]))
-        role = option.get("target_role_decision")
-        role_id = None
-        if role is not None:
-            role_id = getattr(role, "role_id", None) or (
-                role.get("role_id") if isinstance(role, Mapping) else None
-            )
-        if role_id:
-            bits.append(str(role_id))
+        role_bit = _format_option_role_bit(option.get("target_role_decision"))
+        if role_bit:
+            bits.append(role_bit)
         if option.get("primary_function"):
             bits.append(str(option["primary_function"]))
         evidence_rows = option.get("evidence") or ()

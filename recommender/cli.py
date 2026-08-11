@@ -11,6 +11,7 @@ from recommender.graph import compile_cli_graph
 from recommender.llm_provider import resolve_bootstrap_parser
 from recommender.present_text import (
     NO_PENDING_MESSAGE,
+    format_no_pending,
     format_roster,
     format_turn,
 )
@@ -64,7 +65,7 @@ def handle_line(
         return state, config, thread_id, format_roster(state), False
 
     if state.get("pending_presentation") is None:
-        return state, config, thread_id, NO_PENDING_MESSAGE, False
+        return state, config, thread_id, format_no_pending(state), False
 
     try:
         state = invoke_user_text(graph, config, stripped)

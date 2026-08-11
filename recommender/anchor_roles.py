@@ -772,6 +772,9 @@ def classify_anchor_role(
     )
 
 
+_SHAPE_WEATHERS = frozenset({"Rain", "Sun", "Sand", "Snow"})
+
+
 def derive_role_shape_context(decision: AnchorRoleDecision) -> RoleShapeContext:
     """Pure projection: classification evidence stays on the decision."""
     tankiness: Literal["tanky", "glass", "unknown"] = (
@@ -787,8 +790,23 @@ def derive_role_shape_context(decision: AnchorRoleDecision) -> RoleShapeContext:
         and m.interruptible
         for m in decision.mechanisms
     )
+    weathers: list[str] = []
+    for m in decision.mechanisms:
+        if m.relation != "benefits_from":
+            continue
+        if m.importance not in ("needed", "wanted"):
+            continue
+        if not (m.present or m.supply == "teammate_expected"):
+            continue
+        for item in m.evidence:
+            if not item.startswith("condition:"):
+                continue
+            name = item.removeprefix("condition:")
+            if name in _SHAPE_WEATHERS and name not in weathers:
+                weathers.append(name)
     return RoleShapeContext(
         primary_function=decision.primary_function,
         tankiness=tankiness,
         requires_setup_turn=requires_setup,
+        needed_weathers=tuple(weathers),
     )
