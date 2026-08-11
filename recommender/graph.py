@@ -44,6 +44,13 @@ def _route_team_phase(state: RecommenderState) -> str:
     return nodes.team_phase(state)
 
 
+def _route_after_refine(state: RecommenderState) -> str:
+    """Successful refine ends on confirmation; failures rediscover so the CLI is not stuck."""
+    if state.get("provisional_slot") is not None:
+        return END
+    return "route_team_phase"
+
+
 def build_graph(*, bootstrap_intake_parser=None) -> StateGraph:
     g = StateGraph(RecommenderState)
     g.add_node("initialize", nodes.initialize)
@@ -95,7 +102,11 @@ def build_graph(*, bootstrap_intake_parser=None) -> StateGraph:
     g.add_edge("discover_multi_locked", END)
     g.add_edge("generate_team_review", END)
     g.add_edge("finish_pending_response", END)
-    g.add_edge("refine_provisional_slot", END)
+    g.add_conditional_edges(
+        "refine_provisional_slot",
+        _route_after_refine,
+        [END, "route_team_phase"],
+    )
     return g
 
 
@@ -104,3 +115,4 @@ def compile_graph(checkpointer=None, *, bootstrap_intake_parser=None):
     return build_graph(
         bootstrap_intake_parser=bootstrap_intake_parser
     ).compile(checkpointer=checkpointer)
+
