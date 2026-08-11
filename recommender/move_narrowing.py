@@ -49,6 +49,7 @@ _WEATHER_MANUAL: dict[str, str] = {
     "snowscape": "Snow",
     "chillyreception": "Snow",
 }
+WEATHER_SETTING_MOVES = _WEATHER_MANUAL
 _HARD_REQUIRE_WEATHER: dict[str, str] = {
     "auroraveil": "Snow",
 }
@@ -57,9 +58,63 @@ _COMPONENT_TO_ROLE: dict[str, str] = {
     "TrickRoom": "trick_room_sweeper",
     "Tailwind": "support_speed_control",
 }
+_SHARED_PHYSICAL = [
+    "playrough",
+    "woodhammer",
+    "shadowclaw",
+    "shadowsneak",
+    "drainpunch",
+    "closecombat",
+    "earthquake",
+    "ironhead",
+    "aquajet",
+    "icespinner",
+]
+_SHARED_SPECIAL = [
+    "dazzlinggleam",
+    "moonblast",
+    "psychic",
+    "mysticalfire",
+    "gigadrain",
+    "shadowball",
+    "heatwave",
+    "hydropump",
+    "thunderbolt",
+    "makeitrain",
+]
+_PIVOT_PREF = ["uturn", "voltswitch", "flipturn", "partingshot", "teleport"]
 _ROLE_PREF_MOVES: dict[str, list[str]] = {
     "support_speed_control": ["tailwind", "trickroom"],
     "trick_room_sweeper": ["trickroom"],
+    "trick_room_setter": ["trickroom", *_SHARED_SPECIAL],
+    "tailwind_setter": ["tailwind", *_SHARED_SPECIAL],
+    # Mechanism only — honest short (same class as weather / trick_room_sweeper).
+    "redirection": ["followme", "ragepowder"],
+    "swords_dance_attacker": ["swordsdance", *_SHARED_PHYSICAL],
+    "nasty_plot_attacker": ["nastyplot", *_SHARED_SPECIAL],
+    "fast_attacker": [*_SHARED_PHYSICAL, *_SHARED_SPECIAL],
+    "bulky_attacker": [*_SHARED_PHYSICAL, *_SHARED_SPECIAL],
+    "fast_physical_attacker": list(_SHARED_PHYSICAL),
+    "standard_physical_attacker": list(_SHARED_PHYSICAL),
+    "bulky_physical_attacker": list(_SHARED_PHYSICAL),
+    "fast_special_attacker": list(_SHARED_SPECIAL),
+    "standard_special_attacker": list(_SHARED_SPECIAL),
+    "bulky_special_attacker": list(_SHARED_SPECIAL),
+    "fast_mixed_attacker": [*_SHARED_PHYSICAL, *_SHARED_SPECIAL],
+    "standard_mixed_attacker": [*_SHARED_PHYSICAL, *_SHARED_SPECIAL],
+    "bulky_mixed_attacker": [*_SHARED_PHYSICAL, *_SHARED_SPECIAL],
+    "bulky_pivot": [*_PIVOT_PREF, *_SHARED_PHYSICAL, *_SHARED_SPECIAL],
+    "fast_pivot": [*_PIVOT_PREF, *_SHARED_PHYSICAL, *_SHARED_SPECIAL],
+    "screens_support": [
+        "lightscreen",
+        "reflect",
+        "auroraveil",
+        *_SHARED_SPECIAL,
+    ],
+    "rain_setter": ["raindance"],
+    "sun_setter": ["sunnyday"],
+    "sand_setter": ["sandstorm"],
+    "snow_setter": ["snowscape", "chillyreception"],
 }
 _ARCHETYPE_PREF_MOVES: dict[str, list[str]] = {
     "Rain": ["raindance"],
@@ -575,15 +630,26 @@ def assemble_moveset_fallback(
     flags = team_need_flags(state)
     prefs = preferred_move_ids(slot.role.value, components, flags)
     kept = [m for m in prefs if m in ls]
+    order = {m: i for i, m in enumerate(prefs)}
+
     def _c(m: str) -> float | None:
         return _commitment_pct(species, m, regulation=regulation)
 
-    kept.sort(key=lambda m: (0 if _c(m) is None else 1, -(_c(m) or 0.0), m))
-    # re-stable by commitment but preserve preference among equals — already sorted
-    moves = list(kept)
-    if "protect" in ls and "protect" not in moves:
-        moves.append("protect")
-    moves = moves[:4]
+    kept.sort(
+        key=lambda m: (
+            0 if _c(m) is None else 1,
+            -(_c(m) or 0.0),
+            order.get(m, 10**9),
+        )
+    )
+
+    def _with_protect(chosen: list[str]) -> list[str]:
+        body = [m for m in chosen if to_id(m) != "protect"]
+        if "protect" in ls:
+            return body[:3] + ["protect"]
+        return body[:4]
+
+    moves = _with_protect(kept)
     red = validate_moveset_redundancy(
         species,
         moves,
@@ -593,10 +659,7 @@ def assemble_moveset_fallback(
     )
     if red.seeming and not red.justified and red.drop_moves:
         drop = {to_id(m) for m in red.drop_moves}
-        moves = [m for m in moves if to_id(m) not in drop]
-        if "protect" in ls and "protect" not in {to_id(m) for m in moves}:
-            moves.append("protect")
-        moves = moves[:4]
+        moves = _with_protect([m for m in moves if to_id(m) not in drop])
     return moves
 
 
