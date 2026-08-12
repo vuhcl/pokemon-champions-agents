@@ -11,6 +11,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 from recommender.state import (
     ArchetypeChangePayload,
     ConstraintPayload,
+    EditFieldName,
+    EditPayload,
     LockPayload,
     PendingResponsePayload,
     RejectionPayload,
@@ -29,6 +31,7 @@ TurnIntentName = Literal[
     "continue",
     "team_review",
     "pending_response",
+    "edit",
 ]
 
 _ACTIONABLE_INTENTS = frozenset(
@@ -51,18 +54,25 @@ Do not decide legality, canonical names, mechanical facts, or Pokémon identity.
 Never invent species/items/moves as verified facts.
 
 Allowed turn_intent values only:
-- constraint, rejection, lock, archetype_change, reset, restore, continue, team_review, pending_response
+- constraint, rejection, lock, archetype_change, reset, restore, continue, team_review,
+  pending_response, edit
 
 Rules:
-- Ambiguous, under-specified, or build-field-edit phrasing (e.g. bare "no", "different spread"
-  with no value, "use Modest instead") must use pending_response with a concrete clarifying
-  question in message. Do not apply field edits; ask what to change.
-- When pending_kind is full_build_confirmation, never emit lock or rejection for build-detail
-  edits — use pending_response and ask.
+- When pending_kind is full_build_confirmation and the user clearly names a build field and
+  value (ability, item, moves, nature, or spread) plus whether to change only that field
+  (field_only) or rebuild the set around it (regenerate), emit edit with field, value, and
+  scope. Never emit lock for build-detail edits on full_build_confirmation.
+- Species swaps on full_build_confirmation are rejection (not edit).
+- Ambiguous or under-specified phrasing (bare "no", "different spread" with no value, clear
+  field+value but unclear field_only vs regenerate) must use pending_response with a concrete
+  clarifying question. When field+value are clear but scope is not, ask whether to change only
+  that field or regenerate the set.
 - Prefer pending_response over continue when unsure.
 - pending_response requires a nonempty message.
 - rejection requires species.
-- constraint requires type, predicate, scope, groundedness.
+- constraint requires type, predicate, scope (per_slot|team_wide), groundedness.
+- edit requires field (ability|item|moves|nature|spread), value, and scope
+  (field_only|regenerate). Map moveset to moves if needed.
 - lock requires slot_index plus either (attr+value) or locks.
 - archetype_change requires components.
 - restore requires slot_index and attr.
@@ -76,6 +86,8 @@ roster_summary: {roster_summary}
 </USER_RESPONSE>"""
 
 _SLOT_ATTRS = frozenset(get_args(SlotAttrName))
+_EDIT_FIELDS = frozenset(get_args(EditFieldName))
+_EDIT_SCOPES = frozenset({"field_only", "regenerate"})
 _CONSTRAINT_TYPES = frozenset({"hard", "soft"})
 _CONSTRAINT_SCOPES = frozenset({"per_slot", "team_wide"})
 _GROUNDEDNESS = frozenset(
@@ -92,10 +104,12 @@ class TurnIntentExtraction(BaseModel):
     message: str | None = Field(
         default=None, description="Clarifying question for pending_response"
     )
-    # constraint
+    # constraint / edit scope (validated per intent)
     type: Literal["hard", "soft"] | None = None
     predicate: str | None = None
-    scope: Literal["per_slot", "team_wide"] | None = None
+    scope: (
+        Literal["per_slot", "team_wide", "field_only", "regenerate"] | None
+    ) = None
     groundedness: (
         Literal["mechanically-checkable", "enumerable-but-uncoded", "judgment-only"]
         | None
@@ -108,12 +122,14 @@ class TurnIntentExtraction(BaseModel):
     attr: str | None = None
     value: object | None = None
     locks: list[dict[str, object]] | None = None
+    # edit
+    field: str | None = None
     # archetype / reset
     components: list[str] | None = None
     archetype: list[str] | None = None
     constraint: dict[str, object] | None = None
 
-    @field_validator("message", "predicate", "species", "reason", "attr")
+    @field_validator("message", "predicate", "species", "reason", "attr", "field")
     @classmethod
     def _nonempty_optional_text(cls, value: str | None) -> str | None:
         if value is not None and not value.strip():
@@ -131,9 +147,25 @@ class TurnIntentExtraction(BaseModel):
                 self.type is None
                 or self.predicate is None
                 or self.scope is None
+                or self.scope not in _CONSTRAINT_SCOPES
                 or self.groundedness is None
             ):
                 raise ValueError("constraint requires type, predicate, scope, groundedness")
+        elif intent == "edit":
+            raw_field = self.field
+            if raw_field == "moveset":
+                raw_field = "moves"
+            if (
+                raw_field is None
+                or raw_field not in _EDIT_FIELDS
+                or self.value is None
+                or self.scope not in _EDIT_SCOPES
+            ):
+                raise ValueError(
+                    "edit requires field (ability|item|moves|nature|spread), value, "
+                    "and scope (field_only|regenerate)"
+                )
+            object.__setattr__(self, "field", raw_field)
         elif intent == "rejection":
             if self.species is None:
                 raise ValueError("rejection requires species")
@@ -182,6 +214,12 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
     intent = extraction.turn_intent
     if intent == "pending_response":
         return PendingResponsePayload(message=extraction.message.strip())  # type: ignore[union-attr]
+    if intent == "edit":
+        return EditPayload(
+            field=extraction.field,  # type: ignore[arg-type]
+            value=extraction.value,
+            scope=extraction.scope,  # type: ignore[arg-type]
+        )
     if intent == "constraint":
         return ConstraintPayload(
             type=extraction.type,  # type: ignore[arg-type]

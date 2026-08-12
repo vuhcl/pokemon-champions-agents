@@ -121,6 +121,15 @@ class RestorePayload(TypedDict):
     attr: SlotAttrName
 
 
+EditFieldName = Literal["ability", "item", "moves", "nature", "spread"]
+
+
+class EditPayload(TypedDict):
+    field: EditFieldName
+    value: object
+    scope: Literal["field_only", "regenerate"]
+
+
 OwnershipModeSource = Literal["default", "user"]
 
 
@@ -373,6 +382,7 @@ TurnPayload = Union[
     RestorePayload,
     BootstrapResponsePayload,
     PendingResponsePayload,
+    EditPayload,
 ]
 
 

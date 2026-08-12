@@ -186,6 +186,11 @@ def _format_full_build(state: Mapping[str, Any]) -> list[str]:
         f"  Nature: {nature}",
         f"  Moves: {', '.join(str(m) for m in moves)}",
         f"  Spread: {spread}",
+        *(
+            f"Note: {flag.get('claim')}"
+            for flag in (state.get("pending_presentation") or {}).get("review_flags")
+            or ()
+        ),
         "Accept this build? (yes / defer)",
     ]
 

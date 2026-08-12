@@ -581,6 +581,98 @@ def refine_provisional_slot(state: RecommenderState) -> dict:
     }
 
 
+def apply_provisional_edit(state: RecommenderState) -> dict:
+    """Revise pending provisional from EditPayload; re-present or keep prior on hard fail."""
+    from recommender.edit_review import collect_provisional_review_flags
+    from recommender.slot_fill import revise_provisional_slot
+
+    intent = state.get("pending_slot_intent")
+    provisional = state.get("provisional_slot")
+    payload = state.get("turn_payload")
+    if (
+        intent is None
+        or provisional is None
+        or not isinstance(provisional, ProvisionalSlot)
+        or not isinstance(payload, dict)
+        or payload.get("field") is None
+        or payload.get("scope") not in {"field_only", "regenerate"}
+        or "value" not in payload
+    ):
+        return {"slot_commit_error": "missing or unsupported provisional edit state"}
+
+    field = str(payload["field"])
+    scope = payload["scope"]
+    value = payload["value"]
+    result = revise_provisional_slot(
+        provisional,
+        field=field,
+        value=value,
+        scope=scope,  # type: ignore[arg-type]
+        intent=intent,
+        state=state,
+    )
+    if isinstance(result, UnresolvedSlotRefinement):
+        return {
+            "slot_commit_error": (
+                "Could not apply edit: "
+                + (result.reason or ",".join(result.unresolved_fields))
+            )
+        }
+
+    spread = result.spread_dict()
+    if (
+        set(spread) != {"hp", "atk", "def", "spa", "spd", "spe"}
+        or any(not isinstance(v, int) or v < 0 or v > 32 for v in spread.values())
+        or spread_sum(spread) != SP_BUDGET
+    ):
+        return {"slot_commit_error": "invalid edited spread"}
+    if len(result.moves) != 4 or any(not move for move in result.moves):
+        return {"slot_commit_error": "edited build requires exactly four moves"}
+
+    legality = check_set(
+        result.species,
+        list(result.moves),
+        result.item,
+        ability=result.ability,
+        team_draft=state["team_draft"],
+        exclude_slot=result.slot_index,
+    )
+    if not legality.ok:
+        return {
+            "slot_commit_error": "illegal edited slot: "
+            + "; ".join(
+                f"{failure.kind}:{failure.element}" for failure in legality.failures
+            )
+        }
+
+    reason = ReasonRef(kind="user_stated")
+    conflicts = simultaneous_lock_conflicts(
+        result.to_slot(locked=True, reason=reason)
+    )
+    if conflicts:
+        return {
+            "slot_commit_error": "conflicting edited fields: "
+            + ", ".join("/".join(group) for group in conflicts)
+        }
+
+    flags = collect_provisional_review_flags(
+        result, state, edited_fields=frozenset({field})
+    )
+    return {
+        "provisional_slot": result,
+        "provisional_refinement": None,
+        "slot_commit_error": None,
+        "pending_slot_intent": intent,
+        "pending_presentation": PendingPresentation(
+            schema_version=1,
+            kind="full_build_confirmation",
+            slot_index=result.slot_index,
+            provisional_fingerprint=result.fingerprint,
+            review_flags=flags,
+        ),
+    }
+
+
 def _full_slot_error(message: str) -> dict:
     return {"slot_commit_error": message}
 

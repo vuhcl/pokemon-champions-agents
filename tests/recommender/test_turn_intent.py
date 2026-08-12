@@ -269,3 +269,49 @@ def test_build_gap_fill_context_full_build_uses_species():
     ctx = build_gap_fill_context(state)  # type: ignore[arg-type]
     assert ctx["pending_kind"] == "full_build_confirmation"
     assert "Pelipper" in ctx["pending_context"]
+
+
+def test_edit_field_only_does_not_clear_pending():
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "value": "Modest",
+            "scope": "field_only",
+        }
+    )
+    result = parse_turn_intent(
+        parser,
+        user_text="run Modest instead, just the nature",
+        pending_kind="full_build_confirmation",
+        had_pending=True,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"] == {
+        "field": "nature",
+        "value": "Modest",
+        "scope": "field_only",
+    }
+    assert "pending_presentation" not in result
+    assert "provisional_slot" not in result
+
+
+def test_edit_maps_moveset_to_moves():
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "moveset",
+            "value": ["A", "B", "C", "D"],
+            "scope": "regenerate",
+        }
+    )
+    result = parse_turn_intent(parser, user_text="rebuild with these moves")
+    assert result["turn_payload"]["field"] == "moves"
+
+
+def test_species_change_is_not_edit_via_rejection():
+    parser = RunnableLambda(
+        lambda _: {"turn_intent": "rejection", "species": "Pelipper"}
+    )
+    result = parse_turn_intent(parser, user_text="use Pelipper instead")
+    assert result["turn_intent"] == "rejection"
