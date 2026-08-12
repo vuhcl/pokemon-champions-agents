@@ -1,10 +1,12 @@
-Recorded 2026-08-11. Real `python -m recommender --new` session
+Recorded 2026-08-11 against main 99491aa
+(Merge of PR #63; packaging HEAD contains that commit).
+Real `python -m recommender --new` session
 (Ollama qwen2.5:7b for bootstrap intake; local @smogon/calc service on :4173).
 Replies were scripted; CLI output is unmodified.
 
 What direction or anchor would you like to start with, and which Pokémon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.
 Reply with a direction, anchor, available pool, or 'you pick'.
-(thread team-33fdab4260fc41509f9856ea03957e39)
+(thread team-56718e89fd5446159defb1df99cdf497)
 > rain with Pelipper
 Choose the recommended starting direction or one of the strategically different alternatives.
 1. Pelipper — Rain Setter — rain_setter — support — usage_backed, high confidence

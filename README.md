@@ -56,18 +56,19 @@ The original MVP floor includes an agentic reasoning loop — steering and revis
 Smaller gaps still open in 0.1:
 
 - Canonical name/form resolution at the input boundary (Maushold, Vivillon, and similar).
-- Candidate presentation does not yet render ambiguous target-role decisions.
 
 Out of scope until 1.0 exists: Showdown win-rate eval, battle-log/RL piloting.
 
 ## Tests
 
-Verified 2026-08-11 against this tree, not recalled from an older log entry:
+Verified 2026-08-11 against `main` at `99491aa` (merge of PR #63), not recalled from an older log entry:
 
 | Suite | Command | Result |
 |-------|---------|--------|
-| Python recommender | `uv run pytest` | **805 passed, 6 skipped** |
-| Node calc/extract | `npm test` | **38 passed** (not in CI) |
+| Python recommender | `uv run pytest` | **816 passed, 6 skipped** |
+| Node calc/extract | `npm test` | **50 passed** (not in CI) |
+
+Skipped (pytest `-rs`): 5 live-calc tests that require `CALC_LIVE=1` / a live calc probe; 1 Ollama bootstrap smoke that requires `BOOTSTRAP_OLLAMA_MODEL` in the pytest process.
 
 CI runs `uv run pytest` on push to `main` and on pull requests.
 
