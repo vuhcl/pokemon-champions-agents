@@ -3391,6 +3391,236 @@ issue), not the zero-damage pattern this fix addresses. Still produces a correct
 `MatchupEvidenceError`/`calc_incomplete` today; a real fix for that specific crash remains
 separately scoped, not folded into this task.
 
+### 2026-08-11 (cont.): AI-assisted development workflow (factual note)
+
+This project was built via a structured AI-assisted workflow. An AI
+architecture/design partner (Claude, via a dedicated project) handled design
+decisions and ADR-driven review gates. An AI implementation agent (Cursor)
+handled code. Every design decision required explicit review before
+implementation; every implementation required confirmation against real evidence
+before being treated as complete. The rest of this log is the record of that
+process — this note states the split once rather than restating it on every
+entry.
+
+### 2026-08-11 (cont.): calc-crash investigation — four distinct bugs found and fixed
+across one investigation, closing 0.1.0's remaining blockers
+
+Opened by a real demo transcript aborting on Hurricane during a Pelipper+Sylveon session.
+What looked initially like it might be one move-specific bug (or possibly connected to the
+already-tracked Kingambit+Assault Vest crash) turned out to be four genuinely separate
+defects, each traced to its actual root cause before any fix was proposed — no patch applied
+on the strength of surface-level similarity alone.
+
+**Zero-damage results treated as calc errors — covered fully in its own entry earlier today
+(ADR-030).** Closed first in this arc; not repeated here.
+
+**Hurricane/Maushold vs. Kingambit+Assault Vest — confirmed same class, not the same bug,
+before any fix was designed.** Both are undefined-property-read crashes (`reading 'hp'` vs.
+`reading 'megaStone'`) in the calc path, and both looked plausibly connected. Direct,
+independent re-tracing of each found: different lookup function (`gen.species.get` vs.
+`gen.items.get`), different construction stage (Pokémon-object construction vs. base-power
+modifiers running *after* successful construction), and different reason the key misses
+(a display-name-vs-calc-id mismatch vs. an item genuinely absent from the Champions format).
+Also found, on re-investigation, that Assault Vest is `is_nonstandard: "Past"` and format-
+illegal — meaning the AV crash is a defense-in-depth gap (illegal items shouldn't reach calc
+at all, but the boundary isn't airtight) rather than a live landmine on any real gameplay
+path; the only places AV currently reaches calc are test fixtures. Hurricane/Maushold, by
+contrast, was confirmed the actual live blocker — a legal, real in-game Pokémon on a real
+usage-driven coverage path.
+
+**Blast radius enumerated exhaustively before any fix, not assumed from the two named
+species.** Compared every usage-sourced display name against all 324 real Champions calc
+species names, across every source (in-game, Showdown, merged, live threat specs) — found
+exactly five mismatches, not "a few": Maushold Family of Four, Vivillon Fancy Pattern,
+Basculegion Male, Alolan Ninetales, Floette. Two of the five (Basculegion, Alolan Ninetales)
+were confirmed already silently correct in practice, because Showdown's merge step happens to
+overwrite the bad name — found and explicitly distinguished from the two genuinely still-
+broken cases (Maushold, Vivillon) rather than assumed uniformly broken.
+
+**Fix scoped deliberately narrow, refusing a premature "good enough."** A guard-only fix
+(reject unknown species/items with a stable error, routed through existing `calc_incomplete`
+handling) was proposed first and explicitly rejected as insufficient for closing 0.1.0 on its
+own — it would have shipped a demo where coverage still aborted on Maushold, just with a
+cleaner error message. Implemented both pieces: the `toPokemon` guard (defense-in-depth,
+covers any future unknown identifier, explicitly does not return a fake `[0, 0]` — correctly
+recognized as the same failure class the zero-damage fix earlier today was built to
+eliminate) and a targeted fix to `_set_from_entry`/`find_set_matching`'s display-name
+stamping, remapping the five confirmed-broken rows to calc-valid labels. Explicitly kept
+separate from, and did not expand into, the larger canonical-name-resolution backlog item
+(user-input aliases, Aegislash default-forme selection, ambiguous "Floette" prompting) —
+narrower, evidence-bounded scope, with the larger item's urgency explicitly noted as
+increased (it now causes crashes, not just missed Compendium matches) without being absorbed
+reactively.
+
+**A fourth, genuinely different bug found only because the fix was actually re-verified
+against the real demo scenario, not assumed closed once the original crash was gone.** With
+Maushold now resolving, the same live coverage pass reached a threat it couldn't reach before
+(Kangaskhan, threat 65) and aborted on a new failure: `move is required`, traced to a blank
+`""` move name — a genuine Showdown/MunchStats chaos-data artifact (an unparsed move slot),
+faithfully ingested rather than invented by any project-side construction bug. Confirmed a
+different failure class from everything else in this investigation (malformed source data
+reaching calc, not an identifier-resolution boundary problem) rather than assumed to be
+"another instance of the same thing." Blast radius checked again before fixing: four species
+carry the same blank-key pattern in current data (Kangaskhan, Kangaskhan-Mega, Staraptor,
+Mawile), only Kangaskhan currently reachable via a live coverage threat. Fixed with a general
+blank-move filter (`_nonempty_moves`) at kit-construction time, with a real backfill path —
+a featured set with fewer than four real moves correctly falls through to common-moves rather
+than silently shipping a build with fewer than four moves, which would have been a worse,
+quieter failure than the crash it replaced. Confirmed the fix generalizes, not species-
+specific, via tests targeting both a leading blank (forcing backfill) and a buried blank in a
+longer list (proving a future usage-rank shift wouldn't silently reintroduce this for the
+other three affected species).
+
+**Closing verification was the actual real-world scenario, run against a live calc service,
+not inferred from unit tests at any stage of this investigation.** Final confirmation: the
+exact Pelipper+Sylveon demo session, `compute_team_coverage` against all 79 real threats from
+`get_relevant_threats`, completing with zero `MatchupEvidenceError` — Maushold correctly
+resolving to a real mechanical outcome (`no_answer`, a genuine 2HKO-not-OHKO result, not a
+failure), Kangaskhan's backfilled kit correctly producing `clean_kill` in both directions
+(confirming the backfilled Sucker Punch is a real, sensible fourth move, not just "no
+longer blank"), Vivillon correctly resolving to `clean_kill`.
+
+811+ tests passing across the full arc (Node and Python suites both re-verified at each
+stage), full suites confirmed at each step rather than scoped subsets accepted at face value.
+
+**Deliberately deferred, tracked as separate future scope, explicit about what's still
+unaddressed rather than implied resolved:** the underlying extraction script
+(`fetch_usage_mb.py`) still writes blank move keys into the snapshot on re-fetch — this
+session's fix is a runtime read-boundary filter, not a source-data fix, and will need
+reapplying (or an extract-time fix) whenever the snapshot is regenerated; `_damaging_moves`
+and the calc-side `move is required` check were confirmed as viable defense-in-depth
+locations but not implemented, since the kit-construction fix already closes the live path;
+Aegislash's own calc-dex gap (its `id` itself missing from calc, already handled by the
+Compendium's existing hardcoded Blade-forme logic) and base Floette's format-illegality are
+both confirmed structurally different from this investigation's bugs and correctly left
+untouched; the full canonical-name/form-resolution backlog item remains open, with its
+priority now confirmed higher than previously understood (it causes live crashes, not just
+missed Compendium matches) but not absorbed into this investigation's narrower scope.
+
+### 2026-08-11 (cont.): condition_beneficiary invert, single_locked weather only
+
+Closes the mirror of the same-day Archaludon rain-need fix. Locking Pelipper (Rain setter) and
+viewing partner-slot candidates had no rain-beneficiary logic: `discover_single_locked` ran
+`query_support_needs` against the anchor's own kit ("what Pelipper needs") and discarded
+`discovery.anchor_role_decision`. `condition_resilience` remains `multi_locked`-only and
+gap-driven (missing providers), not beneficiary-driven.
+
+Shipped a private invert in the existing chain — annotate → `resolve_all_support_needs` →
+`resolve_condition_beneficiaries` → merge → terminal — not a new ADR-022 public query tool.
+Weather only (Rain/Sun/Sand/Snow). Pelipper's Tailwind provides is ignored. Kingambit /
+Whimsicott-as-Tailwind-only / Archaludon-as-dependent are no-ops (empty extra set).
+
+Compendium-first was checked and rejected (the Smogon VGC Reg M-A Role Compendium URL is
+regulation-mismatched; ADR-015 Amendment 2026-07-28d already treats beneficiary buckets as
+table+usage facts). Ranking claim was proven empirically before implementation: injecting a
+Swift Swim need-only row against verified_score=99 threat rows makes it the presented default
+via existing `_sort_annotated` matching_needs length — no new ranking stage. Unmapped category
+kit-fallback (Swampert-Mega → `fast_physical_attacker`) and 3c rediscovery (Qwilfish →
+`provisional_slot` is `None` → `route_team_phase`) were proven with tests before the resolver
+existed, then retargeted onto real `condition_beneficiary`.
+
+Known ceiling, not a bug: rediscovery may re-offer the same unresolvable default. Revisit
+trigger is a real interactive session showing that repeating across multiple cycles — not
+before.
+
+Do not treat this as closing Tailwind/TR invert, `multi_locked` beneficiary search, or a
+presentation-time filter.
+
+### 2026-08-11 (cont.): Gap B — Trick Room `benefits_from` unconsumed in `single_locked`,
+discovered, designed, and shipped
+
+**Problem, precisely traced.** The synthesized Trick Room sweeper `benefits_from` mechanism
+is written by `classify_anchor_role` (`role_id == "trick_room_sweeper"` and no literal Trick
+Room move in kit — `present=False`, `wanted`, `teammate_expected`), not `_mechanisms`.
+`derive_role_shape_context` only projected canonical weather (`{Rain, Sun, Sand, Snow}`) into
+`needed_weathers`; Trick Room was silently dropped. In `single_locked`, the only actual
+producer of `category="trick_room"` needs was Layer 3's independent Spe-tier heuristic —
+meaning a locked anchor could carry a real, correctly-written TR dependence that never
+surfaced as a partner-slot ask at all, if Layer 3's separate speed-tier condition didn't
+happen to also fire.
+
+**Corrected a prior imprecision in how this gap was originally characterized, checked against
+source rather than repeated.** The earlier symmetry audit's framing — that the miss occurs
+when an anchor fails `primary_function == "offense"` — was traced and found inaccurate:
+`trick_room_sweeper`'s role always projects to `offense`, so that's never actually the failure
+condition. The real miss is Layer 3's Spe-tier gate specifically, confirmed concretely:
+Kingambit (a declared sweeper) correctly gets a Layer 3 ask (`speed_tier:low_with_priority`);
+Dragapult (also a declared sweeper, mechanism row present) got no TR need at all because it's
+`already_fast` and produces no Spe-tier signal — the mechanism relation existed, nothing read
+it, exactly matching the pattern the gap was named for.
+
+**A real double-counting risk found and precisely diagnosed before any fix was proposed.**
+Naively adding a second `trick_room` producer would risk re-opening the exact class of bug
+already found and fixed once for Kingambit in `condition_resilience` — but confirmed to
+require a *different* fix, not the same one. The shipped Kingambit fix relies on `(category,
+trigger)` identity dedup, which cannot collapse this case: Layer 3's trigger
+(`speed_tier:low_with_priority`) and a mechanism-based emission's trigger
+(`strategy:trick_room_sweeper`) are different strings for the same conceptual need, so
+trigger-based dedup would have counted both. The correct fix is category-level dedup
+(`category == "trick_room"`, ignoring trigger entirely), placed inside `query_support_needs`
+itself — not `gap_support_needs`, which is `multi_locked`-only and scoped too late for this
+`single_locked` gap. Confirmed `condition_resilience`'s existing `multi_locked` consumption of
+TR dependence was already correct and stayed untouched throughout.
+
+**Shipped:** `needed_trick_room` projected on `RoleShapeContext` from the synthesized TR
+mechanism, kept separate from `needed_weathers` (which is canonical-weather-typed by
+construction — forcing Trick Room through it would be a category error, not a
+simplification). After Layer 3 runs in `query_support_needs`, the existing `trick_room` need
+(unchanged target-role mapping to `trick_room_setter`; `stance="want"`; trigger
+`strategy:trick_room_sweeper`) is emitted only if that category isn't already present —
+supplementing Layer 3, not replacing it. Replacement was explicitly rejected with a concrete
+counterexample: a slow, unlabeled-offense anchor with no synthesized sweeper row has no
+mechanism relation for a second producer to hook into, and would lose its only real TR ask
+(Layer 3) if that heuristic were removed — confirmed by a dedicated regression
+(`test_kingambit_without_sweeper_role_has_no_needed_trick_room`).
+
+**Four regressions, each confirmed asserting the specific claim it was meant to, not inferred
+from a downstream effect:** Kingambit keeps exactly one `trick_room` need (a literal `len(tr)
+== 1` assertion, plus confirmation no `strategy:trick_room_sweeper` row exists alongside the
+Layer 3 row); Dragapult's mechanism-based emission asserts the exact `trigger`/`stance`, not
+just that a need exists; the Farigiraf ranking-credit test asserts producer uniqueness on the
+needs list itself (`len(tr) == 1`) *before* checking matched-need count, so emission
+correctness isn't only inferred from a downstream ranking coincidence; and the no-sweeper-role
+counterexample confirms `needed_trick_room` is `False` and Layer 3 alone still fires correctly.
+
+836 tests passing (up from 832), 6 skipped, full suite. `condition_resilience`'s full suite
+plus the named gap-dedup test (`test_gap_need_deduped_when_anchored_trick_room_already_
+present`) confirmed green and unaffected.
+
+This closes the symmetry audit's second finding (Gap B) — the same audit's first finding (Gap
+A, the Pelipper condition-beneficiary invert) closed earlier the same day via ADR-023
+Amendment 2026-08-11a. Tailwind remains the one confirmed emission hole from that audit (no
+`benefits_from` writer exists for it at all) — still separately tracked, not addressed here.
+
+### 2026-08-11 (cont.): Tailwind benefits_from emission hole — closed as correctly
+unaddressed for Reg M-B
+
+Closes the symmetry audit's third and final finding. Systematic check against real project
+data (not recollection) found the earlier framing was mechanically imprecise: "no Tailwind-
+analog of Swift Swim" is not quite right. A clean, narrow Tailwind-onset marker does exist —
+Wind Rider and Wind Power, both ability text keying directly off "when Tailwind begins on
+this Pokémon's side," the same shape as the weather-ability pattern (Swift Swim/Chlorophyll/
+Sand Rush/Slush Rush). The correct, more precise finding: every legal holder of either
+ability in the current champions.v1.json snapshot is Illegal/Past (Shiftry, Bramblin,
+Brambleghast for Wind Rider; Wattrel, Kilowattrel for Wind Power) — the marker is clean, the
+legal candidate pool for it is empty. Checked and confirmed absent: any item referencing
+Tailwind, any Tailwind-dependent move besides Tailwind itself, and any strategic-role append
+analogous to the Trick Room sweeper synthesis (Gap B) — none exist.
+
+Correctly declined to fill the hole with a generic heuristic (e.g. "naturally slow attackers
+want Tailwind"), explicitly citing the same rejected precedent from the condition_beneficiary
+work (the generic Water-STAB rain-boost guess, already rejected there for lacking a clean kit
+marker) rather than treating this as a fresh temptation to approximate.
+
+No implementation. Recommendation, precisely scoped for reopening: if a future regulation
+legalizes a Wind Rider or Wind Power holder, the fix is a one-line ability-table entry reusing
+the existing invert path already built for Gap A — not new design work, not a new heuristic.
+
+This closes the symmetry-audit thread in full: Gap A (Pelipper condition-beneficiary invert,
+shipped via ADR-023 Amendment 2026-08-11a), Gap B (Trick Room `benefits_from` in
+single_locked, shipped), and Tailwind (confirmed empty legal pool, correctly left
+unaddressed).
+
 ---
 
 ## TOOLS & RESOURCES

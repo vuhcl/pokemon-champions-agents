@@ -4065,6 +4065,55 @@ construction of any kind (out of scope for this task).
 
 ---
 
+### ADR-023 — Amendment 2026-08-11a
+
+**`single_locked` inverts present weather `provides` into kit-emitted `benefits_from`
+candidates.**
+
+**Decision:** After `resolve_all_support_needs` and before `merge_need_resolved`,
+`discover_single_locked` calls `resolve_condition_beneficiaries`. That private resolver reads
+`provided_weather_conditions` on the already-computed `AnchorRoleDecision` (present + provides
++ needed/wanted, Rain/Sun/Sand/Snow only — Tailwind/Trick Room ignored) and inverts existing
+kit-emitted beneficiary tables (`_NEEDED`/`_WANTED_CONDITION_ABILITIES` via
+`CONDITION_DEPENDENT_ABILITIES`, plus `CHARGE_INSTANT_WEATHER` charge moves). Results merge
+into `need_resolved_candidates` by species id. New `NeedCategory` `condition_beneficiary` is
+Literal-only: `query_support_needs` does not emit it, and it is not mapped in
+`_NEED_TARGET_ROLES`/`_CONDITION_SETTER_TARGET_ROLES`/`_NEED_SATISFIERS`. Unmapped category →
+existing kit-fallback (3a); a leak into `resolve_need_candidates` still hits the existing
+`NotImplementedError` skip.
+
+Locked-anchor self-hits drop via `lineage_ids` of whatever is locked, not a Pelipper-specific
+filter. Ranking is the existing usage-rank union (n=20), not a new stage and not needed-tier-
+first. Ability hits are `mechanical_only`/`low`. Unresolvable kit-fallback misses (Qwilfish-
+shaped) are a presentation-loop ceiling: `_route_after_refine` rediscovers (3c), they do not
+hard-dead-end. Rediscovery may re-offer the same default; no presentation-time resolvability
+filter until a real interactive session shows that repeating across cycles.
+
+Weather helpers live in `anchor_roles` so `slot_fill` never imports `mechanism_condition` from
+`condition_resilience` (that module already imports `slot_fill`).
+
+**Alternatives considered:** Role Compendium-first admission for weather beneficiaries
+(rejected: no M-B VGC Role Compendium exists; ADR-015 Amendment 2026-07-28d already forbids
+Beneficiary as a Compendium membership type). Needed-tier-first ranking (rejected in plan-
+review: would put unresolvable Qwilfish in the top-3). A presentation-time kit-fallback filter
+(rejected: 3c is the safety mechanism). Wiring the same invert into `multi_locked` or
+`condition_resilience` (out of scope: resilience stays gap-driven backup-setter search).
+
+**Why:** `query_support_needs` answers "what the locked anchor needs," which is the wrong
+question for a weather setter. Pelipper (Drizzle provides Rain) was presenting partners with
+no rain-beneficiary logic — the mirror of the same-day Archaludon Electro Shot → rain-setter
+fix. Inverting tables the kit already emits is the smallest structural close; a new public
+ADR-022 query tool and a new ranking key were both unnecessary once matching_needs length was
+shown to lift beneficiaries over high verified_score threat rows.
+
+**Status:** Implemented and verified (`recommender/anchor_roles.py`,
+`recommender/slot_fill.py`, `recommender/nodes.py`, `recommender/support_needs.py`; 832 tests
+passing, 6 skipped). Deliberately deferred, not oversights: Tailwind/Trick Room beneficiary
+invert; `multi_locked` wiring; presentation-time resolvability filter; Role Compendium
+construction.
+
+---
+
 ## ADR-024: Anchor-role classification is a separate producer from target-role decision
 
 **Decision:** `RoleShapeContext` (which describes an anchor's strategic role shape, feeding
@@ -4130,7 +4179,7 @@ required.
 
 ---
 
-### ADR-024 — Amendment 2026-08-11a (confirm letter against current file)
+### ADR-024 — Amendment 2026-08-11a
 
 **Move-derived weather need-resolution — closing a self-documented gap in
 `query_support_needs`'s `condition_setter` branch.**
@@ -4720,3 +4769,80 @@ Kingambit + Assault Vest crash (`Cannot read properties of undefined (reading 'm
 confirmed to be a genuinely different failure mode (an item-data lookup issue in the vendored
 calc library), still correctly producing `calc_incomplete` today, not silently swallowed by
 this fix.
+
+---
+
+### ADR-030 — Amendment 2026-08-11a
+
+**Calc identifier guard, usage display-name stamp correction, and blank move-key filter —
+three related fixes closing the remaining calc crashes found in real 0.1.0 demo replay.**
+
+**Decision:** Extends ADR-030's core principle (the calc boundary must correctly distinguish
+legitimate results from genuine failures, never silently fabricate or crash) to two further
+failure classes found via real demo replay after the zero-damage fix shipped.
+
+1. **Unknown-identifier guard.** `toPokemon` (`services/calc/handlers.ts`) now rejects any
+   species or item string that doesn't resolve in the Champions calc dex, throwing a stable,
+   typed error (`unknown Champions species: {name}` / `unknown Champions item: {name}`)
+   *before* constructing a `Pokemon` object — the first project-owned point where a string
+   crosses into `gen.species.get()`/`gen.items.get()`. Routes through the existing
+   `runCalculateSafe` → `{error}` → `MatchupEvidenceError`/`calc_incomplete` path unchanged.
+   Explicitly does not return a fake `[0, 0]` (would be indistinguishable from the legitimate
+   zero-damage case ADR-030 itself established) and does not silently drop the row.
+2. **Usage display-name stamp correction.** `_set_from_entry`/`find_set_matching`
+   (`recommender/usage_data.py`) previously stamped raw in-game display names onto
+   `PokemonSpec.species` even when the name didn't `toID()` to a calc-valid identifier and a
+   valid alternative existed. A systematic audit against all 324 real Champions calc species
+   names, across every usage source, found exactly five affected rows (not assumed from the
+   two that happened to crash first): Maushold Family of Four, Vivillon Fancy Pattern,
+   Basculegion Male, Alolan Ninetales, Floette. Two were already silently correct via an
+   unrelated merge-order side effect; the fix remaps all five consistently to a calc-valid
+   label (legality name where one exists, otherwise the stored id).
+3. **Blank move-key filter.** A genuine Showdown/MunchStats chaos-data artifact (an unparsed
+   `""` move slot, faithfully ingested rather than a project-side construction bug) could
+   reach the calc-batch layer as a "move," failing with `move is required`. Fixed with
+   `_nonempty_moves`, applied at kit-construction time: blank/whitespace move names are
+   skipped, and a featured set left with fewer than four real moves correctly falls through
+   to common-move backfill rather than shipping an incomplete kit.
+
+**Alternatives considered:** shipping the identifier guard alone as sufficient for 0.1.0.
+Treating the Hurricane and Kingambit+Assault Vest crashes as one bug given their surface-level
+similarity (both undefined-property-read crashes). Fixing the blank-move problem at
+extraction time rather than at read time. Patching only the specific species/rows already
+observed crashing rather than auditing the full blast radius first.
+
+**Why:** Guard-only was rejected because it would have shipped 0.1.0 in a state where the
+actual demo scenario's coverage pass still aborted on Maushold — a cleaner error message
+doesn't unblock a real recommendation, it just fails more politely. Treating the two crashes
+as one bug was rejected after direct, independent re-tracing showed they differ in every
+structural respect that matters (lookup function, construction stage, and — critically —
+whether either is even reachable via a legal, real gameplay path: Assault Vest is confirmed
+format-illegal and only reaches calc via test fixtures today, meaning it was never the live
+blocker Hurricane/Maushold was). An extraction-time fix for the blank-move issue was deferred
+in favor of a runtime filter specifically because the runtime path is what a real coverage
+pass actually depends on today, and a re-extraction-safe fix is a larger, separately-scoped
+change to `fetch_usage_mb.py` that shouldn't block this release. Patching only the observed-
+crashing species was rejected in favor of a full audit in both cases (species/name mismatches,
+then again for blank-move rows) — this project's own recurring lesson (`_ROLE_PREF_MOVES`,
+`_NON_DAMAGING`, the redirection compendium) is that lists built from what happened to surface
+in testing are never actually complete, and each of the three fixes here confirms or refutes
+that completeness with real data rather than assumption.
+
+**Status:** Implemented and verified against the actual bar that mattered — not unit tests in
+isolation, but the real demo scenario (Pelipper + Sylveon locked, `compute_team_coverage`
+against all 79 real threats from `get_relevant_threats`, live calc service) completing with
+zero `MatchupEvidenceError`. Maushold resolves to a real mechanical outcome (`no_answer`, a
+genuine 2HKO-not-OHKO, not a masked failure); Kangaskhan's backfilled kit produces `clean_kill`
+in both directions, confirming the backfilled fourth move is real and sensible, not just
+"no longer blank"; Vivillon resolves to `clean_kill`. Node and Python test suites both
+re-verified in full at each stage of this three-part fix, not accepted as scoped subsets.
+
+**Deliberately deferred, tracked as separate future scope, stated explicitly rather than
+implied resolved:** `fetch_usage_mb.py` still writes blank move keys into the snapshot on
+re-extraction — this fix is a runtime read-boundary filter, and will need reapplying (or a
+proper extract-time fix) whenever the snapshot is regenerated. `_damaging_moves` and a
+calc-side `move is required` guard were both confirmed as viable defense-in-depth locations
+but not implemented, since the kit-construction filter already closes the live path. The full
+canonical-name/form-resolution backlog item remains open — its priority is now confirmed
+higher than previously understood (it causes live crashes, not just missed Compendium
+matches), but it was deliberately not absorbed into this narrower, evidence-bounded fix.
