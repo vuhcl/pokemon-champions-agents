@@ -2,7 +2,7 @@
  * Thin wrappers around @smogon/calc (Champions = Generations.get(0)) and @pkmn/sets.
  * No search/optimization — that stays in Python.
  */
-import {calculate, Field, Generations, Move, Pokemon, Side} from '@smogon/calc';
+import {calculate, Field, Generations, Move, Pokemon, Side, toID} from '@smogon/calc';
 import {Sets} from '@pkmn/sets';
 import type {PokemonSet} from '@pkmn/sets';
 
@@ -113,6 +113,12 @@ function toField(spec: FieldSpec | undefined, moveTarget: string): Field {
 
 function toPokemon(spec: PokemonSpec): Pokemon {
   if (!spec?.species) throw new Error('species is required');
+  if (!GEN.species.get(toID(spec.species))) {
+    throw new Error(`unknown Champions species: ${spec.species}`);
+  }
+  if (spec.item && !GEN.items.get(toID(spec.item))) {
+    throw new Error(`unknown Champions item: ${spec.item}`);
+  }
   return new Pokemon(GEN, spec.species, {
     item: spec.item,
     ability: spec.ability,

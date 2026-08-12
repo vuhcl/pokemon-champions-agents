@@ -64,14 +64,38 @@ def _spread_from_usage(entry: dict[str, Any]) -> StatsTable | None:
     }
 
 
+def _species_for_spec(entry: dict[str, Any], fallback: str) -> str:
+    """Calc-compatible species label: display name only when it to_id-matches the stored id."""
+    name = entry.get("name") or fallback
+    sid = to_id(entry.get("id") or fallback)
+    if to_id(name) == sid:
+        return name
+    legal = (_legality_species().get(sid) or {}).get("name")
+    if legal:
+        return str(legal)
+    return sid
+
+
+def _nonempty_moves(names: Any) -> list[str]:
+    """Skip blank chaos keys, then display-map, cap at 4."""
+    out: list[str] = []
+    for n in names:
+        if n is None or not str(n).strip():
+            continue
+        out.append(_display_move(str(n)))
+        if len(out) >= 4:
+            break
+    return out
+
+
 def _set_from_entry(entry: dict[str, Any], species: str) -> PokemonSet | None:
     for fs in entry.get("featured_sets") or []:
-        moves = fs.get("moves") or []
-        if len(moves) >= 4 and fs.get("item") and fs.get("item") != "Nothing":
+        real = _nonempty_moves(fs.get("moves") or [])
+        if len(real) >= 4 and fs.get("item") and fs.get("item") != "Nothing":
             out: PokemonSet = {
-                "species": entry.get("name") or species,
+                "species": _species_for_spec(entry, species),
                 "item": _display_item(fs["item"]),
-                "moves": [_display_move(m) for m in moves[:4]],
+                "moves": real,
             }
             if fs.get("ability"):
                 out["ability"] = _display_ability(fs["ability"])
@@ -81,13 +105,13 @@ def _set_from_entry(entry: dict[str, Any], species: str) -> PokemonSet | None:
             if spread:
                 out["evs"] = spread
             return out
-    moves = [_display_move(m["name"]) for m in (entry.get("common_moves") or [])[:4]]
+    moves = _nonempty_moves(m["name"] for m in (entry.get("common_moves") or []))
     items = entry.get("common_items") or []
     abilities = entry.get("common_abilities") or []
     if not moves or not items:
         return None
     out = {
-        "species": entry.get("name") or species,
+        "species": _species_for_spec(entry, species),
         "item": _display_item(items[0]["name"]),
         "moves": moves,
     }
@@ -139,9 +163,9 @@ def find_set_matching(
         fs_item = to_id(fs.get("item") or "")
         if fs_moves == want_moves and fs_item == want_item:
             out: PokemonSet = {
-                "species": entry.get("name") or species,
+                "species": _species_for_spec(entry, species),
                 "item": _display_item(fs.get("item") or item),
-                "moves": [_display_move(m) for m in (fs.get("moves") or moves)],
+                "moves": _nonempty_moves(fs.get("moves") or moves),
             }
             if fs.get("ability"):
                 out["ability"] = _display_ability(fs["ability"])
