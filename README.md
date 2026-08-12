@@ -2,7 +2,7 @@
 
 [![tests](https://github.com/vuhcl/pokemon-champions-agents/actions/workflows/tests.yml/badge.svg)](https://github.com/vuhcl/pokemon-champions-agents/actions/workflows/tests.yml)
 
-A verified, tool-grounded recommendation engine for VGC 2026 Regulation M-B doubles team building — current release: **0.1**. Recommendations are deterministic and calc-backed; legality, damage calculations, and matchup verification are never LLM-generated. The LLM's role is narrowly scoped to structured intent extraction, never decision-making.
+A verified, tool-grounded recommendation engine for VGC 2026 Regulation M-B doubles team building — current release: **0.2**. Recommendations are deterministic and calc-backed; legality, damage calculations, and matchup verification are never LLM-generated. The LLM's role is narrowly scoped to structured intent extraction, never decision-making.
 
 This is not RAG (no embedding or vector retrieval). It is not yet agentic in the sense of multi-turn reasoning or revision-on-feedback — that loop is the labeled path to 1.0, not part of this checkpoint.
 
@@ -10,6 +10,7 @@ This is not RAG (no embedding or vector retrieval). It is not yet agentic in the
 
 - You describe a team direction (rain, Trick Room, …), name an anchor, list what you own, or say `you pick`.
 - For each open slot it returns a short list of regulation-legal candidates, each tagged with why it appeared (usage, role compendium, or mechanical coverage) and a confidence label.
+- After locking a weather setter, partner candidates can include kit-backed condition beneficiaries (e.g. Swift Swim / Rain Dish under Rain), not only threat-counters.
 - You confirm a full set — ability, item, nature, moves, spread — before anything locks. Duplicate items are rejected under Item Clause rather than presented as done.
 - Damage ranges and matchup outcomes come from `@smogon/calc`, not generated text. If calc is down, results are either labeled as static estimates or the turn fails closed — never silently invented.
 - Sessions persist in SQLite and resume (`--thread`, or the newest incomplete thread by default).
@@ -32,6 +33,8 @@ Pulled from the ADR log — each is a real "why X, not Y," not a stack tour.
 6. **Calc-unavailable degradation is typed, not a softer ranking.** `estimate_kind` (`verified` / `static`) is a row-level tag that the sort function gates on, so a static row cannot outrank a verified one even if `verified_score` were wrongly left nonzero. `single_locked` may present labeled static estimates; `multi_locked` coverage/SPOF ranking stays fail-closed. ([ADR-029](docs/architecture_decisions.md#adr-029-calc-unavailable-static-fallback--labeled-degraded-discovery-for-single_locked))
 7. **A shipped-looking calc-failure "continue" path was reverted.** Under review, continuing `multi_locked` after calc failure presented ordinary-looking usage-backed candidates with none of the honesty markers above — a silent regression against ADR-029, not a labeled policy change. Hard-stop restored; the usability gap remains an open design task. ([ADR-029](docs/architecture_decisions.md#adr-029-calc-unavailable-static-fallback--labeled-degraded-discovery-for-single_locked), [log 2026-08-10](docs/master_project_log.md))
 8. **Open-ended reasoning may propose; it may not act until data confirms.** Any future judgment step (including the 1.0 reasoning loop) has to verify each claim against structured data before it can affect ranking, locking, or presentation. ([ADR-021](docs/architecture_decisions.md#adr-021-open-ended-reasoning-must-be-verification-gated-before-affecting-any-decision))
+9. **Rule out the plausible explanation before accepting the real one.** A day of `calc_incomplete` failures looked like Electro Shot's Rain charge-turn modeling. That theory was checked and rejected (Ground immunity is weather-independent; every Ground target failed the same way). The real cause was three layers: `@smogon/calc` correctly returning `damage=0` → the handler calling `kochance(err=true)` on zeros → the batch aborting the whole matchup on one bad row. Fixing the handler to treat legitimate zero as success, and replacing an incomplete Status denylist with `flags.v1.json`, closed a structural class of failures — not two named moves. ([ADR-030](docs/architecture_decisions.md#adr-030-legitimate-zero-damage-calc-results-are-successes-not-errors--batch-semantics), [log 2026-08-11](docs/master_project_log.md))
+10. **Weather setters ask "who benefits," not only "what do I need."** `query_support_needs` answers the locked anchor's own kit gaps. A Drizzle Pelipper has no Rain *need*, so partners were threat-counters only until `single_locked` inverted present weather `provides` into kit-emitted beneficiaries (Swift Swim, Rain Dish, Electro Shot, …). Same invert deliberately skipped for Tailwind under Reg M-B: Wind Rider / Wind Power exist, but zero legal holders. ([ADR-023 amendment 2026-08-11a](docs/architecture_decisions.md#adr-023--amendment-2026-08-11a))
 
 ## Design history
 
@@ -47,25 +50,28 @@ npm install && npm start # calc service, separate terminal
 python -m recommender --new
 ```
 
-A recorded 0.1 session (bootstrap → two confirmed locks → next-slot candidates) is in [`docs/demo/cli-session-0.1.txt`](docs/demo/cli-session-0.1.txt).
+A recorded 0.2 session (Pelipper lock → rain-beneficiary partners including Rain Dish / Swift Swim → Blastoise confirmed) is in [`docs/demo/cli-session-0.2.txt`](docs/demo/cli-session-0.2.txt). The prior 0.1 transcript remains at [`docs/demo/cli-session-0.1.txt`](docs/demo/cli-session-0.1.txt).
 
 ## Roadmap toward 1.0 (not in this checkpoint)
 
 The original MVP floor includes an agentic reasoning loop — steering and revision-on-feedback — sitting on the same verification boundary this checkpoint already enforces (ADR-027: LLM extracts intent; tools decide). That loop is not started.
 
-Smaller gaps still open in 0.1:
+Shipped in 0.2 (not remaining gaps): condition-beneficiary invert for weather in `single_locked`; Trick Room sweeper `benefits_from` → `trick_room` need emission; Tailwind beneficiary invert closed as correctly empty for Reg M-B.
+
+Smaller gaps still open:
 
 - Canonical name/form resolution at the input boundary (Maushold, Vivillon, and similar).
+- Presentation-time filter for unresolvable mechanical_only beneficiaries (rediscovery may re-offer the same default).
 
 Out of scope until 1.0 exists: Showdown win-rate eval, battle-log/RL piloting.
 
 ## Tests
 
-Verified 2026-08-11 against `main` at `99491aa` (merge of PR #63), not recalled from an older log entry:
+Verified 2026-08-11 against `docs/0.2-packaging` at feature commit `872f3e7` (plus docs `fb5b804`), not recalled from an older log entry:
 
 | Suite | Command | Result |
 |-------|---------|--------|
-| Python recommender | `uv run pytest` | **816 passed, 6 skipped** |
+| Python recommender | `uv run pytest` | **836 passed, 6 skipped** |
 | Node calc/extract | `npm test` | **50 passed** (not in CI) |
 
 Skipped (pytest `-rs`): 5 live-calc tests that require `CALC_LIVE=1` / a live calc probe; 1 Ollama bootstrap smoke that requires `BOOTSTRAP_OLLAMA_MODEL` in the pytest process.
