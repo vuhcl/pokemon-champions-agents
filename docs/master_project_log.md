@@ -20,6 +20,15 @@ Portfolio project closing an "agentic AI" skill gap flagged across multiple job 
 - **Regulations update over time** (currently M-B) and each regulation has a **different legal pool of Pokémon and items**. The system must treat the regulation as a hard, versioned constraint, not a static assumption baked in once.
 - Singles vs. doubles priority: **TBD — decide before scaffolding**, since team composition logic (especially doubles-specific mechanics like spread moves, redirection, follow-me) differs meaningfully between BSS and VGC.
 
+### AI-assisted development workflow (factual note)
+
+This project was built via a structured AI-assisted workflow. An AI architecture/design
+partner (Claude, via a dedicated project) handled design decisions and ADR-driven review
+gates. An AI implementation agent (Cursor) handled code. Every design decision required
+explicit review before implementation; every implementation required confirmation against
+real evidence before being treated as complete. The rest of this log is the record of that
+process — this note states the split once rather than restating it on every entry.
+
 ---
 
 ## KNOWN LLM FAILURE MODES — design guardrails against these explicitly
@@ -3390,17 +3399,6 @@ confirmed to be a genuine `{error}` row from a different failure mode (an item-d
 issue), not the zero-damage pattern this fix addresses. Still produces a correct
 `MatchupEvidenceError`/`calc_incomplete` today; a real fix for that specific crash remains
 separately scoped, not folded into this task.
-
-### 2026-08-11 (cont.): AI-assisted development workflow (factual note)
-
-This project was built via a structured AI-assisted workflow. An AI
-architecture/design partner (Claude, via a dedicated project) handled design
-decisions and ADR-driven review gates. An AI implementation agent (Cursor)
-handled code. Every design decision required explicit review before
-implementation; every implementation required confirmation against real evidence
-before being treated as complete. The rest of this log is the record of that
-process — this note states the split once rather than restating it on every
-entry.
 
 ### 2026-08-11 (cont.): calc-crash investigation — four distinct bugs found and fixed
 across one investigation, closing 0.1.0's remaining blockers
