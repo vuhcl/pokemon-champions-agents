@@ -31,9 +31,11 @@ def test_first_turn_invoke_is_format_id_only(tmp_path: Path, monkeypatch):
     db = tmp_path / "landmine.db"
     real_compile = compile_cli_graph
 
-    def wrapping(*, path=None, bootstrap_intake_parser=None):
+    def wrapping(*, path=None, bootstrap_intake_parser=None, turn_intent_parser=None):
         graph, saver = real_compile(
-            path=path, bootstrap_intake_parser=bootstrap_intake_parser
+            path=path,
+            bootstrap_intake_parser=bootstrap_intake_parser,
+            turn_intent_parser=turn_intent_parser,
         )
         real_invoke = graph.invoke
 

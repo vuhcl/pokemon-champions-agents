@@ -197,7 +197,13 @@ def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
     bootstrap_err = state.get("bootstrap_intake_error")
     no_parser = bootstrap_err == BOOTSTRAP_PARSER_NOT_CONFIGURED
     if unmatched and not no_parser:
-        blocks.append(UNMATCHED_REPLY_PREFIX)
+        payload = state.get("turn_payload")
+        custom = None
+        if isinstance(payload, Mapping):
+            raw = payload.get("message")
+            if isinstance(raw, str) and raw.strip():
+                custom = raw.strip()
+        blocks.append(custom or UNMATCHED_REPLY_PREFIX)
 
     if no_parser:
         blocks.append(BOOTSTRAP_PARSER_FIX_HINT)

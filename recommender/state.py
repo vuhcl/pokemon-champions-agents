@@ -132,6 +132,12 @@ class BootstrapResponsePayload(TypedDict):
     ownership_mode: OwnershipMode | None
 
 
+class PendingResponsePayload(TypedDict):
+    """Clarify/re-prompt text for turn_intent=pending_response (gap-fill path)."""
+
+    message: str
+
+
 class SupersededEntry(TypedDict):
     slot_index: int
     attr: SlotAttrName
@@ -341,6 +347,7 @@ TurnPayload = Union[
     ResetPayload,
     RestorePayload,
     BootstrapResponsePayload,
+    PendingResponsePayload,
 ]
 
 
