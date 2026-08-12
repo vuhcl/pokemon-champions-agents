@@ -655,14 +655,8 @@ def commit_full_slot(state: RecommenderState) -> dict:
         )
 
     reason = ReasonRef(kind="user_stated")
-    committed = Slot(
-        role=Attr(provisional.role, True, reason),
-        species=Attr(provisional.species, True, reason),
-        ability=Attr(provisional.ability, True, reason),
-        item=Attr(provisional.item, True, reason),
-        moveset=Attr(list(provisional.moves), True, reason),
-        spread=Attr(spread, True, reason),
-        nature=Attr(provisional.nature, True, reason),
+    committed = replace(
+        provisional.to_slot(locked=True, reason=reason),
         rationale=current.rationale,
         verification=list(current.verification),
     )

@@ -280,6 +280,13 @@ class PendingPresentationOption(TypedDict):
     mechanism_ids: NotRequired[tuple[str, ...]]
 
 
+class ReviewFlag(TypedDict):
+    claim: str
+    check: str
+    basis: Literal["deterministic", "reasoning"]
+    fields: NotRequired[tuple[str, ...]]
+
+
 class PendingPresentation(TypedDict, total=False):
     schema_version: int
     kind: Literal[
@@ -295,6 +302,7 @@ class PendingPresentation(TypedDict, total=False):
     prompt_text: str
     existing_pool_labels: tuple[str, ...]
     notices: tuple[str, ...]
+    review_flags: tuple[ReviewFlag, ...]
 
 
 @dataclass(frozen=True)
@@ -329,6 +337,23 @@ class ProvisionalSlot:
 
     def spread_dict(self) -> dict[str, int]:
         return dict(self.spread)
+
+    def to_slot(
+        self,
+        *,
+        locked: bool = False,
+        reason: ReasonRef | None = None,
+    ) -> Slot:
+        """Field-for-field map; moves → moveset, spread via spread_dict()."""
+        return Slot(
+            role=Attr(self.role, locked, reason),
+            species=Attr(self.species, locked, reason),
+            ability=Attr(self.ability, locked, reason),
+            item=Attr(self.item, locked, reason),
+            moveset=Attr(list(self.moves), locked, reason),
+            spread=Attr(self.spread_dict(), locked, reason),
+            nature=Attr(self.nature, locked, reason),
+        )
 
 
 @dataclass(frozen=True)
