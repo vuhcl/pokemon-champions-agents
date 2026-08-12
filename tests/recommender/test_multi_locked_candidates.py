@@ -860,7 +860,13 @@ def test_empty_team_threat_objective_allows_support_and_shared_ranking():
     )
 
 
-def test_backup_setter_not_duplicative_when_filling_condition_gap():
+def test_backup_setter_protect_only_demoted_when_sparse_vs_rain_spof():
+    """Protect-only second Drizzle setter no longer gets an ungated complementary pass.
+
+    ``single_provider_spof`` still detects the Rain gap, but divergence fail-closed
+    (``MIN_SIDE_TAGS``) demotes a near-empty kit that previously cleared via
+    ``_candidate_fills_condition_gap`` alone.
+    """
     from recommender.condition_resilience import assess_condition_resilience
     from recommender.team_candidates import collect_locked_anchor_contexts
 
@@ -892,7 +898,7 @@ def test_backup_setter_not_duplicative_when_filling_condition_gap():
         candidates, state, locked_anchors=contexts, condition_resilience=report
     )
     assert annotated[0].species == "Politoed"
-    assert annotated[0].composition_fit == "complementary"
+    assert annotated[0].composition_fit in {"duplicative", "severe_duplication"}
 
 
 def test_candidate_kit_ability_keeps_present_rain_provider_for_composition_gap():
@@ -907,6 +913,10 @@ def test_candidate_kit_ability_keeps_present_rain_provider_for_composition_gap()
     ``_role_decision`` must admit the ability as ``usage_derived`` when it matches
     featured/common usage (not a false ``user_confirmed`` lock), so Task A's gate
     keeps it mechanism-visible for the correct reason.
+
+    CompositionFit for this Protect-only kit is demoted under divergence fail-closed;
+    complementary coverage for a diverging backup lives on the rich-kit discover test
+    and ``test_sableye_backup_rain_setter_complementary_when_diverged``.
     """
     from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
     from recommender.condition_resilience import (
@@ -983,7 +993,7 @@ def test_candidate_kit_ability_keeps_present_rain_provider_for_composition_gap()
         locked_anchors=contexts,
         condition_resilience=report,
     )
-    assert annotated[0].composition_fit == "complementary"
+    assert annotated[0].composition_fit in {"duplicative", "severe_duplication"}
 
 
 def test_discover_multi_locked_publishes_resilience_and_keeps_backup_rain_setter_complementary():
@@ -1016,7 +1026,9 @@ def test_discover_multi_locked_publishes_resilience_and_keeps_backup_rain_setter
             spec={
                 "species": "Politoed",
                 "ability": "Drizzle",
-                "moves": ["Scald", "Protect", "Perish Song", "Encore"],
+                # Usage-attested perish-support kit (ingame common_moves), not
+                # Weather Ball offense that clones Pelipper's secondary tags.
+                "moves": ["Protect", "Perish Song", "Encore", "Helping Hand"],
             },
         ),
     )
@@ -1068,6 +1080,35 @@ def test_discover_multi_locked_publishes_resilience_and_keeps_backup_rain_setter
 
     politoed_row = next(row for row in annotated_by_discover if row.species == "Politoed")
     assert politoed_row.composition_fit == "complementary"
+    # Live divergence vs locked Pelipper must clear the provisional threshold.
+    from recommender.divergence import (
+        DIVERGENCE_COMPLEMENTARY_THRESHOLD,
+        PROVIDER_TAG_BY_CONDITION,
+        divergence_score,
+    )
+    from recommender.team_candidates import _role_decision, collect_locked_anchor_contexts
+
+    contexts = collect_locked_anchor_contexts(state)
+    pelipper = next(c for c in contexts if c.resolved_build.species == "Pelipper")
+    build, decision = _role_decision(
+        "Politoed",
+        {
+            "species": "Politoed",
+            "ability": "Drizzle",
+            "moves": ["Protect", "Perish Song", "Encore", "Helping Hand"],
+        },
+        "champions-reg-mb",
+    )
+    score = divergence_score(
+        decision,
+        pelipper.role_decision,
+        candidate_moves=build.moves,
+        existing_moves=pelipper.resolved_build.moves,
+        candidate_ability=build.ability,
+        existing_ability=pelipper.resolved_build.ability,
+        shared_provider_tags=frozenset({PROVIDER_TAG_BY_CONDITION["Rain"]}),
+    )
+    assert score >= DIVERGENCE_COMPLEMENTARY_THRESHOLD
 
     presentation = result["pending_presentation"]
     assert presentation is not None
@@ -1091,7 +1132,14 @@ def test_unrelated_mechanic_duplication_still_demoted():
             ability="Stamina",
             moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
         ),
-        *[empty_slot() for _ in range(4)],
+        # Second offense so Blissey cannot clear via primary_function SPOF hatch.
+        _locked(
+            "Kingambit",
+            role="fast_physical_attacker",
+            ability="Supreme Overlord",
+            moves=["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"],
+        ),
+        *[empty_slot() for _ in range(3)],
     ]
     state = _state(draft)
     contexts = collect_locked_anchor_contexts(state)
@@ -1105,14 +1153,151 @@ def test_unrelated_mechanic_duplication_still_demoted():
         "item": "Leftovers",
         "moves": ["Soft-Boiled", "Seismic Toss", "Toxic", "Protect"],
     }
-    _, decision = _role_decision("Blissey", spec, "champions-reg-mb")
-    assert _candidate_fills_condition_gap(decision, report) is False
+    build, decision = _role_decision("Blissey", spec, "champions-reg-mb")
+    assert (
+        _candidate_fills_condition_gap(
+            decision,
+            report,
+            candidate_build=build,
+            locked=contexts,
+        )
+        is False
+    )
 
     candidates = [_candidate("Blissey", spec=spec)]
     annotated = annotate_composition_impact(
         candidates, state, locked_anchors=contexts, condition_resilience=report
     )
     assert annotated[0].composition_fit in {"duplicative", "severe_duplication"}
+
+
+def test_sableye_backup_rain_setter_complementary_when_diverged():
+    from recommender.condition_resilience import assess_condition_resilience
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
+    draft = [
+        _locked(
+            "Pelipper",
+            role="rain_setter",
+            ability="Drizzle",
+            moves=["Hurricane", "Protect", "Tailwind", "U-turn"],
+        ),
+        _locked(
+            "Archaludon",
+            role="bulky_rain_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    report = assess_condition_resilience(contexts)
+    rain = next(row for row in report.conditions if row.condition == "Rain")
+    assert rain.gap == "single_provider_spof"
+
+    candidates = [
+        _candidate(
+            "Sableye",
+            spec={
+                "species": "Sableye",
+                "ability": "Prankster",
+                "moves": [
+                    "Rain Dance",
+                    "Encore",
+                    "Will-O-Wisp",
+                    "Light Screen",
+                ],
+            },
+        )
+    ]
+    annotated = annotate_composition_impact(
+        candidates, state, locked_anchors=contexts, condition_resilience=report
+    )
+    assert annotated[0].species == "Sableye"
+    assert annotated[0].composition_fit == "complementary"
+
+
+def test_near_clone_rain_setter_not_complementary_despite_spof():
+    from recommender.condition_resilience import assess_condition_resilience
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
+    draft = [
+        _locked(
+            "Pelipper",
+            role="rain_setter",
+            ability="Drizzle",
+            moves=["Hurricane", "Protect", "Tailwind", "U-turn"],
+        ),
+        _locked(
+            "Archaludon",
+            role="bulky_rain_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    report = assess_condition_resilience(contexts)
+    assert next(r for r in report.conditions if r.condition == "Rain").gap == (
+        "single_provider_spof"
+    )
+
+    candidates = [
+        _candidate(
+            "Politoed",
+            spec={
+                "species": "Politoed",
+                "ability": "Drizzle",
+                "moves": ["Hurricane", "Weather Ball", "Tailwind", "Protect"],
+            },
+        )
+    ]
+    annotated = annotate_composition_impact(
+        candidates, state, locked_anchors=contexts, condition_resilience=report
+    )
+    assert annotated[0].composition_fit in {"duplicative", "severe_duplication"}
+
+
+def test_second_offense_spof_complementary_when_same_category_diverged():
+    """One locked physical attacker; second physical with diverging secondaries.
+
+    ``corrects_skew`` cannot fire (attackers on locked side is 1). Complementary must
+    come from the primary_function SPOF hatch gated on divergence.
+    """
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
+    draft = [
+        _locked(
+            "Kingambit",
+            role="fast_physical_attacker",
+            ability="Supreme Overlord",
+            item="Life Orb",
+            moves=["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"],
+        ),
+        *[empty_slot() for _ in range(5)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    assert contexts[0].role_decision.primary_function == "offense"
+
+    candidates = [
+        _candidate(
+            "Incineroar",
+            spec={
+                "species": "Incineroar",
+                "ability": "Intimidate",
+                "item": "Safety Goggles",
+                "moves": ["Fake Out", "Flare Blitz", "Parting Shot", "Will-O-Wisp"],
+            },
+        )
+    ]
+    annotated = annotate_composition_impact(
+        candidates, state, locked_anchors=contexts, condition_resilience=None
+    )
+    assert annotated[0].species == "Incineroar"
+    assert annotated[0].composition_fit == "complementary"
 
 
 def test_gap_need_deduped_when_anchored_trick_room_already_present():

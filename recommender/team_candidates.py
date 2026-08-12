@@ -6,6 +6,8 @@ from collections.abc import Sequence
 from dataclasses import replace
 
 from recommender.anchor_roles import (
+    AnchorRoleDecision,
+    ResolvedAnchorBuild,
     classify_anchor_role,
     derive_role_shape_context,
     resolve_anchor_build,
@@ -15,6 +17,13 @@ from recommender.condition_resilience import (
     gap_support_needs,
     mechanism_condition,
 )
+from recommender.divergence import (
+    DIVERGENCE_COMPLEMENTARY_THRESHOLD,
+    PROVIDER_TAG_BY_CONDITION,
+    divergence_score,
+)
+from recommender.primary_function_resilience import assess_primary_function_resilience
+from recommender.primary_function_types import PrimaryFunctionResilienceReport
 from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot
 from recommender.ranking import OwnershipMode, rank_and_cut
@@ -518,6 +527,7 @@ def annotate_composition_impact(
             special += s_count
             attackers += 1
 
+    pf_report = assess_primary_function_resilience(locked)
     out: list[AnnotatedCandidate] = []
     for candidate in candidates:
         build, decision = _role_decision(
@@ -545,12 +555,21 @@ def annotate_composition_impact(
             decision.primary_function != "unknown"
             and primary_counts.get(decision.primary_function, 0) == 0
         )
-        fills_gap = _candidate_fills_condition_gap(decision, condition_resilience)
+        fills_gap = _candidate_fills_condition_gap(
+            decision,
+            condition_resilience,
+            candidate_build=build,
+            locked=locked,
+        )
+        fills_pf_spof = _candidate_fills_primary_function_spof(
+            decision, build, pf_report, locked
+        )
         if (
             candidate.anchored_needs
             or missing_primary
             or corrects_skew
             or fills_gap
+            or fills_pf_spof
         ):
             fit = "complementary"
         elif decision.primary_function == "unknown":
@@ -565,23 +584,84 @@ def annotate_composition_impact(
     return out
 
 
+def _locked_by_slot(
+    locked: Sequence[LockedAnchorContext],
+) -> dict[int, LockedAnchorContext]:
+    return {context.slot_index: context for context in locked}
+
+
 def _candidate_fills_condition_gap(
-    decision,
+    decision: AnchorRoleDecision,
     report: ConditionResilienceReport | None,
+    *,
+    candidate_build: ResolvedAnchorBuild,
+    locked: Sequence[LockedAnchorContext],
 ) -> bool:
     if report is None:
         return False
+    by_slot = _locked_by_slot(locked)
     for row in report.conditions:
         if row.gap not in {"missing_provider", "single_provider_spof"}:
             continue
         if row.classification not in {"essential", "preferred"}:
             continue
-        if any(
+        if not any(
             mechanism.present
             and mechanism.relation == "provides"
             and mechanism_condition(mechanism) == row.condition
             for mechanism in decision.mechanisms
         ):
+            continue
+        if row.gap == "missing_provider":
+            return True
+        if len(row.providers) != 1:
+            continue
+        provider = by_slot.get(row.providers[0].slot_index)
+        if provider is None:
+            continue
+        tag = PROVIDER_TAG_BY_CONDITION.get(row.condition)
+        shared = frozenset({tag}) if tag else frozenset()
+        score = divergence_score(
+            decision,
+            provider.role_decision,
+            candidate_moves=candidate_build.moves,
+            existing_moves=provider.resolved_build.moves,
+            candidate_ability=candidate_build.ability,
+            existing_ability=provider.resolved_build.ability,
+            shared_provider_tags=shared,
+        )
+        if score >= DIVERGENCE_COMPLEMENTARY_THRESHOLD:
+            return True
+    return False
+
+
+def _candidate_fills_primary_function_spof(
+    decision: AnchorRoleDecision,
+    build: ResolvedAnchorBuild,
+    report: PrimaryFunctionResilienceReport,
+    locked: Sequence[LockedAnchorContext],
+) -> bool:
+    by_slot = _locked_by_slot(locked)
+    for row in report.functions:
+        if row.gap != "single_provider_spof":
+            continue
+        if decision.primary_function != row.primary_function:
+            continue
+        if len(row.providers) != 1:
+            continue
+        provider = by_slot.get(row.providers[0].slot_index)
+        if provider is None:
+            continue
+        score = divergence_score(
+            decision,
+            provider.role_decision,
+            candidate_moves=build.moves,
+            existing_moves=provider.resolved_build.moves,
+            candidate_ability=build.ability,
+            existing_ability=provider.resolved_build.ability,
+            shared_provider_tags=frozenset(),
+        )
+        if score >= DIVERGENCE_COMPLEMENTARY_THRESHOLD:
             return True
     return False
 
