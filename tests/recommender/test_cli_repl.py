@@ -122,6 +122,21 @@ def test_handle_line_pre_guard_skips_invoke_without_pending():
     assert tid == "t"
 
 
+def test_handle_line_unexpected_error_with_pending_is_friendly():
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
+    graph = MagicMock()
+    graph.invoke.side_effect = RuntimeError("OUTPUT_PARSING_FAILURE boom")
+    state = {"pending_presentation": _CANDIDATE_PENDING, "team_draft": []}
+    _, _, _, output, should_exit = handle_line(
+        graph, thread_config("t"), state, "hello", format_id=DEFAULT_FORMAT_ID, thread_id="t"
+    )
+    assert output == CLASSIFY_FAIL_USER_MSG
+    assert "OUTPUT_PARSING_FAILURE" not in output
+    assert "RuntimeError" not in output
+    assert should_exit is False
+
+
 def test_handle_line_pre_guard_reports_fail_closed_discovery():
     graph = MagicMock()
     state = {
