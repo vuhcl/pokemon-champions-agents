@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 
 from recommender.state import (
     ArchetypeChangePayload,
+    ComparePayload,
     ConstraintPayload,
     EditFieldName,
     EditPayload,
@@ -18,6 +19,7 @@ from recommender.state import (
     RejectionPayload,
     ResetPayload,
     RestorePayload,
+    SelectBuildPayload,
     SlotAttrName,
 )
 
@@ -32,6 +34,8 @@ TurnIntentName = Literal[
     "team_review",
     "pending_response",
     "edit",
+    "select_build_option",
+    "compare",
 ]
 
 _ACTIONABLE_INTENTS = frozenset(
@@ -60,7 +64,7 @@ Never invent species/items/moves as verified facts.
 
 Allowed turn_intent values only:
 - constraint, rejection, lock, archetype_change, reset, restore, continue, team_review,
-  pending_response, edit
+  pending_response, edit, select_build_option, compare
 
 Rules:
 - When pending_kind is full_build_confirmation and the user clearly names a build field and
@@ -68,6 +72,12 @@ Rules:
   (field_only) or rebuild the set around it (regenerate), emit edit with field,
   the matching value_* slot, and edit_scope. Never emit lock for build-detail edits on
   full_build_confirmation.
+- When pending_kind is full_build_confirmation and the user picks named/numbered build
+  alternatives from pending_context (option ids/labels), emit select_build_option with
+  option_ids (one pick per axis; compose independent axes). Do not emit edit for menu picks.
+- When pending_kind is full_build_confirmation and the user asks to compare two or more
+  named alternatives before deciding, emit compare with option_ids (2+). Compare is
+  non-mutating analysis — not edit, not pending_response, not select_build_option.
 - Species swaps on full_build_confirmation are rejection (not edit).
 - Ambiguous or under-specified phrasing (bare "no", "different spread" with no value, clear
   field+value but unclear field_only vs regenerate) must use pending_response with a concrete
@@ -77,6 +87,8 @@ Rules:
 - pending_response requires a nonempty message.
 - rejection requires species.
 - constraint requires type, predicate, scope (per_slot|team_wide), groundedness.
+- select_build_option requires nonempty option_ids.
+- compare requires option_ids with length >= 2.
 - edit requires field (ability|item|moves|nature|spread), edit_scope (field_only|regenerate),
   and exactly one value slot: value_text for ability/item/nature, value_moves for moves,
   value_spread for spread. Map moveset to moves if needed. Leave constraint null/omit for
@@ -161,6 +173,10 @@ class TurnIntentExtraction(BaseModel):
     value_spread: dict[str, int] | None = Field(
         default=None,
         description="Edit value for EV/IV spread as six-stat map",
+    )
+    option_ids: list[str] | None = Field(
+        default=None,
+        description="select_build_option / compare: pending option ids",
     )
     # archetype / reset
     components: list[str] | None = None
@@ -248,6 +264,14 @@ class TurnIntentExtraction(BaseModel):
                     and c["groundedness"] in _GROUNDEDNESS
                 ):
                     raise ValueError("reset.constraint must match ConstraintPayload")
+        elif intent == "select_build_option":
+            ids = self.option_ids or []
+            if not ids or any(not str(i).strip() for i in ids):
+                raise ValueError("select_build_option requires nonempty option_ids")
+        elif intent == "compare":
+            ids = self.option_ids or []
+            if len(ids) < 2 or any(not str(i).strip() for i in ids):
+                raise ValueError("compare requires option_ids with length >= 2")
         return self
 
 
@@ -292,6 +316,14 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
             field=extraction.field,  # type: ignore[arg-type]
             value=_edit_value(extraction),
             scope=extraction.edit_scope,  # type: ignore[arg-type]
+        )
+    if intent == "select_build_option":
+        return SelectBuildPayload(
+            option_ids=tuple(str(i).strip() for i in (extraction.option_ids or []))
+        )
+    if intent == "compare":
+        return ComparePayload(
+            option_ids=tuple(str(i).strip() for i in (extraction.option_ids or []))
         )
     if intent == "constraint":
         return ConstraintPayload(

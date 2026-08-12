@@ -1647,6 +1647,74 @@ _EDIT_SLOT_ATTR = {
 }
 
 
+def apply_provisional_overrides(
+    current: ProvisionalSlot,
+    *,
+    overrides: dict[str, object],
+    intent: PendingSlotIntent,
+    state: RecommenderState,
+) -> ProvisionalSlot | UnresolvedSlotRefinement:
+    """Pin all provided override fields (locked=True); keep others from current; refine."""
+    decision = current.target_role_decision
+    if not isinstance(decision, TargetRoleDecision):
+        return UnresolvedSlotRefinement(
+            schema_version=1,
+            intent=intent,
+            unresolved_fields=("target_role",),
+            reason="unresolved_target_role",
+        )
+    if not overrides:
+        return current
+
+    seed = current.to_slot(locked=False, reason=None)
+    for field, value in overrides.items():
+        slot_attr = _EDIT_SLOT_ATTR.get(field)
+        if slot_attr is None:
+            return UnresolvedSlotRefinement(
+                schema_version=1,
+                intent=intent,
+                unresolved_fields=(str(field),),
+            )
+        if field == "moves":
+            if not isinstance(value, (list, tuple)) or len(value) != 4:
+                return UnresolvedSlotRefinement(
+                    schema_version=1,
+                    intent=intent,
+                    unresolved_fields=("moves",),
+                )
+            attr_value: Any = list(value)
+        elif field == "spread":
+            if not isinstance(value, dict):
+                return UnresolvedSlotRefinement(
+                    schema_version=1,
+                    intent=intent,
+                    unresolved_fields=("spread",),
+                )
+            attr_value = {
+                stat: int(value[stat])
+                for stat in ("hp", "atk", "def", "spa", "spd", "spe")
+            }
+        else:
+            attr_value = value
+        seed = replace(seed, **{slot_attr: Attr(value=attr_value, locked=True)})
+
+    working_intent = replace(
+        intent,
+        slot_index=current.slot_index,
+        species=current.species,
+        target_role_decision=decision,
+        base_slot_fingerprint=current.base_slot_fingerprint or intent.base_slot_fingerprint,
+    )
+    refined, _ = _propagate_and_refine(
+        seed,
+        state,
+        regulation=state.get("regulation_mod") or "champions",
+    )
+    return _provisional_from_refined(
+        intent=working_intent, decision=decision, refined=refined
+    )
+
+
 def revise_provisional_slot(
     current: ProvisionalSlot,
     *,

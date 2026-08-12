@@ -98,6 +98,136 @@ _ORDINAL_REPLIES = {
 _SELECTION_PREFIXES = ("choose ", "pick ", "go with ")
 
 
+def _index_build_options(
+    pending: PendingPresentation,
+) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
+    for group in pending.get("build_option_groups") or ():
+        for opt in group.get("options") or ():
+            oid = str(opt.get("option_id") or "")
+            if oid:
+                out[oid] = {**opt, "axis": group.get("axis")}
+    return out
+
+
+def _deterministic_build_option_ids(
+    text: str, pending: PendingPresentation
+) -> tuple[str, ...] | None:
+    """Parse option ids / labels / ordinals across axis groups. None = not a clean select."""
+    index = _index_build_options(pending)
+    if not index:
+        return None
+    reply = text.strip().lower()
+    for prefix in _SELECTION_PREFIXES:
+        if reply.startswith(prefix):
+            reply = reply[len(prefix) :].strip()
+            break
+    # split on + / and / ,
+    raw_parts = [
+        p.strip()
+        for p in reply.replace(" and ", "+").replace(",", "+").split("+")
+        if p.strip()
+    ]
+    if not raw_parts:
+        return None
+    groups = list(pending.get("build_option_groups") or ())
+    picks: list[str] = []
+    axes_used: set[str] = set()
+    for part in raw_parts:
+        matched: str | None = None
+        if part in index:
+            matched = part
+        else:
+            for oid, opt in index.items():
+                if to_id(str(opt.get("label") or "")) == to_id(part):
+                    matched = oid
+                    break
+                if oid.lower() == part:
+                    matched = oid
+                    break
+        if matched is None:
+            ordinal = _ORDINAL_REPLIES.get(part)
+            if ordinal is not None and len(groups) == 1:
+                opts = list(groups[0].get("options") or ())
+                if ordinal < len(opts):
+                    matched = str(opts[ordinal].get("option_id") or "")
+        if not matched or matched not in index:
+            return None
+        axis = str(index[matched].get("axis") or "")
+        if axis in axes_used:
+            return None
+        axes_used.add(axis)
+        picks.append(matched)
+    return tuple(picks) if picks else None
+
+
+def _emit_full_build_confirmation(
+    state: RecommenderState,
+    provisional: ProvisionalSlot,
+    *,
+    review_flags: tuple = (),
+) -> dict[str, Any]:
+    from recommender.build_alternatives import (
+        generate_build_option_groups,
+        provisional_for_confirmation,
+    )
+
+    base = provisional_for_confirmation(provisional, state)
+    groups, default_ids = generate_build_option_groups(base, state)
+    pending = PendingPresentation(
+        schema_version=1,
+        kind="full_build_confirmation",
+        slot_index=base.slot_index,
+        provisional_fingerprint=base.fingerprint,
+        build_option_groups=groups,
+        default_option_ids=default_ids,
+    )
+    if review_flags:
+        pending["review_flags"] = review_flags
+    return {
+        "provisional_slot": base,
+        "provisional_refinement": None,
+        "slot_commit_error": None,
+        "compare_analysis": None,
+        "pending_presentation": pending,
+    }
+
+
+def _verify_provisional_hard(
+    result: ProvisionalSlot, state: RecommenderState
+) -> str | None:
+    spread = result.spread_dict()
+    if (
+        set(spread) != {"hp", "atk", "def", "spa", "spd", "spe"}
+        or any(not isinstance(v, int) or v < 0 or v > 32 for v in spread.values())
+        or spread_sum(spread) != SP_BUDGET
+    ):
+        return "invalid edited spread"
+    if len(result.moves) != 4 or any(not move for move in result.moves):
+        return "edited build requires exactly four moves"
+    legality = check_set(
+        result.species,
+        list(result.moves),
+        result.item,
+        ability=result.ability,
+        team_draft=state["team_draft"],
+        exclude_slot=result.slot_index,
+    )
+    if not legality.ok:
+        return "illegal edited slot: " + "; ".join(
+            f"{failure.kind}:{failure.element}" for failure in legality.failures
+        )
+    reason = ReasonRef(kind="user_stated")
+    conflicts = simultaneous_lock_conflicts(
+        result.to_slot(locked=True, reason=reason)
+    )
+    if conflicts:
+        return "conflicting edited fields: " + ", ".join(
+            "/".join(group) for group in conflicts
+        )
+    return None
+
+
 def _gap_fill(
     text: str,
     *,
@@ -141,10 +271,19 @@ def build_gap_fill_context(state: RecommenderState) -> dict[str, str]:
                 species = getattr(intent, "species", None)
             if not species and provisional is not None:
                 species = getattr(provisional, "species", None)
+            groups = pending.get("build_option_groups") or ()
+            option_bits: list[str] = []
+            for group in groups:
+                axis = group.get("axis")
+                for opt in group.get("options") or ():
+                    option_bits.append(
+                        f"{opt.get('option_id')}[{axis}]={opt.get('label')}"
+                    )
+            options_txt = "; ".join(option_bits) if option_bits else "none"
             pending_context = (
-                f"full build confirmation for {species}"
+                f"full build confirmation for {species}; options: {options_txt}"
                 if species
-                else "full build confirmation"
+                else f"full build confirmation; options: {options_txt}"
             )
         elif kind == "bootstrap_intake":
             pending_context = "bootstrap intake"
@@ -278,6 +417,13 @@ def classify_pending(
                 "pending_slot_intent": None,
                 "provisional_slot": None,
                 "provisional_refinement": None,
+                "compare_analysis": None,
+            }
+        selected_ids = _deterministic_build_option_ids(text, pending_presentation)
+        if selected_ids is not None:
+            return {
+                "turn_intent": "select_build_option",
+                "turn_payload": {"option_ids": selected_ids},
             }
         if turn_intent_parser is None:
             return {"turn_intent": "pending_response"}
@@ -563,22 +709,13 @@ def refine_provisional_slot(state: RecommenderState) -> dict:
             "provisional_refinement": result,
             "slot_commit_error": f"Could not refine {intent.species}: {reason}",
         }
-    return {
-        "provisional_slot": result,
-        "provisional_refinement": None,
-        "slot_commit_error": None,
-        "pending_slot_intent": replace(
-            intent, target_role_decision=result.target_role_decision
-        )
+    out = _emit_full_build_confirmation(state, result)
+    out["pending_slot_intent"] = (
+        replace(intent, target_role_decision=result.target_role_decision)
         if intent.target_role_decision != result.target_role_decision
-        else intent,
-        "pending_presentation": PendingPresentation(
-            schema_version=1,
-            kind="full_build_confirmation",
-            slot_index=result.slot_index,
-            provisional_fingerprint=result.fingerprint,
-        ),
-    }
+        else intent
+    )
+    return out
 
 
 def apply_provisional_edit(state: RecommenderState) -> dict:
@@ -619,58 +756,107 @@ def apply_provisional_edit(state: RecommenderState) -> dict:
             )
         }
 
-    spread = result.spread_dict()
-    if (
-        set(spread) != {"hp", "atk", "def", "spa", "spd", "spe"}
-        or any(not isinstance(v, int) or v < 0 or v > 32 for v in spread.values())
-        or spread_sum(spread) != SP_BUDGET
-    ):
-        return {"slot_commit_error": "invalid edited spread"}
-    if len(result.moves) != 4 or any(not move for move in result.moves):
-        return {"slot_commit_error": "edited build requires exactly four moves"}
-
-    legality = check_set(
-        result.species,
-        list(result.moves),
-        result.item,
-        ability=result.ability,
-        team_draft=state["team_draft"],
-        exclude_slot=result.slot_index,
-    )
-    if not legality.ok:
-        return {
-            "slot_commit_error": "illegal edited slot: "
-            + "; ".join(
-                f"{failure.kind}:{failure.element}" for failure in legality.failures
-            )
-        }
-
-    reason = ReasonRef(kind="user_stated")
-    conflicts = simultaneous_lock_conflicts(
-        result.to_slot(locked=True, reason=reason)
-    )
-    if conflicts:
-        return {
-            "slot_commit_error": "conflicting edited fields: "
-            + ", ".join("/".join(group) for group in conflicts)
-        }
+    err = _verify_provisional_hard(result, state)
+    if err:
+        return {"slot_commit_error": err}
 
     flags = collect_provisional_review_flags(
         result, state, edited_fields=frozenset({field})
     )
-    return {
-        "provisional_slot": result,
-        "provisional_refinement": None,
-        "slot_commit_error": None,
-        "pending_slot_intent": intent,
-        "pending_presentation": PendingPresentation(
-            schema_version=1,
-            kind="full_build_confirmation",
-            slot_index=result.slot_index,
-            provisional_fingerprint=result.fingerprint,
-            review_flags=flags,
-        ),
-    }
+    out = _emit_full_build_confirmation(state, result, review_flags=flags)
+    out["pending_slot_intent"] = intent
+    return out
+
+
+def apply_provisional_option(state: RecommenderState) -> dict:
+    """Apply selected build-option overrides; re-present or keep prior on hard fail."""
+    from recommender.edit_review import collect_provisional_review_flags
+    from recommender.slot_fill import apply_provisional_overrides
+
+    intent = state.get("pending_slot_intent")
+    provisional = state.get("provisional_slot")
+    pending = state.get("pending_presentation")
+    payload = state.get("turn_payload")
+    if (
+        intent is None
+        or provisional is None
+        or pending is None
+        or not isinstance(provisional, ProvisionalSlot)
+        or not isinstance(payload, dict)
+        or not payload.get("option_ids")
+    ):
+        return {"slot_commit_error": "missing or unsupported provisional option state"}
+
+    index = _index_build_options(pending)
+    option_ids = tuple(str(i) for i in payload["option_ids"])
+    merged: dict[str, object] = {}
+    for oid in option_ids:
+        opt = index.get(oid)
+        if opt is None:
+            return {"slot_commit_error": f"unknown build option id: {oid}"}
+        for key, value in (opt.get("overrides") or {}).items():
+            if key in merged:
+                return {
+                    "slot_commit_error": (
+                        f"overlapping override key across selected options: {key}"
+                    )
+                }
+            merged[key] = value
+
+    result = apply_provisional_overrides(
+        provisional,
+        overrides=merged,
+        intent=intent,
+        state=state,
+    )
+    if isinstance(result, UnresolvedSlotRefinement):
+        return {
+            "slot_commit_error": (
+                "Could not apply option: "
+                + (result.reason or ",".join(result.unresolved_fields))
+            )
+        }
+
+    err = _verify_provisional_hard(result, state)
+    if err:
+        return {"slot_commit_error": err}
+
+    flags = collect_provisional_review_flags(
+        result, state, edited_fields=frozenset(merged)
+    )
+    out = _emit_full_build_confirmation(state, result, review_flags=flags)
+    out["pending_slot_intent"] = intent
+    return out
+
+
+def compare_build_options(state: RecommenderState) -> dict:
+    """Non-mutating calc-backed compare; keeps pending/provisional."""
+    from recommender.build_compare import compare_build_options as _compare
+
+    provisional = state.get("provisional_slot")
+    pending = state.get("pending_presentation")
+    payload = state.get("turn_payload")
+    if (
+        provisional is None
+        or pending is None
+        or not isinstance(provisional, ProvisionalSlot)
+        or not isinstance(payload, dict)
+    ):
+        return {"compare_analysis": "Nothing to compare."}
+    option_ids = tuple(str(i) for i in (payload.get("option_ids") or ()))
+    groups = tuple(pending.get("build_option_groups") or ())
+    index = _index_build_options(pending)
+    if len(option_ids) < 2 or any(oid not in index for oid in option_ids):
+        return {
+            "compare_analysis": "Name two or more valid build option ids to compare."
+        }
+    analysis = _compare(
+        provisional,
+        option_ids=option_ids,
+        groups=groups,
+        state=state,
+    )
+    return {"compare_analysis": analysis}
 
 
 def _full_slot_error(message: str) -> dict:
@@ -768,6 +954,7 @@ def commit_full_slot(state: RecommenderState) -> dict:
         "provisional_slot": None,
         "provisional_refinement": None,
         "slot_commit_error": None,
+        "compare_analysis": None,
         "coverage": [],
         "spofs": [],
         "shared_teammates": None,

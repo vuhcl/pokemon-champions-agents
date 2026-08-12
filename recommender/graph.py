@@ -22,6 +22,8 @@ _INTENT_ROUTES = {
     "slot_candidate_selected": "refine_provisional_slot",
     "full_slot_confirmed": "commit_full_slot",
     "edit": "apply_provisional_edit",
+    "select_build_option": "apply_provisional_option",
+    "compare": "compare_build_options",
 }
 
 _PHASE_ROUTES = {
@@ -81,6 +83,8 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
     g.add_node("finish_pending_response", nodes.finish_pending_response)
     g.add_node("refine_provisional_slot", nodes.refine_provisional_slot)
     g.add_node("apply_provisional_edit", nodes.apply_provisional_edit)
+    g.add_node("apply_provisional_option", nodes.apply_provisional_option)
+    g.add_node("compare_build_options", nodes.compare_build_options)
     g.add_node("commit_full_slot", nodes.commit_full_slot)
 
     g.add_conditional_edges(START, _route_start, ["initialize", "classify_input"])
@@ -107,6 +111,8 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
     g.add_edge("generate_team_review", END)
     g.add_edge("finish_pending_response", END)
     g.add_edge("apply_provisional_edit", END)
+    g.add_edge("apply_provisional_option", END)
+    g.add_edge("compare_build_options", END)
     g.add_conditional_edges(
         "refine_provisional_slot",
         _route_after_refine,
