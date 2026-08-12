@@ -77,6 +77,7 @@ class MockCalcClient(CalcClient):
     [
         [],
         [{"error": "move failed"}],
+        [{"error": "unknown Champions species: Maushold Family of Four"}],
         [None],
     ],
 )
