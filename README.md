@@ -47,7 +47,7 @@ npm install && npm start # calc service, separate terminal
 python -m recommender --new
 ```
 
-A recorded 0.1 session (bootstrap → slot fills → confirmation) is in [`docs/demo/cli-session-0.1.txt`](docs/demo/cli-session-0.1.txt). Unedited: it includes a live Item Clause rejection and a subsequent `calc_incomplete` on the two-lock coverage pass.
+A recorded 0.1 session (bootstrap → two confirmed locks → next-slot candidates) is in [`docs/demo/cli-session-0.1.txt`](docs/demo/cli-session-0.1.txt).
 
 ## Roadmap toward 1.0 (not in this checkpoint)
 
