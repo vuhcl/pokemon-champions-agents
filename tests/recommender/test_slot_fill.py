@@ -21,7 +21,11 @@ from recommender.slot_fill import (
     REVIEWED_STRATEGIC_TARGET_ROLES,
     SlotFillContext,
     SlotFillResponse,
+    _CONDITION_SETTER_TARGET_ROLES,
     _FO_PROTECTION_ABILITIES,
+    _NEED_SATISFIERS,
+    _NEED_TARGET_ROLES,
+    _kit_fallback_target_role,
     _sort_annotated,
     _threat_evidence,
     _union_move_candidates,
@@ -33,6 +37,7 @@ from recommender.slot_fill import (
     merge_need_resolved,
     present_candidates,
     resolve_all_support_needs,
+    resolve_condition_beneficiaries,
     resolve_need_candidates,
     run_slot_fill_terminal,
     target_role_from_needs,
@@ -56,6 +61,7 @@ from recommender.state import (
     slot_fingerprint,
 )
 from recommender.support_needs import RoleShapeContext, SupportNeed
+from recommender.usage_data import lineage_ids
 
 
 def _tc(
@@ -190,6 +196,249 @@ def test_merge_need_resolved_surfaces_need_only_species():
     assert by_name["Farigiraf"].threat_row is None
     assert any(n.category == "trick_room" for n in by_name["Farigiraf"].matching_needs)
     assert by_name["Incineroar"].source == "both"
+
+
+def _unmapped_beneficiary_need() -> SupportNeed:
+    return SupportNeed(
+        category="condition_beneficiary",
+        name="Rain beneficiary",
+        description="Anchor provides Rain; candidate kit-emits benefits_from Rain.",
+        trigger="field_condition:provided:rain",
+    )
+
+
+def test_condition_beneficiary_is_not_a_target_role_mapping():
+    """Search filter, not a settable open-slot role — same gap the 3a kit fallback covers."""
+    assert "condition_beneficiary" not in _NEED_TARGET_ROLES
+    assert "condition_beneficiary" not in _CONDITION_SETTER_TARGET_ROLES
+    assert "condition_beneficiary" not in _NEED_SATISFIERS
+    try:
+        resolve_need_candidates(_unmapped_beneficiary_need(), _base_state())
+        assert False, "expected NotImplementedError"
+    except NotImplementedError:
+        pass
+
+
+def test_locked_anchor_lineage_exclusion_is_species_agnostic():
+    """Beneficiary self-hits drop via lineage_ids of whatever is locked, not 'Pelipper'."""
+
+    def ineligible(candidate: str, locked: list[str]) -> bool:
+        locked_lineages = {lid for name in locked for lid in lineage_ids(name)}
+        return to_id(candidate) in locked_lineages
+
+    for setter in (
+        "Pelipper",
+        "Torkoal",
+        "Tyranitar",
+        "Ninetales-Alola",
+        "Whimsicott",
+    ):
+        assert ineligible(setter, [setter]), setter
+    assert ineligible("Swampert-Mega", ["Swampert"])
+    assert ineligible("Tyranitar-Mega", ["Tyranitar"])
+    assert ineligible("Ninetales", ["Ninetales-Alola"])
+    assert not ineligible("Basculegion", ["Pelipper"])
+    assert not ineligible("Venusaur", ["Torkoal"])
+    assert not ineligible("Excadrill", ["Tyranitar"])
+
+
+def test_condition_beneficiary_need_only_is_presented_default_over_high_score_threats():
+    """Pelipper-shaped empty support_needs: matching_needs length lifts a Swift Swim user
+    into pick_default_and_alternatives' top-3, above verified_score=99 threat rows.
+
+    Locks the 'no new ranking stage' claim empirically. Does not implement discovery —
+    injects the post-merge shape the design would produce.
+    """
+    need = _unmapped_beneficiary_need()
+    evidence = CandidateEvidence(
+        "mechanical_only",
+        "low",
+        "resolve_condition_beneficiaries",
+        ("need:condition_beneficiary", "condition:Rain", "ability:swiftswim"),
+    )
+    ctx = SlotFillContext(
+        anchor={"species": "Pelipper"},
+        role_shape_context=_shape(primary_function="support"),
+        threat_counter_results=[
+            _tc("Incineroar", usage_rank=1, verified_score=99.0),
+            _tc("Kingambit", usage_rank=2, verified_score=90.0),
+            _tc("Garchomp", usage_rank=3, verified_score=80.0),
+            _tc("Floette-Mega", usage_rank=4, verified_score=70.0),
+            _tc("Charizard-Mega-Y", usage_rank=5, verified_score=60.0),
+            _tc("Sneasler", usage_rank=6, verified_score=50.0),
+            _tc("Aegislash", usage_rank=7, verified_score=40.0),
+            _tc("Farigiraf", usage_rank=8, verified_score=30.0),
+        ],
+        support_needs=[],
+        need_resolved_candidates=[
+            NeedResolvedCandidate("Swampert-Mega", (need,), (evidence,)),
+        ],
+    )
+    merge_need_resolved(ctx)
+    presentation = present_candidates(ctx, slot_index=1)
+    assert "Swampert-Mega" in presentation.options
+    assert presentation.options.index("Swampert-Mega") < 3
+    assert presentation.default == "Swampert-Mega"
+
+
+def test_unmapped_need_only_swampert_mega_uses_kit_fallback_and_refines():
+    """condition_beneficiary-shaped row must not inherit rain_setter or dead-end on refine."""
+    need = _unmapped_beneficiary_need()
+    evidence = CandidateEvidence(
+        "mechanical_only",
+        "low",
+        "resolve_condition_beneficiaries",
+        ("need:condition_beneficiary", "condition:Rain", "ability:swiftswim"),
+    )
+    ctx = SlotFillContext(
+        anchor={"species": "Pelipper"},
+        role_shape_context=_shape(primary_function="support"),
+        threat_counter_results=[_tc("Incineroar", usage_rank=1, verified_score=99.0)],
+        support_needs=[],
+        need_resolved_candidates=[
+            NeedResolvedCandidate("Swampert-Mega", (need,), (evidence,)),
+        ],
+    )
+    rows = merge_need_resolved(ctx)
+    swampert = next(r for r in rows if r.species == "Swampert-Mega")
+    assert isinstance(swampert.target_role_decision, TargetRoleDecision)
+    assert swampert.target_role_decision.producer_name == "slot_fill_kit_role_policy"
+    assert swampert.target_role_decision.role_id != "rain_setter"
+    assert swampert.target_role_decision.role_id == "fast_physical_attacker"
+    assert ctx.target_role_decision is None
+
+    state = _base_state()
+    terminal = run_slot_fill_terminal(
+        ctx,
+        state,
+        slot_index=1,
+        response=SlotFillResponse(action="choose", species="Swampert-Mega"),
+    )
+    intent = terminal.state_updates["pending_slot_intent"]
+    assert intent.target_role_decision.producer_name == "slot_fill_kit_role_policy"
+    provisional = build_provisional_slot(intent, state)
+    assert isinstance(provisional, ProvisionalSlot)
+
+
+def test_need_only_without_kit_role_still_unresolved_on_refine():
+    """Ability-table hits are not all 3a-safe. Qwilfish has Swift Swim and no TargetRoleId."""
+    assert _kit_fallback_target_role("Qwilfish") is None
+    need = _unmapped_beneficiary_need()
+    evidence = CandidateEvidence(
+        "mechanical_only",
+        "low",
+        "resolve_condition_beneficiaries",
+        ("need:condition_beneficiary", "condition:Rain", "ability:swiftswim"),
+    )
+    ctx = SlotFillContext(
+        anchor={"species": "Pelipper"},
+        role_shape_context=_shape(primary_function="support"),
+        threat_counter_results=[_tc("Incineroar")],
+        support_needs=[],
+        need_resolved_candidates=[
+            NeedResolvedCandidate("Qwilfish", (need,), (evidence,)),
+        ],
+    )
+    rows = merge_need_resolved(ctx)
+    qwil = next(r for r in rows if r.species == "Qwilfish")
+    assert qwil.target_role_decision is None
+
+    state = _base_state()
+    terminal = run_slot_fill_terminal(
+        ctx,
+        state,
+        slot_index=1,
+        response=SlotFillResponse(action="choose", species="Qwilfish"),
+    )
+    provisional = build_provisional_slot(
+        terminal.state_updates["pending_slot_intent"], state
+    )
+    assert isinstance(provisional, UnresolvedSlotRefinement)
+    assert provisional.reason == "unresolved_target_role"
+
+
+def _resolve_beneficiaries(species: str) -> list[NeedResolvedCandidate]:
+    decision = classify_anchor_role(resolve_anchor_build(species))
+    ctx = SlotFillContext(
+        anchor={"species": species},
+        role_shape_context=_shape(primary_function="support"),
+        threat_counter_results=[],
+        support_needs=[],
+        need_resolved_candidates=[],
+    )
+    return resolve_condition_beneficiaries(
+        ctx, decision, _base_state(), locked_species=[species]
+    )
+
+
+def _row_tokens(row: NeedResolvedCandidate) -> set[str]:
+    return {tok for ev in row.evidence for tok in ev.evidence}
+
+
+def test_resolve_condition_beneficiaries_dummy_decision_is_noop():
+    ctx = SlotFillContext(
+        anchor={"species": "Kingambit"},
+        role_shape_context=_shape(),
+        threat_counter_results=[],
+        support_needs=[],
+        need_resolved_candidates=[],
+    )
+    out = resolve_condition_beneficiaries(
+        ctx, object(), _base_state(), locked_species=["Kingambit"]  # type: ignore[arg-type]
+    )
+    assert out == []
+
+
+def test_pelipper_rain_beneficiaries_exclude_self_and_ignore_tailwind():
+    rows = _resolve_beneficiaries("Pelipper")
+    names = {to_id(row.species) for row in rows}
+    tokens = {tok for row in rows for tok in _row_tokens(row)}
+    assert "pelipper" not in names
+    assert "ability:swiftswim" in tokens or "move:electroshot" in tokens
+    assert "condition:Tailwind" not in tokens
+    assert all(n.category == "condition_beneficiary" for row in rows for n in row.matching_needs)
+    ability_hits = [
+        ev
+        for row in rows
+        for ev in row.evidence
+        if ev.producer_name == "resolve_condition_beneficiaries"
+    ]
+    assert ability_hits
+    assert all(ev.basis == "mechanical_only" and ev.confidence == "low" for ev in ability_hits)
+
+
+def test_torkoal_sun_beneficiaries_exclude_self():
+    rows = _resolve_beneficiaries("Torkoal")
+    names = {to_id(row.species) for row in rows}
+    tokens = {tok for row in rows for tok in _row_tokens(row)}
+    assert "torkoal" not in names
+    assert (
+        "ability:chlorophyll" in tokens
+        or "move:solarbeam" in tokens
+        or "move:solarblade" in tokens
+    )
+
+
+def test_tyranitar_sand_beneficiaries_exclude_lineage():
+    rows = _resolve_beneficiaries("Tyranitar")
+    names = {to_id(row.species) for row in rows}
+    tokens = {tok for row in rows for tok in _row_tokens(row)}
+    assert "tyranitar" not in names
+    assert "tyranitarmega" not in names
+    assert "ability:sandrush" in tokens or "ability:sandforce" in tokens
+
+
+def test_ninetales_alola_snow_beneficiaries_exclude_lineage():
+    rows = _resolve_beneficiaries("Ninetales-Alola")
+    names = {to_id(row.species) for row in rows}
+    tokens = {tok for row in rows for tok in _row_tokens(row)}
+    assert "ninetales" not in names
+    assert "ninetalesalola" not in names
+    assert "ability:slushrush" in tokens
+
+
+def test_whimsicott_tailwind_only_has_no_condition_beneficiaries():
+    assert _resolve_beneficiaries("Whimsicott") == []
 
 
 def test_resolve_need_stub_categories():

@@ -29,6 +29,7 @@ NeedCategory = Literal[
     "condition_setter",
     "trick_room",
     "tailwind",
+    "condition_beneficiary",
 ]
 SpeTier = Literal["low", "middling", "already_fast"]
 Stance = Literal["need", "want"]
@@ -44,6 +45,7 @@ _CATEGORY_ORDER: tuple[NeedCategory, ...] = (
     "condition_setter",
     "trick_room",
     "tailwind",
+    "condition_beneficiary",
 )
 
 # ponytail: 1.5× Def/SpD ratio is a calibrated heuristic (Archaludon 130/65);
@@ -143,6 +145,7 @@ class RoleShapeContext:
     tankiness: Tankiness = "unknown"
     requires_setup_turn: bool = False
     needed_weathers: tuple[str, ...] = ()
+    needed_trick_room: bool = False
 
     def __init__(
         self,
@@ -150,6 +153,7 @@ class RoleShapeContext:
         tankiness: Tankiness = "unknown",
         requires_setup_turn: bool = False,
         needed_weathers: tuple[str, ...] = (),
+        needed_trick_room: bool = False,
         *,
         match_status: str | None = None,
         setup_dependent: bool | None = None,
@@ -164,6 +168,7 @@ class RoleShapeContext:
             requires_setup_turn if setup_dependent is None else setup_dependent,
         )
         object.__setattr__(self, "needed_weathers", needed_weathers)
+        object.__setattr__(self, "needed_trick_room", needed_trick_room)
 
 
 @dataclass(frozen=True)
@@ -636,6 +641,23 @@ def query_support_needs(
             regulation=regulation,
         )
     )
+
+    # --- Strategy Trick Room (RoleShapeContext.needed_trick_room) ---
+    if role_shape_context.needed_trick_room and not any(
+        n.category == "trick_room" for n in needs
+    ):
+        needs.append(
+            SupportNeed(
+                category="trick_room",
+                name="Trick Room",
+                description=(
+                    "Strategic Trick Room sweeper identity expects "
+                    "a teammate Trick Room setter."
+                ),
+                trigger="strategy:trick_room_sweeper",
+                stance="want",
+            )
+        )
 
     # --- Move-derived weather (RoleShapeContext.needed_weathers) ---
     covered_labels: set[str] = set()

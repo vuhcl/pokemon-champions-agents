@@ -299,6 +299,89 @@ def test_unresolved_refine_rediscovers_pending_presentation():
     assert result["pending_presentation"]["options"][0]["species"] == "Sinistcha"
 
 
+def test_unresolved_target_role_refine_rediscovers_pending_presentation():
+    """3c is reason-agnostic: kit-unresolved beneficiaries (Qwilfish) rediscover, not END.
+
+    Real ``build_provisional_slot`` (not mocked) for a Swift Swim user with no
+    TargetRoleId. Safety for Sun/Sand/Snow unresolvable hits is this path, not
+    Rain usage-rank coincidence.
+    """
+    spread = {"hp": 32, "atk": 32, "def": 2, "spa": 0, "spd": 0, "spe": 0}
+    locked = Slot(
+        role=Attr("rain_setter", locked=True),
+        species=Attr("Pelipper", locked=True),
+        ability=Attr("Drizzle", locked=True),
+        item=Attr("Damp Rock", locked=True),
+        moveset=Attr(
+            ["Hurricane", "Weather Ball", "Tailwind", "Protect"], locked=True
+        ),
+        spread=Attr(dict(spread), locked=True),
+        nature=Attr("Modest", locked=True),
+    )
+    pending = {
+        "schema_version": 1,
+        "kind": "candidate_selection",
+        "slot_index": 1,
+        "options": [
+            {
+                "species": "Qwilfish",
+                "source": "need",
+                "evidence": (
+                    CandidateEvidence(
+                        "mechanical_only",
+                        "low",
+                        "resolve_condition_beneficiaries",
+                        ("need:condition_beneficiary", "condition:Rain"),
+                    ),
+                ),
+            }
+        ],
+    }
+    rediscovered = {
+        "coverage": [],
+        "spofs": [],
+        "shared_teammates": None,
+        "last_team_review": None,
+        "candidate_discovery_error": None,
+        "pending_presentation": {
+            "schema_version": 1,
+            "kind": "candidate_selection",
+            "slot_index": 1,
+            "options": [{"species": "Basculegion", "source": "need"}],
+        },
+    }
+
+    with patch(
+        "recommender.nodes.discover_single_locked", return_value=rediscovered
+    ) as discover:
+        graph = compile_graph(checkpointer=MemorySaver())
+        suffix = "refine-unresolved-target-role"
+        config = _thread(suffix)
+        graph.invoke({"format_id": VGC_MB}, config=config)
+        graph.update_state(
+            config,
+            {
+                "team_draft": [locked, *[empty_slot() for _ in range(5)]],
+                "pending_presentation": pending,
+            },
+        )
+        result = graph.invoke({"pending_input": "1"}, config=config)
+
+    discover.assert_called_once()
+    assert _route_after_refine(
+        {"provisional_slot": None, "provisional_refinement": result["provisional_refinement"]}
+    ) == "route_team_phase"
+    assert result["provisional_slot"] is None
+    assert isinstance(result["provisional_refinement"], UnresolvedSlotRefinement)
+    assert result["provisional_refinement"].reason == "unresolved_target_role"
+    assert result["provisional_refinement"].unresolved_fields == ("target_role",)
+    assert result["slot_commit_error"] is not None
+    assert "Qwilfish" in result["slot_commit_error"]
+    assert result["pending_presentation"] is not None
+    assert result["pending_presentation"]["kind"] == "candidate_selection"
+    assert result["pending_presentation"]["options"][0]["species"] == "Basculegion"
+
+
 def test_full_build_confirmation_atomically_locks_slot():
     graph = _graph()
     suffix = "pending-full-confirm"

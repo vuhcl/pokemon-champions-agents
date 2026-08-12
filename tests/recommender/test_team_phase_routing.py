@@ -104,6 +104,10 @@ def test_single_locked_runs_existing_helpers_in_required_order():
         ctx.need_resolved_candidates = ["Farigiraf"]
         return ["Farigiraf"]
 
+    def beneficiaries(ctx, _decision, _state, **_kwargs):
+        order.append("beneficiaries")
+        return ctx.need_resolved_candidates or []
+
     def merge(ctx):
         order.append("merge")
         ctx.annotated_candidates = [
@@ -136,12 +140,16 @@ def test_single_locked_runs_existing_helpers_in_required_order():
         ),
         patch("recommender.slot_fill.annotate_overlap", side_effect=annotate),
         patch("recommender.slot_fill.resolve_all_support_needs", side_effect=resolve),
+        patch(
+            "recommender.slot_fill.resolve_condition_beneficiaries",
+            side_effect=beneficiaries,
+        ),
         patch("recommender.slot_fill.merge_need_resolved", side_effect=merge),
         patch("recommender.slot_fill.run_slot_fill_terminal", side_effect=terminal),
     ):
         result = discover_single_locked(state)
 
-    assert order == ["annotate", "resolve", "merge", "terminal"]
+    assert order == ["annotate", "resolve", "beneficiaries", "merge", "terminal"]
     assert result["pending_presentation"]["options"][0]["species"] == "Farigiraf"
     assert result["coverage"] == []
     assert result["spofs"] == []
@@ -161,11 +169,16 @@ def test_single_locked_passes_ownership_mode_and_expanded_owned_ids():
         support_needs=[],
     )
     captured: dict = {}
+    captured_ben: dict = {}
 
     def resolve(ctx, _state, **kwargs):
         captured.update(kwargs)
         ctx.need_resolved_candidates = []
         return []
+
+    def beneficiaries(ctx, _decision, _state, **kwargs):
+        captured_ben.update(kwargs)
+        return ctx.need_resolved_candidates or []
 
     with (
         patch(
@@ -174,6 +187,10 @@ def test_single_locked_passes_ownership_mode_and_expanded_owned_ids():
         ),
         patch("recommender.slot_fill.annotate_overlap", return_value=[]),
         patch("recommender.slot_fill.resolve_all_support_needs", side_effect=resolve),
+        patch(
+            "recommender.slot_fill.resolve_condition_beneficiaries",
+            side_effect=beneficiaries,
+        ),
         patch("recommender.slot_fill.merge_need_resolved", return_value=[]),
         patch("recommender.propose.fill_team_draft", return_value={}),
     ):
@@ -182,6 +199,9 @@ def test_single_locked_passes_ownership_mode_and_expanded_owned_ids():
     assert captured.get("ownership_mode") == "owned_only"
     assert captured.get("available_species") == owned_species_ids(state)
     assert "swampertmega" in captured["available_species"]
+    assert captured_ben.get("ownership_mode") == "owned_only"
+    assert captured_ben.get("available_species") == owned_species_ids(state)
+    assert "swampertmega" in captured_ben["available_species"]
 
 
 def test_single_locked_owned_only_presents_expanded_mega_from_real_need_resolution():
@@ -224,6 +244,37 @@ def test_single_locked_owned_only_presents_expanded_mega_from_real_need_resoluti
     assert "slowbromega" in option_ids, options
 
 
+def test_single_locked_pelipper_presents_rain_condition_beneficiary():
+    pelipper = Slot(
+        role=Attr("rain_setter", locked=True),
+        species=Attr("Pelipper", locked=True),
+        ability=Attr("Drizzle", locked=True),
+        item=Attr("Focus Sash", locked=True),
+        moveset=Attr(
+            ["Hurricane", "Weather Ball", "Tailwind", "Protect"],
+            locked=True,
+        ),
+        spread=Attr(dict(SPREAD), locked=True),
+        nature=Attr("Modest", locked=True),
+    )
+    state = _state([pelipper, *[empty_slot() for _ in range(5)]])
+
+    with patch(
+        "recommender.threat_counters.query_threat_counters",
+        return_value=TeamThreatDiscovery(status="available", candidates=()),
+    ):
+        result = discover_single_locked(state)
+
+    pending = result["pending_presentation"]
+    assert pending is not None
+    tokens: list[str] = []
+    for option in pending["options"]:
+        for ev in option.get("evidence") or ():
+            tokens.extend(getattr(ev, "evidence", ()) or ())
+    assert "need:condition_beneficiary" in tokens
+    assert "condition:Rain" in tokens
+
+
 def test_single_locked_partial_open_slot_uses_legacy_fallback():
     state = _state(
         [
@@ -261,6 +312,9 @@ def test_single_locked_empty_candidate_set_uses_legacy_fallback():
         ),
         patch("recommender.slot_fill.annotate_overlap", return_value=[]),
         patch("recommender.slot_fill.resolve_all_support_needs", return_value=[]),
+        patch(
+            "recommender.slot_fill.resolve_condition_beneficiaries", return_value=[]
+        ),
         patch("recommender.slot_fill.merge_need_resolved", return_value=[]),
         patch("recommender.propose.fill_team_draft", return_value={}) as fill,
         patch("recommender.slot_fill.run_slot_fill_terminal") as terminal,
@@ -302,6 +356,9 @@ def test_single_locked_degraded_empty_does_not_call_fill_team_draft():
         ),
         patch("recommender.slot_fill.annotate_overlap", return_value=[]),
         patch("recommender.slot_fill.resolve_all_support_needs", return_value=[]),
+        patch(
+            "recommender.slot_fill.resolve_condition_beneficiaries", return_value=[]
+        ),
         patch("recommender.slot_fill.merge_need_resolved", return_value=[]),
         patch("recommender.propose.fill_team_draft", return_value={}) as fill,
         patch("recommender.slot_fill.run_slot_fill_terminal") as terminal,
@@ -374,6 +431,9 @@ def test_single_locked_degraded_with_candidates_presents_without_fill_team_draft
         ),
         patch("recommender.slot_fill.annotate_overlap", return_value=[]),
         patch("recommender.slot_fill.resolve_all_support_needs", return_value=[]),
+        patch(
+            "recommender.slot_fill.resolve_condition_beneficiaries", return_value=[]
+        ),
         patch("recommender.slot_fill.merge_need_resolved", side_effect=fake_merge),
         patch("recommender.propose.fill_team_draft", return_value={}) as fill,
         patch(

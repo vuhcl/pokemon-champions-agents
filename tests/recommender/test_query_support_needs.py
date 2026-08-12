@@ -623,6 +623,7 @@ def test_role_shape_context_has_only_projection_fields():
         "tankiness",
         "requires_setup_turn",
         "needed_weathers",
+        "needed_trick_room",
     }
 
 
@@ -651,6 +652,19 @@ def test_speed_analysis_uses_anchor_evs_and_nature(monkeypatch):
         RoleShapeContext(primary_function="offense"),
     )
     assert seen[0] == ({"spe": 32}, "Timid")
+
+
+def test_query_support_needs_pelipper_does_not_emit_condition_beneficiary():
+    from recommender.anchor_roles import (
+        classify_anchor_role,
+        derive_role_shape_context,
+        resolve_anchor_build,
+    )
+
+    build = resolve_anchor_build("Pelipper")
+    shape = derive_role_shape_context(classify_anchor_role(build))
+    out = query_support_needs(build.as_pokemon(), shape)
+    assert "condition_beneficiary" not in _cats(out)
 
 
 def test_archaludon_electro_shot_surfaces_rain_condition_setter():
@@ -697,3 +711,77 @@ def test_solar_beam_surfaces_sun_condition_setter_move_derived_not_chlorophyll()
     out = query_support_needs(build.as_pokemon(), shape)
     cond = _by_cat(out, "condition_setter")
     assert any(n.trigger == "field_condition:any:sun" for n in cond)
+
+
+def test_kingambit_declared_sweeper_keeps_single_layer3_trick_room():
+    from recommender.anchor_roles import (
+        classify_anchor_role,
+        derive_role_shape_context,
+        resolve_anchor_build,
+    )
+
+    build = resolve_anchor_build("Kingambit")
+    decision = classify_anchor_role(build, user_role="trick_room_sweeper")
+    shape = derive_role_shape_context(decision)
+    assert shape.needed_trick_room is True
+    needs = query_support_needs(build.as_pokemon(), shape)
+    tr = [n for n in needs if n.category == "trick_room"]
+    assert len(tr) == 1
+    assert tr[0].trigger is not None and tr[0].trigger.startswith("speed_tier:")
+    assert not any(n.trigger == "strategy:trick_room_sweeper" for n in needs)
+
+
+def test_dragapult_declared_sweeper_emits_strategy_trick_room():
+    from recommender.anchor_roles import (
+        classify_anchor_role,
+        derive_role_shape_context,
+        resolve_anchor_build,
+    )
+
+    build = resolve_anchor_build("Dragapult")
+    decision = classify_anchor_role(build, user_role="trick_room_sweeper")
+    shape = derive_role_shape_context(decision)
+    assert shape.needed_trick_room is True
+    needs = query_support_needs(build.as_pokemon(), shape)
+    tr = [n for n in needs if n.category == "trick_room"]
+    assert len(tr) == 1
+    assert tr[0].trigger == "strategy:trick_room_sweeper"
+    assert tr[0].stance == "want"
+
+
+def test_kingambit_declared_sweeper_matching_needs_not_inflated():
+    from recommender.anchor_roles import (
+        classify_anchor_role,
+        derive_role_shape_context,
+        resolve_anchor_build,
+    )
+    from recommender.legality import load_snapshot
+    from recommender.slot_fill import _matching_needs_for
+
+    build = resolve_anchor_build("Kingambit")
+    decision = classify_anchor_role(build, user_role="trick_room_sweeper")
+    shape = derive_role_shape_context(decision)
+    needs = query_support_needs(build.as_pokemon(), shape)
+    tr = [n for n in needs if n.category == "trick_room"]
+    assert len(tr) == 1
+    matched = _matching_needs_for("Farigiraf", needs, snap=load_snapshot())
+    assert len([n for n in matched if n.category == "trick_room"]) == 1
+
+
+def test_kingambit_without_sweeper_role_has_no_needed_trick_room():
+    from recommender.anchor_roles import (
+        classify_anchor_role,
+        derive_role_shape_context,
+        resolve_anchor_build,
+    )
+
+    build = resolve_anchor_build("Kingambit")
+    decision = classify_anchor_role(build)
+    shape = derive_role_shape_context(decision)
+    assert shape.needed_trick_room is False
+    needs = query_support_needs(build.as_pokemon(), shape)
+    tr = [n for n in needs if n.category == "trick_room"]
+    assert tr
+    assert all(
+        n.trigger is not None and n.trigger.startswith("speed_tier:") for n in tr
+    )

@@ -407,6 +407,7 @@ _WEATHER_CANONICAL = {
     "Sand": "Sand",
     "Snow": "Snow",
 }
+_SHAPE_WEATHERS = frozenset({"Rain", "Sun", "Sand", "Snow"})
 _SETTER_ROLE = {
     "Rain": "rain_setter",
     "Sun": "sun_setter",
@@ -421,6 +422,36 @@ def _role_id(value: str) -> str:
 
 def _canonical_weather(label: str) -> str | None:
     return _WEATHER_CANONICAL.get(label)
+
+
+def provided_weather_conditions(decision: AnchorRoleDecision) -> tuple[str, ...]:
+    """Present provides-tier weathers only. Never Trick Room / Tailwind."""
+    out: list[str] = []
+    for m in decision.mechanisms:
+        if not m.present or m.relation != "provides":
+            continue
+        if m.importance not in ("needed", "wanted"):
+            continue
+        for item in m.evidence:
+            if not item.startswith("condition:"):
+                continue
+            name = item.removeprefix("condition:")
+            if name in _SHAPE_WEATHERS and name not in out:
+                out.append(name)
+    return tuple(out)
+
+
+def weather_beneficiary_ability_ids(condition: str) -> frozenset[str]:
+    """Ability ids in _NEEDED|_WANTED whose CONDITION_DEPENDENT_ABILITIES weather canonicalizes to condition."""
+    canonical = _canonical_weather(condition) or condition
+    out: set[str] = set()
+    for aid in _NEEDED_CONDITION_ABILITIES | _WANTED_CONDITION_ABILITIES:
+        for spec in CONDITION_DEPENDENT_ABILITIES.get(aid, ()):
+            w = spec.get("weather")
+            if w and _canonical_weather(str(w)) == canonical:
+                out.add(aid)
+                break
+    return frozenset(out)
 
 
 def _display_name(raw: str) -> str:
@@ -772,9 +803,6 @@ def classify_anchor_role(
     )
 
 
-_SHAPE_WEATHERS = frozenset({"Rain", "Sun", "Sand", "Snow"})
-
-
 def derive_role_shape_context(decision: AnchorRoleDecision) -> RoleShapeContext:
     """Pure projection: classification evidence stays on the decision."""
     tankiness: Literal["tanky", "glass", "unknown"] = (
@@ -791,6 +819,7 @@ def derive_role_shape_context(decision: AnchorRoleDecision) -> RoleShapeContext:
         for m in decision.mechanisms
     )
     weathers: list[str] = []
+    needed_trick_room = False
     for m in decision.mechanisms:
         if m.relation != "benefits_from":
             continue
@@ -802,11 +831,14 @@ def derive_role_shape_context(decision: AnchorRoleDecision) -> RoleShapeContext:
             if not item.startswith("condition:"):
                 continue
             name = item.removeprefix("condition:")
-            if name in _SHAPE_WEATHERS and name not in weathers:
+            if name == "Trick Room":
+                needed_trick_room = True
+            elif name in _SHAPE_WEATHERS and name not in weathers:
                 weathers.append(name)
     return RoleShapeContext(
         primary_function=decision.primary_function,
         tankiness=tankiness,
         requires_setup_turn=requires_setup,
         needed_weathers=tuple(weathers),
+        needed_trick_room=needed_trick_room,
     )
