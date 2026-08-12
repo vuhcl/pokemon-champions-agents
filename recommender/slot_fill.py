@@ -1549,30 +1549,12 @@ def run_slot_fill_terminal(
     )
 
 
-def build_provisional_slot(
-    intent: PendingSlotIntent, state: RecommenderState
+def _provisional_from_refined(
+    *,
+    intent: PendingSlotIntent,
+    decision: TargetRoleDecision,
+    refined: Slot,
 ) -> ProvisionalSlot | UnresolvedSlotRefinement:
-    """Refine a selected candidate without mutating the persisted team draft."""
-    decision = intent.target_role_decision
-    if not isinstance(decision, TargetRoleDecision):
-        decision = _kit_fallback_target_role(intent.species)
-    if not isinstance(decision, TargetRoleDecision):
-        return UnresolvedSlotRefinement(
-            schema_version=1,
-            intent=intent,
-            unresolved_fields=("target_role",),
-            reason="unresolved_target_role",
-        )
-
-    seed = Slot(
-        role=Attr(value=decision.role_id),
-        species=Attr(value=intent.species),
-    )
-    refined, _ = _propagate_and_refine(
-        seed,
-        state,
-        regulation=state.get("regulation_mod") or "champions",
-    )
     moves = refined.moveset.value or []
     spread = refined.spread.value or {}
     unresolved = tuple(
@@ -1626,4 +1608,115 @@ def build_provisional_slot(
         ),
         base_slot_fingerprint=intent.base_slot_fingerprint,
         fingerprint=fingerprint,
+    )
+
+
+def build_provisional_slot(
+    intent: PendingSlotIntent, state: RecommenderState
+) -> ProvisionalSlot | UnresolvedSlotRefinement:
+    """Refine a selected candidate without mutating the persisted team draft."""
+    decision = intent.target_role_decision
+    if not isinstance(decision, TargetRoleDecision):
+        decision = _kit_fallback_target_role(intent.species)
+    if not isinstance(decision, TargetRoleDecision):
+        return UnresolvedSlotRefinement(
+            schema_version=1,
+            intent=intent,
+            unresolved_fields=("target_role",),
+            reason="unresolved_target_role",
+        )
+
+    seed = Slot(
+        role=Attr(value=decision.role_id),
+        species=Attr(value=intent.species),
+    )
+    refined, _ = _propagate_and_refine(
+        seed,
+        state,
+        regulation=state.get("regulation_mod") or "champions",
+    )
+    return _provisional_from_refined(intent=intent, decision=decision, refined=refined)
+
+
+_EDIT_SLOT_ATTR = {
+    "ability": "ability",
+    "item": "item",
+    "moves": "moveset",
+    "nature": "nature",
+    "spread": "spread",
+}
+
+
+def revise_provisional_slot(
+    current: ProvisionalSlot,
+    *,
+    field: str,
+    value: object,
+    scope: Literal["field_only", "regenerate"],
+    intent: PendingSlotIntent,
+    state: RecommenderState,
+) -> ProvisionalSlot | UnresolvedSlotRefinement:
+    """Apply a field edit or regenerate around a pinned value; never mutates team_draft."""
+    decision = current.target_role_decision
+    if not isinstance(decision, TargetRoleDecision):
+        return UnresolvedSlotRefinement(
+            schema_version=1,
+            intent=intent,
+            unresolved_fields=("target_role",),
+            reason="unresolved_target_role",
+        )
+    slot_attr = _EDIT_SLOT_ATTR.get(field)
+    if slot_attr is None:
+        return UnresolvedSlotRefinement(
+            schema_version=1,
+            intent=intent,
+            unresolved_fields=(field,),
+        )
+
+    if field == "moves":
+        if not isinstance(value, (list, tuple)) or len(value) != 4:
+            return UnresolvedSlotRefinement(
+                schema_version=1,
+                intent=intent,
+                unresolved_fields=("moves",),
+            )
+        attr_value: Any = list(value)
+    elif field == "spread":
+        if not isinstance(value, dict):
+            return UnresolvedSlotRefinement(
+                schema_version=1,
+                intent=intent,
+                unresolved_fields=("spread",),
+            )
+        attr_value = {stat: int(value[stat]) for stat in ("hp", "atk", "def", "spa", "spd", "spe")}
+    else:
+        attr_value = value
+
+    pinned = Attr(value=attr_value, locked=True)
+    if scope == "field_only":
+        seed = replace(
+            current.to_slot(locked=False, reason=None),
+            **{slot_attr: pinned},
+        )
+    else:
+        seed = Slot(
+            role=Attr(value=decision.role_id),
+            species=Attr(value=current.species),
+            **{slot_attr: pinned},
+        )
+
+    working_intent = replace(
+        intent,
+        slot_index=current.slot_index,
+        species=current.species,
+        target_role_decision=decision,
+        base_slot_fingerprint=current.base_slot_fingerprint or intent.base_slot_fingerprint,
+    )
+    refined, _ = _propagate_and_refine(
+        seed,
+        state,
+        regulation=state.get("regulation_mod") or "champions",
+    )
+    return _provisional_from_refined(
+        intent=working_intent, decision=decision, refined=refined
     )

@@ -218,6 +218,40 @@ def test_full_build_confirmation_from_provisional_slot():
     assert "yes" in text.lower()
 
 
+def test_full_build_confirmation_renders_review_flags():
+    provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=TargetRoleDecision(
+            role_id="rain_setter", source="user_choice"
+        ),
+        species="Pelipper",
+        ability="Drizzle",
+        item="Damp Rock",
+        moves=("Hurricane", "U-turn", "Weather Ball", "Protect"),
+        nature="Modest",
+        spread=(("hp", 4), ("spa", 32), ("spe", 30)),
+    )
+    text = format_turn(
+        {
+            "provisional_slot": provisional,
+            "pending_presentation": {
+                "kind": "full_build_confirmation",
+                "slot_index": 0,
+                "provisional_fingerprint": "fp",
+                "review_flags": (
+                    {
+                        "claim": "EVs invested in ATK, which Timid hinders",
+                        "check": "ev_into_nature_hindered",
+                        "basis": "deterministic",
+                    },
+                ),
+            },
+        }
+    )
+    assert "Note: EVs invested in ATK, which Timid hinders" in text
+
+
 def test_calc_unavailable_error_only_no_fake_options():
     error = CandidateDiscoveryError(
         kind="calc_unavailable",
