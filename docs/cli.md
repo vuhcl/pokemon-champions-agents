@@ -1,6 +1,6 @@
 # Pokémon Champions team builder — CLI
 
-CLI usage guide. Project scope, architecture, and 0.1 status live in the [root README](../README.md).
+CLI usage guide. Project scope, architecture, and 0.2 status live in the [root README](../README.md).
 
 Interactive CLI for the VGC team-building recommender. Assumes project deps are already installed (`uv sync` or equivalent).
 

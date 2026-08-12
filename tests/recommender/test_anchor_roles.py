@@ -4,7 +4,9 @@ from unittest.mock import patch
 from recommender.anchor_roles import (
     classify_anchor_role,
     derive_role_shape_context,
+    provided_weather_conditions,
     resolve_anchor_build,
+    weather_beneficiary_ability_ids,
 )
 from recommender.state import Attr, ReasonRef, Slot
 from recommender.support_needs import query_support_needs
@@ -84,6 +86,37 @@ def test_pelipper_primary_rain_secondary_tailwind_without_setup():
     assert drizzle.confidence == "medium"
     assert drizzle.source == "usage_derived"
     assert derive_role_shape_context(decision).requires_setup_turn is False
+    assert provided_weather_conditions(decision) == ("Rain",)
+
+
+def test_provided_weather_conditions_ignore_tailwind_and_trick_room():
+    assert provided_weather_conditions(
+        classify_anchor_role(resolve_anchor_build("Whimsicott"))
+    ) == ()
+    assert provided_weather_conditions(
+        classify_anchor_role(resolve_anchor_build("Torkoal"))
+    ) == ("Sun",)
+    assert provided_weather_conditions(
+        classify_anchor_role(resolve_anchor_build("Tyranitar"))
+    ) == ("Sand",)
+    assert provided_weather_conditions(
+        classify_anchor_role(resolve_anchor_build("Ninetales-Alola"))
+    ) == ("Snow",)
+
+
+def test_weather_beneficiary_ability_ids_canonicalizes_needed_and_wanted():
+    rain = weather_beneficiary_ability_ids("Rain")
+    assert "swiftswim" in rain
+    assert "hydration" in rain
+    assert "chlorophyll" not in rain
+    sun = weather_beneficiary_ability_ids("Sun")
+    assert "chlorophyll" in sun
+    assert "solarpower" in sun
+    sand = weather_beneficiary_ability_ids("Sand")
+    assert "sandrush" in sand
+    assert "sandforce" in sand
+    snow = weather_beneficiary_ability_ids("Snow")
+    assert "slushrush" in snow
 
 
 def test_unknown_ability_makes_no_ability_claim(monkeypatch):
@@ -103,6 +136,7 @@ def test_role_shape_context_is_only_the_projection():
         "tankiness",
         "requires_setup_turn",
         "needed_weathers",
+        "needed_trick_room",
     }
 
 

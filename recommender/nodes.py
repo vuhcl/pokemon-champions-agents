@@ -982,6 +982,7 @@ def discover_single_locked(state: RecommenderState) -> dict:
         build_anchored_slot_fill_context,
         merge_need_resolved,
         resolve_all_support_needs,
+        resolve_condition_beneficiaries,
         run_slot_fill_terminal,
     )
     from recommender.team_candidates import owned_species_ids
@@ -1018,6 +1019,14 @@ def discover_single_locked(state: RecommenderState) -> dict:
     resolve_all_support_needs(
         context,
         state,
+        available_species=owned_species_ids(state),
+        ownership_mode=state.get("ownership_mode", "off"),
+    )
+    resolve_condition_beneficiaries(
+        context,
+        discovery.anchor_role_decision,
+        state,
+        locked_species=[str(anchors[0].species.value)],
         available_species=owned_species_ids(state),
         ownership_mode=state.get("ownership_mode", "off"),
     )

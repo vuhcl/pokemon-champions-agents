@@ -5,19 +5,23 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field, replace
-from typing import Any, Literal, get_args
+from typing import Any, Literal, Sequence, get_args
 
 from recommender.anchor_roles import (
     AnchorRoleDecision,
     ResolvedAnchorBuild,
+    _canonical_weather,
     classify_anchor_role,
+    provided_weather_conditions,
     resolve_anchor_build,
+    weather_beneficiary_ability_ids,
 )
 from recommender.by_usage import query_by_usage
 from recommender.calc_client import PokemonSpecOptional
 from recommender.contingent_value import REDIRECT_MOVES
 from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
+from recommender.matchup import CHARGE_INSTANT_WEATHER
 from recommender.legality import is_species_legal, load_snapshot, resolve_learnset
 from recommender.move_narrowing import narrow_candidates_for_move, pick_default_and_alternatives
 from recommender.propose import _propagate_and_refine
@@ -56,7 +60,7 @@ from recommender.support_needs import (
     _weather_category_match,
     field_labels_from_trigger,
 )
-from recommender.usage_data import featured_or_common_set
+from recommender.usage_data import featured_or_common_set, lineage_ids
 
 Source = PresentationSource
 SlotFillAction = Literal["accept_default", "choose", "defer"]
@@ -1226,6 +1230,145 @@ def resolve_all_support_needs(
                     dict.fromkeys((*existing.anchored_needs, *row_anchored))
                 ),
             )
+    out = list(by_id.values())
+    ctx.need_resolved_candidates = out
+    return out
+
+
+def resolve_condition_beneficiaries(
+    ctx: SlotFillContext,
+    decision: AnchorRoleDecision | None,
+    state: RecommenderState,
+    *,
+    locked_species: Sequence[str],
+    available_species: frozenset[str] = frozenset(),
+    ownership_mode: OwnershipMode = "off",
+) -> list[NeedResolvedCandidate]:
+    """Invert present weather provides into kit-emitted benefits_from candidates."""
+    existing = list(ctx.need_resolved_candidates or [])
+    if decision is None or not hasattr(decision, "mechanisms"):
+        ctx.need_resolved_candidates = existing
+        return existing
+
+    weathers = provided_weather_conditions(decision)
+    if not weathers:
+        ctx.need_resolved_candidates = existing
+        return existing
+
+    locked_lineages = {lid for name in locked_species for lid in lineage_ids(name)}
+    snap = load_snapshot()
+    regulation = _regulation(state)
+    by_id: dict[str, NeedResolvedCandidate] = {
+        to_id(row.species): row for row in existing
+    }
+
+    for condition in weathers:
+        need = SupportNeed(
+            category="condition_beneficiary",
+            name=f"{condition} beneficiary",
+            description=(
+                f"Anchor provides {condition}; candidate kit-emits "
+                f"benefits_from {condition}."
+            ),
+            trigger=f"field_condition:provided:{to_id(condition)}",
+        )
+        subject_id = f"condition_beneficiary:{to_id(condition)}"
+        ability_ids = weather_beneficiary_ability_ids(condition)
+        ability_names: dict[str, str] = {}
+        ability_hits: dict[str, frozenset[str]] = {}
+        for name in _species_with_abilities(
+            ability_ids, snap=snap, regulation=regulation
+        ):
+            sid = to_id(name)
+            if sid in locked_lineages:
+                continue
+            matched = (
+                _species_abilities(name, snap=snap, regulation=regulation)
+                & ability_ids
+            )
+            if not matched:
+                continue
+            ability_names[sid] = name
+            ability_hits[sid] = frozenset(matched)
+
+        move_rows: dict[str, NeedResolvedCandidate] = {}
+        for move_id, labels in CHARGE_INSTANT_WEATHER.items():
+            if not any(_canonical_weather(label) == condition for label in labels):
+                continue
+            for row in _narrow_need_candidates(
+                need,
+                move_id,
+                state,
+                available_species=available_species,
+                ownership_mode=ownership_mode,
+            ):
+                sid = to_id(row.species)
+                if sid in locked_lineages:
+                    continue
+                prior = move_rows.get(sid)
+                move_rows[sid] = (
+                    NeedResolvedCandidate(
+                        prior.species,
+                        prior.matching_needs,
+                        _merge_evidence(prior.evidence, row.evidence),
+                    )
+                    if prior is not None
+                    else row
+                )
+
+        union = list(
+            dict.fromkeys(
+                [*ability_names.values(), *(row.species for row in move_rows.values())]
+            )
+        )
+        ranked = _rank_by_usage(
+            union,
+            n=20,
+            available_species=available_species,
+            ownership_mode=ownership_mode,
+        )
+        for name in ranked:
+            sid = to_id(name)
+            parts: list[CandidateEvidence] = []
+            if sid in ability_hits:
+                parts.append(
+                    CandidateEvidence(
+                        basis="mechanical_only",
+                        confidence="low",
+                        producer_name="resolve_condition_beneficiaries",
+                        evidence=(
+                            "need:condition_beneficiary",
+                            f"condition:{condition}",
+                            *(f"ability:{aid}" for aid in sorted(ability_hits[sid])),
+                            "relation:benefits_from",
+                        ),
+                        branch="need",
+                        subject_id=subject_id,
+                    )
+                )
+            if sid in move_rows:
+                parts.extend(
+                    replace(item, branch="need", subject_id=subject_id)
+                    for item in move_rows[sid].evidence
+                )
+            if not parts:
+                continue
+            row = NeedResolvedCandidate(
+                name, (need,), _merge_evidence(tuple(parts))
+            )
+            prior = by_id.get(sid)
+            if prior is None:
+                by_id[sid] = row
+                continue
+            by_id[sid] = NeedResolvedCandidate(
+                species=prior.species,
+                matching_needs=tuple(
+                    dict.fromkeys((*prior.matching_needs, *row.matching_needs))
+                ),
+                evidence=_merge_evidence(prior.evidence, row.evidence),
+                anchored_needs=prior.anchored_needs,
+            )
+
     out = list(by_id.values())
     ctx.need_resolved_candidates = out
     return out
