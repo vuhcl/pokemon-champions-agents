@@ -12,3 +12,9 @@ __pycache__/
 .specstory/
 scratch/
 data/roles/history/
+/artifacts/
+.env
+.env.*
+*.db
+*.db-shm
+*.db-wal
