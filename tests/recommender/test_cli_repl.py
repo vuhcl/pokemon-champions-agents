@@ -9,9 +9,9 @@ from langchain_core.runnables import RunnableLambda
 
 from recommender.cli import handle_line, invoke_user_text, main
 from recommender.graph import compile_cli_graph, compile_graph
-from recommender.present_text import NO_PENDING_MESSAGE
+from recommender.present_text import NO_PENDING_MESSAGE, UNMATCHED_REPLY_PREFIX
 from recommender.session import DEFAULT_FORMAT_ID, thread_config
-from recommender.state import CandidateDiscoveryError
+from recommender.state import Attr, CandidateDiscoveryError, Slot
 
 
 def _rain_parser():
@@ -82,6 +82,30 @@ def test_main_no_calc_warning_when_reachable(tmp_path: Path, monkeypatch, capsys
     assert "Calc service not reachable" not in err
 
 
+def _locked_archaludon() -> Slot:
+    return Slot(
+        role=Attr("bulky_attacker", locked=True),
+        species=Attr("Archaludon", locked=True),
+        ability=Attr("Stamina", locked=True),
+        item=Attr("Assault Vest", locked=True),
+        moveset=Attr(["Electro Shot"], locked=True),
+        spread=Attr({"hp": 32, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 0}, locked=True),
+        nature=Attr("Modest", locked=True),
+    )
+
+
+_CANDIDATE_PENDING = {
+    "schema_version": 1,
+    "kind": "candidate_selection",
+    "slot_index": 1,
+    "options": [
+        {"species": "Meowstic", "source": "need"},
+        {"species": "Gardevoir-Mega", "source": "need"},
+        {"species": "Sinistcha", "source": "usage"},
+    ],
+}
+
+
 def test_handle_line_pre_guard_skips_invoke_without_pending():
     graph = MagicMock()
     state = {"pending_presentation": None, "team_draft": []}
@@ -117,6 +141,110 @@ def test_handle_line_pre_guard_reports_fail_closed_discovery():
     assert "wait for a prompt" not in output
     assert should_exit is False
     graph.invoke.assert_not_called()
+
+
+def _handle_deferred(incoming_pending, returned_state, reply="defer"):
+    graph = MagicMock()
+    graph.invoke.return_value = returned_state
+    incoming = {"pending_presentation": incoming_pending, "team_draft": []}
+    _, _, _, output, should_exit = handle_line(
+        graph,
+        thread_config("t"),
+        incoming,
+        reply,
+        format_id=DEFAULT_FORMAT_ID,
+        thread_id="t",
+    )
+    graph.invoke.assert_called_once()
+    assert should_exit is False
+    return output
+
+
+def test_handle_line_degraded_candidate_defer_omits_unmatched_prefix():
+    error = CandidateDiscoveryError(
+        kind="calc_incomplete",
+        stage="threat_coverage",
+        message="batch damage verification incomplete",
+        retryable=True,
+    )
+    output = _handle_deferred(
+        _CANDIDATE_PENDING,
+        {
+            "turn_intent": "deferred",
+            "pending_presentation": None,
+            "candidate_discovery_error": error,
+            "team_draft": [_locked_archaludon()],
+        },
+    )
+    assert output is not None
+    assert UNMATCHED_REPLY_PREFIX not in output
+    assert "calc_incomplete" in output
+    assert "Team:" in output
+    assert "Archaludon" in output
+
+
+def test_handle_line_healthy_candidate_defer_omits_unmatched_prefix():
+    output = _handle_deferred(
+        _CANDIDATE_PENDING,
+        {
+            "turn_intent": "deferred",
+            "pending_presentation": None,
+            "team_draft": [_locked_archaludon()],
+        },
+    )
+    assert output is not None
+    assert UNMATCHED_REPLY_PREFIX not in output
+    assert "Team:" in output
+    assert "Archaludon" in output
+
+
+def test_handle_line_completion_preference_defer_omits_unmatched_prefix():
+    output = _handle_deferred(
+        {
+            "schema_version": 2,
+            "kind": "completion_preference",
+            "preference_options": ("attacker", "support", "balanced"),
+        },
+        {
+            "turn_intent": "deferred",
+            "pending_presentation": None,
+            "team_draft": [_locked_archaludon()],
+        },
+    )
+    assert output is not None
+    assert UNMATCHED_REPLY_PREFIX not in output
+
+
+def test_handle_line_full_build_confirmation_defer_omits_unmatched_prefix():
+    output = _handle_deferred(
+        {"schema_version": 1, "kind": "full_build_confirmation"},
+        {
+            "turn_intent": "deferred",
+            "pending_presentation": None,
+            "pending_slot_intent": None,
+            "provisional_slot": None,
+            "provisional_refinement": None,
+            "team_draft": [_locked_archaludon()],
+        },
+    )
+    assert output is not None
+    assert UNMATCHED_REPLY_PREFIX not in output
+
+
+def test_handle_line_unmatched_keeps_pending_and_prefixes():
+    output = _handle_deferred(
+        _CANDIDATE_PENDING,
+        {
+            "turn_intent": "pending_response",
+            "pending_presentation": _CANDIDATE_PENDING,
+            "team_draft": [_locked_archaludon()],
+        },
+        reply="xyzzy",
+    )
+    assert output is not None
+    assert output.startswith(UNMATCHED_REPLY_PREFIX)
+    assert "Meowstic" in output
+    assert "defer" in output
 
 
 def test_invoke_user_text_raises_without_pending(tmp_path: Path):

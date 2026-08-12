@@ -5,7 +5,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END
 
 from recommender.graph import _route_after_refine, compile_graph
-from recommender.nodes import classify_input
+from recommender.nodes import classify_input, classify_pending
 from recommender.state import (
     Attr,
     CandidateEvidence,
@@ -349,7 +349,47 @@ def test_pending_presentation_defer_clears_without_locking():
     result = graph.invoke({"pending_input": "not now"}, config=_thread(suffix))
 
     assert result["pending_presentation"] is None
+    assert result["turn_intent"] == "deferred"
     assert result["team_draft"] == before["team_draft"]
+
+
+@pytest.mark.parametrize(
+    "pending",
+    [
+        {
+            "schema_version": 1,
+            "kind": "candidate_selection",
+            "slot_index": 1,
+            "options": [{"species": "Farigiraf", "source": "both"}],
+        },
+        {
+            "schema_version": 2,
+            "kind": "completion_preference",
+            "preference_options": ("attacker", "support", "balanced"),
+        },
+        {"schema_version": 1, "kind": "full_build_confirmation"},
+    ],
+)
+def test_classify_pending_defer_emits_deferred(pending):
+    result = classify_pending("defer", pending)
+    assert result["turn_intent"] == "deferred"
+    assert result["pending_presentation"] is None
+    if pending["kind"] == "full_build_confirmation":
+        assert result["pending_slot_intent"] is None
+        assert result["provisional_slot"] is None
+        assert result["provisional_refinement"] is None
+
+
+def test_classify_pending_unmatched_keeps_pending_out_of_update():
+    pending = {
+        "schema_version": 1,
+        "kind": "candidate_selection",
+        "slot_index": 1,
+        "options": [{"species": "Farigiraf", "source": "both"}],
+    }
+    result = classify_pending("xyzzy", pending)
+    assert result["turn_intent"] == "pending_response"
+    assert "pending_presentation" not in result
 
 
 @pytest.mark.parametrize(

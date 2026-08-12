@@ -19,3 +19,9 @@ def test_flags_artifact_is_champions_legal():
     data = json.loads(FLAGS_PATH.read_text())
     assert data["meta"]["filter"] == "champions-legal"
     assert "shadowforce" not in data["moves"]
+
+
+def test_protection_family_is_status():
+    data = json.loads(FLAGS_PATH.read_text())["moves"]
+    for move_id in ("wideguard", "detect", "spikyshield", "protect"):
+        assert data[move_id]["category"] == "Status", move_id

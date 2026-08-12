@@ -13,6 +13,7 @@ from recommender.matchup import (
     Severity,
     _CONTACT_MOVES,
     _contact_punish_applies,
+    _damaging_moves,
     _makes_contact,
     _profiles_from_batch,
     classify_matchup,
@@ -1055,3 +1056,87 @@ def test_non_contact_move_no_protect_bypass_caveat():
         client=client,
     )
     assert result.caveats.protect_bypass_applied is False
+
+
+ARCHALUDON = {
+    "species": "Archaludon",
+    "item": "Leftovers",
+    "ability": "Stamina",
+    "moves": ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Aura Sphere"],
+    "evs": {"hp": 32, "spa": 32, "spe": 0},
+}
+
+
+def test_damaging_moves_excludes_status_keeps_electro_shot():
+    assert _damaging_moves(
+        {
+            "species": "Garchomp",
+            "moves": ["Earthquake", "Dragon Claw", "Rock Slide", "Wide Guard"],
+        }
+    ) == ["Earthquake", "Dragon Claw", "Rock Slide"]
+    assert _damaging_moves({"moves": ["Protect", "Wide Guard"]}) == []
+    assert _damaging_moves(ARCHALUDON) == [
+        "Electro Shot",
+        "Dragon Pulse",
+        "Flash Cannon",
+        "Aura Sphere",
+    ]
+
+
+def test_mixed_kit_zero_damage_row_does_not_abort_matchup():
+    client = MockCalcClient(
+        {
+            ("Archaludon", "Garchomp", "Electro Shot"): _calc(
+                ko_chance="",
+                damage_range=[0, 0],
+                attacker_spe=85,
+                defender_hp=183,
+                kochance_n=0,
+                kochance_chance=0.0,
+            ),
+            ("Archaludon", "Garchomp", "Dragon Pulse"): _calc(
+                ko_chance="100% OHKO",
+                attacker_spe=85,
+                defender_hp=183,
+            ),
+            ("Archaludon", "Garchomp", "Flash Cannon"): _calc(
+                ko_chance="100% 2HKO",
+                damage_range=[90, 95],
+                attacker_spe=85,
+                defender_hp=183,
+                kochance_n=2,
+            ),
+            ("Archaludon", "Garchomp", "Aura Sphere"): _calc(
+                ko_chance="100% 3HKO",
+                damage_range=[50, 60],
+                attacker_spe=85,
+                defender_hp=183,
+                kochance_n=3,
+            ),
+            ("Garchomp", "Archaludon", "Earthquake"): _calc(
+                ko_chance="100% 2HKO",
+                damage_range=[80, 90],
+                attacker_spe=130,
+                defender_hp=200,
+                kochance_n=2,
+            ),
+            ("Garchomp", "Archaludon", "Dragon Claw"): _calc(
+                ko_chance="100% 3HKO",
+                damage_range=[40, 50],
+                attacker_spe=130,
+                defender_hp=200,
+                kochance_n=3,
+            ),
+        }
+    )
+    result = classify_matchup(ARCHALUDON, GARCHOMP, client=client)
+    assert result.outcome == "clean_kill"
+    assert result.severity == "decisive"
+
+
+def test_all_status_kit_is_no_answer_without_calc():
+    protect_only = {"species": "Blissey", "moves": ["Protect"]}
+    wide_only = {"species": "Garchomp", "moves": ["Wide Guard"]}
+    client = MockCalcClient({})
+    assert classify_matchup(protect_only, wide_only, client=client).outcome == "no_answer"
+    assert classify_matchup(wide_only, protect_only, client=client).outcome == "no_answer"

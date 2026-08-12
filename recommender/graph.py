@@ -18,6 +18,7 @@ _INTENT_ROUTES = {
     "team_review": "generate_team_review",
     "bootstrap_response": "record_bootstrap_response",
     "pending_response": "finish_pending_response",
+    "deferred": "finish_pending_response",
     "slot_candidate_selected": "refine_provisional_slot",
     "full_slot_confirmed": "commit_full_slot",
 }

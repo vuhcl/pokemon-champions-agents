@@ -131,6 +131,30 @@ export function runCalculate(req: CalcRequest): CalcSuccess {
   const field = toField(req.field, move.target);
   const result = calculate(GEN, attacker, defender, move, field);
   const range = result.range();
+  const stats = {
+    attacker: {...attacker.rawStats},
+    defender: {...defender.rawStats},
+  };
+  const recovery = result.recovery();
+  const recoil = result.recoil();
+  // Immunity / status / BP-0: calc returns damage 0. kochance()/desc() with
+  // err=true throw "damage[damage.length - 1] === 0." — treat as success.
+  if (range[1] === 0) {
+    return {
+      damageRange: range,
+      koChance: '',
+      raw: {
+        damage: result.damage,
+        range,
+        kochance: {chance: 0, n: 0, text: ''},
+        desc: '',
+        fullDesc: '',
+        recovery,
+        recoil,
+        stats,
+      },
+    };
+  }
   const kochance = result.kochance();
   return {
     damageRange: range,
@@ -141,12 +165,9 @@ export function runCalculate(req: CalcRequest): CalcSuccess {
       kochance,
       desc: result.desc(),
       fullDesc: result.fullDesc(),
-      recovery: result.recovery(),
-      recoil: result.recoil(),
-      stats: {
-        attacker: {...attacker.rawStats},
-        defender: {...defender.rawStats},
-      },
+      recovery,
+      recoil,
+      stats,
     },
   };
 }

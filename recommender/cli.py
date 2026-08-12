@@ -80,6 +80,7 @@ def handle_line(
             False,
         )
 
+    # pending_response means unmatched only; successful defer emits "deferred".
     unmatched = state.get("turn_intent") == "pending_response"
     return state, config, thread_id, format_turn(state, unmatched=unmatched), False
 

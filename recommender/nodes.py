@@ -170,7 +170,7 @@ def classify_pending(
             }
         if reply in _DEFER_REPLIES:
             return {
-                "turn_intent": "pending_response",
+                "turn_intent": "deferred",
                 "pending_presentation": None,
             }
         return {"turn_intent": "pending_response"}
@@ -195,7 +195,7 @@ def classify_pending(
             return {"turn_intent": "full_slot_confirmed"}
         if signals == {"defer"}:
             return {
-                "turn_intent": "pending_response",
+                "turn_intent": "deferred",
                 "pending_presentation": None,
                 "pending_slot_intent": None,
                 "provisional_slot": None,
@@ -225,7 +225,7 @@ def classify_pending(
     elif not selected and signals == {"affirm"} and options:
         index = 0
     elif not selected and signals == {"defer"}:
-        return {"turn_intent": "pending_response", "pending_presentation": None}
+        return {"turn_intent": "deferred", "pending_presentation": None}
     else:
         return {"turn_intent": "pending_response"}
 

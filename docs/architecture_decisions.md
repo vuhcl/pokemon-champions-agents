@@ -683,6 +683,34 @@ resolution (now the last remaining structural gap in the project, unrelated to t
 
 ---
 
+### ADR-010 — Amendment 2026-08-11a
+
+**`turn_intent="deferred"` for successful soft-exit, distinct from unmatched
+`pending_response`.**
+
+`classify_pending` used `pending_response` both when a closed-set reply was unrecognized
+(keep `pending_presentation`, re-prompt) and when `defer` correctly cleared pending (ADR-022
+discardable terminal). The CLI unmatched check (`turn_intent == "pending_response"`) could not
+tell these apart, so a successful defer rendered with "Didn't catch that." plus the idle/
+roster body.
+
+Defer on `candidate_selection`, `completion_preference`, and `full_build_confirmation` now
+emits `turn_intent="deferred"` with the same pending/provisional clears. Graph maps `deferred`
+to the existing `finish_pending_response` no-op (unknown intents fall through to
+`route_team_phase` and would rediscover). `pending_response` is reserved for genuine unmatched
+input. `candidate_discovery_error` is left set on defer — last-discovery calc health, not
+presentation lifetime.
+
+**Status:** Implemented. Recognition of defer phrases unchanged; CLI heuristic unchanged.
+Verified via two independently required test layers (emit: `classify_pending` returns
+`turn_intent == "deferred"` for all three kinds; render: `handle_line` omits the unmatched
+prefix for a successful defer while a genuinely unmatched reply still shows it) — neither
+layer can pass for the other, since emit never renders and render never classifies. Graph-
+route regression confirmed via the real graph, not mocked. 805 tests passing (up from 796), 6
+skipped, matching the established baseline. Read-only mirrors untouched.
+
+---
+
 ## ADR-012: Team-selection-at-Team-Preview as a recommender extension
 **Decision:** In addition to building the initial 6-Pokémon team, extend the recommender to handle the "given my 6 and the opponent's revealed 6, which 4 do I bring" decision. This is a static decision problem solvable with the same legality/matchup-calc tools already in scope — it does not require the battle-log parser or the RL policy, so it's a natural extension of the recommender (phase 1/1.5), not tied to the harder piloting/RL phase (phase 3).
 **Status:** Decided as a scoped extension. Build after the core 6-Pokémon recommender loop works; don't build simultaneously with the first working version.
@@ -4631,3 +4659,64 @@ Deliberately deferred: weather/terrain-aware static discovery (`query_counters` 
 passes field context — accepted, documented ceiling); support/shared-only presentation with an
 explicit "team-threat ranking unavailable" banner for `multi_locked` under calc failure
 (default remains hard stop).
+
+---
+
+## ADR-030: Legitimate zero-damage calc results are successes, not errors — batch semantics
+must not let one immune/status row abort an otherwise-valid matchup
+
+**Decision:** The calc handler (`services/calc/handlers.ts`) now distinguishes a legitimate
+zero-damage result (type immunity, ability immunity, or a non-damaging/status move) from a
+genuine calculation failure, based on the actual computed result rather than a re-derived
+prediction of what the result should be. Concretely: after a successful `calculate()` call, if
+`range()[1] === 0`, the row is returned as a normal success (`damageRange: [0, 0]`, empty KO
+chance/text) without calling `result.kochance()`/`desc()`/`fullDesc()` — those calls are what
+previously converted a correct zero into an error string. Anything that throws before or
+during `calculate()` (malformed input, a genuine library bug, a real transport failure) is
+unaffected and still produces `{error: ...}`, still mapping to `MatchupEvidenceError`/
+`calc_incomplete` or `CalcClientError`/`calc_unavailable` exactly as before. On the Python
+side, `_NON_DAMAGING` (a curated denylist of non-damaging move IDs) is replaced with a
+data-grounded check against `data/moves/flags.v1.json`'s real `category` field — `_damaging_
+moves` now excludes anything genuinely `Status`-category rather than relying on a manually
+maintained list.
+
+**Alternatives considered:** pre-checking move category/type-effectiveness in the handler
+before calling `calculate()`, to decide upfront whether a zero-damage result should be
+expected. Extending `_NON_DAMAGING` with the specific moves found missing during
+investigation, rather than replacing it with a data-grounded source.
+
+**Why:** A completed `calculate()` call has already correctly applied every immunity rule that
+matters — type chart, ability-based immunities (Levitate, Water Absorb, etc.), Protect,
+zero-base-power interactions — all of it. Re-deriving any of that logic in the handler to
+predict "should this be zero" would duplicate `@smogon/calc`'s own correct computation and
+would still miss ability-based immunities, which aren't visible from typing alone. Checking
+the actual computed result is the only check that can't drift out of sync with what calc
+itself determined. The prior behavior was a structural fragility, not a two-move bug: any kit
+containing a type-immune hit or a status move missing from the curated denylist would abort an
+*entire* matchup — including its other, perfectly valid damage rows — on a single legitimately-
+zero row. This was discovered via what initially looked like a service-availability problem
+(a port conflict revealed the calc service had been running continuously the whole time,
+ruling out "service down" as the actual cause of the `calc_incomplete` errors being observed).
+Extending `_NON_DAMAGING` with newly-found missing moves was rejected in favor of replacing it
+entirely with the real move-flag data already ingested for the conditional-mechanics work —
+the curated list itself was the actual class of bug (156 of 175 legal Status moves were
+missing, not just the two or three that happened to surface in testing), and patching it
+reactively would only have deferred the same failure mode to the next unlisted status move.
+
+**Status:** Implemented and verified. All eight originally-reproduced cases (Electro Shot vs.
+three real Ground-types; Dragon Claw vs. four real Fairy-types; Wide Guard) confirmed
+individually as correct `[0, 0]` successes, not inferred from an aggregate pass count. A real
+batch test confirms the actual fix — one immune row (Electro Shot) alongside three genuine
+damage rows in a single `runCalculateBatch` call no longer aborts the batch; the Python-side
+equivalent confirms the resulting matchup correctly reaches `clean_kill`/`decisive` via the
+kit's actual best non-zero move, not a fabricated or default result. The original genuine-
+failure regression test (`test_incomplete_batch_evidence_raises`, unmodified since its original
+introduction) confirmed still passing exactly as written, proving real failures are unaffected.
+796 tests passing (up from 792), full suites on both sides (`npm test`, `uv run pytest`), 6
+skipped matching the established baseline.
+
+**Deliberately deferred, tracked as a separate bug, not folded into this decision:** a
+Kingambit + Assault Vest crash (`Cannot read properties of undefined (reading 'megaStone')`) —
+confirmed to be a genuinely different failure mode (an item-data lookup issue in the vendored
+calc library), still correctly producing `calc_incomplete` today, not silently swallowed by
+this fix.

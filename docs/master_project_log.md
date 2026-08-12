@@ -3299,6 +3299,98 @@ printed warning and the README's troubleshooting text, not independently reworde
 This clears the last item paused behind the trick_room_setter/calc-service work — the root
 public-facing README and repo-hygiene task can now proceed.
 
+### 2026-08-11 (cont.): legitimate zero-damage calc results treated as errors — root cause
+found and fixed, closing a structural fragility affecting any matchup with an immune or
+unrecognized status move
+
+Opened by a real session finding that initially looked like a service-availability problem —
+`npm start` failing with `EADDRINUSE` on port 4173 revealed the calc service had actually been
+running continuously since 2026-08-10, meaning the `calc_incomplete` errors observed
+throughout a full day of CLI testing were never a "service not running" issue at all (that
+would have surfaced as `calc_unavailable`, the distinct kind this project's own calc-
+unavailable work specifically built to separate from `calc_incomplete`). The real cause was
+narrower and, on investigation, far more consequential than the two moves that happened to
+surface it.
+
+**Correctly ruled out the plausible-but-wrong explanation before accepting the real one.**
+Electro Shot's known conditional complexity (its Rain-dependent charge-turn behavior, shipped
+via the conditional-mechanics work) was the natural first suspect. Directly checked and ruled
+out: Rain doesn't affect Ground-type immunity, and the failure reproduced identically against
+every Ground-type regardless of weather — this was never a charge-turn modeling bug.
+
+**Root cause traced to three layers, confirmed precisely, not inferred from the symptom:**
+`@smogon/calc` correctly returns `damage=0` for type immunities and status moves (expected,
+correct behavior) → the project's own calc handler unconditionally called `result.kochance()`
+with `err=true`, which converts any zero-damage result into an error string regardless of
+whether the zero is legitimate → `_profiles_from_batch` then aborted the *entire* matchup on a
+single bad row, so one immune or unrecognized-status move anywhere in a four-move kit poisoned
+the whole calculation, discarding three perfectly valid damage rows along with it.
+
+**Confirmed structurally broader than the two moves that surfaced it, not a narrow patch
+target.** Any kit containing a type-immune hit or a status move missing from `_NON_DAMAGING`
+triggered the same failure. `_NON_DAMAGING` itself was confirmed incomplete against real move
+data — 175 legal Reg M-B Status moves exist, the curated list covered only 19 (confirmed as a
+proper subset, not containing anything spurious), with 156 missing entries directly explaining
+observed stress-test failures beyond the two moves originally reported (Wide Guard, Detect,
+Spiky Shield among them).
+
+**Fix design correctly avoided re-deriving logic `calculate()` had already computed
+correctly.** Rather than a type-chart/move-category pre-check in the handler (which would
+duplicate calc's own logic and still miss ability-based immunities like Levitate or Water
+Absorb, invisible from typing alone), the fix checks the actual computed result:
+`range()[1] === 0` after a successful `calculate()` call is treated as a legitimate zero-damage
+success, skipping `kochance()`/`desc()`/`fullDesc()` entirely on that branch rather than
+letting them convert a correct zero into an error. Genuine failures (real library bugs,
+malformed input, transport failures) are unaffected — they still throw before or during
+`calculate()` and still route through the existing `calc_incomplete`/`calc_unavailable`
+machinery unchanged, confirmed by the original genuine-failure regression test
+(`test_incomplete_batch_evidence_raises`, unmodified since 2026-08-08) still passing exactly
+as written.
+
+**`_NON_DAMAGING` replaced with a data-grounded check rather than an extended denylist.**
+`_damaging_moves` now consults `data/moves/flags.v1.json` (the same Pass 2 conditional-
+mechanics artifact already shipped) to skip Status-category moves, rather than adding the
+newly-discovered missing entries to the same kind of curated list that caused the gap in the
+first place — same "don't build a list from conversation-mentioned examples, ground it in real
+data" discipline already applied to every prior incomplete-list bug this session
+(`_ROLE_PREF_MOVES`, the redirection compendium work). Reasoned explicitly through whether this
+second piece was still worth shipping once the crash itself was fixed by the handler change
+alone — concluded yes, for hygiene and smaller batch sizes, not because it was still needed to
+prevent a crash.
+
+**Confirmation pass verified each claim specifically, not accepted an aggregate count.** All
+eight exact reproduced cases (Electro Shot vs. three real Ground-types; Dragon Claw vs. four
+real Fairy-types; Wide Guard) confirmed individually by test name, each asserting a real
+`[0, 0]` success with no error key — not inferred from "38 passed." The mixed-kit batch test
+confirmed as a genuine single `runCalculateBatch` call on all four of Archaludon's real moves,
+not four independent single-move checks — proving the actual point of the fix (one immune row
+no longer poisons the other three). The Python-side mixed-kit result was independently
+verified for the *specific* outcome it produces, not just that no exception was raised:
+`clean_kill`/`decisive` via Dragon Pulse specifically, reasoned through why (`_pick_best_
+offense` correctly excludes the zero-damage Electro Shot row; Dragon Pulse is the only real
+OHKO in the kit, so it's the mechanically correct pick, not an arbitrary one). The all-status
+kit case confirmed to correctly reach `no_answer` with `MockCalcClient({})` — a client that
+would `KeyError` on any real request, proving no calc call happens at all for a kit with
+nothing damaging to send.
+
+796 tests passing (up from 792), 6 skipped — confirmed against the full suite (`uv run pytest`
+on the complete `tests/recommender` directory, not the four-file matchup-scoped subset
+initially reported), matching the established baseline (5 live-calc + 1 Ollama live-smoke).
+Full `npm test` (38 passed, 0 failed) confirmed as the actual complete Node suite, not a
+subset — there is no larger npm target.
+
+The calc service was SIGTERM'd and restarted on the fixed handler code; confirmed this
+required no special handling — the calc service is stateless per-request (no cache, no
+session, no checkpoint), with all durable state living in the Python process/SQLite
+checkpointer, unaffected by the restart.
+
+**Deliberately separated and left untouched, tracked independently:** a distinct
+Kingambit + Assault Vest crash (`Cannot read properties of undefined (reading 'megaStone')`) —
+confirmed to be a genuine `{error}` row from a different failure mode (an item-data lookup
+issue), not the zero-damage pattern this fix addresses. Still produces a correct
+`MatchupEvidenceError`/`calc_incomplete` today; a real fix for that specific crash remains
+separately scoped, not folded into this task.
+
 ---
 
 ## TOOLS & RESOURCES

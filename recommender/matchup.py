@@ -66,29 +66,6 @@ _MULTI_HIT_MOVES = frozenset(
 )
 _GUARANTEED_HIT_COUNT = frozenset({"skilllink"})
 _WIDE_LENS = frozenset({"widelens"})
-_NON_DAMAGING = frozenset(
-    {
-        "protect",
-        "substitute",
-        "tailwind",
-        "trickroom",
-        "helpinghand",
-        "followme",
-        "ragepowder",
-        "spore",
-        "sleeppowder",
-        "hypnosis",
-        "yawn",
-        "encore",
-        "taunt",
-        "partingshot",
-        "coaching",
-        "lifedew",
-        "recover",
-        "rest",
-        "roost",
-    }
-)
 # ponytail: static Showdown contact snapshot (std); upgrade = extract flags.contact like gen9_accuracy
 _CONTACT_MOVES = frozenset(
     {
@@ -587,9 +564,16 @@ def _calc_request(
 
 
 def _damaging_moves(build: PokemonSpecOptional) -> list[str]:
-    moves = build.get("moves") or []
-    out = [m for m in moves if to_id(m) not in _NON_DAMAGING]
-    return out or list(moves[:1])
+    from recommender.counters import load_move_flags
+
+    flags = load_move_flags()
+    out: list[str] = []
+    for m in build.get("moves") or []:
+        meta = flags.get(to_id(m))
+        if meta and meta.get("category") == "Status":
+            continue
+        out.append(m)
+    return out
 
 
 def _profiles_from_batch(
