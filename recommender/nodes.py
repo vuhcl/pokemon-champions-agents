@@ -98,16 +98,87 @@ _ORDINAL_REPLIES = {
 _SELECTION_PREFIXES = ("choose ", "pick ", "go with ")
 
 
+def _gap_fill(
+    text: str,
+    *,
+    turn_intent_parser,
+    gap_fill_context: dict[str, str] | None,
+    had_pending: bool,
+) -> dict[str, Any]:
+    from recommender.turn_intent import parse_turn_intent
+
+    ctx = gap_fill_context or {}
+    return parse_turn_intent(
+        turn_intent_parser,
+        user_text=text,
+        pending_kind=ctx.get("pending_kind") or ("none" if not had_pending else ""),
+        pending_context=ctx.get("pending_context") or "",
+        roster_summary=ctx.get("roster_summary") or "",
+        had_pending=had_pending,
+    )
+
+
+def build_gap_fill_context(state: RecommenderState) -> dict[str, str]:
+    """Prompt-only context for turn-intent gap-fill; never treated as verified facts."""
+
+    pending = state.get("pending_presentation")
+    kind = (pending or {}).get("kind") if pending else None
+    pending_kind = str(kind or "none")
+    pending_context = ""
+    if pending:
+        if kind == "candidate_selection":
+            options = pending.get("options") or []
+            names = ", ".join(str(o.get("species") or "") for o in options)
+            pending_context = f"candidate options: {names}"
+        elif kind == "completion_preference":
+            prefs = pending.get("preference_options") or ()
+            pending_context = f"preference options: {', '.join(str(p) for p in prefs)}"
+        elif kind == "full_build_confirmation":
+            intent = state.get("pending_slot_intent")
+            provisional = state.get("provisional_slot")
+            species = None
+            if intent is not None:
+                species = getattr(intent, "species", None)
+            if not species and provisional is not None:
+                species = getattr(provisional, "species", None)
+            pending_context = (
+                f"full build confirmation for {species}"
+                if species
+                else "full build confirmation"
+            )
+        elif kind == "bootstrap_intake":
+            pending_context = "bootstrap intake"
+    locked: list[str] = []
+    for slot in state.get("team_draft") or []:
+        if all_locked(slot):
+            locked.append(str(getattr(slot.species, "value", None) or "?"))
+    roster_summary = ", ".join(locked) if locked else ""
+    return {
+        "pending_kind": pending_kind,
+        "pending_context": pending_context,
+        "roster_summary": roster_summary,
+    }
+
+
 def classify_pending(
     text: str,
     pending_presentation: PendingPresentation | None = None,
     *,
     bootstrap_intake_parser=None,
+    turn_intent_parser=None,
+    gap_fill_context: dict[str, str] | None = None,
 ) -> dict[str, Any]:
-    """Resolve a reply to a pending presentation; generic classification remains open."""
+    """Resolve a reply to a pending presentation; gap-fill via injected turn_intent_parser."""
     if pending_presentation is None:
-        raise NotImplementedError(
-            "classify_pending is not wired; monkeypatch in tests or configure ADR-013 LLM"
+        if turn_intent_parser is None:
+            raise NotImplementedError(
+                "classify_pending is not wired; monkeypatch in tests or configure ADR-013 LLM"
+            )
+        return _gap_fill(
+            text,
+            turn_intent_parser=turn_intent_parser,
+            gap_fill_context=gap_fill_context,
+            had_pending=False,
         )
 
     reply = text.strip().casefold().strip(".!?")
@@ -173,7 +244,14 @@ def classify_pending(
                 "turn_intent": "deferred",
                 "pending_presentation": None,
             }
-        return {"turn_intent": "pending_response"}
+        if turn_intent_parser is None:
+            return {"turn_intent": "pending_response"}
+        return _gap_fill(
+            text,
+            turn_intent_parser=turn_intent_parser,
+            gap_fill_context=gap_fill_context,
+            had_pending=True,
+        )
     if version != 1:
         return {
             "turn_intent": "pending_response",
@@ -201,7 +279,14 @@ def classify_pending(
                 "provisional_slot": None,
                 "provisional_refinement": None,
             }
-        return {"turn_intent": "pending_response"}
+        if turn_intent_parser is None:
+            return {"turn_intent": "pending_response"}
+        return _gap_fill(
+            text,
+            turn_intent_parser=turn_intent_parser,
+            gap_fill_context=gap_fill_context,
+            had_pending=True,
+        )
 
     options = pending_presentation.get("options") or []
     selected: set[int] = set()
@@ -227,7 +312,14 @@ def classify_pending(
     elif not selected and signals == {"defer"}:
         return {"turn_intent": "deferred", "pending_presentation": None}
     else:
-        return {"turn_intent": "pending_response"}
+        if turn_intent_parser is None:
+            return {"turn_intent": "pending_response"}
+        return _gap_fill(
+            text,
+            turn_intent_parser=turn_intent_parser,
+            gap_fill_context=gap_fill_context,
+            had_pending=True,
+        )
 
     return {
         "turn_intent": "slot_candidate_selected",
@@ -310,7 +402,12 @@ def route_team_phase(_state: RecommenderState) -> dict:
     return {}
 
 
-def classify_input(state: RecommenderState, *, bootstrap_intake_parser=None) -> dict:
+def classify_input(
+    state: RecommenderState,
+    *,
+    bootstrap_intake_parser=None,
+    turn_intent_parser=None,
+) -> dict:
     text = state.get("pending_input")
     if not text:
         raise ValueError("pending_input is required for subsequent turns")
@@ -318,6 +415,8 @@ def classify_input(state: RecommenderState, *, bootstrap_intake_parser=None) -> 
         text,
         state.get("pending_presentation"),
         bootstrap_intake_parser=bootstrap_intake_parser,
+        turn_intent_parser=turn_intent_parser,
+        gap_fill_context=build_gap_fill_context(state),
     )
     out = {
         "turn_intent": result["turn_intent"],

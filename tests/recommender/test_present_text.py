@@ -266,6 +266,21 @@ def test_unmatched_prefix():
     assert text.startswith(UNMATCHED_REPLY_PREFIX)
 
 
+def test_unmatched_custom_message_replaces_prefix():
+    text = format_turn(
+        {
+            "turn_payload": {"message": "Which field should change?"},
+            "pending_presentation": {
+                "kind": "full_build_confirmation",
+                "slot_index": 0,
+            },
+        },
+        unmatched=True,
+    )
+    assert text.startswith("Which field should change?")
+    assert UNMATCHED_REPLY_PREFIX not in text
+
+
 def test_no_parser_omits_unmatched_prefix_and_shows_fix_hint():
     text = format_turn(
         {

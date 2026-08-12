@@ -52,7 +52,7 @@ def _route_after_refine(state: RecommenderState) -> str:
     return "route_team_phase"
 
 
-def build_graph(*, bootstrap_intake_parser=None) -> StateGraph:
+def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> StateGraph:
     g = StateGraph(RecommenderState)
     g.add_node("initialize", nodes.initialize)
     g.add_node("accept_available_pool", nodes.accept_available_pool)
@@ -61,6 +61,7 @@ def build_graph(*, bootstrap_intake_parser=None) -> StateGraph:
         partial(
             nodes.classify_input,
             bootstrap_intake_parser=bootstrap_intake_parser,
+            turn_intent_parser=turn_intent_parser,
         ),
     )
     g.add_node("apply_lock", nodes.apply_lock)
@@ -111,14 +112,19 @@ def build_graph(*, bootstrap_intake_parser=None) -> StateGraph:
     return g
 
 
-def compile_graph(checkpointer=None, *, bootstrap_intake_parser=None):
+def compile_graph(
+    checkpointer=None, *, bootstrap_intake_parser=None, turn_intent_parser=None
+):
     """Compile with a caller-owned checkpointer, which may be durable."""
     return build_graph(
-        bootstrap_intake_parser=bootstrap_intake_parser
+        bootstrap_intake_parser=bootstrap_intake_parser,
+        turn_intent_parser=turn_intent_parser,
     ).compile(checkpointer=checkpointer)
 
 
-def compile_cli_graph(*, path=None, bootstrap_intake_parser=None):
+def compile_cli_graph(
+    *, path=None, bootstrap_intake_parser=None, turn_intent_parser=None
+):
     """Open the SQLite checkpointer and compile. Returns ``(graph, saver)``.
 
     Caller owns ``saver.conn`` for process lifetime.
@@ -127,6 +133,8 @@ def compile_cli_graph(*, path=None, bootstrap_intake_parser=None):
 
     saver = open_sqlite_checkpointer(path)
     graph = compile_graph(
-        checkpointer=saver, bootstrap_intake_parser=bootstrap_intake_parser
+        checkpointer=saver,
+        bootstrap_intake_parser=bootstrap_intake_parser,
+        turn_intent_parser=turn_intent_parser,
     )
     return graph, saver

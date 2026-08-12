@@ -8,7 +8,7 @@ from typing import Any, Mapping
 
 from recommender.calc_client import calc_startup_warning
 from recommender.graph import compile_cli_graph
-from recommender.llm_provider import resolve_bootstrap_parser
+from recommender.llm_provider import resolve_llm_parsers
 from recommender.present_text import (
     NO_PENDING_MESSAGE,
     format_no_pending,
@@ -134,7 +134,7 @@ def _print_thread_list(graph, saver) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
-    parser, warning = resolve_bootstrap_parser(args.provider)
+    bootstrap_parser, turn_parser, warning = resolve_llm_parsers(args.provider)
     if warning:
         print(warning, file=sys.stderr)
     calc_warning = calc_startup_warning()
@@ -142,7 +142,9 @@ def main(argv: list[str] | None = None) -> int:
         print(calc_warning, file=sys.stderr)
 
     graph, saver = compile_cli_graph(
-        path=args.db, bootstrap_intake_parser=parser
+        path=args.db,
+        bootstrap_intake_parser=bootstrap_parser,
+        turn_intent_parser=turn_parser,
     )
     try:
         if args.list_threads:
