@@ -130,6 +130,46 @@ class EditPayload(TypedDict):
     scope: Literal["field_only", "regenerate"]
 
 
+BuildAxis = Literal["spread_nature", "moveset", "item", "bundled"]
+BuildProvenance = Literal[
+    "featured", "usage_spread", "vgcpastes", "user_current", "team_conditioned"
+]
+
+
+class BuildFieldOverrides(TypedDict, total=False):
+    ability: str
+    item: str
+    moves: tuple[str, str, str, str]
+    nature: str
+    spread: dict[str, int]  # hp/atk/def/spa/spd/spe ; Champions SP 0–32
+
+
+class BuildConfirmationOption(TypedDict):
+    option_id: str
+    label: str
+    axis: BuildAxis
+    provenance: BuildProvenance
+    overrides: BuildFieldOverrides
+    diff_summary: str
+    tradeoff: str
+    mechanical_notes: NotRequired[tuple[str, ...]]
+    team_notes: NotRequired[tuple[str, ...]]
+
+
+class BuildOptionGroup(TypedDict):
+    axis: BuildAxis
+    prompt: str
+    options: tuple[BuildConfirmationOption, ...]
+
+
+class SelectBuildPayload(TypedDict):
+    option_ids: tuple[str, ...]
+
+
+class ComparePayload(TypedDict):
+    option_ids: tuple[str, ...]
+
+
 OwnershipModeSource = Literal["default", "user"]
 
 
@@ -312,6 +352,8 @@ class PendingPresentation(TypedDict, total=False):
     existing_pool_labels: tuple[str, ...]
     notices: tuple[str, ...]
     review_flags: tuple[ReviewFlag, ...]
+    build_option_groups: tuple[BuildOptionGroup, ...]
+    default_option_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -383,6 +425,8 @@ TurnPayload = Union[
     BootstrapResponsePayload,
     PendingResponsePayload,
     EditPayload,
+    SelectBuildPayload,
+    ComparePayload,
 ]
 
 
@@ -517,6 +561,7 @@ class RecommenderState(TypedDict):
     provisional_slot: NotRequired[Optional[ProvisionalSlot]]
     provisional_refinement: NotRequired[Optional[UnresolvedSlotRefinement]]
     slot_commit_error: NotRequired[Optional[str]]
+    compare_analysis: NotRequired[Optional[str]]
     last_team_review: NotRequired[Optional[TeamReviewResult]]
     coverage: NotRequired[list[ThreatCoverageResult]]
     spofs: NotRequired[list[SPOFFinding]]

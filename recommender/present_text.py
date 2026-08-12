@@ -35,7 +35,10 @@ _FOOTERS: dict[str, str] = {
     "completion_preference": (
         "Reply with a preference name, 1/2/3, or 'defer'."
     ),
-    "full_build_confirmation": "Reply 'yes' to accept, or 'defer' to skip.",
+    "full_build_confirmation": (
+        "Reply 'yes' to accept, pick option ids (compose with +), "
+        "'compare A B', free-text edit, or 'defer'."
+    ),
 }
 
 
@@ -158,8 +161,14 @@ def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
 
 def _format_full_build(state: Mapping[str, Any]) -> list[str]:
     provisional = state.get("provisional_slot")
+    pending = state.get("pending_presentation") or {}
+    lines: list[str] = []
+    analysis = state.get("compare_analysis")
+    if analysis:
+        lines.append(str(analysis))
     if provisional is None:
-        return ["Accept this build? (yes / defer)"]
+        lines.append("Accept this build? (yes / defer)")
+        return lines
     if isinstance(provisional, ProvisionalSlot):
         species = provisional.species
         role = provisional.role
@@ -179,20 +188,33 @@ def _format_full_build(state: Mapping[str, Any]) -> list[str]:
         nature = provisional.get("nature")
         moves = provisional.get("moves") or ()
         spread = dict(provisional.get("spread") or ())
-    return [
-        f"Proposed build for {species} ({role}):",
-        f"  Ability: {ability}",
-        f"  Item: {item}",
-        f"  Nature: {nature}",
-        f"  Moves: {', '.join(str(m) for m in moves)}",
-        f"  Spread: {spread}",
-        *(
-            f"Note: {flag.get('claim')}"
-            for flag in (state.get("pending_presentation") or {}).get("review_flags")
-            or ()
-        ),
-        "Accept this build? (yes / defer)",
-    ]
+    lines.extend(
+        [
+            f"Proposed build for {species} ({role}):",
+            f"  Ability: {ability}",
+            f"  Item: {item}",
+            f"  Nature: {nature}",
+            f"  Moves: {', '.join(str(m) for m in moves)}",
+            f"  Spread: {spread}",
+        ]
+    )
+    for flag in pending.get("review_flags") or ():
+        lines.append(f"Note: {flag.get('claim')}")
+    defaults = set(pending.get("default_option_ids") or ())
+    for group in pending.get("build_option_groups") or ():
+        lines.append(str(group.get("prompt") or f"Options ({group.get('axis')}):"))
+        for opt in group.get("options") or ():
+            oid = opt.get("option_id")
+            marker = " (default)" if oid in defaults else ""
+            tradeoff = opt.get("tradeoff") or ""
+            diff = opt.get("diff_summary") or ""
+            lines.append(f"  {oid}: {opt.get('label')}{marker} — {diff}; {tradeoff}")
+            for note in opt.get("mechanical_notes") or ():
+                lines.append(f"    mech: {note}")
+            for note in opt.get("team_notes") or ():
+                lines.append(f"    team: {note}")
+    lines.append("Accept this build? (yes / defer / option id / free-text)")
+    return lines
 
 
 def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
