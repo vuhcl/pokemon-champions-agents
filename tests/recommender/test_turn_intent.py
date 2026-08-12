@@ -145,6 +145,8 @@ def test_schema_error_pending_response_does_not_call_parser():
 
 
 def test_fail_closed_on_malformed_parser_output():
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
     parser = RunnableLambda(lambda _: {"turn_intent": "pending_response"})
     result = classify_pending(
         "xyzzy",
@@ -152,11 +154,14 @@ def test_fail_closed_on_malformed_parser_output():
         turn_intent_parser=parser,
     )
     assert result["turn_intent"] == "pending_response"
-    assert "message" in result["turn_payload"]
+    assert result["turn_payload"]["message"] == CLASSIFY_FAIL_USER_MSG
+    assert "OUTPUT_PARSING_FAILURE" not in result["turn_payload"]["message"]
     assert "pending_presentation" not in result
 
 
 def test_fail_closed_on_parser_raise():
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
     def boom(_payload):
         raise RuntimeError("provider down")
 
@@ -166,9 +171,9 @@ def test_fail_closed_on_parser_raise():
         turn_intent_parser=RunnableLambda(boom),
     )
     assert result["turn_intent"] == "pending_response"
-    assert "provider failed" in result["turn_payload"]["message"].casefold() or (
-        "RuntimeError" in result["turn_payload"]["message"]
-    )
+    assert result["turn_payload"]["message"] == CLASSIFY_FAIL_USER_MSG
+    assert "RuntimeError" not in result["turn_payload"]["message"]
+    assert "provider down" not in result["turn_payload"]["message"]
 
 
 def test_no_parser_pending_none_still_raises():
@@ -276,8 +281,8 @@ def test_edit_field_only_does_not_clear_pending():
         lambda _: {
             "turn_intent": "edit",
             "field": "nature",
-            "value": "Modest",
-            "scope": "field_only",
+            "value_text": "Modest",
+            "edit_scope": "field_only",
         }
     )
     result = parse_turn_intent(
@@ -301,12 +306,104 @@ def test_edit_maps_moveset_to_moves():
         lambda _: {
             "turn_intent": "edit",
             "field": "moveset",
-            "value": ["A", "B", "C", "D"],
-            "scope": "regenerate",
+            "value_moves": ["A", "B", "C", "D"],
+            "edit_scope": "regenerate",
         }
     )
     result = parse_turn_intent(parser, user_text="rebuild with these moves")
     assert result["turn_payload"]["field"] == "moves"
+    assert result["turn_payload"]["value"] == ["A", "B", "C", "D"]
+    assert result["turn_payload"]["scope"] == "regenerate"
+
+
+def test_edit_tolerates_null_constraint_object():
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "value_text": "Modest",
+            "edit_scope": "field_only",
+            "constraint": {
+                "type": None,
+                "predicate": None,
+                "scope": None,
+                "groundedness": None,
+            },
+        }
+    )
+    result = parse_turn_intent(parser, user_text="run Modest, just the nature")
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["value"] == "Modest"
+
+
+def test_incomplete_edit_returns_friendly_pending_response():
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "constraint": {
+                "type": None,
+                "predicate": None,
+                "scope": None,
+                "groundedness": None,
+            },
+        }
+    )
+    result = parse_turn_intent(
+        parser,
+        user_text="run Modest, just the nature",
+        pending_kind="full_build_confirmation",
+        had_pending=True,
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert result["turn_payload"]["message"] == CLASSIFY_FAIL_USER_MSG
+    assert "OUTPUT_PARSING_FAILURE" not in result["turn_payload"]["message"]
+    assert "validation error" not in result["turn_payload"]["message"].casefold()
+    assert "pending_presentation" not in result
+
+
+def test_include_raw_parsing_error_is_friendly():
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
+    parser = RunnableLambda(
+        lambda _: {
+            "raw": object(),
+            "parsed": None,
+            "parsing_error": "OUTPUT_PARSING_FAILURE\nvalidation error for …",
+        }
+    )
+    result = parse_turn_intent(parser, user_text="run Modest", had_pending=True)
+    assert result["turn_intent"] == "pending_response"
+    assert result["turn_payload"]["message"] == CLASSIFY_FAIL_USER_MSG
+    assert "OUTPUT_PARSING_FAILURE" not in result["turn_payload"]["message"]
+
+
+def test_edit_rejects_wrong_value_slot():
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "value_moves": ["A", "B", "C", "D"],
+            "edit_scope": "field_only",
+        }
+    )
+    result = parse_turn_intent(parser, user_text="Modest")
+    assert result["turn_intent"] == "pending_response"
+    assert result["turn_payload"]["message"] == CLASSIFY_FAIL_USER_MSG
+
+
+def test_constraint_still_uses_scope_not_edit_scope():
+    result = parse_turn_intent(
+        _constraint_parser(),
+        user_text="no duplicate items",
+        had_pending=False,
+    )
+    assert result["turn_intent"] == "constraint"
+    assert result["turn_payload"]["scope"] == "team_wide"
 
 
 def test_species_change_is_not_edit_via_rejection():

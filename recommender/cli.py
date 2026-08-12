@@ -15,6 +15,7 @@ from recommender.present_text import (
     format_roster,
     format_turn,
 )
+from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
 from recommender.session import (
     DEFAULT_FORMAT_ID,
     list_thread_summaries,
@@ -71,14 +72,8 @@ def handle_line(
         state = invoke_user_text(graph, config, stripped)
     except NotImplementedError:
         return state, config, thread_id, NO_PENDING_MESSAGE, False
-    except Exception as exc:
-        return (
-            state,
-            config,
-            thread_id,
-            f"{type(exc).__name__}: {exc}",
-            False,
-        )
+    except Exception:
+        return state, config, thread_id, CLASSIFY_FAIL_USER_MSG, False
 
     # pending_response means unmatched only; successful defer emits "deferred".
     unmatched = state.get("turn_intent") == "pending_response"
