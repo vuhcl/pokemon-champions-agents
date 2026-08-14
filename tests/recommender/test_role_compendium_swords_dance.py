@@ -1790,3 +1790,190 @@ def test_debuff_surv_omitted_for_non_debuff_payoff():
     assert err == ""
     assert "debuff_surv" not in sweep
 
+
+def _priority_finisher_dispatch(
+    *,
+    finisher_mid: str,
+    payoff_dmg: int = 60,
+    finisher_dmg: int = 50,
+    incoming_dmg: int = 60,
+):
+    """Lived-shield panel: outsped on payoff; finisher vs payoff by move id."""
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            if not atk.get("boosts"):
+                out.append(
+                    _panel_result(dmg=incoming_dmg, hp=100, atk_spe=150, def_spe=50)
+                )
+                continue
+            mid = to_id(str(req.get("move") or ""))
+            dmg = finisher_dmg if mid == finisher_mid else payoff_dmg
+            out.append(_panel_result(dmg=dmg, hp=100, atk_spe=50, def_spe=150))
+        return out
+
+    return calc
+
+
+_FINISHER_PANEL = [
+    {"species": "Garchomp", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+]
+
+# (species, finisher_id, finisher_display, payoff_display, payoff_id, boost_stat)
+_ELIGIBLE_FINISHER_CASES = [
+    ("Dragonite", "extremespeed", "Extreme Speed", "Earthquake", "earthquake", "atk"),
+    ("Pinsir-Mega", "feint", "Feint", "Close Combat", "closecombat", "atk"),
+    ("Feraligatr", "aquajet", "Aqua Jet", "Liquidation", "liquidation", "atk"),
+    ("Scizor", "bulletpunch", "Bullet Punch", "X-Scissor", "xscissor", "atk"),
+    ("Palafin", "jetpunch", "Jet Punch", "Liquidation", "liquidation", "atk"),
+    ("Crabominable-Mega", "machpunch", "Mach Punch", "Ice Hammer", "icehammer", "atk"),
+    ("Sylveon", "quickattack", "Quick Attack", "Moonblast", "moonblast", "spa"),
+    ("Mimikyu", "shadowsneak", "Shadow Sneak", "Play Rough", "playrough", "atk"),
+    ("Kingambit", "suckerpunch", "Sucker Punch", "Iron Head", "ironhead", "atk"),
+]
+
+
+def test_setup_priority_finisher_set_excludes_banned_and_deferred():
+    from recommender.role_compendium import _SETUP_PRIORITY_FINISHER_MOVES
+
+    assert "fakeout" not in _SETUP_PRIORITY_FINISHER_MOVES
+    assert "firstimpression" not in _SETUP_PRIORITY_FINISHER_MOVES
+    assert "upperhand" not in _SETUP_PRIORITY_FINISHER_MOVES
+    assert "grassyglide" not in _SETUP_PRIORITY_FINISHER_MOVES
+    assert _SETUP_PRIORITY_FINISHER_MOVES == frozenset(
+        {
+            "extremespeed",
+            "feint",
+            "aquajet",
+            "bulletpunch",
+            "jetpunch",
+            "machpunch",
+            "quickattack",
+            "shadowsneak",
+            "suckerpunch",
+        }
+    )
+
+
+def test_priority_finisher_combined_ko_credits_each_eligible_move():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    for (
+        species,
+        fin_mid,
+        fin_disp,
+        payoff_disp,
+        payoff_id,
+        boost_stat,
+    ) in _ELIGIBLE_FINISHER_CASES:
+        sweep: dict[str, Any] = {}
+        _score, err = _damage_score(
+            attacker_name=species,
+            item=None,
+            ability=None,
+            move=payoff_disp,
+            move_id=payoff_id,
+            boost_stat=boost_stat,
+            stages=2,
+            panel=_FINISHER_PANEL,
+            calculate_batch=_priority_finisher_dispatch(finisher_mid=fin_mid),
+            snap=snap,
+            sweep_out=sweep,
+            kit_moves=[payoff_disp, fin_disp, "Protect"],
+        )
+        assert err == "", f"{species}/{fin_mid}: {err}"
+        assert sweep["ohko"] == 1, f"{species}/{fin_mid}"
+        assert sweep["n_surv"] == 1, f"{species}/{fin_mid}"
+        assert abs(sweep["remain_mean"] - 1.0) < 1e-9, f"{species}/{fin_mid}"
+
+
+def test_fakeout_in_kit_gets_no_priority_finisher_credit():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Scrafty-Mega",
+        item=None,
+        ability=None,
+        move="Knock Off",
+        move_id="knockoff",
+        boost_stat="atk",
+        stages=2,
+        panel=_FINISHER_PANEL,
+        calculate_batch=_priority_finisher_dispatch(
+            finisher_mid="fakeout", finisher_dmg=50, payoff_dmg=60
+        ),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+        kit_moves=["Knock Off", "Fake Out", "Protect"],
+    )
+    assert err == ""
+    assert sweep["ohko"] == 0
+    # Normal lived-shield remain (not sequence silence): 1.0 - 0.60
+    assert sweep["n_surv"] == 1
+    assert abs(sweep["remain_mean"] - 0.40) < 1e-9
+
+
+def test_grassyglide_in_kit_gets_no_priority_finisher_credit():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Rillaboom",
+        item=None,
+        ability=None,
+        move="Grass Knot",
+        move_id="grassknot",
+        boost_stat="atk",
+        stages=2,
+        panel=_FINISHER_PANEL,
+        calculate_batch=_priority_finisher_dispatch(
+            finisher_mid="grassyglide", finisher_dmg=50, payoff_dmg=60
+        ),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+        kit_moves=["Grass Knot", "Grassy Glide", "Protect"],
+    )
+    assert err == ""
+    assert sweep["ohko"] == 0
+    assert sweep["n_surv"] == 1
+    assert abs(sweep["remain_mean"] - 0.40) < 1e-9
+
+
+def test_suckerpunch_finisher_uses_shared_lived_shield_path():
+    """Sucker Punch credits via shared finisher set — no SP-specific branch."""
+    from recommender import role_compendium as rc
+    from recommender.legality import load_snapshot
+
+    assert not hasattr(rc, "_aegislash_sequence_remain")
+    assert "suckerpunch" in rc._SETUP_PRIORITY_FINISHER_MOVES
+    # No suckerpunch-named helper beyond the shared finisher KO.
+    assert not any(
+        name.startswith("_sucker") for name in dir(rc) if not name.startswith("__")
+    )
+
+    sweep: dict[str, Any] = {}
+    _score, err = rc._damage_score(
+        attacker_name="Kingambit",
+        item=None,
+        ability=None,
+        move="Iron Head",
+        move_id="ironhead",
+        boost_stat="atk",
+        stages=2,
+        panel=_FINISHER_PANEL,
+        calculate_batch=_priority_finisher_dispatch(finisher_mid="suckerpunch"),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+        kit_moves=["Iron Head", "Sucker Punch"],
+    )
+    assert err == ""
+    assert sweep["ohko"] == 1
+    assert abs(sweep["remain_mean"] - 1.0) < 1e-9
+

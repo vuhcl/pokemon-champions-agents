@@ -274,3 +274,63 @@ def test_setup_kit_drops_choice_items():
     assert _drop_setup_choice_item("Choice Specs") is None
     assert _drop_setup_choice_item("Life Orb") == "Life Orb"
     assert _drop_setup_choice_item(None) is None
+
+
+def _panel_result(
+    *,
+    dmg: int,
+    hp: int = 100,
+    atk_spe: int = 100,
+    def_spe: int = 80,
+) -> dict[str, Any]:
+    return {
+        "damageRange": [dmg, dmg],
+        "koChance": "2HKO",
+        "raw": {
+            "stats": {
+                "attacker": {"spe": atk_spe, "hp": 159},
+                "defender": {"hp": hp, "spe": def_spe},
+            }
+        },
+    }
+
+
+def test_bulk_up_aquajet_priority_finisher_combined_ko():
+    """Non-SD proof: Bulk Up carrier gets species-agnostic finisher credit."""
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    fin_mid = "aquajet"
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            if not atk.get("boosts"):
+                out.append(_panel_result(dmg=60, hp=100, atk_spe=150, def_spe=50))
+                continue
+            mid = to_id(str(req.get("move") or ""))
+            dmg = 50 if mid == fin_mid else 60
+            out.append(_panel_result(dmg=dmg, hp=100, atk_spe=50, def_spe=150))
+        return out
+
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Starmie-Mega",
+        item=None,
+        ability=None,
+        move="Liquidation",
+        move_id="liquidation",
+        boost_stat="atk",
+        stages=1,
+        boosts={"atk": 1, "def": 1},
+        panel=[{"species": "Garchomp", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]}],
+        calculate_batch=calc,
+        snap=load_snapshot(),
+        sweep_out=sweep,
+        kit_moves=["Bulk Up", "Liquidation", "Aqua Jet", "Protect"],
+    )
+    assert err == ""
+    assert sweep["ohko"] == 1
+    assert sweep["n_surv"] == 1
+    assert abs(sweep["remain_mean"] - 1.0) < 1e-9

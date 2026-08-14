@@ -115,6 +115,21 @@ _SETUP_CONDITIONAL_PRIORITY = frozenset({"suckerpunch", "thunderclap", "upperhan
 _SETUP_NARROW_CONDITIONAL_PRIORITY = frozenset({"feint"})
 # Switch-in-only: cannot follow Swords Dance / Nasty Plot (Branch A + payoff).
 _SETUP_BRANCH_A_PRIORITY = _OFFENSIVE_PRIORITY_MOVES - frozenset({"fakeout"})
+# Priority finishers for combined-KO after a non-OHKO payoff (lived_shield path).
+# Hard-excluded: fakeout, firstimpression, upperhand. Deferred: grassyglide (terrain).
+_SETUP_PRIORITY_FINISHER_MOVES = frozenset(
+    {
+        "extremespeed",
+        "feint",
+        "aquajet",
+        "bulletpunch",
+        "jetpunch",
+        "machpunch",
+        "quickattack",
+        "shadowsneak",
+        "suckerpunch",
+    }
+)
 # Soft overkill cap: credit up to 25% beyond a KO (hard 1.0 flattened useful signal).
 _SETUP_DAMAGE_FRAC_CAP = 1.25
 # A+B: inverse of the former both-branch Excellent gate discount (floor × div).
@@ -2660,27 +2675,33 @@ def _sort_members_by_sweep(members: list[CandidateEval]) -> list[CandidateEval]:
     return sorted(members, key=key)
 
 
-def _aegislash_sequence_remain(
+def _priority_finisher_combined_ko(
+    *,
+    finisher_frac: float | None,
+    raw_frac: float,
+) -> tuple[float | None, bool]:
+    """Credit remain=1.0 + OHKO when payoff + priority finisher clears the threat.
+
+    Caller already gated lived_shield and non-OHKO payoff. Species-agnostic.
+    """
+    if finisher_frac is not None and raw_frac + finisher_frac >= 1.0:
+        return 1.0, True
+    return None, False
+
+
+def _aegislash_ks_reset(
     *,
     kit_ids: set[str],
-    raw_frac: float,
-    ss_frac: float | None,
     blade_incoming: float | None,
-) -> tuple[float | None, bool]:
-    """ponytail: Aegislash-only Stance Change sequence; no general forme-flip framework.
-
-    Caller already gated lived-Shield and non-OHKO payoff.
-    Returns (remain or None if no credit, combined_ko).
-    """
-    if "shadowsneak" in kit_ids and ss_frac is not None and raw_frac + ss_frac >= 1.0:
-        return 1.0, True
+) -> float | None:
+    """King's Shield Stance Change reset — Aegislash-only; caller gates forme."""
     if (
         "kingsshield" in kit_ids
         and blade_incoming is not None
         and blade_incoming < 1.0
     ):
-        return 1.0, False
-    return None, False
+        return 1.0
+    return None
 
 
 def _damage_score(
@@ -2781,12 +2802,9 @@ def _damage_score(
             boosts=boosts,
             calculate_batch=calculate_batch,
         )
-    ss_fracs: dict[str, float] = {}
+    finisher_fracs: dict[str, float] = {}
     blade_mask: dict[str, float] = {}
     kit_ids: set[str] = set()
-    use_sequence = (
-        kit_moves is not None and to_id(attacker_name) in _AEGISLASH_FORMES
-    )
     debuff_surv: str | None = None
     drops = _self_defense_drops(primary_mid)
     # ponytail: if a move ever has both connect-recoil and self Def/SpD drop,
@@ -2811,40 +2829,46 @@ def _damage_score(
             if frac is None or frac < 1.0:
                 k_surv += 1
         debuff_surv = f"{k_surv}/{n_panel}"
-    if use_sequence and snap is not None:
+    if kit_moves is not None and snap is not None:
         kit_ids = {to_id(m) for m in kit_moves if m}
-        if "shadowsneak" in kit_ids:
-            ss_disp = _move_display(snap, "shadowsneak")
-            calc_ab = _calc_ab_for("shadowsneak")
-            ss_atk: dict[str, Any] = {
+        finishers = kit_ids & _SETUP_PRIORITY_FINISHER_MOVES
+        if finishers:
+            # ponytail: ≤1 eligible finisher per kit today; sorted[0] if multi.
+            fin_mid = sorted(finishers)[0]
+            fin_disp = _move_display(snap, fin_mid)
+            calc_ab = _calc_ab_for(fin_mid)
+            fin_atk: dict[str, Any] = {
                 "species": attacker_name,
                 "evs": dict(base_evs),
                 "boosts": dict(boosts),
-                "moves": [ss_disp],
+                "moves": [fin_disp],
             }
             if item:
-                ss_atk["item"] = item
+                fin_atk["item"] = item
             if calc_ab:
-                ss_atk["ability"] = calc_ab
-            ss_reqs = [
+                fin_atk["ability"] = calc_ab
+            fin_reqs = [
                 {
-                    "attacker": ss_atk,
+                    "attacker": fin_atk,
                     "defender": _calc_pokemon_spec(defn),
-                    "move": ss_disp,
+                    "move": fin_disp,
                     "field": {"gameType": "Doubles"},
                 }
                 for defn in panel
             ]
             try:
-                ss_results = calculate_batch(ss_reqs)
+                fin_results = calculate_batch(fin_reqs)
             except Exception:  # noqa: BLE001 — sequence credit fails open
-                ss_results = []
-            if len(ss_results) == len(panel):
-                for defn, r in zip(panel, ss_results, strict=True):
+                fin_results = []
+            if len(fin_results) == len(panel):
+                for defn, r in zip(panel, fin_results, strict=True):
                     frac = _hit_frac_from_result(r)
                     if frac is not None:
-                        ss_fracs[str(defn.get("species") or "")] = frac
-        if "kingsshield" in kit_ids:
+                        finisher_fracs[str(defn.get("species") or "")] = frac
+        if (
+            to_id(attacker_name) in _AEGISLASH_FORMES
+            and "kingsshield" in kit_ids
+        ):
             blade_mask = _incoming_ohko_by_defender(
                 snap=snap,
                 candidate_name=attacker_name,
@@ -2918,13 +2942,20 @@ def _damage_score(
                 )
                 seq_remain: float | None = None
                 combined = False
-                if use_sequence and lived_shield and raw_frac < 1.0:
-                    seq_remain, combined = _aegislash_sequence_remain(
-                        kit_ids=kit_ids,
+                if kit_moves is not None and lived_shield and raw_frac < 1.0:
+                    seq_remain, combined = _priority_finisher_combined_ko(
+                        finisher_frac=finisher_fracs.get(dname),
                         raw_frac=raw_frac,
-                        ss_frac=ss_fracs.get(dname),
-                        blade_incoming=blade_mask.get(dname),
                     )
+                    if (
+                        seq_remain is None
+                        and to_id(attacker_name) in _AEGISLASH_FORMES
+                    ):
+                        seq_remain = _aegislash_ks_reset(
+                            kit_ids=kit_ids,
+                            blade_incoming=blade_mask.get(dname),
+                        )
+                        combined = False
                 kbin = "ohko" if combined else _ko_frac_bin(raw_frac)
                 if kbin == "ohko":
                     sweep_ohko += 1
@@ -2951,9 +2982,14 @@ def _damage_score(
                     if disguise:
                         remains.append(max(0.0, 1.0 - recoil_frac))
                     elif lived_shield:
-                        if use_sequence and raw_frac < 1.0:
-                            if seq_remain is not None:
-                                remains.append(max(0.0, seq_remain - recoil_frac))
+                        if seq_remain is not None:
+                            remains.append(max(0.0, seq_remain - recoil_frac))
+                        elif (
+                            to_id(attacker_name) in _AEGISLASH_FORMES
+                            and kit_moves is not None
+                            and raw_frac < 1.0
+                        ):
+                            pass  # Aegislash sequence failed — no remain (legacy)
                         else:
                             remains.append(
                                 max(0.0, 1.0 - float(incoming_frac) - recoil_frac)
@@ -3906,6 +3942,7 @@ def _construct_def_payoff_setup(
             fallback_mids=fallbacks,
             snap=snap,
             attacker_sid=sid,
+            kit_moves=kit_moves,
         )
         sweep: dict[str, Any] = {}
         boosted, err1 = _damage_score(
@@ -3924,6 +3961,7 @@ def _construct_def_payoff_setup(
             attacker_sid=sid,
             used_out=used_boosted,
             sweep_out=sweep,
+            kit_moves=kit_moves,
         )
         delta = boosted - unboosted
         calc_err = ";".join(x for x in (err0, err1) if x)
