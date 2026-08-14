@@ -9,9 +9,11 @@ from recommender.ids import to_id
 from recommender.legality import load_snapshot
 from recommender.role_compendium import (
     SWORDS_DANCE_ATTACKER_CRITERIA,
+    RejectedCandidate,
     _SETUP_ACCEPTABLE_FLOOR_MULT,
     _SETUP_BOTH_BRANCH_SCORE_DIV,
     _SETUP_DAMAGE_FRAC_CAP,
+    _partition_by_admission_floor,
     _setup_adjusted_score,
     _setup_branch_a,
     _setup_branch_a_via_priority,
@@ -100,6 +102,14 @@ def _panel_result(
     }
 
 
+def _sd_criteria_for_mock() -> dict[str, Any]:
+    """Mock calcs score far below the locked live admission floor — strip it."""
+    crit = dict(SWORDS_DANCE_ATTACKER_CRITERIA)
+    crit.pop("damage_admission_floor", None)
+    crit.pop("acceptable_floor_mult", None)
+    return crit
+
+
 def _sd_draft(*, pool: list[str] | None = None, live_fetch=None):
     snap = load_snapshot()
     proven = {
@@ -128,7 +138,7 @@ def _sd_draft(*, pool: list[str] | None = None, live_fetch=None):
     default_pool = [n for n in legal_species_pool(snap) if to_id(n) in proven]
     return construct_role_category(
         "swords_dance_attacker",
-        SWORDS_DANCE_ATTACKER_CRITERIA,
+        _sd_criteria_for_mock(),
         pool if pool is not None else default_pool,
         snap=snap,
         live_fetch=live_fetch if live_fetch is not None else _usage,
@@ -197,6 +207,48 @@ def test_setup_mech_tier_degenerate_floor_stays_good():
     assert _setup_mech_tier(0.1, _setup_excellent_floor([])) == "Good"
 
 
+def test_setup_mech_tier_acceptable_mult_override():
+    """Category Acceptable mults widen/narrow the Good band vs default 0.70."""
+    assert _setup_mech_tier(0.87, 1.0, acceptable_mult=0.88) == "Acceptable"
+    assert _setup_mech_tier(0.87, 1.0) == "Good"
+    assert _setup_mech_tier(0.88, 1.0, acceptable_mult=0.88) == "Good"
+    assert _setup_mech_tier(0.899, 1.0, acceptable_mult=0.90) == "Acceptable"
+    assert _setup_mech_tier(0.90, 1.0, acceptable_mult=0.90) == "Good"
+
+
+def test_partition_by_admission_floor_noop_and_boundary():
+    rows = [
+        {"sid": "a", "name": "Above", "adjusted": 1.0},
+        {"sid": "b", "name": "Floor", "adjusted": 0.981},
+        {"sid": "c", "name": "Below", "adjusted": 0.980},
+        # Float noise just under a 3-decimal locked floor must still include.
+        {"sid": "d", "name": "FloatFloor", "adjusted": 0.981 - 1e-12},
+    ]
+    rejected: list[RejectedCandidate] = []
+    assert _partition_by_admission_floor(
+        rows, score_key="adjusted", admission_floor=None, prior={}, rejected=rejected
+    ) == rows
+    assert rejected == []
+
+    kept = _partition_by_admission_floor(
+        rows,
+        score_key="adjusted",
+        admission_floor=0.981,
+        prior={"c": "Acceptable"},
+        rejected=rejected,
+    )
+    assert [r["sid"] for r in kept] == ["a", "b", "d"]
+    assert len(rejected) == 1
+    assert rejected[0].species_id == "c"
+    assert "admission floor 0.981" in rejected[0].reason
+    assert rejected[0].change_reason is not None
+
+
+def test_sd_criteria_locks_admission_and_acceptable_mult():
+    assert SWORDS_DANCE_ATTACKER_CRITERIA["damage_admission_floor"] == 0.981
+    assert SWORDS_DANCE_ATTACKER_CRITERIA["acceptable_floor_mult"] == 0.88
+
+
 def test_acceptable_basis_distinct_from_good():
     """tied_cluster compares degree tuples across tiers, so the basis must differ."""
     draft = _sd_draft()
@@ -254,7 +306,7 @@ def test_cbd_inflated_vs_mega_rejects_without_showdown_base_delivery():
     snap = load_snapshot()
     draft = construct_role_category(
         "swords_dance_attacker",
-        SWORDS_DANCE_ATTACKER_CRITERIA,
+        _sd_criteria_for_mock(),
         [n for n in legal_species_pool(snap) if to_id(n) in {"skarmory", "skarmorymega"}],
         snap=snap,
         live_fetch=lambda n: (
@@ -338,7 +390,7 @@ def test_discounted_base_in_acceptable_band_is_rejected():
 
     draft = construct_role_category(
         "swords_dance_attacker",
-        SWORDS_DANCE_ATTACKER_CRITERIA,
+        _sd_criteria_for_mock(),
         [n for n in legal_species_pool(snap) if to_id(n) in {"scizor", "scizormega"}],
         snap=snap,
         live_fetch=lambda n: (
@@ -388,7 +440,7 @@ def test_setup_does_not_discount_when_mega_lacks_setup_move():
     snap = load_snapshot()
     draft = construct_role_category(
         "swords_dance_attacker",
-        SWORDS_DANCE_ATTACKER_CRITERIA,
+        _sd_criteria_for_mock(),
         legal_species_pool(snap),
         snap=snap,
         live_fetch=lambda n: (
@@ -998,7 +1050,7 @@ def test_critique_approves():
 def test_rebuild_tmp(tmp_path: Path):
     r = rebuild_role_category(
         "swords_dance_attacker",
-        SWORDS_DANCE_ATTACKER_CRITERIA,
+        _sd_criteria_for_mock(),
         roles_dir=tmp_path,
         live_fetch=lambda n: {
             "name": n,
@@ -1376,7 +1428,7 @@ def test_sd_construct_structured_payoff_mawile_shaped(monkeypatch):
 
     draft = construct_role_category(
         "swords_dance_attacker",
-        SWORDS_DANCE_ATTACKER_CRITERIA,
+        _sd_criteria_for_mock(),
         ["Mawile-Mega"],
         snap=snap,
         live_fetch=usage,

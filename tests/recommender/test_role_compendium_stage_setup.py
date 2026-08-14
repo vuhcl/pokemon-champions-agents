@@ -9,6 +9,8 @@ from recommender.role_compendium import (
     BULK_UP_ATTACKER_CRITERIA,
     CALM_MIND_ATTACKER_CRITERIA,
     DRAGON_DANCE_ATTACKER_CRITERIA,
+    IRON_DEFENSE_BODY_PRESS_CRITERIA,
+    NASTY_PLOT_ATTACKER_CRITERIA,
     CandidateEval,
     _SETUP_THREAT_ENCOUNTER_GAMES,
     _SETUP_THREAT_USAGE_PCT_FLOOR,
@@ -40,6 +42,20 @@ def test_criteria_kinds():
     assert CALM_MIND_ATTACKER_CRITERIA["kind"] == "offense_bulk_setup"
     assert BULK_UP_ATTACKER_CRITERIA["kind"] == "offense_bulk_setup"
     assert DRAGON_DANCE_ATTACKER_CRITERIA["kind"] == "offense_speed_setup"
+
+
+def test_admission_keys_only_on_sd_cm_bu():
+    assert CALM_MIND_ATTACKER_CRITERIA["damage_admission_floor"] == 0.708
+    assert CALM_MIND_ATTACKER_CRITERIA["acceptable_floor_mult"] == 0.88
+    assert BULK_UP_ATTACKER_CRITERIA["damage_admission_floor"] == 0.748
+    assert BULK_UP_ATTACKER_CRITERIA["acceptable_floor_mult"] == 0.90
+    for crit in (
+        NASTY_PLOT_ATTACKER_CRITERIA,
+        DRAGON_DANCE_ATTACKER_CRITERIA,
+        IRON_DEFENSE_BODY_PRESS_CRITERIA,
+    ):
+        assert "damage_admission_floor" not in crit
+        assert "acceptable_floor_mult" not in crit
 
 
 def test_setup_threat_panel_uses_15_game_usage_floor():
