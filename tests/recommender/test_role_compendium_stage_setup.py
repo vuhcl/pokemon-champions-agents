@@ -70,6 +70,7 @@ def test_setup_threat_panel_uses_15_game_usage_floor():
     assert "Charizard-Mega-X" not in names
     assert len(panel) > 8
     assert all(d.get("usage_moves") or d.get("moves") for d in panel)
+    assert all(d.get("partner") and d["partner"].get("species") for d in panel)
     sable = next(d for d in panel if d["species"] == "Sableye")
     assert any(to_id(m) == "foulplay" for m in sable.get("usage_moves") or [])
     assert to_id(sable.get("item") or "") == "lightclay"

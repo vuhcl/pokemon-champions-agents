@@ -112,6 +112,50 @@ _SETUP_THREAT_ENCOUNTER_GAMES = 15
 _SETUP_THREAT_USAGE_PCT_FLOOR = 100.0 * (
     1.0 - 0.5 ** (1.0 / _SETUP_THREAT_ENCOUNTER_GAMES)
 )
+# Pikalytics tournament team-usage pairs (Reg M-B). Not merged with Pokemon-Zone.
+_PIKALYTICS_PAIRS_PATH = (
+    ROOT / "data" / "team-composition" / "champions-reg-mb.pikalytics-team-usage.v1.json"
+)
+# Damaging moves whose Champions calc target is allAdjacent / allAdjacentFoes.
+# Expanding Force omitted: spread only under Psychic Terrain (not modeled here).
+# Source: @smogon/calc Generations.get(0) move targets (item 7 discovery).
+_SPREAD_DAMAGE_MOVE_IDS = frozenset(
+    {
+        "aircutter",
+        "blizzard",
+        "boomburst",
+        "breakingswipe",
+        "brutalswing",
+        "bulldoze",
+        "burningjealousy",
+        "clangingscales",
+        "dazzlinggleam",
+        "discharge",
+        "earthquake",
+        "electroweb",
+        "eruption",
+        "explosion",
+        "heatwave",
+        "hypervoice",
+        "icywind",
+        "lavaplume",
+        "makeitrain",
+        "matchagotcha",
+        "mistyexplosion",
+        "mortalspin",
+        "muddywater",
+        "paraboliccharge",
+        "petalblizzard",
+        "rockslide",
+        "selfdestruct",
+        "sludgewave",
+        "snarl",
+        "sparklingaria",
+        "strugglebug",
+        "surf",
+        "waterspout",
+    }
+)
 # Kind labels only (turn-order already grants full credit for priority).
 _SETUP_CONDITIONAL_PRIORITY = frozenset({"suckerpunch", "thunderclap", "upperhand"})
 _SETUP_NARROW_CONDITIONAL_PRIORITY = frozenset({"feint"})
@@ -2056,6 +2100,8 @@ def _setup_threat_defenders(
 
     Selection is Showdown usage_pct. Builds are CBD-first; Showdown only when
     CBD is missing or cannot distinguish mega vs base (stone heuristic).
+    Each primary gets one top-1 Pikalytics co-occurrence partner among panel
+    members (item 7 Part A — pair-as-defender).
     """
     snap = load_snapshot()
     sd = showdown_species_map(regulation)
@@ -2094,13 +2140,103 @@ def _setup_threat_defenders(
         if usage_moves:
             defender["usage_moves"] = usage_moves
         out.append(defender)
+    return _attach_top1_partners(out)
+
+
+@lru_cache(maxsize=1)
+def _pikalytics_panel_pair_counts() -> dict[tuple[str, str], int]:
+    """Unordered panel-pair counts from Pikalytics tournament team-usage.
+
+    Keys are sorted `(pair_lookup_id_a, pair_lookup_id_b)`. Confirms
+    `meta.population == tournament` — raises if the file is the wrong population.
+    """
+    raw = json.loads(_PIKALYTICS_PAIRS_PATH.read_text())
+    meta = raw.get("meta") or {}
+    if meta.get("population") != "tournament":
+        raise ValueError(
+            f"expected Pikalytics tournament pairs, got population={meta.get('population')!r}"
+        )
+    out: dict[tuple[str, str], int] = {}
+    for row in raw.get("pairs") or []:
+        a, b = str(row.get("a") or ""), str(row.get("b") or "")
+        if not a or not b or a == b:
+            continue
+        try:
+            count = int(row.get("count") or 0)
+        except (TypeError, ValueError):
+            continue
+        key = (a, b) if a < b else (b, a)
+        out[key] = count
     return out
 
 
+def _attach_top1_partners(panel: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Attach each primary's highest-count panel partner (directed top-1)."""
+    # Lazy: team_candidates ↔ role_compendium would cycle at import time.
+    from recommender.team_candidates import pair_lookup_species_id
+
+    if len(panel) < 2:
+        return panel
+    by_sid = {to_id(str(d.get("species") or "")): d for d in panel}
+    panel_ids = set(by_sid)
+    counts = _pikalytics_panel_pair_counts()
+    out: list[dict[str, Any]] = []
+    for primary in panel:
+        psid = to_id(str(primary.get("species") or ""))
+        lookup = pair_lookup_species_id(psid)
+        best: tuple[int, str] | None = None
+        for other_sid in panel_ids:
+            if other_sid == psid:
+                continue
+            other_lookup = pair_lookup_species_id(other_sid)
+            key = (
+                (lookup, other_lookup)
+                if lookup < other_lookup
+                else (other_lookup, lookup)
+            )
+            c = counts.get(key, 0)
+            if c <= 0:
+                continue
+            if best is None or c > best[0] or (c == best[0] and other_sid < best[1]):
+                best = (c, other_sid)
+        row = dict(primary)
+        if best is not None:
+            partner = by_sid[best[1]]
+            row["partner"] = {
+                k: partner[k]
+                for k in (*_CALC_POKE_KEYS, "usage_moves", "build_source")
+                if k in partner
+            }
+            row["partner_count"] = best[0]
+        out.append(row)
+    return out
+
+
+def _pair_entry_label(defn: dict[str, Any]) -> str:
+    primary = str(defn.get("species") or "")
+    partner = defn.get("partner") or {}
+    pname = str(partner.get("species") or "")
+    if primary and pname:
+        return f"{primary}+{pname}"
+    return primary
+
+
+def _is_spread_damage_mid(mid: str) -> bool:
+    return to_id(mid) in _SPREAD_DAMAGE_MOVE_IDS
+
+
 def _threat_panel_label(panel: list[dict[str, Any]]) -> str:
-    return ", ".join(
-        f"{d.get('species')}/{d.get('item') or 'no-item'}" for d in panel
-    )
+    parts: list[str] = []
+    for d in panel:
+        primary = f"{d.get('species')}/{d.get('item') or 'no-item'}"
+        partner = d.get("partner") or {}
+        if partner.get("species"):
+            parts.append(
+                f"{primary}+{partner.get('species')}/{partner.get('item') or 'no-item'}"
+            )
+        else:
+            parts.append(primary)
+    return ", ".join(parts)
 
 
 def _calc_pokemon_spec(
@@ -2285,6 +2421,12 @@ def _setup_kit_matrix_score(
             fin_atk["item"] = item
         if calc_ab:
             fin_atk["ability"] = calc_ab
+        fin_targets: list[dict[str, Any]] = []
+        for defn in panel:
+            fin_targets.append(defn)
+            partner = defn.get("partner")
+            if isinstance(partner, dict) and partner.get("species"):
+                fin_targets.append(partner)
         fin_reqs = [
             {
                 "attacker": fin_atk,
@@ -2293,14 +2435,14 @@ def _setup_kit_matrix_score(
                 "field": {"gameType": "Doubles"},
                 **_move_override_extra(fin_mid),
             }
-            for defn in panel
+            for defn in fin_targets
         ]
         try:
             fin_results = calculate_batch(fin_reqs)
         except Exception:  # noqa: BLE001 — sequence credit fails open
             fin_results = []
-        if len(fin_results) == len(panel):
-            for defn, r in zip(panel, fin_results, strict=True):
+        if len(fin_results) == len(fin_targets):
+            for defn, r in zip(fin_targets, fin_results, strict=True):
                 frac = _hit_frac_from_result(r)
                 if frac is not None:
                     finisher_fracs[str(defn.get("species") or "")] = frac
@@ -2317,8 +2459,37 @@ def _setup_kit_matrix_score(
             defender_species="Aegislash-Blade",
         )
 
-    # mid → list aligned with panel: (kind, raw_frac, atk_spe, def_spe, result|err)
+    def _parse_hit(
+        defn: dict[str, Any], r: Any, *, label: str
+    ) -> tuple[str, float, int, int, Any]:
+        dname = str(defn.get("species") or label)
+        if not isinstance(r, dict):
+            errors.append(f"{dname}:non_dict")
+            return ("skip", 0.0, 0, 0, None)
+        if "error" in r:
+            errors.append(f"{dname}:{r.get('error')}")
+            return ("skip", 0.0, 0, 0, None)
+        dmg = (r.get("damageRange") or [0, 0])[-1]
+        stats = (r.get("raw") or {}).get("stats") or {}
+        def_stats = stats.get("defender") or {}
+        atk_stats = stats.get("attacker") or {}
+        try:
+            hp_f = float(def_stats.get("hp") or 0)
+            dmg_f = float(dmg)
+            atk_spe = int(atk_stats.get("spe") or 0)
+            def_spe = int(def_stats.get("spe") or 0)
+        except (TypeError, ValueError):
+            errors.append(f"{dname}:bad_range")
+            return ("skip", 0.0, 0, 0, None)
+        if hp_f <= 0:
+            errors.append(f"{dname}:no_hp")
+            return ("skip", 0.0, 0, 0, None)
+        raw_frac = dmg_f / hp_f if dmg_f > 0 else 0.0
+        return ("ok", raw_frac, atk_spe, def_spe, r)
+
+    # mid → list aligned with panel (primary); optional partner row when spread
     by_mid: dict[str, list[tuple[str, float, int, int, Any]]] = {}
+    by_mid_partner: dict[str, list[tuple[str, float, int, int, Any] | None]] = {}
     errors: list[str] = []
     for mid in mids:
         disp = _move_display(snap, mid)
@@ -2334,6 +2505,7 @@ def _setup_kit_matrix_score(
         if calc_ab:
             attacker["ability"] = calc_ab
         extra = _move_override_extra(mid)
+        spread = _is_spread_damage_mid(mid)
         reqs = [
             {
                 "attacker": attacker,
@@ -2344,43 +2516,92 @@ def _setup_kit_matrix_score(
             }
             for defn in panel
         ]
+        partner_idxs: list[int] = []
+        if spread:
+            for i, defn in enumerate(panel):
+                partner = defn.get("partner")
+                if isinstance(partner, dict) and partner.get("species"):
+                    partner_idxs.append(i)
+                    reqs.append(
+                        {
+                            "attacker": attacker,
+                            "defender": _calc_pokemon_spec(partner),
+                            "move": disp,
+                            "field": {"gameType": "Doubles"},
+                            **extra,
+                        }
+                    )
         try:
             results = calculate_batch(reqs)
         except Exception as e:  # noqa: BLE001
             return 0.0, f"batch_exception:{type(e).__name__}:{e}", [], {}
-        if len(results) != len(panel):
-            return 0.0, f"batch_length:{len(results)}!={len(panel)}", [], {}
+        if len(results) != len(reqs):
+            return 0.0, f"batch_length:{len(results)}!={len(reqs)}", [], {}
         row: list[tuple[str, float, int, int, Any]] = []
-        for defn, r in zip(panel, results, strict=True):
-            dname = str(defn.get("species") or "")
-            if not isinstance(r, dict):
-                errors.append(f"{dname}:non_dict")
-                row.append(("skip", 0.0, 0, 0, None))
-                continue
-            if "error" in r:
-                errors.append(f"{dname}:{r.get('error')}")
-                row.append(("skip", 0.0, 0, 0, None))
-                continue
-            dmg = (r.get("damageRange") or [0, 0])[-1]
-            stats = (r.get("raw") or {}).get("stats") or {}
-            def_stats = stats.get("defender") or {}
-            atk_stats = stats.get("attacker") or {}
-            try:
-                hp_f = float(def_stats.get("hp") or 0)
-                dmg_f = float(dmg)
-                atk_spe = int(atk_stats.get("spe") or 0)
-                def_spe = int(def_stats.get("spe") or 0)
-            except (TypeError, ValueError):
-                errors.append(f"{dname}:bad_range")
-                row.append(("skip", 0.0, 0, 0, None))
-                continue
-            if hp_f <= 0:
-                errors.append(f"{dname}:no_hp")
-                row.append(("skip", 0.0, 0, 0, None))
-                continue
-            raw_frac = dmg_f / hp_f if dmg_f > 0 else 0.0
-            row.append(("ok", raw_frac, atk_spe, def_spe, r))
+        for defn, r in zip(panel, results[: len(panel)], strict=True):
+            row.append(_parse_hit(defn, r, label=str(defn.get("species") or "")))
         by_mid[mid] = row
+        partner_row: list[tuple[str, float, int, int, Any] | None] = [
+            None
+        ] * len(panel)
+        if spread and partner_idxs:
+            for j, i in enumerate(partner_idxs):
+                partner = panel[i].get("partner") or {}
+                partner_row[i] = _parse_hit(
+                    partner,
+                    results[len(panel) + j],
+                    label=str(partner.get("species") or ""),
+                )
+        by_mid_partner[mid] = partner_row
+
+    def _member_score(
+        *,
+        mid: str,
+        defn: dict[str, Any],
+        hit: tuple[str, float, int, int, Any],
+        incoming_frac: float | None,
+        incoming: bool,
+        apply_finisher: bool,
+    ) -> tuple[str, float, float, bool, int, int, Any] | None:
+        kind, raw_frac, atk_spe, def_spe, r = hit
+        if kind != "ok":
+            return None
+        effective = int(atk_spe * (2 + spe_stages) / 2) if spe_stages else atk_spe
+        outsped = atk_spe > 0 and def_spe > 0 and effective < def_spe
+        lived_shield = (
+            outsped and incoming_frac is not None and incoming_frac < 1.0
+        )
+        combined = False
+        dname = str(defn.get("species") or "")
+        if (
+            apply_finisher
+            and fin_mid is not None
+            and mid != fin_mid
+            and lived_shield
+            and raw_frac < 1.0
+        ):
+            _seq, combined = _priority_finisher_combined_ko(
+                finisher_frac=finisher_fracs.get(dname),
+                raw_frac=raw_frac,
+            )
+        kbin = "ohko" if combined else _ko_frac_bin(raw_frac)
+        capped = min(raw_frac, _SETUP_DAMAGE_FRAC_CAP)
+        ment = (snap.get("moves") or {}).get(mid) or {}
+        capped *= effective_accuracy(
+            _move_base_accuracy(mid),
+            ability,
+            defender_ability=defn.get("ability"),
+            category=str(ment.get("category") or "") or None,
+        )
+        weight = _setup_turn_order_weight(
+            mid,
+            atk_spe,
+            def_spe,
+            ability,
+            incoming_ohko=incoming,
+            spe_stages=spe_stages,
+        )
+        return (kbin, weight * capped, raw_frac, combined, atk_spe, def_spe, r)
 
     used: list[tuple[str, str]] = []
     fracs: list[float] = []
@@ -2392,82 +2613,126 @@ def _setup_kit_matrix_score(
 
     for i, defn in enumerate(panel):
         dname = str(defn.get("species") or i)
+        pair_label = _pair_entry_label(defn)
+        partner_defn = defn.get("partner")
+        has_partner = isinstance(partner_defn, dict) and bool(
+            partner_defn.get("species")
+        )
         incoming_frac = ohko_mask.get(dname)
         incoming = incoming_frac is not None and incoming_frac >= 1.0
-        best: tuple[int, float, str, float, bool, int, int, Any] | None = None
-        # (bin_rank, weighted, mid, raw_frac, combined, atk_spe, def_spe, r)
+        # best: bin_rank, weighted, mid, raw_frac, combined_primary,
+        #        atk_spe, def_spe, r_primary, r_partner|None, pair_bin
+        best: tuple[
+            int, float, str, float, bool, int, int, Any, Any, str
+        ] | None = None
         for mid in mids:
-            kind, raw_frac, atk_spe, def_spe, r = by_mid[mid][i]
-            if kind != "ok":
+            prim = _member_score(
+                mid=mid,
+                defn=defn,
+                hit=by_mid[mid][i],
+                incoming_frac=incoming_frac,
+                incoming=incoming,
+                apply_finisher=True,
+            )
+            if prim is None:
                 continue
-            effective = (
-                int(atk_spe * (2 + spe_stages) / 2) if spe_stages else atk_spe
-            )
-            outsped = atk_spe > 0 and def_spe > 0 and effective < def_spe
-            lived_shield = (
-                outsped and incoming_frac is not None and incoming_frac < 1.0
-            )
-            combined = False
-            if (
-                fin_mid is not None
-                and mid != fin_mid
-                and lived_shield
-                and raw_frac < 1.0
-            ):
-                _seq, combined = _priority_finisher_combined_ko(
-                    finisher_frac=finisher_fracs.get(dname),
-                    raw_frac=raw_frac,
+            kbin_p, w_p, raw_p, comb_p, atk_spe, def_spe, r_p = prim
+            r_s: Any = None
+            spread = _is_spread_damage_mid(mid) and has_partner
+            if spread:
+                phit = by_mid_partner[mid][i]
+                if phit is None:
+                    continue
+                # Finisher is single-target: primary-first if it qualifies.
+                kind_p, raw_frac_p, atk_p, def_p, _rp = by_mid[mid][i]
+                effective_p = (
+                    int(atk_p * (2 + spe_stages) / 2) if spe_stages else atk_p
                 )
-            kbin = "ohko" if combined else _ko_frac_bin(raw_frac)
-            capped = min(raw_frac, _SETUP_DAMAGE_FRAC_CAP)
-            ment = (snap.get("moves") or {}).get(mid) or {}
-            capped *= effective_accuracy(
-                _move_base_accuracy(mid),
-                ability,
-                defender_ability=defn.get("ability"),
-                category=str(ment.get("category") or "") or None,
-            )
-            weight = _setup_turn_order_weight(
+                outsped_p = atk_p > 0 and def_p > 0 and effective_p < def_p
+                lived_p = (
+                    outsped_p
+                    and incoming_frac is not None
+                    and incoming_frac < 1.0
+                )
+                primary_fin_attempted = (
+                    fin_mid is not None
+                    and mid != fin_mid
+                    and lived_p
+                    and kind_p == "ok"
+                    and raw_frac_p < 1.0
+                )
+                sec = _member_score(
+                    mid=mid,
+                    defn=partner_defn,  # type: ignore[arg-type]
+                    hit=phit,
+                    incoming_frac=incoming_frac,
+                    incoming=incoming,
+                    apply_finisher=not primary_fin_attempted,
+                )
+                if sec is None:
+                    continue
+                kbin_s, w_s, raw_s, _comb_s, _as, _ds, r_s = sec
+                # Worse of the two bins (clear-the-slot).
+                pair_bin = (
+                    kbin_p
+                    if _KO_BIN_RANK[kbin_p] <= _KO_BIN_RANK[kbin_s]
+                    else kbin_s
+                )
+                weighted = 0.5 * (w_p + w_s)
+                raw_frac = 0.5 * (raw_p + raw_s)
+                combined = comb_p  # remain/KS: primary-clear only
+            else:
+                pair_bin = kbin_p
+                weighted = w_p
+                raw_frac = raw_p
+                combined = comb_p
+            key = (
+                _KO_BIN_RANK[pair_bin],
+                weighted,
                 mid,
+                raw_frac,
+                combined,
                 atk_spe,
                 def_spe,
-                ability,
-                incoming_ohko=incoming,
-                spe_stages=spe_stages,
+                r_p,
+                r_s,
+                pair_bin,
             )
-            weighted = weight * capped
-            key = (_KO_BIN_RANK[kbin], weighted, mid, raw_frac, combined, atk_spe, def_spe, r)
             if best is None or key[0] > best[0] or (
-                key[0] == best[0] and (
-                    key[1] > best[1] or (key[1] == best[1] and mid < best[2])
+                key[0] == best[0]
+                and (
+                    key[1] > best[1]
+                    or (key[1] == best[1] and mid < best[2])
                 )
             ):
-                best = (
-                    key[0],
-                    key[1],
-                    mid,
-                    raw_frac,
-                    combined,
-                    atk_spe,
-                    def_spe,
-                    r,
-                )
+                best = key
         if best is None:
             continue
-        _br, weighted, mid, raw_frac, combined, atk_spe, def_spe, r = best
-        kbin = "ohko" if combined else _ko_frac_bin(raw_frac)
+        (
+            _br,
+            weighted,
+            mid,
+            raw_frac,
+            combined,
+            atk_spe,
+            def_spe,
+            r,
+            r_partner,
+            pair_bin,
+        ) = best
         fracs.append(weighted)
-        used.append((dname, mid))
+        used.append((pair_label, mid))
         mid_counts[mid] = mid_counts.get(mid, 0) + 1
-        if kbin == "ohko":
+        if pair_bin == "ohko":
             sweep_ohko += 1
-        if kbin in {"ohko", "2hko"}:
+        if pair_bin in {"ohko", "2hko"}:
             sweep_2hko += 1
         per_defender.append(
             {
                 "species": dname,
+                "pair_label": pair_label,
                 "mid": mid,
-                "bin": kbin,
+                "bin": pair_bin,
                 "combined": combined,
                 "raw_frac": raw_frac,
                 "weighted": weighted,
@@ -2481,6 +2746,9 @@ def _setup_kit_matrix_score(
         if outsped:
             recoil_frac = _recoil_frac_from_result(r, mid)
             drain_frac = _drain_frac_from_result(r, mid)
+            if r_partner is not None and _is_spread_damage_mid(mid):
+                recoil_frac += _recoil_frac_from_result(r_partner, mid)
+                drain_frac += _drain_frac_from_result(r_partner, mid)
             if disguise:
                 remains.append(min(1.0, max(0.0, 1.0 - recoil_frac + drain_frac)))
             elif lived_shield:
@@ -3534,7 +3802,7 @@ def _construct_setup_attacker(
     panel = _setup_threat_defenders()
     notes.append(
         f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
-        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} "
+        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} pair=top1-partner "
         f"({_threat_panel_label(panel)})"
     )
     notes.append(
@@ -4020,7 +4288,7 @@ def _construct_offense_stage_setup(
     panel = _setup_threat_defenders()
     notes.append(
         f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
-        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} "
+        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} pair=top1-partner "
         f"({_threat_panel_label(panel)})"
     )
     notes.append(
@@ -4367,7 +4635,7 @@ def _construct_def_payoff_setup(
     panel = _setup_threat_defenders()
     notes.append(
         f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
-        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} "
+        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} pair=top1-partner "
         f"({_threat_panel_label(panel)})"
     )
     notes.append(
