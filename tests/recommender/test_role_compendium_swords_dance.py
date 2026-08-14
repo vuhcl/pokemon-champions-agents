@@ -461,12 +461,16 @@ def test_fakeout_banned_from_setup_payoff():
         usage_move_ids={
             "fakeout",
             "upperhand",
+            "grassyglide",
+            "firstimpression",
             "bravebird",
             "ironhead",
         },
     )
     assert "fakeout" not in hits
     assert "upperhand" not in hits
+    assert "grassyglide" not in hits
+    assert "firstimpression" not in hits
     assert "bravebird" in hits or "ironhead" in hits
 
 

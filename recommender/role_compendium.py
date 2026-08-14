@@ -125,8 +125,9 @@ SetupPriorityKind = Literal["none", "unconditional", "conditional"]
 # Lock-in: 2-3 forced turns then self-confusion — same unmodeled multi-turn cost as charge/recharge.
 _SETUP_LOCKIN_MOVES = frozenset({"outrage", "petaldance", "thrash", "ragingfury"})
 # Same-turn unreliable / delayed / recharge / lock-in — not valid setup cash-out payoffs.
-# Fake Out: switch-in-only; cannot cash out after setup.
+# Fake Out / First Impression: switch-in-only; cannot cash out after setup.
 # Upper Hand: only hits if the opponent used priority that turn — static calc can't guarantee.
+# Grassy Glide: terrain never modeled as active — fake unconditional priority.
 _SETUP_BANNED_PAYOFF = (
     frozenset(
         {
@@ -135,6 +136,8 @@ _SETUP_BANNED_PAYOFF = (
             "doomdesire",
             "fakeout",
             "upperhand",
+            "grassyglide",
+            "firstimpression",
         }
     )
     | _CHARGE_MOVES
