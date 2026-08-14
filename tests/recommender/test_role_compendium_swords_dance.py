@@ -463,6 +463,10 @@ def test_fakeout_banned_from_setup_payoff():
             "upperhand",
             "grassyglide",
             "firstimpression",
+            "lastresort",
+            "selfdestruct",
+            "explosion",
+            "uproar",
             "bravebird",
             "ironhead",
         },
@@ -471,6 +475,10 @@ def test_fakeout_banned_from_setup_payoff():
     assert "upperhand" not in hits
     assert "grassyglide" not in hits
     assert "firstimpression" not in hits
+    assert "lastresort" not in hits
+    assert "selfdestruct" not in hits
+    assert "explosion" not in hits
+    assert "uproar" not in hits
     assert "bravebird" in hits or "ironhead" in hits
 
 
@@ -564,6 +572,50 @@ def test_setup_ability_for_payoff_gates():
         _setup_ability_for_payoff("Adaptability", "earthquake", snap=snap, types={"fire"})
         is None
     )
+    assert (
+        _setup_ability_for_payoff(
+            "Fairy Aura", "lightofruin", snap=snap, types={"fairy"}
+        )
+        == "Fairy Aura"
+    )
+    assert (
+        _setup_ability_for_payoff(
+            "Fairy Aura", "moonblast", snap=snap, types={"fairy"}
+        )
+        == "Fairy Aura"
+    )
+    assert (
+        _setup_ability_for_payoff("Fairy Aura", "psychic", snap=snap, types={"fairy"})
+        is None
+    )
+    assert (
+        _setup_ability_for_payoff(
+            "Dark Aura", "darkpulse", snap=snap, types={"dark"}
+        )
+        == "Dark Aura"
+    )
+    assert (
+        _setup_ability_for_payoff("Dark Aura", "psychic", snap=snap, types={"dark"})
+        is None
+    )
+    assert (
+        _setup_ability_for_payoff(
+            "Aura Break", "moonblast", snap=snap, types={"dragon", "ground"}
+        )
+        == "Aura Break"
+    )
+    assert (
+        _setup_ability_for_payoff(
+            "Aura Break", "crunch", snap=snap, types={"dragon", "ground"}
+        )
+        == "Aura Break"
+    )
+    assert (
+        _setup_ability_for_payoff(
+            "Aura Break", "earthquake", snap=snap, types={"dragon", "ground"}
+        )
+        is None
+    )
 
 
 def test_best_payoff_skips_self_spa_drop():
@@ -630,7 +682,7 @@ def test_best_payoff_skips_lockin_moves():
     assert _setup_payoff_candidates(
         snap,
         boost_stat="spa",
-        usage_move_ids={"petaldance", "psychic"},
+        usage_move_ids={"petaldance", "uproar", "psychic"},
     ) == ["psychic"]
 
 
@@ -1016,6 +1068,34 @@ def test_ranked_payoff_ragefist_outranks_shadowclaw_at_hits_taken_bp():
         usage_only=True,
     )
     assert ranked.index("ragefist") < ranked.index("shadowclaw")
+
+
+def test_ranked_payoff_liquid_voice_makes_hyper_voice_water_stab():
+    from recommender.legality import load_snapshot
+    from recommender.role_compendium import _ranked_payoff_moves
+
+    snap = load_snapshot()
+    usage = ["blizzard", "hypervoice", "hydropump"]
+    plain = _ranked_payoff_moves(
+        snap,
+        "primarina",
+        set(),
+        boost_stat="spa",
+        usage_moves=usage,
+        usage_only=True,
+    )
+    voiced = _ranked_payoff_moves(
+        snap,
+        "primarina",
+        set(),
+        boost_stat="spa",
+        usage_moves=usage,
+        usage_only=True,
+        ability="Liquid Voice",
+    )
+    assert plain.index("blizzard") < plain.index("hypervoice")
+    assert voiced.index("hypervoice") < voiced.index("blizzard")
+    assert voiced.index("hydropump") < voiced.index("hypervoice")
 
 
 def test_damage_score_ragefist_forwards_hits_taken_bp():

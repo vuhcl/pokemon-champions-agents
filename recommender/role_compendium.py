@@ -21,7 +21,11 @@ from recommender.ability_classification import (
     taunt_denial_ability_ids,
 )
 from recommender.calc_client import calculate_batch as _default_calculate_batch
-from recommender.counters import _move_base_accuracy, _scaled_base_power
+from recommender.counters import (
+    _move_base_accuracy,
+    _scaled_base_power,
+    effective_move_type,
+)
 from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot, resolve_learnset
@@ -123,11 +127,17 @@ _CALC_POKE_KEYS = ("species", "item", "ability", "moves", "nature", "evs", "boos
 
 SetupPriorityKind = Literal["none", "unconditional", "conditional"]
 # Lock-in: 2-3 forced turns then self-confusion — same unmodeled multi-turn cost as charge/recharge.
-_SETUP_LOCKIN_MOVES = frozenset({"outrage", "petaldance", "thrash", "ragingfury"})
+# Uproar: 2-3 turn lock (no confusion); setup can fire first, but the cash-out cannot
+# be a move that then traps the attacker in Uproar — same reason Choice is stripped.
+_SETUP_LOCKIN_MOVES = frozenset(
+    {"outrage", "petaldance", "thrash", "ragingfury", "uproar"}
+)
 # Same-turn unreliable / delayed / recharge / lock-in — not valid setup cash-out payoffs.
 # Fake Out / First Impression: switch-in-only; cannot cash out after setup.
 # Upper Hand: only hits if the opponent used priority that turn — static calc can't guarantee.
 # Grassy Glide: terrain never modeled as active — fake unconditional priority.
+# Last Resort: fails unless every other move has been used — unmodeled condition.
+# Self-Destruct / Explosion: KO the user; not a repeatable setup cash-out.
 _SETUP_BANNED_PAYOFF = (
     frozenset(
         {
@@ -138,6 +148,9 @@ _SETUP_BANNED_PAYOFF = (
             "upperhand",
             "grassyglide",
             "firstimpression",
+            "lastresort",
+            "selfdestruct",
+            "explosion",
         }
     )
     | _CHARGE_MOVES
@@ -1720,6 +1733,13 @@ def _setup_ability_for_payoff(
         return ability if _makes_contact(mid) else None
     if aid == "adaptability":
         return ability if mtype in types else None
+    if aid in {"fairyaura", "darkaura"}:
+        et = effective_move_type(snap, mid, ability=ability)
+        want = "fairy" if aid == "fairyaura" else "dark"
+        return ability if et and et.lower() == want else None
+    if aid == "aurabreak":
+        et = effective_move_type(snap, mid, ability=ability)
+        return ability if et and et.lower() in {"fairy", "dark"} else None
     if aid == "ironfist":
         return ability if mid in _SETUP_PUNCH_MOVES else None
     if aid == "strongjaw":
@@ -1921,11 +1941,13 @@ def _ranked_payoff_moves(
     usage_moves: list[str] | None = None,
     usage_only: bool = False,
     boost_count: int = 0,
+    ability: str | None = None,
 ) -> list[str]:
     """Damaging payoffs matching Physical(atk)/Special(spa), STAB then BP.
 
-    usage_moves first so they win STAB+BP ties. When usage_only, only those
-    moves. Skips banned delayed/recharge/self-drop payoffs.
+    STAB uses effective_move_type (Liquid Voice, -ate, etc.). usage_moves
+    first so they win STAB+BP ties. When usage_only, only those moves.
+    Skips banned delayed/recharge/self-drop payoffs.
     Sort BP is the same corrected value damage calc uses (Rage Fist / Last
     Respects hits-taken, Stored Power / Power Trip boost count).
     """
@@ -1956,7 +1978,8 @@ def _ranked_payoff_moves(
         if bp <= 0:
             continue
         bp = _payoff_sort_bp(mid, bp, boost_count=boost_count)
-        mtype = str(ment.get("type") or "").lower()
+        et = effective_move_type(snap, mid, ability=ability, species=sid)
+        mtype = (et or str(ment.get("type") or "")).lower()
         stab = 1 if mtype in types else 0
         hits.append((stab, bp, -order, mid))
     hits.sort(key=lambda h: (h[0], h[1], h[2]), reverse=True)
@@ -1971,6 +1994,7 @@ def _best_payoff_move(
     boost_stat: str,
     usage_moves: list[str] | None = None,
     usage_only: bool = False,
+    ability: str | None = None,
 ) -> str | None:
     """Best damaging move matching Physical(atk)/Special(spa), prefer STAB then BP.
 
@@ -1985,6 +2009,7 @@ def _best_payoff_move(
         usage_moves=usage_moves,
         usage_only=usage_only,
         boost_count=0,
+        ability=ability,
     )
     return ranked[0] if ranked else None
 
@@ -2028,6 +2053,7 @@ def _select_setup_payoff(
         usage_moves=sorted(usage_move_ids),
         usage_only=not learnset,
         boost_count=boost_count,
+        ability=ability,
     )
     best: tuple[
         float, str, str, SetupPriorityKind, list[tuple[str, str]], dict[str, Any]
@@ -2104,11 +2130,16 @@ def _attacker_kit(
         ability = built.get("ability")
         return calc_name, item, ability, moves
     usage_moves = [str(m.get("name") or "") for m in (entry or {}).get("common_moves") or []]
-    payoff = _best_payoff_move(
-        snap, sid, learnset, boost_stat=boost_stat, usage_moves=usage_moves
-    )
     abs_map = _species_abilities(snap, sid)
     ability = next(iter(abs_map.values()), None) if abs_map else None
+    payoff = _best_payoff_move(
+        snap,
+        sid,
+        learnset,
+        boost_stat=boost_stat,
+        usage_moves=usage_moves,
+        ability=ability,
+    )
     item = None
     for it in (entry or {}).get("common_items") or []:
         item = _drop_setup_choice_item(str(it.get("name") or "") or None)
@@ -2238,6 +2269,7 @@ def _incoming_ohko_by_defender(
                         usage_moves=usage,
                         usage_only=True,
                         boost_count=0,
+                        ability=str(defn.get("ability") or "") or None,
                     )
                 )
             pending = [i for i, mids in enumerate(ranked_by_i) if mids]
@@ -2344,6 +2376,7 @@ def _setup_bulk_crossings(
                 usage_moves=usage,
                 usage_only=True,
                 boost_count=0,
+                ability=str(defn.get("ability") or "") or None,
             )
         )
     pending = [i for i, mids in enumerate(ranked_by_i) if mids]
@@ -3652,6 +3685,7 @@ def _construct_def_payoff_setup(
             boost_stat="atk",
             usage_moves=sorted(usage_ids),
             boost_count=stages,
+            ability=ability,
         )
         fallbacks = [m for m in ranked_payoffs if m != payoff_id]
         used_boosted: list[tuple[str, str]] = []
