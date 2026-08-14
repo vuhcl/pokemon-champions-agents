@@ -428,3 +428,122 @@ def test_present_usage_payoff_ids_stage_and_idbp_coverage(monkeypatch):
     )
     assert "shadowball" not in ranked
     assert "bodypress" in ranked or "heavyslam" in ranked
+
+
+def test_dd_setup_presence_floor_excludes_thin_keeps_cluster(monkeypatch):
+    """DD 1.0% floor: Dragonite-Mega 0.390 out; Scrafty-Mega 1.363 in."""
+    from recommender.role_compendium import (
+        _DD_SETUP_PRESENCE_FLOOR,
+        _SETUP_PRESENCE_SET_PCT_FLOOR,
+        _UsageCtx,
+        _hits_clear_set_pct_floor,
+    )
+
+    assert _DD_SETUP_PRESENCE_FLOOR == 1.0
+    assert _SETUP_PRESENCE_SET_PCT_FLOOR == 0.1
+
+    monkeypatch.setattr(
+        "recommender.role_compendium.load_usage",
+        lambda: {
+            "ingame_doubles": {"species": {}},
+            "showdown_vgc_mb": {"species": {}},
+            "species": {},
+        },
+    )
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+
+    thin = {
+        "name": "Dragonite-Mega",
+        "id": "dragonitemega",
+        "common_moves": [{"name": "Dragon Dance", "pct": 0.390}],
+    }
+    kept = {
+        "name": "Scrafty-Mega",
+        "id": "scraftymega",
+        "common_moves": [{"name": "Dragon Dance", "pct": 1.363}],
+    }
+    uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
+
+    assert not _hits_clear_set_pct_floor(
+        "Dragonite-Mega",
+        {"dragondance"},
+        floor=_DD_SETUP_PRESENCE_FLOOR,
+        uctx=uctx,
+        sd_cache={"dragonitemega": thin},
+        showdown_fetch=None,
+    )
+    # Still clears the shared 0.1% ghost floor — only the DD override rejects it.
+    assert _hits_clear_set_pct_floor(
+        "Dragonite-Mega",
+        {"dragondance"},
+        floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
+        uctx=uctx,
+        sd_cache={"dragonitemega": thin},
+        showdown_fetch=None,
+    )
+    assert _hits_clear_set_pct_floor(
+        "Scrafty-Mega",
+        {"dragondance"},
+        floor=_DD_SETUP_PRESENCE_FLOOR,
+        uctx=uctx,
+        sd_cache={"scraftymega": kept},
+        showdown_fetch=None,
+    )
+
+
+def test_cm_bu_presence_floor_unaffected_by_dd_override(monkeypatch):
+    """CM/BU at DD's excluded band still clear the shared 0.1% floor."""
+    from recommender.role_compendium import (
+        _DD_SETUP_PRESENCE_FLOOR,
+        _SETUP_PRESENCE_SET_PCT_FLOOR,
+        _UsageCtx,
+        _hits_clear_set_pct_floor,
+    )
+
+    monkeypatch.setattr(
+        "recommender.role_compendium.load_usage",
+        lambda: {
+            "ingame_doubles": {"species": {}},
+            "showdown_vgc_mb": {"species": {}},
+            "species": {},
+        },
+    )
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
+
+    # Same numeric band as DD thin cluster (0.390) — CM/BU must stay admitted at 0.1%.
+    cm_entry = {
+        "name": "Cofagrigus",
+        "id": "cofagrigus",
+        "common_moves": [{"name": "Calm Mind", "pct": 0.390}],
+    }
+    bu_entry = {
+        "name": "Passimian",
+        "id": "passimian",
+        "common_moves": [{"name": "Bulk Up", "pct": 0.390}],
+    }
+    assert _hits_clear_set_pct_floor(
+        "Cofagrigus",
+        {"calmmind"},
+        floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
+        uctx=uctx,
+        sd_cache={"cofagrigus": cm_entry},
+        showdown_fetch=None,
+    )
+    assert _hits_clear_set_pct_floor(
+        "Passimian",
+        {"bulkup"},
+        floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
+        uctx=uctx,
+        sd_cache={"passimian": bu_entry},
+        showdown_fetch=None,
+    )
+    # Same pct would fail DD's floor — proves the numeric band is real, not a no-op.
+    assert not _hits_clear_set_pct_floor(
+        "Cofagrigus",
+        {"calmmind"},
+        floor=_DD_SETUP_PRESENCE_FLOOR,
+        uctx=uctx,
+        sd_cache={"cofagrigus": cm_entry},
+        showdown_fetch=None,
+    )
