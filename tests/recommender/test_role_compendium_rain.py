@@ -62,15 +62,15 @@ def test_rain_sableye_good_mega_excluded():
     assert sableye.mechanism == "Rain Dance"
 
 
-def test_rain_rejected_prankster_eligibles_logged():
+def test_rain_prankster_rain_dance_above_floor_is_good():
+    """July chaos: Banette-Mega 4.59 / Liepard 3.62 / Meowstic 4.56 / Klefki 6.32."""
     draft = _rain_draft()
-    rejected_ids = {r.species_id for r in draft.considered_rejected}
-    # Live Reg M-B Prankster+RD without usage evidence (may grow; require known set).
-    expected = {"banettemega", "liepard", "meowstic", "klefki"}
-    assert expected <= rejected_ids, draft.considered_rejected
-    for r in draft.considered_rejected:
-        if r.species_id in expected:
-            assert "no usage evidence" in r.reason
+    good = _member_names(draft, "Good")
+    assert {"Banette-Mega", "Liepard", "Meowstic", "Klefki"} <= good, draft.tiers
+    for sid in ("banettemega", "liepard", "meowstic", "klefki"):
+        c = next(x for x in draft.candidates if x.species_id == sid)
+        assert c.criteria_notes.get("usage_proven") == "True"
+        assert c.delivery_class == "move_priority"
 
 
 def test_legal_pool_bounds_construction():

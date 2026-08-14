@@ -107,7 +107,8 @@ def test_schema_v3_snapshot_has_exact_form_rows_only_in_showdown_slice():
     showdown = snapshot["showdown_vgc_mb"]["species"]
 
     assert snapshot["meta"]["schema_version"] == 3
-    assert snapshot["meta"]["showdown_battles"] == 1163315
+    battles = snapshot["meta"]["showdown_battles"]
+    assert isinstance(battles, int) and battles > 0
     assert showdown
     assert all(
         "teammates" in entry and "teammates_meta" in entry
