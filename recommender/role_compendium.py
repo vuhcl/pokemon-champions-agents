@@ -564,7 +564,7 @@ class CandidateEval:
     tier: str | None
     delivery_class: str
     mechanism: str
-    criteria_notes: dict[str, str]
+    criteria_notes: dict[str, Any]
     claimed_traits: list[ClaimedTrait]
     reasoning: str
     change_reason: str | None = None
@@ -2468,10 +2468,11 @@ def _select_setup_payoff(
     usage_move_ids: set[str] | None = None,
     learnset: set[str] | None = None,
 ) -> tuple[str | None, float, str, SetupPriorityKind]:
-    """Per-defender best kit damaging move; modal mid is the display payoff_id.
+    """Per-defender best kit damaging move; modal mid is admit-gate only.
 
     Selection: KO bin first, then weighted-capped frac. Shared incoming-OHKO once.
-    Returns (payoff_id, raw_score, calc_error, priority_kind).
+    Returns (modal_mid, raw_score, calc_error, priority_kind). Modal mid is the
+    emptiness reject / legacy tuple shape — not a display payoff label (Stage 2).
     """
     del usage_move_ids, learnset  # Stage 1: kit-only M; usage bag no longer searched
     mids = _kit_damaging_mids(snap, kit_moves, boost_stat=boost_stat)
@@ -2572,13 +2573,29 @@ def _move_display(snap: dict[str, Any] | None, mid: str) -> str:
     return mid
 
 
+def _setup_payoff_notes(
+    used: list[tuple[str, str]],
+    mid_counts: dict[str, int],
+) -> tuple[list[str], dict[str, list[str]]]:
+    """Structured payoff display from Stage 1 kit matrix (not a single modal label)."""
+    payoff_moves = sorted(mid_counts, key=lambda m: (-mid_counts[m], m))
+    targets: dict[str, list[str]] = {}
+    for dname, mid in used:
+        targets.setdefault(mid, []).append(dname)
+    return payoff_moves, targets
+
+
 def _payoff_coverage_note(
     used: list[tuple[str, str]],
     *,
     snap: dict[str, Any],
     primary_mid: str,
 ) -> str | None:
-    """Per-defender move breakdown when a candidate used more than one payoff."""
+    """Per-defender move breakdown when a candidate used more than one payoff.
+
+    ID+BP / ``_damage_score`` fallback path only — Stage 2 setup categories use
+    ``_setup_payoff_notes`` instead.
+    """
     if not used:
         return None
     by_move: dict[str, list[str]] = {}
@@ -3544,10 +3561,9 @@ def _construct_setup_attacker(
                 )
             )
             continue
-        move_disp = str(
-            (snap.get("moves") or {}).get(payoff_id, {}).get("name") or payoff_id
+        payoff_moves, payoff_targets = _setup_payoff_notes(
+            used, sweep.get("mid_counts") or {}
         )
-        coverage = _payoff_coverage_note(used, snap=snap, primary_mid=payoff_id)
 
         both = set(branches) >= {"A", "B"}
         adjusted = _setup_adjusted_score(raw_score, both_branches=both)
@@ -3580,8 +3596,8 @@ def _construct_setup_attacker(
                 "boosts": boosts,
                 "calc_err": calc_err,
                 "calc_name": calc_name,
-                "move_disp": move_disp,
-                "coverage": coverage,
+                "payoff_moves": payoff_moves,
+                "payoff_targets": payoff_targets,
                 "branch_note": branch_note,
                 "branch_basis": branch_basis,
                 "excellent_secondary": excellent_secondary,
@@ -3615,8 +3631,8 @@ def _construct_setup_attacker(
         branch_basis = p["branch_basis"]
         excellent_secondary = p["excellent_secondary"]
         abs_map = p["abs_map"]
-        move_disp = p["move_disp"]
-        coverage = p["coverage"]
+        payoff_moves = p["payoff_moves"]
+        payoff_targets = p["payoff_targets"]
         calc_name = p["calc_name"]
         calc_err = p["calc_err"]
         boosts = p["boosts"]
@@ -3677,15 +3693,19 @@ def _construct_setup_attacker(
                 criterion="delivery",
                 purpose_claimed=f"setup via {move_id} (+{stages} {boost_stat})",
             ),
-            ClaimedTrait(
-                name=move_disp if not coverage else f"{move_disp} + coverage",
-                criterion="execution",
-                purpose_claimed=(
-                    f"calc damage fraction {adjusted:.3f} vs panel; branches={branch_note}"
-                    + (f"; {coverage}" if coverage else "")
-                ),
-            ),
         ]
+        for mid in payoff_moves:
+            n_defs = len(payoff_targets.get(mid) or [])
+            traits.append(
+                ClaimedTrait(
+                    name=_move_display(snap, mid),
+                    criterion="execution",
+                    purpose_claimed=(
+                        f"calc damage fraction {adjusted:.3f} vs panel; "
+                        f"branches={branch_note}; {n_defs} defender(s)"
+                    ),
+                )
+            )
         if p["sec_ability"]:
             aid = next(iter(sorted(set(abs_map) & _SETUP_EXCELLENT_SECONDARY_ABILITIES)))
             traits.append(
@@ -3719,8 +3739,8 @@ def _construct_setup_attacker(
                     "branches_cleared": branch_note,
                     "usage_proven": usage_proven_note,
                     "attribution": pair_attr.get(sid, "none"),
-                    "payoff_move": move_disp,
-                    **({"payoff_coverage": coverage} if coverage else {}),
+                    "payoff_moves": payoff_moves,
+                    "payoff_targets": payoff_targets,
                     "calc_species": calc_name,
                     "damage_score_raw": f"{raw_score:.3f}",
                     "damage_score": f"{adjusted:.3f}",
@@ -3990,8 +4010,9 @@ def _construct_offense_stage_setup(
             if has_pri or spe >= _SETUP_SPE_FLOOR
             else f"slow_no_priority spe={spe}"
         )
-        move_disp = str((snap.get("moves") or {}).get(payoff_id, {}).get("name") or payoff_id)
-        coverage = _payoff_coverage_note(used, snap=snap, primary_mid=payoff_id)
+        payoff_moves, payoff_targets = _setup_payoff_notes(
+            used, sweep.get("mid_counts") or {}
+        )
         if kind == "offense_speed_setup":
             xk, xn = _setup_spe_crossings(
                 candidate_name=name,
@@ -4018,8 +4039,8 @@ def _construct_offense_stage_setup(
                 "raw_score": raw_score,
                 "calc_err": calc_err,
                 "calc_name": calc_name,
-                "move_disp": move_disp,
-                "coverage": coverage,
+                "payoff_moves": payoff_moves,
+                "payoff_targets": payoff_targets,
                 "spe_note": spe_note,
                 "abs_map": abs_map,
                 "xk": xk,
@@ -4078,9 +4099,30 @@ def _construct_offense_stage_setup(
             change_reason = (
                 f"stage-setup re-eval / tier {prev!r} → {tier!r} (score={raw_score:.3f})"
             )
-        move_disp = p["move_disp"]
-        coverage = p["coverage"]
+        payoff_moves = p["payoff_moves"]
+        payoff_targets = p["payoff_targets"]
         xfield = "spe_crossings" if kind == "offense_speed_setup" else "bulk_crossings"
+        traits = [
+            ClaimedTrait(
+                name=str(
+                    (snap.get("moves") or {}).get(move_id, {}).get("name") or move_id
+                ),
+                criterion="delivery",
+                purpose_claimed=f"setup via {move_id} (+{stages} {boost_stat})",
+            ),
+        ]
+        for mid in payoff_moves:
+            n_defs = len(payoff_targets.get(mid) or [])
+            traits.append(
+                ClaimedTrait(
+                    name=_move_display(snap, mid),
+                    criterion="execution",
+                    purpose_claimed=(
+                        f"calc damage fraction {raw_score:.3f} vs panel; "
+                        f"{n_defs} defender(s); {xfield}={xnote}"
+                    ),
+                )
+            )
         members.append(
             CandidateEval(
                 species=name,
@@ -4096,8 +4138,8 @@ def _construct_offense_stage_setup(
                         f"damage_score={raw_score:.3f} floor={floor:.3f} "
                         f"{p['spe_note']} {xfield}={xnote}"
                     ),
-                    "payoff_move": move_disp,
-                    **({"payoff_coverage": coverage} if coverage else {}),
+                    "payoff_moves": payoff_moves,
+                    "payoff_targets": payoff_targets,
                     "calc_species": p["calc_name"],
                     "spe_note": p["spe_note"],
                     "damage_score": f"{raw_score:.3f}",
@@ -4105,24 +4147,7 @@ def _construct_offense_stage_setup(
                     **_sweep_note_fields(p.get("sweep")),
                     **({"calc_error": p["calc_err"]} if p["calc_err"] else {}),
                 },
-                claimed_traits=[
-                    ClaimedTrait(
-                        name=str(
-                            (snap.get("moves") or {}).get(move_id, {}).get("name") or move_id
-                        ),
-                        criterion="delivery",
-                        purpose_claimed=f"setup via {move_id} (+{stages} {boost_stat})",
-                    ),
-                    ClaimedTrait(
-                        name=move_disp if not coverage else f"{move_disp} + coverage",
-                        criterion="execution",
-                        purpose_claimed=(
-                            f"calc damage fraction {raw_score:.3f} vs panel"
-                            + (f"; {coverage}" if coverage else "")
-                            + f"; {xfield}={xnote}"
-                        ),
-                    ),
-                ],
+                claimed_traits=traits,
                 reasoning=(
                     f"{tier}: calc {raw_score:.3f} (floor {floor:.3f}); "
                     f"{p['spe_note']}; {xfield}={xnote}"

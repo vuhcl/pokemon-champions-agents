@@ -1270,6 +1270,153 @@ def test_payoff_coverage_note_lists_per_defender_fallbacks():
     assert _payoff_coverage_note(used[:2], snap=snap, primary_mid="psychic") is None
 
 
+def test_setup_payoff_notes_orders_by_mid_counts():
+    from recommender.role_compendium import _setup_payoff_notes
+
+    used = [
+        ("Garchomp", "playrough"),
+        ("Whimsicott", "playrough"),
+        ("Incineroar", "doubleedge"),
+        ("Kingambit", "playrough"),
+    ]
+    counts = {"playrough": 3, "doubleedge": 1}
+    moves, targets = _setup_payoff_notes(used, counts)
+    assert moves == ["playrough", "doubleedge"]
+    assert targets["playrough"] == ["Garchomp", "Whimsicott", "Kingambit"]
+    assert targets["doubleedge"] == ["Incineroar"]
+    # Tie on count → lexicographically smaller mid first
+    tied = _setup_payoff_notes(
+        [("A", "zeta"), ("B", "alpha")],
+        {"zeta": 1, "alpha": 1},
+    )
+    assert tied[0] == ["alpha", "zeta"]
+
+
+def test_sd_construct_structured_payoff_mawile_shaped(monkeypatch):
+    """Multi-mid kit winners → payoff_moves/targets + plural execution traits."""
+    import inspect
+
+    from recommender.role_compendium import (
+        RoleConstructionDraft,
+        _attacker_kit,
+        _construct_def_payoff_setup,
+        _construct_offense_stage_setup,
+        _move_display,
+    )
+
+    snap = load_snapshot()
+    panel = [
+        {"species": "Garchomp", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+        {"species": "Incineroar", "evs": {"hp": 32}, "usage_moves": ["Flare Blitz"]},
+        {"species": "Gengar", "evs": {"hp": 32}, "usage_moves": ["Shadow Ball"]},
+        {"species": "Rillaboom", "evs": {"hp": 32}, "usage_moves": ["Wood Hammer"]},
+    ]
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            if not atk.get("boosts"):
+                out.append(_panel_result(dmg=40, hp=200, atk_spe=200, def_spe=50))
+                continue
+            mid = to_id(req.get("move") or "")
+            sp = to_id((req.get("defender") or {}).get("species") or "")
+            if mid == "doubleedge":
+                if sp == "gengar":
+                    dmg = 0
+                elif sp == "incineroar":
+                    dmg = 90
+                else:
+                    dmg = 50
+            elif mid == "playrough":
+                if sp == "incineroar":
+                    dmg = 40
+                else:
+                    dmg = 100
+            else:
+                dmg = 10
+            out.append(_panel_result(dmg=dmg, hp=100, atk_spe=150, def_spe=80))
+        return out
+
+    monkeypatch.setattr(
+        "recommender.role_compendium._setup_threat_defenders",
+        lambda: panel,
+    )
+
+    def kit(name, sid, snap_, learnset, *, boost_stat, entry):
+        if to_id(sid) == "mawilemega":
+            return (
+                "Mawile-Mega",
+                None,
+                "Huge Power",
+                ["Play Rough", "Double-Edge", "Swords Dance", "Protect"],
+            )
+        return _attacker_kit(
+            name, sid, snap_, learnset, boost_stat=boost_stat, entry=entry
+        )
+
+    monkeypatch.setattr("recommender.role_compendium._attacker_kit", kit)
+
+    def usage(name: str) -> dict[str, Any] | None:
+        if to_id(name) != "mawilemega":
+            return None
+        return {
+            "name": name,
+            "id": "mawilemega",
+            "common_moves": [{"name": "Swords Dance", "pct": 40.0}],
+        }
+
+    draft = construct_role_category(
+        "swords_dance_attacker",
+        SWORDS_DANCE_ATTACKER_CRITERIA,
+        ["Mawile-Mega"],
+        snap=snap,
+        live_fetch=usage,
+        showdown_fetch=lambda _n: None,
+        calculate_batch=calc,
+    )
+    maw = next(c for c in draft.candidates if c.species_id == "mawilemega" and c.tier)
+    notes = maw.criteria_notes
+    assert "payoff_move" not in notes
+    assert "payoff_coverage" not in notes
+    assert isinstance(notes["payoff_moves"], list)
+    assert isinstance(notes["payoff_targets"], dict)
+    assert notes["payoff_moves"][0] == "playrough"
+    assert "playrough" in notes["payoff_targets"]
+    assert "Gengar" in notes["payoff_targets"]["playrough"]
+    assert "Garchomp" in notes["payoff_targets"]["playrough"]
+    assert "Rillaboom" in notes["payoff_targets"]["playrough"]
+    if "doubleedge" in notes["payoff_targets"]:
+        assert notes["payoff_targets"]["doubleedge"] == ["Incineroar"]
+        assert "doubleedge" in notes["payoff_moves"]
+
+    exec_names = [
+        t.name for t in maw.claimed_traits if t.criterion == "execution"
+    ]
+    expected = [_move_display(snap, mid) for mid in notes["payoff_moves"]]
+    assert exec_names == expected
+    assert len(exec_names) >= 1
+
+    tiny = RoleConstructionDraft(
+        category=draft.category,
+        sub_criteria=dict(draft.sub_criteria),
+        candidates=[maw],
+        considered_rejected=[],
+        tiers={maw.tier: [maw.species]},
+        notes=[],
+    )
+    critique = critique_role_ranking(tiny)
+    assert not any(f.principle == "function_fit" for f in critique.flags)
+
+    stage_src = inspect.getsource(_construct_offense_stage_setup)
+    assert "_setup_payoff_notes" in stage_src
+    assert "_payoff_coverage_note" not in stage_src
+    idbp_src = inspect.getsource(_construct_def_payoff_setup)
+    assert "_payoff_coverage_note" in idbp_src
+    assert "_setup_payoff_notes" not in idbp_src
+    assert "payoff_targets" not in idbp_src
+
+
 def test_damage_score_sweep_ohko_and_survive_remain():
     """Outgoing OHKO k/n + outsped-survive remain from the same batches."""
     from recommender.role_compendium import _damage_score, _sweep_note_fields
