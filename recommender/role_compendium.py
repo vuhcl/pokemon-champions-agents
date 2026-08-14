@@ -192,6 +192,20 @@ _CONNECT_RECOIL_MOVES = frozenset(
         "woodhammer",
     }
 )
+# Champions-legal drain (Showdown drain: [a,b]). Absolute HP healed is in
+# raw.recovery — gated here because Shell Bell also fills that field.
+_DRAIN_MOVES = frozenset(
+    {
+        "bitterblade",
+        "drainpunch",
+        "gigadrain",
+        "hornleech",
+        "leechlife",
+        "matchagotcha",
+        "paraboliccharge",
+        "drainingkiss",
+    }
+)
 _SETUP_PUNCH_MOVES = frozenset(
     {
         "bulletpunch",
@@ -1574,6 +1588,38 @@ def _recoil_frac_from_result(r: Any, mid: str) -> float:
     return pct / 100.0
 
 
+def _drain_frac_from_result(r: Any, mid: str) -> float:
+    """Attacker HP fraction healed by a drain move from a calc result (0 if N/A).
+
+    Uses raw.recovery.recovery (absolute HP) / raw.stats.attacker.hp. Shell Bell
+    and other item healing also populate raw.recovery — gate on _DRAIN_MOVES is
+    mandatory. Do not hardcode drain ratios; calc already applied them.
+    """
+    if to_id(mid) not in _DRAIN_MOVES or not isinstance(r, dict):
+        return 0.0
+    raw_top = r.get("raw") or {}
+    raw = raw_top.get("recovery")
+    if not isinstance(raw, dict):
+        return 0.0
+    val = raw.get("recovery")
+    try:
+        if isinstance(val, (list, tuple)) and val:
+            healed = float(val[-1])
+        else:
+            healed = float(val)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return 0.0
+    if healed <= 0:
+        return 0.0
+    try:
+        max_hp = float((raw_top.get("stats") or {}).get("attacker", {}).get("hp") or 0)
+    except (TypeError, ValueError):
+        return 0.0
+    if max_hp <= 0:
+        return 0.0
+    return healed / max_hp
+
+
 def exclusive_self_boost_move(*, boost_stat: str, stages: int = 2) -> str:
     """Champions-legal Status move whose only stat change is +stages to the user's boost_stat."""
     want = [{"to": "self", "chance": 100, "stats": {boost_stat: stages}}]
@@ -2377,8 +2423,9 @@ def _setup_kit_matrix_score(
         )
         if outsped:
             recoil_frac = _recoil_frac_from_result(r, mid)
+            drain_frac = _drain_frac_from_result(r, mid)
             if disguise:
-                remains.append(max(0.0, 1.0 - recoil_frac))
+                remains.append(min(1.0, max(0.0, 1.0 - recoil_frac + drain_frac)))
             elif lived_shield:
                 seq_remain: float | None = None
                 if combined:
@@ -2389,7 +2436,9 @@ def _setup_kit_matrix_score(
                         blade_incoming=blade_mask.get(dname),
                     )
                 if seq_remain is not None:
-                    remains.append(max(0.0, seq_remain - recoil_frac))
+                    remains.append(
+                        min(1.0, max(0.0, seq_remain - recoil_frac + drain_frac))
+                    )
                 elif (
                     to_id(calc_name) in _AEGISLASH_FORMES
                     and raw_frac < 1.0
@@ -2397,7 +2446,13 @@ def _setup_kit_matrix_score(
                     pass  # Aegislash sequence failed — no remain (legacy)
                 else:
                     remains.append(
-                        max(0.0, 1.0 - float(incoming_frac) - recoil_frac)
+                        min(
+                            1.0,
+                            max(
+                                0.0,
+                                1.0 - float(incoming_frac) - recoil_frac + drain_frac,
+                            ),
+                        )
                     )
 
     # debuff_surv: only defenders whose chosen mid has self Def/SpD drops
@@ -3329,11 +3384,19 @@ def _damage_score(
                 )
                 if outsped:
                     recoil_frac = _recoil_frac_from_result(r, mid)
+                    drain_frac = _drain_frac_from_result(r, mid)
                     if disguise:
-                        remains.append(max(0.0, 1.0 - recoil_frac))
+                        remains.append(
+                            min(1.0, max(0.0, 1.0 - recoil_frac + drain_frac))
+                        )
                     elif lived_shield:
                         if seq_remain is not None:
-                            remains.append(max(0.0, seq_remain - recoil_frac))
+                            remains.append(
+                                min(
+                                    1.0,
+                                    max(0.0, seq_remain - recoil_frac + drain_frac),
+                                )
+                            )
                         elif (
                             to_id(attacker_name) in _AEGISLASH_FORMES
                             and kit_moves is not None
@@ -3342,7 +3405,16 @@ def _damage_score(
                             pass  # Aegislash sequence failed — no remain (legacy)
                         else:
                             remains.append(
-                                max(0.0, 1.0 - float(incoming_frac) - recoil_frac)
+                                min(
+                                    1.0,
+                                    max(
+                                        0.0,
+                                        1.0
+                                        - float(incoming_frac)
+                                        - recoil_frac
+                                        + drain_frac,
+                                    ),
+                                )
                             )
                 fracs.append(weight * capped)
                 used.append((dname, mid))

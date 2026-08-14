@@ -73,10 +73,13 @@ def _panel_result(
     atk_spe: int = 100,
     def_spe: int = 80,
     recoil_pct: float | None = None,
+    recovery_hp: int | None = None,
+    atk_hp: int | None = None,
 ) -> dict[str, Any]:
+    attacker_hp = 159 if atk_hp is None else atk_hp
     raw: dict[str, Any] = {
         "stats": {
-            "attacker": {"spe": atk_spe, "hp": 159},
+            "attacker": {"spe": atk_spe, "hp": attacker_hp},
             "defender": {"hp": hp, "spe": def_spe},
         }
     }
@@ -84,6 +87,11 @@ def _panel_result(
         raw["recoil"] = {
             "recoil": [recoil_pct, recoil_pct],
             "text": f"{recoil_pct}% recoil damage",
+        }
+    if recovery_hp is not None:
+        raw["recovery"] = {
+            "recovery": [recovery_hp, recovery_hp],
+            "text": f"{recovery_hp} HP recovered",
         }
     return {
         "damageRange": [dmg, dmg],
@@ -1761,6 +1769,8 @@ def _outsped_survive_dispatch(
     incoming_dmg: int = 60,
     hp: int = 100,
     recoil_pct: float | None = None,
+    recovery_hp: int | None = None,
+    atk_hp: int | None = None,
     seen_defs: list[dict[str, Any]] | None = None,
 ):
     """Outgoing slower than foe; incoming non-OHKO so remain is credited."""
@@ -1784,6 +1794,8 @@ def _outsped_survive_dispatch(
                     atk_spe=50,
                     def_spe=150,
                     recoil_pct=recoil_pct,
+                    recovery_hp=recovery_hp,
+                    atk_hp=atk_hp,
                 )
             )
         return out
@@ -1865,6 +1877,261 @@ def test_recoil_remain_gated_vs_non_recoil_payoff():
     # Same mock recoil payload, but Close Combat is not in connect-recoil set.
     assert abs(sweep_r["remain_mean"] - 0.35) < 1e-9  # 1 - 0.4 - 0.25
     assert abs(sweep_n["remain_mean"] - 0.60) < 1e-9  # 1 - 0.4
+
+
+def test_drain_move_set_locked():
+    from recommender.role_compendium import _DRAIN_MOVES
+
+    assert _DRAIN_MOVES == frozenset(
+        {
+            "bitterblade",
+            "drainpunch",
+            "gigadrain",
+            "hornleech",
+            "leechlife",
+            "matchagotcha",
+            "paraboliccharge",
+            "drainingkiss",
+        }
+    )
+    # Past / illegal drain stays out.
+    assert "absorb" not in _DRAIN_MOVES
+    assert "megadrain" not in _DRAIN_MOVES
+    assert "dreameater" not in _DRAIN_MOVES
+    assert "oblivionwing" not in _DRAIN_MOVES
+
+
+def test_drain_frac_from_result_reads_recovery_over_maxhp():
+    from recommender.role_compendium import _drain_frac_from_result
+
+    r50 = _panel_result(dmg=60, hp=100, recovery_hp=50, atk_hp=100)
+    r75 = _panel_result(dmg=60, hp=100, recovery_hp=75, atk_hp=100)
+    assert abs(_drain_frac_from_result(r50, "bitterblade") - 0.50) < 1e-9
+    assert abs(_drain_frac_from_result(r75, "drainingkiss") - 0.75) < 1e-9
+
+
+def test_drain_frac_gated_ignores_shell_bell_on_non_drain():
+    from recommender.role_compendium import _drain_frac_from_result
+
+    # Shell Bell (or any item heal) populates raw.recovery on non-drain moves.
+    payload = _panel_result(dmg=60, hp=100, recovery_hp=13, atk_hp=154)
+    assert _drain_frac_from_result(payload, "shadowsneak") == 0.0
+    assert abs(_drain_frac_from_result(payload, "bitterblade") - (13 / 154)) < 1e-9
+
+
+def test_drain_remain_on_damage_score():
+    """ID+BP/legacy _damage_score site wires the shared drain helper."""
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Conkeldurr",
+        item=None,
+        ability=None,
+        move="Drain Punch",
+        move_id="drainpunch",
+        boost_stat="atk",
+        stages=1,
+        panel=_RECOIL_PANEL,
+        calculate_batch=_outsped_survive_dispatch(
+            payoff_dmg=60,
+            incoming_dmg=40,
+            hp=100,
+            recovery_hp=25,
+            atk_hp=100,
+        ),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+    )
+    assert err == ""
+    assert sweep["n_surv"] == 1
+    # remain = min(1, 1 - 0.40 + 0.25) = 0.85
+    assert abs(sweep["remain_mean"] - 0.85) < 1e-9
+
+
+def test_drain_remain_gated_vs_non_drain_payoff():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    dispatch = _outsped_survive_dispatch(
+        payoff_dmg=60, incoming_dmg=40, hp=100, recovery_hp=25, atk_hp=100
+    )
+    sweep_d: dict[str, Any] = {}
+    _damage_score(
+        attacker_name="Conkeldurr",
+        item=None,
+        ability=None,
+        move="Drain Punch",
+        move_id="drainpunch",
+        boost_stat="atk",
+        stages=1,
+        panel=_RECOIL_PANEL,
+        calculate_batch=dispatch,
+        snap=snap,
+        sweep_out=sweep_d,
+    )
+    sweep_n: dict[str, Any] = {}
+    _damage_score(
+        attacker_name="Conkeldurr",
+        item=None,
+        ability=None,
+        move="Close Combat",
+        move_id="closecombat",
+        boost_stat="atk",
+        stages=1,
+        panel=_RECOIL_PANEL,
+        calculate_batch=dispatch,
+        snap=snap,
+        sweep_out=sweep_n,
+    )
+    assert abs(sweep_d["remain_mean"] - 0.85) < 1e-9  # 1 - 0.4 + 0.25
+    assert abs(sweep_n["remain_mean"] - 0.60) < 1e-9  # 1 - 0.4
+
+
+def test_drain_remain_caps_at_full_hp():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    sweep: dict[str, Any] = {}
+    _damage_score(
+        attacker_name="Ceruledge",
+        item=None,
+        ability=None,
+        move="Bitter Blade",
+        move_id="bitterblade",
+        boost_stat="atk",
+        stages=2,
+        panel=_RECOIL_PANEL,
+        calculate_batch=_outsped_survive_dispatch(
+            payoff_dmg=60,
+            incoming_dmg=10,
+            hp=100,
+            recovery_hp=90,
+            atk_hp=100,
+        ),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+    )
+    # remain = min(1, 1 - 0.10 + 0.90) = 1.0
+    assert abs(sweep["remain_mean"] - 1.0) < 1e-9
+
+
+def test_drain_remain_on_kit_matrix():
+    """Stage 1 kit-matrix site credits drain the same way as _damage_score."""
+    from recommender.role_compendium import _setup_kit_matrix_score
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    panel = _RECOIL_PANEL
+    score, err, _used, sweep = _setup_kit_matrix_score(
+        snap=snap,
+        sid="ceruledge",
+        calc_name="Ceruledge",
+        item=None,
+        ability=None,
+        boost_stat="atk",
+        stages=2,
+        panel=panel,
+        calculate_batch=_outsped_survive_dispatch(
+            payoff_dmg=60,
+            incoming_dmg=40,
+            hp=100,
+            recovery_hp=25,
+            atk_hp=100,
+        ),
+        mids=["bitterblade"],
+        kit_moves=["swordsdance", "bitterblade"],
+    )
+    assert err == ""
+    assert score > 0
+    assert sweep["n_surv"] == 1
+    assert abs(sweep["remain_mean"] - 0.85) < 1e-9
+
+
+def test_drain_remain_ceruledge_scale_magnitude():
+    """Discovery-scale lifts: min ≥+0.40, mean ≥+0.15 (not a token bump)."""
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    # Two survivors: incoming fracs 0.785 and 0.232 → before remains 0.215 / 0.768.
+    # Drain fracs 0.437 and 0.164 → after 0.652 / 0.932 (discovery SD scale).
+    panel = [
+        {"species": "A", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+        {"species": "B", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+    ]
+    # Map defender → (incoming_dmg, recovery_hp) with defender hp=1000 for precision.
+    # remain_before = 1 - incoming/1000; drain = recovery/1000.
+    # A: incoming 785 → remain 0.215; recovery 437 → after 0.652 (Δ0.437)
+    # B: incoming 232 → remain 0.768; recovery 164 → after 0.932 (Δ0.164)
+    specs = {
+        "A": (785, 437),
+        "B": (232, 164),
+    }
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            defn = req.get("defender") or {}
+            if not atk.get("boosts"):
+                # Incoming OHKO batch: panel member hits candidate.
+                dname = str(atk.get("species") or "")
+                incoming_dmg, _rec = specs[dname]
+                out.append(
+                    _panel_result(
+                        dmg=incoming_dmg, hp=1000, atk_spe=150, def_spe=50
+                    )
+                )
+                continue
+            dname = str(defn.get("species") or "")
+            _inc, recovery_hp = specs[dname]
+            out.append(
+                _panel_result(
+                    dmg=600,
+                    hp=1000,
+                    atk_spe=50,
+                    def_spe=150,
+                    recovery_hp=recovery_hp,
+                    atk_hp=1000,
+                )
+            )
+        return out
+
+    before: dict[str, Any] = {}
+    after: dict[str, Any] = {}
+
+    def calc_before(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        # Strip recovery so we measure the lift.
+        results = calc(reqs)
+        for r in results:
+            (r.get("raw") or {}).pop("recovery", None)
+        return results
+
+    snap = load_snapshot()
+    common = dict(
+        attacker_name="Ceruledge",
+        item=None,
+        ability=None,
+        move="Bitter Blade",
+        move_id="bitterblade",
+        boost_stat="atk",
+        stages=2,
+        panel=panel,
+        snap=snap,
+    )
+    _damage_score(**common, calculate_batch=calc_before, sweep_out=before)
+    _damage_score(**common, calculate_batch=calc, sweep_out=after)
+
+    d_mean = after["remain_mean"] - before["remain_mean"]
+    d_min = after["remain_min"] - before["remain_min"]
+    assert d_min >= 0.40
+    assert d_mean >= 0.15
+    assert abs(before["remain_min"] - 0.215) < 1e-9
+    assert abs(before["remain_mean"] - 0.4915) < 1e-9  # (0.215+0.768)/2
+    assert abs(after["remain_min"] - 0.652) < 1e-9
+    assert abs(after["remain_mean"] - 0.792) < 1e-9  # (0.652+0.932)/2
 
 
 def test_debuff_surv_applies_negative_def_spd_stages():
