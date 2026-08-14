@@ -25,7 +25,6 @@ from recommender.slot_fill import (
     _FO_PROTECTION_ABILITIES,
     _NEED_SATISFIERS,
     _NEED_TARGET_ROLES,
-    _kit_fallback_target_role,
     _sort_annotated,
     _threat_evidence,
     _union_move_candidates,
@@ -321,8 +320,11 @@ def test_unmapped_need_only_swampert_mega_uses_kit_fallback_and_refines():
 
 
 def test_need_only_without_kit_role_still_unresolved_on_refine():
-    """Ability-table hits are not all 3a-safe. Qwilfish has Swift Swim and no TargetRoleId."""
-    assert _kit_fallback_target_role("Qwilfish") is None
+    """Ability-table hits are not all 3a-safe when kit_role cannot map to TargetRoleId.
+
+    Untruncated usage now gives Qwilfish fast_pivot; stub the fallback so this
+    still covers the unresolved-target-role refine path.
+    """
     need = _unmapped_beneficiary_need()
     evidence = CandidateEvidence(
         "mechanical_only",
@@ -339,20 +341,21 @@ def test_need_only_without_kit_role_still_unresolved_on_refine():
             NeedResolvedCandidate("Qwilfish", (need,), (evidence,)),
         ],
     )
-    rows = merge_need_resolved(ctx)
-    qwil = next(r for r in rows if r.species == "Qwilfish")
-    assert qwil.target_role_decision is None
+    with patch("recommender.slot_fill._kit_fallback_target_role", return_value=None):
+        rows = merge_need_resolved(ctx)
+        qwil = next(r for r in rows if r.species == "Qwilfish")
+        assert qwil.target_role_decision is None
 
-    state = _base_state()
-    terminal = run_slot_fill_terminal(
-        ctx,
-        state,
-        slot_index=1,
-        response=SlotFillResponse(action="choose", species="Qwilfish"),
-    )
-    provisional = build_provisional_slot(
-        terminal.state_updates["pending_slot_intent"], state
-    )
+        state = _base_state()
+        terminal = run_slot_fill_terminal(
+            ctx,
+            state,
+            slot_index=1,
+            response=SlotFillResponse(action="choose", species="Qwilfish"),
+        )
+        provisional = build_provisional_slot(
+            terminal.state_updates["pending_slot_intent"], state
+        )
     assert isinstance(provisional, UnresolvedSlotRefinement)
     assert provisional.reason == "unresolved_target_role"
 

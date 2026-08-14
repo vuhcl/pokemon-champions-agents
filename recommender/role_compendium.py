@@ -2031,6 +2031,7 @@ def _select_setup_payoff(
     exact_boosts: dict[str, int] | None = None,
     extra_spe_stages: int = 0,
     sweep_out: dict[str, Any] | None = None,
+    kit_moves: list[str] | None = None,
 ) -> tuple[str | None, float, str, SetupPriorityKind]:
     """Pick usage payoff with highest turn-order-weighted raw damage.
 
@@ -2084,6 +2085,7 @@ def _select_setup_payoff(
             boosts=exact_boosts,
             extra_spe_stages=extra_spe_stages,
             sweep_out=sweep,
+            kit_moves=kit_moves,
         )
         kind = _setup_priority_kind(mid)
         key = (raw, mid, err, kind, used, sweep)
@@ -2099,10 +2101,19 @@ def _select_setup_payoff(
     return best[1], best[0], best[2], best[3]
 
 
+_AEGISLASH_FORMES = frozenset({"aegislash", "aegislashblade", "aegislashshield"})
+
+
 def _calc_species_name(sid: str, name: str, snap: dict[str, Any]) -> str:
-    if sid in {"aegislash", "aegislashblade", "aegislashshield"}:
+    if sid in _AEGISLASH_FORMES:
         return "Aegislash-Blade"
     return name
+
+
+def _setup_defender_species(calc_name: str) -> str:
+    if to_id(calc_name) in _AEGISLASH_FORMES:
+        return "Aegislash-Shield"
+    return calc_name
 
 
 def _drop_setup_choice_item(item: str | None) -> str | None:
@@ -2204,9 +2215,11 @@ def _move_override_extra(mid: str) -> dict[str, Any]:
     return {}
 
 
-def _candidate_defender_spec(name: str, calc_name: str) -> dict[str, Any]:
+def _candidate_defender_spec(
+    name: str, calc_name: str, *, species: str | None = None
+) -> dict[str, Any]:
     built = featured_or_common_set(name) or featured_or_common_set(calc_name)
-    spec: dict[str, Any] = {"species": calc_name}
+    spec: dict[str, Any] = {"species": species or _setup_defender_species(calc_name)}
     if not built:
         return spec
     if built.get("evs"):
@@ -2240,6 +2253,7 @@ def _incoming_ohko_by_defender(
     panel: list[dict[str, Any]],
     boosts: dict[str, int],
     calculate_batch: CalculateBatch,
+    defender_species: str | None = None,
 ) -> dict[str, float]:
     """Per panel member: incoming damage/HP frac from their usage hit.
 
@@ -2248,7 +2262,9 @@ def _incoming_ohko_by_defender(
     Missing name → no connected hit. Callers treat frac ≥ 1.0 as OHKO.
     """
     def_stat = next((s for s in ("def", "spd") if int(boosts.get(s) or 0) > 0), None)
-    cand = _candidate_defender_spec(candidate_name, calc_name)
+    cand = _candidate_defender_spec(
+        candidate_name, calc_name, species=defender_species
+    )
     if def_stat:
         cand = {**cand, "boosts": {def_stat: int(boosts[def_stat])}}
     moves_map = snap.get("moves") or {}
@@ -2577,6 +2593,29 @@ def _sort_members_by_sweep(members: list[CandidateEval]) -> list[CandidateEval]:
     return sorted(members, key=key)
 
 
+def _aegislash_sequence_remain(
+    *,
+    kit_ids: set[str],
+    raw_frac: float,
+    ss_frac: float | None,
+    blade_incoming: float | None,
+) -> tuple[float | None, bool]:
+    """ponytail: Aegislash-only Stance Change sequence; no general forme-flip framework.
+
+    Caller already gated lived-Shield and non-OHKO payoff.
+    Returns (remain or None if no credit, combined_ko).
+    """
+    if "shadowsneak" in kit_ids and ss_frac is not None and raw_frac + ss_frac >= 1.0:
+        return 1.0, True
+    if (
+        "kingsshield" in kit_ids
+        and blade_incoming is not None
+        and blade_incoming < 1.0
+    ):
+        return 1.0, False
+    return None, False
+
+
 def _damage_score(
     *,
     attacker_name: str,
@@ -2597,6 +2636,7 @@ def _damage_score(
     boosts: dict[str, int] | None = None,
     extra_spe_stages: int = 0,
     sweep_out: dict[str, Any] | None = None,
+    kit_moves: list[str] | None = None,
 ) -> tuple[float, str]:
     """Mean turn-order-weighted damage/HP vs panel (soft-capped).
 
@@ -2674,6 +2714,55 @@ def _damage_score(
             boosts=boosts,
             calculate_batch=calculate_batch,
         )
+    ss_fracs: dict[str, float] = {}
+    blade_mask: dict[str, float] = {}
+    kit_ids: set[str] = set()
+    use_sequence = (
+        kit_moves is not None and to_id(attacker_name) in _AEGISLASH_FORMES
+    )
+    if use_sequence and snap is not None:
+        kit_ids = {to_id(m) for m in kit_moves if m}
+        if "shadowsneak" in kit_ids:
+            ss_disp = _move_display(snap, "shadowsneak")
+            calc_ab = _calc_ab_for("shadowsneak")
+            ss_atk: dict[str, Any] = {
+                "species": attacker_name,
+                "evs": dict(base_evs),
+                "boosts": dict(boosts),
+                "moves": [ss_disp],
+            }
+            if item:
+                ss_atk["item"] = item
+            if calc_ab:
+                ss_atk["ability"] = calc_ab
+            ss_reqs = [
+                {
+                    "attacker": ss_atk,
+                    "defender": _calc_pokemon_spec(defn),
+                    "move": ss_disp,
+                    "field": {"gameType": "Doubles"},
+                }
+                for defn in panel
+            ]
+            try:
+                ss_results = calculate_batch(ss_reqs)
+            except Exception:  # noqa: BLE001 — sequence credit fails open
+                ss_results = []
+            if len(ss_results) == len(panel):
+                for defn, r in zip(panel, ss_results, strict=True):
+                    frac = _hit_frac_from_result(r)
+                    if frac is not None:
+                        ss_fracs[str(defn.get("species") or "")] = frac
+        if "kingsshield" in kit_ids:
+            blade_mask = _incoming_ohko_by_defender(
+                snap=snap,
+                candidate_name=attacker_name,
+                calc_name=attacker_name,
+                panel=panel,
+                boosts=boosts,
+                calculate_batch=calculate_batch,
+                defender_species="Aegislash-Blade",
+            )
     sweep_ohko = 0
     sweep_2hko = 0
     n_hit = 0
@@ -2724,7 +2813,28 @@ def _damage_score(
                 _k, hp_f, dmg_f, atk_spe, def_spe = parsed  # type: ignore[misc]
                 raw_frac = dmg_f / hp_f
                 n_hit += 1
-                kbin = _ko_frac_bin(raw_frac)
+                incoming_frac = None if ohko_mask is None else ohko_mask.get(dname)
+                incoming = (
+                    None if ohko_mask is None
+                    else (incoming_frac is not None and incoming_frac >= 1.0)
+                )
+                effective = (
+                    int(atk_spe * (2 + spe_stages) / 2) if spe_stages else atk_spe
+                )
+                outsped = atk_spe > 0 and def_spe > 0 and effective < def_spe
+                lived_shield = (
+                    outsped and incoming_frac is not None and incoming_frac < 1.0
+                )
+                seq_remain: float | None = None
+                combined = False
+                if use_sequence and lived_shield and raw_frac < 1.0:
+                    seq_remain, combined = _aegislash_sequence_remain(
+                        kit_ids=kit_ids,
+                        raw_frac=raw_frac,
+                        ss_frac=ss_fracs.get(dname),
+                        blade_incoming=blade_mask.get(dname),
+                    )
+                kbin = "ohko" if combined else _ko_frac_bin(raw_frac)
                 if kbin == "ohko":
                     sweep_ohko += 1
                 if kbin in {"ohko", "2hko"}:
@@ -2737,11 +2847,6 @@ def _damage_score(
                     defender_ability=defn.get("ability"),
                     category=str(ment.get("category") or "") or None,
                 )
-                incoming_frac = None if ohko_mask is None else ohko_mask.get(dname)
-                incoming = (
-                    None if ohko_mask is None
-                    else (incoming_frac is not None and incoming_frac >= 1.0)
-                )
                 weight = _setup_turn_order_weight(
                     mid,
                     atk_spe,
@@ -2750,15 +2855,15 @@ def _damage_score(
                     incoming_ohko=incoming,
                     spe_stages=spe_stages,
                 )
-                effective = (
-                    int(atk_spe * (2 + spe_stages) / 2) if spe_stages else atk_spe
-                )
-                outsped = atk_spe > 0 and def_spe > 0 and effective < def_spe
                 if outsped:
                     if disguise:
                         remains.append(1.0)
-                    elif incoming_frac is not None and incoming_frac < 1.0:
-                        remains.append(max(0.0, 1.0 - incoming_frac))
+                    elif lived_shield:
+                        if use_sequence and raw_frac < 1.0:
+                            if seq_remain is not None:
+                                remains.append(seq_remain)
+                        else:
+                            remains.append(max(0.0, 1.0 - incoming_frac))
                 fracs.append(weight * capped)
                 used.append((dname, mid))
             elif kind == "zero":
@@ -2957,6 +3062,7 @@ def _construct_setup_attacker(
             learnset=learnset,
             used_out=used,
             sweep_out=sweep,
+            kit_moves=kit_moves,
         )
         if not payoff_id:
             rejected.append(
@@ -3375,6 +3481,7 @@ def _construct_offense_stage_setup(
             exact_boosts=want or None,
             extra_spe_stages=1 if kind == "offense_speed_setup" else 0,
             sweep_out=sweep,
+            kit_moves=kit_moves,
         )
         if not payoff_id:
             rejected.append(

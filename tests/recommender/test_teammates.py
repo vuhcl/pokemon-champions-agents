@@ -51,8 +51,8 @@ def test_exact_form_offline_queries_keep_distinct_percentages():
     assert base.source == mega.source == "showdown-offline"
     base_sinistcha = next(row for row in base.rows or () if row.species_id == "sinistcha")
     mega_sinistcha = next(row for row in mega.rows or () if row.species_id == "sinistcha")
-    assert base_sinistcha.conditional_pct == 24.155
-    assert mega_sinistcha.conditional_pct == 46.75
+    assert base_sinistcha.conditional_pct == 13.7
+    assert mega_sinistcha.conditional_pct == 37.563
     assert (base.anchor_id, mega.anchor_id) == ("swampert", "swampertmega")
 
 
