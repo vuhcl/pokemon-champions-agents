@@ -72,6 +72,8 @@ _TRICK_ROOM_SET_PCT_FLOOR = 22.5
 # Setup-attacker admission: presence only (exclude 0.00x chaos-key ghosts).
 # Calc Excellent/Good/Acceptable floors do the real filter. Support stays at 2.3.
 _SETUP_PRESENCE_SET_PCT_FLOOR = 0.1
+# DD-only: real hole (0.390, 1.363]; 0.5% and 1.0% admit the same set (Sleep pattern).
+_DD_SETUP_PRESENCE_FLOOR = 1.0
 # Fallback only when Mega has no Showdown entry: mega-stone item share on base CBD page.
 _MEGA_STONE_FALLBACK_PCT = 80.0
 
@@ -3592,6 +3594,13 @@ def _construct_offense_stage_setup(
     skip_discount = {sid for sid, note in pair_notes.items() if "discounted" in note}
     pair_attr = {sid: pair_notes[sid] for sid in skip_discount}
 
+    # DD has its own derived presence hole; CM/BU stay on the shared 0.1% ghost floor.
+    presence_floor = (
+        _DD_SETUP_PRESENCE_FLOOR
+        if move_id == "dragondance"
+        else _SETUP_PRESENCE_SET_PCT_FLOOR
+    )
+
     provisional: list[dict[str, Any]] = []
     for sid, name in sorted(eligible.items(), key=lambda kv: kv[1]):
         learnset = set(resolve_learnset(snap, sid) or [])
@@ -3601,7 +3610,7 @@ def _construct_offense_stage_setup(
         if not uctx.delivers(name, move_id) or not _hits_clear_set_pct_floor(
             name,
             {move_id},
-            floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
+            floor=presence_floor,
             uctx=uctx,
             sd_cache=sd_cache,
             showdown_fetch=showdown_fetch,
