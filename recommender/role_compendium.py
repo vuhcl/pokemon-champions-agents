@@ -2109,6 +2109,345 @@ def _best_payoff_move(
     return ranked[0] if ranked else None
 
 
+_KO_BIN_RANK = {"ohko": 2, "2hko": 1, "3plus": 0}
+
+
+def _kit_damaging_mids(
+    snap: dict[str, Any],
+    kit_moves: list[str] | None,
+    *,
+    boost_stat: str,
+) -> list[str]:
+    """Category-matched damaging moves from the kit (banned payoffs excluded)."""
+    ids = {to_id(m) for m in (kit_moves or []) if m}
+    return _setup_payoff_candidates(snap, boost_stat=boost_stat, usage_move_ids=ids)
+
+
+def _setup_kit_matrix_score(
+    *,
+    snap: dict[str, Any],
+    sid: str,
+    calc_name: str,
+    item: str | None,
+    ability: str | None,
+    boost_stat: str,
+    stages: int,
+    panel: list[dict[str, Any]],
+    calculate_batch: CalculateBatch,
+    mids: list[str],
+    kit_moves: list[str],
+    boosts: dict[str, int] | None = None,
+    extra_spe_stages: int = 0,
+) -> tuple[float, str, list[tuple[str, str]], dict[str, Any]]:
+    """Per-defender best kit mid: KO-bin then weighted frac. Shared ohko once.
+
+    Returns (mean_score, err, used[(dname, mid)], sweep_out).
+    Zero-damage cells stay in the mean (raw_frac=0). No usage/learnset fallback.
+    """
+    if not mids or not panel:
+        return 0.0, "empty_panel_or_move", [], {}
+    boosts = dict(boosts) if boosts is not None else {boost_stat: stages}
+    base_evs = {"hp": 4, "atk": 32, "def": 0, "spa": 32, "spd": 0, "spe": 32}
+    types = _species_types(snap, sid)
+    aid = to_id(ability) if ability else ""
+    spe_stages = extra_spe_stages + (1 if aid in _SETUP_SPEED_ABILITIES else 0)
+    disguise = aid in _SETUP_SURVIVE_ABILITIES
+    kit_ids = {to_id(m) for m in kit_moves if m}
+
+    ohko_mask = _incoming_ohko_by_defender(
+        snap=snap,
+        candidate_name=calc_name,
+        calc_name=calc_name,
+        panel=panel,
+        boosts=boosts,
+        calculate_batch=calculate_batch,
+    )
+    finisher_fracs: dict[str, float] = {}
+    fin_mid: str | None = None
+    finishers = kit_ids & _SETUP_PRIORITY_FINISHER_MOVES
+    if finishers:
+        # ponytail: ≤1 eligible finisher per kit today; sorted[0] if multi.
+        fin_mid = sorted(finishers)[0]
+        fin_disp = _move_display(snap, fin_mid)
+        calc_ab = _setup_ability_for_payoff(
+            ability, fin_mid, snap=snap, types=types
+        )
+        fin_atk: dict[str, Any] = {
+            "species": calc_name,
+            "evs": dict(base_evs),
+            "boosts": dict(boosts),
+            "moves": [fin_disp],
+        }
+        if item:
+            fin_atk["item"] = item
+        if calc_ab:
+            fin_atk["ability"] = calc_ab
+        fin_reqs = [
+            {
+                "attacker": fin_atk,
+                "defender": _calc_pokemon_spec(defn),
+                "move": fin_disp,
+                "field": {"gameType": "Doubles"},
+                **_move_override_extra(fin_mid),
+            }
+            for defn in panel
+        ]
+        try:
+            fin_results = calculate_batch(fin_reqs)
+        except Exception:  # noqa: BLE001 — sequence credit fails open
+            fin_results = []
+        if len(fin_results) == len(panel):
+            for defn, r in zip(panel, fin_results, strict=True):
+                frac = _hit_frac_from_result(r)
+                if frac is not None:
+                    finisher_fracs[str(defn.get("species") or "")] = frac
+
+    blade_mask: dict[str, float] = {}
+    if to_id(calc_name) in _AEGISLASH_FORMES and "kingsshield" in kit_ids:
+        blade_mask = _incoming_ohko_by_defender(
+            snap=snap,
+            candidate_name=calc_name,
+            calc_name=calc_name,
+            panel=panel,
+            boosts=boosts,
+            calculate_batch=calculate_batch,
+            defender_species="Aegislash-Blade",
+        )
+
+    # mid → list aligned with panel: (kind, raw_frac, atk_spe, def_spe, result|err)
+    by_mid: dict[str, list[tuple[str, float, int, int, Any]]] = {}
+    errors: list[str] = []
+    for mid in mids:
+        disp = _move_display(snap, mid)
+        calc_ab = _setup_ability_for_payoff(ability, mid, snap=snap, types=types)
+        attacker: dict[str, Any] = {
+            "species": calc_name,
+            "evs": dict(base_evs),
+            "boosts": dict(boosts),
+            "moves": [disp],
+        }
+        if item:
+            attacker["item"] = item
+        if calc_ab:
+            attacker["ability"] = calc_ab
+        extra = _move_override_extra(mid)
+        reqs = [
+            {
+                "attacker": attacker,
+                "defender": _calc_pokemon_spec(defn),
+                "move": disp,
+                "field": {"gameType": "Doubles"},
+                **extra,
+            }
+            for defn in panel
+        ]
+        try:
+            results = calculate_batch(reqs)
+        except Exception as e:  # noqa: BLE001
+            return 0.0, f"batch_exception:{type(e).__name__}:{e}", [], {}
+        if len(results) != len(panel):
+            return 0.0, f"batch_length:{len(results)}!={len(panel)}", [], {}
+        row: list[tuple[str, float, int, int, Any]] = []
+        for defn, r in zip(panel, results, strict=True):
+            dname = str(defn.get("species") or "")
+            if not isinstance(r, dict):
+                errors.append(f"{dname}:non_dict")
+                row.append(("skip", 0.0, 0, 0, None))
+                continue
+            if "error" in r:
+                errors.append(f"{dname}:{r.get('error')}")
+                row.append(("skip", 0.0, 0, 0, None))
+                continue
+            dmg = (r.get("damageRange") or [0, 0])[-1]
+            stats = (r.get("raw") or {}).get("stats") or {}
+            def_stats = stats.get("defender") or {}
+            atk_stats = stats.get("attacker") or {}
+            try:
+                hp_f = float(def_stats.get("hp") or 0)
+                dmg_f = float(dmg)
+                atk_spe = int(atk_stats.get("spe") or 0)
+                def_spe = int(def_stats.get("spe") or 0)
+            except (TypeError, ValueError):
+                errors.append(f"{dname}:bad_range")
+                row.append(("skip", 0.0, 0, 0, None))
+                continue
+            if hp_f <= 0:
+                errors.append(f"{dname}:no_hp")
+                row.append(("skip", 0.0, 0, 0, None))
+                continue
+            raw_frac = dmg_f / hp_f if dmg_f > 0 else 0.0
+            row.append(("ok", raw_frac, atk_spe, def_spe, r))
+        by_mid[mid] = row
+
+    used: list[tuple[str, str]] = []
+    fracs: list[float] = []
+    remains: list[float] = []
+    sweep_ohko = 0
+    sweep_2hko = 0
+    per_defender: list[dict[str, Any]] = []
+    mid_counts: dict[str, int] = {}
+
+    for i, defn in enumerate(panel):
+        dname = str(defn.get("species") or i)
+        incoming_frac = ohko_mask.get(dname)
+        incoming = incoming_frac is not None and incoming_frac >= 1.0
+        best: tuple[int, float, str, float, bool, int, int, Any] | None = None
+        # (bin_rank, weighted, mid, raw_frac, combined, atk_spe, def_spe, r)
+        for mid in mids:
+            kind, raw_frac, atk_spe, def_spe, r = by_mid[mid][i]
+            if kind != "ok":
+                continue
+            effective = (
+                int(atk_spe * (2 + spe_stages) / 2) if spe_stages else atk_spe
+            )
+            outsped = atk_spe > 0 and def_spe > 0 and effective < def_spe
+            lived_shield = (
+                outsped and incoming_frac is not None and incoming_frac < 1.0
+            )
+            combined = False
+            if (
+                fin_mid is not None
+                and mid != fin_mid
+                and lived_shield
+                and raw_frac < 1.0
+            ):
+                _seq, combined = _priority_finisher_combined_ko(
+                    finisher_frac=finisher_fracs.get(dname),
+                    raw_frac=raw_frac,
+                )
+            kbin = "ohko" if combined else _ko_frac_bin(raw_frac)
+            capped = min(raw_frac, _SETUP_DAMAGE_FRAC_CAP)
+            ment = (snap.get("moves") or {}).get(mid) or {}
+            capped *= effective_accuracy(
+                _move_base_accuracy(mid),
+                ability,
+                defender_ability=defn.get("ability"),
+                category=str(ment.get("category") or "") or None,
+            )
+            weight = _setup_turn_order_weight(
+                mid,
+                atk_spe,
+                def_spe,
+                ability,
+                incoming_ohko=incoming,
+                spe_stages=spe_stages,
+            )
+            weighted = weight * capped
+            key = (_KO_BIN_RANK[kbin], weighted, mid, raw_frac, combined, atk_spe, def_spe, r)
+            if best is None or key[0] > best[0] or (
+                key[0] == best[0] and (
+                    key[1] > best[1] or (key[1] == best[1] and mid < best[2])
+                )
+            ):
+                best = (
+                    key[0],
+                    key[1],
+                    mid,
+                    raw_frac,
+                    combined,
+                    atk_spe,
+                    def_spe,
+                    r,
+                )
+        if best is None:
+            continue
+        _br, weighted, mid, raw_frac, combined, atk_spe, def_spe, r = best
+        kbin = "ohko" if combined else _ko_frac_bin(raw_frac)
+        fracs.append(weighted)
+        used.append((dname, mid))
+        mid_counts[mid] = mid_counts.get(mid, 0) + 1
+        if kbin == "ohko":
+            sweep_ohko += 1
+        if kbin in {"ohko", "2hko"}:
+            sweep_2hko += 1
+        per_defender.append(
+            {
+                "species": dname,
+                "mid": mid,
+                "bin": kbin,
+                "combined": combined,
+                "raw_frac": raw_frac,
+                "weighted": weighted,
+            }
+        )
+        effective = int(atk_spe * (2 + spe_stages) / 2) if spe_stages else atk_spe
+        outsped = atk_spe > 0 and def_spe > 0 and effective < def_spe
+        lived_shield = (
+            outsped and incoming_frac is not None and incoming_frac < 1.0
+        )
+        if outsped:
+            recoil_frac = _recoil_frac_from_result(r, mid)
+            if disguise:
+                remains.append(max(0.0, 1.0 - recoil_frac))
+            elif lived_shield:
+                seq_remain: float | None = None
+                if combined:
+                    seq_remain = 1.0
+                elif to_id(calc_name) in _AEGISLASH_FORMES:
+                    seq_remain = _aegislash_ks_reset(
+                        kit_ids=kit_ids,
+                        blade_incoming=blade_mask.get(dname),
+                    )
+                if seq_remain is not None:
+                    remains.append(max(0.0, seq_remain - recoil_frac))
+                elif (
+                    to_id(calc_name) in _AEGISLASH_FORMES
+                    and raw_frac < 1.0
+                ):
+                    pass  # Aegislash sequence failed — no remain (legacy)
+                else:
+                    remains.append(
+                        max(0.0, 1.0 - float(incoming_frac) - recoil_frac)
+                    )
+
+    # debuff_surv: only defenders whose chosen mid has self Def/SpD drops
+    debuff_surv: str | None = None
+    drop_groups: dict[tuple[tuple[str, int], ...], list[str]] = {}
+    for row in per_defender:
+        drops = _self_defense_drops(str(row["mid"]))
+        if not drops:
+            continue
+        sig = tuple(sorted((s, int(st)) for s, st in drops.items()))
+        drop_groups.setdefault(sig, []).append(str(row["species"]))
+    if drop_groups:
+        k_surv = 0
+        n_debuff = 0
+        for sig, names in drop_groups.items():
+            standing = dict(boosts)
+            for s, st in sig:
+                standing[s] = int(standing.get(s) or 0) + int(st)
+            debuff_mask = _incoming_ohko_by_defender(
+                snap=snap,
+                candidate_name=calc_name,
+                calc_name=calc_name,
+                panel=[d for d in panel if str(d.get("species") or "") in set(names)],
+                boosts=standing,
+                calculate_batch=calculate_batch,
+            )
+            for dname in names:
+                n_debuff += 1
+                frac = debuff_mask.get(dname)
+                if frac is None or frac < 1.0:
+                    k_surv += 1
+        debuff_surv = f"{k_surv}/{n_debuff}"
+
+    sweep: dict[str, Any] = {
+        "ohko": sweep_ohko,
+        "ko2": sweep_2hko,
+        "n": len(fracs),
+        "n_surv": len(remains),
+        "remain_mean": (sum(remains) / len(remains)) if remains else None,
+        "remain_min": min(remains) if remains else None,
+        "per_defender": per_defender,
+        "mid_counts": mid_counts,
+    }
+    if debuff_surv is not None:
+        sweep["debuff_surv"] = debuff_surv
+    if not fracs:
+        return 0.0, ";".join(errors[:4]) if errors else "no_usable_fracs", used, sweep
+    return sum(fracs) / len(fracs), (";".join(errors[:4]) if errors else ""), used, sweep
+
+
 def _select_setup_payoff(
     *,
     snap: dict[str, Any],
@@ -2118,82 +2457,53 @@ def _select_setup_payoff(
     ability: str | None,
     boost_stat: str,
     stages: int,
-    usage_move_ids: set[str],
     panel: list[dict[str, Any]],
     calculate_batch: CalculateBatch,
-    learnset: set[str] | None = None,
+    kit_moves: list[str] | None = None,
     used_out: list[tuple[str, str]] | None = None,
     exact_boosts: dict[str, int] | None = None,
     extra_spe_stages: int = 0,
     sweep_out: dict[str, Any] | None = None,
-    kit_moves: list[str] | None = None,
+    # legacy kwargs ignored (callers/tests may still pass)
+    usage_move_ids: set[str] | None = None,
+    learnset: set[str] | None = None,
 ) -> tuple[str | None, float, str, SetupPriorityKind]:
-    """Pick usage payoff with highest turn-order-weighted raw damage.
+    """Per-defender best kit damaging move; modal mid is the display payoff_id.
 
-    Per-defender type-immunity fallbacks use `_ranked_payoff_moves` (usage then
-    learnset, STAB-then-BP). Returns (payoff_id, raw_score, calc_error, priority_kind).
+    Selection: KO bin first, then weighted-capped frac. Shared incoming-OHKO once.
+    Returns (payoff_id, raw_score, calc_error, priority_kind).
     """
-    candidates = _setup_payoff_candidates(
-        snap, boost_stat=boost_stat, usage_move_ids=usage_move_ids
-    )
-    if not candidates:
-        return None, 0.0, "no_usage_payoff", "none"
-    types = _species_types(snap, sid)
-    moves_map = snap.get("moves") or {}
-    boost_count = sum(exact_boosts.values()) if exact_boosts else stages
-    ranked = _ranked_payoff_moves(
-        snap,
-        sid,
-        learnset or set(),
-        boost_stat=boost_stat,
-        usage_moves=sorted(usage_move_ids),
-        usage_only=not learnset,
-        boost_count=boost_count,
+    del usage_move_ids, learnset  # Stage 1: kit-only M; usage bag no longer searched
+    mids = _kit_damaging_mids(snap, kit_moves, boost_stat=boost_stat)
+    if not mids:
+        return None, 0.0, "no_kit_payoff", "none"
+    score, err, used, sweep = _setup_kit_matrix_score(
+        snap=snap,
+        sid=sid,
+        calc_name=calc_name,
+        item=item,
         ability=ability,
+        boost_stat=boost_stat,
+        stages=stages,
+        panel=panel,
+        calculate_batch=calculate_batch,
+        mids=mids,
+        kit_moves=list(kit_moves or []),
+        boosts=exact_boosts,
+        extra_spe_stages=extra_spe_stages,
     )
-    best: tuple[
-        float, str, str, SetupPriorityKind, list[tuple[str, str]], dict[str, Any]
-    ] | None = None
-    # (raw, mid, err, priority_kind, used, sweep)
-    for mid in candidates:
-        move_disp = str(moves_map.get(mid, {}).get("name") or mid)
-        ability_for = _setup_ability_for_payoff(
-            ability, mid, snap=snap, types=types
-        )
-        used: list[tuple[str, str]] = []
-        sweep: dict[str, Any] = {}
-        raw, err = _damage_score(
-            attacker_name=calc_name,
-            item=item,
-            ability=ability,  # ungated: Disguise / Speed Boost for turn-order
-            calc_ability=ability_for,
-            move=move_disp,
-            move_id=mid,
-            boost_stat=boost_stat,
-            stages=stages,
-            panel=panel,
-            calculate_batch=calculate_batch,
-            fallback_mids=[m for m in ranked if m != mid],
-            snap=snap,
-            attacker_sid=sid,
-            used_out=used,
-            boosts=exact_boosts,
-            extra_spe_stages=extra_spe_stages,
-            sweep_out=sweep,
-            kit_moves=kit_moves,
-        )
-        kind = _setup_priority_kind(mid)
-        key = (raw, mid, err, kind, used, sweep)
-        if best is None or raw > best[0]:
-            best = key
-    assert best is not None
     if used_out is not None:
         used_out.clear()
-        used_out.extend(best[4])
+        used_out.extend(used)
     if sweep_out is not None:
         sweep_out.clear()
-        sweep_out.update(best[5])
-    return best[1], best[0], best[2], best[3]
+        sweep_out.update(sweep)
+    counts = sweep.get("mid_counts") or {}
+    if not counts:
+        return None, score, err or "no_kit_payoff", "none"
+    # Modal mid; tie → lexicographically smaller mid id
+    modal = min(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0]
+    return modal, score, err, _setup_priority_kind(modal)
 
 
 _AEGISLASH_FORMES = frozenset({"aegislash", "aegislashblade", "aegislashshield"})
@@ -3085,8 +3395,9 @@ def _construct_setup_attacker(
         "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD"
     )
     notes.append(
-        "payoff_fallback=per-defender on type immunity (usage then learnset, "
-        "STAB-then-BP); skip only if all candidate moves zero"
+        "payoff=per-defender best kit damaging move (KO-bin then weighted frac); "
+        "zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; "
+        "debuff_surv n=defenders whose chosen mid has self Def/SpD drops"
     )
 
     # Learners.
@@ -3200,14 +3511,6 @@ def _construct_setup_attacker(
         calc_name, item, ability, kit_moves = _attacker_kit(
             name, sid, snap, learnset, boost_stat=boost_stat, entry=entry
         )
-        usage_ids = _present_usage_payoff_ids(
-            name,
-            entry,
-            kit_moves,
-            uctx=uctx,
-            sd_cache=sd_cache,
-            showdown_fetch=showdown_fetch,
-        )
         used: list[tuple[str, str]] = []
         sweep: dict[str, Any] = {}
         payoff_id, raw_score, calc_err, _priority_kind = _select_setup_payoff(
@@ -3218,10 +3521,8 @@ def _construct_setup_attacker(
             ability=ability,
             boost_stat=boost_stat,
             stages=stages,
-            usage_move_ids=usage_ids,
             panel=panel,
             calculate_batch=calculate_batch,
-            learnset=learnset,
             used_out=used,
             sweep_out=sweep,
             kit_moves=kit_moves,
@@ -3232,7 +3533,7 @@ def _construct_setup_attacker(
                     species=name,
                     species_id=sid,
                     reason=(
-                        "no usage-proven same-turn damaging payoff "
+                        "no kit damaging payoff matching boosted offense "
                         "(excluded recharge/charge/Focus Punch/Future Sight/Upper Hand/self-drop)"
                     ),
                     change_reason=(
@@ -3557,8 +3858,9 @@ def _construct_offense_stage_setup(
         "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD"
     )
     notes.append(
-        "payoff_fallback=per-defender on type immunity (usage then learnset, "
-        "STAB-then-corrected-BP); skip only if all candidate moves zero"
+        "payoff=per-defender best kit damaging move (KO-bin then weighted frac); "
+        "zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; "
+        "debuff_surv n=defenders whose chosen mid has self Def/SpD drops"
     )
     if kind == "offense_speed_setup":
         notes.append(
@@ -3631,14 +3933,6 @@ def _construct_offense_stage_setup(
         calc_name, item, ability, kit_moves = _attacker_kit(
             name, sid, snap, learnset, boost_stat=boost_stat, entry=entry
         )
-        usage_ids = _present_usage_payoff_ids(
-            name,
-            entry,
-            kit_moves,
-            uctx=uctx,
-            sd_cache=sd_cache,
-            showdown_fetch=showdown_fetch,
-        )
         used: list[tuple[str, str]] = []
         sweep: dict[str, Any] = {}
         payoff_id, raw_score, calc_err, _pri = _select_setup_payoff(
@@ -3649,10 +3943,8 @@ def _construct_offense_stage_setup(
             ability=ability,
             boost_stat=boost_stat,
             stages=stages,
-            usage_move_ids=usage_ids,
             panel=panel,
             calculate_batch=calculate_batch,
-            learnset=learnset,
             used_out=used,
             exact_boosts=want or None,
             extra_spe_stages=1 if kind == "offense_speed_setup" else 0,
@@ -3664,7 +3956,7 @@ def _construct_offense_stage_setup(
                 RejectedCandidate(
                     species=name,
                     species_id=sid,
-                    reason="no usage-proven damaging conversion of the boosted offense stat",
+                    reason="no kit damaging payoff converting the boosted offense stat",
                     change_reason=(
                         f"payoff re-eval / tier {prior.get(sid)!r} → rejected"
                         if prior.get(sid)

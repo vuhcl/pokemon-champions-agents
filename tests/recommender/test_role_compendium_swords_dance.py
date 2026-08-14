@@ -724,14 +724,14 @@ def test_select_setup_payoff_priority_wins_when_incoming_ohko():
         ability="Huge Power",
         boost_stat="atk",
         stages=2,
-        usage_move_ids={"playrough", "suckerpunch", "ironhead"},
         panel=panel,
         calculate_batch=calc,
+        kit_moves=["Play Rough", "Sucker Punch", "Iron Head", "Swords Dance"],
     )
     assert mid == "suckerpunch"
     assert kind == "conditional"
     assert abs(raw - 0.5) < 1e-6
-
+    assert err == ""
 
 def test_turn_order_fictional_ko_zeroed():
     from recommender.role_compendium import _damage_score
@@ -2099,12 +2099,283 @@ def test_present_usage_empty_bag_select_returns_none(monkeypatch):
         ability=None,
         boost_stat="spa",
         stages=1,
-        usage_move_ids=filtered,
         panel=[{"species": "Garchomp", "evs": {"hp": 32}}],
         calculate_batch=lambda _reqs: [],
+        kit_moves=["Calm Mind", "Protect"],  # no special damaging kit move
     )
     assert mid is None
     assert score == 0.0
-    assert err == "no_usage_payoff"
+    assert err == "no_kit_payoff"
     assert kind == "none"
 
+
+
+def test_per_defender_kit_pick_beats_panel_average_theft():
+    """Mawile-shaped: DE would win a global mean via Ghost zeros; per-def picks PR."""
+    from recommender.role_compendium import _select_setup_payoff
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    panel = [
+        {"species": "Garchomp", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+        {"species": "Incineroar", "evs": {"hp": 32}, "usage_moves": ["Flare Blitz"]},
+        {"species": "Gengar", "evs": {"hp": 32}, "usage_moves": ["Shadow Ball"]},
+        {"species": "Rillaboom", "evs": {"hp": 32}, "usage_moves": ["Wood Hammer"]},
+    ]
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            if not atk.get("boosts"):
+                # Incoming: not OHKO, defender faster so outsped path is available
+                out.append(_panel_result(dmg=40, hp=200, atk_spe=200, def_spe=50))
+                continue
+            mid = to_id(req.get("move") or "")
+            sp = to_id((req.get("defender") or {}).get("species") or "")
+            # Attacker Spe 150 > def 80 → moves first (no remain path needed)
+            if mid == "doubleedge":
+                if sp == "gengar":
+                    dmg = 0  # Normal vs Ghost
+                elif sp == "incineroar":
+                    dmg = 90  # neutral; PR resisted
+                else:
+                    dmg = 50  # worse than PR elsewhere
+            elif mid == "playrough":
+                if sp == "incineroar":
+                    dmg = 40  # resisted
+                else:
+                    dmg = 100  # including Ghost
+            else:
+                dmg = 10
+            out.append(_panel_result(dmg=dmg, hp=100, atk_spe=150, def_spe=80))
+        return out
+
+    sweep: dict[str, Any] = {}
+    used: list[tuple[str, str]] = []
+    mid, score, err, kind = _select_setup_payoff(
+        snap=snap,
+        sid="mawilemega",
+        calc_name="Mawile-Mega",
+        item=None,
+        ability="Huge Power",
+        boost_stat="atk",
+        stages=2,
+        panel=panel,
+        calculate_batch=calc,
+        kit_moves=["Play Rough", "Double-Edge", "Swords Dance", "Protect"],
+        used_out=used,
+        sweep_out=sweep,
+    )
+    assert err == ""
+    assert mid == "playrough"
+    by = {d: m for d, m in used}
+    assert by["Gengar"] == "playrough"
+    assert by["Garchomp"] == "playrough"
+    assert by["Rillaboom"] == "playrough"
+    # Incineroar: DE higher raw → may win that one cell
+    assert by["Incineroar"] in {"doubleedge", "playrough"}
+    assert all(row["mid"] != "doubleedge" or row["species"] == "Incineroar"
+               for row in sweep["per_defender"])
+
+
+def test_combined_ko_competes_per_mid_not_global_payoff():
+    """Iron Head + Shadow Sneak combined-KO wins one defender; modal may be other mid."""
+    from recommender.role_compendium import _select_setup_payoff
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    panel = [
+        {"species": "ThreatA", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+        {"species": "ThreatB", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+    ]
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            mid = to_id(req.get("move") or "")
+            sp = to_id((req.get("defender") or {}).get("species") or "")
+            if not atk.get("boosts"):
+                # Incoming not OHKO; Spe high so candidate is outsped
+                out.append(_panel_result(dmg=40, hp=200, atk_spe=200, def_spe=50))
+                continue
+            # Candidate Spe 50 < 80 → outsped → lived_shield
+            if mid == "shadowsneak":
+                out.append(_panel_result(dmg=45, hp=100, atk_spe=50, def_spe=80))
+            elif mid == "ironhead":
+                if sp == "threata":
+                    out.append(_panel_result(dmg=55, hp=100, atk_spe=50, def_spe=80))
+                else:
+                    out.append(_panel_result(dmg=30, hp=100, atk_spe=50, def_spe=80))
+            elif mid == "sacredsword":
+                if sp == "threatb":
+                    out.append(_panel_result(dmg=80, hp=100, atk_spe=50, def_spe=80))
+                else:
+                    out.append(_panel_result(dmg=20, hp=100, atk_spe=50, def_spe=80))
+            else:
+                out.append(_panel_result(dmg=10, hp=100, atk_spe=50, def_spe=80))
+        return out
+
+    sweep: dict[str, Any] = {}
+    mid, score, err, _kind = _select_setup_payoff(
+        snap=snap,
+        sid="aegislashblade",
+        calc_name="Aegislash-Blade",
+        item=None,
+        ability="Stance Change",
+        boost_stat="atk",
+        stages=2,
+        panel=panel,
+        calculate_batch=calc,
+        kit_moves=["Iron Head", "Shadow Sneak", "Sacred Sword", "Swords Dance"],
+        sweep_out=sweep,
+    )
+    assert err == ""
+    rows = {r["species"]: r for r in sweep["per_defender"]}
+    # ThreatA: IH 0.55 + SS 0.45 combined OHKO — IH is the primary mid, not SS alone
+    assert rows["ThreatA"]["mid"] == "ironhead"
+    assert rows["ThreatA"]["combined"] is True
+    assert rows["ThreatA"]["bin"] == "ohko"
+    # ThreatB: Sacred Sword 0.80 + SS also combined-KOs; still a non-finisher primary
+    assert rows["ThreatB"]["mid"] == "sacredsword"
+    assert rows["ThreatB"]["combined"] is True
+    assert rows["ThreatB"]["mid"] != "shadowsneak"
+    # Modal is whichever of the two non-finisher primaries wins the count/tiebreak
+    assert mid in {"ironhead", "sacredsword"}
+    assert mid != "shadowsneak"
+
+
+def test_debuff_surv_denominator_is_drop_move_winners_only():
+    from recommender.role_compendium import _select_setup_payoff
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    panel = [
+        {"species": "A", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+        {"species": "B", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+        {"species": "C", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+    ]
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            mid = to_id(req.get("move") or "")
+            sp = to_id((req.get("defender") or {}).get("species") or "")
+            if not atk.get("boosts"):
+                # debuff standing pass / ohko: never OHKO
+                out.append(_panel_result(dmg=40, hp=200, atk_spe=100, def_spe=100))
+                continue
+            # CC wins only vs A; Iron Head elsewhere
+            if mid == "closecombat":
+                dmg = 100 if sp == "a" else 10
+            elif mid == "ironhead":
+                dmg = 10 if sp == "a" else 80
+            else:
+                dmg = 5
+            out.append(_panel_result(dmg=dmg, hp=100, atk_spe=150, def_spe=80))
+        return out
+
+    sweep: dict[str, Any] = {}
+    _mid, _score, err, _k = _select_setup_payoff(
+        snap=snap,
+        sid="machamp",
+        calc_name="Machamp",
+        item=None,
+        ability=None,
+        boost_stat="atk",
+        stages=2,
+        panel=panel,
+        calculate_batch=calc,
+        kit_moves=["Close Combat", "Iron Head", "Bullet Punch", "Protect"],
+        sweep_out=sweep,
+    )
+    assert err == ""
+    winners = {r["species"]: r["mid"] for r in sweep["per_defender"]}
+    assert winners["A"] == "closecombat"
+    assert winners["B"] == "ironhead"
+    assert winners["C"] == "ironhead"
+    assert sweep["debuff_surv"] == "1/1"  # only A has drop-move winner; survives
+
+
+def test_select_setup_payoff_aegislash_combined_ko_via_matrix():
+    from recommender.role_compendium import _select_setup_payoff
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    panel = [
+        {"species": "Threat", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+    ]
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            mid = to_id(req.get("move") or "")
+            if not atk.get("boosts"):
+                # Shield/Blade incoming: not OHKO
+                out.append(_panel_result(dmg=40, hp=200, atk_spe=200, def_spe=50))
+                continue
+            if mid == "shadowsneak":
+                out.append(_panel_result(dmg=50, hp=100, atk_spe=50, def_spe=80))
+            else:
+                out.append(_panel_result(dmg=60, hp=100, atk_spe=50, def_spe=80))
+        return out
+
+    sweep: dict[str, Any] = {}
+    mid, score, err, _k = _select_setup_payoff(
+        snap=snap,
+        sid="aegislashblade",
+        calc_name="Aegislash-Blade",
+        item=None,
+        ability="Stance Change",
+        boost_stat="atk",
+        stages=2,
+        panel=panel,
+        calculate_batch=calc,
+        kit_moves=["Iron Head", "Shadow Sneak", "King's Shield", "Swords Dance"],
+        sweep_out=sweep,
+    )
+    assert err == ""
+    assert sweep["ohko"] == 1
+    assert sweep["n_surv"] == 1
+    assert abs(sweep["remain_mean"] - 1.0) < 1e-9
+    row = sweep["per_defender"][0]
+    assert row["combined"] is True
+    assert row["mid"] == "ironhead"
+
+
+def test_kit_matrix_calc_count_scales_with_kit_not_usage_bag():
+    from recommender.role_compendium import _select_setup_payoff
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    panel = [
+        {"species": f"Mon{i}", "evs": {"hp": 32}, "usage_moves": ["Tackle"]}
+        for i in range(10)
+    ]
+    n_calls = {"n": 0}
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        n_calls["n"] += 1
+        return [
+            _panel_result(dmg=50, hp=100, atk_spe=150, def_spe=80) for _ in reqs
+        ]
+
+    _select_setup_payoff(
+        snap=snap,
+        sid="mawilemega",
+        calc_name="Mawile-Mega",
+        item=None,
+        ability="Huge Power",
+        boost_stat="atk",
+        stages=2,
+        panel=panel,
+        calculate_batch=calc,
+        kit_moves=["Play Rough", "Iron Head", "Swords Dance", "Protect"],
+        # If usage bag were searched, this would explode — ignored by Stage 1
+        usage_move_ids={f"move{i}" for i in range(40)},
+    )
+    # 1 ohko + 2 kit mids (+ no finisher/debuff) = 3 batch calls
+    assert n_calls["n"] == 3
