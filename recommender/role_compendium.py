@@ -1754,6 +1754,27 @@ def _usage_payoff_move_ids(
     return ids
 
 
+def _present_usage_payoff_ids(
+    name: str,
+    entry: dict[str, Any] | None,
+    kit_moves: list[str],
+    *,
+    uctx: _UsageCtx,
+    sd_cache: dict[str, dict[str, Any] | None],
+    showdown_fetch: LiveFetch | None,
+    floor: float = _SETUP_PRESENCE_SET_PCT_FLOOR,
+) -> set[str]:
+    """Usage-bag payoffs that clear the presence floor (drops ~0% leftovers)."""
+    return {
+        mid
+        for mid in _usage_payoff_move_ids(entry, kit_moves)
+        if _best_move_set_pct(
+            name, mid, uctx=uctx, sd_cache=sd_cache, showdown_fetch=showdown_fetch
+        )
+        >= floor
+    }
+
+
 def _setup_payoff_candidates(
     snap: dict[str, Any],
     *,
@@ -3177,7 +3198,14 @@ def _construct_setup_attacker(
         calc_name, item, ability, kit_moves = _attacker_kit(
             name, sid, snap, learnset, boost_stat=boost_stat, entry=entry
         )
-        usage_ids = _usage_payoff_move_ids(entry, kit_moves)
+        usage_ids = _present_usage_payoff_ids(
+            name,
+            entry,
+            kit_moves,
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+        )
         used: list[tuple[str, str]] = []
         sweep: dict[str, Any] = {}
         payoff_id, raw_score, calc_err, _priority_kind = _select_setup_payoff(
@@ -3594,7 +3622,14 @@ def _construct_offense_stage_setup(
         calc_name, item, ability, kit_moves = _attacker_kit(
             name, sid, snap, learnset, boost_stat=boost_stat, entry=entry
         )
-        usage_ids = _usage_payoff_move_ids(entry, kit_moves)
+        usage_ids = _present_usage_payoff_ids(
+            name,
+            entry,
+            kit_moves,
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+        )
         used: list[tuple[str, str]] = []
         sweep: dict[str, Any] = {}
         payoff_id, raw_score, calc_err, _pri = _select_setup_payoff(
@@ -3916,7 +3951,14 @@ def _construct_def_payoff_setup(
         calc_name, item, ability, kit_moves = _attacker_kit(
             name, sid, snap, learnset, boost_stat="atk", entry=entry
         )
-        usage_ids = _usage_payoff_move_ids(entry, kit_moves)
+        usage_ids = _present_usage_payoff_ids(
+            name,
+            entry,
+            kit_moves,
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+        )
         ranked_payoffs = _ranked_payoff_moves(
             snap,
             sid,

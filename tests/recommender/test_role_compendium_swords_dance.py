@@ -1977,3 +1977,134 @@ def test_suckerpunch_finisher_uses_shared_lived_shield_path():
     assert sweep["ohko"] == 1
     assert abs(sweep["remain_mean"] - 1.0) < 1e-9
 
+
+def _empty_usage_maps():
+    return {
+        "ingame_doubles": {"species": {}},
+        "showdown_vgc_mb": {"species": {}},
+        "species": {},
+    }
+
+
+def test_present_usage_payoff_ids_drops_sub_floor_leftovers(monkeypatch):
+    """Problem A: ~0% common_moves leftovers leave the bag; real alts stay."""
+    from recommender.role_compendium import (
+        _SETUP_PRESENCE_SET_PCT_FLOOR,
+        _UsageCtx,
+        _present_usage_payoff_ids,
+        _select_setup_payoff,
+        _usage_payoff_move_ids,
+    )
+
+    monkeypatch.setattr(
+        "recommender.role_compendium.load_usage", lambda: _empty_usage_maps()
+    )
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+
+    leftovers = [
+        ("Medicham-Mega", "psyshock", 0.0, "psychic", 2.093),
+        ("Audino", "thunderbolt", 0.058, "dazzlinggleam", 1.0),
+        ("Mawile-Mega", "doubleedge", 0.007, "playrough", 40.0),
+        ("Salazzle", "belch", 0.01, "sludgebomb", 20.0),
+        ("Beartic", "doubleedge", 0.0, "closecombat", 17.453),  # BU leftover vs SD CC
+    ]
+    for name, bad, bad_pct, good, good_pct in leftovers:
+        entry = {
+            "name": name,
+            "id": to_id(name),
+            "common_moves": [
+                {"name": bad, "pct": bad_pct},
+                {"name": good, "pct": good_pct},
+                {"name": "Protect", "pct": 10.0},
+            ],
+        }
+        sd_cache = {to_id(name): entry}
+        uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
+        raw = _usage_payoff_move_ids(entry, [])
+        assert to_id(bad) in raw and to_id(good) in raw
+        filtered = _present_usage_payoff_ids(
+            name,
+            entry,
+            [],
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=None,
+            floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
+        )
+        assert to_id(bad) not in filtered
+        assert to_id(good) in filtered
+
+
+def test_present_usage_payoff_ids_keeps_high_pct_regression(monkeypatch):
+    from recommender.role_compendium import _UsageCtx, _present_usage_payoff_ids
+
+    monkeypatch.setattr(
+        "recommender.role_compendium.load_usage", lambda: _empty_usage_maps()
+    )
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    entry = {
+        "name": "Kingambit",
+        "id": "kingambit",
+        "common_moves": [
+            {"name": "Kowtow Cleave", "pct": 57.87},
+            {"name": "Sucker Punch", "pct": 40.0},
+            {"name": "Swords Dance", "pct": 12.78},
+        ],
+    }
+    uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
+    filtered = _present_usage_payoff_ids(
+        "Kingambit",
+        entry,
+        ["Kowtow Cleave", "Iron Head"],
+        uctx=uctx,
+        sd_cache={"kingambit": entry},
+        showdown_fetch=None,
+    )
+    assert "kowtowcleave" in filtered
+    assert "suckerpunch" in filtered
+
+
+def test_present_usage_empty_bag_select_returns_none(monkeypatch):
+    from recommender.role_compendium import (
+        _UsageCtx,
+        _present_usage_payoff_ids,
+        _select_setup_payoff,
+    )
+
+    monkeypatch.setattr(
+        "recommender.role_compendium.load_usage", lambda: _empty_usage_maps()
+    )
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    entry = {
+        "name": "Audino",
+        "id": "audino",
+        "common_moves": [{"name": "Thunderbolt", "pct": 0.058}],
+    }
+    uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
+    filtered = _present_usage_payoff_ids(
+        "Audino",
+        entry,
+        [],
+        uctx=uctx,
+        sd_cache={"audino": entry},
+        showdown_fetch=None,
+    )
+    assert filtered == set()
+    snap = load_snapshot()
+    mid, score, err, kind = _select_setup_payoff(
+        snap=snap,
+        sid="audino",
+        calc_name="Audino",
+        item=None,
+        ability=None,
+        boost_stat="spa",
+        stages=1,
+        usage_move_ids=filtered,
+        panel=[{"species": "Garchomp", "evs": {"hp": 32}}],
+        calculate_batch=lambda _reqs: [],
+    )
+    assert mid is None
+    assert score == 0.0
+    assert err == "no_usage_payoff"
+    assert kind == "none"
+

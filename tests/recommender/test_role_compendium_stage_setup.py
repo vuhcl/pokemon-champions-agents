@@ -334,3 +334,97 @@ def test_bulk_up_aquajet_priority_finisher_combined_ko():
     assert sweep["ohko"] == 1
     assert sweep["n_surv"] == 1
     assert abs(sweep["remain_mean"] - 1.0) < 1e-9
+
+
+def test_present_usage_payoff_ids_stage_and_idbp_coverage(monkeypatch):
+    """CM/BU bag and ID+BP coverage fallbacks drop sub-floor leftovers."""
+    from recommender.legality import load_snapshot
+    from recommender.role_compendium import (
+        _UsageCtx,
+        _present_usage_payoff_ids,
+        _ranked_payoff_moves,
+    )
+
+    monkeypatch.setattr(
+        "recommender.role_compendium.load_usage",
+        lambda: {
+            "ingame_doubles": {"species": {}},
+            "showdown_vgc_mb": {"species": {}},
+            "species": {},
+        },
+    )
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+
+    uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
+
+    cm_entry = {
+        "name": "Medicham-Mega",
+        "id": "medichammega",
+        "common_moves": [
+            {"name": "Psyshock", "pct": 0.0},
+            {"name": "Psychic", "pct": 2.093},
+            {"name": "Calm Mind", "pct": 0.129},
+        ],
+    }
+    cm_ids = _present_usage_payoff_ids(
+        "Medicham-Mega",
+        cm_entry,
+        [],
+        uctx=uctx,
+        sd_cache={"medichammega": cm_entry},
+        showdown_fetch=None,
+    )
+    assert "psyshock" not in cm_ids
+    assert "psychic" in cm_ids
+
+    bu_entry = {
+        "name": "Beartic",
+        "id": "beartic",
+        "common_moves": [
+            {"name": "Double-Edge", "pct": 0.0},
+            {"name": "Close Combat", "pct": 17.453},
+            {"name": "Bulk Up", "pct": 0.219},
+        ],
+    }
+    bu_ids = _present_usage_payoff_ids(
+        "Beartic",
+        bu_entry,
+        [],
+        uctx=uctx,
+        sd_cache={"beartic": bu_entry},
+        showdown_fetch=None,
+    )
+    assert "doubleedge" not in bu_ids
+    assert "closecombat" in bu_ids
+
+    id_entry = {
+        "name": "Aggron-Mega",
+        "id": "aggronmega",
+        "common_moves": [
+            {"name": "Body Press", "pct": 40.0},
+            {"name": "Iron Defense", "pct": 30.0},
+            {"name": "Shadow Ball", "pct": 0.0},
+            {"name": "Heavy Slam", "pct": 15.0},
+        ],
+    }
+    cov = _present_usage_payoff_ids(
+        "Aggron-Mega",
+        id_entry,
+        ["Body Press", "Heavy Slam"],
+        uctx=uctx,
+        sd_cache={"aggronmega": id_entry},
+        showdown_fetch=None,
+    )
+    assert "shadowball" not in cov
+    assert "heavyslam" in cov
+    ranked = _ranked_payoff_moves(
+        load_snapshot(),
+        "aggronmega",
+        set(),
+        boost_stat="atk",
+        usage_moves=sorted(cov),
+        usage_only=True,
+        boost_count=2,
+    )
+    assert "shadowball" not in ranked
+    assert "bodypress" in ranked or "heavyslam" in ranked
