@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from recommender.ids import to_id
 from recommender.role_compendium import (
+    _TRICK_ROOM_SET_PCT_FLOOR,
     _USAGE_SET_PCT_FLOOR,
     _UsageCtx,
     _delivery_usage_hits,
@@ -191,3 +192,41 @@ def test_delivery_hits_keeps_whimsicott_ls_at_screens_floor(monkeypatch):
         sd_cache={},
         showdown_fetch=uctx.showdown_fetch,
     )
+
+
+def test_trick_room_floor_drops_attacker_incidental(monkeypatch):
+    monkeypatch.setattr(
+        "recommender.role_compendium.load_usage",
+        lambda: {
+            "ingame_doubles": {"species": {}},
+            "showdown_vgc_mb": {"species": {}},
+            "species": {},
+        },
+    )
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    uctx = _uctx([], [])
+    uctx.showdown_fetch = lambda _n: {  # type: ignore[method-assign]
+        "name": "Gallade-Mega",
+        "id": "gallademega",
+        "common_moves": [{"name": "Trick Room", "pct": 2.90}],
+        "common_items": [],
+        "source": "smogon-chaos",
+    }
+    hits_tr, _ = _delivery_usage_hits(
+        "Gallade-Mega",
+        {"trickroom"},
+        uctx=uctx,
+        sd_cache={},
+        showdown_fetch=uctx.showdown_fetch,
+        set_pct_floor=_TRICK_ROOM_SET_PCT_FLOOR,
+    )
+    hits_default, _ = _delivery_usage_hits(
+        "Gallade-Mega",
+        {"trickroom"},
+        uctx=uctx,
+        sd_cache={},
+        showdown_fetch=uctx.showdown_fetch,
+        set_pct_floor=_USAGE_SET_PCT_FLOOR,
+    )
+    assert hits_tr == set()
+    assert hits_default == {"trickroom"}

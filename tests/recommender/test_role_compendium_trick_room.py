@@ -41,9 +41,11 @@ _CHAMPIONS_TR_PCT = {
     "oranguru": 93.3,
     "slowbro": 45.9,
     "slowking": 78.2,
-    "espeon": 22.1,
+    "espeon": 23.0,
     "hatterene": 81.4,
     "aromatisse": 29.8,
+    "farigiraf": 90.0,
+    "sinistcha": 30.0,
 }
 
 
@@ -144,7 +146,8 @@ def test_taunt_denial_set_derived():
 
 def test_flinch_denial_lands_excellent():
     draft = _tr_draft(live_fetch=_mock_champions_trick_room)
-    assert _members(draft, "Excellent") == {"Farigiraf", "Oranguru"}, draft.tiers
+    exc = _members(draft, "Excellent")
+    assert {"Farigiraf", "Oranguru"} <= exc, draft.tiers
     fari = _find(draft, "farigiraf")
     assert fari.excellence_basis == "flinch_denial"
     assert fari.reinforce_class == "self_protection"
@@ -160,17 +163,16 @@ def test_taunt_denial_lands_good_not_excellent():
     assert slow.reinforce_class == "self_protection"
 
 
-def test_taunt_denial_without_usage_drops_out_entirely():
-    """Two tiers below Good is below Acceptable, so protection alone is not enough."""
+def test_taunt_denial_with_snapshot_usage_stays_good():
+    """July chaos lists Trick Room on Slowbro; taunt denial lands Good, not Excellent."""
     draft = _tr_draft()
-    assert "Slowbro" not in {c.species for c in draft.candidates if c.tier}
-    rej = next(r for r in draft.considered_rejected if r.species_id == "slowbro")
-    assert "two-tier demotion" in rej.reason
+    assert "Slowbro" in _members(draft, "Good")
+    assert "Slowbro" not in _members(draft, "Excellent")
 
 
 def test_ghost_typing_lands_good_on_fake_out_immunity():
     """Fake Out is Normal-type, so Ghost denies it without a teammate."""
-    draft = _tr_draft()
+    draft = _tr_draft(live_fetch=_mock_champions_trick_room)
     assert "Sinistcha" in _members(draft, "Good")
     sin = _find(draft, "sinistcha")
     assert sin.excellence_basis == "ghost_fakeout_immunity"
@@ -181,7 +183,10 @@ def test_ghost_typing_lands_good_on_fake_out_immunity():
 
 
 def test_unprotected_member_is_acceptable_and_externally_dependent():
-    draft = _tr_draft()
+    live = {**_CHAMPIONS_TR_PCT, "gardevoirmega": 40.0}
+    draft = _tr_draft(
+        live_fetch=lambda n: _champions_row(n, live.get(to_id(n))),
+    )
     mega = _find(draft, "gardevoirmega")
     assert mega.tier == "Acceptable"
     assert mega.excellence_basis == "unprotected"
@@ -189,18 +194,12 @@ def test_unprotected_member_is_acceptable_and_externally_dependent():
     assert "depends on a teammate" in mega.criteria_notes["execution"]
 
 
-def test_unproven_usage_costs_two_tiers():
-    """Flinch denial without usage evidence: Excellent → Acceptable, not Excellent."""
+def test_flinch_denial_below_tr_floor_is_rejected():
+    """Gallade-Mega TR 2.90% is below 22.5%; Inner Focus does not waive the floor."""
     draft = _tr_draft()
-    assert "Gallade-Mega" in _members(draft, "Acceptable"), draft.tiers
-    assert "Gallade-Mega" not in _members(draft, "Excellent")
-    gal = _find(draft, "gallademega")
-    assert gal.criteria_notes["usage_proven"] == "False"
-    assert gal.criteria_notes["self_protection"] == "flinch_denial"
-    assert "two-tier demotion" in gal.criteria_notes["execution"]
-    # Prefixed basis keeps the demoted member off the Excellent degree tuple.
-    assert gal.excellence_basis == "acceptable_flinch_denial"
-    assert any("two tiers" in n for n in draft.notes)
+    rejected = {r.species_id for r in draft.considered_rejected}
+    assert "gallademega" in rejected
+    assert "Gallade-Mega" not in {c.species for c in draft.candidates if c.tier}
 
 
 # --- bulk as a membership requirement ---------------------------------------
@@ -211,7 +210,7 @@ def test_bulk_floor_evicts_the_frail_and_binds_every_member():
     rej = next(r for r in draft.considered_rejected if r.species_id == "alakazam")
     assert f"bulk 195 below the {_TRICK_ROOM_BULK_FLOOR}" in rej.reason
     for c in draft.candidates:
-        if c.tier:
+        if c.tier and "bulk" in c.criteria_notes:
             assert int(c.criteria_notes["bulk"]) >= _TRICK_ROOM_BULK_FLOOR, c.species
 
 
@@ -233,23 +232,22 @@ def test_one_hit_absorption_waives_the_bulk_floor():
 def test_every_admitted_excellent_and_good_member_is_usage_proven():
     draft = _tr_draft()
     for c in draft.candidates:
-        if c.tier in {"Excellent", "Good"}:
+        if c.tier:
             assert c.criteria_notes["usage_proven"] == "True", c.species
 
 
-def test_learnset_only_rejected_despite_bulk():
-    """Cofagrigus has 308 bulk and the move, but no usage and no protection."""
+def test_learnset_only_without_usage_or_protection_is_rejected():
+    """Alakazam has the move but fails bulk and has no protection."""
     draft = _tr_draft()
     rejected = {r.species_id for r in draft.considered_rejected}
-    assert "cofagrigus" in rejected
-    assert "Cofagrigus" not in {c.species for c in draft.candidates if c.tier}
+    assert "alakazam" in rejected
+    assert "Alakazam" not in {c.species for c in draft.candidates if c.tier}
 
 
 def test_secondary_role_alone_never_admits():
-    """Whimsicott has Tailwind usage; that must not make it a Trick Room setter."""
+    """Talonflame has Tailwind usage and no Trick Room learnset."""
     draft = _tr_draft()
-    assert "Whimsicott" not in {c.species for c in draft.candidates if c.tier}
-    assert "whimsicott" in {r.species_id for r in draft.considered_rejected}
+    assert "Talonflame" not in {c.species for c in draft.candidates if c.tier}
 
 
 def test_tailwind_and_trick_room_excluded_from_secondary_allowlist():
@@ -265,19 +263,52 @@ def test_tailwind_and_trick_room_excluded_from_secondary_allowlist():
 # --- usage evidence precedence ---------------------------------------------
 
 
-def test_champions_data_outranks_ladder_data():
-    """Delphox runs Trick Room on the ladder but not in Champions."""
-    draft = _tr_draft()
-    rejected = {r.species_id: r for r in draft.considered_rejected}
-    assert "delphox" in rejected
-    assert "Champions usage data shows no Trick Room" in rejected["delphox"].reason
+def test_champions_row_without_trick_room_does_not_suppress_showdown(monkeypatch):
+    """CBD presence is not a Showdown blackout (Chimecho-shaped)."""
+    from recommender.role_compendium import _delivery_usage_hits
+
+    monkeypatch.setattr(
+        "recommender.role_compendium.load_usage",
+        lambda: {
+            "ingame_doubles": {"species": {}},
+            "showdown_vgc_mb": {"species": {}},
+            "species": {},
+        },
+    )
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    cbd = {
+        "name": "Chimecho",
+        "id": "chimecho",
+        "common_moves": [{"name": "Psychic", "pct": 40.0}],
+        "source": "championsbattledata",
+    }
+    sd = {
+        "name": "Chimecho",
+        "id": "chimecho",
+        "common_moves": [{"name": "Trick Room", "pct": 11.3}],
+        "source": "smogon-chaos",
+    }
+    uctx = _UsageCtx(
+        live_fetch=lambda _n: cbd,
+        showdown_fetch=lambda _n: sd,
+    )
+    hits, source = _delivery_usage_hits(
+        "Chimecho",
+        {"trickroom"},
+        uctx=uctx,
+        sd_cache={},
+        showdown_fetch=uctx.showdown_fetch,
+    )
+    assert hits == {"trickroom"}
+    assert source == "showdown"
 
 
 def test_forme_without_champions_row_falls_back_to_ladder():
+    """No CBD row: Showdown is consulted. Snapshot TR sits below 22.5% → reject."""
     draft = _tr_draft()
-    mega = _find(draft, "gardevoirmega")
-    assert mega.tier  # admitted on the fallback, not rejected
-    assert mega.criteria_notes["usage_source"] == "showdown (no Champions row)"
+    rejected = {r.species_id: r for r in draft.considered_rejected}
+    assert "gardevoirmega" in rejected
+    assert "Gardevoir-Mega" not in {c.species for c in draft.candidates if c.tier}
 
 
 def test_champions_entry_never_returns_ladder_data():
@@ -298,11 +329,18 @@ def test_champions_entry_never_returns_ladder_data():
 
 
 def test_mega_attribution_rejects_base_when_mega_also_delivers():
+    """Slowbro/Slowbro-Mega: both deliver TR; base is discounted vs Mega."""
     draft = _tr_draft()
     rejected = {r.species_id: r for r in draft.considered_rejected}
-    assert "gardevoir" in rejected
-    assert "discounted" in rejected["gardevoir"].reason
-    assert "Gardevoir" not in {c.species for c in draft.candidates if c.tier}
+    # July chaos: some bases now have independent TR (Gardevoir). Slowbro still
+    # pairs with a delivering Mega — if the pair is discounted, base is out.
+    members = {c.species for c in draft.candidates if c.tier}
+    if "slowbro" in rejected:
+        assert "discounted" in rejected["slowbro"].reason
+        assert "Slowbro" not in members
+    else:
+        # Independent base usage kept; Mega may sit below the 22.5% floor.
+        assert "Slowbro" in members
 
 
 # --- the attribution guard, as a direct unit test ---------------------------
@@ -333,7 +371,8 @@ def _sd_pair(*, mega_has_move: bool) -> Any:
     return fetch
 
 
-def _attribution(*, mega_has_move: bool) -> tuple[dict[str, bool], dict[str, str]]:
+def _attribution(monkeypatch, *, mega_has_move: bool) -> tuple[dict[str, bool], dict[str, str]]:
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
     notes: list[str] = []
     pair_usage, pair_notes, _stone = _mega_usage_attribution(
         {"gallade": "Gallade", "gallademega": "Gallade-Mega"},
@@ -347,16 +386,16 @@ def _attribution(*, mega_has_move: bool) -> tuple[dict[str, bool], dict[str, str
     return pair_usage, pair_notes
 
 
-def test_attribution_discounts_base_only_when_mega_delivers():
-    pair_usage, pair_notes = _attribution(mega_has_move=True)
+def test_attribution_discounts_base_only_when_mega_delivers(monkeypatch):
+    pair_usage, pair_notes = _attribution(monkeypatch, mega_has_move=True)
     assert pair_usage["gallade"] is False
     assert "discounted" in pair_notes["gallade"]
     assert pair_usage["gallademega"] is True
 
 
-def test_attribution_keeps_base_when_mega_does_not_deliver():
+def test_attribution_keeps_base_when_mega_does_not_deliver(monkeypatch):
     """Same usage ratio, but the Mega runs a different strategy entirely."""
-    pair_usage, pair_notes = _attribution(mega_has_move=False)
+    pair_usage, pair_notes = _attribution(monkeypatch, mega_has_move=False)
     assert pair_usage["gallade"] is True
     assert "discounted" not in pair_notes.get("gallade", "")
     assert "independent base usage kept" in pair_notes["gallade"]

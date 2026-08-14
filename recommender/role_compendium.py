@@ -62,8 +62,9 @@ _COMPETING_IDENTITY_MOVES = frozenset({"quiverdance"})
 _SHOWDOWN_BASE_USAGE_RATIO = 0.25
 # Chaos set% floor for usage-proven (July 2026 1500 distribution).
 # Screens smear starts after Whimsicott/Espeon 2.32% (next 1.98%). Sleep's 2.3
-# vs 3.0 admit the same set (nothing in (1.66, 3.01)).
+# vs 3.0 admit the same set (nothing in (1.66, 3.01)). TR has its own hole.
 _USAGE_SET_PCT_FLOOR = 2.3
+_TRICK_ROOM_SET_PCT_FLOOR = 22.5
 # Setup-attacker admission: presence only (exclude 0.00x chaos-key ghosts).
 # Calc Excellent/Good/Acceptable floors do the real filter. Support stays at 2.3.
 _SETUP_PRESENCE_SET_PCT_FLOOR = 0.1
@@ -4227,8 +4228,8 @@ def _construct_trick_room_setter(
         "regardless of how it accesses the move",
         "usage evidence prefers Champions in-game data where a row exists; "
         "Showdown is a fallback only for formes with no Champions row",
-        "unproven usage costs two tiers (Excellent → Acceptable, Good → out), "
-        "matching the Showdown-discount demotion rule",
+        f"membership requires Trick Room set% ≥ {_TRICK_ROOM_SET_PCT_FLOOR:g} "
+        "(self-protection and Showdown-discount do not waive the floor)",
         f"membership requires bulk (HP+Def+SpD) ≥ {_TRICK_ROOM_BULK_FLOOR}, "
         "waived for one-hit absorption (Disguise / Ice Face)",
         "tiers grade self-provided cover of the shared Fake Out / Taunt "
@@ -4285,24 +4286,21 @@ def _construct_trick_room_setter(
             )
             continue
 
-        # Usage precedence: a negative Mega attribution sticks (it decides which
-        # form owns the usage), then Champions data where a row exists, then
-        # ladder data. Showdown prevalence tracks the ladder, not this format:
-        # species common in Champions and rare on the ladder would otherwise be
-        # judged on the wrong population.
-        champ = uctx.champions_entry(name)
+        # Usage: negative Mega attribution sticks. Otherwise CBD and/or Showdown
+        # per-move — a CBD row without the move no longer suppresses Showdown.
         if pair_usage.get(sid) is False:
             usage_proven = False
             usage_source = "mega attribution"
-        elif champ is not None:
-            usage_proven = any(_entry_has_move(champ, mid) for mid in hits)
-            usage_source = "champions"
-        elif sid in pair_usage:
-            usage_proven = pair_usage[sid]
-            usage_source = "showdown (no Champions row)"
         else:
-            usage_proven = any(uctx.delivers(name, mid) for mid in hits)
-            usage_source = "usage fallback (no Champions row)"
+            usage_hits, usage_source = _delivery_usage_hits(
+                name,
+                set(hits),
+                uctx=uctx,
+                sd_cache=sd_cache,
+                showdown_fetch=showdown_fetch,
+                set_pct_floor=_TRICK_ROOM_SET_PCT_FLOOR,
+            )
+            usage_proven = bool(usage_hits)
 
         flinch = set(abs_map) & flinch_ids
         taunt = set(abs_map) & taunt_ids
@@ -4320,78 +4318,27 @@ def _construct_trick_room_setter(
             excellent_move_ids=_TRICK_ROOM_EXCELLENT_SECONDARY_MOVES,
         )
 
-        # Self-protection is the only independent reinforce: a secondary role
-        # does not make a species a Trick Room setter.
-        if not _admit_move_delivery(
-            usage_proven=usage_proven, independent_reinforce=self_protected
-        ):
+        # Set% floor is hard membership. Self-protection only grades tier.
+        if not usage_proven:
             attr = pair_notes.get(sid, "")
-            discounted = (
-                "discounted" in attr
-                or "stone-heuristic" in attr
-                or "attributed to Mega" in attr
-                or "mega-stone fallback" in attr
-            )
-            mech_tier = "Excellent" if excellent_secondary else "Good"
-            if discounted and _discount_outcome(mech_tier) == "Acceptable":
-                members.append(
-                    CandidateEval(
-                        species=name,
-                        species_id=sid,
-                        tier="Acceptable",
-                        delivery_class="move_trick_room",
-                        mechanism=mechanism,
-                        criteria_notes={
-                            "delivery": _TRICK_ROOM_DELIVERY_NOTE,
-                            "execution": (
-                                f"bulk HP/Def/SpD={stats.get('hp')}/"
-                                f"{stats.get('def')}/{stats.get('spd')}; "
-                                "no self-provided Fake Out / Taunt protection; "
-                                "usage discounted vs Mega form"
-                            ),
-                            "secondary_role": secondary_note,
-                            "usage_proven": "False",
-                            "verified_secondary": str(verified_secondary),
-                            "excellent_secondary": str(excellent_secondary),
-                            "reinforce_class": "none",
-                            "self_protection": "none",
-                            "attribution": attr or "none",
-                        },
-                        claimed_traits=[
-                            ClaimedTrait(
-                                name=mechanism,
-                                criterion="delivery",
-                                purpose_claimed="invert turn order for the side",
-                            ),
-                            *secondary_traits,
-                        ],
-                        reasoning=(
-                            f"{mechanism} clears Acceptable "
-                            "(mech Excellent, Showdown usage discounted)."
-                        ),
-                        change_reason=(
-                            f"usage discount demote / mech Excellent → Acceptable ({attr})"
-                        ),
-                        reinforce_class="none",
-                        excellence_basis="usage_discounted",
-                    )
-                )
-                continue
             reason = (
-                f"{mechanism} learnset but no usage evidence of Trick Room "
-                "delivery and no self-provided Fake Out / Taunt protection"
+                f"{mechanism} learnset but Trick Room set% below "
+                f"{_TRICK_ROOM_SET_PCT_FLOOR:g}"
             )
-            if discounted:
+            if attr:
                 reason += f" ({attr})"
-            elif usage_source == "champions":
-                reason += " (Champions usage data shows no Trick Room on this species)"
+            elif usage_source in {"champions", "none"}:
+                reason += (
+                    " (Champions and Showdown usage data show no Trick Room "
+                    "on this species)"
+                )
             rejected.append(
                 RejectedCandidate(
                     species=name,
                     species_id=sid,
                     reason=reason,
                     change_reason=(
-                        "learnset-only without usage/self-protection"
+                        f"usage below {_TRICK_ROOM_SET_PCT_FLOOR:g}% set% floor"
                         if prior.get(sid)
                         else None
                     ),
@@ -4415,33 +4362,6 @@ def _construct_trick_room_setter(
         else:
             tier, basis = "Acceptable", "unprotected"
         reinforce = "self_protection" if self_protected else "none"
-
-        # Two-tier demotion for unproven usage, the same rule the Showdown
-        # discount applies: self-protection is a real execution strength but it
-        # is not evidence the species is actually played in this role. Two tiers
-        # below Good is below Acceptable, so those candidates leave the field.
-        if not usage_proven:
-            if tier != "Excellent":
-                attr = pair_notes.get(sid, "")
-                rejected.append(
-                    RejectedCandidate(
-                        species=name,
-                        species_id=sid,
-                        reason=(
-                            f"{mechanism} learnset but no usage evidence of Trick Room "
-                            f"delivery; two-tier demotion from {tier} falls below "
-                            "Acceptable"
-                            + (f" ({attr})" if attr else "")
-                        ),
-                        change_reason=(
-                            f"unproven-usage two-tier demotion from {prior[sid]!r}"
-                            if prior.get(sid)
-                            else None
-                        ),
-                    )
-                )
-                continue
-            tier, basis = "Acceptable", f"acceptable_{basis}"
 
         exec_note = (
             f"bulk HP/Def/SpD={stats.get('hp')}/{stats.get('def')}/{stats.get('spd')}"
@@ -4505,8 +4425,6 @@ def _construct_trick_room_setter(
                 "; no self-provided protection — depends on a teammate to cover "
                 "Fake Out / Taunt"
             )
-        if not usage_proven:
-            exec_note += "; usage unproven — two-tier demotion applied"
         traits.extend(secondary_traits)
 
         attr_note = pair_notes.get(sid, "")
