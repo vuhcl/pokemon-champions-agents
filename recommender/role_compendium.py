@@ -333,6 +333,9 @@ SWORDS_DANCE_ATTACKER_CRITERIA: dict[str, Any] = {
     "move_id": "swordsdance",
     "boost_stat": "atk",
     "boost_stages": 2,
+    # Locked judgment cut (Decidueye rank 35); Acceptable-largest redesign.
+    "damage_admission_floor": 0.981,
+    "acceptable_floor_mult": 0.88,
 }
 
 NASTY_PLOT_ATTACKER_CRITERIA: dict[str, Any] = {
@@ -350,6 +353,9 @@ CALM_MIND_ATTACKER_CRITERIA: dict[str, Any] = {
     "boost_stat": "spa",
     "boost_stages": 1,
     "exact_boosts": {"spa": 1, "spd": 1},
+    # Locked judgment cut (Mr. Rime rank 37); Acceptable-largest redesign.
+    "damage_admission_floor": 0.708,
+    "acceptable_floor_mult": 0.88,
 }
 
 BULK_UP_ATTACKER_CRITERIA: dict[str, Any] = {
@@ -359,6 +365,9 @@ BULK_UP_ATTACKER_CRITERIA: dict[str, Any] = {
     "boost_stat": "atk",
     "boost_stages": 1,
     "exact_boosts": {"atk": 1, "def": 1},
+    # Locked judgment cut (Lycanroc rank 36); Acceptable-largest redesign.
+    "damage_admission_floor": 0.748,
+    "acceptable_floor_mult": 0.90,
 }
 
 DRAGON_DANCE_ATTACKER_CRITERIA: dict[str, Any] = {
@@ -1758,15 +1767,63 @@ def _setup_excellent_floor(adjusted_scores: list[float]) -> float:
     return anchor * _SETUP_FLOOR_SECOND_MULT
 
 
-def _setup_mech_tier(adjusted: float, floor: float) -> str:
+def _setup_mech_tier(
+    adjusted: float,
+    floor: float,
+    *,
+    acceptable_mult: float = _SETUP_ACCEPTABLE_FLOOR_MULT,
+) -> str:
     """Excellent ≥ floor; Acceptable below floor × mult; Good between."""
     if floor <= 0:
         return "Good"
     if adjusted >= floor:
         return "Excellent"
-    if adjusted < floor * _SETUP_ACCEPTABLE_FLOOR_MULT:
+    if adjusted < floor * acceptable_mult:
         return "Acceptable"
     return "Good"
+
+
+def _partition_by_admission_floor(
+    provisional: list[dict[str, Any]],
+    *,
+    score_key: str,
+    admission_floor: float | None,
+    prior: dict[str, str],
+    rejected: list[RejectedCandidate],
+) -> list[dict[str, Any]]:
+    """Drop rows below damage_admission_floor into rejected; return kept.
+
+    No-op when admission_floor is None (NP/DD/ID+BP). Boundary is inclusive (>=).
+    """
+    if admission_floor is None:
+        return provisional
+    kept: list[dict[str, Any]] = []
+    for p in provisional:
+        score = float(p[score_key])
+        # Floors are locked to 3 decimals; compare at that precision so boundary
+        # species (Decidueye / Mr. Rime / Lycanroc) stay inclusive under float noise.
+        if round(score, 3) >= round(float(admission_floor), 3):
+            kept.append(p)
+            continue
+        sid = str(p["sid"])
+        name = str(p["name"])
+        rejected.append(
+            RejectedCandidate(
+                species=name,
+                species_id=sid,
+                reason=(
+                    f"damage_score {score:.3f} below admission floor "
+                    f"{admission_floor:g}"
+                ),
+                change_reason=(
+                    f"setup admission floor re-eval / tier {prior.get(sid)!r} → rejected "
+                    f"(score={score:.3f} < {admission_floor:g})"
+                    if prior.get(sid)
+                    else None
+                ),
+            )
+        )
+    return kept
 
 
 @lru_cache(maxsize=None)
@@ -3678,6 +3735,26 @@ def _construct_setup_attacker(
             }
         )
 
+    # Damage-score admission floor (SD only via criteria; NP has no key → no-op).
+    admit_floor = sub_criteria.get("damage_admission_floor")
+    admit_floor_f = float(admit_floor) if admit_floor is not None else None
+    provisional = _partition_by_admission_floor(
+        provisional,
+        score_key="adjusted",
+        admission_floor=admit_floor_f,
+        prior=prior,
+        rejected=rejected,
+    )
+    if admit_floor_f is not None:
+        notes.append(
+            f"damage admission floor = {admit_floor_f:g} "
+            f"(score >= floor; n_kept={len(provisional)})"
+        )
+
+    acc_mult = float(
+        sub_criteria.get("acceptable_floor_mult") or _SETUP_ACCEPTABLE_FLOOR_MULT
+    )
+
     # Pass 2: per-category floor from adjusted scores.
     floor = _setup_excellent_floor([p["adjusted"] for p in provisional])
     ranked = sorted(provisional, key=lambda p: p["adjusted"], reverse=True)
@@ -3689,8 +3766,8 @@ def _construct_setup_attacker(
         f"→ {floor:.3f} (top: {top_label})"
     )
     notes.append(
-        f"Acceptable floor = Excellent floor × {_SETUP_ACCEPTABLE_FLOOR_MULT:g} "
-        f"→ {floor * _SETUP_ACCEPTABLE_FLOOR_MULT:.3f}"
+        f"Acceptable floor = Excellent floor × {acc_mult:g} "
+        f"→ {floor * acc_mult:.3f}"
     )
 
     # Pass 3: assign tiers.
@@ -3709,7 +3786,7 @@ def _construct_setup_attacker(
         calc_err = p["calc_err"]
         boosts = p["boosts"]
 
-        mech_tier = _setup_mech_tier(adjusted, floor)
+        mech_tier = _setup_mech_tier(adjusted, floor, acceptable_mult=acc_mult)
         excellent_exec = mech_tier == "Excellent"
         discounted = sid in skip_discount
         if discounted and mech_tier == "Excellent":
@@ -4121,6 +4198,26 @@ def _construct_offense_stage_setup(
             }
         )
 
+    # Damage-score admission floor (CM/BU via criteria; DD has no key → no-op).
+    admit_floor = sub_criteria.get("damage_admission_floor")
+    admit_floor_f = float(admit_floor) if admit_floor is not None else None
+    provisional = _partition_by_admission_floor(
+        provisional,
+        score_key="raw_score",
+        admission_floor=admit_floor_f,
+        prior=prior,
+        rejected=rejected,
+    )
+    if admit_floor_f is not None:
+        notes.append(
+            f"damage admission floor = {admit_floor_f:g} "
+            f"(score >= floor; n_kept={len(provisional)})"
+        )
+
+    acc_mult = float(
+        sub_criteria.get("acceptable_floor_mult") or _SETUP_ACCEPTABLE_FLOOR_MULT
+    )
+
     floor = _setup_excellent_floor([p["raw_score"] for p in provisional])
     ranked = sorted(provisional, key=lambda p: p["raw_score"], reverse=True)
     top_label = ", ".join(f"{p['name']}={p['raw_score']:.3f}" for p in ranked[:2]) or "none"
@@ -4129,13 +4226,13 @@ def _construct_offense_stage_setup(
         f"→ {floor:.3f} (top: {top_label})"
     )
     notes.append(
-        f"Acceptable floor = Excellent floor × {_SETUP_ACCEPTABLE_FLOOR_MULT:g} "
-        f"→ {floor * _SETUP_ACCEPTABLE_FLOOR_MULT:.3f}"
+        f"Acceptable floor = Excellent floor × {acc_mult:g} "
+        f"→ {floor * acc_mult:.3f}"
     )
 
     for p in provisional:
         sid, name, raw_score = p["sid"], p["name"], p["raw_score"]
-        mech_tier = _setup_mech_tier(raw_score, floor)
+        mech_tier = _setup_mech_tier(raw_score, floor, acceptable_mult=acc_mult)
         discounted = sid in skip_discount
         if discounted and mech_tier == "Excellent":
             tier = "Acceptable"
