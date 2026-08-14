@@ -2927,6 +2927,272 @@ with the other three principles.
 
 ---
 
+### ADR-019 — Amendment 2026-08-12a
+
+**Setup-attacker damage scoring: per-defender payoff fallback, symmetric Dragon Dance Speed
+threshold, and a fallback sort-key correctness fix.**
+
+`_damage_score` previously dropped a panel member from the mean entirely when the primary
+payoff move dealt zero damage (`if dmg_f <= 0: continue`) — since the denominator shrank with
+the numerator, this could inflate a candidate's score on type-immune panel members rather than
+penalize it. Fixed: for each defender, if the primary payoff zeroes, the next-ranked candidate
+move (usage-sourced moves first, then learnset, STAB then base power — same priority order
+`_best_payoff_move` already used) is tried before that defender is skipped. A defender is only
+excluded from the average if every available move zeroes against it (a genuine coverage gap,
+not a scoring artifact). Multi-move candidates now report per-defender coverage in notes
+rather than a single panel-wide move label. Confirmed correct against every real hard block in
+the 30-member panel: Farigiraf/Armor Tail (blocks priority entirely — the only ability-based
+block on the panel) and three Levitate holders (Rotom-Wash, Hydreigon, Delphox-Mega, blocking
+Ground) all behave as genuine immunities under the new logic, not scoring bugs.
+
+Dragon Dance gets a symmetric, criteria-based promote/demote rule on top of the existing
+offense score: `spe_crossings >= 10` (count of panel members flipped from slower to faster
+after +1 Speed) is promote-eligible, `<= 7` is demote, one-tier movement only, with the
+existing offense band as a hard cap in both directions (no jump past what offense alone would
+allow). Calm Mind, Bulk Up, and Iron Defense+Body Press stay sort-only within tier — their
+crossing-count distributions showed no natural breakpoint to threshold against, confirmed by
+inspecting the real per-candidate distributions rather than assumed.
+
+While investigating whether Annihilape's Bulk Up payoff should be Rage Fist instead of Close
+Combat (motivated by Rage Fist's power scaling with hits taken — directly relevant to a
+bulk-boosting category), found and fixed a real bug: the payoff-move sort key
+(`_ranked_payoff_moves`) still ranked moves by static snapshot base power after
+state-scaling moves (Rage Fist, Last Respects, Stored Power, Power Trip) had already been
+wired to use their real, boosted power in the damage calc itself — meaning a weaker static
+move could wrongly outrank a stronger state-scaling move in fallback selection. Fixed at the
+sort key, not just for the one case that surfaced it. Confirmed blast radius: exactly one
+candidate (Annihilape) across all six setup categories, including the two already shipped.
+Close Combat remains Annihilape's selected payoff even after the fix (0.5632 vs. Rage Fist's
+0.4607) — no special-case handling needed for its bulk-crossing count.
+
+**Status:** Design and investigation complete; see Amendment 2026-08-12b for the resulting
+ship.
+
+---
+
+### ADR-019 — Amendment 2026-08-12b
+
+**Six-category setup-attacker expansion complete: Swords Dance, Nasty Plot, Calm Mind, Bulk
+Up, Dragon Dance, and Iron Defense+Body Press all critic-approved and persisted on
+consistent underlying data.**
+
+All six categories share the same threat panel (Showdown-usage-threshold, 30 members,
+carrying real natures/moves/items rather than the earlier incomplete backfill) and the same
+corrected payoff-fallback and sort-key logic (Amendment 2026-08-12a). Swords Dance and Nasty
+Plot were rebuilt and re-persisted against this corrected data after an earlier persist was
+found to predate it — that earlier version is superseded and should not be treated as a
+separate historical state.
+
+Final floors and tier changes from the corrected rebuild:
+- **Swords Dance** (1.201 Excellent / 0.841 Acceptable): Gallade-Mega and Skarmory-Mega move
+  Good → Acceptable. Excellent unchanged (Aegislash, Kingambit, Mawile-Mega, Mimikyu).
+- **Nasty Plot** (0.910 / 0.637): Delphox-Mega moves Excellent → Good; Houndoom-Mega and
+  Meowstic-F-Mega move Good → Acceptable. Excellent: Alakazam-Mega, Raichu-Mega-Y.
+- **Calm Mind** (0.484 / 0.339): Excellent — Meowstic-Mega-Mega, Delphox-Mega.
+- **Bulk Up** (0.670 / 0.469): Excellent — Starmie-Mega, Blaziken-Mega.
+- **Dragon Dance** (0.517 / 0.362): Dragonite promotes Good → Excellent on the Speed
+  threshold (15/30 crossings); Flapple and Feraligatr-Mega demote Excellent → Good; Feraligatr
+  and Tyranitar-Mega demote Good → Acceptable. Charizard-Mega-X stays Excellent on offense
+  alone. Critic initially flagged a tied-cluster concern (promote and demote candidates
+  sharing the same `excellence_basis` string) — a reporting gap, not a ranking error;
+  `_dd_spe_excellence_basis` now includes the resulting tier, re-critic clean.
+- **Iron Defense+Body Press** (0.268 / 0.188): Excellent — Aggron-Mega, Chesnaught-Mega.
+  Dual-purpose behavior here is split across different candidates (high-offense members are
+  not the same as high-bulk-crossing members) rather than concentrated in any one — no
+  threshold applied, sort-only within tier, same as Calm Mind and Bulk Up.
+
+Role Compendium is now 14 files on disk (weather ×4, redirection, trick_room_setter,
+tailwind_setter, sleep_status_spreader, and the six setup categories above).
+
+---
+
+### ADR-019 — Amendment 2026-08-14a
+
+**Aegislash-only Stance Change sequence added to setup-attacker scoring — pre-attack survival
+now scores Shield Forme, not Blade; Shadow Sneak combined-KO and King's Shield reset credited
+independently, gated strictly on real `kit_moves`.**
+
+Bug: `_calc_species_name` forces every Aegislash calc call to Aegislash-Blade. Correct for the
+SD payoff attack itself (Blade Atk/SpA is the real post-Stance-Change stat line), but the same
+forcing also applied to pre-attack incoming-damage checks — Aegislash starts every battle in
+Shield Forme and Swords Dance (status) never flips it, so SD's survival scoring (`remain`,
+inside `_damage_score`'s Part D, reached via `_incoming_ohko_by_defender` /
+`_candidate_defender_spec`) was reading Def/SpD 50 when it should have read Def/SpD 140. This
+directly contradicted Branch B's admission check (`_base_stats`), which already correctly used
+Shield stats to decide Aegislash qualifies as bulky — two parts of the same pipeline
+disagreeing about the same fact.
+
+Fix: new `_setup_defender_species` maps Aegislash to Shield Forme by default for defender-side
+specs; `_candidate_defender_spec` takes an explicit `defender_species` override for the one
+case that still needs Blade (see below). Attacker-side payoff damage construction is
+untouched — Blade Forme stays correct there.
+
+New mechanic, explicitly **not** a general forme-flip framework and **not** an extension of
+`_scarf_nature_correction` (no such hook exists in the setup-scoring path — this is the first
+species-specific multi-turn sequence scorer in the codebase, documented as such rather than
+undersold as a small correction):
+
+- **Combined-KO credit:** if Shadow Sneak is in the candidate's `kit_moves` and (SD payoff raw
+  damage + Shadow Sneak raw damage) ≥ threat HP, credit `remain = 1.0` and count toward
+  `sweep_ohko`. Sound because Shadow Sneak's priority means this resolves before the threat's
+  turn 3 action — the threat never gets to act.
+- **King's Shield reset credit:** only reached if combined-KO fails (or Shadow Sneak isn't in
+  `kit_moves`). If King's Shield is in `kit_moves` and Aegislash survives the threat's one
+  exposed hit against Blade Forme (`_incoming_ohko_by_defender` explicitly forced to
+  `Aegislash-Blade` for this one check), credit `remain = 1.0` — King's Shield forces Stance
+  Change back to Shield Forme, resetting to the starting state rather than leaving any ongoing
+  degraded state to track further.
+- Each half gated independently and strictly on `kit_moves` (the featured-or-common
+  representative set) — never `usage_ids` (species-level move presence across all sets, which
+  would credit builds that don't actually run the move) and never learnset (species-generic
+  access, no bearing on a real candidate's set).
+
+**Confirmed by direct verification, not just Cursor's report:** branch `fix/aegislash-setup-
+forme-sequence` (built on the 5-commit `wip/setup-tr-usage-and-scoring` base) pulled and
+diffed directly; `_setup_defender_species`/`_candidate_defender_spec`/
+`_aegislash_sequence_remain` match the design exactly as described, including the independent
+gating on `kit_ids`. All 65 tests in `test_role_compendium_swords_dance.py` +
+`test_role_compendium_stage_setup.py` run directly and pass, including the six named Aegislash
+tests (`test_aegislash_incoming_uses_shield_forme`,
+`test_aegislash_combined_ko_credits_ohko_and_remain`,
+`test_aegislash_combined_ko_requires_shadow_sneak_in_kit`,
+`test_aegislash_ks_reset_independent_of_shadow_sneak`,
+`test_aegislash_no_ks_no_combined_ko_gets_no_remain`,
+`test_aegislash_branch_b_matches_shield_defender`) — the two adversarial-gating tests confirm
+the `kit_moves`-only gate is real, not just happy-path.
+
+**CM/BU/ID confirmed, not just SD.** _setup_bulk_crossings builds both its unboosted and boosted defender specs from the same _candidate_defender_spec, with no defender_species override — so it inherited the Shield Forme remap automatically, verified directly in the code (line 2380 onward) rather than left to the discovery-stage assumption. CM/BU/ID's boosts are all status moves, so the boosted spec staying Shield Forme is correct there too; no sequence logic (Shadow Sneak/King's Shield) applies outside SD, which is intentional — that credit is specific to SD's non-boosting payoff sequence. One honest gap: no dedicated _setup_bulk_crossings test asserts defender.species for Aegislash directly — coverage is indirect, via the shared-helper test (test_aegislash_branch_b_matches_shield_defender) plus an unrelated existing Blissey crossings test. Small test-coverage follow-up, not a missing fix.
+
+**Status:** Shipped on `fix/aegislash-setup-forme-sequence`, PR into `wip/setup-tr-usage-and-
+scoring` (#70). Not yet on `main` — this branch is still pre-critic-pass, pre-persist, same as
+the rest of the setup-scoring arc (see master log 2026-08-09/12 entries).
+
+---
+
+### ADR-019 — Amendment 2026-08-14b
+
+**Connect-recoil now deducted from setup-attacker `remain`; new `debuff_surv` standing signal
+reports post-self-Def/SpD-drop panel survival, independent of primary `remain`'s existing
+turn-order rules.**
+
+Two disjoint-today mechanics, fixed together in `_damage_score` since both live at the same
+`remain` computation site, but kept as independently-gated logic:
+
+**Connect-recoil.** Recoil HP loss (Flare Blitz, Brave Bird, Wave Crash, Wood Hammer, Light of
+Ruin, plus the not-yet-admitted Double-Edge/Volt Tackle/Wild Charge/Head Charge/Submission/
+Take Down/Head Smash — `_CONNECT_RECOIL_MOVES`, table-driven not hand-picked) is read directly
+from `raw.recoil` on the calc result, not recomputed from `ratio × dmg_f`. Confirmed necessary
+via a direct probe during discovery: a Flare Blitz OHKO's real recoil is ≈34.4% (already
+accounts for damage capping), while the naive ratio math overstates to ≈81% on the same hit.
+Deduction (`remain = max(0, 1 - incoming_frac - recoil_frac)`, or `max(0, seq_remain -
+recoil_frac)` when Aegislash/priority-finisher sequence credit already applies) only ever
+lands where a `remain` entry already exists — i.e. the `outsped`/`disguise` branches — since
+the moved-first case was independently confirmed (Cursor, this session) to intentionally
+produce no `remain` entry at all. No new turn-order logic was introduced; this task correctly
+left that alone.
+
+**`debuff_surv`.** For any setup payoff move with a guaranteed self Def/SpD drop
+(`_self_defense_drops`, sourced from `stat_boosts.v1.json` — Close Combat is the only current
+admit, but the table covers Superpower/Headlong Rush/Armor Cannon/Clanging Scales/Scale Shot
+generically for future admits), a once-per-candidate standing incoming-damage pass is run with
+the drop stacked onto the candidate's own existing setup boosts (e.g. Bulk Up's own Def+1
+netted against Close Combat's Def−1, correctly modeling the real post-setup-and-payoff state,
+not the drop in isolation). Reported as `k/n` (panel members still not-OHKO'd), a flat
+secondary field on `_sweep_note_fields` — deliberately not folded into or replacing primary
+`remain`, and independent of any individual panel member's turn order by design (represents
+"already used the payoff move once," the same "keep sweeping" framing that motivated the whole
+mechanic).
+
+**A real latent bug found and fixed as part of this task, not a separate one:**
+`_incoming_ohko_by_defender`'s boost-application filter previously only applied a stage when it
+was `> 0` — meaning any negative stage (any self-debuff) would have silently fallen through to
+the unboosted path, producing a false "survives" reading against undebuffed stats. Fixed to
+apply any nonzero stage (positive or negative), with correct handling of the harder case where
+both Def and SpD are simultaneously nonzero (falls through to first-damaging-move-any-category
+scoring with both stages applied on the defender, rather than the single-stat category-matched
+path used when only one stat is nonzero).
+
+**Confirmed by direct verification, not just Cursor's report:** branch
+`fix/setup-recoil-debuff-sweep` (built on `wip/setup-tr-usage-and-scoring` post-Aegislash-merge)
+pulled and diffed directly. Both most load-bearing tests inspected line-by-line, not just
+run: `test_recoil_remain_uses_capped_raw_recoil_not_naive_ratio` asserts the exact expected
+`remain_mean` (0.256 = 1 − 0.40 − 0.344) and explicitly checks the capped path beats the naive
+one; `test_debuff_surv_applies_negative_def_spd_stages` is genuinely adversarial — it directly
+inspects the defender spec sent to calc to confirm both `def: -1` and `spd: -1` actually land,
+not just that the final reported count happens to be correct. All 12 new/modified tests run
+directly and pass; full named-file run (`test_role_compendium_swords_dance.py` +
+`test_role_compendium_stage_setup.py`) is 71/71, including Aegislash's six named tests
+re-confirmed unmodified.
+
+**Status:** Shipped on `fix/setup-recoil-debuff-sweep`, PR open against
+`wip/setup-tr-usage-and-scoring`. Not yet on `main` — still pre-critic-pass, pre-persist, same
+as the rest of the setup-scoring arc.
+
+---
+
+### ADR-019 — Amendment 2026-08-14c
+
+**Priority-finisher combined-KO generalized beyond Aegislash to all six setup-attacker
+categories; King's Shield reset stays Stance-Change-specific and composes only as a fallback
+after the general check.**
+
+Supersedes the Aegislash-only framing of the combined-KO half of Amendment 2026-08-14a — that
+amendment's mechanic (payoff move doesn't OHKO, a priority move finishes it before the threat's
+next action) was never actually about Stance Change; it was scoped to the one species it was
+discovered on. King's Shield reset behavior is unchanged by this amendment.
+
+**Split, not shared:** `_aegislash_sequence_remain` replaced by `_priority_finisher_combined_ko`
+(species-agnostic) and `_aegislash_ks_reset` (still forme-gated). Caller tries the general
+finisher check first; only if it doesn't credit **and** the candidate is Aegislash with King's
+Shield in kit does it fall through to the reset. Aegislash's existing "no remain on a failed
+sequence" behavior — a real, deliberate legacy silence, not an oversight — is explicitly
+preserved with a documented branch, not silently changed; non-Aegislash candidates whose
+finisher doesn't credit correctly fall through to the ordinary lived-shield `remain` calculation
+instead, since that silence was never meant to generalize.
+
+**`_SETUP_PRIORITY_FINISHER_MOVES`** (explicit set, not derived from `_OFFENSIVE_PRIORITY_MOVES`
+alone — that set alone would wrongly include Fake Out and mistreat Grassy Glide as unconditional
+priority): Extreme Speed, Feint, Aqua Jet, Bullet Punch, Jet Punch, Mach Punch, Quick Attack,
+Shadow Sneak, Sucker Punch.
+
+- **Hard-excluded:** Fake Out and First Impression (both first-turn-only — same restriction
+  that already bans them as setup payoffs disqualifies them as finishers too, confirmed via a
+  genuinely adversarial test: Fake Out present in kit with damage that numerically clears the
+  threat if credited still correctly produces no credit). Upper Hand — its fail condition
+  isn't covered by the existing `lived_shield` guarantee (unlike Sucker Punch, see below), so
+  excluded until separately designed for.
+- **Deferred, not included:** Grassy Glide — static priority is 0, only conditionally +1 under
+  modeled Grassy Terrain, which this project doesn't model. Crediting it today would invent
+  priority the calc field doesn't have.
+- **Sucker Punch requires no special fail-condition modeling.** Its `onTry` failure (target
+  used a non-damaging move) coincides exactly with the case where the panel's incoming-hit calc
+  already has nothing to score `lived_shield` against — the mechanic's existing gate already
+  covers this for free.
+
+**Call sites:** all five `_damage_score` invocations across the setup-attacker path now receive
+`kit_moves` — `_select_setup_payoff`, `_construct_setup_attacker` (SD), `_construct_offense_
+stage_setup` (NP/CM/BU/DD), and both `_construct_def_payoff_setup` (ID+BP) calls. ID+BP wiring
+is currently inert (no eligible finisher carrier in the admitted pool today) but wired
+proactively rather than left as a follow-up gap.
+
+**Confirmed by direct verification, not just Cursor's report:** branch pulled and diffed
+directly; confirmed all five call sites pass `kit_moves` by direct grep, not assumed from the
+report. All 9 eligible finisher moves individually tested by name against real species (not
+just Shadow Sneak/Aegislash) — `_ELIGIBLE_FINISHER_CASES` covers Extreme Speed/Dragonite,
+Feint/Pinsir-Mega, Aqua Jet/Feraligatr, Bullet Punch/Scizor, Jet Punch/Palafin, Mach
+Punch/Crabominable-Mega, Quick Attack/Sylveon, Shadow Sneak/Mimikyu, Sucker Punch/Kingambit.
+Fake Out and Grassy Glide exclusion tests both genuinely adversarial (damage totals that would
+credit if the exclusion leaked). A real non-SD case (Bulk Up Starmie-Mega/Aqua Jet) directly
+proves the call-site extension works end-to-end, not just that the function generalized in
+isolation. Aegislash's six original named tests re-run unmodified and still pass. 77/77 across
+both named test files.
+
+**Status:** Shipped on `fix/setup-priority-finisher-combined-ko`, PR #72, merged into
+`wip/setup-tr-usage-and-scoring`. Still pre-critic-pass, pre-persist, same as the rest of the
+setup-scoring arc.
+
+---
+
 ## ADR-020: Theme/archetype reconciliation — mechanism for re-evaluating locked values when
 team-level commitments or sibling attributes change
 
@@ -4846,3 +5112,70 @@ but not implemented, since the kit-construction filter already closes the live p
 canonical-name/form-resolution backlog item remains open — its priority is now confirmed
 higher than previously understood (it causes live crashes, not just missed Compendium
 matches), but it was deliberately not absorbed into this narrower, evidence-bounded fix.
+
+---
+
+## ADR-031: full_build_confirmation redesign — anticipatory build-edit options with
+axis-composed alternatives and non-mutating compare
+
+Status: Implemented 2026-08-12 (feat/full-build-confirmation-options, 66725cb)
+
+Context: full_build_confirmation offered only yes/defer, pushing every real build-change
+request onto free-text extraction (Surface 1's edit-intent, ADR-013/ADR-027 lineage)
+regardless of predictability. Live CLI testing surfaced a real ceiling — ambiguous edit
+scope, and relative edits ("add Aura Sphere") failing because the model had no visibility
+into the current build at all. Root cause wasn't extraction robustness; it was that the
+confirmation surface itself carried no options.
+
+Decision: default + 2-3 computed alternatives at confirmation, grouped by axis
+(spread_nature / moveset / item / bundled) so independent axes compose (e.g. a spread pick
+plus a separate move pick) rather than forcing a flat mutually-exclusive menu. A new,
+non-mutating compare intent lets the user interrogate options (Spe/damage/KO, calc-backed)
+before committing, kept structurally separate from edit (which always produces a new
+provisional build) and from pending_response (which means "clarify," not "here's the
+analysis"). Species selection stays outside build-confirm entirely — a species
+reconsideration mid-confirmation is recognized as its own fork and routed back toward
+candidate_selection, not folded into the option list.
+
+Precedent, not invention: the original role-play transcript (Aug 2026) already practiced
+this shape informally (default + usage-sourced sibling options as AskQuestion choices) —
+this ADR formalizes and ships it as designed system behavior, not a new interaction pattern.
+
+Key mechanisms:
+- provisional_for_confirmation enforces the invariant that the provisional build always
+  equals the composed default before any full_build_confirmation is presented, since affirm
+  commits provisional_slot as-is with no separate reconciliation step.
+- apply_provisional_overrides (multi-field) is new, distinct from the existing single-field
+  revise_provisional_slot (chunk 2) -- reuses its verification/refine machinery but supports
+  composing overrides across independent axes. Overlapping override keys across selected
+  axes are rejected outright (slot_commit_error), never silently resolved by "later wins."
+- Alternatives generation reuses condition_resilience/assess_condition_resilience directly
+  for team-conditioned siblings rather than a parallel calculator, plus a bounded
+  ally-support-move scan (fixed frozenset: Light Screen/Reflect/Aurora Veil/Tailwind/Trick
+  Room) for cases like "an ally already provides screens, this SpD investment may be
+  redundant."
+- compare analyzes every requested option_id (never truncates the option set), capping only
+  the number of distinct threat contexts (<=2) that get real calc calls -- bounds the
+  expensive, variable cost axis while guaranteeing completeness on the axis the user
+  controls.
+- New real-build data source: MunchStats-linked Pokepaste sheet, 712 real 6-mon teams (659
+  with real EV spreads), wired into the generator behind a >=15-occurrence gate per species
+  to avoid noisy/thin samples. Addresses the honestly-flagged ceiling that usage APIs give
+  spread/item/move marginals, not joint full builds (the "Choice+Protect mash" cautionary
+  case) -- real Pokepaste builds are actual joint combinations a real player ran.
+- Minimum bar for any presented option (non-negotiable): legal (check_set + Item Clause),
+  provenance-labeled, diffed against the default, >=1 mechanical claim checked when the fork
+  is bulk/offense/Speed, team-conditioned note when relevant. An option that can't meet
+  legality/provenance/diff doesn't get presented as a peer of the default.
+
+Rejected: a parallel condition-resilience calculator for team-conditioning (duplicates
+existing logic, risks drift); folding compare into edit or pending_response (conflates
+distinct meanings under one shape); presenting species alternatives inside build-confirm
+(species is a different decision level than spread/item/moveset, not an axis of the same
+build).
+
+Consequence: full_build_confirmation now carries build_option_groups and default_option_ids
+on PendingPresentation (parallel to candidate_selection's existing options field, not a
+reuse of it -- that field is species-shaped and stays candidate-only). Two new turn_intents
+(select_build_option, compare) join the existing vocabulary. Free-text edit (chunk 2)
+remains the fallback path for novel requests, unchanged.

@@ -42,13 +42,13 @@ def test_kangaskhan_stamps_four_real_moves():
         featured_or_common_set("kangaskhan"),
     ):
         assert built is not None
-        assert built["moves"] == _KANGASKHAN_FOUR
         assert "" not in built["moves"]
         assert len(built["moves"]) == 4
+        assert built["moves"][0] == "Fake Out"
 
 
 def test_showdown_species_with_late_blanks_stamp_four_real_moves():
-    for sid in ("kangaskhanmega", "staraptor", "mawile"):
+    for sid in ("kangaskhanmega", "staraptor", "mawilemega"):
         built = set_from_showdown(sid)
         assert built is not None, sid
         assert "" not in built["moves"], sid

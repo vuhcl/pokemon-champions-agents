@@ -64,6 +64,13 @@ def _spread_from_usage(entry: dict[str, Any]) -> StatsTable | None:
     }
 
 
+def _nature_from_usage(entry: dict[str, Any]) -> str | None:
+    spreads = entry.get("top_spreads") or []
+    if spreads and spreads[0].get("nature"):
+        return str(spreads[0]["nature"])
+    return None
+
+
 def _species_for_spec(entry: dict[str, Any], fallback: str) -> str:
     """Calc-compatible species label: display name only when it to_id-matches the stored id."""
     name = entry.get("name") or fallback
@@ -101,6 +108,8 @@ def _set_from_entry(entry: dict[str, Any], species: str) -> PokemonSet | None:
                 out["ability"] = _display_ability(fs["ability"])
             if fs.get("nature"):
                 out["nature"] = fs["nature"]
+            elif nat := _nature_from_usage(entry):
+                out["nature"] = nat
             spread = _spread_from_usage(entry)
             if spread:
                 out["evs"] = spread
@@ -117,6 +126,8 @@ def _set_from_entry(entry: dict[str, Any], species: str) -> PokemonSet | None:
     }
     if abilities:
         out["ability"] = _display_ability(abilities[0]["name"])
+    if nat := _nature_from_usage(entry):
+        out["nature"] = nat
     spread = _spread_from_usage(entry)
     if spread:
         out["evs"] = spread

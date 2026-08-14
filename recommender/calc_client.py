@@ -73,11 +73,16 @@ class PokemonSpecOptional(PokemonSpec, total=False):
     boosts: StatSpreadJson
 
 
+class MoveOverrides(TypedDict, total=False):
+    basePower: int
+
+
 class CalcRequest(TypedDict):
     attacker: PokemonSpecOptional
     defender: PokemonSpecOptional
     move: str
     field: NotRequired[FieldSpec]
+    moveOverrides: NotRequired[MoveOverrides]
 
 
 class KochanceRaw(TypedDict):

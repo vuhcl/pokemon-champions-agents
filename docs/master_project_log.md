@@ -3619,6 +3619,196 @@ shipped via ADR-023 Amendment 2026-08-11a), Gap B (Trick Room `benefits_from` in
 single_locked, shipped), and Tailwind (confirmed empty legal pool, correctly left
 unaddressed).
 
+### 2026-08-12 — full_build_confirmation redesign: discovery, grounded in original role-play
+precedent + MunchStats real-build data
+
+Two rounds of live CLI testing on the shipped edit-intent (chunks 1+2) surfaced a real
+ceiling: full_build_confirmation offers only yes/defer, pushing every real build-change
+request onto free-text extraction regardless of predictability. Ambiguous edit_scope, and a
+complete lack of build-context for relative edits ("add Aura Sphere" — the model has no
+visibility into the current moveset), both traced to root cause rather than patched blind.
+
+Discovery pass (Cursor) confirmed the fix direction isn't a bigger extraction schema — it's
+anticipatory, computed alternatives at confirmation time, with free text as fallback. Critically,
+this isn't a new interaction pattern to invent: the original role-play transcript
+(ab36fab9-106d-487f-90fc-ead9d77c6051) already practiced exactly this — default build + 2-3
+computed usage-sourced sibling options, labeled with what differs, next to Accept. The written
+discovery docs (slot_fill_flow_discovery, anchor_role_and_target_role_discovery) never captured
+this as a designed shape; the transcript did it repeatedly and it held up.
+
+Two fresh role-play sessions (greenfield six, refine-existing-six) confirmed the shape works
+and surfaced ten concrete requirements, four of which are real design decisions (not
+implementation details) flagged for resolution before a plan: cross-option compare as a
+first-class interaction (likely its own turn_intent, not a fold-in), multi-axis option
+representation (spread x move x item need to compose, not present as a flat mutually-exclusive
+list), team-conditioned alternatives (reuse condition_resilience/composition_fit rather than a
+parallel generator), and whether species reconsideration mid-build-confirm is an allowed
+exception or a boundary to hold against candidate_selection's existing scope.
+
+Separately: the MunchStats-linked Pokepaste sheet (gid=1458357160) was resolved — 712/712 real
+6-mon teams, 659 with real EV spreads, mixed tournament/community population (distinct from the
+existing Limitless-only sources). Written to
+data/team-composition/champions-reg-mb.vgcpastes-builds.v1.json, discovery only, not wired into
+anything yet. Directly relevant to the redesign's own honestly-flagged ceiling: usage APIs give
+spread/item/move marginals, not joint full builds (the "Choice+Protect mash" case); real
+Pokepaste builds are actual joint combinations a real player ran, raising that ceiling for
+well-represented species (Archaludon, n=92 EV-bearing, shows real bulk-vs-offense spread/nature
+variation with item nearly fixed on Leftovers).
+
+Full findings consolidated into docs/reasoning_loop_design_consolidation_2026-08-11.md,
+Section 8, with backlog items 18-21 tracking the redesign core, the two open interaction-
+primitive decisions, and the MunchStats data as an unwired input.
+
+No implementation yet — discovery and design only. ADR entry deferred until a plan ships,
+per standing practice.
+
+### 2026-08-12 — full_build_confirmation redesign shipped: axis-composed alternatives,
+compare intent, MunchStats real-build data
+
+Full arc from discovery to ship in one day, following the standing discovery -> plan ->
+implementation -> PR workflow throughout. Root cause: two rounds of live CLI testing on the
+shipped edit-intent (chunks 1+2) traced repeated failures to full_build_confirmation
+offering no options at all, not to extraction weakness -- ambiguous scope and missing
+build-context (the "add Aura Sphere" case, where the model had zero visibility into the
+current moveset) both root-caused rather than patched blind.
+
+Discovery (Cursor) found the fix direction was already-practiced precedent, not new
+invention: the original role-play transcript did default + computed sibling options as
+AskQuestion choices repeatedly; the written discovery docs just never captured it as a
+designed shape. Two fresh role-play sessions (greenfield six, refine-existing-six)
+confirmed the shape holds and surfaced ten concrete requirements, four resolved as real
+design decisions (not implementation details): compare as a new dedicated intent;
+axis-tagged option groups instead of a flat list (the "B+C" multi-axis-pick pattern was
+common and a flat menu forces unnecessary free-text merges); reuse of
+condition_resilience/composition_fit for team-conditioned siblings rather than a parallel
+generator; and holding the boundary on species selection staying outside build-confirm.
+
+Plan (Cursor, master + 3 sub-plans on the chunk-2 pattern -- Commit 0 fixed contract, then
+parallel A/wire+intents, B/generator, C/compare-helper) caught and fixed a real correctness
+issue during review: affirm commits provisional_slot as-is with no reconciliation step, so
+provisional must already equal the composed default at every full_build_confirmation
+emission -- provisional_for_confirmation now enforces this. Plan review also corrected an
+initial compare-cap design (was going to cap total options analyzed; corrected to cap only
+threat-context calc calls, since every requested option must be analyzed but the number of
+threat contexts is the expensive, variable cost).
+
+Separately, the MunchStats-linked Pokepaste sheet (712 real 6-mon teams, 659 with real EV
+spreads, mixed tournament/community population) was resolved and wired into the
+alternatives generator (>=15-occurrence gate per species) -- directly closing the
+honestly-flagged ceiling that usage-API-sourced alternatives are marginals, not joint real
+builds.
+
+Shipped on feat/full-build-confirmation-options (66725cb), independently verified against
+the pushed branch (not just the reported confirmation pass): diff matches the reported file
+list; the invariant function and the specifically-requested overlap-reject test both exist
+and match the plan; the compare-cap correction is real in code and in the module's own
+docstring. Named test suite passes (54 passed); full suite clean, no regressions (894
+passed, 6 skipped, up from 875 pre-ship).
+
+Backlog items 18-21 (docs/reasoning_loop_design_consolidation_2026-08-11.md) closed. Full
+design record in that doc, Section 8. ADR-031 filed.
+
+### 2026-08-12 — Role Compendium: setup-attacker categories expanded to six, scoring
+methodology corrected mid-arc
+
+Filled out the setup-attacker family of the Role Compendium — Calm Mind, Bulk Up, Dragon
+Dance, and Iron Defense+Body Press joined the already-shipped Swords Dance and Nasty Plot,
+following the same pool-size and ADR-015 precondition gates used for Tailwind Setter and
+Sleep Status Spreader earlier this session. Several real gaps in the scoring machinery
+surfaced and were fixed during construction rather than papered over: a scoring bug that let
+type immunity inflate a candidate's average instead of penalizing it, a stale sort key that
+under-ranked state-scaling moves like Rage Fist after they'd already been wired to use real
+boosted power elsewhere in the pipeline, and a threat panel that had been silently dropping
+real Showdown natures/moves for panel defenders since before this session started — the last
+of which required re-persisting Swords Dance and Nasty Plot, since they'd shipped earlier in
+the session against the incomplete panel. All six setup categories are now built on
+consistent, verified data. Full technical detail in ADR-019 Amendments 2026-08-12a/b.
+
+## 2026-08-14: Aegislash Stance Change fix — pre-attack forme correction + King's Shield/
+Shadow Sneak sequence credit
+
+Closes the Aegislash item opened this session (3c item 1 in the 2026-08-14 handoff). Full
+design-then-verify arc: discovery confirmed the exact bug (`_calc_species_name` forcing Blade
+Forme onto pre-attack survival checks, contradicting Branch B's already-correct Shield-based
+admission check) and confirmed no existing species-specific calc-branch pattern to extend
+(closest neighbor, `_scarf_nature_correction`, lives in a different pipeline). Design was
+narrowed live in conversation from an initially broader "model King's Shield recovery" framing
+down to two independently-gated, real-moveset-only credit paths once the actual turn-order
+mechanics were worked through (Aegislash's slow Speed means the threat's only live shot at
+Blade Forme is the single post-Shadow-Sneak exchange, not an ongoing exposure window) — see
+ADR-019 Amendment 2026-08-14a for the full mechanic.
+
+Independently verified (branch pulled, diffed, tests run directly): 65/65 passing including
+six named Aegislash tests, two of them adversarial (moveset-gate-absent cases), confirming the
+`kit_moves`-only gate holds rather than trusting the happy path alone.
+
+**CM/BU/ID confirmed fixed via the shared _candidate_defender_spec helper** — not skipped, not SD-only. Verified directly against the diff rather than trusted from the report. Remaining gap is test coverage only: no _setup_bulk_crossings-specific assertion on Aegislash's defender species, just indirect coverage via the shared-helper test. Small, optional follow-up.
+
+Still on the WIP branch — no critic pass, no persist. Branch/PR discipline followed correctly
+(feature branch off latest WIP base, pushed to origin, PR opened).
+
+## 2026-08-14 (cont.): connect-recoil deduction + debuff_surv standing signal
+
+Closes the recoil/self-debuff half of 3c item 2 (Close Combat self-debuff/recoil timing).
+Design was worked out live in conversation across two turns: recoil resolved simply once the
+existing `dmg_f`/`hp_f` unpacking was recognized as already carrying what's needed (only
+correction needed was reading calc's own OHKO-capped `raw.recoil` rather than recomputing from
+the ratio, avoiding a real overstatement error a naive implementation would have shipped);
+self-debuff required a real design fork — full sequential "keep sweeping through the whole
+panel" simulation was explicitly rejected as scope explosion, settled instead on a once-per-
+candidate standing signal (`debuff_surv`) kept fully separate from primary `remain`'s
+turn-order rules, mirroring the King's-Shield-reset shape from the Aegislash task (second,
+independently-computed defender-spec pass) rather than inventing a new pattern.
+
+A genuine confirmation-stage question resolved cleanly: whether "no `remain` entry when moving
+first" (which the self-debuff design leaned on to justify skipping turn-order handling
+entirely) was intentional or an oversight. Confirmed intentional by Cursor directly — this
+simplified the task materially, since it meant the turn-order distinction discussed earlier in
+design never actually needed new handling in this implementation.
+
+Independently verified (branch pulled, diffed, both most load-bearing tests read in full, not
+just run): 12/12 new tests pass, 71/71 across both named test files including Aegislash's six
+re-confirmed unmodified. One real latent bug caught and fixed in the same pass — the existing
+`stage > 0` boost filter would have silently ignored any self-debuff, verified via a genuinely
+adversarial test that inspects the actual defender spec sent to calc rather than trusting the
+final number.
+
+Still on the WIP branch — no critic pass, no persist.
+
+**Deliberately deferred, tracked separately:** priority-finisher generalization (Aegislash's
+Shadow Sneak combined-KO credit generalized beyond one species, wired into all six setup
+categories) — discovery and plan both complete as of this session, implementation not yet
+sent/landed.
+
+## 2026-08-14 (cont.): priority-finisher combined-KO generalized to all six setup categories
+
+Closes the remaining half of 3c item 2 — the recoil/self-debuff half closed earlier the same
+day (see prior entry). Prompted directly by a fairness observation mid-session: the Aegislash
+combined-KO credit (Shadow Sneak finishing a non-OHKO Swords Dance hit) was gated on species,
+but the underlying mechanic — priority resolving before a threat's next action — has nothing to
+do with Stance Change. A discovery pass confirmed the real cases this actually affects mostly
+live outside SD entirely (Aqua Jet on Bulk Up Starmie-Mega, Jet Punch on Bulk Up Palafin, Quick
+Attack on Calm Mind Sylveon, Sucker Punch on Dragon Dance Flapple, Mach Punch on Bulk Up
+Crabominable-Mega) — generalizing the logic without also extending the call site into the other
+five categories would have left the actual fairness gap mostly unaddressed. Decided explicitly
+to wire all six categories now rather than defer the non-SD call sites as a follow-up.
+
+Two real judgment calls resolved cleanly during discovery/design: Fake Out excluded
+categorically (same first-turn-only restriction as its existing payoff ban, not a partial-credit
+case); Sucker Punch confirmed to need no special handling at all, since its one real fail
+condition already coincides with a case the existing `lived_shield` gate structurally excludes
+from ever reaching the credit check in the first place.
+
+Independently verified (branch pulled, diffed, all five call sites confirmed present by direct
+grep rather than trusted from the report): all 9 eligible moves individually tested against
+real species, both exclusion tests genuinely adversarial, non-SD extension proven with a real
+Bulk Up test case, Aegislash's original six tests re-confirmed unmodified. 77/77 full run.
+
+PR #72 merged into `wip/setup-tr-usage-and-scoring`. Still no critic pass, no persist —
+combined with the Aegislash and recoil/debuff work earlier the same day, this closes all of 3c
+item 2's originally-scoped work (Close Combat self-debuff/recoil timing) plus the fairness
+extension it surfaced along the way.
+
 ---
 
 ## TOOLS & RESOURCES

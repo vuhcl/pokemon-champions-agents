@@ -83,10 +83,12 @@ def test_sand_discount_artifact_base(monkeypatch):
     assert not any(r.species_id == "tyranitar" for r in draft.considered_rejected)
 
 
-def test_sand_prankster_sandstorm_rejected_without_usage():
+def test_sand_prankster_sandstorm_usage_proven_is_good():
+    """July chaos: Klefki Sandstorm r11 / 4.0% + Prankster."""
     draft = _sand_draft(showdown_fetch=None)
-    rejected = {r.species_id for r in draft.considered_rejected}
-    assert "klefki" in rejected
+    assert "Klefki" in _members(draft, "Good")
+    klef = next(c for c in draft.candidates if c.species_id == "klefki")
+    assert klef.criteria_notes.get("usage_proven") == "True"
 
 
 def test_sand_critique_approves_with_independent_tyranitar():
