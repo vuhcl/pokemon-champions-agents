@@ -194,6 +194,62 @@ def test_grimmsnarl_screens_light_clay_screens_support():
     )
 
 
+def test_aurora_veil_alone_is_screens_support():
+    assert (
+        infer_role(
+            ["Aurora Veil", "Moonblast", "Freeze-Dry", "Protect"],
+            "Light Clay",
+            "Snow Warning",
+        )
+        == "screens_support"
+    )
+    assert (
+        infer_role(
+            ["Aurora Veil", "Moonblast", "Freeze-Dry", "Protect"],
+            "Leftovers",
+            "Snow Warning",
+        )
+        == "screens_support"
+    )
+
+
+def test_lone_light_screen_is_not_screens_support_without_clay():
+    assert (
+        infer_role(
+            ["Light Screen", "Moonblast", "Shadow Ball", "Protect"],
+            "Leftovers",
+        )
+        != "screens_support"
+    )
+    assert (
+        infer_role(
+            ["Light Screen", "Moonblast", "Shadow Ball", "Protect"],
+            "Light Clay",
+        )
+        == "screens_support"
+    )
+
+
+def test_bulky_status_kit_lone_screen_is_not_screens_support():
+    assert (
+        infer_role(
+            ["Will-O-Wisp", "Light Screen", "Encore", "Disable"],
+            "Leftovers",
+        )
+        != "screens_support"
+    )
+
+
+def test_assault_vest_is_not_a_screens_signal():
+    assert (
+        infer_role(
+            ["Light Screen", "Moonblast", "Shadow Ball", "Protect"],
+            "Assault Vest",
+        )
+        != "screens_support"
+    )
+
+
 def test_kingambit_black_glasses_standard_physical():
     assert (
         infer_role(

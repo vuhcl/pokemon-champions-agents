@@ -12,7 +12,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal, cast
+from typing import Any, Literal
 
 from recommender.ability_classification import (
     execution_reinforce_abilities,
@@ -21,19 +21,26 @@ from recommender.ability_classification import (
     taunt_denial_ability_ids,
 )
 from recommender.calc_client import calculate_batch as _default_calculate_batch
-from recommender.coverage import ABILITY_TO_FIELD, get_relevant_threats
+from recommender.counters import _move_base_accuracy, _scaled_base_power
+from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot, resolve_learnset
-from recommender.matchup import _CHARGE_MOVES, _RECHARGE_MOVES, _makes_contact
+from recommender.matchup import (
+    _CHARGE_MOVES,
+    _RECHARGE_MOVES,
+    _makes_contact,
+    effective_accuracy,
+)
 from recommender.move_narrowing import move_priority
 from recommender.reconcile import _item_mega_forme
-from recommender.state import RecommenderState
 from recommender.support_needs import _OFFENSIVE_PRIORITY_MOVES, _SELF_HEAL_MOVES
 from recommender.usage_cbd import fetch_ingame_doubles_species
 from recommender.usage_data import (
     featured_or_common_set,
     ingame_species_map,
     load_usage,
+    set_from_ingame,
+    set_from_showdown,
     showdown_species_map,
 )
 from recommender.usage_showdown import fetch_showdown_vgc_species
@@ -53,6 +60,13 @@ ROLE_TIER_ORDER = ("Excellent", "Good", "Acceptable")
 _COMPETING_IDENTITY_MOVES = frozenset({"quiverdance"})
 # Base Showdown usage_pct must be ≥ this fraction of Mega's to keep usage_proven.
 _SHOWDOWN_BASE_USAGE_RATIO = 0.25
+# Chaos set% floor for usage-proven (July 2026 1500 distribution).
+# Screens smear starts after Whimsicott/Espeon 2.32% (next 1.98%). Sleep's 2.3
+# vs 3.0 admit the same set (nothing in (1.66, 3.01)).
+_USAGE_SET_PCT_FLOOR = 2.3
+# Setup-attacker admission: presence only (exclude 0.00x chaos-key ghosts).
+# Calc Excellent/Good/Acceptable floors do the real filter. Support stays at 2.3.
+_SETUP_PRESENCE_SET_PCT_FLOOR = 0.1
 # Fallback only when Mega has no Showdown entry: mega-stone item share on base CBD page.
 _MEGA_STONE_FALLBACK_PCT = 80.0
 
@@ -62,6 +76,9 @@ _SETUP_SPE_FLOOR = 100
 _SETUP_BULK_FLOOR = 400
 _SETUP_SUSTAIN_HEALS = _SELF_HEAL_MOVES | frozenset({"rest"})
 _SETUP_SUSTAIN_ITEMS = frozenset({"leftovers", "blacksludge", "sitrusberry"})
+# Choice locks the first move: cannot setup then cash out. check_theme_fit
+# (_tier1_choice_status_moves) already knows this; Compendium kits never ran it.
+_SETUP_CHOICE_ITEMS = frozenset({"choiceband", "choicespecs", "choicescarf"})
 _SETUP_SUSTAIN_DRAIN = frozenset(
     {
         "bitterblade",
@@ -81,17 +98,16 @@ _SETUP_EXCELLENT_SECONDARY_ABILITIES = frozenset(
 _SETUP_EXCELLENT_SECONDARY_MOVES = frozenset(
     {"tailwind", "lightscreen", "reflect", "stickyweb", "trickroom", "auroraveil"}
 )
-_SETUP_THREAT_PANEL_N = 8
-# Priority score boost: inverse of modal 40 BP priority vs 80 BP non-priority.
-# Applied only when the scored payoff move itself is priority (not learnset access).
-_SETUP_PRIORITY_SCORE_MULT = 1.5
-# Conditional priority (Sucker Punch etc.): usage-mix proxy ≈70% success → 1+0.7*(1.5-1).
+# Showdown usage_pct floor: >50% chance to face the mon in k games.
+# 1 - (1-p)^k > 0.5 → p > 1 - 0.5^(1/k). k=15 is Smogon modern OU (4.52%).
+# Champions in-game snapshot has ranks only — threshold uses Showdown@1500.
+_SETUP_THREAT_ENCOUNTER_GAMES = 15
+_SETUP_THREAT_USAGE_PCT_FLOOR = 100.0 * (
+    1.0 - 0.5 ** (1.0 / _SETUP_THREAT_ENCOUNTER_GAMES)
+)
+# Kind labels only (turn-order already grants full credit for priority).
 _SETUP_CONDITIONAL_PRIORITY = frozenset({"suckerpunch", "thunderclap", "upperhand"})
-_SETUP_CONDITIONAL_PRIORITY_MULT = 1.35
-# Narrower conditional (Feint: Protect-that-turn) — still kind "conditional".
-# Same formula with p≈0.30 (~3/7 of SP's p≈0.70) → 1+0.30*(1.5-1) = 1.15.
 _SETUP_NARROW_CONDITIONAL_PRIORITY = frozenset({"feint"})
-_SETUP_NARROW_CONDITIONAL_PRIORITY_MULT = 1.15
 # Switch-in-only: cannot follow Swords Dance / Nasty Plot (Branch A + payoff).
 _SETUP_BRANCH_A_PRIORITY = _OFFENSIVE_PRIORITY_MOVES - frozenset({"fakeout"})
 # Soft overkill cap: credit up to 25% beyond a KO (hard 1.0 flattened useful signal).
@@ -102,14 +118,24 @@ _SETUP_FLOOR_SECOND_MULT = 0.95
 # Good/Acceptable split: anchored on the widest real gap in the SD Good field
 # (0.869 | 0.768), whose stable plateau is (0.664, 0.752] × floor; 0.70 is the midpoint.
 _SETUP_ACCEPTABLE_FLOOR_MULT = 0.70
+_CALC_POKE_KEYS = ("species", "item", "ability", "moves", "nature", "evs", "boosts", "level")
 
 SetupPriorityKind = Literal["none", "unconditional", "conditional"]
 # Lock-in: 2-3 forced turns then self-confusion — same unmodeled multi-turn cost as charge/recharge.
 _SETUP_LOCKIN_MOVES = frozenset({"outrage", "petaldance", "thrash", "ragingfury"})
 # Same-turn unreliable / delayed / recharge / lock-in — not valid setup cash-out payoffs.
-# Fake Out: switch-in-only; cannot cash out after SD/NP.
+# Fake Out: switch-in-only; cannot cash out after setup.
+# Upper Hand: only hits if the opponent used priority that turn — static calc can't guarantee.
 _SETUP_BANNED_PAYOFF = (
-    frozenset({"focuspunch", "futuresight", "doomdesire", "fakeout"})
+    frozenset(
+        {
+            "focuspunch",
+            "futuresight",
+            "doomdesire",
+            "fakeout",
+            "upperhand",
+        }
+    )
     | _CHARGE_MOVES
     | _RECHARGE_MOVES
     | _SETUP_LOCKIN_MOVES
@@ -251,6 +277,70 @@ NASTY_PLOT_ATTACKER_CRITERIA: dict[str, Any] = {
     "boost_stages": 2,
 }
 
+CALM_MIND_ATTACKER_CRITERIA: dict[str, Any] = {
+    "kind": "offense_bulk_setup",
+    "condition": "",
+    "move_id": "calmmind",
+    "boost_stat": "spa",
+    "boost_stages": 1,
+    "exact_boosts": {"spa": 1, "spd": 1},
+}
+
+BULK_UP_ATTACKER_CRITERIA: dict[str, Any] = {
+    "kind": "offense_bulk_setup",
+    "condition": "",
+    "move_id": "bulkup",
+    "boost_stat": "atk",
+    "boost_stages": 1,
+    "exact_boosts": {"atk": 1, "def": 1},
+}
+
+DRAGON_DANCE_ATTACKER_CRITERIA: dict[str, Any] = {
+    "kind": "offense_speed_setup",
+    "condition": "",
+    "move_id": "dragondance",
+    "boost_stat": "atk",
+    "boost_stages": 1,
+    "exact_boosts": {"atk": 1, "spe": 1},
+}
+
+IRON_DEFENSE_BODY_PRESS_CRITERIA: dict[str, Any] = {
+    "kind": "def_payoff_setup",
+    "condition": "",
+    "setup_move_id": "irondefense",
+    "payoff_move_id": "bodypress",
+    "boost_stat": "def",
+    "boost_stages": 2,
+}
+
+# Dummy Def-invested spread for Body Press (uses Defense, not Attack).
+_BODY_PRESS_EVS = {"hp": 4, "atk": 0, "def": 32, "spa": 0, "spd": 0, "spe": 32}
+_DEF_PAYOFF_DELTA_EPS = 1e-6
+
+TAILWIND_SETTER_CRITERIA: dict[str, Any] = {
+    "kind": "tailwind_setter",
+    "condition": "",
+    "move_ids": frozenset({"tailwind"}),
+    # No ability delivers Tailwind — criterion 1 cannot separate candidates.
+    "ability_ids": frozenset(),
+}
+
+SLEEP_STATUS_SPREADER_CRITERIA: dict[str, Any] = {
+    "kind": "sleep_status_spreader",
+    "condition": "",
+    # Core set from ADR-015 2026-07-29f; constructor also sweeps other Status
+    # sleep moves present in the snapshot (Sing, Spore, Dark Void, …).
+    "move_ids": frozenset({"sleeppowder", "hypnosis", "yawn"}),
+    "ability_ids": frozenset(),
+}
+
+SCREENS_SUPPORT_CRITERIA: dict[str, Any] = {
+    "kind": "screens_support",
+    "condition": "",
+    "move_ids": frozenset({"lightscreen", "reflect", "auroraveil"}),
+    "ability_ids": frozenset(),
+}
+
 # Phase 1 closed secondary allowlist (never include primary redirect moves).
 _REDIRECTION_SECONDARY_MOVES = frozenset(
     {
@@ -290,6 +380,100 @@ _TRICK_ROOM_SECONDARY_MOVES = _REDIRECTION_SECONDARY_MOVES - {"trickroom", "tail
 _TRICK_ROOM_EXCELLENT_SECONDARY_MOVES = _REDIRECTION_EXCELLENT_SECONDARY_MOVES - {
     "trickroom",
     "tailwind",
+}
+
+# Tailwind Setter: same closed support list minus the primary mechanism. Trick Room
+# stays allowable as a genuine second speed-control answer (TailRoom is real).
+_TAILWIND_DELIVERY_NOTE = (
+    "move-only delivery; no ability sets Tailwind — weather's move→Good cap "
+    "does not apply (no ability tier above move delivery)"
+)
+# Provisional Spe floor for non-Prankster natural-Speed landing (reviewable;
+# same numeric bar as setup Branch B / _SETUP_SPE_FLOOR).
+_TAILWIND_SPE_FLOOR = _SETUP_SPE_FLOOR
+_TAILWIND_SECONDARY_MOVES = _REDIRECTION_SECONDARY_MOVES - {"tailwind"}
+_TAILWIND_EXCELLENT_SECONDARY_MOVES = _REDIRECTION_EXCELLENT_SECONDARY_MOVES - {
+    "tailwind",
+}
+
+# Sleep Status Spreader — ADR-015 2026-07-29f. Accuracies are game facts (snapshot
+# strips accuracy); keep them here so pathway grading stays checkable.
+_SLEEP_CORE_MOVES = frozenset({"sleeppowder", "hypnosis", "yawn"})
+_SLEEP_STATUS_MOVES = frozenset(
+    {
+        "sleeppowder",
+        "hypnosis",
+        "yawn",
+        "spore",
+        "darkvoid",
+        "sing",
+        "grasswhistle",
+        "lovelykiss",
+    }
+)
+_SLEEP_ACCURACY: dict[str, int] = {
+    "spore": 100,
+    "sleeppowder": 75,
+    "hypnosis": 60,
+    "yawn": 100,  # lands 100%; sleep effect delayed one turn
+    "sing": 55,
+    "darkvoid": 50,
+    "grasswhistle": 55,
+    "lovelykiss": 85,
+}
+_SLEEP_IMMEDIATE = frozenset(
+    {"spore", "sleeppowder", "hypnosis", "sing", "darkvoid", "grasswhistle", "lovelykiss"}
+)
+_SLEEP_DELAYED = frozenset({"yawn"})
+_SLEEP_ACCURACY_ABILITIES = frozenset({"compoundeyes", "noguard"})
+_SLEEP_TRAP_ABILITIES = frozenset({"shadowtag", "arenatrap", "magnetpull"})
+_SLEEP_SPE_FLOOR = _SETUP_SPE_FLOOR  # provisional; ignored for pure Yawn
+_SLEEP_SPEED_ABILITIES = frozenset(
+    {
+        "chlorophyll",
+        "swiftswim",
+        "sandrush",
+        "slushrush",
+        "unburden",
+        "speedboost",
+    }
+)
+_SLEEP_SECONDARY_MOVES = frozenset(
+    {
+        "encore",
+        "lightscreen",
+        "reflect",
+        "auroraveil",
+        "stickyweb",
+        "trickroom",
+        "tailwind",
+        "lifedew",
+        "willowisp",
+        "thunderwave",
+        "wideguard",
+        "followme",
+        "ragepowder",
+    }
+)
+# Helping Hand is deliberately excluded — not sleep excellence (plan).
+_SLEEP_EXCELLENT_SECONDARY_MOVES = frozenset(
+    {"lightscreen", "reflect", "stickyweb", "trickroom", "tailwind"}
+)
+
+# Screens Support: one category (Dual / LS / Reflect / Aurora Veil). No ability
+# sets screens — same move-only delivery shape as Tailwind.
+_SCREENS_DELIVERY_NOTE = (
+    "move-only delivery; no ability sets screens — weather's move→Good cap "
+    "does not apply (no ability tier above move delivery)"
+)
+_SCREENS_SPE_FLOOR = _SETUP_SPE_FLOOR
+_SCREENS_MOVE_IDS = frozenset({"lightscreen", "reflect", "auroraveil"})
+_SCREENS_SNOW_ABILITIES = frozenset({"snowwarning"})
+_SCREENS_SNOW_MOVES = frozenset({"snowscape", "chillyreception"})
+_SCREENS_SECONDARY_MOVES = _REDIRECTION_SECONDARY_MOVES - _SCREENS_MOVE_IDS
+_SCREENS_EXCELLENT_SECONDARY_MOVES = _REDIRECTION_EXCELLENT_SECONDARY_MOVES - {
+    "lightscreen",
+    "reflect",
 }
 
 _SUPPORT_MOVE_IDS = frozenset(
@@ -411,8 +595,9 @@ class _UsageCtx:
     def champions_entry(self, species: str) -> dict[str, Any] | None:
         """Champions in-game doubles row only, never ladder data.
 
-        Champions is the target format, so where a row exists its verdict on a
-        move outranks Showdown's. Shares entry_for's live-fetch cache.
+        Presence of a CBD row is not a Showdown blackout — callers must consult
+        Showdown per-move when this row lacks the move. Shares entry_for's
+        live-fetch cache.
         """
         sid = to_id(species)
         ingame = (load_usage().get("ingame_doubles") or {}).get("species") or {}
@@ -456,6 +641,19 @@ def _entry_has_move(entry: dict[str, Any] | None, move_id: str) -> bool:
         for m in fs.get("moves") or []:
             if to_id(m) == mid:
                 return True
+    return False
+
+
+def _entry_has_item(entry: dict[str, Any] | None, item_id: str) -> bool:
+    if not entry:
+        return False
+    iid = to_id(item_id)
+    for it in entry.get("common_items") or []:
+        if to_id(it.get("name") or "") == iid:
+            return True
+    for fs in entry.get("featured_sets") or []:
+        if to_id(fs.get("item") or "") == iid:
+            return True
     return False
 
 
@@ -614,7 +812,15 @@ def construct_role_category(
     uctx = _UsageCtx(
         live_fetch=live_fetch,
         showdown_fetch=showdown_fetch,
-        mega_showdown_fallback=(kind == "setup_attacker"),
+        mega_showdown_fallback=(
+            kind
+            in {
+                "setup_attacker",
+                "offense_bulk_setup",
+                "offense_speed_setup",
+                "def_payoff_setup",
+            }
+        ),
     )
     if kind == "redirection":
         return _construct_redirection(
@@ -636,8 +842,60 @@ def construct_role_category(
             showdown_fetch=showdown_fetch,
             reference_compendium=reference_compendium,
         )
+    if kind == "tailwind_setter":
+        return _construct_tailwind_setter(
+            category,
+            sub_criteria,
+            legal_pool,
+            snap=snap,
+            uctx=uctx,
+            showdown_fetch=showdown_fetch,
+            reference_compendium=reference_compendium,
+        )
+    if kind == "sleep_status_spreader":
+        return _construct_sleep_status_spreader(
+            category,
+            sub_criteria,
+            legal_pool,
+            snap=snap,
+            uctx=uctx,
+            showdown_fetch=showdown_fetch,
+            reference_compendium=reference_compendium,
+        )
+    if kind == "screens_support":
+        return _construct_screens_support(
+            category,
+            sub_criteria,
+            legal_pool,
+            snap=snap,
+            uctx=uctx,
+            showdown_fetch=showdown_fetch,
+            reference_compendium=reference_compendium,
+        )
     if kind == "setup_attacker":
         return _construct_setup_attacker(
+            category,
+            sub_criteria,
+            legal_pool,
+            snap=snap,
+            uctx=uctx,
+            showdown_fetch=showdown_fetch,
+            reference_compendium=reference_compendium,
+            calculate_batch=calculate_batch or _default_calculate_batch,
+        )
+    if kind in {"offense_bulk_setup", "offense_speed_setup"}:
+        return _construct_offense_stage_setup(
+            category,
+            sub_criteria,
+            legal_pool,
+            snap=snap,
+            uctx=uctx,
+            showdown_fetch=showdown_fetch,
+            reference_compendium=reference_compendium,
+            calculate_batch=calculate_batch or _default_calculate_batch,
+        )
+    if kind == "def_payoff_setup":
+        return _construct_def_payoff_setup(
             category,
             sub_criteria,
             legal_pool,
@@ -883,7 +1141,14 @@ def _construct_weather_setter(
             continue
         prio_name = abs_map[next(iter(sorted(prio)))]
         move_display = _move_display(snap, move_id)
-        usage_proven = uctx.delivers(name, move_id)
+        usage_proven = uctx.delivers(name, move_id) and _hits_clear_set_pct_floor(
+            name,
+            {move_id},
+            floor=_USAGE_SET_PCT_FLOOR,
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+        )
         if not _admit_move_delivery(
             usage_proven=usage_proven, independent_reinforce=False
         ):
@@ -960,6 +1225,51 @@ def _construct_weather_setter(
     )
 
 
+def _best_move_set_pct(
+    name: str,
+    move_id: str,
+    *,
+    uctx: _UsageCtx,
+    sd_cache: dict[str, dict[str, Any] | None],
+    showdown_fetch: LiveFetch | None,
+) -> float:
+    """Max of CBD pct and Showdown set% for one move. Does not live-fetch."""
+    sid = to_id(name)
+    ingame = (load_usage().get("ingame_doubles") or {}).get("species") or {}
+    ch = ingame.get(sid)
+    if not isinstance(ch, dict):
+        ch = uctx.cache.get(sid)  # already-fetched live CBD only
+    sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)
+    return max(_move_pct(ch if isinstance(ch, dict) else None, move_id), _move_pct(sd, move_id))
+
+
+def _hits_clear_set_pct_floor(
+    name: str,
+    mids: set[str] | frozenset[str],
+    *,
+    floor: float,
+    uctx: _UsageCtx,
+    sd_cache: dict[str, dict[str, Any] | None],
+    showdown_fetch: LiveFetch | None,
+    require_all: bool = False,
+) -> bool:
+    """True when delivery rate clears the chaos set% floor.
+
+    require_all: ID+BP — both moves must individually clear. Else max of hits.
+    """
+    if not mids:
+        return False
+    pcts = [
+        _best_move_set_pct(
+            name, mid, uctx=uctx, sd_cache=sd_cache, showdown_fetch=showdown_fetch
+        )
+        for mid in mids
+    ]
+    if require_all:
+        return bool(pcts) and all(p >= floor for p in pcts)
+    return max(pcts, default=0.0) >= floor
+
+
 def _move_pct(entry: dict[str, Any] | None, move_id: str) -> float:
     if not entry:
         return 0.0
@@ -1023,6 +1333,28 @@ def _mega_pair_ids(sid: str, snap: dict[str, Any], pool_ids: set[str]) -> tuple[
     return None
 
 
+def _mega_stone_on_entry(
+    entry: dict[str, Any] | None,
+    base_sid: str,
+    mega_sid: str,
+    snap: dict[str, Any],
+) -> bool:
+    """True when entry's common items include this mega's stone at ≥80%."""
+    if not entry:
+        return False
+    for item in entry.get("common_items") or []:
+        iid = to_id(item.get("name") or "")
+        try:
+            pct = float(item.get("pct") or 0.0)
+        except (TypeError, ValueError):
+            pct = 0.0
+        if pct < _MEGA_STONE_FALLBACK_PCT:
+            continue
+        if _item_mega_forme(iid, base_sid, snap) == mega_sid:
+            return True
+    return False
+
+
 def _stone_fallback_usage(
     base_name: str,
     base_sid: str,
@@ -1034,22 +1366,9 @@ def _stone_fallback_usage(
 ) -> bool:
     """Attribute redirect usage to Mega when base CBD page shows mega-stone ≥80%."""
     entry = uctx.entry_for(base_name)
-    if not entry:
+    if not entry or not any(_entry_has_move(entry, mid) for mid in move_ids):
         return False
-    if not any(_entry_has_move(entry, mid) for mid in move_ids):
-        return False
-    for item in entry.get("common_items") or []:
-        iid = to_id(item.get("name") or "")
-        try:
-            pct = float(item.get("pct") or 0.0)
-        except (TypeError, ValueError):
-            pct = 0.0
-        if pct < _MEGA_STONE_FALLBACK_PCT:
-            continue
-        mapped = _item_mega_forme(iid, base_sid, snap)
-        if mapped == mega_sid:
-            return True
-    return False
+    return _mega_stone_on_entry(entry, base_sid, mega_sid, snap)
 
 
 def _stone_fallback_ability(
@@ -1061,21 +1380,9 @@ def _stone_fallback_ability(
     snap: dict[str, Any],
 ) -> bool:
     """Attribute weather-ability usage to Mega when base CBD shows mega-stone ≥80%."""
-    entry = uctx.entry_for(base_name)
-    if not entry:
-        return False
-    for item in entry.get("common_items") or []:
-        iid = to_id(item.get("name") or "")
-        try:
-            pct = float(item.get("pct") or 0.0)
-        except (TypeError, ValueError):
-            pct = 0.0
-        if pct < _MEGA_STONE_FALLBACK_PCT:
-            continue
-        mapped = _item_mega_forme(iid, base_sid, snap)
-        if mapped == mega_sid:
-            return True
-    return False
+    return _mega_stone_on_entry(
+        uctx.entry_for(base_name), base_sid, mega_sid, snap
+    )
 
 
 def _mega_usage_attribution(
@@ -1189,6 +1496,18 @@ def exclusive_self_boost_move(*, boost_stat: str, stages: int = 2) -> str:
     return hits[0]
 
 
+def exact_self_boost_move(want: dict[str, int]) -> str:
+    """Champions-legal Status move whose guaranteed self-boosts equal `want` exactly."""
+    hits = [
+        mid
+        for mid, ent in (load_stat_boosts().get("moves") or {}).items()
+        if ent.get("category") == "Status" and _self_boosts(ent) == want
+    ]
+    if len(hits) != 1:
+        raise ValueError(f"expected one Status self-boost {want}, got {hits}")
+    return hits[0]
+
+
 def _setup_priority_for_branch(
     learnset: set[str],
     snap: dict[str, Any],
@@ -1252,37 +1571,22 @@ def _setup_priority_kind(move_id: str) -> SetupPriorityKind:
     return "none"
 
 
-def _setup_priority_mult(kind: SetupPriorityKind) -> float:
-    """Kind-only mult (broad conditional → ×1.35). Prefer _setup_priority_mult_for(move)."""
-    if kind == "unconditional":
-        return _SETUP_PRIORITY_SCORE_MULT
-    if kind == "conditional":
-        return _SETUP_CONDITIONAL_PRIORITY_MULT
-    return 1.0
-
-
-def _setup_priority_mult_for(move_id: str) -> float:
-    """Move-aware priority score mult (Feint ×1.15 vs SP/UH ×1.35 vs unconditional ×1.5)."""
-    mid = to_id(move_id)
-    if mid in _SETUP_NARROW_CONDITIONAL_PRIORITY:
-        return _SETUP_NARROW_CONDITIONAL_PRIORITY_MULT
-    if mid in _SETUP_CONDITIONAL_PRIORITY:
-        return _SETUP_CONDITIONAL_PRIORITY_MULT
-    if mid in _OFFENSIVE_PRIORITY_MOVES:
-        return _SETUP_PRIORITY_SCORE_MULT
-    return 1.0
-
-
 def _setup_turn_order_weight(
     move_id: str,
     atk_spe: int,
     def_spe: int,
     ability: str | None,
+    *,
+    incoming_ohko: bool | None = None,
+    spe_stages: int = 0,
 ) -> float:
     """Credit weight for a panel-member damage frac under turn order.
 
     Missing Spe → fail open (1.0). Priority payoff acts first. Disguise/Ice Face
-    absorbs the first hit when outsped. Speed Boost assumes +1 Spe after setup.
+    absorbs the first hit when outsped. spe_stages is already total (DD + Speed
+    Boost); applied to unboosted Spe returned by @smogon/calc.
+    Outsped: zero only if incoming_ohko is True. incoming_ohko is None → legacy
+    zero (no snap / no mask). False → acts second, full credit.
     """
     if atk_spe <= 0 or def_spe <= 0:
         return 1.0
@@ -1292,30 +1596,20 @@ def _setup_turn_order_weight(
     aid = to_id(ability) if ability else ""
     if aid in _SETUP_SURVIVE_ABILITIES:
         return 1.0
-    effective = int(atk_spe * 1.5) if aid in _SETUP_SPEED_ABILITIES else atk_spe
+    effective = int(atk_spe * (2 + spe_stages) / 2) if spe_stages else atk_spe
     if effective > def_spe:
         return 1.0
     if effective == def_spe:
         return 0.5
-    return 0.0
+    if incoming_ohko is None:
+        return 0.0
+    return 0.0 if incoming_ohko else 1.0
 
 
-def _setup_adjusted_score(
-    raw: float,
-    *,
-    priority_kind: SetupPriorityKind = "none",
-    both_branches: bool,
-    priority_mult: float | None = None,
-) -> float:
-    mult = (
-        priority_mult
-        if priority_mult is not None
-        else _setup_priority_mult(priority_kind)
-    )
-    adjusted = raw * mult
+def _setup_adjusted_score(raw: float, *, both_branches: bool) -> float:
     if both_branches:
-        adjusted /= _SETUP_BOTH_BRANCH_SCORE_DIV
-    return adjusted
+        return raw / _SETUP_BOTH_BRANCH_SCORE_DIV
+    return raw
 
 
 def _setup_excellent_floor(adjusted_scores: list[float]) -> float:
@@ -1483,64 +1777,101 @@ def _setup_branches(
     return cleared
 
 
-def _minimal_threat_state(regulation: str = "champions") -> RecommenderState:
-    # get_relevant_threats only reads regulation_mod at runtime.
-    return cast(
-        RecommenderState,
-        {
-            "format_id": "",
-            "game_type": "doubles",
-            "regulation_mod": regulation,
-            "picked_team_size": 4,
-            "available_pool": [],
-            "team_draft": [],
-            "archetype": [],
-            "rejected": [],
-            "constraints": [],
-            "messages": [],
-        },
+def _common_move_names(entry: dict[str, Any] | None) -> list[str]:
+    out: list[str] = []
+    for m in (entry or {}).get("common_moves") or []:
+        n = str(m.get("name") or "")
+        if n:
+            out.append(n)
+    return out
+
+
+def _setup_panel_build(
+    name: str,
+    sid: str,
+    *,
+    snap: dict[str, Any],
+    regulation: str,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None, str]:
+    """CBD-first panel build; Showdown only for mega/base gap or missing CBD.
+
+    Mega ≥80% stone on the base CBD page (same `_mega_stone_on_entry` as usage
+    attribution) → CBD item/moves, legality mega ability. Base whose CBD top
+    item is a mega stone → Showdown. Returns (built, usage-move source row, tag).
+    """
+    ingame_map = ingame_species_map(regulation)
+    sd_map = showdown_species_map(regulation)
+    cbd_self = set_from_ingame(name, regulation=regulation) or set_from_ingame(
+        sid, regulation=regulation
     )
+    sd_built = set_from_showdown(name, regulation=regulation)
+    entry = (snap.get("species") or {}).get(sid) or {}
+    base_sid = str(entry.get("base_species_id") or sid)
+    if _species_id_is_mega(sid):
+        if _mega_stone_on_entry(ingame_map.get(base_sid), base_sid, sid, snap):
+            built = set_from_ingame(base_sid, regulation=regulation)
+            if built:
+                out = dict(built)
+                out["species"] = name
+                abs_map = _species_abilities(snap, sid)
+                if abs_map:
+                    out["ability"] = next(iter(abs_map.values()))
+                return out, ingame_map.get(base_sid), "cbd_stone"
+        return sd_built, sd_map.get(sid), "showdown"
+    if cbd_self:
+        stone = _item_mega_forme(to_id(cbd_self.get("item") or ""), sid, snap)
+        if stone:
+            return sd_built, sd_map.get(sid), "showdown"
+        return cbd_self, ingame_map.get(sid) or ingame_map.get(to_id(name)), "cbd"
+    return sd_built, sd_map.get(sid), "showdown"
 
 
 def _setup_threat_defenders(
-    n: int = _SETUP_THREAT_PANEL_N,
     *,
     regulation: str = "champions",
 ) -> list[dict[str, Any]]:
-    """Usage-informed panel: species + common item/ability/evs from threat expand."""
-    threats = get_relevant_threats(_minimal_threat_state(regulation), n=n)
+    """Showdown formes with usage_pct ≥ 15-game 50% encounter floor.
+
+    Selection is Showdown usage_pct. Builds are CBD-first; Showdown only when
+    CBD is missing or cannot distinguish mega vs base (stone heuristic).
+    """
+    snap = load_snapshot()
+    sd = showdown_species_map(regulation)
+    ranked: list[tuple[float, str, str]] = []
+    for sid, entry in sd.items():
+        if not isinstance(entry, dict):
+            continue
+        try:
+            pct = float(entry.get("usage_pct") or 0.0)
+        except (TypeError, ValueError):
+            continue
+        if pct < _SETUP_THREAT_USAGE_PCT_FLOOR:
+            continue
+        ranked.append((pct, str(entry.get("name") or sid), sid))
+    ranked.sort(key=lambda r: (-r[0], r[1]))
     out: list[dict[str, Any]] = []
     seen: set[str] = set()
-    for cand in threats:
-        spec = dict(cand.spec)
-        species = str(spec.get("species") or "")
-        if not species:
-            continue
-        sid = to_id(species)
+    for _pct, name, sid in ranked:
         if sid in seen:
             continue
         seen.add(sid)
-        if not spec.get("item") or not spec.get("ability") or not spec.get("evs"):
-            filled = featured_or_common_set(species, regulation=regulation)
-            if filled:
-                if not spec.get("item") and filled.get("item"):
-                    spec["item"] = filled["item"]
-                if not spec.get("ability") and filled.get("ability"):
-                    spec["ability"] = filled["ability"]
-                if not spec.get("evs") and filled.get("evs"):
-                    spec["evs"] = dict(filled["evs"])
+        built, usage_row, source = _setup_panel_build(
+            name, sid, snap=snap, regulation=regulation
+        )
         defender: dict[str, Any] = {
-            "species": species,
-            "evs": spec.get("evs")
+            "species": name,
+            "evs": (built or {}).get("evs")
             or {"hp": 32, "atk": 0, "def": 32, "spa": 0, "spd": 32, "spe": 0},
+            "build_source": source,
         }
-        if spec.get("item"):
-            defender["item"] = spec["item"]
-        if spec.get("ability"):
-            defender["ability"] = spec["ability"]
+        if built:
+            for key in ("item", "ability", "nature", "moves"):
+                if built.get(key):
+                    defender[key] = built[key]
+        usage_moves = _common_move_names(usage_row)
+        if usage_moves:
+            defender["usage_moves"] = usage_moves
         out.append(defender)
-        if len(out) >= n:
-            break
     return out
 
 
@@ -1550,9 +1881,82 @@ def _threat_panel_label(panel: list[dict[str, Any]]) -> str:
     )
 
 
+def _calc_pokemon_spec(
+    raw: dict[str, Any], *, extra: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """Strip panel-only keys (usage_moves) before sending to calc."""
+    out: dict[str, Any] = {}
+    for k in _CALC_POKE_KEYS:
+        val = raw.get(k)
+        if val in (None, "", []):
+            continue
+        out[k] = val
+    if extra:
+        out.update(extra)
+    return out
+
+
 def _species_types(snap: dict[str, Any], sid: str) -> set[str]:
     entry = snap.get("species", {}).get(sid) or {}
     return {str(t).lower() for t in (entry.get("types") or [])}
+
+
+def _payoff_sort_bp(mid: str, snapshot_bp: int, *, boost_count: int = 0) -> int:
+    """BP the damage calc actually uses — sort key must match, not snapshot."""
+    if mid in {"storedpower", "powertrip"}:
+        return 20 + 20 * max(0, boost_count)
+    return _scaled_base_power(mid, snapshot_bp)
+
+
+def _ranked_payoff_moves(
+    snap: dict[str, Any],
+    sid: str,
+    learnset: set[str],
+    *,
+    boost_stat: str,
+    usage_moves: list[str] | None = None,
+    usage_only: bool = False,
+    boost_count: int = 0,
+) -> list[str]:
+    """Damaging payoffs matching Physical(atk)/Special(spa), STAB then BP.
+
+    usage_moves first so they win STAB+BP ties. When usage_only, only those
+    moves. Skips banned delayed/recharge/self-drop payoffs.
+    Sort BP is the same corrected value damage calc uses (Rage Fist / Last
+    Respects hits-taken, Stored Power / Power Trip boost count).
+    """
+    want_cat = "Physical" if boost_stat == "atk" else "Special"
+    types = _species_types(snap, sid)
+    moves_map = snap.get("moves") or {}
+    banned = _setup_banned_payoffs(boost_stat)
+    if usage_only:
+        candidates = list(usage_moves or [])
+    else:
+        candidates = list(usage_moves or []) + sorted(learnset)
+    hits: list[tuple[int, int, int, str]] = []  # stab, bp, -order, mid
+    seen: set[str] = set()
+    for order, raw in enumerate(candidates):
+        mid = to_id(raw)
+        if mid in seen or mid in {"protect", "substitute", "swordsdance", "nastyplot"}:
+            continue
+        seen.add(mid)
+        if mid in banned:
+            continue
+        ment = moves_map.get(mid) or {}
+        if ment.get("category") != want_cat:
+            continue
+        try:
+            bp = int(ment.get("basePower") or 0)
+        except (TypeError, ValueError):
+            bp = 0
+        if bp <= 0:
+            continue
+        bp = _payoff_sort_bp(mid, bp, boost_count=boost_count)
+        mtype = str(ment.get("type") or "").lower()
+        stab = 1 if mtype in types else 0
+        hits.append((stab, bp, -order, mid))
+    hits.sort(key=lambda h: (h[0], h[1], h[2]), reverse=True)
+    return [h[3] for h in hits]
 
 
 def _best_payoff_move(
@@ -1569,38 +1973,16 @@ def _best_payoff_move(
     When usage_only, only consider usage_moves (must be non-empty). Always skips
     banned delayed/recharge/self-drop payoffs.
     """
-    want_cat = "Physical" if boost_stat == "atk" else "Special"
-    types = _species_types(snap, sid)
-    moves_map = snap.get("moves") or {}
-    banned = _setup_banned_payoffs(boost_stat)
-    if usage_only:
-        candidates = list(usage_moves or [])
-    else:
-        candidates = list(usage_moves or []) + sorted(learnset)
-    best: tuple[int, int, str] | None = None  # (stab, bp, mid)
-    seen: set[str] = set()
-    for raw in candidates:
-        mid = to_id(raw)
-        if mid in seen or mid in {"protect", "substitute", "swordsdance", "nastyplot"}:
-            continue
-        seen.add(mid)
-        if mid in banned:
-            continue
-        ment = moves_map.get(mid) or {}
-        if ment.get("category") != want_cat:
-            continue
-        try:
-            bp = int(ment.get("basePower") or 0)
-        except (TypeError, ValueError):
-            bp = 0
-        if bp <= 0:
-            continue
-        mtype = str(ment.get("type") or "").lower()
-        stab = 1 if mtype in types else 0
-        key = (stab, bp, mid)
-        if best is None or key[:2] > best[:2]:
-            best = key
-    return best[2] if best else None
+    ranked = _ranked_payoff_moves(
+        snap,
+        sid,
+        learnset,
+        boost_stat=boost_stat,
+        usage_moves=usage_moves,
+        usage_only=usage_only,
+        boost_count=0,
+    )
+    return ranked[0] if ranked else None
 
 
 def _select_setup_payoff(
@@ -1615,10 +1997,16 @@ def _select_setup_payoff(
     usage_move_ids: set[str],
     panel: list[dict[str, Any]],
     calculate_batch: CalculateBatch,
+    learnset: set[str] | None = None,
+    used_out: list[tuple[str, str]] | None = None,
+    exact_boosts: dict[str, int] | None = None,
+    extra_spe_stages: int = 0,
+    sweep_out: dict[str, Any] | None = None,
 ) -> tuple[str | None, float, str, SetupPriorityKind]:
-    """Pick usage payoff with highest adjusted score (priority mult when payoff is priority).
+    """Pick usage payoff with highest turn-order-weighted raw damage.
 
-    Returns (payoff_id, raw_score, calc_error, priority_kind).
+    Per-defender type-immunity fallbacks use `_ranked_payoff_moves` (usage then
+    learnset, STAB-then-BP). Returns (payoff_id, raw_score, calc_error, priority_kind).
     """
     candidates = _setup_payoff_candidates(
         snap, boost_stat=boost_stat, usage_move_ids=usage_move_ids
@@ -1627,13 +2015,27 @@ def _select_setup_payoff(
         return None, 0.0, "no_usage_payoff", "none"
     types = _species_types(snap, sid)
     moves_map = snap.get("moves") or {}
-    best: tuple[float, float, str, str, SetupPriorityKind] | None = None
-    # (adjusted_without_both, raw, mid, err, priority_kind)
+    boost_count = sum(exact_boosts.values()) if exact_boosts else stages
+    ranked = _ranked_payoff_moves(
+        snap,
+        sid,
+        learnset or set(),
+        boost_stat=boost_stat,
+        usage_moves=sorted(usage_move_ids),
+        usage_only=not learnset,
+        boost_count=boost_count,
+    )
+    best: tuple[
+        float, str, str, SetupPriorityKind, list[tuple[str, str]], dict[str, Any]
+    ] | None = None
+    # (raw, mid, err, priority_kind, used, sweep)
     for mid in candidates:
         move_disp = str(moves_map.get(mid, {}).get("name") or mid)
         ability_for = _setup_ability_for_payoff(
             ability, mid, snap=snap, types=types
         )
+        used: list[tuple[str, str]] = []
+        sweep: dict[str, Any] = {}
         raw, err = _damage_score(
             attacker_name=calc_name,
             item=item,
@@ -1645,25 +2047,39 @@ def _select_setup_payoff(
             stages=stages,
             panel=panel,
             calculate_batch=calculate_batch,
+            fallback_mids=[m for m in ranked if m != mid],
+            snap=snap,
+            attacker_sid=sid,
+            used_out=used,
+            boosts=exact_boosts,
+            extra_spe_stages=extra_spe_stages,
+            sweep_out=sweep,
         )
         kind = _setup_priority_kind(mid)
-        adj = _setup_adjusted_score(
-            raw,
-            priority_kind=kind,
-            both_branches=False,
-            priority_mult=_setup_priority_mult_for(mid),
-        )
-        key = (adj, raw, mid, err, kind)
-        if best is None or (adj, raw) > (best[0], best[1]):
+        key = (raw, mid, err, kind, used, sweep)
+        if best is None or raw > best[0]:
             best = key
     assert best is not None
-    return best[2], best[1], best[3], best[4]
+    if used_out is not None:
+        used_out.clear()
+        used_out.extend(best[4])
+    if sweep_out is not None:
+        sweep_out.clear()
+        sweep_out.update(best[5])
+    return best[1], best[0], best[2], best[3]
 
 
 def _calc_species_name(sid: str, name: str, snap: dict[str, Any]) -> str:
     if sid in {"aegislash", "aegislashblade", "aegislashshield"}:
         return "Aegislash-Blade"
     return name
+
+
+def _drop_setup_choice_item(item: str | None) -> str | None:
+    """Choice + setup move cannot cash out; strip Choice from setup kits."""
+    if item and to_id(item) in _SETUP_CHOICE_ITEMS:
+        return None
+    return item
 
 
 def _attacker_kit(
@@ -1680,7 +2096,7 @@ def _attacker_kit(
     built = featured_or_common_set(name) or featured_or_common_set(calc_name)
     if built:
         moves = list(built.get("moves") or [])
-        item = built.get("item")
+        item = _drop_setup_choice_item(built.get("item"))
         ability = built.get("ability")
         return calc_name, item, ability, moves
     usage_moves = [str(m.get("name") or "") for m in (entry or {}).get("common_moves") or []]
@@ -1691,10 +2107,437 @@ def _attacker_kit(
     ability = next(iter(abs_map.values()), None) if abs_map else None
     item = None
     for it in (entry or {}).get("common_items") or []:
-        item = str(it.get("name") or "") or None
+        item = _drop_setup_choice_item(str(it.get("name") or "") or None)
         break
     moves = [payoff] if payoff else []
     return calc_name, item, ability, moves
+
+
+def _move_display(snap: dict[str, Any] | None, mid: str) -> str:
+    if snap:
+        name = (snap.get("moves") or {}).get(to_id(mid), {}).get("name")
+        if name:
+            return str(name)
+    return mid
+
+
+def _payoff_coverage_note(
+    used: list[tuple[str, str]],
+    *,
+    snap: dict[str, Any],
+    primary_mid: str,
+) -> str | None:
+    """Per-defender move breakdown when a candidate used more than one payoff."""
+    if not used:
+        return None
+    by_move: dict[str, list[str]] = {}
+    for dname, mid in used:
+        by_move.setdefault(mid, []).append(dname)
+    if len(by_move) <= 1:
+        return None
+    primary = to_id(primary_mid)
+    order = [primary] + [m for m in by_move if m != primary]
+    parts: list[str] = []
+    for mid in order:
+        defs = by_move.get(mid) or []
+        if not defs:
+            continue
+        disp = _move_display(snap, mid)
+        if mid == primary:
+            parts.append(f"{disp}×{len(defs)}")
+        else:
+            parts.append(f"{disp}×{len(defs)} ({', '.join(defs)})")
+    return "; ".join(parts)
+
+
+def _ko_frac_bin(frac: float) -> str:
+    if frac >= 1.0:
+        return "ohko"
+    if frac >= 0.5:
+        return "2hko"
+    return "3plus"
+
+
+def _is_bulk_crossing(unboosted: float, boosted: float) -> bool:
+    a, b = _ko_frac_bin(unboosted), _ko_frac_bin(boosted)
+    return (a == "ohko" and b != "ohko") or (a == "2hko" and b == "3plus")
+
+
+def _move_override_extra(mid: str) -> dict[str, Any]:
+    if mid in {"ragefist", "lastrespects"}:
+        return {"moveOverrides": {"basePower": _scaled_base_power(mid, 50)}}
+    return {}
+
+
+def _candidate_defender_spec(name: str, calc_name: str) -> dict[str, Any]:
+    built = featured_or_common_set(name) or featured_or_common_set(calc_name)
+    spec: dict[str, Any] = {"species": calc_name}
+    if not built:
+        return spec
+    if built.get("evs"):
+        spec["evs"] = dict(built["evs"])
+    for k in ("item", "ability", "nature"):
+        if built.get(k):
+            spec[k] = built[k]
+    return spec
+
+
+def _hit_frac_from_result(r: Any) -> float | None:
+    if not isinstance(r, dict) or "error" in r:
+        return None
+    dmg = (r.get("damageRange") or [0, 0])[-1]
+    hp = ((r.get("raw") or {}).get("stats") or {}).get("defender") or {}
+    try:
+        hp_f = float(hp.get("hp") or 0)
+        dmg_f = float(dmg)
+    except (TypeError, ValueError):
+        return None
+    if hp_f <= 0:
+        return None
+    return dmg_f / hp_f
+
+
+def _incoming_ohko_by_defender(
+    *,
+    snap: dict[str, Any],
+    candidate_name: str,
+    calc_name: str,
+    panel: list[dict[str, Any]],
+    boosts: dict[str, int],
+    calculate_batch: CalculateBatch,
+) -> dict[str, float]:
+    """Per panel member: incoming damage/HP frac from their usage hit.
+
+    def/spd stage in `boosts` → category-matched incoming vs that boosted stat.
+    Else unboosted bulk, first damaging usage move (any category).
+    Missing name → no connected hit. Callers treat frac ≥ 1.0 as OHKO.
+    """
+    def_stat = next((s for s in ("def", "spd") if int(boosts.get(s) or 0) > 0), None)
+    cand = _candidate_defender_spec(candidate_name, calc_name)
+    if def_stat:
+        cand = {**cand, "boosts": {def_stat: int(boosts[def_stat])}}
+    moves_map = snap.get("moves") or {}
+    out: dict[str, bool] = {}
+    try:
+        if def_stat:
+            category_stat = "spa" if def_stat == "spd" else "atk"
+            ranked_by_i: list[list[str]] = []
+            for defn in panel:
+                sid = to_id(str(defn.get("species") or ""))
+                usage = list(defn.get("usage_moves") or defn.get("moves") or [])
+                ranked_by_i.append(
+                    _ranked_payoff_moves(
+                        snap,
+                        sid,
+                        set(),
+                        boost_stat=category_stat,
+                        usage_moves=usage,
+                        usage_only=True,
+                        boost_count=0,
+                    )
+                )
+            pending = [i for i, mids in enumerate(ranked_by_i) if mids]
+            depth = 0
+            while pending:
+                reqs: list[dict[str, Any]] = []
+                meta: list[int] = []
+                next_pending: list[int] = []
+                for i in pending:
+                    mids = ranked_by_i[i]
+                    if depth >= len(mids):
+                        continue
+                    mid = mids[depth]
+                    disp = _move_display(snap, mid)
+                    extra = _move_override_extra(mid)
+                    atk = _calc_pokemon_spec(panel[i], extra={"moves": [disp]})
+                    reqs.append(
+                        {
+                            "attacker": atk,
+                            "defender": dict(cand),
+                            "move": disp,
+                            "field": {"gameType": "Doubles"},
+                            **extra,
+                        }
+                    )
+                    meta.append(i)
+                if not reqs:
+                    break
+                results = calculate_batch(reqs)
+                for i, r in zip(meta, results, strict=True):
+                    frac = _hit_frac_from_result(r)
+                    if frac is None or frac <= 0:
+                        if depth + 1 < len(ranked_by_i[i]):
+                            next_pending.append(i)
+                        continue
+                    out[str(panel[i].get("species") or "")] = frac
+                pending = next_pending
+                depth += 1
+            return out
+        reqs = []
+        names: list[str] = []
+        for defn in panel:
+            dname = str(defn.get("species") or "")
+            disp = None
+            for raw in list(defn.get("usage_moves") or defn.get("moves") or []):
+                ment = moves_map.get(to_id(raw)) or {}
+                try:
+                    bp = int(ment.get("basePower") or 0)
+                except (TypeError, ValueError):
+                    bp = 0
+                if bp > 0 and ment.get("category") in {"Physical", "Special"}:
+                    disp = str(ment.get("name") or raw)
+                    break
+            if not disp:
+                continue
+            extra = _move_override_extra(to_id(disp))
+            atk = _calc_pokemon_spec(defn, extra={"moves": [disp]})
+            reqs.append(
+                {
+                    "attacker": atk,
+                    "defender": dict(cand),
+                    "move": disp,
+                    "field": {"gameType": "Doubles"},
+                    **extra,
+                }
+            )
+            names.append(dname)
+        if not reqs:
+            return out
+        for dname, r in zip(names, calculate_batch(reqs), strict=True):
+            frac = _hit_frac_from_result(r)
+            if frac is None:
+                continue
+            out[dname] = frac
+    except Exception:  # noqa: BLE001 — damage score fails open per defender
+        return out
+    return out
+
+
+def _setup_bulk_crossings(
+    *,
+    snap: dict[str, Any],
+    candidate_name: str,
+    calc_name: str,
+    panel: list[dict[str, Any]],
+    def_stat: str,
+    stages: int,
+    calculate_batch: CalculateBatch,
+) -> tuple[int, int]:
+    """Incoming KO-bin flips after boosting candidate def_stat. Returns (k, n_relevant)."""
+    category_stat = "spa" if def_stat == "spd" else "atk"
+    unb_def = _candidate_defender_spec(candidate_name, calc_name)
+    bst_def = {**unb_def, "boosts": {def_stat: stages}}
+    ranked_by_i: list[list[str]] = []
+    for defn in panel:
+        sid = to_id(str(defn.get("species") or ""))
+        usage = list(defn.get("usage_moves") or defn.get("moves") or [])
+        ranked_by_i.append(
+            _ranked_payoff_moves(
+                snap,
+                sid,
+                set(),
+                boost_stat=category_stat,
+                usage_moves=usage,
+                usage_only=True,
+                boost_count=0,
+            )
+        )
+    pending = [i for i, mids in enumerate(ranked_by_i) if mids]
+    connected: list[tuple[float, float]] = []
+    depth = 0
+    try:
+        while pending:
+            reqs: list[dict[str, Any]] = []
+            meta: list[int] = []
+            next_pending: list[int] = []
+            for i in pending:
+                mids = ranked_by_i[i]
+                if depth >= len(mids):
+                    continue
+                mid = mids[depth]
+                disp = _move_display(snap, mid)
+                extra = _move_override_extra(mid)
+                atk = _calc_pokemon_spec(panel[i], extra={"moves": [disp]})
+                reqs.append(
+                    {
+                        "attacker": atk,
+                        "defender": dict(unb_def),
+                        "move": disp,
+                        "field": {"gameType": "Doubles"},
+                        **extra,
+                    }
+                )
+                meta.append(i)
+            if not reqs:
+                break
+            results = calculate_batch(reqs)
+            hit_is: list[int] = []
+            hit_unb: dict[int, float] = {}
+            for i, r in zip(meta, results, strict=True):
+                frac = _hit_frac_from_result(r)
+                if frac is None or frac <= 0:
+                    if depth + 1 < len(ranked_by_i[i]):
+                        next_pending.append(i)
+                    continue
+                hit_is.append(i)
+                hit_unb[i] = frac
+            if hit_is:
+                reqs_b: list[dict[str, Any]] = []
+                for i in hit_is:
+                    mid = ranked_by_i[i][depth]
+                    disp = _move_display(snap, mid)
+                    extra = _move_override_extra(mid)
+                    atk = _calc_pokemon_spec(panel[i], extra={"moves": [disp]})
+                    reqs_b.append(
+                        {
+                            "attacker": atk,
+                            "defender": dict(bst_def),
+                            "move": disp,
+                            "field": {"gameType": "Doubles"},
+                            **extra,
+                        }
+                    )
+                results_b = calculate_batch(reqs_b)
+                for i, r in zip(hit_is, results_b, strict=True):
+                    frac_b = _hit_frac_from_result(r)
+                    if frac_b is None:
+                        continue
+                    connected.append((hit_unb[i], max(frac_b, 0.0)))
+            pending = next_pending
+            depth += 1
+    except Exception:  # noqa: BLE001 — construction continues with zero crossings
+        return 0, 0
+    n_rel = len(connected)
+    k = sum(1 for u, b in connected if _is_bulk_crossing(u, b))
+    return k, n_rel
+
+
+def _setup_spe_crossings(
+    *,
+    candidate_name: str,
+    calc_name: str,
+    panel: list[dict[str, Any]],
+    calculate_batch: CalculateBatch,
+    snap: dict[str, Any] | None = None,
+) -> tuple[int, int]:
+    """not-faster → faster after +1 Spe. Returns (k, n_relevant)."""
+    cand = _candidate_defender_spec(candidate_name, calc_name)
+    moves_map = (snap or {}).get("moves") or {}
+    reqs: list[dict[str, Any]] = []
+    for defn in panel:
+        usage = list(defn.get("usage_moves") or defn.get("moves") or [])
+        move = "Tackle"
+        for raw in usage:
+            mid = to_id(raw)
+            try:
+                bp = int((moves_map.get(mid) or {}).get("basePower") or 0)
+            except (TypeError, ValueError):
+                bp = 0
+            if bp > 0:
+                move = str((moves_map.get(mid) or {}).get("name") or raw)
+                break
+        atk = _calc_pokemon_spec(defn, extra={"moves": [move]})
+        reqs.append(
+            {
+                "attacker": atk,
+                "defender": dict(cand),
+                "move": move,
+                "field": {"gameType": "Doubles"},
+            }
+        )
+    if not reqs:
+        return 0, 0
+    try:
+        results = calculate_batch(reqs)
+    except Exception:  # noqa: BLE001
+        return 0, 0
+    k = 0
+    n = 0
+    for r in results:
+        if not isinstance(r, dict) or "error" in r:
+            continue
+        stats = (r.get("raw") or {}).get("stats") or {}
+        try:
+            atk_spe = int((stats.get("attacker") or {}).get("spe") or 0)
+            def_spe = int((stats.get("defender") or {}).get("spe") or 0)
+        except (TypeError, ValueError):
+            continue
+        if atk_spe <= 0 or def_spe <= 0:
+            continue
+        n += 1
+        boosted = int(def_spe * 1.5)
+        if def_spe <= atk_spe < boosted:
+            k += 1
+    return k, n
+
+
+def _crossing_k(note: str) -> int:
+    try:
+        return int(str(note).split("/")[0])
+    except (TypeError, ValueError):
+        return 0
+
+
+def _sort_members_by_crossings(
+    members: list[CandidateEval], *, field: str
+) -> list[CandidateEval]:
+    tier_i = {t: i for i, t in enumerate(ROLE_TIER_ORDER)}
+
+    def key(c: CandidateEval) -> tuple:
+        ti = tier_i.get(c.tier or "", 99)
+        k = _crossing_k(c.criteria_notes.get(field) or "0")
+        try:
+            score = float(c.criteria_notes.get("damage_score") or 0)
+        except (TypeError, ValueError):
+            score = 0.0
+        return (ti, -k, -score, c.species)
+
+    return sorted(members, key=key)
+
+
+def _sweep_note_fields(sweep: dict[str, Any] | None) -> dict[str, str]:
+    """criteria_notes for OHKO/2HKO k/n and outsped-survive HP. n_surv=0 → n/a."""
+    if not sweep:
+        return {}
+    n = int(sweep.get("n") or 0)
+    n_surv = int(sweep.get("n_surv") or 0)
+    mean = sweep.get("remain_mean")
+    mn = sweep.get("remain_min")
+    out = {
+        "sweep_ohko": f"{int(sweep.get('ohko') or 0)}/{n}",
+        "sweep_2hko": f"{int(sweep.get('ko2') or 0)}/{n}",
+        "survive_n": str(n_surv),
+    }
+    if n_surv > 0 and mean is not None and mn is not None:
+        out["survive_hp_mean"] = f"{float(mean):.2f}"
+        out["survive_hp_min"] = f"{float(mn):.2f}"
+    else:
+        out["survive_hp_mean"] = "n/a"
+        out["survive_hp_min"] = "n/a"
+    return out
+
+
+def _sort_members_by_sweep(members: list[CandidateEval]) -> list[CandidateEval]:
+    """Within-tier: OHKO k, then defined remain (n/a last), then damage_score."""
+    tier_i = {t: i for i, t in enumerate(ROLE_TIER_ORDER)}
+
+    def key(c: CandidateEval) -> tuple:
+        notes = c.criteria_notes or {}
+        ti = tier_i.get(c.tier or "", 99)
+        ohko = _crossing_k(notes.get("sweep_ohko") or "0")
+        mean_s = str(notes.get("survive_hp_mean") or "n/a")
+        na = 0 if mean_s not in {"", "n/a"} else 1
+        try:
+            remain = float(mean_s) if na == 0 else 0.0
+        except ValueError:
+            na, remain = 1, 0.0
+        try:
+            score = float(notes.get("damage_score") or 0)
+        except (TypeError, ValueError):
+            score = 0.0
+        return (ti, -ohko, na, -remain, -score, c.species)
+
+    return sorted(members, key=key)
 
 
 def _damage_score(
@@ -1709,50 +2552,56 @@ def _damage_score(
     calculate_batch: CalculateBatch,
     move_id: str | None = None,
     calc_ability: str | None = None,
+    evs: dict[str, int] | None = None,
+    fallback_mids: list[str] | None = None,
+    snap: dict[str, Any] | None = None,
+    attacker_sid: str | None = None,
+    used_out: list[tuple[str, str]] | None = None,
+    boosts: dict[str, int] | None = None,
+    extra_spe_stages: int = 0,
+    sweep_out: dict[str, Any] | None = None,
 ) -> tuple[float, str]:
     """Mean turn-order-weighted damage/HP vs panel (soft-capped).
 
     `ability` is the ungated kit ability (Disguise / Speed Boost for turn-order).
     `calc_ability` is the payoff-gated ability passed to the calc (defaults to ability).
+
+    If the primary move deals 0 (type immunity) to a defender, try `fallback_mids`
+    in order against that defender. Skip the defender only if every candidate move
+    also zeroes out. Calc errors are not retried.
     """
     if not move or not panel:
         return 0.0, "empty_panel_or_move"
-    mid = to_id(move_id or move)
-    calc_ab = calc_ability if calc_ability is not None else ability
-    boosts = {boost_stat: stages}
-    attacker: dict[str, Any] = {
-        "species": attacker_name,
-        "evs": {"hp": 4, "atk": 32, "def": 0, "spa": 32, "spd": 0, "spe": 32},
-        "boosts": boosts,
-        "moves": [move],
-    }
-    if item:
-        attacker["item"] = item
-    if calc_ab:
-        attacker["ability"] = calc_ab
-    reqs = [
-        {
-            "attacker": attacker,
-            "defender": dict(defn),
-            "move": move,
-            "field": {"gameType": "Doubles"},
-        }
-        for defn in panel
-    ]
-    try:
-        results = calculate_batch(reqs)
-    except Exception as e:  # noqa: BLE001 — construction continues with zero score
-        return 0.0, f"batch_exception:{type(e).__name__}:{e}"
-    fracs: list[float] = []
-    errors: list[str] = []
-    for i, r in enumerate(results):
-        dname = str(panel[i].get("species") or i) if i < len(panel) else str(i)
+    primary_mid = to_id(move_id or move)
+    chain: list[str] = [primary_mid]
+    seen_m = {primary_mid}
+    for raw in fallback_mids or ():
+        mid = to_id(raw)
+        if mid and mid not in seen_m:
+            seen_m.add(mid)
+            chain.append(mid)
+    boosts = dict(boosts) if boosts is not None else {boost_stat: stages}
+    base_evs = (
+        dict(evs)
+        if evs is not None
+        else {"hp": 4, "atk": 32, "def": 0, "spa": 32, "spd": 0, "spe": 32}
+    )
+
+    def _calc_ab_for(mid: str) -> str | None:
+        if snap is not None:
+            types = _species_types(snap, attacker_sid) if attacker_sid else set()
+            return _setup_ability_for_payoff(ability, mid, snap=snap, types=types)
+        if mid == primary_mid and calc_ability is not None:
+            return calc_ability
+        return ability
+
+    def _read_result(
+        r: Any, dname: str
+    ) -> tuple[str, float, float, int, int] | tuple[str, str] | tuple[str]:
         if not isinstance(r, dict):
-            errors.append(f"{dname}:non_dict")
-            continue
+            return ("skip", f"{dname}:non_dict")
         if "error" in r:
-            errors.append(f"{dname}:{r.get('error')}")
-            continue
+            return ("skip", f"{dname}:{r.get('error')}")
         dmg = (r.get("damageRange") or [0, 0])[-1]
         stats = (r.get("raw") or {}).get("stats") or {}
         def_stats = stats.get("defender") or {}
@@ -1764,17 +2613,139 @@ def _damage_score(
             atk_spe = int(atk_stats.get("spe") or 0)
             def_spe = int(def_stats.get("spe") or 0)
         except (TypeError, ValueError):
-            errors.append(f"{dname}:bad_range")
-            continue
+            return ("skip", f"{dname}:bad_range")
         if hp_f <= 0:
-            errors.append(f"{dname}:no_hp")
-            continue
+            return ("skip", f"{dname}:no_hp")
         if dmg_f <= 0:
-            errors.append(f"{dname}:zero_damage")
-            continue
-        capped = min(dmg_f / hp_f, _SETUP_DAMAGE_FRAC_CAP)
-        weight = _setup_turn_order_weight(mid, atk_spe, def_spe, ability)
-        fracs.append(weight * capped)
+            return ("zero",)
+        return ("hit", hp_f, dmg_f, atk_spe, def_spe)
+
+    pending: list[tuple[int, dict[str, Any]]] = list(enumerate(panel))
+    fracs: list[float] = []
+    errors: list[str] = []
+    used: list[tuple[str, str]] = []
+    aid = to_id(ability) if ability else ""
+    spe_stages = extra_spe_stages + (1 if aid in _SETUP_SPEED_ABILITIES else 0)
+    disguise = aid in _SETUP_SURVIVE_ABILITIES
+    ohko_mask: dict[str, float] | None = None
+    if snap is not None:
+        ohko_mask = _incoming_ohko_by_defender(
+            snap=snap,
+            candidate_name=attacker_name,
+            calc_name=attacker_name,
+            panel=panel,
+            boosts=boosts,
+            calculate_batch=calculate_batch,
+        )
+    sweep_ohko = 0
+    sweep_2hko = 0
+    n_hit = 0
+    remains: list[float] = []
+    for mid in chain:
+        if not pending:
+            break
+        disp = _move_display(snap, mid) if snap is not None else (
+            move if mid == primary_mid else mid
+        )
+        calc_ab = _calc_ab_for(mid)
+        attacker: dict[str, Any] = {
+            "species": attacker_name,
+            "evs": dict(base_evs),
+            "boosts": dict(boosts),
+            "moves": [disp],
+        }
+        if item:
+            attacker["item"] = item
+        if calc_ab:
+            attacker["ability"] = calc_ab
+        req_extra: dict[str, Any] = {}
+        if mid in {"ragefist", "lastrespects"}:
+            # Snapshot Rage Fist / Last Respects is 50 BP; same assumptions as counters.py.
+            req_extra["moveOverrides"] = {"basePower": _scaled_base_power(mid, 50)}
+        reqs = [
+            {
+                "attacker": attacker,
+                "defender": _calc_pokemon_spec(defn),
+                "move": disp,
+                "field": {"gameType": "Doubles"},
+                **req_extra,
+            }
+            for _i, defn in pending
+        ]
+        try:
+            results = calculate_batch(reqs)
+        except Exception as e:  # noqa: BLE001 — construction continues with zero score
+            return 0.0, f"batch_exception:{type(e).__name__}:{e}"
+        if len(results) != len(pending):
+            return 0.0, f"batch_length:{len(results)}!={len(pending)}"
+        still: list[tuple[int, dict[str, Any]]] = []
+        for (i, defn), r in zip(pending, results, strict=True):
+            dname = str(defn.get("species") or i)
+            parsed = _read_result(r, dname)
+            kind = parsed[0]
+            if kind == "hit":
+                _k, hp_f, dmg_f, atk_spe, def_spe = parsed  # type: ignore[misc]
+                raw_frac = dmg_f / hp_f
+                n_hit += 1
+                kbin = _ko_frac_bin(raw_frac)
+                if kbin == "ohko":
+                    sweep_ohko += 1
+                if kbin in {"ohko", "2hko"}:
+                    sweep_2hko += 1
+                capped = min(raw_frac, _SETUP_DAMAGE_FRAC_CAP)
+                ment = ((snap or {}).get("moves") or {}).get(mid) or {}
+                capped *= effective_accuracy(
+                    _move_base_accuracy(mid),
+                    ability,
+                    defender_ability=defn.get("ability"),
+                    category=str(ment.get("category") or "") or None,
+                )
+                incoming_frac = None if ohko_mask is None else ohko_mask.get(dname)
+                incoming = (
+                    None if ohko_mask is None
+                    else (incoming_frac is not None and incoming_frac >= 1.0)
+                )
+                weight = _setup_turn_order_weight(
+                    mid,
+                    atk_spe,
+                    def_spe,
+                    ability,
+                    incoming_ohko=incoming,
+                    spe_stages=spe_stages,
+                )
+                effective = (
+                    int(atk_spe * (2 + spe_stages) / 2) if spe_stages else atk_spe
+                )
+                outsped = atk_spe > 0 and def_spe > 0 and effective < def_spe
+                if outsped:
+                    if disguise:
+                        remains.append(1.0)
+                    elif incoming_frac is not None and incoming_frac < 1.0:
+                        remains.append(max(0.0, 1.0 - incoming_frac))
+                fracs.append(weight * capped)
+                used.append((dname, mid))
+            elif kind == "zero":
+                still.append((i, defn))
+            else:
+                errors.append(str(parsed[1]))
+        pending = still
+    for i, defn in pending:
+        errors.append(f"{str(defn.get('species') or i)}:zero_damage")
+    if used_out is not None:
+        used_out.clear()
+        used_out.extend(used)
+    if sweep_out is not None:
+        sweep_out.clear()
+        sweep_out["ohko"] = sweep_ohko
+        sweep_out["ko2"] = sweep_2hko
+        sweep_out["n"] = n_hit
+        sweep_out["n_surv"] = len(remains)
+        if remains:
+            sweep_out["remain_mean"] = sum(remains) / len(remains)
+            sweep_out["remain_min"] = min(remains)
+        else:
+            sweep_out["remain_mean"] = None
+            sweep_out["remain_min"] = None
     if not fracs:
         return 0.0, ";".join(errors[:4]) if errors else "no_usable_fracs"
     score = sum(fracs) / len(fracs)
@@ -1809,8 +2780,16 @@ def _construct_setup_attacker(
     ]
     panel = _setup_threat_defenders()
     notes.append(
-        "threat_panel=usage_informed "
+        f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
+        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} "
         f"({_threat_panel_label(panel)})"
+    )
+    notes.append(
+        "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD"
+    )
+    notes.append(
+        "payoff_fallback=per-defender on type immunity (usage then learnset, "
+        "STAB-then-BP); skip only if all candidate moves zero"
     )
 
     # Learners.
@@ -1897,6 +2876,15 @@ def _construct_setup_attacker(
                         f"Mega Showdown {_move_pct(mega_sd, move_id):.1f}%; "
                         f"usage_proven={'Showdown base' if usage_proven else 'rejected'}"
                     )
+        if usage_proven and not _hits_clear_set_pct_floor(
+            name,
+            {move_id},
+            floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+        ):
+            usage_proven = False
         if not usage_proven:
             rejected.append(
                 RejectedCandidate(
@@ -1916,7 +2904,9 @@ def _construct_setup_attacker(
             name, sid, snap, learnset, boost_stat=boost_stat, entry=entry
         )
         usage_ids = _usage_payoff_move_ids(entry, kit_moves)
-        payoff_id, raw_score, calc_err, priority_kind = _select_setup_payoff(
+        used: list[tuple[str, str]] = []
+        sweep: dict[str, Any] = {}
+        payoff_id, raw_score, calc_err, _priority_kind = _select_setup_payoff(
             snap=snap,
             sid=sid,
             calc_name=calc_name,
@@ -1927,6 +2917,9 @@ def _construct_setup_attacker(
             usage_move_ids=usage_ids,
             panel=panel,
             calculate_batch=calculate_batch,
+            learnset=learnset,
+            used_out=used,
+            sweep_out=sweep,
         )
         if not payoff_id:
             rejected.append(
@@ -1935,7 +2928,7 @@ def _construct_setup_attacker(
                     species_id=sid,
                     reason=(
                         "no usage-proven same-turn damaging payoff "
-                        "(excluded recharge/charge/Focus Punch/Future Sight/self-drop)"
+                        "(excluded recharge/charge/Focus Punch/Future Sight/Upper Hand/self-drop)"
                     ),
                     change_reason=(
                         f"setup calc/membership re-eval / tier {prior.get(sid)!r} → rejected"
@@ -1948,18 +2941,11 @@ def _construct_setup_attacker(
         move_disp = str(
             (snap.get("moves") or {}).get(payoff_id, {}).get("name") or payoff_id
         )
+        coverage = _payoff_coverage_note(used, snap=snap, primary_mid=payoff_id)
 
         both = set(branches) >= {"A", "B"}
-        pri_mult = _setup_priority_mult_for(payoff_id)
-        adjusted = _setup_adjusted_score(
-            raw_score,
-            priority_kind=priority_kind,
-            both_branches=both,
-            priority_mult=pri_mult,
-        )
+        adjusted = _setup_adjusted_score(raw_score, both_branches=both)
         boosts: list[str] = []
-        if priority_kind != "none":
-            boosts.append(f"priority_x{pri_mult:g}")
         if both:
             boosts.append(f"both_div_{_SETUP_BOTH_BRANCH_SCORE_DIV:g}")
 
@@ -1989,10 +2975,12 @@ def _construct_setup_attacker(
                 "calc_err": calc_err,
                 "calc_name": calc_name,
                 "move_disp": move_disp,
+                "coverage": coverage,
                 "branch_note": branch_note,
                 "branch_basis": branch_basis,
                 "excellent_secondary": excellent_secondary,
                 "sec_ability": sec_ability,
+                "sweep": dict(sweep),
             }
         )
 
@@ -2022,6 +3010,7 @@ def _construct_setup_attacker(
         excellent_secondary = p["excellent_secondary"]
         abs_map = p["abs_map"]
         move_disp = p["move_disp"]
+        coverage = p["coverage"]
         calc_name = p["calc_name"]
         calc_err = p["calc_err"]
         boosts = p["boosts"]
@@ -2083,10 +3072,11 @@ def _construct_setup_attacker(
                 purpose_claimed=f"setup via {move_id} (+{stages} {boost_stat})",
             ),
             ClaimedTrait(
-                name=move_disp,
+                name=move_disp if not coverage else f"{move_disp} + coverage",
                 criterion="execution",
                 purpose_claimed=(
                     f"calc damage fraction {adjusted:.3f} vs panel; branches={branch_note}"
+                    + (f"; {coverage}" if coverage else "")
                 ),
             ),
         ]
@@ -2124,10 +3114,12 @@ def _construct_setup_attacker(
                     "usage_proven": usage_proven_note,
                     "attribution": pair_attr.get(sid, "none"),
                     "payoff_move": move_disp,
+                    **({"payoff_coverage": coverage} if coverage else {}),
                     "calc_species": calc_name,
                     "damage_score_raw": f"{raw_score:.3f}",
                     "damage_score": f"{adjusted:.3f}",
                     "score_boosts": "+".join(boosts) if boosts else "none",
+                    **_sweep_note_fields(p.get("sweep")),
                     **({"calc_error": calc_err} if calc_err else {}),
                 },
                 claimed_traits=traits,
@@ -2141,9 +3133,719 @@ def _construct_setup_attacker(
             )
         )
 
+    notes.append(
+        "sweep_ohko=outgoing OHKO k/n vs panel (unscaled max-roll); "
+        "survive_hp=mean/min remain on outsped-and-survive (n_surv=0 → n/a); "
+        "within-tier sort by sweep_ohko then survive_hp then damage_score"
+    )
+    members = _sort_members_by_sweep(members)
     return _draft_with_tiers(
         category, sub_criteria, members, rejected, notes=notes
     )
+
+
+def _delivery_usage_hits(
+    name: str,
+    move_ids: frozenset[str] | set[str],
+    *,
+    uctx: _UsageCtx,
+    sd_cache: dict[str, dict[str, Any] | None],
+    showdown_fetch: LiveFetch | None,
+    set_pct_floor: float = _USAGE_SET_PCT_FLOOR,
+) -> tuple[set[str], str]:
+    """Moves on CBD and/or Showdown at or above set_pct_floor. CBD does not suppress SD."""
+    mids = {to_id(m) for m in move_ids}
+    champ = uctx.champions_entry(name)
+    sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)
+    cbd_hits = {mid for mid in mids if _entry_has_move(champ, mid)}
+    sd_hits = {mid for mid in mids if _entry_has_move(sd, mid)}
+    hits = cbd_hits | sd_hits
+    if not hits:
+        return hits, "none"
+    extra_sd = sd_hits - cbd_hits
+    if not extra_sd:
+        source = "champions"
+    elif champ is None:
+        source = "showdown (no Champions row)"
+    elif not cbd_hits:
+        source = "showdown"
+    else:
+        source = "champions+showdown"
+    cleared = {
+        mid
+        for mid in hits
+        if max(_move_pct(champ, mid), _move_pct(sd, mid)) >= set_pct_floor
+    }
+    if not cleared:
+        return set(), f"{source}_below_floor"
+    return cleared, source
+
+
+def _usage_has_item(
+    name: str,
+    item_id: str,
+    *,
+    uctx: _UsageCtx,
+    sd_cache: dict[str, dict[str, Any] | None],
+    showdown_fetch: LiveFetch | None,
+) -> bool:
+    if _entry_has_item(uctx.champions_entry(name), item_id):
+        return True
+    sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)
+    return _entry_has_item(sd, item_id)
+
+
+def _same_row_both_moves(
+    name: str,
+    move_a: str,
+    move_b: str,
+    *,
+    uctx: _UsageCtx,
+    sd_cache: dict[str, dict[str, Any] | None],
+    showdown_fetch: LiveFetch | None,
+) -> bool:
+    """Both moves on CBD, else both on Showdown. Never split across sources."""
+    ch = uctx.champions_entry(name)
+    if _entry_has_move(ch, move_a) and _entry_has_move(ch, move_b):
+        return True
+    sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)
+    return bool(sd) and _entry_has_move(sd, move_a) and _entry_has_move(sd, move_b)
+
+
+def _construct_offense_stage_setup(
+    category: str,
+    sub_criteria: dict[str, Any],
+    legal_pool: list[str],
+    *,
+    snap: dict[str, Any],
+    uctx: _UsageCtx,
+    showdown_fetch: LiveFetch | None,
+    reference_compendium: dict[str, Any] | RoleConstructionDraft | None,
+    calculate_batch: CalculateBatch,
+) -> RoleConstructionDraft:
+    """Calm Mind / Bulk Up / Dragon Dance: +1 offense (+ matching bulk or Spe)."""
+    move_id = to_id(sub_criteria["move_id"])
+    boost_stat = str(sub_criteria["boost_stat"])
+    stages = int(sub_criteria.get("boost_stages") or 1)
+    want = {str(k): int(v) for k, v in (sub_criteria.get("exact_boosts") or {}).items()}
+    exclusive = exact_self_boost_move(want)
+    if exclusive != move_id:
+        raise ValueError(f"criteria move_id {move_id} != exact boost {exclusive}")
+
+    kind = str(sub_criteria.get("kind") or "")
+    pool = _pool_index(legal_pool, snap)
+    prior = _ref_members(reference_compendium)
+    members: list[CandidateEval] = []
+    rejected: list[RejectedCandidate] = []
+    notes: list[str] = [
+        f"exact Status self-boost {want} → {move_id}; no SD Branch A/B OR-gate"
+    ]
+    if kind == "offense_speed_setup":
+        notes.append("Spe stage is setup-turn self-solve — rank on +1 Atk payoff only")
+    panel = _setup_threat_defenders()
+    notes.append(
+        f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
+        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} "
+        f"({_threat_panel_label(panel)})"
+    )
+    notes.append(
+        "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD"
+    )
+    notes.append(
+        "payoff_fallback=per-defender on type immunity (usage then learnset, "
+        "STAB-then-corrected-BP); skip only if all candidate moves zero"
+    )
+    if kind == "offense_speed_setup":
+        notes.append(
+            "spe_crossings=not-faster→faster after int(unboosted*1.5); "
+            "turn-order diagnostic only; k/n_relevant"
+        )
+    else:
+        def_label = "SpD" if "spd" in want else "Def"
+        notes.append(
+            f"bulk_crossings=incoming {'Special' if 'spd' in want else 'Physical'} "
+            f"after candidate {def_label}+{stages}; KO bins from damageRange[-1]/HP; "
+            "OHKO→not-OHKO and 2HKO→3HKO+; immunity excluded from n_relevant"
+        )
+        notes.append(
+            "within-tier sort by bulk_crossings; no promotion threshold (no natural gap)"
+        )
+
+    eligible = {
+        sid: name
+        for sid, name in pool.items()
+        if move_id in set(resolve_learnset(snap, sid) or [])
+    }
+    sd_cache: dict[str, dict[str, Any] | None] = {}
+    _pair_usage, pair_notes, _stone = _mega_usage_attribution(
+        eligible,
+        frozenset({move_id}),
+        snap=snap,
+        uctx=uctx,
+        sd_cache=sd_cache,
+        showdown_fetch=showdown_fetch,
+        notes=notes,
+    )
+    skip_discount = {sid for sid, note in pair_notes.items() if "discounted" in note}
+    pair_attr = {sid: pair_notes[sid] for sid in skip_discount}
+
+    provisional: list[dict[str, Any]] = []
+    for sid, name in sorted(eligible.items(), key=lambda kv: kv[1]):
+        learnset = set(resolve_learnset(snap, sid) or [])
+        abs_map = _species_abilities(snap, sid)
+        stats = _base_stats(snap, sid)
+        entry = uctx.entry_for(name)
+        if not uctx.delivers(name, move_id) or not _hits_clear_set_pct_floor(
+            name,
+            {move_id},
+            floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+        ):
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=f"learnset has {move_id} but no usage evidence of the setup move",
+                    change_reason=(
+                        f"usage re-eval / tier {prior.get(sid)!r} → rejected"
+                        if prior.get(sid)
+                        else None
+                    ),
+                )
+            )
+            continue
+        calc_name, item, ability, kit_moves = _attacker_kit(
+            name, sid, snap, learnset, boost_stat=boost_stat, entry=entry
+        )
+        usage_ids = _usage_payoff_move_ids(entry, kit_moves)
+        used: list[tuple[str, str]] = []
+        sweep: dict[str, Any] = {}
+        payoff_id, raw_score, calc_err, _pri = _select_setup_payoff(
+            snap=snap,
+            sid=sid,
+            calc_name=calc_name,
+            item=item,
+            ability=ability,
+            boost_stat=boost_stat,
+            stages=stages,
+            usage_move_ids=usage_ids,
+            panel=panel,
+            calculate_batch=calculate_batch,
+            learnset=learnset,
+            used_out=used,
+            exact_boosts=want or None,
+            extra_spe_stages=1 if kind == "offense_speed_setup" else 0,
+            sweep_out=sweep,
+        )
+        if not payoff_id:
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason="no usage-proven damaging conversion of the boosted offense stat",
+                    change_reason=(
+                        f"payoff re-eval / tier {prior.get(sid)!r} → rejected"
+                        if prior.get(sid)
+                        else None
+                    ),
+                )
+            )
+            continue
+        min_score = float(sub_criteria.get("min_score") or 0)
+        if min_score > 0 and raw_score < min_score:
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=(
+                        f"damage_score {raw_score:.3f} below membership floor "
+                        f"{min_score:g}"
+                    ),
+                    change_reason=(
+                        f"score floor {min_score:g} / tier {prior[sid]!r} → rejected"
+                        if prior.get(sid)
+                        else None
+                    ),
+                )
+            )
+            continue
+        spe = int(stats.get("spe") or 0)
+        has_pri = bool(_setup_priority_for_branch(learnset, snap, boost_stat))
+        spe_note = (
+            "priority_or_spe_ok"
+            if has_pri or spe >= _SETUP_SPE_FLOOR
+            else f"slow_no_priority spe={spe}"
+        )
+        move_disp = str((snap.get("moves") or {}).get(payoff_id, {}).get("name") or payoff_id)
+        coverage = _payoff_coverage_note(used, snap=snap, primary_mid=payoff_id)
+        if kind == "offense_speed_setup":
+            xk, xn = _setup_spe_crossings(
+                candidate_name=name,
+                calc_name=calc_name,
+                panel=panel,
+                calculate_batch=calculate_batch,
+                snap=snap,
+            )
+        else:
+            def_stat = "spd" if "spd" in want else "def"
+            xk, xn = _setup_bulk_crossings(
+                snap=snap,
+                candidate_name=name,
+                calc_name=calc_name,
+                panel=panel,
+                def_stat=def_stat,
+                stages=stages,
+                calculate_batch=calculate_batch,
+            )
+        provisional.append(
+            {
+                "sid": sid,
+                "name": name,
+                "raw_score": raw_score,
+                "calc_err": calc_err,
+                "calc_name": calc_name,
+                "move_disp": move_disp,
+                "coverage": coverage,
+                "spe_note": spe_note,
+                "abs_map": abs_map,
+                "xk": xk,
+                "xn": xn,
+                "sweep": dict(sweep),
+            }
+        )
+
+    floor = _setup_excellent_floor([p["raw_score"] for p in provisional])
+    ranked = sorted(provisional, key=lambda p: p["raw_score"], reverse=True)
+    top_label = ", ".join(f"{p['name']}={p['raw_score']:.3f}" for p in ranked[:2]) or "none"
+    notes.append(
+        f"Excellent damage floor = 2nd-highest × {_SETUP_FLOOR_SECOND_MULT:g} "
+        f"→ {floor:.3f} (top: {top_label})"
+    )
+    notes.append(
+        f"Acceptable floor = Excellent floor × {_SETUP_ACCEPTABLE_FLOOR_MULT:g} "
+        f"→ {floor * _SETUP_ACCEPTABLE_FLOOR_MULT:.3f}"
+    )
+
+    for p in provisional:
+        sid, name, raw_score = p["sid"], p["name"], p["raw_score"]
+        mech_tier = _setup_mech_tier(raw_score, floor)
+        discounted = sid in skip_discount
+        if discounted and mech_tier == "Excellent":
+            tier = "Acceptable"
+            basis = "usage_discounted"
+            change_reason = (
+                f"usage discount demote / mech Excellent → Acceptable "
+                f"({pair_attr.get(sid, 'discounted')})"
+            )
+        elif discounted:
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=(
+                        f"Showdown usage discounted; mech {mech_tier} → reject "
+                        f"({pair_attr.get(sid, '')})"
+                    ),
+                )
+            )
+            continue
+        else:
+            tier = mech_tier
+            basis = (
+                "calc_payoff"
+                if tier == "Excellent"
+                else f"{tier.lower()}_calc_payoff"
+            )
+            change_reason = None
+        xk, xn = int(p["xk"]), int(p["xn"])
+        xnote = f"{xk}/{xn}"
+        prev = prior.get(sid)
+        if prev and prev != tier and change_reason is None:
+            change_reason = (
+                f"stage-setup re-eval / tier {prev!r} → {tier!r} (score={raw_score:.3f})"
+            )
+        move_disp = p["move_disp"]
+        coverage = p["coverage"]
+        xfield = "spe_crossings" if kind == "offense_speed_setup" else "bulk_crossings"
+        members.append(
+            CandidateEval(
+                species=name,
+                species_id=sid,
+                tier=tier,
+                delivery_class="move_setup",
+                mechanism=str(
+                    (snap.get("moves") or {}).get(move_id, {}).get("name") or move_id
+                ),
+                criteria_notes={
+                    "delivery": "move-based setup (usage-proven)",
+                    "execution": (
+                        f"damage_score={raw_score:.3f} floor={floor:.3f} "
+                        f"{p['spe_note']} {xfield}={xnote}"
+                    ),
+                    "payoff_move": move_disp,
+                    **({"payoff_coverage": coverage} if coverage else {}),
+                    "calc_species": p["calc_name"],
+                    "spe_note": p["spe_note"],
+                    "damage_score": f"{raw_score:.3f}",
+                    xfield: xnote,
+                    **_sweep_note_fields(p.get("sweep")),
+                    **({"calc_error": p["calc_err"]} if p["calc_err"] else {}),
+                },
+                claimed_traits=[
+                    ClaimedTrait(
+                        name=str(
+                            (snap.get("moves") or {}).get(move_id, {}).get("name") or move_id
+                        ),
+                        criterion="delivery",
+                        purpose_claimed=f"setup via {move_id} (+{stages} {boost_stat})",
+                    ),
+                    ClaimedTrait(
+                        name=move_disp if not coverage else f"{move_disp} + coverage",
+                        criterion="execution",
+                        purpose_claimed=(
+                            f"calc damage fraction {raw_score:.3f} vs panel"
+                            + (f"; {coverage}" if coverage else "")
+                            + f"; {xfield}={xnote}"
+                        ),
+                    ),
+                ],
+                reasoning=(
+                    f"{tier}: calc {raw_score:.3f} (floor {floor:.3f}); "
+                    f"{p['spe_note']}; {xfield}={xnote}"
+                ),
+                change_reason=change_reason,
+                excellence_basis=basis,
+            )
+        )
+
+    notes.append(
+        "sweep_ohko=outgoing OHKO k/n vs panel (unscaled max-roll); "
+        "survive_hp=mean/min remain on outsped-and-survive (n_surv=0 → n/a); "
+        "display only — within-tier sort stays crossings"
+    )
+    xfield = "spe_crossings" if kind == "offense_speed_setup" else "bulk_crossings"
+    members = _sort_members_by_crossings(members, field=xfield)
+    return _draft_with_tiers(category, sub_criteria, members, rejected, notes=notes)
+
+
+def _construct_def_payoff_setup(
+    category: str,
+    sub_criteria: dict[str, Any],
+    legal_pool: list[str],
+    *,
+    snap: dict[str, Any],
+    uctx: _UsageCtx,
+    showdown_fetch: LiveFetch | None,
+    reference_compendium: dict[str, Any] | RoleConstructionDraft | None,
+    calculate_batch: CalculateBatch,
+) -> RoleConstructionDraft:
+    """Iron Defense + Body Press: Def-stage payoff."""
+    setup_id = to_id(sub_criteria["setup_move_id"])
+    payoff_id = to_id(sub_criteria["payoff_move_id"])
+    boost_stat = str(sub_criteria.get("boost_stat") or "def")
+    stages = int(sub_criteria.get("boost_stages") or 2)
+    pool = _pool_index(legal_pool, snap)
+    prior = _ref_members(reference_compendium)
+    members: list[CandidateEval] = []
+    rejected: list[RejectedCandidate] = []
+    notes = [
+        "learnset conjunction irondefense ∩ bodypress; admit iff the same usage "
+        "row lists both (Champions row if present, else Showdown)",
+        "Champions offline does not confirm ID+BP co-listing; Showdown-admitted "
+        "field may be demoted at critic",
+        "ID+BP dual-purpose split: high-offense members ≠ high-bulk-crossing "
+        "members; sort-only, no promote/demote threshold",
+    ]
+    panel = _setup_threat_defenders()
+    notes.append(
+        f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
+        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} "
+        f"({_threat_panel_label(panel)})"
+    )
+    notes.append(
+        "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD"
+    )
+    notes.append(
+        "payoff_fallback=per-defender on type immunity (usage then learnset, "
+        "STAB-then-corrected-BP); skip only if all candidate moves zero"
+    )
+    notes.append(
+        f"bulk_crossings=incoming Physical after candidate Def+{stages}; "
+        "KO bins from damageRange[-1]/HP; OHKO→not-OHKO and 2HKO→3HKO+; "
+        "immunity excluded from n_relevant"
+    )
+    notes.append(
+        "within-tier sort by bulk_crossings; no promotion threshold "
+        "(gap does not map onto any single candidate)"
+    )
+
+    eligible = {
+        sid: name
+        for sid, name in pool.items()
+        if {setup_id, payoff_id} <= set(resolve_learnset(snap, sid) or [])
+    }
+    sd_cache: dict[str, dict[str, Any] | None] = {}
+    _pair_usage, pair_notes, _stone = _mega_usage_attribution(
+        eligible,
+        frozenset({setup_id, payoff_id}),
+        snap=snap,
+        uctx=uctx,
+        sd_cache=sd_cache,
+        showdown_fetch=showdown_fetch,
+        notes=notes,
+    )
+    skip_discount = {sid for sid, note in pair_notes.items() if "discounted" in note}
+    pair_attr = {sid: pair_notes[sid] for sid in skip_discount}
+
+    payoff_disp = str((snap.get("moves") or {}).get(payoff_id, {}).get("name") or payoff_id)
+    setup_disp = str((snap.get("moves") or {}).get(setup_id, {}).get("name") or setup_id)
+    provisional: list[dict[str, Any]] = []
+    for sid, name in sorted(eligible.items(), key=lambda kv: kv[1]):
+        if not _same_row_both_moves(
+            name,
+            setup_id,
+            payoff_id,
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+        ) or not _hits_clear_set_pct_floor(
+            name,
+            {setup_id, payoff_id},
+            floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+            require_all=True,
+        ):
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=(
+                        "learnset has irondefense+bodypress but same usage row "
+                        "does not list both"
+                    ),
+                    change_reason=(
+                        f"ID+BP usage re-eval / tier {prior.get(sid)!r} → rejected"
+                        if prior.get(sid)
+                        else None
+                    ),
+                )
+            )
+            continue
+        learnset = set(resolve_learnset(snap, sid) or [])
+        entry = uctx.entry_for(name)
+        calc_name, item, ability, kit_moves = _attacker_kit(
+            name, sid, snap, learnset, boost_stat="atk", entry=entry
+        )
+        usage_ids = _usage_payoff_move_ids(entry, kit_moves)
+        ranked_payoffs = _ranked_payoff_moves(
+            snap,
+            sid,
+            learnset,
+            boost_stat="atk",
+            usage_moves=sorted(usage_ids),
+            boost_count=stages,
+        )
+        fallbacks = [m for m in ranked_payoffs if m != payoff_id]
+        used_boosted: list[tuple[str, str]] = []
+        unboosted, err0 = _damage_score(
+            attacker_name=calc_name,
+            item=item,
+            ability=ability,
+            move=payoff_disp,
+            move_id=payoff_id,
+            boost_stat=boost_stat,
+            stages=0,
+            panel=panel,
+            calculate_batch=calculate_batch,
+            evs=_BODY_PRESS_EVS,
+            fallback_mids=fallbacks,
+            snap=snap,
+            attacker_sid=sid,
+        )
+        sweep: dict[str, Any] = {}
+        boosted, err1 = _damage_score(
+            attacker_name=calc_name,
+            item=item,
+            ability=ability,
+            move=payoff_disp,
+            move_id=payoff_id,
+            boost_stat=boost_stat,
+            stages=stages,
+            panel=panel,
+            calculate_batch=calculate_batch,
+            evs=_BODY_PRESS_EVS,
+            fallback_mids=fallbacks,
+            snap=snap,
+            attacker_sid=sid,
+            used_out=used_boosted,
+            sweep_out=sweep,
+        )
+        delta = boosted - unboosted
+        calc_err = ";".join(x for x in (err0, err1) if x)
+        if unboosted > _DEF_PAYOFF_DELTA_EPS and delta <= _DEF_PAYOFF_DELTA_EPS:
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=(
+                        f"+{stages} Def does not convert on Body Press "
+                        f"(unboosted={unboosted:.3f} boosted={boosted:.3f})"
+                    ),
+                )
+            )
+            continue
+        coverage = _payoff_coverage_note(
+            used_boosted, snap=snap, primary_mid=payoff_id
+        )
+        xk, xn = _setup_bulk_crossings(
+            snap=snap,
+            candidate_name=name,
+            calc_name=calc_name,
+            panel=panel,
+            def_stat="def",
+            stages=stages,
+            calculate_batch=calculate_batch,
+        )
+        provisional.append(
+            {
+                "sid": sid,
+                "name": name,
+                "raw_score": boosted,
+                "delta": delta,
+                "unboosted": unboosted,
+                "calc_err": calc_err,
+                "calc_name": calc_name,
+                "coverage": coverage,
+                "xk": xk,
+                "xn": xn,
+                "sweep": dict(sweep),
+            }
+        )
+
+    zero_boosted = sum(1 for p in provisional if p["raw_score"] <= 0)
+    if provisional and zero_boosted == len(provisional):
+        notes.append(
+            "all admitted Body Press scores vs panel were 0 — Fighting immunities "
+            "on the shared threat panel; panel not swapped"
+        )
+    elif zero_boosted:
+        notes.append(
+            f"{zero_boosted} admitted candidate(s) scored 0 vs panel "
+            "(Fighting immunity likely); panel not swapped"
+        )
+
+    floor = _setup_excellent_floor([p["raw_score"] for p in provisional])
+    ranked = sorted(provisional, key=lambda p: p["raw_score"], reverse=True)
+    top_label = ", ".join(f"{p['name']}={p['raw_score']:.3f}" for p in ranked[:2]) or "none"
+    notes.append(
+        f"Excellent damage floor = 2nd-highest post-ID × {_SETUP_FLOOR_SECOND_MULT:g} "
+        f"→ {floor:.3f} (top: {top_label})"
+    )
+    notes.append(
+        f"Acceptable floor = Excellent floor × {_SETUP_ACCEPTABLE_FLOOR_MULT:g} "
+        f"→ {floor * _SETUP_ACCEPTABLE_FLOOR_MULT:.3f}"
+    )
+
+    for p in provisional:
+        sid, name, raw_score = p["sid"], p["name"], p["raw_score"]
+        mech_tier = _setup_mech_tier(raw_score, floor)
+        discounted = sid in skip_discount
+        if discounted and mech_tier == "Excellent":
+            tier = "Acceptable"
+            basis = "usage_discounted"
+            change_reason = (
+                f"usage discount demote / mech Excellent → Acceptable "
+                f"({pair_attr.get(sid, 'discounted')})"
+            )
+        elif discounted:
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=(
+                        f"Showdown usage discounted; mech {mech_tier} → reject "
+                        f"({pair_attr.get(sid, '')})"
+                    ),
+                )
+            )
+            continue
+        else:
+            tier = mech_tier
+            basis = (
+                "calc_body_press"
+                if tier == "Excellent"
+                else f"{tier.lower()}_calc_body_press"
+            )
+            change_reason = None
+        prev = prior.get(sid)
+        if prev and prev != tier and change_reason is None:
+            change_reason = (
+                f"def-payoff re-eval / tier {prev!r} → {tier!r} (score={raw_score:.3f})"
+            )
+        xnote = f"{int(p['xk'])}/{int(p['xn'])}"
+        members.append(
+            CandidateEval(
+                species=name,
+                species_id=sid,
+                tier=tier,
+                delivery_class="move_setup",
+                mechanism=f"{setup_disp}+{payoff_disp}",
+                criteria_notes={
+                    "delivery": "irondefense+bodypress same-row usage",
+                    "execution": (
+                        f"post_id={raw_score:.3f} unboosted={p['unboosted']:.3f} "
+                        f"delta={p['delta']:.3f} floor={floor:.3f} "
+                        f"bulk_crossings={xnote}"
+                    ),
+                    "payoff_move": payoff_disp,
+                    **({"payoff_coverage": p["coverage"]} if p["coverage"] else {}),
+                    "calc_species": p["calc_name"],
+                    "damage_score": f"{raw_score:.3f}",
+                    "bulk_crossings": xnote,
+                    **_sweep_note_fields(p.get("sweep")),
+                    **({"calc_error": p["calc_err"]} if p["calc_err"] else {}),
+                },
+                claimed_traits=[
+                    ClaimedTrait(
+                        name=setup_disp,
+                        criterion="delivery",
+                        purpose_claimed=f"+{stages} Def via {setup_id}",
+                    ),
+                    ClaimedTrait(
+                        name=(
+                            payoff_disp
+                            if not p["coverage"]
+                            else f"{payoff_disp} + coverage"
+                        ),
+                        criterion="execution",
+                        purpose_claimed=(
+                            f"Body Press post-ID {raw_score:.3f} "
+                            f"(delta {p['delta']:.3f})"
+                            + (f"; {p['coverage']}" if p["coverage"] else "")
+                            + f"; bulk_crossings={xnote}"
+                        ),
+                    ),
+                ],
+                reasoning=(
+                    f"{tier}: post-ID {raw_score:.3f} delta={p['delta']:.3f} "
+                    f"(floor {floor:.3f}); bulk_crossings={xnote}"
+                ),
+                change_reason=change_reason,
+                excellence_basis=basis,
+            )
+        )
+
+    notes.append(
+        "sweep_ohko + sweep_2hko vs panel (ID+BP OHKO clumps; 2HKO+ is the "
+        "spreading axis); survive_hp n_surv=0 → n/a; display only — sort stays "
+        "bulk_crossings"
+    )
+    members = _sort_members_by_crossings(members, field="bulk_crossings")
+    return _draft_with_tiers(category, sub_criteria, members, rejected, notes=notes)
 
 
 def _construct_redirection(
@@ -2225,6 +3927,15 @@ def _construct_redirection(
             usage_proven = pair_usage[sid]
         else:
             usage_proven = any(uctx.delivers(name, mid) for mid in hits)
+        if usage_proven and not _hits_clear_set_pct_floor(
+            name,
+            set(hits),
+            floor=_USAGE_SET_PCT_FLOOR,
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+        ):
+            usage_proven = False
 
         has_fg = bool(ally_ids & set(abs_map))
         has_hospitality = "hospitality" in abs_map
@@ -2844,6 +4555,1072 @@ def _construct_trick_room_setter(
                 ),
                 change_reason=change_reason,
                 reinforce_class=reinforce,
+                excellence_basis=basis,
+            )
+        )
+
+    _guard_pool(members, rejected, pool_ids)
+    return _draft_with_tiers(category, sub_criteria, members, rejected, notes=notes)
+
+
+def _construct_tailwind_setter(
+    category: str,
+    sub_criteria: dict[str, Any],
+    legal_pool: list[str],
+    *,
+    snap: dict[str, Any],
+    uctx: _UsageCtx,
+    showdown_fetch: LiveFetch | None,
+    reference_compendium: dict[str, Any] | RoleConstructionDraft | None,
+) -> RoleConstructionDraft:
+    """Speed-control setter peer of Trick Room — opposite execution axis (go first).
+
+    Provisional bars (reviewable): Prankster → Excellent; Spe≥floor → Good;
+    usage-proven slow → Acceptable. Does NOT reuse weather's move→Good cap.
+    """
+    move_ids = frozenset(to_id(m) for m in sub_criteria["move_ids"])
+    pool = _pool_index(legal_pool, snap)
+    pool_ids = set(pool)
+    prior = _ref_members(reference_compendium)
+    members: list[CandidateEval] = []
+    rejected: list[RejectedCandidate] = []
+    notes = [
+        "Excellent = Prankster + usage-proven Tailwind; Good = base Spe ≥ "
+        f"{_TAILWIND_SPE_FLOOR} + usage-proven; Acceptable = usage-proven "
+        "below Spe floor, or Excellent demoted by Showdown-discount / "
+        "unproven-usage two-tier rule",
+        _TAILWIND_DELIVERY_NOTE,
+        "weather move+Prankster hard-caps at Good because ability setters sit "
+        "above — Tailwind has no ability delivery, so Excellent remains "
+        "reachable inside move-only grading (TR/redirection pattern)",
+        "do not import Trick Room bulk≥210 membership — wrong axis (go-last survival)",
+        "usage evidence prefers Champions in-game data where a row exists; "
+        "Showdown is a fallback only for formes with no Champions row",
+        "Prankster is blocked by Dark-types / Armor Tail / Queenly Majesty — "
+        "noted in execution text, not an auto-reject",
+    ]
+    sd_cache: dict[str, dict[str, Any] | None] = {}
+
+    eligible = {
+        sid: name
+        for sid, name in pool.items()
+        if move_ids & set(resolve_learnset(snap, sid) or [])
+    }
+
+    pair_usage, pair_notes, _stone_used = _mega_usage_attribution(
+        eligible,
+        move_ids,
+        snap=snap,
+        uctx=uctx,
+        sd_cache=sd_cache,
+        showdown_fetch=showdown_fetch,
+        notes=notes,
+    )
+
+    for sid, name in sorted(eligible.items(), key=lambda x: x[1]):
+        hits = sorted(move_ids & set(resolve_learnset(snap, sid) or []))
+        abs_map = _species_abilities(snap, sid)
+        stats = _base_stats(snap, sid)
+        mechanism = " / ".join(_move_display(snap, mid) for mid in hits)
+        entry = uctx.entry_for(name)
+        spe = int(stats.get("spe") or 0)
+        has_prankster = "prankster" in abs_map
+
+        if pair_usage.get(sid) is False:
+            usage_proven = False
+            usage_source = "mega attribution"
+        else:
+            usage_hits, usage_source = _delivery_usage_hits(
+                name,
+                set(hits),
+                uctx=uctx,
+                sd_cache=sd_cache,
+                showdown_fetch=showdown_fetch,
+            )
+            usage_proven = bool(usage_hits)
+
+        attr = pair_notes.get(sid, "")
+        discounted = (
+            "discounted" in attr
+            or "stone-heuristic" in attr
+            or "attributed to Mega" in attr
+            or "mega-stone fallback" in attr
+        )
+
+        # Prankster is independent execution reinforce for admission (go-first).
+        if not _admit_move_delivery(
+            usage_proven=usage_proven, independent_reinforce=has_prankster
+        ):
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=(
+                        f"{mechanism} learnset but no usage evidence of Tailwind "
+                        "delivery and no Prankster reinforce"
+                        + (f" ({attr})" if attr else "")
+                    ),
+                    change_reason=(
+                        "learnset-only without usage/Prankster"
+                        if prior.get(sid)
+                        else None
+                    ),
+                )
+            )
+            continue
+
+        # Provisional tier grades (go-first axis).
+        if has_prankster:
+            tier, basis = "Excellent", "prankster_priority"
+        elif spe >= _TAILWIND_SPE_FLOOR:
+            tier, basis = "Good", "natural_speed"
+        else:
+            tier, basis = "Acceptable", "slow_manual"
+
+        # Showdown-discount: Excellent → Acceptable; Good/Acceptable → reject.
+        if discounted and usage_proven is False:
+            demoted = _discount_outcome(
+                "Excellent" if has_prankster else ("Good" if tier == "Good" else "Acceptable")
+            )
+            if demoted == "Acceptable" and has_prankster:
+                tier, basis = "Acceptable", "usage_discounted_prankster"
+            else:
+                rejected.append(
+                    RejectedCandidate(
+                        species=name,
+                        species_id=sid,
+                        reason=(
+                            f"{mechanism} learnset; usage discounted vs Mega form "
+                            f"and mech tier {tier} has no Acceptable discount path"
+                            + (f" ({attr})" if attr else "")
+                        ),
+                        change_reason=(
+                            f"usage discount reject from {prior[sid]!r}"
+                            if prior.get(sid)
+                            else None
+                        ),
+                    )
+                )
+                continue
+        elif discounted and has_prankster and usage_proven:
+            # Discounted base with proven Mega path handled above; if still
+            # discounted while usage_proven True, keep mech tier (independent).
+            pass
+
+        # Unproven usage: Prankster Excellent → Acceptable; else reject.
+        if not usage_proven:
+            if not has_prankster:
+                rejected.append(
+                    RejectedCandidate(
+                        species=name,
+                        species_id=sid,
+                        reason=(
+                            f"{mechanism} learnset but no usage evidence of Tailwind "
+                            f"delivery; two-tier demotion from {tier} falls below "
+                            "Acceptable"
+                            + (f" ({attr})" if attr else "")
+                        ),
+                        change_reason=(
+                            f"unproven-usage two-tier demotion from {prior[sid]!r}"
+                            if prior.get(sid)
+                            else None
+                        ),
+                    )
+                )
+                continue
+            tier, basis = "Acceptable", "acceptable_prankster_unproven"
+
+        secondary_note, secondary_traits = _secondary_support_notes(
+            entry, move_ids=_TAILWIND_SECONDARY_MOVES
+        )
+        secondary_move_ids = {to_id(t.name) for t in secondary_traits}
+        has_fg = bool({"friendguard"} & set(abs_map))
+        verified_secondary = has_fg or bool(secondary_traits)
+        excellent_secondary = _excellent_secondary(
+            has_friend_guard=has_fg,
+            secondary_move_ids=secondary_move_ids,
+            excellent_move_ids=_TAILWIND_EXCELLENT_SECONDARY_MOVES,
+        )
+
+        exec_note = f"base Spe={spe}"
+        traits: list[ClaimedTrait] = [
+            ClaimedTrait(
+                name=mechanism,
+                criterion="delivery",
+                purpose_claimed="double ally Speed for four turns",
+            )
+        ]
+        if has_prankster:
+            exec_note += (
+                "; Prankster +1 priority on Tailwind — blocked by Dark-types / "
+                "Armor Tail / Queenly Majesty"
+            )
+            traits.append(
+                ClaimedTrait(
+                    name=abs_map["prankster"],
+                    criterion="execution",
+                    purpose_claimed="priority status Tailwind; go-first reliability",
+                )
+            )
+        elif spe >= _TAILWIND_SPE_FLOOR:
+            exec_note += (
+                f"; natural Spe ≥ {_TAILWIND_SPE_FLOOR} provisional floor "
+                "(no Prankster)"
+            )
+            traits.append(
+                ClaimedTrait(
+                    name=f"Spe {spe}",
+                    criterion="execution",
+                    purpose_claimed="natural Speed to land Tailwind before threats",
+                )
+            )
+        else:
+            exec_note += (
+                f"; Spe {spe} below provisional floor {_TAILWIND_SPE_FLOOR}; "
+                "lands Tailwind only if the opposing field is slower / disrupted"
+            )
+        if not usage_proven:
+            exec_note += "; usage unproven — two-tier demotion applied"
+        traits.extend(secondary_traits)
+
+        prev_tier = prior.get(sid)
+        change_reason = None
+        if prev_tier and prev_tier != tier:
+            change_reason = f"tier {prev_tier!r} → {tier!r}" + (
+                f" ({attr})" if attr else ""
+            )
+
+        members.append(
+            CandidateEval(
+                species=name,
+                species_id=sid,
+                tier=tier,
+                delivery_class="move_tailwind",
+                mechanism=mechanism,
+                criteria_notes={
+                    "delivery": _TAILWIND_DELIVERY_NOTE,
+                    "execution": exec_note,
+                    "secondary_role": secondary_note,
+                    "usage_proven": str(usage_proven),
+                    "usage_source": usage_source,
+                    "verified_secondary": str(verified_secondary),
+                    "excellent_secondary": str(excellent_secondary),
+                    "reinforce_class": "prankster" if has_prankster else "none",
+                    "spe": str(spe),
+                    "spe_floor_provisional": str(_TAILWIND_SPE_FLOOR),
+                    "attribution": attr or "none",
+                },
+                claimed_traits=traits,
+                reasoning=(
+                    f"{mechanism} clears {tier} (basis={basis}, "
+                    f"usage_proven={usage_proven}, prankster={has_prankster}, "
+                    f"spe={spe})"
+                    + (f" / {attr}" if attr else "")
+                    + "."
+                ),
+                change_reason=change_reason,
+                reinforce_class="prankster" if has_prankster else "none",
+                excellence_basis=basis,
+            )
+        )
+
+    _guard_pool(members, rejected, pool_ids)
+    return _draft_with_tiers(category, sub_criteria, members, rejected, notes=notes)
+
+
+def _screens_learnset_complete(hits: set[str]) -> bool:
+    return "auroraveil" in hits or ("lightscreen" in hits and "reflect" in hits)
+
+
+def _screens_wanted(*, usage_mids: set[str], has_clay: bool) -> bool:
+    if "auroraveil" in usage_mids:
+        return True
+    if "lightscreen" in usage_mids and "reflect" in usage_mids:
+        return True
+    return has_clay and bool(usage_mids & _SCREENS_MOVE_IDS)
+
+
+def _construct_screens_support(
+    category: str,
+    sub_criteria: dict[str, Any],
+    legal_pool: list[str],
+    *,
+    snap: dict[str, Any],
+    uctx: _UsageCtx,
+    showdown_fetch: LiveFetch | None,
+    reference_compendium: dict[str, Any] | RoleConstructionDraft | None,
+) -> RoleConstructionDraft:
+    """Screens Support — TW-shaped move-only setter; Veil is a snow-gated pathway."""
+    move_ids = frozenset(to_id(m) for m in sub_criteria["move_ids"]) or _SCREENS_MOVE_IDS
+    pool = _pool_index(legal_pool, snap)
+    pool_ids = set(pool)
+    prior = _ref_members(reference_compendium)
+    members: list[CandidateEval] = []
+    rejected: list[RejectedCandidate] = []
+    notes = [
+        "Excellent = Prankster + usage-proven screens at the wanted threshold; "
+        f"Good = base Spe ≥ {_SCREENS_SPE_FLOOR} + usage-proven wanted; "
+        "Acceptable = usage-proven below Spe floor, or Excellent demoted by "
+        "Showdown-discount / unproven-usage two-tier rule",
+        "wanted threshold = Aurora Veil OR dual Reflect+Light Screen OR "
+        "Light Clay + ≥1 screen (same gate as _mechanisms / infer_role); "
+        "lone LS/Reflect without Clay is incidental, not screens_support",
+        "one category folds Dual Screens / Light Screen / Reflect / Aurora Veil "
+        "— splitting does not narrow a distinct search",
+        "Aurora Veil is a delivery pathway inside this category (snow-gated "
+        "reliability note), not its own file",
+        _SCREENS_DELIVERY_NOTE,
+        "usage evidence prefers Champions in-game data where a row exists; "
+        "Showdown is a fallback only for formes with no Champions row",
+        "Prankster is blocked by Dark-types / Armor Tail / Queenly Majesty — "
+        "noted in execution text, not an auto-reject",
+    ]
+    sd_cache: dict[str, dict[str, Any] | None] = {}
+
+    eligible = {
+        sid: name
+        for sid, name in pool.items()
+        if move_ids & set(resolve_learnset(snap, sid) or [])
+    }
+
+    pair_usage, pair_notes, _stone_used = _mega_usage_attribution(
+        eligible,
+        move_ids,
+        snap=snap,
+        uctx=uctx,
+        sd_cache=sd_cache,
+        showdown_fetch=showdown_fetch,
+        notes=notes,
+    )
+
+    for sid, name in sorted(eligible.items(), key=lambda x: x[1]):
+        ls = set(resolve_learnset(snap, sid) or [])
+        hits = set(move_ids & ls)
+        abs_map = _species_abilities(snap, sid)
+        stats = _base_stats(snap, sid)
+        entry = uctx.entry_for(name)
+        spe = int(stats.get("spe") or 0)
+        has_prankster = "prankster" in abs_map
+        learnset_complete = _screens_learnset_complete(hits)
+
+        if pair_usage.get(sid) is False:
+            usage_proven = False
+            usage_source = "mega attribution"
+            usage_mids: set[str] = set()
+            has_clay = False
+        else:
+            usage_mids, usage_source = _delivery_usage_hits(
+                name,
+                hits,
+                uctx=uctx,
+                sd_cache=sd_cache,
+                showdown_fetch=showdown_fetch,
+            )
+            usage_proven = bool(usage_mids)
+            has_clay = _usage_has_item(
+                name,
+                "lightclay",
+                uctx=uctx,
+                sd_cache=sd_cache,
+                showdown_fetch=showdown_fetch,
+            )
+
+        wanted = _screens_wanted(usage_mids=usage_mids, has_clay=has_clay)
+        independent = has_prankster and learnset_complete
+        attr = pair_notes.get(sid, "")
+        discounted = (
+            "discounted" in attr
+            or "stone-heuristic" in attr
+            or "attributed to Mega" in attr
+            or "mega-stone fallback" in attr
+        )
+        mechanism = " / ".join(
+            _move_display(snap, mid) for mid in sorted(usage_mids or hits)
+        )
+
+        if not wanted and not independent:
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=(
+                        f"{mechanism} learnset but not screens_support: "
+                        "need usage-proven Aurora Veil, dual screens, or "
+                        "Light Clay + a screen (lone LS/Reflect without Clay "
+                        "is incidental)"
+                        + (f" ({attr})" if attr else "")
+                    ),
+                    change_reason=(
+                        "incidental screen without wanted threshold"
+                        if prior.get(sid)
+                        else None
+                    ),
+                )
+            )
+            continue
+
+        if not _admit_move_delivery(
+            usage_proven=usage_proven and wanted, independent_reinforce=independent
+        ):
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=(
+                        f"{mechanism} learnset but no usage evidence of screen "
+                        "delivery and no Prankster+dual/Veil reinforce"
+                        + (f" ({attr})" if attr else "")
+                    ),
+                    change_reason=(
+                        "learnset-only without usage/Prankster"
+                        if prior.get(sid)
+                        else None
+                    ),
+                )
+            )
+            continue
+
+        if has_prankster:
+            tier, basis = "Excellent", "prankster_priority"
+        elif spe >= _SCREENS_SPE_FLOOR:
+            tier, basis = "Good", "natural_speed"
+        else:
+            tier, basis = "Acceptable", "slow_manual"
+
+        if discounted and usage_proven is False:
+            demoted = _discount_outcome(
+                "Excellent" if has_prankster else (
+                    "Good" if tier == "Good" else "Acceptable"
+                )
+            )
+            if demoted == "Acceptable" and has_prankster:
+                tier, basis = "Acceptable", "usage_discounted_prankster"
+            else:
+                rejected.append(
+                    RejectedCandidate(
+                        species=name,
+                        species_id=sid,
+                        reason=(
+                            f"{mechanism} learnset; usage discounted vs Mega form "
+                            f"and mech tier {tier} has no Acceptable discount path"
+                            + (f" ({attr})" if attr else "")
+                        ),
+                        change_reason=(
+                            f"usage discount reject from {prior[sid]!r}"
+                            if prior.get(sid)
+                            else None
+                        ),
+                    )
+                )
+                continue
+
+        if not (usage_proven and wanted):
+            if not has_prankster:
+                rejected.append(
+                    RejectedCandidate(
+                        species=name,
+                        species_id=sid,
+                        reason=(
+                            f"{mechanism} learnset but no usage evidence of "
+                            f"wanted screens; two-tier demotion from {tier} "
+                            "falls below Acceptable"
+                            + (f" ({attr})" if attr else "")
+                        ),
+                        change_reason=(
+                            f"unproven-usage two-tier demotion from {prior[sid]!r}"
+                            if prior.get(sid)
+                            else None
+                        ),
+                    )
+                )
+                continue
+            tier, basis = "Acceptable", "acceptable_prankster_unproven"
+
+        secondary_note, secondary_traits = _secondary_support_notes(
+            entry, move_ids=_SCREENS_SECONDARY_MOVES
+        )
+        secondary_move_ids = {to_id(t.name) for t in secondary_traits}
+        has_fg = bool({"friendguard"} & set(abs_map))
+        verified_secondary = has_fg or bool(secondary_traits)
+        excellent_secondary = _excellent_secondary(
+            has_friend_guard=has_fg,
+            secondary_move_ids=secondary_move_ids,
+            excellent_move_ids=_SCREENS_EXCELLENT_SECONDARY_MOVES,
+        )
+
+        veil = "auroraveil" in (usage_mids or hits)
+        sets_snow = bool(set(abs_map) & _SCREENS_SNOW_ABILITIES) or bool(
+            ls & _SCREENS_SNOW_MOVES
+        )
+        exec_note = f"base Spe={spe}"
+        traits: list[ClaimedTrait] = [
+            ClaimedTrait(
+                name=mechanism,
+                criterion="delivery",
+                purpose_claimed="ally physical/special damage reduction via screens",
+            )
+        ]
+        if has_prankster:
+            exec_note += (
+                "; Prankster +1 priority on screens — blocked by Dark-types / "
+                "Armor Tail / Queenly Majesty"
+            )
+            traits.append(
+                ClaimedTrait(
+                    name=abs_map["prankster"],
+                    criterion="execution",
+                    purpose_claimed="priority status screens; go-first reliability",
+                )
+            )
+        elif spe >= _SCREENS_SPE_FLOOR:
+            exec_note += (
+                f"; natural Spe ≥ {_SCREENS_SPE_FLOOR} provisional floor "
+                "(no Prankster)"
+            )
+            traits.append(
+                ClaimedTrait(
+                    name=f"Spe {spe}",
+                    criterion="execution",
+                    purpose_claimed="natural Speed to land screens before threats",
+                )
+            )
+        else:
+            exec_note += (
+                f"; Spe {spe} below provisional floor {_SCREENS_SPE_FLOOR}; "
+                "lands screens only if the opposing field is slower / disrupted"
+            )
+        if has_clay:
+            exec_note += "; Light Clay extends screen duration"
+        if veil:
+            exec_note += "; Aurora Veil is snow-gated"
+            if sets_snow:
+                exec_note += " (self-supplies snow)"
+            else:
+                exec_note += " (depends on teammate snow)"
+        if not (usage_proven and wanted):
+            exec_note += "; usage unproven — two-tier demotion applied"
+        traits.extend(secondary_traits)
+
+        prev_tier = prior.get(sid)
+        change_reason = None
+        if prev_tier and prev_tier != tier:
+            change_reason = f"tier {prev_tier!r} → {tier!r}" + (
+                f" ({attr})" if attr else ""
+            )
+
+        members.append(
+            CandidateEval(
+                species=name,
+                species_id=sid,
+                tier=tier,
+                delivery_class="move_screens",
+                mechanism=mechanism,
+                criteria_notes={
+                    "delivery": _SCREENS_DELIVERY_NOTE,
+                    "execution": exec_note,
+                    "secondary_role": secondary_note,
+                    "usage_proven": str(usage_proven and wanted),
+                    "usage_source": usage_source,
+                    "verified_secondary": str(verified_secondary),
+                    "excellent_secondary": str(excellent_secondary),
+                    "reinforce_class": "prankster" if has_prankster else "none",
+                    "spe": str(spe),
+                    "spe_floor_provisional": str(_SCREENS_SPE_FLOOR),
+                    "light_clay": str(has_clay),
+                    "aurora_veil": str(veil),
+                    "attribution": attr or "none",
+                },
+                claimed_traits=traits,
+                reasoning=(
+                    f"{mechanism} clears {tier} (basis={basis}, "
+                    f"usage_proven={usage_proven and wanted}, "
+                    f"prankster={has_prankster}, spe={spe})"
+                    + (f" / {attr}" if attr else "")
+                    + "."
+                ),
+                change_reason=change_reason,
+                reinforce_class="prankster" if has_prankster else "none",
+                excellence_basis=basis,
+            )
+        )
+
+    _guard_pool(members, rejected, pool_ids)
+    return _draft_with_tiers(category, sub_criteria, members, rejected, notes=notes)
+
+
+def _sleep_delivery_ids(snap: dict[str, Any]) -> frozenset[str]:
+    """Core sleep set plus any other Status sleep move present in the snapshot."""
+    found = set(_SLEEP_CORE_MOVES)
+    for mid in _SLEEP_STATUS_MOVES:
+        entry = (snap.get("moves") or {}).get(mid) or {}
+        if not entry:
+            continue
+        if str(entry.get("category") or "") != "Status":
+            continue
+        found.add(mid)
+    return frozenset(found)
+
+
+def _sleep_pathway(
+    *,
+    delivery_hits: set[str],
+    accuracy_reinforce: bool,
+    has_trap: bool,
+) -> tuple[str, str, str]:
+    """Return (pathway_id, primary_move_id, label) for the best available delivery."""
+    if "spore" in delivery_hits:
+        return "P0", "spore", "Spore (100% immediate; new reliability class)"
+    if "sleeppowder" in delivery_hits and accuracy_reinforce:
+        return "P1", "sleeppowder", "Sleep Powder + accuracy reinforce"
+    if "sleeppowder" in delivery_hits:
+        return "P2", "sleeppowder", "Sleep Powder (no accuracy reinforce)"
+    imperfect = sorted(
+        mid for mid in delivery_hits if mid in _SLEEP_IMMEDIATE and mid != "spore"
+    )
+    # Hypnosis-class (includes Sing / Dark Void / etc. when legal).
+    hypno_class = [m for m in imperfect if m != "sleeppowder"]
+    if hypno_class and accuracy_reinforce:
+        mid = "hypnosis" if "hypnosis" in hypno_class else hypno_class[0]
+        return "P2", mid, f"{mid} + accuracy reinforce"
+    if hypno_class:
+        mid = "hypnosis" if "hypnosis" in hypno_class else hypno_class[0]
+        return "P3", mid, f"bare {mid}"
+    if "yawn" in delivery_hits:
+        label = "Yawn + trapping" if has_trap else "Yawn (delayed; no trap)"
+        return "P4", "yawn", label
+    mid = next(iter(sorted(delivery_hits)))
+    return "P?", mid, f"unclassified sleep delivery ({mid})"
+
+
+def _construct_sleep_status_spreader(
+    category: str,
+    sub_criteria: dict[str, Any],
+    legal_pool: list[str],
+    *,
+    snap: dict[str, Any],
+    uctx: _UsageCtx,
+    showdown_fetch: LiveFetch | None,
+    reference_compendium: dict[str, Any] | RoleConstructionDraft | None,
+) -> RoleConstructionDraft:
+    """Sleep status role — ADR-015 2026-07-29f mechanism-dependent bars (provisional)."""
+    delivery_ids = _sleep_delivery_ids(snap)
+    pool = _pool_index(legal_pool, snap)
+    pool_ids = set(pool)
+    prior = _ref_members(reference_compendium)
+    members: list[CandidateEval] = []
+    rejected: list[RejectedCandidate] = []
+
+    # Presence check for reliability classes (construction notes, not fake rejects).
+    legal_learners: dict[str, int] = {mid: 0 for mid in sorted(delivery_ids)}
+    for sid in pool:
+        ls = set(resolve_learnset(snap, sid) or [])
+        for mid in delivery_ids:
+            if mid in ls:
+                legal_learners[mid] = legal_learners.get(mid, 0) + 1
+
+    spore_learners = legal_learners.get("spore", 0)
+    spore_absent = spore_learners == 0
+    notes = [
+        "Ranking is pathway-first by execution reliability (accuracy / whether "
+        "sleep actually lands). Spe is secondary for imperfect immediate "
+        "delivery (P2/P3): base Spe ≥ floor OR a speed-boosting ability "
+        "(Chlorophyll / Swift Swim / Sand Rush / Slush Rush / Unburden / "
+        "Speed Boost) clears the Spe bar; failing it demotes one rank. "
+        "P1 (near-perfect accuracy) does not Spe-demote — ADR-015: Spe/"
+        "bulk matter less when the accuracy roll is already near-guaranteed. "
+        "P4 Yawn ignores Spe entirely.",
+        "Natural pathway order: P0 Spore (100% immediate) > P1 Sleep Powder+"
+        "accuracy reinforce > P2 Sleep Powder bare / Hypnosis+reinforce > "
+        "P3 bare Hypnosis/Sing-class > P4 Yawn (delayed; switch-window).",
+        "Excellent is reserved for Spore (P0). When Spore is absent from the "
+        "legal pool, ADR-019 entire-class gap: push remaining pathways up one "
+        "tier (P1→Excellent, P2→Good, P3→Acceptable) so Excellent is not "
+        "left empty while a worse pathway occupies Good.",
+        "Bare P4 (Yawn, no trapping) is below P3 and is rejected — only three "
+        "tiers exist, so keeping it co-equal with P3 in Acceptable would hide "
+        "the reliability gap. P4+Shadow Tag (or other trap) closes the switch "
+        "window and stays Acceptable (elevated within Yawn only; still never "
+        "outranks P2).",
+        "Helping Hand excluded from sleep secondary excellence",
+        "usage evidence prefers Champions in-game data where a row exists",
+        (
+            "Spore reliability class ABSENT — push-up ACTIVE"
+            if spore_absent
+            else f"Spore learners_in_pool={spore_learners} — no push-up"
+        ),
+    ]
+    for mid, n in sorted(legal_learners.items()):
+        acc = _SLEEP_ACCURACY.get(mid, "?")
+        notes.append(
+            f"delivery availability: {mid} learners_in_pool={n} "
+            f"(catalog accuracy={acc})"
+        )
+        if n == 0 and mid in ("spore", "darkvoid"):
+            notes.append(
+                f"{mid} reliability class ABSENT from current legal pool "
+                "(ADR-019 entire-class gap)"
+            )
+
+    sd_cache: dict[str, dict[str, Any] | None] = {}
+    eligible = {
+        sid: name
+        for sid, name in pool.items()
+        if delivery_ids & set(resolve_learnset(snap, sid) or [])
+    }
+
+    pair_usage, pair_notes, _stone_used = _mega_usage_attribution(
+        eligible,
+        delivery_ids,
+        snap=snap,
+        uctx=uctx,
+        sd_cache=sd_cache,
+        showdown_fetch=showdown_fetch,
+        notes=notes,
+    )
+
+    for sid, name in sorted(eligible.items(), key=lambda x: x[1]):
+        ls = set(resolve_learnset(snap, sid) or [])
+        delivery_hits = set(delivery_ids & ls)
+        abs_map = _species_abilities(snap, sid)
+        stats = _base_stats(snap, sid)
+        entry = uctx.entry_for(name)
+        spe = int(stats.get("spe") or 0)
+        bulk = sum(int(stats.get(k) or 0) for k in ("hp", "def", "spd"))
+
+        # Exhaustive kit sweep (ADR-019) — every candidate, not opportunistic.
+        kit_accuracy = sorted(set(abs_map) & _SLEEP_ACCURACY_ABILITIES)
+        kit_trap = sorted(set(abs_map) & _SLEEP_TRAP_ABILITIES)
+        kit_speed = sorted(set(abs_map) & _SLEEP_SPEED_ABILITIES)
+        coil_learnset = "coil" in ls
+        coil_usage = bool(entry) and _entry_has_move(entry, "coil")
+        accuracy_reinforce = bool(kit_accuracy) or coil_usage
+        has_trap = bool(kit_trap)
+
+        pathway, primary_mid, pathway_label = _sleep_pathway(
+            delivery_hits=delivery_hits,
+            accuracy_reinforce=accuracy_reinforce,
+            has_trap=has_trap,
+        )
+        # Bare P4 (Yawn, no trap) is below P3 — reject rather than share Acceptable.
+        if pathway == "P4" and not has_trap:
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=(
+                        f"{_move_display(snap, primary_mid)} ({pathway_label}): "
+                        "bare Yawn without trapping is below P3 reliability and "
+                        "is rejected (only P4+trap closes the switch-window "
+                        "enough to keep Acceptable)"
+                    ),
+                    change_reason=(
+                        "bare yawn rejected below P3" if prior.get(sid) else None
+                    ),
+                )
+            )
+            continue
+
+        mechanism = _move_display(snap, primary_mid)
+        # If multiple deliveries, list them for transparency.
+        if len(delivery_hits) > 1:
+            mechanism = " / ".join(
+                _move_display(snap, mid) for mid in sorted(delivery_hits)
+            )
+
+        if pair_usage.get(sid) is False:
+            usage_proven = False
+            usage_source = "mega attribution"
+        else:
+            usage_hits, usage_source = _delivery_usage_hits(
+                name,
+                set(delivery_hits),
+                uctx=uctx,
+                sd_cache=sd_cache,
+                showdown_fetch=showdown_fetch,
+            )
+            usage_proven = bool(usage_hits)
+
+        # Pathway-matched independent reinforce for admission.
+        if pathway == "P4":
+            independent = has_trap
+        elif pathway in {"P1", "P2", "P0"}:
+            independent = accuracy_reinforce
+        else:
+            independent = accuracy_reinforce  # P3 bare — reinforce uncommon
+
+        attr = pair_notes.get(sid, "")
+        discounted = (
+            "discounted" in attr
+            or "stone-heuristic" in attr
+            or "attributed to Mega" in attr
+            or "mega-stone fallback" in attr
+        )
+
+        if not _admit_move_delivery(
+            usage_proven=usage_proven, independent_reinforce=independent
+        ):
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=(
+                        f"{mechanism} learnset ({pathway_label}) but no usage "
+                        "evidence of sleep delivery and no pathway-matched reinforce"
+                        + (f" ({attr})" if attr else "")
+                    ),
+                    change_reason=(
+                        "learnset-only without usage/reinforce"
+                        if prior.get(sid)
+                        else None
+                    ),
+                )
+            )
+            continue
+
+        spe_applies = primary_mid in _SLEEP_IMMEDIATE
+        has_speed_ability = bool(kit_speed)
+        # Base Spe floor OR speed-boosting ability (Chlorophyll etc.) — ability
+        # presence is the check; weather uptime is noted, not separately gated.
+        spe_ok = (not spe_applies) or spe >= _SLEEP_SPE_FLOOR or has_speed_ability
+        if not spe_applies:
+            spe_skip_note = (
+                "Speed ignored for ranking: Yawn delayed delivery"
+            )
+        elif spe >= _SLEEP_SPE_FLOOR:
+            spe_skip_note = f"Spe {spe} ≥ {_SLEEP_SPE_FLOOR}"
+        elif has_speed_ability:
+            spe_skip_note = (
+                f"Spe {spe} < {_SLEEP_SPE_FLOOR} but speed ability "
+                f"{'/'.join(abs_map[a] for a in kit_speed)} clears Spe bar "
+                "(condition-dependent in battle)"
+            )
+        else:
+            spe_skip_note = (
+                f"Spe {spe} < {_SLEEP_SPE_FLOOR} and no speed-boosting ability "
+                "— demote one rank on imperfect immediate pathways (P2/P3)"
+            )
+
+        # Effective accuracy after reinforce (Compound Eyes ≈ ×1.3).
+        base_acc = _SLEEP_ACCURACY.get(primary_mid, 100)
+        if "noguard" in kit_accuracy:
+            eff_acc = 100
+        elif "compoundeyes" in kit_accuracy:
+            eff_acc = min(100, int(base_acc * 1.3))
+        elif coil_usage:
+            # Coil +1 accuracy stage ≈ ×4/3 on next moves — approximate for notes.
+            eff_acc = min(100, int(base_acc * 4 / 3))
+        else:
+            eff_acc = base_acc
+        bulk_relevant = eff_acc < 100
+        bulk_note = (
+            f"bulk HP+Def+SpD={bulk} (miss-insurance; acc≈{eff_acc}%)"
+            if bulk_relevant
+            else f"bulk HP+Def+SpD={bulk} (miss-insurance skipped: eff acc≈{eff_acc}%)"
+        )
+
+        # Pathway reliability rank (lower = more reliable execution).
+        # Bare P4 already rejected above; P4+trap elevates to P3 rank only.
+        pathway_rank = {
+            "P0": 0,
+            "P1": 1,
+            "P2": 2,
+            "P3": 3,
+            "P4": 3,  # trap-only survivors; equals P3 floor, never above P2
+        }.get(pathway, 5)
+        if pathway == "P4":
+            basis = "yawn_trap"
+        elif pathway == "P0":
+            basis = "spore_immediate"
+        elif pathway == "P1":
+            basis = "sleeppowder_accuracy"
+        elif pathway == "P2":
+            basis = "p2_mid_accuracy"
+        elif pathway == "P3":
+            basis = "bare_hypnosis"
+        else:
+            basis = "unclassified"
+
+        # Spore absent → push remaining pathways up one rank (Excellent not empty).
+        effective_rank = pathway_rank - 1 if spore_absent else pathway_rank
+        # P2/P3 Spe demotion: imperfect immediate sleep needs Spe or speed ability.
+        # P1 skipped (near-perfect accuracy — ADR-015). P4 Spe-irrelevant.
+        if pathway in {"P2", "P3"} and not spe_ok:
+            effective_rank += 1
+            basis = f"{basis}_slow"
+        if effective_rank <= 0:
+            tier = "Excellent"
+        elif effective_rank == 1:
+            tier = "Good"
+        elif effective_rank <= 3:
+            tier = "Acceptable"
+        else:
+            # P2/P3 that were already Acceptable and then Spe-demoted fall off.
+            rejected.append(
+                RejectedCandidate(
+                    species=name,
+                    species_id=sid,
+                    reason=(
+                        f"{mechanism} ({pathway_label}): pathway clears only "
+                        f"Acceptable after push-up, then Spe bar fails "
+                        f"(Spe {spe}, speed_abil={kit_speed or ['none']}) — "
+                        "below Acceptable"
+                    ),
+                )
+            )
+            continue
+        if spore_absent and pathway != "P0":
+            basis = f"pushup_{basis}"
+
+        # Discount / unproven demotion: Excellent → Acceptable; else reject.
+        if discounted and not usage_proven:
+            if tier == "Excellent":
+                demoted = _discount_outcome("Excellent")
+                assert demoted == "Acceptable"
+                tier, basis = "Acceptable", f"discounted_{basis}"
+            else:
+                rejected.append(
+                    RejectedCandidate(
+                        species=name,
+                        species_id=sid,
+                        reason=(
+                            f"{mechanism} usage discounted vs Mega; mech {tier} "
+                            "has no Acceptable discount path"
+                            + (f" ({attr})" if attr else "")
+                        ),
+                    )
+                )
+                continue
+        elif not usage_proven:
+            if tier == "Excellent":
+                tier, basis = "Acceptable", f"unproven_{basis}"
+            else:
+                rejected.append(
+                    RejectedCandidate(
+                        species=name,
+                        species_id=sid,
+                        reason=(
+                            f"{mechanism} ({pathway_label}) learnset but no usage; "
+                            f"two-tier demotion from {tier} falls below Acceptable"
+                            + (f" ({attr})" if attr else "")
+                        ),
+                    )
+                )
+                continue
+
+        secondary_note, secondary_traits = _secondary_support_notes(
+            entry, move_ids=_SLEEP_SECONDARY_MOVES
+        )
+        secondary_move_ids = {to_id(t.name) for t in secondary_traits}
+        has_fg = bool({"friendguard"} & set(abs_map))
+        verified_secondary = has_fg or bool(secondary_traits)
+        excellent_secondary = _excellent_secondary(
+            has_friend_guard=has_fg,
+            secondary_move_ids=secondary_move_ids,
+            excellent_move_ids=_SLEEP_EXCELLENT_SECONDARY_MOVES,
+        )
+
+        kit_sweep = (
+            f"accuracy_abil={kit_accuracy or ['none']}; "
+            f"trap={kit_trap or ['none']}; "
+            f"speed_abil={kit_speed or ['none']}; "
+            f"coil_learnset={coil_learnset}; coil_usage={coil_usage}"
+        )
+        exec_parts = [
+            pathway_label,
+            spe_skip_note,
+            bulk_note,
+            kit_sweep,
+        ]
+        if not usage_proven:
+            exec_parts.append("usage unproven — demotion applied")
+        exec_note = "; ".join(exec_parts)
+
+        traits: list[ClaimedTrait] = [
+            ClaimedTrait(
+                name=mechanism,
+                criterion="delivery",
+                purpose_claimed="inflict sleep on an opposing Pokémon",
+            )
+        ]
+        for aid in kit_accuracy:
+            traits.append(
+                ClaimedTrait(
+                    name=abs_map[aid],
+                    criterion="execution",
+                    purpose_claimed="accuracy reinforce on imperfect sleep delivery",
+                )
+            )
+        if coil_usage:
+            traits.append(
+                ClaimedTrait(
+                    name="Coil",
+                    criterion="execution",
+                    purpose_claimed="usage-proven +1 accuracy stage among Coil effects",
+                )
+            )
+        for aid in kit_trap:
+            purpose = (
+                "closes Yawn switch-window"
+                if pathway == "P4"
+                else "trap present but ignored (not Yawn pathway)"
+            )
+            traits.append(
+                ClaimedTrait(
+                    name=abs_map[aid],
+                    criterion="execution",
+                    purpose_claimed=purpose,
+                )
+            )
+        traits.extend(secondary_traits)
+
+        prev_tier = prior.get(sid)
+        change_reason = None
+        if prev_tier and prev_tier != tier:
+            change_reason = f"tier {prev_tier!r} → {tier!r}" + (
+                f" ({attr})" if attr else ""
+            )
+
+        members.append(
+            CandidateEval(
+                species=name,
+                species_id=sid,
+                tier=tier,
+                delivery_class=f"sleep_{pathway.lower()}",
+                mechanism=mechanism,
+                criteria_notes={
+                    "delivery": pathway_label,
+                    "execution": exec_note,
+                    "secondary_role": secondary_note,
+                    "usage_proven": str(usage_proven),
+                    "usage_source": usage_source,
+                    "verified_secondary": str(verified_secondary),
+                    "excellent_secondary": str(excellent_secondary),
+                    "pathway": pathway,
+                    "pathway_rank": str(pathway_rank),
+                    "effective_rank": str(effective_rank),
+                    "spore_absent_pushup": str(spore_absent),
+                    "primary_move": primary_mid,
+                    "spe_applies": str(spe_applies),
+                    "spe": str(spe),
+                    "spe_ok": str(spe_ok),
+                    "speed_abilities": ",".join(kit_speed) or "none",
+                    "eff_accuracy": str(eff_acc),
+                    "kit_sweep": kit_sweep,
+                    "attribution": attr or "none",
+                },
+                claimed_traits=traits,
+                reasoning=(
+                    f"{mechanism} clears {tier} (pathway={pathway}, basis={basis}, "
+                    f"usage_proven={usage_proven})"
+                    + (f" / {attr}" if attr else "")
+                    + "."
+                ),
+                change_reason=change_reason,
+                reinforce_class=(
+                    "accuracy"
+                    if accuracy_reinforce
+                    else ("trap" if has_trap and pathway == "P4" else "none")
+                ),
                 excellence_basis=basis,
             )
         )

@@ -889,23 +889,36 @@ _FIXED_MULTI_HITS = {
 _MULTIACCURACY_HITS = {"populationbomb": 10, "tripleaxel": 3}
 _NO_GUARD = "noguard"
 _COMPOUND_EYES = "compoundeyes"
+_HUSTLE = "hustle"
+_HUSTLE_ACC_MULT = 0.8
+_COMPOUND_EYES_ACC_MULT = 1.3
 
 
-def effective_accuracy(base_accuracy: int | bool | None, ability: str | None) -> float:
-    """Move accuracy in [0, 1] after static ability modifiers (No Guard / Compound Eyes).
+def effective_accuracy(
+    base_accuracy: int | bool | None,
+    ability: str | None,
+    *,
+    defender_ability: str | None = None,
+    category: str | None = None,
+) -> float:
+    """Move accuracy in [0, 1] after static ability modifiers.
 
-    Coil and other move-based accuracy mods are out of scope (ADR-021b).
+    No Guard (attacker or defender) → 1.0. Hustle ×0.8 on Physical only.
+    Compound Eyes ×1.3. Coil / weather / items are out of scope (ADR-021b).
     """
-    aid = to_id(ability or "")
-    if aid == _NO_GUARD:
+    atk = to_id(ability or "")
+    dfn = to_id(defender_ability or "")
+    if atk == _NO_GUARD or dfn == _NO_GUARD:
         return 1.0
     if base_accuracy is True or base_accuracy is None:
         base = 1.0
     else:
         v = float(base_accuracy)
         base = v / 100.0 if v > 1.0 else v
-    if aid == _COMPOUND_EYES:
-        return min(1.0, base * 1.3)
+    if atk == _HUSTLE and (category or "") == "Physical":
+        base *= _HUSTLE_ACC_MULT
+    if atk == _COMPOUND_EYES:
+        base *= _COMPOUND_EYES_ACC_MULT
     return min(1.0, max(0.0, base))
 
 

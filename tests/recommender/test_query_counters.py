@@ -68,6 +68,14 @@ def test_effective_accuracy_compound_eyes_and_no_guard():
     assert abs(effective_accuracy(70, "Compound Eyes") - 0.91) < 1e-9
     assert effective_accuracy(True, None) == 1.0
     assert effective_accuracy(None, None) == 1.0
+    assert abs(effective_accuracy(70, None) - 0.70) < 1e-9
+    assert abs(effective_accuracy(80, None) - 0.80) < 1e-9
+    assert abs(effective_accuracy(75, "Hustle", category="Physical") - 0.60) < 1e-9
+    assert abs(effective_accuracy(75, "Hustle", category="Special") - 0.75) < 1e-9
+    assert effective_accuracy(50, "No Guard") == 1.0
+    assert abs(effective_accuracy(70, "Compound Eyes") - 0.91) < 1e-9
+    assert effective_accuracy(80, None, defender_ability="No Guard") == 1.0
+    assert effective_accuracy(100, "Hustle", defender_ability="No Guard", category="Physical") == 1.0
 
 
 def test_threat_tier_axis_count():
@@ -111,9 +119,8 @@ def test_vacuous_wall_status_only_falls_back_to_stab():
 
 def test_blaziken_mega_ceruledge_wall():
     # Usage-primary within-tier key admits wall-only Ceruledge near the default cut.
-    # n=25: Pass 1 type rewrites (e.g. Liquid Voice) correctly raise some KO scores,
-    # which can bump Ceruledge just past the old n=20 boundary without losing the wall.
-    out = query_counters({"species": "Blaziken-Mega"}, n=25)
+    # n=40: wall-only Ceruledge sits past the old n=20/25 boundary after acc-aware KO scores.
+    out = query_counters({"species": "Blaziken-Mega"}, n=40)
     cer = next(c for c in out if to_id(c.form) == "ceruledge")
     assert "wall" in cer.threat_kinds
     # Fire/Ghost typing does not SE into Fire/Fighting — wall-only, not KO.

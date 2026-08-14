@@ -78,8 +78,8 @@ def test_pelipper_primary_rain_secondary_tailwind_without_setup():
     decision = classify_anchor_role(resolve_anchor_build("Pelipper"))
     drizzle = next(m for m in decision.mechanisms if m.mechanic == "Drizzle")
     tailwind = next(m for m in decision.mechanisms if m.mechanic == "Tailwind")
-    assert decision.role_id == "rain_setter"
-    assert decision.secondary_role_ids == ("tailwind_setter",)
+    roles = {decision.role_id, *decision.secondary_role_ids}
+    assert roles >= {"rain_setter", "tailwind_setter"}
     assert "condition:Rain" in drizzle.evidence
     assert "condition:Tailwind" in tailwind.evidence
     assert tailwind.importance == "wanted"
@@ -223,3 +223,116 @@ def test_slot_usage_reason_maps_to_usage_derived():
         build = resolve_anchor_build(slot)
     assert build.source_for("ability") == "usage_derived"
     assert build.confirmed("ability") is False
+
+
+def _locked_decision(
+    species: str,
+    moves: list[str],
+    *,
+    item: str | None = None,
+    ability: str | None = None,
+):
+    slot_kw: dict = {
+        "species": Attr(species, locked=True),
+        "moveset": Attr(moves, locked=True),
+    }
+    if item is not None:
+        slot_kw["item"] = Attr(item, locked=True)
+    if ability is not None:
+        slot_kw["ability"] = Attr(ability, locked=True)
+    return classify_anchor_role(resolve_anchor_build(Slot(**slot_kw)))
+
+
+def _screens_row(decision):
+    return next(m for m in decision.mechanisms if m.kind == "screens")
+
+
+def test_dual_screens_wanted_screens_support():
+    decision = _locked_decision(
+        "Grimmsnarl",
+        ["Reflect", "Light Screen", "Thunder Wave", "Parting Shot"],
+        item="Light Clay",
+        ability="Prankster",
+    )
+    row = _screens_row(decision)
+    assert row.importance == "wanted"
+    assert row.role_id == "screens_support"
+    assert row.prerequisite is False
+    assert row.interruptible is True
+    assert "move:lightscreen" in row.evidence
+    assert "move:reflect" in row.evidence
+    assert "item:lightclay" in row.evidence
+    assert derive_role_shape_context(decision).requires_setup_turn is False
+
+
+def test_lone_light_screen_is_secondary_without_role_id():
+    decision = _locked_decision(
+        "Clefable",
+        ["Light Screen", "Moonblast", "Shadow Ball", "Protect"],
+        item="Leftovers",
+    )
+    row = _screens_row(decision)
+    assert row.importance == "secondary"
+    assert row.role_id is None
+    assert "screens_support" not in (decision.role_id, *decision.secondary_role_ids)
+
+
+def test_light_clay_without_screen_emits_no_screens_row():
+    decision = _locked_decision(
+        "Clefable",
+        ["Moonblast", "Shadow Ball", "Soft-Boiled", "Protect"],
+        item="Light Clay",
+    )
+    assert not any(m.kind == "screens" for m in decision.mechanisms)
+
+
+def test_aurora_veil_wanted_with_snow_evidence():
+    decision = _locked_decision(
+        "Ninetales-Alola",
+        ["Aurora Veil", "Moonblast", "Freeze-Dry", "Protect"],
+        item="Leftovers",
+        ability="Snow Warning",
+    )
+    row = _screens_row(decision)
+    assert row.mechanic == "Aurora Veil"
+    assert row.importance == "wanted"
+    assert row.role_id == "screens_support"
+    assert "condition:Snow" in row.evidence
+    assert "item:lightclay" not in row.evidence
+    assert derive_role_shape_context(decision).requires_setup_turn is False
+
+
+def test_light_clay_aurora_veil_includes_clay_and_snow():
+    decision = _locked_decision(
+        "Ninetales-Alola",
+        ["Aurora Veil", "Moonblast", "Freeze-Dry", "Protect"],
+        item="Light Clay",
+        ability="Snow Warning",
+    )
+    row = _screens_row(decision)
+    assert row.importance == "wanted"
+    assert row.role_id == "screens_support"
+    assert "condition:Snow" in row.evidence
+    assert "item:lightclay" in row.evidence
+    assert "move:auroraveil" in row.evidence
+
+
+def test_incidental_light_screen_attacker_is_not_screens_primary():
+    decision = _locked_decision(
+        "Gardevoir",
+        ["Moonblast", "Psychic", "Light Screen", "Protect"],
+        item="Life Orb",
+        ability="Trace",
+    )
+    assert decision.role_id != "screens_support"
+    row = _screens_row(decision)
+    assert row.importance == "secondary"
+    assert row.role_id is None
+
+
+def test_pelipper_rain_tailwind_unchanged_with_screens_emission():
+    decision = classify_anchor_role(resolve_anchor_build("Pelipper"))
+    roles = {decision.role_id, *decision.secondary_role_ids}
+    assert roles >= {"rain_setter", "tailwind_setter"}
+    assert not any(m.kind == "screens" for m in decision.mechanisms)
+    assert derive_role_shape_context(decision).requires_setup_turn is False

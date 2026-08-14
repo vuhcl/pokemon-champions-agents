@@ -136,7 +136,8 @@ def infer_role(
 
     if "trickroom" in mids:
         return "trick_room_sweeper"
-    if len(screens) >= 2 or (iid == "lightclay" and screens):
+    # Aurora Veil is dual screens in one move (snow-gated elsewhere).
+    if "auroraveil" in mids or len(screens) >= 2 or (iid == "lightclay" and screens):
         return "screens_support"
     if "tailwind" in mids:
         return "support_speed_control"
@@ -145,8 +146,6 @@ def infer_role(
             return "fast_pivot"
         return "bulky_pivot"
     if iid in _BULKY_ITEMS:
-        if bias == "status_only":
-            return "screens_support" if screens else "bulky_special_attacker"
         return _attacker_role("bulky", bias)
     if (
         iid in _FAST_ITEMS or technician_fast or iid == "focussash" or weather_fast

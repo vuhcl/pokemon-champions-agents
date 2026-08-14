@@ -58,7 +58,7 @@ def _rain_fixture() -> tuple[LockedAnchorContext, ...]:
             Slot(
                 species=Attr(value="Sableye", locked=True),
                 moveset=Attr(
-                    value=["Will-O-Wisp", "Light Screen", "Rain Dance", "Encore"],
+                    value=["Will-O-Wisp", "Light Screen", "Reflect", "Rain Dance"],
                     locked=True,
                 ),
             ),
@@ -162,14 +162,20 @@ def test_step_a_gaps_absent_honestly():
     report = summarize_roster_role_structure(_rain_fixture())
     keys = {g.function_key for g in report.groups}
     for gap in (
-        "screens",
-        "screens_support",
         "disruption",
         "disruption_utility",
         "hospitality",
         "ally_heal",
     ):
         assert gap not in keys
+
+
+def test_sableye_screens_uncontested():
+    report = summarize_roster_role_structure(_rain_fixture())
+    screens = _group(report, "screens_support")
+    assert screens.status == "uncontested"
+    assert {m.species for m in screens.members} == {"Sableye"}
+    assert screens.label == "screens"
 
 
 def test_friend_guard_follow_me_maushold_not_attacker():
@@ -235,7 +241,7 @@ def test_sableye_in_rain_even_without_utility_emission():
     rain = _group(report, "rain_setter")
     assert any(m.species == "Sableye" for m in rain.members)
     keys = {g.function_key for g in report.groups}
-    assert "screens" not in keys
+    assert "screens_support" in keys
     assert "disruption" not in keys
 
 

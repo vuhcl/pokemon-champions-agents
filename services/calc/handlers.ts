@@ -68,6 +68,8 @@ export type CalcRequest = {
   defender: PokemonSpec;
   move: string;
   field?: FieldSpec;
+  /** Forwarded to @smogon/calc Move `overrides` (e.g. Rage Fist BP). */
+  moveOverrides?: {basePower?: number};
 };
 
 export type CalcSuccess = {
@@ -133,7 +135,11 @@ export function runCalculate(req: CalcRequest): CalcSuccess {
   if (!req?.move) throw new Error('move is required');
   const attacker = toPokemon(req.attacker);
   const defender = toPokemon(req.defender);
-  const move = new Move(GEN, req.move);
+  const move = new Move(
+    GEN,
+    req.move,
+    req.moveOverrides ? {overrides: req.moveOverrides} : undefined,
+  );
   const field = toField(req.field, move.target);
   const result = calculate(GEN, attacker, defender, move, field);
   const range = result.range();

@@ -379,6 +379,11 @@ _SETUP_MOVES = {
     "calmmind": ("Calm Mind", "setup_attacker"),
     "bulkup": ("Bulk Up", "setup_attacker"),
 }
+_SCREEN_MOVES = {
+    "lightscreen": "Light Screen",
+    "reflect": "Reflect",
+    "auroraveil": "Aurora Veil",
+}
 
 _NEEDED_CONDITION_ABILITIES = frozenset(
     {"swiftswim", "chlorophyll", "sandrush", "slushrush"}
@@ -559,6 +564,45 @@ def _mechanisms(build: ResolvedAnchorBuild) -> list[MechanismEvidence]:
                 "trick_room_setter", True, True, "move", True,
                 build.source_for("moves"), "self_supplied",
                 ("condition:Trick Room", "move:trickroom"), "high",
+            )
+        )
+
+    present_screens = [mid for mid in _SCREEN_MOVES if mid in move_ids]
+    if present_screens:
+        has_aurora_veil = "auroraveil" in move_ids
+        ls_reflect = [mid for mid in ("lightscreen", "reflect") if mid in move_ids]
+        has_clay = to_id(build.item or "") == "lightclay"
+        wanted = (
+            has_aurora_veil
+            or len(ls_reflect) >= 2
+            or (has_clay and bool(ls_reflect))
+        )
+        evidence = [f"move:{mid}" for mid in present_screens]
+        if has_aurora_veil:
+            evidence.append("condition:Snow")
+        if has_clay and wanted:
+            evidence.append("item:lightclay")
+        if has_aurora_veil:
+            mechanic = "Aurora Veil"
+        elif len(present_screens) >= 2:
+            mechanic = "Screens"
+        else:
+            mechanic = _SCREEN_MOVES[present_screens[0]]
+        out.append(
+            MechanismEvidence(
+                mechanic,
+                "screens",
+                "provides",
+                "wanted" if wanted else "secondary",
+                "screens_support" if wanted else None,
+                True,
+                False,
+                "move",
+                True,
+                build.source_for("moves"),
+                "self_supplied",
+                tuple(evidence),
+                "high",
             )
         )
 
