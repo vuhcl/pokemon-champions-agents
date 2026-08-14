@@ -1,0 +1,1011 @@
+{
+  "pool_size": 314,
+  "no_persist_verified": true,
+  "role_files_unchanged": [
+    "nasty_plot_attacker.v1.json",
+    "redirection.v1.json",
+    "swords_dance_attacker.v1.json",
+    "trick_room_setter.v1.json",
+    "weather_setter_rain.v1.json",
+    "weather_setter_sand.v1.json",
+    "weather_setter_snow.v1.json",
+    "weather_setter_sun.v1.json"
+  ],
+  "idbp_doc_note": "Iron Defense + Body Press \u2014 permanent Stage 3 scope boundary. ID+BP payoff stays fixed to Body Press by design. Body Press damage is defined by the user's Defense stat, not by choosing among attacking moves, so Stage 1 per-defender best-move selection and Stage 2 plural payoff_moves / payoff_targets do not apply. The category keeps the single-string / fixed-payoff path (payoff_move_id: bodypress). This is an intentional permanent boundary, not an oversight and not deferred work.",
+  "categories": {
+    "swords_dance_attacker": {
+      "label": "swords_dance_attacker",
+      "disk_exists": true,
+      "admitted": 54,
+      "rejected": 47,
+      "tiers": {
+        "Excellent": 3,
+        "Good": 40,
+        "Acceptable": 11
+      },
+      "members": {
+        "Excellent": [
+          "Aegislash",
+          "Kingambit",
+          "Scrafty-Mega"
+        ],
+        "Good": [
+          "Absol",
+          "Absol-Mega",
+          "Banette-Mega",
+          "Beedrill-Mega",
+          "Blaziken-Mega",
+          "Ceruledge",
+          "Charizard-Mega-X",
+          "Chesnaught-Mega",
+          "Decidueye",
+          "Decidueye-Hisui",
+          "Diggersby",
+          "Excadrill-Mega",
+          "Feraligatr",
+          "Feraligatr-Mega",
+          "Gallade",
+          "Gallade-Mega",
+          "Garchomp",
+          "Garchomp-Mega",
+          "Gliscor",
+          "Hawlucha-Mega",
+          "Heracross-Mega",
+          "Kleavor",
+          "Leafeon",
+          "Lopunny-Mega",
+          "Lucario-Mega",
+          "Lycanroc-Dusk",
+          "Lycanroc-Midnight",
+          "Mawile-Mega",
+          "Mimikyu",
+          "Pangoro",
+          "Pinsir-Mega",
+          "Quaquaval",
+          "Rhyperior",
+          "Samurott-Hisui",
+          "Scizor",
+          "Scizor-Mega",
+          "Skarmory-Mega",
+          "Sneasler",
+          "Tinkaton",
+          "Torterra"
+        ],
+        "Acceptable": [
+          "Ariados",
+          "Beartic",
+          "Falinks-Mega",
+          "Lucario",
+          "Lycanroc",
+          "Overqwil",
+          "Qwilfish",
+          "Samurott",
+          "Talonflame",
+          "Toxicroak",
+          "Weavile"
+        ]
+      },
+      "critic_approved": true,
+      "critic_flag_count": 0,
+      "critic_flags": [],
+      "disk_admitted": 26,
+      "disk_tiers": {
+        "Good": 9,
+        "Excellent": 7,
+        "Acceptable": 10
+      },
+      "diff": {
+        "tier_changed": [
+          {
+            "species": "Absol-Mega",
+            "disk": "Excellent",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=1.106, branches=A)"
+          },
+          {
+            "species": "Aegislash",
+            "disk": "Good",
+            "live": "Excellent",
+            "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Excellent' (score=1.406, branches=A+B)"
+          },
+          {
+            "species": "Blaziken-Mega",
+            "disk": "Excellent",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=1.221, branches=A)"
+          },
+          {
+            "species": "Ceruledge",
+            "disk": "Acceptable",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Acceptable' \u2192 'Good' (score=0.933, branches=A)"
+          },
+          {
+            "species": "Charizard-Mega-X",
+            "disk": "Acceptable",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Acceptable' \u2192 'Good' (score=1.154, branches=A)"
+          },
+          {
+            "species": "Decidueye",
+            "disk": "Acceptable",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Acceptable' \u2192 'Good' (score=0.981, branches=A)"
+          },
+          {
+            "species": "Gallade-Mega",
+            "disk": "Excellent",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=1.067, branches=A)"
+          },
+          {
+            "species": "Garchomp-Mega",
+            "disk": "Acceptable",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Acceptable' \u2192 'Good' (score=1.157, branches=B)"
+          },
+          {
+            "species": "Heracross-Mega",
+            "disk": "Acceptable",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Acceptable' \u2192 'Good' (score=1.117, branches=A)"
+          },
+          {
+            "species": "Leafeon",
+            "disk": "Acceptable",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Acceptable' \u2192 'Good' (score=0.944, branches=A)"
+          },
+          {
+            "species": "Mawile-Mega",
+            "disk": "Excellent",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=1.199, branches=A)"
+          },
+          {
+            "species": "Mimikyu",
+            "disk": "Excellent",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=1.177, branches=A+B)"
+          },
+          {
+            "species": "Scizor",
+            "disk": "Acceptable",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Acceptable' \u2192 'Good' (score=1.001, branches=A)"
+          },
+          {
+            "species": "Scizor-Mega",
+            "disk": "Acceptable",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Acceptable' \u2192 'Good' (score=0.935, branches=A)"
+          },
+          {
+            "species": "Scrafty-Mega",
+            "disk": "Acceptable",
+            "live": "Excellent",
+            "change_reason": "setup calc/membership re-eval / tier 'Acceptable' \u2192 'Excellent' (score=1.382, branches=A+B)"
+          },
+          {
+            "species": "Skarmory-Mega",
+            "disk": "Excellent",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=1.013, branches=A)"
+          }
+        ],
+        "admitted_new": [
+          {
+            "species": "Ariados",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Banette-Mega",
+            "tier": "Good"
+          },
+          {
+            "species": "Beartic",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Chesnaught-Mega",
+            "tier": "Good"
+          },
+          {
+            "species": "Decidueye-Hisui",
+            "tier": "Good"
+          },
+          {
+            "species": "Diggersby",
+            "tier": "Good"
+          },
+          {
+            "species": "Falinks-Mega",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Gallade",
+            "tier": "Good"
+          },
+          {
+            "species": "Gliscor",
+            "tier": "Good"
+          },
+          {
+            "species": "Hawlucha-Mega",
+            "tier": "Good"
+          },
+          {
+            "species": "Kleavor",
+            "tier": "Good"
+          },
+          {
+            "species": "Lopunny-Mega",
+            "tier": "Good"
+          },
+          {
+            "species": "Lucario",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Lucario-Mega",
+            "tier": "Good"
+          },
+          {
+            "species": "Lycanroc",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Lycanroc-Dusk",
+            "tier": "Good"
+          },
+          {
+            "species": "Lycanroc-Midnight",
+            "tier": "Good"
+          },
+          {
+            "species": "Pangoro",
+            "tier": "Good"
+          },
+          {
+            "species": "Quaquaval",
+            "tier": "Good"
+          },
+          {
+            "species": "Qwilfish",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Rhyperior",
+            "tier": "Good"
+          },
+          {
+            "species": "Samurott",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Samurott-Hisui",
+            "tier": "Good"
+          },
+          {
+            "species": "Sneasler",
+            "tier": "Good"
+          },
+          {
+            "species": "Talonflame",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Tinkaton",
+            "tier": "Good"
+          },
+          {
+            "species": "Torterra",
+            "tier": "Good"
+          },
+          {
+            "species": "Toxicroak",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Weavile",
+            "tier": "Acceptable"
+          }
+        ],
+        "dropped": [
+          {
+            "species": "Blaziken",
+            "tier": "Good"
+          }
+        ],
+        "payoff_set_changed_count": 25,
+        "payoff_modal_changed": [
+          {
+            "species": "Absol",
+            "disk_modal": "suckerpunch",
+            "live_modal": "closecombat"
+          },
+          {
+            "species": "Absol-Mega",
+            "disk_modal": "suckerpunch",
+            "live_modal": "knockoff"
+          },
+          {
+            "species": "Aegislash",
+            "disk_modal": "shadowsneak",
+            "live_modal": "poltergeist"
+          },
+          {
+            "species": "Ceruledge",
+            "disk_modal": "shadowsneak",
+            "live_modal": "bitterblade"
+          },
+          {
+            "species": "Decidueye",
+            "disk_modal": "suckerpunch",
+            "live_modal": "leafblade"
+          },
+          {
+            "species": "Feraligatr",
+            "disk_modal": "aquajet",
+            "live_modal": "liquidation"
+          },
+          {
+            "species": "Feraligatr-Mega",
+            "disk_modal": "aquajet",
+            "live_modal": "doubleedge"
+          },
+          {
+            "species": "Garchomp-Mega",
+            "disk_modal": "stompingtantrum",
+            "live_modal": "dragonclaw"
+          },
+          {
+            "species": "Heracross-Mega",
+            "disk_modal": "lunge",
+            "live_modal": "closecombat"
+          },
+          {
+            "species": "Kingambit",
+            "disk_modal": "suckerpunch",
+            "live_modal": "kowtowcleave"
+          },
+          {
+            "species": "Leafeon",
+            "disk_modal": "quickattack",
+            "live_modal": "leafblade"
+          },
+          {
+            "species": "Mawile-Mega",
+            "disk_modal": "suckerpunch",
+            "live_modal": "ironhead"
+          },
+          {
+            "species": "Overqwil",
+            "disk_modal": "gunkshot",
+            "live_modal": "barbbarrage"
+          },
+          {
+            "species": "Scizor",
+            "disk_modal": "bulletpunch",
+            "live_modal": "bugbite"
+          },
+          {
+            "species": "Scizor-Mega",
+            "disk_modal": "bulletpunch",
+            "live_modal": "bugbite"
+          }
+        ]
+      },
+      "draft_artifact": "artifacts/stage4_critic/swords_dance_attacker.draft.json"
+    },
+    "nasty_plot_attacker": {
+      "label": "nasty_plot_attacker",
+      "disk_exists": true,
+      "admitted": 23,
+      "rejected": 50,
+      "tiers": {
+        "Excellent": 2,
+        "Good": 14,
+        "Acceptable": 7
+      },
+      "members": {
+        "Excellent": [
+          "Gengar-Mega",
+          "Raichu-Mega-Y"
+        ],
+        "Good": [
+          "Alakazam",
+          "Alakazam-Mega",
+          "Delphox-Mega",
+          "Froslass-Mega",
+          "Houndoom-Mega",
+          "Hydrapple",
+          "Lucario-Mega",
+          "Meowstic-F-Mega",
+          "Raichu-Alola",
+          "Salazzle",
+          "Simipour",
+          "Slowbro-Mega",
+          "Zoroark",
+          "Zoroark-Hisui"
+        ],
+        "Acceptable": [
+          "Infernape",
+          "Lucario",
+          "Meowstic-M-Mega",
+          "Ninetales",
+          "Ninetales-Alola",
+          "Raichu-Mega-X",
+          "Simisear"
+        ]
+      },
+      "critic_approved": true,
+      "critic_flag_count": 0,
+      "critic_flags": [],
+      "disk_admitted": 6,
+      "disk_tiers": {
+        "Excellent": 3,
+        "Good": 3
+      },
+      "diff": {
+        "tier_changed": [
+          {
+            "species": "Alakazam-Mega",
+            "disk": "Excellent",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=1.071, branches=A)"
+          },
+          {
+            "species": "Delphox-Mega",
+            "disk": "Excellent",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=1.028, branches=A)"
+          },
+          {
+            "species": "Meowstic-F-Mega",
+            "disk": "Excellent",
+            "live": "Good",
+            "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=0.899, branches=A)"
+          },
+          {
+            "species": "Raichu-Mega-Y",
+            "disk": "Good",
+            "live": "Excellent",
+            "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Excellent' (score=1.180, branches=A)"
+          }
+        ],
+        "admitted_new": [
+          {
+            "species": "Alakazam",
+            "tier": "Good"
+          },
+          {
+            "species": "Gengar-Mega",
+            "tier": "Excellent"
+          },
+          {
+            "species": "Hydrapple",
+            "tier": "Good"
+          },
+          {
+            "species": "Infernape",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Lucario",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Lucario-Mega",
+            "tier": "Good"
+          },
+          {
+            "species": "Meowstic-M-Mega",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Ninetales",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Ninetales-Alola",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Raichu-Alola",
+            "tier": "Good"
+          },
+          {
+            "species": "Raichu-Mega-X",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Salazzle",
+            "tier": "Good"
+          },
+          {
+            "species": "Simipour",
+            "tier": "Good"
+          },
+          {
+            "species": "Simisear",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Slowbro-Mega",
+            "tier": "Good"
+          },
+          {
+            "species": "Zoroark",
+            "tier": "Good"
+          },
+          {
+            "species": "Zoroark-Hisui",
+            "tier": "Good"
+          }
+        ],
+        "dropped": [],
+        "payoff_set_changed_count": 6,
+        "payoff_modal_changed": [
+          {
+            "species": "Alakazam-Mega",
+            "disk_modal": "psychic",
+            "live_modal": "expandingforce"
+          },
+          {
+            "species": "Froslass-Mega",
+            "disk_modal": "frostbreath",
+            "live_modal": "shadowball"
+          },
+          {
+            "species": "Meowstic-F-Mega",
+            "disk_modal": "psychic",
+            "live_modal": "expandingforce"
+          }
+        ]
+      },
+      "draft_artifact": "artifacts/stage4_critic/nasty_plot_attacker.draft.json"
+    },
+    "trick_room_setter": {
+      "label": "trick_room_setter",
+      "disk_exists": true,
+      "admitted": 28,
+      "rejected": 28,
+      "tiers": {
+        "Acceptable": 12,
+        "Good": 14,
+        "Excellent": 2
+      },
+      "members": {
+        "Excellent": [
+          "Farigiraf",
+          "Oranguru"
+        ],
+        "Good": [
+          "Aromatisse",
+          "Chandelure",
+          "Cofagrigus",
+          "Gourgeist",
+          "Gourgeist-Large",
+          "Gourgeist-Small",
+          "Hatterene",
+          "Mimikyu",
+          "Runerigus",
+          "Sinistcha",
+          "Slowbro",
+          "Slowking",
+          "Spiritomb",
+          "Trevenant"
+        ],
+        "Acceptable": [
+          "Armarouge",
+          "Audino",
+          "Audino-Mega",
+          "Gallade",
+          "Klefki",
+          "Malamar",
+          "Mr. Rime",
+          "Musharna",
+          "Reuniclus",
+          "Slowbro-Galar",
+          "Slowking-Galar",
+          "Wyrdeer"
+        ]
+      },
+      "critic_approved": true,
+      "critic_flag_count": 0,
+      "critic_flags": [],
+      "disk_admitted": 38,
+      "disk_tiers": {
+        "Acceptable": 17,
+        "Good": 18,
+        "Excellent": 3
+      },
+      "diff": {
+        "tier_changed": [],
+        "admitted_new": [],
+        "dropped": [
+          {
+            "species": "Banette-Mega",
+            "tier": "Good"
+          },
+          {
+            "species": "Chandelure-Mega",
+            "tier": "Good"
+          },
+          {
+            "species": "Chimecho-Mega",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Espeon",
+            "tier": "Good"
+          },
+          {
+            "species": "Gallade-Mega",
+            "tier": "Excellent"
+          },
+          {
+            "species": "Gardevoir-Mega",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Malamar-Mega",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Meowstic",
+            "tier": "Acceptable"
+          },
+          {
+            "species": "Polteageist",
+            "tier": "Good"
+          },
+          {
+            "species": "Slowbro-Mega",
+            "tier": "Acceptable"
+          }
+        ],
+        "payoff_set_changed_count": 0,
+        "payoff_modal_changed": []
+      },
+      "draft_artifact": "artifacts/stage4_critic/trick_room_setter.draft.json"
+    },
+    "calm_mind_attacker": {
+      "label": "calm_mind_attacker",
+      "disk_exists": false,
+      "admitted": 49,
+      "rejected": 32,
+      "tiers": {
+        "Excellent": 8,
+        "Good": 30,
+        "Acceptable": 11
+      },
+      "members": {
+        "Excellent": [
+          "Armarouge",
+          "Chandelure-Mega",
+          "Drampa-Mega",
+          "Floette-Eternal",
+          "Gardevoir-Mega",
+          "Hatterene",
+          "Primarina",
+          "Typhlosion-Hisui"
+        ],
+        "Good": [
+          "Alakazam",
+          "Alakazam-Mega",
+          "Aromatisse",
+          "Aurorus",
+          "Chandelure",
+          "Chimecho-Mega",
+          "Clefable",
+          "Clefable-Mega",
+          "Delphox-Mega",
+          "Drampa",
+          "Espeon",
+          "Farigiraf",
+          "Florges",
+          "Glaceon",
+          "Jolteon",
+          "Lucario-Mega",
+          "Meowstic-F-Mega",
+          "Meowstic-M-Mega",
+          "Mr. Rime",
+          "Polteageist",
+          "Reuniclus",
+          "Slowbro",
+          "Slowbro-Galar",
+          "Slowbro-Mega",
+          "Slowking",
+          "Slowking-Galar",
+          "Sylveon",
+          "Vaporeon",
+          "Zoroark",
+          "Zoroark-Hisui"
+        ],
+        "Acceptable": [
+          "Alcremie",
+          "Audino-Mega",
+          "Cofagrigus",
+          "Espathra",
+          "Klefki",
+          "Lucario",
+          "Musharna",
+          "Ninetales",
+          "Sinistcha",
+          "Spiritomb",
+          "Umbreon"
+        ]
+      },
+      "critic_approved": true,
+      "critic_flag_count": 0,
+      "critic_flags": [],
+      "draft_artifact": "artifacts/stage4_critic/calm_mind_attacker.draft.json"
+    },
+    "bulk_up_attacker": {
+      "label": "bulk_up_attacker",
+      "disk_exists": false,
+      "admitted": 37,
+      "rejected": 26,
+      "tiers": {
+        "Excellent": 5,
+        "Good": 29,
+        "Acceptable": 3
+      },
+      "members": {
+        "Excellent": [
+          "Blaziken-Mega",
+          "Hawlucha-Mega",
+          "Medicham-Mega",
+          "Pangoro",
+          "Starmie-Mega"
+        ],
+        "Good": [
+          "Annihilape",
+          "Barbaracle-Mega",
+          "Beartic",
+          "Ceruledge",
+          "Chesnaught-Mega",
+          "Conkeldurr",
+          "Corviknight",
+          "Crabominable-Mega",
+          "Decidueye-Hisui",
+          "Diggersby",
+          "Emboar-Mega",
+          "Falinks-Mega",
+          "Gallade-Mega",
+          "Heracross-Mega",
+          "Krookodile",
+          "Lucario-Mega",
+          "Lycanroc-Midnight",
+          "Machamp",
+          "Mimikyu",
+          "Palafin",
+          "Passimian",
+          "Pinsir-Mega",
+          "Quaquaval",
+          "Scrafty-Mega",
+          "Swampert-Mega",
+          "Tauros-Paldea-Aqua",
+          "Tauros-Paldea-Blaze",
+          "Tauros-Paldea-Combat",
+          "Toxicroak"
+        ],
+        "Acceptable": [
+          "Emboar",
+          "Lycanroc",
+          "Sableye-Mega"
+        ]
+      },
+      "critic_approved": true,
+      "critic_flag_count": 0,
+      "critic_flags": [],
+      "draft_artifact": "artifacts/stage4_critic/bulk_up_attacker.draft.json"
+    },
+    "dragon_dance_attacker": {
+      "label": "dragon_dance_attacker",
+      "disk_exists": false,
+      "admitted": 12,
+      "rejected": 19,
+      "tiers": {
+        "Excellent": 3,
+        "Good": 9
+      },
+      "members": {
+        "Excellent": [
+          "Charizard-Mega-X",
+          "Feraligatr",
+          "Feraligatr-Mega"
+        ],
+        "Good": [
+          "Dragapult",
+          "Dragonite",
+          "Flapple",
+          "Gyarados",
+          "Gyarados-Mega",
+          "Scrafty-Mega",
+          "Tyranitar",
+          "Tyranitar-Mega",
+          "Tyrantrum"
+        ],
+        "Acceptable": []
+      },
+      "critic_approved": true,
+      "critic_flag_count": 0,
+      "critic_flags": [],
+      "draft_artifact": "artifacts/stage4_critic/dragon_dance_attacker.draft.json"
+    },
+    "iron_defense_body_press": {
+      "label": "iron_defense_body_press",
+      "disk_exists": false,
+      "admitted": 24,
+      "rejected": 15,
+      "tiers": {
+        "Excellent": 2,
+        "Good": 18,
+        "Acceptable": 4
+      },
+      "members": {
+        "Excellent": [
+          "Chesnaught-Mega",
+          "Kommo-o"
+        ],
+        "Good": [
+          "Aggron-Mega",
+          "Avalugg",
+          "Avalugg-Hisui",
+          "Bastiodon",
+          "Cofagrigus",
+          "Corviknight",
+          "Falinks-Mega",
+          "Forretress",
+          "Garganacl",
+          "Metagross-Mega",
+          "Orthworm",
+          "Rhyperior",
+          "Runerigus",
+          "Sandaconda",
+          "Skarmory-Mega",
+          "Slowbro-Mega",
+          "Steelix-Mega",
+          "Torterra"
+        ],
+        "Acceptable": [
+          "Appletun",
+          "Mudsdale",
+          "Slowbro",
+          "Steelix"
+        ]
+      },
+      "critic_approved": true,
+      "critic_flag_count": 0,
+      "critic_flags": [],
+      "draft_artifact": "artifacts/stage4_critic/iron_defense_body_press.draft.json"
+    },
+    "tailwind_setter": {
+      "label": "tailwind_setter",
+      "disk_exists": false,
+      "admitted": 23,
+      "rejected": 4,
+      "tiers": {
+        "Good": 9,
+        "Acceptable": 13,
+        "Excellent": 1
+      },
+      "members": {
+        "Excellent": [
+          "Whimsicott"
+        ],
+        "Good": [
+          "Aerodactyl",
+          "Aerodactyl-Mega",
+          "Dragonite-Mega",
+          "Noivern",
+          "Pidgeot-Mega",
+          "Skarmory-Mega",
+          "Staraptor-Mega",
+          "Talonflame",
+          "Volcarona"
+        ],
+        "Acceptable": [
+          "Altaria",
+          "Altaria-Mega",
+          "Corviknight",
+          "Decidueye",
+          "Decidueye-Hisui",
+          "Dragonite",
+          "Gliscor",
+          "Hydreigon",
+          "Kleavor",
+          "Pelipper",
+          "Scizor",
+          "Toucannon",
+          "Vivillon"
+        ]
+      },
+      "critic_approved": true,
+      "critic_flag_count": 0,
+      "critic_flags": [],
+      "draft_artifact": "artifacts/stage4_critic/tailwind_setter.draft.json"
+    },
+    "sleep_status_spreader": {
+      "label": "sleep_status_spreader",
+      "disk_exists": false,
+      "admitted": 14,
+      "rejected": 67,
+      "tiers": {
+        "Acceptable": 11,
+        "Good": 2,
+        "Excellent": 1
+      },
+      "members": {
+        "Excellent": [
+          "Vivillon"
+        ],
+        "Good": [
+          "Venusaur",
+          "Vileplume"
+        ],
+        "Acceptable": [
+          "Espathra",
+          "Gourgeist-Large",
+          "Milotic",
+          "Musharna",
+          "Politoed",
+          "Roserade",
+          "Skeledirge",
+          "Venusaur-Mega",
+          "Victreebel-Mega",
+          "Watchog",
+          "Wyrdeer"
+        ]
+      },
+      "critic_approved": true,
+      "critic_flag_count": 0,
+      "critic_flags": [],
+      "draft_artifact": "artifacts/stage4_critic/sleep_status_spreader.draft.json"
+    },
+    "screens_support": {
+      "label": "screens_support",
+      "disk_exists": false,
+      "admitted": 18,
+      "rejected": 123,
+      "tiers": {
+        "Acceptable": 7,
+        "Good": 6,
+        "Excellent": 5
+      },
+      "members": {
+        "Excellent": [
+          "Grimmsnarl",
+          "Klefki",
+          "Meowstic",
+          "Sableye",
+          "Whimsicott"
+        ],
+        "Good": [
+          "Alakazam",
+          "Dragapult",
+          "Espeon",
+          "Froslass-Mega",
+          "Ninetales-Alola",
+          "Serperior"
+        ],
+        "Acceptable": [
+          "Abomasnow-Mega",
+          "Aurorus",
+          "Avalugg",
+          "Florges",
+          "Musharna",
+          "Rotom-Wash",
+          "Vanilluxe"
+        ]
+      },
+      "critic_approved": true,
+      "critic_flag_count": 0,
+      "critic_flags": [],
+      "draft_artifact": "artifacts/stage4_critic/screens_support.draft.json"
+    }
+  }
+}
