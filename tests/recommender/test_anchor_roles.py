@@ -191,7 +191,9 @@ def test_provisional_drizzle_does_not_claim_present_rain(monkeypatch):
 
 
 def test_mimikyu_unique_ability_is_legality_only():
-    build = resolve_anchor_build("Mimikyu")
+    """Unique legal ability is legality_only when usage does not supply one."""
+    with patch("recommender.anchor_roles.featured_or_common_set", return_value=None):
+        build = resolve_anchor_build("Mimikyu")
     assert build.ability == "Disguise"
     assert build.source_for("ability") == "legality_only"
 

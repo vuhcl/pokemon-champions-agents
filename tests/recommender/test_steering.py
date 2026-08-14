@@ -300,11 +300,11 @@ def test_unresolved_refine_rediscovers_pending_presentation():
 
 
 def test_unresolved_target_role_refine_rediscovers_pending_presentation():
-    """3c is reason-agnostic: kit-unresolved beneficiaries (Qwilfish) rediscover, not END.
+    """3c is reason-agnostic: kit-unresolved beneficiaries rediscover, not END.
 
-    Real ``build_provisional_slot`` (not mocked) for a Swift Swim user with no
-    TargetRoleId. Safety for Sun/Sand/Snow unresolvable hits is this path, not
-    Rain usage-rank coincidence.
+    Real ``build_provisional_slot`` (not mocked). Untruncated usage now maps
+    Qwilfish to fast_pivot; stub kit fallback so this still covers Swift Swim
+    without a TargetRoleId (the Sun/Sand/Snow unresolvable-hit path).
     """
     spread = {"hp": 32, "atk": 32, "def": 2, "spa": 0, "spd": 0, "spe": 0}
     locked = Slot(
@@ -353,7 +353,9 @@ def test_unresolved_target_role_refine_rediscovers_pending_presentation():
 
     with patch(
         "recommender.nodes.discover_single_locked", return_value=rediscovered
-    ) as discover:
+    ) as discover, patch(
+        "recommender.slot_fill._kit_fallback_target_role", return_value=None
+    ):
         graph = compile_graph(checkpointer=MemorySaver())
         suffix = "refine-unresolved-target-role"
         config = _thread(suffix)
