@@ -157,6 +157,24 @@ _SETUP_BANNED_PAYOFF = (
     | _RECHARGE_MOVES
     | _SETUP_LOCKIN_MOVES
 )
+# Champions-legal connect recoil (Showdown recoil: [a,b]). Not crash / mindblown /
+# chloroblast / struggle — those are different HP-cost mechanics.
+_CONNECT_RECOIL_MOVES = frozenset(
+    {
+        "bravebird",
+        "doubleedge",
+        "flareblitz",
+        "headcharge",
+        "headsmash",
+        "lightofruin",
+        "submission",
+        "takedown",
+        "volttackle",
+        "wavecrash",
+        "wildcharge",
+        "woodhammer",
+    }
+)
 _SETUP_PUNCH_MOVES = frozenset(
     {
         "bulletpunch",
@@ -1500,6 +1518,45 @@ def _self_boosts(entry: dict[str, Any]) -> dict[str, int]:
     return out
 
 
+@lru_cache(maxsize=None)
+def _self_defense_drops(mid: str) -> dict[str, int]:
+    """Guaranteed self Def/SpD drops for a damaging move (empty if none)."""
+    ent = (load_stat_boosts().get("moves") or {}).get(to_id(mid)) or {}
+    if ent.get("category") == "Status":
+        return {}
+    drops = {
+        s: st
+        for s, st in _self_boosts(ent).items()
+        if s in {"def", "spd"} and st < 0
+    }
+    return drops
+
+
+def _recoil_frac_from_result(r: Any, mid: str) -> float:
+    """Attacker HP fraction lost to connect-recoil from a calc result (0 if N/A).
+
+    Uses raw.recoil (% of attacker max HP), not ratio×dmg — OHKO-capped hits
+    otherwise overstate recoil. Crash / mindblown / chloroblast stay out via
+    _CONNECT_RECOIL_MOVES.
+    """
+    if to_id(mid) not in _CONNECT_RECOIL_MOVES or not isinstance(r, dict):
+        return 0.0
+    raw = (r.get("raw") or {}).get("recoil")
+    if not isinstance(raw, dict):
+        return 0.0
+    val = raw.get("recoil")
+    try:
+        if isinstance(val, (list, tuple)) and val:
+            pct = float(val[-1])
+        else:
+            pct = float(val)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return 0.0
+    if pct <= 0:
+        return 0.0
+    return pct / 100.0
+
+
 def exclusive_self_boost_move(*, boost_stat: str, stages: int = 2) -> str:
     """Champions-legal Status move whose only stat change is +stages to the user's boost_stat."""
     want = [{"to": "self", "chance": 100, "stats": {boost_stat: stages}}]
@@ -2257,20 +2314,27 @@ def _incoming_ohko_by_defender(
 ) -> dict[str, float]:
     """Per panel member: incoming damage/HP frac from their usage hit.
 
-    def/spd stage in `boosts` → category-matched incoming vs that boosted stat.
-    Else unboosted bulk, first damaging usage move (any category).
+    Nonzero def/spd in `boosts` (pos or neg) are applied on the candidate.
+    Exactly one of def/spd nonzero → category-matched ranked payoffs.
+    Both or neither → first damaging usage move (any category), still with
+    both stages on the defender when both are set.
     Missing name → no connected hit. Callers treat frac ≥ 1.0 as OHKO.
     """
-    def_stat = next((s for s in ("def", "spd") if int(boosts.get(s) or 0) > 0), None)
+    nonzero = {
+        s: int(boosts[s])
+        for s in ("def", "spd")
+        if int(boosts.get(s) or 0) != 0
+    }
     cand = _candidate_defender_spec(
         candidate_name, calc_name, species=defender_species
     )
-    if def_stat:
-        cand = {**cand, "boosts": {def_stat: int(boosts[def_stat])}}
+    if nonzero:
+        cand = {**cand, "boosts": {**(cand.get("boosts") or {}), **nonzero}}
     moves_map = snap.get("moves") or {}
-    out: dict[str, bool] = {}
+    out: dict[str, float] = {}
     try:
-        if def_stat:
+        if len(nonzero) == 1:
+            def_stat = next(iter(nonzero))
             category_stat = "spa" if def_stat == "spd" else "atk"
             ranked_by_i: list[list[str]] = []
             for defn in panel:
@@ -2567,6 +2631,9 @@ def _sweep_note_fields(sweep: dict[str, Any] | None) -> dict[str, str]:
     else:
         out["survive_hp_mean"] = "n/a"
         out["survive_hp_min"] = "n/a"
+    debuff = sweep.get("debuff_surv")
+    if debuff:
+        out["debuff_surv"] = str(debuff)
     return out
 
 
@@ -2720,6 +2787,30 @@ def _damage_score(
     use_sequence = (
         kit_moves is not None and to_id(attacker_name) in _AEGISLASH_FORMES
     )
+    debuff_surv: str | None = None
+    drops = _self_defense_drops(primary_mid)
+    # ponytail: if a move ever has both connect-recoil and self Def/SpD drop,
+    # do not stack silently — flag and decide; sets are disjoint today.
+    if drops and snap is not None and panel:
+        standing = dict(boosts)
+        for s, d in drops.items():
+            standing[s] = int(standing.get(s) or 0) + int(d)
+        debuff_mask = _incoming_ohko_by_defender(
+            snap=snap,
+            candidate_name=attacker_name,
+            calc_name=attacker_name,
+            panel=panel,
+            boosts=standing,
+            calculate_batch=calculate_batch,
+        )
+        n_panel = len(panel)
+        k_surv = 0
+        for defn in panel:
+            dname = str(defn.get("species") or "")
+            frac = debuff_mask.get(dname)
+            if frac is None or frac < 1.0:
+                k_surv += 1
+        debuff_surv = f"{k_surv}/{n_panel}"
     if use_sequence and snap is not None:
         kit_ids = {to_id(m) for m in kit_moves if m}
         if "shadowsneak" in kit_ids:
@@ -2856,14 +2947,17 @@ def _damage_score(
                     spe_stages=spe_stages,
                 )
                 if outsped:
+                    recoil_frac = _recoil_frac_from_result(r, mid)
                     if disguise:
-                        remains.append(1.0)
+                        remains.append(max(0.0, 1.0 - recoil_frac))
                     elif lived_shield:
                         if use_sequence and raw_frac < 1.0:
                             if seq_remain is not None:
-                                remains.append(seq_remain)
+                                remains.append(max(0.0, seq_remain - recoil_frac))
                         else:
-                            remains.append(max(0.0, 1.0 - incoming_frac))
+                            remains.append(
+                                max(0.0, 1.0 - float(incoming_frac) - recoil_frac)
+                            )
                 fracs.append(weight * capped)
                 used.append((dname, mid))
             elif kind == "zero":
@@ -2888,6 +2982,8 @@ def _damage_score(
         else:
             sweep_out["remain_mean"] = None
             sweep_out["remain_min"] = None
+        if debuff_surv is not None:
+            sweep_out["debuff_surv"] = debuff_surv
     if not fracs:
         return 0.0, ";".join(errors[:4]) if errors else "no_usable_fracs"
     score = sum(fracs) / len(fracs)

@@ -72,16 +72,23 @@ def _panel_result(
     hp: int = 200,
     atk_spe: int = 100,
     def_spe: int = 80,
+    recoil_pct: float | None = None,
 ) -> dict[str, Any]:
+    raw: dict[str, Any] = {
+        "stats": {
+            "attacker": {"spe": atk_spe, "hp": 159},
+            "defender": {"hp": hp, "spe": def_spe},
+        }
+    }
+    if recoil_pct is not None:
+        raw["recoil"] = {
+            "recoil": [recoil_pct, recoil_pct],
+            "text": f"{recoil_pct}% recoil damage",
+        }
     return {
         "damageRange": [dmg, dmg],
         "koChance": "2HKO",
-        "raw": {
-            "stats": {
-                "attacker": {"spe": atk_spe},
-                "defender": {"hp": hp, "spe": def_spe},
-            }
-        },
+        "raw": raw,
     }
 
 
@@ -1560,4 +1567,226 @@ def test_aegislash_branch_b_matches_shield_defender():
     assert not _setup_bulk_ok(_base_stats(snap, "aegislashblade"))
     spec = _candidate_defender_spec("Aegislash", "Aegislash-Blade")
     assert spec["species"] == "Aegislash-Shield"
+
+
+def test_connect_recoil_move_set_locked():
+    from recommender.role_compendium import _CONNECT_RECOIL_MOVES
+
+    assert _CONNECT_RECOIL_MOVES == frozenset(
+        {
+            "bravebird",
+            "doubleedge",
+            "flareblitz",
+            "headcharge",
+            "headsmash",
+            "lightofruin",
+            "submission",
+            "takedown",
+            "volttackle",
+            "wavecrash",
+            "wildcharge",
+            "woodhammer",
+        }
+    )
+    # Crash / mindblown / chloroblast stay out.
+    assert "highjumpkick" not in _CONNECT_RECOIL_MOVES
+    assert "steelbeam" not in _CONNECT_RECOIL_MOVES
+    assert "chloroblast" not in _CONNECT_RECOIL_MOVES
+
+
+def test_self_defense_drops_from_stat_boosts():
+    from recommender.role_compendium import _self_defense_drops
+
+    assert _self_defense_drops("closecombat") == {"def": -1, "spd": -1}
+    assert _self_defense_drops("superpower") == {"def": -1}
+    assert _self_defense_drops("flareblitz") == {}
+    assert _self_defense_drops("ironhead") == {}
+
+
+_RECOIL_PANEL = [
+    {"species": "Garchomp", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+]
+
+
+def _outsped_survive_dispatch(
+    *,
+    payoff_dmg: int = 60,
+    incoming_dmg: int = 60,
+    hp: int = 100,
+    recoil_pct: float | None = None,
+    seen_defs: list[dict[str, Any]] | None = None,
+):
+    """Outgoing slower than foe; incoming non-OHKO so remain is credited."""
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            if not atk.get("boosts"):
+                # Incoming vs candidate
+                if seen_defs is not None:
+                    seen_defs.append(dict(req.get("defender") or {}))
+                out.append(
+                    _panel_result(dmg=incoming_dmg, hp=hp, atk_spe=150, def_spe=50)
+                )
+                continue
+            out.append(
+                _panel_result(
+                    dmg=payoff_dmg,
+                    hp=hp,
+                    atk_spe=50,
+                    def_spe=150,
+                    recoil_pct=recoil_pct,
+                )
+            )
+        return out
+
+    return calc
+
+
+def test_recoil_remain_uses_capped_raw_recoil_not_naive_ratio():
+    """OHKO-capped raw.recoil (~34.4%) must beat naive ratio×dmg/hp (~81%)."""
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    # Payoff "OHKO" numbers that would naive-overstate: dmg=392, atk_hp=159 → ~81%.
+    # Calc returns capped recoil_pct=34.4 instead.
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Blaziken",
+        item=None,
+        ability=None,
+        move="Flare Blitz",
+        move_id="flareblitz",
+        boost_stat="atk",
+        stages=2,
+        panel=_RECOIL_PANEL,
+        calculate_batch=_outsped_survive_dispatch(
+            payoff_dmg=392, incoming_dmg=40, hp=100, recoil_pct=34.4
+        ),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+    )
+    assert err == ""
+    assert sweep["n_surv"] == 1
+    # remain = 1 - 0.40 - 0.344 = 0.256
+    assert abs(sweep["remain_mean"] - 0.256) < 1e-9
+    naive = (33 / 100) * 392 / 159
+    assert naive > 0.8
+    assert sweep["remain_mean"] > 1.0 - 0.40 - naive  # capped path kept more HP
+
+
+def test_recoil_remain_gated_vs_non_recoil_payoff():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    panel = _RECOIL_PANEL
+
+    sweep_r: dict[str, Any] = {}
+    _damage_score(
+        attacker_name="Blaziken",
+        item=None,
+        ability=None,
+        move="Flare Blitz",
+        move_id="flareblitz",
+        boost_stat="atk",
+        stages=2,
+        panel=panel,
+        calculate_batch=_outsped_survive_dispatch(
+            payoff_dmg=60, incoming_dmg=40, hp=100, recoil_pct=25.0
+        ),
+        snap=snap,
+        sweep_out=sweep_r,
+    )
+    sweep_n: dict[str, Any] = {}
+    _damage_score(
+        attacker_name="Blaziken",
+        item=None,
+        ability=None,
+        move="Close Combat",
+        move_id="closecombat",
+        boost_stat="atk",
+        stages=2,
+        panel=panel,
+        calculate_batch=_outsped_survive_dispatch(
+            payoff_dmg=60, incoming_dmg=40, hp=100, recoil_pct=25.0
+        ),
+        snap=snap,
+        sweep_out=sweep_n,
+    )
+    # Same mock recoil payload, but Close Combat is not in connect-recoil set.
+    assert abs(sweep_r["remain_mean"] - 0.35) < 1e-9  # 1 - 0.4 - 0.25
+    assert abs(sweep_n["remain_mean"] - 0.60) < 1e-9  # 1 - 0.4
+
+
+def test_debuff_surv_applies_negative_def_spd_stages():
+    """Old stage>0 filter would ignore Def/SpD−1 and false-survive; fix must OHKO."""
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    seen_defs: list[dict[str, Any]] = []
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            dfn = req.get("defender") or {}
+            if not atk.get("boosts"):
+                seen_defs.append(dict(dfn))
+                bst = dfn.get("boosts") or {}
+                # Debuffed (any neg def/spd) → OHKO; undebuffed → survive.
+                neg = any(int(bst.get(s) or 0) < 0 for s in ("def", "spd"))
+                dmg = 120 if neg else 40
+                out.append(_panel_result(dmg=dmg, hp=100, atk_spe=150, def_spe=50))
+                continue
+            out.append(_panel_result(dmg=60, hp=100, atk_spe=50, def_spe=150))
+        return out
+
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Blaziken",
+        item=None,
+        ability=None,
+        move="Close Combat",
+        move_id="closecombat",
+        boost_stat="atk",
+        stages=2,
+        panel=_RECOIL_PANEL,
+        calculate_batch=calc,
+        snap=load_snapshot(),
+        sweep_out=sweep,
+    )
+    assert err == ""
+    assert sweep.get("debuff_surv") == "0/1"
+    # Standing pass must have applied both drops on at least one incoming defender.
+    assert any(
+        int((d.get("boosts") or {}).get("def") or 0) == -1
+        and int((d.get("boosts") or {}).get("spd") or 0) == -1
+        for d in seen_defs
+    )
+
+
+def test_debuff_surv_omitted_for_non_debuff_payoff():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Blaziken",
+        item=None,
+        ability=None,
+        move="Flare Blitz",
+        move_id="flareblitz",
+        boost_stat="atk",
+        stages=2,
+        panel=_RECOIL_PANEL,
+        calculate_batch=_outsped_survive_dispatch(
+            payoff_dmg=60, incoming_dmg=40, hp=100, recoil_pct=10.0
+        ),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+    )
+    assert err == ""
+    assert "debuff_surv" not in sweep
 
