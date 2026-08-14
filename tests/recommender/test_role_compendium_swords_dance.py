@@ -1388,3 +1388,176 @@ def test_damage_score_disguise_survive_remain_is_full():
     assert err == ""
     assert sweep["n_surv"] == 1
     assert abs(sweep["remain_mean"] - 1.0) < 1e-9
+
+
+def _aegislash_dispatch(
+    *,
+    payoff_dmg: int,
+    ss_dmg: int = 50,
+    shield_dmg: int = 60,
+    blade_dmg: int = 200,
+    seen: list[dict[str, Any]] | None = None,
+):
+    """Incoming: defender.species. Outgoing: move (Iron Head vs Shadow Sneak)."""
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if seen is not None:
+            seen.extend(reqs)
+        out: list[dict[str, Any]] = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            dfn = req.get("defender") or {}
+            if not atk.get("boosts"):
+                dmg = blade_dmg if dfn.get("species") == "Aegislash-Blade" else shield_dmg
+                out.append(_panel_result(dmg=dmg, hp=100, atk_spe=150, def_spe=50))
+                continue
+            dmg = ss_dmg if to_id(str(req.get("move") or "")) == "shadowsneak" else payoff_dmg
+            out.append(_panel_result(dmg=dmg, hp=100, atk_spe=50, def_spe=150))
+        return out
+
+    return calc
+
+
+_AEGISLASH_PANEL = [
+    {"species": "Garchomp", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+]
+
+
+def test_aegislash_incoming_uses_shield_forme():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    seen: list[dict[str, Any]] = []
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Aegislash-Blade",
+        item=None,
+        ability="Stance Change",
+        move="Iron Head",
+        move_id="ironhead",
+        boost_stat="atk",
+        stages=2,
+        panel=_AEGISLASH_PANEL,
+        calculate_batch=_aegislash_dispatch(payoff_dmg=60, seen=seen),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+    )
+    assert err == ""
+    incoming = [r for r in seen if not (r.get("attacker") or {}).get("boosts")]
+    assert incoming
+    assert all((r.get("defender") or {}).get("species") == "Aegislash-Shield" for r in incoming)
+    assert sweep["n_surv"] == 1
+    assert abs(sweep["remain_mean"] - 0.40) < 1e-9
+
+
+def test_aegislash_combined_ko_credits_ohko_and_remain():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Aegislash-Blade",
+        item=None,
+        ability="Stance Change",
+        move="Iron Head",
+        move_id="ironhead",
+        boost_stat="atk",
+        stages=2,
+        panel=_AEGISLASH_PANEL,
+        calculate_batch=_aegislash_dispatch(payoff_dmg=60, ss_dmg=50),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+        kit_moves=["Iron Head", "Shadow Sneak", "Sacred Sword"],
+    )
+    assert err == ""
+    assert sweep["ohko"] == 1
+    assert sweep["n_surv"] == 1
+    assert abs(sweep["remain_mean"] - 1.0) < 1e-9
+
+
+def test_aegislash_combined_ko_requires_shadow_sneak_in_kit():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Aegislash-Blade",
+        item=None,
+        ability="Stance Change",
+        move="Iron Head",
+        move_id="ironhead",
+        boost_stat="atk",
+        stages=2,
+        panel=_AEGISLASH_PANEL,
+        calculate_batch=_aegislash_dispatch(payoff_dmg=60, ss_dmg=50),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+        kit_moves=["Iron Head", "King's Shield", "Sacred Sword"],
+    )
+    assert err == ""
+    assert sweep["ohko"] == 0
+
+
+def test_aegislash_ks_reset_independent_of_shadow_sneak():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Aegislash-Blade",
+        item=None,
+        ability="Stance Change",
+        move="Iron Head",
+        move_id="ironhead",
+        boost_stat="atk",
+        stages=2,
+        panel=_AEGISLASH_PANEL,
+        calculate_batch=_aegislash_dispatch(payoff_dmg=60, blade_dmg=40),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+        kit_moves=["Iron Head", "King's Shield"],
+    )
+    assert err == ""
+    assert sweep["ohko"] == 0
+    assert sweep["n_surv"] == 1
+    assert abs(sweep["remain_mean"] - 1.0) < 1e-9
+
+
+def test_aegislash_no_ks_no_combined_ko_gets_no_remain():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Aegislash-Blade",
+        item=None,
+        ability="Stance Change",
+        move="Iron Head",
+        move_id="ironhead",
+        boost_stat="atk",
+        stages=2,
+        panel=_AEGISLASH_PANEL,
+        calculate_batch=_aegislash_dispatch(payoff_dmg=40, ss_dmg=40, blade_dmg=40),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+        kit_moves=["Iron Head", "Shadow Sneak"],
+    )
+    assert err == ""
+    assert sweep["ohko"] == 0
+    assert sweep["n_surv"] == 0
+
+
+def test_aegislash_branch_b_matches_shield_defender():
+    from recommender.role_compendium import (
+        _base_stats,
+        _candidate_defender_spec,
+        _setup_bulk_ok,
+    )
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    assert _setup_bulk_ok(_base_stats(snap, "aegislash"))
+    assert not _setup_bulk_ok(_base_stats(snap, "aegislashblade"))
+    spec = _candidate_defender_spec("Aegislash", "Aegislash-Blade")
+    assert spec["species"] == "Aegislash-Shield"
+
