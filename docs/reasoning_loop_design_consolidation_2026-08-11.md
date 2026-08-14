@@ -409,37 +409,177 @@ Proposed shape:
    a threshold; below it, falls through to `duplicative`/`severe_duplication` as today —
    correctly catching genuine near-clones on both sides, not just the `primary_function` side.
 
-**Open, not resolved:** the divergence threshold itself is provisional. Tournament data gives
-a real anchor (Pelipper/Sableye at 0.8 reads as a clear pass), but per 7.2's population
-caveat, tournament data is a lower bound, not a calibration set — treat the threshold as a
-first estimate, revisit if/when a ladder-population source is found.
+**Implemented 2026-08-12.** `DIVERGENCE_COMPLEMENTARY_THRESHOLD = 0.6` (revised up from an
+initial 0.5 draft after plan review — 0.6 sits in the empty gap between the `partial` (≤0.5)
+and `diverged` (≥0.75) clusters in the n=8 usage-confirmed sample, rather than on the edge of
+the `partial` cluster). `MIN_SIDE_TAGS = 2`, counted on non-category tags only — a Protect-only
+kit would otherwise trivially clear the fail-closed floor since Protect alone contributes both
+a category tag and a functional tag. Shipped: `recommender/divergence.py`,
+`recommender/primary_function_types.py`, `recommender/primary_function_resilience.py`, and the
+gating change in `team_candidates.py`. `corrects_skew` left ungated, as scoped.
 
-**On L73, since it was blocked on this track:** this design doesn't automatically resolve it.
-It fixes "should a genuinely diverging second provider of an already-covered need get
-promoted" — a different question from L73's apparent shape ("does Incineroar's decisive
-closure beat Hydreigon's diversity"), which only overlaps if Incineroar was itself a *second*
-provider against a threat something else already covered. Still needs the transcript check
-flagged earlier (was Incineroar's threat already covered elsewhere on the roster?) before it's
-conclusively answered, even after this design lands.
+**Note on the confirmation fixture, since it mattered here:** the discover-test Politoed kit
+(`Protect`/`Perish Song`/`Encore`/`Helping Hand`) was initially assembled by reverse-engineering
+moves to clear the threshold — caught and corrected before shipping, replaced with Politoed's
+actual top real-usage moves (`Protect` 86.5%, `Perish Song` 61.5%, `Encore` 30.6%,
+`Helping Hand` 12%, verified directly against `data/usage/champions-reg-mb.v1.json`) that
+happen to diverge enough (~0.71) rather than being fitted to the number. Not independently
+re-verified against pushed code — this implementation wasn't pushed to a branch I could pull,
+unlike the design-phase claims checked earlier in this doc.
+
+**Independently verified 2026-08-12** against the pushed branch
+(`feat/backup-divergence-tier-1`) — not just the reported confirmation pass. Pulled directly,
+confirmed the diff matches the reported file list exactly, confirmed `DIVERGENCE_COMPLEMENTARY_
+THRESHOLD = 0.6` and the non-`category_`-tag fail-closed fix in the actual source, ran all 10
+named tests myself (all pass), and ran the full suite clean (841 passed, 7 skipped — up from
+835 at `v0.2.0`). The Politoed fixture's real-usage grounding carried through to the shipped
+code itself, not just the report: `# Usage-attested perish-support kit (ingame common_moves),
+not [reverse-engineered]`.
+
+**Closed 2026-08-12 — not a live gap, reproducibility check.** The transcript check (Cursor,
+against the original role-play) found Incineroar was never a calc-verified decisive/costly
+closure at all — calc was down from L61 onward, so its high count was raw static aggregation,
+not a verified closure ADR-026's severity bands would even apply to. Checked directly against
+ADR-029: `multi_locked`'s authoritative ranking is fail-closed on calc failure by design
+("static axes cannot honestly populate ranking stages defined on verified closures"), enforced
+structurally (`estimate_kind` gates `_sort_annotated` directly, verified adversarially in
+ADR-029's own confirmation pass). L73's roster (5 locked members) was `multi_locked`. **Under
+the system as it exists today, this scenario cannot recur** — `multi_locked` would surface
+`candidate_discovery_error` instead of falling back to raw static counts the way the original
+role-play manually did. L73 was a role-play artifact of conditions the system has since
+structurally prevented, not a live tension between diversity and ADR-026's ordering.
+
+**Adjacent, genuinely open item surfaced by this check:** ADR-029 itself already named and
+deferred a fix — a labeled "team-threat ranking unavailable" banner for `multi_locked` under
+calc failure, so the user gets an honest signal instead of just an error field. Small,
+well-scoped, unrelated to L73's original diversity-vs-counter-count framing. Added to the
+backlog (item 16) since it's real, adjacent, deferred work — not because it needs to be
+prioritized.
 
 ---
 
-## 8. Consolidated backlog
+## 8. `full_build_confirmation` redesign — anticipatory build-edit options
+
+**Shipped 2026-08-12** (`feat/full-build-confirmation-options`, `66725cb`). Independently
+verified against the pushed branch, not just the reported confirmation pass: diff matches the
+reported file list exactly; `provisional_for_confirmation`'s refine/greenfield branching is
+real and matches the plan; the overlap-reject test requested during plan review
+(`test_select_overlapping_override_keys_rejected`) exists by name; the compare cap correction
+(every requested option analyzed, only threat contexts capped at ≤2) is real in both the code
+and `build_compare.py`'s own module docstring, not just the report. Named test suite from the
+plan passes clean (54 passed); full suite clean with no regressions (894 passed, 6 skipped, up
+from 875 pre-ship).
+
+**Origin:** two rounds of live CLI testing (chunk 2's edit-intent, both shipped) hit a real
+ceiling — ambiguous scope, missing build-context for relative edits ("add Aura Sphere" with no
+visibility into the current moveset), and repeated free-text extraction failures. The
+diagnosis wasn't another schema patch: `full_build_confirmation`'s only options today are
+yes/defer, pushing every real request onto free-text parsing regardless of how predictable it
+is. Discovery (2026-08-12, Cursor) confirmed this isn't a new interaction pattern to invent —
+**the original role-play transcript already practiced it**: default build + 2–3 computed
+sibling options (usage-sourced spread/nature/item variants, labeled with what differs and why)
+next to Accept, with free text as fallback. The written discovery docs never captured this as
+a designed shape; the transcript did it repeatedly and it held up.
+
+**Concrete input newly available:** the MunchStats Pokepaste extraction
+(`data/team-composition/champions-reg-mb.vgcpastes-builds.v1.json`, 712 real 6-mon teams, 659
+with real spreads, mixed tournament/community population) directly addresses the ceiling
+Cursor's discovery flagged honestly: usage APIs give spread/item/move *marginals*, not joint
+full builds (the "Choice+Protect mash" cautionary case — top item × top moves independently
+sampled, not necessarily a real combination). Real Pokepaste builds are actual joint
+combinations a real player ran. Worth treating as a live input to alternatives-generation for
+well-represented species (e.g. Archaludon, n=92), not a separate track.
+
+### 8.1 What the fresh role-plays confirmed (ten shape requirements)
+
+1. **Default + 2–3 computed siblings at first confirmation** — real usage/verified variants on
+   the same species, labeled with what differs and a one-line tradeoff.
+2. **Free text stays mandatory for novelty** — alternatives shrink free-text volume, don't
+   replace it. After free-text edits: recompute options, require fresh confirmation.
+3. **Generate from real headroom; label provenance honestly** — don't invent role-complete
+   alternate kits the cache doesn't have. This is where the MunchStats data raises the ceiling.
+4. **Cross-option compare is a first-class interaction** — users repeatedly asked to compare
+   two named alternatives (calc-backed Spe/damage/KO tiers) *before* picking, not just choose.
+5. **Surface honest ceilings and field context** — e.g. "Modest can't outspeed Timid Arch,"
+   "Light Screen collapses these SpD breakpoints." Hiding these gets free-text second-guessed
+   anyway.
+6. **Late slots / refine mode bias toward team holes** — alternatives should be team-conditioned
+   (drop SpD when Light Screen's already locked elsewhere, etc.), not just species-usage
+   siblings in isolation.
+7. **Keep species choice out of build-confirm when possible** — role-play sometimes bundled
+   species forks into build confirmation; useful in practice, but a real boundary question
+   against `candidate_selection`'s existing scope.
+8. **Refine mode needs an explicit "keep current" default**, distinct from "recommended usage
+   rebuild" (greenfield mode's default).
+9. **Multi-axis edits need merge, not single-pick** — "spread choice B + move choice C" was
+   common; a flat mutually-exclusive option list forces unnecessary free-text merges.
+10. **Minimum bar for a "computed alternative"** (from the discovery report directly): legal
+    (`check_set` + Item Clause aware), provenance-labeled, diffed against default, at least one
+    mechanical claim checked when the fork is bulk/offense/Speed, team-conditioned note when
+    relevant. If an option can't meet legality/provenance/diff, it doesn't get presented as a
+    peer of the default — falls to free-text instead.
+
+### 8.2 Four decisions — resolved 2026-08-12
+
+1. **Cross-option compare → new, dedicated `compare` intent.** Doesn't fit `edit` (compare
+   doesn't produce a new provisional build) or `pending_response` (that means "clarify," not
+   "here's the analysis" — folding them in would recreate the "one field, two meanings"
+   collision this project has consistently resolved by separating, not merging —
+   `RoleShapeContext.match_status`, `review_flags` vs. `AnchorRoleDecision.conflicts`).
+   References option indices/labels, non-mutating, doesn't clear pending state, triggers real
+   calc-backed analysis via the same tools discovery already calls.
+2. **Multi-axis merge → axis-tagged option groups, not a flat list.** The "B+C" pattern wasn't
+   picking two items from an undifferentiated list — B (a nature/spread family) and C (a
+   specific move swap) were genuinely independent axes flattened into one list by accident.
+   Structure options as tagged groups (`spread_nature`, `moveset`, `item`) so independent axes
+   compose naturally. Not every case decomposes this way — coherent bundled usage archetypes
+   (Pelipper's "Sash glass" vs. "Sitrus Bold") stay single options — but where axes are
+   genuinely independent, this removes a recurring free-text disambiguation burden.
+3. **Team-conditioned siblings → reuse `condition_resilience`/`composition_fit` directly**, not
+   a parallel generator — avoids duplicating logic that would drift out of sync. One real
+   extension needed: "Light Screen collapses these SpD breakpoints" isn't a condition-
+   resilience concept, it's a calc-backed mechanical fact (does an ally's already-locked
+   support move change what this build's own investment needs to be) — new work, but an
+   extension of the existing calc integration, not a parallel system.
+4. **Species-leak → hold the boundary.** Falls out of decision 2 directly: species isn't an
+   axis of the *same* build the way spread/item/moveset are — it's a different decision level,
+   upstream of build refinement. If it's not an axis, it doesn't belong in the options list.
+   Species-reconsideration mid-build-confirm gets recognized as its own fork and routed back
+   toward `candidate_selection`-shaped interaction, matching Scenario B's cleaner handling
+   (explicit standalone fork, not folded into rebuild options).
+
+These four form one coherent shape, not four independent patches: axis-grouped options, a
+`compare` intent operating within or across axes, a generator reusing team-state machinery plus
+one calc extension, and species kept structurally outside the whole thing.
+
+The rest (#1, #2, #3, #5, #8, #10 from 8.1) were already settled design material — #10 in
+particular is close to a ready-made contract for whatever function ends up generating these
+options.
+
+---
+
+## 9. Consolidated backlog
 
 | # | Item | Status |
 |---|---|---|
-| 1 | `divergence_score` function, built from real move/mechanism tag data | Designed (7.4), ready to scope |
-| 2 | `primary_function` SPOF concept (mirror `assess_condition_resilience`) | Designed (7.4), ready to scope |
-| 3 | Gate both `fills_gap` and the new `primary_function` hatch on divergence threshold | Designed (7.4), ready to scope |
-| 4 | Divergence threshold calibration | Open — provisional value only, needs ladder data or an explicit "best estimate, revisit later" call |
-| 5 | L73 final resolution | Blocked on 1–3 landing, plus the Incineroar-threat-coverage transcript check |
-| 6 | Surface 1 (turn-level steering, Option A) | Designed (Section 2), ready to scope |
-| 7 | Edit-intent (scope resolution, re-verification table, `review_flags`) | Designed (Section 3), ready to scope |
+| 1 | `divergence_score` function, built from real move/mechanism tag data | **Shipped** (`recommender/divergence.py`) |
+| 2 | `primary_function` SPOF concept (mirror `assess_condition_resilience`) | **Shipped** (`recommender/primary_function_resilience.py`) |
+| 3 | Gate both `fills_gap` and the new `primary_function` hatch on divergence threshold | **Shipped** (`team_candidates.py`) |
+| 4 | Divergence threshold calibration | **Provisional value shipped** (0.6) — still needs ladder data or an explicit "revisit later" call before treated as final |
+| 5 | L73 final resolution | **Closed** — not a live gap; ADR-029 firewall prevents the scenario from recurring under current architecture (see 7.4) |
+| 6 | Surface 1 chunk 1 (turn-level steering, Option A gap-fill) | **Shipped, merged to main** (PR #66) |
+| 7 | Edit-intent (Surface 1 chunk 2 — scope resolution, re-verification table, `review_flags`) | **Verified on branch** (`feat/surface1-edit-intent`, PR #67) — merge pending |
 | 8 | Surface 2 Findings 1–3 (Basculegion/single-locked-teammate) | Designed (Section 4), ready to scope |
 | 9 | Bucket A (deterministic scoring extensions from the transcript audit) | Designed (Section 5), ready to scope |
 | 10 | Bucket B (presentation/policy changes) | Designed (Section 5), ready to scope |
-| 11 | Surface 1's partial-match routing | Open — flagged for implementation-time confirmation |
-| 12 | `ReviewFlag`'s exact schema | Open — vocabulary decided, fields not written |
-| 13 | EV-into-nature-hindered-stat | Open — confirmed unbuilt (Section 3.3), new deterministic rule |
-| 14 | Icy Wind's speed-control mechanism missing from `_mechanisms` | Open — surfaced by transcript stress-test (3.2b) |
-| 15 | Overall sequencing across items 6–10 | Open — not proposed anywhere in this document |
+| 11 | Surface 1's partial-match routing | Closed during chunk 1 discovery — resolved as a code-verified non-issue (see chunk 1 discussion) |
+| 12 | `ReviewFlag`'s exact schema | **Shipped** as part of item 7 (`ReviewFlag` TypedDict in `state.py`) |
+| 13 | EV-into-nature-hindered-stat | **Shipped** as part of item 7 (`edit_review.py`'s deterministic checks) |
+| 14 | Icy Wind's speed-control mechanism missing from `_mechanisms` | Open — surfaced by transcript stress-test (3.2b), not yet built |
+| 15 | Overall sequencing across items 6–10 | Resolved in practice: 6 → 7 → 8, Tier 3 (9–10) still needs its own design pass first |
+| 16 | ADR-029's deferred `multi_locked` calc-unavailable banner | Open — small, well-scoped, already designed in ADR-029's own text; not prioritized |
+| 17 | `keep_alive` for `ChatOllama` calls (`bootstrap.py`/`turn_intent.py`) | Open — dev-environment concern, not a design item. First-call latency after Ollama's default 5-min idle unload; fix is passing `keep_alive` explicitly or setting `OLLAMA_KEEP_ALIVE` server-side |
+| 18 | `full_build_confirmation` redesign — core (default + computed siblings, provenance/legality/diff contract) | **Shipped** (`recommender/build_alternatives.py`, PR pending open) |
+| 19 | Cross-option compare as a first-class interaction | **Shipped** (`recommender/build_compare.py`, `compare` intent) |
+| 20 | Multi-axis option representation (spread × move × item composability) | **Shipped** (`BuildOptionGroup`/`select_build_option`, overlap-reject verified) |
+| 21 | MunchStats Pokepaste builds as alternatives-generation input | **Shipped** — wired into `build_alternatives.py`'s generator (≥15 occurrence gate) |
