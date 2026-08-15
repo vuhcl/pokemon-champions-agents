@@ -624,7 +624,6 @@ _SCREENS_DELIVERY_NOTE = (
 _SCREENS_SPE_FLOOR = _SETUP_SPE_FLOOR
 _SCREENS_MOVE_IDS = frozenset({"lightscreen", "reflect", "auroraveil"})
 _SCREENS_SNOW_ABILITIES = frozenset({"snowwarning"})
-_SCREENS_SNOW_MOVES = frozenset({"snowscape", "chillyreception"})
 _SCREENS_SECONDARY_MOVES = _REDIRECTION_SECONDARY_MOVES - _SCREENS_MOVE_IDS
 _SCREENS_EXCELLENT_SECONDARY_MOVES = _REDIRECTION_EXCELLENT_SECONDARY_MOVES - {
     "lightscreen",
@@ -5903,16 +5902,45 @@ def _construct_tailwind_setter(
     return _draft_with_tiers(category, sub_criteria, members, rejected, notes=notes)
 
 
-def _screens_learnset_complete(hits: set[str]) -> bool:
-    return "auroraveil" in hits or ("lightscreen" in hits and "reflect" in hits)
+def _screens_mech_dual(hits: set[str], abs_map: dict[str, str]) -> bool:
+    """LS+Reflect learnset, or Veil + Snow Warning (not Chilly Reception)."""
+    if "lightscreen" in hits and "reflect" in hits:
+        return True
+    return "auroraveil" in hits and bool(set(abs_map) & _SCREENS_SNOW_ABILITIES)
 
 
-def _screens_wanted(*, usage_mids: set[str], has_clay: bool) -> bool:
-    if "auroraveil" in usage_mids:
-        return True
-    if "lightscreen" in usage_mids and "reflect" in usage_mids:
-        return True
-    return has_clay and bool(usage_mids & _SCREENS_MOVE_IDS)
+def _screens_dual_usage(
+    name: str,
+    hits: set[str],
+    abs_map: dict[str, str],
+    *,
+    uctx: _UsageCtx,
+    sd_cache: dict[str, dict[str, Any] | None],
+    showdown_fetch: LiveFetch | None,
+) -> tuple[str | None, set[str]]:
+    """Usage-proven dual path at Screens' 2.3% floor. Same-row for LS+Reflect."""
+    paths: list[str] = []
+    mids: set[str] = set()
+    kw = dict(uctx=uctx, sd_cache=sd_cache, showdown_fetch=showdown_fetch)
+    if "lightscreen" in hits and "reflect" in hits:
+        if _same_row_both_moves(name, "lightscreen", "reflect", **kw) and (
+            _hits_clear_set_pct_floor(
+                name,
+                {"lightscreen", "reflect"},
+                floor=_USAGE_SET_PCT_FLOOR,
+                require_all=True,
+                **kw,
+            )
+        ):
+            paths.append("ls+reflect")
+            mids.update({"lightscreen", "reflect"})
+    if "auroraveil" in hits and "snowwarning" in abs_map:
+        if _hits_clear_set_pct_floor(
+            name, {"auroraveil"}, floor=_USAGE_SET_PCT_FLOOR, **kw
+        ):
+            paths.append("veil+snowwarning")
+            mids.add("auroraveil")
+    return ("+".join(paths) if paths else None), mids
 
 
 def _construct_screens_support(
@@ -5933,17 +5961,17 @@ def _construct_screens_support(
     members: list[CandidateEval] = []
     rejected: list[RejectedCandidate] = []
     notes = [
-        "Excellent = Prankster + usage-proven screens at the wanted threshold; "
-        f"Good = base Spe ≥ {_SCREENS_SPE_FLOOR} + usage-proven wanted; "
-        "Acceptable = usage-proven below Spe floor, or Excellent demoted by "
-        "Showdown-discount / unproven-usage two-tier rule",
-        "wanted threshold = Aurora Veil OR dual Reflect+Light Screen OR "
-        "Light Clay + ≥1 screen (same gate as _mechanisms / infer_role); "
-        "lone LS/Reflect without Clay is incidental, not screens_support",
+        "Excellent = dual-screen usage + Prankster; Good = dual-screen usage + "
+        f"base Spe ≥ {_SCREENS_SPE_FLOOR} (no Prankster); Acceptable = dual "
+        "below Spe floor, or single-screen + Prankster (Whimsicott)",
+        "dual-screen = usage-proven Reflect AND Light Screen (same-row, both "
+        f"≥ {_USAGE_SET_PCT_FLOOR:g}% set%) OR Aurora Veil ≥ "
+        f"{_USAGE_SET_PCT_FLOOR:g}% plus Snow Warning (not Chilly Reception)",
+        "Light Clay + a lone screen is not membership (Florges / Rotom-Wash); "
+        "Veil without Snow Warning is not dual (Avalugg)",
+        "Meowstic Excellent is male only (Prankster); female has Competitive",
         "one category folds Dual Screens / Light Screen / Reflect / Aurora Veil "
         "— splitting does not narrow a distinct search",
-        "Aurora Veil is a delivery pathway inside this category (snow-gated "
-        "reliability note), not its own file",
         _SCREENS_DELIVERY_NOTE,
         "usage evidence prefers Champions in-game data where a row exists; "
         "Showdown is a fallback only for formes with no Champions row",
@@ -5958,7 +5986,7 @@ def _construct_screens_support(
         if move_ids & set(resolve_learnset(snap, sid) or [])
     }
 
-    pair_usage, pair_notes, _stone_used = _mega_usage_attribution(
+    _pair_usage, pair_notes, _stone_used = _mega_usage_attribution(
         eligible,
         move_ids,
         snap=snap,
@@ -5976,57 +6004,52 @@ def _construct_screens_support(
         entry = uctx.entry_for(name)
         spe = int(stats.get("spe") or 0)
         has_prankster = "prankster" in abs_map
-        learnset_complete = _screens_learnset_complete(hits)
-
-        if pair_usage.get(sid) is False:
-            usage_proven = False
-            usage_source = "mega attribution"
-            usage_mids: set[str] = set()
-            has_clay = False
-        else:
-            usage_mids, usage_source = _delivery_usage_hits(
-                name,
-                hits,
-                uctx=uctx,
-                sd_cache=sd_cache,
-                showdown_fetch=showdown_fetch,
-            )
-            usage_proven = bool(usage_mids)
-            has_clay = _usage_has_item(
-                name,
-                "lightclay",
-                uctx=uctx,
-                sd_cache=sd_cache,
-                showdown_fetch=showdown_fetch,
-            )
-
-        wanted = _screens_wanted(usage_mids=usage_mids, has_clay=has_clay)
-        independent = has_prankster and learnset_complete
         attr = pair_notes.get(sid, "")
-        discounted = (
-            "discounted" in attr
-            or "stone-heuristic" in attr
-            or "attributed to Mega" in attr
-            or "mega-stone fallback" in attr
+        dual_path, dual_mids = _screens_dual_usage(
+            name,
+            hits,
+            abs_map,
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
         )
+        usage_mids, usage_source = _delivery_usage_hits(
+            name,
+            hits,
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+        )
+        has_clay = _usage_has_item(
+            name,
+            "lightclay",
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+        )
+        single_prankster = (
+            dual_path is None
+            and has_prankster
+            and bool(usage_mids & hits)
+        )
+        qualify_mids = dual_mids if dual_path else (usage_mids & hits)
         mechanism = " / ".join(
-            _move_display(snap, mid) for mid in sorted(usage_mids or hits)
+            _move_display(snap, mid) for mid in sorted(qualify_mids or hits)
         )
 
-        if not wanted and not independent:
+        if dual_path is None and not single_prankster:
             rejected.append(
                 RejectedCandidate(
                     species=name,
                     species_id=sid,
                     reason=(
-                        f"{mechanism} learnset but not screens_support: "
-                        "need usage-proven Aurora Veil, dual screens, or "
-                        "Light Clay + a screen (lone LS/Reflect without Clay "
-                        "is incidental)"
+                        f"{mechanism} learnset but not screens_support: need "
+                        "usage-proven dual LS+Reflect (same-row), Veil+Snow "
+                        "Warning, or single-screen + Prankster"
                         + (f" ({attr})" if attr else "")
                     ),
                     change_reason=(
-                        "incidental screen without wanted threshold"
+                        "failed dual/Prankster usage gate"
                         if prior.get(sid)
                         else None
                     ),
@@ -6034,82 +6057,14 @@ def _construct_screens_support(
             )
             continue
 
-        if not _admit_move_delivery(
-            usage_proven=usage_proven and wanted, independent_reinforce=independent
-        ):
-            rejected.append(
-                RejectedCandidate(
-                    species=name,
-                    species_id=sid,
-                    reason=(
-                        f"{mechanism} learnset but no usage evidence of screen "
-                        "delivery and no Prankster+dual/Veil reinforce"
-                        + (f" ({attr})" if attr else "")
-                    ),
-                    change_reason=(
-                        "learnset-only without usage/Prankster"
-                        if prior.get(sid)
-                        else None
-                    ),
-                )
-            )
-            continue
-
-        if has_prankster:
+        if dual_path and has_prankster:
             tier, basis = "Excellent", "prankster_priority"
-        elif spe >= _SCREENS_SPE_FLOOR:
+        elif dual_path and spe >= _SCREENS_SPE_FLOOR:
             tier, basis = "Good", "natural_speed"
-        else:
+        elif dual_path:
             tier, basis = "Acceptable", "slow_manual"
-
-        if discounted and usage_proven is False:
-            demoted = _discount_outcome(
-                "Excellent" if has_prankster else (
-                    "Good" if tier == "Good" else "Acceptable"
-                )
-            )
-            if demoted == "Acceptable" and has_prankster:
-                tier, basis = "Acceptable", "usage_discounted_prankster"
-            else:
-                rejected.append(
-                    RejectedCandidate(
-                        species=name,
-                        species_id=sid,
-                        reason=(
-                            f"{mechanism} learnset; usage discounted vs Mega form "
-                            f"and mech tier {tier} has no Acceptable discount path"
-                            + (f" ({attr})" if attr else "")
-                        ),
-                        change_reason=(
-                            f"usage discount reject from {prior[sid]!r}"
-                            if prior.get(sid)
-                            else None
-                        ),
-                    )
-                )
-                continue
-
-        if not (usage_proven and wanted):
-            if not has_prankster:
-                rejected.append(
-                    RejectedCandidate(
-                        species=name,
-                        species_id=sid,
-                        reason=(
-                            f"{mechanism} learnset but no usage evidence of "
-                            f"wanted screens; two-tier demotion from {tier} "
-                            "falls below Acceptable"
-                            + (f" ({attr})" if attr else "")
-                        ),
-                        change_reason=(
-                            f"unproven-usage two-tier demotion from {prior[sid]!r}"
-                            if prior.get(sid)
-                            else None
-                        ),
-                    )
-                )
-                continue
-            tier, basis = "Acceptable", "acceptable_prankster_unproven"
+        else:
+            tier, basis = "Acceptable", "prankster_single_screen"
 
         secondary_note, secondary_traits = _secondary_support_notes(
             entry, move_ids=_SCREENS_SECONDARY_MOVES
@@ -6123,10 +6078,8 @@ def _construct_screens_support(
             excellent_move_ids=_SCREENS_EXCELLENT_SECONDARY_MOVES,
         )
 
-        veil = "auroraveil" in (usage_mids or hits)
-        sets_snow = bool(set(abs_map) & _SCREENS_SNOW_ABILITIES) or bool(
-            ls & _SCREENS_SNOW_MOVES
-        )
+        veil = "auroraveil" in (qualify_mids or hits)
+        sets_snow = "snowwarning" in abs_map
         exec_note = f"base Spe={spe}"
         traits: list[ClaimedTrait] = [
             ClaimedTrait(
@@ -6149,8 +6102,7 @@ def _construct_screens_support(
             )
         elif spe >= _SCREENS_SPE_FLOOR:
             exec_note += (
-                f"; natural Spe ≥ {_SCREENS_SPE_FLOOR} provisional floor "
-                "(no Prankster)"
+                f"; natural Spe ≥ {_SCREENS_SPE_FLOOR} floor (no Prankster)"
             )
             traits.append(
                 ClaimedTrait(
@@ -6161,7 +6113,7 @@ def _construct_screens_support(
             )
         else:
             exec_note += (
-                f"; Spe {spe} below provisional floor {_SCREENS_SPE_FLOOR}; "
+                f"; Spe {spe} below floor {_SCREENS_SPE_FLOOR}; "
                 "lands screens only if the opposing field is slower / disrupted"
             )
         if has_clay:
@@ -6169,11 +6121,13 @@ def _construct_screens_support(
         if veil:
             exec_note += "; Aurora Veil is snow-gated"
             if sets_snow:
-                exec_note += " (self-supplies snow)"
+                exec_note += " (Snow Warning)"
             else:
-                exec_note += " (depends on teammate snow)"
-        if not (usage_proven and wanted):
-            exec_note += "; usage unproven — two-tier demotion applied"
+                exec_note += " (no Snow Warning — not dual)"
+        if dual_path:
+            exec_note += f"; dual_path={dual_path}"
+        elif single_prankster:
+            exec_note += "; single-screen + Prankster"
         traits.extend(secondary_traits)
 
         prev_tier = prior.get(sid)
@@ -6194,7 +6148,7 @@ def _construct_screens_support(
                     "delivery": _SCREENS_DELIVERY_NOTE,
                     "execution": exec_note,
                     "secondary_role": secondary_note,
-                    "usage_proven": str(usage_proven and wanted),
+                    "usage_proven": "True",
                     "usage_source": usage_source,
                     "verified_secondary": str(verified_secondary),
                     "excellent_secondary": str(excellent_secondary),
@@ -6203,12 +6157,13 @@ def _construct_screens_support(
                     "spe_floor_provisional": str(_SCREENS_SPE_FLOOR),
                     "light_clay": str(has_clay),
                     "aurora_veil": str(veil),
+                    "dual_path": dual_path or "single_prankster",
                     "attribution": attr or "none",
                 },
                 claimed_traits=traits,
                 reasoning=(
                     f"{mechanism} clears {tier} (basis={basis}, "
-                    f"usage_proven={usage_proven and wanted}, "
+                    f"dual_path={dual_path or 'single_prankster'}, "
                     f"prankster={has_prankster}, spe={spe})"
                     + (f" / {attr}" if attr else "")
                     + "."

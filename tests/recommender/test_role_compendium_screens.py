@@ -1,4 +1,4 @@
-"""Screens Support Role Compendium (ADR-019, TW-shaped move-only setter)."""
+"""Screens Support Role Compendium — dual/Prankster/2.3% redesign."""
 
 from __future__ import annotations
 
@@ -16,9 +16,31 @@ from recommender.role_compendium import (
     legal_species_pool,
     rebuild_role_category,
     _SCREENS_SPE_FLOOR,
-    _screens_learnset_complete,
-    _screens_wanted,
+    _USAGE_SET_PCT_FLOOR,
+    _screens_mech_dual,
 )
+
+
+LOCKED_EXCELLENT = {"Grimmsnarl", "Klefki", "Meowstic", "Sableye"}
+LOCKED_GOOD = {"Dragapult", "Serperior", "Ninetales-Alola", "Froslass-Mega"}
+LOCKED_ACCEPTABLE = {
+    "Whimsicott",
+    "Abomasnow",
+    "Abomasnow-Mega",
+    "Aurorus",
+    "Vanilluxe",
+}
+LOCKED_EXCLUDED = {
+    "Florges",
+    "Avalugg",
+    "Gardevoir-Mega",
+    "Gardevoir",
+    "Alakazam",
+    "Espeon",
+    "Musharna",
+    "Rotom-Wash",
+    "Meowstic-M-Mega",
+}
 
 
 def _screens_draft(
@@ -46,14 +68,12 @@ def _find(draft, species_id: str) -> CandidateEval:
     return next(c for c in draft.candidates if c.species_id == species_id)
 
 
-def test_wanted_threshold_helpers():
-    assert _screens_learnset_complete({"auroraveil"})
-    assert _screens_learnset_complete({"lightscreen", "reflect"})
-    assert not _screens_learnset_complete({"lightscreen"})
-    assert _screens_wanted(usage_mids={"auroraveil"}, has_clay=False)
-    assert _screens_wanted(usage_mids={"lightscreen", "reflect"}, has_clay=False)
-    assert _screens_wanted(usage_mids={"lightscreen"}, has_clay=True)
-    assert not _screens_wanted(usage_mids={"lightscreen"}, has_clay=False)
+def test_mech_dual_requires_snow_warning_for_veil():
+    assert _screens_mech_dual({"lightscreen", "reflect"}, {})
+    assert _screens_mech_dual({"auroraveil"}, {"snowwarning": "Snow Warning"})
+    assert not _screens_mech_dual({"auroraveil"}, {})
+    assert not _screens_mech_dual({"lightscreen"}, {"prankster": "Prankster"})
+    assert _USAGE_SET_PCT_FLOOR == 2.3
 
 
 def test_no_ability_sets_screens():
@@ -77,52 +97,46 @@ def test_delivery_class_identical():
     assert {c.delivery_class for c in members} == {"move_screens"}
 
 
+def test_locked_13_tiers():
+    draft = _screens_draft()
+    assert _members(draft, "Excellent") == LOCKED_EXCELLENT, draft.tiers
+    assert _members(draft, "Good") == LOCKED_GOOD, draft.tiers
+    assert _members(draft, "Acceptable") == LOCKED_ACCEPTABLE, draft.tiers
+    admitted = {c.species for c in draft.candidates if c.tier}
+    assert admitted & LOCKED_EXCLUDED == set(), admitted & LOCKED_EXCLUDED
+    assert "Meowstic-F" not in admitted
+
+
 def test_prankster_dual_screens_excellent():
     draft = _screens_draft()
-    assert {"Grimmsnarl", "Sableye"} <= _members(draft, "Excellent"), draft.tiers
     grim = _find(draft, "grimmsnarl")
     assert grim.excellence_basis == "prankster_priority"
     assert grim.reinforce_class == "prankster"
-    assert grim.criteria_notes["light_clay"] == "True"
 
 
 def test_veil_natural_speed_is_good():
     draft = _screens_draft()
-    good = _members(draft, "Good")
-    assert "Ninetales-Alola" in good or "Froslass-Mega" in good, draft.tiers
     for sid in ("ninetalesalola", "froslassmega"):
-        try:
-            c = _find(draft, sid)
-        except StopIteration:
-            continue
-        if c.tier == "Good":
-            assert int(c.criteria_notes["spe"]) >= _SCREENS_SPE_FLOOR
-            assert c.excellence_basis == "natural_speed"
-            assert "snow-gated" in c.criteria_notes["execution"]
+        c = _find(draft, sid)
+        assert c.tier == "Good"
+        assert int(c.criteria_notes["spe"]) >= _SCREENS_SPE_FLOOR
+        assert c.excellence_basis == "natural_speed"
+        assert "Snow Warning" in c.criteria_notes["execution"]
 
 
-def test_rotom_wash_light_screen_with_clay_is_admitted():
-    """July chaos: Light Screen 3.6% + Light Clay 0.25%."""
+def test_rotom_wash_lone_screen_excluded():
     draft = _screens_draft()
-    assert "Rotom-Wash" in {c.species for c in draft.candidates if c.tier}
+    admitted = {c.species for c in draft.candidates if c.tier}
+    assert "Rotom-Wash" not in admitted
+    assert any(r.species == "Rotom-Wash" for r in draft.considered_rejected)
 
 
-def test_whimsicott_prankster_screen_with_clay_is_excellent():
-    """July chaos: Light Screen 2.32% + Light Clay 0.19% + Prankster."""
+def test_whimsicott_single_prankster_is_acceptable():
     draft = _screens_draft()
     whim = _find(draft, "whimsicott")
-    assert whim.tier == "Excellent"
-    assert whim.excellence_basis == "prankster_priority"
+    assert whim.tier == "Acceptable"
+    assert whim.excellence_basis == "prankster_single_screen"
     assert whim.criteria_notes["usage_proven"] == "True"
-
-
-def test_prankster_dual_usage_proven_is_excellent():
-    draft = _screens_draft()
-    exc = _members(draft, "Excellent")
-    assert {"Grimmsnarl", "Sableye", "Klefki", "Meowstic"} <= exc, draft.tiers
-    klef = _find(draft, "klefki")
-    assert klef.excellence_basis == "prankster_priority"
-    assert klef.criteria_notes["usage_proven"] == "True"
 
 
 def test_degrees_differ_across_tiers():
