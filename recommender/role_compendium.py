@@ -2675,48 +2675,28 @@ def _setup_kit_matrix_score(
             kbin_p, w_p, raw_p, comb_p, atk_spe, def_spe, r_p = prim
             r_s: Any = None
             spread = _is_spread_damage_mid(mid) and has_partner
+            # Spread: bin = primary-alone; continuous = max(primary, pair_mean).
+            # Partner miss → primary_alone (never worse than single-target).
             if spread:
+                pair_bin = kbin_p
+                combined = comb_p
+                weighted, raw_frac = w_p, raw_p
                 phit = by_mid_partner[mid][i]
-                if phit is None:
-                    continue
-                # Finisher is single-target: primary-first if it qualifies.
-                kind_p, raw_frac_p, atk_p, def_p, _rp = by_mid[mid][i]
-                effective_p = (
-                    int(atk_p * (2 + spe_stages) / 2) if spe_stages else atk_p
-                )
-                outsped_p = atk_p > 0 and def_p > 0 and effective_p < def_p
-                lived_p = (
-                    outsped_p
-                    and incoming_frac is not None
-                    and incoming_frac < 1.0
-                )
-                primary_fin_attempted = (
-                    fin_mid is not None
-                    and mid != fin_mid
-                    and lived_p
-                    and kind_p == "ok"
-                    and raw_frac_p < 1.0
-                )
-                sec = _member_score(
-                    mid=mid,
-                    defn=partner_defn,  # type: ignore[arg-type]
-                    hit=phit,
-                    incoming_frac=incoming_frac,
-                    incoming=incoming,
-                    apply_finisher=not primary_fin_attempted,
-                )
-                if sec is None:
-                    continue
-                kbin_s, w_s, raw_s, _comb_s, _as, _ds, r_s = sec
-                # Worse of the two bins (clear-the-slot).
-                pair_bin = (
-                    kbin_p
-                    if _KO_BIN_RANK[kbin_p] <= _KO_BIN_RANK[kbin_s]
-                    else kbin_s
-                )
-                weighted = 0.5 * (w_p + w_s)
-                raw_frac = 0.5 * (raw_p + raw_s)
-                combined = comb_p  # remain/KS: primary-clear only
+                if phit is not None:
+                    sec = _member_score(
+                        mid=mid,
+                        defn=partner_defn,  # type: ignore[arg-type]
+                        hit=phit,
+                        incoming_frac=incoming_frac,
+                        incoming=incoming,
+                        apply_finisher=False,
+                    )
+                    if sec is not None:
+                        _kbin_s, w_s, raw_s, _comb_s, _as, _ds, r_s = sec
+                        pair_mean_w = 0.5 * (w_p + w_s)
+                        pair_mean_raw = 0.5 * (raw_p + raw_s)
+                        if pair_mean_w > w_p:
+                            weighted, raw_frac = pair_mean_w, pair_mean_raw
             else:
                 pair_bin = kbin_p
                 weighted = w_p
@@ -2800,10 +2780,10 @@ def _setup_kit_matrix_score(
                     remains.append(
                         min(1.0, max(0.0, seq_remain - recoil_frac + drain_frac))
                     )
-                elif (
-                    to_id(calc_name) in _AEGISLASH_FORMES
-                    and raw_frac < 1.0
+                elif to_id(calc_name) in _AEGISLASH_FORMES and (
+                    (_hit_frac_from_result(r) or 0.0) < 1.0
                 ):
+                    # Primary raw only — scored raw_frac may be pair_mean.
                     pass  # Aegislash sequence failed — no remain (legacy)
                 else:
                     remains.append(
