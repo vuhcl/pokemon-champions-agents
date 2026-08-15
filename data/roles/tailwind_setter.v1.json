@@ -1,0 +1,990 @@
+{
+  "category": "tailwind_setter",
+  "condition": "",
+  "built_at": "2026-08-15T05:23:14.389885+00:00",
+  "sub_criteria": {
+    "kind": "tailwind_setter",
+    "condition": "",
+    "move_ids": [
+      "tailwind"
+    ],
+    "ability_ids": []
+  },
+  "tiers": {
+    "Excellent": [
+      "Whimsicott"
+    ],
+    "Good": [
+      "Aerodactyl",
+      "Aerodactyl-Mega",
+      "Dragonite-Mega",
+      "Noivern",
+      "Pidgeot-Mega",
+      "Skarmory-Mega",
+      "Staraptor-Mega",
+      "Talonflame",
+      "Volcarona"
+    ],
+    "Acceptable": [
+      "Altaria",
+      "Altaria-Mega",
+      "Corviknight",
+      "Decidueye",
+      "Decidueye-Hisui",
+      "Dragonite",
+      "Gliscor",
+      "Hydreigon",
+      "Kleavor",
+      "Pelipper",
+      "Scizor",
+      "Toucannon",
+      "Vivillon"
+    ]
+  },
+  "notes": [
+    "Excellent = Prankster + usage-proven Tailwind; Good = base Spe \u2265 100 + usage-proven; Acceptable = usage-proven below Spe floor, or Excellent demoted by Showdown-discount / unproven-usage two-tier rule",
+    "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+    "weather move+Prankster hard-caps at Good because ability setters sit above \u2014 Tailwind has no ability delivery, so Excellent remains reachable inside move-only grading (TR/redirection pattern)",
+    "do not import Trick Room bulk\u2265210 membership \u2014 wrong axis (go-last survival)",
+    "usage evidence prefers Champions in-game data where a row exists; Showdown is a fallback only for formes with no Champions row",
+    "Prankster is blocked by Dark-types / Armor Tail / Queenly Majesty \u2014 noted in execution text, not an auto-reject",
+    "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.434 base=0.047; stone-heuristic fallback unused",
+    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=1.188 base=0.938; stone-heuristic fallback unused",
+    "Showdown attribution (Pidgeot/Pidgeot-Mega): mega usage_pct=0.220 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Staraptor/Staraptor-Mega): mega usage_pct=11.707 base=2.307; stone-heuristic fallback unused",
+    "Showdown attribution (Aerodactyl/Aerodactyl-Mega): mega usage_pct=6.230 base=4.078; stone-heuristic fallback unused",
+    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.381 base=0.781; stone-heuristic fallback unused",
+    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.449 base=2.072; stone-heuristic fallback unused"
+  ],
+  "candidates": [
+    {
+      "species": "Aerodactyl",
+      "species_id": "aerodactyl",
+      "tier": "Good",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=130; natural Spe \u2265 100 provisional floor (no Prankster)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "130",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Spe 130",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land Tailwind before threats"
+        }
+      ],
+      "reasoning": "Tailwind clears Good (basis=natural_speed, usage_proven=True, prankster=False, spe=130).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Aerodactyl-Mega",
+      "species_id": "aerodactylmega",
+      "tier": "Good",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=150; natural Spe \u2265 100 provisional floor (no Prankster)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "150",
+        "spe_floor_provisional": "100",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Spe 150",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land Tailwind before threats"
+        }
+      ],
+      "reasoning": "Tailwind clears Good (basis=natural_speed, usage_proven=True, prankster=False, spe=150) / showdown form-separated usage.",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Altaria",
+      "species_id": "altaria",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=80; Spe 80 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "80",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=80).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Altaria-Mega",
+      "species_id": "altariamega",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=80; Spe 80 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "80",
+        "spe_floor_provisional": "100",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=80) / showdown form-separated usage.",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Corviknight",
+      "species_id": "corviknight",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=67; Spe 67 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Light Screen, Reflect",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "67",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=67).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Decidueye",
+      "species_id": "decidueye",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=70; Spe 70 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Helping Hand, Light Screen",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "70",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=70).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Decidueye-Hisui",
+      "species_id": "decidueyehisui",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=60; Spe 60 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Helping Hand, Light Screen",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "60",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=60).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Dragonite",
+      "species_id": "dragonite",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=80; Spe 80 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Helping Hand, Light Screen",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "80",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=80).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Dragonite-Mega",
+      "species_id": "dragonitemega",
+      "tier": "Good",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=100; natural Spe \u2265 100 provisional floor (no Prankster)",
+        "secondary_role": "Helping Hand, Light Screen",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "100",
+        "spe_floor_provisional": "100",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Spe 100",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land Tailwind before threats"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Good (basis=natural_speed, usage_proven=True, prankster=False, spe=100) / showdown form-separated usage.",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Gliscor",
+      "species_id": "gliscor",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=95; Spe 95 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "95",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=95).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Hydreigon",
+      "species_id": "hydreigon",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=98; Spe 98 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Helping Hand, Reflect",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "98",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=98).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Kleavor",
+      "species_id": "kleavor",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=85; Spe 85 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Light Screen, Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "85",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=85).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Noivern",
+      "species_id": "noivern",
+      "tier": "Good",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=123; natural Spe \u2265 100 provisional floor (no Prankster)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "123",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Spe 123",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land Tailwind before threats"
+        }
+      ],
+      "reasoning": "Tailwind clears Good (basis=natural_speed, usage_proven=True, prankster=False, spe=123).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Pelipper",
+      "species_id": "pelipper",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=65; Spe 65 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "65",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=65).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Pidgeot-Mega",
+      "species_id": "pidgeotmega",
+      "tier": "Good",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=121; natural Spe \u2265 100 provisional floor (no Prankster)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "121",
+        "spe_floor_provisional": "100",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Spe 121",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land Tailwind before threats"
+        }
+      ],
+      "reasoning": "Tailwind clears Good (basis=natural_speed, usage_proven=True, prankster=False, spe=121) / showdown form-separated usage.",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Scizor",
+      "species_id": "scizor",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=65; Spe 65 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Helping Hand, Light Screen",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "65",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=65).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Skarmory-Mega",
+      "species_id": "skarmorymega",
+      "tier": "Good",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=110; natural Spe \u2265 100 provisional floor (no Prankster)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "110",
+        "spe_floor_provisional": "100",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Spe 110",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land Tailwind before threats"
+        }
+      ],
+      "reasoning": "Tailwind clears Good (basis=natural_speed, usage_proven=True, prankster=False, spe=110) / showdown form-separated usage.",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Staraptor-Mega",
+      "species_id": "staraptormega",
+      "tier": "Good",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=110; natural Spe \u2265 100 provisional floor (no Prankster)",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "110",
+        "spe_floor_provisional": "100",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Spe 110",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land Tailwind before threats"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Good (basis=natural_speed, usage_proven=True, prankster=False, spe=110) / showdown form-separated usage.",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Talonflame",
+      "species_id": "talonflame",
+      "tier": "Good",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=126; natural Spe \u2265 100 provisional floor (no Prankster)",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "126",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Spe 126",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land Tailwind before threats"
+        }
+      ],
+      "reasoning": "Tailwind clears Good (basis=natural_speed, usage_proven=True, prankster=False, spe=126).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Toucannon",
+      "species_id": "toucannon",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=60; Spe 60 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Encore, Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "60",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=60).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Vivillon",
+      "species_id": "vivillon",
+      "tier": "Acceptable",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=89; Spe 89 below provisional floor 100; lands Tailwind only if the opposing field is slower / disrupted",
+        "secondary_role": "Light Screen",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "89",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=89).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Volcarona",
+      "species_id": "volcarona",
+      "tier": "Good",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=100; natural Spe \u2265 100 provisional floor (no Prankster)",
+        "secondary_role": "Light Screen",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "100",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Spe 100",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land Tailwind before threats"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Good (basis=natural_speed, usage_proven=True, prankster=False, spe=100).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Whimsicott",
+      "species_id": "whimsicott",
+      "tier": "Excellent",
+      "delivery_class": "move_tailwind",
+      "mechanism": "Tailwind",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets Tailwind \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=116; Prankster +1 priority on Tailwind \u2014 blocked by Dark-types / Armor Tail / Queenly Majesty",
+        "secondary_role": "Encore, Light Screen, Trick Room, Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "prankster",
+        "spe": "116",
+        "spe_floor_provisional": "100",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Tailwind",
+          "criterion": "delivery",
+          "purpose_claimed": "double ally Speed for four turns"
+        },
+        {
+          "name": "Prankster",
+          "criterion": "execution",
+          "purpose_claimed": "priority status Tailwind; go-first reliability"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Tailwind clears Excellent (basis=prankster_priority, usage_proven=True, prankster=True, spe=116).",
+      "change_reason": null,
+      "reinforce_class": "prankster",
+      "excellence_basis": "prankster_priority"
+    }
+  ],
+  "considered_rejected": [
+    {
+      "species": "Pidgeot",
+      "species_id": "pidgeot",
+      "reason": "Tailwind learnset but no usage evidence of Tailwind delivery and no Prankster reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Scizor-Mega",
+      "species_id": "scizormega",
+      "reason": "Tailwind learnset but no usage evidence of Tailwind delivery and no Prankster reinforce (showdown form-separated usage)",
+      "change_reason": null
+    },
+    {
+      "species": "Skarmory",
+      "species_id": "skarmory",
+      "reason": "Tailwind learnset but no usage evidence of Tailwind delivery and no Prankster reinforce (showdown usage discounted (base 0.047% < 0.25\u00d7 mega 0.434%))",
+      "change_reason": null
+    },
+    {
+      "species": "Staraptor",
+      "species_id": "staraptor",
+      "reason": "Tailwind learnset but no usage evidence of Tailwind delivery and no Prankster reinforce (showdown usage discounted (base 2.307% < 0.25\u00d7 mega 11.707%))",
+      "change_reason": null
+    }
+  ]
+}

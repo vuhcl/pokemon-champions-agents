@@ -1,0 +1,1247 @@
+{
+  "category": "dragon_dance_attacker",
+  "condition": "",
+  "built_at": "2026-08-15T05:23:14.388865+00:00",
+  "sub_criteria": {
+    "kind": "offense_speed_setup",
+    "condition": "",
+    "move_id": "dragondance",
+    "boost_stat": "atk",
+    "boost_stages": 1,
+    "exact_boosts": {
+      "atk": 1,
+      "spe": 1
+    }
+  },
+  "tiers": {
+    "Excellent": [
+      "Feraligatr-Mega",
+      "Charizard-Mega-X",
+      "Feraligatr"
+    ],
+    "Good": [
+      "Tyranitar",
+      "Dragonite",
+      "Gyarados-Mega",
+      "Tyranitar-Mega",
+      "Flapple",
+      "Tyrantrum",
+      "Gyarados",
+      "Scrafty-Mega",
+      "Dragapult"
+    ],
+    "Acceptable": []
+  },
+  "notes": [
+    "exact Status self-boost {'atk': 1, 'spe': 1} \u2192 dragondance; no SD Branch A/B OR-gate",
+    "Spe stage is setup-turn self-solve \u2014 rank on +1 Atk payoff only",
+    "threat_panel=showdown>=4.52%/15game n=37 pair=top1-partner (Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Incineroar/Sitrus Berry+Sinistcha/Kasib Berry, Sinistcha/Kasib Berry+Incineroar/Sitrus Berry, Kingambit/Black Glasses+Garchomp/Life Orb, Basculegion/Choice Scarf+Kingambit/Black Glasses, Whimsicott/Focus Sash+Garchomp/Life Orb, Farigiraf/Sitrus Berry+Sylveon/Fairy Feather, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Sneasler/White Herb+Kingambit/Black Glasses, Sylveon/Fairy Feather+Garchomp/Life Orb, Pelipper/Sitrus Berry+Archaludon/Leftovers, Archaludon/Leftovers+Pelipper/Sitrus Berry, Staraptor-Mega/Staraptite+Sinistcha/Kasib Berry, Grimmsnarl/Light Clay+Pelipper/Sitrus Berry, Gholdengo/Life Orb+Sinistcha/Kasib Berry, Floette-Mega/Floettite+Kingambit/Black Glasses, Milotic/Leftovers+Sinistcha/Kasib Berry, Raichu-Mega-Y/Raichunite Y+Incineroar/Sitrus Berry, Torkoal/Charcoal+Farigiraf/Sitrus Berry, Swampert-Mega/Swampertite+Archaludon/Leftovers, Metagross-Mega/Metagrossite+Garchomp/Life Orb, Maushold/Wide Lens+Sinistcha/Kasib Berry, Delphox-Mega/Delphoxite+Sinistcha/Kasib Berry, Mawile-Mega/Mawilite+Farigiraf/Sitrus Berry, Ninetales-Alola/Never-Melt Ice+Kingambit/Black Glasses, Aerodactyl-Mega/Aerodactylite+Kingambit/Black Glasses, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Blastoise-Mega/Blastoisinite+Sinistcha/Kasib Berry, Talonflame/Sharp Beak+Garchomp/Life Orb, Sableye/Light Clay+Archaludon/Leftovers, Rotom-Wash/Sitrus Berry+Garchomp/Life Orb, Ceruledge/Colbur Berry+Sinistcha/Kasib Berry, Venusaur/Life Orb+Charizard-Mega-Y/Charizardite Y, Hydreigon/Choice Scarf+Charizard-Mega-Y/Charizardite Y, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Annihilape/Focus Sash+Incineroar/Sitrus Berry)",
+    "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
+    "payoff=per-defender best kit damaging move (KO-bin then weighted frac); zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; debuff_surv n=defenders whose chosen mid has self Def/SpD drops",
+    "spe_crossings=not-faster\u2192faster after int(unboosted*1.5); turn-order diagnostic only; k/n_relevant",
+    "Showdown attribution (Sceptile/Sceptile-Mega): mega usage_pct=1.878 base=0.212; stone-heuristic fallback unused",
+    "Showdown attribution (Drampa/Drampa-Mega): mega usage_pct=0.832 base=0.368; stone-heuristic fallback unused",
+    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=6.022 base=3.038; stone-heuristic fallback unused",
+    "Showdown attribution (Steelix/Steelix-Mega): mega usage_pct=0.353 base=0.053; stone-heuristic fallback unused",
+    "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=2.672 base=0.472; stone-heuristic fallback unused",
+    "Showdown attribution (Aerodactyl/Aerodactyl-Mega): mega usage_pct=6.230 base=4.078; stone-heuristic fallback unused",
+    "Showdown attribution (Feraligatr/Feraligatr-Mega): mega usage_pct=0.456 base=0.300; stone-heuristic fallback unused",
+    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.381 base=0.781; stone-heuristic fallback unused",
+    "Showdown attribution (Gyarados/Gyarados-Mega): mega usage_pct=0.916 base=0.563; stone-heuristic fallback unused",
+    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.449 base=2.072; stone-heuristic fallback unused",
+    "Excellent damage floor = 2nd-highest \u00d7 0.95 \u2192 1.067 (top: Feraligatr-Mega=1.149, Charizard-Mega-X=1.124)",
+    "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.747",
+    "sweep_ohko=outgoing OHKO k/n vs panel (unscaled max-roll); survive_hp=mean/min remain on outsped-and-survive (n_surv=0 \u2192 n/a); display only \u2014 within-tier sort stays crossings"
+  ],
+  "candidates": [
+    {
+      "species": "Feraligatr-Mega",
+      "species_id": "feraligatrmega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.149 floor=1.067 priority_or_spe_ok spe_crossings=21/37",
+        "payoff_moves": [
+          "doubleedge",
+          "liquidation"
+        ],
+        "payoff_targets": {
+          "doubleedge": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Aerodactyl-Mega+Kingambit",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "liquidation": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Sylveon+Garchomp",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Torkoal+Farigiraf",
+            "Metagross-Mega+Garchomp",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Excadrill+Tyranitar-Mega"
+          ]
+        },
+        "calc_species": "Feraligatr-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.149",
+        "spe_crossings": "21/37",
+        "sweep_ohko": "31/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "1",
+        "survive_hp_mean": "0.38",
+        "survive_hp_min": "0.38"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Double-Edge",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.149 vs panel; 24 defender(s); spe_crossings=21/37"
+        },
+        {
+          "name": "Liquidation",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.149 vs panel; 13 defender(s); spe_crossings=21/37"
+        }
+      ],
+      "reasoning": "Excellent: calc 1.149 (floor 1.067); priority_or_spe_ok; spe_crossings=21/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_payoff"
+    },
+    {
+      "species": "Charizard-Mega-X",
+      "species_id": "charizardmegax",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.124 floor=1.067 priority_or_spe_ok spe_crossings=14/37",
+        "payoff_moves": [
+          "dragonclaw",
+          "flareblitz"
+        ],
+        "payoff_targets": {
+          "dragonclaw": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Basculegion+Kingambit",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Pelipper+Archaludon",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Hydreigon+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar"
+          ],
+          "flareblitz": [
+            "Sinistcha+Incineroar",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Metagross-Mega+Garchomp",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Sableye+Archaludon",
+            "Venusaur+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Charizard-Mega-X",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.124",
+        "spe_crossings": "14/37",
+        "sweep_ohko": "28/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "0",
+        "survive_hp_mean": "n/a",
+        "survive_hp_min": "n/a"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Dragon Claw",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.124 vs panel; 20 defender(s); spe_crossings=14/37"
+        },
+        {
+          "name": "Flare Blitz",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.124 vs panel; 17 defender(s); spe_crossings=14/37"
+        }
+      ],
+      "reasoning": "Excellent: calc 1.124 (floor 1.067); priority_or_spe_ok; spe_crossings=14/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_payoff"
+    },
+    {
+      "species": "Feraligatr",
+      "species_id": "feraligatr",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.094 floor=1.067 priority_or_spe_ok spe_crossings=13/37",
+        "payoff_moves": [
+          "liquidation",
+          "icepunch",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "icepunch": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Whimsicott+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Aerodactyl-Mega+Kingambit",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y"
+          ],
+          "liquidation": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "rockslide": [
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper"
+          ]
+        },
+        "calc_species": "Feraligatr",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.094",
+        "spe_crossings": "13/37",
+        "sweep_ohko": "28/37",
+        "sweep_2hko": "36/37",
+        "survive_n": "1",
+        "survive_hp_mean": "0.69",
+        "survive_hp_min": "0.69"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Liquidation",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.094 vs panel; 27 defender(s); spe_crossings=13/37"
+        },
+        {
+          "name": "Ice Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.094 vs panel; 8 defender(s); spe_crossings=13/37"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.094 vs panel; 2 defender(s); spe_crossings=13/37"
+        }
+      ],
+      "reasoning": "Excellent: calc 1.094 (floor 1.067); priority_or_spe_ok; spe_crossings=13/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_payoff"
+    },
+    {
+      "species": "Tyranitar",
+      "species_id": "tyranitar",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.913 floor=1.067 slow_no_priority spe=61 spe_crossings=21/37",
+        "payoff_moves": [
+          "knockoff",
+          "rockslide",
+          "icepunch"
+        ],
+        "payoff_targets": {
+          "icepunch": [
+            "Garchomp+Charizard-Mega-Y",
+            "Whimsicott+Garchomp",
+            "Sneasler+Kingambit",
+            "Staraptor-Mega+Sinistcha",
+            "Aerodactyl-Mega+Kingambit",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y"
+          ],
+          "rockslide": [
+            "Incineroar+Sinistcha",
+            "Charizard-Mega-Y+Garchomp",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Torkoal+Farigiraf",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Ceruledge+Sinistcha"
+          ],
+          "knockoff": [
+            "Sinistcha+Incineroar",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Farigiraf+Sylveon",
+            "Archaludon+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Tyranitar",
+        "spe_note": "slow_no_priority spe=61",
+        "damage_score": "0.913",
+        "spe_crossings": "21/37",
+        "sweep_ohko": "20/37",
+        "sweep_2hko": "33/37",
+        "survive_n": "6",
+        "survive_hp_mean": "0.63",
+        "survive_hp_min": "0.20"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Knock Off",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.913 vs panel; 19 defender(s); spe_crossings=21/37"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.913 vs panel; 11 defender(s); spe_crossings=21/37"
+        },
+        {
+          "name": "Ice Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.913 vs panel; 7 defender(s); spe_crossings=21/37"
+        }
+      ],
+      "reasoning": "Good: calc 0.913 (floor 1.067); slow_no_priority spe=61; spe_crossings=21/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Dragonite",
+      "species_id": "dragonite",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.910 floor=1.067 priority_or_spe_ok spe_crossings=19/37",
+        "payoff_moves": [
+          "dragonclaw",
+          "extremespeed"
+        ],
+        "payoff_targets": {
+          "dragonclaw": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Sinistcha+Incineroar",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "extremespeed": [
+            "Whimsicott+Garchomp",
+            "Sylveon+Garchomp",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit"
+          ]
+        },
+        "calc_species": "Dragonite",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.910",
+        "spe_crossings": "19/37",
+        "sweep_ohko": "15/37",
+        "sweep_2hko": "34/37",
+        "survive_n": "1",
+        "survive_hp_mean": "0.64",
+        "survive_hp_min": "0.64"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Dragon Claw",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.910 vs panel; 31 defender(s); spe_crossings=19/37"
+        },
+        {
+          "name": "Extreme Speed",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.910 vs panel; 6 defender(s); spe_crossings=19/37"
+        }
+      ],
+      "reasoning": "Good: calc 0.910 (floor 1.067); priority_or_spe_ok; spe_crossings=19/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Gyarados-Mega",
+      "species_id": "gyaradosmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.008 floor=1.067 slow_no_priority spe=81 spe_crossings=18/37",
+        "payoff_moves": [
+          "crunch",
+          "waterfall"
+        ],
+        "payoff_targets": {
+          "crunch": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Blastoise-Mega+Sinistcha",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "waterfall": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Torkoal+Farigiraf",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Talonflame+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Excadrill+Tyranitar-Mega"
+          ]
+        },
+        "calc_species": "Gyarados-Mega",
+        "spe_note": "slow_no_priority spe=81",
+        "damage_score": "1.008",
+        "spe_crossings": "18/37",
+        "sweep_ohko": "23/37",
+        "sweep_2hko": "36/37",
+        "survive_n": "1",
+        "survive_hp_mean": "0.68",
+        "survive_hp_min": "0.68"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Crunch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.008 vs panel; 21 defender(s); spe_crossings=18/37"
+        },
+        {
+          "name": "Waterfall",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.008 vs panel; 16 defender(s); spe_crossings=18/37"
+        }
+      ],
+      "reasoning": "Good: calc 1.008 (floor 1.067); slow_no_priority spe=81; spe_crossings=18/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Tyranitar-Mega",
+      "species_id": "tyranitarmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.957 floor=1.067 slow_no_priority spe=71 spe_crossings=18/37",
+        "payoff_moves": [
+          "knockoff",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "knockoff": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "rockslide": [
+            "Incineroar+Sinistcha",
+            "Whimsicott+Garchomp",
+            "Charizard-Mega-Y+Garchomp",
+            "Sylveon+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Torkoal+Farigiraf",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Ceruledge+Sinistcha",
+            "Hydreigon+Charizard-Mega-Y"
+          ]
+        },
+        "calc_species": "Tyranitar-Mega",
+        "spe_note": "slow_no_priority spe=71",
+        "damage_score": "0.957",
+        "spe_crossings": "18/37",
+        "sweep_ohko": "19/37",
+        "sweep_2hko": "34/37",
+        "survive_n": "2",
+        "survive_hp_mean": "0.81",
+        "survive_hp_min": "0.78"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Knock Off",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.957 vs panel; 23 defender(s); spe_crossings=18/37"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.957 vs panel; 14 defender(s); spe_crossings=18/37"
+        }
+      ],
+      "reasoning": "Good: calc 0.957 (floor 1.067); slow_no_priority spe=71; spe_crossings=18/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Flapple",
+      "species_id": "flapple",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.830 floor=1.067 priority_or_spe_ok spe_crossings=18/37",
+        "payoff_moves": [
+          "gravapple",
+          "dragonrush",
+          "suckerpunch"
+        ],
+        "payoff_targets": {
+          "gravapple": [
+            "Garchomp+Charizard-Mega-Y",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Excadrill+Tyranitar-Mega",
+            "Annihilape+Incineroar"
+          ],
+          "dragonrush": [
+            "Incineroar+Sinistcha",
+            "Sinistcha+Incineroar",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Talonflame+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y"
+          ],
+          "suckerpunch": [
+            "Gholdengo+Sinistcha",
+            "Metagross-Mega+Garchomp",
+            "Delphox-Mega+Sinistcha",
+            "Gengar-Mega+Incineroar"
+          ]
+        },
+        "calc_species": "Flapple",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.830",
+        "spe_crossings": "18/37",
+        "sweep_ohko": "29/37",
+        "sweep_2hko": "35/37",
+        "survive_n": "2",
+        "survive_hp_mean": "0.39",
+        "survive_hp_min": "0.27"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Grav Apple",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.830 vs panel; 21 defender(s); spe_crossings=18/37"
+        },
+        {
+          "name": "Dragon Rush",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.830 vs panel; 12 defender(s); spe_crossings=18/37"
+        },
+        {
+          "name": "Sucker Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.830 vs panel; 4 defender(s); spe_crossings=18/37"
+        }
+      ],
+      "reasoning": "Good: calc 0.830 (floor 1.067); priority_or_spe_ok; spe_crossings=18/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Tyrantrum",
+      "species_id": "tyrantrum",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.882 floor=1.067 slow_no_priority spe=71 spe_crossings=17/37",
+        "payoff_moves": [
+          "headsmash",
+          "rockslide",
+          "icefang"
+        ],
+        "payoff_targets": {
+          "icefang": [
+            "Garchomp+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "headsmash": [
+            "Incineroar+Sinistcha",
+            "Sinistcha+Incineroar",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "rockslide": [
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Talonflame+Garchomp"
+          ]
+        },
+        "calc_species": "Tyrantrum",
+        "spe_note": "slow_no_priority spe=71",
+        "damage_score": "0.882",
+        "spe_crossings": "17/37",
+        "sweep_ohko": "28/37",
+        "sweep_2hko": "34/37",
+        "survive_n": "2",
+        "survive_hp_mean": "0.75",
+        "survive_hp_min": "0.68"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Head Smash",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.882 vs panel; 29 defender(s); spe_crossings=17/37"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.882 vs panel; 6 defender(s); spe_crossings=17/37"
+        },
+        {
+          "name": "Ice Fang",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.882 vs panel; 2 defender(s); spe_crossings=17/37"
+        }
+      ],
+      "reasoning": "Good: calc 0.882 (floor 1.067); slow_no_priority spe=71; spe_crossings=17/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Gyarados",
+      "species_id": "gyarados",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.767 floor=1.067 slow_no_priority spe=81 spe_crossings=14/37",
+        "payoff_moves": [
+          "waterfall"
+        ],
+        "payoff_targets": {
+          "waterfall": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Sinistcha+Incineroar",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Gyarados",
+        "spe_note": "slow_no_priority spe=81",
+        "damage_score": "0.767",
+        "spe_crossings": "14/37",
+        "sweep_ohko": "12/37",
+        "sweep_2hko": "26/37",
+        "survive_n": "1",
+        "survive_hp_mean": "0.16",
+        "survive_hp_min": "0.16"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Waterfall",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.767 vs panel; 37 defender(s); spe_crossings=14/37"
+        }
+      ],
+      "reasoning": "Good: calc 0.767 (floor 1.067); slow_no_priority spe=81; spe_crossings=14/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Scrafty-Mega",
+      "species_id": "scraftymega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.058 floor=1.067 priority_or_spe_ok spe_crossings=10/37",
+        "payoff_moves": [
+          "closecombat",
+          "knockoff"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "knockoff": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Gholdengo+Sinistcha",
+            "Metagross-Mega+Garchomp",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Scrafty-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.058",
+        "spe_crossings": "10/37",
+        "sweep_ohko": "24/37",
+        "sweep_2hko": "36/37",
+        "survive_n": "4",
+        "survive_hp_mean": "0.67",
+        "survive_hp_min": "0.37",
+        "debuff_surv": "15/23"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.058 vs panel; 23 defender(s); spe_crossings=10/37"
+        },
+        {
+          "name": "Knock Off",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.058 vs panel; 14 defender(s); spe_crossings=10/37"
+        }
+      ],
+      "reasoning": "Good: calc 1.058 (floor 1.067); priority_or_spe_ok; spe_crossings=10/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Dragapult",
+      "species_id": "dragapult",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Dragon Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.862 floor=1.067 priority_or_spe_ok spe_crossings=1/37",
+        "payoff_moves": [
+          "dragondarts"
+        ],
+        "payoff_targets": {
+          "dragondarts": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Sinistcha+Incineroar",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Dragapult",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.862",
+        "spe_crossings": "1/37",
+        "sweep_ohko": "19/37",
+        "sweep_2hko": "29/37",
+        "survive_n": "0",
+        "survive_hp_mean": "n/a",
+        "survive_hp_min": "n/a"
+      },
+      "claimed_traits": [
+        {
+          "name": "Dragon Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via dragondance (+1 atk)"
+        },
+        {
+          "name": "Dragon Darts",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.862 vs panel; 37 defender(s); spe_crossings=1/37"
+        }
+      ],
+      "reasoning": "Good: calc 0.862 (floor 1.067); priority_or_spe_ok; spe_crossings=1/37",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    }
+  ],
+  "considered_rejected": [
+    {
+      "species": "Aerodactyl",
+      "species_id": "aerodactyl",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Aerodactyl-Mega",
+      "species_id": "aerodactylmega",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Altaria",
+      "species_id": "altaria",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Altaria-Mega",
+      "species_id": "altariamega",
+      "reason": "no kit damaging payoff converting the boosted offense stat",
+      "change_reason": null
+    },
+    {
+      "species": "Charizard",
+      "species_id": "charizard",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Charizard-Mega-Y",
+      "species_id": "charizardmegay",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Dragonite-Mega",
+      "species_id": "dragonitemega",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Drampa",
+      "species_id": "drampa",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Drampa-Mega",
+      "species_id": "drampamega",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Hydreigon",
+      "species_id": "hydreigon",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Kommo-o",
+      "species_id": "kommoo",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Milotic",
+      "species_id": "milotic",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Noivern",
+      "species_id": "noivern",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Salazzle",
+      "species_id": "salazzle",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Sceptile",
+      "species_id": "sceptile",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Sceptile-Mega",
+      "species_id": "sceptilemega",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Scrafty",
+      "species_id": "scrafty",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Steelix",
+      "species_id": "steelix",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Steelix-Mega",
+      "species_id": "steelixmega",
+      "reason": "learnset has dragondance but no usage evidence of the setup move",
+      "change_reason": null
+    }
+  ]
+}
