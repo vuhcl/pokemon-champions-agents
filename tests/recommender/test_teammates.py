@@ -218,3 +218,89 @@ def test_gmax_only_bases_are_exact_garchomp_stays_ambiguous():
     assert _attribution_status("grimmsnarl") == "exact"
     assert _attribution_status("hatterene") == "exact"
     assert _attribution_status("garchomp") == "ambiguous"
+
+
+def _no_live(_species: str, _regulation: str):
+    return None
+
+
+def _cbd_only(species: str) -> TeammateQueryResult:
+    return query_teammates(species, live_showdown_fetch=_no_live)
+
+
+def _force_cbd(species: str) -> TeammateQueryResult:
+    with patch("recommender.teammates.showdown_species_map", return_value={}):
+        return query_teammates(species, live_showdown_fetch=_no_live)
+
+
+def _row_named(result: TeammateQueryResult, species_id: str) -> TeammateEvidence:
+    return next(row for row in result.rows or () if row.species_id == species_id)
+
+
+def test_cbd_swampert_remaps_to_mega():
+    result = _cbd_only("vivillonfancy")
+    assert result.source == "cbd-offline"
+    row = _row_named(result, "swampertmega")
+    assert row.name == "Swampert-Mega"
+    assert row.attribution_status == "exact"
+    assert all(row.species_id != "swampert" for row in result.rows or ())
+
+
+def test_cbd_raichu_remaps_to_mega_y_not_x():
+    result = _force_cbd("ninetalesalola")
+    assert result.source == "cbd-offline"
+    row = _row_named(result, "raichumegay")
+    assert row.name == "Raichu-Mega-Y"
+    assert row.attribution_status == "exact"
+    assert all(row.species_id not in {"raichu", "raichumegax"} for row in result.rows or ())
+
+
+def test_cbd_tyranitar_stays_ambiguous():
+    result = _force_cbd("excadrill")
+    assert result.source == "cbd-offline"
+    row = _row_named(result, "tyranitar")
+    assert row.name == "Tyranitar"
+    assert row.attribution_status == "ambiguous"
+
+
+def test_cbd_garchomp_stays_ambiguous():
+    result = _cbd_only("mausholdfour")
+    assert result.source == "cbd-offline"
+    row = _row_named(result, "garchomp")
+    assert row.name == "Garchomp"
+    assert row.attribution_status == "ambiguous"
+
+
+def test_cbd_mawile_shared_query_is_mega_exact():
+    result = query_shared_teammates(
+        ["mausholdfour", "vivillonfancy"],
+        query=lambda species, regulation: query_teammates(
+            species, regulation, live_showdown_fetch=_no_live
+        ),
+    )
+    assert result.status == "available"
+    row = next(r for r in result.rows or () if r.species_id == "mawilemega")
+    assert row.name == "Mawile-Mega"
+    assert row.attribution_status == "exact"
+    assert all(r.species_id != "mawile" for r in result.rows or ())
+
+
+def test_cbd_sinistcha_and_flavor_names_untouched():
+    maushold = _cbd_only("mausholdfour")
+    assert maushold.anchor_id == "mausholdfour"
+    assert maushold.source == "cbd-offline"
+    sinistcha = _row_named(maushold, "sinistcha")
+    assert sinistcha.name == "Sinistcha"
+    assert sinistcha.attribution_status == "ambiguous"
+
+    mawile = _cbd_only("mawile")
+    four = _row_named(mawile, "mausholdfamilyoffour")
+    assert four.name == "Maushold Family of Four"
+    assert four.attribution_status == "unresolved"
+
+    fancy_page = _cbd_only("vivillonfancy")
+    assert fancy_page.anchor_id == "vivillonfancy"
+    gengar = _force_cbd("gengar")
+    fancy = _row_named(gengar, "vivillonfancypattern")
+    assert fancy.name == "Vivillon Fancy Pattern"
+    assert fancy.attribution_status == "unresolved"
