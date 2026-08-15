@@ -1,0 +1,3609 @@
+{
+  "category": "bulk_up_attacker",
+  "condition": "",
+  "built_at": "2026-08-15T05:23:14.387431+00:00",
+  "sub_criteria": {
+    "kind": "offense_bulk_setup",
+    "condition": "",
+    "move_id": "bulkup",
+    "boost_stat": "atk",
+    "boost_stages": 1,
+    "exact_boosts": {
+      "atk": 1,
+      "def": 1
+    },
+    "damage_admission_floor": 0.766,
+    "acceptable_floor_mult": 0.9
+  },
+  "tiers": {
+    "Excellent": [
+      "Medicham-Mega",
+      "Hawlucha-Mega",
+      "Pangoro",
+      "Starmie-Mega",
+      "Blaziken-Mega"
+    ],
+    "Good": [
+      "Pinsir-Mega",
+      "Swampert-Mega",
+      "Machamp",
+      "Tauros-Paldea-Aqua",
+      "Diggersby",
+      "Barbaracle-Mega",
+      "Emboar-Mega",
+      "Gallade-Mega",
+      "Conkeldurr",
+      "Lucario-Mega",
+      "Quaquaval",
+      "Scrafty-Mega",
+      "Crabominable-Mega",
+      "Heracross-Mega"
+    ],
+    "Acceptable": [
+      "Annihilape",
+      "Beartic",
+      "Mimikyu",
+      "Emboar",
+      "Tauros-Paldea-Combat",
+      "Tauros-Paldea-Blaze",
+      "Ceruledge",
+      "Passimian",
+      "Krookodile",
+      "Falinks-Mega",
+      "Toxicroak",
+      "Corviknight",
+      "Palafin",
+      "Lycanroc-Midnight",
+      "Lycanroc",
+      "Chesnaught-Mega",
+      "Decidueye-Hisui"
+    ]
+  },
+  "notes": [
+    "exact Status self-boost {'atk': 1, 'def': 1} \u2192 bulkup; no SD Branch A/B OR-gate",
+    "threat_panel=showdown>=4.52%/15game n=37 pair=top1-partner (Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Incineroar/Sitrus Berry+Sinistcha/Kasib Berry, Sinistcha/Kasib Berry+Incineroar/Sitrus Berry, Kingambit/Black Glasses+Garchomp/Life Orb, Basculegion/Choice Scarf+Kingambit/Black Glasses, Whimsicott/Focus Sash+Garchomp/Life Orb, Farigiraf/Sitrus Berry+Sylveon/Fairy Feather, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Sneasler/White Herb+Kingambit/Black Glasses, Sylveon/Fairy Feather+Garchomp/Life Orb, Pelipper/Sitrus Berry+Archaludon/Leftovers, Archaludon/Leftovers+Pelipper/Sitrus Berry, Staraptor-Mega/Staraptite+Sinistcha/Kasib Berry, Grimmsnarl/Light Clay+Pelipper/Sitrus Berry, Gholdengo/Life Orb+Sinistcha/Kasib Berry, Floette-Mega/Floettite+Kingambit/Black Glasses, Milotic/Leftovers+Sinistcha/Kasib Berry, Raichu-Mega-Y/Raichunite Y+Incineroar/Sitrus Berry, Torkoal/Charcoal+Farigiraf/Sitrus Berry, Swampert-Mega/Swampertite+Archaludon/Leftovers, Metagross-Mega/Metagrossite+Garchomp/Life Orb, Maushold/Wide Lens+Sinistcha/Kasib Berry, Delphox-Mega/Delphoxite+Sinistcha/Kasib Berry, Mawile-Mega/Mawilite+Farigiraf/Sitrus Berry, Ninetales-Alola/Never-Melt Ice+Kingambit/Black Glasses, Aerodactyl-Mega/Aerodactylite+Kingambit/Black Glasses, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Blastoise-Mega/Blastoisinite+Sinistcha/Kasib Berry, Talonflame/Sharp Beak+Garchomp/Life Orb, Sableye/Light Clay+Archaludon/Leftovers, Rotom-Wash/Sitrus Berry+Garchomp/Life Orb, Ceruledge/Colbur Berry+Sinistcha/Kasib Berry, Venusaur/Life Orb+Charizard-Mega-Y/Charizardite Y, Hydreigon/Choice Scarf+Charizard-Mega-Y/Charizardite Y, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Annihilape/Focus Sash+Incineroar/Sitrus Berry)",
+    "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
+    "payoff=per-defender best kit damaging move (KO-bin then weighted frac); zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; debuff_surv n=defenders whose chosen mid has self Def/SpD drops",
+    "bulk_crossings=incoming Physical after candidate Def+1; KO bins from damageRange[-1]/HP; OHKO\u2192not-OHKO and 2HKO\u21923HKO+; immunity excluded from n_relevant",
+    "within-tier sort by bulk_crossings; no promotion threshold (no natural gap)",
+    "Showdown attribution (Heracross/Heracross-Mega): mega usage_pct=0.289 base=0.020; stone-heuristic fallback unused",
+    "Showdown attribution (Blaziken/Blaziken-Mega): mega usage_pct=3.639 base=0.639; stone-heuristic fallback unused",
+    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.811 base=0.307; stone-heuristic fallback unused",
+    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.312 base=0.017; stone-heuristic fallback unused",
+    "Showdown attribution (Barbaracle/Barbaracle-Mega): mega usage_pct=0.316 base=0.025; stone-heuristic fallback unused",
+    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.658 base=0.145; stone-heuristic fallback unused",
+    "Showdown attribution (Emboar/Emboar-Mega): mega usage_pct=0.093 base=0.023; stone-heuristic fallback unused",
+    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.456 base=5.408; stone-heuristic fallback unused",
+    "Showdown attribution (Eelektross/Eelektross-Mega): mega usage_pct=1.592 base=0.041; stone-heuristic fallback unused",
+    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.279 base=2.043; stone-heuristic fallback unused",
+    "Showdown attribution (Pinsir/Pinsir-Mega): mega usage_pct=0.168 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.151 base=0.184; stone-heuristic fallback unused",
+    "Showdown attribution (Swampert/Swampert-Mega): mega usage_pct=8.186 base=0.193; stone-heuristic fallback unused",
+    "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=2.672 base=0.472; stone-heuristic fallback unused",
+    "Showdown attribution (Staraptor/Staraptor-Mega): mega usage_pct=11.707 base=2.307; stone-heuristic fallback unused",
+    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.481 base=0.075; stone-heuristic fallback unused",
+    "Showdown attribution (Hawlucha/Hawlucha-Mega): mega usage_pct=0.427 base=0.067; stone-heuristic fallback unused",
+    "Showdown attribution (Crabominable/Crabominable-Mega): mega usage_pct=0.563 base=0.044; stone-heuristic fallback unused",
+    "damage admission floor = 0.766 (score >= floor; n_kept=43)",
+    "Excellent damage floor = 2nd-highest \u00d7 0.95 \u2192 1.117 (top: Medicham-Mega=1.180, Pangoro=1.176)",
+    "Acceptable floor = Excellent floor \u00d7 0.9 \u2192 1.005",
+    "sweep_ohko=outgoing OHKO k/n vs panel (unscaled max-roll); survive_hp=mean/min remain on outsped-and-survive (n_surv=0 \u2192 n/a); display only \u2014 within-tier sort stays crossings"
+  ],
+  "candidates": [
+    {
+      "species": "Medicham-Mega",
+      "species_id": "medichammega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.180 floor=1.117 priority_or_spe_ok bulk_crossings=11/25",
+        "payoff_moves": [
+          "closecombat",
+          "psychocut",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "psychocut": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Charizard-Mega-Y+Garchomp",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "rockslide": [
+            "Delphox-Mega+Sinistcha",
+            "Sableye+Archaludon"
+          ]
+        },
+        "calc_species": "Medicham-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.180",
+        "bulk_crossings": "11/25",
+        "sweep_ohko": "34/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "8",
+        "survive_hp_mean": "0.54",
+        "survive_hp_min": "0.28",
+        "debuff_surv": "15/23"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.180 vs panel; 23 defender(s); bulk_crossings=11/25"
+        },
+        {
+          "name": "Psycho Cut",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.180 vs panel; 12 defender(s); bulk_crossings=11/25"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.180 vs panel; 2 defender(s); bulk_crossings=11/25"
+        }
+      ],
+      "reasoning": "Excellent: calc 1.180 (floor 1.117); priority_or_spe_ok; bulk_crossings=11/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_payoff"
+    },
+    {
+      "species": "Hawlucha-Mega",
+      "species_id": "hawluchamega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.154 floor=1.117 priority_or_spe_ok bulk_crossings=11/25",
+        "payoff_moves": [
+          "bravebird",
+          "closecombat"
+        ],
+        "payoff_targets": {
+          "bravebird": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Ninetales-Alola+Kingambit",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "closecombat": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Archaludon+Pelipper",
+            "Raichu-Mega-Y+Incineroar",
+            "Metagross-Mega+Garchomp",
+            "Mawile-Mega+Farigiraf",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ]
+        },
+        "calc_species": "Hawlucha-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.154",
+        "bulk_crossings": "11/25",
+        "sweep_ohko": "32/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "5",
+        "survive_hp_mean": "0.37",
+        "survive_hp_min": "0.28",
+        "debuff_surv": "8/11"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Brave Bird",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.154 vs panel; 26 defender(s); bulk_crossings=11/25"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.154 vs panel; 11 defender(s); bulk_crossings=11/25"
+        }
+      ],
+      "reasoning": "Excellent: calc 1.154 (floor 1.117); priority_or_spe_ok; bulk_crossings=11/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_payoff"
+    },
+    {
+      "species": "Pangoro",
+      "species_id": "pangoro",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.176 floor=1.117 priority_or_spe_ok bulk_crossings=9/24",
+        "payoff_moves": [
+          "closecombat",
+          "knockoff",
+          "bulletpunch"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega",
+            "Annihilape+Incineroar"
+          ],
+          "knockoff": [
+            "Sinistcha+Incineroar",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar"
+          ],
+          "bulletpunch": [
+            "Ninetales-Alola+Kingambit"
+          ]
+        },
+        "calc_species": "Pangoro",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.176",
+        "bulk_crossings": "9/24",
+        "sweep_ohko": "32/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "17",
+        "survive_hp_mean": "0.60",
+        "survive_hp_min": "0.01",
+        "debuff_surv": "21/27"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.176 vs panel; 27 defender(s); bulk_crossings=9/24"
+        },
+        {
+          "name": "Knock Off",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.176 vs panel; 9 defender(s); bulk_crossings=9/24"
+        },
+        {
+          "name": "Bullet Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.176 vs panel; 1 defender(s); bulk_crossings=9/24"
+        }
+      ],
+      "reasoning": "Excellent: calc 1.176 (floor 1.117); priority_or_spe_ok; bulk_crossings=9/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_payoff"
+    },
+    {
+      "species": "Starmie-Mega",
+      "species_id": "starmiemega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.133 floor=1.117 priority_or_spe_ok bulk_crossings=8/25",
+        "payoff_moves": [
+          "liquidation",
+          "psychocut",
+          "aquajet"
+        ],
+        "payoff_targets": {
+          "liquidation": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Hydreigon+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "psychocut": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Milotic+Sinistcha",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Venusaur+Charizard-Mega-Y"
+          ],
+          "aquajet": [
+            "Charizard-Mega-Y+Garchomp",
+            "Delphox-Mega+Sinistcha",
+            "Aerodactyl-Mega+Kingambit",
+            "Talonflame+Garchomp",
+            "Excadrill+Tyranitar-Mega"
+          ]
+        },
+        "calc_species": "Starmie-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.133",
+        "bulk_crossings": "8/25",
+        "sweep_ohko": "29/37",
+        "sweep_2hko": "36/37",
+        "survive_n": "4",
+        "survive_hp_mean": "0.53",
+        "survive_hp_min": "0.24"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Liquidation",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.133 vs panel; 23 defender(s); bulk_crossings=8/25"
+        },
+        {
+          "name": "Psycho Cut",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.133 vs panel; 9 defender(s); bulk_crossings=8/25"
+        },
+        {
+          "name": "Aqua Jet",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.133 vs panel; 5 defender(s); bulk_crossings=8/25"
+        }
+      ],
+      "reasoning": "Excellent: calc 1.133 (floor 1.117); priority_or_spe_ok; bulk_crossings=8/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_payoff"
+    },
+    {
+      "species": "Blaziken-Mega",
+      "species_id": "blazikenmega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.159 floor=1.117 priority_or_spe_ok bulk_crossings=4/25",
+        "payoff_moves": [
+          "closecombat",
+          "flareblitz",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Farigiraf+Sylveon",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "flareblitz": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Metagross-Mega+Garchomp",
+            "Mawile-Mega+Farigiraf",
+            "Sableye+Archaludon",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "rockslide": [
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Ceruledge+Sinistcha"
+          ]
+        },
+        "calc_species": "Blaziken-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.159",
+        "bulk_crossings": "4/25",
+        "sweep_ohko": "31/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "0",
+        "survive_hp_mean": "n/a",
+        "survive_hp_min": "n/a",
+        "debuff_surv": "12/18"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.159 vs panel; 18 defender(s); bulk_crossings=4/25"
+        },
+        {
+          "name": "Flare Blitz",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.159 vs panel; 14 defender(s); bulk_crossings=4/25"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.159 vs panel; 5 defender(s); bulk_crossings=4/25"
+        }
+      ],
+      "reasoning": "Excellent: calc 1.159 (floor 1.117); priority_or_spe_ok; bulk_crossings=4/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "calc_payoff"
+    },
+    {
+      "species": "Pinsir-Mega",
+      "species_id": "pinsirmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.045 floor=1.117 priority_or_spe_ok bulk_crossings=10/25",
+        "payoff_moves": [
+          "bodyslam",
+          "stormthrow"
+        ],
+        "payoff_targets": {
+          "bodyslam": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "stormthrow": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Archaludon+Pelipper",
+            "Raichu-Mega-Y+Incineroar",
+            "Metagross-Mega+Garchomp",
+            "Mawile-Mega+Farigiraf",
+            "Tyranitar-Mega+Excadrill",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ]
+        },
+        "calc_species": "Pinsir-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.045",
+        "bulk_crossings": "10/25",
+        "sweep_ohko": "24/37",
+        "sweep_2hko": "36/37",
+        "survive_n": "6",
+        "survive_hp_mean": "0.58",
+        "survive_hp_min": "0.27"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Body Slam",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.045 vs panel; 27 defender(s); bulk_crossings=10/25"
+        },
+        {
+          "name": "Storm Throw",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.045 vs panel; 10 defender(s); bulk_crossings=10/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.045 (floor 1.117); priority_or_spe_ok; bulk_crossings=10/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Swampert-Mega",
+      "species_id": "swampertmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.081 floor=1.117 slow_no_priority spe=70 bulk_crossings=9/25",
+        "payoff_moves": [
+          "wavecrash",
+          "earthquake",
+          "icepunch"
+        ],
+        "payoff_targets": {
+          "icepunch": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Whimsicott+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y"
+          ],
+          "wavecrash": [
+            "Incineroar+Sinistcha",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Annihilape+Incineroar"
+          ],
+          "earthquake": [
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Sneasler+Kingambit",
+            "Archaludon+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Metagross-Mega+Garchomp",
+            "Mawile-Mega+Farigiraf",
+            "Blastoise-Mega+Sinistcha",
+            "Ceruledge+Sinistcha",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar"
+          ]
+        },
+        "calc_species": "Swampert-Mega",
+        "spe_note": "slow_no_priority spe=70",
+        "damage_score": "1.081",
+        "bulk_crossings": "9/25",
+        "sweep_ohko": "30/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "14",
+        "survive_hp_mean": "0.59",
+        "survive_hp_min": "0.26",
+        "ally_damage_risk": "ally-hit payoff(s): Earthquake \u2014 Ground: Flying-type / Levitate / Earth Eater (absorb/heal); Gravity/Iron Ball can nullify Flying/Levitate immunity; always: Telepathy, Friend Guard (3/4, not immune)"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Wave Crash",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.081 vs panel; 19 defender(s); bulk_crossings=9/25"
+        },
+        {
+          "name": "Earthquake",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.081 vs panel; 13 defender(s); bulk_crossings=9/25"
+        },
+        {
+          "name": "Ice Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.081 vs panel; 5 defender(s); bulk_crossings=9/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.081 (floor 1.117); slow_no_priority spe=70; bulk_crossings=9/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Machamp",
+      "species_id": "machamp",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.049 floor=1.117 priority_or_spe_ok bulk_crossings=9/25",
+        "payoff_moves": [
+          "dynamicpunch",
+          "stoneedge",
+          "knockoff"
+        ],
+        "payoff_targets": {
+          "dynamicpunch": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Sneasler+Kingambit",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "knockoff": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Farigiraf+Sylveon",
+            "Gholdengo+Sinistcha",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "stoneedge": [
+            "Whimsicott+Garchomp",
+            "Charizard-Mega-Y+Garchomp",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Torkoal+Farigiraf",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y"
+          ]
+        },
+        "calc_species": "Machamp",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.049",
+        "bulk_crossings": "9/25",
+        "sweep_ohko": "23/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "17",
+        "survive_hp_mean": "0.69",
+        "survive_hp_min": "0.50"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Dynamic Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.049 vs panel; 19 defender(s); bulk_crossings=9/25"
+        },
+        {
+          "name": "Stone Edge",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.049 vs panel; 12 defender(s); bulk_crossings=9/25"
+        },
+        {
+          "name": "Knock Off",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.049 vs panel; 6 defender(s); bulk_crossings=9/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.049 (floor 1.117); priority_or_spe_ok; bulk_crossings=9/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Tauros-Paldea-Aqua",
+      "species_id": "taurospaldeaaqua",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.103 floor=1.117 priority_or_spe_ok bulk_crossings=8/25",
+        "payoff_moves": [
+          "closecombat",
+          "ragingbull",
+          "aquajet"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "ragingbull": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Torkoal+Farigiraf",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "aquajet": [
+            "Charizard-Mega-Y+Garchomp"
+          ]
+        },
+        "calc_species": "Tauros-Paldea-Aqua",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.103",
+        "bulk_crossings": "8/25",
+        "sweep_ohko": "31/37",
+        "sweep_2hko": "36/37",
+        "survive_n": "8",
+        "survive_hp_mean": "0.70",
+        "survive_hp_min": "0.31",
+        "debuff_surv": "15/22"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.103 vs panel; 22 defender(s); bulk_crossings=8/25"
+        },
+        {
+          "name": "Raging Bull",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.103 vs panel; 14 defender(s); bulk_crossings=8/25"
+        },
+        {
+          "name": "Aqua Jet",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.103 vs panel; 1 defender(s); bulk_crossings=8/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.103 (floor 1.117); priority_or_spe_ok; bulk_crossings=8/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Diggersby",
+      "species_id": "diggersby",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.063 floor=1.117 priority_or_spe_ok bulk_crossings=8/25",
+        "payoff_moves": [
+          "earthquake",
+          "highhorsepower",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "highhorsepower": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Grimmsnarl+Pelipper",
+            "Milotic+Sinistcha",
+            "Swampert-Mega+Archaludon",
+            "Blastoise-Mega+Sinistcha"
+          ],
+          "earthquake": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "rockslide": [
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Delphox-Mega+Sinistcha",
+            "Aerodactyl-Mega+Kingambit",
+            "Talonflame+Garchomp",
+            "Hydreigon+Charizard-Mega-Y"
+          ]
+        },
+        "calc_species": "Diggersby",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.063",
+        "bulk_crossings": "8/25",
+        "sweep_ohko": "32/37",
+        "sweep_2hko": "35/37",
+        "survive_n": "11",
+        "survive_hp_mean": "0.57",
+        "survive_hp_min": "0.16",
+        "ally_damage_risk": "ally-hit payoff(s): Earthquake \u2014 Ground: Flying-type / Levitate / Earth Eater (absorb/heal); Gravity/Iron Ball can nullify Flying/Levitate immunity; always: Telepathy, Friend Guard (3/4, not immune)"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Earthquake",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.063 vs panel; 23 defender(s); bulk_crossings=8/25"
+        },
+        {
+          "name": "High Horsepower",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.063 vs panel; 8 defender(s); bulk_crossings=8/25"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.063 vs panel; 6 defender(s); bulk_crossings=8/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.063 (floor 1.117); priority_or_spe_ok; bulk_crossings=8/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Barbaracle-Mega",
+      "species_id": "barbaraclemega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.034 floor=1.117 slow_no_priority spe=88 bulk_crossings=8/25",
+        "payoff_moves": [
+          "closecombat",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "rockslide": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Gholdengo+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Barbaracle-Mega",
+        "spe_note": "slow_no_priority spe=88",
+        "damage_score": "1.034",
+        "bulk_crossings": "8/25",
+        "sweep_ohko": "27/37",
+        "sweep_2hko": "34/37",
+        "survive_n": "11",
+        "survive_hp_mean": "0.56",
+        "survive_hp_min": "0.14",
+        "debuff_surv": "18/26"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.034 vs panel; 26 defender(s); bulk_crossings=8/25"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.034 vs panel; 11 defender(s); bulk_crossings=8/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.034 (floor 1.117); slow_no_priority spe=88; bulk_crossings=8/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Emboar-Mega",
+      "species_id": "emboarmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.033 floor=1.117 priority_or_spe_ok bulk_crossings=8/25",
+        "payoff_moves": [
+          "flareblitz",
+          "drainpunch"
+        ],
+        "payoff_targets": {
+          "drainpunch": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Archaludon+Pelipper",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "flareblitz": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Metagross-Mega+Garchomp",
+            "Delphox-Mega+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Emboar-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.033",
+        "bulk_crossings": "8/25",
+        "sweep_ohko": "23/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "15",
+        "survive_hp_mean": "0.66",
+        "survive_hp_min": "0.23"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Flare Blitz",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.033 vs panel; 22 defender(s); bulk_crossings=8/25"
+        },
+        {
+          "name": "Drain Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.033 vs panel; 15 defender(s); bulk_crossings=8/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.033 (floor 1.117); priority_or_spe_ok; bulk_crossings=8/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Gallade-Mega",
+      "species_id": "gallademega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.032 floor=1.117 priority_or_spe_ok bulk_crossings=8/25",
+        "payoff_moves": [
+          "closecombat",
+          "psychocut"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Farigiraf+Sylveon",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "psychocut": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Talonflame+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Gallade-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.032",
+        "bulk_crossings": "8/25",
+        "sweep_ohko": "26/37",
+        "sweep_2hko": "35/37",
+        "survive_n": "5",
+        "survive_hp_mean": "0.64",
+        "survive_hp_min": "0.57",
+        "debuff_surv": "19/22"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.032 vs panel; 22 defender(s); bulk_crossings=8/25"
+        },
+        {
+          "name": "Psycho Cut",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.032 vs panel; 15 defender(s); bulk_crossings=8/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.032 (floor 1.117); priority_or_spe_ok; bulk_crossings=8/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Conkeldurr",
+      "species_id": "conkeldurr",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.110 floor=1.117 priority_or_spe_ok bulk_crossings=7/25",
+        "payoff_moves": [
+          "drainpunch",
+          "icepunch",
+          "thunderpunch"
+        ],
+        "payoff_targets": {
+          "icepunch": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Whimsicott+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Sableye+Archaludon",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "drainpunch": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Farigiraf+Sylveon",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "thunderpunch": [
+            "Basculegion+Kingambit",
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Gholdengo+Sinistcha",
+            "Milotic+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Ceruledge+Sinistcha"
+          ]
+        },
+        "calc_species": "Conkeldurr",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.110",
+        "bulk_crossings": "7/25",
+        "sweep_ohko": "27/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "18",
+        "survive_hp_mean": "0.84",
+        "survive_hp_min": "0.60"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Drain Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.110 vs panel; 17 defender(s); bulk_crossings=7/25"
+        },
+        {
+          "name": "Ice Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.110 vs panel; 11 defender(s); bulk_crossings=7/25"
+        },
+        {
+          "name": "Thunder Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.110 vs panel; 9 defender(s); bulk_crossings=7/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.110 (floor 1.117); priority_or_spe_ok; bulk_crossings=7/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Lucario-Mega",
+      "species_id": "lucariomega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.088 floor=1.117 priority_or_spe_ok bulk_crossings=7/25",
+        "payoff_moves": [
+          "closecombat",
+          "meteormash"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "meteormash": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Sylveon+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Lucario-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.088",
+        "bulk_crossings": "7/25",
+        "sweep_ohko": "32/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "4",
+        "survive_hp_mean": "0.58",
+        "survive_hp_min": "0.09",
+        "debuff_surv": "18/25"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.088 vs panel; 25 defender(s); bulk_crossings=7/25"
+        },
+        {
+          "name": "Meteor Mash",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.088 vs panel; 12 defender(s); bulk_crossings=7/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.088 (floor 1.117); priority_or_spe_ok; bulk_crossings=7/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Quaquaval",
+      "species_id": "quaquaval",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.115 floor=1.117 priority_or_spe_ok bulk_crossings=6/25",
+        "payoff_moves": [
+          "aquastep",
+          "closecombat",
+          "aquajet"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Milotic+Sinistcha",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Mawile-Mega+Farigiraf",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y"
+          ],
+          "aquastep": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "aquajet": [
+            "Talonflame+Garchomp"
+          ]
+        },
+        "calc_species": "Quaquaval",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.115",
+        "bulk_crossings": "6/25",
+        "sweep_ohko": "31/37",
+        "sweep_2hko": "36/37",
+        "survive_n": "12",
+        "survive_hp_mean": "0.68",
+        "survive_hp_min": "0.18",
+        "debuff_surv": "13/17"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Aqua Step",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.115 vs panel; 19 defender(s); bulk_crossings=6/25"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.115 vs panel; 17 defender(s); bulk_crossings=6/25"
+        },
+        {
+          "name": "Aqua Jet",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.115 vs panel; 1 defender(s); bulk_crossings=6/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.115 (floor 1.117); priority_or_spe_ok; bulk_crossings=6/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Scrafty-Mega",
+      "species_id": "scraftymega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.058 floor=1.117 priority_or_spe_ok bulk_crossings=5/24",
+        "payoff_moves": [
+          "closecombat",
+          "knockoff"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "knockoff": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Gholdengo+Sinistcha",
+            "Metagross-Mega+Garchomp",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Scrafty-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.058",
+        "bulk_crossings": "5/24",
+        "sweep_ohko": "24/37",
+        "sweep_2hko": "36/37",
+        "survive_n": "16",
+        "survive_hp_mean": "0.67",
+        "survive_hp_min": "0.26",
+        "debuff_surv": "20/23"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.058 vs panel; 23 defender(s); bulk_crossings=5/24"
+        },
+        {
+          "name": "Knock Off",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.058 vs panel; 14 defender(s); bulk_crossings=5/24"
+        }
+      ],
+      "reasoning": "Good: calc 1.058 (floor 1.117); priority_or_spe_ok; bulk_crossings=5/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Crabominable-Mega",
+      "species_id": "crabominablemega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.035 floor=1.117 priority_or_spe_ok bulk_crossings=5/25",
+        "payoff_moves": [
+          "icehammer",
+          "drainpunch"
+        ],
+        "payoff_targets": {
+          "icehammer": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Swampert-Mega+Archaludon",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "drainpunch": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Archaludon+Pelipper",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ]
+        },
+        "calc_species": "Crabominable-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.035",
+        "bulk_crossings": "5/25",
+        "sweep_ohko": "27/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "18",
+        "survive_hp_mean": "0.76",
+        "survive_hp_min": "0.31"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Ice Hammer",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.035 vs panel; 21 defender(s); bulk_crossings=5/25"
+        },
+        {
+          "name": "Drain Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.035 vs panel; 16 defender(s); bulk_crossings=5/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.035 (floor 1.117); priority_or_spe_ok; bulk_crossings=5/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Heracross-Mega",
+      "species_id": "heracrossmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.070 floor=1.117 priority_or_spe_ok bulk_crossings=4/25",
+        "payoff_moves": [
+          "closecombat",
+          "rockblast",
+          "pinmissile"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "pinmissile": [
+            "Sinistcha+Incineroar",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sableye+Archaludon",
+            "Venusaur+Charizard-Mega-Y"
+          ],
+          "rockblast": [
+            "Basculegion+Kingambit",
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Gholdengo+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Heracross-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.070",
+        "bulk_crossings": "4/25",
+        "sweep_ohko": "29/37",
+        "sweep_2hko": "35/37",
+        "survive_n": "15",
+        "survive_hp_mean": "0.73",
+        "survive_hp_min": "0.42",
+        "debuff_surv": "18/23"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.070 vs panel; 23 defender(s); bulk_crossings=4/25"
+        },
+        {
+          "name": "Rock Blast",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.070 vs panel; 9 defender(s); bulk_crossings=4/25"
+        },
+        {
+          "name": "Pin Missile",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.070 vs panel; 5 defender(s); bulk_crossings=4/25"
+        }
+      ],
+      "reasoning": "Good: calc 1.070 (floor 1.117); priority_or_spe_ok; bulk_crossings=4/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_payoff"
+    },
+    {
+      "species": "Annihilape",
+      "species_id": "annihilape",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.894 floor=1.117 slow_no_priority spe=90 bulk_crossings=15/25",
+        "payoff_moves": [
+          "closecombat",
+          "ragefist"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Rotom-Wash+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "ragefist": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Gholdengo+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Annihilape",
+        "spe_note": "slow_no_priority spe=90",
+        "damage_score": "0.894",
+        "bulk_crossings": "15/25",
+        "sweep_ohko": "12/37",
+        "sweep_2hko": "35/37",
+        "survive_n": "10",
+        "survive_hp_mean": "0.62",
+        "survive_hp_min": "0.06",
+        "debuff_surv": "21/29"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.894 vs panel; 29 defender(s); bulk_crossings=15/25"
+        },
+        {
+          "name": "Rage Fist",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.894 vs panel; 8 defender(s); bulk_crossings=15/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.894 (floor 1.117); slow_no_priority spe=90; bulk_crossings=15/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Beartic",
+      "species_id": "beartic",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.884 floor=1.117 priority_or_spe_ok bulk_crossings=14/25",
+        "payoff_moves": [
+          "closecombat",
+          "iciclecrash",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "iciclecrash": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "closecombat": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Farigiraf+Sylveon",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "rockslide": [
+            "Delphox-Mega+Sinistcha",
+            "Ceruledge+Sinistcha"
+          ]
+        },
+        "calc_species": "Beartic",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.884",
+        "bulk_crossings": "14/25",
+        "sweep_ohko": "25/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "13",
+        "survive_hp_mean": "0.52",
+        "survive_hp_min": "0.02",
+        "debuff_surv": "15/19"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.884 vs panel; 19 defender(s); bulk_crossings=14/25"
+        },
+        {
+          "name": "Icicle Crash",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.884 vs panel; 16 defender(s); bulk_crossings=14/25"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.884 vs panel; 2 defender(s); bulk_crossings=14/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.884 (floor 1.117); priority_or_spe_ok; bulk_crossings=14/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Mimikyu",
+      "species_id": "mimikyu",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.786 floor=1.117 priority_or_spe_ok bulk_crossings=13/25",
+        "payoff_moves": [
+          "playrough",
+          "shadowclaw"
+        ],
+        "payoff_targets": {
+          "playrough": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Sinistcha+Incineroar",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Annihilape+Incineroar"
+          ],
+          "shadowclaw": [
+            "Basculegion+Kingambit",
+            "Charizard-Mega-Y+Garchomp",
+            "Gholdengo+Sinistcha",
+            "Torkoal+Farigiraf",
+            "Metagross-Mega+Garchomp",
+            "Delphox-Mega+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Talonflame+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar"
+          ]
+        },
+        "calc_species": "Mimikyu",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.786",
+        "bulk_crossings": "13/25",
+        "sweep_ohko": "17/37",
+        "sweep_2hko": "32/37",
+        "survive_n": "15",
+        "survive_hp_mean": "1.00",
+        "survive_hp_min": "1.00"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Play Rough",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.786 vs panel; 25 defender(s); bulk_crossings=13/25"
+        },
+        {
+          "name": "Shadow Claw",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.786 vs panel; 12 defender(s); bulk_crossings=13/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.786 (floor 1.117); priority_or_spe_ok; bulk_crossings=13/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Emboar",
+      "species_id": "emboar",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.171 floor=1.117 priority_or_spe_ok bulk_crossings=11/25",
+        "payoff_moves": [
+          "closecombat",
+          "flareblitz",
+          "wildcharge"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "flareblitz": [
+            "Sinistcha+Incineroar",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Metagross-Mega+Garchomp",
+            "Delphox-Mega+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Sableye+Archaludon",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "wildcharge": [
+            "Basculegion+Kingambit",
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Milotic+Sinistcha",
+            "Talonflame+Garchomp",
+            "Ceruledge+Sinistcha"
+          ]
+        },
+        "calc_species": "Emboar",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "1.171",
+        "bulk_crossings": "11/25",
+        "sweep_ohko": "34/37",
+        "sweep_2hko": "37/37",
+        "survive_n": "15",
+        "survive_hp_mean": "0.47",
+        "survive_hp_min": "0.12",
+        "debuff_surv": "13/16"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.171 vs panel; 16 defender(s); bulk_crossings=11/25"
+        },
+        {
+          "name": "Flare Blitz",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.171 vs panel; 15 defender(s); bulk_crossings=11/25"
+        },
+        {
+          "name": "Wild Charge",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.171 vs panel; 6 defender(s); bulk_crossings=11/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 1.171 (floor 1.117); priority_or_spe_ok; bulk_crossings=11/25",
+      "change_reason": "usage discount demote / mech Excellent \u2192 Acceptable (showdown usage discounted (base 0.023% < 0.25\u00d7 mega 0.093%))",
+      "reinforce_class": "",
+      "excellence_basis": "usage_discounted"
+    },
+    {
+      "species": "Tauros-Paldea-Combat",
+      "species_id": "taurospaldeacombat",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.805 floor=1.117 priority_or_spe_ok bulk_crossings=11/25",
+        "payoff_moves": [
+          "closecombat",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "rockslide": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Gholdengo+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Tauros-Paldea-Combat",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.805",
+        "bulk_crossings": "11/25",
+        "sweep_ohko": "12/37",
+        "sweep_2hko": "30/37",
+        "survive_n": "8",
+        "survive_hp_mean": "0.59",
+        "survive_hp_min": "0.44",
+        "debuff_surv": "14/26"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.805 vs panel; 26 defender(s); bulk_crossings=11/25"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.805 vs panel; 11 defender(s); bulk_crossings=11/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.805 (floor 1.117); priority_or_spe_ok; bulk_crossings=11/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Tauros-Paldea-Blaze",
+      "species_id": "taurospaldeablaze",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.996 floor=1.117 priority_or_spe_ok bulk_crossings=10/25",
+        "payoff_moves": [
+          "closecombat",
+          "ragingbull",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Farigiraf+Sylveon",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Maushold+Sinistcha",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "ragingbull": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Metagross-Mega+Garchomp",
+            "Mawile-Mega+Farigiraf",
+            "Sableye+Archaludon",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "rockslide": [
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Ceruledge+Sinistcha"
+          ]
+        },
+        "calc_species": "Tauros-Paldea-Blaze",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.996",
+        "bulk_crossings": "10/25",
+        "sweep_ohko": "20/37",
+        "sweep_2hko": "36/37",
+        "survive_n": "8",
+        "survive_hp_mean": "0.57",
+        "survive_hp_min": "0.16",
+        "debuff_surv": "11/18"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.996 vs panel; 18 defender(s); bulk_crossings=10/25"
+        },
+        {
+          "name": "Raging Bull",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.996 vs panel; 14 defender(s); bulk_crossings=10/25"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.996 vs panel; 5 defender(s); bulk_crossings=10/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.996 (floor 1.117); priority_or_spe_ok; bulk_crossings=10/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Ceruledge",
+      "species_id": "ceruledge",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.802 floor=1.117 priority_or_spe_ok bulk_crossings=10/25",
+        "payoff_moves": [
+          "bitterblade",
+          "shadowsneak"
+        ],
+        "payoff_targets": {
+          "bitterblade": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Sinistcha+Incineroar",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "shadowsneak": [
+            "Basculegion+Kingambit",
+            "Delphox-Mega+Sinistcha",
+            "Ceruledge+Sinistcha"
+          ]
+        },
+        "calc_species": "Ceruledge",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.802",
+        "bulk_crossings": "10/25",
+        "sweep_ohko": "16/37",
+        "sweep_2hko": "26/37",
+        "survive_n": "12",
+        "survive_hp_mean": "0.90",
+        "survive_hp_min": "0.41"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Bitter Blade",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.802 vs panel; 34 defender(s); bulk_crossings=10/25"
+        },
+        {
+          "name": "Shadow Sneak",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.802 vs panel; 3 defender(s); bulk_crossings=10/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.802 (floor 1.117); priority_or_spe_ok; bulk_crossings=10/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Passimian",
+      "species_id": "passimian",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.951 floor=1.117 priority_or_spe_ok bulk_crossings=9/25",
+        "payoff_moves": [
+          "closecombat",
+          "knockoff",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "knockoff": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Farigiraf+Sylveon",
+            "Gholdengo+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Sableye+Archaludon",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "rockslide": [
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Talonflame+Garchomp",
+            "Ceruledge+Sinistcha"
+          ]
+        },
+        "calc_species": "Passimian",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.951",
+        "bulk_crossings": "9/25",
+        "sweep_ohko": "15/37",
+        "sweep_2hko": "36/37",
+        "survive_n": "13",
+        "survive_hp_mean": "0.65",
+        "survive_hp_min": "0.47",
+        "debuff_surv": "14/24"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.951 vs panel; 24 defender(s); bulk_crossings=9/25"
+        },
+        {
+          "name": "Knock Off",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.951 vs panel; 9 defender(s); bulk_crossings=9/25"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.951 vs panel; 4 defender(s); bulk_crossings=9/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.951 (floor 1.117); priority_or_spe_ok; bulk_crossings=9/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Krookodile",
+      "species_id": "krookodile",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.956 floor=1.117 slow_no_priority spe=92 bulk_crossings=8/24",
+        "payoff_moves": [
+          "highhorsepower",
+          "knockoff",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "knockoff": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Pelipper+Archaludon",
+            "Gholdengo+Sinistcha",
+            "Milotic+Sinistcha",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "highhorsepower": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Ceruledge+Sinistcha",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "rockslide": [
+            "Charizard-Mega-Y+Garchomp",
+            "Staraptor-Mega+Sinistcha",
+            "Aerodactyl-Mega+Kingambit",
+            "Hydreigon+Charizard-Mega-Y"
+          ]
+        },
+        "calc_species": "Krookodile",
+        "spe_note": "slow_no_priority spe=92",
+        "damage_score": "0.956",
+        "bulk_crossings": "8/24",
+        "sweep_ohko": "23/37",
+        "sweep_2hko": "35/37",
+        "survive_n": "8",
+        "survive_hp_mean": "0.60",
+        "survive_hp_min": "0.40"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "High Horsepower",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.956 vs panel; 17 defender(s); bulk_crossings=8/24"
+        },
+        {
+          "name": "Knock Off",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.956 vs panel; 16 defender(s); bulk_crossings=8/24"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.956 vs panel; 4 defender(s); bulk_crossings=8/24"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.956 (floor 1.117); slow_no_priority spe=92; bulk_crossings=8/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Falinks-Mega",
+      "species_id": "falinksmega",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.871 floor=1.117 priority_or_spe_ok bulk_crossings=8/25",
+        "payoff_moves": [
+          "closecombat",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "rockslide": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Charizard-Mega-Y+Garchomp",
+            "Pelipper+Archaludon",
+            "Gholdengo+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Falinks-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.871",
+        "bulk_crossings": "8/25",
+        "sweep_ohko": "16/37",
+        "sweep_2hko": "31/37",
+        "survive_n": "8",
+        "survive_hp_mean": "0.65",
+        "survive_hp_min": "0.53",
+        "debuff_surv": "13/26"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.871 vs panel; 26 defender(s); bulk_crossings=8/25"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.871 vs panel; 11 defender(s); bulk_crossings=8/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.871 (floor 1.117); priority_or_spe_ok; bulk_crossings=8/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Toxicroak",
+      "species_id": "toxicroak",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.845 floor=1.117 priority_or_spe_ok bulk_crossings=8/25",
+        "payoff_moves": [
+          "closecombat",
+          "poisonjab"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Archaludon+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "poisonjab": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Charizard-Mega-Y+Garchomp",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Delphox-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Toxicroak",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.845",
+        "bulk_crossings": "8/25",
+        "sweep_ohko": "14/37",
+        "sweep_2hko": "31/37",
+        "survive_n": "11",
+        "survive_hp_mean": "0.52",
+        "survive_hp_min": "0.08",
+        "debuff_surv": "14/21"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.845 vs panel; 21 defender(s); bulk_crossings=8/25"
+        },
+        {
+          "name": "Poison Jab",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.845 vs panel; 16 defender(s); bulk_crossings=8/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.845 (floor 1.117); priority_or_spe_ok; bulk_crossings=8/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Corviknight",
+      "species_id": "corviknight",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.895 floor=1.117 slow_no_priority spe=67 bulk_crossings=6/25",
+        "payoff_moves": [
+          "bravebird",
+          "ironhead"
+        ],
+        "payoff_targets": {
+          "bravebird": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Sinistcha+Incineroar",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Charizard-Mega-Y+Garchomp",
+            "Sneasler+Kingambit",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Blastoise-Mega+Sinistcha",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "ironhead": [
+            "Sylveon+Garchomp",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill"
+          ]
+        },
+        "calc_species": "Corviknight",
+        "spe_note": "slow_no_priority spe=67",
+        "damage_score": "0.895",
+        "bulk_crossings": "6/25",
+        "sweep_ohko": "17/37",
+        "sweep_2hko": "31/37",
+        "survive_n": "16",
+        "survive_hp_mean": "0.47",
+        "survive_hp_min": "0.15"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Brave Bird",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.895 vs panel; 30 defender(s); bulk_crossings=6/25"
+        },
+        {
+          "name": "Iron Head",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.895 vs panel; 7 defender(s); bulk_crossings=6/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.895 (floor 1.117); slow_no_priority spe=67; bulk_crossings=6/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Palafin",
+      "species_id": "palafin",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.886 floor=1.117 priority_or_spe_ok bulk_crossings=6/25",
+        "payoff_moves": [
+          "wavecrash",
+          "flipturn",
+          "jetpunch"
+        ],
+        "payoff_targets": {
+          "wavecrash": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Sinistcha+Incineroar",
+            "Kingambit+Garchomp",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Archaludon+Pelipper",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Delphox-Mega+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "jetpunch": [
+            "Charizard-Mega-Y+Garchomp"
+          ],
+          "flipturn": [
+            "Talonflame+Garchomp"
+          ]
+        },
+        "calc_species": "Palafin",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.886",
+        "bulk_crossings": "6/25",
+        "sweep_ohko": "20/37",
+        "sweep_2hko": "31/37",
+        "survive_n": "8",
+        "survive_hp_mean": "0.46",
+        "survive_hp_min": "0.00"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Wave Crash",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.886 vs panel; 35 defender(s); bulk_crossings=6/25"
+        },
+        {
+          "name": "Flip Turn",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.886 vs panel; 1 defender(s); bulk_crossings=6/25"
+        },
+        {
+          "name": "Jet Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.886 vs panel; 1 defender(s); bulk_crossings=6/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.886 (floor 1.117); priority_or_spe_ok; bulk_crossings=6/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Lycanroc-Midnight",
+      "species_id": "lycanrocmidnight",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.884 floor=1.117 priority_or_spe_ok bulk_crossings=6/25",
+        "payoff_moves": [
+          "stoneedge",
+          "closecombat",
+          "rockslide"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Kingambit+Garchomp",
+            "Sneasler+Kingambit",
+            "Archaludon+Pelipper",
+            "Raichu-Mega-Y+Incineroar",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Tyranitar-Mega+Excadrill",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "stoneedge": [
+            "Incineroar+Sinistcha",
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Torkoal+Farigiraf",
+            "Delphox-Mega+Sinistcha",
+            "Aerodactyl-Mega+Kingambit",
+            "Blastoise-Mega+Sinistcha",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar"
+          ],
+          "rockslide": [
+            "Charizard-Mega-Y+Garchomp",
+            "Ninetales-Alola+Kingambit",
+            "Talonflame+Garchomp",
+            "Annihilape+Incineroar"
+          ]
+        },
+        "calc_species": "Lycanroc-Midnight",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.884",
+        "bulk_crossings": "6/25",
+        "sweep_ohko": "20/37",
+        "sweep_2hko": "35/37",
+        "survive_n": "7",
+        "survive_hp_mean": "0.62",
+        "survive_hp_min": "0.18",
+        "debuff_surv": "10/12"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Stone Edge",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.884 vs panel; 21 defender(s); bulk_crossings=6/25"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.884 vs panel; 12 defender(s); bulk_crossings=6/25"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.884 vs panel; 4 defender(s); bulk_crossings=6/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.884 (floor 1.117); priority_or_spe_ok; bulk_crossings=6/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Lycanroc",
+      "species_id": "lycanroc",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.766 floor=1.117 priority_or_spe_ok bulk_crossings=5/25",
+        "payoff_moves": [
+          "closecombat",
+          "rockslide",
+          "accelerock"
+        ],
+        "payoff_targets": {
+          "closecombat": [
+            "Garchomp+Charizard-Mega-Y",
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Archaludon+Pelipper",
+            "Grimmsnarl+Pelipper",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Swampert-Mega+Archaludon",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Tyranitar-Mega+Excadrill",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "rockslide": [
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Torkoal+Farigiraf",
+            "Delphox-Mega+Sinistcha",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "accelerock": [
+            "Charizard-Mega-Y+Garchomp",
+            "Talonflame+Garchomp"
+          ]
+        },
+        "calc_species": "Lycanroc",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.766",
+        "bulk_crossings": "5/25",
+        "sweep_ohko": "12/37",
+        "sweep_2hko": "33/37",
+        "survive_n": "4",
+        "survive_hp_mean": "0.58",
+        "survive_hp_min": "0.35",
+        "debuff_surv": "12/18"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Close Combat",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.766 vs panel; 18 defender(s); bulk_crossings=5/25"
+        },
+        {
+          "name": "Rock Slide",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.766 vs panel; 17 defender(s); bulk_crossings=5/25"
+        },
+        {
+          "name": "Accelerock",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.766 vs panel; 2 defender(s); bulk_crossings=5/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.766 (floor 1.117); priority_or_spe_ok; bulk_crossings=5/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Chesnaught-Mega",
+      "species_id": "chesnaughtmega",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.979 floor=1.117 priority_or_spe_ok bulk_crossings=4/25",
+        "payoff_moves": [
+          "woodhammer",
+          "bodypress"
+        ],
+        "payoff_targets": {
+          "woodhammer": [
+            "Garchomp+Charizard-Mega-Y",
+            "Sinistcha+Incineroar",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Swampert-Mega+Archaludon",
+            "Delphox-Mega+Sinistcha",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Blastoise-Mega+Sinistcha",
+            "Sableye+Archaludon",
+            "Rotom-Wash+Garchomp",
+            "Ceruledge+Sinistcha",
+            "Gengar-Mega+Incineroar",
+            "Annihilape+Incineroar"
+          ],
+          "bodypress": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Charizard-Mega-Y+Garchomp",
+            "Archaludon+Pelipper",
+            "Raichu-Mega-Y+Incineroar",
+            "Torkoal+Farigiraf",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Tyranitar-Mega+Excadrill",
+            "Talonflame+Garchomp",
+            "Venusaur+Charizard-Mega-Y",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ]
+        },
+        "calc_species": "Chesnaught-Mega",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.979",
+        "bulk_crossings": "4/25",
+        "sweep_ohko": "22/37",
+        "sweep_2hko": "34/37",
+        "survive_n": "18",
+        "survive_hp_mean": "0.67",
+        "survive_hp_min": "0.38"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Wood Hammer",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.979 vs panel; 23 defender(s); bulk_crossings=4/25"
+        },
+        {
+          "name": "Body Press",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.979 vs panel; 14 defender(s); bulk_crossings=4/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.979 (floor 1.117); priority_or_spe_ok; bulk_crossings=4/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    },
+    {
+      "species": "Decidueye-Hisui",
+      "species_id": "decidueyehisui",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Bulk Up",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.895 floor=1.117 priority_or_spe_ok bulk_crossings=4/25",
+        "payoff_moves": [
+          "leafblade",
+          "triplearrows",
+          "suckerpunch"
+        ],
+        "payoff_targets": {
+          "leafblade": [
+            "Garchomp+Charizard-Mega-Y",
+            "Basculegion+Kingambit",
+            "Whimsicott+Garchomp",
+            "Farigiraf+Sylveon",
+            "Sneasler+Kingambit",
+            "Sylveon+Garchomp",
+            "Pelipper+Archaludon",
+            "Staraptor-Mega+Sinistcha",
+            "Grimmsnarl+Pelipper",
+            "Floette-Mega+Kingambit",
+            "Milotic+Sinistcha",
+            "Raichu-Mega-Y+Incineroar",
+            "Swampert-Mega+Archaludon",
+            "Ninetales-Alola+Kingambit",
+            "Aerodactyl-Mega+Kingambit",
+            "Blastoise-Mega+Sinistcha",
+            "Rotom-Wash+Garchomp",
+            "Annihilape+Incineroar"
+          ],
+          "triplearrows": [
+            "Incineroar+Sinistcha",
+            "Kingambit+Garchomp",
+            "Archaludon+Pelipper",
+            "Gholdengo+Sinistcha",
+            "Torkoal+Farigiraf",
+            "Metagross-Mega+Garchomp",
+            "Maushold+Sinistcha",
+            "Mawile-Mega+Farigiraf",
+            "Tyranitar-Mega+Excadrill",
+            "Talonflame+Garchomp",
+            "Sableye+Archaludon",
+            "Ceruledge+Sinistcha",
+            "Hydreigon+Charizard-Mega-Y",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "suckerpunch": [
+            "Sinistcha+Incineroar",
+            "Charizard-Mega-Y+Garchomp",
+            "Delphox-Mega+Sinistcha",
+            "Venusaur+Charizard-Mega-Y",
+            "Gengar-Mega+Incineroar"
+          ]
+        },
+        "calc_species": "Decidueye-Hisui",
+        "spe_note": "priority_or_spe_ok",
+        "damage_score": "0.895",
+        "bulk_crossings": "4/25",
+        "sweep_ohko": "23/37",
+        "sweep_2hko": "35/37",
+        "survive_n": "17",
+        "survive_hp_mean": "0.76",
+        "survive_hp_min": "0.19"
+      },
+      "claimed_traits": [
+        {
+          "name": "Bulk Up",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via bulkup (+1 atk)"
+        },
+        {
+          "name": "Leaf Blade",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.895 vs panel; 18 defender(s); bulk_crossings=4/25"
+        },
+        {
+          "name": "Triple Arrows",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.895 vs panel; 14 defender(s); bulk_crossings=4/25"
+        },
+        {
+          "name": "Sucker Punch",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.895 vs panel; 5 defender(s); bulk_crossings=4/25"
+        }
+      ],
+      "reasoning": "Acceptable: calc 0.895 (floor 1.117); priority_or_spe_ok; bulk_crossings=4/25",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_payoff"
+    }
+  ],
+  "considered_rejected": [
+    {
+      "species": "Eelektross",
+      "species_id": "eelektross",
+      "reason": "no kit damaging payoff converting the boosted offense stat",
+      "change_reason": null
+    },
+    {
+      "species": "Eelektross-Mega",
+      "species_id": "eelektrossmega",
+      "reason": "no kit damaging payoff converting the boosted offense stat",
+      "change_reason": null
+    },
+    {
+      "species": "Gallade",
+      "species_id": "gallade",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Grimmsnarl",
+      "species_id": "grimmsnarl",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Hawlucha",
+      "species_id": "hawlucha",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Incineroar",
+      "species_id": "incineroar",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Infernape",
+      "species_id": "infernape",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Kommo-o",
+      "species_id": "kommoo",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Lucario",
+      "species_id": "lucario",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Lycanroc-Dusk",
+      "species_id": "lycanrocdusk",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Medicham",
+      "species_id": "medicham",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Pinsir",
+      "species_id": "pinsir",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Sableye",
+      "species_id": "sableye",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Sneasler",
+      "species_id": "sneasler",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Staraptor",
+      "species_id": "staraptor",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Staraptor-Mega",
+      "species_id": "staraptormega",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Starmie",
+      "species_id": "starmie",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Talonflame",
+      "species_id": "talonflame",
+      "reason": "learnset has bulkup but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Barbaracle",
+      "species_id": "barbaracle",
+      "reason": "damage_score 0.704 below admission floor 0.766",
+      "change_reason": null
+    },
+    {
+      "species": "Sableye-Mega",
+      "species_id": "sableyemega",
+      "reason": "damage_score 0.443 below admission floor 0.766",
+      "change_reason": null
+    },
+    {
+      "species": "Blaziken",
+      "species_id": "blaziken",
+      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.639% < 0.25\u00d7 mega 3.639%))",
+      "change_reason": null
+    },
+    {
+      "species": "Chesnaught",
+      "species_id": "chesnaught",
+      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.075% < 0.25\u00d7 mega 0.481%))",
+      "change_reason": null
+    },
+    {
+      "species": "Crabominable",
+      "species_id": "crabominable",
+      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.044% < 0.25\u00d7 mega 0.563%))",
+      "change_reason": null
+    },
+    {
+      "species": "Falinks",
+      "species_id": "falinks",
+      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.017% < 0.25\u00d7 mega 0.312%))",
+      "change_reason": null
+    },
+    {
+      "species": "Heracross",
+      "species_id": "heracross",
+      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.020% < 0.25\u00d7 mega 0.289%))",
+      "change_reason": null
+    },
+    {
+      "species": "Scrafty",
+      "species_id": "scrafty",
+      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.472% < 0.25\u00d7 mega 2.672%))",
+      "change_reason": null
+    },
+    {
+      "species": "Swampert",
+      "species_id": "swampert",
+      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.193% < 0.25\u00d7 mega 8.186%))",
+      "change_reason": null
+    }
+  ]
+}

@@ -1,0 +1,1175 @@
+{
+  "category": "sleep_status_spreader",
+  "condition": "",
+  "built_at": "2026-08-15T05:23:14.390359+00:00",
+  "sub_criteria": {
+    "kind": "sleep_status_spreader",
+    "condition": "",
+    "move_ids": [
+      "hypnosis",
+      "sleeppowder",
+      "yawn"
+    ],
+    "ability_ids": []
+  },
+  "tiers": {
+    "Excellent": [
+      "Vivillon"
+    ],
+    "Good": [
+      "Venusaur",
+      "Vileplume"
+    ],
+    "Acceptable": [
+      "Espathra",
+      "Gourgeist-Large",
+      "Milotic",
+      "Musharna",
+      "Politoed",
+      "Roserade",
+      "Skeledirge",
+      "Venusaur-Mega",
+      "Victreebel-Mega",
+      "Watchog",
+      "Wyrdeer"
+    ]
+  },
+  "notes": [
+    "Ranking is pathway-first by execution reliability (accuracy / whether sleep actually lands). Spe is secondary for imperfect immediate delivery (P2/P3): base Spe \u2265 floor OR a speed-boosting ability (Chlorophyll / Swift Swim / Sand Rush / Slush Rush / Unburden / Speed Boost) clears the Spe bar; failing it demotes one rank. P1 (near-perfect accuracy) does not Spe-demote \u2014 ADR-015: Spe/bulk matter less when the accuracy roll is already near-guaranteed. P4 Yawn ignores Spe entirely.",
+    "Natural pathway order: P0 Spore (100% immediate) > P1 Sleep Powder+accuracy reinforce > P2 Sleep Powder bare / Hypnosis+reinforce > P3 bare Hypnosis/Sing-class > P4 Yawn (delayed; switch-window).",
+    "Excellent is reserved for Spore (P0). When Spore is absent from the legal pool, ADR-019 entire-class gap: push remaining pathways up one tier (P1\u2192Excellent, P2\u2192Good, P3\u2192Acceptable) so Excellent is not left empty while a worse pathway occupies Good.",
+    "Bare P4 (Yawn, no trapping) is below P3 and is rejected \u2014 only three tiers exist, so keeping it co-equal with P3 in Acceptable would hide the reliability gap. P4+Shadow Tag (or other trap) closes the switch window and stays Acceptable (elevated within Yawn only; still never outranks P2).",
+    "Helping Hand excluded from sleep secondary excellence",
+    "usage evidence prefers Champions in-game data where a row exists",
+    "Spore reliability class ABSENT \u2014 push-up ACTIVE",
+    "delivery availability: darkvoid learners_in_pool=0 (catalog accuracy=50)",
+    "darkvoid reliability class ABSENT from current legal pool (ADR-019 entire-class gap)",
+    "delivery availability: grasswhistle learners_in_pool=0 (catalog accuracy=55)",
+    "delivery availability: hypnosis learners_in_pool=26 (catalog accuracy=60)",
+    "delivery availability: lovelykiss learners_in_pool=0 (catalog accuracy=85)",
+    "delivery availability: sing learners_in_pool=7 (catalog accuracy=55)",
+    "delivery availability: sleeppowder learners_in_pool=7 (catalog accuracy=75)",
+    "delivery availability: spore learners_in_pool=0 (catalog accuracy=100)",
+    "spore reliability class ABSENT from current legal pool (ADR-019 entire-class gap)",
+    "delivery availability: yawn learners_in_pool=45 (catalog accuracy=100)",
+    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=2.889 base=0.336; stone-heuristic fallback unused",
+    "Showdown attribution (Emboar/Emboar-Mega): mega usage_pct=0.093 base=0.023; stone-heuristic fallback unused",
+    "Showdown attribution (Clefable/Clefable-Mega): mega usage_pct=0.362 base=1.262; stone-heuristic fallback unused",
+    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=7.073 base=0.020; stone-heuristic fallback unused",
+    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.279 base=2.043; stone-heuristic fallback unused",
+    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.218 base=0.464; stone-heuristic fallback unused",
+    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=1.280 base=0.504; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.286 base=0.099; stone-heuristic fallback unused",
+    "Showdown attribution (Camerupt/Camerupt-Mega): mega usage_pct=2.489 base=0.039; stone-heuristic fallback unused",
+    "Showdown attribution (Pyroar/Pyroar-Mega): mega usage_pct=2.070 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Swampert/Swampert-Mega): mega usage_pct=8.186 base=0.193; stone-heuristic fallback unused",
+    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.236 base=0.011; stone-heuristic fallback unused",
+    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.692 base=0.345; stone-heuristic fallback unused",
+    "Showdown attribution (Blastoise/Blastoise-Mega): mega usage_pct=6.020 base=0.254; stone-heuristic fallback unused",
+    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.381 base=0.781; stone-heuristic fallback unused",
+    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=4.434 base=4.900; stone-heuristic fallback unused",
+    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.175 base=0.032; stone-heuristic fallback unused"
+  ],
+  "candidates": [
+    {
+      "species": "Espathra",
+      "species_id": "espathra",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p3",
+      "mechanism": "Hypnosis",
+      "criteria_notes": {
+        "delivery": "bare hypnosis",
+        "execution": "bare hypnosis; Spe 105 \u2265 100; bulk HP+Def+SpD=215 (miss-insurance; acc\u224860%); accuracy_abil=['none']; trap=['none']; speed_abil=['speedboost']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Light Screen, Reflect, Trick Room",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "pathway": "P3",
+        "pathway_rank": "3",
+        "effective_rank": "2",
+        "spore_absent_pushup": "True",
+        "primary_move": "hypnosis",
+        "spe_applies": "True",
+        "spe": "105",
+        "spe_ok": "True",
+        "speed_abilities": "speedboost",
+        "eff_accuracy": "60",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['speedboost']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Hypnosis",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Hypnosis clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_bare_hypnosis"
+    },
+    {
+      "species": "Gourgeist-Large",
+      "species_id": "gourgeistlarge",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p3",
+      "mechanism": "Hypnosis",
+      "criteria_notes": {
+        "delivery": "bare hypnosis",
+        "execution": "bare hypnosis; Spe 69 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=272 (miss-insurance; acc\u224860%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Trick Room, Will-O-Wisp, Light Screen",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "pathway": "P3",
+        "pathway_rank": "3",
+        "effective_rank": "3",
+        "spore_absent_pushup": "True",
+        "primary_move": "hypnosis",
+        "spe_applies": "True",
+        "spe": "69",
+        "spe_ok": "False",
+        "speed_abilities": "none",
+        "eff_accuracy": "60",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Hypnosis",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Will-O-Wisp",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Hypnosis clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis_slow, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_bare_hypnosis_slow"
+    },
+    {
+      "species": "Milotic",
+      "species_id": "milotic",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p2",
+      "mechanism": "Hypnosis",
+      "criteria_notes": {
+        "delivery": "hypnosis + accuracy reinforce",
+        "execution": "hypnosis + accuracy reinforce; Spe 81 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=299 (miss-insurance; acc\u224880%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=True; coil_usage=True",
+        "secondary_role": "Life Dew, Light Screen",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "pathway": "P2",
+        "pathway_rank": "2",
+        "effective_rank": "2",
+        "spore_absent_pushup": "True",
+        "primary_move": "hypnosis",
+        "spe_applies": "True",
+        "spe": "81",
+        "spe_ok": "False",
+        "speed_abilities": "none",
+        "eff_accuracy": "80",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=True; coil_usage=True",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Hypnosis",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Coil",
+          "criterion": "execution",
+          "purpose_claimed": "usage-proven +1 accuracy stage among Coil effects"
+        },
+        {
+          "name": "Life Dew",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Hypnosis clears Acceptable (pathway=P2, basis=pushup_p2_mid_accuracy_slow, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "accuracy",
+      "excellence_basis": "pushup_p2_mid_accuracy_slow"
+    },
+    {
+      "species": "Musharna",
+      "species_id": "musharna",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p3",
+      "mechanism": "Hypnosis / Yawn",
+      "criteria_notes": {
+        "delivery": "bare hypnosis",
+        "execution": "bare hypnosis; Spe 29 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=296 (miss-insurance; acc\u224860%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Trick Room, Reflect, Light Screen, Thunder Wave",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "pathway": "P3",
+        "pathway_rank": "3",
+        "effective_rank": "3",
+        "spore_absent_pushup": "True",
+        "primary_move": "hypnosis",
+        "spe_applies": "True",
+        "spe": "29",
+        "spe_ok": "False",
+        "speed_abilities": "none",
+        "eff_accuracy": "60",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Hypnosis / Yawn",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Thunder Wave",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Hypnosis / Yawn clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis_slow, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_bare_hypnosis_slow"
+    },
+    {
+      "species": "Politoed",
+      "species_id": "politoed",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p3",
+      "mechanism": "Hypnosis",
+      "criteria_notes": {
+        "delivery": "bare hypnosis",
+        "execution": "bare hypnosis; Spe 70 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=265 (miss-insurance; acc\u224860%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Encore",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "pathway": "P3",
+        "pathway_rank": "3",
+        "effective_rank": "3",
+        "spore_absent_pushup": "True",
+        "primary_move": "hypnosis",
+        "spe_applies": "True",
+        "spe": "70",
+        "spe_ok": "False",
+        "speed_abilities": "none",
+        "eff_accuracy": "60",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Hypnosis",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Hypnosis clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis_slow, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_bare_hypnosis_slow"
+    },
+    {
+      "species": "Roserade",
+      "species_id": "roserade",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p2",
+      "mechanism": "Sleep Powder",
+      "criteria_notes": {
+        "delivery": "Sleep Powder (no accuracy reinforce)",
+        "execution": "Sleep Powder (no accuracy reinforce); Spe 90 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=230 (miss-insurance; acc\u224875%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Life Dew",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "pathway": "P2",
+        "pathway_rank": "2",
+        "effective_rank": "2",
+        "spore_absent_pushup": "True",
+        "primary_move": "sleeppowder",
+        "spe_applies": "True",
+        "spe": "90",
+        "spe_ok": "False",
+        "speed_abilities": "none",
+        "eff_accuracy": "75",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sleep Powder",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Life Dew",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Sleep Powder clears Acceptable (pathway=P2, basis=pushup_p2_mid_accuracy_slow, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_p2_mid_accuracy_slow"
+    },
+    {
+      "species": "Skeledirge",
+      "species_id": "skeledirge",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p3",
+      "mechanism": "Sing / Yawn",
+      "criteria_notes": {
+        "delivery": "bare sing",
+        "execution": "bare sing; Spe 66 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=279 (miss-insurance; acc\u224855%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Will-O-Wisp, Encore",
+        "usage_proven": "True",
+        "usage_source": "champions+showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "pathway": "P3",
+        "pathway_rank": "3",
+        "effective_rank": "3",
+        "spore_absent_pushup": "True",
+        "primary_move": "sing",
+        "spe_applies": "True",
+        "spe": "66",
+        "spe_ok": "False",
+        "speed_abilities": "none",
+        "eff_accuracy": "55",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sing / Yawn",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Will-O-Wisp",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Sing / Yawn clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis_slow, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_bare_hypnosis_slow"
+    },
+    {
+      "species": "Venusaur",
+      "species_id": "venusaur",
+      "tier": "Good",
+      "delivery_class": "sleep_p2",
+      "mechanism": "Sleep Powder",
+      "criteria_notes": {
+        "delivery": "Sleep Powder (no accuracy reinforce)",
+        "execution": "Sleep Powder (no accuracy reinforce); Spe 80 < 100 but speed ability Chlorophyll clears Spe bar (condition-dependent in battle); bulk HP+Def+SpD=263 (miss-insurance; acc\u224875%); accuracy_abil=['none']; trap=['none']; speed_abil=['chlorophyll']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Light Screen",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "pathway": "P2",
+        "pathway_rank": "2",
+        "effective_rank": "1",
+        "spore_absent_pushup": "True",
+        "primary_move": "sleeppowder",
+        "spe_applies": "True",
+        "spe": "80",
+        "spe_ok": "True",
+        "speed_abilities": "chlorophyll",
+        "eff_accuracy": "75",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['chlorophyll']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sleep Powder",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Sleep Powder clears Good (pathway=P2, basis=pushup_p2_mid_accuracy, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_p2_mid_accuracy"
+    },
+    {
+      "species": "Venusaur-Mega",
+      "species_id": "venusaurmega",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p2",
+      "mechanism": "Sleep Powder",
+      "criteria_notes": {
+        "delivery": "Sleep Powder (no accuracy reinforce)",
+        "execution": "Sleep Powder (no accuracy reinforce); Spe 80 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=323 (miss-insurance; acc\u224875%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Light Screen",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "pathway": "P2",
+        "pathway_rank": "2",
+        "effective_rank": "2",
+        "spore_absent_pushup": "True",
+        "primary_move": "sleeppowder",
+        "spe_applies": "True",
+        "spe": "80",
+        "spe_ok": "False",
+        "speed_abilities": "none",
+        "eff_accuracy": "75",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sleep Powder",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Sleep Powder clears Acceptable (pathway=P2, basis=pushup_p2_mid_accuracy_slow, usage_proven=True) / showdown form-separated usage.",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_p2_mid_accuracy_slow"
+    },
+    {
+      "species": "Victreebel-Mega",
+      "species_id": "victreebelmega",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p2",
+      "mechanism": "Sleep Powder",
+      "criteria_notes": {
+        "delivery": "Sleep Powder (no accuracy reinforce)",
+        "execution": "Sleep Powder (no accuracy reinforce); Spe 70 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=260 (miss-insurance; acc\u224875%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Encore",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "pathway": "P2",
+        "pathway_rank": "2",
+        "effective_rank": "2",
+        "spore_absent_pushup": "True",
+        "primary_move": "sleeppowder",
+        "spe_applies": "True",
+        "spe": "70",
+        "spe_ok": "False",
+        "speed_abilities": "none",
+        "eff_accuracy": "75",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sleep Powder",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Sleep Powder clears Acceptable (pathway=P2, basis=pushup_p2_mid_accuracy_slow, usage_proven=True) / showdown form-separated usage.",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_p2_mid_accuracy_slow"
+    },
+    {
+      "species": "Vileplume",
+      "species_id": "vileplume",
+      "tier": "Good",
+      "delivery_class": "sleep_p2",
+      "mechanism": "Sleep Powder",
+      "criteria_notes": {
+        "delivery": "Sleep Powder (no accuracy reinforce)",
+        "execution": "Sleep Powder (no accuracy reinforce); Spe 50 < 100 but speed ability Chlorophyll clears Spe bar (condition-dependent in battle); bulk HP+Def+SpD=250 (miss-insurance; acc\u224875%); accuracy_abil=['none']; trap=['none']; speed_abil=['chlorophyll']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "pathway": "P2",
+        "pathway_rank": "2",
+        "effective_rank": "1",
+        "spore_absent_pushup": "True",
+        "primary_move": "sleeppowder",
+        "spe_applies": "True",
+        "spe": "50",
+        "spe_ok": "True",
+        "speed_abilities": "chlorophyll",
+        "eff_accuracy": "75",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['chlorophyll']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sleep Powder",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        }
+      ],
+      "reasoning": "Sleep Powder clears Good (pathway=P2, basis=pushup_p2_mid_accuracy, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_p2_mid_accuracy"
+    },
+    {
+      "species": "Vivillon",
+      "species_id": "vivillon",
+      "tier": "Excellent",
+      "delivery_class": "sleep_p1",
+      "mechanism": "Sleep Powder",
+      "criteria_notes": {
+        "delivery": "Sleep Powder + accuracy reinforce",
+        "execution": "Sleep Powder + accuracy reinforce; Spe 89 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=180 (miss-insurance; acc\u224897%); accuracy_abil=['compoundeyes']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Rage Powder, Tailwind, Light Screen",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "pathway": "P1",
+        "pathway_rank": "1",
+        "effective_rank": "0",
+        "spore_absent_pushup": "True",
+        "primary_move": "sleeppowder",
+        "spe_applies": "True",
+        "spe": "89",
+        "spe_ok": "False",
+        "speed_abilities": "none",
+        "eff_accuracy": "97",
+        "kit_sweep": "accuracy_abil=['compoundeyes']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sleep Powder",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Compound Eyes",
+          "criterion": "execution",
+          "purpose_claimed": "accuracy reinforce on imperfect sleep delivery"
+        },
+        {
+          "name": "Rage Powder",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Tailwind",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Sleep Powder clears Excellent (pathway=P1, basis=pushup_sleeppowder_accuracy, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "accuracy",
+      "excellence_basis": "pushup_sleeppowder_accuracy"
+    },
+    {
+      "species": "Watchog",
+      "species_id": "watchog",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p3",
+      "mechanism": "Hypnosis",
+      "criteria_notes": {
+        "delivery": "bare hypnosis",
+        "execution": "bare hypnosis; Spe 77 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=198 (miss-insurance; acc\u224860%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Thunder Wave, Light Screen",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "pathway": "P3",
+        "pathway_rank": "3",
+        "effective_rank": "3",
+        "spore_absent_pushup": "True",
+        "primary_move": "hypnosis",
+        "spe_applies": "True",
+        "spe": "77",
+        "spe_ok": "False",
+        "speed_abilities": "none",
+        "eff_accuracy": "60",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Hypnosis",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Thunder Wave",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Hypnosis clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis_slow, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_bare_hypnosis_slow"
+    },
+    {
+      "species": "Wyrdeer",
+      "species_id": "wyrdeer",
+      "tier": "Acceptable",
+      "delivery_class": "sleep_p3",
+      "mechanism": "Hypnosis",
+      "criteria_notes": {
+        "delivery": "bare hypnosis",
+        "execution": "bare hypnosis; Spe 65 < 100 and no speed-boosting ability \u2014 demote one rank on imperfect immediate pathways (P2/P3); bulk HP+Def+SpD=250 (miss-insurance; acc\u224860%); accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "secondary_role": "Trick Room, Light Screen, Reflect, Thunder Wave",
+        "usage_proven": "True",
+        "usage_source": "champions",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "pathway": "P3",
+        "pathway_rank": "3",
+        "effective_rank": "3",
+        "spore_absent_pushup": "True",
+        "primary_move": "hypnosis",
+        "spe_applies": "True",
+        "spe": "65",
+        "spe_ok": "False",
+        "speed_abilities": "none",
+        "eff_accuracy": "60",
+        "kit_sweep": "accuracy_abil=['none']; trap=['none']; speed_abil=['none']; coil_learnset=False; coil_usage=False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Hypnosis",
+          "criterion": "delivery",
+          "purpose_claimed": "inflict sleep on an opposing Pok\u00e9mon"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Thunder Wave",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Hypnosis clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis_slow, usage_proven=True).",
+      "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "pushup_bare_hypnosis_slow"
+    }
+  ],
+  "considered_rejected": [
+    {
+      "species": "Altaria",
+      "species_id": "altaria",
+      "reason": "Sing learnset (bare sing) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Altaria-Mega",
+      "species_id": "altariamega",
+      "reason": "Sing learnset (bare sing) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown form-separated usage)",
+      "change_reason": null
+    },
+    {
+      "species": "Aromatisse",
+      "species_id": "aromatisse",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Audino",
+      "species_id": "audino",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Audino-Mega",
+      "species_id": "audinomega",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Azumarill",
+      "species_id": "azumarill",
+      "reason": "Sing learnset (bare sing) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Beartic",
+      "species_id": "beartic",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Blastoise",
+      "species_id": "blastoise",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Blastoise-Mega",
+      "species_id": "blastoisemega",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Camerupt",
+      "species_id": "camerupt",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Camerupt-Mega",
+      "species_id": "cameruptmega",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Chimecho",
+      "species_id": "chimecho",
+      "reason": "Hypnosis / Yawn learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown usage discounted (base 0.011% < 0.25\u00d7 mega 0.236%))",
+      "change_reason": null
+    },
+    {
+      "species": "Chimecho-Mega",
+      "species_id": "chimechomega",
+      "reason": "Hypnosis / Yawn learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown form-separated usage)",
+      "change_reason": null
+    },
+    {
+      "species": "Clefable",
+      "species_id": "clefable",
+      "reason": "Sing learnset (bare sing) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Clefable-Mega",
+      "species_id": "clefablemega",
+      "reason": "Sing learnset (bare sing) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown form-separated usage)",
+      "change_reason": null
+    },
+    {
+      "species": "Delphox",
+      "species_id": "delphox",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown usage discounted (base 0.020% < 0.25\u00d7 mega 7.073%))",
+      "change_reason": null
+    },
+    {
+      "species": "Delphox-Mega",
+      "species_id": "delphoxmega",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown form-separated usage)",
+      "change_reason": null
+    },
+    {
+      "species": "Emboar",
+      "species_id": "emboar",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Emboar-Mega",
+      "species_id": "emboarmega",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Empoleon",
+      "species_id": "empoleon",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Espeon",
+      "species_id": "espeon",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Flareon",
+      "species_id": "flareon",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Gallade",
+      "species_id": "gallade",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Gallade-Mega",
+      "species_id": "gallademega",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown form-separated usage)",
+      "change_reason": null
+    },
+    {
+      "species": "Gardevoir",
+      "species_id": "gardevoir",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown usage discounted (base 0.336% < 0.25\u00d7 mega 2.889%))",
+      "change_reason": null
+    },
+    {
+      "species": "Gardevoir-Mega",
+      "species_id": "gardevoirmega",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown form-separated usage)",
+      "change_reason": null
+    },
+    {
+      "species": "Gengar",
+      "species_id": "gengar",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown usage discounted (base 0.345% < 0.25\u00d7 mega 4.692%))",
+      "change_reason": null
+    },
+    {
+      "species": "Gengar-Mega",
+      "species_id": "gengarmega",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown form-separated usage)",
+      "change_reason": null
+    },
+    {
+      "species": "Glaceon",
+      "species_id": "glaceon",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Gourgeist",
+      "species_id": "gourgeist",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Gourgeist-Small",
+      "species_id": "gourgeistsmall",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Hippowdon",
+      "species_id": "hippowdon",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Houndstone",
+      "species_id": "houndstone",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Hydrapple",
+      "species_id": "hydrapple",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Jolteon",
+      "species_id": "jolteon",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Leafeon",
+      "species_id": "leafeon",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Liepard",
+      "species_id": "liepard",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Malamar",
+      "species_id": "malamar",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Malamar-Mega",
+      "species_id": "malamarmega",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown form-separated usage)",
+      "change_reason": null
+    },
+    {
+      "species": "Meowstic",
+      "species_id": "meowstic",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Meowstic-F-Mega",
+      "species_id": "meowsticfmega",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Meowstic-M-Mega",
+      "species_id": "meowsticmmega",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Mr. Rime",
+      "species_id": "mrrime",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Ninetales",
+      "species_id": "ninetales",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Ninetales-Alola",
+      "species_id": "ninetalesalola",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Oranguru",
+      "species_id": "oranguru",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Primarina",
+      "species_id": "primarina",
+      "reason": "Sing learnset (bare sing) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Pyroar",
+      "species_id": "pyroar",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Pyroar-Mega",
+      "species_id": "pyroarmega",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Simisear",
+      "species_id": "simisear",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Slowbro",
+      "species_id": "slowbro",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Slowbro-Galar",
+      "species_id": "slowbrogalar",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Slowbro-Mega",
+      "species_id": "slowbromega",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Slowking",
+      "species_id": "slowking",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Slowking-Galar",
+      "species_id": "slowkinggalar",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Slurpuff",
+      "species_id": "slurpuff",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Snorlax",
+      "species_id": "snorlax",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Spiritomb",
+      "species_id": "spiritomb",
+      "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce",
+      "change_reason": null
+    },
+    {
+      "species": "Stunfisk",
+      "species_id": "stunfisk",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Stunfisk-Galar",
+      "species_id": "stunfiskgalar",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Swampert",
+      "species_id": "swampert",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Swampert-Mega",
+      "species_id": "swampertmega",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Sylveon",
+      "species_id": "sylveon",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Torkoal",
+      "species_id": "torkoal",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Umbreon",
+      "species_id": "umbreon",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Vaporeon",
+      "species_id": "vaporeon",
+      "reason": "Yawn (Yawn (delayed; no trap)): bare Yawn without trapping is below P3 reliability and is rejected (only P4+trap closes the switch-window enough to keep Acceptable)",
+      "change_reason": null
+    },
+    {
+      "species": "Victreebel",
+      "species_id": "victreebel",
+      "reason": "Sleep Powder learnset (Sleep Powder (no accuracy reinforce)) but no usage evidence of sleep delivery and no pathway-matched reinforce (showdown usage discounted (base 0.032% < 0.25\u00d7 mega 0.175%))",
+      "change_reason": null
+    }
+  ]
+}
