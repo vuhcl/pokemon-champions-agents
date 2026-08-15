@@ -413,9 +413,9 @@ SWORDS_DANCE_ATTACKER_CRITERIA: dict[str, Any] = {
     "move_id": "swordsdance",
     "boost_stat": "atk",
     "boost_stages": 2,
-    # Locked judgment cut (Decidueye rank 35); Acceptable-largest redesign.
-    "damage_admission_floor": 0.981,
-    "acceptable_floor_mult": 0.88,
+    # Locked judgment cut (Lycanroc-Dusk keep=37); Acceptable-largest redesign.
+    "damage_admission_floor": 0.969,
+    "acceptable_floor_mult": 0.85,
 }
 
 NASTY_PLOT_ATTACKER_CRITERIA: dict[str, Any] = {
@@ -433,7 +433,7 @@ CALM_MIND_ATTACKER_CRITERIA: dict[str, Any] = {
     "boost_stat": "spa",
     "boost_stages": 1,
     "exact_boosts": {"spa": 1, "spd": 1},
-    # Locked judgment cut (Mr. Rime rank 37); Acceptable-largest redesign.
+    # Locked judgment cut (Mr. Rime keep=38); Acceptable-largest redesign.
     "damage_admission_floor": 0.708,
     "acceptable_floor_mult": 0.88,
 }
@@ -445,8 +445,8 @@ BULK_UP_ATTACKER_CRITERIA: dict[str, Any] = {
     "boost_stat": "atk",
     "boost_stages": 1,
     "exact_boosts": {"atk": 1, "def": 1},
-    # Locked judgment cut (Lycanroc rank 36); Acceptable-largest redesign.
-    "damage_admission_floor": 0.748,
+    # Locked judgment cut (Lycanroc keep=36 at 0.766); Acceptable-largest redesign.
+    "damage_admission_floor": 0.766,
     "acceptable_floor_mult": 0.90,
 }
 

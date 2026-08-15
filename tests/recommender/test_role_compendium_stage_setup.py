@@ -47,7 +47,7 @@ def test_criteria_kinds():
 def test_admission_keys_only_on_sd_cm_bu():
     assert CALM_MIND_ATTACKER_CRITERIA["damage_admission_floor"] == 0.708
     assert CALM_MIND_ATTACKER_CRITERIA["acceptable_floor_mult"] == 0.88
-    assert BULK_UP_ATTACKER_CRITERIA["damage_admission_floor"] == 0.748
+    assert BULK_UP_ATTACKER_CRITERIA["damage_admission_floor"] == 0.766
     assert BULK_UP_ATTACKER_CRITERIA["acceptable_floor_mult"] == 0.90
     for crit in (
         NASTY_PLOT_ATTACKER_CRITERIA,
