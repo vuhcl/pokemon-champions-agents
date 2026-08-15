@@ -384,6 +384,31 @@ _SCREEN_MOVES = {
     "reflect": "Reflect",
     "auroraveil": "Aurora Veil",
 }
+# Closed v1 bar — kit-present only; not derived from stat_boosts (misses
+# Sticky Web / paralysis / Syrup Bomb).
+_SECONDARY_SPEED_CONTROL_MOVES = frozenset(
+    {
+        "icywind",
+        "electroweb",
+        "bulldoze",
+        "cottonspore",
+        "stringshot",
+        "scaryface",
+        "lowsweep",
+        "mudshot",
+        "pounce",
+        "rocktomb",
+        "toxicthread",
+        "stickyweb",
+        "thunderwave",
+        "glare",
+        "stunspore",
+        "nuzzle",
+        "zapcannon",
+        "syrupbomb",
+    }
+)
+_SECONDARY_SPEED_CONTROL_ABILITIES = frozenset({"gooey", "static"})
 
 _NEEDED_CONDITION_ABILITIES = frozenset(
     {"swiftswim", "chlorophyll", "sandrush", "slushrush"}
@@ -564,6 +589,48 @@ def _mechanisms(build: ResolvedAnchorBuild) -> list[MechanismEvidence]:
                 "trick_room_setter", True, True, "move", True,
                 build.source_for("moves"), "self_supplied",
                 ("condition:Trick Room", "move:trickroom"), "high",
+            )
+        )
+
+    for mid in _SECONDARY_SPEED_CONTROL_MOVES:
+        if mid not in move_ids:
+            continue
+        out.append(
+            MechanismEvidence(
+                move_ids[mid],
+                "secondary_speed_control",
+                "provides",
+                "secondary",
+                None,
+                True,
+                False,
+                "move",
+                True,
+                build.source_for("moves"),
+                "self_supplied",
+                (f"move:{mid}",),
+                "high",
+            )
+        )
+    if (
+        ability in _SECONDARY_SPEED_CONTROL_ABILITIES
+        and ability_confidence is not None
+    ):
+        out.append(
+            MechanismEvidence(
+                ability_name or _display_name(ability),
+                "secondary_speed_control",
+                "provides",
+                "secondary",
+                None,
+                True,
+                False,
+                "passive_reactive",
+                False,
+                ability_source,
+                "self_supplied",
+                (f"ability:{ability}",),
+                ability_confidence,
             )
         )
 

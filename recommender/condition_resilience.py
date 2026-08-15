@@ -156,6 +156,28 @@ def assess_condition_resilience(
         else:
             gap = "none"
 
+        secondary: tuple[ConditionProviderMember, ...] = ()
+        if condition in ("Trick Room", "Tailwind"):
+            hits: list[ConditionProviderMember] = []
+            for context in locked:
+                species = str(
+                    context.resolved_build.species
+                    or context.pokemon.get("species")
+                    or ""
+                )
+                for mechanism in context.role_decision.mechanisms:
+                    if (
+                        mechanism.present
+                        and mechanism.kind == "secondary_speed_control"
+                        and mechanism.relation == "provides"
+                    ):
+                        hits.append(
+                            ConditionProviderMember(
+                                context.slot_index, species, mechanism.mechanic
+                            )
+                        )
+            secondary = tuple(hits)
+
         rows.append(
             ConditionResilienceRow(
                 condition=condition,
@@ -164,6 +186,7 @@ def assess_condition_resilience(
                 providers=tuple(providers),
                 dependents=tuple(dependents),
                 gap=gap,
+                secondary_speed_control=secondary,
             )
         )
     return ConditionResilienceReport(conditions=tuple(rows))

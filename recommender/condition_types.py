@@ -35,6 +35,7 @@ class ConditionResilienceRow:
     providers: tuple[ConditionProviderMember, ...]
     dependents: tuple[ConditionDependentMember, ...]
     gap: ConditionGap
+    secondary_speed_control: tuple[ConditionProviderMember, ...] = ()
 
 
 @dataclass(frozen=True)

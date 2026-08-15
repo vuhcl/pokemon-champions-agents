@@ -11,11 +11,13 @@ from recommender.anchor_roles import (
 )
 from recommender.condition_resilience import (
     MIN_WANTED_DEPENDENTS_FOR_ESSENTIAL,
+    ConditionProviderMember,
     ConditionResilienceReport,
     ConditionResilienceRow,
     assess_condition_resilience,
     gap_support_needs,
 )
+from recommender.ids import to_id
 from recommender.slot_fill import AnchoredSupportNeed, LockedAnchorContext
 from recommender.support_needs import RoleShapeContext, query_support_needs
 
@@ -303,3 +305,198 @@ def test_gap_support_needs_dedupes_anchored_trick_room():
     )
     assert any(n.need.category == "trick_room" for n in needs)
     assert gap_support_needs(report, needs) == ()
+
+
+def _kingambit_tr():
+    return classify_anchor_role(
+        resolve_anchor_build("Kingambit"), user_role="trick_room_sweeper"
+    )
+
+
+def _secondary_kinds(decision) -> list[tuple[str, tuple[str, ...]]]:
+    return [
+        (m.kind, m.evidence)
+        for m in decision.mechanisms
+        if m.kind == "secondary_speed_control"
+    ]
+
+
+def test_gengar_emits_icy_wind_secondary_speed_control():
+    build = resolve_anchor_build("Gengar")
+    assert build.ability == "Cursed Body"
+    assert tuple(build.moves) == (
+        "Shadow Ball",
+        "Sludge Bomb",
+        "Protect",
+        "Icy Wind",
+    )
+    kinds = _secondary_kinds(classify_anchor_role(build))
+    assert ("secondary_speed_control", ("move:icywind",)) in kinds
+    assert not any("condition:" in tag for _, ev in kinds for tag in ev)
+
+
+def test_milotic_and_rotom_wash_do_not_emit_secondary_speed_control():
+    milotic = resolve_anchor_build("Milotic")
+    assert milotic.ability == "Competitive"
+    assert tuple(milotic.moves) == ("Protect", "Scald", "Muddy Water", "Coil")
+    assert _secondary_kinds(classify_anchor_role(milotic)) == []
+
+    rotom = resolve_anchor_build("Rotom-Wash")
+    assert rotom.ability == "Levitate"
+    assert tuple(rotom.moves) == (
+        "Hydro Pump",
+        "Thunderbolt",
+        "Will-O-Wisp",
+        "Volt Switch",
+    )
+    assert "electroweb" not in {to_id(m) for m in rotom.moves}
+    assert _secondary_kinds(classify_anchor_role(rotom)) == []
+
+
+def test_icy_wind_softens_tr_without_changing_classification_or_gap():
+    king = _kingambit_tr()
+    baseline = assess_condition_resilience(
+        (_context_from_decision(0, "Kingambit", king),)
+    )
+    base_tr = next(r for r in baseline.conditions if r.condition == "Trick Room")
+    gengar = classify_anchor_role(resolve_anchor_build("Gengar"))
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(0, "Kingambit", king),
+            _context_from_decision(1, "Gengar", gengar),
+        )
+    )
+    tr = next(r for r in report.conditions if r.condition == "Trick Room")
+    assert [m.mechanic for m in tr.secondary_speed_control] == ["Icy Wind"]
+    assert tr.classification == base_tr.classification
+    assert tr.gap == base_tr.gap
+    assert tr.provider_count == base_tr.provider_count
+
+
+def test_whimsicott_tailwind_icy_wind_is_adjacent_not_a_second_provider():
+    whims = classify_anchor_role(resolve_anchor_build("Whimsicott"))
+    gengar = classify_anchor_role(resolve_anchor_build("Gengar"))
+    build = resolve_anchor_build("Whimsicott")
+    assert "tailwind" in {to_id(m) for m in build.moves}
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(0, "Whimsicott", whims),
+            _context_from_decision(1, "Gengar", gengar),
+        )
+    )
+    tw = next(r for r in report.conditions if r.condition == "Tailwind")
+    assert tw.provider_count == 1
+    assert [p.species for p in tw.providers] == [
+        resolve_anchor_build("Whimsicott").species or "Whimsicott"
+    ]
+    assert "Icy Wind" in [m.mechanic for m in tw.secondary_speed_control]
+    assert not any(p.mechanic == "Icy Wind" for p in tw.providers)
+
+
+def test_milotic_usage_icy_wind_not_on_kit_does_not_soften():
+    king = _kingambit_tr()
+    milotic = classify_anchor_role(resolve_anchor_build("Milotic"))
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(0, "Kingambit", king),
+            _context_from_decision(1, "Milotic", milotic),
+        )
+    )
+    tr = next(r for r in report.conditions if r.condition == "Trick Room")
+    assert tr.secondary_speed_control == ()
+
+
+def test_rotom_wash_thunderbolt_does_not_soften():
+    king = _kingambit_tr()
+    rotom = classify_anchor_role(resolve_anchor_build("Rotom-Wash"))
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(0, "Kingambit", king),
+            _context_from_decision(1, "Rotom-Wash", rotom),
+        )
+    )
+    tr = next(r for r in report.conditions if r.condition == "Trick Room")
+    assert tr.secondary_speed_control == ()
+
+
+def test_goodra_sap_sipper_and_thunderbolt_do_not_soften():
+    build = resolve_anchor_build("Goodra")
+    assert build.ability == "Sap Sipper"
+    assert tuple(build.moves) == (
+        "Protect",
+        "Flamethrower",
+        "Thunderbolt",
+        "Ice Beam",
+    )
+    king = _kingambit_tr()
+    goodra = classify_anchor_role(build)
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(0, "Kingambit", king),
+            _context_from_decision(1, "Goodra", goodra),
+        )
+    )
+    tr = next(r for r in report.conditions if r.condition == "Trick Room")
+    assert tr.secondary_speed_control == ()
+
+
+def test_ampharos_static_softens_tr():
+    build = resolve_anchor_build("Ampharos")
+    assert build.ability == "Static"
+    assert tuple(build.moves) == (
+        "Protect",
+        "Dragon Pulse",
+        "Parabolic Charge",
+        "Rising Voltage",
+    )
+    assert "cottonspore" not in {to_id(m) for m in build.moves}
+    king = _kingambit_tr()
+    ampharos = classify_anchor_role(build)
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(0, "Kingambit", king),
+            _context_from_decision(1, "Ampharos", ampharos),
+        )
+    )
+    tr = next(r for r in report.conditions if r.condition == "Trick Room")
+    assert "Static" in [m.mechanic for m in tr.secondary_speed_control]
+
+
+def test_gap_support_needs_still_fires_when_secondary_speed_control_present():
+    report = ConditionResilienceReport(
+        conditions=(
+            ConditionResilienceRow(
+                condition="Trick Room",
+                classification="preferred",
+                provider_count=0,
+                providers=(),
+                dependents=(),
+                gap="missing_provider",
+                secondary_speed_control=(
+                    ConditionProviderMember(1, "Gengar", "Icy Wind"),
+                ),
+            ),
+        )
+    )
+    residual = gap_support_needs(report, ())
+    assert any(n.category == "trick_room" for n in residual)
+
+
+def test_weather_rows_never_populate_secondary_speed_control():
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(
+                0, "Pelipper", classify_anchor_role(resolve_anchor_build("Pelipper"))
+            ),
+            _context_from_decision(
+                1,
+                "Archaludon",
+                classify_anchor_role(
+                    resolve_anchor_build("Archaludon"), user_role="bulky_rain_attacker"
+                ),
+            ),
+        )
+    )
+    for row in report.conditions:
+        if row.condition not in ("Trick Room", "Tailwind"):
+            assert row.secondary_speed_control == ()
