@@ -61,6 +61,23 @@ from recommender.usage_spreads import move_category_counts
 _FLOETTE_DENY_SID = "floette"
 _FLOETTE_ETERNAL_SID = "floetteeternal"
 _FLOETTE_MEGA_SID = "floettemega"
+# Pikalytics team-usage pairs label the lineage `floetteeternal`; Showdown panel
+# primaries use `floettemega`. Co-occurrence lookup only — not a calc/legality alias.
+_PAIR_LOOKUP_ALIASES = {_FLOETTE_MEGA_SID: _FLOETTE_ETERNAL_SID}
+
+
+def pair_lookup_species_id(species_id: str) -> str:
+    """Map panel species id → id used in team-composition pair files."""
+    return _PAIR_LOOKUP_ALIASES.get(species_id, species_id)
+
+
+def panel_species_id_from_pair_id(pair_id: str, panel_ids: set[str]) -> str | None:
+    """Join a pair-file id onto a panel member id (Floette bridge both ways)."""
+    if pair_id in panel_ids:
+        return pair_id
+    if pair_id == _FLOETTE_ETERNAL_SID and _FLOETTE_MEGA_SID in panel_ids:
+        return _FLOETTE_MEGA_SID
+    return None
 
 
 def _is_mega_sid(species_id: str) -> bool:
