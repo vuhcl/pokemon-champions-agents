@@ -3809,6 +3809,125 @@ combined with the Aegislash and recoil/debuff work earlier the same day, this cl
 item 2's originally-scoped work (Close Combat self-debuff/recoil timing) plus the fairness
 extension it surfaced along the way.
 
+## 2026-08-14 (cont.): DD's setup admission floor, per-defender payoff selection (item 6,
+## Stages 1-4), tier recalibration, drain-move fix, and CBD/Showdown investigation
+
+A long, single-day arc closing multiple threads. In rough sequence:
+
+**DD's own 1.0% setup-move admission floor** shipped cleanly (17→13 admitted), the one
+category-specific outcome from the earlier Problem B admission-floor derivation.
+
+**Item 6 (per-defender best-move selection) closed in full, four stages.** Long-deferred
+architectural item, finally scoped after the same failure mode surfaced twice independently
+(Mawile-Mega's Double-Edge winning on panel average via Ghost-zero-fallback theft, echoing an
+earlier-session finding on Mimikyu). Stage 1 restructured `_select_setup_payoff` from
+"one globally-chosen move, panel-mean-optimized" to genuine per-defender argmax over real kit
+moves — a design that turned out cheaper than the original stale "4-8×" cost estimate, since it
+eliminated redundant incoming-OHKO recomputation the old selection already paid for. Stage 2
+replaced the resulting broken single-`payoff_move` assumption with a structured, always-plural
+schema, confirmed green-field (no real runtime consumer of the old fields). Stage 3 formally
+closed ID+BP's exclusion as permanent, not deferred. Stage 4 rebuilt and critic-passed all ten
+Compendium categories — surfacing, in the process, that seven categories (CM/BU/DD/ID+BP/
+Tailwind/Sleep/Screens) had been genuinely, unrecoverably lost from an Aug 12 uncommitted local
+persist, the second such loss in this project's history, and direct evidence for this session's
+much stricter push-and-verify discipline.
+
+**Mid-arc, a real fairness gap surfaced and got its own sub-thread:** Aegislash's Shadow Sneak
+combined-KO credit was found to be scoped to one species when the underlying mechanic (priority
+finishing a non-OHKO hit) is general — generalized and wired into all six setup categories,
+with Fake Out/First Impression/Upper Hand explicitly excluded on real mechanical grounds and
+Grassy Glide deferred pending terrain modeling this project doesn't do.
+
+**Tier recalibration (SD/CM/BU) closed after extensive real breakpoint-finding repeatedly came
+back empty** — three separate gap searches confirmed SD and CM's score distributions are
+genuinely continuous near any reasonable target size, so their final cut points (keep=35/37)
+were locked as explicit judgment calls, honestly documented as such rather than dressed up as
+data-derived. BU got a real, highly-significant breakpoint (Sableye-Mega isolated by a 0.305
+gap) but one that barely reduces its pool size — accepted deliberately. Final shapes (SD 3/6/26,
+CM 8/10/19, BU 5/13/18) all hit exactly as designed, with BU's Emboar usage-discount interaction
+predicted by hand and confirmed correct by the delivered report's own automated check.
+
+**Two smaller items closed without shipping anything:** burn-immunity/disruption-immunity
+(items 10/11) — real candidates exist but none currently mistiered because of missing burn
+credit, so no rule and no display field, closed entirely. And a real, previously-silent
+correctness gap — drain-move HP recovery never being credited in `remain`, the mirror image of
+already-modeled connect-recoil — found by direct comparison to an adjacent case and fixed
+cleanly (Ceruledge's `remain_min` moving from 0.215 to 0.652).
+
+**Closing investigation: whether setup-move admission should require CBD and Showdown to agree.**
+Confirmed this would be actively harmful (would wipe NP's entire category, exclude 145/175
+candidates project-wide) — not because the sources disagree on real play, but because of CBD's
+coverage shape. A follow-up investigation confirmed the remaining gap after accounting for an
+already-shipped live-fetch fallback is a genuine, permanent CBD API ceiling (exactly 10 moves
+per species, always, confirmed via direct spot-check) — not a further-fixable artifact. Today's
+OR-based corroboration design confirmed structurally correct, not merely convenient.
+
+**State at end of day:** all code changes on `main` or `wip/setup-tr-usage-and-scoring` per
+this session's containment policy (small fixes → `main`; large-blast-radius items → `wip`, kept
+deliberately behind `main` for item 6's duration). `data/roles/*.v1.json` still the original 8
+files throughout — no persist happened anywhere in this entire arc. Remaining open items:
+item 7 (spread-move credit + ally-damage risk, not yet scoped), the still-unmerged Stage 4
+critic-report docs branch, and the actual persist step for all ten categories once full sign-off
+happens.
+
+## 2026-08-14 (cont.): item 7 — spread-move credit + ally-damage risk, full arc (scoping
+## through three rounds of floor re-derivation)
+
+Long sub-arc, worth recording in full given how much genuine back-and-forth it took to reach a
+correct final state — a real example of iterative correction working as intended, not a sign of
+sloppy initial design.
+
+**Scoping and design.** Item 7 split cleanly into Part A (spread-move credit — real
+architecture, comparable in scope to item 6) and Part B (ally-damage risk — small, independent,
+confirmed shippable alone). Part A's design went through a genuine multi-round process: initial
+architecture choice (pair-as-defender panel over a cheaper layered-credit alternative, chosen
+deliberately for higher fidelity), then a full sub-decision lock (per-threat top-1 partner
+selection, primary-only single-target handling, five separate per-mechanism resolutions, a
+narrow Floette-Mega co-occurrence bridge) — every numeric claim in the design proposal
+independently spot-checked against the real Pikalytics data file before being trusted.
+
+**Part B shipped cleanly and independently**, confirmed via real calc move-target data rather
+than memory (correctly distinguishing Surf from Muddy Water, a real detail easy to get wrong).
+Merged before Part A in actual PR sequence (inverted from the original plan), composition with
+Part A verified clean by direct code inspection rather than assumed from passing tests alone.
+
+**Part A shipped, then had to be revised.** The original "clear the slot" formula (mean-of-two
+score, worse-of-two bin) was confirmed via direct inspection of real post-ship score deltas to
+net *below* single-target-only scoring for many real candidates — directly contradicting the
+feature's own motivation. This wasn't caught during design review; it was caught by looking at
+actual numbers after shipping, a genuine argument for why "the code runs and tests pass" isn't
+sufficient sign-off for a scoring-formula change — the *direction* of real effects needs
+checking too. The fix (`max(primary_alone, pair_mean)` for continuous score, primary-alone-only
+for KO bin) surfaced one more non-obvious mathematical consequence before implementation
+(protecting the bin this way mathematically erases the worse-of-two signal entirely, not just
+softens it) — caught and explicitly confirmed as intentional *before* shipping this time, having
+learned from the first round.
+
+**Process note, stated honestly:** an initial assumption that the required plan-review step had
+been skipped again turned out to be wrong — it had been done, just not mentioned in the ship
+report's summary. Worth remembering that absence of a mention isn't the same as absence of the
+thing; should have asked rather than assumed.
+
+**SD/CM/BU's admission floors and multipliers needed re-deriving three separate times** as a
+direct consequence of item 7's two scoring changes — a real, concrete illustration of why
+threshold values fit to one scoring snapshot don't survive later correctness fixes, the same
+pattern that first appeared with Aegislash's forme fix invalidating the original sweep-KO rule.
+Each round used the same real breakpoint-finding discipline (SD and CM remained genuinely
+continuous fields throughout all three rounds — no gap ever found; BU's Sableye-Mega cliff
+proved robust and persistent across every round, actually growing larger by the third).
+Original multiplier values (0.88/0.88/0.90) were re-confirmed as still valid via fresh grids —
+only SD's multiplier was deliberately changed (to 0.85) by direct request, not data-driven.
+
+**Final state:** Part A, Part B, the composition merge, the formula revision, and the
+third-round floor re-derivation are all shipped, independently verified, and critic-approved
+(0 flags) on `wip/setup-tr-usage-and-scoring`. `data/roles/*.v1.json` remains the original 8
+files throughout this entire arc — no persist has happened.
+
+**Small housekeeping, same session:** Stage 4's critic-report docs (previously unmerged)
+confirmed merged into `wip` only, deliberately not `main`, since those docs partially document a
+now-superseded pre-recalibration state and mixing that into `main` risked exactly the confusion
+the `wip`/`main` split exists to prevent.
+
 ---
 
 ## TOOLS & RESOURCES

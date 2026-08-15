@@ -3193,6 +3193,663 @@ setup-scoring arc.
 
 ---
 
+### ADR-019 — Amendment 2026-08-14d
+
+**Setup-attacker payoff selection now filters the usage-move bag by real presence
+(`_SETUP_PRESENCE_SET_PCT_FLOOR`, 0.1%) before damage-ranking — closes Problem A
+(synthesized-payoff contamination).**
+
+Root cause: `_usage_payoff_move_ids` unions kit moves with every `common_moves` name and every
+featured-set move, including moves at ~0% real presence that never co-occur with the setup
+move on any real played set. `_setup_payoff_candidates` filtered only by stat-match, no
+presence floor; `_select_setup_payoff` ranked the unfiltered bag purely by panel
+`_damage_score` — a move that scored well against the panel could win the payoff slot at 0.0%
+real presence. Surfaced directly: Medicham-Mega admitted to Calm Mind with Psyshock (0.0% set%,
+not on any featured set) alongside a genuine-but-thin Calm Mind presence (0.129%) — the two
+never co-occur on any real set. A follow-up sweep found four more: Audino/Thunderbolt,
+Mawile-Mega/Double-Edge, Salazzle/Belch, Beartic/Double-Edge.
+
+**Confirmed not the same problem `_same_row_both_moves` solves** (that gate is ID+BP-specific
+source-split prevention — both setup and payoff on the same data source, CBD or Showdown, never
+split across them — and was correctly scoped there because ID+BP admits on *two* named moves
+simultaneously; SD/NP/CM/BU/DD admit on one setup move only, with payoff chosen later from an
+unconstrained bag. Confirmed via direct check: `_same_row_both_moves` would not have caught
+Medicham-Mega — Calm Mind and Psyshock are both on the same Showdown species row, so that gate
+returns true regardless).
+
+New `_present_usage_payoff_ids` filters the bag via the existing `_best_move_set_pct` helper
+before ranking — minimal new surface area, no new presence-lookup logic invented. Wired at all
+three relevant call sites: `_construct_setup_attacker` (SD), `_construct_offense_stage_setup`
+(NP/CM/BU/DD), and `_construct_def_payoff_setup`'s coverage-move fallback (ID+BP, which still
+consults this bag for coverage after its own dual-move admission gate). Does not change setup
+admission, `_same_row_both_moves`, or ranking logic itself — purely removes sub-floor
+candidates before ranking runs.
+
+**Confirmed by direct verification:** all 5 named cases individually tested by name with real
+presence percentages, both the excluded move's absence and the legitimate alternative's survival
+checked explicitly. Graceful-rejection path tested (a candidate whose entire bag falls below
+floor produces no payoff, not a crash). SD's five originally-signed promote/demote motivating
+cases (Weavile, Kingambit, Mimikyu, Aegislash, Beartic) confirmed unaffected — none were
+payoff-floor violations. 85 tests passing (68 + 13 + 4 across the three affected test files,
+initially miscounted at 81 in verification before the third file, `test_role_compendium_nasty_
+plot.py`, was found to also be in scope).
+
+**Status:** Shipped on `fix/setup-payoff-presence-floor`, PR #73 — merged directly into `main`
+(not back into `wip/setup-tr-usage-and-scoring`), a deliberate deviation from this arc's
+containment discipline. Confirmed safe: no persisted Role Compendium data
+(`data/roles/*.v1.json`) was affected either way, since none of SD/NP/CM/BU/DD/ID+BP have ever
+been persisted — the "no critic pass/persist" rule governs writing that data, not the
+construction code that would produce it. `main` and `wip` to be resynced going forward.
+
+---
+
+### ADR-019 — Amendment 2026-08-14e
+
+**Sweep-KO promote/demote: closes with a uniform "no rule" verdict across all six setup
+categories on live current data. SD's originally-signed rule (Amendment 2026-08-13, not
+formally numbered — chat-only draft) is retracted, not revived under new numbers. DD gets its
+own independently-derived setup-move admission floor (1.0%, discovered but not yet
+implemented) as the one real outcome of this arc's admission-floor side.**
+
+**Problem B, admission floor (setup-move presence, distinct from Amendment 2026-08-14d's
+payoff-presence fix):** real breakpoint-finding across SD/NP/CM/BU/DD found no natural gap
+above the existing 0.1% floor for four of the five — presence smears continuously from ~0.1%
+through several percent with no genuine cliff, confirmed via the same method used for the
+Screens/Sleep/Trick Room floor derivations. DD is the one real exception: an independent hole
+at (0.390, 1.363], Sleep-pattern (0.5% and 1.0% admit the identical set) → 1.0% floor,
+justified on its own terms rather than assumed to match the others. CM's tempting-looking 6|8
+Acceptable/Good gap (surfaced when testing a 0.5% hybrid cutoff) confirmed as an artifact of
+that stopgap rather than a real breakpoint — d=2, not SD-rule-rigor d=6, and Espathra (the
+Good-8 case) sits at 26.9% presence with Calm Mind on its own featured set, a high-presence
+fact, not thin-setup noise. NP independently evidenced for the first time this arc (previously
+absorbed into a group verdict without its own check) — no rule, same overlap pattern.
+
+**SD's signed rule (P≥22 Acceptable→Good, D≤10 Good→Acceptable) does not hold on live current
+data — root cause traced and confirmed, not assumed.** Direct comparison ruled out the more
+obvious hypothesis first: panel composition was checked and confirmed unchanged between the
+Aug 13 derivation and today (re-running today's constructor against the pre-rebuild June
+snapshot fails to even reproduce Aug 13's numbers, while the July snapshot was already in use
+at the time of the Aug 13 discovery). The real cause: this session's own correctness fixes —
+Aegislash's Shield Forme correction (Amendment 2026-08-14a) and the priority-finisher
+generalization (Amendment 2026-08-14c) — pushed Aegislash's score to 1.255, making it the new
+second-highest overall. Since the Excellent floor is deliberately computed from the
+second-highest score (not the top, to avoid single-outlier skew), Aegislash taking that
+position raised the floor (1.158→1.192) and the downstream Acceptable/Good cut (0.811→0.835),
+pulling several mid-high-OHKO candidates (Samurott-Hisui, Lucario, Abomasnow-Mega, Absol,
+Victreebel-Mega) down into Acceptable — exactly filling the OHKO gap the original rule was
+built to promote across. Weavile and Beartic's own scores never moved (0.766/0.810 unchanged
+both dates); the floor moved under them. A legitimate, traceable side effect of unrelated
+correctness fixes, not a bug in either the fixes or the original rule's derivation.
+
+**Fresh re-derivation on today's data (n=59) confirms no rule survives:** Acceptable max OHKO
+23 overlaps Good min 16 — smear, not a cliff, doesn't clear the same rigor bar the original
+rule needed. Good↔Excellent likewise remains smear. SD joins NP/CM/BU/DD/ID+BP's "no rule"
+verdict, closing the entire six-category sweep-KO question with one honest, uniform outcome:
+OHKO/sweep-KO count is display-only information across all six setup categories, not a tier
+adjustment mechanism.
+
+**Status:** Discovery only — no code shipped from this amendment. Closes 3c item 3 (sweep-KO
+display fields) from the 2026-08-14 handoff. **DD's 1.0% setup-move admission floor remains
+unimplemented** — a real, derived finding not yet converted to a task; tracked as a small
+follow-up, separate from item 6.
+
+---
+
+### ADR-019 — Amendment 2026-08-14f
+
+**Setup-attacker payoff selection (SD/NP/CM/BU/DD) now picks each threat panel member's best
+real kit move individually, instead of applying one panel-mean-optimized move uniformly across
+all 37 members. Closes item 6 Stage 1 of the original Role Compendium construction backlog.**
+
+**Problem:** `_select_setup_payoff` picked a single payoff move by ranking mean damage across
+the whole panel, with per-defender variation limited to `fallback_mids`'s hard-zero trigger
+(type immunity / ability block). A move that scored well on *average* could win even when a
+different real move in the kit would clearly do more against most individual matchups — surfaced
+concretely on Mawile-Mega, whose Double-Edge beat Play Rough on panel mean purely via
+Ghost-type zero-fallback theft plus neutral-vs-resisted damage against Fire-types, despite
+Play Rough being the mechanically stronger move (higher raw power with STAB, no recoil) against
+nearly every real defender.
+
+**Design decisions, locked before implementation:**
+- **Selection rule per defender:** two-stage — best KO bin first (OHKO/combined-KO beats 2HKO
+  beats 3HKO+), weighted-capped damage fraction as tiebreak within the same bin. Preserves
+  today's existing scoring philosophy (turn-order weight, accuracy scaling) rather than
+  switching to raw damage comparison.
+- **Candidate pool (M):** kit damaging moves only (`_kit_damaging_mids`, category-matched to the
+  boosted stat) — not the broader presence-filtered usage bag `_select_setup_payoff` previously
+  searched. Deliberately narrower: ties every payoff choice to one real, coherent observed kit
+  rather than a synthesized bag of independently-real-but-not-necessarily-co-occurring moves.
+  Accepted tradeoff: a real usage payoff outside the kit's four moves is no longer reachable,
+  even if it would score better against some defender.
+- **Combined-KO evaluated as a genuine per-defender, per-candidate-mid competition, not
+  "check the payoff, then separately check the finisher."** For each candidate mid under
+  consideration as a defender's primary hit (excluding the finisher move itself,
+  `mid != fin_mid`): does it alone reach OHKO? If not, and the kit contains an eligible priority
+  finisher, does this mid's damage plus the finisher's clear the threat? The finisher move
+  independently competes as its own standalone candidate too — both roles apply simultaneously.
+  Verified via a dedicated adversarial test proving two *different* non-finisher primaries
+  (Iron Head, Sacred Sword) each independently combined-KO different defenders using the same
+  kit finisher (Shadow Sneak), with Shadow Sneak itself never winning as a primary despite being
+  in the candidate pool.
+- **`debuff_surv` redefined — a real semantic break, not a compatible extension.** Was `k/n`
+  over the full panel using one candidate-wide `primary_mid`'s self Def/SpD drops, applied as a
+  standing pass independent of selection. Now: `k/n` where `n` = count of defenders whose own
+  *selected* move actually carries a self-drop, `k` = how many survive — variable denominator
+  per candidate, not always `/37`. Implementation correctly handles heterogeneous drop
+  signatures (grouping defenders by exact stage pattern before running each group's own standing
+  survival pass) rather than assuming uniform stages across every self-drop move.
+- **Cost, confirmed cheaper than today's search, not more expensive.** Today's `_select_setup_payoff`
+  already pays `C`-many (9-17 typical) redundant `_damage_score` passes, each recomputing an
+  identical incoming-OHKO mask, just to find one mean-optimized winner. Restructuring to compute
+  that mask once and argmax across kit-only `M` (median 1-3 damaging moves) per defender is
+  cheaper in real calc-call terms, not a "4-8× cost bomb" as an earlier, stale estimate assumed —
+  that estimate predated this session's own three prior scoring additions (Aegislash sequence,
+  recoil, priority-finisher) and was never re-checked against current code before being repeated.
+
+**Explicitly out of scope, deferred:**
+- ID+BP — confirmed structurally different (Body Press's damage is defined by the user's own
+  Defense stat, not move choice); untouched, zero diff lines touch `_construct_def_payoff_setup`.
+- `payoff_move` / `payoff_coverage` display schema — `_select_setup_payoff` currently returns the
+  modal (most-frequently-winning) mid as an interim display value with a deterministic tiebreak;
+  the real reporting-contract decision (single label vs. structured breakdown) is Stage 2.
+- `_setup_bulk_crossings` / `_setup_spe_crossings` — confirmed independent of payoff selection,
+  untouched.
+
+**Confirmed by direct verification, not just Cursor's report:** branch pulled, full diff read
+(not spot-checked, given the size — 466 lines in the core file). Two of the five new tests
+inspected line-by-line as genuinely adversarial, not happy-path: the Mawile-shaped test asserts
+Double-Edge *never* wins except the one contrived cell where its raw damage is deliberately set
+higher; the combined-KO test proves genuine per-defender competition across distinct primaries
+sharing one finisher. `debuff_surv`'s variable-denominator behavior confirmed via a real test
+(`"1/1"` out of a 3-member panel, not `"1/3"`). All prior Aegislash-specific tests (6 original +
+1 new from this task) re-run and pass unmodified — confirming the restructure correctly
+generalized rather than regressed that already-shipped logic. 88/88 named-file tests, 979/979
+full suite (8 skipped, consistent baseline), no regressions. One honest gap: live-construct
+numbers reported by Cursor (Mawile-Mega's modal Iron Head, Mimikyu's coverage, the `11/22` /
+`14/29` `debuff_surv` figures) were not independently reproduced via the actual calc service —
+code- and test-level verification give high confidence but this specific claim rests on the
+report, not independent reproduction.
+
+**Status:** Shipped on `feature/setup-per-defender-payoff`, targeting `wip/setup-tr-usage-and-
+scoring` (large-blast-radius item, deliberately kept off `main` per this session's containment
+policy for big pieces). No critic pass, no persist — item 6 Stage 1 of 4 (core scoring); Stage 2
+(signals/schema), Stage 3 (ID+BP policy), Stage 4 (rebuild + critic + persist) remain.
+
+---
+
+### ADR-019 — Amendment 2026-08-14g
+
+**Dragon Dance gets its own independently-derived setup-move admission floor (1.0%, up from
+the shared 0.1%). SD/NP/CM/BU stay on the shared floor — confirmed no comparable gap exists
+for them.**
+
+From the Problem B admission-floor discovery: DD's setup-move presence distribution has a real
+hole at (0.390, 1.363] — Steelix-Mega/Altaria/Aerodactyl-Mega/Dragonite-Mega cluster thinly
+below it, Scrafty-Mega and above sit cleanly beyond it, and 0.5%/1.0% admit the identical set
+inside the hole (same pattern as the Sleep category's own independent floor). 1.0% chosen as
+the conservative pick, just under the retained cluster. `_DD_SETUP_PRESENCE_FLOOR = 1.0`
+applied only when `move_id == "dragondance"` inside the shared `_construct_offense_stage_setup`
+path; CM/BU untouched.
+
+**Confirmed by direct verification:** exclusion/inclusion boundary test proves Dragonite-Mega
+(0.390%) still clears the shared 0.1% floor on identical data, isolating the DD-specific
+override as the actual cause of exclusion — not a blanket change. A second test uses the
+identical presence value (0.390) for a CM and a BU candidate as a direct control, confirming
+category-scoping is real. Live DD pool: 17→13. 15/15 named tests, 974/974 full suite prior to
+this, no regressions.
+
+**Status:** Shipped on `fix/dd-setup-presence-floor`, PR #74, merged to `main`.
+
+---
+
+### ADR-019 — Amendment 2026-08-14h
+
+**Payoff display schema redesigned for SD/NP/CM/BU/DD: single `payoff_move` string dropped
+entirely, replaced by structured `payoff_moves` (list) + `payoff_targets` (mid → species list)
+derived directly from Stage 1's per-defender matrix. `claimed_traits` now lists every real
+winning move as its own execution trait, not one modal label.**
+
+Stage 1 broke the "one payoff move per candidate" assumption; this closes the schema gap it
+left open. Confirmed green-field before implementing: a full consumer sweep found zero real
+runtime dependents on `payoff_move`/`payoff_coverage` — only a unit test of the old string
+formatter (`_payoff_coverage_note`), no evidence/slot-fill/orchestrator/CLI path reads these
+keys. SD and NP are technically persisted with the old schema, but nothing downstream
+interprets `criteria_notes["payoff_*"]` today, so no live migration was required — a rebuild
+was needed regardless, independent of this schema question, since Stage 1 already changed the
+underlying scoring.
+
+Design: `_setup_payoff_notes` derives `payoff_moves` (sorted by win-count, descending) and
+`payoff_targets` from the existing `mid_counts`/`used` data Stage 1 already produces — no new
+computation, purely a display-shape change. ID+BP untouched (`_payoff_coverage_note` remains
+its path, confirmed by zero diff lines touching `_construct_def_payoff_setup`).
+
+**Confirmed by direct verification:** branch pulled, diffed. 90/90 named tests, 981/981 full
+suite, no regressions.
+
+**Status:** Shipped on `feature/setup-payoff-display-schema`, PR #76, merged to
+`wip/setup-tr-usage-and-scoring`.
+
+---
+
+### ADR-019 — Amendment 2026-08-14i
+
+**Stage 3 (item 6): ID+BP formally and permanently excluded from per-defender best-move
+selection — Body Press's damage is defined by the user's own Defense stat, not by move choice,
+so the mechanic doesn't apply. Not a deferral; a permanent scope boundary.**
+
+**Stage 4 (item 6): full construct + critic pass across all ten Role Compendium categories
+under current code. No persist — critic-review only, three clusters, each independently
+approved:**
+
+- **Cluster 1 (staleness rebuilds — SD/NP/Trick Room):** SD 26→54 admitted, NP 6→23, both with
+  real tier churn among survivors (Kingambit's modal payoff Sucker Punch→Kowtow Cleave;
+  Aegislash Shadow Sneak→Poltergeist) — treated as fresh critic review, not reconfirmation of a
+  prior approval computed under old scoring. Trick Room 38→28, zero tier changes among
+  survivors, pure membership cut from its 22.5% floor. All three: critic-approved, 0 flags.
+- **Cluster 2 (fresh builds — CM/BU/DD/ID+BP):** never previously persisted; the Aug 12 local
+  builds were confirmed genuinely lost (uncommitted, discarded in branch/worktree cleanup —
+  same failure mode as Cluster 3 below), not recoverable. Built fresh under current code: CM 49,
+  BU 37, DD 12, ID+BP 24. All critic-approved, 0 flags. ID+BP's doc note (below) attached.
+- **Cluster 3 (lost-support rebuilds — Tailwind Setter/Sleep Status Spreader/Screens
+  Support):** confirmed not recoverable via any git/stash/dangling-commit search — genuinely
+  lost, same Aug 12 uncommitted-persist failure. Rebuilt from scratch under existing
+  constructors/tests (already in code, only the JSON was lost): TW 23, Sleep 14, Screens 18
+  (Screens confirmed including Whimsicott at Excellent — the membership-gate reopen behavior
+  from earlier in this arc). All critic-approved, 0 flags.
+
+**Process note worth carrying into any retrospective:** all seven lost-and-rebuilt categories
+(CM/BU/DD/ID+BP/TW/Sleep/Screens) trace to the identical Aug 12 failure — critic-approved
+locally, never pushed, discarded in cleanup. This is the second time uncommitted work has been
+lost in this project's history (the first being the ADR/log-mirror-write violations), a
+different failure shape but the same root cause class. Direct evidence for why this session's
+much stricter discipline (every task pushed to `origin` immediately, independently verified via
+`git fetch`) exists.
+
+**ID+BP doc note (paste-ready):** *Iron Defense + Body Press — permanent Stage 3 scope
+boundary. ID+BP payoff stays fixed to Body Press by design. Body Press damage is defined by the
+user's Defense stat, not by choosing among attacking moves, so Stage 1 per-defender best-move
+selection and Stage 2 plural `payoff_moves`/`payoff_targets` do not apply. The category keeps
+the single-string/fixed-payoff path (`payoff_move_id: bodypress`). This is an intentional
+permanent boundary, not an oversight and not deferred work.*
+
+**Confirmed by direct verification:** branch pulled; `docs/artifacts/stage4_compendium_critic_
+2026-08-14.json` inspected directly (not just the summary markdown) — SD/NP/Trick Room's full
+member lists cross-checked field-by-field against the raw JSON and matched exactly. `data/roles/`
+confirmed unchanged (8 files, zero diff) — no persist occurred.
+
+**Status:** Reported on `feature/stage4-compendium-critic-reports` (docs-only, never merged
+into `wip` — worth merging or at minimum not losing track of, since the report itself is real
+and useful). No code changes. No persist.
+
+---
+
+### ADR-019 — Amendment 2026-08-14j
+
+**Burn-immunity/negation credit (item 10) and broader disruption/status-immunity signal (item
+11) — both formally closed, no rule, no display field, no further work planned.**
+
+Item 10 was reconsidered mid-session from its original "display-only" scope to a possible
+tier-affecting promote rule, then closed after real discovery: a systematic ability-table sweep
+confirmed the real mechanism set (Fire-type, Water Veil/Water Bubble/Thermal Exchange,
+Comatose/Purifying Salt, and Guts — which inverts burn into a net Attack boost rather than
+merely tolerating it). 13 real candidates across the six categories have genuine
+burn-immunity/negation with a physical payoff — but every one's current tier is already
+explained by the existing damage-score floor, a branch gate, or a usage discount, not by
+missing burn credit. No motivating case survives the same hard-cap discipline every other
+promote rule this session was held to. Closed entirely: no rule, no display field.
+
+Item 11 closed on the strength of item 10's outcome rather than its own direct discovery pass —
+worth noting that distinction plainly, since it's an extrapolation, not an independent finding.
+Reopen only if a real motivating case for either surfaces later.
+
+**Status:** Discovery only, both items. No code shipped, none planned.
+
+---
+
+### ADR-019 — Amendment 2026-08-14k
+
+**Drain-move HP recovery now credited in setup `remain`, mirroring connect-recoil's existing
+subtraction — a real, previously-silent correctness gap, not a threshold or design question.**
+
+`_recoil_frac_from_result` subtracted connect-recoil from `remain` on outsped-and-surviving
+candidates; nothing added the mirror-image credit for drain moves (Bitter Blade, Drain Punch,
+Giga Drain, etc. — same mechanism, opposite sign). Found by direct inspection, motivated by
+Ceruledge specifically (drain payoff on 33-34/37 real panel matchups across SD and BU).
+
+New `_drain_frac_from_result` reads `raw.recovery.recovery[-1] / raw.stats.attacker.hp` —
+**absolute HP healed divided by max HP**, a real shape difference from recoil's ready-made
+percentage field, confirmed via live probe rather than assumed symmetric. Gated strictly on a
+real `_DRAIN_MOVES` frozenset (eight Champions-legal drain moves; ratios non-uniform — Draining
+Kiss 75%, the rest 50%, confirmed from real move data, not hardcoded since calc already applies
+the ratio). Gating is mandatory: `raw.recovery` is also populated by non-drain healing sources
+(Shell Bell, confirmed via live probe) — an ungated read would have falsely credited item-based
+healing as a move property.
+
+One shared helper patches both remain call sites (`_setup_kit_matrix_score` for Stage 1's
+SD/NP/CM/BU/DD path, and the older `_damage_score` still used by ID+BP) — avoiding a third
+near-duplicate alongside the existing recoil helper. Both sites: `min(1.0, max(0.0, base -
+recoil_frac + drain_frac))`, applied symmetrically across the disguise and Aegislash
+King's-Shield-reset branches, same as recoil already was.
+
+**Confirmed by direct verification:** Shell Bell adversarial test present and correct (recovery
+data on a non-drain move produces zero credit). Ceruledge magnitude test reconstructs the exact
+discovery-reported deltas (SD `remain_min` 0.215→0.652) as a real numeric assertion, not just
+"increased" — live spot-check confirmed exact match. 10/10 named tests, 989/989 full suite, no
+regressions.
+
+**Status:** Shipped on `feature/setup-drain-remain-credit`, PR #78, merged to
+`wip/setup-tr-usage-and-scoring`.
+
+---
+
+### ADR-019 — Amendment 2026-08-14l
+
+**SD/CM/BU get category-specific damage-score admission floors and raised Acceptable
+multipliers, deliberately reshaping their tier distributions so Acceptable becomes the largest
+tier instead of Good. NP/DD/ID+BP unchanged, confirmed byte-identical to Stage 4.**
+
+**Motivation, stated honestly as a judgment call, not a data-derived correction:** post-Stage-1
+rescoring left SD/CM/BU's Good tier both absolute-large and a high percentage of admitted
+pool (SD 74%, CM 61%, BU 78%), with Excellent correspondingly thin (5-25% depending on
+category) — a structural consequence of Excellent's top-relative anchor design diluting as
+pool size grows, not a bug. Real breakpoint-finding across three separate passes (an initial
+rank-20 target check, a widened 20-40 gap search, and a final 20-40-rank search) confirmed **no
+genuine natural gap exists** in SD's or CM's score distributions anywhere near a reasonable
+target size — both are thoroughly continuous fields. Cut points were therefore chosen as
+explicit target-size judgment calls, not breakpoint-derived: SD keep=35 (the single largest gap
+found in its whole search window, though below the formal significance threshold), CM keep=37
+(a smaller, non-flagged gap, chosen over a technically-larger one sitting at the pool's edge),
+BU keep=36 (the one genuine, highly-significant gap found — 0.305, dwarfing every other
+candidate gap — but one that only excludes a single outlier, Sableye-Mega, and does essentially
+nothing to reduce BU's overall size; that tradeoff was explicitly accepted in favor of using
+real evidence where it existed).
+
+**Mechanism:** new `_partition_by_admission_floor` runs *before* `_setup_excellent_floor`
+computes its second-highest-score anchor — ensuring the anchor reflects the post-floor pool,
+not the original. Per-category `damage_admission_floor` and `acceptable_floor_mult` added as
+criteria-dict keys (SD 0.981/0.88, CM 0.708/0.88, BU 0.748/0.90) — opt-in via dict key presence,
+not a category-name conditional, meaning NP/DD/ID+BP are structurally protected from ever being
+affected rather than merely tested to currently match. `_setup_mech_tier` takes an
+`acceptable_mult` parameter defaulting to the original shared 0.70, used by every unmodified
+category's call site unchanged. Admission-floor comparison rounds to 3 decimals specifically so
+each category's exact boundary species (Decidueye/Mr. Rime/Lycanroc) stay inclusive under
+float-precision noise.
+
+**A real design question checked and explicitly not pursued:** whether the support categories'
+(Tailwind/Sleep) already-Acceptable-largest tier shape could be reused as a model — confirmed
+their mechanism is fundamentally different (execution + secondary-role criteria, not a single
+anchor-relative damage score) and not adaptable; this task stays within the existing
+anchor-relative mechanism, redesigning its parameters rather than replacing it.
+
+**Confirmed by direct verification, including a genuine cross-report consistency proof:** SD's
+new keep=35 exclusion list (19 names) confirmed as a strict subset of the earlier keep=20
+exclusion list (34 names) — every one of the 19 appears in the 34, exactly as required since a
+looser cut must exclude a subset of what a stricter cut excludes. Same check on CM (12 vs. 29,
+exact arithmetic match: 29−12=17 newly-included, 37−20=17). This validates cross-report
+consistency, not an independent recomputation of underlying calc-derived scores, which weren't
+directly re-verifiable without calc access. BU's Emboar usage-discount interaction (Excellent→
+Acceptable override bypassing Good entirely) predicted by hand from first principles (5/13/18,
+not the naive score-only 6/13/17) and confirmed exactly correct via the delivered report's own
+embedded automated boolean self-check (`bu_emboar_5_13_18: True`). All three categories'
+resulting tier counts matched their targets exactly (SD 3/6/26, CM 8/10/19, BU 5/13/18).
+NP/DD/ID+BP confirmed byte-identical to Stage 4 via the report's own regression check
+(`np_dd_idbp_tier_maps_equal: True`, zero mismatches either direction). 102/102 named tests,
+993/993 full suite, no regressions.
+
+**Status:** Shipped on `feature/sd-cm-bu-admission-floor`, PR #79, merged to
+`wip/setup-tr-usage-and-scoring`. Fresh critic pass required and completed for SD/CM/BU
+specifically (Stage 4's prior approval for these three does not carry over, since admission and
+tier boundaries both changed); NP/DD/ID+BP's Stage 4 approval remains valid unchanged. No
+persist yet.
+
+---
+
+### ADR-019 — Amendment 2026-08-14m
+
+**Cross-source (CBD ∧ Showdown) usage corroboration for setup-move admission: investigated and
+explicitly rejected. Today's OR-based `_best_move_set_pct` (max of CBD, Showdown) confirmed
+structurally correct, not merely convenient.**
+
+Real question worth asking given this session's pattern of catching single-source data
+artifacts (cross-set contamination, the top-12 truncation bug, the CBD-first logic error) — but
+confirmed via direct investigation that requiring both sources to agree would be actively
+harmful here, not a data-quality improvement. Requiring AND-corroboration would exclude 145 of
+175 currently-admitted candidates across SD/NP/CM/BU/DD, including multiple critic-approved
+Excellent members, and would wipe NP's entire category (0 of 23 candidates would survive) — not
+because CBD and Showdown disagree about real, high-usage play, but because of CBD's coverage
+shape: offline snapshot truncation (already mitigated by an existing live-fetch-on-miss
+fallback, itself the product of an earlier, deliberate 2026-08-08 fix for the same root
+problem class — `TEAM_LADDER_N=50` excluding real candidates like Clefable) plus mega-forme
+page gaps.
+
+**A second, deeper investigation confirmed the remaining gap after live-fetch is a genuine,
+permanent data-source ceiling, not a further fixable artifact:** CBD's own
+`/api/battle/Doubles/{species}` endpoint returns exactly 10 move rows per species, always — our
+extraction keeps everything the API provides (confirmed no move-level slice anywhere in the
+pipeline, direct spot-check across five species showing `raw == parsed == 10` in every case).
+Real, low-presence setup moves that fall outside CBD's own top-10-per-species window are
+therefore permanently invisible to CBD, regardless of live-fetching, regardless of any
+snapshot-freshness fix — there is no "fuller" CBD to access. Showdown remains the only source
+capable of surfacing these; CBD still meaningfully corroborates anything within its window. The
+existing OR design is therefore not a workaround but the structurally correct choice given what
+each source is actually capable of providing.
+
+**Status:** Discovery only, both passes. No code changes. No implementation planned —
+question closed with a real, load-bearing explanation.
+
+---
+
+### ADR-019 — Amendment 2026-08-14n
+
+**Item 7 scoped and Part A (spread-move credit) designed and shipped: setup-attacker threat
+panel gains a real teammate for each of the 37 primaries, sourced from tournament-population
+co-occurrence data. Spread payoffs now score against both panel members instead of the primary
+alone — closing the gap where the real 0.75× Doubles-target penalty was applied with no
+compensating credit for actually hitting a second target.**
+
+**Scoping (discovery only, no design commitment yet):** item 7 split into two genuinely
+different pieces. Part A (spread-move credit) requires real teammate data to construct
+realistic pairs — confirmed available and dense (`data/team-composition/champions-reg-mb.
+pikalytics-team-usage.v1.json`, 5,985 real, count-weighted, forme-specific pairs, tournament
+population). Part B (ally-damage risk) is structurally independent and much smaller — narrowed
+to essentially one move (Earthquake) among current admits, confirmed via real calc target
+flags rather than assumed from memory.
+
+**Part A design, locked before implementation:**
+- **Panel construction — per-threat top-1 partner.** Each of the 37 Showdown-usage primaries
+  keeps its slot; each gets exactly one partner, the highest-count real co-occurrence among the
+  other 36 panel members. Zero pair-less members under this policy (weakest edge: Rotom-Wash↔
+  Garchomp, count 201 — independently spot-checked against the raw data file and confirmed
+  exact). Chosen over broader edge-set policies (top-3, count-threshold) specifically because
+  those leave pair-less members needing singleton fallback, which Option 1 was meant to avoid.
+- **Single-target payoffs stay primary-only** — the partner is panel context, not a damage
+  target, for any non-spread mid. No invented second KO.
+- **Spread payoffs originally scored as `mean(primary_frac, partner_frac)` with `worse-of-two`
+  KO bin** — framed as a "clear the slot" signal (see Amendment 2026-08-14p: this framing was
+  revised after shipping, once it became clear it could net *below* single-target-only scoring
+  for many real candidates, contradicting the feature's own motivation).
+- **Recoil/drain sum across both spread targets** — mechanically correct, not an approximation:
+  real Doubles drain/recoil reflects total damage dealt across all hit targets in one combined
+  amount, not two independent partial values.
+- **Floette-Mega/`floetteeternal` co-occurrence bridge** — narrow, lookup-only (confirmed via
+  code comment and dedicated identity-preservation test), does not rewrite calc identity;
+  Floette-Mega keeps its real Fairy Aura stats for all damage computation.
+
+**Confirmed by direct verification:** full 458-line core diff read in full (not spot-checked,
+given the size), every design decision traced against the actual code — shared `ohko_mask`
+computed once per candidate (not per mid, the source of the original cost estimate being wrong),
+`mid != fin_mid` exclusion present, primary-first finisher gating confirmed mechanically correct
+(a real move can only be thrown once per turn — the gate correctly reflects "attempted," not
+"succeeded," a subtlety not obvious from the design text alone). Two of nine new tests
+independently confirmed genuinely adversarial: the sweep_ohko test directly contrasts
+one-cleared vs. both-cleared scenarios; the finisher test proves the single-move-per-turn
+constraint holds via a real Aegislash-shaped sequence. 1002/1002 tests passing locally (matches
+the reported 1004 once two environment-only skip differences — live calc service, Ollama — are
+accounted for).
+
+**Status:** Shipped on `feature/pair-defender-spread-credit`, PR #81, merged to
+`wip/setup-tr-usage-and-scoring`. Superseded in part by Amendment 2026-08-14p (the scoring
+formula) — the panel-construction and single-target-primary-only decisions above remain
+unchanged and current.
+
+---
+
+### ADR-019 — Amendment 2026-08-14o
+
+**Item 7 Part B (ally-damage risk) shipped: display-only `criteria_notes.ally_damage_risk`
+field for setup-attacker candidates whose real payoff includes a genuinely ally-hitting
+("allAdjacent") move.**
+
+**Scope, confirmed via direct discussion:** display-only, no tier/admission impact — same
+resolution as burn-immunity (item 10). Scoped to a static, move-intrinsic property check, not
+team-context-aware — Role Compendium construction is species-level with no access to a specific
+locked teammate, so "safety vs. this candidate's real locked ally" is structurally out of reach
+at this stage; "safety vs. a typical partner" (using Part A's now-available co-occurrence data)
+is a real possible future extension, not built here.
+
+**Real, systematic move table:** `_ALLY_HIT_DAMAGE_MOVE_IDS` (14 moves), confirmed a genuine
+subset of Part A's broader spread-move table, sourced from real `@smogon/calc` move-target data
+rather than memory. Correctly distinguishes Surf (ally-hitting) from Muddy Water (foes-only) —
+a real, easy-to-mistake Doubles-specific detail that the shipped test suite explicitly checks by
+name, unprompted. Type-protection fragments (Ground→Flying/Levitate/Earth Eater, Water→Water
+Absorb/Dry Skin/Storm Drain, Electric→Volt Absorb/Motor Drive/Lightning Rod, Fire→Flash Fire/
+Well-Baked Body, Grass→Sap Sipper, Poison→Steel-type immunity, Normal→Ghost-type immunity, plus
+universal Telepathy/Friend Guard and Soundproof for sound moves) independently verified accurate
+against real type-chart mechanics, including correctly noting Dark/Fairy have no type-specific
+immunity beyond the universal fallback.
+
+**Confirmed by direct verification:** branch built from `wip`'s tip *before* Part A merged
+(explicitly and honestly labeled as such in the ship report, not a mistake) — flagged the real
+merge-conflict risk this created, resolved cleanly with no hand conflict-resolution needed (git
+auto-merged both features' independent wire sites). Composition with Part A verified by direct
+code inspection: `_ally_damage_risk_note` reads the same `payoff_moves` list that Part A's
+restructure never mutates, only relabels via `payoff_targets` separately — structurally cannot
+conflict. 5/5 named tests, 208/208 broader `role_compendium` suite, 998/998 full suite at ship
+time; reconfirmed post-merge with Part A at 1017/1017 total (matching exactly once environment
+skips accounted for).
+
+**Status:** Shipped on `feature/ally-damage-risk-note`, PR #80, merged to
+`wip/setup-tr-usage-and-scoring` (merged before Part A, per the actual PR sequence — #80 then
+#81, inverted from the original plan but a legitimate, verified-clean outcome).
+
+---
+
+### ADR-019 — Amendment 2026-08-14p
+
+**Item 7 Part A's original spread-scoring formula (mean-of-two continuous score, worse-of-two
+KO bin) revised: spread payoffs now use `max(primary_alone, pair_mean)` for continuous score
+and primary-alone-only for KO-bin/`sweep_ohko` classification — spread moves can no longer
+score worse than a hypothetical single-target-only read, only better or equal.**
+
+**The problem, caught by direct inspection of real post-ship numbers, not anticipated during
+design:** the original "clear the slot" formula could net *below* the pre-Part-A single-target
+score for many real candidates — Rhyperior, Garchomp, Diggersby, Blaziken-Mega, Primarina,
+Barbaracle-Mega, Lycanroc, and others all showed real score *decreases* after gaining spread
+scoring, directly contradicting the feature's own stated motivation ("stop punishing spread's
+0.75× with no upside"). Root cause: `mean(primary, partner)` is only ≥ primary-alone when the
+partner takes at least as much damage as primary did — a partner that resists the move type or
+is simply bulkier drags the average down, and `worse-of-two` compounds this by requiring the
+tougher of two real targets to clear for full OHKO credit, where before only one target needed
+clearing.
+
+**Revised design, with one non-obvious mathematical consequence explicitly surfaced and
+confirmed intentional before implementation:**
+- **Continuous score:** `weighted = max(primary_alone_weighted, pair_mean_weighted)` (and the
+  same for `raw_frac`) — primary-alone computed identically to how single-target payoffs are
+  scored, pair-mean only applied when it's genuinely better.
+- **KO-bin / `sweep_ohko`: reverts to exactly primary-alone's own bin, unconditionally.**
+  Confirmed via direct mathematical reasoning before implementation: since `worse-of-two` can
+  by construction never exceed primary-alone's bin, "take the better of (primary-alone bin,
+  worse-of-two pair bin)" is not a partial protection — it is mathematically identical to
+  always using primary-alone's bin, full stop. This means the "clear the slot" bin signal is
+  **completely erased** for scoring purposes, not softened. Explicitly confirmed as the desired
+  outcome before shipping, not discovered as a surprise afterward.
+- **Recoil/drain summing across both targets stays unconditional**, independent of which
+  continuous-score alternative wins — real mechanical justification: a spread move mechanically
+  always hits both targets when used in-game, so the attacker pays the full two-target
+  recoil/drain cost regardless of which number gets reported as the move's evaluation score.
+  This was a recommendation surfaced with reasoning (not silently decided) and implemented as
+  proposed.
+- **Aegislash's remain/King's-Shield-reset gate switched to reading primary's raw hit fraction
+  directly (`_hit_frac_from_result(r)`, a pre-existing helper) instead of the scored `raw_frac`**
+  (which could now be pair-mean-influenced) — ensures Aegislash's sequence mechanic, which was
+  always primary-first by design, evaluates against primary's real damage output specifically,
+  not a partner-contaminated number.
+
+**Process note:** this revision was explicitly planned and independently plan-reviewed before
+implementation, applying the lesson from Part A's original version (which skipped that step) —
+confirmed directly with the person after an initial misreading of the ship report's silence on
+the matter.
+
+**Confirmed by direct verification:** full diff read in context against every locked decision.
+The recoil-sums-even-when-primary-wins test is built around Rhyperior itself (the real
+motivating case) with exact numeric assertions (0.80 continuous score, not 0.50; 0.40 remain
+reflecting both targets' recoil despite primary alone winning the score) — proof, not assertion.
+The bin-reversion test is genuinely adversarial in the harder direction: partner OHKO'd but
+primary not, correctly confirmed to *not* count as OHKO, directly proving the accepted
+mathematical consequence rather than just the obvious case. All 7 pre-existing Aegislash-named
+tests re-run and pass unmodified. 11/11 pair-panel tests, 1017/1017 total.
+
+**Status:** Shipped on `feature/spread-max-primary-floor`, PR #82, merged to
+`wip/setup-tr-usage-and-scoring`. Supersedes the scoring-formula portion of Amendment
+2026-08-14n; panel construction and Floette bridge from that amendment remain current.
+
+---
+
+### ADR-019 — Amendment 2026-08-14q
+
+**SD/CM/BU admission floors and Acceptable multipliers re-derived a third time, following item
+7's two scoring changes (Part A's original ship, then its revision) — supersedes the SD/CM/BU
+values from Amendment 2026-08-14l. NP/DD/ID+BP unaffected throughout, values from 2026-08-14l
+remain current for those three.**
+
+**Why three rounds were needed, stated plainly:** Amendment 2026-08-14l's parameters (SD
+0.981/0.88, CM 0.708/0.88, BU 0.748/0.90) were fit to post-Stage-1 singleton scores. Item 7 Part
+A's original ship changed SD/CM/BU's distributions again (confirmed via a dedicated recheck:
+SD/CM's target shapes broke, two real admission losses — Rhyperior from SD, Lycanroc from BU,
+the latter notable since Lycanroc's own score had originally *defined* BU's floor value). A
+second re-derivation (SD keep=34, CM keep=37 unchanged value, BU keep=36 re-anchored to
+Lycanroc's new lower score) was interrupted mid-process when direct inspection of the real score
+deltas revealed Part A's original formula could net *below* single-target-only for many
+candidates — see Amendment 2026-08-14p. Once that revision shipped and was verified, a third and
+final re-derivation was run against the now-stable, corrected scores.
+
+**Final locked parameters:**
+| Category | Floor | Acceptable mult | Keep | Live shape |
+|---|---|---|---|---|
+| SD | 0.969 (Lycanroc-Dusk) | **0.85** (changed from 0.88) | 37 | 3/14/20 |
+| CM | 0.708 (Mr. Rime — numerically identical to 2026-08-14l's value; only its rank shifted, 37→38, as CM's admitted pool grew with Delphox's new entry) | 0.88 (unchanged) | 38 | 7/11/20 |
+| BU | 0.766 (Lycanroc, recovered from round two's 0.723 once Amendment 2026-08-14p protected it from scoring below its Rock-Slide-standalone value) | 0.90 (unchanged) | 36 | 5/14/17 |
+
+**Notable finding:** the original Excellent/Acceptable multipliers from 2026-08-14l (0.88 SD,
+0.88 CM, 0.90 BU) were confirmed via a fresh multiplier grid to still produce Acceptable-largest
+on the new, post-revision pools — the original choices were robust, not overfit to one scoring
+snapshot. Only SD's multiplier was deliberately changed (0.88→0.85, a direct request, less
+aggressive than the grid-confirmed 0.88 option) — not a data-driven correction.
+
+**A genuine, correctly-explained discrepancy surfaced during verification:** live CM shape came
+back 7/11/20, not the discovery grid's predicted 6/12/20. Traced to a real display-precision
+artifact, not a bug: the discovery report's own tables rounded scores to 3 decimals (Armarouge
+0.984 vs. floor 0.9842, appearing to miss by a hair), while the actual tier-assignment code
+(`_setup_mech_tier`) compares at full float precision with no rounding — confirmed via direct
+code inspection. Armarouge's true unrounded score clears the true unrounded floor; the discovery
+report's rounded display created a misleading appearance of a near-miss that the real
+computation never had.
+
+**Confirmed by direct verification:** branch content confirmed minimal and exactly scoped (only
+criteria constants and existing test assertion values changed — no data files, matching the
+explicit "critic JSON and NP snapshot not committed" disclosure). CM's floor constant confirmed
+byte-identical before/after (only its explanatory code comment changed). 102/102 named tests,
+1017/1017 total, zero regressions. NP/DD/ID+BP tier maps confirmed unchanged throughout all
+three re-derivation rounds.
+
+**Status:** Shipped on `feature/sd-cm-bu-post-revision-floors`, PR #83, merged to
+`wip/setup-tr-usage-and-scoring`. Fresh critic pass completed and approved (0 flags) for
+SD/CM/BU specifically, per the same "admission/tier boundaries changed → prior approval doesn't
+carry over" discipline as every prior recalibration round.
+
+---
+
 ## ADR-020: Theme/archetype reconciliation — mechanism for re-evaluating locked values when
 team-level commitments or sibling attributes change
 
