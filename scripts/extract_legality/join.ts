@@ -119,6 +119,30 @@ function readAbilities(v: JsonValue | undefined, ctx: string): SpeciesAbilities 
   return out;
 }
 
+function fromPokedex(
+  id: string,
+  dex: Record<string, JsonValue>,
+  pokedex: Record<string, JsonValue>,
+  is_nonstandard: string | null,
+  speciesTier: string | null,
+): SpeciesEntry {
+  const baseSpecies = dex.baseSpecies;
+  return {
+    id,
+    name: asString(dex.name, `pokedex.${id}.name`),
+    num: asNumber(dex.num, `pokedex.${id}.num`),
+    types: asStringArray(dex.types, `pokedex.${id}.types`),
+    base_stats: readBaseStats(dex.baseStats, `pokedex.${id}.baseStats`),
+    base_species_id:
+      typeof baseSpecies === "string" && baseSpecies ? toId(baseSpecies) : null,
+    abilities: readAbilities(dex.abilities, `pokedex.${id}.abilities`),
+    tags: ownTags(dex),
+    effective_tags: effectiveTags(id, pokedex),
+    is_nonstandard,
+    tier: speciesTier,
+  };
+}
+
 /** Join champions formats-data onto base pokedex by Showdown id. Hard-fail on missing keys. */
 export function joinSpecies(
   formatsData: Record<string, JsonValue>,
@@ -132,25 +156,44 @@ export function joinSpecies(
   }
 
   const out: Record<string, SpeciesEntry> = {};
-  for (const id of Object.keys(formatsData)) {
+  const formatIds = Object.keys(formatsData);
+  for (const id of formatIds) {
     const fmt = asRecord(formatsData[id]!, `formats-data.${id}`);
     const dex = asRecord(pokedex[id]!, `pokedex.${id}`);
-    const baseSpecies = dex.baseSpecies;
-    const base_species_id =
-      typeof baseSpecies === "string" && baseSpecies ? toId(baseSpecies) : null;
-    out[id] = {
+    out[id] = fromPokedex(
       id,
-      name: asString(dex.name, `pokedex.${id}.name`),
-      num: asNumber(dex.num, `pokedex.${id}.num`),
-      types: asStringArray(dex.types, `pokedex.${id}.types`),
-      base_stats: readBaseStats(dex.baseStats, `pokedex.${id}.baseStats`),
-      base_species_id,
-      abilities: readAbilities(dex.abilities, `pokedex.${id}.abilities`),
-      tags: ownTags(dex),
-      effective_tags: effectiveTags(id, pokedex),
-      is_nonstandard: nonstandard(fmt.isNonstandard),
-      tier: tier(fmt.tier),
-    };
+      dex,
+      pokedex,
+      nonstandard(fmt.isNonstandard),
+      tier(fmt.tier),
+    );
+  }
+
+  // Unlisted otherFormes inherit the parent's formats-data legality flags
+  // (Showdown Dex copies base tier when the forme has no own FormatsData row).
+  for (const id of formatIds) {
+    const dex = asRecord(pokedex[id]!, `pokedex.${id}`);
+    const others = dex.otherFormes;
+    if (!Array.isArray(others)) continue;
+    const parent = out[id]!;
+    for (const name of others) {
+      if (typeof name !== "string") {
+        throw new Error(`pokedex.${id}.otherFormes: expected string`);
+      }
+      const fid = toId(name);
+      if (fid in out) continue;
+      const childRaw = pokedex[fid];
+      if (childRaw === undefined) continue;
+      const child = asRecord(childRaw, `pokedex.${fid}`);
+      if (child.battleOnly || child.isCosmeticForme) continue;
+      out[fid] = fromPokedex(
+        fid,
+        child,
+        pokedex,
+        parent.is_nonstandard,
+        parent.tier,
+      );
+    }
   }
   return out;
 }

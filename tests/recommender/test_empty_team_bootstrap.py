@@ -123,9 +123,10 @@ def test_presupplied_pool_is_validated_and_non_species_fields_survive_omission()
     )
 
     assert result["available_pool"] == [
-        {"species": "Pelipper", "item": "Focus Sash"}
+        {"species": "Pelipper", "item": "Focus Sash"},
+        {"species": "Floette-Eternal", "item": "Leftovers"},
     ]
-    assert result["unresolved_pool_entries"] == ("Eternal Floette",)
+    assert result["unresolved_pool_entries"] == ()
 
 
 def test_explicit_empty_pool_clears_pool_and_unresolved_entries():
@@ -453,14 +454,37 @@ def test_unresolved_only_pool_uses_global_off_and_explains_bias():
     )
 
 
-def test_exact_id_only_rejects_eternal_floette_but_accepts_floette_eternal():
+def test_eternal_floette_alias_accepts_and_dedupes_with_canonical():
     state = _record(
         _state(),
         _payload(pool=("Eternal Floette", "Floette-Eternal")),
     )
 
     assert state["available_pool"] == [{"species": "Floette-Eternal"}]
-    assert state["unresolved_pool_entries"] == ("Eternal Floette",)
+    assert state["unresolved_pool_entries"] == ()
+
+
+def test_basculegion_pool_notice_is_on_bootstrap_presentation():
+    state = _record(_state(), _payload(pool=("Basculegion",), delegated=True))
+    result = bootstrap_direction(state)
+    assert (
+        "Basculegion is the male forme; Basculegion-F is also legal."
+        in result["pending_presentation"]["notices"]
+    )
+
+
+def test_classify_pending_resolves_abbrev_to_option_species():
+    selected = classify_pending(
+        "M-Swampert",
+        {
+            "schema_version": 1,
+            "kind": "candidate_selection",
+            "slot_index": 0,
+            "options": [{"species": "Swampert-Mega", "source": "bootstrap"}],
+        },
+    )
+    assert selected["turn_intent"] == "slot_candidate_selected"
+    assert selected["selected_option"]["species"] == "Swampert-Mega"
 
 
 def test_provenance_claim_types_remain_separate():

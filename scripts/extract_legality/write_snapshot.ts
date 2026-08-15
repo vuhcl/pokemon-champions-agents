@@ -11,11 +11,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { joinSpecies } from "./join.js";
+import { joinSpecies, type SpeciesEntry } from "./join.js";
 import { extractLearnsets } from "./learnsets.js";
 import { mergeItems } from "./merge_items.js";
 import { mergeMoves } from "./merge_moves.js";
 import { diffItemMaps, diffSpeciesTables } from "./diff_mods.js";
+import { toId } from "./to_id.js";
 import {
   extractDataTable,
   extractFlatRules,
@@ -97,6 +98,22 @@ function read(repo: string, rel: string): string {
   return fs.readFileSync(path.join(repo, rel), "utf8");
 }
 
+/** Keep aliases whose target toId is a joined species id. Non-string values fail closed. */
+function speciesAliases(
+  aliases: Record<string, unknown>,
+  species: Record<string, SpeciesEntry>,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [aliasId, target] of Object.entries(aliases)) {
+    if (typeof target !== "string") {
+      throw new Error(`Aliases.${aliasId}: expected string target, got ${typeof target}`);
+    }
+    const speciesId = toId(target);
+    if (speciesId in species) out[aliasId] = speciesId;
+  }
+  return out;
+}
+
 function main(): void {
   const { showdownPath: argPath } = parseArgs(process.argv.slice(2));
   const repo = ensureShowdown(argPath);
@@ -152,10 +169,16 @@ function main(): void {
   const itemsRegma = mergeItems(baseItems, [championsItems, regmaItems]);
   const moves = mergeMoves(baseMoves, [championsMoves]);
   const learnsets = extractLearnsets(championsLearnsets);
+  const aliases = extractDataTable(
+    read(repo, "data/aliases.ts"),
+    "data/aliases.ts",
+    "Aliases",
+  );
+  const species_aliases = speciesAliases(aliases, species);
 
   const snapshot = {
     meta: {
-      schema_version: 2 as const,
+      schema_version: 3 as const,
       extracted_at,
       source: {
         repo: "smogon/pokemon-showdown",
@@ -169,6 +192,7 @@ function main(): void {
     items,
     moves,
     learnsets,
+    species_aliases,
   };
 
   const speciesDiff = diffSpeciesTables(regmaFormats, championsFormats);
@@ -212,7 +236,7 @@ function main(): void {
   fs.writeFileSync(OUT_IDENTIFIER_SKIPS, `${JSON.stringify(skipReport, null, 2)}\n`);
 
   console.error(
-    `Wrote ${OUT_SNAPSHOT} (${Object.keys(species).length} species, ${Object.keys(items).length} items, ${Object.keys(moves).length} moves, ${Object.keys(learnsets).length} learnsets)`,
+    `Wrote ${OUT_SNAPSHOT} (${Object.keys(species).length} species, ${Object.keys(items).length} items, ${Object.keys(moves).length} moves, ${Object.keys(learnsets).length} learnsets, ${Object.keys(species_aliases).length} species_aliases)`,
   );
   console.error(
     `Wrote ${OUT_DIFF} (${speciesDiff.length} species flips, ${itemDiff.length} item flips)`,

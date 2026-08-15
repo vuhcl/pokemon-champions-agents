@@ -35,6 +35,8 @@ type Snapshot = {
       effective_tags: string[];
       abilities?: { "0"?: string; H?: string };
       base_species_id?: string | null;
+      is_nonstandard?: string | null;
+      tier?: string | null;
     }
   >;
   items: Record<string, { id: string; name: string; is_nonstandard: string | null }>;
@@ -50,6 +52,7 @@ type Snapshot = {
     }
   >;
   learnsets?: Record<string, string[]>;
+  species_aliases?: Record<string, string>;
 };
 
 type DiffFixture = {
@@ -77,6 +80,42 @@ describe("toId / effective_tags / merge", () => {
     };
     const tags = effectiveTags("zaciancrowned", pokedex);
     assert.ok(tags.includes("Restricted Legendary"));
+  });
+
+  it("joinSpecies inherits unlisted otherFormes flags and skips battleOnly", () => {
+    const pokedex = {
+      meowstic: {
+        name: "Meowstic",
+        num: 678,
+        types: ["Psychic"],
+        baseStats: { hp: 1, atk: 1, def: 1, spa: 1, spd: 1, spe: 1 },
+        otherFormes: ["Meowstic-F", "Meowstic-Hero"],
+      },
+      meowsticf: {
+        name: "Meowstic-F",
+        baseSpecies: "Meowstic",
+        num: 678,
+        types: ["Psychic"],
+        baseStats: { hp: 1, atk: 1, def: 1, spa: 1, spd: 1, spe: 1 },
+      },
+      meowstichero: {
+        name: "Meowstic-Hero",
+        baseSpecies: "Meowstic",
+        num: 678,
+        types: ["Psychic"],
+        baseStats: { hp: 1, atk: 1, def: 1, spa: 1, spd: 1, spe: 1 },
+        battleOnly: "Meowstic",
+      },
+    };
+    const joined = joinSpecies(
+      { meowstic: { isNonstandard: null, tier: "UU" } },
+      pokedex,
+    );
+    assert.equal(joined.meowsticf?.name, "Meowstic-F");
+    assert.equal(joined.meowsticf?.is_nonstandard, null);
+    assert.equal(joined.meowsticf?.tier, "UU");
+    assert.equal(joined.meowsticf?.base_species_id, "meowstic");
+    assert.equal("meowstichero" in joined, false);
   });
 
   it("joinSpecies hard-fails missing pokedex keys", () => {
@@ -141,7 +180,7 @@ describe("committed champions.v1.json", () => {
     assert.ok(fs.existsSync(SNAPSHOT), `missing ${SNAPSHOT} — run npm run extract:legality`);
     const snap = JSON.parse(fs.readFileSync(SNAPSHOT, "utf8")) as Snapshot;
 
-    assert.equal(snap.meta.schema_version, 2);
+    assert.equal(snap.meta.schema_version, 3);
     assert.equal(snap.meta.source.mod, "champions");
     assert.match(snap.meta.source.commit, /^[0-9a-f]{40}$/);
 
@@ -196,6 +235,29 @@ describe("committed champions.v1.json", () => {
 
     assert.ok(snap.learnsets, "learnsets missing");
     assert.ok(snap.learnsets!.garchomp?.includes("earthquake"));
+
+    assert.equal(snap.species_aliases?.floettee, "floetteeternal");
+    assert.equal("vgc" in (snap.species_aliases || {}), false);
+
+    const meowsticf = snap.species.meowsticf;
+    const meowstic = snap.species.meowstic;
+    assert.ok(meowsticf, "meowsticf missing — otherFormes inherit");
+    assert.ok(meowstic, "meowstic missing");
+    assert.equal(meowsticf.is_nonstandard, null);
+    assert.equal(meowsticf.tier, meowstic.tier);
+    assert.equal("palafinhero" in snap.species, false);
+
+    const inherited = [
+      "mausholdfour",
+      "meowsticf",
+      "polteageistantique",
+      "sinistchamasterpiece",
+      "vivillonfancy",
+      "vivillonpokeball",
+    ];
+    for (const id of inherited) {
+      assert.ok(id in snap.species, `inherited otherFormes missing: ${id}`);
+    }
 
     // Mega forms have no own learnset row — runtime walks base_species_id.
     const mega = snap.species.swampertmega;

@@ -13,7 +13,8 @@ from recommender.coverage import (
 )
 from recommender.format import resolve_format
 from recommender.ids import to_id
-from recommender.legality import check_set, is_species_legal, load_snapshot
+from recommender.legality import check_set, load_snapshot
+from recommender.species_resolve import resolve_species_label
 from recommender.matchup import MatchupEvidenceError
 from recommender.present_text import BOOTSTRAP_PARSER_NOT_CONFIGURED
 from recommender.recommend import SP_BUDGET, spread_sum
@@ -442,9 +443,12 @@ def classify_pending(
         if reply.startswith(prefix):
             candidate_text = reply[len(prefix) :].strip()
             break
-    candidate_id = to_id(candidate_text)
+    resolved = resolve_species_label(candidate_text, load_snapshot())
+    candidate_id = to_id(resolved.name) if resolved else None
     selected.update(
-        i for i, option in enumerate(options) if to_id(option["species"]) == candidate_id
+        i
+        for i, option in enumerate(options)
+        if candidate_id is not None and to_id(option["species"]) == candidate_id
     )
 
     ordinal = _ORDINAL_REPLIES.get(reply)
@@ -519,6 +523,8 @@ def initialize(state: RecommenderState) -> dict:
         out["bootstrap_intake_error"] = None
     if "unresolved_pool_entries" not in state:
         out["unresolved_pool_entries"] = ()
+    if "species_resolve_notices" not in state:
+        out["species_resolve_notices"] = ()
     if "team_completion_preference" not in state:
         out["team_completion_preference"] = None
     if "candidate_discovery_error" not in state:
@@ -603,28 +609,30 @@ def finish_pending_response(_state: RecommenderState) -> dict:
 
 def _validated_bootstrap_pool(
     rows: list[dict[str, Any]], *, preserve_fields: bool
-) -> tuple[list[dict[str, Any]], tuple[str, ...]]:
+) -> tuple[list[dict[str, Any]], tuple[str, ...], tuple[str, ...]]:
     snap = load_snapshot()
     accepted: list[dict[str, Any]] = []
     unresolved: list[str] = []
+    notices: list[str] = []
     seen: set[str] = set()
     for row in rows:
         raw = str(row.get("species") or "")
-        species_id = to_id(raw)
-        entry = (snap.get("species") or {}).get(species_id)
-        if not raw or entry is None or not is_species_legal(snap, species_id):
+        hit = resolve_species_label(raw, snap) if raw else None
+        if hit is None:
             unresolved.append(raw)
             continue
+        species_id = to_id(hit.name)
         if species_id in seen:
             continue
         seen.add(species_id)
-        canonical = str(entry.get("name") or raw)
+        if hit.notice:
+            notices.append(hit.notice)
         accepted.append(
-            {**row, "species": canonical}
+            {**row, "species": hit.name}
             if preserve_fields
-            else {"species": canonical}
+            else {"species": hit.name}
         )
-    return accepted, tuple(unresolved)
+    return accepted, tuple(unresolved), tuple(dict.fromkeys(notices))
 
 
 def record_bootstrap_response(state: RecommenderState) -> dict:
@@ -640,7 +648,7 @@ def record_bootstrap_response(state: RecommenderState) -> dict:
     pool_entries = payload["pool_entries"]
     if pool_entries is None:
         rows = [dict(row) for row in state.get("available_pool", [])]
-        accepted, newly_unresolved = _validated_bootstrap_pool(
+        accepted, newly_unresolved, pool_notices = _validated_bootstrap_pool(
             rows, preserve_fields=True
         )
         unresolved = (
@@ -648,12 +656,18 @@ def record_bootstrap_response(state: RecommenderState) -> dict:
             *newly_unresolved,
         )
     elif not pool_entries:
-        accepted, unresolved = [], ()
+        accepted, unresolved, pool_notices = [], (), ()
     else:
-        accepted, unresolved = _validated_bootstrap_pool(
+        accepted, unresolved, pool_notices = _validated_bootstrap_pool(
             [{"species": label} for label in pool_entries],
             preserve_fields=False,
         )
+    anchor_notices: tuple[str, ...] = ()
+    if payload.get("anchor_text"):
+        anchor_hit = resolve_species_label(str(payload["anchor_text"]), load_snapshot())
+        if anchor_hit and anchor_hit.notice:
+            anchor_notices = (anchor_hit.notice,)
+    species_resolve_notices = tuple(dict.fromkeys((*pool_notices, *anchor_notices)))
 
     requested_mode = payload.get("ownership_mode")
     if requested_mode is not None:
@@ -669,6 +683,7 @@ def record_bootstrap_response(state: RecommenderState) -> dict:
     return {
         "available_pool": accepted,
         "unresolved_pool_entries": unresolved,
+        "species_resolve_notices": species_resolve_notices,
         "bootstrap_response": payload,
         "bootstrap_intake_complete": True,
         "bootstrap_intake_error": None,
@@ -1222,6 +1237,7 @@ def reset_team(state: RecommenderState) -> dict:
         "bootstrap_response": None,
         "bootstrap_intake_error": None,
         "unresolved_pool_entries": (),
+        "species_resolve_notices": (),
     }
     if payload:
         if "archetype" in payload:
@@ -1271,6 +1287,17 @@ def _bootstrap_intake_presentation(
     }
 
 
+def _bootstrap_notices(state: RecommenderState) -> tuple[str, ...]:
+    unresolved = tuple(state.get("unresolved_pool_entries", ()))
+    notices = tuple(f"Couldn't identify: {label}" for label in unresolved)
+    if unresolved and not state.get("available_pool"):
+        notices = (
+            *notices,
+            "No owned bias was applied because no pool entries were recognized.",
+        )
+    return (*notices, *state.get("species_resolve_notices", ()))
+
+
 def bootstrap_direction(state: RecommenderState) -> dict:
     """Prompt once, then discover a concrete, evidence-backed opening direction."""
 
@@ -1281,20 +1308,12 @@ def bootstrap_direction(state: RecommenderState) -> dict:
         "last_team_review": None,
         "candidate_discovery_error": None,
     }
-    unresolved = tuple(state.get("unresolved_pool_entries", ()))
-    unresolved_notices = tuple(
-        f"Couldn't identify: {label}" for label in unresolved
-    )
-    if unresolved and not state.get("available_pool"):
-        unresolved_notices = (
-            *unresolved_notices,
-            "No owned bias was applied because no pool entries were recognized.",
-        )
+    notices = _bootstrap_notices(state)
     if not state.get("bootstrap_intake_complete"):
         return {
             **cleared,
             "pending_presentation": _bootstrap_intake_presentation(
-                state, unresolved_notices
+                state, notices
             ),
         }
 
@@ -1314,7 +1333,7 @@ def bootstrap_direction(state: RecommenderState) -> dict:
             **cleared,
             "candidate_discovery_error": error,
             "pending_presentation": _bootstrap_intake_presentation(
-                state, (*unresolved_notices, message)
+                state, (*notices, message)
             ),
         }
 
@@ -1338,7 +1357,7 @@ def bootstrap_direction(state: RecommenderState) -> dict:
         for row in state.get("available_pool", [])
         if row.get("species")
     )
-    pending["notices"] = unresolved_notices
+    pending["notices"] = notices
     return {
         **cleared,
         **terminal.state_updates,
