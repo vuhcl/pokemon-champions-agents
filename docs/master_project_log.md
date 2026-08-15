@@ -3928,6 +3928,77 @@ confirmed merged into `wip` only, deliberately not `main`, since those docs part
 now-superseded pre-recalibration state and mixing that into `main` risked exactly the confusion
 the `wip`/`main` split exists to prevent.
 
+## 2026-08-15: Role Compendium fully closed — persist of nine categories, Screens Support
+## redesign and persist, item 7 extension explicitly deferred to phase 3
+
+**All ten Role Compendium categories now built, critic-approved, and persisted on `main`.**
+Nine categories persisted cleanly in one pass (Amendment 2026-08-15a). Screens Support required
+its own separate arc: a genuine design gap surfaced during pre-persist review (Whimsicott's real
+single-screen status directly contradicting a carried-forward Excellent placement) led to
+finishing the ranking redesign that had been left unresolved since 2026-08-13 — closing all
+three of that session's original structural gaps in one coherent rule, verified against real
+learnset/ability/usage data at every step rather than assumed (Grimmsnarl/Klefki/Sableye's real
+dual-screen access, male-only Meowstic Prankster confirmed against the live Showdown source
+after a local data gap, Florges/Avalugg's genuine exclusions, Mega Gardevoir's usage-gate
+exclusion used as the explicit adversarial proof case). Persisted separately (Amendment
+2026-08-15b).
+
+**Item 7's one remaining extension (typical-partner ally-safety, using Part A's co-occurrence
+data to check a candidate's real likely teammate against ally-hit protections) explicitly
+deferred — confirmed out of scope until phase 3 (battle-piloting), not relevant to the
+recommendation engine itself.**
+
+This closes the entire Role Compendium detour that interrupted the v1.0 reasoning-loop work.
+Next up: returning to that original thread (Surface 2's confirmed single-locked-teammate data
+gap, and the broader goal of genuine LLM steering/pushback replacing 0.1.0's closed-set CLI
+interaction) or breakpoint memoization (small, self-contained, deferred since 2026-08-08) —
+decision pending.
+
+## 2026-08-15 (cont.): input-boundary canonical name/form resolution shipped — closes the
+## last structural gap open since 2026-08-08
+
+Real discovery preceded design: direct probes confirmed the record-side half had partially
+self-resolved (Showdown-offline teammate storage now correctly stamps exact forms; only CBD's
+fallback path still has the original ambiguous-base-name problem) while the input-boundary half
+remained fully unaddressed everywhere a name gets parsed. Full scope enumerated from real
+Champions legality data (314 legal species, zero cosmetic-identical children — narrowing the
+real problem to genuine mechanical/naming variation) rather than the narrow 5-species set
+ADR-030's earlier reactive fix happened to find.
+
+Two rounds of direct pushback on the discovery's own analysis caught real gaps before they
+shipped: "Basculegion Male" was initially miscategorized as genuinely ambiguous when it's an
+explicit disambiguator; a follow-up push on abbreviated single-letter forms (`A-Ninetales`,
+`M-Swampert`, `Floette-E`) confirmed four of five already covered by an existing mechanism the
+first pass had incompletely described, with the fifth (`Basculegion Male`) becoming the real,
+scoped gap that got fixed via a sibling-gated gender-suffix pass.
+
+Shipped resolver grounds against real Showdown data (`aliases.ts` + `@pkmn/dex`'s prefix/suffix
+rewrite), sits ahead of the existing fail-closed legality check without replacing it, and
+correctly distinguishes missing-abbreviation cases (fixable) from genuine multi-child ambiguity
+(Charizard X/Y, Paldea Tauros — correctly still prompts).
+
+Two adjacent fixes folded in by request: `_attribution_status`'s false-ambiguous bug (illegal
+lineage children like Grimmsnarl-Gmax wrongly triggering ambiguity for species with only one
+real legal id) and a real extraction gap surfacing six previously-invisible legal species
+(including female Meowstic — which directly and cleanly resolved the open legality question
+from today's earlier Screens Support work, as a natural consequence of the fix rather than a
+special case).
+
+**A real regression was caught during verification, not before shipping** — the otherFormes fix
+enlarged `lineage_ids()` for Maushold/Vivillon, which changed unrelated branching logic in
+`coverage.py`'s threat-expansion code, silently substituting base-species data for usage entries
+already keyed to a specific child forme. Only caught because the full test suite was run rather
+than trusting the narrower originally-reported test command, which never touched the affected
+file. Fixed precisely and re-verified at the data level, not just via test pass/fail.
+
+Both verification rounds independently confirmed direct against the live code and generated
+snapshot data — every adversarial case retested by hand, not assumed from the report. 1036/1036
+tests, zero unexplained failures.
+
+**Status:** Shipped on `feature/species-form-resolver`, not yet merged. Record-side CBD
+remapping remains its own separate, deliberately deferred task — the original no-dependency
+ruling from the design session that first split this problem still holds.
+
 ---
 
 ## TOOLS & RESOURCES

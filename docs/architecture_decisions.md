@@ -3850,6 +3850,198 @@ carry over" discipline as every prior recalibration round.
 
 ---
 
+### ADR-019 — Amendment 2026-08-15a
+
+**First real persist of the Role Compendium's setup-attacker and support categories: nine of
+ten categories written to `data/roles/*.v1.json` on `main`, following a fresh construct+critic
+pass against fully-current code. Screens Support intentionally excluded from this persist —
+handled separately (Amendment 2026-08-15b) once its ranking redesign was actually finished.**
+
+**Persisted:** Swords Dance Attacker (37, 3/14/20), Nasty Plot Attacker (23, 2/15/6 — real
+current number, confirmed fresh rather than assumed from an earlier round's snapshot), Calm
+Mind Attacker (38, 7/11/20 — first persist), Bulk Up Attacker (36, 5/14/17 — first persist),
+Dragon Dance Attacker (12, 3/9/0 — first persist), Iron Defense + Body Press (24, 2/18/4 — first
+persist), Tailwind Setter (23, 1/9/13 — first persist), Sleep Status Spreader (14, 1/2/11 —
+first persist), Trick Room Setter (28, 2/14/12 — refreshed under its 22.5% floor). SD, NP, and
+Trick Room's pre-refresh stale versions were archived to gitignored `data/roles/history/`
+before being overwritten, not silently discarded — a real rollback path if ever needed.
+
+**Confirmed by direct verification, not just Cursor's report:** every one of the nine
+categories' persisted tier counts spot-checked directly against the actual JSON content (not
+just the summary), not just aggregate numbers — SD's Excellent membership confirmed at the
+species level. Weather×4 and `redirection.v1.json` confirmed byte-identical to their pre-task
+state via direct SHA-256 hash comparison against `main`, not assumed unchanged. `data/roles/`
+confirmed to contain exactly 14 files post-persist (5 untouched originals + 9 new/refreshed).
+1017/1017 tests (matching the now-familiar environment-skip pattern), zero regressions.
+
+**Process note:** an initial version of this persist run included Screens Support despite an
+explicit correction sent beforehand to exclude it — resolved cleanly since nothing had been
+committed yet; the final commit correctly contains only the nine intended files, independently
+confirmed absent of `screens_support.v1.json`.
+
+**Status:** Shipped on `feature/persist-ten-role-compendium`, PR #85, merged to `main`.
+
+---
+
+### ADR-019 — Amendment 2026-08-15b
+
+**Screens Support fully redesigned and persisted — closes the three structural gaps identified
+in the 2026-08-13 session (membership wrongly excluding lone-screen-plus-Prankster holders,
+Light Clay's duration benefit unreflected in ranking, Aurora Veil's dual-screen scope
+unreflected in ranking) that had survived, partially unresolved, since before this arc began.**
+
+**Discovery during today's persist review:** Screens Support had actually been built, critic-
+approved, and persisted once already (2026-08-13, without waiting for sign-off — a real process
+slip, acknowledged at the time). That persisted file was subsequently lost in the same
+uncommitted-local-persist failure pattern that affected CM/BU/DD/ID+BP/TW/Sleep. Stage 4's
+rebuild this session (Amendment 2026-08-14i) silently reused the old, only-partially-fixed tier
+scheme — membership gate corrected, but Clay-duration and Veil-scope ranking gaps never
+resolved into code. Caught before commit: Whimsicott's real learnset (Light Screen only, no
+Reflect, no Aurora Veil — independently verified) directly contradicted its Excellent placement
+in that carried-forward state.
+
+**New tier rule, fully locked and real-data-verified:**
+- **Dual-screen capable** (core membership requirement): real Reflect **and** Light Screen
+  access (verified via the existing `_same_row_both_moves` same-source discipline), **or** real
+  Aurora Veil access plus genuine self-sufficient Snow-setting — **Snow Warning only**. Chilly
+  Reception explicitly excluded as a qualifying path: it forces a switch-out, breaking the tempo
+  needed to actually follow up with Veil, not genuine self-sufficiency.
+- **Excellent** = dual-screen capable **and** Prankster (any ability slot). **Only male Meowstic
+  qualifies** — female Meowstic's real ability set (Keen Eye / Infiltrator / Competitive,
+  confirmed directly against the live Showdown pokedex, since the local snapshot has no
+  distinct female-forme entry) has no Prankster in any slot.
+- **Good** = dual-screen capable **and** Speed ≥ 100 (reused as-is from the prior scheme, not
+  re-derived) **and not** Prankster.
+- **Acceptable** = (dual-screen capable **and** Speed < 100) **or** (single-screen-only **and**
+  Prankster — the Whimsicott case, real set% 2.321%, just clearing the category's own
+  2.3% presence floor).
+- **Excluded entirely, regardless of prior admission:** single-screen-only without Prankster
+  (Florges — real data confirms Light Screen only, Flower Veil/Symbiosis abilities, no
+  Prankster path); Veil-only without genuine Snow Warning (Avalugg — real Veil access but no
+  self-Snow mechanism, ally-dependent, treated as disqualifying same as Florges' scope failure).
+
+**Floor choice explicitly resolved, not left ambiguous:** uses Screens' own previously-derived
+2.3% presence floor (a genuine breakpoint found in the real distribution, same rigor as every
+other threshold locked this arc) — not the generic 0.1% setup-attacker floor, which was never
+derived against Screens' own data and would have admitted candidates like base Gardevoir purely
+on a borrowed, contextually-inappropriate threshold.
+
+**Real-usage gate confirmed working, not just asserted:** Mega Gardevoir — fast, mechanically
+dual-screen-eligible by learnset — explicitly named as the motivating adversarial case and
+confirmed correctly excluded (real set% 0.016%/0.006%, far below floor), proving the existing
+usage-gated candidate-discovery pipeline (reused as-is, not rebuilt) does its job.
+
+**Confirmed by direct verification:** persisted content read directly — all three tier lists
+match exactly (Excellent: Grimmsnarl/Klefki/Meowstic/Sableye; Good: Dragapult/Froslass-Mega/
+Ninetales-Alola/Serperior; Acceptable: Abomasnow/Abomasnow-Mega/Aurorus/Vanilluxe/Whimsicott).
+Whimsicott's actual persisted record spot-checked: Light Clay correctly surfaced only as an
+informational `criteria_notes` field, not a membership gate, matching the resolved design
+principle exactly. Weather×4/redirection confirmed byte-identical via hash comparison.
+`data/roles/` confirmed at 15 files. 11/11 Screens-specific tests, 1017/1017 total.
+
+**Status:** Shipped on `feature/screens-support-redesign`, PR (link provided, `gh` unauth),
+merged to `main`.
+
+---
+
+### ADR-019/030 — Amendment 2026-08-15c
+
+**Input-boundary species/form resolution shipped — closes the "input-boundary" half of the
+canonical name/form resolution problem, the last remaining structural gap from the original
+discovery report (open since 2026-08-08, repeatedly deferred through every subsequent session).
+Record-side CBD remapping remains a separate, deliberately deferred task per the original
+no-dependency ruling.**
+
+**Real-data discovery preceded design, not the other way around.** Direct probes (not doc
+review) confirmed both previously-identified halves were still genuinely unshipped: the
+record-side gap had partially resolved itself as a side effect of other work (Showdown-offline
+teammate storage now correctly stamps exact forms — the original motivating Swampert/
+Swampert-Mega bug is gone on that path — but CBD's fallback path still stores ambiguous base
+names), while the input-boundary half was untouched everywhere a name gets parsed (bootstrap
+pool, bootstrap anchor, candidate-selection typing).
+
+**Full scope enumerated from real Champions legality data, not the 5 species ADR-030's earlier
+reactive audit happened to find:** 314 legal species, 107 legal non-base formes, 76 Megas, 15
+regional forms, confirmed gender-locked cases (Basculegion/Basculegion-F — a real stat split,
+not cosmetic). Zero legal children found to be cosmetic-identical — cosmetic variation
+(Vivillon patterns, Alcremie flavors) never produces a second legal species id, narrowing the
+resolver's real scope to genuine mechanical/naming variation only.
+
+**Grounded against real Showdown data, not a curated table** (same discipline as ADR-030's
+`_NON_DAMAGING` replacement): Showdown's own `aliases.ts` (filtered to species) plus
+`@pkmn/dex`'s prefix/suffix `formeNames` rewrite loop — confirmed, after direct pushback,
+to already include the full single-letter token set (`a`/`g`/`h`/`p`/`m`), not just the
+spelled-out forms an earlier pass had incompletely assumed. A gated gender-suffix pass was
+added on top: `male` strips to the bare base only if a real `{stem}f` sibling exists in the
+snapshot (the sibling gate — proves a genuine gender-differentiated forme exists before
+stripping anything, rather than blindly matching "Male" on any species); `female` concatenates
+to `{stem}f` under the same gate. Two real corrections caught only by direct pushback on the
+discovery's own analysis, not shipped as first drafted: "Basculegion Male" was initially
+(wrongly) classified as genuinely ambiguous input needing to "not guess" — it's an explicit
+disambiguator, not ambiguous, and the real gap was simply no suffix-gender rule existing yet.
+`m` is already claimed by Mega in the letter-token system and must not be overloaded as male
+(would silently break `Swampert-M`→Mega); `e`=Eternal was considered and explicitly rejected
+(`Floette-E` only works via one specific Showdown alias entry, not a general rule — generalizing
+would create false matches on any id ending in "e"). Chilly Reception was considered and
+rejected as a valid self-Snow-setting qualifier for a *different*, adjacent piece of work
+(Screens Support) for a real mechanical reason (forces a switch-out, breaking the tempo needed
+to follow up), not folded into this resolver's scope.
+
+**Genuine ambiguity still prompts, correctly distinguished from missing abbreviations.**
+Dual-Mega species (Charizard/Raichu X vs. Y) and Paldea-cluster Tauros (Combat/Blaze/Aqua) have
+no unique letter-code answer — confirmed to fall through to the existing fail-closed prompt
+path, same bucket as Floette's illegal-base ambiguity, rather than have a rewrite rule invented
+for them. The resolver sits *before* the existing `is_species_legal` check, not in place of it.
+
+**Two adjacent fixes folded into the same branch, by direct request:**
+- `_attribution_status`'s false-ambiguous bug (16 legal species, Grimmsnarl named) — was
+  flagging any species with *any* snapshot lineage child as ambiguous, including illegal
+  Gmax/event/Totem formes. Fixed to require a genuinely *legal* sibling before flagging
+  ambiguity. Confirmed correct via direct contrast: Grimmsnarl (illegal Gmax sibling only) now
+  resolves `exact`; Garchomp (legal Mega sibling) correctly still resolves `ambiguous`.
+- The extraction pipeline (`join.ts`) now emits real, unlisted `otherFormes` — species present
+  in the base Pokédex data but missing their own `formats-data.ts` row — inheriting the
+  parent's legality flags, explicitly excluding `battleOnly` and `isCosmeticForme` entries.
+  Surfaced six real species: `meowsticf`, `mausholdfour`, `polteageistantique`,
+  `sinistchamasterpiece`, `vivillonfancy`, `vivillonpokeball`. This incidentally and cleanly
+  resolved today's earlier open question from the Screens Support redesign — female Meowstic's
+  Champions legality, previously confirmed invisible to the agent — without any special-casing;
+  the resolver's existing female-sibling notice logic picked it up automatically once it became
+  a real snapshot entry.
+
+**A real regression was found and fixed during verification, not before shipping.** The
+otherFormes fix enlarged `lineage_ids()`'s output for Maushold and Vivillon (now genuinely
+including their new sibling formes), which changed branching in `coverage.py`'s
+`_expand_ladder_species` — a function this task never touched directly — causing usage-data
+threat expansion to silently substitute the base species' Showdown row for usage entries that
+were already keyed to a specific child forme (`mausholdfour`/`vivillonfancy` stamped as
+`Maushold`/`Vivillon`). Caught only because the full test suite was run rather than the three
+originally-named files, which never included the affected test file
+(`test_usage_species_stamp.py`) — a real, concrete argument for full-suite verification over a
+narrower named command on anything touching shared data structures. Fixed precisely: usage
+entries keyed to a non-base lineage member no longer expand across sibling Showdown hits, only
+base-keyed entries still do (preserving the correct Charizard/Floette-style expansion
+elsewhere).
+
+**Confirmed by direct verification, not just Cursor's reports (two rounds, given the
+regression):** every adversarial and positive test case from the design phase re-run directly
+against the live resolver (`Eternal Floette`, `M-Swampert`, `Basculegion Male`, `A-Ninetales`,
+`Ninetales-A`, `Floette-E` all resolve; `Floette`, `M-Charizard`, `Charizard-M`, `P-Tauros`,
+`Swampert Male` all correctly stay unresolved). `_attribution_status` traced directly for
+Grimmsnarl/Hatterene/Garchomp. All six new `otherFormes` species confirmed present in the actual
+generated snapshot with correct inherited legality flags — not just claimed. `species_aliases`
+count (1857) and `schema_version` (3, nested under `meta`) both confirmed exact. The
+`coverage.py` regression traced to its root mechanism directly (`lineage_ids` before/after
+comparison) before accepting the fix, then re-confirmed at the data level post-fix (`Maushold-
+Four`/`Vivillon-Fancy` correctly stamped), not just via test pass/fail. 1036/1036 total tests
+across both verification rounds, zero unexplained failures.
+
+**Status:** Shipped on `feature/species-form-resolver` (two commits: the resolver itself, then
+the `coverage.py` regression fix), not yet merged. Record-side CBD remapping remains its own
+separate, deliberately deferred task.
+
+---
+
 ## ADR-020: Theme/archetype reconciliation — mechanism for re-evaluating locked values when
 team-level commitments or sibling attributes change
 
