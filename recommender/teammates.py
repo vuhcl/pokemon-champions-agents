@@ -8,6 +8,7 @@ from typing import Any, Literal
 
 from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot
+from recommender.reconcile import _item_mega_forme
 from recommender.teammate_types import (
     AttributionStatus,
     DenominatorKind,
@@ -28,6 +29,8 @@ from recommender.usage_live import fetch_live_showdown_detail
 
 TEAMMATE_LIMIT = 10
 _SNAPSHOT_KEYS = frozenset({"teammates", "teammates_meta"})
+# Same 65.9→81.0 hole as role_compendium._MEGA_STONE_FALLBACK_PCT.
+_MEGA_STONE_REMAP_PCT = 80.0
 
 
 def _weights(raw: object) -> dict[str, float]:
@@ -199,9 +202,45 @@ def _attribution_status(species_id: str) -> AttributionStatus:
     return "ambiguous" if legal_child else "exact"
 
 
+def _cbd_mega_remap(
+    species_id: str,
+    name: str,
+    ingame: dict[str, Any],
+) -> tuple[str, str, AttributionStatus]:
+    status = _attribution_status(species_id)
+    if status != "ambiguous":
+        return species_id, name, status
+    page = ingame.get(species_id)
+    if not isinstance(page, dict):
+        return species_id, name, status
+    snap = load_snapshot()
+    base = lineage_ids(species_id)[0]
+    best_sid: str | None = None
+    best_pct = -1.0
+    for item in page.get("common_items") or []:
+        if not isinstance(item, dict):
+            continue
+        mega = _item_mega_forme(to_id(str(item.get("name") or "")), base, snap)
+        if not mega or not is_species_legal(snap, mega):
+            continue
+        pct = _number(item.get("pct"))
+        if pct is None:
+            continue
+        if best_sid is None or pct > best_pct or (pct == best_pct and mega < best_sid):
+            best_pct = pct
+            best_sid = mega
+    if best_sid is None or best_pct < _MEGA_STONE_REMAP_PCT:
+        return species_id, name, status
+    mega_name = str((snap.get("species") or {}).get(best_sid, {}).get("name") or "").strip()
+    if not mega_name:
+        return species_id, name, status
+    return best_sid, mega_name, "exact"
+
+
 def _cbd_result(
     species: str,
     entry: dict[str, Any],
+    ingame: dict[str, Any],
 ) -> TeammateQueryResult:
     rows = entry.get("teammates")
     rows = rows if isinstance(rows, list) else []
@@ -212,6 +251,7 @@ def _cbd_result(
         species_id = to_id(name)
         if not name or not species_id or species_id in excluded:
             continue
+        species_id, name, status = _cbd_mega_remap(species_id, name, ingame)
         evidence.append(
             TeammateEvidence(
                 species_id=species_id,
@@ -219,7 +259,7 @@ def _cbd_result(
                 rank=rank,
                 conditional_pct=None,
                 chaos_weight=None,
-                attribution_status=_attribution_status(species_id),
+                attribution_status=status,
             )
         )
     return TeammateQueryResult(
@@ -295,7 +335,7 @@ def query_teammates(
     base_id = lineage_ids(species)[0]
     cbd_entry = ingame.get(species_id) or ingame.get(base_id)
     if isinstance(cbd_entry, dict):
-        return _cbd_result(species, cbd_entry)
+        return _cbd_result(species, cbd_entry, ingame)
     return _unavailable_result(
         species, "no offline or authorized live teammate evidence was available"
     )
