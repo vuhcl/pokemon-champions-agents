@@ -9,6 +9,8 @@ from recommender.role_compendium import (
     BULK_UP_ATTACKER_CRITERIA,
     CALM_MIND_ATTACKER_CRITERIA,
     DRAGON_DANCE_ATTACKER_CRITERIA,
+    IRON_DEFENSE_BODY_PRESS_CRITERIA,
+    NASTY_PLOT_ATTACKER_CRITERIA,
     CandidateEval,
     _SETUP_THREAT_ENCOUNTER_GAMES,
     _SETUP_THREAT_USAGE_PCT_FLOOR,
@@ -42,6 +44,20 @@ def test_criteria_kinds():
     assert DRAGON_DANCE_ATTACKER_CRITERIA["kind"] == "offense_speed_setup"
 
 
+def test_admission_keys_only_on_sd_cm_bu():
+    assert CALM_MIND_ATTACKER_CRITERIA["damage_admission_floor"] == 0.708
+    assert CALM_MIND_ATTACKER_CRITERIA["acceptable_floor_mult"] == 0.88
+    assert BULK_UP_ATTACKER_CRITERIA["damage_admission_floor"] == 0.766
+    assert BULK_UP_ATTACKER_CRITERIA["acceptable_floor_mult"] == 0.90
+    for crit in (
+        NASTY_PLOT_ATTACKER_CRITERIA,
+        DRAGON_DANCE_ATTACKER_CRITERIA,
+        IRON_DEFENSE_BODY_PRESS_CRITERIA,
+    ):
+        assert "damage_admission_floor" not in crit
+        assert "acceptable_floor_mult" not in crit
+
+
 def test_setup_threat_panel_uses_15_game_usage_floor():
     assert _SETUP_THREAT_ENCOUNTER_GAMES == 15
     assert abs(_SETUP_THREAT_USAGE_PCT_FLOOR - 100.0 * (1.0 - 0.5 ** (1.0 / 15))) < 1e-9
@@ -54,6 +70,7 @@ def test_setup_threat_panel_uses_15_game_usage_floor():
     assert "Charizard-Mega-X" not in names
     assert len(panel) > 8
     assert all(d.get("usage_moves") or d.get("moves") for d in panel)
+    assert all(d.get("partner") and d["partner"].get("species") for d in panel)
     sable = next(d for d in panel if d["species"] == "Sableye")
     assert any(to_id(m) == "foulplay" for m in sable.get("usage_moves") or [])
     assert to_id(sable.get("item") or "") == "lightclay"

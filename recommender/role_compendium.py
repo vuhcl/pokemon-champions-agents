@@ -112,6 +112,50 @@ _SETUP_THREAT_ENCOUNTER_GAMES = 15
 _SETUP_THREAT_USAGE_PCT_FLOOR = 100.0 * (
     1.0 - 0.5 ** (1.0 / _SETUP_THREAT_ENCOUNTER_GAMES)
 )
+# Pikalytics tournament team-usage pairs (Reg M-B). Not merged with Pokemon-Zone.
+_PIKALYTICS_PAIRS_PATH = (
+    ROOT / "data" / "team-composition" / "champions-reg-mb.pikalytics-team-usage.v1.json"
+)
+# Damaging moves whose Champions calc target is allAdjacent / allAdjacentFoes.
+# Expanding Force omitted: spread only under Psychic Terrain (not modeled here).
+# Source: @smogon/calc Generations.get(0) move targets (item 7 discovery).
+_SPREAD_DAMAGE_MOVE_IDS = frozenset(
+    {
+        "aircutter",
+        "blizzard",
+        "boomburst",
+        "breakingswipe",
+        "brutalswing",
+        "bulldoze",
+        "burningjealousy",
+        "clangingscales",
+        "dazzlinggleam",
+        "discharge",
+        "earthquake",
+        "electroweb",
+        "eruption",
+        "explosion",
+        "heatwave",
+        "hypervoice",
+        "icywind",
+        "lavaplume",
+        "makeitrain",
+        "matchagotcha",
+        "mistyexplosion",
+        "mortalspin",
+        "muddywater",
+        "paraboliccharge",
+        "petalblizzard",
+        "rockslide",
+        "selfdestruct",
+        "sludgewave",
+        "snarl",
+        "sparklingaria",
+        "strugglebug",
+        "surf",
+        "waterspout",
+    }
+)
 # Kind labels only (turn-order already grants full credit for priority).
 _SETUP_CONDITIONAL_PRIORITY = frozenset({"suckerpunch", "thunderclap", "upperhand"})
 _SETUP_NARROW_CONDITIONAL_PRIORITY = frozenset({"feint"})
@@ -140,6 +184,42 @@ _SETUP_FLOOR_SECOND_MULT = 0.95
 # Good/Acceptable split: anchored on the widest real gap in the SD Good field
 # (0.869 | 0.768), whose stable plateau is (0.664, 0.752] × floor; 0.70 is the midpoint.
 _SETUP_ACCEPTABLE_FLOOR_MULT = 0.70
+# Damaging moves with Champions calc target allAdjacent (hits allies).
+# Source: @smogon/calc Generations.get(0) — item 7 Part B Step 1.
+_ALLY_HIT_DAMAGE_MOVE_IDS = frozenset(
+    {
+        "boomburst",
+        "brutalswing",
+        "bulldoze",
+        "discharge",
+        "earthquake",
+        "explosion",
+        "lavaplume",
+        "mistyexplosion",
+        "paraboliccharge",
+        "petalblizzard",
+        "selfdestruct",
+        "sludgewave",
+        "sparklingaria",
+        "surf",
+    }
+)
+# Ally-hit subset that are sound moves (calc flags.sound) — Soundproof applies.
+_SOUND_ALLY_HIT_MOVE_IDS = frozenset({"boomburst", "sparklingaria"})
+# Type → ally protection fragments (abilities/types from data/abilities + type chart).
+_ALLY_HIT_TYPE_PROTECTIONS: dict[str, str] = {
+    "Ground": (
+        "Flying-type / Levitate / Earth Eater (absorb/heal); "
+        "Gravity/Iron Ball can nullify Flying/Levitate immunity"
+    ),
+    "Water": "Water Absorb / Dry Skin / Storm Drain",
+    "Electric": "Volt Absorb / Motor Drive / Lightning Rod",
+    "Fire": "Flash Fire / Well-Baked Body",
+    "Grass": "Sap Sipper",
+    "Poison": "Steel-type",
+    "Normal": "Ghost-type",
+    # Dark / Fairy: no type-specific immunities beyond universal.
+}
 _CALC_POKE_KEYS = ("species", "item", "ability", "moves", "nature", "evs", "boosts", "level")
 
 SetupPriorityKind = Literal["none", "unconditional", "conditional"]
@@ -190,6 +270,20 @@ _CONNECT_RECOIL_MOVES = frozenset(
         "wavecrash",
         "wildcharge",
         "woodhammer",
+    }
+)
+# Champions-legal drain (Showdown drain: [a,b]). Absolute HP healed is in
+# raw.recovery — gated here because Shell Bell also fills that field.
+_DRAIN_MOVES = frozenset(
+    {
+        "bitterblade",
+        "drainpunch",
+        "gigadrain",
+        "hornleech",
+        "leechlife",
+        "matchagotcha",
+        "paraboliccharge",
+        "drainingkiss",
     }
 )
 _SETUP_PUNCH_MOVES = frozenset(
@@ -319,6 +413,9 @@ SWORDS_DANCE_ATTACKER_CRITERIA: dict[str, Any] = {
     "move_id": "swordsdance",
     "boost_stat": "atk",
     "boost_stages": 2,
+    # Locked judgment cut (Lycanroc-Dusk keep=37); Acceptable-largest redesign.
+    "damage_admission_floor": 0.969,
+    "acceptable_floor_mult": 0.85,
 }
 
 NASTY_PLOT_ATTACKER_CRITERIA: dict[str, Any] = {
@@ -336,6 +433,9 @@ CALM_MIND_ATTACKER_CRITERIA: dict[str, Any] = {
     "boost_stat": "spa",
     "boost_stages": 1,
     "exact_boosts": {"spa": 1, "spd": 1},
+    # Locked judgment cut (Mr. Rime keep=38); Acceptable-largest redesign.
+    "damage_admission_floor": 0.708,
+    "acceptable_floor_mult": 0.88,
 }
 
 BULK_UP_ATTACKER_CRITERIA: dict[str, Any] = {
@@ -345,6 +445,9 @@ BULK_UP_ATTACKER_CRITERIA: dict[str, Any] = {
     "boost_stat": "atk",
     "boost_stages": 1,
     "exact_boosts": {"atk": 1, "def": 1},
+    # Locked judgment cut (Lycanroc keep=36 at 0.766); Acceptable-largest redesign.
+    "damage_admission_floor": 0.766,
+    "acceptable_floor_mult": 0.90,
 }
 
 DRAGON_DANCE_ATTACKER_CRITERIA: dict[str, Any] = {
@@ -564,7 +667,7 @@ class CandidateEval:
     tier: str | None
     delivery_class: str
     mechanism: str
-    criteria_notes: dict[str, str]
+    criteria_notes: dict[str, Any]
     claimed_traits: list[ClaimedTrait]
     reasoning: str
     change_reason: str | None = None
@@ -1574,6 +1677,38 @@ def _recoil_frac_from_result(r: Any, mid: str) -> float:
     return pct / 100.0
 
 
+def _drain_frac_from_result(r: Any, mid: str) -> float:
+    """Attacker HP fraction healed by a drain move from a calc result (0 if N/A).
+
+    Uses raw.recovery.recovery (absolute HP) / raw.stats.attacker.hp. Shell Bell
+    and other item healing also populate raw.recovery — gate on _DRAIN_MOVES is
+    mandatory. Do not hardcode drain ratios; calc already applied them.
+    """
+    if to_id(mid) not in _DRAIN_MOVES or not isinstance(r, dict):
+        return 0.0
+    raw_top = r.get("raw") or {}
+    raw = raw_top.get("recovery")
+    if not isinstance(raw, dict):
+        return 0.0
+    val = raw.get("recovery")
+    try:
+        if isinstance(val, (list, tuple)) and val:
+            healed = float(val[-1])
+        else:
+            healed = float(val)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return 0.0
+    if healed <= 0:
+        return 0.0
+    try:
+        max_hp = float((raw_top.get("stats") or {}).get("attacker", {}).get("hp") or 0)
+    except (TypeError, ValueError):
+        return 0.0
+    if max_hp <= 0:
+        return 0.0
+    return healed / max_hp
+
+
 def exclusive_self_boost_move(*, boost_stat: str, stages: int = 2) -> str:
     """Champions-legal Status move whose only stat change is +stages to the user's boost_stat."""
     want = [{"to": "self", "chance": 100, "stats": {boost_stat: stages}}]
@@ -1712,15 +1847,63 @@ def _setup_excellent_floor(adjusted_scores: list[float]) -> float:
     return anchor * _SETUP_FLOOR_SECOND_MULT
 
 
-def _setup_mech_tier(adjusted: float, floor: float) -> str:
+def _setup_mech_tier(
+    adjusted: float,
+    floor: float,
+    *,
+    acceptable_mult: float = _SETUP_ACCEPTABLE_FLOOR_MULT,
+) -> str:
     """Excellent ≥ floor; Acceptable below floor × mult; Good between."""
     if floor <= 0:
         return "Good"
     if adjusted >= floor:
         return "Excellent"
-    if adjusted < floor * _SETUP_ACCEPTABLE_FLOOR_MULT:
+    if adjusted < floor * acceptable_mult:
         return "Acceptable"
     return "Good"
+
+
+def _partition_by_admission_floor(
+    provisional: list[dict[str, Any]],
+    *,
+    score_key: str,
+    admission_floor: float | None,
+    prior: dict[str, str],
+    rejected: list[RejectedCandidate],
+) -> list[dict[str, Any]]:
+    """Drop rows below damage_admission_floor into rejected; return kept.
+
+    No-op when admission_floor is None (NP/DD/ID+BP). Boundary is inclusive (>=).
+    """
+    if admission_floor is None:
+        return provisional
+    kept: list[dict[str, Any]] = []
+    for p in provisional:
+        score = float(p[score_key])
+        # Floors are locked to 3 decimals; compare at that precision so boundary
+        # species (Decidueye / Mr. Rime / Lycanroc) stay inclusive under float noise.
+        if round(score, 3) >= round(float(admission_floor), 3):
+            kept.append(p)
+            continue
+        sid = str(p["sid"])
+        name = str(p["name"])
+        rejected.append(
+            RejectedCandidate(
+                species=name,
+                species_id=sid,
+                reason=(
+                    f"damage_score {score:.3f} below admission floor "
+                    f"{admission_floor:g}"
+                ),
+                change_reason=(
+                    f"setup admission floor re-eval / tier {prior.get(sid)!r} → rejected "
+                    f"(score={score:.3f} < {admission_floor:g})"
+                    if prior.get(sid)
+                    else None
+                ),
+            )
+        )
+    return kept
 
 
 @lru_cache(maxsize=None)
@@ -1953,6 +2136,8 @@ def _setup_threat_defenders(
 
     Selection is Showdown usage_pct. Builds are CBD-first; Showdown only when
     CBD is missing or cannot distinguish mega vs base (stone heuristic).
+    Each primary gets one top-1 Pikalytics co-occurrence partner among panel
+    members (item 7 Part A — pair-as-defender).
     """
     snap = load_snapshot()
     sd = showdown_species_map(regulation)
@@ -1991,13 +2176,103 @@ def _setup_threat_defenders(
         if usage_moves:
             defender["usage_moves"] = usage_moves
         out.append(defender)
+    return _attach_top1_partners(out)
+
+
+@lru_cache(maxsize=1)
+def _pikalytics_panel_pair_counts() -> dict[tuple[str, str], int]:
+    """Unordered panel-pair counts from Pikalytics tournament team-usage.
+
+    Keys are sorted `(pair_lookup_id_a, pair_lookup_id_b)`. Confirms
+    `meta.population == tournament` — raises if the file is the wrong population.
+    """
+    raw = json.loads(_PIKALYTICS_PAIRS_PATH.read_text())
+    meta = raw.get("meta") or {}
+    if meta.get("population") != "tournament":
+        raise ValueError(
+            f"expected Pikalytics tournament pairs, got population={meta.get('population')!r}"
+        )
+    out: dict[tuple[str, str], int] = {}
+    for row in raw.get("pairs") or []:
+        a, b = str(row.get("a") or ""), str(row.get("b") or "")
+        if not a or not b or a == b:
+            continue
+        try:
+            count = int(row.get("count") or 0)
+        except (TypeError, ValueError):
+            continue
+        key = (a, b) if a < b else (b, a)
+        out[key] = count
     return out
 
 
+def _attach_top1_partners(panel: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Attach each primary's highest-count panel partner (directed top-1)."""
+    # Lazy: team_candidates ↔ role_compendium would cycle at import time.
+    from recommender.team_candidates import pair_lookup_species_id
+
+    if len(panel) < 2:
+        return panel
+    by_sid = {to_id(str(d.get("species") or "")): d for d in panel}
+    panel_ids = set(by_sid)
+    counts = _pikalytics_panel_pair_counts()
+    out: list[dict[str, Any]] = []
+    for primary in panel:
+        psid = to_id(str(primary.get("species") or ""))
+        lookup = pair_lookup_species_id(psid)
+        best: tuple[int, str] | None = None
+        for other_sid in panel_ids:
+            if other_sid == psid:
+                continue
+            other_lookup = pair_lookup_species_id(other_sid)
+            key = (
+                (lookup, other_lookup)
+                if lookup < other_lookup
+                else (other_lookup, lookup)
+            )
+            c = counts.get(key, 0)
+            if c <= 0:
+                continue
+            if best is None or c > best[0] or (c == best[0] and other_sid < best[1]):
+                best = (c, other_sid)
+        row = dict(primary)
+        if best is not None:
+            partner = by_sid[best[1]]
+            row["partner"] = {
+                k: partner[k]
+                for k in (*_CALC_POKE_KEYS, "usage_moves", "build_source")
+                if k in partner
+            }
+            row["partner_count"] = best[0]
+        out.append(row)
+    return out
+
+
+def _pair_entry_label(defn: dict[str, Any]) -> str:
+    primary = str(defn.get("species") or "")
+    partner = defn.get("partner") or {}
+    pname = str(partner.get("species") or "")
+    if primary and pname:
+        return f"{primary}+{pname}"
+    return primary
+
+
+def _is_spread_damage_mid(mid: str) -> bool:
+    return to_id(mid) in _SPREAD_DAMAGE_MOVE_IDS
+
+
 def _threat_panel_label(panel: list[dict[str, Any]]) -> str:
-    return ", ".join(
-        f"{d.get('species')}/{d.get('item') or 'no-item'}" for d in panel
-    )
+    parts: list[str] = []
+    for d in panel:
+        primary = f"{d.get('species')}/{d.get('item') or 'no-item'}"
+        partner = d.get("partner") or {}
+        if partner.get("species"):
+            parts.append(
+                f"{primary}+{partner.get('species')}/{partner.get('item') or 'no-item'}"
+            )
+        else:
+            parts.append(primary)
+    return ", ".join(parts)
 
 
 def _calc_pokemon_spec(
@@ -2182,6 +2457,12 @@ def _setup_kit_matrix_score(
             fin_atk["item"] = item
         if calc_ab:
             fin_atk["ability"] = calc_ab
+        fin_targets: list[dict[str, Any]] = []
+        for defn in panel:
+            fin_targets.append(defn)
+            partner = defn.get("partner")
+            if isinstance(partner, dict) and partner.get("species"):
+                fin_targets.append(partner)
         fin_reqs = [
             {
                 "attacker": fin_atk,
@@ -2190,14 +2471,14 @@ def _setup_kit_matrix_score(
                 "field": {"gameType": "Doubles"},
                 **_move_override_extra(fin_mid),
             }
-            for defn in panel
+            for defn in fin_targets
         ]
         try:
             fin_results = calculate_batch(fin_reqs)
         except Exception:  # noqa: BLE001 — sequence credit fails open
             fin_results = []
-        if len(fin_results) == len(panel):
-            for defn, r in zip(panel, fin_results, strict=True):
+        if len(fin_results) == len(fin_targets):
+            for defn, r in zip(fin_targets, fin_results, strict=True):
                 frac = _hit_frac_from_result(r)
                 if frac is not None:
                     finisher_fracs[str(defn.get("species") or "")] = frac
@@ -2214,8 +2495,37 @@ def _setup_kit_matrix_score(
             defender_species="Aegislash-Blade",
         )
 
-    # mid → list aligned with panel: (kind, raw_frac, atk_spe, def_spe, result|err)
+    def _parse_hit(
+        defn: dict[str, Any], r: Any, *, label: str
+    ) -> tuple[str, float, int, int, Any]:
+        dname = str(defn.get("species") or label)
+        if not isinstance(r, dict):
+            errors.append(f"{dname}:non_dict")
+            return ("skip", 0.0, 0, 0, None)
+        if "error" in r:
+            errors.append(f"{dname}:{r.get('error')}")
+            return ("skip", 0.0, 0, 0, None)
+        dmg = (r.get("damageRange") or [0, 0])[-1]
+        stats = (r.get("raw") or {}).get("stats") or {}
+        def_stats = stats.get("defender") or {}
+        atk_stats = stats.get("attacker") or {}
+        try:
+            hp_f = float(def_stats.get("hp") or 0)
+            dmg_f = float(dmg)
+            atk_spe = int(atk_stats.get("spe") or 0)
+            def_spe = int(def_stats.get("spe") or 0)
+        except (TypeError, ValueError):
+            errors.append(f"{dname}:bad_range")
+            return ("skip", 0.0, 0, 0, None)
+        if hp_f <= 0:
+            errors.append(f"{dname}:no_hp")
+            return ("skip", 0.0, 0, 0, None)
+        raw_frac = dmg_f / hp_f if dmg_f > 0 else 0.0
+        return ("ok", raw_frac, atk_spe, def_spe, r)
+
+    # mid → list aligned with panel (primary); optional partner row when spread
     by_mid: dict[str, list[tuple[str, float, int, int, Any]]] = {}
+    by_mid_partner: dict[str, list[tuple[str, float, int, int, Any] | None]] = {}
     errors: list[str] = []
     for mid in mids:
         disp = _move_display(snap, mid)
@@ -2231,6 +2541,7 @@ def _setup_kit_matrix_score(
         if calc_ab:
             attacker["ability"] = calc_ab
         extra = _move_override_extra(mid)
+        spread = _is_spread_damage_mid(mid)
         reqs = [
             {
                 "attacker": attacker,
@@ -2241,43 +2552,92 @@ def _setup_kit_matrix_score(
             }
             for defn in panel
         ]
+        partner_idxs: list[int] = []
+        if spread:
+            for i, defn in enumerate(panel):
+                partner = defn.get("partner")
+                if isinstance(partner, dict) and partner.get("species"):
+                    partner_idxs.append(i)
+                    reqs.append(
+                        {
+                            "attacker": attacker,
+                            "defender": _calc_pokemon_spec(partner),
+                            "move": disp,
+                            "field": {"gameType": "Doubles"},
+                            **extra,
+                        }
+                    )
         try:
             results = calculate_batch(reqs)
         except Exception as e:  # noqa: BLE001
             return 0.0, f"batch_exception:{type(e).__name__}:{e}", [], {}
-        if len(results) != len(panel):
-            return 0.0, f"batch_length:{len(results)}!={len(panel)}", [], {}
+        if len(results) != len(reqs):
+            return 0.0, f"batch_length:{len(results)}!={len(reqs)}", [], {}
         row: list[tuple[str, float, int, int, Any]] = []
-        for defn, r in zip(panel, results, strict=True):
-            dname = str(defn.get("species") or "")
-            if not isinstance(r, dict):
-                errors.append(f"{dname}:non_dict")
-                row.append(("skip", 0.0, 0, 0, None))
-                continue
-            if "error" in r:
-                errors.append(f"{dname}:{r.get('error')}")
-                row.append(("skip", 0.0, 0, 0, None))
-                continue
-            dmg = (r.get("damageRange") or [0, 0])[-1]
-            stats = (r.get("raw") or {}).get("stats") or {}
-            def_stats = stats.get("defender") or {}
-            atk_stats = stats.get("attacker") or {}
-            try:
-                hp_f = float(def_stats.get("hp") or 0)
-                dmg_f = float(dmg)
-                atk_spe = int(atk_stats.get("spe") or 0)
-                def_spe = int(def_stats.get("spe") or 0)
-            except (TypeError, ValueError):
-                errors.append(f"{dname}:bad_range")
-                row.append(("skip", 0.0, 0, 0, None))
-                continue
-            if hp_f <= 0:
-                errors.append(f"{dname}:no_hp")
-                row.append(("skip", 0.0, 0, 0, None))
-                continue
-            raw_frac = dmg_f / hp_f if dmg_f > 0 else 0.0
-            row.append(("ok", raw_frac, atk_spe, def_spe, r))
+        for defn, r in zip(panel, results[: len(panel)], strict=True):
+            row.append(_parse_hit(defn, r, label=str(defn.get("species") or "")))
         by_mid[mid] = row
+        partner_row: list[tuple[str, float, int, int, Any] | None] = [
+            None
+        ] * len(panel)
+        if spread and partner_idxs:
+            for j, i in enumerate(partner_idxs):
+                partner = panel[i].get("partner") or {}
+                partner_row[i] = _parse_hit(
+                    partner,
+                    results[len(panel) + j],
+                    label=str(partner.get("species") or ""),
+                )
+        by_mid_partner[mid] = partner_row
+
+    def _member_score(
+        *,
+        mid: str,
+        defn: dict[str, Any],
+        hit: tuple[str, float, int, int, Any],
+        incoming_frac: float | None,
+        incoming: bool,
+        apply_finisher: bool,
+    ) -> tuple[str, float, float, bool, int, int, Any] | None:
+        kind, raw_frac, atk_spe, def_spe, r = hit
+        if kind != "ok":
+            return None
+        effective = int(atk_spe * (2 + spe_stages) / 2) if spe_stages else atk_spe
+        outsped = atk_spe > 0 and def_spe > 0 and effective < def_spe
+        lived_shield = (
+            outsped and incoming_frac is not None and incoming_frac < 1.0
+        )
+        combined = False
+        dname = str(defn.get("species") or "")
+        if (
+            apply_finisher
+            and fin_mid is not None
+            and mid != fin_mid
+            and lived_shield
+            and raw_frac < 1.0
+        ):
+            _seq, combined = _priority_finisher_combined_ko(
+                finisher_frac=finisher_fracs.get(dname),
+                raw_frac=raw_frac,
+            )
+        kbin = "ohko" if combined else _ko_frac_bin(raw_frac)
+        capped = min(raw_frac, _SETUP_DAMAGE_FRAC_CAP)
+        ment = (snap.get("moves") or {}).get(mid) or {}
+        capped *= effective_accuracy(
+            _move_base_accuracy(mid),
+            ability,
+            defender_ability=defn.get("ability"),
+            category=str(ment.get("category") or "") or None,
+        )
+        weight = _setup_turn_order_weight(
+            mid,
+            atk_spe,
+            def_spe,
+            ability,
+            incoming_ohko=incoming,
+            spe_stages=spe_stages,
+        )
+        return (kbin, weight * capped, raw_frac, combined, atk_spe, def_spe, r)
 
     used: list[tuple[str, str]] = []
     fracs: list[float] = []
@@ -2289,82 +2649,106 @@ def _setup_kit_matrix_score(
 
     for i, defn in enumerate(panel):
         dname = str(defn.get("species") or i)
+        pair_label = _pair_entry_label(defn)
+        partner_defn = defn.get("partner")
+        has_partner = isinstance(partner_defn, dict) and bool(
+            partner_defn.get("species")
+        )
         incoming_frac = ohko_mask.get(dname)
         incoming = incoming_frac is not None and incoming_frac >= 1.0
-        best: tuple[int, float, str, float, bool, int, int, Any] | None = None
-        # (bin_rank, weighted, mid, raw_frac, combined, atk_spe, def_spe, r)
+        # best: bin_rank, weighted, mid, raw_frac, combined_primary,
+        #        atk_spe, def_spe, r_primary, r_partner|None, pair_bin
+        best: tuple[
+            int, float, str, float, bool, int, int, Any, Any, str
+        ] | None = None
         for mid in mids:
-            kind, raw_frac, atk_spe, def_spe, r = by_mid[mid][i]
-            if kind != "ok":
+            prim = _member_score(
+                mid=mid,
+                defn=defn,
+                hit=by_mid[mid][i],
+                incoming_frac=incoming_frac,
+                incoming=incoming,
+                apply_finisher=True,
+            )
+            if prim is None:
                 continue
-            effective = (
-                int(atk_spe * (2 + spe_stages) / 2) if spe_stages else atk_spe
-            )
-            outsped = atk_spe > 0 and def_spe > 0 and effective < def_spe
-            lived_shield = (
-                outsped and incoming_frac is not None and incoming_frac < 1.0
-            )
-            combined = False
-            if (
-                fin_mid is not None
-                and mid != fin_mid
-                and lived_shield
-                and raw_frac < 1.0
-            ):
-                _seq, combined = _priority_finisher_combined_ko(
-                    finisher_frac=finisher_fracs.get(dname),
-                    raw_frac=raw_frac,
-                )
-            kbin = "ohko" if combined else _ko_frac_bin(raw_frac)
-            capped = min(raw_frac, _SETUP_DAMAGE_FRAC_CAP)
-            ment = (snap.get("moves") or {}).get(mid) or {}
-            capped *= effective_accuracy(
-                _move_base_accuracy(mid),
-                ability,
-                defender_ability=defn.get("ability"),
-                category=str(ment.get("category") or "") or None,
-            )
-            weight = _setup_turn_order_weight(
+            kbin_p, w_p, raw_p, comb_p, atk_spe, def_spe, r_p = prim
+            r_s: Any = None
+            spread = _is_spread_damage_mid(mid) and has_partner
+            # Spread: bin = primary-alone; continuous = max(primary, pair_mean).
+            # Partner miss → primary_alone (never worse than single-target).
+            if spread:
+                pair_bin = kbin_p
+                combined = comb_p
+                weighted, raw_frac = w_p, raw_p
+                phit = by_mid_partner[mid][i]
+                if phit is not None:
+                    sec = _member_score(
+                        mid=mid,
+                        defn=partner_defn,  # type: ignore[arg-type]
+                        hit=phit,
+                        incoming_frac=incoming_frac,
+                        incoming=incoming,
+                        apply_finisher=False,
+                    )
+                    if sec is not None:
+                        _kbin_s, w_s, raw_s, _comb_s, _as, _ds, r_s = sec
+                        pair_mean_w = 0.5 * (w_p + w_s)
+                        pair_mean_raw = 0.5 * (raw_p + raw_s)
+                        if pair_mean_w > w_p:
+                            weighted, raw_frac = pair_mean_w, pair_mean_raw
+            else:
+                pair_bin = kbin_p
+                weighted = w_p
+                raw_frac = raw_p
+                combined = comb_p
+            key = (
+                _KO_BIN_RANK[pair_bin],
+                weighted,
                 mid,
+                raw_frac,
+                combined,
                 atk_spe,
                 def_spe,
-                ability,
-                incoming_ohko=incoming,
-                spe_stages=spe_stages,
+                r_p,
+                r_s,
+                pair_bin,
             )
-            weighted = weight * capped
-            key = (_KO_BIN_RANK[kbin], weighted, mid, raw_frac, combined, atk_spe, def_spe, r)
             if best is None or key[0] > best[0] or (
-                key[0] == best[0] and (
-                    key[1] > best[1] or (key[1] == best[1] and mid < best[2])
+                key[0] == best[0]
+                and (
+                    key[1] > best[1]
+                    or (key[1] == best[1] and mid < best[2])
                 )
             ):
-                best = (
-                    key[0],
-                    key[1],
-                    mid,
-                    raw_frac,
-                    combined,
-                    atk_spe,
-                    def_spe,
-                    r,
-                )
+                best = key
         if best is None:
             continue
-        _br, weighted, mid, raw_frac, combined, atk_spe, def_spe, r = best
-        kbin = "ohko" if combined else _ko_frac_bin(raw_frac)
+        (
+            _br,
+            weighted,
+            mid,
+            raw_frac,
+            combined,
+            atk_spe,
+            def_spe,
+            r,
+            r_partner,
+            pair_bin,
+        ) = best
         fracs.append(weighted)
-        used.append((dname, mid))
+        used.append((pair_label, mid))
         mid_counts[mid] = mid_counts.get(mid, 0) + 1
-        if kbin == "ohko":
+        if pair_bin == "ohko":
             sweep_ohko += 1
-        if kbin in {"ohko", "2hko"}:
+        if pair_bin in {"ohko", "2hko"}:
             sweep_2hko += 1
         per_defender.append(
             {
                 "species": dname,
+                "pair_label": pair_label,
                 "mid": mid,
-                "bin": kbin,
+                "bin": pair_bin,
                 "combined": combined,
                 "raw_frac": raw_frac,
                 "weighted": weighted,
@@ -2377,8 +2761,12 @@ def _setup_kit_matrix_score(
         )
         if outsped:
             recoil_frac = _recoil_frac_from_result(r, mid)
+            drain_frac = _drain_frac_from_result(r, mid)
+            if r_partner is not None and _is_spread_damage_mid(mid):
+                recoil_frac += _recoil_frac_from_result(r_partner, mid)
+                drain_frac += _drain_frac_from_result(r_partner, mid)
             if disguise:
-                remains.append(max(0.0, 1.0 - recoil_frac))
+                remains.append(min(1.0, max(0.0, 1.0 - recoil_frac + drain_frac)))
             elif lived_shield:
                 seq_remain: float | None = None
                 if combined:
@@ -2389,15 +2777,23 @@ def _setup_kit_matrix_score(
                         blade_incoming=blade_mask.get(dname),
                     )
                 if seq_remain is not None:
-                    remains.append(max(0.0, seq_remain - recoil_frac))
-                elif (
-                    to_id(calc_name) in _AEGISLASH_FORMES
-                    and raw_frac < 1.0
+                    remains.append(
+                        min(1.0, max(0.0, seq_remain - recoil_frac + drain_frac))
+                    )
+                elif to_id(calc_name) in _AEGISLASH_FORMES and (
+                    (_hit_frac_from_result(r) or 0.0) < 1.0
                 ):
+                    # Primary raw only — scored raw_frac may be pair_mean.
                     pass  # Aegislash sequence failed — no remain (legacy)
                 else:
                     remains.append(
-                        max(0.0, 1.0 - float(incoming_frac) - recoil_frac)
+                        min(
+                            1.0,
+                            max(
+                                0.0,
+                                1.0 - float(incoming_frac) - recoil_frac + drain_frac,
+                            ),
+                        )
                     )
 
     # debuff_surv: only defenders whose chosen mid has self Def/SpD drops
@@ -2468,10 +2864,11 @@ def _select_setup_payoff(
     usage_move_ids: set[str] | None = None,
     learnset: set[str] | None = None,
 ) -> tuple[str | None, float, str, SetupPriorityKind]:
-    """Per-defender best kit damaging move; modal mid is the display payoff_id.
+    """Per-defender best kit damaging move; modal mid is admit-gate only.
 
     Selection: KO bin first, then weighted-capped frac. Shared incoming-OHKO once.
-    Returns (payoff_id, raw_score, calc_error, priority_kind).
+    Returns (modal_mid, raw_score, calc_error, priority_kind). Modal mid is the
+    emptiness reject / legacy tuple shape — not a display payoff label (Stage 2).
     """
     del usage_move_ids, learnset  # Stage 1: kit-only M; usage bag no longer searched
     mids = _kit_damaging_mids(snap, kit_moves, boost_stat=boost_stat)
@@ -2572,13 +2969,69 @@ def _move_display(snap: dict[str, Any] | None, mid: str) -> str:
     return mid
 
 
+def _setup_payoff_notes(
+    used: list[tuple[str, str]],
+    mid_counts: dict[str, int],
+) -> tuple[list[str], dict[str, list[str]]]:
+    """Structured payoff display from Stage 1 kit matrix (not a single modal label)."""
+    payoff_moves = sorted(mid_counts, key=lambda m: (-mid_counts[m], m))
+    targets: dict[str, list[str]] = {}
+    for dname, mid in used:
+        targets.setdefault(mid, []).append(dname)
+    return payoff_moves, targets
+
+
+def _ally_damage_risk_note(
+    payoff_moves: list[str],
+    snap: dict[str, Any],
+) -> str | None:
+    """Display-only ally-hit risk when payoff_moves include allAdjacent mids.
+
+    Move-intrinsic (no teammate context). Returns None when no ally-hit payoff.
+    """
+    hit: list[str] = []
+    types: set[str] = set()
+    sound = False
+    moves_map = snap.get("moves") or {}
+    for raw in payoff_moves:
+        mid = to_id(raw)
+        if mid not in _ALLY_HIT_DAMAGE_MOVE_IDS:
+            continue
+        hit.append(mid)
+        if mid in _SOUND_ALLY_HIT_MOVE_IDS:
+            sound = True
+        typ = str((moves_map.get(mid) or {}).get("type") or "")
+        if typ:
+            types.add(typ)
+    if not hit:
+        return None
+    names = [
+        str((moves_map.get(mid) or {}).get("name") or mid) for mid in sorted(hit)
+    ]
+    parts: list[str] = []
+    for typ in sorted(types):
+        frag = _ALLY_HIT_TYPE_PROTECTIONS.get(typ)
+        if frag:
+            parts.append(f"{typ}: {frag}")
+    if sound:
+        parts.append("sound: Soundproof")
+    parts.append("always: Telepathy, Friend Guard (3/4, not immune)")
+    return (
+        f"ally-hit payoff(s): {', '.join(names)} — " + "; ".join(parts)
+    )
+
+
 def _payoff_coverage_note(
     used: list[tuple[str, str]],
     *,
     snap: dict[str, Any],
     primary_mid: str,
 ) -> str | None:
-    """Per-defender move breakdown when a candidate used more than one payoff."""
+    """Per-defender move breakdown when a candidate used more than one payoff.
+
+    ID+BP / ``_damage_score`` fallback path only — Stage 2 setup categories use
+    ``_setup_payoff_notes`` instead.
+    """
     if not used:
         return None
     by_move: dict[str, list[str]] = {}
@@ -3312,11 +3765,19 @@ def _damage_score(
                 )
                 if outsped:
                     recoil_frac = _recoil_frac_from_result(r, mid)
+                    drain_frac = _drain_frac_from_result(r, mid)
                     if disguise:
-                        remains.append(max(0.0, 1.0 - recoil_frac))
+                        remains.append(
+                            min(1.0, max(0.0, 1.0 - recoil_frac + drain_frac))
+                        )
                     elif lived_shield:
                         if seq_remain is not None:
-                            remains.append(max(0.0, seq_remain - recoil_frac))
+                            remains.append(
+                                min(
+                                    1.0,
+                                    max(0.0, seq_remain - recoil_frac + drain_frac),
+                                )
+                            )
                         elif (
                             to_id(attacker_name) in _AEGISLASH_FORMES
                             and kit_moves is not None
@@ -3325,7 +3786,16 @@ def _damage_score(
                             pass  # Aegislash sequence failed — no remain (legacy)
                         else:
                             remains.append(
-                                max(0.0, 1.0 - float(incoming_frac) - recoil_frac)
+                                min(
+                                    1.0,
+                                    max(
+                                        0.0,
+                                        1.0
+                                        - float(incoming_frac)
+                                        - recoil_frac
+                                        + drain_frac,
+                                    ),
+                                )
                             )
                 fracs.append(weight * capped)
                 used.append((dname, mid))
@@ -3388,7 +3858,7 @@ def _construct_setup_attacker(
     panel = _setup_threat_defenders()
     notes.append(
         f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
-        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} "
+        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} pair=top1-partner "
         f"({_threat_panel_label(panel)})"
     )
     notes.append(
@@ -3544,10 +4014,9 @@ def _construct_setup_attacker(
                 )
             )
             continue
-        move_disp = str(
-            (snap.get("moves") or {}).get(payoff_id, {}).get("name") or payoff_id
+        payoff_moves, payoff_targets = _setup_payoff_notes(
+            used, sweep.get("mid_counts") or {}
         )
-        coverage = _payoff_coverage_note(used, snap=snap, primary_mid=payoff_id)
 
         both = set(branches) >= {"A", "B"}
         adjusted = _setup_adjusted_score(raw_score, both_branches=both)
@@ -3580,8 +4049,8 @@ def _construct_setup_attacker(
                 "boosts": boosts,
                 "calc_err": calc_err,
                 "calc_name": calc_name,
-                "move_disp": move_disp,
-                "coverage": coverage,
+                "payoff_moves": payoff_moves,
+                "payoff_targets": payoff_targets,
                 "branch_note": branch_note,
                 "branch_basis": branch_basis,
                 "excellent_secondary": excellent_secondary,
@@ -3589,6 +4058,26 @@ def _construct_setup_attacker(
                 "sweep": dict(sweep),
             }
         )
+
+    # Damage-score admission floor (SD only via criteria; NP has no key → no-op).
+    admit_floor = sub_criteria.get("damage_admission_floor")
+    admit_floor_f = float(admit_floor) if admit_floor is not None else None
+    provisional = _partition_by_admission_floor(
+        provisional,
+        score_key="adjusted",
+        admission_floor=admit_floor_f,
+        prior=prior,
+        rejected=rejected,
+    )
+    if admit_floor_f is not None:
+        notes.append(
+            f"damage admission floor = {admit_floor_f:g} "
+            f"(score >= floor; n_kept={len(provisional)})"
+        )
+
+    acc_mult = float(
+        sub_criteria.get("acceptable_floor_mult") or _SETUP_ACCEPTABLE_FLOOR_MULT
+    )
 
     # Pass 2: per-category floor from adjusted scores.
     floor = _setup_excellent_floor([p["adjusted"] for p in provisional])
@@ -3601,8 +4090,8 @@ def _construct_setup_attacker(
         f"→ {floor:.3f} (top: {top_label})"
     )
     notes.append(
-        f"Acceptable floor = Excellent floor × {_SETUP_ACCEPTABLE_FLOOR_MULT:g} "
-        f"→ {floor * _SETUP_ACCEPTABLE_FLOOR_MULT:.3f}"
+        f"Acceptable floor = Excellent floor × {acc_mult:g} "
+        f"→ {floor * acc_mult:.3f}"
     )
 
     # Pass 3: assign tiers.
@@ -3615,13 +4104,13 @@ def _construct_setup_attacker(
         branch_basis = p["branch_basis"]
         excellent_secondary = p["excellent_secondary"]
         abs_map = p["abs_map"]
-        move_disp = p["move_disp"]
-        coverage = p["coverage"]
+        payoff_moves = p["payoff_moves"]
+        payoff_targets = p["payoff_targets"]
         calc_name = p["calc_name"]
         calc_err = p["calc_err"]
         boosts = p["boosts"]
 
-        mech_tier = _setup_mech_tier(adjusted, floor)
+        mech_tier = _setup_mech_tier(adjusted, floor, acceptable_mult=acc_mult)
         excellent_exec = mech_tier == "Excellent"
         discounted = sid in skip_discount
         if discounted and mech_tier == "Excellent":
@@ -3677,15 +4166,19 @@ def _construct_setup_attacker(
                 criterion="delivery",
                 purpose_claimed=f"setup via {move_id} (+{stages} {boost_stat})",
             ),
-            ClaimedTrait(
-                name=move_disp if not coverage else f"{move_disp} + coverage",
-                criterion="execution",
-                purpose_claimed=(
-                    f"calc damage fraction {adjusted:.3f} vs panel; branches={branch_note}"
-                    + (f"; {coverage}" if coverage else "")
-                ),
-            ),
         ]
+        for mid in payoff_moves:
+            n_defs = len(payoff_targets.get(mid) or [])
+            traits.append(
+                ClaimedTrait(
+                    name=_move_display(snap, mid),
+                    criterion="execution",
+                    purpose_claimed=(
+                        f"calc damage fraction {adjusted:.3f} vs panel; "
+                        f"branches={branch_note}; {n_defs} defender(s)"
+                    ),
+                )
+            )
         if p["sec_ability"]:
             aid = next(iter(sorted(set(abs_map) & _SETUP_EXCELLENT_SECONDARY_ABILITIES)))
             traits.append(
@@ -3719,14 +4212,23 @@ def _construct_setup_attacker(
                     "branches_cleared": branch_note,
                     "usage_proven": usage_proven_note,
                     "attribution": pair_attr.get(sid, "none"),
-                    "payoff_move": move_disp,
-                    **({"payoff_coverage": coverage} if coverage else {}),
+                    "payoff_moves": payoff_moves,
+                    "payoff_targets": payoff_targets,
                     "calc_species": calc_name,
                     "damage_score_raw": f"{raw_score:.3f}",
                     "damage_score": f"{adjusted:.3f}",
                     "score_boosts": "+".join(boosts) if boosts else "none",
                     **_sweep_note_fields(p.get("sweep")),
                     **({"calc_error": calc_err} if calc_err else {}),
+                    **(
+                        {"ally_damage_risk": ally_note}
+                        if (
+                            ally_note := _ally_damage_risk_note(
+                                payoff_moves, snap
+                            )
+                        )
+                        else {}
+                    ),
                 },
                 claimed_traits=traits,
                 reasoning=(
@@ -3851,7 +4353,7 @@ def _construct_offense_stage_setup(
     panel = _setup_threat_defenders()
     notes.append(
         f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
-        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} "
+        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} pair=top1-partner "
         f"({_threat_panel_label(panel)})"
     )
     notes.append(
@@ -3990,8 +4492,9 @@ def _construct_offense_stage_setup(
             if has_pri or spe >= _SETUP_SPE_FLOOR
             else f"slow_no_priority spe={spe}"
         )
-        move_disp = str((snap.get("moves") or {}).get(payoff_id, {}).get("name") or payoff_id)
-        coverage = _payoff_coverage_note(used, snap=snap, primary_mid=payoff_id)
+        payoff_moves, payoff_targets = _setup_payoff_notes(
+            used, sweep.get("mid_counts") or {}
+        )
         if kind == "offense_speed_setup":
             xk, xn = _setup_spe_crossings(
                 candidate_name=name,
@@ -4018,8 +4521,8 @@ def _construct_offense_stage_setup(
                 "raw_score": raw_score,
                 "calc_err": calc_err,
                 "calc_name": calc_name,
-                "move_disp": move_disp,
-                "coverage": coverage,
+                "payoff_moves": payoff_moves,
+                "payoff_targets": payoff_targets,
                 "spe_note": spe_note,
                 "abs_map": abs_map,
                 "xk": xk,
@@ -4027,6 +4530,26 @@ def _construct_offense_stage_setup(
                 "sweep": dict(sweep),
             }
         )
+
+    # Damage-score admission floor (CM/BU via criteria; DD has no key → no-op).
+    admit_floor = sub_criteria.get("damage_admission_floor")
+    admit_floor_f = float(admit_floor) if admit_floor is not None else None
+    provisional = _partition_by_admission_floor(
+        provisional,
+        score_key="raw_score",
+        admission_floor=admit_floor_f,
+        prior=prior,
+        rejected=rejected,
+    )
+    if admit_floor_f is not None:
+        notes.append(
+            f"damage admission floor = {admit_floor_f:g} "
+            f"(score >= floor; n_kept={len(provisional)})"
+        )
+
+    acc_mult = float(
+        sub_criteria.get("acceptable_floor_mult") or _SETUP_ACCEPTABLE_FLOOR_MULT
+    )
 
     floor = _setup_excellent_floor([p["raw_score"] for p in provisional])
     ranked = sorted(provisional, key=lambda p: p["raw_score"], reverse=True)
@@ -4036,13 +4559,13 @@ def _construct_offense_stage_setup(
         f"→ {floor:.3f} (top: {top_label})"
     )
     notes.append(
-        f"Acceptable floor = Excellent floor × {_SETUP_ACCEPTABLE_FLOOR_MULT:g} "
-        f"→ {floor * _SETUP_ACCEPTABLE_FLOOR_MULT:.3f}"
+        f"Acceptable floor = Excellent floor × {acc_mult:g} "
+        f"→ {floor * acc_mult:.3f}"
     )
 
     for p in provisional:
         sid, name, raw_score = p["sid"], p["name"], p["raw_score"]
-        mech_tier = _setup_mech_tier(raw_score, floor)
+        mech_tier = _setup_mech_tier(raw_score, floor, acceptable_mult=acc_mult)
         discounted = sid in skip_discount
         if discounted and mech_tier == "Excellent":
             tier = "Acceptable"
@@ -4078,9 +4601,30 @@ def _construct_offense_stage_setup(
             change_reason = (
                 f"stage-setup re-eval / tier {prev!r} → {tier!r} (score={raw_score:.3f})"
             )
-        move_disp = p["move_disp"]
-        coverage = p["coverage"]
+        payoff_moves = p["payoff_moves"]
+        payoff_targets = p["payoff_targets"]
         xfield = "spe_crossings" if kind == "offense_speed_setup" else "bulk_crossings"
+        traits = [
+            ClaimedTrait(
+                name=str(
+                    (snap.get("moves") or {}).get(move_id, {}).get("name") or move_id
+                ),
+                criterion="delivery",
+                purpose_claimed=f"setup via {move_id} (+{stages} {boost_stat})",
+            ),
+        ]
+        for mid in payoff_moves:
+            n_defs = len(payoff_targets.get(mid) or [])
+            traits.append(
+                ClaimedTrait(
+                    name=_move_display(snap, mid),
+                    criterion="execution",
+                    purpose_claimed=(
+                        f"calc damage fraction {raw_score:.3f} vs panel; "
+                        f"{n_defs} defender(s); {xfield}={xnote}"
+                    ),
+                )
+            )
         members.append(
             CandidateEval(
                 species=name,
@@ -4096,33 +4640,25 @@ def _construct_offense_stage_setup(
                         f"damage_score={raw_score:.3f} floor={floor:.3f} "
                         f"{p['spe_note']} {xfield}={xnote}"
                     ),
-                    "payoff_move": move_disp,
-                    **({"payoff_coverage": coverage} if coverage else {}),
+                    "payoff_moves": payoff_moves,
+                    "payoff_targets": payoff_targets,
                     "calc_species": p["calc_name"],
                     "spe_note": p["spe_note"],
                     "damage_score": f"{raw_score:.3f}",
                     xfield: xnote,
                     **_sweep_note_fields(p.get("sweep")),
                     **({"calc_error": p["calc_err"]} if p["calc_err"] else {}),
+                    **(
+                        {"ally_damage_risk": ally_note}
+                        if (
+                            ally_note := _ally_damage_risk_note(
+                                payoff_moves, snap
+                            )
+                        )
+                        else {}
+                    ),
                 },
-                claimed_traits=[
-                    ClaimedTrait(
-                        name=str(
-                            (snap.get("moves") or {}).get(move_id, {}).get("name") or move_id
-                        ),
-                        criterion="delivery",
-                        purpose_claimed=f"setup via {move_id} (+{stages} {boost_stat})",
-                    ),
-                    ClaimedTrait(
-                        name=move_disp if not coverage else f"{move_disp} + coverage",
-                        criterion="execution",
-                        purpose_claimed=(
-                            f"calc damage fraction {raw_score:.3f} vs panel"
-                            + (f"; {coverage}" if coverage else "")
-                            + f"; {xfield}={xnote}"
-                        ),
-                    ),
-                ],
+                claimed_traits=traits,
                 reasoning=(
                     f"{tier}: calc {raw_score:.3f} (floor {floor:.3f}); "
                     f"{p['spe_note']}; {xfield}={xnote}"
@@ -4173,7 +4709,7 @@ def _construct_def_payoff_setup(
     panel = _setup_threat_defenders()
     notes.append(
         f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
-        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} "
+        f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} pair=top1-partner "
         f"({_threat_panel_label(panel)})"
     )
     notes.append(

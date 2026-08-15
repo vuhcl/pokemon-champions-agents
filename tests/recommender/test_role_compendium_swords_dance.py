@@ -9,9 +9,11 @@ from recommender.ids import to_id
 from recommender.legality import load_snapshot
 from recommender.role_compendium import (
     SWORDS_DANCE_ATTACKER_CRITERIA,
+    RejectedCandidate,
     _SETUP_ACCEPTABLE_FLOOR_MULT,
     _SETUP_BOTH_BRANCH_SCORE_DIV,
     _SETUP_DAMAGE_FRAC_CAP,
+    _partition_by_admission_floor,
     _setup_adjusted_score,
     _setup_branch_a,
     _setup_branch_a_via_priority,
@@ -73,10 +75,13 @@ def _panel_result(
     atk_spe: int = 100,
     def_spe: int = 80,
     recoil_pct: float | None = None,
+    recovery_hp: int | None = None,
+    atk_hp: int | None = None,
 ) -> dict[str, Any]:
+    attacker_hp = 159 if atk_hp is None else atk_hp
     raw: dict[str, Any] = {
         "stats": {
-            "attacker": {"spe": atk_spe, "hp": 159},
+            "attacker": {"spe": atk_spe, "hp": attacker_hp},
             "defender": {"hp": hp, "spe": def_spe},
         }
     }
@@ -85,11 +90,24 @@ def _panel_result(
             "recoil": [recoil_pct, recoil_pct],
             "text": f"{recoil_pct}% recoil damage",
         }
+    if recovery_hp is not None:
+        raw["recovery"] = {
+            "recovery": [recovery_hp, recovery_hp],
+            "text": f"{recovery_hp} HP recovered",
+        }
     return {
         "damageRange": [dmg, dmg],
         "koChance": "2HKO",
         "raw": raw,
     }
+
+
+def _sd_criteria_for_mock() -> dict[str, Any]:
+    """Mock calcs score far below the locked live admission floor — strip it."""
+    crit = dict(SWORDS_DANCE_ATTACKER_CRITERIA)
+    crit.pop("damage_admission_floor", None)
+    crit.pop("acceptable_floor_mult", None)
+    return crit
 
 
 def _sd_draft(*, pool: list[str] | None = None, live_fetch=None):
@@ -120,7 +138,7 @@ def _sd_draft(*, pool: list[str] | None = None, live_fetch=None):
     default_pool = [n for n in legal_species_pool(snap) if to_id(n) in proven]
     return construct_role_category(
         "swords_dance_attacker",
-        SWORDS_DANCE_ATTACKER_CRITERIA,
+        _sd_criteria_for_mock(),
         pool if pool is not None else default_pool,
         snap=snap,
         live_fetch=live_fetch if live_fetch is not None else _usage,
@@ -189,6 +207,48 @@ def test_setup_mech_tier_degenerate_floor_stays_good():
     assert _setup_mech_tier(0.1, _setup_excellent_floor([])) == "Good"
 
 
+def test_setup_mech_tier_acceptable_mult_override():
+    """Category Acceptable mults widen/narrow the Good band vs default 0.70."""
+    assert _setup_mech_tier(0.87, 1.0, acceptable_mult=0.88) == "Acceptable"
+    assert _setup_mech_tier(0.87, 1.0) == "Good"
+    assert _setup_mech_tier(0.88, 1.0, acceptable_mult=0.88) == "Good"
+    assert _setup_mech_tier(0.899, 1.0, acceptable_mult=0.90) == "Acceptable"
+    assert _setup_mech_tier(0.90, 1.0, acceptable_mult=0.90) == "Good"
+
+
+def test_partition_by_admission_floor_noop_and_boundary():
+    rows = [
+        {"sid": "a", "name": "Above", "adjusted": 1.0},
+        {"sid": "b", "name": "Floor", "adjusted": 0.981},
+        {"sid": "c", "name": "Below", "adjusted": 0.980},
+        # Float noise just under a 3-decimal locked floor must still include.
+        {"sid": "d", "name": "FloatFloor", "adjusted": 0.981 - 1e-12},
+    ]
+    rejected: list[RejectedCandidate] = []
+    assert _partition_by_admission_floor(
+        rows, score_key="adjusted", admission_floor=None, prior={}, rejected=rejected
+    ) == rows
+    assert rejected == []
+
+    kept = _partition_by_admission_floor(
+        rows,
+        score_key="adjusted",
+        admission_floor=0.981,
+        prior={"c": "Acceptable"},
+        rejected=rejected,
+    )
+    assert [r["sid"] for r in kept] == ["a", "b", "d"]
+    assert len(rejected) == 1
+    assert rejected[0].species_id == "c"
+    assert "admission floor 0.981" in rejected[0].reason
+    assert rejected[0].change_reason is not None
+
+
+def test_sd_criteria_locks_admission_and_acceptable_mult():
+    assert SWORDS_DANCE_ATTACKER_CRITERIA["damage_admission_floor"] == 0.969
+    assert SWORDS_DANCE_ATTACKER_CRITERIA["acceptable_floor_mult"] == 0.85
+
+
 def test_acceptable_basis_distinct_from_good():
     """tied_cluster compares degree tuples across tiers, so the basis must differ."""
     draft = _sd_draft()
@@ -246,7 +306,7 @@ def test_cbd_inflated_vs_mega_rejects_without_showdown_base_delivery():
     snap = load_snapshot()
     draft = construct_role_category(
         "swords_dance_attacker",
-        SWORDS_DANCE_ATTACKER_CRITERIA,
+        _sd_criteria_for_mock(),
         [n for n in legal_species_pool(snap) if to_id(n) in {"skarmory", "skarmorymega"}],
         snap=snap,
         live_fetch=lambda n: (
@@ -330,7 +390,7 @@ def test_discounted_base_in_acceptable_band_is_rejected():
 
     draft = construct_role_category(
         "swords_dance_attacker",
-        SWORDS_DANCE_ATTACKER_CRITERIA,
+        _sd_criteria_for_mock(),
         [n for n in legal_species_pool(snap) if to_id(n) in {"scizor", "scizormega"}],
         snap=snap,
         live_fetch=lambda n: (
@@ -380,7 +440,7 @@ def test_setup_does_not_discount_when_mega_lacks_setup_move():
     snap = load_snapshot()
     draft = construct_role_category(
         "swords_dance_attacker",
-        SWORDS_DANCE_ATTACKER_CRITERIA,
+        _sd_criteria_for_mock(),
         legal_species_pool(snap),
         snap=snap,
         live_fetch=lambda n: (
@@ -990,7 +1050,7 @@ def test_critique_approves():
 def test_rebuild_tmp(tmp_path: Path):
     r = rebuild_role_category(
         "swords_dance_attacker",
-        SWORDS_DANCE_ATTACKER_CRITERIA,
+        _sd_criteria_for_mock(),
         roles_dir=tmp_path,
         live_fetch=lambda n: {
             "name": n,
@@ -1268,6 +1328,153 @@ def test_payoff_coverage_note_lists_per_defender_fallbacks():
     assert "Shadow Ball×2" in note
     assert "Incineroar" in note and "Kingambit" in note
     assert _payoff_coverage_note(used[:2], snap=snap, primary_mid="psychic") is None
+
+
+def test_setup_payoff_notes_orders_by_mid_counts():
+    from recommender.role_compendium import _setup_payoff_notes
+
+    used = [
+        ("Garchomp", "playrough"),
+        ("Whimsicott", "playrough"),
+        ("Incineroar", "doubleedge"),
+        ("Kingambit", "playrough"),
+    ]
+    counts = {"playrough": 3, "doubleedge": 1}
+    moves, targets = _setup_payoff_notes(used, counts)
+    assert moves == ["playrough", "doubleedge"]
+    assert targets["playrough"] == ["Garchomp", "Whimsicott", "Kingambit"]
+    assert targets["doubleedge"] == ["Incineroar"]
+    # Tie on count → lexicographically smaller mid first
+    tied = _setup_payoff_notes(
+        [("A", "zeta"), ("B", "alpha")],
+        {"zeta": 1, "alpha": 1},
+    )
+    assert tied[0] == ["alpha", "zeta"]
+
+
+def test_sd_construct_structured_payoff_mawile_shaped(monkeypatch):
+    """Multi-mid kit winners → payoff_moves/targets + plural execution traits."""
+    import inspect
+
+    from recommender.role_compendium import (
+        RoleConstructionDraft,
+        _attacker_kit,
+        _construct_def_payoff_setup,
+        _construct_offense_stage_setup,
+        _move_display,
+    )
+
+    snap = load_snapshot()
+    panel = [
+        {"species": "Garchomp", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+        {"species": "Incineroar", "evs": {"hp": 32}, "usage_moves": ["Flare Blitz"]},
+        {"species": "Gengar", "evs": {"hp": 32}, "usage_moves": ["Shadow Ball"]},
+        {"species": "Rillaboom", "evs": {"hp": 32}, "usage_moves": ["Wood Hammer"]},
+    ]
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            if not atk.get("boosts"):
+                out.append(_panel_result(dmg=40, hp=200, atk_spe=200, def_spe=50))
+                continue
+            mid = to_id(req.get("move") or "")
+            sp = to_id((req.get("defender") or {}).get("species") or "")
+            if mid == "doubleedge":
+                if sp == "gengar":
+                    dmg = 0
+                elif sp == "incineroar":
+                    dmg = 90
+                else:
+                    dmg = 50
+            elif mid == "playrough":
+                if sp == "incineroar":
+                    dmg = 40
+                else:
+                    dmg = 100
+            else:
+                dmg = 10
+            out.append(_panel_result(dmg=dmg, hp=100, atk_spe=150, def_spe=80))
+        return out
+
+    monkeypatch.setattr(
+        "recommender.role_compendium._setup_threat_defenders",
+        lambda: panel,
+    )
+
+    def kit(name, sid, snap_, learnset, *, boost_stat, entry):
+        if to_id(sid) == "mawilemega":
+            return (
+                "Mawile-Mega",
+                None,
+                "Huge Power",
+                ["Play Rough", "Double-Edge", "Swords Dance", "Protect"],
+            )
+        return _attacker_kit(
+            name, sid, snap_, learnset, boost_stat=boost_stat, entry=entry
+        )
+
+    monkeypatch.setattr("recommender.role_compendium._attacker_kit", kit)
+
+    def usage(name: str) -> dict[str, Any] | None:
+        if to_id(name) != "mawilemega":
+            return None
+        return {
+            "name": name,
+            "id": "mawilemega",
+            "common_moves": [{"name": "Swords Dance", "pct": 40.0}],
+        }
+
+    draft = construct_role_category(
+        "swords_dance_attacker",
+        _sd_criteria_for_mock(),
+        ["Mawile-Mega"],
+        snap=snap,
+        live_fetch=usage,
+        showdown_fetch=lambda _n: None,
+        calculate_batch=calc,
+    )
+    maw = next(c for c in draft.candidates if c.species_id == "mawilemega" and c.tier)
+    notes = maw.criteria_notes
+    assert "payoff_move" not in notes
+    assert "payoff_coverage" not in notes
+    assert isinstance(notes["payoff_moves"], list)
+    assert isinstance(notes["payoff_targets"], dict)
+    assert notes["payoff_moves"][0] == "playrough"
+    assert "playrough" in notes["payoff_targets"]
+    assert "Gengar" in notes["payoff_targets"]["playrough"]
+    assert "Garchomp" in notes["payoff_targets"]["playrough"]
+    assert "Rillaboom" in notes["payoff_targets"]["playrough"]
+    if "doubleedge" in notes["payoff_targets"]:
+        assert notes["payoff_targets"]["doubleedge"] == ["Incineroar"]
+        assert "doubleedge" in notes["payoff_moves"]
+
+    exec_names = [
+        t.name for t in maw.claimed_traits if t.criterion == "execution"
+    ]
+    expected = [_move_display(snap, mid) for mid in notes["payoff_moves"]]
+    assert exec_names == expected
+    assert len(exec_names) >= 1
+
+    tiny = RoleConstructionDraft(
+        category=draft.category,
+        sub_criteria=dict(draft.sub_criteria),
+        candidates=[maw],
+        considered_rejected=[],
+        tiers={maw.tier: [maw.species]},
+        notes=[],
+    )
+    critique = critique_role_ranking(tiny)
+    assert not any(f.principle == "function_fit" for f in critique.flags)
+
+    stage_src = inspect.getsource(_construct_offense_stage_setup)
+    assert "_setup_payoff_notes" in stage_src
+    assert "_payoff_coverage_note" not in stage_src
+    idbp_src = inspect.getsource(_construct_def_payoff_setup)
+    assert "_payoff_coverage_note" in idbp_src
+    assert "_setup_payoff_notes" not in idbp_src
+    assert "payoff_targets" not in idbp_src
 
 
 def test_damage_score_sweep_ohko_and_survive_remain():
@@ -1614,6 +1821,8 @@ def _outsped_survive_dispatch(
     incoming_dmg: int = 60,
     hp: int = 100,
     recoil_pct: float | None = None,
+    recovery_hp: int | None = None,
+    atk_hp: int | None = None,
     seen_defs: list[dict[str, Any]] | None = None,
 ):
     """Outgoing slower than foe; incoming non-OHKO so remain is credited."""
@@ -1637,6 +1846,8 @@ def _outsped_survive_dispatch(
                     atk_spe=50,
                     def_spe=150,
                     recoil_pct=recoil_pct,
+                    recovery_hp=recovery_hp,
+                    atk_hp=atk_hp,
                 )
             )
         return out
@@ -1718,6 +1929,261 @@ def test_recoil_remain_gated_vs_non_recoil_payoff():
     # Same mock recoil payload, but Close Combat is not in connect-recoil set.
     assert abs(sweep_r["remain_mean"] - 0.35) < 1e-9  # 1 - 0.4 - 0.25
     assert abs(sweep_n["remain_mean"] - 0.60) < 1e-9  # 1 - 0.4
+
+
+def test_drain_move_set_locked():
+    from recommender.role_compendium import _DRAIN_MOVES
+
+    assert _DRAIN_MOVES == frozenset(
+        {
+            "bitterblade",
+            "drainpunch",
+            "gigadrain",
+            "hornleech",
+            "leechlife",
+            "matchagotcha",
+            "paraboliccharge",
+            "drainingkiss",
+        }
+    )
+    # Past / illegal drain stays out.
+    assert "absorb" not in _DRAIN_MOVES
+    assert "megadrain" not in _DRAIN_MOVES
+    assert "dreameater" not in _DRAIN_MOVES
+    assert "oblivionwing" not in _DRAIN_MOVES
+
+
+def test_drain_frac_from_result_reads_recovery_over_maxhp():
+    from recommender.role_compendium import _drain_frac_from_result
+
+    r50 = _panel_result(dmg=60, hp=100, recovery_hp=50, atk_hp=100)
+    r75 = _panel_result(dmg=60, hp=100, recovery_hp=75, atk_hp=100)
+    assert abs(_drain_frac_from_result(r50, "bitterblade") - 0.50) < 1e-9
+    assert abs(_drain_frac_from_result(r75, "drainingkiss") - 0.75) < 1e-9
+
+
+def test_drain_frac_gated_ignores_shell_bell_on_non_drain():
+    from recommender.role_compendium import _drain_frac_from_result
+
+    # Shell Bell (or any item heal) populates raw.recovery on non-drain moves.
+    payload = _panel_result(dmg=60, hp=100, recovery_hp=13, atk_hp=154)
+    assert _drain_frac_from_result(payload, "shadowsneak") == 0.0
+    assert abs(_drain_frac_from_result(payload, "bitterblade") - (13 / 154)) < 1e-9
+
+
+def test_drain_remain_on_damage_score():
+    """ID+BP/legacy _damage_score site wires the shared drain helper."""
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    sweep: dict[str, Any] = {}
+    _score, err = _damage_score(
+        attacker_name="Conkeldurr",
+        item=None,
+        ability=None,
+        move="Drain Punch",
+        move_id="drainpunch",
+        boost_stat="atk",
+        stages=1,
+        panel=_RECOIL_PANEL,
+        calculate_batch=_outsped_survive_dispatch(
+            payoff_dmg=60,
+            incoming_dmg=40,
+            hp=100,
+            recovery_hp=25,
+            atk_hp=100,
+        ),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+    )
+    assert err == ""
+    assert sweep["n_surv"] == 1
+    # remain = min(1, 1 - 0.40 + 0.25) = 0.85
+    assert abs(sweep["remain_mean"] - 0.85) < 1e-9
+
+
+def test_drain_remain_gated_vs_non_drain_payoff():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    dispatch = _outsped_survive_dispatch(
+        payoff_dmg=60, incoming_dmg=40, hp=100, recovery_hp=25, atk_hp=100
+    )
+    sweep_d: dict[str, Any] = {}
+    _damage_score(
+        attacker_name="Conkeldurr",
+        item=None,
+        ability=None,
+        move="Drain Punch",
+        move_id="drainpunch",
+        boost_stat="atk",
+        stages=1,
+        panel=_RECOIL_PANEL,
+        calculate_batch=dispatch,
+        snap=snap,
+        sweep_out=sweep_d,
+    )
+    sweep_n: dict[str, Any] = {}
+    _damage_score(
+        attacker_name="Conkeldurr",
+        item=None,
+        ability=None,
+        move="Close Combat",
+        move_id="closecombat",
+        boost_stat="atk",
+        stages=1,
+        panel=_RECOIL_PANEL,
+        calculate_batch=dispatch,
+        snap=snap,
+        sweep_out=sweep_n,
+    )
+    assert abs(sweep_d["remain_mean"] - 0.85) < 1e-9  # 1 - 0.4 + 0.25
+    assert abs(sweep_n["remain_mean"] - 0.60) < 1e-9  # 1 - 0.4
+
+
+def test_drain_remain_caps_at_full_hp():
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    sweep: dict[str, Any] = {}
+    _damage_score(
+        attacker_name="Ceruledge",
+        item=None,
+        ability=None,
+        move="Bitter Blade",
+        move_id="bitterblade",
+        boost_stat="atk",
+        stages=2,
+        panel=_RECOIL_PANEL,
+        calculate_batch=_outsped_survive_dispatch(
+            payoff_dmg=60,
+            incoming_dmg=10,
+            hp=100,
+            recovery_hp=90,
+            atk_hp=100,
+        ),
+        snap=load_snapshot(),
+        sweep_out=sweep,
+    )
+    # remain = min(1, 1 - 0.10 + 0.90) = 1.0
+    assert abs(sweep["remain_mean"] - 1.0) < 1e-9
+
+
+def test_drain_remain_on_kit_matrix():
+    """Stage 1 kit-matrix site credits drain the same way as _damage_score."""
+    from recommender.role_compendium import _setup_kit_matrix_score
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    panel = _RECOIL_PANEL
+    score, err, _used, sweep = _setup_kit_matrix_score(
+        snap=snap,
+        sid="ceruledge",
+        calc_name="Ceruledge",
+        item=None,
+        ability=None,
+        boost_stat="atk",
+        stages=2,
+        panel=panel,
+        calculate_batch=_outsped_survive_dispatch(
+            payoff_dmg=60,
+            incoming_dmg=40,
+            hp=100,
+            recovery_hp=25,
+            atk_hp=100,
+        ),
+        mids=["bitterblade"],
+        kit_moves=["swordsdance", "bitterblade"],
+    )
+    assert err == ""
+    assert score > 0
+    assert sweep["n_surv"] == 1
+    assert abs(sweep["remain_mean"] - 0.85) < 1e-9
+
+
+def test_drain_remain_ceruledge_scale_magnitude():
+    """Discovery-scale lifts: min ≥+0.40, mean ≥+0.15 (not a token bump)."""
+    from recommender.role_compendium import _damage_score
+    from recommender.legality import load_snapshot
+
+    # Two survivors: incoming fracs 0.785 and 0.232 → before remains 0.215 / 0.768.
+    # Drain fracs 0.437 and 0.164 → after 0.652 / 0.932 (discovery SD scale).
+    panel = [
+        {"species": "A", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+        {"species": "B", "evs": {"hp": 32}, "usage_moves": ["Earthquake"]},
+    ]
+    # Map defender → (incoming_dmg, recovery_hp) with defender hp=1000 for precision.
+    # remain_before = 1 - incoming/1000; drain = recovery/1000.
+    # A: incoming 785 → remain 0.215; recovery 437 → after 0.652 (Δ0.437)
+    # B: incoming 232 → remain 0.768; recovery 164 → after 0.932 (Δ0.164)
+    specs = {
+        "A": (785, 437),
+        "B": (232, 164),
+    }
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            defn = req.get("defender") or {}
+            if not atk.get("boosts"):
+                # Incoming OHKO batch: panel member hits candidate.
+                dname = str(atk.get("species") or "")
+                incoming_dmg, _rec = specs[dname]
+                out.append(
+                    _panel_result(
+                        dmg=incoming_dmg, hp=1000, atk_spe=150, def_spe=50
+                    )
+                )
+                continue
+            dname = str(defn.get("species") or "")
+            _inc, recovery_hp = specs[dname]
+            out.append(
+                _panel_result(
+                    dmg=600,
+                    hp=1000,
+                    atk_spe=50,
+                    def_spe=150,
+                    recovery_hp=recovery_hp,
+                    atk_hp=1000,
+                )
+            )
+        return out
+
+    before: dict[str, Any] = {}
+    after: dict[str, Any] = {}
+
+    def calc_before(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        # Strip recovery so we measure the lift.
+        results = calc(reqs)
+        for r in results:
+            (r.get("raw") or {}).pop("recovery", None)
+        return results
+
+    snap = load_snapshot()
+    common = dict(
+        attacker_name="Ceruledge",
+        item=None,
+        ability=None,
+        move="Bitter Blade",
+        move_id="bitterblade",
+        boost_stat="atk",
+        stages=2,
+        panel=panel,
+        snap=snap,
+    )
+    _damage_score(**common, calculate_batch=calc_before, sweep_out=before)
+    _damage_score(**common, calculate_batch=calc, sweep_out=after)
+
+    d_mean = after["remain_mean"] - before["remain_mean"]
+    d_min = after["remain_min"] - before["remain_min"]
+    assert d_min >= 0.40
+    assert d_mean >= 0.15
+    assert abs(before["remain_min"] - 0.215) < 1e-9
+    assert abs(before["remain_mean"] - 0.4915) < 1e-9  # (0.215+0.768)/2
+    assert abs(after["remain_min"] - 0.652) < 1e-9
+    assert abs(after["remain_mean"] - 0.792) < 1e-9  # (0.652+0.932)/2
 
 
 def test_debuff_surv_applies_negative_def_spd_stages():
