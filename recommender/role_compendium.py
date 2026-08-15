@@ -140,6 +140,42 @@ _SETUP_FLOOR_SECOND_MULT = 0.95
 # Good/Acceptable split: anchored on the widest real gap in the SD Good field
 # (0.869 | 0.768), whose stable plateau is (0.664, 0.752] × floor; 0.70 is the midpoint.
 _SETUP_ACCEPTABLE_FLOOR_MULT = 0.70
+# Damaging moves with Champions calc target allAdjacent (hits allies).
+# Source: @smogon/calc Generations.get(0) — item 7 Part B Step 1.
+_ALLY_HIT_DAMAGE_MOVE_IDS = frozenset(
+    {
+        "boomburst",
+        "brutalswing",
+        "bulldoze",
+        "discharge",
+        "earthquake",
+        "explosion",
+        "lavaplume",
+        "mistyexplosion",
+        "paraboliccharge",
+        "petalblizzard",
+        "selfdestruct",
+        "sludgewave",
+        "sparklingaria",
+        "surf",
+    }
+)
+# Ally-hit subset that are sound moves (calc flags.sound) — Soundproof applies.
+_SOUND_ALLY_HIT_MOVE_IDS = frozenset({"boomburst", "sparklingaria"})
+# Type → ally protection fragments (abilities/types from data/abilities + type chart).
+_ALLY_HIT_TYPE_PROTECTIONS: dict[str, str] = {
+    "Ground": (
+        "Flying-type / Levitate / Earth Eater (absorb/heal); "
+        "Gravity/Iron Ball can nullify Flying/Levitate immunity"
+    ),
+    "Water": "Water Absorb / Dry Skin / Storm Drain",
+    "Electric": "Volt Absorb / Motor Drive / Lightning Rod",
+    "Fire": "Flash Fire / Well-Baked Body",
+    "Grass": "Sap Sipper",
+    "Poison": "Steel-type",
+    "Normal": "Ghost-type",
+    # Dark / Fairy: no type-specific immunities beyond universal.
+}
 _CALC_POKE_KEYS = ("species", "item", "ability", "moves", "nature", "evs", "boosts", "level")
 
 SetupPriorityKind = Literal["none", "unconditional", "conditional"]
@@ -2697,6 +2733,46 @@ def _setup_payoff_notes(
     return payoff_moves, targets
 
 
+def _ally_damage_risk_note(
+    payoff_moves: list[str],
+    snap: dict[str, Any],
+) -> str | None:
+    """Display-only ally-hit risk when payoff_moves include allAdjacent mids.
+
+    Move-intrinsic (no teammate context). Returns None when no ally-hit payoff.
+    """
+    hit: list[str] = []
+    types: set[str] = set()
+    sound = False
+    moves_map = snap.get("moves") or {}
+    for raw in payoff_moves:
+        mid = to_id(raw)
+        if mid not in _ALLY_HIT_DAMAGE_MOVE_IDS:
+            continue
+        hit.append(mid)
+        if mid in _SOUND_ALLY_HIT_MOVE_IDS:
+            sound = True
+        typ = str((moves_map.get(mid) or {}).get("type") or "")
+        if typ:
+            types.add(typ)
+    if not hit:
+        return None
+    names = [
+        str((moves_map.get(mid) or {}).get("name") or mid) for mid in sorted(hit)
+    ]
+    parts: list[str] = []
+    for typ in sorted(types):
+        frag = _ALLY_HIT_TYPE_PROTECTIONS.get(typ)
+        if frag:
+            parts.append(f"{typ}: {frag}")
+    if sound:
+        parts.append("sound: Soundproof")
+    parts.append("always: Telepathy, Friend Guard (3/4, not immune)")
+    return (
+        f"ally-hit payoff(s): {', '.join(names)} — " + "; ".join(parts)
+    )
+
+
 def _payoff_coverage_note(
     used: list[tuple[str, str]],
     *,
@@ -3896,6 +3972,15 @@ def _construct_setup_attacker(
                     "score_boosts": "+".join(boosts) if boosts else "none",
                     **_sweep_note_fields(p.get("sweep")),
                     **({"calc_error": calc_err} if calc_err else {}),
+                    **(
+                        {"ally_damage_risk": ally_note}
+                        if (
+                            ally_note := _ally_damage_risk_note(
+                                payoff_moves, snap
+                            )
+                        )
+                        else {}
+                    ),
                 },
                 claimed_traits=traits,
                 reasoning=(
@@ -4315,6 +4400,15 @@ def _construct_offense_stage_setup(
                     xfield: xnote,
                     **_sweep_note_fields(p.get("sweep")),
                     **({"calc_error": p["calc_err"]} if p["calc_err"] else {}),
+                    **(
+                        {"ally_damage_risk": ally_note}
+                        if (
+                            ally_note := _ally_damage_risk_note(
+                                payoff_moves, snap
+                            )
+                        )
+                        else {}
+                    ),
                 },
                 claimed_traits=traits,
                 reasoning=(
