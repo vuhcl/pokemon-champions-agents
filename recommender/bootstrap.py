@@ -13,7 +13,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
 from recommender.by_usage import query_by_usage
 from recommender.ids import to_id
-from recommender.legality import is_species_legal, load_snapshot
+from recommender.legality import load_snapshot
+from recommender.species_resolve import resolve_species_label
 from recommender.ranking import OwnershipMode
 from recommender.slot_fill import (
     AnnotatedCandidate,
@@ -237,12 +238,8 @@ def resolve_bootstrap_direction(text: str | None) -> TargetRoleId | None:
 def _exact_legal_species(raw: str | None) -> str | None:
     if not raw:
         return None
-    snap = load_snapshot()
-    species_id = to_id(raw)
-    entry = (snap.get("species") or {}).get(species_id)
-    if entry is None or not is_species_legal(snap, species_id):
-        return None
-    return str(entry.get("name") or raw)
+    hit = resolve_species_label(raw, load_snapshot())
+    return hit.name if hit else None
 
 
 def _speed_control_pre_pass(anchor_role) -> TargetRoleResult | None:

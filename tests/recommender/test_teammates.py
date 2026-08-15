@@ -5,6 +5,7 @@ from unittest.mock import patch
 from recommender.teammates import (
     TeammateEvidence,
     TeammateQueryResult,
+    _attribution_status,
     query_shared_teammates,
     query_teammates,
 )
@@ -211,3 +212,9 @@ def test_shared_query_excludes_every_locked_anchors_lineage():
     )
 
     assert result.rows == ()
+
+
+def test_gmax_only_bases_are_exact_garchomp_stays_ambiguous():
+    assert _attribution_status("grimmsnarl") == "exact"
+    assert _attribution_status("hatterene") == "exact"
+    assert _attribution_status("garchomp") == "ambiguous"

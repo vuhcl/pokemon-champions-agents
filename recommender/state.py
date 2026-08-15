@@ -573,6 +573,7 @@ class RecommenderState(TypedDict):
     bootstrap_response: NotRequired[Optional[BootstrapResponsePayload]]
     bootstrap_intake_error: NotRequired[Optional[str]]
     unresolved_pool_entries: NotRequired[tuple[str, ...]]
+    species_resolve_notices: NotRequired[tuple[str, ...]]
     team_completion_preference: NotRequired[Optional[TeamCompletionPreference]]
     candidate_discovery_error: NotRequired[Optional[CandidateDiscoveryError]]
 

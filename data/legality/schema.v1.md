@@ -1,4 +1,4 @@
-# Legality snapshot schema v1 (schema_version 2 additive)
+# Legality snapshot schema v1 (schema_version 3 additive)
 
 Offline, commit-pinned legality data for Pokémon Champions (Showdown mod `champions`).
 Produced by `npm run extract:legality`. Consumed by the legality tool — **no live
@@ -19,7 +19,7 @@ Regeneration anchors: `meta.source.commit` + `meta.source.mod` (not a regulation
 ```ts
 {
   meta: {
-    schema_version: 2,             // was 1; additive moves/learnsets/abilities
+    schema_version: 3,             // was 2; additive species_aliases
     extracted_at: string,          // ISO-8601
     source: {
       repo: "smogon/pokemon-showdown",
@@ -71,6 +71,9 @@ Regeneration anchors: `meta.source.commit` + `meta.source.mod` (not a regulation
   learnsets: {
     [speciesId: string]: string[], // move ids; Champions pool table (~237 species)
   },
+  species_aliases: {
+    [aliasId: string]: string,     // Showdown Aliases whose toId(target) is in species
+  },
 }
 ```
 
@@ -87,6 +90,11 @@ Regeneration anchors: `meta.source.commit` + `meta.source.mod` (not a regulation
 - **`effective_tags`** unions tags along the entire `baseSpecies` chain (does not stop at
   the first non-empty tags array).
 - Lookup key: map key === `id` === Showdown object key (`[a-z0-9]+`).
+- **`species_aliases`** is Showdown `data/aliases.ts` filtered to targets that resolve
+  (`toId`) to a key in `species`. Format/item/move nicknames are dropped. Join inherit
+  of unlisted `otherFormes` runs before this filter so aliases like `meowsticfemale` are kept.
+- Unlisted pokedex `otherFormes` (not `battleOnly` / `isCosmeticForme`) are emitted in
+  `species` copying the parent's `is_nonstandard` / `tier` (Showdown Dex base-tier inherit).
 
 ## Diff fixture
 

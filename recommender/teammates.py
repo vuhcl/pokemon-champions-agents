@@ -7,7 +7,7 @@ from collections.abc import Callable, Sequence
 from typing import Any, Literal
 
 from recommender.ids import to_id
-from recommender.legality import load_snapshot
+from recommender.legality import is_species_legal, load_snapshot
 from recommender.teammate_types import (
     AttributionStatus,
     DenominatorKind,
@@ -189,10 +189,14 @@ def _showdown_result(
 
 
 def _attribution_status(species_id: str) -> AttributionStatus:
-    if species_id not in (load_snapshot().get("species") or {}):
+    snap = load_snapshot()
+    if species_id not in (snap.get("species") or {}):
         return "unresolved"
     lineage = lineage_ids(species_id)
-    return "ambiguous" if species_id == lineage[0] and len(lineage) > 1 else "exact"
+    legal_child = species_id == lineage[0] and any(
+        kid != lineage[0] and is_species_legal(snap, kid) for kid in lineage
+    )
+    return "ambiguous" if legal_child else "exact"
 
 
 def _cbd_result(
