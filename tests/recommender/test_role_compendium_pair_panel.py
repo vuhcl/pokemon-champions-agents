@@ -139,16 +139,8 @@ def test_single_target_skips_partner_calc():
     assert sweep["ohko"] == 0  # 80/100 → 2hko
 
 
-def test_spread_calcs_both_and_sums_recoil(monkeypatch):
-    """Spread hits both; connect-recoil fractions sum across targets."""
-    import recommender.role_compendium as rc
-
-    monkeypatch.setattr(
-        rc,
-        "_CONNECT_RECOIL_MOVES",
-        rc._CONNECT_RECOIL_MOVES | frozenset({"earthquake"}),
-    )
-    panel = [
+def _pair_panel() -> list[dict[str, Any]]:
+    return [
         {
             "species": "Primary",
             "evs": {"hp": 32},
@@ -161,6 +153,17 @@ def test_spread_calcs_both_and_sums_recoil(monkeypatch):
             "partner_count": 99,
         }
     ]
+
+
+def test_spread_recoil_sums_even_when_primary_alone_wins(monkeypatch):
+    """Partner weak → primary wins max(); recoil still sums both targets."""
+    import recommender.role_compendium as rc
+
+    monkeypatch.setattr(
+        rc,
+        "_CONNECT_RECOIL_MOVES",
+        rc._CONNECT_RECOIL_MOVES | frozenset({"earthquake"}),
+    )
     seen_defs: list[str] = []
 
     def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -169,14 +172,15 @@ def test_spread_calcs_both_and_sums_recoil(monkeypatch):
             atk = req.get("attacker") or {}
             defn = req.get("defender") or {}
             if not atk.get("boosts"):
-                # Incoming: survive (40%)
                 out.append(_hit(dmg=40, hp=100, atk_spe=150, def_spe=50))
                 continue
             seen_defs.append(str(defn.get("species") or ""))
-            # Outsped payoff with 10% recoil each target
+            sp = str(defn.get("species") or "")
+            # Primary strong, partner weak → primary_alone wins continuous max.
+            dmg = 80 if sp == "Primary" else 20
             out.append(
                 _hit(
-                    dmg=60,
+                    dmg=dmg,
                     hp=100,
                     atk_spe=50,
                     def_spe=150,
@@ -186,7 +190,7 @@ def test_spread_calcs_both_and_sums_recoil(monkeypatch):
         return out
 
     snap = load_snapshot()
-    _score, err, _used, sweep = _setup_kit_matrix_score(
+    score, err, _used, sweep = _setup_kit_matrix_score(
         snap=snap,
         sid="rhyperior",
         calc_name="Rhyperior",
@@ -194,7 +198,7 @@ def test_spread_calcs_both_and_sums_recoil(monkeypatch):
         ability=None,
         boost_stat="atk",
         stages=2,
-        panel=panel,
+        panel=_pair_panel(),
         calculate_batch=calc,
         mids=["earthquake"],
         kit_moves=["swordsdance", "earthquake"],
@@ -202,27 +206,97 @@ def test_spread_calcs_both_and_sums_recoil(monkeypatch):
     assert err == ""
     assert seen_defs.count("Primary") == 1
     assert seen_defs.count("Partner") == 1
-    # remain = 1 - 0.40 - (0.10+0.10) = 0.40
+    row = sweep["per_defender"][0]
+    # Continuous uses primary alone (0.80), not mean 0.50.
+    assert abs(row["weighted"] - 0.80) < 1e-9
+    assert abs(score - 0.80) < 1e-9
+    # remain = 1 - 0.40 - (0.10+0.10) = 0.40 even though primary won max()
     assert sweep["n_surv"] == 1
     assert abs(sweep["remain_mean"] - 0.40) < 1e-9
 
 
-def test_sweep_ohko_requires_both_on_spread():
-    panel = [
-        {
-            "species": "Primary",
-            "evs": {"hp": 32},
-            "usage_moves": ["Earthquake"],
-            "partner": {
-                "species": "Partner",
-                "evs": {"hp": 32},
-                "usage_moves": ["Earthquake"],
-            },
-            "partner_count": 10,
-        }
-    ]
+def test_spread_primary_alone_wins_continuous():
+    """Bulky partner → continuous score floors at primary-alone, not mean."""
 
-    def calc_one_ko(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            defn = req.get("defender") or {}
+            if not atk.get("boosts"):
+                out.append(_hit(dmg=10, hp=100, atk_spe=50, def_spe=200))
+                continue
+            sp = str(defn.get("species") or "")
+            dmg = 80 if sp == "Primary" else 20
+            out.append(_hit(dmg=dmg, hp=100, atk_spe=200, def_spe=50))
+        return out
+
+    snap = load_snapshot()
+    score, err, _used, sweep = _setup_kit_matrix_score(
+        snap=snap,
+        sid="garchomp",
+        calc_name="Garchomp",
+        item=None,
+        ability=None,
+        boost_stat="atk",
+        stages=2,
+        panel=_pair_panel(),
+        calculate_batch=calc,
+        mids=["earthquake"],
+        kit_moves=["swordsdance", "earthquake"],
+    )
+    assert err == ""
+    row = sweep["per_defender"][0]
+    assert abs(row["weighted"] - 0.80) < 1e-9
+    assert abs(row["raw_frac"] - 0.80) < 1e-9
+    assert abs(score - 0.80) < 1e-9
+    # Old mean-of-two would have been 0.50.
+    assert score > 0.50
+
+
+def test_spread_pair_mean_wins_continuous():
+    """Frail partner → pair_mean beats primary_alone (genuine upside)."""
+
+    def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out = []
+        for req in reqs:
+            atk = req.get("attacker") or {}
+            defn = req.get("defender") or {}
+            if not atk.get("boosts"):
+                out.append(_hit(dmg=10, hp=100, atk_spe=50, def_spe=200))
+                continue
+            sp = str(defn.get("species") or "")
+            dmg = 40 if sp == "Primary" else 100
+            out.append(_hit(dmg=dmg, hp=100, atk_spe=200, def_spe=50))
+        return out
+
+    snap = load_snapshot()
+    score, err, _used, sweep = _setup_kit_matrix_score(
+        snap=snap,
+        sid="garchomp",
+        calc_name="Garchomp",
+        item=None,
+        ability=None,
+        boost_stat="atk",
+        stages=2,
+        panel=_pair_panel(),
+        calculate_batch=calc,
+        mids=["earthquake"],
+        kit_moves=["swordsdance", "earthquake"],
+    )
+    assert err == ""
+    row = sweep["per_defender"][0]
+    assert abs(row["weighted"] - 0.70) < 1e-9  # mean of 0.40 and 1.0
+    assert abs(row["raw_frac"] - 0.70) < 1e-9
+    assert abs(score - 0.70) < 1e-9
+    assert score > 0.40  # upside vs primary alone
+
+
+def test_spread_ohko_bin_is_primary_alone():
+    """sweep_ohko / bin follow primary only — partner KO neither required nor sufficient."""
+    panel = _pair_panel()
+
+    def calc_primary_ohko(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
         out = []
         for req in reqs:
             atk = req.get("attacker") or {}
@@ -235,14 +309,17 @@ def test_sweep_ohko_requires_both_on_spread():
             out.append(_hit(dmg=dmg, hp=100, atk_spe=200, def_spe=50))
         return out
 
-    def calc_both_ko(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def calc_partner_only_ohko(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
         out = []
         for req in reqs:
             atk = req.get("attacker") or {}
+            defn = req.get("defender") or {}
             if not atk.get("boosts"):
                 out.append(_hit(dmg=10, hp=100, atk_spe=50, def_spe=200))
-            else:
-                out.append(_hit(dmg=100, hp=100, atk_spe=200, def_spe=50))
+                continue
+            sp = str(defn.get("species") or "")
+            dmg = 40 if sp == "Primary" else 100
+            out.append(_hit(dmg=dmg, hp=100, atk_spe=200, def_spe=50))
         return out
 
     snap = load_snapshot()
@@ -259,33 +336,20 @@ def test_sweep_ohko_requires_both_on_spread():
         kit_moves=["dragondance", "rockslide"],
     )
     _s1, e1, _u1, sw1 = _setup_kit_matrix_score(
-        **common, calculate_batch=calc_one_ko
+        **common, calculate_batch=calc_primary_ohko
     )
     _s2, e2, _u2, sw2 = _setup_kit_matrix_score(
-        **common, calculate_batch=calc_both_ko
+        **common, calculate_batch=calc_partner_only_ohko
     )
     assert e1 == e2 == ""
-    assert sw1["ohko"] == 0
-    assert sw1["per_defender"][0]["bin"] != "ohko"
-    assert sw2["ohko"] == 1
-    assert sw2["per_defender"][0]["bin"] == "ohko"
+    assert sw1["ohko"] == 1
+    assert sw1["per_defender"][0]["bin"] == "ohko"
+    assert sw2["ohko"] == 0
+    assert sw2["per_defender"][0]["bin"] != "ohko"
 
 
 def test_combined_ko_finisher_primary_first():
-    """Finisher applies to primary when both could use it; partner not finished."""
-    panel = [
-        {
-            "species": "Primary",
-            "evs": {"hp": 32},
-            "usage_moves": ["Earthquake"],
-            "partner": {
-                "species": "Partner",
-                "evs": {"hp": 32},
-                "usage_moves": ["Earthquake"],
-            },
-            "partner_count": 10,
-        }
-    ]
+    """Finisher on primary yields OHKO credit; partner need not be finished."""
     finisher_targets: list[str] = []
 
     def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -315,19 +379,16 @@ def test_combined_ko_finisher_primary_first():
         ability="Stance Change",
         boost_stat="atk",
         stages=2,
-        panel=panel,
+        panel=_pair_panel(),
         calculate_batch=calc,
         mids=["rockslide"],
         kit_moves=["swordsdance", "rockslide", "shadowsneak", "kingsshield"],
     )
     assert err == ""
-    # Finisher batch hits both species once at setup; payoff path must still
-    # prefer primary for combined-KO (pair OHKO needs both — partner stays 2hko
-    # without a second finisher).
     assert "Primary" in finisher_targets
     assert sweep["per_defender"][0]["combined"] is True
-    # Partner not cleared → not pair ohko
-    assert sweep["ohko"] == 0
+    # Bin is primary-alone — combined on primary counts as ohko.
+    assert sweep["ohko"] == 1
 
 
 def test_payoff_targets_pair_label_format():
