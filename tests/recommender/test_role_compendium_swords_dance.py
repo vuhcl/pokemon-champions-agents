@@ -245,8 +245,8 @@ def test_partition_by_admission_floor_noop_and_boundary():
 
 
 def test_sd_criteria_locks_admission_and_acceptable_mult():
-    assert SWORDS_DANCE_ATTACKER_CRITERIA["damage_admission_floor"] == 0.981
-    assert SWORDS_DANCE_ATTACKER_CRITERIA["acceptable_floor_mult"] == 0.88
+    assert SWORDS_DANCE_ATTACKER_CRITERIA["damage_admission_floor"] == 0.969
+    assert SWORDS_DANCE_ATTACKER_CRITERIA["acceptable_floor_mult"] == 0.85
 
 
 def test_acceptable_basis_distinct_from_good():
