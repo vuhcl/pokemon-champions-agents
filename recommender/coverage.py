@@ -113,6 +113,10 @@ def _expand_ladder_species(
     rank_i = int(rank) if rank is not None else None
     lineage = lineage_ids(sid)
     hits = [lid for lid in lineage if lid in sd]
+    # Child usage keys already name a forme. Do not steal the base's Showdown
+    # row (or emit siblings) under this ladder_species.
+    if sid != lineage[0]:
+        hits = [sid] if sid in sd else []
     formes = _showdown_formes(lineage, sd)
 
     if len(hits) >= 2:

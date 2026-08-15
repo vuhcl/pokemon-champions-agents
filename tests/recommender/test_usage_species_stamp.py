@@ -46,11 +46,10 @@ def test_floette_display_name_is_unchanged():
 
 def test_relevant_threats_glue_maushold_vivillon_floette():
     threats = get_relevant_threats({"regulation_mod": "champions"})
-    by_ladder = {t.ladder_species: t for t in threats}
-    maushold = by_ladder["Maushold Family of Four"]
-    vivillon = by_ladder["Vivillon Fancy Pattern"]
-    assert to_id(maushold.spec["species"]) == "mausholdfour"
-    assert to_id(vivillon.spec["species"]) == "vivillonfancy"
+    maushold = [t for t in threats if t.ladder_species == "Maushold Family of Four"]
+    vivillon = [t for t in threats if t.ladder_species == "Vivillon Fancy Pattern"]
+    assert {to_id(t.spec["species"]) for t in maushold} == {"mausholdfour"}
+    assert {to_id(t.spec["species"]) for t in vivillon} == {"vivillonfancy"}
     forms = {t.spec["species"] for t in threats if t.ladder_species == "Floette"}
     assert "Floette-Eternal" in forms
     assert "Floette-Mega" in forms
