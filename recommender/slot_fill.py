@@ -161,6 +161,7 @@ class SlotFillContext:
         "available"
     )
     threat_discovery_error: CandidateDiscoveryError | None = None
+    notices: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -249,6 +250,7 @@ class SlotFillPresentation:
 
     slot_index: int
     candidates: tuple[PresentedCandidate, ...]
+    notices: tuple[str, ...] = ()
 
     @property
     def default(self) -> str | None:
@@ -1439,6 +1441,7 @@ def present_candidates(
             )
             for species in options
         ),
+        notices=ctx.notices,
     )
 
 
@@ -1468,12 +1471,14 @@ def _pending_presentation(
         if row.mechanism_ids is not None:
             option["mechanism_ids"] = row.mechanism_ids
         options.append(option)
-    return {
+    pending: PendingPresentation = {
         "schema_version": 1,
         "kind": "candidate_selection",
         "slot_index": presentation.slot_index,
         "options": options,
+        "notices": presentation.notices,
     }
+    return pending
 
 
 def run_slot_fill_terminal(

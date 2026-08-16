@@ -27,6 +27,7 @@ from recommender.primary_function_types import PrimaryFunctionResilienceReport
 from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot
 from recommender.ranking import OwnershipMode, rank_and_cut
+from recommender.reconcile import _item_mega_forme
 from recommender.slot_fill import (
     AnnotatedCandidate,
     AnchoredSupportNeed,
@@ -82,6 +83,35 @@ def panel_species_id_from_pair_id(pair_id: str, panel_ids: set[str]) -> str | No
 
 def _is_mega_sid(species_id: str) -> bool:
     return species_id.endswith(("mega", "megax", "megay"))
+
+
+def mega_useful_ceiling(team_size: int, pick_count: int) -> int:
+    return 1 + (team_size - pick_count)
+
+
+def mega_ceiling_notices(state: RecommenderState) -> tuple[str, ...]:
+    pick_count = state.get("picked_team_size")
+    if pick_count is None:
+        return ()
+    draft = state.get("team_draft") or []
+    snap = load_snapshot()
+    bases: set[str] = set()
+    for slot in draft:
+        if not all_locked(slot) or not slot.species.value:
+            continue
+        sid = to_id(slot.species.value)
+        base = lineage_ids(sid)[0]
+        item = to_id(slot.item.value or "")
+        if _is_mega_sid(sid) or _item_mega_forme(item, base, snap):
+            bases.add(base)
+    n = len(bases)
+    if n == 0:
+        return ()
+    ceiling = mega_useful_ceiling(len(draft), pick_count)
+    return (
+        f"{n} of {ceiling} Mega-Stone holders locked — "
+        "only one can Mega Evolve per battle.",
+    )
 
 
 def _threat_id(threat: ThreatCandidate) -> str:
