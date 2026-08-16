@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Literal
 
-from recommender.anchor_roles import MechanismEvidence
+from recommender.anchor_roles import MechanismEvidence, ResolvedAnchorBuild
 from recommender.condition_types import (
     MIN_WANTED_DEPENDENTS_FOR_ESSENTIAL,
     TRACKED_CONDITIONS,
@@ -16,8 +16,15 @@ from recommender.condition_types import (
     ConditionResilienceReport,
     ConditionResilienceRow,
 )
+from recommender.ids import to_id
 from recommender.slot_fill import AnchoredSupportNeed, LockedAnchorContext
-from recommender.support_needs import SupportNeed, field_labels_from_trigger
+from recommender.support_needs import (
+    SupportNeed,
+    _spe_tier,
+    _threat_speeds,
+    field_labels_from_trigger,
+)
+from recommender.usage_spreads import _SPEED_PLUS, effective_spe
 
 _SETTER_ROLE_FOR_CONDITION = {
     "Rain": "rain_setter",
@@ -90,10 +97,56 @@ def _preferred_setter_direction(
     return has_setter and has_offense
 
 
+_TR_SPE_GAP_MIN = 15
+
+
+def _tr_spe_discount_floor(threat_speeds: list[int]) -> int | None:
+    """High side of the largest interior Spe gap, else already_fast. None if no signal."""
+    uniq = sorted(set(threat_speeds))
+    pairs = list(zip(uniq, uniq[1:]))
+    interior = pairs[1:-1] if len(pairs) > 2 else ()
+    best_gap = 0
+    best_hi: int | None = None
+    for lo, hi in interior:
+        gap = hi - lo
+        if gap > best_gap:
+            best_gap, best_hi = gap, hi
+    if best_hi is not None and best_gap >= _TR_SPE_GAP_MIN:
+        return best_hi
+    if not threat_speeds:
+        return None
+    for spe in range(0, max(threat_speeds) + 2):
+        if _spe_tier(spe, threat_speeds) == "already_fast":
+            return spe
+    return None
+
+
+def _discount_tr_wanted(build: ResolvedAnchorBuild, floor: int | None) -> bool:
+    """True when this locked member should not add a Trick Room wanted vote."""
+    if int(build.spread.get("spe", 0) or 0) > 0:
+        return True
+    scarf = to_id(build.item or "") == "choicescarf"
+    if scarf:
+        return True
+    nature = build.nature or "Hardy"
+    if nature in _SPEED_PLUS:
+        return True
+    if floor is None or not build.species:
+        return False
+    return effective_spe(build.species, build.spread, nature, scarf=scarf) >= floor
+
+
 def assess_condition_resilience(
     locked: Sequence[LockedAnchorContext],
 ) -> ConditionResilienceReport:
     rows: list[ConditionResilienceRow] = []
+    tr_floor: int | None = None
+    if locked:
+        regulation = next(
+            (c.resolved_build.regulation for c in locked),
+            "champions-reg-mb",
+        )
+        tr_floor = _tr_spe_discount_floor(_threat_speeds(None, regulation))
     for condition in TRACKED_CONDITIONS:
         providers: list[ConditionProviderMember] = []
         dependents: list[ConditionDependentMember] = []
@@ -126,6 +179,12 @@ def assess_condition_resilience(
                     )
                 )
             if best_dependent is not None and context.slot_index not in seen_dependents:
+                if (
+                    condition == "Trick Room"
+                    and best_dependent == "wanted"
+                    and _discount_tr_wanted(context.resolved_build, tr_floor)
+                ):
+                    continue
                 seen_dependents.add(context.slot_index)
                 dependents.append(
                     ConditionDependentMember(
