@@ -4042,6 +4042,192 @@ separate, deliberately deferred task.
 
 ---
 
+### ADR-019/030 — Amendment 2026-08-15d
+
+**Record-side CBD usage-ratio attribution shipped — closes the second, deliberately-deferred
+half of canonical name/form resolution (the input-boundary half shipped in Amendment
+2026-08-15c). Both halves of the problem first identified 2026-08-08 are now closed.**
+
+**Real scope, corrected from an earlier session's imprecise count.** The originally-cited "8
+rows" figure was Swampert's own CBD page-count, not the number of unique ambiguous species.
+Direct census against the live snapshot found 24 unique CBD teammate labels flagged
+`ambiguous` (plus 5 separate flavor-name `unresolved` strings, a different, orthogonal
+problem). **Real production impact is far narrower than that count suggests:** 46 of 50 CBD
+pages have a Showdown-offline row and are never read in production at all
+(`query_teammates` uses Showdown first) — the remap only matters for the 4 CBD-only anchor
+species (`floette`, `mawile`, `mausholdfour`, `vivillonfancy`) and whichever teammates appear
+*only* on those four pages. Confirmed exactly one concrete real case this fixes: Mawile,
+appearing as a teammate specifically on the `mausholdfour`/`vivillonfancy` shared-query path.
+Explicitly decided to build it anyway despite the narrow practical footprint, since it closes a
+real, previously-identified gap rather than leaving it permanently fail-closed.
+
+**Real breakpoint search, not an assumed threshold.** CBD stone-holding percentage (the Mega
+signal — confirmed abilities are pre-Mega on every checked page and do not distinguish) forms
+three real clusters separated by two genuine gaps: Mega-dominated (81.0–99.3%), genuinely mixed
+(29.3–65.9%, both forms independently real usage — e.g. Tyranitar), base-dominated (≤4.6%,
+remapping would be actively wrong). A round 90% cutoff was explicitly checked and rejected —
+it does not sit in a cluster-separating hole, and would incorrectly split Metagross (90.7%)
+from Gardevoir (88.6%), both genuinely Mega-dominated. **`_MEGA_STONE_FALLBACK_PCT = 80`**
+(an existing, unrelated Role Compendium constant — usage-proven role membership, a different
+mechanism) was confirmed via direct data-check to sit safely inside the real 65.9→81.0 gap, and
+reused deliberately as `_MEGA_STONE_REMAP_PCT` — a legitimate, data-grounded reuse this time,
+not an assumed transfer, and documented in code as such.
+
+**Dual-Mega handled with the same uniform rule, no species-specific carve-out.** If the single
+highest-stone-percentage legal Mega clears 80%, remap to it — regardless of any runner-up's
+residual share. Charizard-Y (95.6%) and Raichu-Y (81.0%, right at the threshold) both qualify
+identically; Raichu-X's real, non-trivial 11.2% share is simply left unattributed by this
+mechanism, correctly falling back to fail-closed for anyone actually running that minority
+form. Confirmed adversarially: a dedicated test directly asserts Raichu-Mega-X's id never
+appears in remapped output, proving the single-winner rule rather than a combined-share
+shortcut.
+
+**The load-bearing architectural finding: a real remap requires identity rewrite, not a status
+flip.** Confirmed by tracing `team_candidates` directly — it keys admission off
+`to_id(evidence.name)`, not `SharedTeammate.species_id`. Promoting `ambiguous` → `exact` on the
+stored base name alone would have silently admitted base Swampert as if it were Swampert-Mega —
+reproducing, in a different location, the exact silent-wrong-form bug this whole effort exists
+to prevent. The shipped fix rewrites both `species_id` and `name` on the CBD evidence row to
+the attributed forme's real canonical name, then sets `attribution_status` to `exact` so
+existing admission logic picks it up correctly without any downstream widening.
+
+**Correctly scoped out, not silently ignored:** mixed and base-dominated clusters stay
+fail-closed (fail-closed remains the correct behavior there); cosmetic otherFormes ambiguity
+(Sinistcha, Maushold, Vivillon — mechanically identical children, no usage signal exists at
+all) confirmed untouched by this mechanism, since it isn't a stone-attribution problem in the
+first place; Basculegion's gender ambiguity (a different signal type, not a stone) explicitly
+left as a separate, real, un-actioned gap; flavor-name canonicalization (3 remaining unresolved
+strings) confirmed orthogonal to usage-ratio attribution, not folded in; no new
+`attribution_status` value added — downstream only tests `== "exact"` today, so a distinct
+status would be pure unused observability, correctly deferred until a real need surfaces.
+
+**Confirmed by direct verification, not just Cursor's report:** `_cbd_mega_remap` traced
+directly against the code — reuses the existing `_item_mega_forme` stone-detection helper
+rather than reinventing it, includes a deterministic alphabetical tiebreak for exact percentage
+ties, correctly gates on `ambiguous` status only. Two of six new tests independently confirmed
+genuinely adversarial: the Raichu test directly asserts the excluded form's id is absent, not
+just that the included form is present; the Mawile test exercises the real downstream consumer
+(`query_shared_teammates`) end-to-end with the actual two CBD-only anchors, not the internal
+helper in isolation — reproduced independently via a direct call outside the test suite,
+confirming `mawilemega` / `Mawile-Mega` / `exact` with base `mawile` absent. Sinistcha and the
+flavor-name case both confirmed to remain untouched. 15/15 named tests, 1042/1042 full suite,
+zero regressions.
+
+**Status:** Shipped on `feature/cbd-mega-usage-attribution`, not yet merged (branch pushed, no
+PR opened per standing instruction to wait until requested). Closes the record-side half of the
+canonical name/form resolution problem; combined with Amendment 2026-08-15c, the entire
+original 2026-08-08 discovery item is now fully resolved.
+
+---
+
+### ADR-019/028 — Amendment 2026-08-15e
+
+**Secondary speed-control softening shipped: a real, adjacent signal on Trick Room/Tailwind
+resilience rows recording kit-present alternative speed-control methods (Icy Wind-class Speed
+drops, Sticky Web, guaranteed paralysis, Syrup Bomb, running Gooey/Static) — deliberately does
+not touch classification, gap, or provider cardinality. Closes deferred item 1 from ADR-028's
+own "deliberately deferred" list.**
+
+**Real, precise enumeration, not scoped to the named examples.** Direct extraction against
+Champions-legal move/ability data: 11 guaranteed opponent-Speed-drop moves (confirmed zero
+Champions-legal chance-gated Speed drops remain — all Past-gen), Sticky Web, 5 guaranteed-
+paralysis moves, plus code-only Syrup Bomb, and two abilities (Gooey, Static) gated on actually
+running, not merely legal access.
+
+**A real correction caught before implementation, not after.** The original framing ("this
+softens gap severity") was checked against its literal consequences and found to be either
+inert (demoting essential→preferred barely changes generation, since preferred still opens a
+gap) or actively harmful (demoting preferred→optional would fully suppress backup-setter
+generation, treating Icy Wind as if it mechanically closed the Trick Room gap — a false claim,
+since Icy Wind doesn't invert turn order, doesn't help against Ground-immune targets, and isn't
+always a doubles spread). Corrected to an adjacent, purely additive field before any code was
+written — explicitly re-confirmed with sign-off given it reversed an earlier locked framing.
+
+**Kit-vs-learnset discipline concretely proven, not asserted.** Milotic's Icy Wind sits at
+35.9% real usage but isn't on its actual featured set (Protect/Scald/Muddy Water/Coil);
+Rotom-Wash's Electroweb similarly misses its real Choice Scarf kit. Evidence bar confirmed as
+`resolved_build.moves`/`ability`, `present=True` — the same standard as every existing ADR-028
+provider, not learnset or raw usage%.
+
+**Confirmed by direct verification:** full diff traced against every locked decision — no
+`condition:*` tag ever emitted (confirmed via direct code read, preventing these from being
+mistaken for primary providers downstream), Gooey/Static gated on the single actual running
+ability rather than a set-membership legality check, deterministic behavior confirmed. Two
+adversarial cases independently inspected: Raichu-shaped dual-form exclusion logic (not
+directly applicable here, but the same discipline pattern held) and the Milotic/Rotom-Wash
+kit-vs-usage% exclusion, both proven via tests using real `resolve_anchor_build` calls, not
+mocks. Full suite regression clean at ship time.
+
+**Status:** Shipped on `feature/secondary-speed-control-softening`, not yet merged.
+
+---
+
+### ADR-028 — Amendment 2026-08-15f
+
+**Per-member Trick Room wanted-total discount and hindering-nature emission shipped. Trick
+Room's wanted-total now both narrows (Speed-invested members stop voting) and widens (genuinely
+slow-built members without a declared sweeper role start voting) — while classification
+mechanics, `needed`-tier dependents, `benefits_from` mechanism presence, and
+`_preferred_setter_direction` all stay untouched.**
+
+**Subtract — four independent, OR-combined intent signals exclude a `wanted`-tier Trick Room
+dependent from the count:** effective Speed ≥ a derived floor (125 today — the high side of a
+real 90→125 gap in the live top-10 threat pool, explicitly checked against and rejected in
+favor of two tempting-but-wrong alternatives: base Speed 100, already rejected by ADR-015
+Amendment 2026-07-29d precedent via the Mega Kangaskhan case, and the existing `already_fast`
+line at ~136, which sits inside the fast cluster rather than at its actual edge); any real
+Speed EV investment > 0 (no minimum — even minimal dump-EV allocation reflects deliberate
+normal-turn-order intent, and Trick Room inverts the value of exactly that choice); Choice
+Scarf held; a Speed-boosting nature (Jolly/Timid/Naive/Hasty). `needed`-tier dependents are
+never discounted. The underlying `benefits_from` mechanism itself is never deleted — a
+discounted member's declared identity stays true, it simply doesn't add a vote.
+
+**Add — a new evidence source, not a filter.** A locked member with a genuine Speed-hindering
+nature (Brave/Quiet/Relaxed/Sassy) and no existing Trick Room `benefits_from` mechanism, who is
+not itself a Trick Room provider, now generates a new `wanted`-importance mechanism. Two such
+members with zero declared sweeper identities can independently drive `essential`
+classification via `wanted×2` — confirmed as the intended design outcome, not a side effect,
+and stated plainly as such to avoid it being mistaken for a bug if noticed without an obvious
+declared cause.
+
+**A genuinely subtle edge case, explicitly designed for and tested:** a hindering-nature member
+who also independently triggers one of the four exclusion signals (e.g. real Speed EV
+investment despite a hindering nature) gets the new mechanism emitted, then immediately
+excluded by the same discount check — net contribution zero, not a contradiction or double-count.
+
+**Why base stat was never viable, proven with a concrete case.** The same species, Garchomp,
+produces three genuinely different effective Speeds (151 default usage, 129 under a
+TR-sweeper-hinted spread, 151 again if user-locked at default) depending entirely on the
+resolved build — a base-stat rule cannot distinguish any of them; only the resolved build's
+real EVs/nature/item can.
+
+**Explicit non-goal, stated plainly:** this discount narrows what counts as *evidence* the team
+wants Trick Room — it does not discourage, penalize, or actively work against Trick Room being
+present or used. A team can still run Trick Room even when every locked member's own signal is
+discounted, if the person building the team wants it for reasons the need-counting doesn't
+capture. `_preferred_setter_direction` (an existing heuristic promoting Trick Room to
+`preferred` when a setter is locked alongside any offense teammate) is deliberately left
+unchanged even when that offense teammate is Speed-discounted — confirmed as a real interaction
+point, correctly reasoned through and left alone rather than "fixed," since changing it would
+work against Trick Room, precisely the outcome this whole amendment exists to avoid.
+
+**Explicitly out of scope, confirmed:** Tailwind (no per-member discount — its mechanism
+uniformly benefits the whole side regardless of individual member Speed, unlike Trick Room's
+inverted-order mechanic); priority-move access as a second discount signal (deferred, add only
+if proven necessary); a raw wanted-count-vs-discount-count split on the resilience row
+(considered and explicitly declined — no consumer exists that could use it yet, same "optional
+observability, add only when a real need surfaces" discipline as the CBD remap's status-field
+decision); Charizard-Y-on-Rain-shaped cross-configuration coexistence (a member that wants TR
+in one alternate 4-mon selection but not another — blocked on unbuilt selected-four/one-Mega-
+per-team roster modeling, a separate, still-unbuilt prerequisite, named as a known limitation
+rather than attempted).
+
+**Confirmed by direct verification, not just Cursor's report.** Full diff traced against every
+specified detail, including subtle ones: the floor-derivation algorithm correctly excludes both
+end-pairs
+
+---
+
 ## ADR-020: Theme/archetype reconciliation — mechanism for re-evaluating locked values when
 team-level commitments or sibling attributes change
 

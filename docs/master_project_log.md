@@ -3999,6 +3999,92 @@ tests, zero unexplained failures.
 remapping remains its own separate, deliberately deferred task — the original no-dependency
 ruling from the design session that first split this problem still holds.
 
+## 2026-08-15 (cont.): record-side CBD attribution shipped — canonical name/form resolution
+## fully closed, both halves
+
+Closes the second half of the item that's been the single longest-open structural gap in this
+project (first flagged 2026-08-08). Real discovery corrected an earlier session's imprecise
+scope estimate (24 unique ambiguous CBD labels, not 8) while simultaneously finding the real
+production impact is much narrower than that count implies — 46 of 50 CBD pages are shadowed
+by Showdown-offline data and never actually read, leaving only the 4 CBD-only anchor species
+and their teammates as real-world-relevant. Decided explicitly to build it anyway, since it
+closes a genuine, previously-identified gap rather than leaving it permanently fail-closed.
+
+A real breakpoint search (three clusters, two genuine gaps in the stone-usage-percentage
+distribution) explicitly disproved the tempting round-number cutoff (90% would have split two
+genuinely Mega-dominated candidates across an arbitrary line) before settling on 80% — which
+turned out to already exist as an unrelated constant elsewhere in the codebase, confirmed via
+direct data-check to sit in the same real gap rather than assumed to transfer, and reused
+deliberately with that reasoning documented in code.
+
+The single most important finding shaped the whole implementation: a real remap has to rewrite
+the evidence row's identity (`name` and `species_id`), not just flip its status — confirmed by
+tracing the actual downstream admission code, which keys off the stored name. A naive
+status-only fix would have quietly reintroduced the exact silent-wrong-form bug this entire
+effort exists to prevent.
+
+Dual-Mega species (Charizard, Raichu) handled with the same uniform threshold rule as
+single-Mega cases, proven adversarially rather than assumed — a dedicated test directly checks
+that the non-winning form's id never leaks into remapped output.
+
+Independently verified beyond the report: two of the new tests confirmed genuinely adversarial
+on inspection, and the one real production-impact case (Mawile, via the two CBD-only anchors)
+reproduced independently outside the test suite with a direct call, not just trusted from a
+green checkmark. 1042/1042 full suite, zero regressions.
+
+**This closes the entire canonical name/form resolution item — input-boundary (Amendment
+2026-08-15c) and record-side (Amendment 2026-08-15d) both shipped and independently verified.**
+Neither branch merged to `main` yet; both pushed and awaiting PR review at your discretion.
+
+## 2026-08-15 (cont.): condition classification revisited — corrected an assumption, closed
+## two of ADR-028's four deferred items
+
+Started from a real correction: "condition classification and redundancy/fallback checks" had
+been carried forward as an untouched backlog item, but direct doc verification found it was
+already fully shipped as ADR-028, tested end-to-end (609 tests at ship), with only four specific
+pieces deliberately deferred. Worked through two of those four today.
+
+**Secondary speed-control (Icy Wind-class) softening.** A real design correction happened before
+any code shipped: the original framing ("softens gap severity") would have meant either an inert
+change or one that actively suppressed correct backup-setter generation by treating Icy Wind as
+if it mechanically closed a Trick Room gap it doesn't actually close. Corrected to a purely
+additive, adjacent signal — confirmed with explicit sign-off given it reversed an earlier locked
+decision. Real move/ability enumeration (18 moves + 2 gated abilities) grounded in Champions-
+legal data, kit-presence discipline proven against two real adversarial cases (Milotic, Rotom-
+Wash) whose real usage percentages don't reflect their actual resolved kits.
+
+**Per-member Trick Room wanted-total discount.** Started from a real, concrete example (Garchomp
++ Kingambit as a common doubles core, one naturally fast, one running priority) questioning
+whether the existing wanted-count was too naive — deliberately scoped down from a much larger
+possible problem (cross-configuration/opposing-archetype coexistence, the Charizard-Y-on-Rain
+case, explicitly deferred as blocked on unbuilt roster modeling) to a tractable first pass:
+per-member Speed-tier and build-intent discounting. A real breakpoint was derived (90→125 gap in
+the live threat pool) rather than reusing either of two tempting existing numbers (base Speed
+100, already-rejected precedent; the existing `already_fast` line, which turned out to sit
+inside the fast cluster rather than at its edge). Design grew organically through direct
+back-and-forth into four independent exclusion signals plus a symmetric fifth addition
+(hindering natures generating new wanted-evidence, not just filtering existing evidence) — each
+addition checked for real edge cases (a Gyro-Ball-motivated hindering nature still genuinely
+wants TR; Electro Ball scales with the user's own speed, not the target's, correcting an error
+made mid-discussion) before being locked.
+
+A real small-sample-size question (does 1-locked-slot `wanted=1` mean the same thing as
+3-locked-slots `wanted=1` after 2 discounts?) was raised, discussed, and deliberately tabled as
+a general condition-classification concern rather than solved narrowly here — correctly
+identified as not unique to this discount mechanism, and not worth speculative infrastructure
+with no current consumer.
+
+Both pieces independently verified: full code traces against every locked design detail, real
+adversarial test inspection, and direct reproduction of the headline classification-flip claims
+outside the test suite. 1076/1076 full suite at the end of this arc, zero regressions.
+
+**Two of ADR-028's four deferred items now closed** (secondary speed-control, per-member Trick
+Room discount). Remaining open: weather-war contest reliability, terrains as tracked conditions,
+Protosynthesis's Booster Energy exemption — none touched today.
+
+**State at end of arc:** both features on their own branches (`feature/secondary-speed-control-
+softening`, `feature/tr-wanted-discount`), neither merged yet.
+
 ---
 
 ## TOOLS & RESOURCES
