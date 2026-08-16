@@ -79,6 +79,9 @@ Rules:
   named alternatives before deciding, emit compare with option_ids (2+). Compare is
   non-mutating analysis — not edit, not pending_response, not select_build_option.
 - Species swaps on full_build_confirmation are rejection (not edit).
+- rejection's species is the one being REJECTED, never one the user names as wanted in the
+  same utterance. "I want X, not Y" or "X, not Y or Z" -> rejection species=Y (and Z if
+  present as a separate rejection), never X.
 - Ambiguous or under-specified phrasing (bare "no", "different spread" with no value, clear
   field+value but unclear field_only vs regenerate) must use pending_response with a concrete
   clarifying question. When field+value are clear but edit_scope is not, ask whether to
