@@ -1376,7 +1376,7 @@ def discover_single_locked(state: RecommenderState) -> dict:
         resolve_condition_beneficiaries,
         run_slot_fill_terminal,
     )
-    from recommender.team_candidates import owned_species_ids
+    from recommender.team_candidates import mega_ceiling_notices, owned_species_ids
 
     cleared = {
         "coverage": [],
@@ -1422,6 +1422,7 @@ def discover_single_locked(state: RecommenderState) -> dict:
         ownership_mode=state.get("ownership_mode", "off"),
     )
     merge_need_resolved(context)
+    context.notices = mega_ceiling_notices(state)
     if context.threat_discovery_status == "degraded":
         if not context.annotated_candidates:
             return {
@@ -1526,6 +1527,7 @@ def discover_multi_locked(
         build_team_threat_objective,
         collect_locked_anchor_contexts,
         material_completion_preferences,
+        mega_ceiling_notices,
         merge_multi_locked_candidates,
         owned_species_ids,
         rank_multi_locked_candidates,
@@ -1674,6 +1676,7 @@ def discover_multi_locked(
             role_shape_context=None,
             annotated_candidates=ranked,
             candidates_pre_ranked=True,
+            notices=mega_ceiling_notices(state),
         ),
         state,
         slot_index=slot_index,
