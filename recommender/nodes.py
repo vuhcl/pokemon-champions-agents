@@ -98,6 +98,16 @@ _ORDINAL_REPLIES = {
 }
 _SELECTION_PREFIXES = ("choose ", "pick ", "go with ")
 
+# continue/team_review on full_build_confirmation stay allowed (A-type).
+# They still destroy pending. Confirmation-before-clear is Cluster B, not this gate.
+_BLOCKED_ON_KIND = {
+    "candidate_selection": frozenset({"edit", "select_build_option", "compare"}),
+    "completion_preference": frozenset({"edit", "select_build_option", "compare"}),
+    "full_build_confirmation": frozenset({"lock"}),  # all lock, including cross-slot
+    "none": frozenset({"edit", "select_build_option", "compare"}),
+}
+_MISMATCH_MSG = "That action isn't available here."
+
 
 def _index_build_options(
     pending: PendingPresentation,
@@ -160,6 +170,44 @@ def _deterministic_build_option_ids(
         axes_used.add(axis)
         picks.append(matched)
     return tuple(picks) if picks else None
+
+
+def _pending_response(message: str) -> dict[str, Any]:
+    return {
+        "turn_intent": "pending_response",
+        "turn_payload": {"message": message},
+    }
+
+
+def _apply_classify_gates(
+    result: dict[str, Any],
+    pending: PendingPresentation | None,
+) -> dict[str, Any]:
+    """Replace illegal gap-fill intents with a non-mutating pending_response.
+
+    Failure results omit _clear_pending_keys so classify_input leaves the
+    current screen in place (lock is actionable and would otherwise clear it).
+    """
+    kind = str((pending or {}).get("kind") or "none")
+    intent = result.get("turn_intent")
+    if intent in _BLOCKED_ON_KIND.get(kind, frozenset()):
+        return _pending_response(_MISMATCH_MSG)
+    if (
+        intent in {"select_build_option", "compare"}
+        and kind == "full_build_confirmation"
+    ):
+        index = _index_build_options(pending) if pending is not None else {}
+        payload = result.get("turn_payload") or {}
+        ids = tuple(str(i) for i in (payload.get("option_ids") or ()))
+        missing = [oid for oid in ids if oid not in index]
+        if missing:
+            valid = ", ".join(index)
+            label = "id" if len(missing) == 1 else "ids"
+            listed = ", ".join(missing)
+            return _pending_response(
+                f"Unknown build option {label}: {listed}. Valid ids: {valid}"
+            )
+    return result
 
 
 def _emit_full_build_confirmation(
@@ -235,11 +283,12 @@ def _gap_fill(
     turn_intent_parser,
     gap_fill_context: dict[str, str] | None,
     had_pending: bool,
+    pending_presentation: PendingPresentation | None = None,
 ) -> dict[str, Any]:
     from recommender.turn_intent import parse_turn_intent
 
     ctx = gap_fill_context or {}
-    return parse_turn_intent(
+    result = parse_turn_intent(
         turn_intent_parser,
         user_text=text,
         pending_kind=ctx.get("pending_kind") or ("none" if not had_pending else ""),
@@ -247,6 +296,7 @@ def _gap_fill(
         roster_summary=ctx.get("roster_summary") or "",
         had_pending=had_pending,
     )
+    return _apply_classify_gates(result, pending_presentation)
 
 
 def build_gap_fill_context(state: RecommenderState) -> dict[str, str]:
@@ -319,6 +369,7 @@ def classify_pending(
             turn_intent_parser=turn_intent_parser,
             gap_fill_context=gap_fill_context,
             had_pending=False,
+            pending_presentation=pending_presentation,
         )
 
     reply = text.strip().casefold().strip(".!?")
@@ -391,6 +442,7 @@ def classify_pending(
             turn_intent_parser=turn_intent_parser,
             gap_fill_context=gap_fill_context,
             had_pending=True,
+            pending_presentation=pending_presentation,
         )
     if version != 1:
         return {
@@ -433,6 +485,7 @@ def classify_pending(
             turn_intent_parser=turn_intent_parser,
             gap_fill_context=gap_fill_context,
             had_pending=True,
+            pending_presentation=pending_presentation,
         )
 
     options = pending_presentation.get("options") or []
@@ -469,6 +522,7 @@ def classify_pending(
             turn_intent_parser=turn_intent_parser,
             gap_fill_context=gap_fill_context,
             had_pending=True,
+            pending_presentation=pending_presentation,
         )
 
     return {
