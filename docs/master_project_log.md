@@ -4085,6 +4085,91 @@ Protosynthesis's Booster Energy exemption — none touched today.
 **State at end of arc:** both features on their own branches (`feature/secondary-speed-control-
 softening`, `feature/tr-wanted-discount`), neither merged yet.
 
+## 2026-08-16: Mega-ceiling guidance shipped; ADR-005's "wait for Doubles" condition
+## reopened, verification in progress before a final Singles sequencing decision
+
+**Selected-four Mega-ceiling guidance closed the last of the original 2026-08-02 gap-analysis
+findings.** Started from a real correction to a prior deferral: the "wait for quick-pick"
+reasoning had bundled a genuinely-unknown quantity (quick-pick's eventual behavior) with a
+quantity that was actually already fixed and known (the format's real bring-6/pick-4
+structure) — separating them showed the ceiling itself was computable now, only the surfacing
+mechanism had any real remaining dependency, and that dependency turned out to already have a
+natural home (composition-stage narrowing) independent of quick-pick. Design correctly caught
+its own imprecise framing mid-session too — an initial "forced into a bad action" explanation
+was corrected to the real mechanic: nobody is ever forced to Mega Evolve, the actual cost is
+opportunity cost (a second Mega-Stone holder's item can never pay off in a given game).
+
+**Separately, and more consequentially: ADR-005's original v1-scope decision (Doubles primary,
+Singles deferred until "VGC-specific logic — team preview bring-6-select-4, doubles mechanics —
+is working end to end") was directly tested against real current state, not assumed either
+way.** Found genuinely not met on its own explicit terms — bring-6-select-4 (the literal
+mechanic named in the revisit condition) was, until today, still an open gap, the same one just
+closed above. Given that, the condition was explicitly reopened rather than left to drift:
+confirmed as a deliberate ADR revision, not a silent override, following this project's own
+standing discipline for touching prior decisions.
+
+**Real next step, explicitly staged rather than decided in the abstract:** before committing to
+"Singles in parallel" vs. "Singles instead," verify whether the *current* system genuinely
+functions as a working agentic system with real steering — the actual v1.0 vision this whole
+project has been building toward, as distinct from 0.1.0's documented closed-set CLI
+interaction. Two existing demo transcripts (`docs/demo/cli-session-0.1.txt`,
+`cli-session-0.2.txt`, both dated 2026-08-11) only exercised numbered-menu picks and yes/defer
+replies — explicitly scripted that way, not evidence the system can't handle more. Direct
+inspection of `turn_intent.py` (12 real intent types, genuine free-form field-level edit/compare
+classification, fail-closed guards, real prompt-injection resistance built into its system
+prompt) suggests real, substantive steering infrastructure exists — but this couldn't be
+verified live from this sandbox (no Ollama or Anthropic API access available here). An
+adversarial free-form input set was drafted, deliberately targeting the classification
+boundaries the existing scripted demos never touched (edit-vs-menu-pick ambiguity, incomplete
+edits, implicit comparisons, prompt-injection attempts, compound multi-intent messages), plus a
+genuinely unscripted exploratory pass — both sent to Cursor to run live and report back full,
+unmodified transcripts.
+
+**State at end of today:** Mega-ceiling guidance shipped, verified, and merged. The
+agentic-system verification is in progress, not concluded — the actual parallel-vs-instead
+Singles sequencing decision is explicitly gated on what that verification shows, not decided
+yet. Separately, a role-play session (Cursor, exploring how existing tools/structure fit a
+Singles team) was also started today as complementary, organic discovery — deliberately not
+handed a checklist, per this project's own established pattern that its best findings have
+consistently come from genuine exploration rather than scripted verification.
+
+## 2026-08-16 (cont.): Cluster A shipped — closes the two most severe silent-guess failure
+## modes found in live steering verification
+
+Direct response to the strongest, most concrete evidence yet produced on the "is this a
+working agentic system with steering" question that reopened ADR-005 earlier today. Two live
+sessions (scripted adversarial + unscripted exploratory, both against real Ollama qwen3.5)
+found the interaction layer would silently guess rather than ask on exactly the cases that
+mattered most — with real, compounding damage in at least two cases: a wrong option-id guess
+producing a sticky error that corrupted the rest of a session, and a wrong intent-type guess on
+the wrong screen permanently wedging a session before it ever reached a build confirmation.
+
+Fix precisely scoped from a real, complete `(turn_intent, pending_kind)` compatibility matrix —
+not a blanket "validate everything" pass. Correctly distinguished genuinely-invalid combinations
+(now blocked) from legitimate cross-screen steering that happens to also be dangerous in
+practice (`continue`/`team_review` destroying a pending build — left alone on purpose, named
+explicitly as Cluster B's problem, not silently swept into this fix). `lock` on
+`full_build_confirmation` locked to a full, unconditional block after directly confirming
+neither a same-slot nor a different-slot carve-out corresponds to a real, currently-supported
+capability worth inventing mid-task.
+
+A real implementation subtlety caught and corrected before code was written, not after:
+`format_turn` already appends the current screen's footer automatically for any
+`pending_response` — an initially-planned "mismatch message + footer" design would have
+duplicated it. Caught via direct question before the plan was finalized.
+
+Independently verified beyond the report: both headline live-session failures reproduced
+directly, outside the test suite, confirming the fix actually resolves the exact real inputs
+that broke the original sessions — not just a plausible-looking test suite. 1099/1099 full
+suite, zero regressions.
+
+**Explicitly still open, named rather than left implicit:** Cluster B (confirmation step before
+destructive actionable intents on a pending build) and Cluster A2 (sticky `slot_commit_error`
+lifecycle — confirmed this task only prevents its two most common triggers, not the underlying
+mechanism). Both are real, separate next steps, not folded into today's fix.
+
+**State at end of today:** shipped on `feat/cluster-a-classify-gates`, PR #92, merged to `main`.
+
 ---
 
 ## TOOLS & RESOURCES

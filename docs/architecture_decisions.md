@@ -5415,6 +5415,73 @@ construction.
 
 ---
 
+### ADR-023 — Amendment 2026-08-16a
+
+**Selected-four Mega-ceiling guidance shipped: informational notices surfaced on both
+`single_locked` and `multi_locked` candidate presentation when locked Mega-Stone holders
+approach or reach the format's real ceiling — no ranking impact, no candidate exclusion.
+Closes Gap 5 from the original 2026-08-02 discovery, previously deferred pending quick-pick's
+design.**
+
+**The prior deferral is superseded on the numbers, not overridden blindly.** Gap 5's original
+reasoning bundled two different unknowns: "the format's real pick count" and "quick-pick's own
+eventual behavior." Confirmed today that only the second is genuinely unbuilt — Reg M-B doubles'
+bring-6/pick-4 structure is a fixed format constant (`flat_rules: Min Team Size = 6`, `Picked
+Team Size` resolving to 4 for VGC), not something quick-pick's implementation determines. The
+ceiling itself (`1 + (team_size - pick_count)`, re-derived independently this session from
+"once M exceeds the ceiling, every possible 4-of-6 selection necessarily includes 2+ Mega-Stone
+holders together, and only one can ever benefit from its held item in a given game" — corrected
+mid-design from an earlier, inaccurate "forced" framing, since Mega Evolution is always
+optional even when multiple holders are selected together) is computable now; only the
+*surfacing UX* had any real quick-pick dependency, and even that was already envisioned as
+happening during team-composition-stage narrowing, a moment that exists independent of
+quick-pick.
+
+**Counting method: per-species, confirmed as the right default via a real observation, not
+picked arbitrarily.** The per-option-vs-per-species fork was found to be "almost vacuous" on
+the actual locked-roster mechanism — existing lineage exclusion already prevents two Mega
+formes of the same base species from ever being locked simultaneously, so the choice barely
+matters for this task's real use case. Deferred as genuinely consequential only if a future
+task extends this to the broader owned/candidate pool.
+
+**Real, complete dual-Mega enumeration, not scoped from memory:** exactly 3 legal Champions
+bases with more than one legal Mega option (Charizard X/Y, Raichu X/Y, Meowstic M/F-Mega),
+systematically checked against a real exclusion sweep (Mewtwo X/Y illegal/Restricted;
+Magearna, Tatsugiri, Absol/Garchomp/Lucario Mega-Z all illegal or Future).
+
+**Scope, larger than initially expected, confirmed and accepted:** closing this required three
+real pieces, not one — extending `annotate_composition_impact`'s existing `multi_locked` wiring,
+building an entirely new equivalent for `single_locked` (which had no composition-impact
+annotation at all, meaning the earliest and arguably most useful moment for this guidance — the
+very first lock, if it's Mega-capable — was previously a real gap), and building the missing
+notice channel for `present_candidates` (bootstrap already had `pending_presentation["notices"]`,
+but it was unused on candidate selection).
+
+**A real, small, incidentally-found bug fixed in the same pass:** `_item_mega_forme` built a
+non-existent `"meowsticmega"` id for base Meowstic (the real ids are gender-specific,
+`meowsticmmega`/`meowsticfmega`), silently returning `None`. Fixed to resolve deterministically
+to the male/default forme — confirmed the female base already resolved correctly by coincidence
+through the existing generic pattern, so only the broken case needed a fix, not a general
+rewrite.
+
+**Confirmed by direct verification, not just Cursor's report:** every locked design decision
+traced directly against the actual diff — per-species counting confirmed via `lineage_ids`
+base-normalization into a set; the ceiling formula confirmed genuinely parameterized (`len
+(draft)`, `state["picked_team_size"]`), not hardcoded, independently reproduced for both the
+real VGC value (3) and a hypothetical 3-pick format (4); `SlotFillContext`'s mutability
+confirmed directly before trusting the attribute-assignment wiring pattern was safe. Two of the
+new tests independently confirmed genuinely load-bearing on inspection: the Charizard-X-locked
+case proves the notice stays "1 of 3" (not double-counted) using the real candidate-merge
+pipeline, not an isolated function call; the `single_locked`-first-lock test proves the
+previously-missing half of the scope actually works end-to-end, with `ctx.notices` captured at
+the terminal step. The Meowstic fix and ceiling formula both independently reproduced via
+direct code execution outside the test suite. 11/11 named tests, 1087/1087 full suite, zero
+regressions.
+
+**Status:** Shipped on `feature/mega-ceiling-guidance`, PR #91, merged to `main`.
+
+---
+
 ## ADR-024: Anchor-role classification is a separate producer from target-role decision
 
 **Decision:** `RoleShapeContext` (which describes an anchor's strategic role shape, feeding
@@ -6214,3 +6281,89 @@ on PendingPresentation (parallel to candidate_selection's existing options field
 reuse of it -- that field is species-shaped and stays candidate-only). Two new turn_intents
 (select_build_option, compare) join the existing vocabulary. Free-text edit (chunk 2)
 remains the fallback path for novel requests, unchanged.
+
+---
+
+### ADR-031 — Amendment 2026-08-16a
+
+**Cluster A classify-time gates shipped: gap-fill now enforces a real `(turn_intent,
+pending_kind)` compatibility check and, on `full_build_confirmation`, genuine option-id
+membership — closing the two specific failure modes that produced session-destroying,
+self-compounding errors in live adversarial testing (2026-08-16 steering verification).**
+
+**Motivated by direct, live evidence, not a hypothetical concern.** A scripted adversarial
+session and an unscripted exploratory session (both run against live Ollama qwen3.5, following
+ADR-005's reopened revisit condition) confirmed the core interaction layer would silently guess
+on ambiguous or invalid input rather than ask, with real, compounding consequences: "I want the
+faster one" was classified `select_build_option` with `option_ids: ["2"]` — a raw display
+number, not the real id `spread_nature:2` — producing a `slot_commit_error` that then reprinted
+on every subsequent turn for the rest of that session. Separately, "2" typed on a
+`candidate_selection` screen (a different `pending_kind`, with no `option_ids` concept at all)
+was misclassified the same way, permanently wedging that session — it never reached a build
+confirmation again.
+
+**Root cause, confirmed via direct code trace before any fix was designed:**
+`SelectBuildPayload`/`ComparePayload` are unvalidated `TypedDict`s; the only real validation
+lived on `TurnIntentExtraction` and checked nothing beyond "nonempty strings" (`compare`:
+length ≥ 2). Real membership checking already existed — `_index_build_options`, used correctly
+by the closed-set deterministic path — but the LLM gap-fill path bypassed it entirely. Separately,
+zero code-level enforcement existed anywhere connecting `turn_intent` to `pending_kind`; the
+system prompt's own "when pending_kind is X" language was pure guidance the model could ignore,
+confirmed directly (`parse_turn_intent` never compares against `pending_kind`; `_route_intent`
+is a bare dict lookup; `apply_provisional_option` doesn't check `pending["kind"]`).
+
+**Fix, precisely scoped from a real, complete compatibility matrix (5 `pending_kind` values ×
+12 intents), not a blanket rule:**
+- **Screen/type mismatch, blocked outright:** `edit`/`select_build_option`/`compare` on
+  `candidate_selection`, `completion_preference`, and the synthetic `none` state; `lock`
+  unconditionally on `full_build_confirmation`, including cross-slot attempts — matching the
+  prompt's already-stated intent ("never lock here") with real enforcement, no carve-out for
+  same-slot or different-slot locking, both explicitly considered and rejected as unsupported
+  capabilities this task shouldn't quietly invent.
+- **Membership check, `full_build_confirmation` only** (the only screen with real `option_ids`
+  to validate against — `candidate_selection`'s options are species-shaped, not id-shaped):
+  every `select_build_option`/`compare` id must be a genuine member of
+  `_index_build_options(pending)`, reusing the existing helper rather than duplicating it.
+- **Failure messaging, two distinct shapes, deliberately not one and not three:** screen
+  mismatches get a standalone `"That action isn't available here."` — no manual footer
+  concatenation, since `format_turn` already appends the current screen's real footer
+  automatically for any `pending_response`, a redundancy caught and corrected before
+  implementation; membership failures name both the invalid and the real valid ids explicitly.
+- **A subtle correctness requirement, both documented in code and proven by a dedicated test:**
+  a blocked `lock` must not destroy the pending confirmation screen — `lock` is normally
+  `_ACTIONABLE_INTENTS`-classed and would otherwise trigger pending-clearing side effects on
+  success; the rejection path deliberately omits `_clear_pending_keys`.
+
+**Explicitly, deliberately not fixed here — a real, stated scope boundary, not a silent gap:**
+`continue` and `team_review` remain fully allowed to destructively clear a pending
+`full_build_confirmation` with no confirmation step, even though these were the two intents
+actually causing the worst live damage (a prompt-injection attempt succeeded via `continue`;
+"show me the team, but first" via `team_review` wiped an in-progress build). Both are
+technically legitimate steering (`A`-type in the compatibility matrix, not `I`-type mismatches)
+— adding friction before they fire is a real, separate design question (whether *any*
+actionable intent should get a confirmation step before destroying pending work), deferred to
+its own cluster rather than folded in here. A dedicated test with an explicit docstring
+("Cluster B boundary... This gate does not add a confirmation step") proves this is intentional,
+not overlooked.
+
+**Also explicitly not fixed: the sticky `slot_commit_error` lifecycle itself.** Confirmed via
+direct trace: a failed apply writes the field and almost nothing downstream ever clears it
+(only successful `_emit_full_build_confirmation`, successful `commit_full_slot`, and
+`reset_team` do); `format_turn` prints it unconditionally whenever set, regardless of the
+current turn's actual outcome. This task prevents its two specific, most commonly-hit triggers
+from ever firing — a real, meaningful reduction — but the underlying state-lifecycle bug
+persists for every other apply-time failure type (illegal edits, overlapping override keys,
+refine failures). Named as the next cluster to scope, not addressed here.
+
+**Confirmed by direct verification, not just Cursor's report:** every locked design decision
+traced against the actual diff. Both headline live-session failures independently reproduced
+outside the test suite with the fix applied — the exact `"2"`/`spread_nature:2` mismatch now
+correctly returns `pending_response` naming real valid ids; the exact `candidate_selection`
+wedge case now correctly rejects with the mismatch message, never reaching
+`apply_provisional_option`. The two most load-bearing tests inspected directly:
+`test_lock_on_confirmation_does_not_clear_pending` proves the subtle screen-preservation
+requirement; `test_continue_and_team_review_on_confirmation_still_clear_pending` carries an
+explicit docstring proving the Cluster B boundary is deliberate. 32/33 named tests (1
+environment skip), 1099/1099 full suite, zero regressions.
+
+**Status:** Shipped on `feat/cluster-a-classify-gates`, PR #92, merged to `main`.
