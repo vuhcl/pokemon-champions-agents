@@ -14,12 +14,19 @@ from recommender.condition_resilience import (
     ConditionProviderMember,
     ConditionResilienceReport,
     ConditionResilienceRow,
+    _tr_spe_discount_floor,
     assess_condition_resilience,
     gap_support_needs,
 )
 from recommender.ids import to_id
 from recommender.slot_fill import AnchoredSupportNeed, LockedAnchorContext
-from recommender.support_needs import RoleShapeContext, query_support_needs
+from recommender.support_needs import (
+    RoleShapeContext,
+    _spe_tier,
+    _threat_speeds,
+    query_support_needs,
+)
+from recommender.usage_spreads import _SPEED_MINUS, _SPEED_PLUS, effective_spe
 
 
 def _context_from_decision(
@@ -28,8 +35,9 @@ def _context_from_decision(
     decision,
     *,
     support_needs: tuple[AnchoredSupportNeed, ...] = (),
+    resolved_build=None,
 ) -> LockedAnchorContext:
-    build = resolve_anchor_build(species)
+    build = resolved_build or resolve_anchor_build(species)
     return LockedAnchorContext(
         slot_index=slot_index,
         anchor_id=species.lower().replace("-", ""),
@@ -500,3 +508,302 @@ def test_weather_rows_never_populate_secondary_speed_control():
     for row in report.conditions:
         if row.condition not in ("Trick Room", "Tailwind"):
             assert row.secondary_speed_control == ()
+
+
+def _with_spe(build, spe: int, **kwargs):
+    evs = dict(build.evs)
+    evs["spe"] = spe
+    return replace(build, evs=tuple(sorted(evs.items())), **kwargs)
+
+
+def _tr_row(locked):
+    report = assess_condition_resilience(locked)
+    return next((r for r in report.conditions if r.condition == "Trick Room"), None)
+
+
+def _tr_wanted(locked) -> int:
+    row = _tr_row(locked)
+    if row is None:
+        return 0
+    return sum(1 for d in row.dependents if d.importance == "wanted")
+
+
+def _has_tr_benefit(decision) -> bool:
+    return any(
+        m.relation == "benefits_from" and "condition:Trick Room" in m.evidence
+        for m in decision.mechanisms
+    )
+
+
+def _declared_tr(build):
+    return classify_anchor_role(build, user_role="trick_room_sweeper")
+
+
+def test_tr_spe_discount_floor_interior_gap_and_fallback():
+    frozen = [70, 72, 80, 83, 90, 125, 136, 151, 167, 171]
+    assert _tr_spe_discount_floor(frozen) == 125
+    tight = [100, 105, 110, 115, 120, 125]
+    assert _tr_spe_discount_floor(tight) == next(
+        s for s in range(0, max(tight) + 2) if _spe_tier(s, tight) == "already_fast"
+    )
+    assert _tr_spe_discount_floor([]) is None
+
+
+def test_live_tr_spe_discount_floor_is_125():
+    assert _tr_spe_discount_floor(_threat_speeds(None, "champions-reg-mb")) == 125
+
+
+def test_kingambit_declared_sweeper_counts_as_wanted_tr():
+    build = resolve_anchor_build("Kingambit")
+    assert build.nature == "Adamant"
+    assert build.spread.get("spe", 0) == 0
+    assert to_id(build.item or "") != "choicescarf"
+    ctx = _context_from_decision(0, "Kingambit", _declared_tr(build), resolved_build=build)
+    assert _tr_wanted((ctx,)) == 1
+
+
+def test_garchomp_mega_default_is_discounted():
+    build = resolve_anchor_build("Garchomp-Mega")
+    ctx = _context_from_decision(
+        0, "Garchomp-Mega", _declared_tr(build), resolved_build=build
+    )
+    assert _has_tr_benefit(_declared_tr(build))
+    assert _tr_wanted((ctx,)) == 0
+
+
+def test_basculegion_scarf_stripped_is_discounted():
+    build = replace(resolve_anchor_build("Basculegion"), item=None)
+    decision = _declared_tr(build)
+    assert _has_tr_benefit(decision)
+    ctx = _context_from_decision(0, "Basculegion", decision, resolved_build=build)
+    assert _tr_wanted((ctx,)) == 0
+
+
+def test_kangaskhan_mega_brave_counts_without_declared_sweeper():
+    build = resolve_anchor_build("Kangaskhan-Mega")
+    assert build.nature == "Brave"
+    decision = classify_anchor_role(build)
+    assert decision.role_id != "trick_room_sweeper"
+    ctx = _context_from_decision(0, "Kangaskhan-Mega", decision, resolved_build=build)
+    assert _tr_wanted((ctx,)) == 1
+    declared = _declared_tr(build)
+    assert sum(
+        1
+        for m in declared.mechanisms
+        if m.relation == "benefits_from" and "condition:Trick Room" in m.evidence
+    ) == 1
+    ctx2 = _context_from_decision(0, "Kangaskhan-Mega", declared, resolved_build=build)
+    assert _tr_wanted((ctx2,)) == 1
+
+
+def test_spe_floor_only_discounts_dragapult_zero_hardy():
+    build = _with_spe(resolve_anchor_build("Dragapult"), 0, nature="Hardy", item=None)
+    assert build.nature not in _SPEED_PLUS
+    assert effective_spe(build.species, build.spread, build.nature or "Hardy") >= 125
+    ctx = _context_from_decision(
+        0, "Dragapult", _declared_tr(build), resolved_build=build
+    )
+    assert _tr_wanted((ctx,)) == 0
+
+
+def test_spe_ev_only_discounts_kingambit():
+    build = _with_spe(resolve_anchor_build("Kingambit"), 1)
+    assert build.nature == "Adamant"
+    assert to_id(build.item or "") != "choicescarf"
+    ctx = _context_from_decision(
+        0, "Kingambit", _declared_tr(build), resolved_build=build
+    )
+    assert _tr_wanted((ctx,)) == 0
+
+
+def test_scarf_only_discounts_kingambit():
+    build = replace(resolve_anchor_build("Kingambit"), item="Choice Scarf")
+    assert build.spread.get("spe", 0) == 0
+    assert build.nature == "Adamant"
+    ctx = _context_from_decision(
+        0, "Kingambit", _declared_tr(build), resolved_build=build
+    )
+    assert _tr_wanted((ctx,)) == 0
+
+
+def test_plus_nature_only_discounts_kingambit_and_does_not_emit():
+    build = replace(resolve_anchor_build("Kingambit"), nature="Jolly")
+    assert build.spread.get("spe", 0) == 0
+    assert to_id(build.item or "") != "choicescarf"
+    assert not _has_tr_benefit(classify_anchor_role(build))
+    ctx = _context_from_decision(
+        0, "Kingambit", _declared_tr(build), resolved_build=build
+    )
+    assert _tr_wanted((ctx,)) == 0
+
+
+def test_adamant_kingambit_without_sweeper_is_not_a_tr_dependent():
+    build = resolve_anchor_build("Kingambit")
+    assert build.nature == "Adamant"
+    decision = classify_anchor_role(build)
+    assert not _has_tr_benefit(decision)
+    ctx = _context_from_decision(0, "Kingambit", decision, resolved_build=build)
+    assert _tr_wanted((ctx,)) == 0
+
+
+def test_two_hindering_natures_without_declared_sweeper_make_tr_essential():
+    king = replace(resolve_anchor_build("Kingambit"), nature="Brave")
+    goodra = replace(resolve_anchor_build("Goodra"), nature="Quiet")
+    k_dec = classify_anchor_role(king)
+    g_dec = classify_anchor_role(goodra)
+    assert k_dec.role_id != "trick_room_sweeper"
+    assert g_dec.role_id != "trick_room_sweeper"
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(0, "Kingambit", k_dec, resolved_build=king),
+            _context_from_decision(1, "Goodra", g_dec, resolved_build=goodra),
+        )
+    )
+    tr = next(r for r in report.conditions if r.condition == "Trick Room")
+    assert tr.classification == "essential"
+    assert sum(1 for d in tr.dependents if d.importance == "wanted") == 2
+    live_kanga = resolve_anchor_build("Kangaskhan-Mega")
+    live_torkoal = resolve_anchor_build("Torkoal")
+    if live_kanga.nature == "Brave" and live_torkoal.nature == "Quiet":
+        live = assess_condition_resilience(
+            (
+                _context_from_decision(
+                    0,
+                    "Kangaskhan-Mega",
+                    classify_anchor_role(live_kanga),
+                    resolved_build=live_kanga,
+                ),
+                _context_from_decision(
+                    1,
+                    "Torkoal",
+                    classify_anchor_role(live_torkoal),
+                    resolved_build=live_torkoal,
+                ),
+            )
+        )
+        live_tr = next(r for r in live.conditions if r.condition == "Trick Room")
+        assert live_tr.classification == "essential"
+
+
+def test_hatterene_quiet_is_not_a_tr_dependent():
+    build = replace(resolve_anchor_build("Hatterene"), nature="Quiet")
+    decision = classify_anchor_role(build)
+    assert not _has_tr_benefit(decision)
+    ctx = _context_from_decision(0, "Hatterene", decision, resolved_build=build)
+    row = _tr_row((ctx,))
+    assert row is None or not row.dependents
+
+
+def test_brave_with_spe_ev_emits_but_does_not_vote():
+    build = _with_spe(resolve_anchor_build("Kingambit"), 1, nature="Brave")
+    decision = classify_anchor_role(build)
+    assert _has_tr_benefit(decision)
+    ctx = _context_from_decision(0, "Kingambit", decision, resolved_build=build)
+    assert _tr_wanted((ctx,)) == 0
+
+
+def test_garchomp_three_build_and_scarf_kingambit_are_discounted():
+    cases = (
+        resolve_anchor_build("Garchomp"),
+        resolve_anchor_build("Garchomp", role_hint="trick_room_sweeper"),
+        replace(resolve_anchor_build("Kingambit"), item="Choice Scarf"),
+    )
+    for build in cases:
+        decision = _declared_tr(build)
+        assert _has_tr_benefit(decision)
+        ctx = _context_from_decision(
+            0, build.species or "", decision, resolved_build=build
+        )
+        assert _tr_wanted((ctx,)) == 0
+
+
+def test_declared_garchomp_mega_plus_kingambit_is_preferred_not_essential():
+    garchomp = resolve_anchor_build("Garchomp-Mega")
+    king = resolve_anchor_build("Kingambit")
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(
+                0, "Garchomp-Mega", _declared_tr(garchomp), resolved_build=garchomp
+            ),
+            _context_from_decision(1, "Kingambit", _declared_tr(king), resolved_build=king),
+        )
+    )
+    tr = next(r for r in report.conditions if r.condition == "Trick Room")
+    assert tr.classification == "preferred"
+    assert sum(1 for d in tr.dependents if d.importance == "wanted") == 1
+    assert tr.gap == "missing_provider"
+    residual = gap_support_needs(report, ())
+    assert any(n.category == "trick_room" for n in residual)
+
+
+def test_declared_kingambit_plus_kangaskhan_mega_is_essential():
+    king = resolve_anchor_build("Kingambit")
+    kanga = resolve_anchor_build("Kangaskhan-Mega")
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(0, "Kingambit", _declared_tr(king), resolved_build=king),
+            _context_from_decision(
+                1, "Kangaskhan-Mega", _declared_tr(kanga), resolved_build=kanga
+            ),
+        )
+    )
+    tr = next(r for r in report.conditions if r.condition == "Trick Room")
+    assert tr.classification == "essential"
+    assert sum(1 for d in tr.dependents if d.importance == "wanted") == 2
+
+
+def test_needed_tr_is_never_discounted():
+    build = _with_spe(resolve_anchor_build("Dragapult"), 0, nature="Hardy", item=None)
+    decision = replace(
+        classify_anchor_role(build),
+        mechanisms=(_benefit("Trick Room", importance="needed", present=False),),
+    )
+    ctx = _context_from_decision(0, "Dragapult", decision, resolved_build=build)
+    row = _tr_row((ctx,))
+    assert row is not None
+    assert any(d.importance == "needed" for d in row.dependents)
+    assert row.classification == "essential"
+
+
+def test_two_fast_tailwind_wants_still_essential():
+    first = replace(
+        classify_anchor_role(resolve_anchor_build("Dragapult")),
+        mechanisms=(_benefit("Tailwind"),),
+        primary_function="offense",
+    )
+    second = replace(
+        classify_anchor_role(resolve_anchor_build("Gengar")),
+        mechanisms=(_benefit("Tailwind"),),
+        primary_function="offense",
+    )
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(0, "Dragapult", first),
+            _context_from_decision(1, "Gengar", second),
+        )
+    )
+    tw = next(r for r in report.conditions if r.condition == "Tailwind")
+    assert tw.classification == "essential"
+
+
+def test_hatterene_plus_discounted_mega_garchomp_is_preferred_via_setter_direction():
+    hatterene = resolve_anchor_build("Hatterene")
+    garchomp = resolve_anchor_build("Garchomp-Mega")
+    report = assess_condition_resilience(
+        (
+            _context_from_decision(
+                0, "Hatterene", classify_anchor_role(hatterene), resolved_build=hatterene
+            ),
+            _context_from_decision(
+                1, "Garchomp-Mega", _declared_tr(garchomp), resolved_build=garchomp
+            ),
+        )
+    )
+    tr = next(r for r in report.conditions if r.condition == "Trick Room")
+    assert tr.classification == "preferred"
+    assert sum(1 for d in tr.dependents if d.importance == "wanted") == 0
+    assert tr.provider_count == 1
+
+
+def test_speed_plus_and_minus_are_disjoint():
+    assert not (_SPEED_PLUS & _SPEED_MINUS)

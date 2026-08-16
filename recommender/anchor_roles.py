@@ -22,7 +22,7 @@ from recommender.role_compendium import (
 from recommender.state import Attr, Slot
 from recommender.support_needs import CONDITION_DEPENDENT_ABILITIES, RoleShapeContext
 from recommender.usage_data import featured_or_common_set, find_set_matching
-from recommender.usage_spreads import select_usage_spread
+from recommender.usage_spreads import _SPEED_MINUS, select_usage_spread
 
 FieldSource = Literal[
     "user_confirmed",
@@ -761,6 +761,26 @@ def _has_present_benefit(mechanisms: list[MechanismEvidence], condition: str) ->
     )
 
 
+def _has_tr_benefits_from(mechanisms: list[MechanismEvidence]) -> bool:
+    """Match assess_condition_resilience TR dependent gates (including teammate_expected)."""
+    return any(
+        m.relation == "benefits_from"
+        and "condition:Trick Room" in m.evidence
+        and m.importance in ("needed", "wanted")
+        and (m.present or m.supply == "teammate_expected")
+        for m in mechanisms
+    )
+
+
+def _has_tr_provides(mechanisms: list[MechanismEvidence]) -> bool:
+    return any(
+        m.present
+        and m.relation == "provides"
+        and "condition:Trick Room" in m.evidence
+        for m in mechanisms
+    )
+
+
 def _primary_function(role_id: str) -> PrimaryFunction:
     if role_id.endswith("_attacker") or role_id in {
         "bulky_pivot",
@@ -862,6 +882,30 @@ def classify_anchor_role(
             )
         )
         conflicts.append("strategic Trick Room role is not established by the active kit")
+    # wanted: a hindering nature is TR-plan evidence even without a declared sweeper.
+    # Two such members → wanted×2 essential is intended, not a side effect.
+    if (
+        (build.nature or "") in _SPEED_MINUS
+        and not _has_tr_benefits_from(mechanisms)
+        and not _has_tr_provides(mechanisms)
+    ):
+        mechanisms.append(
+            MechanismEvidence(
+                mechanic="Trick Room",
+                kind="teammate_condition_benefit",
+                relation="benefits_from",
+                importance="wanted",
+                role_id=None,
+                present=False,
+                prerequisite=False,
+                activation="passive_reactive",
+                interruptible=False,
+                source=build.source_for("nature"),
+                supply="teammate_expected",
+                evidence=("condition:Trick Room", f"nature:{to_id(build.nature or '')}"),
+                confidence="medium",
+            )
+        )
     if role_id == "bulky_rain_attacker" and not _has_present_benefit(mechanisms, "Rain"):
         mechanisms.append(
             MechanismEvidence(

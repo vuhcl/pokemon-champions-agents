@@ -1,4 +1,4 @@
-from dataclasses import fields
+from dataclasses import fields, replace
 from unittest.mock import patch
 
 from recommender.anchor_roles import (
@@ -8,8 +8,10 @@ from recommender.anchor_roles import (
     resolve_anchor_build,
     weather_beneficiary_ability_ids,
 )
+from recommender.ids import to_id
 from recommender.state import Attr, ReasonRef, Slot
 from recommender.support_needs import query_support_needs
+from recommender.usage_spreads import _SPEED_MINUS, _SPEED_PLUS
 
 
 def test_confirmed_fields_win_and_fingerprint_tracks_confirmation():
@@ -338,3 +340,45 @@ def test_pelipper_rain_tailwind_unchanged_with_screens_emission():
     assert roles >= {"rain_setter", "tailwind_setter"}
     assert not any(m.kind == "screens" for m in decision.mechanisms)
     assert derive_role_shape_context(decision).requires_setup_turn is False
+
+
+def _tr_benefits(decision):
+    return [
+        m
+        for m in decision.mechanisms
+        if m.relation == "benefits_from" and "condition:Trick Room" in m.evidence
+    ]
+
+
+def test_hindering_natures_emit_wanted_trick_room():
+    assert not (_SPEED_PLUS & _SPEED_MINUS)
+    adamant = classify_anchor_role(resolve_anchor_build("Kingambit"))
+    assert _tr_benefits(adamant) == []
+    none_nature = classify_anchor_role(
+        replace(resolve_anchor_build("Kingambit"), nature=None)
+    )
+    assert _tr_benefits(none_nature) == []
+    for nature in ("Brave", "Quiet", "Relaxed", "Sassy"):
+        build = replace(resolve_anchor_build("Kingambit"), nature=nature)
+        rows = _tr_benefits(classify_anchor_role(build))
+        assert len(rows) == 1
+        assert rows[0].importance == "wanted"
+        assert rows[0].supply == "teammate_expected"
+        assert f"nature:{to_id(nature)}" in rows[0].evidence
+
+
+def test_hindering_plus_declared_sweeper_dedups_to_one_tr_benefit():
+    build = replace(resolve_anchor_build("Kingambit"), nature="Brave")
+    rows = _tr_benefits(classify_anchor_role(build, user_role="trick_room_sweeper"))
+    assert len(rows) == 1
+    assert "strategy:trick_room_sweeper" in rows[0].evidence
+
+
+def test_hatterene_quiet_skips_hindering_tr_benefit():
+    build = replace(resolve_anchor_build("Hatterene"), nature="Quiet")
+    decision = classify_anchor_role(build)
+    assert _tr_benefits(decision) == []
+    assert any(
+        m.present and m.relation == "provides" and "condition:Trick Room" in m.evidence
+        for m in decision.mechanisms
+    )
