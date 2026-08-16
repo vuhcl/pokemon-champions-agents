@@ -1121,8 +1121,44 @@ def commit_full_slot(state: RecommenderState) -> dict:
 def apply_lock(state: RecommenderState) -> dict:
     payload: LockPayload = state["turn_payload"]  # type: ignore[assignment]
     if payload.get("locks"):
-        return _apply_locks_batch(state, payload)
-    return _apply_lock_single(state, payload)
+        out = _apply_locks_batch(state, payload)
+    else:
+        out = _apply_lock_single(state, payload)
+    return _clear_rejected_for_newly_locked_species(state, out)
+
+
+def _clear_rejected_for_newly_locked_species(
+    state: RecommenderState, out: dict
+) -> dict:
+    """A locked species can never coherently also be rejected.
+
+    Locking is the strongest, most unambiguous "I want this" signal in this
+    system — there is no scenario where the user wants a species both locked
+    into their team and excluded from candidate generation as rejected. This
+    removes any stale rejection for a species that just got locked, so a
+    misclassified rejection (e.g. "I want Kingambit, not X" misread as
+    rejecting Kingambit) is not permanently sticky once the user actually
+    locks the species they wanted.
+    """
+    draft = out.get("team_draft")
+    rejected = state.get("rejected") or []
+    if not draft or not rejected:
+        return out
+    locked_species_ids = {
+        to_id(slot.species.value)
+        for slot in draft
+        if slot.species.locked and slot.species.value
+    }
+    if not locked_species_ids:
+        return out
+    remaining = [
+        entry
+        for entry in rejected
+        if to_id(entry["species"]) not in locked_species_ids
+    ]
+    if len(remaining) != len(rejected):
+        out = {**out, "rejected": remaining}
+    return out
 
 
 def _locks_pending_presentation(

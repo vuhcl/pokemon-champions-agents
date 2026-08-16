@@ -6367,3 +6367,190 @@ explicit docstring proving the Cluster B boundary is deliberate. 32/33 named tes
 environment skip), 1099/1099 full suite, zero regressions.
 
 **Status:** Shipped on `feat/cluster-a-classify-gates`, PR #92, merged to `main`.
+
+---
+
+### ADR-031 — Amendment 2026-08-16b
+
+**Cluster B shipped (continue only): `continue` on `full_build_confirmation` no longer clears
+and rediscovers immediately — it's intercepted onto a new `confirm_abandon_build` pending kind,
+with the original intent stashed and only replayed after explicit confirmation. Closes the
+prompt-injection vulnerability and the "show me the team, but first" damage found in the
+2026-08-16 live steering verification, for this specific intent.**
+
+**Scope deliberately split from the original framing, not defaulted.** `continue` and
+`team_review` were both proven damaging live, but investigation found they're architecturally
+different in a way that matters: `team_review`'s handler is already non-mutating (its damage is
+purely classify-time), while `continue` routes into `route_team_phase`, which triggers genuine
+rediscovery that overwrites pending regardless of clear-key handling. Given `team_review` likely
+has a cheaper real fix (a `compare`-style non-mutating overlay, or fixing free-form "show me the
+team" to route through the CLI's existing non-destructive `:team` path instead of the
+destructive graph node), building the heavier stash-and-replay machinery for both was rejected —
+`continue` gets it now; `team_review`'s lighter fix is a deliberate, separate follow-up.
+
+**Why a new `pending_kind` was required, not an overlay on the existing confirmation screen:**
+`yes` on `full_build_confirmation` already means `full_slot_confirmed`. Reusing that screen for
+"discard this?" would make a bare `yes` genuinely ambiguous between confirming the build and
+confirming the discard. `confirm_abandon_build` gives affirm/decline exactly one meaning.
+
+**Mechanism:** the gate stashes `queued_turn_intent`/`queued_turn_payload`/`held_pending` and
+omits `_clear_pending_keys`, so the provisional build survives intact across the round-trip.
+Affirm (a deliberately narrow closed-set: `yes`/`yeah`/`yep`) replays the original stashed
+intent with clear keys now attached — no second LLM call, confirmed directly via a real
+call-counting parser across actual graph invocations, not asserted in prose. Decline
+(`no`/`nope`) restores `held_pending` wholesale — same screen-preservation pattern as Cluster
+A's `lock` rejection. Anything else (`ok`, `accept`, `defer`, or any other reply) deliberately
+falls through to a safe, non-mutating `pending_response` rather than being interpreted either
+way — confirmed this correctly prevents accidental discard via near-miss replies.
+
+**Unconditional by design, checked against the real incident, not assumed sufficient.** No
+customization-based gate (e.g., only confirm if the provisional build had real edits) — the
+actual live-damaged session's edits never landed anyway (blocked by Cluster A's now-fixed
+option-id failures), meaning the thing genuinely destroyed was an unedited default build. A
+risk-aware heuristic would have offered zero protection in the real case that motivated this
+whole cluster.
+
+**Explicitly out of scope, confirmed and named rather than silently left:** `team_review` still
+fully destroys pending, unchanged — its lighter fix is the natural next task. `rejection`/
+`archetype_change` remain immediate-action by design (the prompt already documents species-swap-
+as-rejection on this screen as intended UX; guarding it would work against the designed path).
+`constraint`/`restore` stay unguarded pending a real live miss, not preemptively hardened.
+`reset` is confirmed as a categorically bigger, separate question (wipes the whole locked team,
+not one pending build) — not folded in here. Other screens (`candidate_selection`,
+`completion_preference`) unaffected — `continue` there remains legitimate, closed-set behavior.
+
+**An honestly-named residual:** A2's unconditional `compare_analysis` clear at the start of
+every `classify_input` call means a `compare` overlay showing on the confirmation screen before
+this sequence would still vanish across the confirm/decline round-trip. The build itself is
+unaffected — only a displayed comparison the user can simply re-request.
+
+**Confirmed by direct verification, not just Cursor's report.** Every locked design decision
+traced against the actual diff, including a genuinely good, unrequested UX touch found during
+review — the confirmation prompt names the actual species at stake ("Pending build: Pelipper."),
+not a generic "are you sure?" The two graph-level tests are exceptionally rigorous: one uses an
+actual call-counting parser to *prove* no second LLM call happens on affirm or decline, rather
+than assert it; both confirm genuine downstream behavior (real rediscovery reaching
+`bootstrap_intake` on affirm; the exact original screen and provisional build restored intact
+on decline). The exact real adversarial injection text from the live-failing session was
+reproduced verbatim in a regression test, not paraphrased. Independently reproduced the narrow
+affirm/decline behavior outside the test suite against six real inputs including three
+plausible near-misses (`ok`, `accept`, `defer`) — all correctly stayed on the abandon screen.
+11/11 named tests, 1112/1112 full suite, zero regressions.
+
+**Status:** Shipped on `feat/cluster-b-confirm-continue`, not yet merged.
+
+---
+
+### ADR-031 — Amendment 2026-08-16c
+*(assuming Cluster A → a, Cluster B/continue → b under ADR-031's own corrected sequence —
+adjust the letter if your correction landed differently)*
+
+**`team_review` on `full_build_confirmation` no longer clears pending — the last named finding
+from the 2026-08-16 live steering verification is now closed. Free-form requests like "show me
+the team, but first" now overlay the locked roster directly on the confirmation screen, leaving
+the pending build fully intact and answerable afterward.**
+
+**Deliberately simpler than Cluster B's `continue` fix, not built to match it.** Investigation
+found `team_review`'s handler (`generate_team_review`) is already non-mutating and already ENDs
+without touching pending — the destruction was entirely upstream, in `parse_turn_intent`'s
+blanket `_clear_pending_keys()` call for any `_ACTIONABLE_INTENTS` member. That meant no stash,
+no replay, no new `pending_kind`, no follow-up confirmation turn was needed — a direct
+classify-time gate answering with the roster immediately, in the same turn, was sufficient.
+
+**A real correction to the original discovery framing, caught before implementation.** The
+initial plan for this fix assumed overlaying `last_team_review` (the calc-backed review result)
+would satisfy the live utterance. Investigation found this was wrong: `format_turn` only ever
+renders that field as a one-line status string, never the actual roster — overlaying it would
+have preserved the confirmation screen but still completely failed to show the user their team,
+missing the entire point of the original complaint. The actual fix reuses `format_roster` — the
+exact same content the CLI's `:team` command already produces — directly, not
+`last_team_review`.
+
+**Short-circuit confirmed deliberately, not for convenience.** `generate_team_review` is never
+invoked for this path — no calc HTTP call, no writes to `coverage`/`spofs`/`last_team_review`/
+`candidate_discovery_error`/`shared_teammates`/`condition_resilience`. Justified directly against
+the live evidence: the utterance that motivated this fix was a mid-confirmation status peek, not
+a request for competitive analysis, and `format_roster` doesn't even display the calc-review's
+output — running it would have paid a real cost for something invisible to the user in this
+exact moment. This also made two complications the original discovery flagged (sticky
+`last_team_review` persistence across later turns; `candidate_discovery_error` painting onto the
+confirmation screen) moot entirely, rather than needing separate handling.
+
+**A second real architectural option was investigated and correctly rejected, not just
+overlooked.** The CLI's existing `:team` command was considered as a possible routing target for
+free-form requests, but confirmed to be a pure, pre-graph client-side string match — no
+classify, no node, the graph never runs. Building a "divert free-form input to this instead"
+signal would have been genuinely new architecture, and would only have fixed the CLI
+specifically, leaving any other client that invokes the graph directly still broken. The shipped
+fix lives entirely within the existing graph/classify path instead.
+
+**Confirmed by direct verification, not just Cursor's report.** The core regression test proves
+the short-circuit directly via `patch("recommender.nodes.generate_team_review")` and
+`generate.assert_not_called()` — not inferred from absence of side effects — with sentinel
+values planted across all six fields the review would normally touch, as thorough defensive
+setup. The exact real live-failing utterance ("show me the team, but first") reproduced verbatim
+at the real graph-invocation level, confirming the confirmation screen and the provisional build
+both survive fully intact. Independently reproduced outside the test suite with a fresh,
+direct call, confirming both the short-circuit and that `pending_presentation` is never touched
+at all. 5/5 named tests, 1116/1116 full suite, zero regressions.
+
+**Status:** Shipped on `feat/team-review-roster-overlay`, not yet merged.
+
+---
+
+### ADR-031 — Amendment 2026-08-16d
+
+**Kingambit-rejection bug fixed: locking a species now clears any stale entry for that same
+species from `rejected`. Closes the last named finding from the 2026-08-16 live steering
+verification. Implemented and verified directly, not through Cursor, given it was unavailable
+for the remainder of the session — flagged explicitly as a real deviation from this project's
+established plan-review discipline, not a silent substitution.**
+
+**The bug, confirmed precisely via direct trace, not re-derived from the original report.** "I
+want Kingambit, not redirection or Trick Room" was classified `rejection` with
+`payload: {species: Kingambit}` — the positively-requested species got recorded as rejected.
+Root cause: `_EXTRACTION_SYSTEM_PROMPT`'s entire guidance for `rejection` was one line
+("rejection requires species"), with no rule or example for compound utterances naming both a
+wanted and unwanted species with opposite polarity.
+
+**Severity confirmed worse than the original live-session report captured.** A systematic trace
+of every place `"rejected"` is touched in the codebase found exactly three call sites —
+`initialize`'s default, `record_rejection`'s one-way append, and `team_candidates.py`'s
+permanent filter — and confirmed **`reset_team` ("start over") does not clear `rejected`
+either**, meaning a misclassified rejection would survive even a full team reset, with a new
+thread as the only real escape.
+
+**A real self-caught mistake, worth recording honestly rather than omitting.** An initial fix
+attempt had `reset_team` also clear `rejected`, on the assumption that this was an oversight
+rather than intentional design. The existing test suite caught this directly:
+`test_reset_wipes_draft_preserves_rejected` documents `rejected`-survives-reset as deliberate,
+tested behavior — a user restarting their build should still remember species they'd explicitly
+rejected before. Reverted before it went further, and the full suite re-confirmed clean
+afterward. This is exactly the kind of check ("was this a deliberate prior decision, not an
+oversight?") this project has repeatedly required before touching existing mechanisms — it
+should have been done before writing the fix, not after a test failure forced it.
+
+**Fix, scoped to what's actually load-bearing:** `apply_lock` (covering both the single-lock and
+batch-lock paths) now strips any `rejected` entry matching a species that just got locked.
+Reasoning: locking is the strongest, most unambiguous "I want this" signal in this system —
+there is no coherent scenario where a user wants a species both locked into their team and
+simultaneously excluded from candidate generation as rejected. No new intent, no new payload
+type, no schema change — a pure backend consistency guarantee. Explicit prompt guidance for
+compound rejection utterances was added alongside it, but deliberately not relied on as the
+sole fix, consistent with this project's now-repeated finding (Clusters A/B/team_review) that
+prompt-only guidance alone is insufficient.
+
+**Explicitly not pursued:** a classify-time consistency check flagging a rejection as suspicious
+when the same species is also named as wanted in the same utterance — no existing structured
+signal to check against without inventing new machinery; speculative cost for uncertain benefit.
+
+**Confirmed by direct verification, self-performed given Cursor's unavailability — the one real
+limitation of this round, stated plainly rather than glossed over: no independent second review
+was possible.** Two new graph-level tests added, matching this session's established real-
+invocation pattern: `test_lock_clears_matching_stale_rejection` (the fix, end-to-end) and
+`test_lock_preserves_unrelated_rejection` (regression — locking one species must not touch an
+unrelated rejection). Both the single-lock and batch-lock paths independently reproduced via
+direct calls outside pytest. 1118/1118 full suite, zero regressions.
+
+**Status:** Implemented locally, patch prepared for manual application — not yet pushed or
+merged as of this entry.

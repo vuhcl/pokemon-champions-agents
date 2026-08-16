@@ -4170,6 +4170,104 @@ mechanism). Both are real, separate next steps, not folded into today's fix.
 
 **State at end of today:** shipped on `feat/cluster-a-classify-gates`, PR #92, merged to `main`.
 
+## 2026-08-16 (cont.): Cluster B (continue) shipped — the second of two proven-damaging
+## intents from the live steering verification now fixed
+
+Deliberately split from the original two-intent framing once investigation found `continue`
+and `team_review` need genuinely different fixes — `team_review`'s handler is already
+non-mutating, meaning it likely has a cheaper real answer (a non-mutating overlay, or routing
+free-form requests through the CLI's existing `:team` path) rather than needing the same heavy
+stash-and-replay machinery `continue` genuinely required, since its damage comes from real
+downstream rediscovery, not just classify-time clearing.
+
+A new `pending_kind` was confirmed necessary, not a convenience — reusing the existing
+confirmation screen for "discard this?" would have made a bare "yes" genuinely ambiguous with
+confirming the build itself.
+
+Verification here was unusually rigorous even by this session's standard: the "no second LLM
+call" claim was proven with an actual call-counting parser across real graph invocations, not
+just asserted. The exact real adversarial text from the live-failing prompt-injection session
+was reproduced verbatim as a regression test. A genuinely good, unrequested UX improvement was
+found during review (the confirmation prompt names the actual species at stake).
+
+**This closes both of the two most severe, proven-damaging findings from yesterday's live
+steering verification** — Cluster A/A2 fixed the silent-guess/sticky-error cascade, Cluster B
+now fixes `continue`'s destructive-without-confirmation behavior. `team_review`'s lighter fix
+remains the one explicitly-named, still-open piece from that original finding set.
+
+**State at end of today:** shipped on `feat/cluster-b-confirm-continue`, not yet merged.
+
+## 2026-08-16 (cont.): team_review's roster overlay shipped — every named finding from the
+## live steering verification is now closed
+
+Closes the last of three severe, live-tested findings from earlier today's adversarial/
+exploratory steering session — the sticky-error cascade and the silent-guess screen-mismatch
+bugs (Clusters A/A2), `continue`'s destructive-without-confirmation behavior (Cluster B), and
+now `team_review`'s identical destructive pattern, fixed with a genuinely different and simpler
+mechanism once investigation showed its handler was already safe to leave in place.
+
+A real correction happened mid-design, not after shipping: the original plan assumed overlaying
+the calc-backed review result would satisfy the live complaint. Investigation found that field
+only ever renders as a one-line status string, never the actual roster — the real fix needed to
+reuse the CLI's own roster-printing function directly, which the discovery correctly identified
+before any code was written.
+
+The short-circuit decision (skip the full calc-backed review entirely) was made with real
+reasoning tied directly to the live evidence — the motivating utterance was a status peek, not
+an analysis request — rather than defaulting to "keep everything running just in case." This
+also eliminated two named complications as a side effect, rather than needing to solve them
+separately.
+
+Independently verified beyond the report: the short-circuit proven via direct mock assertion,
+not inference; the exact live-failing utterance reproduced verbatim at the real graph level;
+the fix reproduced fresh, outside the test suite. 1116/1116 full suite, zero regressions.
+
+**Every named finding from today's live steering verification is now closed.** Remaining open,
+from the broader consolidated log: the Kingambit-rejection bug (cross-cutting, not yet
+addressed), the multi-name bootstrap collapse/hangs, and clarifying-question content errors
+(Clefairy-as-Sun-setter, "TR" read as Team Rocket) — none touched today.
+
+**State at end of today:** shipped on `feat/team-review-roster-overlay`, not yet merged.
+
+## 2026-08-16 (cont.): Kingambit-rejection bug fixed — implemented directly, Cursor unavailable
+
+Closes the last named finding from today's live steering verification. Cursor ran out of usage
+credit partway through this session, so this discovery and fix were done directly, using the
+same repo access already established for verification work all session.
+
+Root cause confirmed precisely: the entire prompt guidance for `rejection` was one line, no
+handling for compound utterances naming both a wanted and unwanted species. Severity confirmed
+worse than the original live-session finding — even a full team reset doesn't clear a
+misclassified rejection, only starting an entirely new thread does.
+
+**A real mistake happened and was caught before it shipped, worth recording plainly.** An
+initial fix attempt assumed `reset_team` not clearing `rejected` was an oversight and "fixed"
+it — the existing test suite immediately caught this as a deliberate, tested design decision,
+not a bug. Reverted before being represented as complete. This is exactly the "was this
+deliberate?" check this project has required before touching existing mechanisms throughout its
+whole history, and it should have happened before writing the change, not after a test failure
+forced the question.
+
+The actual fix: locking a species now clears any stale rejection of that same species, reasoned
+directly from locking being the strongest positive signal available in the system — no new
+intent or schema needed. Prompt guidance for the compound-utterance pattern was added alongside
+it, but not relied on alone, consistent with this session's repeated finding that prompt-only
+fixes don't hold up without a structural backstop.
+
+**One real, explicitly-named limitation of this round:** no independent plan review was possible
+given Cursor's unavailability — self-review only. Verification rigor was held to the same
+standard as every other task this session regardless (real graph-level tests, direct
+reproduction outside pytest, full-suite regression check), but the review *process* itself was
+narrower than usual, and that gap is worth naming rather than treating this as equivalent to a
+normally-reviewed change.
+
+**Every named finding from today's live steering verification is now closed** — Clusters A/A2
+(silent-guess/sticky-error cascade), Cluster B (`continue` discarding confirmations),
+`team_review`'s roster overlay, and now the Kingambit-rejection bug.
+
+**State at end of today:** patch prepared (`kingambit-rejection-fix.patch`), not yet applied,
+committed, or pushed — pending manual application on your end.
+
 ---
 
 ## TOOLS & RESOURCES

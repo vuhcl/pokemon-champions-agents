@@ -129,6 +129,73 @@ def test_lock_turn_with_value():
     assert slot.species.reason.kind == "user_stated"
 
 
+def test_lock_clears_matching_stale_rejection():
+    """Locking a species removes it from rejected — the Kingambit-rejection bug fix.
+
+    A locked species can never coherently also be rejected: locking is the
+    strongest "I want this" signal available, so a stale/misclassified
+    rejection of that same species must not survive.
+    """
+    graph = _graph()
+    suffix = "lock-clears-rejection"
+    state = _seed_first_turn(graph, suffix)
+    draft = list(state["team_draft"])
+    draft[0] = Slot(species=Attr(value="Kingambit"))
+    graph.update_state(
+        _thread(suffix),
+        {
+            "team_draft": draft,
+            "rejected": [
+                {"species": "Kingambit", "reason": "misclassified", "turn": 0}
+            ],
+        },
+    )
+
+    result = _second_turn(
+        graph,
+        suffix,
+        "lock Kingambit slot 0",
+        {
+            "turn_intent": "lock",
+            "turn_payload": {"slot_index": 0, "attr": "species", "value": "Kingambit"},
+        },
+    )
+    assert result["team_draft"][0].species.locked
+    assert result["team_draft"][0].species.value == "Kingambit"
+    assert result["rejected"] == []
+
+
+def test_lock_preserves_unrelated_rejection():
+    """Locking one species must not clear a rejection of a different species."""
+    graph = _graph()
+    suffix = "lock-preserves-unrelated-rejection"
+    state = _seed_first_turn(graph, suffix)
+    draft = list(state["team_draft"])
+    draft[0] = Slot(species=Attr(value="Garchomp"))
+    graph.update_state(
+        _thread(suffix),
+        {
+            "team_draft": draft,
+            "rejected": [
+                {"species": "Kingambit", "reason": "misclassified", "turn": 0}
+            ],
+        },
+    )
+
+    result = _second_turn(
+        graph,
+        suffix,
+        "lock Garchomp slot 0",
+        {
+            "turn_intent": "lock",
+            "turn_payload": {"slot_index": 0, "attr": "species", "value": "Garchomp"},
+        },
+    )
+    assert result["team_draft"][0].species.locked
+    assert len(result["rejected"]) == 1
+    assert result["rejected"][0]["species"] == "Kingambit"
+
+
 def test_lock_turn_confirm_without_value():
     graph = _graph()
     suffix = "lock-confirm"
