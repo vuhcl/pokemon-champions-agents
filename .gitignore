@@ -15,6 +15,7 @@ data/roles/history/
 /artifacts/
 .env
 .env.*
+.live-session-out/
 *.db
 *.db-shm
 *.db-wal
