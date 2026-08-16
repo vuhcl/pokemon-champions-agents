@@ -315,6 +315,46 @@ def test_unmatched_custom_message_replaces_prefix():
     assert UNMATCHED_REPLY_PREFIX not in text
 
 
+def test_team_review_roster_overlays_full_build_confirmation():
+    from recommender.present_text import _FOOTERS
+
+    draft = [_locked("Incineroar")]
+    roster = format_roster({"team_draft": draft})
+    provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=TargetRoleDecision(
+            role_id="rain_setter", source="user_choice"
+        ),
+        species="Pelipper",
+        ability="Drizzle",
+        item="Damp Rock",
+        moves=("Hurricane", "U-turn", "Weather Ball", "Protect"),
+        nature="Modest",
+        spread=(("hp", 4), ("spa", 252), ("spe", 252)),
+    )
+    text = format_turn(
+        {
+            "team_draft": draft,
+            "turn_payload": {"message": roster},
+            "provisional_slot": provisional,
+            "pending_presentation": {
+                "kind": "full_build_confirmation",
+                "slot_index": 0,
+                "provisional_fingerprint": "fp",
+            },
+        },
+        unmatched=True,
+    )
+    footer = _FOOTERS["full_build_confirmation"]
+    assert text.startswith(roster)
+    assert "Incineroar" in text
+    assert "Pelipper" in text
+    assert "Accept this build?" in text
+    assert text.count(footer) == 1
+    assert UNMATCHED_REPLY_PREFIX not in text
+
+
 def test_confirm_abandon_build_renders_without_fallback():
     from recommender.nodes import CONTINUE_ABANDON_MSG
     from recommender.present_text import _FOOTERS

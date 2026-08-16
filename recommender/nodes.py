@@ -16,7 +16,7 @@ from recommender.ids import to_id
 from recommender.legality import check_set, load_snapshot
 from recommender.species_resolve import resolve_species_label
 from recommender.matchup import MatchupEvidenceError
-from recommender.present_text import BOOTSTRAP_PARSER_NOT_CONFIGURED
+from recommender.present_text import BOOTSTRAP_PARSER_NOT_CONFIGURED, format_roster
 from recommender.recommend import SP_BUDGET, spread_sum
 from recommender.reconcile import (
     reconcile_on_archetype_change,
@@ -100,7 +100,7 @@ _SELECTION_PREFIXES = ("choose ", "pick ", "go with ")
 
 # lock on full_build_confirmation is blocked (I-type).
 # continue on that screen is intercepted by _apply_continue_abandon_gate (Cluster B).
-# team_review still clears pending — overlay fix is a follow-up, not this gate.
+# team_review on that screen is intercepted by _apply_team_review_roster_gate.
 _BLOCKED_ON_KIND = {
     "candidate_selection": frozenset({"edit", "select_build_option", "compare"}),
     "completion_preference": frozenset({"edit", "select_build_option", "compare"}),
@@ -242,6 +242,18 @@ def _apply_continue_abandon_gate(
     }
 
 
+def _apply_team_review_roster_gate(
+    result: dict[str, Any],
+    pending: PendingPresentation | None,
+    team_draft: list[Slot] | None,
+) -> dict[str, Any]:
+    """Show the locked roster without clearing a full_build_confirmation."""
+    kind = str((pending or {}).get("kind") or "none")
+    if result.get("turn_intent") != "team_review" or kind != "full_build_confirmation":
+        return result
+    return _pending_response(format_roster({"team_draft": team_draft or []}))
+
+
 def _emit_full_build_confirmation(
     state: RecommenderState,
     provisional: ProvisionalSlot,
@@ -316,6 +328,7 @@ def _gap_fill(
     gap_fill_context: dict[str, str] | None,
     had_pending: bool,
     pending_presentation: PendingPresentation | None = None,
+    team_draft: list[Slot] | None = None,
 ) -> dict[str, Any]:
     from recommender.turn_intent import parse_turn_intent
 
@@ -329,7 +342,8 @@ def _gap_fill(
         had_pending=had_pending,
     )
     result = _apply_classify_gates(result, pending_presentation)
-    return _apply_continue_abandon_gate(result, pending_presentation)
+    result = _apply_continue_abandon_gate(result, pending_presentation)
+    return _apply_team_review_roster_gate(result, pending_presentation, team_draft)
 
 
 def build_gap_fill_context(state: RecommenderState) -> dict[str, str]:
@@ -390,6 +404,7 @@ def classify_pending(
     bootstrap_intake_parser=None,
     turn_intent_parser=None,
     gap_fill_context: dict[str, str] | None = None,
+    team_draft: list[Slot] | None = None,
 ) -> dict[str, Any]:
     """Resolve a reply to a pending presentation; gap-fill via injected turn_intent_parser."""
     if pending_presentation is None:
@@ -403,6 +418,7 @@ def classify_pending(
             gap_fill_context=gap_fill_context,
             had_pending=False,
             pending_presentation=pending_presentation,
+            team_draft=team_draft,
         )
 
     reply = text.strip().casefold().strip(".!?")
@@ -476,6 +492,7 @@ def classify_pending(
             gap_fill_context=gap_fill_context,
             had_pending=True,
             pending_presentation=pending_presentation,
+            team_draft=team_draft,
         )
     if pending_presentation.get("kind") == "confirm_abandon_build":
         if pending_presentation.get("schema_version", 1) != 1:
@@ -546,6 +563,7 @@ def classify_pending(
             gap_fill_context=gap_fill_context,
             had_pending=True,
             pending_presentation=pending_presentation,
+            team_draft=team_draft,
         )
 
     options = pending_presentation.get("options") or []
@@ -583,6 +601,7 @@ def classify_pending(
             gap_fill_context=gap_fill_context,
             had_pending=True,
             pending_presentation=pending_presentation,
+            team_draft=team_draft,
         )
 
     return {
@@ -685,6 +704,7 @@ def classify_input(
         bootstrap_intake_parser=bootstrap_intake_parser,
         turn_intent_parser=turn_intent_parser,
         gap_fill_context=build_gap_fill_context(state),
+        team_draft=state.get("team_draft"),
     )
     out = {
         "turn_intent": result["turn_intent"],
