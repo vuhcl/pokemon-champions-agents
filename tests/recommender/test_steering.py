@@ -10,12 +10,14 @@ from recommender.nodes import classify_input, classify_pending
 from recommender.present_text import format_turn
 from recommender.state import (
     Attr,
+    CandidateDiscoveryError,
     CandidateEvidence,
     PendingSlotIntent,
     ProvisionalSlot,
     ReasonRef,
     Slot,
     TargetRoleDecision,
+    TeamReviewResult,
     UnresolvedSlotRefinement,
     all_locked,
     empty_slot,
@@ -761,3 +763,78 @@ def test_continue_on_confirmation_graph_decline_restores():
     assert declined["pending_presentation"]["slot_index"] == 0
     assert declined["provisional_slot"].species == "Pelipper"
     assert declined["provisional_slot"].fingerprint == "fp-b"
+
+
+def _locked_member(species: str, role: str = "bulky_attacker") -> Slot:
+    return Slot(
+        role=Attr(role, locked=True),
+        species=Attr(species, locked=True),
+        ability=Attr("Intimidate", locked=True),
+        item=Attr("Safety Goggles", locked=True),
+        moveset=Attr(["Fake Out", "Knock Off", "U-turn", "Parting Shot"], locked=True),
+        spread=Attr(
+            {"hp": 32, "atk": 32, "def": 2, "spa": 0, "spd": 0, "spe": 0},
+            locked=True,
+        ),
+        nature=Attr("Adamant", locked=True),
+    )
+
+
+def test_team_review_on_confirmation_overlays_roster_without_calc():
+    calls: list = []
+    planted_review = TeamReviewResult([], [], [], status="unavailable")
+    planted_error = CandidateDiscoveryError(
+        kind="no_candidates",
+        stage="candidate_merge",
+        message="planted",
+        retryable=False,
+    )
+    sentinels = {
+        "coverage": ["planted-coverage"],
+        "spofs": ["planted-spofs"],
+        "last_team_review": planted_review,
+        "candidate_discovery_error": planted_error,
+        "shared_teammates": "planted-shared",
+        "condition_resilience": "planted-resilience",
+    }
+    with patch("recommender.nodes.generate_team_review") as generate:
+        graph = compile_graph(
+            checkpointer=MemorySaver(),
+            turn_intent_parser=RunnableLambda(
+                lambda payload: calls.append(payload) or {"turn_intent": "team_review"}
+            ),
+        )
+        config = _thread("team-review-overlay")
+        graph.invoke({"format_id": VGC_MB}, config=config)
+        confirmation, provisional = _confirmation_and_provisional()
+        locked = _locked_member("Incineroar")
+        draft = [empty_slot(), locked, *[empty_slot() for _ in range(4)]]
+        graph.update_state(
+            config,
+            {
+                "pending_presentation": confirmation,
+                "provisional_slot": provisional,
+                "team_draft": draft,
+                **sentinels,
+            },
+        )
+
+        overlay = graph.invoke(
+            {"pending_input": "show me the team, but first"}, config=config
+        )
+        generate.assert_not_called()
+        intercept_calls = len(calls)
+        assert intercept_calls >= 1
+        assert overlay["turn_intent"] == "pending_response"
+        assert overlay["pending_presentation"]["kind"] == "full_build_confirmation"
+        assert overlay["provisional_slot"].species == "Pelipper"
+        assert overlay["provisional_slot"].fingerprint == "fp-b"
+        for key, planted in sentinels.items():
+            assert overlay[key] == planted
+        rendered = format_turn(overlay, unmatched=True)
+        assert "Incineroar" in rendered
+        assert "Accept this build?" in rendered
+
+        affirmed = graph.invoke({"pending_input": "yes"}, config=config)
+        assert len(calls) == intercept_calls
+        assert affirmed["turn_intent"] == "full_slot_confirmed"

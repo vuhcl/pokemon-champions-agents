@@ -13,10 +13,13 @@ from recommender.nodes import (
     classify_input,
     classify_pending,
 )
+from recommender.present_text import format_roster
 from recommender.state import (
+    Attr,
     CandidateDiscoveryError,
     PendingSlotIntent,
     ProvisionalSlot,
+    Slot,
     TargetRoleDecision,
     TeamReviewResult,
     empty_slot,
@@ -505,6 +508,21 @@ def _preference_pending():
     }
 
 
+def _locked(species: str, role: str = "bulky_attacker") -> Slot:
+    return Slot(
+        role=Attr(role, locked=True),
+        species=Attr(species, locked=True),
+        ability=Attr("Pressure", locked=True),
+        item=Attr("Leftovers", locked=True),
+        moveset=Attr(["Protect", "Tackle", "Rest", "Sleep Talk"], locked=True),
+        spread=Attr(
+            {"hp": 32, "atk": 32, "def": 2, "spa": 0, "spd": 0, "spe": 0},
+            locked=True,
+        ),
+        nature=Attr("Adamant", locked=True),
+    )
+
+
 def _select_parser(ids: list[str]):
     return RunnableLambda(
         lambda _: {"turn_intent": "select_build_option", "option_ids": ids}
@@ -793,11 +811,34 @@ def test_continue_on_candidate_selection_still_clears_pending():
         assert result[key] is None
 
 
-def test_team_review_on_confirmation_still_clears_pending():
-    """Cluster B continue-only: team_review overlay is a follow-up, not this gate."""
+def test_team_review_on_confirmation_overlays_roster():
+    draft = [_locked("Incineroar"), empty_slot()]
     result = classify_pending(
         "show me the team",
         _confirmation_with_groups(),
+        turn_intent_parser=RunnableLambda(lambda _: {"turn_intent": "team_review"}),
+        team_draft=draft,
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert result["turn_payload"]["message"] == format_roster({"team_draft": draft})
+    _assert_screen_kept(result)
+
+
+def test_team_review_on_candidate_selection_still_clears_pending():
+    result = classify_pending(
+        "show me the team",
+        _candidate_pending(),
+        turn_intent_parser=RunnableLambda(lambda _: {"turn_intent": "team_review"}),
+    )
+    assert result["turn_intent"] == "team_review"
+    for key in _CLEAR_KEYS:
+        assert result[key] is None
+
+
+def test_team_review_on_completion_preference_still_clears_pending():
+    result = classify_pending(
+        "show me the team",
+        _preference_pending(),
         turn_intent_parser=RunnableLambda(lambda _: {"turn_intent": "team_review"}),
     )
     assert result["turn_intent"] == "team_review"
