@@ -6,6 +6,7 @@ from langgraph.graph import END
 
 from recommender.graph import _route_after_refine, compile_graph
 from recommender.nodes import classify_input, classify_pending
+from recommender.present_text import format_turn
 from recommender.state import (
     Attr,
     CandidateEvidence,
@@ -505,6 +506,36 @@ def test_unknown_pending_schema_is_cleared_without_mutating_team():
     assert result["pending_presentation"] is None
     assert result["team_draft"] == before["team_draft"]
     assert "unsupported pending schema" in result["slot_commit_error"]
+
+
+def test_stale_ephemeral_banners_clear_on_next_classify():
+    graph = _graph()
+    suffix = "ephemeral-clear"
+    _seed_first_turn(graph, suffix)
+    planted_analysis = "Spe 120 vs 80; leftover compare"
+    graph.update_state(
+        _thread(suffix),
+        {
+            "slot_commit_error": "stale illegal edit",
+            "compare_analysis": planted_analysis,
+            "bootstrap_intake_error": "stale bootstrap parse fail",
+            "pending_presentation": {
+                "schema_version": 1,
+                "kind": "full_build_confirmation",
+                "slot_index": 0,
+            },
+        },
+    )
+
+    result = graph.invoke({"pending_input": "xyzzy"}, config=_thread(suffix))
+
+    assert result["slot_commit_error"] is None
+    assert result["compare_analysis"] is None
+    assert result["bootstrap_intake_error"] is None
+    rendered = format_turn(result)
+    assert "Slot commit error" not in rendered
+    assert planted_analysis not in rendered
+    assert "Bootstrap intake error" not in rendered
 
 
 def test_constraint_turn():
