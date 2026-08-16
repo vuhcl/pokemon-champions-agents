@@ -412,3 +412,272 @@ def test_species_change_is_not_edit_via_rejection():
     )
     result = parse_turn_intent(parser, user_text="use Pelipper instead")
     assert result["turn_intent"] == "rejection"
+
+
+_MISMATCH_MSG = "That action isn't available here."
+_CONFIRM_IDS = (
+    "spread_nature:default",
+    "spread_nature:2",
+    "spread_nature:3",
+    "spread_nature:4",
+)
+_CLEAR_KEYS = (
+    "pending_presentation",
+    "pending_slot_intent",
+    "provisional_slot",
+    "provisional_refinement",
+)
+
+
+def _spread_option(option_id: str) -> dict:
+    return {
+        "option_id": option_id,
+        "label": option_id,
+        "axis": "spread_nature",
+        "provenance": "usage_spread",
+        "overrides": {"nature": "Modest"},
+        "diff_summary": "spread",
+        "tradeoff": "tradeoff",
+    }
+
+
+def _confirmation_with_groups():
+    return {
+        "schema_version": 1,
+        "kind": "full_build_confirmation",
+        "slot_index": 0,
+        "provisional_fingerprint": "fp1",
+        "build_option_groups": (
+            {
+                "axis": "spread_nature",
+                "prompt": "Choose spread/nature:",
+                "options": tuple(_spread_option(oid) for oid in _CONFIRM_IDS),
+            },
+        ),
+    }
+
+
+def _candidate_pending():
+    return {
+        "schema_version": 1,
+        "kind": "candidate_selection",
+        "slot_index": 0,
+        "options": [{"species": "Farigiraf", "source": "bootstrap"}],
+    }
+
+
+def _preference_pending():
+    return {
+        "schema_version": 2,
+        "kind": "completion_preference",
+        "preference_options": ("attacker", "support", "balanced"),
+    }
+
+
+def _select_parser(ids: list[str]):
+    return RunnableLambda(
+        lambda _: {"turn_intent": "select_build_option", "option_ids": ids}
+    )
+
+
+def _compare_parser(ids: list[str]):
+    return RunnableLambda(lambda _: {"turn_intent": "compare", "option_ids": ids})
+
+
+def _edit_parser():
+    return RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "value_text": "Modest",
+            "edit_scope": "field_only",
+        }
+    )
+
+
+def _lock_parser():
+    return RunnableLambda(
+        lambda _: {
+            "turn_intent": "lock",
+            "slot_index": 0,
+            "attr": "species",
+            "value": "Farigiraf",
+        }
+    )
+
+
+def _assert_screen_kept(result: dict) -> None:
+    for key in _CLEAR_KEYS:
+        assert key not in result
+    assert "slot_commit_error" not in result
+
+
+def test_unknown_option_id_on_confirmation_is_membership_fail():
+    result = classify_pending(
+        "I want the faster one",
+        _confirmation_with_groups(),
+        turn_intent_parser=_select_parser(["2"]),
+    )
+    assert result["turn_intent"] == "pending_response"
+    message = result["turn_payload"]["message"]
+    assert message.startswith("Unknown build option id: 2.")
+    assert message.endswith("Valid ids: " + ", ".join(_CONFIRM_IDS))
+    _assert_screen_kept(result)
+
+
+def test_real_option_id_on_confirmation_still_selects():
+    result = classify_pending(
+        "I want the faster one",
+        _confirmation_with_groups(),
+        turn_intent_parser=_select_parser(["spread_nature:2"]),
+    )
+    assert result["turn_intent"] == "select_build_option"
+    assert result["turn_payload"]["option_ids"] == ("spread_nature:2",)
+    _assert_screen_kept(result)
+
+
+def test_select_build_option_on_candidate_selection_is_mismatch():
+    from recommender.present_text import _FOOTERS, format_turn
+
+    pending = _candidate_pending()
+    result = classify_pending(
+        "lock the species",
+        pending,
+        turn_intent_parser=_select_parser(["2"]),
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert result["turn_payload"]["message"] == _MISMATCH_MSG
+    _assert_screen_kept(result)
+    rendered = format_turn(
+        {**result, "pending_presentation": pending},
+        unmatched=True,
+    )
+    assert rendered.startswith(_MISMATCH_MSG)
+    footer = _FOOTERS["candidate_selection"]
+    assert rendered.count(footer) == 1
+
+
+def test_edit_on_candidate_selection_is_mismatch():
+    result = classify_pending(
+        "run Modest instead",
+        _candidate_pending(),
+        turn_intent_parser=_edit_parser(),
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert result["turn_payload"]["message"] == _MISMATCH_MSG
+    _assert_screen_kept(result)
+
+
+def test_edit_on_completion_preference_is_mismatch():
+    result = classify_pending(
+        "run Modest instead",
+        _preference_pending(),
+        turn_intent_parser=_edit_parser(),
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert result["turn_payload"]["message"] == _MISMATCH_MSG
+    _assert_screen_kept(result)
+
+
+def test_edit_on_confirmation_still_allowed():
+    result = classify_pending(
+        "run Modest, just the nature",
+        _confirmation_with_groups(),
+        turn_intent_parser=_edit_parser(),
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["field"] == "nature"
+    _assert_screen_kept(result)
+
+
+def test_compare_fabricated_ids_on_confirmation_is_membership_fail():
+    result = classify_pending(
+        "compare these for me",
+        _confirmation_with_groups(),
+        turn_intent_parser=_compare_parser(["default", "2", "3", "4"]),
+    )
+    assert result["turn_intent"] == "pending_response"
+    message = result["turn_payload"]["message"]
+    assert message.startswith("Unknown build option ids: default, 2, 3, 4.")
+    assert "spread_nature:2" in message
+    _assert_screen_kept(result)
+
+
+def test_compare_real_ids_on_confirmation_still_compares():
+    result = classify_pending(
+        "walk me through the tradeoffs",
+        _confirmation_with_groups(),
+        turn_intent_parser=_compare_parser(
+            ["spread_nature:default", "spread_nature:2"]
+        ),
+    )
+    assert result["turn_intent"] == "compare"
+    assert result["turn_payload"]["option_ids"] == (
+        "spread_nature:default",
+        "spread_nature:2",
+    )
+    _assert_screen_kept(result)
+
+
+def test_lock_on_candidate_selection_still_classifies():
+    result = classify_pending(
+        "lock the species",
+        _candidate_pending(),
+        turn_intent_parser=_lock_parser(),
+    )
+    assert result["turn_intent"] == "lock"
+    assert result["turn_payload"]["value"] == "Farigiraf"
+
+
+def test_reset_and_archetype_change_on_confirmation_still_clear_pending():
+    reset = classify_pending(
+        "start over",
+        _confirmation_with_groups(),
+        turn_intent_parser=RunnableLambda(lambda _: {"turn_intent": "reset"}),
+    )
+    assert reset["turn_intent"] == "reset"
+    for key in _CLEAR_KEYS:
+        assert reset[key] is None
+
+    changed = classify_pending(
+        "switch to trick room",
+        _confirmation_with_groups(),
+        turn_intent_parser=RunnableLambda(
+            lambda _: {
+                "turn_intent": "archetype_change",
+                "components": ["TrickRoom"],
+            }
+        ),
+    )
+    assert changed["turn_intent"] == "archetype_change"
+    for key in _CLEAR_KEYS:
+        assert changed[key] is None
+
+
+def test_continue_and_team_review_on_confirmation_still_clear_pending():
+    """Cluster B boundary: A-type steering still destroys confirmation pending.
+
+    This gate does not add a confirmation step before continue/team_review.
+    """
+    for intent in ("continue", "team_review"):
+        result = classify_pending(
+            "show me the team",
+            _confirmation_with_groups(),
+            turn_intent_parser=RunnableLambda(
+                lambda _, name=intent: {"turn_intent": name}
+            ),
+        )
+        assert result["turn_intent"] == intent
+        for key in _CLEAR_KEYS:
+            assert result[key] is None
+
+
+def test_lock_on_confirmation_does_not_clear_pending():
+    result = classify_pending(
+        "lock this nature",
+        _confirmation_with_groups(),
+        turn_intent_parser=_lock_parser(),
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert result["turn_payload"]["message"] == _MISMATCH_MSG
+    _assert_screen_kept(result)
