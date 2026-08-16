@@ -98,8 +98,9 @@ _ORDINAL_REPLIES = {
 }
 _SELECTION_PREFIXES = ("choose ", "pick ", "go with ")
 
-# continue/team_review on full_build_confirmation stay allowed (A-type).
-# They still destroy pending. Confirmation-before-clear is Cluster B, not this gate.
+# lock on full_build_confirmation is blocked (I-type).
+# continue on that screen is intercepted by _apply_continue_abandon_gate (Cluster B).
+# team_review still clears pending — overlay fix is a follow-up, not this gate.
 _BLOCKED_ON_KIND = {
     "candidate_selection": frozenset({"edit", "select_build_option", "compare"}),
     "completion_preference": frozenset({"edit", "select_build_option", "compare"}),
@@ -107,6 +108,10 @@ _BLOCKED_ON_KIND = {
     "none": frozenset({"edit", "select_build_option", "compare"}),
 }
 _MISMATCH_MSG = "That action isn't available here."
+CONTINUE_ABANDON_MSG = "This will discard the pending build confirmation."
+KEEP_BUILD_MSG = "Keeping the current build confirmation."
+_ABANDON_AFFIRM = frozenset({"yes", "yeah", "yep"})
+_ABANDON_DECLINE = frozenset({"no", "nope"})
 
 
 def _index_build_options(
@@ -210,6 +215,33 @@ def _apply_classify_gates(
     return result
 
 
+def _apply_continue_abandon_gate(
+    result: dict[str, Any],
+    pending: PendingPresentation | None,
+) -> dict[str, Any]:
+    """Confirm before continue clears a full_build_confirmation.
+
+    ponytail: A2 still nulls compare_analysis at classify_input start; a compare
+    overlay vanishes across this round-trip. Re-request compare. Build is kept.
+    """
+    kind = str((pending or {}).get("kind") or "none")
+    if result.get("turn_intent") != "continue" or kind != "full_build_confirmation":
+        return result
+    if pending is None:
+        return result
+    return {
+        "turn_intent": "pending_response",
+        "turn_payload": {"message": CONTINUE_ABANDON_MSG},
+        "pending_presentation": {
+            "schema_version": 1,
+            "kind": "confirm_abandon_build",
+            "queued_turn_intent": "continue",
+            "queued_turn_payload": result.get("turn_payload"),
+            "held_pending": pending,
+        },
+    }
+
+
 def _emit_full_build_confirmation(
     state: RecommenderState,
     provisional: ProvisionalSlot,
@@ -296,7 +328,8 @@ def _gap_fill(
         roster_summary=ctx.get("roster_summary") or "",
         had_pending=had_pending,
     )
-    return _apply_classify_gates(result, pending_presentation)
+    result = _apply_classify_gates(result, pending_presentation)
+    return _apply_continue_abandon_gate(result, pending_presentation)
 
 
 def build_gap_fill_context(state: RecommenderState) -> dict[str, str]:
@@ -444,6 +477,33 @@ def classify_pending(
             had_pending=True,
             pending_presentation=pending_presentation,
         )
+    if pending_presentation.get("kind") == "confirm_abandon_build":
+        if pending_presentation.get("schema_version", 1) != 1:
+            return {"turn_intent": "pending_response"}
+        queued = pending_presentation.get("queued_turn_intent")
+        held = pending_presentation.get("held_pending")
+        if reply in _ABANDON_AFFIRM:
+            if queued != "continue" or held is None:
+                return {"turn_intent": "pending_response"}
+            from recommender.turn_intent import _clear_pending_keys
+
+            out: dict[str, Any] = {
+                "turn_intent": "continue",
+                **_clear_pending_keys(),
+            }
+            payload = pending_presentation.get("queued_turn_payload")
+            if payload is not None:
+                out["turn_payload"] = payload
+            return out
+        if reply in _ABANDON_DECLINE:
+            if held is None:
+                return {"turn_intent": "pending_response"}
+            return {
+                "turn_intent": "pending_response",
+                "turn_payload": {"message": KEEP_BUILD_MSG},
+                "pending_presentation": held,
+            }
+        return {"turn_intent": "pending_response"}
     if version != 1:
         return {
             "turn_intent": "pending_response",
