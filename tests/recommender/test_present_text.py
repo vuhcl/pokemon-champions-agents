@@ -315,6 +315,41 @@ def test_unmatched_custom_message_replaces_prefix():
     assert UNMATCHED_REPLY_PREFIX not in text
 
 
+def test_confirm_abandon_build_renders_without_fallback():
+    from recommender.nodes import CONTINUE_ABANDON_MSG
+    from recommender.present_text import _FOOTERS
+
+    provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=TargetRoleDecision(
+            role_id="rain_setter", source="user_choice"
+        ),
+        species="Pelipper",
+        ability="Drizzle",
+        item="Damp Rock",
+        moves=("Hurricane", "U-turn", "Weather Ball", "Protect"),
+        nature="Modest",
+        spread=(("hp", 4), ("spa", 252), ("spe", 252)),
+    )
+    text = format_turn(
+        {
+            "turn_payload": {"message": CONTINUE_ABANDON_MSG},
+            "provisional_slot": provisional,
+            "pending_presentation": {
+                "schema_version": 1,
+                "kind": "confirm_abandon_build",
+            },
+        },
+        unmatched=True,
+    )
+    footer = _FOOTERS["confirm_abandon_build"]
+    assert text.startswith(CONTINUE_ABANDON_MSG)
+    assert text.count(footer) == 1
+    assert "Pending build: Pelipper." in text
+    assert "(pending kind:" not in text
+
+
 def test_no_parser_omits_unmatched_prefix_and_shows_fix_hint():
     text = format_turn(
         {

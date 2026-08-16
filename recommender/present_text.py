@@ -39,6 +39,9 @@ _FOOTERS: dict[str, str] = {
         "Reply 'yes' to accept, pick option ids (compose with +), "
         "'compare A B', free-text edit, or 'defer'."
     ),
+    "confirm_abandon_build": (
+        "Reply 'yes' to discard and continue, or 'no' to keep this build."
+    ),
 }
 
 
@@ -264,6 +267,15 @@ def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
                 blocks.append(f"{i}. {pref}")
         elif kind == "full_build_confirmation":
             blocks.extend(_format_full_build(state))
+        elif kind == "confirm_abandon_build":
+            provisional = state.get("provisional_slot")
+            species = None
+            if provisional is not None:
+                species = getattr(provisional, "species", None)
+                if not species and isinstance(provisional, Mapping):
+                    species = provisional.get("species")
+            if species:
+                blocks.append(f"Pending build: {species}.")
         else:
             blocks.append(f"(pending kind: {kind})")
 

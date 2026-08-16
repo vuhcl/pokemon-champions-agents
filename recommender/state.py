@@ -343,6 +343,7 @@ class PendingPresentation(TypedDict, total=False):
         "full_build_confirmation",
         "completion_preference",
         "bootstrap_intake",
+        "confirm_abandon_build",
     ]
     slot_index: int
     options: list[PendingPresentationOption]
@@ -354,6 +355,9 @@ class PendingPresentation(TypedDict, total=False):
     review_flags: tuple[ReviewFlag, ...]
     build_option_groups: tuple[BuildOptionGroup, ...]
     default_option_ids: tuple[str, ...]
+    queued_turn_intent: str
+    queued_turn_payload: object
+    held_pending: PendingPresentation
 
 
 @dataclass(frozen=True)

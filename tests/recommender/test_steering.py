@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from langchain_core.runnables import RunnableLambda
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END
 
@@ -11,6 +12,7 @@ from recommender.state import (
     Attr,
     CandidateEvidence,
     PendingSlotIntent,
+    ProvisionalSlot,
     ReasonRef,
     Slot,
     TargetRoleDecision,
@@ -677,3 +679,85 @@ def test_checkpointer_persists_across_invokes():
     assert len(second["constraints"]) == 1
     assert second["constraints"][0].predicate == "prefer tailwind"
     assert second["turn"] == 1
+
+
+def _continue_tracking_parser(calls: list):
+    return RunnableLambda(
+        lambda payload: calls.append(payload) or {"turn_intent": "continue"}
+    )
+
+
+def _confirmation_and_provisional():
+    confirmation = {
+        "schema_version": 1,
+        "kind": "full_build_confirmation",
+        "slot_index": 0,
+        "provisional_fingerprint": "fp-b",
+    }
+    provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=TargetRoleDecision(
+            role_id="rain_setter", source="user_choice"
+        ),
+        species="Pelipper",
+        ability="Drizzle",
+        item="Damp Rock",
+        moves=("Hurricane", "Weather Ball", "Tailwind", "Wide Guard"),
+        nature="Modest",
+        spread=(("hp", 4), ("spa", 252), ("spe", 252)),
+        fingerprint="fp-b",
+    )
+    return confirmation, provisional
+
+
+def test_continue_on_confirmation_graph_asks_then_rediscovers():
+    calls: list = []
+    graph = compile_graph(
+        checkpointer=MemorySaver(),
+        turn_intent_parser=_continue_tracking_parser(calls),
+    )
+    config = _thread("cluster-b-affirm")
+    graph.invoke({"format_id": VGC_MB}, config=config)
+    confirmation, provisional = _confirmation_and_provisional()
+    graph.update_state(
+        config,
+        {"pending_presentation": confirmation, "provisional_slot": provisional},
+    )
+
+    intercepted = graph.invoke({"pending_input": "what's next"}, config=config)
+    assert intercepted["pending_presentation"]["kind"] == "confirm_abandon_build"
+    assert intercepted["pending_presentation"]["queued_turn_intent"] == "continue"
+    assert intercepted["provisional_slot"].species == "Pelipper"
+    assert intercepted["provisional_slot"].fingerprint == "fp-b"
+    intercept_calls = len(calls)
+    assert intercept_calls >= 1
+
+    affirmed = graph.invoke({"pending_input": "yes"}, config=config)
+    assert len(calls) == intercept_calls
+    assert affirmed["turn_intent"] == "continue"
+    assert affirmed["pending_presentation"]["kind"] == "bootstrap_intake"
+
+
+def test_continue_on_confirmation_graph_decline_restores():
+    calls: list = []
+    graph = compile_graph(
+        checkpointer=MemorySaver(),
+        turn_intent_parser=_continue_tracking_parser(calls),
+    )
+    config = _thread("cluster-b-decline")
+    graph.invoke({"format_id": VGC_MB}, config=config)
+    confirmation, provisional = _confirmation_and_provisional()
+    graph.update_state(
+        config,
+        {"pending_presentation": confirmation, "provisional_slot": provisional},
+    )
+
+    graph.invoke({"pending_input": "what's next"}, config=config)
+    intercept_calls = len(calls)
+    declined = graph.invoke({"pending_input": "no"}, config=config)
+    assert len(calls) == intercept_calls
+    assert declined["pending_presentation"]["kind"] == "full_build_confirmation"
+    assert declined["pending_presentation"]["slot_index"] == 0
+    assert declined["provisional_slot"].species == "Pelipper"
+    assert declined["provisional_slot"].fingerprint == "fp-b"
