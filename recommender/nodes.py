@@ -563,6 +563,8 @@ def initialize(state: RecommenderState) -> dict:
         out["provisional_refinement"] = None
     if "slot_commit_error" not in state:
         out["slot_commit_error"] = None
+    if "compare_analysis" not in state:
+        out["compare_analysis"] = None
     if "ownership_mode_source" not in state:
         out["ownership_mode_source"] = (
             "user" if "ownership_mode" in state else "default"
@@ -629,18 +631,22 @@ def classify_input(
         "turn_payload": result.get("turn_payload"),
         "pending_input": None,
         "turn": state.get("turn", 0) + 1,
+        "slot_commit_error": None,
+        "compare_analysis": None,
+        "bootstrap_intake_error": None,
     }
-    if "pending_presentation" in result:
-        out["pending_presentation"] = result["pending_presentation"]
-    if "slot_commit_error" in result:
-        out["slot_commit_error"] = result["slot_commit_error"]
-    if "bootstrap_intake_error" in result:
-        out["bootstrap_intake_error"] = result["bootstrap_intake_error"]
-    for key in ("pending_slot_intent", "provisional_slot", "provisional_refinement"):
+    for key in (
+        "pending_presentation",
+        "slot_commit_error",
+        "bootstrap_intake_error",
+        "compare_analysis",
+        "pending_slot_intent",
+        "provisional_slot",
+        "provisional_refinement",
+        "team_completion_preference",
+    ):
         if key in result:
             out[key] = result[key]
-    if "team_completion_preference" in result:
-        out["team_completion_preference"] = result["team_completion_preference"]
     option = result.get("selected_option")
     if option is not None:
         slot_index = int(state["pending_presentation"]["slot_index"])  # type: ignore[index]
@@ -1281,6 +1287,7 @@ def reset_team(state: RecommenderState) -> dict:
         "provisional_slot": None,
         "provisional_refinement": None,
         "slot_commit_error": None,
+        "compare_analysis": None,
         "coverage": [],
         "spofs": [],
         "shared_teammates": None,

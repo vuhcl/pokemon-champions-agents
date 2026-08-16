@@ -7,11 +7,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 from langchain_core.runnables import RunnableLambda
 
-from recommender.nodes import classify_pending
+from recommender.nodes import classify_input, classify_pending
 from recommender.state import (
+    CandidateDiscoveryError,
     PendingSlotIntent,
     ProvisionalSlot,
     TargetRoleDecision,
+    TeamReviewResult,
     empty_slot,
 )
 from recommender.turn_intent import (
@@ -142,6 +144,30 @@ def test_schema_error_pending_response_does_not_call_parser():
     assert result["pending_presentation"] is None
     assert "unsupported pending schema" in result["slot_commit_error"]
     assert calls == []
+
+
+def test_classify_input_defer_forwards_compare_analysis_clear():
+    discovery = CandidateDiscoveryError(
+        kind="calc_unavailable",
+        stage="coverage",
+        message="calc down",
+        retryable=True,
+    )
+    review = TeamReviewResult([], [], [])
+    result = classify_input(
+        {
+            "pending_input": "defer",
+            "pending_presentation": _full_build_pending(),
+            "compare_analysis": "Spe vs bulk",
+            "team_draft": [],
+            "candidate_discovery_error": discovery,
+            "last_team_review": review,
+        }  # type: ignore[arg-type]
+    )
+    assert "compare_analysis" in result
+    assert result["compare_analysis"] is None
+    assert "candidate_discovery_error" not in result
+    assert "last_team_review" not in result
 
 
 def test_fail_closed_on_malformed_parser_output():
