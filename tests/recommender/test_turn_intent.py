@@ -376,6 +376,66 @@ def test_bare_partial_spread_edit_works_standalone():
     assert payload["spread_delta"] == {"spe": 5}
 
 
+def test_edit_unaffected_by_incidental_empty_spread_fields():
+    """Regression, found in live testing immediately after the
+    value_spread_set/value_spread_delta schema addition (2026-08-17): a
+    plain item edit ('Use Light Clay instead of Roseli') failed to parse
+    entirely, with no relation to spread logic at all. Root cause: the
+    model left the two new optional spread fields as {} rather than null,
+    and _edit_value_slot_ok's `is not None` check treated the empty dict as
+    "populated," failing validation for the ability/item/nature branch
+    even though neither new field is relevant to an item edit. This is a
+    real regression the new fields introduced -- confirmed live, not
+    hypothetical -- and matters for any edit type, not just spread ones,
+    since _edit_value_slot_ok is one shared function checked for every
+    edit.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "edit_scope": "field_only",
+            "value_text": "Light Clay",
+            # The model left these as empty dicts, not None -- the actual
+            # live failure mode, not a hypothetical edge case.
+            "value_spread": {},
+            "value_spread_set": {},
+            "value_spread_delta": {},
+        }
+    )
+    result = classify_pending(
+        "Use Light Clay instead of Roseli",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["field"] == "item"
+    assert result["turn_payload"]["value"] == "Light Clay"
+
+
+def test_spread_delta_unaffected_by_incidental_empty_full_replace_field():
+    """Same empty-dict-vs-None issue, the spread-specific variant: the
+    model populates value_spread_delta correctly but also leaves
+    value_spread as {} rather than None. Must still resolve as a delta
+    edit, not fail validation for having "two" populated spread forms."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {},
+            "value_spread_delta": {"spe": 5},
+        }
+    )
+    result = classify_pending(
+        "bump Speed by 5",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["spread_delta"] == {"spe": 5}
+
+
 def test_pure_edit_without_compare_signal_is_unaffected():
     """Regression: a genuine, single-intent edit must not be caught by the
     compound-signal check just because option_ids happens to be absent.

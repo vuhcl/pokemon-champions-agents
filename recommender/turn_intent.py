@@ -339,12 +339,11 @@ def _is_select_plus_partial_spread(extraction: TurnIntentExtraction) -> bool:
     clarifying question, since there's no established "apply in what order"
     reading for those the way there is for a stat nudge on top of a pick.
     """
-    has_partial_spread = (
-        extraction.value_spread_set is not None
-        or extraction.value_spread_delta is not None
+    has_partial_spread = _populated(extraction.value_spread_set) or _populated(
+        extraction.value_spread_delta
     )
     has_other_edit_signal = any(
-        getattr(extraction, f) is not None
+        _populated(getattr(extraction, f))
         for f in ("value_text", "value_moves", "value_spread")
     )
     return has_partial_spread and not has_other_edit_signal
@@ -371,7 +370,7 @@ def _has_compound_edit_and_compare_signal(extraction: TurnIntentExtraction) -> b
     """
     has_compare_signal = bool(extraction.option_ids)
     has_edit_signal = any(
-        getattr(extraction, f) is not None for f in _EDIT_VALUE_FIELDS
+        _populated(getattr(extraction, f)) for f in _EDIT_VALUE_FIELDS
     )
     if not (has_compare_signal and has_edit_signal):
         return False
@@ -387,6 +386,24 @@ TurnIntentParser = Runnable[dict[str, str], Any]
 
 class TurnIntentParseError(ValueError):
     """A model/provider result could not be validated as a turn-intent extraction."""
+
+
+def _populated(value: object) -> bool:
+    """True if an optional structured field is meaningfully set.
+
+    Deliberately truthy, not `is not None`: models are inconsistent about
+    leaving an unset optional dict/list field as null vs an empty container
+    (`{}`/`[]`). An `is not None` check treats an accidentally-empty `{}`
+    as "populated," which silently breaks validation for every edit type,
+    not just the field the empty container happens to belong to -- since
+    _edit_value_slot_ok is one shared function checked for every edit.
+    Confirmed live: a plain item-swap edit failed to parse after
+    value_spread_set/value_spread_delta were added, because the model left
+    one of them as `{}` rather than `null` and the ability/item/nature
+    validation branch checks both fields are None regardless of which
+    field is actually being edited.
+    """
+    return bool(value)
 
 
 def _edit_value_slot_ok(extraction: TurnIntentExtraction) -> bool:
@@ -406,24 +423,22 @@ def _edit_value_slot_ok(extraction: TurnIntentExtraction) -> bool:
     if field in {"ability", "item", "nature"}:
         return (
             text is not None
-            and moves is None
-            and spread is None
-            and spread_set is None
-            and spread_delta is None
+            and not _populated(moves)
+            and not _populated(spread)
+            and not _populated(spread_set)
+            and not _populated(spread_delta)
         )
     if field == "moves":
         return (
-            moves is not None
+            _populated(moves)
             and text is None
-            and spread is None
-            and spread_set is None
-            and spread_delta is None
+            and not _populated(spread)
+            and not _populated(spread_set)
+            and not _populated(spread_delta)
         )
     if field == "spread":
-        spread_forms = [
-            v for v in (spread, spread_set, spread_delta) if v is not None
-        ]
-        return len(spread_forms) == 1 and text is None and moves is None
+        spread_forms = [v for v in (spread, spread_set, spread_delta) if _populated(v)]
+        return len(spread_forms) == 1 and text is None and not _populated(moves)
     return False
 
 
