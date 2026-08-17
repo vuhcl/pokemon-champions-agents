@@ -461,3 +461,111 @@ def test_role_constraint_ability_is_synthesized_and_not_present_mechanism():
         m.kind == "automatic_condition_setting" and m.present
         for m in decision.mechanisms
     )
+
+
+def test_cached_nature_preferred_over_independently_sourced_usage_nature():
+    """The real Archaludon bug: get_resolved_build's cache and
+    featured_or_common_set are independently-sourced — combining a cached
+    spread with a usage-sourced nature can pair two individually-real
+    attributes into a set that no real source actually recommends. When
+    the cache entry has its own confirmed nature (only set when the real
+    source material explicitly ties this exact spread to it), that must
+    win over whatever nature usage independently returns.
+    """
+    from recommender.slot_fill import build_provisional_slot
+    from recommender.state import PendingSlotIntent
+
+    intent = PendingSlotIntent(
+        schema_version=1,
+        slot_index=0,
+        species="Archaludon",
+        source="mechanical",
+        target_role_decision=TargetRoleDecision(
+            role_id="bulky_special_attacker",
+            source="other",
+            confidence="medium",
+        ),
+        base_slot_fingerprint="x",
+    )
+    fake_usage = {
+        "ability": "Stamina",
+        "nature": "Timid",  # deliberately conflicting with the cache below
+        "moves": ["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        "item": "Leftovers",
+    }
+    fake_cached = {
+        "spread": {"hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3},
+        "nature": "Modest",
+    }
+    with (
+        patch("recommender.propose.featured_or_common_set", return_value=fake_usage),
+        patch("recommender.propose.get_resolved_build", return_value=fake_cached),
+    ):
+        result = build_provisional_slot(intent, _base_state())
+    assert result.nature == "Modest"
+    assert dict(result.spread) == fake_cached["spread"]
+
+
+def test_cache_without_nature_field_falls_back_to_usage_nature():
+    """Regression: most cached entries have no nature field (genuinely
+    nature-flexible, or simply not yet confirmed) — those must keep falling
+    back to featured_or_common_set's nature exactly as before this fix.
+    """
+    from recommender.slot_fill import build_provisional_slot
+    from recommender.state import PendingSlotIntent
+
+    intent = PendingSlotIntent(
+        schema_version=1,
+        slot_index=0,
+        species="Garchomp",
+        source="mechanical",
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_physical_attacker",
+            source="other",
+            confidence="medium",
+        ),
+        base_slot_fingerprint="x",
+    )
+    fake_usage = {
+        "ability": "Rough Skin",
+        "nature": "Jolly",
+        "moves": ["Earthquake", "Dragon Claw", "Protect", "Stomping Tantrum"],
+        "item": "Sitrus Berry",
+    }
+    fake_cached = {
+        "spread": {"hp": 0, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32},
+        # no "nature" key at all — the common, un-confirmed case
+    }
+    with (
+        patch("recommender.propose.featured_or_common_set", return_value=fake_usage),
+        patch("recommender.propose.get_resolved_build", return_value=fake_cached),
+    ):
+        result = build_provisional_slot(intent, _base_state())
+    assert result.nature == "Jolly"
+
+
+def test_real_archaludon_data_file_produces_correct_nature_end_to_end():
+    """No mocks — the real data/resolved-builds/*.jsonl file, confirming the
+    fix actually landed in the real, committed data, not just in a mocked
+    unit test. This is the exact live-session scenario that surfaced the bug.
+    """
+    from recommender.slot_fill import build_provisional_slot
+    from recommender.state import PendingSlotIntent
+
+    intent = PendingSlotIntent(
+        schema_version=1,
+        slot_index=0,
+        species="Archaludon",
+        source="mechanical",
+        target_role_decision=TargetRoleDecision(
+            role_id="bulky_special_attacker",
+            source="other",
+            confidence="medium",
+        ),
+        base_slot_fingerprint="x",
+    )
+    result = build_provisional_slot(intent, _base_state())
+    assert result.nature == "Modest"
+    assert dict(result.spread) == {
+        "hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3,
+    }

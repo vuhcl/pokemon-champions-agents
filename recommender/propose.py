@@ -394,6 +394,20 @@ def _refine_defaults(
             ):
                 spread = dict(cached["spread"])
                 reason = ReasonRef(kind="tier1_cache", ref=species)
+                # Some cached spreads are only correct with one specific
+                # nature (confirmed directly from real, explicit source
+                # text, not inferred) — prefer that over usage-sourced
+                # nature when both exist, so the spread and nature actually
+                # correspond to the same real, coherent set rather than
+                # combining two independently-real attributes into a
+                # pairing neither source recommends.
+                cached_nature = cached.get("nature")
+                if cached_nature and need_nature and slot.nature.value is None:
+                    updates["nature"] = Attr(
+                        value=str(cached_nature),
+                        locked=False,
+                        reason=ReasonRef(kind="tier1_cache", ref=species),
+                    )
             else:
                 reason = ReasonRef(kind="tier2_heuristic", ref=species)
         elif cached:

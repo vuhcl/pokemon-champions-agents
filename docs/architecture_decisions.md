@@ -6678,3 +6678,68 @@ the LLM-timeout/bootstrap-collapse fix, Tier 2 semantic misclassification, and n
 question content errors. All implemented directly given Cursor's continued unavailability, none
 independently plan-reviewed — a real, repeatedly-disclosed limitation across this whole solo
 stretch, not silently normalized as equivalent to the earlier Cursor-reviewed work.
+
+---
+
+## ADR-032 — Multi-slot batch locking with sequential refinement
+
+### Status
+**Proposed.** No implementation, no discovery, no plan yet. This documents the design
+direction and its real open questions honestly, rather than presenting it as more settled than
+it is.
+
+### Context
+Confirmed via live, unscripted regression testing (2026-08-16/17): a `candidate_selection`
+screen presenting Archaludon and Pelipper as two *alternative* starting anchors correctly
+rejected "confirm both species" — Cluster A's screen-mismatch gate blocked it, since that
+screen structurally represents one choice among alternatives, not two independent picks. This
+is correct, intentional behavior, confirmed via direct code trace: `LockPayload.locks`
+(`recommender/state.py`) and `_apply_locks_batch` (`recommender/nodes.py`) already support
+batch-locking, but only for **multiple attributes on one slot** (`slot_index` is a single,
+top-level field shared across the whole payload) — not multiple different slots at once. There
+is currently no path, anywhere in the codebase, for locking genuinely different species into
+genuinely different slots in a single turn.
+
+### The real distinguishing signal this design depends on
+The motivating case that was correctly rejected (two alternatives, one slot) and the case this
+ADR proposes to support (two real, complementary picks, two different slots) look superficially
+similar in raw text ("both species") but are structurally opposite requests. This design
+**only applies to genuinely open, distinct slots** — most naturally, `multi_locked` phase with
+several real open slots — never to `candidate_selection`'s single-slot alternative-presentation
+screens, which should keep rejecting ambiguous multi-species replies exactly as they do today.
+This ADR does not propose changing that existing, correct behavior.
+
+### Proposed design
+1. **Require explicit slot-destination language**, not inferred from ambiguity. The system
+   should not attempt to guess "multiple species named together" means "lock them into
+   different slots" — that's exactly the kind of guess Cluster A's gates exist to prevent. The
+   user should name explicit slot destinations (e.g. "lock Archaludon in slot 1 and Kingambit
+   in slot 3") or the request should only fire when the number of named species matches the
+   number of currently, genuinely open `multi_locked` slots unambiguously.
+2. **New payload shape**, likely a real list of `{species, slot_index}` pairs — `LockPayload
+   .locks`'s existing shape (`{attr, value}` pairs for one slot) does not fit this and should
+   not be overloaded to mean something structurally different.
+3. **Sequential refinement after a successful multi-lock**: once multiple slots are locked
+   together, the system proceeds through refining each one's full build in the order they were
+   locked — first-locked slot refined first, not all queued/batched into one confirmation.
+
+### Open questions, deliberately not resolved here
+- Exact new intent name / schema shape for the multi-slot payload.
+- How `annotate_composition_impact` and other `multi_locked`-phase machinery interact with a
+  multi-lock landing mid-discovery — does each newly-locked slot need fresh composition
+  annotation before refinement starts, or does that wait until all locks in the batch resolve?
+- UX for the sequencing itself: does refinement of slot 1 (first-locked) begin automatically and
+  immediately, or does the system first present a summary of all newly-locked slots and let the
+  user confirm the refinement order?
+- Whether this needs its own `pending_kind`, reuses `full_build_confirmation` per-slot in
+  sequence, or something else entirely.
+
+### Explicit non-goals
+- Does not change `candidate_selection`'s existing, correct rejection of ambiguous
+  multiple-alternative replies for one slot.
+- Does not touch `LockPayload.locks`'s existing single-slot multi-attribute behavior.
+
+#### Next step
+A real discovery pass, when picked up — confirming exact `multi_locked` state shape at the
+moment multiple slots are genuinely open, and resolving the open questions above before any
+design gets locked further.

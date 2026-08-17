@@ -34,6 +34,15 @@ class ResolvedBuild(TypedDict):
     rationale: NotRequired[str]
     source_format: NotRequired[str]
     found_in_regulation: NotRequired[str]
+    nature: NotRequired[str]
+    # Only set when the source material explicitly, unambiguously ties this
+    # exact spread to one specific nature (e.g. "with Modest:" immediately
+    # following the exact EV numbers, or "a Timid nature is mandatory"). Left
+    # absent when the spread is genuinely nature-flexible in the source, or
+    # when a nature word appears nearby but describes something else
+    # entirely (an opposing Pokemon's set, or a different alternative
+    # spread) — do not infer this field from loose proximity matching;
+    # verify the tie is real and specific to this exact spread first.
 
 
 def _key(species: str, moves: list[str], item: str) -> tuple[str, tuple[str, ...], str]:
