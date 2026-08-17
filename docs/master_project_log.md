@@ -4268,6 +4268,41 @@ normally-reviewed change.
 **State at end of today:** patch prepared (`kingambit-rejection-fix.patch`), not yet applied,
 committed, or pushed — pending manual application on your end.
 
+## 2026-08-16 (cont.): LLM call timeout + bootstrap collapse fixed — the most severe remaining
+## interaction-layer bug now closed, second solo round given Cursor's continued unavailability
+
+Closes the highest-severity item from the consolidated live-testing finding log: two real,
+manually-killed 7-8 minute hangs, plus the multi-species collapse bug that produced the
+utterances triggering them. Implemented and verified directly — Cursor confirmed unavailable
+for roughly a week, so this is the second consecutive fix done solo, without independent plan
+review, and that limitation is being named explicitly each time rather than treated as
+equivalent to normally-reviewed work.
+
+Root cause was systemic, not bootstrap-specific: the identical no-timeout pattern existed in
+both LLM call sites this system has (bootstrap intake and turn-intent classification), meaning
+any interaction with the model, not just the one that happened to surface it live, was equally
+exposed. A real correctness trap was caught and avoided before shipping — the ordinary
+`ThreadPoolExecutor` context-manager idiom would have silently defeated the entire timeout by
+blocking on exit, proven wrong with a direct, real-timed test rather than just reasoned about
+in the abstract.
+
+A genuinely good technical question got a real, grounded answer rather than a hand-wave:
+whether separate connect/read timeouts made sense was investigated concretely (confirmed
+technically achievable via `ChatOllama`'s pass-through to `httpx`), and declined with real
+reasoning tied to the actual live evidence — local-Ollama hangs are a generation-time problem,
+not a connection-time one. The timeout value itself was also revised once, correctly, with real
+justification once better information was available (30s → 120s to match actual observed
+latency), rather than left as an initial guess.
+
+**This closes the last item explicitly named as "most severe" in the consolidated finding log
+from the 2026-08-16 live steering verification.** Remaining open, from the same original list:
+Tier 2 semantic misclassification (fabricated comparisons, wrong "these two" resolution) and
+clarifying-question content errors (Clefairy-as-Sun-setter, "TR" read as Team Rocket) — neither
+touched today, and possibly sharing a root cause worth investigating together.
+
+**State at end of today:** committed on `fix/llm-invoke-timeout`, patch prepared, not yet
+pushed or merged.
+
 ---
 
 ## TOOLS & RESOURCES

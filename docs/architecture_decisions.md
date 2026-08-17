@@ -6554,3 +6554,70 @@ direct calls outside pytest. 1118/1118 full suite, zero regressions.
 
 **Status:** Implemented locally, patch prepared for manual application — not yet pushed or
 merged as of this entry.
+
+---
+
+### ADR-031 — Amendment 2026-08-16e
+
+**Hard timeout added to every LLM parser call; multi-species bootstrap collapse fixed. Closes
+the most severe remaining item from the 2026-08-16 live steering verification's consolidated
+finding log — the two 7-8 minute hangs requiring manual kill, and the related utterance-collapse
+bug that produced them. Implemented and verified directly, not through Cursor, given it was
+unavailable for roughly a week — the second consecutive round with no independent plan review,
+flagged plainly rather than treated as equivalent to a normally-reviewed change.**
+
+**Root cause, confirmed via direct trace: `parser.invoke()` had zero timeout anywhere, in either
+the bootstrap-intake or turn-intent classification path.** A single blocking call with no
+provider-level or wrapper-level deadline — the existing exception handling only catches things
+that actually raise, and a hang never raises anything, so nothing in the codebase could recover
+from one. Confirmed this wasn't bootstrap-specific: the identical pattern existed in
+`parse_turn_intent` (`turn_intent.py`), meaning any LLM call anywhere in the system could hang
+indefinitely, not just the bootstrap path that happened to surface it live.
+
+**Fix: `invoke_with_timeout()` (new module, `recommender/llm_invoke.py`), a shared,
+provider-agnostic wrapper around any `Runnable.invoke()` call, applied to both call sites.** A
+genuine correctness subtlety was caught and fixed before it became a real bug: wrapping
+`ThreadPoolExecutor` in the ordinary `with` context-manager idiom would have **blocked on exit**
+waiting for the abandoned background call to finish anyway, silently defeating the entire
+timeout — the caller would eventually get a `TimeoutError`, but only after still waiting out the
+full original hang. Required an explicit `executor.shutdown(wait=False)` instead. Proven with a
+real-timed test, not just asserted: a 0.5s configured timeout against a genuinely slow
+(10-second) mock call completes in under 2 seconds, directly demonstrating the wrapper doesn't
+block on the abandoned thread.
+
+**Timeout value, revised once with real justification.** Initially set to 30s (a judgment call
+made without real operational data on normal local-Ollama latency). Increased to **120s** after
+further discussion, to better match legitimately slow-but-working call durations and avoid
+false-positive timeouts — the correct kind of revision, made with real reasoning once better
+information was available, not a default that stuck without scrutiny.
+
+**A real architectural option was investigated and explicitly declined, not overlooked.**
+Separate `connect_timeout`/`read_timeout` differentiation was confirmed genuinely achievable —
+`ChatOllama`'s `sync_client_kwargs` passes through to the underlying `ollama` client, which
+itself forwards straight to `httpx.Client`, which natively supports this distinction. Declined
+on the real evidence: the live hangs are against a *local* Ollama instance, where connection
+establishment is negligible — the actual bottleneck is generation time, already covered by the
+single global timeout. A separate fast-fail connect timeout would add real, provider-specific
+complexity for a failure mode ("Ollama isn't running at all") that isn't what was actually
+observed live.
+
+**Second, separate fix: bootstrap's extraction prompt had zero guidance for compound,
+multi-species utterances.** "Indeedee-F is the setter, Kangaskhan is available" collapsed both
+species names into a single `anchor_text` field — confirmed the underlying schema already had
+separate `anchor_text`/`pool_entries` fields capable of representing this correctly; the gap was
+purely in prompt guidance, not a schema limitation. Added explicit compound-utterance guidance
+with a worked example matching the real live-failing case, same shape as the earlier
+Kingambit-rejection prompt fix. **No automated test possible for this half** — genuinely
+prompt-dependent, needs a live LLM session to verify, an honestly-disclosed limitation rather
+than a false claim of completeness.
+
+**Confirmed by direct verification, self-performed given Cursor's continued unavailability.**
+Three new tests in `test_llm_invoke.py` (success case, the real-timed hang-proof, and confirming
+non-timeout provider exceptions still propagate normally, not swallowed). Regression tests added
+to both `test_empty_team_bootstrap.py` and `test_turn_intent.py`, using a parser that raises
+`LLMInvokeTimeout` directly to exercise the downstream fail-closed handling without waiting out
+a real 120-second timeout in the test suite — a deliberate choice to keep the suite fast while
+still genuinely testing the integration point. 1123/1123 full suite, zero regressions.
+
+**Status:** Committed on `fix/llm-invoke-timeout`, patch prepared for manual application — not
+yet pushed or merged as of this entry.
