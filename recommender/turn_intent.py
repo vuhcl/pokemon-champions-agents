@@ -93,6 +93,13 @@ Rules:
 - rejection's species is the one being REJECTED, never one the user names as wanted in the
   same utterance. "I want X, not Y" or "X, not Y or Z" -> rejection species=Y (and Z if
   present as a separate rejection), never X.
+- A weather/strategy pivot ("pivot to sun instead", "let's go rain", "switch to trick room")
+  is a complete archetype_change on its own: components=[the named strategy], e.g. ["sun"].
+  archetype_change never requires or asks for a specific species — the strategy alone is
+  sufficient, and species selection is handled separately downstream. Do not use
+  pending_response to ask which Pokémon to use for a named strategy pivot.
+- Domain abbreviations always mean their competitive-Pokémon sense, never an unrelated
+  franchise reference: TR is Trick Room, never Team Rocket.
 - Ambiguous or under-specified phrasing (bare "no", "different spread" with no value, clear
   field+value but unclear field_only vs regenerate) must use pending_response with a concrete
   clarifying question. When field+value are clear but edit_scope is not, ask whether to
