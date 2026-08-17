@@ -210,6 +210,24 @@ def test_fail_closed_on_parser_raise():
     assert "provider down" not in result["turn_payload"]["message"]
 
 
+def test_fail_closed_on_parser_timeout_with_specific_message():
+    """A hung turn-intent classification must fail closed with a specific,
+    actionable message — not the generic parse-failure text, and not a hang.
+    """
+    from recommender.llm_invoke import LLMInvokeTimeout
+
+    def hangs(_payload):
+        raise LLMInvokeTimeout("LLM call did not return within 120s")
+
+    result = classify_pending(
+        "xyzzy",
+        _full_build_pending(),
+        turn_intent_parser=RunnableLambda(hangs),
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert "took too long" in result["turn_payload"]["message"]
+
+
 def test_no_parser_pending_none_still_raises():
     with pytest.raises(NotImplementedError):
         classify_pending("anything", None)
