@@ -124,6 +124,7 @@ def _candidate(
     species: str,
     *,
     fit: str = "neutral",
+    fills_essential_gap: bool = False,
     threat: ThreatCounterCandidate | None = None,
     anchors: frozenset[str] = frozenset(),
     needs: tuple[AnchoredSupportNeed, ...] = (),
@@ -140,6 +141,7 @@ def _candidate(
         branches=frozenset({"threat" if threat else "need"}),
         anchor_ids=anchors,
         composition_fit=fit,  # type: ignore[arg-type]
+        fills_essential_gap=fills_essential_gap,
         anchored_needs=needs,
     )
 
@@ -731,6 +733,57 @@ def test_composition_beats_toss_up_or_spof_gain():
     test_severe_composition_repair_outranks_minor_threat_gain()
 
 
+def test_essential_gap_fill_outranks_high_volume_threat_coverage():
+    """Regression for the rain-suggestion degradation bug (2026-08-16/17).
+
+    A candidate that fills an essential/missing-provider condition gap (e.g.
+    the only real Rain setter available for a team whose anchor's kit
+    genuinely depends on Rain) must not be structurally excluded just
+    because unrelated candidates have far more verified threat-coverage
+    hits. Before this fix, fills_essential_gap wasn't a distinct ranking
+    signal at all, so a need-only candidate with zero threat_row entries
+    lost to literally any threat-branch candidate, no matter how essential
+    the need — confirmed live: an essential Rain setter with 0 verified
+    threat hits was outranked by ordinary attackers with 76 each and never
+    appeared in the ranked pool at all.
+    """
+    ranked = rank_multi_locked_candidates(
+        [
+            _candidate("RainSetter", fills_essential_gap=True),
+            _candidate(
+                "OrdinaryAttacker",
+                threat=_counter("OrdinaryAttacker", outcome="clean_kill", severity="decisive"),
+            ),
+        ],
+        objective=(_objective(),),
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert ranked[0].species == "RainSetter"
+
+
+def test_essential_gap_fill_does_not_help_when_absent():
+    """Sanity check: fills_essential_gap=False (the default) must not change
+    existing ranking behavior — a plain complementary-fit candidate still
+    loses to a decisive verified-threat answer, same as before this fix."""
+    ranked = rank_multi_locked_candidates(
+        [
+            _candidate("Composition", fit="complementary"),
+            _candidate(
+                "Answer",
+                fit="severe_duplication",
+                threat=_counter("Answer", severity="decisive"),
+            ),
+        ],
+        objective=(_objective(),),
+        preference=None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    assert ranked[0].species == "Answer"
+
+
 def test_decisive_or_costly_uncovered_closure_precedes_composition():
     ranked = rank_multi_locked_candidates(
         [
@@ -1080,6 +1133,7 @@ def test_discover_multi_locked_publishes_resilience_and_keeps_backup_rain_setter
 
     politoed_row = next(row for row in annotated_by_discover if row.species == "Politoed")
     assert politoed_row.composition_fit == "complementary"
+    assert politoed_row.fills_essential_gap is True
     # Live divergence vs locked Pelipper must clear the provisional threshold.
     from recommender.divergence import (
         DIVERGENCE_COMPLEMENTARY_THRESHOLD,
@@ -1169,6 +1223,7 @@ def test_unrelated_mechanic_duplication_still_demoted():
         candidates, state, locked_anchors=contexts, condition_resilience=report
     )
     assert annotated[0].composition_fit in {"duplicative", "severe_duplication"}
+    assert annotated[0].fills_essential_gap is False
 
 
 def test_sableye_backup_rain_setter_complementary_when_diverged():

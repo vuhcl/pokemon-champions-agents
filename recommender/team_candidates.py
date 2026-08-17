@@ -627,7 +627,9 @@ def annotate_composition_impact(
             fit = "duplicative"
         else:
             fit = "neutral"
-        out.append(replace(candidate, composition_fit=fit))
+        out.append(
+            replace(candidate, composition_fit=fit, fills_essential_gap=fills_gap)
+        )
     return out
 
 
@@ -787,6 +789,7 @@ def _rank_key(
         (need.need.category, need.need.trigger) for need in candidate.anchored_needs
     }
     return (
+        int(candidate.fills_essential_gap),
         counts["uncovered_verified_decisive"],
         counts["uncovered_verified_costly"],
         _FIT_RANK[candidate.composition_fit],
