@@ -4303,6 +4303,39 @@ touched today, and possibly sharing a root cause worth investigating together.
 **State at end of today:** committed on `fix/llm-invoke-timeout`, patch prepared, not yet
 pushed or merged.
 
+## 2026-08-16 (cont.): entire consolidated live-steering finding log now closed — solo
+## implementation stretch complete
+
+The last item from yesterday's live adversarial/exploratory steering verification is fixed:
+`archetype_change` no longer misfires into asking for a species on a named strategy pivot, and
+"TR" is correctly understood as Trick Room rather than an unrelated franchise reference. Both
+confirmed as genuinely separate root causes before any code was written, not assumed to share a
+fix.
+
+**Every single finding from the original consolidated log — severe and minor — is now closed,**
+across six separate fixes implemented directly over this solo stretch (Cursor unavailable ~1
+week): Clusters A/A2/B (silent-guess cascade, sticky errors, unconfirmed destructive actions),
+`team_review`'s roster overlay, the Kingambit-rejection bug, the LLM-call timeout and
+bootstrap-collapse fix, Tier 2 semantic misclassification, and this final content-error fix.
+
+**A real process failure happened partway through this stretch and is worth naming precisely
+rather than glossing over now that everything's closed.** A patch failed to apply because it was
+generated against a stale, locally-cached view of `main` rather than a fresh fetch — a real risk
+given how many merges were landing back-to-back during solo work. Caught, and for the
+subsequent fix, corrected by actually testing patch application against a genuine clone of the
+real GitHub remote before handoff, not just trusting a locally-clean diff.
+
+**Every fix in this stretch carries the same disclosed limitation, repeated deliberately rather
+than stated once and dropped:** no independent plan review was possible with Cursor unavailable.
+Verification rigor (real tests, full-suite regression checks, direct reproduction where
+possible) was held to the same standard as every reviewed piece of work this project has done —
+but the review *process* itself was narrower for this entire stretch, and that's a real,
+ongoing gap worth remembering rather than treating six consecutive solo fixes as equivalent to
+normally-reviewed work.
+
+**State at end of this stretch:** all six fixes merged to `main`. Every named finding from the
+2026-08-16 live steering verification is closed.
+
 ---
 
 ## TOOLS & RESOURCES

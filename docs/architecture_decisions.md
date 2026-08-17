@@ -6621,3 +6621,60 @@ still genuinely testing the integration point. 1123/1123 full suite, zero regres
 
 **Status:** Committed on `fix/llm-invoke-timeout`, patch prepared for manual application — not
 yet pushed or merged as of this entry.
+
+---
+
+### ADR-031 — Amendment 2026-08-16f
+
+**Clarifying-question content errors fixed: `archetype_change` no longer asks for a species on
+a named strategy pivot, and "TR" is correctly understood as Trick Room. Closes the last
+remaining item from the 2026-08-16 live steering verification's consolidated finding log —
+every finding from that session is now closed.**
+
+**Two genuinely separate root causes, confirmed via direct trace before writing anything, not
+assumed to share a fix just because both surfaced as "wrong clarifying question text."**
+
+**Case 1 — `archetype_change` incorrectly asking for a species.** Traced the payload directly:
+`ArchetypeChangePayload` is just `components: list[str]`, stored straight as the new team-wide
+strategy with no species involved anywhere downstream. "Pivot to sun instead" should map
+directly to `archetype_change` with `components: ["sun"]` — the live failure (asking "Which
+Sun-type Pokémon? e.g. Venusaur, Clefairy") reflected a genuine gap in what the model understood
+the intent to require, with the Clefairy fabrication a secondary symptom inside an
+already-misclassified path, not the primary bug. **Confirmed no structural check applies here**,
+unlike the earlier compound-intent fix (Amendment [Tier 2 letter]) — there's no schema-level
+signal to validate post-hoc, since this is a live classification choice (which `turn_intent` to
+emit), not a payload-consistency issue detectable after the fact. Fixed with explicit prompt
+guidance: a named strategy pivot is a complete `archetype_change` on its own, never requiring or
+asking for a specific species.
+
+**Case 2 — "TR" read as Team Rocket instead of Trick Room** inside a generated clarifying
+question — a narrow, standalone domain-vocabulary gap with no connection to case 1. Fixed with a
+one-line prompt clarification that domain abbreviations use their competitive-Pokémon sense.
+
+**No automated test possible for either fix** — pure prompt-guidance content, same disclosed
+limitation as every content-generation fix this arc (bootstrap collapse, compare-criteria
+fabrication). Confirmed, not assumed: explored whether a structural check could apply to either
+case before falling back to prompt-only, same discipline as the Tier 2 semantic-fabrication
+work.
+
+**A real process failure occurred and was caught during this arc, worth recording precisely.**
+The patch for the *prior* fix (Tier 2 semantic misclassification) was generated against a stale,
+locally-cached view of `main` rather than a fresh fetch, and failed to apply on the first
+attempt. Root cause: relying on a sandbox's cached remote-tracking state rather than fetching
+immediately before generating a patch — especially risky given how many separate merges were
+landing in quick succession during this solo-implementation period. Fixed going forward by
+fetching fresh and, for this fix and this fix only so far, actually testing patch application
+against a genuine clone of the real GitHub remote before handoff, rather than assuming a
+locally-verified diff would apply cleanly elsewhere.
+
+**Confirmed by direct verification on the real merged `main` tip, not just the local branch.**
+1127/1127 full suite, zero regressions.
+
+**Status:** Shipped on `fix/clarifying-question-content-errors`, PR #100, merged to `main`.
+
+**This closes the entire consolidated finding log from the 2026-08-16 live steering
+verification** — Clusters A/A2/B, `team_review`'s roster overlay, the Kingambit-rejection bug,
+the LLM-timeout/bootstrap-collapse fix, Tier 2 semantic misclassification, and now clarifying-
+question content errors. All implemented directly given Cursor's continued unavailability, none
+independently plan-reviewed — a real, repeatedly-disclosed limitation across this whole solo
+stretch, not silently normalized as equivalent to the earlier Cursor-reviewed work.
