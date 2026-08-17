@@ -79,6 +79,16 @@ Rules:
 - When pending_kind is full_build_confirmation and the user asks to compare two or more
   named alternatives before deciding, emit compare with option_ids (2+). Compare is
   non-mutating analysis — not edit, not pending_response, not select_build_option.
+- compare's option_ids must be options the user actually asked to compare. If the user
+  specifies a count or a specific pair ("these two", "the first and third") and you cannot
+  determine exactly which ones from pending_context, use pending_response to ask which
+  specific options — do not default to including every option in the group.
+- If the user's stated comparison criteria (e.g. "physical vs special", "which one hits
+  harder") does not correspond to any real, displayed distinction between the current
+  options (check label/diff_summary/tradeoff/mechanical_notes in pending_context — do not
+  invent a distinction that is not actually there), use pending_response to say so and ask
+  what to compare instead. Never pick two options as a guess at what the user's stated
+  criteria might mean.
 - Species swaps on full_build_confirmation are rejection (not edit).
 - rejection's species is the one being REJECTED, never one the user names as wanted in the
   same utterance. "I want X, not Y" or "X, not Y or Z" -> rejection species=Y (and Z if
@@ -279,6 +289,29 @@ class TurnIntentExtraction(BaseModel):
         return self
 
 
+_EDIT_VALUE_FIELDS = ("field", "value_text", "value_moves", "value_spread")
+
+
+def _has_compound_edit_and_compare_signal(extraction: TurnIntentExtraction) -> bool:
+    """True when a single extraction carries both edit- and compare/select-
+    shaped fields at once, regardless of which single turn_intent was
+    ultimately chosen.
+
+    The schema forces exactly one turn_intent per turn, but nothing prevents
+    the model from also populating fields for a second intent it recognized
+    in the same utterance (e.g. "let's go bulkier, and also show me how that
+    compares" — an edit plus a compare). Without this check, one half of a
+    genuinely compound request is silently discarded with no indication
+    anything was skipped. Fires on option_ids (shared by select_build_option
+    and compare) combined with any populated edit-value field.
+    """
+    has_compare_signal = bool(extraction.option_ids)
+    has_edit_signal = any(
+        getattr(extraction, f) is not None for f in _EDIT_VALUE_FIELDS
+    )
+    return has_compare_signal and has_edit_signal
+
+
 TurnIntentParser = Runnable[dict[str, str], Any]
 
 
@@ -437,6 +470,17 @@ def parse_turn_intent(
         return {
             "turn_intent": "pending_response",
             "turn_payload": PendingResponsePayload(message=CLASSIFY_FAIL_USER_MSG),
+        }
+
+    if _has_compound_edit_and_compare_signal(extraction):
+        return {
+            "turn_intent": "pending_response",
+            "turn_payload": PendingResponsePayload(
+                message=(
+                    "That sounds like two requests in one — an edit and a "
+                    "comparison. Which would you like first?"
+                )
+            ),
         }
 
     out: dict[str, Any] = {"turn_intent": extraction.turn_intent}

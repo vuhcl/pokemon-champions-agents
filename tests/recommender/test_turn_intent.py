@@ -228,6 +228,88 @@ def test_fail_closed_on_parser_timeout_with_specific_message():
     assert "took too long" in result["turn_payload"]["message"]
 
 
+def test_compound_edit_and_compare_signal_asks_instead_of_picking_one():
+    """"let's go bulkier, and also show me how that compares" — an edit and a
+    compare in one utterance. The schema forces a single turn_intent per
+    turn; without this check, one half is silently discarded with no
+    indication anything was skipped. Fires regardless of which single
+    turn_intent the model ultimately chose.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "compare",
+            "option_ids": [_CONFIRM_IDS[0], _CONFIRM_IDS[1]],
+            "field": "spread",
+            "edit_scope": "regenerate",
+        }
+    )
+    result = classify_pending(
+        "let's go bulkier, and also show me how that compares to the other option",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert "two requests" in result["turn_payload"]["message"]
+
+
+def test_compound_signal_check_fires_regardless_of_which_intent_won():
+    """Same compound signal, but the model picked 'edit' instead of
+    'compare' this time — must still be caught, not just when compare wins.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "edit_scope": "field_only",
+            "value_text": "Modest",
+            "option_ids": [_CONFIRM_IDS[0], _CONFIRM_IDS[1]],
+        }
+    )
+    result = classify_pending(
+        "make it modest, or actually compare these two first",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert "two requests" in result["turn_payload"]["message"]
+
+
+def test_pure_edit_without_compare_signal_is_unaffected():
+    """Regression: a genuine, single-intent edit must not be caught by the
+    compound-signal check just because option_ids happens to be absent.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "edit_scope": "field_only",
+            "value_text": "Modest",
+        }
+    )
+    result = classify_pending(
+        "make it modest",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+
+
+def test_pure_compare_without_edit_signal_is_unaffected():
+    """Regression: a genuine, single-intent compare must not be caught."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "compare",
+            "option_ids": [_CONFIRM_IDS[0], _CONFIRM_IDS[1]],
+        }
+    )
+    result = classify_pending(
+        "compare these two",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "compare"
+
+
 def test_no_parser_pending_none_still_raises():
     with pytest.raises(NotImplementedError):
         classify_pending("anything", None)
