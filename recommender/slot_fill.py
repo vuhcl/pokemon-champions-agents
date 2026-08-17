@@ -111,6 +111,7 @@ class AnnotatedCandidate:
     anchor_ids: frozenset[str] = frozenset()
     anchor_slot_indices: frozenset[int] = frozenset()
     composition_fit: CompositionFit = "neutral"
+    fills_essential_gap: bool = False
     shared_min_pct: float | None = None
     shared_worst_rank: int | None = None
     anchored_needs: tuple[AnchoredSupportNeed, ...] = ()
