@@ -202,7 +202,15 @@ class TurnIntentExtraction(BaseModel):
             "value, leaving all others unchanged. Use for phrasing like "
             "'make Spe 5' or 'set Speed to 5'. Alternative to value_spread "
             "(full replace) -- populate at most one of value_spread / "
-            "value_spread_set / value_spread_delta for a spread edit."
+            "value_spread_set / value_spread_delta for a spread edit. "
+            "This is a spread-only edit: do NOT ask about nature and do "
+            "NOT treat this as ambiguous scope -- edit_scope should be "
+            "'field_only' unless the user separately asked to change "
+            "nature too. Even though this menu may bundle spread and "
+            "nature together as one option group, a bare stat instruction "
+            "with no nature mentioned is a pure spread edit; any resulting "
+            "EV-budget conflict is caught by downstream validation, not "
+            "something to ask the user about upfront."
         ),
     )
     value_spread_delta: dict[str, int] | None = Field(
@@ -212,7 +220,15 @@ class TurnIntentExtraction(BaseModel):
             "stat(s), leaving all others unchanged. Use for phrasing like "
             "'5 more Spe' or 'a bit more Speed'. Alternative to value_spread "
             "(full replace) -- populate at most one of value_spread / "
-            "value_spread_set / value_spread_delta for a spread edit."
+            "value_spread_set / value_spread_delta for a spread edit. "
+            "This is a spread-only edit: do NOT ask about nature and do "
+            "NOT treat this as ambiguous scope -- edit_scope should be "
+            "'field_only' unless the user separately asked to change "
+            "nature too. Even though this menu may bundle spread and "
+            "nature together as one option group, a bare stat instruction "
+            "with no nature mentioned is a pure spread edit; any resulting "
+            "EV-budget conflict is caught by downstream validation, not "
+            "something to ask the user about upfront."
         ),
     )
     option_ids: list[str] | None = Field(
