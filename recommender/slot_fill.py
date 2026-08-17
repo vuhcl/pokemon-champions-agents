@@ -975,6 +975,8 @@ def _compendium_roles_for_need(need: SupportNeed) -> list[tuple[str, str]]:
         return [("trick_room_setter", "")]
     if need.category == "fake_out_protection":
         return [("redirection", "")]
+    if need.category == "screens":
+        return [("screens_support", "")]
     if need.category == "condition_setter" and need.trigger:
         weather = {"rain": "Rain", "sun": "Sun", "sand": "Sand", "snow": "Snow"}
         return [

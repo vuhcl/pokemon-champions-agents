@@ -108,6 +108,59 @@ def test_candidate_selection_evidence_line():
     )
     assert "1. Pelipper" in text
     assert "usage_backed, high confidence" in text
+
+
+def test_candidate_selection_uses_best_evidence_not_first():
+    """Regression for the rain-suggestion display bug (2026-08-16/17).
+
+    A candidate's evidence tuple is merged across every support need it
+    satisfies, not just the one it's being presented for. When a low-quality
+    entry (e.g. from an unrelated, compendium-uncovered need) arrives before
+    a high-quality one (e.g. real compendium-backed evidence for the role
+    actually being offered), the displayed confidence text must reflect the
+    best evidence, not whichever happened to be merged in first. Confirmed
+    live: Meowstic displayed 'mechanical_only, low confidence' for a
+    rain_setter suggestion backed by real compendium_backed/medium Rain
+    evidence, because an unrelated screens-need mechanical entry landed
+    first in its merged evidence tuple.
+    """
+    text = format_turn(
+        {
+            "pending_presentation": {
+                "kind": "candidate_selection",
+                "slot_index": 0,
+                "options": [
+                    {
+                        "species": "Meowstic",
+                        "source": "need",
+                        "target_role_decision": TargetRoleDecision(
+                            role_id="rain_setter",
+                            source="usage_backed",
+                        ),
+                        "evidence": (
+                            # Unrelated (screens), low-quality, arrives first.
+                            CandidateEvidence(
+                                "mechanical_only",
+                                "low",
+                                "narrow_candidates_for_move",
+                                (),
+                            ),
+                            # Real evidence for the role actually offered.
+                            CandidateEvidence(
+                                "compendium_backed",
+                                "medium",
+                                "role_category_evidence",
+                                (),
+                            ),
+                        ),
+                    }
+                ],
+            }
+        }
+    )
+    assert "1. Meowstic" in text
+    assert "compendium_backed, medium confidence" in text
+    assert "mechanical_only, low confidence" not in text
     assert "rain_setter" in text
 
 
