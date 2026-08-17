@@ -130,6 +130,59 @@ def test_select_overlapping_override_keys_rejected():
     assert out.get("provisional_slot") is None or out.get("provisional_slot") is before
 
 
+def _single_axis_pending_with_default() -> PendingPresentation:
+    """Real menu shape from the live transcript: a prepended, non-numeric
+    default option followed by numbered siblings whose ids don't align with
+    their list position."""
+    return {
+        "schema_version": 1,
+        "kind": "full_build_confirmation",
+        "build_option_groups": (
+            {
+                "axis": "spread_nature",
+                "prompt": "Choose spread/nature:",
+                "options": (
+                    {"option_id": "spread_nature:default", "label": "Recommended default"},
+                    {"option_id": "spread_nature:1", "label": "Timid 2/0/0/32/0/32"},
+                    {"option_id": "spread_nature:2", "label": "Modest 32/0/0/1/29/4"},
+                    {"option_id": "spread_nature:3", "label": "Modest 32/0/1/5/25/3"},
+                    {"option_id": "spread_nature:11", "label": "edge case: two-digit id"},
+                ),
+            },
+        ),
+    }
+
+
+def test_bare_number_matches_visible_option_id_not_list_position():
+    """Regression for the bare-number off-by-one bug (2026-08-17), confirmed
+    live: typing '1' repeatedly re-selected the already-shown default
+    (list position 0) instead of the option literally labeled 'spread_nature:1'
+    (list position 1), because the default is always prepended ahead of the
+    real numbered siblings. Bare numbers must match the option's own visible
+    numeric id, never raw list position."""
+    pending = _single_axis_pending_with_default()
+    assert _deterministic_build_option_ids("1", pending) == ("spread_nature:1",)
+    assert _deterministic_build_option_ids("2", pending) == ("spread_nature:2",)
+    assert _deterministic_build_option_ids("3", pending) == ("spread_nature:3",)
+    assert _deterministic_build_option_ids("option 1", pending) == ("spread_nature:1",)
+
+
+def test_bare_number_exact_match_not_substring():
+    """'1' must not match 'spread_nature:11' -- exact numeric equality only."""
+    pending = _single_axis_pending_with_default()
+    assert _deterministic_build_option_ids("1", pending) == ("spread_nature:1",)
+    assert _deterministic_build_option_ids("11", pending) == ("spread_nature:11",)
+
+
+def test_word_ordinals_keep_list_position_semantics():
+    """Word-ordinals are a deliberately separate, unchanged path: 'first'
+    still means the first thing shown (the default), since that's a genuine
+    reading of the word -- only literal-number forms switch to id-matching."""
+    pending = _single_axis_pending_with_default()
+    assert _deterministic_build_option_ids("first", pending) == ("spread_nature:default",)
+    assert _deterministic_build_option_ids("second", pending) == ("spread_nature:1",)
+
+
 def test_deterministic_compose_across_axes():
     pending: PendingPresentation = {
         "schema_version": 1,
