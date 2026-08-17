@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import replace
 from typing import Any, Literal
 
@@ -97,6 +98,23 @@ _ORDINAL_REPLIES = {
     "the third one": 2,
 }
 _SELECTION_PREFIXES = ("choose ", "pick ", "go with ")
+_BARE_NUMBER_RE = re.compile(r"^(?:option )?(\d+)$")
+
+
+def _requested_option_number(part: str) -> int | None:
+    """Extract N from bare 'N' or 'option N'. Exact match only -- '1' is not '11'."""
+    match = _BARE_NUMBER_RE.match(part)
+    return int(match.group(1)) if match else None
+
+
+def _option_id_number(option_id: str) -> int | None:
+    """Trailing numeric suffix after the last ':' (e.g. 'spread_nature:1' -> 1).
+
+    None for non-numeric suffixes like 'spread_nature:default' -- those never
+    match a bare-number reply, by design.
+    """
+    suffix = option_id.rsplit(":", 1)[-1]
+    return int(suffix) if suffix.isdigit() else None
 
 # lock on full_build_confirmation is blocked (I-type).
 # continue on that screen is intercepted by _apply_continue_abandon_gate (Cluster B).
@@ -162,11 +180,33 @@ def _deterministic_build_option_ids(
                     matched = oid
                     break
         if matched is None:
-            ordinal = _ORDINAL_REPLIES.get(part)
-            if ordinal is not None and len(groups) == 1:
-                opts = list(groups[0].get("options") or ())
-                if ordinal < len(opts):
-                    matched = str(opts[ordinal].get("option_id") or "")
+            requested_number = _requested_option_number(part)
+            if requested_number is not None:
+                # Numeric shorthand ("1", "option 1") always means the
+                # option's own visible number (e.g. spread_nature:1), never
+                # its position in the presented list -- those two diverge
+                # whenever a default is prepended (default is always list
+                # position 0 but carries no number of its own), which is
+                # the common case for this presentation. Word-ordinals
+                # ("first", "the second one") are handled separately below
+                # and keep their existing list-position meaning, since
+                # "first" naturally does mean "the first thing shown".
+                if len(groups) == 1:
+                    opts = list(groups[0].get("options") or ())
+                    exact = [
+                        str(opt.get("option_id") or "")
+                        for opt in opts
+                        if _option_id_number(str(opt.get("option_id") or ""))
+                        == requested_number
+                    ]
+                    if len(exact) == 1:
+                        matched = exact[0]
+            else:
+                ordinal = _ORDINAL_REPLIES.get(part)
+                if ordinal is not None and len(groups) == 1:
+                    opts = list(groups[0].get("options") or ())
+                    if ordinal < len(opts):
+                        matched = str(opts[ordinal].get("option_id") or "")
         if not matched or matched not in index:
             return None
         axis = str(index[matched].get("axis") or "")
