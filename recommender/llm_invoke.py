@@ -16,7 +16,7 @@ from typing import Any
 
 from langchain_core.runnables import Runnable
 
-LLM_INVOKE_TIMEOUT_S = 120.0
+LLM_INVOKE_TIMEOUT_S = 300.0
 
 
 class LLMInvokeTimeout(Exception):

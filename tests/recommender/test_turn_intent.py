@@ -217,7 +217,7 @@ def test_fail_closed_on_parser_timeout_with_specific_message():
     from recommender.llm_invoke import LLMInvokeTimeout
 
     def hangs(_payload):
-        raise LLMInvokeTimeout("LLM call did not return within 120s")
+        raise LLMInvokeTimeout("LLM call did not return within 300s")
 
     result = classify_pending(
         "xyzzy",

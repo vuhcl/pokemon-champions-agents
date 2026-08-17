@@ -73,11 +73,11 @@ def test_resolve_llm_parsers_builds_both_when_factories_ok(monkeypatch):
     fake_turn = object()
     monkeypatch.setattr(
         "recommender.bootstrap.build_ollama_bootstrap_intake_parser",
-        lambda model: fake_boot,
+        lambda model, **kwargs: fake_boot,
     )
     monkeypatch.setattr(
         "recommender.turn_intent.build_ollama_turn_intent_parser",
-        lambda model: fake_turn,
+        lambda model, **kwargs: fake_turn,
     )
     boot, turn, warning = resolve_llm_parsers("ollama")
     assert boot is fake_boot
@@ -86,3 +86,22 @@ def test_resolve_llm_parsers_builds_both_when_factories_ok(monkeypatch):
     wrapper_boot, wrapper_warn = resolve_bootstrap_parser("ollama")
     assert wrapper_boot is fake_boot
     assert wrapper_warn is None
+
+
+def test_resolve_llm_parsers_passes_keep_alive_to_both_ollama_factories(monkeypatch):
+    """keep_alive must reach both parsers — a stale-loaded model on one but not
+    the other would still pay a cold-reload cost on whichever call it missed.
+    """
+    monkeypatch.setenv("BOOTSTRAP_OLLAMA_MODEL", "test-model")
+    received: dict[str, object] = {}
+    monkeypatch.setattr(
+        "recommender.bootstrap.build_ollama_bootstrap_intake_parser",
+        lambda model, **kwargs: received.setdefault("boot", kwargs.get("keep_alive")),
+    )
+    monkeypatch.setattr(
+        "recommender.turn_intent.build_ollama_turn_intent_parser",
+        lambda model, **kwargs: received.setdefault("turn", kwargs.get("keep_alive")),
+    )
+    resolve_llm_parsers("ollama")
+    assert received["boot"] == "30m"
+    assert received["turn"] == "30m"

@@ -11,6 +11,13 @@ _ENV_PROVIDER = "POKEMON_CHAMPIONS_LLM_PROVIDER"
 _ENV_OLLAMA_MODEL = "BOOTSTRAP_OLLAMA_MODEL"
 _ENV_ANTHROPIC_MODEL = "BOOTSTRAP_ANTHROPIC_MODEL"
 
+# Ollama's own default is 5 minutes, which forces a cold model reload on any
+# gap longer than that — a real cost during normal, thinking-time-heavy CLI
+# sessions, and one that could get misread as evidence of a slow/hung call
+# rather than ordinary model-loading overhead. 30 minutes comfortably covers
+# a real interactive session without keeping the model loaded indefinitely.
+_OLLAMA_KEEP_ALIVE = "30m"
+
 
 def _warn(detail: str) -> str:
     return f"{detail} {BOOTSTRAP_PARSER_FIX_HINT}"
@@ -41,8 +48,12 @@ def resolve_llm_parsers(
             return None, None, _warn(f"langchain-ollama unavailable: {exc}.")
         try:
             return (
-                build_ollama_bootstrap_intake_parser(model),
-                build_ollama_turn_intent_parser(model),
+                build_ollama_bootstrap_intake_parser(
+                    model, keep_alive=_OLLAMA_KEEP_ALIVE
+                ),
+                build_ollama_turn_intent_parser(
+                    model, keep_alive=_OLLAMA_KEEP_ALIVE
+                ),
                 None,
             )
         except ImportError as exc:

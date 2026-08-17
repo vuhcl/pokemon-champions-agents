@@ -639,7 +639,7 @@ def test_bootstrap_parser_timeout_becomes_actionable_error():
     from recommender.llm_invoke import LLMInvokeTimeout
 
     def _hangs(_payload):
-        raise LLMInvokeTimeout("LLM call did not return within 120s")
+        raise LLMInvokeTimeout("LLM call did not return within 300s")
 
     with pytest.raises(BootstrapIntakeParseError, match="took too long"):
         parse_bootstrap_intake(RunnableLambda(_hangs), "trick room with Indeedee-F")
