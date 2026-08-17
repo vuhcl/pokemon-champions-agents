@@ -274,6 +274,108 @@ def test_compound_signal_check_fires_regardless_of_which_intent_won():
     assert "two requests" in result["turn_payload"]["message"]
 
 
+def test_select_plus_partial_spread_resolves_instead_of_asking():
+    """Regression: 'spread_nature:3, but with 5 Spe' (2026-08-17 handoff item
+    3). Previously the model's edit half was either dropped silently (no
+    value_spread_delta field existed to represent it) or, once represented,
+    would have hit the same clarifying-question path as any other compound
+    signal. This specific combination -- select + partial spread -- is
+    resolvable, not ambiguous, and must combine into one payload instead of
+    asking the user to pick one.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": [_CONFIRM_IDS[2]],
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread_delta": {"spe": 5},
+        }
+    )
+    result = classify_pending(
+        "spread_nature:3, but with 5 Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[2],)
+    assert payload["spread_delta"] == {"spe": 5}
+
+
+def test_select_plus_full_spread_replace_still_asks():
+    """A selection combined with a *full* spread replace remains unsupported
+    and still routes to the clarifying question -- only the partial
+    (set/delta) form is resolvable. There's no established 'apply in what
+    order' reading for two competing full spreads the way there is for a
+    selection plus a stat nudge on top of it."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": [_CONFIRM_IDS[2]],
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {
+                "hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 8,
+            },
+        }
+    )
+    result = classify_pending(
+        "spread_nature:3 but make the spread 32/0/1/5/25/8",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert "two requests" in result["turn_payload"]["message"]
+    assert "selection" in result["turn_payload"]["message"]
+
+
+def test_compare_plus_partial_spread_still_asks():
+    """Comparing options and simultaneously editing one remains genuinely
+    ambiguous (which option does the edit apply to?), unlike selecting one
+    and adjusting it -- must still be rejected, not silently resolved."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "compare",
+            "option_ids": [_CONFIRM_IDS[1], _CONFIRM_IDS[2]],
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread_delta": {"spe": 5},
+        }
+    )
+    result = classify_pending(
+        "compare 2 and 3, but with 5 more Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert "two requests" in result["turn_payload"]["message"]
+    assert "comparison" in result["turn_payload"]["message"]
+
+
+def test_bare_partial_spread_edit_works_standalone():
+    """A partial spread edit with no selection involved at all -- 'add 5
+    Spe' to the currently-displayed build -- must work as a plain edit,
+    not require pairing with a selection."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread_delta": {"spe": 5},
+        }
+    )
+    result = classify_pending(
+        "add 5 more Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+    payload = result["turn_payload"]
+    assert payload["field"] == "spread"
+    assert payload["spread_delta"] == {"spe": 5}
+
+
 def test_pure_edit_without_compare_signal_is_unaffected():
     """Regression: a genuine, single-intent edit must not be caught by the
     compound-signal check just because option_ids happens to be absent.

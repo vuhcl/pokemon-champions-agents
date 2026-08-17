@@ -935,6 +935,17 @@ def apply_provisional_edit(state: RecommenderState) -> dict:
     field = str(payload["field"])
     scope = payload["scope"]
     value = payload["value"]
+    if field == "spread" and (payload.get("spread_set") or payload.get("spread_delta")):
+        from recommender.slot_fill import apply_partial_spread
+
+        adjusted = apply_partial_spread(
+            provisional.spread_dict(),
+            set_stats=payload.get("spread_set"),
+            delta_stats=payload.get("spread_delta"),
+        )
+        if adjusted is None:
+            return {"slot_commit_error": "Could not apply edit: malformed spread adjustment"}
+        value = adjusted
     result = revise_provisional_slot(
         provisional,
         field=field,
@@ -1012,12 +1023,42 @@ def apply_provisional_option(state: RecommenderState) -> dict:
             )
         }
 
+    spread_set = payload.get("spread_set")
+    spread_delta = payload.get("spread_delta")
+    edited_fields = frozenset(merged)
+    if spread_set or spread_delta:
+        from recommender.slot_fill import apply_partial_spread, revise_provisional_slot
+
+        adjusted = apply_partial_spread(
+            result.spread_dict(), set_stats=spread_set, delta_stats=spread_delta
+        )
+        if adjusted is None:
+            return {
+                "slot_commit_error": "Could not apply option: malformed spread adjustment"
+            }
+        result = revise_provisional_slot(
+            result,
+            field="spread",
+            value=adjusted,
+            scope="field_only",
+            intent=intent,
+            state=state,
+        )
+        if isinstance(result, UnresolvedSlotRefinement):
+            return {
+                "slot_commit_error": (
+                    "Could not apply option: "
+                    + (result.reason or ",".join(result.unresolved_fields))
+                )
+            }
+        edited_fields = edited_fields | {"spread"}
+
     err = _verify_provisional_hard(result, state)
     if err:
         return {"slot_commit_error": err}
 
     flags = collect_provisional_review_flags(
-        result, state, edited_fields=frozenset(merged)
+        result, state, edited_fields=edited_fields
     )
     out = _emit_full_build_confirmation(state, result, review_flags=flags)
     out["pending_slot_intent"] = intent

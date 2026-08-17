@@ -7,7 +7,11 @@ from recommender.nodes import (
     apply_provisional_option,
     classify_pending,
 )
-from recommender.slot_fill import apply_provisional_overrides
+from recommender.slot_fill import (
+    apply_partial_spread,
+    apply_provisional_overrides,
+    revise_provisional_slot,
+)
 from recommender.state import (
     Attr,
     PendingPresentation,
@@ -76,6 +80,67 @@ def test_apply_provisional_overrides_multi_field():
     assert result.nature == "Modest"
     assert result.item == "Choice Specs"
     assert result.moves[0] == "Make It Rain"
+
+
+def test_select_then_partial_spread_chains_onto_selection_result():
+    """Regression: 'spread_nature:3, but with 5 Spe' (2026-08-17 handoff item
+    3). The adjustment must apply to the *selected* option's resulting
+    spread, not the pre-selection spread -- confirms the actual order-
+    dependent chaining, not just the standalone arithmetic.
+    """
+    selected = apply_provisional_overrides(
+        _provisional(),
+        overrides={"nature": "Modest", "spread": {
+            "hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3,
+        }},
+        intent=_intent(),
+        state=_state(),
+    )
+    assert isinstance(selected, ProvisionalSlot)
+    assert selected.spread_dict()["spe"] == 3
+
+    adjusted_spread = apply_partial_spread(
+        selected.spread_dict(), delta_stats={"spe": 5}
+    )
+    assert adjusted_spread is not None
+    final = revise_provisional_slot(
+        selected,
+        field="spread",
+        value=adjusted_spread,
+        scope="field_only",
+        intent=_intent(),
+        state=_state(),
+    )
+    assert isinstance(final, ProvisionalSlot)
+    assert final.spread_dict()["spe"] == 8
+    # Every other stat and the selection's own nature carry through unchanged.
+    assert final.spread_dict()["hp"] == 32
+    assert final.nature == "Modest"
+
+
+def test_malformed_spread_value_degrades_gracefully_not_crash():
+    """Regression for the KeyError crash risk found during the same
+    investigation: a spread edit value missing a required stat key
+    previously raised an uncaught KeyError inside a bare dict comprehension
+    instead of returning UnresolvedSlotRefinement like every other
+    malformed edit-value case in this module.
+    """
+    result = revise_provisional_slot(
+        _provisional(),
+        field="spread",
+        value={"hp": 32},  # missing atk/def/spa/spd/spe
+        scope="field_only",
+        intent=_intent(),
+        state=_state(),
+    )
+    assert not isinstance(result, ProvisionalSlot)
+    assert result.unresolved_fields == ("spread",)
+
+
+def test_apply_partial_spread_rejects_unknown_stat():
+    base = {"hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3}
+    assert apply_partial_spread(base, delta_stats={"notastat": 5}) is None
+    assert apply_partial_spread(base, set_stats={"spe": "not-a-number"}) is None
 
 
 def test_select_overlapping_override_keys_rejected():

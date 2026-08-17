@@ -1654,6 +1654,60 @@ _EDIT_SLOT_ATTR = {
     "spread": "spread",
 }
 
+_SPREAD_STATS = ("hp", "atk", "def", "spa", "spd", "spe")
+
+
+def _coerce_full_spread(value: object) -> dict[str, int] | None:
+    """Full six-stat spread dict from a full-replace edit value.
+
+    Returns None (never raises) on anything malformed -- missing stat keys,
+    wrong type, non-numeric values. Previously this coercion used a bare
+    dict comprehension (`value[stat]` for each stat) with no guard, which
+    raised an uncaught KeyError on a partial/malformed dict rather than
+    degrading gracefully to UnresolvedSlotRefinement the way every other
+    edit-value failure in this module does.
+    """
+    if not isinstance(value, dict):
+        return None
+    try:
+        return {stat: int(value[stat]) for stat in _SPREAD_STATS}  # type: ignore[index]
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def apply_partial_spread(
+    base: dict[str, int],
+    *,
+    set_stats: dict[str, int] | None = None,
+    delta_stats: dict[str, int] | None = None,
+) -> dict[str, int] | None:
+    """Apply a partial set and/or delta onto a full base spread.
+
+    set_stats: named stats become exactly this value.
+    delta_stats: named stats get this signed amount added to whatever
+    they end up being after set_stats is applied (set then delta, in that
+    order, so "set Spe to 5, then add 3 more" composes predictably if both
+    were ever populated -- though _edit_value_slot_ok currently only ever
+    allows one form at a time per edit).
+
+    Returns None (never raises) on an unknown stat name or non-numeric
+    value, so callers can degrade to UnresolvedSlotRefinement/
+    slot_commit_error instead of crashing on a malformed model output.
+    """
+    result = dict(base)
+    try:
+        for stat, val in (set_stats or {}).items():
+            if stat not in _SPREAD_STATS:
+                return None
+            result[stat] = int(val)  # type: ignore[arg-type]
+        for stat, val in (delta_stats or {}).items():
+            if stat not in _SPREAD_STATS:
+                return None
+            result[stat] = int(result[stat]) + int(val)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+    return result
+
 
 def apply_provisional_overrides(
     current: ProvisionalSlot,
@@ -1692,16 +1746,13 @@ def apply_provisional_overrides(
                 )
             attr_value: Any = list(value)
         elif field == "spread":
-            if not isinstance(value, dict):
+            attr_value = _coerce_full_spread(value)
+            if attr_value is None:
                 return UnresolvedSlotRefinement(
                     schema_version=1,
                     intent=intent,
                     unresolved_fields=("spread",),
                 )
-            attr_value = {
-                stat: int(value[stat])
-                for stat in ("hp", "atk", "def", "spa", "spd", "spe")
-            }
         else:
             attr_value = value
         seed = replace(seed, **{slot_attr: Attr(value=attr_value, locked=True)})
@@ -1758,13 +1809,13 @@ def revise_provisional_slot(
             )
         attr_value: Any = list(value)
     elif field == "spread":
-        if not isinstance(value, dict):
+        attr_value = _coerce_full_spread(value)
+        if attr_value is None:
             return UnresolvedSlotRefinement(
                 schema_version=1,
                 intent=intent,
                 unresolved_fields=("spread",),
             )
-        attr_value = {stat: int(value[stat]) for stat in ("hp", "atk", "def", "spa", "spd", "spe")}
     else:
         attr_value = value
 

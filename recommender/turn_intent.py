@@ -195,6 +195,26 @@ class TurnIntentExtraction(BaseModel):
         default=None,
         description="Edit value for EV/IV spread as six-stat map",
     )
+    value_spread_set: dict[str, int] | None = Field(
+        default=None,
+        description=(
+            "Partial spread edit: set only the named stat(s) to this exact "
+            "value, leaving all others unchanged. Use for phrasing like "
+            "'make Spe 5' or 'set Speed to 5'. Alternative to value_spread "
+            "(full replace) -- populate at most one of value_spread / "
+            "value_spread_set / value_spread_delta for a spread edit."
+        ),
+    )
+    value_spread_delta: dict[str, int] | None = Field(
+        default=None,
+        description=(
+            "Partial spread edit: add this signed amount to the named "
+            "stat(s), leaving all others unchanged. Use for phrasing like "
+            "'5 more Spe' or 'a bit more Speed'. Alternative to value_spread "
+            "(full replace) -- populate at most one of value_spread / "
+            "value_spread_set / value_spread_delta for a spread edit."
+        ),
+    )
     option_ids: list[str] | None = Field(
         default=None,
         description="select_build_option / compare: pending option ids",
@@ -296,13 +316,45 @@ class TurnIntentExtraction(BaseModel):
         return self
 
 
-_EDIT_VALUE_FIELDS = ("field", "value_text", "value_moves", "value_spread")
+_EDIT_VALUE_FIELDS = (
+    "field",
+    "value_text",
+    "value_moves",
+    "value_spread",
+    "value_spread_set",
+    "value_spread_delta",
+)
+
+
+def _is_select_plus_partial_spread(extraction: TurnIntentExtraction) -> bool:
+    """True when a select/compare-shaped signal is paired with *specifically*
+    a partial spread edit (set or delta) and nothing else edit-shaped.
+
+    This is the one compound shape that's actually resolvable rather than
+    genuinely ambiguous: "spread_nature:3, but with 5 Spe" means apply the
+    selection, then adjust the resulting spread -- an order-dependent
+    two-step operation, not a competing pair of alternatives to choose
+    between. Full-replace spread edits and ability/item/nature/moves edits
+    combined with a selection remain unsupported and still route to the
+    clarifying question, since there's no established "apply in what order"
+    reading for those the way there is for a stat nudge on top of a pick.
+    """
+    has_partial_spread = (
+        extraction.value_spread_set is not None
+        or extraction.value_spread_delta is not None
+    )
+    has_other_edit_signal = any(
+        getattr(extraction, f) is not None
+        for f in ("value_text", "value_moves", "value_spread")
+    )
+    return has_partial_spread and not has_other_edit_signal
 
 
 def _has_compound_edit_and_compare_signal(extraction: TurnIntentExtraction) -> bool:
     """True when a single extraction carries both edit- and compare/select-
     shaped fields at once, regardless of which single turn_intent was
-    ultimately chosen.
+    ultimately chosen, AND the combination isn't the one resolvable shape
+    (select + partial spread adjustment) handled separately.
 
     The schema forces exactly one turn_intent per turn, but nothing prevents
     the model from also populating fields for a second intent it recognized
@@ -310,13 +362,24 @@ def _has_compound_edit_and_compare_signal(extraction: TurnIntentExtraction) -> b
     compares" — an edit plus a compare). Without this check, one half of a
     genuinely compound request is silently discarded with no indication
     anything was skipped. Fires on option_ids (shared by select_build_option
-    and compare) combined with any populated edit-value field.
+    and compare) combined with any populated edit-value field -- except the
+    select + partial-spread combination, which is resolvable and handled by
+    _is_select_plus_partial_spread instead of being flagged here. A compare
+    (not select) combined with a partial spread edit still fires here and is
+    rejected -- comparing options and simultaneously editing one is still
+    genuinely ambiguous, unlike selecting one and adjusting it.
     """
     has_compare_signal = bool(extraction.option_ids)
     has_edit_signal = any(
         getattr(extraction, f) is not None for f in _EDIT_VALUE_FIELDS
     )
-    return has_compare_signal and has_edit_signal
+    if not (has_compare_signal and has_edit_signal):
+        return False
+    if extraction.turn_intent != "compare" and _is_select_plus_partial_spread(
+        extraction
+    ):
+        return False
+    return True
 
 
 TurnIntentParser = Runnable[dict[str, str], Any]
@@ -327,18 +390,40 @@ class TurnIntentParseError(ValueError):
 
 
 def _edit_value_slot_ok(extraction: TurnIntentExtraction) -> bool:
-    """Exactly the value slot for ``field`` is filled; other edit value slots empty."""
+    """Exactly the value slot(s) for ``field`` are filled; other value slots empty.
+
+    For field == "spread": at most one of value_spread (full replace),
+    value_spread_set (partial set), value_spread_delta (partial add) may be
+    populated -- they're alternatives, never combined in one edit.
+    """
 
     field = extraction.field
     text = extraction.value_text
     moves = extraction.value_moves
     spread = extraction.value_spread
+    spread_set = extraction.value_spread_set
+    spread_delta = extraction.value_spread_delta
     if field in {"ability", "item", "nature"}:
-        return text is not None and moves is None and spread is None
+        return (
+            text is not None
+            and moves is None
+            and spread is None
+            and spread_set is None
+            and spread_delta is None
+        )
     if field == "moves":
-        return moves is not None and text is None and spread is None
+        return (
+            moves is not None
+            and text is None
+            and spread is None
+            and spread_set is None
+            and spread_delta is None
+        )
     if field == "spread":
-        return spread is not None and text is None and moves is None
+        spread_forms = [
+            v for v in (spread, spread_set, spread_delta) if v is not None
+        ]
+        return len(spread_forms) == 1 and text is None and moves is None
     return False
 
 
@@ -348,6 +433,9 @@ def _edit_value(extraction: TurnIntentExtraction) -> object:
         return extraction.value_text
     if field == "moves":
         return extraction.value_moves
+    # field == "spread": exactly one of the three forms is populated,
+    # already enforced by _edit_value_slot_ok. Full-replace stays in
+    # `value`; partial forms are carried separately by _payload_for.
     return extraction.value_spread
 
 
@@ -356,15 +444,23 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
     if intent == "pending_response":
         return PendingResponsePayload(message=extraction.message.strip())  # type: ignore[union-attr]
     if intent == "edit":
-        return EditPayload(
-            field=extraction.field,  # type: ignore[arg-type]
-            value=_edit_value(extraction),
-            scope=extraction.edit_scope,  # type: ignore[arg-type]
-        )
+        payload: dict[str, Any] = {
+            "field": extraction.field,
+            "value": _edit_value(extraction),
+            "scope": extraction.edit_scope,
+        }
+        if extraction.field == "spread":
+            payload["spread_set"] = extraction.value_spread_set
+            payload["spread_delta"] = extraction.value_spread_delta
+        return EditPayload(**payload)  # type: ignore[typeddict-item]
     if intent == "select_build_option":
-        return SelectBuildPayload(
-            option_ids=tuple(str(i).strip() for i in (extraction.option_ids or []))
-        )
+        select_payload: dict[str, Any] = {
+            "option_ids": tuple(str(i).strip() for i in (extraction.option_ids or []))
+        }
+        if _is_select_plus_partial_spread(extraction):
+            select_payload["spread_set"] = extraction.value_spread_set
+            select_payload["spread_delta"] = extraction.value_spread_delta
+        return SelectBuildPayload(**select_payload)  # type: ignore[typeddict-item]
     if intent == "compare":
         return ComparePayload(
             option_ids=tuple(str(i).strip() for i in (extraction.option_ids or []))
@@ -480,12 +576,13 @@ def parse_turn_intent(
         }
 
     if _has_compound_edit_and_compare_signal(extraction):
+        second = "comparison" if extraction.turn_intent == "compare" else "selection"
         return {
             "turn_intent": "pending_response",
             "turn_payload": PendingResponsePayload(
                 message=(
-                    "That sounds like two requests in one — an edit and a "
-                    "comparison. Which would you like first?"
+                    f"That sounds like two requests in one — an edit and a "
+                    f"{second}. Which would you like first?"
                 )
             ),
         }

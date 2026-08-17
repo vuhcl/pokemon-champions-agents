@@ -128,6 +128,10 @@ class EditPayload(TypedDict):
     field: EditFieldName
     value: object
     scope: Literal["field_only", "regenerate"]
+    # Alternatives to a full-replace `value` when field == "spread": exactly
+    # one of value / spread_set / spread_delta is meaningful per edit.
+    spread_set: NotRequired[dict[str, int] | None]
+    spread_delta: NotRequired[dict[str, int] | None]
 
 
 BuildAxis = Literal["spread_nature", "moveset", "item", "bundled"]
@@ -164,6 +168,11 @@ class BuildOptionGroup(TypedDict):
 
 class SelectBuildPayload(TypedDict):
     option_ids: tuple[str, ...]
+    # Set when the same turn also carried a resolvable partial spread edit
+    # (e.g. "spread_nature:3, but with 5 Spe") -- applied on top of the
+    # selected option's resulting spread, not the pre-selection spread.
+    spread_set: NotRequired[dict[str, int] | None]
+    spread_delta: NotRequired[dict[str, int] | None]
 
 
 class ComparePayload(TypedDict):
