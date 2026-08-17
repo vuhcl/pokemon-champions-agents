@@ -10,6 +10,7 @@ from recommender.state import (
     ProvisionalSlot,
     all_locked,
 )
+from recommender.team_candidates import _BASIS_RANK, _CONFIDENCE_RANK
 
 NO_PENDING_MESSAGE = (
     "No pending question to answer; start :new or wait for a prompt."
@@ -61,6 +62,34 @@ def format_evidence_summary(evidence: CandidateEvidence | Mapping[str, Any]) -> 
     if flagged:
         line = f"{line} ({', '.join(flagged)})"
     return line
+
+
+def _best_evidence_row(
+    evidence_rows: tuple[CandidateEvidence | Mapping[str, Any], ...],
+) -> CandidateEvidence | Mapping[str, Any]:
+    """Pick the highest-quality evidence item, mirroring _rank_key's best_evidence.
+
+    A candidate's evidence tuple is merged across every support need it
+    happens to satisfy, not just the one it's being displayed/ranked for —
+    e.g. a rain-setter candidate that also incidentally knows a screens
+    move carries both Rain and screens evidence in one tuple. evidence[0]
+    reflects arrival order (which need got resolved first), not quality;
+    ranking already correctly ignores order and picks the best item, so
+    display must use the same rule or the two can disagree.
+    """
+
+    def rank(row: CandidateEvidence | Mapping[str, Any]) -> tuple[int, int]:
+        if isinstance(row, CandidateEvidence):
+            basis, confidence = row.basis, row.confidence
+        else:
+            basis = str(row.get("basis") or "unknown")
+            confidence = str(row.get("confidence") or "unknown")
+        return (
+            _BASIS_RANK.get(basis, -1),
+            _CONFIDENCE_RANK.get(confidence, -1),
+        )
+
+    return max(evidence_rows, key=rank)
 
 
 def format_roster(state: Mapping[str, Any]) -> str:
@@ -155,7 +184,7 @@ def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
             bits.append(str(option["primary_function"]))
         evidence_rows = option.get("evidence") or ()
         if evidence_rows:
-            bits.append(format_evidence_summary(evidence_rows[0]))
+            bits.append(format_evidence_summary(_best_evidence_row(evidence_rows)))
         else:
             bits.append("no evidence")
         lines.append(" — ".join(bits))

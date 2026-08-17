@@ -1109,6 +1109,30 @@ def test_resolve_healing_cleric_union_nonempty():
     assert names
 
 
+def test_resolve_screens_uses_real_compendium_not_generic_mechanical_only():
+    """Regression: screens needs previously fell through _compendium_roles_for_need
+    unmapped (unlike trick_room/fake_out_protection/condition_setter), even
+    though screens_support.v1.json is fully persisted and real. This meant
+    every screens-capable candidate got mechanical_only/low evidence
+    regardless of actual compendium tier -- a real data-quality gap found
+    while investigating the rain-suggestion display bug (2026-08-16/17),
+    since it also polluted unrelated candidates' merged evidence tuples with
+    spurious low-quality entries.
+    """
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    names = resolve_need_candidates(need, _base_state())
+    assert names
+    by_id = {to_id(row.species): row for row in names}
+    meowstic = by_id.get("meowstic")
+    assert meowstic is not None
+    assert any(e.basis == "compendium_backed" for e in meowstic.evidence)
+
+
 def test_resolve_all_and_merge_without_chosen_need():
     tr = _trick_room_need()
     fo = SupportNeed(
