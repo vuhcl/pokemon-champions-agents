@@ -6681,6 +6681,115 @@ stretch, not silently normalized as equivalent to the earlier Cursor-reviewed wo
 
 ---
 
+### ADR-031 — Amendment 2026-08-16g: LLM parser timeout raised to 300s; Ollama keep_alive set to 30m
+
+**Two related fixes to the LLM-invocation infrastructure, discovered and shipped in the same
+investigation while diagnosing why a live regression check kept timing out.**
+
+**`keep_alive`: set to a hardcoded 30m on both Ollama parser factories.** Ollama's own default
+is 5 minutes, forcing a cold model reload on any gap longer than that during normal,
+thinking-time-heavy CLI sessions — a real cost easily misread as a slow or hung call rather than
+ordinary model-loading overhead. Traced end-to-end through the real production entry point
+(`resolve_llm_parsers` → both `build_ollama_*_parser` factories → `ChatOllama`), confirmed
+`keep_alive` is a genuine `ChatOllama` field, not silently dropped. Fixed one real, existing test
+as a byproduct: its mocked factories used single-argument lambdas incompatible with the new
+keyword, raising a `TypeError` silently caught by `resolve_llm_parsers`' broad exception handler
+— a real regression the test suite correctly caught. Closes standing backlog item 17.
+
+**Timeout: raised from an initial 30s judgment call, to 120s, to a final 300s — each revision
+grounded in progressively better real evidence, not repeated guessing.** Live, warm-model
+measurements against the actual production prompt chains found the bootstrap intake path taking
+115-146s for a genuinely simple, single-species input, even warm — with schema-complexity and
+recent-prompt-change both directly isolated and ruled out as causes (`BootstrapExtraction` has
+*fewer* fields than `TurnIntentExtraction`, which completed in 15-24s on the same session; the
+pre-existing prompt, predating the multi-species collapse-fix guidance, was equally slow). 300s
+gives real margin (~2x the worst observed 146s) above measured reality.
+
+**The root cause of why the bootstrap path specifically runs 5-10x slower than turn-intent
+classification remains open and unexplained** — this is a stopgap to unblock live verification,
+explicitly not a claim the underlying problem is understood or fixed.
+
+**A genuinely good technical question got a real, evidence-grounded answer, not a hand-wave.**
+Separate `connect_timeout`/`read_timeout` (confirmed achievable via `ChatOllama`'s
+`sync_client_kwargs` → `httpx.Timeout`) was investigated and declined — the live hangs are
+against local Ollama, where connection establishment is negligible; the actual bottleneck is
+generation time, already covered by the single global timeout.
+
+**Confirmed by direct verification, self-performed given Cursor's continued unavailability.**
+Full suite clean at each revision; the keep_alive propagation confirmed via a real,
+non-mocked-at-the-constructor-level trace through the actual entry point.
+
+**Status:** Shipped, merged to `main`.
+
+---
+
+### ADR-030/031 — Amendment 2026-08-16h: specific "not legal" message for illegal-but-identified anchor species
+
+**A real, confirmed UX gap fixed: an anchor species that resolves correctly but is illegal in
+this format (e.g. Indeedee-F, confirmed `is_nonstandard: Past`) previously got the same generic
+"Couldn't identify anchor" message as genuine, unresolvable gibberish — misleading, since the
+system understood the request perfectly and simply rejected it on legality grounds.**
+
+**Root cause, confirmed via direct trace:** `resolve_species_label`'s single combined check
+(`not candidate or candidate not in species or not is_species_legal(...)`) collapses three
+genuinely different failure reasons into one `None` return, discarding the distinction between
+"couldn't identify this at all" and "identified it perfectly, it's just banned here."
+
+**Fix: a minimal, safe internal refactor**, not a change to `resolve_species_label`'s existing
+public contract (confirmed unaffected across all 4 real call sites). Extracted the
+pre-legality-check resolution logic into `_resolve_candidate_id()`, and added a new, separate
+`illegal_species_display_name()` used only at the one call site that needs the richer
+distinction (`discover_bootstrap_directions`'s anchor-resolution failure path).
+
+**Confirmed by direct verification:** end-to-end reproduction of the exact real failing case
+("Indeedee-F" → "Indeedee-F is not legal in this format."), plus adversarial regressions
+(genuine gibberish still gets the generic message; a legal species is unaffected).
+
+**Status:** Shipped on `fix/illegal-species-anchor-message`, **not yet merged** — pending
+manual application.
+
+---
+
+### ADR-016/031 — Amendment 2026-08-16i: nature field for spreads that require one specific nature
+
+**A real, serious bug fixed — the same failure shape as the earlier Medicham-Mega synthesis
+bug: two independently-real attributes (a cached spread, an independently-sourced nature)
+getting combined into a build no real source actually recommends.**
+
+**Confirmed directly from the cached record's own source text**, not inferred: Archaludon's
+"default" build paired a Choice Scarf spread (2/0/0/32/0/32) with Modest nature, while the
+cached entry's own `rationale` explicitly states "A Timid nature is mandatory" for that exact
+spread. Root cause: `get_resolved_build`'s cache (ADR-016, `data/resolved-builds/*.jsonl`) is
+deliberately keyed on species+moveset+item only — nature intentionally out of scope per the
+cache's own README, correct for genuinely nature-flexible spreads (confirmed: most entries
+are), but silently wrong for the fraction that aren't.
+
+**A real, honest self-correction happened mid-investigation, worth recording precisely.** An
+initial automated scan claimed ~30% of all 59 cached entries were affected. Manually reading
+every flagged entry's full rationale — not trusting the crude proximity-based match — caught
+real false positives (a nature word describing an *opposing* Pokémon's set, or a *different*
+alternative spread than the one actually cached) and one genuinely ambiguous case (a spread the
+source presents as valid under either of two natures, correctly left unset rather than forced).
+**The real, individually-verified count is 6 of 59 entries (~10%)**, each confirmed against an
+exact, unambiguous textual tie before anything was written to the real data files.
+
+**Fix:** an optional, structured `nature` field added to `ResolvedBuild`, populated only for
+the 6 confirmed cases; `_refine_defaults` now prefers it over the independently-sourced usage
+nature when present, falling back to existing behavior for the ~90% of entries with no such
+field.
+
+**A separate, real observation surfaced but not fixed here:** several entries in
+`champions-reg-ma.jsonl` appear to be exact duplicates — a distinct data-quality issue, left
+for its own future pass.
+
+**Confirmed by direct verification:** end-to-end test against the real, committed data file
+with **no mocks at all** — the exact original live-failing scenario now produces the correct
+Modest-nature pairing.
+
+**Status:** Shipped, merged to `main`.
+
+---
+
 ## ADR-032 — Multi-slot batch locking with sequential refinement
 
 ### Status
