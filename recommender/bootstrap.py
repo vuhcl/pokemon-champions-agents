@@ -14,6 +14,7 @@ from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
 from recommender.by_usage import query_by_usage
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
+from recommender.llm_invoke import LLMInvokeTimeout, invoke_with_timeout
 from recommender.species_resolve import resolve_species_label
 from recommender.ranking import OwnershipMode
 from recommender.slot_fill import (
@@ -46,7 +47,17 @@ Return:
 - anchor_text: the user's raw requested anchor Pokémon/form, or null
 - pool_entries: raw available-Pokémon labels in order; null when omitted; [] when explicitly none
 - delegated: true when the user asks the system to choose, or gives only a pool
-- ownership_mode: owned_first, owned_last, owned_only, off, or null"""
+- ownership_mode: owned_first, owned_last, owned_only, off, or null
+
+When the user names more than one Pokémon, do not combine them into a single field.
+Attribute each species to the field matching its stated role:
+- The one being built around / the intended centerpiece -> anchor_text (that species only).
+- Others described as merely available, owned, or usable by the team -> pool_entries
+  (one entry per species).
+Example: "Indeedee-F is the setter, Kangaskhan is available, you pick everyone else" ->
+anchor_text="Indeedee-F", pool_entries=["Kangaskhan"], delegated=true (for the remaining slots).
+Never merge multiple species names into one field (e.g. anchor_text must never contain "and"
+joining two species)."""
 _EXTRACTION_USER_PROMPT = "<USER_RESPONSE>\n{user_text}\n</USER_RESPONSE>"
 
 
@@ -91,7 +102,7 @@ def parse_bootstrap_intake(
     """Invoke an injected parser and convert its strict output to the domain payload."""
 
     try:
-        result = parser.invoke({"user_text": text})
+        result = invoke_with_timeout(parser, {"user_text": text})
         if isinstance(result, dict) and {
             "raw",
             "parsed",
@@ -109,6 +120,11 @@ def parse_bootstrap_intake(
         )
     except BootstrapIntakeParseError:
         raise
+    except LLMInvokeTimeout as exc:
+        raise BootstrapIntakeParseError(
+            "the request took too long to process — please try again, "
+            "ideally with a shorter or simpler message"
+        ) from exc
     except (ValidationError, TypeError, ValueError) as exc:
         raise BootstrapIntakeParseError(f"invalid bootstrap extraction: {exc}") from exc
     except Exception as exc:

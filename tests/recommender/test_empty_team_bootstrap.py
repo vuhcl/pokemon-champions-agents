@@ -627,6 +627,24 @@ def test_bootstrap_parser_failure_retains_intake_and_mutates_no_facts(parser):
     assert after["bootstrap_intake_error"]
 
 
+def test_bootstrap_parser_timeout_becomes_actionable_error():
+    """A hung structured-output call must fail closed, not hang the graph.
+
+    Live evidence: certain multi-species bootstrap utterances caused 7-8
+    minute hangs requiring a manual kill. Simulates the timeout directly
+    (rather than waiting out a real 30s timeout in the test suite) by having
+    the parser itself raise LLMInvokeTimeout — invoke_with_timeout's own
+    real-timed behavior is separately proven in test_llm_invoke.py.
+    """
+    from recommender.llm_invoke import LLMInvokeTimeout
+
+    def _hangs(_payload):
+        raise LLMInvokeTimeout("LLM call did not return within 120s")
+
+    with pytest.raises(BootstrapIntakeParseError, match="took too long"):
+        parse_bootstrap_intake(RunnableLambda(_hangs), "trick room with Indeedee-F")
+
+
 def test_include_raw_parsing_error_is_observable():
     parser = RunnableLambda(
         lambda _: {"raw": object(), "parsed": None, "parsing_error": ValueError("bad")}

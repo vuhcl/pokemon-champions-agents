@@ -8,6 +8,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
+from recommender.llm_invoke import LLMInvokeTimeout, invoke_with_timeout
 from recommender.state import (
     ArchetypeChangePayload,
     ComparePayload,
@@ -388,13 +389,14 @@ def parse_turn_intent(
     """Invoke an injected parser and convert output to a classify_pending result dict."""
 
     try:
-        result = parser.invoke(
+        result = invoke_with_timeout(
+            parser,
             {
                 "user_text": user_text,
                 "pending_kind": pending_kind,
                 "pending_context": pending_context,
                 "roster_summary": roster_summary,
-            }
+            },
         )
         if isinstance(result, dict) and {
             "raw",
@@ -415,6 +417,16 @@ def parse_turn_intent(
         return {
             "turn_intent": "pending_response",
             "turn_payload": PendingResponsePayload(message=CLASSIFY_FAIL_USER_MSG),
+        }
+    except LLMInvokeTimeout:
+        return {
+            "turn_intent": "pending_response",
+            "turn_payload": PendingResponsePayload(
+                message=(
+                    "That took too long to process — please try again, ideally "
+                    "with a shorter or simpler message."
+                )
+            ),
         }
     except (ValidationError, TypeError, ValueError):
         return {
