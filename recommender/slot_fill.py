@@ -1673,6 +1673,47 @@ def _normalize_stat_key(key: object) -> str | None:
     return normalized if normalized in _SPREAD_STATS else None
 
 
+_STAT_FULL_NAMES = {
+    "hp": "hp",
+    "health": "hp",
+    "atk": "atk",
+    "attack": "atk",
+    "def": "def",
+    "defense": "def",
+    "defence": "def",
+    "spa": "spa",
+    "spatk": "spa",
+    "specialattack": "spa",
+    "spd": "spd",
+    "spdef": "spd",
+    "specialdefense": "spd",
+    "specialdefence": "spd",
+    "spe": "spe",
+    "speed": "spe",
+}
+
+
+def parse_stat_reply(reply: str) -> str | None:
+    """Normalize a free-text stat name to a canonical lowercase key, or
+    None if it doesn't match a known stat. Accepts standard abbreviations
+    (case-insensitive, matching this module's spread convention) and a
+    handful of common full names/spellings. Shared by nodes.py (parsing a
+    reallocation-question reply) and turn_intent.py (deterministic
+    single-stat-target extraction from free text) -- moved here rather
+    than one importing from the other, to avoid an awkward cross-layer
+    dependency direction.
+    """
+    normalized = _normalize_stat_key(reply)
+    if normalized is not None:
+        return normalized
+    collapsed = "".join(reply.split()).lower()
+    return _STAT_FULL_NAMES.get(collapsed)
+
+
+def stat_label(stat: str) -> str:
+    return "HP" if stat == "hp" else stat.capitalize()
+
+
 def _normalize_spread_dict(value: object) -> dict[str, int] | None:
     """Normalize an arbitrary stat-keyed dict to canonical lowercase keys.
 

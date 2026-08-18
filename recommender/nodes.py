@@ -655,42 +655,8 @@ def build_gap_fill_context(state: RecommenderState) -> dict[str, str]:
     }
 
 
-_STAT_FULL_NAMES = {
-    "hp": "hp",
-    "health": "hp",
-    "atk": "atk",
-    "attack": "atk",
-    "def": "def",
-    "defense": "def",
-    "defence": "def",
-    "spa": "spa",
-    "spatk": "spa",
-    "specialattack": "spa",
-    "spd": "spd",
-    "spdef": "spd",
-    "specialdefense": "spd",
-    "specialdefence": "spd",
-    "spe": "spe",
-    "speed": "spe",
-}
-
-
-def _parse_stat_reply(reply: str) -> str | None:
-    """Normalize a free-text stat name to a canonical lowercase key, or
-    None if it doesn't match a known stat. Accepts standard abbreviations
-    (case-insensitive, matching this module's spread convention) and a
-    handful of common full names/spellings."""
-    from recommender.slot_fill import _normalize_stat_key
-
-    normalized = _normalize_stat_key(reply)
-    if normalized is not None:
-        return normalized
-    collapsed = "".join(reply.split()).lower()
-    return _STAT_FULL_NAMES.get(collapsed)
-
-
-def _stat_label_for_dispatch(stat: str) -> str:
-    return "HP" if stat == "hp" else stat.capitalize()
+from recommender.slot_fill import parse_stat_reply as _parse_stat_reply
+from recommender.slot_fill import stat_label as _stat_label_for_dispatch
 
 
 def _reask_reallocation(

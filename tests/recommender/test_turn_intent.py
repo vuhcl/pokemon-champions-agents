@@ -1257,3 +1257,95 @@ def test_lock_on_confirmation_does_not_clear_pending():
     assert result["turn_intent"] == "pending_response"
     assert result["turn_payload"]["message"] == _MISMATCH_MSG
     _assert_screen_kept(result)
+
+
+def test_extract_single_stat_target_covers_every_live_phrasing():
+    """Regression, using every real phrase observed live this session
+    (2026-08-18). Confirms the deterministic extractor correctly handles
+    set vs delta semantics, strips a leading option-selection reference so
+    its number isn't mistaken for the stat value, and correctly declines
+    (returns None) for genuinely unsupported or unrelated phrasings rather
+    than guessing.
+    """
+    from recommender.turn_intent import extract_single_stat_target
+
+    assert extract_single_stat_target("2, but make it 5 Spe") == ("spe", 5, False)
+    assert extract_single_stat_target("make it 5 Spe") == ("spe", 5, False)
+    assert extract_single_stat_target("make Spe 5") == ("spe", 5, False)
+    assert extract_single_stat_target("set Spe to 5") == ("spe", 5, False)
+    assert extract_single_stat_target("5 more Spe") == ("spe", 5, True)
+    assert extract_single_stat_target("bump Spe by 5") == ("spe", 5, True)
+    assert extract_single_stat_target("2, but make it 5 Spe instead") == (
+        "spe", 5, False,
+    )
+    # Genuinely unsupported (transfer between two named stats) -- must not
+    # guess which one or silently pick a value.
+    assert extract_single_stat_target("shift all the pts in Def to SpD") is None
+    # Unrelated (no number at all) -- must not misfire on an item edit.
+    assert extract_single_stat_target("use Choice Scarf instead") is None
+
+
+def test_scrambled_full_form_spread_gets_rewritten_to_trustworthy_partial():
+    """Regression for the real live corruption (2026-08-18): the model's
+    full-form value_spread scrambled spd/spa while correctly setting
+    spe=5. Before this fix, that corrupted dict would have been applied
+    directly, or (after the diff-check landed) rejected outright, dead-
+    ending the conversation. Now the deterministic text extraction reads
+    'spe, 5' directly out of the original request and rewrites the
+    extraction to a trustworthy partial form, discarding the model's
+    unreliable computation entirely -- the agent computes the right
+    answer itself instead of asking the user to redo the arithmetic.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {
+                "hp": 32, "atk": 0, "def": 0, "spe": 5, "spa": 29, "spd": 4,
+            },
+            "value_spread_set": None,
+            "value_spread_delta": None,
+            "constraint": None,
+        }
+    )
+    result = classify_pending(
+        "2, but make it 5 Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+    payload = result["turn_payload"]
+    assert payload["value"] is None
+    assert payload["spread_set"] == {"spe": 5}
+    assert payload["spread_delta"] is None
+
+
+def test_genuine_multistat_full_form_is_not_rewritten():
+    """A full-form value_spread paired with text that genuinely implies
+    more than one stat (or none confidently) must be left alone -- not
+    force-rewritten into a possibly-wrong single-stat guess."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {
+                "hp": 32, "atk": 0, "def": 5, "spa": 0, "spd": 24, "spe": 3,
+            },
+            "value_spread_set": None,
+            "value_spread_delta": None,
+            "constraint": None,
+        }
+    )
+    result = classify_pending(
+        "shift all the pts in Def to SpD",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    payload = result["turn_payload"]
+    assert payload["spread_set"] is None
+    assert payload["spread_delta"] is None
+    assert payload["value"] == {
+        "hp": 32, "atk": 0, "def": 5, "spa": 0, "spd": 24, "spe": 3,
+    }

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any, Literal, get_args
 
 from langchain_core.prompts import ChatPromptTemplate
@@ -420,6 +421,69 @@ class TurnIntentParseError(ValueError):
     """A model/provider result could not be validated as a turn-intent extraction."""
 
 
+_LEADING_OPTION_REF_RE = re.compile(
+    r"^\s*(?:option\s+)?\d+\s*(?:,|\bbut\b)\s*", re.IGNORECASE
+)
+_DELTA_INDICATOR_WORDS = frozenset({"more", "extra", "additional", "by"})
+
+
+def extract_single_stat_target(text: str) -> tuple[str, int, bool] | None:
+    """Deterministically extract an explicit 'set/add this one stat' target
+    from free text (e.g. 'make it 5 Spe', 'set Spe to 5', 'make Spe 5',
+    '2, but make it 5 Spe', '5 more Spe', 'bump Spe by 5'). Returns
+    (stat, value, is_delta), or None if the text doesn't confidently
+    contain exactly one recognizable stat name and exactly one number that
+    plausibly go together.
+
+    Exists specifically because the model has been shown live, twice, to
+    unreliably compute a full derived six-stat spread for exactly this
+    phrasing shape -- scrambling stats the user never mentioned -- even
+    though the one fact that matters (which stat, what value) is trivially
+    and deterministically readable straight out of the text. There's no
+    reason to trust model arithmetic here when the code can just read the
+    number directly and let the existing merge/reallocation machinery
+    (apply_partial_spread, _auto_reallocate_spread) do the actual
+    computation.
+    """
+    # Strip a leading option-selection reference ("2, " / "2 but" /
+    # "option 2,") so its number isn't mistaken for the stat's target value.
+    stripped = _LEADING_OPTION_REF_RE.sub("", text)
+    tokens = re.findall(r"[A-Za-z]+|\d+", stripped)
+    numbers = [(i, int(tok)) for i, tok in enumerate(tokens) if tok.isdigit()]
+    if len(numbers) != 1:
+        return None
+    num_idx, num_value = numbers[0]
+
+    from recommender.slot_fill import parse_stat_reply
+
+    stat_hits: list[int] = []
+    distinct_stats: set[str] = set()
+    for i, tok in enumerate(tokens):
+        if tok.isdigit():
+            continue
+        stat = parse_stat_reply(tok)
+        if stat is not None:
+            stat_hits.append(i)
+            distinct_stats.add(stat)
+    for i in range(len(tokens) - 1):
+        if tokens[i].isdigit() or tokens[i + 1].isdigit():
+            continue
+        stat = parse_stat_reply(f"{tokens[i]} {tokens[i + 1]}")
+        if stat is not None:
+            stat_hits.append(i)
+            distinct_stats.add(stat)
+
+    if len(distinct_stats) != 1 or not stat_hits:
+        return None
+    stat = next(iter(distinct_stats))
+    if min(abs(num_idx - i) for i in stat_hits) > 4:
+        return None
+
+    window = tokens[max(0, num_idx - 3) : num_idx + 4]
+    is_delta = any(tok.lower() in _DELTA_INDICATOR_WORDS for tok in window)
+    return stat, num_value, is_delta
+
+
 def _populated(value: object) -> bool:
     """True if an optional structured field is meaningfully set.
 
@@ -635,6 +699,28 @@ def parse_turn_intent(
             "turn_intent": "pending_response",
             "turn_payload": PendingResponsePayload(message=CLASSIFY_FAIL_USER_MSG),
         }
+
+    if (
+        extraction.field == "spread"
+        and _populated(extraction.value_spread)
+        and not _populated(extraction.value_spread_set)
+        and not _populated(extraction.value_spread_delta)
+    ):
+        # The model gave only a full-replace computation, which has been
+        # shown live, twice, to scramble stats the user never mentioned.
+        # Try to read the one fact that actually matters directly out of
+        # the text instead of trusting that computation -- this converts
+        # an unreliable full-form guess into a trustworthy partial-form
+        # instruction (or leaves it alone if the text doesn't confidently
+        # yield a single stat+value, e.g. a genuine multi-stat request).
+        target = extract_single_stat_target(user_text)
+        if target is not None:
+            stat, num_value, is_delta = target
+            object.__setattr__(extraction, "value_spread", None)
+            if is_delta:
+                object.__setattr__(extraction, "value_spread_delta", {stat: num_value})
+            else:
+                object.__setattr__(extraction, "value_spread_set", {stat: num_value})
 
     if _has_compound_edit_and_compare_signal(extraction):
         second = "comparison" if extraction.turn_intent == "compare" else "selection"
