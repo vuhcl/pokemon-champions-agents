@@ -1640,6 +1640,32 @@ def discover_single_locked(state: RecommenderState) -> dict:
     )
     merge_need_resolved(context)
     context.notices = mega_ceiling_notices(state)
+
+    # Give single-locked candidates the same essential/missing-provider gap
+    # priority signal multi_locked candidates already get (ADR-026 Amendment
+    # 2026-08-17a). collect_locked_anchor_contexts and
+    # assess_condition_resilience are purely mechanism/role-classification
+    # based -- confirmed zero calc dependency -- so this doesn't touch or
+    # weaken single_locked's existing calc-independent resilience (need-
+    # based candidates still surface even when threat-discovery/calc is
+    # degraded or unavailable; only the *priority signal*, not candidate
+    # availability, changes here).
+    if context.annotated_candidates:
+        from recommender.condition_resilience import assess_condition_resilience
+        from recommender.team_candidates import (
+            annotate_composition_impact,
+            collect_locked_anchor_contexts,
+        )
+
+        locked_contexts = collect_locked_anchor_contexts(state)
+        resilience = assess_condition_resilience(locked_contexts)
+        context.annotated_candidates = annotate_composition_impact(
+            context.annotated_candidates,
+            state,
+            locked_anchors=locked_contexts,
+            condition_resilience=resilience,
+        )
+
     if context.threat_discovery_status == "degraded":
         if not context.annotated_candidates:
             return {
@@ -1831,6 +1857,13 @@ def discover_multi_locked(
             "candidate_discovery_error": threat_discovery.error,
             "pending_presentation": None,
         }
+    # "degraded" (calc unavailable, fell back to static type-effectiveness)
+    # still produces usable candidates -- surface the error alongside the
+    # real presentation rather than silently dropping the signal, matching
+    # discover_single_locked's existing behavior for the same status.
+    degraded_error = (
+        threat_discovery.error if threat_discovery.status == "degraded" else None
+    )
 
     merged = merge_multi_locked_candidates(
         state,
@@ -1877,16 +1910,16 @@ def discover_multi_locked(
         regulation=state.get("regulation_mod") or "champions-reg-mb",
     )
     if not ranked:
-        return {
-            **signals,
-            "candidate_discovery_error": CandidateDiscoveryError(
-                kind="no_candidates",
-                stage="candidate_merge",
-                message="No eligible multi-locked candidates",
-                retryable=False,
-            ),
-            "pending_presentation": None,
-        }
+        # Mirrors discover_single_locked's leniency exactly: try an
+        # archetype-driven proposal before giving up outright, rather than
+        # hard-failing. Simple unconditional passthrough, matching the
+        # proven, already-tested legacy pattern -- not adding extra
+        # untested logic on top. Uses real, freshly-computed `signals`
+        # here (not zeroed/cleared the way discover_single_locked's own
+        # fallback does) -- a strict improvement, not just parity.
+        from recommender.propose import fill_team_draft
+
+        return {**signals, **fill_team_draft({**state, **signals})}
     terminal = run_slot_fill_terminal(
         SlotFillContext(
             anchor=None,
@@ -1901,7 +1934,7 @@ def discover_multi_locked(
     return {
         **signals,
         **terminal.state_updates,
-        "candidate_discovery_error": None,
+        "candidate_discovery_error": degraded_error,
     }
 
 
