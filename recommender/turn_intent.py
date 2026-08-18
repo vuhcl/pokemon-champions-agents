@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any, Literal, get_args
 
 from langchain_core.prompts import ChatPromptTemplate
@@ -100,20 +101,23 @@ Rules:
   pending_response to ask which Pokémon to use for a named strategy pivot.
 - Domain abbreviations always mean their competitive-Pokémon sense, never an unrelated
   franchise reference: TR is Trick Room, never Team Rocket.
-- Ambiguous or under-specified phrasing (bare "no", "different spread" with no value, clear
-  field+value but unclear field_only vs regenerate) must use pending_response with a concrete
-  clarifying question. When field+value are clear but edit_scope is not, ask whether to
-  change only that field or regenerate the set.
+- Ambiguous or under-specified phrasing (bare "no", "different spread" with no value) must use
+  pending_response with a concrete clarifying question.
 - Prefer pending_response over continue when unsure.
 - pending_response requires a nonempty message.
 - rejection requires species.
 - constraint requires type, predicate, scope (per_slot|team_wide), groundedness.
 - select_build_option requires nonempty option_ids.
 - compare requires option_ids with length >= 2.
-- edit requires field (ability|item|moves|nature|spread), edit_scope (field_only|regenerate),
-  and exactly one value slot: value_text for ability/item/nature, value_moves for moves,
-  value_spread for spread. Map moveset to moves if needed. Leave constraint null/omit for
-  edit. Never put field_only/regenerate in constraint scope.
+- edit requires field (ability|item|moves|nature|spread) and exactly one value slot:
+  value_text for ability/item/nature, value_moves for moves, value_spread/value_spread_set/
+  value_spread_delta for spread. Map moveset to moves if needed. Leave constraint null/omit
+  for edit. Never put field_only/regenerate in constraint scope.
+  edit_scope: default to field_only (change only this field, leave everything else alone)
+  unless the user explicitly asks to rebuild/regenerate the whole set around the new value
+  (e.g. "rebuild it around X", "regenerate the set with Y"). Do not ask a clarifying question
+  about scope -- field_only is virtually always correct, and any resulting inconsistency is
+  caught downstream, not something to preempt by asking.
   Examples:
   - "run Modest, just the nature" -> edit, field=nature, value_text=Modest,
     edit_scope=field_only
@@ -195,6 +199,42 @@ class TurnIntentExtraction(BaseModel):
         default=None,
         description="Edit value for EV/IV spread as six-stat map",
     )
+    value_spread_set: dict[str, int] | None = Field(
+        default=None,
+        description=(
+            "Partial spread edit: set only the named stat(s) to this exact "
+            "value, leaving all others unchanged. Use for phrasing like "
+            "'make Spe 5' or 'set Speed to 5'. Alternative to value_spread "
+            "(full replace) -- populate at most one of value_spread / "
+            "value_spread_set / value_spread_delta for a spread edit. "
+            "This is a spread-only edit: do NOT ask about nature and do "
+            "NOT treat this as ambiguous scope -- edit_scope should be "
+            "'field_only' unless the user separately asked to change "
+            "nature too. Even though this menu may bundle spread and "
+            "nature together as one option group, a bare stat instruction "
+            "with no nature mentioned is a pure spread edit; any resulting "
+            "EV-budget conflict is caught by downstream validation, not "
+            "something to ask the user about upfront."
+        ),
+    )
+    value_spread_delta: dict[str, int] | None = Field(
+        default=None,
+        description=(
+            "Partial spread edit: add this signed amount to the named "
+            "stat(s), leaving all others unchanged. Use for phrasing like "
+            "'5 more Spe' or 'a bit more Speed'. Alternative to value_spread "
+            "(full replace) -- populate at most one of value_spread / "
+            "value_spread_set / value_spread_delta for a spread edit. "
+            "This is a spread-only edit: do NOT ask about nature and do "
+            "NOT treat this as ambiguous scope -- edit_scope should be "
+            "'field_only' unless the user separately asked to change "
+            "nature too. Even though this menu may bundle spread and "
+            "nature together as one option group, a bare stat instruction "
+            "with no nature mentioned is a pure spread edit; any resulting "
+            "EV-budget conflict is caught by downstream validation, not "
+            "something to ask the user about upfront."
+        ),
+    )
     option_ids: list[str] | None = Field(
         default=None,
         description="select_build_option / compare: pending option ids",
@@ -235,15 +275,23 @@ class TurnIntentExtraction(BaseModel):
             raw_field = self.field
             if raw_field == "moveset":
                 raw_field = "moves"
-            if (
-                raw_field is None
-                or raw_field not in _EDIT_FIELDS
-                or self.edit_scope not in _EDIT_SCOPES
-            ):
+            if raw_field is None or raw_field not in _EDIT_FIELDS:
                 raise ValueError(
-                    "edit requires field (ability|item|moves|nature|spread) and "
-                    "edit_scope (field_only|regenerate)"
+                    "edit requires field (ability|item|moves|nature|spread)"
                 )
+            if self.edit_scope not in _EDIT_SCOPES:
+                if self.edit_scope is not None:
+                    raise ValueError(
+                        "edit_scope must be field_only, regenerate, or omitted "
+                        f"(got {self.edit_scope!r})"
+                    )
+                # Confirmed live: the model reliably omits edit_scope entirely
+                # for otherwise well-formed edits, rather than getting it
+                # wrong -- field_only is the safe default (change only this
+                # field), and an explicit "regenerate" from the model (when
+                # the user actually asks for a rebuild) is never overridden
+                # here, since this branch only fires when edit_scope is None.
+                object.__setattr__(self, "edit_scope", "field_only")
             object.__setattr__(self, "field", raw_field)
             # Tolerate garbage constraint objects from the model (observed live).
             if not _edit_value_slot_ok(self):
@@ -296,13 +344,49 @@ class TurnIntentExtraction(BaseModel):
         return self
 
 
-_EDIT_VALUE_FIELDS = ("field", "value_text", "value_moves", "value_spread")
+_EDIT_VALUE_FIELDS = (
+    "field",
+    "value_text",
+    "value_moves",
+    "value_spread",
+    "value_spread_set",
+    "value_spread_delta",
+)
+
+
+def _is_select_plus_partial_spread(extraction: TurnIntentExtraction) -> bool:
+    """True when a select/compare-shaped signal is paired with *specifically*
+    a partial spread edit (set or delta) and nothing else edit-shaped.
+
+    This is the one compound shape that's actually resolvable rather than
+    genuinely ambiguous: "spread_nature:3, but with 5 Spe" means apply the
+    selection, then adjust the resulting spread -- an order-dependent
+    two-step operation, not a competing pair of alternatives to choose
+    between. Full-replace spread edits and ability/item/nature/moves edits
+    combined with a selection remain unsupported and still route to the
+    clarifying question, since there's no established "apply in what order"
+    reading for those the way there is for a stat nudge on top of a pick.
+    """
+    has_partial_spread = _populated(extraction.value_spread_set) or _populated(
+        extraction.value_spread_delta
+    )
+    # value_spread (full-replace) alongside a valid partial form is not
+    # counted as a conflicting "other" edit signal -- consistent with
+    # _edit_value_slot_ok's same leniency: confirmed live, the model can
+    # populate both for one edit, and the partial form is preferred
+    # downstream regardless, so a populated value_spread here shouldn't
+    # disqualify what's otherwise the resolvable select+partial-spread shape.
+    has_other_edit_signal = any(
+        _populated(getattr(extraction, f)) for f in ("value_text", "value_moves")
+    )
+    return has_partial_spread and not has_other_edit_signal
 
 
 def _has_compound_edit_and_compare_signal(extraction: TurnIntentExtraction) -> bool:
     """True when a single extraction carries both edit- and compare/select-
     shaped fields at once, regardless of which single turn_intent was
-    ultimately chosen.
+    ultimately chosen, AND the combination isn't the one resolvable shape
+    (select + partial spread adjustment) handled separately.
 
     The schema forces exactly one turn_intent per turn, but nothing prevents
     the model from also populating fields for a second intent it recognized
@@ -310,13 +394,24 @@ def _has_compound_edit_and_compare_signal(extraction: TurnIntentExtraction) -> b
     compares" — an edit plus a compare). Without this check, one half of a
     genuinely compound request is silently discarded with no indication
     anything was skipped. Fires on option_ids (shared by select_build_option
-    and compare) combined with any populated edit-value field.
+    and compare) combined with any populated edit-value field -- except the
+    select + partial-spread combination, which is resolvable and handled by
+    _is_select_plus_partial_spread instead of being flagged here. A compare
+    (not select) combined with a partial spread edit still fires here and is
+    rejected -- comparing options and simultaneously editing one is still
+    genuinely ambiguous, unlike selecting one and adjusting it.
     """
     has_compare_signal = bool(extraction.option_ids)
     has_edit_signal = any(
-        getattr(extraction, f) is not None for f in _EDIT_VALUE_FIELDS
+        _populated(getattr(extraction, f)) for f in _EDIT_VALUE_FIELDS
     )
-    return has_compare_signal and has_edit_signal
+    if not (has_compare_signal and has_edit_signal):
+        return False
+    if extraction.turn_intent != "compare" and _is_select_plus_partial_spread(
+        extraction
+    ):
+        return False
+    return True
 
 
 TurnIntentParser = Runnable[dict[str, str], Any]
@@ -326,19 +421,134 @@ class TurnIntentParseError(ValueError):
     """A model/provider result could not be validated as a turn-intent extraction."""
 
 
+_LEADING_OPTION_REF_RE = re.compile(
+    r"^\s*(?:option\s+)?\d+\s*(?:,|\bbut\b)\s*", re.IGNORECASE
+)
+_DELTA_INDICATOR_WORDS = frozenset({"more", "extra", "additional", "by"})
+
+
+def extract_single_stat_target(text: str) -> tuple[str, int, bool] | None:
+    """Deterministically extract an explicit 'set/add this one stat' target
+    from free text (e.g. 'make it 5 Spe', 'set Spe to 5', 'make Spe 5',
+    '2, but make it 5 Spe', '5 more Spe', 'bump Spe by 5'). Returns
+    (stat, value, is_delta), or None if the text doesn't confidently
+    contain exactly one recognizable stat name and exactly one number that
+    plausibly go together.
+
+    Exists specifically because the model has been shown live, twice, to
+    unreliably compute a full derived six-stat spread for exactly this
+    phrasing shape -- scrambling stats the user never mentioned -- even
+    though the one fact that matters (which stat, what value) is trivially
+    and deterministically readable straight out of the text. There's no
+    reason to trust model arithmetic here when the code can just read the
+    number directly and let the existing merge/reallocation machinery
+    (apply_partial_spread, _auto_reallocate_spread) do the actual
+    computation.
+    """
+    # Strip a leading option-selection reference ("2, " / "2 but" /
+    # "option 2,") so its number isn't mistaken for the stat's target value.
+    stripped = _LEADING_OPTION_REF_RE.sub("", text)
+    tokens = re.findall(r"[A-Za-z]+|\d+", stripped)
+    numbers = [(i, int(tok)) for i, tok in enumerate(tokens) if tok.isdigit()]
+    if len(numbers) != 1:
+        return None
+    num_idx, num_value = numbers[0]
+
+    from recommender.slot_fill import parse_stat_reply
+
+    stat_hits: list[int] = []
+    distinct_stats: set[str] = set()
+    for i, tok in enumerate(tokens):
+        if tok.isdigit():
+            continue
+        stat = parse_stat_reply(tok)
+        if stat is not None:
+            stat_hits.append(i)
+            distinct_stats.add(stat)
+    for i in range(len(tokens) - 1):
+        if tokens[i].isdigit() or tokens[i + 1].isdigit():
+            continue
+        stat = parse_stat_reply(f"{tokens[i]} {tokens[i + 1]}")
+        if stat is not None:
+            stat_hits.append(i)
+            distinct_stats.add(stat)
+
+    if len(distinct_stats) != 1 or not stat_hits:
+        return None
+    stat = next(iter(distinct_stats))
+    if min(abs(num_idx - i) for i in stat_hits) > 4:
+        return None
+
+    window = tokens[max(0, num_idx - 3) : num_idx + 4]
+    is_delta = any(tok.lower() in _DELTA_INDICATOR_WORDS for tok in window)
+    return stat, num_value, is_delta
+
+
+def _populated(value: object) -> bool:
+    """True if an optional structured field is meaningfully set.
+
+    Deliberately truthy, not `is not None`: models are inconsistent about
+    leaving an unset optional dict/list field as null vs an empty container
+    (`{}`/`[]`). An `is not None` check treats an accidentally-empty `{}`
+    as "populated," which silently breaks validation for every edit type,
+    not just the field the empty container happens to belong to -- since
+    _edit_value_slot_ok is one shared function checked for every edit.
+    Confirmed live: a plain item-swap edit failed to parse after
+    value_spread_set/value_spread_delta were added, because the model left
+    one of them as `{}` rather than `null` and the ability/item/nature
+    validation branch checks both fields are None regardless of which
+    field is actually being edited.
+    """
+    return bool(value)
+
+
 def _edit_value_slot_ok(extraction: TurnIntentExtraction) -> bool:
-    """Exactly the value slot for ``field`` is filled; other edit value slots empty."""
+    """Exactly the value slot(s) for ``field`` are filled; other value slots empty.
+
+    For field == "spread": at most one of value_spread (full replace),
+    value_spread_set (partial set), value_spread_delta (partial add) may be
+    populated -- they're alternatives, never combined in one edit.
+    """
 
     field = extraction.field
     text = extraction.value_text
     moves = extraction.value_moves
     spread = extraction.value_spread
+    spread_set = extraction.value_spread_set
+    spread_delta = extraction.value_spread_delta
     if field in {"ability", "item", "nature"}:
-        return text is not None and moves is None and spread is None
+        return (
+            text is not None
+            and not _populated(moves)
+            and not _populated(spread)
+            and not _populated(spread_set)
+            and not _populated(spread_delta)
+        )
     if field == "moves":
-        return moves is not None and text is None and spread is None
+        return (
+            _populated(moves)
+            and text is None
+            and not _populated(spread)
+            and not _populated(spread_set)
+            and not _populated(spread_delta)
+        )
     if field == "spread":
-        return spread is not None and text is None and moves is None
+        partial_forms = [v for v in (spread_set, spread_delta) if _populated(v)]
+        if len(partial_forms) > 1:
+            # Ambiguous between set and delta specifically -- no basis to
+            # prefer one over the other the way we do for partial-vs-full.
+            return False
+        has_spread_value = bool(partial_forms) or _populated(spread)
+        # A populated full-replace value_spread alongside a valid partial
+        # form is NOT rejected as ambiguous: confirmed live, the model can
+        # populate both for the same edit, and the full-replace attempt is
+        # demonstrably less trustworthy in that case (observed: it reused
+        # unrelated values from a different option's spread rather than
+        # correctly deriving from the actual base). _edit_value already
+        # prefers spread_set/spread_delta over value_spread when both are
+        # present downstream, so this doesn't need to pick here -- it only
+        # needs to confirm at least one usable spread value exists.
+        return has_spread_value and text is None and not _populated(moves)
     return False
 
 
@@ -348,6 +558,9 @@ def _edit_value(extraction: TurnIntentExtraction) -> object:
         return extraction.value_text
     if field == "moves":
         return extraction.value_moves
+    # field == "spread": exactly one of the three forms is populated,
+    # already enforced by _edit_value_slot_ok. Full-replace stays in
+    # `value`; partial forms are carried separately by _payload_for.
     return extraction.value_spread
 
 
@@ -356,15 +569,23 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
     if intent == "pending_response":
         return PendingResponsePayload(message=extraction.message.strip())  # type: ignore[union-attr]
     if intent == "edit":
-        return EditPayload(
-            field=extraction.field,  # type: ignore[arg-type]
-            value=_edit_value(extraction),
-            scope=extraction.edit_scope,  # type: ignore[arg-type]
-        )
+        payload: dict[str, Any] = {
+            "field": extraction.field,
+            "value": _edit_value(extraction),
+            "scope": extraction.edit_scope,
+        }
+        if extraction.field == "spread":
+            payload["spread_set"] = extraction.value_spread_set
+            payload["spread_delta"] = extraction.value_spread_delta
+        return EditPayload(**payload)  # type: ignore[typeddict-item]
     if intent == "select_build_option":
-        return SelectBuildPayload(
-            option_ids=tuple(str(i).strip() for i in (extraction.option_ids or []))
-        )
+        select_payload: dict[str, Any] = {
+            "option_ids": tuple(str(i).strip() for i in (extraction.option_ids or []))
+        }
+        if _is_select_plus_partial_spread(extraction):
+            select_payload["spread_set"] = extraction.value_spread_set
+            select_payload["spread_delta"] = extraction.value_spread_delta
+        return SelectBuildPayload(**select_payload)  # type: ignore[typeddict-item]
     if intent == "compare":
         return ComparePayload(
             option_ids=tuple(str(i).strip() for i in (extraction.option_ids or []))
@@ -479,16 +700,66 @@ def parse_turn_intent(
             "turn_payload": PendingResponsePayload(message=CLASSIFY_FAIL_USER_MSG),
         }
 
+    if (
+        extraction.field == "spread"
+        and _populated(extraction.value_spread)
+        and not _populated(extraction.value_spread_set)
+        and not _populated(extraction.value_spread_delta)
+    ):
+        # The model gave only a full-replace computation, which has been
+        # shown live, twice, to scramble stats the user never mentioned.
+        # Try to read the one fact that actually matters directly out of
+        # the text instead of trusting that computation -- this converts
+        # an unreliable full-form guess into a trustworthy partial-form
+        # instruction (or leaves it alone if the text doesn't confidently
+        # yield a single stat+value, e.g. a genuine multi-stat request).
+        target = extract_single_stat_target(user_text)
+        if target is not None:
+            stat, num_value, is_delta = target
+            object.__setattr__(extraction, "value_spread", None)
+            if is_delta:
+                object.__setattr__(extraction, "value_spread_delta", {stat: num_value})
+            else:
+                object.__setattr__(extraction, "value_spread_set", {stat: num_value})
+
     if _has_compound_edit_and_compare_signal(extraction):
+        second = "comparison" if extraction.turn_intent == "compare" else "selection"
         return {
             "turn_intent": "pending_response",
             "turn_payload": PendingResponsePayload(
                 message=(
-                    "That sounds like two requests in one — an edit and a "
-                    "comparison. Which would you like first?"
+                    f"That sounds like two requests in one — an edit and a "
+                    f"{second}. Which would you like first?"
                 )
             ),
         }
+
+    # The resolvable select+partial-spread compound can arrive with EITHER
+    # turn_intent="select_build_option" or turn_intent="edit" -- confirmed
+    # live: the model sometimes picks "edit" as its literal intent even
+    # while also populating option_ids for the same request ("2, but make
+    # it 5 Spe instead"). _payload_for's "edit" branch doesn't attach
+    # option_ids at all, so without this, the selection component would be
+    # silently dropped even though the compound-signal check above already
+    # correctly identified this as resolvable, not ambiguous. Force the
+    # select_build_option treatment whenever the shape is right, regardless
+    # of which literal turn_intent value the model happened to choose.
+    if extraction.option_ids and _is_select_plus_partial_spread(extraction):
+        select_intent = "select_build_option"
+        select_payload: dict[str, Any] = {
+            "option_ids": tuple(str(i).strip() for i in extraction.option_ids)
+        }
+        if _populated(extraction.value_spread_set):
+            select_payload["spread_set"] = extraction.value_spread_set
+        if _populated(extraction.value_spread_delta):
+            select_payload["spread_delta"] = extraction.value_spread_delta
+        out = {
+            "turn_intent": select_intent,
+            "turn_payload": SelectBuildPayload(**select_payload),  # type: ignore[typeddict-item]
+        }
+        if had_pending:
+            out.update(_clear_pending_keys())
+        return out
 
     out: dict[str, Any] = {"turn_intent": extraction.turn_intent}
     payload = _payload_for(extraction)

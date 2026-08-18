@@ -1655,6 +1655,147 @@ _EDIT_SLOT_ATTR = {
     "spread": "spread",
 }
 
+_SPREAD_STATS = ("hp", "atk", "def", "spa", "spd", "spe")
+
+
+def _normalize_stat_key(key: object) -> str | None:
+    """Normalize a stat key to canonical lowercase form ('Spe' -> 'spe').
+
+    Model output uses conventional capitalized abbreviations (HP, Atk, Def,
+    SpA, SpD, Spe) -- confirmed live, consistently, across real extractions
+    -- while this module's internal representation is always lowercase.
+    Returns None for anything that doesn't normalize to a known stat, so
+    callers can reject rather than silently drop or misapply a value.
+    """
+    if not isinstance(key, str):
+        return None
+    normalized = key.strip().lower()
+    return normalized if normalized in _SPREAD_STATS else None
+
+
+_STAT_FULL_NAMES = {
+    "hp": "hp",
+    "health": "hp",
+    "atk": "atk",
+    "attack": "atk",
+    "def": "def",
+    "defense": "def",
+    "defence": "def",
+    "spa": "spa",
+    "spatk": "spa",
+    "specialattack": "spa",
+    "spd": "spd",
+    "spdef": "spd",
+    "specialdefense": "spd",
+    "specialdefence": "spd",
+    "spe": "spe",
+    "speed": "spe",
+}
+
+
+def parse_stat_reply(reply: str) -> str | None:
+    """Normalize a free-text stat name to a canonical lowercase key, or
+    None if it doesn't match a known stat. Accepts standard abbreviations
+    (case-insensitive, matching this module's spread convention) and a
+    handful of common full names/spellings. Shared by nodes.py (parsing a
+    reallocation-question reply) and turn_intent.py (deterministic
+    single-stat-target extraction from free text) -- moved here rather
+    than one importing from the other, to avoid an awkward cross-layer
+    dependency direction.
+    """
+    normalized = _normalize_stat_key(reply)
+    if normalized is not None:
+        return normalized
+    collapsed = "".join(reply.split()).lower()
+    return _STAT_FULL_NAMES.get(collapsed)
+
+
+def stat_label(stat: str) -> str:
+    return "HP" if stat == "hp" else stat.capitalize()
+
+
+def _normalize_spread_dict(value: object) -> dict[str, int] | None:
+    """Normalize an arbitrary stat-keyed dict to canonical lowercase keys.
+
+    Returns None (never raises) if any key doesn't normalize to a known
+    stat, any value isn't numeric, or two keys normalize to the same stat
+    (e.g. both 'spe' and 'Spe' present) -- same fail-closed contract as
+    every other spread-value guard in this module.
+    """
+    if not isinstance(value, dict):
+        return None
+    result: dict[str, int] = {}
+    try:
+        for key, val in value.items():
+            stat = _normalize_stat_key(key)
+            if stat is None or stat in result:
+                return None
+            result[stat] = int(val)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+    return result
+
+
+def _coerce_full_spread(value: object) -> dict[str, int] | None:
+    """Full six-stat spread dict from a full-replace edit value.
+
+    Returns None (never raises) on anything malformed -- missing stat keys,
+    wrong type, non-numeric values. Previously this coercion used a bare
+    dict comprehension (`value[stat]` for each stat) with no guard, which
+    raised an uncaught KeyError on a partial/malformed dict rather than
+    degrading gracefully to UnresolvedSlotRefinement the way every other
+    edit-value failure in this module does. Also previously didn't
+    normalize stat-key casing at all -- confirmed live, this silently
+    rejected every real model extraction, since the model consistently
+    emits capitalized abbreviations, not this module's lowercase
+    convention.
+    """
+    normalized = _normalize_spread_dict(value)
+    if normalized is None or set(normalized) != set(_SPREAD_STATS):
+        return None
+    return normalized
+
+
+def apply_partial_spread(
+    base: dict[str, int],
+    *,
+    set_stats: dict[str, int] | None = None,
+    delta_stats: dict[str, int] | None = None,
+) -> dict[str, int] | None:
+    """Apply a partial set and/or delta onto a full base spread.
+
+    set_stats: named stats become exactly this value.
+    delta_stats: named stats get this signed amount added to whatever
+    they end up being after set_stats is applied (set then delta, in that
+    order, so "set Spe to 5, then add 3 more" composes predictably if both
+    were ever populated -- though _edit_value_slot_ok currently only ever
+    allows one form at a time per edit).
+
+    set_stats/delta_stats keys are normalized case-insensitively (model
+    output uses conventional capitalized abbreviations); `base` is always
+    this module's own internal representation and is never normalized.
+
+    Returns None (never raises) on an unknown stat name or non-numeric
+    value, so callers can degrade to UnresolvedSlotRefinement/
+    slot_commit_error instead of crashing on a malformed model output.
+    """
+    normalized_set = _normalize_spread_dict(set_stats) if set_stats else {}
+    if set_stats and normalized_set is None:
+        return None
+    normalized_delta = _normalize_spread_dict(delta_stats) if delta_stats else {}
+    if delta_stats and normalized_delta is None:
+        return None
+
+    result = dict(base)
+    try:
+        for stat, val in normalized_set.items():
+            result[stat] = val
+        for stat, val in normalized_delta.items():
+            result[stat] = int(result[stat]) + val
+    except (TypeError, ValueError):
+        return None
+    return result
+
 
 def apply_provisional_overrides(
     current: ProvisionalSlot,
@@ -1693,16 +1834,13 @@ def apply_provisional_overrides(
                 )
             attr_value: Any = list(value)
         elif field == "spread":
-            if not isinstance(value, dict):
+            attr_value = _coerce_full_spread(value)
+            if attr_value is None:
                 return UnresolvedSlotRefinement(
                     schema_version=1,
                     intent=intent,
                     unresolved_fields=("spread",),
                 )
-            attr_value = {
-                stat: int(value[stat])
-                for stat in ("hp", "atk", "def", "spa", "spd", "spe")
-            }
         else:
             attr_value = value
         seed = replace(seed, **{slot_attr: Attr(value=attr_value, locked=True)})
@@ -1759,13 +1897,13 @@ def revise_provisional_slot(
             )
         attr_value: Any = list(value)
     elif field == "spread":
-        if not isinstance(value, dict):
+        attr_value = _coerce_full_spread(value)
+        if attr_value is None:
             return UnresolvedSlotRefinement(
                 schema_version=1,
                 intent=intent,
                 unresolved_fields=("spread",),
             )
-        attr_value = {stat: int(value[stat]) for stat in ("hp", "atk", "def", "spa", "spd", "spe")}
     else:
         attr_value = value
 

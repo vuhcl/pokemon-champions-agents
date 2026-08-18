@@ -274,6 +274,308 @@ def test_compound_signal_check_fires_regardless_of_which_intent_won():
     assert "two requests" in result["turn_payload"]["message"]
 
 
+def test_select_plus_partial_spread_resolves_instead_of_asking():
+    """Regression: 'spread_nature:3, but with 5 Spe' (2026-08-17 handoff item
+    3). Previously the model's edit half was either dropped silently (no
+    value_spread_delta field existed to represent it) or, once represented,
+    would have hit the same clarifying-question path as any other compound
+    signal. This specific combination -- select + partial spread -- is
+    resolvable, not ambiguous, and must combine into one payload instead of
+    asking the user to pick one.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": [_CONFIRM_IDS[2]],
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread_delta": {"spe": 5},
+        }
+    )
+    result = classify_pending(
+        "spread_nature:3, but with 5 Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[2],)
+    assert payload["spread_delta"] == {"spe": 5}
+
+
+def test_select_plus_full_spread_replace_still_asks():
+    """A selection combined with a *full* spread replace remains unsupported
+    and still routes to the clarifying question -- only the partial
+    (set/delta) form is resolvable. There's no established 'apply in what
+    order' reading for two competing full spreads the way there is for a
+    selection plus a stat nudge on top of it."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": [_CONFIRM_IDS[2]],
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {
+                "hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 8,
+            },
+        }
+    )
+    result = classify_pending(
+        "spread_nature:3 but make the spread 32/0/1/5/25/8",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert "two requests" in result["turn_payload"]["message"]
+    assert "selection" in result["turn_payload"]["message"]
+
+
+def test_compare_plus_partial_spread_still_asks():
+    """Comparing options and simultaneously editing one remains genuinely
+    ambiguous (which option does the edit apply to?), unlike selecting one
+    and adjusting it -- must still be rejected, not silently resolved."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "compare",
+            "option_ids": [_CONFIRM_IDS[1], _CONFIRM_IDS[2]],
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread_delta": {"spe": 5},
+        }
+    )
+    result = classify_pending(
+        "compare 2 and 3, but with 5 more Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert "two requests" in result["turn_payload"]["message"]
+    assert "comparison" in result["turn_payload"]["message"]
+
+
+def test_bare_partial_spread_edit_works_standalone():
+    """A partial spread edit with no selection involved at all -- 'add 5
+    Spe' to the currently-displayed build -- must work as a plain edit,
+    not require pairing with a selection."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread_delta": {"spe": 5},
+        }
+    )
+    result = classify_pending(
+        "add 5 more Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+    payload = result["turn_payload"]
+    assert payload["field"] == "spread"
+    assert payload["spread_delta"] == {"spe": 5}
+
+
+def test_edit_defaults_scope_to_field_only_when_omitted():
+    """Regression, confirmed live twice (2026-08-18): the local model
+    (qwen3.5) consistently omits edit_scope entirely for otherwise
+    well-formed edits, rather than getting the value wrong. Previously a
+    hard validation failure with a generic, unhelpful fallback message;
+    now defaults to field_only, the safe/conservative choice. Exact live
+    extraction for 'use Choice Scarf instead'.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "value_text": "Choice Scarf",
+            "value_moves": None,
+            "value_spread": None,
+            "value_spread_set": None,
+            "value_spread_delta": None,
+            "constraint": None,
+        }
+    )
+    result = classify_pending(
+        "use Choice Scarf instead",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["field"] == "item"
+    assert result["turn_payload"]["value"] == "Choice Scarf"
+    assert result["turn_payload"]["scope"] == "field_only"
+
+
+def test_edit_explicit_regenerate_scope_not_overridden():
+    """The field_only default only fires when edit_scope is omitted -- an
+    explicit 'regenerate' from the model must never be silently
+    overridden."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "value_text": "Choice Scarf",
+            "edit_scope": "regenerate",
+        }
+    )
+    result = classify_pending(
+        "rebuild it around Choice Scarf",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_payload"]["scope"] == "regenerate"
+
+
+def test_edit_invalid_explicit_scope_still_rejected():
+    """A genuinely invalid (non-null, non-empty, not field_only/regenerate)
+    edit_scope value must still fail validation -- the leniency is
+    specifically for omission, not for tolerating garbage values."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "value_text": "Choice Scarf",
+            "edit_scope": "sometimes",
+        }
+    )
+    result = classify_pending(
+        "use Choice Scarf instead",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "pending_response"
+
+
+def test_spread_delta_preferred_over_incidentally_populated_full_replace():
+    """Regression, confirmed live (2026-08-18): for '2, but make it 5 Spe
+    instead', the model populated BOTH value_spread (full, and wrong -- it
+    reused unrelated values from a different option's spread) AND
+    value_spread_delta (correct) simultaneously. Previously rejected
+    outright as ambiguous (exactly-one-form rule); now the partial form is
+    preferred, since apply_partial_spread already ignores value_spread
+    downstream when a partial form is present, and the partial computation
+    is demonstrably the safer one when the model gives both. Exact live
+    extraction values.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": [_CONFIRM_IDS[2]],
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {
+                "HP": 2, "Atk": 0, "Def": 0, "Spe": 5, "SpA": 32, "SpD": 4,
+            },
+            "value_spread_delta": {"Spe": 5},
+        }
+    )
+    result = classify_pending(
+        "2, but make it 5 Spe instead",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[2],)
+    assert payload["spread_delta"] == {"Spe": 5}
+
+
+def test_compound_select_plus_partial_spread_resolves_even_when_model_picks_edit_intent():
+    """Regression, confirmed live (2026-08-18): for '2, but make it 5 Spe
+    instead', the model's literal turn_intent was "edit", not
+    "select_build_option" -- even though option_ids was also populated for
+    the same request. _payload_for's "edit" branch never attaches
+    option_ids, so without this fix the selection component would be
+    silently dropped even though the compound-signal check correctly
+    identifies this shape as resolvable, not ambiguous. Exact live
+    extraction values (turn_intent='edit' specifically, not
+    'select_build_option').
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "value_spread": {
+                "HP": 2, "Atk": 0, "Def": 0, "Spe": 5, "SpA": 32, "SpD": 4,
+            },
+            "value_spread_delta": {"Spe": 5},
+            "option_ids": [_CONFIRM_IDS[2]],
+            "archetype": None,
+            "constraint": None,
+        }
+    )
+    result = classify_pending(
+        "2, but make it 5 Spe instead",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[2],)
+    assert payload["spread_delta"] == {"Spe": 5}
+
+
+def test_edit_unaffected_by_incidental_empty_spread_fields():
+    """Regression, found in live testing immediately after the
+    value_spread_set/value_spread_delta schema addition (2026-08-17): a
+    plain item edit ('Use Light Clay instead of Roseli') failed to parse
+    entirely, with no relation to spread logic at all. Root cause: the
+    model left the two new optional spread fields as {} rather than null,
+    and _edit_value_slot_ok's `is not None` check treated the empty dict as
+    "populated," failing validation for the ability/item/nature branch
+    even though neither new field is relevant to an item edit. This is a
+    real regression the new fields introduced -- confirmed live, not
+    hypothetical -- and matters for any edit type, not just spread ones,
+    since _edit_value_slot_ok is one shared function checked for every
+    edit.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "edit_scope": "field_only",
+            "value_text": "Light Clay",
+            # The model left these as empty dicts, not None -- the actual
+            # live failure mode, not a hypothetical edge case.
+            "value_spread": {},
+            "value_spread_set": {},
+            "value_spread_delta": {},
+        }
+    )
+    result = classify_pending(
+        "Use Light Clay instead of Roseli",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["field"] == "item"
+    assert result["turn_payload"]["value"] == "Light Clay"
+
+
+def test_spread_delta_unaffected_by_incidental_empty_full_replace_field():
+    """Same empty-dict-vs-None issue, the spread-specific variant: the
+    model populates value_spread_delta correctly but also leaves
+    value_spread as {} rather than None. Must still resolve as a delta
+    edit, not fail validation for having "two" populated spread forms."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {},
+            "value_spread_delta": {"spe": 5},
+        }
+    )
+    result = classify_pending(
+        "bump Speed by 5",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["spread_delta"] == {"spe": 5}
+
+
 def test_pure_edit_without_compare_signal_is_unaffected():
     """Regression: a genuine, single-intent edit must not be caught by the
     compound-signal check just because option_ids happens to be absent.
@@ -955,3 +1257,182 @@ def test_lock_on_confirmation_does_not_clear_pending():
     assert result["turn_intent"] == "pending_response"
     assert result["turn_payload"]["message"] == _MISMATCH_MSG
     _assert_screen_kept(result)
+
+
+def test_extract_single_stat_target_covers_every_live_phrasing():
+    """Regression, using every real phrase observed live this session
+    (2026-08-18). Confirms the deterministic extractor correctly handles
+    set vs delta semantics, strips a leading option-selection reference so
+    its number isn't mistaken for the stat value, and correctly declines
+    (returns None) for genuinely unsupported or unrelated phrasings rather
+    than guessing.
+    """
+    from recommender.turn_intent import extract_single_stat_target
+
+    assert extract_single_stat_target("2, but make it 5 Spe") == ("spe", 5, False)
+    assert extract_single_stat_target("make it 5 Spe") == ("spe", 5, False)
+    assert extract_single_stat_target("make Spe 5") == ("spe", 5, False)
+    assert extract_single_stat_target("set Spe to 5") == ("spe", 5, False)
+    assert extract_single_stat_target("5 more Spe") == ("spe", 5, True)
+    assert extract_single_stat_target("bump Spe by 5") == ("spe", 5, True)
+    assert extract_single_stat_target("2, but make it 5 Spe instead") == (
+        "spe", 5, False,
+    )
+    # Genuinely unsupported (transfer between two named stats) -- must not
+    # guess which one or silently pick a value.
+    assert extract_single_stat_target("shift all the pts in Def to SpD") is None
+    # Unrelated (no number at all) -- must not misfire on an item edit.
+    assert extract_single_stat_target("use Choice Scarf instead") is None
+
+
+def test_scrambled_full_form_spread_gets_rewritten_to_trustworthy_partial():
+    """Regression for the real live corruption (2026-08-18): the model's
+    full-form value_spread scrambled spd/spa while correctly setting
+    spe=5. Before this fix, that corrupted dict would have been applied
+    directly, or (after the diff-check landed) rejected outright, dead-
+    ending the conversation. Now the deterministic text extraction reads
+    'spe, 5' directly out of the original request and rewrites the
+    extraction to a trustworthy partial form, discarding the model's
+    unreliable computation entirely.
+
+    A further fix (also 2026-08-18) additionally recovers the leading
+    option reference ("2, ") from the raw text via classify_pending's
+    full_build_confirmation dispatch, which _deterministic_build_option_ids
+    alone can't do for this mixed compound shape -- so the overall result
+    here is select_build_option with option_ids=('spread_nature:2',), not
+    a bare edit against whatever the current default happens to be. This
+    test exercises classify_pending's real end-to-end dispatch (not
+    parse_turn_intent in isolation), so it reflects that full recovery.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {
+                "hp": 32, "atk": 0, "def": 0, "spe": 5, "spa": 29, "spd": 4,
+            },
+            "value_spread_set": None,
+            "value_spread_delta": None,
+            "constraint": None,
+        }
+    )
+    result = classify_pending(
+        "2, but make it 5 Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == ("spread_nature:2",)
+    assert payload["spread_set"] == {"spe": 5}
+    assert payload["spread_delta"] is None
+
+
+def test_genuine_multistat_full_form_is_not_rewritten():
+    """A full-form value_spread paired with text that genuinely implies
+    more than one stat (or none confidently) must be left alone -- not
+    force-rewritten into a possibly-wrong single-stat guess."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {
+                "hp": 32, "atk": 0, "def": 5, "spa": 0, "spd": 24, "spe": 3,
+            },
+            "value_spread_set": None,
+            "value_spread_delta": None,
+            "constraint": None,
+        }
+    )
+    result = classify_pending(
+        "shift all the pts in Def to SpD",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    payload = result["turn_payload"]
+    assert payload["spread_set"] is None
+    assert payload["spread_delta"] is None
+    assert payload["value"] == {
+        "hp": 32, "atk": 0, "def": 5, "spa": 0, "spd": 24, "spe": 3,
+    }
+
+
+def test_extract_leading_option_id_recovers_dropped_selection():
+    """Regression, confirmed live (2026-08-18): 'correctly suggests a new
+    spread now, but it didn't use spread_nature:2 and instead edited the
+    default one.' The deterministic-extraction fix (previous commit) made
+    the arithmetic reliable, but if the model still drops option_ids
+    entirely, the edit was still applying against the wrong base spread
+    (accurately, but to the wrong build). This recovers the leading option
+    reference directly from the raw text, independent of the model.
+    """
+    from recommender.nodes import _extract_leading_option_id
+
+    pending = _confirmation_with_groups()
+    assert _extract_leading_option_id("2, but make it 5 Spe", pending) == (
+        "spread_nature:2"
+    )
+    assert _extract_leading_option_id("2 but make it 5 Spe", pending) == (
+        "spread_nature:2"
+    )
+    assert _extract_leading_option_id("option 2, but make it 5 Spe", pending) == (
+        "spread_nature:2"
+    )
+    # No leading option reference at all -- must not misfire.
+    assert _extract_leading_option_id("make it 5 Spe", pending) is None
+    # No such option -- must not guess.
+    assert _extract_leading_option_id("99, but make it 5 Spe", pending) is None
+
+
+def test_classify_pending_recovers_full_compound_request_end_to_end():
+    """The full chain: model gives a scrambled full-form value_spread AND
+    drops option_ids entirely for '2, but make it 5 Spe'. Confirms both
+    fixes compose correctly -- the scrambled computation is discarded in
+    favor of the deterministic 'spe, 5' read, AND the leading '2,' is
+    recovered as the real base option, giving select_build_option with
+    both option_ids and spread_set populated correctly."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {
+                "hp": 32, "atk": 0, "def": 0, "spe": 5, "spa": 29, "spd": 4,
+            },
+            "value_spread_set": None,
+            "value_spread_delta": None,
+            "constraint": None,
+        }
+    )
+    result = classify_pending(
+        "2, but make it 5 Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    assert result["turn_payload"]["option_ids"] == ("spread_nature:2",)
+    assert result["turn_payload"]["spread_set"] == {"spe": 5}
+
+
+def test_bare_spread_edit_without_leading_option_ref_is_unaffected():
+    """A plain edit with no leading option reference at all (e.g. 'make it
+    5 Spe' with no selection) must NOT get accidentally converted into a
+    select_build_option -- confirms the recovery only fires when a real
+    leading reference is actually present in the text."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread_set": {"spe": 5},
+        }
+    )
+    result = classify_pending(
+        "make it 5 Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["spread_set"] == {"spe": 5}
