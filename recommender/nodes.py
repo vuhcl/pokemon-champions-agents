@@ -116,6 +116,19 @@ def _option_id_number(option_id: str) -> int | None:
     suffix = option_id.rsplit(":", 1)[-1]
     return int(suffix) if suffix.isdigit() else None
 
+
+_DEFAULT_PHRASE_FILLER_WORDS = frozenset({"the", "one", "option", "please"})
+
+
+def _is_default_phrase(part: str) -> bool:
+    """True for informal references to the default option: 'default', 'the
+    default', 'the default one', 'default one', 'the default option', etc.
+    Confirmed live: 'the default one' failed to resolve at all before this,
+    since the real id (e.g. 'spread_nature:default') is axis-prefixed and
+    no bare-phrase matching existed for it."""
+    words = [w for w in part.split() if w not in _DEFAULT_PHRASE_FILLER_WORDS]
+    return words == ["default"]
+
 # lock on full_build_confirmation is blocked (I-type).
 # continue on that screen is intercepted by _apply_continue_abandon_gate (Cluster B).
 # team_review on that screen is intercepted by _apply_team_review_roster_gate.
@@ -198,6 +211,20 @@ def _deterministic_build_option_ids(
                         for opt in opts
                         if _option_id_number(str(opt.get("option_id") or ""))
                         == requested_number
+                    ]
+                    if len(exact) == 1:
+                        matched = exact[0]
+            elif _is_default_phrase(part):
+                # Confirmed live: "the default one" failed with "Unknown
+                # build option id: default" -- the real id is
+                # "spread_nature:default" (axis-prefixed), and no bare
+                # "default" phrasing was recognized at all before this.
+                if len(groups) == 1:
+                    opts = list(groups[0].get("options") or ())
+                    exact = [
+                        str(opt.get("option_id") or "")
+                        for opt in opts
+                        if str(opt.get("option_id") or "").endswith(":default")
                     ]
                     if len(exact) == 1:
                         matched = exact[0]
@@ -365,6 +392,48 @@ def _describe_invalid_spread(spread: dict[str, object]) -> str:
         f"{SP_BUDGET} ({abs(diff)} point{'s' if abs(diff) != 1 else ''} "
         f"{direction} budget). {action}, or ask me to regenerate the whole "
         "spread."
+    )
+
+
+def _derive_trustworthy_spread_edit(
+    value: object, base_spread: dict[str, int]
+) -> tuple[dict[str, int] | None, str | None]:
+    """A field_only full-form value_spread from the model is never trusted
+    as a literal final answer -- it's diffed against the real base spread
+    (the current build, since no option selection was given -- i.e. the
+    implied default). Confirmed live, twice: the model can scramble stats
+    it wasn't actually asked to change while attempting a full-replacement
+    computation (e.g. swapping spd/spa values), especially for what was
+    really a compound select+edit request the model flattened into a
+    plain edit without emitting option_ids at all.
+
+    If exactly one stat differs from the base, that's trusted as the real
+    intended change and everything else in the model's dict is discarded
+    (the other 'differences,' if the model got any wrong, never mattered
+    since the real base values are used instead). Zero or more than one
+    differing stat is NOT silently trusted -- returns an error message
+    instead of guessing which of several implied changes was real.
+
+    Only applies to scope=="field_only" edits -- an explicit "regenerate"
+    is a deliberate signal from the model (defaults to field_only when
+    omitted, so regenerate only appears when genuinely intended) and a
+    legitimate multi-stat regenerate request shouldn't be blocked here.
+    """
+    from recommender.slot_fill import _coerce_full_spread
+
+    attempted = _coerce_full_spread(value)
+    if attempted is None:
+        return None, "invalid edited spread"
+    diffs = [stat for stat in base_spread if attempted[stat] != base_spread[stat]]
+    if not diffs:
+        return dict(base_spread), None
+    if len(diffs) == 1:
+        return attempted, None
+    stat_list = ", ".join(_stat_label_for_dispatch(s) for s in diffs)
+    return None, (
+        f"that implies changing {len(diffs)} stats ({stat_list}) at once, "
+        "and I'm not confident in that computation -- which ONE stat did "
+        "you actually want to change, and to what value?"
     )
 
 
@@ -1332,6 +1401,23 @@ def apply_provisional_edit(state: RecommenderState) -> dict:
         if adjusted is None:
             return {"slot_commit_error": "Could not apply edit: malformed spread adjustment"}
         value = adjusted
+    elif field == "spread" and scope == "field_only":
+        # No partial (set/delta) form was given -- only a full-form
+        # value_spread. Confirmed live, twice: the model can scramble
+        # stats it wasn't actually asked to change while attempting a
+        # full-replacement computation (e.g. swapping spd/spa values),
+        # especially when the request was really a compound select+edit
+        # that the model flattened into a plain edit without option_ids.
+        # Never trust this as a literal final answer -- diff it against
+        # the current build (the implied "default" base, since no
+        # option_ids was given at all) and only accept it if exactly one
+        # stat actually differs.
+        derived, derive_err = _derive_trustworthy_spread_edit(
+            value, provisional.spread_dict()
+        )
+        if derive_err is not None:
+            return {"slot_commit_error": f"Could not apply edit: {derive_err}"}
+        value = derived
     result = revise_provisional_slot(
         provisional,
         field=field,

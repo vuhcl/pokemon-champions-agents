@@ -599,3 +599,119 @@ def test_reallocation_question_parses_full_stat_names():
     assert _parse_stat_reply("SPA") == "spa"
     assert _parse_stat_reply("special attack") == "spa"
     assert _parse_stat_reply("nonsense") is None
+
+
+def test_derive_trustworthy_spread_edit_rejects_scrambled_full_form():
+    """Regression, confirmed live (2026-08-18): '2, but make it 5 Spe' --
+    the model didn't emit option_ids at all this time, and its full-form
+    value_spread scrambled spd/spa while correctly setting spe. Diffing
+    against the real base (3 stats differ: spa, spd, spe) correctly
+    refuses to trust it, rather than silently applying the scrambled
+    values the way a bare _coerce_full_spread would have.
+    """
+    from recommender.nodes import _derive_trustworthy_spread_edit
+
+    base = {"hp": 32, "atk": 0, "def": 0, "spa": 1, "spd": 29, "spe": 4}
+    scrambled = {"hp": 32, "atk": 0, "def": 0, "spe": 5, "spa": 29, "spd": 4}
+    adjusted, err = _derive_trustworthy_spread_edit(scrambled, base)
+    assert adjusted is None
+    assert "3 stats" in err
+    assert "Spa" in err and "Spd" in err and "Spe" in err
+
+
+def test_derive_trustworthy_spread_edit_accepts_clean_single_diff():
+    """A full-form value_spread that differs from the base in exactly one
+    stat is trusted -- this is what SHOULD have been emitted for the live
+    case above (only spe differing), and confirms clean cases still work."""
+    from recommender.nodes import _derive_trustworthy_spread_edit
+
+    base = {"hp": 32, "atk": 0, "def": 0, "spa": 1, "spd": 29, "spe": 4}
+    clean = {"hp": 32, "atk": 0, "def": 0, "spa": 1, "spd": 29, "spe": 5}
+    adjusted, err = _derive_trustworthy_spread_edit(clean, base)
+    assert err is None
+    assert adjusted == clean
+
+
+def test_plain_spread_edit_rejects_scrambled_full_form_end_to_end():
+    """End-to-end through apply_provisional_edit: a full-form value_spread
+    with no partial (set/delta) form, differing from the current build in
+    more than one stat, is rejected with a specific message rather than
+    silently applied."""
+    from recommender.nodes import apply_provisional_edit
+
+    provisional = _provisional()  # spread: hp=4,atk=0,def=0,spa=32,spd=0,spe=30
+    base = provisional.spread_dict()
+    scrambled = dict(base)
+    scrambled["spe"] = 25
+    scrambled["spa"] = 10  # a second, untrusted "difference"
+    state = _state(
+        provisional,
+        payload={"field": "spread", "value": scrambled, "scope": "field_only"},
+    )
+    out = apply_provisional_edit(state)
+    assert out.get("slot_commit_error") is not None
+    assert "2 stats" in out["slot_commit_error"]
+
+
+def test_plain_spread_edit_accepts_clean_single_diff_end_to_end():
+    from recommender.nodes import apply_provisional_edit
+
+    provisional = _provisional()
+    base = provisional.spread_dict()
+    clean = dict(base)
+    clean["spe"] = 28  # single, real difference
+    state = _state(
+        provisional,
+        payload={"field": "spread", "value": clean, "scope": "field_only"},
+    )
+    out = apply_provisional_edit(state)
+    assert out.get("slot_commit_error") is None
+    assert out["provisional_slot"].spread_dict()["spe"] == 28
+
+
+def test_regenerate_scope_bypasses_the_diff_check():
+    """An explicit edit_scope="regenerate" is a deliberate signal and a
+    legitimate multi-stat full-replacement -- must NOT be blocked by the
+    diff-against-base check, which only applies to field_only."""
+    from recommender.nodes import apply_provisional_edit
+
+    provisional = _provisional()
+    full_new_spread = {
+        "hp": 4, "atk": 0, "def": 0, "spa": 4, "spd": 30, "spe": 28,
+    }  # multiple real differences from base, intentional
+    state = _state(
+        provisional,
+        payload={
+            "field": "spread",
+            "value": full_new_spread,
+            "scope": "regenerate",
+        },
+    )
+    out = apply_provisional_edit(state)
+    assert out.get("slot_commit_error") is None
+
+
+def test_default_phrase_resolves_to_the_real_default_option_id():
+    """Regression, confirmed live (2026-08-18): 'the default one' failed
+    with 'Unknown build option id: default' -- the real id is
+    axis-prefixed (e.g. 'spread_nature:default'), and no bare-phrase
+    matching existed for it before this fix."""
+    pending: PendingPresentation = {
+        "schema_version": 1,
+        "kind": "full_build_confirmation",
+        "build_option_groups": (
+            {
+                "axis": "spread_nature",
+                "prompt": "Choose spread/nature:",
+                "options": (
+                    {"option_id": "spread_nature:default", "label": "Recommended default"},
+                    {"option_id": "spread_nature:1", "label": "Timid 2/0/0/32/0/32"},
+                    {"option_id": "spread_nature:2", "label": "Modest 32/0/0/1/29/4"},
+                ),
+            },
+        ),
+    }
+    for text in ("the default one", "default", "the default", "default one"):
+        assert _deterministic_build_option_ids(text, pending) == (
+            "spread_nature:default",
+        )
