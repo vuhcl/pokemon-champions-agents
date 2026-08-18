@@ -1537,3 +1537,72 @@ def test_bare_leading_option_id_recovered_inside_gap_fill():
     )
     assert result["turn_intent"] == "select_build_option"
     assert result["turn_payload"]["option_ids"] == (_CONFIRM_IDS[1],)
+
+
+def test_leading_option_ref_regex_consumes_comma_and_but_together():
+    """Regression: the original regex only ever consumed a comma OR a
+    following 'but', never both together, leaving a dangling 'but' at the
+    start of the remaining text -- harmless for the unanchored stat
+    extractor (tokenizes without caring about position), but would have
+    silently broken any anchored extractor, like the item-name one added
+    alongside this fix. Also confirms fixing this didn't introduce the
+    opposite bug (a bare leading number with NO separator getting
+    stripped when it shouldn't be -- caught and fixed before this test
+    was written, not after).
+    """
+    from recommender.turn_intent import _LEADING_OPTION_REF_RE
+
+    assert (
+        _LEADING_OPTION_REF_RE.sub("", "1, but use Choice Scarf instead")
+        == "use Choice Scarf instead"
+    )
+    assert (
+        _LEADING_OPTION_REF_RE.sub("", "2, but make it 5 Spe")
+        == "make it 5 Spe"
+    )
+    # No separator at all -- the leading number is the actual value being
+    # discussed, not an option reference, and must NOT be stripped.
+    assert _LEADING_OPTION_REF_RE.sub("", "5 more Spe") == "5 more Spe"
+
+
+def test_extract_item_name_target_covers_live_phrasing():
+    """Regression, confirmed live (2026-08-18): '1, but use Choice Scarf
+    instead' produced option_ids=['1'] with EVERY edit-value field empty
+    -- the model dropped the item signal entirely, not just formatted it
+    wrong. Confirms the deterministic extractor reads it directly from
+    text, and correctly declines for unrelated phrasing.
+    """
+    from recommender.turn_intent import extract_item_name_target
+
+    assert extract_item_name_target("1, but use Choice Scarf instead") == "Choice Scarf"
+    assert extract_item_name_target("use Choice Scarf instead") == "Choice Scarf"
+    assert extract_item_name_target("1, but with Choice Scarf") == "Choice Scarf"
+    assert extract_item_name_target("with Leftovers") == "Leftovers"
+    assert extract_item_name_target("change item to Choice Specs") == "Choice Specs"
+    assert extract_item_name_target("make it 5 Spe") is None
+    assert extract_item_name_target("shift all the pts in Def to SpD") is None
+
+
+def test_dropped_item_signal_recovered_end_to_end():
+    """Full regression: the exact live raw extraction (option_ids=['1'],
+    field=None, value_text=None -- everything else empty too) resolves
+    correctly to a select_build_option with both the recovered option id
+    and the recovered item, composed together, not just one or the
+    other.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": ["2"],
+        }
+    )
+    result = classify_pending(
+        "2, but use Choice Scarf instead",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"

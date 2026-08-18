@@ -165,7 +165,7 @@ def _index_build_options(
 
 
 _LEADING_OPTION_NUMBER_RE = re.compile(
-    r"^\s*(?:option\s+)?(\d+)\s*(?:,|\bbut\b)\s*", re.IGNORECASE
+    r"^\s*(?:option\s+)?(\d+)\s*(?:,\s*(?:\bbut\b\s*)?|\bbut\b\s*)", re.IGNORECASE
 )
 
 

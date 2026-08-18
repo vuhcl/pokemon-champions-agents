@@ -466,7 +466,7 @@ class TurnIntentParseError(ValueError):
 
 
 _LEADING_OPTION_REF_RE = re.compile(
-    r"^\s*(?:option\s+)?\d+\s*(?:,|\bbut\b)\s*", re.IGNORECASE
+    r"^\s*(?:option\s+)?\d+\s*(?:,\s*(?:\bbut\b\s*)?|\bbut\b\s*)", re.IGNORECASE
 )
 _DELTA_INDICATOR_WORDS = frozenset({"more", "extra", "additional", "by"})
 
@@ -526,6 +526,60 @@ def extract_single_stat_target(text: str) -> tuple[str, int, bool] | None:
     window = tokens[max(0, num_idx - 3) : num_idx + 4]
     is_delta = any(tok.lower() in _DELTA_INDICATOR_WORDS for tok in window)
     return stat, num_value, is_delta
+
+
+_ITEM_EDIT_TRIGGER_RE = re.compile(
+    r"^\s*(?:use|with|give it|hold|change item to|swap item to|switch item to)\s+"
+    r"(.+?)\s*(?:\binstead\b\s*)?$",
+    re.IGNORECASE,
+)
+
+
+def extract_item_name_target(text: str) -> str | None:
+    """Deterministically extract an item-change instruction ('use Choice
+    Scarf instead', '1, but use Choice Scarf instead', 'with Leftovers')
+    from free text, resolved against real item data. Returns the real,
+    correctly-cased item name, or None if no confident match.
+
+    Exists for the same reason extract_single_stat_target does: confirmed
+    live, the model can drop an item-edit signal entirely (not
+    mis-formatted -- genuinely absent from every field) when it's combined
+    with a selection in the same utterance, even though the item name is
+    right there, unambiguously, in the text. A bare item edit with no
+    selection combined has been shown to extract correctly via the model
+    alone; this is specifically for the compound case where that signal
+    goes missing.
+    """
+    stripped = _LEADING_OPTION_REF_RE.sub("", text)
+    match = _ITEM_EDIT_TRIGGER_RE.match(stripped.strip())
+    if match is None:
+        return None
+    candidate = match.group(1).strip()
+    if not candidate:
+        return None
+
+    from recommender.ids import to_id
+    from recommender.legality import load_snapshot
+
+    items = (load_snapshot() or {}).get("items") or {}
+    candidate_id = to_id(candidate)
+    exact = items.get(candidate_id)
+    if exact is not None:
+        return str(exact.get("name") or exact.get("id"))
+    # Trigger regex already strips a trailing "instead", but tolerate
+    # other trailing words (e.g. "please") by falling back to a
+    # substring match against every real item id, preferring the longest
+    # match to avoid a short name incorrectly matching inside a longer one.
+    best: str | None = None
+    for item in items.values():
+        item_id = str(item.get("id") or "")
+        if not item_id:
+            continue
+        if item_id in candidate_id or candidate_id in item_id:
+            name = str(item.get("name") or item_id)
+            if best is None or len(name) > len(best):
+                best = name
+    return best
 
 
 def _populated(value: object) -> bool:
@@ -772,6 +826,27 @@ def parse_turn_intent(
                 object.__setattr__(extraction, "value_spread_delta", {stat: num_value})
             else:
                 object.__setattr__(extraction, "value_spread_set", {stat: num_value})
+
+    if (
+        extraction.option_ids
+        and extraction.field is None
+        and not _populated(extraction.value_text)
+        and not _populated(extraction.value_moves)
+        and not _populated(extraction.value_spread)
+        and not _populated(extraction.value_spread_set)
+        and not _populated(extraction.value_spread_delta)
+    ):
+        # Confirmed live: the model can drop an item-edit signal entirely
+        # when combined with a selection in the same utterance ("1, but
+        # use Choice Scarf instead" produced option_ids=['1'] with EVERY
+        # edit-value field empty) -- not mis-formatted, genuinely absent.
+        # Try to recover it directly from the text before falling through
+        # to a plain selection that silently drops the other half of the
+        # request.
+        item_name = extract_item_name_target(user_text)
+        if item_name is not None:
+            object.__setattr__(extraction, "field", "item")
+            object.__setattr__(extraction, "value_text", item_name)
 
     if _has_compound_edit_and_compare_signal(extraction):
         second = "comparison" if extraction.turn_intent == "compare" else "selection"
