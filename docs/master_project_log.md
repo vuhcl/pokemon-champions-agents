@@ -4336,6 +4336,218 @@ normally-reviewed work.
 **State at end of this stretch:** all six fixes merged to `main`. Every named finding from the
 2026-08-16 live steering verification is closed.
 
+## 2026-08-17: Rain-suggestion degradation bug closed — essential-gap-fill was structurally invisible to multi-locked ranking
+
+Real root cause, confirmed against actual repo code (cloned fresh, tip `2623f7a`) rather than
+inferred from the handoff's breadcrumbs alone. The handoff's own confirmed groundwork held up
+completely: Electro Shot's Rain dependency correctly reaches `role_shape_context.needed_weathers`,
+and `assess_condition_resilience` correctly classifies Rain as `essential`/`missing_provider` for
+a locked Archaludon regardless of how many other members are also locked — the original
+"dilution across locked members" hypothesis was directly disproven, not just assumed wrong.
+
+The actual bug lived one layer further downstream than the handoff had traced:
+`rank_multi_locked_candidates`'s `_rank_key` sort tuple has no field at all representing "this
+candidate answers an essential, missing-provider team need." The nine leading fields of that
+tuple are all real calc-verified threat-coverage counts. A need-only candidate — one whose only
+qualification is filling the team's actual essential gap, with zero incidental threat coverage —
+therefore loses unconditionally to any candidate answering even a single verified threat, no
+matter how many threats it answers versus zero. Reproduced directly: with the local calc service
+live, a real essential Rain setter with 0 verified threat hits was fully excluded from the ranked
+pool by ordinary attackers with 76 verified hits each, at both single- and double-lock. The
+"double-lock disappearance" the handoff flagged as the headline symptom turned out not to be a
+double-lock-specific effect at all — it reproduced identically at single-lock once real calc data
+was available; earlier no-calc sandbox runs had only obscured this because every candidate tied at
+0 threat coverage, letting a secondary tiebreak surface a need-only candidate real calc data would
+never have let through.
+
+A real signal already existed and was being discarded, not missing outright:
+`annotate_composition_impact` already computes exactly the needed boolean
+(`_candidate_fills_condition_gap`) but only folds it into the coarse `composition_fit` bucket,
+which also fires for several unrelated reasons and — independent of the dilution problem — sits
+after all nine threat-coverage fields in the sort tuple regardless, so it could never have won
+even undiluted.
+
+**A real correction to my own working theory, mid-investigation, worth logging plainly.**
+Initially attributed the original session's high-confidence Pelipper suggestion to incidental
+dual-branch threat coverage — a plausible-sounding guess, not a checked one. Corrected directly
+by Vu: that suggestion came from an explicit "rain team" archetype direction stated at the very
+first turn, which routes through `fill_team_draft`'s archetype-driven role-fill (`_pick_role`), a
+completely different mechanism from `discover_multi_locked`'s need/threat merge-and-rank pipeline.
+Confirmed directly against real code (`build_team_threat_objective` has no archetype input at all)
+rather than re-asserted. This reframed the whole finding: the system already handles explicit rain
+requests correctly; the gap was specifically in *inferred* need-satisfaction — the system
+correctly deduces an essential gap on its own but had no ranking mechanism to act on what it
+deduced.
+
+**Fix (ADR-026 Amendment 2026-08-17, letter TBD):** `AnnotatedCandidate.fills_essential_gap`
+preserved as its own field instead of being discarded into `composition_fit`; `_rank_key` places
+it as the leading sort-tuple field, ahead of every threat-coverage count. The design
+decision — whether an essential gap-filler should unconditionally outrank any threat coverage,
+only outrank the softer severity tiers, or merely be guaranteed inclusion without reordering — was
+explicitly put to Vu rather than assumed; picked unconditional priority, since a
+floor-guarantee-without-reordering was traced through to the actual display layer
+(`pick_default_and_alternatives` only ever shows the top 3) and found not to reliably fix the real
+symptom without ending up functionally equivalent to reordering anyway.
+
+Regression coverage: two new tests directly targeting the rank-key change
+(`test_essential_gap_fill_outranks_high_volume_threat_coverage`,
+`test_essential_gap_fill_does_not_help_when_absent`); two existing tests extended with direct
+`fills_essential_gap` assertions confirming the value populates correctly end-to-end through
+`annotate_composition_impact`, not just when set manually in unit fixtures. Full suite: 1125
+passed, 8 skipped (baseline unchanged).
+
+Implemented directly (Cursor unavailable this week per the 2026-08-16 handoff); disclosed in the
+commit message. Pushed to `fix/essential-gap-fill-ranking-priority`, verified against the real
+remote (`git fetch` + direct SHA comparison, not self-reported), and merged by Vu.
+
+**Deliberately not addressed in this fix, left open:** a separate display-layer bug found during
+the same investigation — `present_text.py`'s `_format_candidate_selection` reads a candidate's
+*first* evidence-tuple item rather than its *best* evidence (the same signal `_rank_key` already
+correctly uses via `best_evidence`), which can show stale or misleading confidence text for an
+otherwise correctly-ranked candidate. Confirmed as the root cause of the transcript-observed
+"Meowstic — mechanical_only, low confidence" text specifically (Meowstic's real Rain evidence is
+`compendium_backed`/medium; an unrelated "screens" support need — which `_compendium_roles_for_need`
+doesn't map to a compendium category at all, despite `screens_support.v1.json` existing — pollutes
+Meowstic's merged evidence tuple with unrelated `mechanical_only`/low entries that happen to land
+first). Does not affect ranking correctness, only display text. Not fixed here; tracked as its
+own item.
+
+## 2026-08-17 (cont.): bare-number off-by-one fixed in full_build_confirmation — a stronger finding than the handoff flagged, not a confirmation of it
+
+Closes backlog item #2 from the 2026-08-16 handoff ("normalize unambiguous bare-number
+shorthand for compare/select_build_option"), but the real finding turned out to be sharper
+and worse than the handoff's own framing. The handoff described bare numbers as "correctly
+rejected... safe, not broken — real friction, not failure." That's true for one real case and
+false for another, and the difference matters.
+
+Root cause, confirmed live and reproduced exactly against real code: `_ORDINAL_REPLIES` maps
+bare `"1"` to list position `0`. `generate_build_option_groups` always prepends a synthetic,
+non-numeric default option at list position `0`, ahead of the real numbered siblings
+(`spread_nature:1`, `:2`, `:3`...). So bare-number resolution was silently off by one against
+what the visibly-displayed option id shows the user — `"1"` resolved to the already-showing
+default, `"2"` resolved to `spread_nature:1`, and so on. Reproduced directly against the exact
+menu shape and build from the live transcript: three repeated `"1"` replies each silently
+re-selected the unchanged default, which is exactly what was observed and initially read as
+simple non-response.
+
+The handoff's "correctly rejected" description is accurate only for the genuinely different
+multi-axis case: `_deterministic_build_option_ids`'s ordinal fallback is gated by
+`len(groups) == 1`, so when multiple axis groups are presented together it correctly declines
+to guess rather than silently picking one. But in the single-axis, default-prepended shape —
+confirmed via `present_text.py`'s `_format_full_build`, which displays the literal `option_id`
+and never a sequential position count, unlike `candidate_selection`/`completion_preference`,
+which do use real list-position numbering and were confirmed unaffected — it doesn't reject at
+all. It silently resolves to the wrong option. That's a materially worse failure class than
+"friction": a genuine silent-wrong-selection bug that had gone completely uncaught by the test
+suite (confirmed via search, not assumed — zero existing tests encoded any expectation on
+bare-number behavior for this parser before this fix).
+
+**Fix (ADR-031 Amendment 2026-08-17a):** numeric shorthand (`"1"`, `"option 1"`) now matches
+exclusively against an option's own visible numeric suffix, never raw list position.
+Exact-integer match only, confirmed explicitly with Vu before implementation — `"1"` must never
+match `"spread_nature:11"` as a substring. Word-ordinals (`"first"`, `"the second one"`)
+deliberately keep their existing list-position meaning unchanged, on the reasoning that "first"
+genuinely does mean "the first thing shown" — a different, defensible reading from a literal
+number reference, not an oversight. The `len(groups) == 1` ambiguity gate is untouched;
+resolving bare numbers across multiple simultaneous axis groups remains its own, separate,
+still-unresolved design question, not addressed here.
+
+Regression coverage: three new tests directly targeting this fix — the live bug shape and
+build, the explicit `"1"`-vs-`"11"` exact-match edge case, and a guard confirming word-ordinal
+behavior is deliberately unchanged. Full suite: 1130 passed (up from 1127), 8 skipped (baseline
+unchanged).
+
+Implemented directly (Cursor unavailable this week per the 2026-08-16 handoff); disclosed in
+the commit message. Pushed to `fix/build-option-bare-number-off-by-one`, verified against the
+real remote, and merged by Vu.
+
+This closes the last open item from the 2026-08-16/17 rain-suggestion investigation arc in
+full: all three findings from that investigation (ranking-priority gap, evidence-display order,
+plus this independently-discovered bare-number bug found while re-testing the same session) are
+now fixed and merged.
+
+## 2026-08-18: Partial/delta spread edits — feat/partial-spread-edits merged, 11 commits
+
+Closes backlog item 3 from the 2026-08-16 handoff ("spread_nature:3, but with 5 Spe" silently
+dropping the override). The finished feature is much larger than the original scope, almost
+entirely because live testing against the real local model (qwen3.5 via Ollama) kept surfacing
+real failure modes that no amount of prompt engineering fully closed — the arc's actual
+throughline is a recurring lesson, not a single fix: **stop trying to make the model's arithmetic
+reliable, and instead extract only what's deterministically readable and let code do the
+computation.**
+
+**The original problem, and the first (incomplete) fix.** A user asking to change one stat forces
+the model to either (a) name just that stat via new `value_spread_set`/`value_spread_delta`
+schema fields, or (b) compute a full six-stat replacement by hand. (a) is what the fields were
+built for; (b) is what the model kept doing anyway, especially for compound "select this option,
+also change this stat" requests, and it got the arithmetic wrong — confirmed live, twice,
+independently: reused unrelated values from a different menu option, and separately scrambled
+`spa`/`spd` while correctly setting the one stat that was actually asked about.
+
+**Real bugs found purely from live model output, not speculation.** Requested raw-extraction
+debug logging before touching code, each time, rather than patch on a guess:
+- The model consistently omits `edit_scope` entirely (not wrong — absent) for otherwise
+  well-formed edits. Fixed by defaulting to `field_only`, the safe/conservative choice, rather
+  than hard-failing.
+- The model consistently emits capitalized stat abbreviations (`Spe`, `HP`, `SpA`) — this
+  codebase's internal convention is lowercase. This silently rejected almost every real
+  extraction as "unknown stat" until a case-insensitive normalization pass was added, and it
+  affected the pre-existing full-replace path too, not just the new partial-edit code.
+- A plain item edit ("Use Light Clay instead of Roseli") failed to parse for a reason that had
+  nothing to do with items at all: the new schema fields being left as `{}` rather than `null`
+  tripped the *shared* edit validator for every edit type, not just spread ones — confirmed by
+  the item-edit failure sharing zero code with spread logic, which is what made this the decisive
+  clue rather than another guess.
+
+**The real architectural pivot, found through direct pushback, not inferred alone.** After the
+"which stat did you actually want to change?" clarifying-question flow was built and tested, Vu
+pushed back directly: *"the agent's supposed to do the computation, can't keep asking the user for
+everything... the agent is useless if a fill form can do the job."* Correct, and it reframed the
+whole remaining arc. The fix wasn't a nicer way to ask — it was recognizing that "2, but make it 5
+Spe" already, deterministically, unambiguously contains everything needed (which stat, what
+value, which option) in the raw text itself, and there was no reason to trust the model's
+unreliable arithmetic when the code could just read it directly. `extract_single_stat_target()`
+does this: strips a leading option reference, requires exactly one number and one recognized stat
+name close together in what remains, detects set-vs-delta from nearby words ("more"/"by"), and
+returns `None` — deliberately, not a guess — for genuinely multi-stat or unrelated text. The same
+principle was then applied a second time to recover a *dropped* leading option reference
+(`"2, but..."` → `option_ids` the model failed to extract at all), independently of whatever the
+model did or didn't manage to extract.
+
+**A correctly-scoped residual "ask," now actually working as a conversation.** Genuinely
+multi-stat or unparseable text still can't be resolved deterministically, and asking remains the
+right behavior there — but the first version of that ask was a dead end: a `slot_commit_error`
+phrased as a question with no state to receive an answer. Confirmed live: a follow-up reply got
+treated as an unrelated fresh turn against the still-displayed menu. Fixed by giving it a real
+interactive pending kind (`spread_target_question`), architecturally identical to the
+budget-reallocation question already built for the hybrid auto/ask design, including proper defer
+handling and re-verification of the answer (which can itself trigger auto-reallocation).
+
+**The budget-reallocation design, a real explicit decision, not a default.** When a valid,
+single-stat edit pushes the spread over or under `SP_BUDGET`, the system now either auto-fixes it
+(small, unambiguous — a clear single "smallest stat with room" candidate, transparently
+disclosed via a notice, never silent) or asks which stat to adjust (genuinely ambiguous — a tie
+for smallest, or no candidate stat with enough room). The auto-vs-ask boundary and the "must
+never be silent" requirement were both put to Vu directly rather than assumed.
+
+**Real mistakes caught and fixed before they shipped, not after.** A first draft of the
+reallocation sort key used `reverse=True` on the whole tuple, which would have inverted every
+*other* field's already-correct ascending-order design, not just added the new one — caught by a
+direct test before committing, not discovered later. A refactor attempt left a dead, duplicate
+function in the file for one commit; caught and removed in the next one. Both are logged plainly
+rather than glossed over, per this project's own standing discipline.
+
+**Scope not addressed here, explicitly deferred, not forgotten:** the parallel interactive-
+resolution request for item/moveset conflicts (Choice item + a non-damaging move like Protect) —
+offer a damaging-move alternative, an "ignore the conflict" option, or revert the item — is
+still open. The architecture built for this arc (pending-question kinds, defer handling,
+deterministic-extraction-over-model-trust) should transfer, but it needs its own real move-
+alternative-finding logic this arc never needed, and its own scoping pass.
+
+Full history: `feat/partial-spread-edits`, 11 commits, merged into `main` 2026-08-18. Every commit
+individually test-verified (full suite green at each step) and, wherever the live model was the
+actual source of truth, verified against real raw extraction output rather than assumption.
+
 ---
 
 ## TOOLS & RESOURCES

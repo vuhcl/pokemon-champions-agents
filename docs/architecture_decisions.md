@@ -5802,6 +5802,60 @@ which is exactly what was missing to justify a change now.
 
 ---
 
+### ADR-026 — Amendment 2026-08-17a: essential/missing-provider gap-fill gets its own leading rank-key field
+
+**Decision:** `AnnotatedCandidate` now carries `fills_essential_gap` as an explicit field
+(previously computed correctly by `_candidate_fills_condition_gap` inside
+`annotate_composition_impact` but only folded into the coarse `composition_fit` bucket and
+discarded). `_rank_key` places `int(fills_essential_gap)` as the leading field of its sort
+tuple — ahead of every threat-coverage count field — so a candidate that fills an essential,
+missing-provider (or single-provider-SPOF) condition gap always outranks any threat-coverage
+candidate, full stop.
+
+**Why:** Confirmed live and reproduced against real repo code, not inferred: a team whose locked
+anchor's real kit created a genuine essential Rain dependency (Archaludon + Electro Shot) produced
+zero Rain-setter candidates anywhere in the ranked pool once real calc-verified threat coverage
+was available — every candidate answering at least one verified threat (76 hits, in the reproduced
+case) unconditionally outranked the one candidate answering the team's actual essential gap (0
+threat hits), because `_rank_key`'s tuple had no field representing "this candidate is the answer
+to an essential team need" at all. The nearest existing signal, `composition_fit`, both fires for
+several unrelated reasons (any anchored need, corrected attacker-type skew, missing primary
+function) and — independently — sits after every threat-coverage count in the sort tuple
+regardless, so it could never have overridden this even undiluted.
+
+This closes the "condition-resilience assessment" gap ADR-026's original Status section explicitly
+deferred. ADR-028 later implemented condition-resilience *classification*; this amendment is the
+missing wire from that classification into `multi_locked` ranking, not a duplicate of ADR-028's
+work.
+
+**Alternatives considered and rejected:** A floor-guarantee reserving a slot in the ranked pool
+for at least one essential gap-filler, without reordering. Rejected because the CLI only ever
+surfaces the top 3 candidates (`pick_default_and_alternatives`); guaranteeing inclusion in the
+larger ranked-and-cut pool (`n=10`) wouldn't guarantee visibility in what the user actually sees —
+a "real" fix under this design would still have needed to force the candidate near the top of the
+displayed slice, ending up functionally equivalent to reordering, just split across two mechanisms
+instead of one. A middle position (outranking only the softer threat tiers while still losing to a
+decisive verified closure) was also considered; rejected in favor of unconditional priority, on the
+reasoning that "essential" is already the strictest tier this system recognizes (ADR-028: a single
+`needed`-importance mechanism from one locked member is sufficient on its own, regardless of how
+many other members want it) — a team that cannot function as built without a given condition
+shouldn't have that need traded off against marginal threat-coverage gains elsewhere.
+
+**Status:** Implemented and merged. Two new regression tests added directly targeting this
+rank-key change; two existing tests extended with direct `fills_essential_gap` assertions
+confirming end-to-end population through `annotate_composition_impact`. Full suite: 1125 passed,
+8 skipped (skip count/reasons unchanged from established baseline). Implemented directly (Cursor
+unavailable), disclosed in the commit message; the one real design decision (priority ordering)
+was explicitly confirmed live with Vu before implementation, not assumed.
+
+**Deliberately not addressed here, tracked separately:** a distinct display-layer bug found during
+the same investigation — `present_text.py`'s `_format_candidate_selection` reads a candidate's
+first evidence-tuple item rather than its best evidence, which can show stale/misleading
+confidence text for a correctly-ranked candidate. Does not affect ranking correctness, only
+display text; left open.
+
+---
+
 ## ADR-027: Empty-team bootstrap — LLM-backed free-form extraction behind a
 deterministic-verification boundary; ADR-013's first real runtime consumer
 
@@ -6787,6 +6841,146 @@ with **no mocks at all** — the exact original live-failing scenario now produc
 Modest-nature pairing.
 
 **Status:** Shipped, merged to `main`.
+
+---
+
+### ADR-031 — Amendment 2026-08-17a: bare-number shorthand fixed — matches visible option id, not list position
+
+**Decision:** `_deterministic_build_option_ids`'s numeric-shorthand path (bare `"1"`,
+`"option 1"`) now matches exclusively against an option's own visible numeric suffix (e.g.
+`spread_nature:1` → `1`), never its position in the presented options list. Exact integer
+match only — `"1"` does not match `"spread_nature:11"`. Word-ordinals (`"first"`, `"the second
+one"`) are unchanged and keep list-position semantics.
+
+**Why:** `generate_build_option_groups` always prepends a synthetic, non-numeric default option
+at list position `0`, ahead of the real numbered siblings. `_ORDINAL_REPLIES`'s prior semantics
+mapped bare `"1"` to list position `0` — meaning it silently selected the default instead of the
+option literally labeled `1`, off by one against every real numbered sibling. Confirmed live
+and reproduced exactly against the real menu shape and build. This is a stronger finding than
+2026-08-16's handoff described (which characterized bare numbers as "correctly rejected, safe
+friction"): that description holds for the genuinely different multi-axis case
+(`len(groups) == 1` correctly gates the ordinal fallback off entirely when multiple axis groups
+are presented at once, so it correctly declines to guess there), but not for the single-axis,
+default-prepended shape, which is the common case for this presentation and does not reject —
+it silently resolves to the wrong option.
+
+**Scope confirmed, not assumed:** `candidate_selection` and `completion_preference`'s existing
+`_ORDINAL_REPLIES` usage is unaffected and untouched — both number options by literal list
+position via `enumerate(..., start=1)` in their respective formatters, so list-position-based
+ordinal matching is already correct there. Only `full_build_confirmation`'s option ids are
+independently numbered, disconnected from list position once a default is prepended.
+
+**Status:** Implemented and merged. Three regression tests added directly targeting the fix.
+Full suite: 1130 passed (up from 1127), 8 skipped (baseline unchanged). Implemented directly
+(Cursor unavailable), disclosed in the commit message; the one real design decision (exact-match
+semantics against the visible id) was explicitly confirmed live with Vu before implementation.
+
+**Deliberately not addressed here, left open:** resolving bare numbers when multiple axis
+groups are presented simultaneously in the same menu — the `len(groups) == 1` gate remains a
+hard exclusion, not a partial fix. Real open design question, per the original 2026-08-16
+handoff, still unresolved.
+
+---
+
+### ADR-031 — Amendment 2026-08-18a: partial/delta spread edits — new schema fields, and the
+reliability gaps that immediately followed
+
+**Decision:** `TurnIntentExtraction` gains `value_spread_set` (set named stat(s) to an exact
+value) and `value_spread_delta` (add a signed amount to named stat(s)), as alternatives to the
+existing full-replace `value_spread` — at most one of the three populated per edit. Resolution
+chains through existing machinery rather than new mutation logic: `apply_provisional_overrides`
+(a selection, if any) then `revise_provisional_slot` (the field_only spread adjustment on top),
+mirroring exactly what two sequential turns would already do.
+
+**Why:** "spread_nature:3, but with 5 Spe" was silently dropping the stat override entirely,
+because the only way to express a spread edit required the model to compute a full six-stat
+replacement — a materially harder generation task than naming a single field's new value the way
+"different item" edits already worked. Two smaller, real bugs found in the same investigation and
+fixed alongside: a latent `KeyError` crash risk in the pre-existing spread-coercion code (no
+guard against a missing stat key), and the compound-signal detector's clarifying message
+hardcoding "an edit and a comparison" even when the actual second signal was a selection.
+
+**Reliability gaps found immediately, live, not anticipated in the original design:**
+- `edit_scope` is consistently omitted (not wrong — absent) by the local model for otherwise
+  well-formed edits. Fixed by defaulting to `field_only` when omitted, rather than hard-failing —
+  the conservative, safe choice, and an explicit `regenerate` from the model is never overridden.
+- Stat keys are consistently emitted in conventional capitalized form (`Spe`, `HP`, `SpA`), not
+  this codebase's internal lowercase convention — silently rejected nearly every real extraction
+  as "unknown stat" until case-insensitive normalization was added, affecting the pre-existing
+  full-replace path too, not just the new fields.
+- The new optional fields being left as `{}` rather than `null` by the model tripped the shared
+  edit validator for every edit type, not just spread ones — a plain item edit failed with zero
+  relation to spread logic, which is what made this findable rather than another guess.
+
+**Status:** Implemented, tested, merged (`feat/partial-spread-edits`, PR into main 2026-08-18).
+
+---
+
+### ADR-031 — Amendment 2026-08-18b: don't trust model-computed spread arithmetic — extract only
+what's deterministically readable from the text
+
+**Decision:** A full-form `value_spread` from the model is never trusted as a literal final
+answer. When only a full-form value is given (no partial set/delta), it's diffed against the real
+base spread; if exactly one stat differs, that's trusted and the rest of the model's dict is
+discarded entirely. Separately, and more directly: `extract_single_stat_target()` reads a
+single-stat instruction ("make it 5 Spe," "2, but make it 5 Spe") straight out of the raw request
+text — stat name, value, set-vs-delta from nearby words — and rewrites the extraction to use the
+partial form *before* any of the model's own (possibly wrong) computation is ever consulted. The
+same principle recovers a dropped leading option reference ("2, but...") independently of whether
+the model's own `option_ids` extraction succeeded.
+
+**Why:** Confirmed live, twice, independently: the model's full-form computation reused unrelated
+values from a different menu option in one case, and scrambled two stats it wasn't asked to
+change in another, while correctly setting the one stat that was actually asked about. Prompt
+engineering (field descriptions steering the model toward the partial forms) measurably helped but
+did not reliably prevent this, especially for compound select+edit requests. Reframed directly by
+Vu mid-arc, not inferred: *"the agent's supposed to do the computation, can't keep asking the user
+for everything... the agent is useless if a fill form can do the job."* The fix that follows from
+that isn't a nicer clarifying question — it's recognizing the user's original request already,
+deterministically, contains everything needed, and there's no reason to route that through
+unreliable model arithmetic at all when the code can read it directly.
+
+**Scope, confirmed explicit:** the deterministic extractor only resolves single-stat requests.
+Genuinely multi-stat text ("shift the points from Def to SpD") or text with no confident single
+stat+value pairing is deliberately left unresolved (returns `None`, not a guess) and falls through
+to the ask-based flow in Amendment 2026-08-18c. This is a real, disclosed scope boundary — a
+generalized multi-stat deterministic resolver was not attempted.
+
+**Status:** Implemented, tested, merged.
+
+---
+
+### ADR-031 — Amendment 2026-08-18c: hybrid auto-regenerate/ask for budget-mismatched spread
+edits, and making the residual "ask" a real conversation
+
+**Decision:** When a valid, single-stat spread edit pushes the total off `SP_BUDGET`: if the
+mismatch is small (≤2 points) and there's one clear "smallest, has room" candidate stat among the
+untouched ones, auto-adjust it — always disclosed via a notice, never silent. Otherwise, ask which
+stat to adjust, with real defer support (cancels just the one edit, restores the prior build
+state, not the broader "abandon this slot" defer used elsewhere). The same real interactive
+architecture (a dedicated `PendingPresentation` kind, structured-data-driven display, a proper
+graph node to resolve the answer) is reused for the separate case where Amendment 2026-08-18b's
+deterministic extractor can't resolve a spread edit at all (genuinely multi-stat or unparseable
+text) — `spread_target_question`, asking for both stat and value together.
+
+**Why:** The auto/ask boundary and the "must never be silent" requirement were both put to Vu
+directly as real design decisions, not defaulted into — three options were laid out (always ask;
+always auto-regenerate silently-ish; hybrid) and the hybrid was chosen explicitly. Separately, the
+first version of the residual "ask" (for text the deterministic extractor can't resolve) was
+found, live, to be a dead end: a bare `slot_commit_error` phrased as a question with no state to
+receive an answer — a follow-up reply got treated as an unrelated fresh turn against the
+still-displayed menu. This is a distinct bug from Amendment b's scope: b eliminated most of the
+cases that ever reached this dead end, but for the residual genuinely-ambiguous case, asking is
+still correct — it just needs to actually function as a conversation when it does.
+
+**Real mistakes caught before shipping, logged plainly:** a first draft of the reallocation sort
+key applied `reverse=True` to the whole tuple, which would have inverted every other field's
+already-correct ascending-order design, not just added the new leading field — caught by a direct
+test before committing. A mid-arc refactor (moving stat-name parsing into `slot_fill.py` to avoid
+an awkward cross-module import direction between `nodes.py` and `turn_intent.py`) left a dead,
+duplicate function in the file for one commit, caught and removed in the next.
+
+**Status:** Implemented, tested, merged.
 
 ---
 
