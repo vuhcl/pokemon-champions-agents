@@ -275,6 +275,46 @@ def test_single_locked_pelipper_presents_rain_condition_beneficiary():
     assert "condition:Rain" in tokens
 
 
+def test_single_locked_essential_gap_fill_outranks_unrelated_candidates():
+    """Regression for the original rain-suggestion bug's real root cause
+    (2026-08-17): discover_single_locked never computed or used
+    fills_essential_gap at all, unlike discover_multi_locked (fixed
+    earlier, ADR-026 Amendment 2026-08-17a). Confirmed live: locking
+    Archaludon (real Electro-Shot-derived essential Rain dependency) alone
+    surfaced Sinistcha/Meowstic/Farigiraf -- no real rain setter -- because
+    _sort_annotated had no equivalent priority signal; every candidate tied
+    on _compendium_rank (compendium confidence is always "medium"
+    regardless of tier) and the tiebreak (matching_needs count) favored
+    unrelated candidates over the one that actually answers the team's
+    essential gap.
+    """
+    archaludon = Slot(
+        role=Attr("bulky_special_attacker", locked=True),
+        species=Attr("Archaludon", locked=True),
+        ability=Attr("Stamina", locked=True),
+        item=Attr("Leftovers", locked=True),
+        moveset=Attr(
+            ["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+            locked=True,
+        ),
+        spread=Attr(dict(SPREAD), locked=True),
+        nature=Attr("Timid", locked=True),
+    )
+    state = _state([archaludon, *[empty_slot() for _ in range(5)]])
+
+    with patch(
+        "recommender.threat_counters.query_threat_counters",
+        return_value=TeamThreatDiscovery(status="available", candidates=()),
+    ):
+        result = discover_single_locked(state)
+
+    pending = result["pending_presentation"]
+    assert pending is not None
+    species = [option["species"] for option in pending["options"]]
+    rain_species = {"Pelipper", "Politoed", "Klefki", "Liepard", "Meowstic", "Sableye"}
+    assert species and species[0] in rain_species, species
+
+
 def test_single_locked_partial_open_slot_uses_legacy_fallback():
     state = _state(
         [
