@@ -1652,3 +1652,73 @@ def test_dropped_option_id_recovered_for_non_spread_edit():
     assert payload["option_ids"] == (_CONFIRM_IDS[1],)
     assert payload["extra_field"] == "item"
     assert payload["extra_value"] == "Choice Scarf"
+
+
+def test_general_value_scanner_covers_phrasing_the_old_trigger_list_never_could():
+    """Regression for the real generalization request: the previous
+    approach matched only a fixed list of trigger phrases ('use X',
+    'with X', 'give it X', etc.), guaranteed to keep missing new real
+    phrasings as they came up. The general substring scanner detects the
+    real, known value directly, regardless of how it's introduced --
+    confirms phrasing the old trigger-phrase list could never have
+    covered, not just the previously-confirmed live cases.
+    """
+    from recommender.turn_intent import extract_item_name_target
+
+    # Previously covered, must still work.
+    assert extract_item_name_target("1, but use Choice Scarf instead") == "Choice Scarf"
+    # Genuinely new phrasing, never matched any trigger phrase.
+    assert extract_item_name_target("put a Choice Scarf on it") == "Choice Scarf"
+    assert extract_item_name_target("I want it to hold Life Orb") == "Life Orb"
+    assert extract_item_name_target("2, equip Rocky Helmet please") == "Rocky Helmet"
+    assert extract_item_name_target("give it Assault Vest") == "Assault Vest"
+
+
+def test_general_value_scanner_covers_nature_and_ability_not_just_item():
+    """New capability: the previous fix only ever covered item edits --
+    the general scanner covers nature and ability too, using the same
+    mechanism, since the underlying model failure (dropping an edit
+    signal entirely when combined with a selection) was never
+    item-specific in the first place."""
+    from recommender.turn_intent import (
+        extract_ability_name_target,
+        extract_nature_name_target,
+    )
+
+    assert extract_nature_name_target("1, but make it Modest") == "Modest"
+    assert extract_nature_name_target("change the nature to Jolly") == "Jolly"
+    assert extract_ability_name_target("2, but give it Intimidate") == "Intimidate"
+
+
+def test_detect_dropped_edit_field_declines_when_ambiguous_across_types():
+    """If text plausibly matches more than one field type (e.g. mentions
+    both a real item and a real nature), decline rather than guess which
+    one the user meant -- same fail-closed contract as every other
+    extractor in this module."""
+    from recommender.turn_intent import detect_dropped_edit_field
+
+    assert detect_dropped_edit_field("use Choice Scarf and make it Modest") is None
+    assert detect_dropped_edit_field("shift all the pts in Def to SpD") is None
+
+
+def test_dropped_edit_field_recovered_end_to_end_for_new_phrasing():
+    """Full chain regression: a phrasing the OLD trigger-phrase approach
+    could never have matched ('put a Choice Scarf on it') now resolves
+    correctly end-to-end through classify_pending, the same as the
+    originally-confirmed live phrasing did."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": ["2"],
+        }
+    )
+    result = classify_pending(
+        "2, but put a Choice Scarf on it",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"
