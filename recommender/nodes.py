@@ -205,6 +205,51 @@ def _extract_leading_option_id(
     return exact[0] if len(exact) == 1 else None
 
 
+def find_option_reference_anywhere(
+    text: str, pending: PendingPresentation
+) -> str | None:
+    """Scan the WHOLE text (not just a leading position) for a real,
+    unambiguous option reference -- a bare number, "option N", or an
+    informal "default" phrase -- matching a real option id in the
+    current single-group presentation. No separator word required at
+    all, and no position requirement: "2, but use Choice Scarf", "use
+    Choice Scarf and 2", "also select 2", "option 2 as well" all resolve
+    the same way, since none of them need a specific trigger word to be
+    recognized -- the real option number is just found wherever it is.
+
+    Only safe when there's no competing numeric signal elsewhere in the
+    same text -- true for ability/item/nature/moves edits (none have a
+    numeric value of their own) but NOT true for spread edits (a stat
+    value is itself a number that could coincidentally collide with a
+    real option's numeric suffix). _extract_leading_option_id stays
+    position-anchored specifically for that reason; this function is
+    the generalized sibling used only where that risk doesn't apply.
+    """
+    groups = list(pending.get("build_option_groups") or ())
+    if len(groups) != 1:
+        return None
+    opts = list(groups[0].get("options") or ())
+    number_to_id: dict[int, str] = {}
+    default_id: str | None = None
+    for opt in opts:
+        oid = str(opt.get("option_id") or "")
+        if oid.endswith(":default"):
+            default_id = oid
+        num = _option_id_number(oid)
+        if num is not None:
+            number_to_id[num] = oid
+
+    tokens = re.findall(r"[A-Za-z]+|\d+", text)
+    found_ids: set[str] = set()
+    for tok in tokens:
+        if tok.isdigit() and int(tok) in number_to_id:
+            found_ids.add(number_to_id[int(tok)])
+    if default_id is not None and any(tok.lower() == "default" for tok in tokens):
+        found_ids.add(default_id)
+
+    return next(iter(found_ids)) if len(found_ids) == 1 else None
+
+
 def _deterministic_build_option_ids(
     text: str, pending: PendingPresentation
 ) -> tuple[str, ...] | None:
@@ -781,11 +826,25 @@ def _gap_fill(
                 # Confirmed live ("1, but with Choice Scarf"): the model can
                 # extract a bare, unresolved option id ("1") instead of the
                 # real axis-prefixed one ("spread_nature:1"), not just drop
-                # option_ids entirely. Recover from the raw text using the
-                # same real-id resolution _extract_leading_option_id already
-                # does, before the "Unknown build option id" safety net
-                # (_apply_classify_gates) gets a chance to reject it outright.
-                recovered = _extract_leading_option_id(text, pending_presentation)
+                # option_ids entirely. Recover from the raw text, before the
+                # "Unknown build option id" safety net (_apply_classify_gates)
+                # gets a chance to reject it outright.
+                #
+                # Uses the general, position-independent finder unless the
+                # payload also carries a spread signal (spread_set/delta) --
+                # a stat value is itself a number that could coincidentally
+                # collide with a real option's numeric suffix, so that case
+                # stays on the position-anchored extractor to avoid the
+                # ambiguity. Every other case (a plain, non-spread compound
+                # select, or no edit signal at all) has no such risk.
+                has_spread_signal = bool(
+                    payload.get("spread_set") or payload.get("spread_delta")
+                )
+                recovered = (
+                    _extract_leading_option_id(text, pending_presentation)
+                    if has_spread_signal
+                    else find_option_reference_anywhere(text, pending_presentation)
+                )
                 if recovered is not None:
                     result = {
                         **result,
@@ -1414,15 +1473,15 @@ def classify_pending(
             }:
                 # Confirmed live ("2+use Choice Scarf"): the model can
                 # correctly extract a non-spread edit (field=item,
-                # value_text=Choice Scarf) while dropping the leading
-                # option reference entirely (option_ids=None), not just
-                # for spread edits -- this generalizes the spread-only fix
-                # above rather than leaving item/ability/nature/moves
-                # edits with the same gap. Also confirms "+" needs to be
-                # recognized as a leading-option-reference separator, not
-                # just comma/"but" -- this UI's own documented composition
-                # syntax ("pick option ids (compose with +)").
-                leading_id = _extract_leading_option_id(text, pending_presentation)
+                # value_text=Choice Scarf) while dropping the option
+                # reference entirely (option_ids=None) -- not just for
+                # spread edits. Uses the general, position-independent
+                # finder here (not the leading-position-only one): none
+                # of ability/item/nature/moves have a numeric value of
+                # their own, so there's no risk of confusing an option
+                # number with something else, regardless of where in the
+                # text it appears or what word (if any) surrounds it.
+                leading_id = find_option_reference_anywhere(text, pending_presentation)
                 if leading_id is not None:
                     result = {
                         "turn_intent": "select_build_option",

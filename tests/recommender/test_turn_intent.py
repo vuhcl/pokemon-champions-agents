@@ -1722,3 +1722,51 @@ def test_dropped_edit_field_recovered_end_to_end_for_new_phrasing():
     assert payload["option_ids"] == (_CONFIRM_IDS[1],)
     assert payload["extra_field"] == "item"
     assert payload["extra_value"] == "Choice Scarf"
+
+
+def test_find_option_reference_anywhere_covers_position_and_separator_variety():
+    """Regression for further real feedback: separator-word-list-based
+    fixes were already flagged as a fragile pattern. Confirms option
+    references are now found regardless of position (leading, trailing)
+    or separator word ('and', 'also', 'plus', 'as well', no word at
+    all) -- not just the specific comma/but/+ patterns fixed earlier.
+    """
+    from recommender.nodes import find_option_reference_anywhere
+
+    pending = _confirmation_with_groups()
+    target = _CONFIRM_IDS[1]
+
+    assert find_option_reference_anywhere("2, but use Choice Scarf", pending) == target
+    assert find_option_reference_anywhere("use Choice Scarf and 2", pending) == target
+    assert find_option_reference_anywhere("also select 2", pending) == target
+    assert find_option_reference_anywhere("option 2 as well", pending) == target
+    assert find_option_reference_anywhere("use Choice Scarf plus 2", pending) == target
+    # No option reference at all -- must correctly decline, not guess.
+    assert find_option_reference_anywhere("make it 5 Spe", pending) is None
+
+
+def test_trailing_option_reference_recovered_end_to_end():
+    """Full chain: a purely TRAILING option reference (no leading
+    position at all) resolves correctly for a non-spread edit, since
+    item/ability/nature/moves have no numeric value of their own to
+    create ambiguity with the option number, wherever it appears.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "edit_scope": "field_only",
+            "value_text": "Choice Scarf",
+            "option_ids": None,
+        }
+    )
+    result = classify_pending(
+        "use Choice Scarf and also select 2",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"
