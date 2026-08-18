@@ -1404,6 +1404,7 @@ def _sort_annotated(rows: list[AnnotatedCandidate]) -> list[AnnotatedCandidate]:
     return sorted(
         rows,
         key=lambda r: (
+            -int(r.fills_essential_gap),
             _compendium_rank(r),
             -len(r.matching_needs),
             -(
