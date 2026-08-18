@@ -355,6 +355,7 @@ class PendingPresentation(TypedDict, total=False):
         "confirm_abandon_build",
         "spread_reallocation_question",
         "spread_target_question",
+        "item_moveset_conflict_question",
     ]
     slot_index: int
     options: list[PendingPresentationOption]
@@ -379,6 +380,13 @@ class PendingPresentation(TypedDict, total=False):
     target_question_diffs: tuple[str, ...]
     target_question_edited_fields: tuple[str, ...]
     target_question_rejection_reason: str
+    # item_moveset_conflict_question only:
+    conflict_attempted_item: str
+    conflict_previous_item: str
+    conflict_moves: tuple[str, ...]
+    conflict_move_alternatives: tuple[str, ...]
+    conflict_edited_fields: tuple[str, ...]
+    conflict_rejection_reason: str
 
 
 @dataclass(frozen=True)

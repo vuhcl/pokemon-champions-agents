@@ -74,6 +74,13 @@ _AFFIRMATIVE_REPLIES = frozenset(
 _DEFER_REPLIES = frozenset(
     {"defer", "later", "not now", "skip for now", "come back to this"}
 )
+_KEEP_IT_REPLIES = frozenset(
+    {
+        "keep it", "keep it as is", "keep it as-is", "ignore", "ignore it",
+        "ignore the conflict", "leave it", "leave it as is", "leave it as-is",
+        "that's fine", "its fine", "it's fine", "fine", "keep as is",
+    }
+)
 _REJECT_ALL_REPLIES = frozenset(
     {"no", "nope", "neither", "none", "reject", "reject all", "something else"}
 )
@@ -576,8 +583,111 @@ def _disallowed_status_move_names(
     return names
 
 
+def _find_damaging_move_alternatives(
+    result: ProvisionalSlot, *, regulation: str, limit: int = 3
+) -> list[str]:
+    """Real, usage-backed damaging move alternatives for this species,
+    excluding moves already in the current set. Reuses existing data
+    (resolve_learnset, move_narrowing._commitment_pct) rather than
+    inventing a new suggestion pipeline -- confirmed directly against the
+    live Archaludon+Choice-Scarf scenario before this was written: yields
+    Draco Meteor, Aura Sphere, Thunderbolt, in real commitment-% order,
+    Aura Sphere being the exact move tried live in an earlier, unrelated
+    timeout.
+    """
+    from recommender.legality import resolve_learnset
+    from recommender.move_narrowing import _commitment_pct
+
+    snap = load_snapshot()
+    learnset = resolve_learnset(snap, result.species) or []
+    moves_meta = snap.get("moves") or {}
+    current = {to_id(m) for m in result.moves}
+
+    candidates: list[tuple[str, float]] = []
+    for mid in learnset:
+        if mid in current:
+            continue
+        meta = moves_meta.get(mid) or {}
+        if (meta.get("category") or "") == "Status":
+            continue
+        pct = _commitment_pct(result.species, mid, regulation=regulation)
+        if pct is not None:
+            candidates.append((mid, pct))
+    candidates.sort(key=lambda pair: -pair[1])
+    id_to_name = {to_id(m): m for m in learnset}
+    return [
+        moves_meta.get(mid, {}).get("name") or id_to_name.get(mid, mid)
+        for mid, _ in candidates[:limit]
+    ]
+
+
+def _handle_item_moveset_conflict(
+    result: ProvisionalSlot,
+    *,
+    previous_item: str,
+    state: RecommenderState,
+    intent: PendingSlotIntent,
+    edited_fields: frozenset[str],
+) -> dict | None:
+    """If `result` fails hard verification specifically because of a
+    Choice-item + non-damaging-move conflict, build an interactive
+    resolution question (pick a damaging alternative, keep it anyway, or
+    revert the item) instead of a dead-end error. Returns None if this
+    isn't that specific failure -- caller proceeds to the normal error
+    path unchanged, same pattern as _handle_spread_budget_mismatch.
+    """
+    from recommender.reconcile import _tier1_choice_status_moves
+
+    reason = ReasonRef(kind="user_stated")
+    snap = load_snapshot()
+    # Gate on the real detection function first -- it verifies a genuine
+    # Choice item is actually locked, not just that a status move happens
+    # to be present. Confirmed live via a real test failure:
+    # _disallowed_status_move_names alone fired for a completely fake,
+    # illegal item (which should have surfaced as an "illegal edited slot"
+    # error instead), since it never checked the item at all.
+    if _tier1_choice_status_moves(result.to_slot(locked=True, reason=reason), snap) is None:
+        return None
+    status_moves = _disallowed_status_move_names(result, snap)
+    if not status_moves:
+        return None
+    regulation = state.get("regulation_mod") or "champions-reg-mb"
+    alternatives = _find_damaging_move_alternatives(result, regulation=regulation)
+    current_pending = state.get("pending_presentation")
+    held = current_pending if isinstance(current_pending, dict) else None
+    question: PendingPresentation = {
+        "schema_version": 1,
+        "kind": "item_moveset_conflict_question",
+        "slot_index": result.slot_index,
+        "conflict_attempted_item": result.item,
+        "conflict_previous_item": previous_item,
+        "conflict_moves": tuple(status_moves),
+        "conflict_move_alternatives": tuple(alternatives),
+        "conflict_edited_fields": tuple(sorted(edited_fields)),
+    }
+    if held is not None:
+        question["held_pending"] = held
+    return {
+        # The stored base is the PRE-edit, still-valid provisional (not
+        # `result`, which carries the conflicted attempt) -- matches
+        # spread_target_question's pattern: defer needs no special-case
+        # revert logic, since leaving provisional_slot untouched at the
+        # pre-edit state already IS the correct revert outcome. The
+        # attempted item is preserved separately in the question's own
+        # fields, and other resolution paths re-derive the final result
+        # from this base plus the stored answer.
+        "provisional_slot": state.get("provisional_slot"),
+        "pending_slot_intent": intent,
+        "slot_commit_error": None,
+        "pending_presentation": question,
+    }
+
+
 def _verify_provisional_hard(
-    result: ProvisionalSlot, state: RecommenderState
+    result: ProvisionalSlot,
+    state: RecommenderState,
+    *,
+    accept_status_move_conflict: bool = False,
 ) -> str | None:
     spread = result.spread_dict()
     if (
@@ -601,9 +711,27 @@ def _verify_provisional_hard(
             f"{failure.kind}:{failure.element}" for failure in legality.failures
         )
     reason = ReasonRef(kind="user_stated")
-    conflicts = simultaneous_lock_conflicts(
-        result.to_slot(locked=True, reason=reason)
-    )
+    slot = result.to_slot(locked=True, reason=reason)
+    if accept_status_move_conflict:
+        # The user explicitly consented to the Choice-item/status-move
+        # conflict via item_moveset_conflict_question -- don't re-flag
+        # that specific issue. But check the OTHER conflict this same
+        # group can bundle (_tier1_speed_direction, Choice Scarf + Trick
+        # Room) independently and separately, per explicit scope decision
+        # with Vu: "ignore" only bypasses the specific issue shown and
+        # consented to, never an unrelated one riding along in the same
+        # bundled conflict group.
+        from recommender.reconcile import _tier1_speed_direction
+
+        speed_conflict = _tier1_speed_direction(slot)
+        if speed_conflict is not None:
+            return (
+                "conflicting edited fields: item/moveset ("
+                + speed_conflict.detail
+                + ")"
+            )
+        return None
+    conflicts = simultaneous_lock_conflicts(slot)
     if conflicts:
         if ("item", "moveset") in [tuple(sorted(g)) for g in conflicts]:
             status_moves = _disallowed_status_move_names(result, load_snapshot())
@@ -879,6 +1007,92 @@ def resolve_spread_target_question(state: RecommenderState) -> dict[str, Any]:
     return out
 
 
+def resolve_item_moveset_conflict(state: RecommenderState) -> dict[str, Any]:
+    """Resolve an item_moveset_conflict_question: replace the conflicting
+    move with the chosen alternative, or accept the conflict and apply the
+    item change anyway (narrowly -- re-verifies everything else, including
+    the OTHER conflict this same group can bundle, so "keep it" never
+    silently waves through an unrelated issue).
+    """
+    from recommender.edit_review import collect_provisional_review_flags
+    from recommender.slot_fill import apply_provisional_overrides
+
+    pending_presentation = state.get("pending_presentation")
+    payload = state.get("turn_payload")
+    if (
+        not isinstance(pending_presentation, dict)
+        or pending_presentation.get("kind") != "item_moveset_conflict_question"
+        or not isinstance(payload, dict)
+        or payload.get("action") not in {"keep", "replace_move"}
+    ):
+        return {
+            "slot_commit_error": "missing or unsupported item conflict question state"
+        }
+
+    intent = state.get("pending_slot_intent")
+    provisional = state.get("provisional_slot")
+    attempted_item = pending_presentation.get("conflict_attempted_item")
+    conflicting_moves = pending_presentation.get("conflict_moves") or ()
+    edited_fields = frozenset(
+        pending_presentation.get("conflict_edited_fields") or ()
+    )
+    if (
+        intent is None
+        or provisional is None
+        or not isinstance(provisional, ProvisionalSlot)
+        or not attempted_item
+    ):
+        return {
+            "slot_commit_error": "Could not resolve that: missing provisional state"
+        }
+
+    overrides: dict[str, Any] = {"item": attempted_item}
+    accept_conflict = False
+    if payload["action"] == "keep":
+        accept_conflict = True
+    else:
+        chosen_move = str(payload["move"])
+        new_moves = list(provisional.moves)
+        # Replace the first conflicting move found in the current moveset
+        # with the chosen alternative -- confirmed conflicting_moves[0]
+        # exists in provisional.moves by construction (it was read from
+        # this same provisional's moveset when the question was built).
+        target = to_id(conflicting_moves[0]) if conflicting_moves else None
+        replaced = False
+        for i, move in enumerate(new_moves):
+            if target is not None and to_id(move) == target:
+                new_moves[i] = chosen_move
+                replaced = True
+                break
+        if not replaced:
+            return {
+                "slot_commit_error": "Could not apply that adjustment: original move not found"
+            }
+        overrides["moves"] = tuple(new_moves)
+
+    result = apply_provisional_overrides(
+        provisional, overrides=overrides, intent=intent, state=state
+    )
+    if isinstance(result, UnresolvedSlotRefinement):
+        return {
+            "slot_commit_error": (
+                "Could not apply that adjustment: "
+                + (result.reason or ",".join(result.unresolved_fields))
+            )
+        }
+    err = _verify_provisional_hard(
+        result, state, accept_status_move_conflict=accept_conflict
+    )
+    if err:
+        return {"slot_commit_error": err}
+    flags = collect_provisional_review_flags(
+        result, state, edited_fields=edited_fields | set(overrides)
+    )
+    out = _emit_full_build_confirmation(state, result, review_flags=flags)
+    out["pending_slot_intent"] = intent
+    return out
+
+
 def classify_pending(
     text: str,
     pending_presentation: PendingPresentation | None = None,
@@ -1060,6 +1274,49 @@ def classify_pending(
         return {
             "turn_intent": "resolve_spread_target_question",
             "turn_payload": {"stat": stat, "value": num_value, "is_delta": is_delta},
+        }
+    if pending_presentation.get("kind") == "item_moveset_conflict_question":
+        if pending_presentation.get("schema_version", 1) != 1:
+            return {"turn_intent": "pending_response"}
+        if reply in _DEFER_REPLIES:
+            held = pending_presentation.get("held_pending")
+            if held is None:
+                return {
+                    "turn_intent": "pending_response",
+                    "pending_presentation": None,
+                    "pending_slot_intent": None,
+                    "provisional_slot": None,
+                }
+            return {
+                "turn_intent": "pending_response",
+                "turn_payload": {"message": KEEP_BUILD_MSG},
+                "pending_presentation": held,
+            }
+        if reply in _KEEP_IT_REPLIES:
+            return {
+                "turn_intent": "resolve_item_moveset_conflict",
+                "turn_payload": {"action": "keep"},
+            }
+        alternatives = pending_presentation.get("conflict_move_alternatives") or ()
+        chosen_move: str | None = None
+        if reply.isdigit():
+            idx = int(reply) - 1
+            if 0 <= idx < len(alternatives):
+                chosen_move = alternatives[idx]
+        else:
+            for alt in alternatives:
+                if to_id(alt) == to_id(text):
+                    chosen_move = alt
+                    break
+        if chosen_move is None:
+            updated_q: PendingPresentation = dict(pending_presentation)  # type: ignore[assignment]
+            updated_q["conflict_rejection_reason"] = (
+                "I couldn't tell which move you meant."
+            )
+            return {"turn_intent": "pending_response", "pending_presentation": updated_q}
+        return {
+            "turn_intent": "resolve_item_moveset_conflict",
+            "turn_payload": {"action": "replace_move", "move": chosen_move},
         }
     if version != 1:
         return {
@@ -1635,6 +1892,16 @@ def apply_provisional_edit(state: RecommenderState) -> dict:
         )
         if mismatch is not None:
             return mismatch
+        if field == "item":
+            conflict = _handle_item_moveset_conflict(
+                result,
+                previous_item=provisional.item,
+                state=state,
+                intent=intent,
+                edited_fields=frozenset({field}),
+            )
+            if conflict is not None:
+                return conflict
         return {"slot_commit_error": err}
 
     flags = collect_provisional_review_flags(
