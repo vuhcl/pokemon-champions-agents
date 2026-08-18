@@ -25,6 +25,7 @@ _INTENT_ROUTES = {
     "select_build_option": "apply_provisional_option",
     "compare": "compare_build_options",
     "resolve_spread_reallocation": "resolve_spread_reallocation",
+    "resolve_spread_target_question": "resolve_spread_target_question",
 }
 
 _PHASE_ROUTES = {
@@ -86,6 +87,7 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
     g.add_node("apply_provisional_edit", nodes.apply_provisional_edit)
     g.add_node("apply_provisional_option", nodes.apply_provisional_option)
     g.add_node("resolve_spread_reallocation", nodes.resolve_spread_reallocation)
+    g.add_node("resolve_spread_target_question", nodes.resolve_spread_target_question)
     g.add_node("compare_build_options", nodes.compare_build_options)
     g.add_node("commit_full_slot", nodes.commit_full_slot)
 
@@ -115,6 +117,7 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
     g.add_edge("apply_provisional_edit", END)
     g.add_edge("apply_provisional_option", END)
     g.add_edge("resolve_spread_reallocation", END)
+    g.add_edge("resolve_spread_target_question", END)
     g.add_edge("compare_build_options", END)
     g.add_conditional_edges(
         "refine_provisional_slot",

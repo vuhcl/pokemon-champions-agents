@@ -753,6 +753,92 @@ def resolve_spread_reallocation(state: RecommenderState) -> dict[str, Any]:
     return out
 
 
+def resolve_spread_target_question(state: RecommenderState) -> dict[str, Any]:
+    """Apply the stat+value the user named to resolve a
+    spread_target_question, going through the same auto-reallocate/ask
+    machinery as any other spread edit in case the answer itself creates a
+    budget mismatch (e.g. answering 'Spe 5' still needs points freed up
+    from somewhere else).
+    """
+    from recommender.edit_review import collect_provisional_review_flags
+    from recommender.slot_fill import apply_partial_spread, revise_provisional_slot
+
+    pending_presentation = state.get("pending_presentation")
+    payload = state.get("turn_payload")
+    if (
+        not isinstance(pending_presentation, dict)
+        or pending_presentation.get("kind") != "spread_target_question"
+        or not isinstance(payload, dict)
+        or not payload.get("stat")
+        or payload.get("value") is None
+    ):
+        return {"slot_commit_error": "missing or unsupported spread target question state"}
+
+    stat = str(payload["stat"])
+    num_value = int(payload["value"])
+    is_delta = bool(payload.get("is_delta"))
+    intent = state.get("pending_slot_intent")
+    provisional = state.get("provisional_slot")
+    edited_fields = frozenset(
+        pending_presentation.get("target_question_edited_fields") or ()
+    )
+
+    if (
+        intent is None
+        or provisional is None
+        or not isinstance(provisional, ProvisionalSlot)
+    ):
+        return {
+            "slot_commit_error": "Could not resolve that: missing provisional state"
+        }
+
+    adjusted = apply_partial_spread(
+        provisional.spread_dict(),
+        set_stats=None if is_delta else {stat: num_value},
+        delta_stats={stat: num_value} if is_delta else None,
+    )
+    if adjusted is None:
+        return {"slot_commit_error": "Could not apply that adjustment: malformed spread"}
+
+    reapplied = revise_provisional_slot(
+        provisional,
+        field="spread",
+        value=adjusted,
+        scope="field_only",
+        intent=intent,
+        state=state,
+    )
+    if isinstance(reapplied, UnresolvedSlotRefinement):
+        return {
+            "slot_commit_error": (
+                "Could not apply that adjustment: "
+                + (reapplied.reason or ",".join(reapplied.unresolved_fields))
+            )
+        }
+    err = _verify_provisional_hard(reapplied, state)
+    if err:
+        # The answer itself might create a budget mismatch (e.g. "Spe 5"
+        # still needs points freed up) -- reuse the same auto-reallocate/
+        # ask machinery rather than dead-ending again.
+        mismatch = _handle_spread_budget_mismatch(
+            reapplied,
+            field="spread",
+            excluded_stats={stat},
+            state=state,
+            intent=intent,
+            edited_fields=edited_fields,
+        )
+        if mismatch is not None:
+            return mismatch
+        return {"slot_commit_error": err}
+    flags = collect_provisional_review_flags(
+        reapplied, state, edited_fields=edited_fields
+    )
+    out = _emit_full_build_confirmation(state, reapplied, review_flags=flags)
+    out["pending_slot_intent"] = intent
+    return out
+
+
 def classify_pending(
     text: str,
     pending_presentation: PendingPresentation | None = None,
@@ -903,6 +989,37 @@ def classify_pending(
         return {
             "turn_intent": "resolve_spread_reallocation",
             "turn_payload": {"chosen_stat": chosen_stat},
+        }
+    if pending_presentation.get("kind") == "spread_target_question":
+        if pending_presentation.get("schema_version", 1) != 1:
+            return {"turn_intent": "pending_response"}
+        if reply in _DEFER_REPLIES:
+            held = pending_presentation.get("held_pending")
+            if held is None:
+                return {
+                    "turn_intent": "pending_response",
+                    "pending_presentation": None,
+                    "pending_slot_intent": None,
+                    "provisional_slot": None,
+                }
+            return {
+                "turn_intent": "pending_response",
+                "turn_payload": {"message": KEEP_BUILD_MSG},
+                "pending_presentation": held,
+            }
+        from recommender.turn_intent import extract_single_stat_target
+
+        target = extract_single_stat_target(text)
+        if target is None:
+            updated: PendingPresentation = dict(pending_presentation)  # type: ignore[assignment]
+            updated["target_question_rejection_reason"] = (
+                "I couldn't tell which stat and value you meant."
+            )
+            return {"turn_intent": "pending_response", "pending_presentation": updated}
+        stat, num_value, is_delta = target
+        return {
+            "turn_intent": "resolve_spread_target_question",
+            "turn_payload": {"stat": stat, "value": num_value, "is_delta": is_delta},
         }
     if version != 1:
         return {
@@ -1382,7 +1499,40 @@ def apply_provisional_edit(state: RecommenderState) -> dict:
             value, provisional.spread_dict()
         )
         if derive_err is not None:
-            return {"slot_commit_error": f"Could not apply edit: {derive_err}"}
+            # Was previously a bare slot_commit_error -- a dead end, since
+            # the message asked a question ("which ONE stat...") with no
+            # way to ever hear the answer. Confirmed live: a follow-up
+            # reply naming a stat got treated as an unrelated fresh turn
+            # against the still-displayed full_build_confirmation menu,
+            # producing a confusing unrelated response. Now builds a real
+            # interactive question, same architecture as
+            # spread_reallocation_question.
+            from recommender.slot_fill import _coerce_full_spread
+
+            base = provisional.spread_dict()
+            attempted = _coerce_full_spread(value)
+            diffs = (
+                tuple(s for s in base if attempted[s] != base[s])
+                if attempted is not None
+                else ()
+            )
+            current_pending = state.get("pending_presentation")
+            held = current_pending if isinstance(current_pending, dict) else None
+            question: PendingPresentation = {
+                "schema_version": 1,
+                "kind": "spread_target_question",
+                "slot_index": provisional.slot_index,
+                "target_question_diffs": diffs,
+                "target_question_edited_fields": (field,),
+            }
+            if held is not None:
+                question["held_pending"] = held
+            return {
+                "provisional_slot": provisional,
+                "pending_slot_intent": intent,
+                "slot_commit_error": None,
+                "pending_presentation": question,
+            }
         value = derived
     result = revise_provisional_slot(
         provisional,

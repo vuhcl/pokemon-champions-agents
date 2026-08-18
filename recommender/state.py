@@ -354,6 +354,7 @@ class PendingPresentation(TypedDict, total=False):
         "bootstrap_intake",
         "confirm_abandon_build",
         "spread_reallocation_question",
+        "spread_target_question",
     ]
     slot_index: int
     options: list[PendingPresentationOption]
@@ -374,6 +375,10 @@ class PendingPresentation(TypedDict, total=False):
     reallocation_excluded_stats: tuple[str, ...]
     reallocation_edited_fields: tuple[str, ...]
     reallocation_rejection_reason: str
+    # spread_target_question only:
+    target_question_diffs: tuple[str, ...]
+    target_question_edited_fields: tuple[str, ...]
+    target_question_rejection_reason: str
 
 
 @dataclass(frozen=True)

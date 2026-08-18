@@ -632,11 +632,14 @@ def test_derive_trustworthy_spread_edit_accepts_clean_single_diff():
     assert adjusted == clean
 
 
-def test_plain_spread_edit_rejects_scrambled_full_form_end_to_end():
+def test_plain_spread_edit_asks_interactively_for_scrambled_full_form_end_to_end():
     """End-to-end through apply_provisional_edit: a full-form value_spread
     with no partial (set/delta) form, differing from the current build in
-    more than one stat, is rejected with a specific message rather than
-    silently applied."""
+    more than one stat, produces an interactive spread_target_question
+    instead of either silently applying the untrusted value or dead-ending
+    on a plain error. Confirmed live: a plain error asking "which ONE
+    stat..." had no mechanism to ever hear the answer -- the follow-up
+    reply got treated as an unrelated fresh turn."""
     from recommender.nodes import apply_provisional_edit
 
     provisional = _provisional()  # spread: hp=4,atk=0,def=0,spa=32,spd=0,spe=30
@@ -649,8 +652,11 @@ def test_plain_spread_edit_rejects_scrambled_full_form_end_to_end():
         payload={"field": "spread", "value": scrambled, "scope": "field_only"},
     )
     out = apply_provisional_edit(state)
-    assert out.get("slot_commit_error") is not None
-    assert "2 stats" in out["slot_commit_error"]
+    assert out.get("slot_commit_error") is None
+    pending = out["pending_presentation"]
+    assert pending["kind"] == "spread_target_question"
+    assert set(pending["target_question_diffs"]) == {"spa", "spe"}
+    assert out["provisional_slot"] == provisional  # unchanged, still the valid base
 
 
 def test_plain_spread_edit_accepts_clean_single_diff_end_to_end():
@@ -715,3 +721,88 @@ def test_default_phrase_resolves_to_the_real_default_option_id():
         assert _deterministic_build_option_ids(text, pending) == (
             "spread_nature:default",
         )
+
+
+def test_spread_target_question_resolves_end_to_end_with_reallocation():
+    """Full regression for the 'immediately forgets the first request' bug
+    (2026-08-18): confirms the whole loop -- ambiguous edit produces an
+    interactive question, a natural follow-up reply ('Spe 5') is correctly
+    parsed and applied, and if the answer itself creates a budget mismatch
+    it's auto-reallocated rather than dead-ending a second time."""
+    from recommender.nodes import (
+        apply_provisional_edit,
+        classify_pending,
+        resolve_spread_target_question,
+    )
+
+    provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=_decision(),
+        species="Archaludon",
+        ability="Stamina",
+        item="Leftovers",
+        moves=("Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"),
+        nature="Modest",
+        spread={"hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3},
+        fingerprint="fp",
+    )
+    state1 = _state(
+        provisional,
+        payload={
+            "field": "spread",
+            "value": {"hp": 32, "atk": 0, "def": 29, "spa": 0, "spd": 0, "spe": 5},
+            "scope": "field_only",
+        },
+    )
+    out1 = apply_provisional_edit(state1)
+    assert out1.get("slot_commit_error") is None
+    question = out1["pending_presentation"]
+    assert question["kind"] == "spread_target_question"
+
+    dispatch = classify_pending("Spe 5", question)
+    assert dispatch["turn_intent"] == "resolve_spread_target_question"
+    assert dispatch["turn_payload"] == {"stat": "spe", "value": 5, "is_delta": False}
+
+    state2 = _state(provisional, pending=question, payload=dispatch["turn_payload"])
+    out2 = resolve_spread_target_question(state2)
+    assert out2.get("slot_commit_error") is None
+    final_spread = out2["provisional_slot"].spread_dict()
+    assert final_spread["spe"] == 5
+    from recommender.recommend import SP_BUDGET, spread_sum
+    assert spread_sum(final_spread) == SP_BUDGET
+    notices = out2["pending_presentation"].get("notices") or ()
+    assert any("Adjusted spread" in n for n in notices)
+
+
+def test_spread_target_question_defer_restores_held_pending():
+    from recommender.nodes import classify_pending
+
+    held = {"schema_version": 1, "kind": "full_build_confirmation", "slot_index": 0}
+    question = {
+        "schema_version": 1,
+        "kind": "spread_target_question",
+        "slot_index": 0,
+        "target_question_diffs": ("def", "spa", "spd", "spe"),
+        "target_question_edited_fields": ("spread",),
+        "held_pending": held,
+    }
+    result = classify_pending("defer", question)
+    assert result["turn_intent"] == "pending_response"
+    assert result["pending_presentation"] == held
+
+
+def test_spread_target_question_reasks_on_unparseable_reply():
+    from recommender.nodes import classify_pending
+
+    question = {
+        "schema_version": 1,
+        "kind": "spread_target_question",
+        "slot_index": 0,
+        "target_question_diffs": ("def", "spa", "spd", "spe"),
+        "target_question_edited_fields": ("spread",),
+    }
+    result = classify_pending("blah blah", question)
+    assert result["turn_intent"] == "pending_response"
+    assert result["pending_presentation"]["kind"] == "spread_target_question"
+    assert result["pending_presentation"]["target_question_rejection_reason"]

@@ -223,6 +223,32 @@ def _format_spread_reallocation_question(pending: Mapping[str, Any]) -> list[str
     return lines
 
 
+def _format_spread_target_question(pending: Mapping[str, Any]) -> list[str]:
+    """Fires when the deterministic single-stat text extraction couldn't
+    confidently resolve a spread edit either (genuinely multi-stat text,
+    or the model's guess touched multiple stats with no single clear
+    intent readable from the request). Asks for both stat and value in
+    one reply, since -- unlike spread_reallocation_question -- neither is
+    reliably known yet."""
+    diffs = pending.get("target_question_diffs") or ()
+    reason = pending.get("target_question_rejection_reason")
+    lines = []
+    if reason:
+        lines.append(str(reason))
+    elif diffs:
+        lines.append(
+            f"That implies changing {len(diffs)} stats "
+            f"({', '.join(_stat_label(s) for s in diffs)}) at once, and I'm not "
+            "confident in that computation."
+        )
+    lines.append(
+        "Which ONE stat did you want to change, and to what value? "
+        "(e.g. 'Spe 5' or 'Spe to 5')"
+    )
+    lines.append("Reply with a stat and a value, or 'defer' to keep the current spread unchanged.")
+    return lines
+
+
 def _format_full_build(state: Mapping[str, Any]) -> list[str]:
     provisional = state.get("provisional_slot")
     pending = state.get("pending_presentation") or {}
@@ -339,6 +365,8 @@ def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
                 blocks.append(f"Pending build: {species}.")
         elif kind == "spread_reallocation_question":
             blocks.extend(_format_spread_reallocation_question(pending))
+        elif kind == "spread_target_question":
+            blocks.extend(_format_spread_target_question(pending))
         else:
             blocks.append(f"(pending kind: {kind})")
 
