@@ -143,6 +143,39 @@ def test_apply_partial_spread_rejects_unknown_stat():
     assert apply_partial_spread(base, set_stats={"spe": "not-a-number"}) is None
 
 
+def test_apply_partial_spread_normalizes_capitalized_stat_keys():
+    """Regression: confirmed live, the model consistently emits conventional
+    capitalized stat abbreviations ('Spe', 'HP', 'SpA'), never this module's
+    internal lowercase convention. Silently returned None (rejected as
+    "unknown stat") for every real extraction until fixed -- this affected
+    both the partial and full-replace paths.
+    """
+    base = {"hp": 32, "atk": 0, "def": 0, "spa": 1, "spd": 29, "spe": 4}
+    assert apply_partial_spread(base, delta_stats={"Spe": 5}) == {
+        "hp": 32, "atk": 0, "def": 0, "spa": 1, "spd": 29, "spe": 9,
+    }
+    assert apply_partial_spread(base, set_stats={"HP": 100}) == {
+        "hp": 100, "atk": 0, "def": 0, "spa": 1, "spd": 29, "spe": 4,
+    }
+
+
+def test_coerce_full_spread_normalizes_capitalized_stat_keys():
+    """Same regression, full-replace path -- exact live model output."""
+    from recommender.slot_fill import _coerce_full_spread
+
+    result = _coerce_full_spread(
+        {"HP": 2, "Atk": 0, "Def": 0, "Spe": 5, "SpA": 32, "SpD": 4}
+    )
+    assert result == {"hp": 2, "atk": 0, "def": 0, "spa": 32, "spd": 4, "spe": 5}
+
+
+def test_apply_partial_spread_rejects_duplicate_after_normalizing():
+    """'spe' and 'Spe' both present must not silently pick one -- reject,
+    same fail-closed contract as an unknown stat name."""
+    base = {"hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3}
+    assert apply_partial_spread(base, delta_stats={"spe": 1, "Spe": 2}) is None
+
+
 def test_select_overlapping_override_keys_rejected():
     pending: PendingPresentation = {
         "schema_version": 1,

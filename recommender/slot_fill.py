@@ -1658,6 +1658,43 @@ _EDIT_SLOT_ATTR = {
 _SPREAD_STATS = ("hp", "atk", "def", "spa", "spd", "spe")
 
 
+def _normalize_stat_key(key: object) -> str | None:
+    """Normalize a stat key to canonical lowercase form ('Spe' -> 'spe').
+
+    Model output uses conventional capitalized abbreviations (HP, Atk, Def,
+    SpA, SpD, Spe) -- confirmed live, consistently, across real extractions
+    -- while this module's internal representation is always lowercase.
+    Returns None for anything that doesn't normalize to a known stat, so
+    callers can reject rather than silently drop or misapply a value.
+    """
+    if not isinstance(key, str):
+        return None
+    normalized = key.strip().lower()
+    return normalized if normalized in _SPREAD_STATS else None
+
+
+def _normalize_spread_dict(value: object) -> dict[str, int] | None:
+    """Normalize an arbitrary stat-keyed dict to canonical lowercase keys.
+
+    Returns None (never raises) if any key doesn't normalize to a known
+    stat, any value isn't numeric, or two keys normalize to the same stat
+    (e.g. both 'spe' and 'Spe' present) -- same fail-closed contract as
+    every other spread-value guard in this module.
+    """
+    if not isinstance(value, dict):
+        return None
+    result: dict[str, int] = {}
+    try:
+        for key, val in value.items():
+            stat = _normalize_stat_key(key)
+            if stat is None or stat in result:
+                return None
+            result[stat] = int(val)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+    return result
+
+
 def _coerce_full_spread(value: object) -> dict[str, int] | None:
     """Full six-stat spread dict from a full-replace edit value.
 
@@ -1666,14 +1703,16 @@ def _coerce_full_spread(value: object) -> dict[str, int] | None:
     dict comprehension (`value[stat]` for each stat) with no guard, which
     raised an uncaught KeyError on a partial/malformed dict rather than
     degrading gracefully to UnresolvedSlotRefinement the way every other
-    edit-value failure in this module does.
+    edit-value failure in this module does. Also previously didn't
+    normalize stat-key casing at all -- confirmed live, this silently
+    rejected every real model extraction, since the model consistently
+    emits capitalized abbreviations, not this module's lowercase
+    convention.
     """
-    if not isinstance(value, dict):
+    normalized = _normalize_spread_dict(value)
+    if normalized is None or set(normalized) != set(_SPREAD_STATS):
         return None
-    try:
-        return {stat: int(value[stat]) for stat in _SPREAD_STATS}  # type: ignore[index]
-    except (KeyError, TypeError, ValueError):
-        return None
+    return normalized
 
 
 def apply_partial_spread(
@@ -1691,20 +1730,27 @@ def apply_partial_spread(
     were ever populated -- though _edit_value_slot_ok currently only ever
     allows one form at a time per edit).
 
+    set_stats/delta_stats keys are normalized case-insensitively (model
+    output uses conventional capitalized abbreviations); `base` is always
+    this module's own internal representation and is never normalized.
+
     Returns None (never raises) on an unknown stat name or non-numeric
     value, so callers can degrade to UnresolvedSlotRefinement/
     slot_commit_error instead of crashing on a malformed model output.
     """
+    normalized_set = _normalize_spread_dict(set_stats) if set_stats else {}
+    if set_stats and normalized_set is None:
+        return None
+    normalized_delta = _normalize_spread_dict(delta_stats) if delta_stats else {}
+    if delta_stats and normalized_delta is None:
+        return None
+
     result = dict(base)
     try:
-        for stat, val in (set_stats or {}).items():
-            if stat not in _SPREAD_STATS:
-                return None
-            result[stat] = int(val)  # type: ignore[arg-type]
-        for stat, val in (delta_stats or {}).items():
-            if stat not in _SPREAD_STATS:
-                return None
-            result[stat] = int(result[stat]) + int(val)  # type: ignore[arg-type]
+        for stat, val in normalized_set.items():
+            result[stat] = val
+        for stat, val in normalized_delta.items():
+            result[stat] = int(result[stat]) + val
     except (TypeError, ValueError):
         return None
     return result

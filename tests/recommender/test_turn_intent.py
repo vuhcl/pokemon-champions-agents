@@ -376,6 +376,146 @@ def test_bare_partial_spread_edit_works_standalone():
     assert payload["spread_delta"] == {"spe": 5}
 
 
+def test_edit_defaults_scope_to_field_only_when_omitted():
+    """Regression, confirmed live twice (2026-08-18): the local model
+    (qwen3.5) consistently omits edit_scope entirely for otherwise
+    well-formed edits, rather than getting the value wrong. Previously a
+    hard validation failure with a generic, unhelpful fallback message;
+    now defaults to field_only, the safe/conservative choice. Exact live
+    extraction for 'use Choice Scarf instead'.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "value_text": "Choice Scarf",
+            "value_moves": None,
+            "value_spread": None,
+            "value_spread_set": None,
+            "value_spread_delta": None,
+            "constraint": None,
+        }
+    )
+    result = classify_pending(
+        "use Choice Scarf instead",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["field"] == "item"
+    assert result["turn_payload"]["value"] == "Choice Scarf"
+    assert result["turn_payload"]["scope"] == "field_only"
+
+
+def test_edit_explicit_regenerate_scope_not_overridden():
+    """The field_only default only fires when edit_scope is omitted -- an
+    explicit 'regenerate' from the model must never be silently
+    overridden."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "value_text": "Choice Scarf",
+            "edit_scope": "regenerate",
+        }
+    )
+    result = classify_pending(
+        "rebuild it around Choice Scarf",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_payload"]["scope"] == "regenerate"
+
+
+def test_edit_invalid_explicit_scope_still_rejected():
+    """A genuinely invalid (non-null, non-empty, not field_only/regenerate)
+    edit_scope value must still fail validation -- the leniency is
+    specifically for omission, not for tolerating garbage values."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "value_text": "Choice Scarf",
+            "edit_scope": "sometimes",
+        }
+    )
+    result = classify_pending(
+        "use Choice Scarf instead",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "pending_response"
+
+
+def test_spread_delta_preferred_over_incidentally_populated_full_replace():
+    """Regression, confirmed live (2026-08-18): for '2, but make it 5 Spe
+    instead', the model populated BOTH value_spread (full, and wrong -- it
+    reused unrelated values from a different option's spread) AND
+    value_spread_delta (correct) simultaneously. Previously rejected
+    outright as ambiguous (exactly-one-form rule); now the partial form is
+    preferred, since apply_partial_spread already ignores value_spread
+    downstream when a partial form is present, and the partial computation
+    is demonstrably the safer one when the model gives both. Exact live
+    extraction values.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": [_CONFIRM_IDS[2]],
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {
+                "HP": 2, "Atk": 0, "Def": 0, "Spe": 5, "SpA": 32, "SpD": 4,
+            },
+            "value_spread_delta": {"Spe": 5},
+        }
+    )
+    result = classify_pending(
+        "2, but make it 5 Spe instead",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[2],)
+    assert payload["spread_delta"] == {"Spe": 5}
+
+
+def test_compound_select_plus_partial_spread_resolves_even_when_model_picks_edit_intent():
+    """Regression, confirmed live (2026-08-18): for '2, but make it 5 Spe
+    instead', the model's literal turn_intent was "edit", not
+    "select_build_option" -- even though option_ids was also populated for
+    the same request. _payload_for's "edit" branch never attaches
+    option_ids, so without this fix the selection component would be
+    silently dropped even though the compound-signal check correctly
+    identifies this shape as resolvable, not ambiguous. Exact live
+    extraction values (turn_intent='edit' specifically, not
+    'select_build_option').
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "value_spread": {
+                "HP": 2, "Atk": 0, "Def": 0, "Spe": 5, "SpA": 32, "SpD": 4,
+            },
+            "value_spread_delta": {"Spe": 5},
+            "option_ids": [_CONFIRM_IDS[2]],
+            "archetype": None,
+            "constraint": None,
+        }
+    )
+    result = classify_pending(
+        "2, but make it 5 Spe instead",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[2],)
+    assert payload["spread_delta"] == {"Spe": 5}
+
+
 def test_edit_unaffected_by_incidental_empty_spread_fields():
     """Regression, found in live testing immediately after the
     value_spread_set/value_spread_delta schema addition (2026-08-17): a
