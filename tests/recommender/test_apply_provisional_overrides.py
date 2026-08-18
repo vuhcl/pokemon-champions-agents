@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from recommender.nodes import (
     _deterministic_build_option_ids,
+    _describe_invalid_spread,
+    _disallowed_status_move_names,
     apply_provisional_option,
     classify_pending,
 )
@@ -358,3 +360,82 @@ def test_classify_pending_select_build_option():
     result = classify_pending("spread_nature:1", pending)
     assert result["turn_intent"] == "select_build_option"
     assert result["turn_payload"]["option_ids"] == ("spread_nature:1",)
+
+
+def test_describe_invalid_spread_over_budget():
+    """Regression: confirmed live, '2, but make it 5 Spe' (spread_nature:2's
+    real spread, Spe set 4->5) exceeded the budget by exactly 1 point and
+    previously surfaced only the bare, unhelpful 'invalid edited spread'.
+    """
+    spread = {"hp": 32, "atk": 0, "def": 0, "spa": 1, "spd": 29, "spe": 5}
+    message = _describe_invalid_spread(spread)
+    assert "1 point over budget" in message
+    assert "sum to 67" in message
+    assert "budget is 66" in message
+
+
+def test_describe_invalid_spread_under_budget_suggests_adding_not_reducing():
+    """The suggested action must match the actual direction -- under budget
+    should say to add points, not reduce (caught and fixed before this
+    landed: the first draft said 'reduce' for both directions)."""
+    spread = {"hp": 32, "atk": 0, "def": 0, "spa": 1, "spd": 29, "spe": 0}
+    message = _describe_invalid_spread(spread)
+    assert "4 points under budget" in message
+    assert "Add the leftover points" in message
+    assert "Reduce" not in message
+
+
+def test_describe_invalid_spread_out_of_range_names_the_stat():
+    spread = {"hp": 32, "atk": 0, "def": 0, "spa": 1, "spd": 29, "spe": 40}
+    message = _describe_invalid_spread(spread)
+    assert "spe=40" in message
+
+
+def test_disallowed_status_move_names_finds_protect():
+    """Regression: confirmed live, 'use Choice Scarf' on Archaludon's real
+    kit (which includes Protect) correctly triggers the choice-item/status-
+    move conflict, but the message previously just said 'conflicting edited
+    fields: item/moveset' with no indication of which move was the issue.
+    """
+    from recommender.legality import load_snapshot
+
+    provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        species="Archaludon",
+        ability="Stamina",
+        item="Choice Scarf",
+        moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        nature="Modest",
+        spread={"hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3},
+        target_role_decision=TargetRoleDecision(
+            role_id="bulky_special_attacker", source="usage_backed"
+        ),
+        fingerprint="fp",
+    )
+    names = _disallowed_status_move_names(provisional, load_snapshot())
+    assert names == ["Protect"]
+
+
+def test_disallowed_status_move_names_excludes_item_swap_moves():
+    """Trick/Switcheroo are status moves but explicitly exempted -- they
+    exist specifically to change the held item, so they aren't a real
+    conflict with a Choice item the way Protect is."""
+    from recommender.legality import load_snapshot
+
+    provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        species="Archaludon",
+        ability="Stamina",
+        item="Choice Scarf",
+        moves=["Electro Shot", "Flash Cannon", "Trick", "Dragon Pulse"],
+        nature="Modest",
+        spread={"hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3},
+        target_role_decision=TargetRoleDecision(
+            role_id="bulky_special_attacker", source="usage_backed"
+        ),
+        fingerprint="fp",
+    )
+    names = _disallowed_status_move_names(provisional, load_snapshot())
+    assert names == []

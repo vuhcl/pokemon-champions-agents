@@ -326,6 +326,68 @@ def _emit_full_build_confirmation(
     }
 
 
+def _describe_invalid_spread(spread: dict[str, object]) -> str:
+    """Specific, actionable message for why an edited spread failed hard
+    verification -- confirmed live this was needed: a bare "invalid edited
+    spread" gave the user no way to tell a 1-point budget overage (fixable
+    by trimming another stat) from a structurally malformed dict, and no
+    suggested next step either way.
+    """
+    expected = {"hp", "atk", "def", "spa", "spd", "spe"}
+    if set(spread) != expected:
+        missing = sorted(expected - set(spread))
+        extra = sorted(set(spread) - expected)
+        parts = []
+        if missing:
+            parts.append(f"missing {', '.join(missing)}")
+        if extra:
+            parts.append(f"unexpected {', '.join(extra)}")
+        return "invalid edited spread: " + "; ".join(parts)
+    out_of_range = [
+        f"{stat}={value}"
+        for stat, value in spread.items()
+        if not isinstance(value, int) or value < 0 or value > 32
+    ]
+    if out_of_range:
+        return (
+            "invalid edited spread: each stat must be a whole number from 0 "
+            "to 32 -- " + ", ".join(out_of_range)
+        )
+    total = spread_sum(spread)  # type: ignore[arg-type]
+    diff = total - SP_BUDGET
+    direction = "over" if diff > 0 else "under"
+    action = "Reduce another stat to make room" if diff > 0 else "Add the leftover points to another stat"
+    return (
+        f"invalid edited spread: stats sum to {total}, but the budget is "
+        f"{SP_BUDGET} ({abs(diff)} point{'s' if abs(diff) != 1 else ''} "
+        f"{direction} budget). {action}, or ask me to regenerate the whole "
+        "spread."
+    )
+
+
+def _disallowed_status_move_names(
+    result: ProvisionalSlot, snap: dict[str, Any]
+) -> list[str]:
+    """Status-move names (excluding Trick/Switcheroo) present in the
+    moveset -- mirrors reconcile._moveset_has_disallowed_status's exact
+    matching logic, but collects the offending move names instead of a
+    bare bool, purely for building a specific message. Does not change or
+    duplicate the real conflict-detection logic in reconcile.py.
+    """
+    from recommender.reconcile import _ITEM_SWAP_MOVES
+
+    moves_meta = snap.get("moves") or {}
+    names = []
+    for move in result.moves:
+        mid = to_id(move)
+        if mid in _ITEM_SWAP_MOVES:
+            continue
+        meta = moves_meta.get(mid) or {}
+        if (meta.get("category") or "") == "Status":
+            names.append(move)
+    return names
+
+
 def _verify_provisional_hard(
     result: ProvisionalSlot, state: RecommenderState
 ) -> str | None:
@@ -335,7 +397,7 @@ def _verify_provisional_hard(
         or any(not isinstance(v, int) or v < 0 or v > 32 for v in spread.values())
         or spread_sum(spread) != SP_BUDGET
     ):
-        return "invalid edited spread"
+        return _describe_invalid_spread(spread)
     if len(result.moves) != 4 or any(not move for move in result.moves):
         return "edited build requires exactly four moves"
     legality = check_set(
@@ -355,6 +417,14 @@ def _verify_provisional_hard(
         result.to_slot(locked=True, reason=reason)
     )
     if conflicts:
+        if ("item", "moveset") in [tuple(sorted(g)) for g in conflicts]:
+            status_moves = _disallowed_status_move_names(result, load_snapshot())
+            if status_moves:
+                return (
+                    f"{result.item} locks you into repeating one move, which "
+                    f"doesn't work with {', '.join(status_moves)} still in the "
+                    "set. Swap out the status move too, or pick a different item."
+                )
         return "conflicting edited fields: " + ", ".join(
             "/".join(group) for group in conflicts
         )
