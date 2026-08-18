@@ -439,3 +439,163 @@ def test_disallowed_status_move_names_excludes_item_swap_moves():
     )
     names = _disallowed_status_move_names(provisional, load_snapshot())
     assert names == []
+
+
+def test_spread_edit_auto_reallocates_small_unambiguous_overage():
+    """A small (<=2 point), unambiguous overage from a partial spread edit
+    auto-resolves instead of erroring out or asking."""
+    from recommender.nodes import apply_provisional_edit
+    from recommender.recommend import SP_BUDGET, spread_sum
+
+    provisional = _provisional()
+    state = _state(
+        provisional,
+        payload={
+            "field": "spread",
+            "value": None,
+            "scope": "field_only",
+            "spread_delta": {"spe": 2},  # 30 -> 32, sum becomes 68, 2 over
+        },
+    )
+    out = apply_provisional_edit(state)
+    assert out.get("slot_commit_error") is None
+    pending = out["pending_presentation"]
+    assert pending["kind"] == "full_build_confirmation"
+    notices = pending.get("notices") or ()
+    assert any("Adjusted spread" in n for n in notices)
+    new_spread = out["provisional_slot"].spread_dict()
+    assert new_spread["spe"] == 32
+    assert spread_sum(new_spread) == SP_BUDGET
+
+
+def test_spread_edit_ambiguous_overage_asks_instead_of_guessing():
+    """A larger overage produces a spread_reallocation_question instead of
+    auto-deciding."""
+    from recommender.nodes import apply_provisional_edit
+
+    provisional = _provisional()
+    held = {"schema_version": 1, "kind": "full_build_confirmation", "slot_index": 0}
+    state = _state(
+        provisional,
+        pending=held,
+        payload={
+            "field": "spread",
+            "value": None,
+            "scope": "field_only",
+            "spread_delta": {"spd": 6},  # 0 -> 6, sum 66+6=72, 6 over -- too big
+        },
+    )
+    out = apply_provisional_edit(state)
+    assert out.get("slot_commit_error") is None
+    pending = out["pending_presentation"]
+    assert pending["kind"] == "spread_reallocation_question"
+    assert pending["reallocation_diff"] == 6
+    assert pending["reallocation_excluded_stats"] == ("spd",)
+    assert pending["held_pending"] == held
+
+
+def test_reallocation_question_resolves_with_valid_stat():
+    """After the ask, naming a stat with enough room resolves the edit."""
+    from recommender.nodes import resolve_spread_reallocation
+
+    base_provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=_decision(),
+        species="Gholdengo",
+        ability="Good as Gold",
+        item="Life Orb",
+        moves=("Make It Rain", "Shadow Ball", "Protect", "Nasty Plot"),
+        nature="Timid",
+        spread={"hp": 4, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 30},
+        fingerprint="fp-old",
+    )
+    pending = {
+        "schema_version": 1,
+        "kind": "spread_reallocation_question",
+        "slot_index": 0,
+        "reallocation_attempted_spread": {
+            "hp": 4, "atk": 0, "def": 0, "spa": 32, "spd": 6, "spe": 30,
+        },
+        "reallocation_diff": 6,
+        "reallocation_excluded_stats": ("spd",),
+        "reallocation_edited_fields": ("spread",),
+    }
+    state = _state(
+        base_provisional,
+        pending=pending,
+        payload={"chosen_stat": "spa"},
+    )
+    from recommender.nodes import resolve_spread_reallocation as node
+
+    out = node(state)
+    assert out.get("slot_commit_error") is None
+    result_spread = out["provisional_slot"].spread_dict()
+    assert result_spread["spa"] == 26  # 32 - 6
+    assert result_spread["spd"] == 6  # the originally-requested change kept
+    from recommender.recommend import SP_BUDGET, spread_sum
+    assert spread_sum(result_spread) == SP_BUDGET
+
+
+def test_reallocation_question_reasks_when_chosen_stat_lacks_room():
+    from recommender.nodes import resolve_spread_reallocation as node
+
+    base_provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=_decision(),
+        species="Gholdengo",
+        ability="Good as Gold",
+        item="Life Orb",
+        moves=("Make It Rain", "Shadow Ball", "Protect", "Nasty Plot"),
+        nature="Timid",
+        spread={"hp": 4, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 30},
+        fingerprint="fp-old",
+    )
+    pending = {
+        "schema_version": 1,
+        "kind": "spread_reallocation_question",
+        "slot_index": 0,
+        "reallocation_attempted_spread": {
+            "hp": 4, "atk": 0, "def": 0, "spa": 32, "spd": 6, "spe": 30,
+        },
+        "reallocation_diff": 6,
+        "reallocation_excluded_stats": ("spd",),
+        "reallocation_edited_fields": ("spread",),
+    }
+    state = _state(base_provisional, pending=pending, payload={"chosen_stat": "atk"})
+    out = node(state)
+    assert out["turn_intent"] == "pending_response"
+    assert out["pending_presentation"]["kind"] == "spread_reallocation_question"
+    assert "doesn't have enough room" in out["pending_presentation"][
+        "reallocation_rejection_reason"
+    ]
+
+
+def test_reallocation_question_defer_restores_held_pending():
+    held = {"schema_version": 1, "kind": "full_build_confirmation", "slot_index": 0}
+    pending = {
+        "schema_version": 1,
+        "kind": "spread_reallocation_question",
+        "slot_index": 0,
+        "reallocation_attempted_spread": {
+            "hp": 4, "atk": 0, "def": 0, "spa": 32, "spd": 6, "spe": 30,
+        },
+        "reallocation_diff": 6,
+        "reallocation_excluded_stats": ("spd",),
+        "reallocation_edited_fields": ("spread",),
+        "held_pending": held,
+    }
+    result = classify_pending("defer", pending)
+    assert result["turn_intent"] == "pending_response"
+    assert result["pending_presentation"] == held
+
+
+def test_reallocation_question_parses_full_stat_names():
+    from recommender.nodes import _parse_stat_reply
+
+    assert _parse_stat_reply("speed") == "spe"
+    assert _parse_stat_reply("Spe") == "spe"
+    assert _parse_stat_reply("SPA") == "spa"
+    assert _parse_stat_reply("special attack") == "spa"
+    assert _parse_stat_reply("nonsense") is None

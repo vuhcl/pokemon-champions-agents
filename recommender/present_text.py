@@ -191,6 +191,38 @@ def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
     return lines
 
 
+def _stat_label(stat: str) -> str:
+    return "HP" if stat == "hp" else stat.capitalize()
+
+
+def _format_spread_reallocation_question(pending: Mapping[str, Any]) -> list[str]:
+    """Built entirely from structured pending_presentation data (attempted
+    spread, diff, excluded stats), not a stashed message string -- matches
+    this module's convention for full_build_confirmation/candidate_selection
+    rather than the ad-hoc message passed for confirm_abandon_build.
+    """
+    spread = pending.get("reallocation_attempted_spread") or {}
+    diff = pending.get("reallocation_diff") or 0
+    excluded = set(pending.get("reallocation_excluded_stats") or ())
+    direction = "over" if diff > 0 else "under"
+    verb = "reduce" if diff > 0 else "add to"
+    current = ", ".join(
+        f"{_stat_label(stat)} {spread.get(stat, 0)}"
+        for stat in ("hp", "atk", "def", "spa", "spd", "spe")
+        if stat not in excluded
+    )
+    lines = []
+    reason = pending.get("reallocation_rejection_reason")
+    if reason:
+        lines.append(str(reason))
+    lines.append(
+        f"That puts you {abs(diff)} point{'s' if abs(diff) != 1 else ''} "
+        f"{direction} budget. Which stat should I {verb}? Current: {current}."
+    )
+    lines.append("Reply with a stat name, or 'defer' to keep the current spread unchanged.")
+    return lines
+
+
 def _format_full_build(state: Mapping[str, Any]) -> list[str]:
     provisional = state.get("provisional_slot")
     pending = state.get("pending_presentation") or {}
@@ -305,6 +337,8 @@ def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
                     species = provisional.get("species")
             if species:
                 blocks.append(f"Pending build: {species}.")
+        elif kind == "spread_reallocation_question":
+            blocks.extend(_format_spread_reallocation_question(pending))
         else:
             blocks.append(f"(pending kind: {kind})")
 

@@ -299,6 +299,7 @@ def _emit_full_build_confirmation(
     provisional: ProvisionalSlot,
     *,
     review_flags: tuple = (),
+    notices: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     from recommender.build_alternatives import (
         generate_build_option_groups,
@@ -317,6 +318,8 @@ def _emit_full_build_confirmation(
     )
     if review_flags:
         pending["review_flags"] = review_flags
+    if notices:
+        pending["notices"] = notices
     return {
         "provisional_slot": base,
         "provisional_refinement": None,
@@ -362,6 +365,82 @@ def _describe_invalid_spread(spread: dict[str, object]) -> str:
         f"{SP_BUDGET} ({abs(diff)} point{'s' if abs(diff) != 1 else ''} "
         f"{direction} budget). {action}, or ask me to regenerate the whole "
         "spread."
+    )
+
+
+_SPREAD_STAT_ORDER = ("hp", "atk", "def", "spa", "spd", "spe")
+
+
+def _spread_structurally_valid(spread: dict[str, object]) -> bool:
+    """True if spread has exactly the six expected keys, each an in-range int.
+    Does NOT check the budget total -- that's a separate concern (see
+    _spread_budget_diff), since a structurally-valid-but-over/under-budget
+    spread is handled by a different flow (auto-reallocate or ask) than a
+    genuinely malformed one (hard error, no clarifying flow).
+    """
+    expected = set(_SPREAD_STAT_ORDER)
+    return set(spread) == expected and all(
+        isinstance(v, int) and 0 <= v <= 32 for v in spread.values()
+    )
+
+
+def _spread_budget_diff(spread: dict[str, int]) -> int | None:
+    """Signed budget diff (positive=over, negative=under) if spread is
+    otherwise structurally valid but doesn't sum to SP_BUDGET. None if the
+    spread is valid, or if it's invalid for a different reason entirely
+    (those go through the plain hard-error path, not this one)."""
+    if not _spread_structurally_valid(spread):
+        return None
+    diff = spread_sum(spread) - SP_BUDGET
+    return diff if diff != 0 else None
+
+
+# Overage/underage this small is treated as unambiguously fixable without
+# asking -- confirmed reasonable scope with Vu, not assumed.
+_AUTO_REALLOCATE_MAX_DIFF = 2
+
+
+def _auto_reallocate_spread(
+    spread: dict[str, int], diff: int, excluded_stats: set[str]
+) -> tuple[dict[str, int], str] | None:
+    """Attempt an unambiguous, deterministic fix for a small budget
+    mismatch. Returns (adjusted_spread, description) on a clean, single-
+    stat fix; None if the situation is genuinely ambiguous (multiple
+    equally-plausible source stats, or no single stat has enough room) --
+    the caller should ask the user instead of guessing.
+
+    Rule: only for |diff| <= _AUTO_REALLOCATE_MAX_DIFF. Among the
+    non-excluded stats with room to absorb the change, pick the one with
+    the smallest current value (the most likely "dump stat," least likely
+    to be a deliberate investment) -- but only if there's a single clear
+    smallest, not a tie, since a tie is exactly the kind of case that
+    should be asked about rather than decided silently.
+    """
+    if abs(diff) > _AUTO_REALLOCATE_MAX_DIFF:
+        return None
+    candidates = [
+        stat
+        for stat in _SPREAD_STAT_ORDER
+        if stat not in excluded_stats
+        and (
+            (diff > 0 and spread[stat] - diff >= 0)
+            or (diff < 0 and spread[stat] - diff <= 32)
+        )
+    ]
+    if not candidates:
+        return None
+    smallest = min(spread[stat] for stat in candidates)
+    tied = [stat for stat in candidates if spread[stat] == smallest]
+    if len(tied) != 1:
+        return None
+    chosen = tied[0]
+    adjusted = dict(spread)
+    adjusted[chosen] -= diff
+    verb = "reducing" if diff > 0 else "increasing"
+    label = "HP" if chosen == "hp" else chosen.capitalize()
+    return adjusted, (
+        f"freed up {abs(diff)} point{'s' if abs(diff) != 1 else ''} by "
+        f"{verb} {label} to {adjusted[chosen]}"
     )
 
 
@@ -507,6 +586,138 @@ def build_gap_fill_context(state: RecommenderState) -> dict[str, str]:
     }
 
 
+_STAT_FULL_NAMES = {
+    "hp": "hp",
+    "health": "hp",
+    "atk": "atk",
+    "attack": "atk",
+    "def": "def",
+    "defense": "def",
+    "defence": "def",
+    "spa": "spa",
+    "spatk": "spa",
+    "specialattack": "spa",
+    "spd": "spd",
+    "spdef": "spd",
+    "specialdefense": "spd",
+    "specialdefence": "spd",
+    "spe": "spe",
+    "speed": "spe",
+}
+
+
+def _parse_stat_reply(reply: str) -> str | None:
+    """Normalize a free-text stat name to a canonical lowercase key, or
+    None if it doesn't match a known stat. Accepts standard abbreviations
+    (case-insensitive, matching this module's spread convention) and a
+    handful of common full names/spellings."""
+    from recommender.slot_fill import _normalize_stat_key
+
+    normalized = _normalize_stat_key(reply)
+    if normalized is not None:
+        return normalized
+    collapsed = "".join(reply.split()).lower()
+    return _STAT_FULL_NAMES.get(collapsed)
+
+
+def _stat_label_for_dispatch(stat: str) -> str:
+    return "HP" if stat == "hp" else stat.capitalize()
+
+
+def _reask_reallocation(
+    pending_presentation: PendingPresentation, reason: str
+) -> dict[str, Any]:
+    updated: PendingPresentation = dict(pending_presentation)  # type: ignore[assignment]
+    updated["reallocation_rejection_reason"] = reason
+    return {"turn_intent": "pending_response", "pending_presentation": updated}
+
+
+def resolve_spread_reallocation(state: RecommenderState) -> dict[str, Any]:
+    """Apply the user's chosen stat to resolve a spread_reallocation_question,
+    re-verify, and either succeed (full_build_confirmation) or re-ask (same
+    kind, with a reason) if the chosen stat doesn't have enough room.
+
+    A proper graph node (not resolved inline in classify_pending) because
+    it needs state["provisional_slot"]/state["pending_slot_intent"] --
+    classify_pending only receives specific extracted pieces, not full
+    state, the same reason apply_provisional_edit/apply_provisional_option
+    are also separate nodes rather than resolved inline.
+    """
+    from recommender.edit_review import collect_provisional_review_flags
+    from recommender.slot_fill import revise_provisional_slot
+
+    pending_presentation = state.get("pending_presentation")
+    payload = state.get("turn_payload")
+    if (
+        not isinstance(pending_presentation, dict)
+        or pending_presentation.get("kind") != "spread_reallocation_question"
+        or not isinstance(payload, dict)
+        or not payload.get("chosen_stat")
+    ):
+        return {"slot_commit_error": "missing or unsupported reallocation state"}
+    chosen_stat = str(payload["chosen_stat"])
+
+    spread = dict(pending_presentation.get("reallocation_attempted_spread") or {})
+    diff = pending_presentation.get("reallocation_diff") or 0
+    excluded = set(pending_presentation.get("reallocation_excluded_stats") or ())
+    edited_fields = frozenset(
+        pending_presentation.get("reallocation_edited_fields") or ()
+    )
+    intent = state.get("pending_slot_intent")
+    provisional = state.get("provisional_slot")
+
+    label = _stat_label_for_dispatch(chosen_stat)
+    if chosen_stat in excluded:
+        return _reask_reallocation(
+            pending_presentation,
+            f"{label} is the stat you're already changing -- pick a different one.",
+        )
+    current_value = spread.get(chosen_stat, 0)
+    new_value = current_value - diff
+    if new_value < 0 or new_value > 32:
+        return _reask_reallocation(
+            pending_presentation,
+            f"{label} doesn't have enough room ({current_value} would become "
+            f"{new_value}). Pick a different stat.",
+        )
+    adjusted_spread = dict(spread)
+    adjusted_spread[chosen_stat] = new_value
+
+    if (
+        intent is None
+        or provisional is None
+        or not isinstance(provisional, ProvisionalSlot)
+    ):
+        return {
+            "slot_commit_error": "Could not resolve reallocation: missing provisional state"
+        }
+
+    reapplied = revise_provisional_slot(
+        provisional,
+        field="spread",
+        value=adjusted_spread,
+        scope="field_only",
+        intent=intent,
+        state=state,
+    )
+    if isinstance(reapplied, UnresolvedSlotRefinement):
+        return {
+            "slot_commit_error": (
+                "Could not apply that adjustment: "
+                + (reapplied.reason or ",".join(reapplied.unresolved_fields))
+            )
+        }
+    err = _verify_provisional_hard(reapplied, state)
+    if err:
+        return {"slot_commit_error": err}
+    flags = collect_provisional_review_flags(
+        reapplied, state, edited_fields=edited_fields
+    )
+    out = _emit_full_build_confirmation(state, reapplied, review_flags=flags)
+    out["pending_slot_intent"] = intent
+    return out
+
+
 def classify_pending(
     text: str,
     pending_presentation: PendingPresentation | None = None,
@@ -631,6 +842,33 @@ def classify_pending(
                 "pending_presentation": held,
             }
         return {"turn_intent": "pending_response"}
+    if pending_presentation.get("kind") == "spread_reallocation_question":
+        if pending_presentation.get("schema_version", 1) != 1:
+            return {"turn_intent": "pending_response"}
+        if reply in _DEFER_REPLIES:
+            held = pending_presentation.get("held_pending")
+            if held is None:
+                return {
+                    "turn_intent": "pending_response",
+                    "pending_presentation": None,
+                    "pending_slot_intent": None,
+                    "provisional_slot": None,
+                }
+            return {
+                "turn_intent": "pending_response",
+                "turn_payload": {"message": KEEP_BUILD_MSG},
+                "pending_presentation": held,
+            }
+        chosen_stat = _parse_stat_reply(reply)
+        if chosen_stat is None:
+            return _reask_reallocation(
+                pending_presentation,
+                "I couldn't tell which stat you meant.",
+            )
+        return {
+            "turn_intent": "resolve_spread_reallocation",
+            "turn_payload": {"chosen_stat": chosen_stat},
+        }
     if version != 1:
         return {
             "turn_intent": "pending_response",
@@ -983,6 +1221,84 @@ def refine_provisional_slot(state: RecommenderState) -> dict:
     return out
 
 
+def _handle_spread_budget_mismatch(
+    result: ProvisionalSlot,
+    *,
+    field: str,
+    excluded_stats: set[str],
+    state: RecommenderState,
+    intent: PendingSlotIntent,
+    edited_fields: frozenset[str],
+) -> dict | None:
+    """If `result`'s spread is structurally valid but off the SP budget,
+    either auto-reallocate (small, unambiguous overage/underage) or ask
+    the user which stat to use. Returns None when there's nothing to
+    handle here -- caller proceeds to the normal _verify_provisional_hard
+    path unchanged. Only ever intervenes for field=="spread"; every other
+    edit field and every other invalid-spread reason (out of range,
+    malformed) is untouched, per the agreed scope.
+    """
+    if field != "spread":
+        return None
+    spread = result.spread_dict()
+    diff = _spread_budget_diff(spread)
+    if diff is None:
+        return None
+
+    from recommender.edit_review import collect_provisional_review_flags
+    from recommender.slot_fill import revise_provisional_slot
+
+    all_edited_fields = edited_fields | {"spread"}
+    auto = _auto_reallocate_spread(spread, diff, excluded_stats)
+    if auto is not None:
+        adjusted_spread, description = auto
+        reapplied = revise_provisional_slot(
+            result,
+            field="spread",
+            value=adjusted_spread,
+            scope="field_only",
+            intent=intent,
+            state=state,
+        )
+        if isinstance(reapplied, ProvisionalSlot):
+            err = _verify_provisional_hard(reapplied, state)
+            if err is None:
+                flags = collect_provisional_review_flags(
+                    reapplied, state, edited_fields=all_edited_fields
+                )
+                out = _emit_full_build_confirmation(
+                    state,
+                    reapplied,
+                    review_flags=flags,
+                    notices=(f"Adjusted spread: {description}.",),
+                )
+                out["pending_slot_intent"] = intent
+                return out
+        # Auto-reallocation didn't actually produce a clean result (should
+        # be rare given the heuristic's own bounds-checking, but fail
+        # closed to asking rather than silently giving up) -- fall through.
+
+    current_pending = state.get("pending_presentation")
+    held = current_pending if isinstance(current_pending, dict) else None
+    reallocation_pending: PendingPresentation = {
+        "schema_version": 1,
+        "kind": "spread_reallocation_question",
+        "slot_index": result.slot_index,
+        "reallocation_attempted_spread": spread,
+        "reallocation_diff": diff,
+        "reallocation_excluded_stats": tuple(sorted(excluded_stats)),
+        "reallocation_edited_fields": tuple(sorted(all_edited_fields)),
+    }
+    if held is not None:
+        reallocation_pending["held_pending"] = held
+    return {
+        "provisional_slot": result,
+        "pending_slot_intent": intent,
+        "slot_commit_error": None,
+        "pending_presentation": reallocation_pending,
+    }
+
+
 def apply_provisional_edit(state: RecommenderState) -> dict:
     """Revise pending provisional from EditPayload; re-present or keep prior on hard fail."""
     from recommender.edit_review import collect_provisional_review_flags
@@ -1034,6 +1350,23 @@ def apply_provisional_edit(state: RecommenderState) -> dict:
 
     err = _verify_provisional_hard(result, state)
     if err:
+        excluded = {
+            s.lower()
+            for s in {
+                *(payload.get("spread_set") or {}),
+                *(payload.get("spread_delta") or {}),
+            }
+        }
+        mismatch = _handle_spread_budget_mismatch(
+            result,
+            field=field,
+            excluded_stats=excluded,
+            state=state,
+            intent=intent,
+            edited_fields=frozenset({field}),
+        )
+        if mismatch is not None:
+            return mismatch
         return {"slot_commit_error": err}
 
     flags = collect_provisional_review_flags(
@@ -1125,6 +1458,17 @@ def apply_provisional_option(state: RecommenderState) -> dict:
 
     err = _verify_provisional_hard(result, state)
     if err:
+        excluded = {s.lower() for s in {*(spread_set or {}), *(spread_delta or {})}}
+        mismatch = _handle_spread_budget_mismatch(
+            result,
+            field="spread" if "spread" in edited_fields else "",
+            excluded_stats=excluded,
+            state=state,
+            intent=intent,
+            edited_fields=edited_fields,
+        )
+        if mismatch is not None:
+            return mismatch
         return {"slot_commit_error": err}
 
     flags = collect_provisional_review_flags(

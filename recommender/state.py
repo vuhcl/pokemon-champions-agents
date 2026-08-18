@@ -353,6 +353,7 @@ class PendingPresentation(TypedDict, total=False):
         "completion_preference",
         "bootstrap_intake",
         "confirm_abandon_build",
+        "spread_reallocation_question",
     ]
     slot_index: int
     options: list[PendingPresentationOption]
@@ -367,6 +368,12 @@ class PendingPresentation(TypedDict, total=False):
     queued_turn_intent: str
     queued_turn_payload: object
     held_pending: PendingPresentation
+    # spread_reallocation_question only:
+    reallocation_attempted_spread: dict[str, int]
+    reallocation_diff: int
+    reallocation_excluded_stats: tuple[str, ...]
+    reallocation_edited_fields: tuple[str, ...]
+    reallocation_rejection_reason: str
 
 
 @dataclass(frozen=True)
