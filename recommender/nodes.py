@@ -767,6 +767,29 @@ def _gap_fill(
         roster_summary=ctx.get("roster_summary") or "",
         had_pending=had_pending,
     )
+    if (
+        result.get("turn_intent") == "select_build_option"
+        and pending_presentation is not None
+        and pending_presentation.get("kind") == "full_build_confirmation"
+    ):
+        payload = result.get("turn_payload")
+        if isinstance(payload, dict):
+            index = _index_build_options(pending_presentation)
+            ids = tuple(str(i) for i in (payload.get("option_ids") or ()))
+            if ids and any(oid not in index for oid in ids):
+                # Confirmed live ("1, but with Choice Scarf"): the model can
+                # extract a bare, unresolved option id ("1") instead of the
+                # real axis-prefixed one ("spread_nature:1"), not just drop
+                # option_ids entirely. Recover from the raw text using the
+                # same real-id resolution _extract_leading_option_id already
+                # does, before the "Unknown build option id" safety net
+                # (_apply_classify_gates) gets a chance to reject it outright.
+                recovered = _extract_leading_option_id(text, pending_presentation)
+                if recovered is not None:
+                    result = {
+                        **result,
+                        "turn_payload": {**payload, "option_ids": (recovered,)},
+                    }
     result = _apply_classify_gates(result, pending_presentation)
     result = _apply_continue_abandon_gate(result, pending_presentation)
     return _apply_team_review_roster_gate(result, pending_presentation, team_draft)
@@ -1947,6 +1970,22 @@ def apply_provisional_option(state: RecommenderState) -> dict:
                 }
             merged[key] = value
 
+    # A non-spread field edit combined with the selection ("1, but with
+    # Choice Scarf" -- field="item"), composed the same way as any other
+    # override, applied together with the option's own overrides in one
+    # apply_provisional_overrides call rather than a separate step.
+    extra_field = payload.get("extra_field")
+    extra_value = payload.get("extra_value")
+    if extra_field:
+        if extra_field in merged:
+            return {
+                "slot_commit_error": (
+                    f"overlapping override key between selection and edit: {extra_field}"
+                )
+            }
+        merged[extra_field] = extra_value
+
+    previous_item_value = provisional.item
     result = apply_provisional_overrides(
         provisional,
         overrides=merged,
@@ -2004,6 +2043,16 @@ def apply_provisional_option(state: RecommenderState) -> dict:
         )
         if mismatch is not None:
             return mismatch
+        if "item" in edited_fields:
+            conflict = _handle_item_moveset_conflict(
+                result,
+                previous_item=previous_item_value,
+                state=state,
+                intent=intent,
+                edited_fields=edited_fields,
+            )
+            if conflict is not None:
+                return conflict
         return {"slot_commit_error": err}
 
     flags = collect_provisional_review_flags(

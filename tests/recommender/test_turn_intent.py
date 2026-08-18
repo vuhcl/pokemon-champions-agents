@@ -1436,3 +1436,104 @@ def test_bare_spread_edit_without_leading_option_ref_is_unaffected():
     )
     assert result["turn_intent"] == "edit"
     assert result["turn_payload"]["spread_set"] == {"spe": 5}
+
+
+def test_select_plus_item_edit_resolves_end_to_end():
+    """Regression, confirmed live (2026-08-18): '1, but with Choice Scarf'
+    -- the model extracted turn_intent='select_build_option' with a bare,
+    unresolved option_id ('1' instead of the real 'spread_nature:2') AND
+    field='item'/value_text='Choice Scarf'. Confirms the full chain: the
+    bare option id is recovered from the raw text (same mechanism as the
+    spread-edit case), and the item edit is carried through as
+    extra_field/extra_value rather than silently dropped.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": ["2"],
+            "field": "item",
+            "value_text": "Choice Scarf",
+        }
+    )
+    result = classify_pending(
+        "2, but with Choice Scarf",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"
+
+
+def test_select_plus_item_edit_resolves_when_model_picks_edit_intent():
+    """Same compound shape, but the model's literal turn_intent is 'edit'
+    with option_ids also populated -- confirms the symmetric-dispatch
+    handling (already proven for select+partial-spread) also covers the
+    non-spread-field case."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "edit_scope": "field_only",
+            "value_text": "Choice Scarf",
+            "option_ids": [_CONFIRM_IDS[1]],
+        }
+    )
+    result = classify_pending(
+        "2, but with Choice Scarf",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"
+
+
+def test_select_plus_item_edit_requires_exactly_one_option():
+    """Two or more option_ids combined with an edit signal remains
+    genuinely ambiguous (which option would the edit apply to?) and must
+    still route to the compound-ambiguity clarifying question -- confirmed
+    by the real regression this exact scoping fix was caught by:
+    'make it modest, or actually compare these two first' with TWO
+    option_ids must not be silently resolved as if only one were selected.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": [_CONFIRM_IDS[0], _CONFIRM_IDS[1]],
+            "field": "item",
+            "value_text": "Choice Scarf",
+        }
+    )
+    result = classify_pending(
+        "either of these, but with Choice Scarf",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "pending_response"
+
+
+def test_bare_leading_option_id_recovered_inside_gap_fill():
+    """Regression for the exact live failure: a bare, unresolved option id
+    ('1') from the model must be recovered from raw text BEFORE the
+    'Unknown build option id' safety net rejects it outright -- not just
+    after, which is too late since the gate already replaced the result
+    with a dead-end pending_response by then.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": ["2"],
+        }
+    )
+    result = classify_pending(
+        "2",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    assert result["turn_payload"]["option_ids"] == (_CONFIRM_IDS[1],)

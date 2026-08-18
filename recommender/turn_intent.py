@@ -382,6 +382,49 @@ def _is_select_plus_partial_spread(extraction: TurnIntentExtraction) -> bool:
     return has_partial_spread and not has_other_edit_signal
 
 
+def _is_select_plus_single_field_edit(extraction: TurnIntentExtraction) -> bool:
+    """True when a select/compare-shaped signal is paired with specifically
+    one non-spread field edit (ability/item/nature/moves) and nothing else
+    edit-shaped. The resolvable counterpart to _is_select_plus_partial_spread
+    for non-spread fields: "1, but with Choice Scarf" means apply the
+    selection, then apply the field edit on top of the result -- the same
+    order-dependent two-step reading, just for a different field.
+
+    Confirmed live: "1, but with Choice Scarf" produced turn_intent=
+    "select_build_option" with a bare, unresolved option_ids value (the
+    model's own extraction gave "1" rather than the real "spread_nature:1"
+    id) -- separately handled by _extract_leading_option_id's text-based
+    recovery in nodes.py. This function only concerns whether the
+    combination of signals is resolvable at all, not whether the specific
+    ids extracted are valid.
+    """
+    field = extraction.field
+    if field not in {"ability", "item", "nature", "moves"}:
+        return False
+    if len(extraction.option_ids or []) != 1:
+        # Exactly one selection is a well-defined "pick this, then adjust
+        # it" two-step operation. Two or more is a genuinely different,
+        # ambiguous case -- which of several selected options would the
+        # edit even apply to? Confirmed by a real regression: "make it
+        # modest, or actually compare these two first" (two option_ids,
+        # a genuine either/or) must still route to the compound-ambiguity
+        # clarifying question, not be silently resolved as if one option
+        # were selected.
+        return False
+    has_value = (
+        _populated(extraction.value_moves)
+        if field == "moves"
+        else _populated(extraction.value_text)
+    )
+    if not has_value:
+        return False
+    has_spread_signal = any(
+        _populated(getattr(extraction, f))
+        for f in ("value_spread", "value_spread_set", "value_spread_delta")
+    )
+    return not has_spread_signal
+
+
 def _has_compound_edit_and_compare_signal(extraction: TurnIntentExtraction) -> bool:
     """True when a single extraction carries both edit- and compare/select-
     shaped fields at once, regardless of which single turn_intent was
@@ -407,8 +450,9 @@ def _has_compound_edit_and_compare_signal(extraction: TurnIntentExtraction) -> b
     )
     if not (has_compare_signal and has_edit_signal):
         return False
-    if extraction.turn_intent != "compare" and _is_select_plus_partial_spread(
-        extraction
+    if extraction.turn_intent != "compare" and (
+        _is_select_plus_partial_spread(extraction)
+        or _is_select_plus_single_field_edit(extraction)
     ):
         return False
     return True
@@ -585,6 +629,13 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
         if _is_select_plus_partial_spread(extraction):
             select_payload["spread_set"] = extraction.value_spread_set
             select_payload["spread_delta"] = extraction.value_spread_delta
+        elif _is_select_plus_single_field_edit(extraction):
+            select_payload["extra_field"] = extraction.field
+            select_payload["extra_value"] = (
+                extraction.value_moves
+                if extraction.field == "moves"
+                else extraction.value_text
+            )
         return SelectBuildPayload(**select_payload)  # type: ignore[typeddict-item]
     if intent == "compare":
         return ComparePayload(
@@ -743,16 +794,29 @@ def parse_turn_intent(
     # silently dropped even though the compound-signal check above already
     # correctly identified this as resolvable, not ambiguous. Force the
     # select_build_option treatment whenever the shape is right, regardless
-    # of which literal turn_intent value the model happened to choose.
-    if extraction.option_ids and _is_select_plus_partial_spread(extraction):
+    # of which literal turn_intent value the model happened to choose. Same
+    # reasoning applies to select+single-field-edit ("1, but with Choice
+    # Scarf"), confirmed live the same way.
+    if extraction.option_ids and (
+        _is_select_plus_partial_spread(extraction)
+        or _is_select_plus_single_field_edit(extraction)
+    ):
         select_intent = "select_build_option"
         select_payload: dict[str, Any] = {
             "option_ids": tuple(str(i).strip() for i in extraction.option_ids)
         }
-        if _populated(extraction.value_spread_set):
-            select_payload["spread_set"] = extraction.value_spread_set
-        if _populated(extraction.value_spread_delta):
-            select_payload["spread_delta"] = extraction.value_spread_delta
+        if _is_select_plus_partial_spread(extraction):
+            if _populated(extraction.value_spread_set):
+                select_payload["spread_set"] = extraction.value_spread_set
+            if _populated(extraction.value_spread_delta):
+                select_payload["spread_delta"] = extraction.value_spread_delta
+        else:
+            select_payload["extra_field"] = extraction.field
+            select_payload["extra_value"] = (
+                extraction.value_moves
+                if extraction.field == "moves"
+                else extraction.value_text
+            )
         out = {
             "turn_intent": select_intent,
             "turn_payload": SelectBuildPayload(**select_payload),  # type: ignore[typeddict-item]

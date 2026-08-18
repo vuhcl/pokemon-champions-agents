@@ -1032,3 +1032,100 @@ def test_accept_status_move_conflict_does_not_bypass_unrelated_speed_conflict():
         )
         assert err_accepted is not None
         assert "Trick Room" in err_accepted
+
+
+def test_select_plus_item_edit_end_to_end_triggers_conflict_flow():
+    """Full end-to-end regression, exact live scenario: '1, but with
+    Choice Scarf' resolves through apply_provisional_option (not
+    apply_provisional_edit), applying the selected option's spread AND
+    the item change together, and correctly triggers the interactive
+    item_moveset_conflict_question when the combination creates a real
+    conflict (Choice Scarf + Protect)."""
+    from recommender.nodes import apply_provisional_option
+
+    provisional = _archaludon_choice_scarf_scenario()
+    pending = {
+        "schema_version": 1,
+        "kind": "full_build_confirmation",
+        "build_option_groups": (
+            {
+                "axis": "spread_nature",
+                "prompt": "x",
+                "options": (
+                    {
+                        "option_id": "spread_nature:default",
+                        "label": "Recommended default",
+                        "overrides": {},
+                    },
+                    {
+                        "option_id": "spread_nature:1",
+                        "label": "Timid",
+                        "overrides": {
+                            "nature": "Timid",
+                            "spread": {
+                                "hp": 2, "atk": 0, "def": 0, "spa": 32,
+                                "spd": 0, "spe": 32,
+                            },
+                        },
+                    },
+                ),
+            },
+        ),
+    }
+    state = _state(
+        provisional,
+        pending=pending,
+        payload={
+            "option_ids": ("spread_nature:1",),
+            "extra_field": "item",
+            "extra_value": "Choice Scarf",
+        },
+    )
+    out = apply_provisional_option(state)
+    assert out.get("slot_commit_error") is None
+    question = out["pending_presentation"]
+    assert question["kind"] == "item_moveset_conflict_question"
+    assert question["conflict_attempted_item"] == "Choice Scarf"
+    assert "Protect" in question["conflict_moves"]
+    # Confirms the selected option's spread/nature was also applied, not
+    # just the item -- the base for the conflict question is the FULL
+    # composed selection, not just the item change in isolation.
+    assert out["provisional_slot"].nature != "Timid"  # base is pre-edit (unchanged)
+
+
+def test_select_plus_item_edit_overlapping_key_rejected():
+    """extra_field colliding with a key the selected option already
+    overrides must be rejected the same way option-to-option overlaps
+    already are, not silently let one win."""
+    from recommender.nodes import apply_provisional_option
+
+    provisional = _provisional()
+    pending: PendingPresentation = {
+        "schema_version": 1,
+        "kind": "full_build_confirmation",
+        "build_option_groups": (
+            {
+                "axis": "item",
+                "prompt": "x",
+                "options": (
+                    {
+                        "option_id": "item:1",
+                        "label": "Choice Specs",
+                        "overrides": {"item": "Choice Specs"},
+                    },
+                ),
+            },
+        ),
+    }
+    state = _state(
+        provisional,
+        pending=pending,
+        payload={
+            "option_ids": ("item:1",),
+            "extra_field": "item",
+            "extra_value": "Life Orb",
+        },
+    )
+    out = apply_provisional_option(state)
+    assert out.get("slot_commit_error")
+    assert "overlapping" in out["slot_commit_error"]

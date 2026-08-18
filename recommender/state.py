@@ -173,6 +173,12 @@ class SelectBuildPayload(TypedDict):
     # selected option's resulting spread, not the pre-selection spread.
     spread_set: NotRequired[dict[str, int] | None]
     spread_delta: NotRequired[dict[str, int] | None]
+    # Set when the same turn also carried a non-spread field edit (e.g.
+    # "1, but with Choice Scarf" -- field="item", value="Choice Scarf").
+    # Applied as an override composed alongside the selected option's own
+    # overrides, same mechanism, not a separate step.
+    extra_field: NotRequired[str | None]
+    extra_value: NotRequired[object]
 
 
 class ComparePayload(TypedDict):
