@@ -1293,8 +1293,16 @@ def test_scrambled_full_form_spread_gets_rewritten_to_trustworthy_partial():
     ending the conversation. Now the deterministic text extraction reads
     'spe, 5' directly out of the original request and rewrites the
     extraction to a trustworthy partial form, discarding the model's
-    unreliable computation entirely -- the agent computes the right
-    answer itself instead of asking the user to redo the arithmetic.
+    unreliable computation entirely.
+
+    A further fix (also 2026-08-18) additionally recovers the leading
+    option reference ("2, ") from the raw text via classify_pending's
+    full_build_confirmation dispatch, which _deterministic_build_option_ids
+    alone can't do for this mixed compound shape -- so the overall result
+    here is select_build_option with option_ids=('spread_nature:2',), not
+    a bare edit against whatever the current default happens to be. This
+    test exercises classify_pending's real end-to-end dispatch (not
+    parse_turn_intent in isolation), so it reflects that full recovery.
     """
     parser = RunnableLambda(
         lambda _: {
@@ -1314,9 +1322,9 @@ def test_scrambled_full_form_spread_gets_rewritten_to_trustworthy_partial():
         _confirmation_with_groups(),
         turn_intent_parser=parser,
     )
-    assert result["turn_intent"] == "edit"
+    assert result["turn_intent"] == "select_build_option"
     payload = result["turn_payload"]
-    assert payload["value"] is None
+    assert payload["option_ids"] == ("spread_nature:2",)
     assert payload["spread_set"] == {"spe": 5}
     assert payload["spread_delta"] is None
 
@@ -1349,3 +1357,82 @@ def test_genuine_multistat_full_form_is_not_rewritten():
     assert payload["value"] == {
         "hp": 32, "atk": 0, "def": 5, "spa": 0, "spd": 24, "spe": 3,
     }
+
+
+def test_extract_leading_option_id_recovers_dropped_selection():
+    """Regression, confirmed live (2026-08-18): 'correctly suggests a new
+    spread now, but it didn't use spread_nature:2 and instead edited the
+    default one.' The deterministic-extraction fix (previous commit) made
+    the arithmetic reliable, but if the model still drops option_ids
+    entirely, the edit was still applying against the wrong base spread
+    (accurately, but to the wrong build). This recovers the leading option
+    reference directly from the raw text, independent of the model.
+    """
+    from recommender.nodes import _extract_leading_option_id
+
+    pending = _confirmation_with_groups()
+    assert _extract_leading_option_id("2, but make it 5 Spe", pending) == (
+        "spread_nature:2"
+    )
+    assert _extract_leading_option_id("2 but make it 5 Spe", pending) == (
+        "spread_nature:2"
+    )
+    assert _extract_leading_option_id("option 2, but make it 5 Spe", pending) == (
+        "spread_nature:2"
+    )
+    # No leading option reference at all -- must not misfire.
+    assert _extract_leading_option_id("make it 5 Spe", pending) is None
+    # No such option -- must not guess.
+    assert _extract_leading_option_id("99, but make it 5 Spe", pending) is None
+
+
+def test_classify_pending_recovers_full_compound_request_end_to_end():
+    """The full chain: model gives a scrambled full-form value_spread AND
+    drops option_ids entirely for '2, but make it 5 Spe'. Confirms both
+    fixes compose correctly -- the scrambled computation is discarded in
+    favor of the deterministic 'spe, 5' read, AND the leading '2,' is
+    recovered as the real base option, giving select_build_option with
+    both option_ids and spread_set populated correctly."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread": {
+                "hp": 32, "atk": 0, "def": 0, "spe": 5, "spa": 29, "spd": 4,
+            },
+            "value_spread_set": None,
+            "value_spread_delta": None,
+            "constraint": None,
+        }
+    )
+    result = classify_pending(
+        "2, but make it 5 Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    assert result["turn_payload"]["option_ids"] == ("spread_nature:2",)
+    assert result["turn_payload"]["spread_set"] == {"spe": 5}
+
+
+def test_bare_spread_edit_without_leading_option_ref_is_unaffected():
+    """A plain edit with no leading option reference at all (e.g. 'make it
+    5 Spe' with no selection) must NOT get accidentally converted into a
+    select_build_option -- confirms the recovery only fires when a real
+    leading reference is actually present in the text."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "spread",
+            "edit_scope": "field_only",
+            "value_spread_set": {"spe": 5},
+        }
+    )
+    result = classify_pending(
+        "make it 5 Spe",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["spread_set"] == {"spe": 5}

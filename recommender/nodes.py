@@ -157,6 +157,46 @@ def _index_build_options(
     return out
 
 
+_LEADING_OPTION_NUMBER_RE = re.compile(
+    r"^\s*(?:option\s+)?(\d+)\s*(?:,|\bbut\b)\s*", re.IGNORECASE
+)
+
+
+def _extract_leading_option_id(
+    text: str, pending: PendingPresentation
+) -> str | None:
+    """Recover a leading option reference from mixed compound text ('2,
+    but make it 5 Spe') that _deterministic_build_option_ids's stricter
+    whole-text matching doesn't handle (it requires every split part to be
+    a clean option reference, and 'but make it 5 spe' isn't one).
+
+    Confirmed live: without this, the model unreliably extracts option_ids
+    for this compound shape, and the edit silently falls back to applying
+    against the currently-displayed default instead of the option the
+    user actually named -- not scrambled anymore (the earlier fix already
+    solved that), but still the wrong base spread.
+
+    Only matches a real, unambiguous option id in the current single-group
+    presentation -- returns None for anything else (multi-group menus,
+    no match, ambiguous), same fail-closed contract as every other
+    option-matching helper in this module.
+    """
+    match = _LEADING_OPTION_NUMBER_RE.match(text)
+    if match is None:
+        return None
+    requested_number = int(match.group(1))
+    groups = list(pending.get("build_option_groups") or ())
+    if len(groups) != 1:
+        return None
+    opts = list(groups[0].get("options") or ())
+    exact = [
+        str(opt.get("option_id") or "")
+        for opt in opts
+        if _option_id_number(str(opt.get("option_id") or "")) == requested_number
+    ]
+    return exact[0] if len(exact) == 1 else None
+
+
 def _deterministic_build_option_ids(
     text: str, pending: PendingPresentation
 ) -> tuple[str, ...] | None:
@@ -1057,7 +1097,7 @@ def classify_pending(
             }
         if turn_intent_parser is None:
             return {"turn_intent": "pending_response"}
-        return _gap_fill(
+        result = _gap_fill(
             text,
             turn_intent_parser=turn_intent_parser,
             gap_fill_context=gap_fill_context,
@@ -1065,6 +1105,32 @@ def classify_pending(
             pending_presentation=pending_presentation,
             team_draft=team_draft,
         )
+        if result.get("turn_intent") == "edit":
+            payload = result.get("turn_payload")
+            if (
+                isinstance(payload, dict)
+                and payload.get("field") == "spread"
+                and (payload.get("spread_set") or payload.get("spread_delta"))
+            ):
+                leading_id = _extract_leading_option_id(text, pending_presentation)
+                if leading_id is not None:
+                    # The model dropped the leading option reference
+                    # ("2, but make it 5 Spe" -> no option_ids), so the
+                    # edit would otherwise silently apply against the
+                    # currently-displayed default instead of the option
+                    # actually named. Recovered deterministically from
+                    # the raw text; converts this into the same
+                    # select_build_option + partial-spread shape the
+                    # compound-resolution machinery already handles.
+                    result = {
+                        "turn_intent": "select_build_option",
+                        "turn_payload": {
+                            "option_ids": (leading_id,),
+                            "spread_set": payload.get("spread_set"),
+                            "spread_delta": payload.get("spread_delta"),
+                        },
+                    }
+        return result
 
     options = pending_presentation.get("options") or []
     selected: set[int] = set()
