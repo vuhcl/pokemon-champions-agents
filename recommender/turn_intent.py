@@ -466,7 +466,8 @@ class TurnIntentParseError(ValueError):
 
 
 _LEADING_OPTION_REF_RE = re.compile(
-    r"^\s*(?:option\s+)?\d+\s*(?:,\s*(?:\bbut\b\s*)?|\bbut\b\s*)", re.IGNORECASE
+    r"^\s*(?:option\s+)?\d+\s*(?:,\s*(?:\bbut\b\s*)?|\bbut\b\s*|\+\s*)",
+    re.IGNORECASE,
 )
 _DELTA_INDICATOR_WORDS = frozenset({"more", "extra", "additional", "by"})
 

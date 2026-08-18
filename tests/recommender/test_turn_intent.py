@@ -1606,3 +1606,49 @@ def test_dropped_item_signal_recovered_end_to_end():
     assert payload["option_ids"] == (_CONFIRM_IDS[1],)
     assert payload["extra_field"] == "item"
     assert payload["extra_value"] == "Choice Scarf"
+
+
+def test_leading_option_ref_regex_recognizes_plus_separator():
+    """Regression, confirmed live (2026-08-18): '2+use Choice Scarf' left
+    the leading '2+' entirely unstripped, since the regex previously only
+    recognized comma/'but' as separators -- not '+', despite '+' being
+    this interface's own documented composition syntax ("pick option ids
+    (compose with +)")."""
+    from recommender.turn_intent import _LEADING_OPTION_REF_RE
+
+    assert _LEADING_OPTION_REF_RE.sub("", "2+use Choice Scarf") == "use Choice Scarf"
+    assert (
+        _LEADING_OPTION_REF_RE.sub("", "2 + use Choice Scarf") == "use Choice Scarf"
+    )
+    # Still correctly declines to touch pure multi-option composition text
+    # (no edit signal involved) -- not this function's job to resolve that.
+    assert _LEADING_OPTION_REF_RE.sub("", "1+2") == "2"
+
+
+def test_dropped_option_id_recovered_for_non_spread_edit():
+    """Regression, confirmed live (2026-08-18): '2+use Choice Scarf'
+    correctly extracted field='item'/value_text='Choice Scarf' but
+    dropped option_ids entirely (None). The existing leading-option-id
+    recovery was scoped to field=='spread' only -- generalized here to
+    cover item/ability/nature/moves too, using the same extra_field/
+    extra_value shape the reverse-direction fix already established.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "edit_scope": "field_only",
+            "value_text": "Choice Scarf",
+            "option_ids": None,
+        }
+    )
+    result = classify_pending(
+        "2+use Choice Scarf",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"

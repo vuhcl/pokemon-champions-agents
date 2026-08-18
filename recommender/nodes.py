@@ -165,7 +165,8 @@ def _index_build_options(
 
 
 _LEADING_OPTION_NUMBER_RE = re.compile(
-    r"^\s*(?:option\s+)?(\d+)\s*(?:,\s*(?:\bbut\b\s*)?|\bbut\b\s*)", re.IGNORECASE
+    r"^\s*(?:option\s+)?(\d+)\s*(?:,\s*(?:\bbut\b\s*)?|\bbut\b\s*|\+\s*)",
+    re.IGNORECASE,
 )
 
 
@@ -1387,10 +1388,8 @@ def classify_pending(
         )
         if result.get("turn_intent") == "edit":
             payload = result.get("turn_payload")
-            if (
-                isinstance(payload, dict)
-                and payload.get("field") == "spread"
-                and (payload.get("spread_set") or payload.get("spread_delta"))
+            if isinstance(payload, dict) and payload.get("field") == "spread" and (
+                payload.get("spread_set") or payload.get("spread_delta")
             ):
                 leading_id = _extract_leading_option_id(text, pending_presentation)
                 if leading_id is not None:
@@ -1408,6 +1407,29 @@ def classify_pending(
                             "option_ids": (leading_id,),
                             "spread_set": payload.get("spread_set"),
                             "spread_delta": payload.get("spread_delta"),
+                        },
+                    }
+            elif isinstance(payload, dict) and payload.get("field") in {
+                "ability", "item", "nature", "moves",
+            }:
+                # Confirmed live ("2+use Choice Scarf"): the model can
+                # correctly extract a non-spread edit (field=item,
+                # value_text=Choice Scarf) while dropping the leading
+                # option reference entirely (option_ids=None), not just
+                # for spread edits -- this generalizes the spread-only fix
+                # above rather than leaving item/ability/nature/moves
+                # edits with the same gap. Also confirms "+" needs to be
+                # recognized as a leading-option-reference separator, not
+                # just comma/"but" -- this UI's own documented composition
+                # syntax ("pick option ids (compose with +)").
+                leading_id = _extract_leading_option_id(text, pending_presentation)
+                if leading_id is not None:
+                    result = {
+                        "turn_intent": "select_build_option",
+                        "turn_payload": {
+                            "option_ids": (leading_id,),
+                            "extra_field": payload.get("field"),
+                            "extra_value": payload.get("value"),
                         },
                     }
         return result
