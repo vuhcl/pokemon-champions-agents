@@ -715,3 +715,77 @@ def test_query_candidates_for_threats_credits_field_dependent_answer():
             objective, locked_contexts=(_FakeContext(),)
         )
     assert result_with_rain.candidates[0].verified_score > 0.0
+
+
+def test_best_matchup_with_forced_fields_upgrades_already_answered_but_improvable_result():
+    """Regression for a real, confirmed gap found live: a Steel-type
+    candidate already 'answers' a Fire-type threat neutrally (surviving
+    via bulk despite Steel's real 2x Fire weakness) but only at 'costly'
+    severity -- the original fix's short-circuit ('return neutral
+    whenever it isn't a hard no_answer') would never have re-checked
+    whether Rain (halving Fire's power) makes that matchup meaningfully
+    safer. Severity feeds directly into the real ranking score via
+    pair_score/aggregate_verified, so this is a ranking-correctness gap,
+    not cosmetic. Confirms the fix now correctly checks and upgrades.
+    """
+    def fake_classify(cand, threat, field, *, client=None):
+        if field is None:
+            return MatchupResult("intentional_non_ko_answer", "costly")
+        assert field == {"weather": "Rain"}
+        return MatchupResult("intentional_non_ko_answer", "decisive")
+
+    with patch(
+        "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+    ):
+        result = _best_matchup_with_forced_fields(
+            {"species": "Kingambit"},
+            {"species": "SomeFireThreat"},
+            [{"weather": "Rain"}],
+            client=None,
+        )
+    assert result.outcome == "intentional_non_ko_answer"
+    assert result.severity == "decisive"
+
+
+def test_best_matchup_with_forced_fields_skips_check_only_at_absolute_ceiling():
+    """The one legitimate short-circuit: neutral is already clean_kill +
+    decisive (pair_score 4.0, the real maximum per _OUTCOME_POINTS/
+    _SEVERITY_POINTS) -- nothing can improve on that, so the forced-field
+    check is correctly skipped, confirmed against the real point tables
+    rather than assumed."""
+    with patch(
+        "recommender.threat_counters.classify_matchup",
+        return_value=MatchupResult("clean_kill", "decisive"),
+    ) as cm:
+        result = _best_matchup_with_forced_fields(
+            {"species": "Garchomp"},
+            {"species": "SomeThreat"},
+            [{"weather": "Rain"}],
+            client=None,
+        )
+    assert result.outcome == "clean_kill"
+    assert result.severity == "decisive"
+    assert cm.call_count == 1
+
+
+def test_best_matchup_with_forced_fields_does_not_downgrade_when_field_is_worse():
+    """A candidate that answers well neutrally but WORSE under a forced
+    field (e.g. a matchup that's actually harder under Rain for some
+    other reason) must not be downgraded -- the best result across all
+    evaluated states wins, not just the last one checked."""
+    def fake_classify(cand, threat, field, *, client=None):
+        if field is None:
+            return MatchupResult("clean_kill", "costly")
+        return MatchupResult("intentional_non_ko_answer", "toss-up")
+
+    with patch(
+        "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+    ):
+        result = _best_matchup_with_forced_fields(
+            {"species": "Kingambit"},
+            {"species": "SomeThreat"},
+            [{"weather": "Rain"}],
+            client=None,
+        )
+    assert result.outcome == "clean_kill"
+    assert result.severity == "costly"

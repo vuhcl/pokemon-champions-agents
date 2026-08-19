@@ -326,32 +326,56 @@ def _best_matchup_with_forced_fields(
     *,
     client: CalcClient | None,
 ) -> MatchupResult:
-    """Neutral first; if that doesn't answer the threat, try each of the
-    team's real, achievable field states and take the best result found.
-    Same neutral-then-forced-field pattern already proven in
-    coverage.compute_team_coverage -- mirrored here rather than
-    reinvented, since both are answering essentially the same underlying
-    question (does X answer threat Y, accounting for the team's real
-    locked conditions), just for candidate discovery rather than
-    reviewing the already-locked roster.
+    """Always checks every real, achievable field state and returns
+    whichever produces the best result -- not just as a fallback when
+    neutral fails outright. Same underlying question as
+    coverage.compute_team_coverage's forced-field fallback (does X
+    answer threat Y, accounting for the team's real locked conditions),
+    but that pattern alone isn't sufficient here: it only short-circuits
+    "unanswered -> answered" transitions, not "already answered, but the
+    real field state makes it meaningfully safer" ones.
 
-    Root-cause fix for the confirmed live bug: this function's calls to
-    classify_matchup previously always passed field=None, meaning every
-    threat-coverage evaluation was blind to the team's actual locked
-    weather/Tailwind/Trick Room -- a Fire-type candidate on a Rain team
-    got evaluated as if it weren't raining, and a Water-type candidate's
-    real Rain-boosted offense was never credited.
+    Real, confirmed gap found live, not hypothetical: a Steel-type
+    candidate that already "answers" a Fire-type threat neutrally (e.g.
+    surviving via bulk despite Steel's real 2x Fire weakness) but only
+    at "costly" severity would never have been re-evaluated under Rain,
+    even though Rain halving Fire's power would clearly make that
+    matchup safer -- severity, not just outcome type, feeds directly
+    into the actual ranking score via pair_score/aggregate_verified, so
+    this is a real ranking-correctness gap, not just cosmetic. Compares
+    by pair_score (weighs both outcome and severity) rather than
+    coverage.py's _better_outcome (outcome only, blind to severity
+    differences within the same outcome) -- that comparison is correct
+    for compute_team_coverage's different question (which of several
+    TEAM MEMBERS best answers a threat) but not precise enough for this
+    one (which of several FIELD STATES for the SAME candidate is best).
+
+    Skips the forced-field check only when neutral is already the
+    absolute ceiling (clean_kill + decisive, pair_score 4.0) -- nothing
+    can improve on that, confirmed directly against the real point
+    tables (_OUTCOME_POINTS/_SEVERITY_POINTS) before relying on it.
+
+    Root-cause fix for the original confirmed live bug too: this
+    function's calls to classify_matchup previously always passed
+    field=None, meaning every threat-coverage evaluation was blind to
+    the team's actual locked weather/Tailwind/Trick Room -- a Fire-type
+    candidate on a Rain team got evaluated as if it weren't raining, and
+    a Water-type candidate's real Rain-boosted offense was never
+    credited.
     """
-    from recommender.coverage import _better_outcome
-
     neutral = classify_matchup(candidate_spec, threat_spec, None, client=client)
-    if neutral.outcome != "no_answer" or not forced_fields:
+    if not forced_fields or (
+        neutral.outcome == "clean_kill" and neutral.severity == "decisive"
+    ):
         return neutral
     best = neutral
+    best_score = pair_score(neutral)
     for forced_field in forced_fields:
         r = classify_matchup(candidate_spec, threat_spec, forced_field, client=client)
-        if r.outcome != "no_answer":
-            best = _better_outcome(r, best if best.outcome != "no_answer" else None)
+        score = pair_score(r)
+        if score > best_score:
+            best = r
+            best_score = score
     return best
 
 
