@@ -3047,6 +3047,7 @@ def discover_multi_locked(
             annotated_candidates=ranked,
             candidates_pre_ranked=True,
             notices=mega_ceiling_notices(state),
+            condition_resilience=resilience,
         ),
         state,
         slot_index=slot_index,

@@ -15,6 +15,7 @@ from recommender.role_compendium import (
     CompendiumRoleEvidence,
     ReverseCompendiumEvidence,
 )
+from recommender.condition_types import ConditionResilienceReport, ConditionResilienceRow
 from recommender.slot_fill import (
     AnnotatedCandidate,
     NeedResolvedCandidate,
@@ -25,6 +26,7 @@ from recommender.slot_fill import (
     _FO_PROTECTION_ABILITIES,
     _NEED_SATISFIERS,
     _NEED_TARGET_ROLES,
+    _redundancy_tier_for_candidates,
     _sort_annotated,
     _threat_evidence,
     _union_move_candidates,
@@ -1503,3 +1505,101 @@ def test_archaludon_single_locked_pool_labels_rain_setter():
         to_id(row.species) == "pelipper" for row in (*labeled, *ambiguous_rain)
     )
 
+
+
+def _redundancy_test_need(category: str) -> SupportNeed:
+    return SupportNeed(category=category, name="x", description="x", trigger=None)
+
+
+def _redundancy_test_row(species: str, role_id: str, *categories: str) -> AnnotatedCandidate:
+    return AnnotatedCandidate(
+        species=species,
+        matching_needs=tuple(_redundancy_test_need(c) for c in categories),
+        source="usage",
+        target_role_decision=TargetRoleDecision(role_id=role_id, source="usage_backed"),
+    )
+
+
+def test_redundancy_tier_fully_resolved_condition_deprioritizes_duplicate_role():
+    """Regression, confirmed live (2026-08-18): after a Tailwind setter
+    was locked, more tailwind_setter candidates were still offered as
+    alternatives with no redundancy awareness at all. gap=='none' means
+    the condition is fully resolved -- no backup value -- so a candidate
+    whose only real contribution is the same role gets deprioritized."""
+    resilience = ConditionResilienceReport(
+        conditions=(
+            ConditionResilienceRow(
+                condition="Tailwind", classification="preferred",
+                provider_count=1, providers=(), dependents=(), gap="none",
+            ),
+        )
+    )
+    rows = [
+        _redundancy_test_row("Altaria", "tailwind_setter", "tailwind"),
+        _redundancy_test_row("Staraptor", "tailwind_setter", "tailwind"),
+        _redundancy_test_row("Garchomp", "fast_physical_attacker", "defensive_coverage"),
+    ]
+    tiers = _redundancy_tier_for_candidates(rows, resilience)
+    assert tiers == {"Altaria": 2, "Staraptor": 2, "Garchomp": 0}
+
+
+def test_redundancy_tier_missing_provider_is_never_deprioritized():
+    """A genuinely unmet need (gap=='missing_provider') is always tier 0,
+    regardless of how many candidates offer it -- fills_essential_gap
+    already prioritizes these in ranking, and this must not undo that."""
+    resilience = ConditionResilienceReport(
+        conditions=(
+            ConditionResilienceRow(
+                condition="Tailwind", classification="preferred",
+                provider_count=0, providers=(), dependents=(), gap="missing_provider",
+            ),
+        )
+    )
+    rows = [
+        _redundancy_test_row("Altaria", "tailwind_setter", "tailwind"),
+        _redundancy_test_row("Staraptor", "tailwind_setter", "tailwind"),
+    ]
+    tiers = _redundancy_tier_for_candidates(rows, resilience)
+    assert tiers == {"Altaria": 0, "Staraptor": 0}
+
+
+def test_redundancy_tier_spof_backup_needs_additional_value_to_rank_above_redundant():
+    """Real design requirement, confirmed with Vu directly: a
+    single_provider_spof condition (real backup value, per the
+    condition's own essential/preferred classification) should NOT be
+    prioritized ahead of other unmet needs -- UNLESS the candidate also
+    contributes toward another, distinct need (the Sableye case: both a
+    rain_setter and a screens provider). A SPOF-eligible role with no
+    other contributing value stays tier 2, same as a fully-resolved one.
+    """
+    resilience = ConditionResilienceReport(
+        conditions=(
+            ConditionResilienceRow(
+                condition="Rain", classification="preferred",
+                provider_count=1, providers=(), dependents=(),
+                gap="single_provider_spof",
+            ),
+        )
+    )
+    rows = [
+        _redundancy_test_row("Pelipper", "rain_setter", "condition_setter"),
+        _redundancy_test_row(
+            "Sableye", "rain_setter", "condition_setter", "screens"
+        ),
+    ]
+    tiers = _redundancy_tier_for_candidates(rows, resilience)
+    assert tiers == {"Pelipper": 2, "Sableye": 1}
+
+
+def test_redundancy_tier_non_condition_role_is_always_tier_0():
+    """A candidate whose role doesn't map to any tracked condition at all
+    (e.g. a pure attacker) is never deprioritized by this mechanism."""
+    resilience = ConditionResilienceReport(conditions=())
+    rows = [_redundancy_test_row("Garchomp", "fast_physical_attacker", "defensive_coverage")]
+    tiers = _redundancy_tier_for_candidates(rows, resilience)
+    assert tiers == {"Garchomp": 0}
+
+
+def test_redundancy_tier_none_resilience_returns_empty():
+    rows = [_redundancy_test_row("Garchomp", "fast_physical_attacker")]
+    assert _redundancy_tier_for_candidates(rows, None) == {}

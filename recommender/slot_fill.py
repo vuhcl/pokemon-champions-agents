@@ -18,6 +18,7 @@ from recommender.anchor_roles import (
 )
 from recommender.by_usage import query_by_usage
 from recommender.calc_client import PokemonSpecOptional
+from recommender.condition_types import ConditionResilienceReport
 from recommender.contingent_value import REDIRECT_MOVES
 from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
@@ -163,6 +164,7 @@ class SlotFillContext:
     )
     threat_discovery_error: CandidateDiscoveryError | None = None
     notices: tuple[str, ...] = ()
+    condition_resilience: ConditionResilienceReport | None = None
 
 
 @dataclass(frozen=True)
@@ -1422,12 +1424,69 @@ def _ordered_annotated(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
     return rows if ctx.candidates_pre_ranked else _sort_annotated(rows)
 
 
+def _redundancy_tier_for_candidates(
+    rows: list[AnnotatedCandidate],
+    resilience: ConditionResilienceReport | None,
+) -> dict[str, int]:
+    """species -> 0 (prefer)/1/2 (deprioritize), used only for which
+    alternatives to show alongside the default -- never affects ranking
+    or which species is the default itself.
+
+    Confirmed live: two of three "strategically different alternatives"
+    were both tailwind_setter after a Tailwind setter was already locked
+    -- fills_essential_gap (the ranking boost) treats "missing_provider"
+    and "single_provider_spof" identically, so ranking alone doesn't
+    distinguish a genuinely unmet need from a role that's merely eligible
+    for backup redundancy, and either can independently rank highly
+    enough to fill multiple alternative slots.
+
+    Tier 0: role doesn't correspond to a tracked condition, or the
+    condition still has gap=="missing_provider" -- a genuinely unmet
+    need, always preferred.
+    Tier 1: gap=="single_provider_spof" (the condition's own
+    classification -- essential/preferred -- already means a backup
+    provider has real strategic value, not merely optional) AND the
+    candidate also matches another, distinct support-need category --
+    e.g. Sableye as both a rain_setter and a screens provider. Backup
+    value is real, but must come bundled with something else to compete
+    with tier 0.
+    Tier 2: gap=="none" (fully resolved, no backup value at all), or a
+    SPOF-eligible role with no other contributing need -- purely
+    redundant, shown only if there aren't enough tier 0/1 candidates to
+    fill the alternative slots.
+    """
+    if resilience is None:
+        return {}
+    from recommender.condition_resilience import _SETTER_ROLE_FOR_CONDITION
+
+    condition_for_role = {v: k for k, v in _SETTER_ROLE_FOR_CONDITION.items()}
+    gap_by_condition = {row.condition: row.gap for row in resilience.conditions}
+
+    tiers: dict[str, int] = {}
+    for row in rows:
+        role_id = getattr(row.target_role_decision, "role_id", None)
+        condition = condition_for_role.get(role_id) if role_id else None
+        if condition is None:
+            tiers[row.species] = 0
+            continue
+        gap = gap_by_condition.get(condition, "none")
+        if gap == "missing_provider":
+            tiers[row.species] = 0
+        elif gap == "single_provider_spof":
+            distinct_categories = {need.category for need in row.matching_needs}
+            tiers[row.species] = 1 if len(distinct_categories) > 1 else 2
+        else:
+            tiers[row.species] = 2
+    return tiers
+
+
 def present_candidates(
     ctx: SlotFillContext, *, slot_index: int
 ) -> SlotFillPresentation:
     rows = _ordered_annotated(ctx)
     names = [r.species for r in rows]
-    picked = pick_default_and_alternatives(names)
+    tier_for = _redundancy_tier_for_candidates(rows, ctx.condition_resilience)
+    picked = pick_default_and_alternatives(names, redundancy_tier=tier_for)
     default = picked.get("default")
     alts = list(picked.get("alternatives") or [])
     options: list[str] = []

@@ -301,6 +301,32 @@ def test_pick_default_and_alternatives():
     assert pick["alternatives"] == ["B", "C"]
 
 
+def test_pick_default_and_alternatives_prefers_non_redundant_tier():
+    """Regression, confirmed live (2026-08-18): after a Tailwind setter
+    was already locked, two of three offered 'strategically different
+    alternatives' were both tailwind_setter. Confirms redundancy_tier
+    reorders alternatives to prefer genuinely distinct value, without
+    changing the default (still purely rank-based) and without excluding
+    the redundant candidate outright when nothing better is available to
+    fill the second alternative slot."""
+    pick = pick_default_and_alternatives(
+        ["Staraptor", "Altaria", "Garchomp"],
+        redundancy_tier={"Staraptor": 2, "Altaria": 2, "Garchomp": 0},
+    )
+    assert pick["default"] == "Staraptor"  # unchanged -- strongest overall pick
+    assert pick["alternatives"] == ["Garchomp", "Altaria"]  # reordered, not dropped
+
+
+def test_pick_default_and_alternatives_never_leaves_a_slot_empty():
+    """Even if every remaining candidate is tier-2 (redundant), alternative
+    slots still get filled rather than left empty -- redundancy is a
+    preference, not an exclusion."""
+    pick = pick_default_and_alternatives(
+        ["A", "B", "C"], redundancy_tier={"B": 2, "C": 2}
+    )
+    assert pick["alternatives"] == ["B", "C"]
+
+
 def test_propose_usage_miss_lands_moveset_and_default_item():
     slot = Slot(
         species=Attr(value="Whimsicott", locked=True),

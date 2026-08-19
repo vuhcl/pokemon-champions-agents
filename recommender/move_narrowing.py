@@ -575,13 +575,34 @@ def _admit_candidates(
 
 
 def pick_default_and_alternatives(
-    candidates: list[str], *, regulation: str = "champions-reg-mb"
+    candidates: list[str],
+    *,
+    regulation: str = "champions-reg-mb",
+    redundancy_tier: dict[str, int] | None = None,
 ) -> dict[str, Any]:
+    """default is always candidates[0] (unchanged) -- the single strongest
+    candidate stays purely rank-based, since "the best available option
+    also happens to cover an already-satisfied role" is a reasonable
+    default. redundancy_tier (species -> 0/1/2, lower = prefer) only
+    affects which 2 alternatives get shown alongside it: prefers
+    candidates offering genuinely distinct strategic value over ones
+    whose only real contribution duplicates a role the locked team
+    already has covered. A stable sort preserves relative rank order
+    within each tier, so this reorders for diversity without overriding
+    the underlying ranking's judgment about which candidates within a
+    tier are actually stronger. Never leaves an alternative slot empty
+    to avoid redundancy -- if there aren't enough tier-0/1 candidates to
+    fill both slots, tier-2 candidates still fill the remainder.
+    """
     if not candidates:
         return {"default": None, "alternatives": []}
+    default = candidates[0]
+    rest = candidates[1:]
+    if redundancy_tier:
+        rest = sorted(rest, key=lambda c: redundancy_tier.get(c, 0))
     return {
-        "default": candidates[0],
-        "alternatives": candidates[1:3],
+        "default": default,
+        "alternatives": rest[:2],
     }
 
 
