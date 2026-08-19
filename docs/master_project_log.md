@@ -4548,6 +4548,85 @@ Full history: `feat/partial-spread-edits`, 11 commits, merged into `main` 2026-0
 individually test-verified (full suite green at each step) and, wherever the live model was the
 actual source of truth, verified against real raw extraction output rather than assumption.
 
+## 2026-08-18: Interactive item/moveset-conflict resolution — PR #106 merged, 6 commits
+
+Implements the item/moveset-conflict resolution request held over from the spread-editing arc:
+Choice item + a non-damaging move (e.g. Protect) now offers a real interactive choice — pick a
+damaging alternative, keep the conflict deliberately, or revert the item — instead of a static
+error message. The feature itself landed in the first commit; the other five absorbed a live-
+tested chain of failures in the compound "select an option and edit a field in the same turn"
+request shape, which turned out to be a much larger and more general problem than the feature
+itself.
+
+**The feature, confirmed working end-to-end live.** Move-alternative discovery needed no new data
+pipeline — `resolve_learnset` (real legal moves) plus `move_narrowing._commitment_pct` (real
+usage-backed commitment %) were already sufficient, confirmed directly against the live
+Archaludon + Choice Scarf scenario before writing any resolution code. A real, explicit scope
+decision, not defaulted into: accepting the shown conflict ("keep it") only bypasses that specific
+issue — `_verify_provisional_hard` independently re-checks the *other* conflict this same bundled
+check can carry (Choice Scarf + Trick Room's speed-direction interaction), so accepting one never
+silently waves through an unrelated one riding along in the same group. A real bug found and fixed
+along the way: the first draft's conflict detection only checked whether the moveset contained a
+status move, never whether the item was actually a real Choice item — a completely fake/illegal
+item was misidentified as a conflict, masking the real "illegal edited slot" error. Caught by a
+pre-existing test failing, not by inspection.
+
+**The much larger arc: compound select+edit requests kept failing in new, different ways.** Each
+fix was root-caused from real raw extraction debug output before being built, consistent with this
+project's standing discipline — never patched on a guess:
+- "1, but with Choice Scarf" → the model extracted a bare, unresolved option id ("1" instead of
+  "spread_nature:1") *and* correctly represented the item edit. Fixed by recovering the real id
+  from text before the "Unknown build option id" safety net could reject it outright.
+- "1, but use Choice Scarf instead" → a different failure entirely: the model dropped the item
+  signal completely (every edit-value field empty), not just malformed it. Needed real text
+  extraction, not normalization.
+- "2+use Choice Scarf" → the mirror image again: item correctly extracted, but the option
+  reference dropped entirely this time, and "+" (this interface's own documented composition
+  syntax) wasn't even recognized as a valid separator.
+- The recovery logic for a *missing* option reference had been built spread-only in the earlier
+  branch and never generalized to item/ability/nature/moves, even though the same "model drops one
+  half of a compound request" failure isn't spread-specific at all.
+
+**The real pivot: direct pushback that phrase-list fixes don't generalize.** *"I don't like having
+to fix specific combinations like this... the fix only matches a group of trigger-phrases. Can't
+we do something like detecting an id and an item name in the command and resolve it from there?"*
+Correct, and it reframed the remaining work the same way the earlier spread-editing pushback did
+("the agent should compute, not keep asking"): stop matching phrasings, start detecting real,
+known values directly. `_find_known_value_in_text` scans for any substring matching real item/
+nature/ability data, regardless of grammar — "put a Choice Scarf on it" and "I want it to hold
+Life Orb" resolve identically to "use Choice Scarf instead," with zero phrase-list maintenance,
+and nature/ability recovery came along for free as new capabilities that never existed before.
+Pushed on again, correctly, for the option-reference side too: "even the separator options: and,
+plus, also... either right after the leading position or at the end of the sentence." Solved by
+recognizing that ability/item/nature/moves edits have no numeric value of their own, so a
+whole-text number scan is safe for them (no risk of confusing the option number with something
+else) even though it deliberately stays unsafe — and is deliberately NOT generalized — for spread
+edits, where a stat value really is a competing number.
+
+**Real course-corrections, logged plainly rather than glossed over:**
+- A regex fix for the "1, but" dangling-separator bug directly introduced a different regression
+  (a bare leading number with no separator at all started getting incorrectly stripped) — caught
+  by re-running the full suite before considering the fix done, not skipped.
+- A round of this work was accidentally started on `main` instead of the still-unmerged branch it
+  directly depended on — caught immediately via a `NameError` when testing end-to-end, fixed
+  cleanly (stash, correct branch, pop, re-verify), and disclosed rather than silently corrected.
+
+**Scope explicitly not addressed, disclosed rather than silently missing:**
+- Move-edit recovery ("change Aura Sphere back to Protect" failing with a generic
+  `incomplete_build` error) looks like the same class of problem as the original full-spread
+  computation unreliability, now for moves — flagged as a likely-related but not yet investigated
+  bug.
+- The general value scanner doesn't cover moves — a moveset edit has different semantics (a full
+  4-move list, or the conflict-flow's distinct single-substitution case) that don't map cleanly
+  onto "detect one known value in text."
+- A separate, likely-unrelated dead-end was found live in candidate-selection: requesting a
+  species outside the currently-offered candidate list produces the same clarifying question
+  twice without resolving. Not investigated in this branch; noted for later.
+
+Full history: `feat/item-moveset-conflict-resolution`, 6 commits, merged into `main` via PR #106.
+Every commit individually test-verified (full suite green at each step, 1199 passed / 8 skipped by
+the final commit).
+
 ---
 
 ## TOOLS & RESOURCES

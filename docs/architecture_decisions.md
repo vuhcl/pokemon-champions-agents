@@ -6984,6 +6984,123 @@ duplicate function in the file for one commit, caught and removed in the next.
 
 ---
 
+### ADR-031 — Amendment 2026-08-18d: interactive item/moveset-conflict resolution
+
+**Decision:** When an item edit creates a Choice-item/non-damaging-move conflict (e.g. Choice
+Scarf + Protect), offer a real interactive choice instead of a static error: pick a real,
+usage-backed damaging move alternative; keep the conflict deliberately ("keep it"); or revert the
+item. New `PendingPresentation` kind (`item_moveset_conflict_question`), same architecture as the
+spread-editing interactive flows from the prior branch (structured-data-driven display, a
+dedicated graph node to resolve the answer, proper defer handling).
+
+**Why:** Original request, held over from the spread-editing arc until that work was stable.
+Move-alternative discovery needed no new data pipeline — `resolve_learnset` (real legal moves) and
+`move_narrowing._commitment_pct` (real usage-backed commitment %) were already sufficient,
+confirmed directly against the live Archaludon + Choice Scarf scenario before any resolution code
+was written.
+
+**Real, explicit scope decision, not defaulted into:** `simultaneous_lock_conflicts` bundles two
+independent checks under the same `("item","moveset")` group — the status-move issue, and a
+separate speed-direction interaction (Choice Scarf + Trick Room). Accepting the shown conflict
+("keep it") must only bypass the specific issue actually shown and consented to, never an
+unrelated one riding along in the same bundle. `_verify_provisional_hard` gained an
+`accept_status_move_conflict` parameter that independently re-checks the speed-direction case even
+when the status-move case is accepted — confirmed directly with a synthetic Choice Scarf + Trick
+Room + status-move build that still correctly blocks after accepting the status-move conflict.
+
+**Real bug found and fixed while building this:** the first draft's conflict detection
+(`_handle_item_moveset_conflict`) only checked whether the current moveset contained a status
+move — never whether the item was actually a real Choice item at all. A completely fake/illegal
+item was misidentified as a conflict, masking the real "illegal edited slot" error the legality
+check should have produced. Found via an existing test failing, not by inspection. Fixed by gating
+on `reconcile._tier1_choice_status_moves` (the real detection function) before using the
+display-name helper.
+
+**Status:** Implemented, tested, merged (`feat/item-moveset-conflict-resolution`, PR #106).
+
+---
+
+### ADR-031 — Amendment 2026-08-18e: recovering a compound select+non-spread-field-edit request,
+generalized beyond the spread-only case
+
+**Decision:** The "model drops one half of a compound select+edit request" failure mode, already
+fixed for spread edits in the prior branch, is not spread-specific — it recurs independently for
+item (and, by the same mechanism, ability/nature/moves) edits, in multiple different concrete
+shapes. Each was root-caused from real raw extraction debug output before being fixed:
+- A bare, unresolved option id (`"1"` instead of `"spread_nature:1"`) recovered from text before
+  the "Unknown build option id" safety net can reject it outright.
+- An edit signal dropped entirely (every value field empty, not just malformed) recovered via
+  direct text extraction.
+- `"+"` recognized as a leading-option-reference separator, alongside comma/"but" — this
+  interface's own documented composition syntax ("pick option ids (compose with +)") wasn't
+  previously recognized at all.
+- The recovery logic itself generalized from `field == "spread"` to
+  `field in {ability, item, nature, moves}`, reusing the same `extra_field`/`extra_value` payload
+  shape already built for the reverse direction (a present selection with a dropped edit signal).
+
+**Why:** Each of these is a genuinely distinct failure captured live, not inferred — several
+initially looked like they might be the same bug, and turned out not to be (e.g. "the model
+dropped the item" vs. "the model dropped the option," confirmed as different cases by their raw
+extractions, not assumed identical).
+
+**Real regression found and fixed mid-implementation, not before:** the first version of the
+generalized single-field-edit resolvability check didn't require exactly one selected option,
+so a genuinely ambiguous two-option "compare" request (an existing test: *"make it modest, or
+actually compare these two first"*) started being silently resolved as if only one option were
+selected. Fixed by requiring exactly one option id for this resolvable shape — two or more is a
+different, genuinely ambiguous case (which of several selected options would the edit even apply
+to?), not the same well-defined two-step operation. Caught by re-running the full suite before
+treating the fix as done.
+
+**Status:** Implemented, tested, merged.
+
+---
+
+### ADR-031 — Amendment 2026-08-18f: general, phrase-free detection over trigger-phrase and
+separator lists
+
+**Decision:** Replaced trigger-phrase matching (a fixed list: "use X," "with X," "give it X," …)
+with a general scanner that detects any substring matching a real, known value — a real item id,
+nature name, or ability name — directly against game data, regardless of how it's phrased.
+Separately, generalized option-reference detection for non-spread edits to scan the whole text
+(any position, any separator word, or none at all) rather than requiring a specific leading
+separator.
+
+**Why:** Direct, repeated pushback, not inferred: *"I don't like having to fix specific
+combinations like this... the fix only matches a group of trigger-phrases. Can't we do something
+like detecting an id and an item name in the command and resolve it from there?"* — and, once the
+value side was generalized, immediately followed by the same critique applied to the
+option-reference side: *"even the separator options: and, plus, also... either right after the
+leading position or at the end of the sentence."* Both were correct: a fixed phrase or separator
+list is guaranteed to keep missing new real phrasings indefinitely, and the fix for one field
+(item) would otherwise need re-doing separately for every other field this same failure mode
+eventually showed up on.
+
+**What the generalization bought, concretely:** confirmed working with zero new code for phrasing
+the old approach could never have matched — "put a Choice Scarf on it," "I want it to hold Life
+Orb," "use Choice Scarf and also select 2," "option 2 as well." Two new field types (nature,
+ability) came along for free, since the same mechanism applies without modification. Ability
+matching is a deduped union across every species' real abilities (311 distinct names) rather than
+scoped to the specific target species' actual legal abilities — weaker than the item/nature
+checks in that sense, but downstream legality validation already catches an invalid ability for a
+given species, so a wrong match here fails safely rather than silently; broader coverage was
+judged worth that tradeoff.
+
+**Real, disclosed scope boundary — not silently applied everywhere:** the option-reference
+whole-text scan is deliberately NOT applied to spread edits. A stat value is itself a number, and
+could coincidentally collide with a real option's numeric suffix — a risk that genuinely doesn't
+exist for ability/item/nature/moves edits (none have a numeric value of their own) but does for
+spread. Solving that properly needs `extract_single_stat_target` to expose which number token it's
+already claimed, so the option-finder can exclude it — considered and deferred as a distinct,
+separate piece of work rather than solved partially or silently left inconsistent without comment.
+Moves were also not covered by the general value scanner, for a different reason: a moveset edit's
+semantics (a full 4-move list, or the conflict-flow's distinct single-substitution case) don't map
+cleanly onto "detect one known value in text."
+
+**Status:** Implemented, tested, merged.
+
+---
+
 ## ADR-032 — Multi-slot batch locking with sequential refinement
 
 ### Status
