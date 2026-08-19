@@ -1612,3 +1612,106 @@ def test_rank_key_still_prioritizes_genuinely_missing_provider():
         strong_unrelated, objective=(), preference=None, regulation="champions-reg-mb"
     )
     assert key_missing > key_strong, "a genuinely missing provider must still win top priority"
+
+
+def test_rank_key_shared_teammate_decides_over_raw_evidence_when_otherwise_tied():
+    """Real design decision, confirmed with Vu directly: shared-teammate
+    co-occurrence (a proxy for real mechanism/threat-coverage synergy the
+    calc-based matchup model doesn't fully capture on its own) should have
+    meaningful ranking influence, not be an effectively-dead last-resort
+    tie-break. Previously positioned immediately after best_evidence,
+    where candidates almost never actually tie (evidence quality varies
+    constantly), making it structurally unable to matter in practice.
+    Repositioned ahead of best_evidence: confirms a candidate with a real,
+    strong shared-teammate signal now correctly outranks one with only
+    stronger raw evidence confidence, when every genuinely-computed
+    team-value field (threat-coverage, fit, preference, needs) ties.
+    """
+    def evidence(basis, confidence):
+        return CandidateEvidence(basis=basis, confidence=confidence, producer_name="x")
+
+    strong_shared_teammate = AnnotatedCandidate(
+        species="Swampert-Mega",
+        matching_needs=(),
+        source="teammate_backed",
+        target_role_decision=TargetRoleDecision(
+            role_id="rain_attacker", source="teammate_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("mechanical_only", "low"),),
+        composition_fit="complementary",
+        shared_min_pct=48.5,
+        shared_worst_rank=2,
+    )
+    strong_evidence_no_shared = AnnotatedCandidate(
+        species="Delphox",
+        matching_needs=(),
+        source="usage",
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_special_attacker", source="usage_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("usage_backed", "high"),),
+        composition_fit="complementary",
+        shared_min_pct=None,
+        shared_worst_rank=None,
+    )
+    key_shared = _rank_key(
+        strong_shared_teammate, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    key_evidence = _rank_key(
+        strong_evidence_no_shared, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    assert key_shared > key_evidence
+
+
+def test_rank_key_real_threat_coverage_still_beats_shared_teammate_correlation():
+    """Confirms the design boundary holds: shared-teammate evidence must
+    NOT override genuinely-computed, real threat-coverage superiority --
+    it only matters as a tie-breaker among comparably-valuable candidates,
+    per the explicit design decision this repositioning was scoped to."""
+    def evidence(basis, confidence):
+        return CandidateEvidence(basis=basis, confidence=confidence, producer_name="x")
+
+    objective = (_objective(threat_id="target", kinds=frozenset({"uncovered"})),)
+    real_coverage = AnnotatedCandidate(
+        species="Garchomp",
+        matching_needs=(),
+        source="usage",
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_physical_attacker", source="usage_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("usage_backed", "high"),),
+        composition_fit="complementary",
+        shared_min_pct=None,
+        shared_worst_rank=None,
+        threat_row=_counter("Garchomp", outcome="clean_kill", severity="decisive"),
+    )
+    weak_but_strongly_shared = AnnotatedCandidate(
+        species="Sinistcha",
+        matching_needs=(),
+        source="teammate_backed",
+        target_role_decision=TargetRoleDecision(
+            role_id="cleric", source="teammate_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("mechanical_only", "low"),),
+        composition_fit="complementary",
+        shared_min_pct=99.0,
+        shared_worst_rank=1,
+    )
+    key_coverage = _rank_key(
+        real_coverage, objective=objective, preference=None, regulation="champions-reg-mb"
+    )
+    key_shared = _rank_key(
+        weak_but_strongly_shared,
+        objective=objective,
+        preference=None,
+        regulation="champions-reg-mb",
+    )
+    assert key_coverage > key_shared

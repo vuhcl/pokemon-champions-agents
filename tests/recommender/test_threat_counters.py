@@ -11,6 +11,7 @@ from recommender.state import (
     ThreatCounterCandidate,
 )
 from recommender.threat_counters import (
+    _best_matchup_with_forced_fields,
     aggregate_verified,
     pair_score,
     query_candidates_for_threats,
@@ -598,3 +599,119 @@ def test_query_threat_counters_degraded_on_calc_failure():
         assert row.estimate_kind == "static"
         assert row.verified_vs == ()
         assert row.verified_score == 0.0
+
+
+def test_best_matchup_with_forced_fields_neutral_answers_skips_field_check():
+    """If the neutral matchup already answers the threat, forced fields
+    are never even tried -- confirms the fallback only fires when
+    genuinely needed, not on every call."""
+    with patch(
+        "recommender.threat_counters.classify_matchup",
+        return_value=MatchupResult("clean_kill", "decisive"),
+    ) as cm:
+        result = _best_matchup_with_forced_fields(
+            {"species": "Garchomp"},
+            {"species": "SomeThreat"},
+            [{"weather": "Rain"}],
+            client=None,
+        )
+    assert result.outcome == "clean_kill"
+    assert cm.call_count == 1  # only the neutral call, forced field never tried
+
+
+def test_best_matchup_with_forced_fields_falls_back_when_neutral_fails():
+    """Regression for the confirmed root-cause bug: a candidate that only
+    answers a threat under a real, team-provided field (e.g. a Water-type
+    that only threatens a Fire-type target once Rain actually boosts its
+    offense) must be credited for that -- not evaluated as if the team's
+    real Rain were never in play."""
+    def fake_classify(cand, threat, field, *, client=None):
+        if field is None:
+            return MatchupResult("no_answer", "toss-up")
+        assert field == {"weather": "Rain"}
+        return MatchupResult("clean_kill", "decisive")
+
+    with patch(
+        "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+    ):
+        result = _best_matchup_with_forced_fields(
+            {"species": "Swampert-Mega"},
+            {"species": "SomeFireThreat"},
+            [{"weather": "Rain"}],
+            client=None,
+        )
+    assert result.outcome == "clean_kill"
+
+
+def test_best_matchup_with_forced_fields_no_forced_fields_returns_neutral():
+    """No locked field providers at all -- falls through to the neutral
+    result unchanged, same as before this fix existed."""
+    with patch(
+        "recommender.threat_counters.classify_matchup",
+        return_value=MatchupResult("no_answer", "toss-up"),
+    ) as cm:
+        result = _best_matchup_with_forced_fields(
+            {"species": "Delphox"}, {"species": "SomeThreat"}, [], client=None
+        )
+    assert result.outcome == "no_answer"
+    assert cm.call_count == 1
+
+
+def test_query_candidates_for_threats_credits_field_dependent_answer():
+    """Full end-to-end regression, exact shape of the confirmed live bug:
+    a candidate that only counters the threat once the team's real,
+    locked field state (Rain) is accounted for must show up as
+    'verified' against that threat -- previously this was structurally
+    impossible, since every classify_matchup call in this function
+    passed field=None unconditionally."""
+    objective = (TeamThreatObjectiveRow(_tc("FireThreat"), frozenset({"uncovered"})),)
+
+    def fake_classify(cand, threat, field, *, client=None):
+        if field is None:
+            return MatchupResult("no_answer", "toss-up")
+        return MatchupResult("clean_kill", "decisive")
+
+    with (
+        patch(
+            "recommender.threat_counters.query_counters",
+            return_value=[_tc("Swampert-Mega")],
+        ),
+        patch(
+            "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+        ),
+    ):
+        result = query_candidates_for_threats(
+            objective, locked_contexts=(), exclude_slot=None
+        )
+    # With no locked_contexts (no team-provided field), the candidate
+    # correctly does NOT get credited -- confirms the baseline behavior
+    # (no forced fields available) is unchanged before testing the fix.
+    assert result.candidates[0].verified_score == 0.0
+
+    class _FakeMechanism:
+        def __init__(self):
+            self.present = True
+            self.relation = "provides"
+            self.mechanic = "Drizzle"
+            self.evidence = ("condition:Rain",)
+
+    class _FakeRoleDecision:
+        mechanisms = (_FakeMechanism(),)
+
+    class _FakeContext:
+        slot_index = 0
+        role_decision = _FakeRoleDecision()
+
+    with (
+        patch(
+            "recommender.threat_counters.query_counters",
+            return_value=[_tc("Swampert-Mega")],
+        ),
+        patch(
+            "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+        ),
+    ):
+        result_with_rain = query_candidates_for_threats(
+            objective, locked_contexts=(_FakeContext(),)
+        )
+    assert result_with_rain.candidates[0].verified_score > 0.0

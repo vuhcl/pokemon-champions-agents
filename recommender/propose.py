@@ -86,10 +86,17 @@ def fill_team_draft(state: RecommenderState) -> dict:
         if any(s.species.value for s in draft):
             has_gap = True
         else:
+            from recommender.team_candidates import collect_locked_anchor_contexts
+
             candidates = get_relevant_threats(state, n=TEAM_THREAT_N)
             specs = [c.spec for c in candidates]
-            coverage = compute_team_coverage(draft, specs, regulation=regulation)
-            spofs = detect_spof(draft, specs, regulation=regulation)
+            locked_contexts = collect_locked_anchor_contexts(state)
+            coverage = compute_team_coverage(
+                draft, specs, regulation=regulation, locked_contexts=locked_contexts
+            )
+            spofs = detect_spof(
+                draft, specs, regulation=regulation, locked_contexts=locked_contexts
+            )
             has_gap = bool(
                 any(not r.covering_slot_indices for r in coverage) or spofs
             )

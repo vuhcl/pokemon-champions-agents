@@ -2809,6 +2809,7 @@ def _compute_team_review(
     state: RecommenderState, config: RunnableConfig
 ) -> TeamReviewResult:
     from recommender.matchup import bind_matchup_memo_thread
+    from recommender.team_candidates import collect_locked_anchor_contexts
 
     thread_id = (config.get("configurable") or {}).get("thread_id")
     bind_matchup_memo_thread(thread_id)
@@ -2816,12 +2817,17 @@ def _compute_team_review(
     specs = [c.spec for c in candidates]
     regulation = state.get("regulation_mod") or "champions"
     draft = state["team_draft"]
+    locked_contexts = collect_locked_anchor_contexts(state)
     try:
-        coverage = compute_team_coverage(draft, specs, regulation=regulation)
+        coverage = compute_team_coverage(
+            draft, specs, regulation=regulation, locked_contexts=locked_contexts
+        )
     except (CalcClientError, MatchupEvidenceError) as exc:
         return _unavailable_team_review(candidates, exc, "coverage")
     try:
-        spofs = detect_spof(draft, specs, regulation=regulation)
+        spofs = detect_spof(
+            draft, specs, regulation=regulation, locked_contexts=locked_contexts
+        )
     except (CalcClientError, MatchupEvidenceError) as exc:
         return _unavailable_team_review(candidates, exc, "spof")
     return TeamReviewResult(
@@ -2970,6 +2976,7 @@ def discover_multi_locked(
         available_pool=sorted(owned),
         ownership_mode=ownership_mode,
         excluded_species=excluded,
+        locked_contexts=contexts,
     )
     if threat_discovery.status == "unavailable":
         return {

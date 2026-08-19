@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+    from recommender.calc_client import FieldSpec
 
 from recommender.anchor_roles import MechanismEvidence, ResolvedAnchorBuild
 from recommender.condition_types import (
@@ -70,6 +73,63 @@ def mechanism_condition(m: MechanismEvidence) -> str | None:
     if m.mechanic in {"Trick Room", "Tailwind"}:
         return m.mechanic
     return None
+
+
+def team_field_states(
+    locked: Sequence[LockedAnchorContext],
+    *,
+    exclude_slot: int | None = None,
+) -> list["FieldSpec"]:
+    """Real, achievable field states this locked team can produce -- one
+    FieldSpec per distinct provided condition, not a single combined
+    state (only one weather can be active at a time, and Trick Room can
+    be toggled back off by re-setting it -- each condition is tested as
+    its own independently achievable field, matching how
+    compute_team_coverage's forced-field fallback already tries each
+    field separately rather than combining them).
+
+    Covers both ability- and move-based providers via mechanism_condition
+    (the same detection condition_resilience.py already uses elsewhere)
+    -- unlike the narrower, ability-only lookup this replaces, which
+    could never have detected Tailwind at all, since there is no
+    Tailwind-setting ability; Tailwind is always move-based.
+
+    Confirmed with Vu directly: Trick Room is represented as a global
+    field flag (not side-specific, unlike Tailwind) -- setting it again
+    while active reverses it back to normal order, but that's a
+    turn-sequencing nuance for live play, not something this static
+    "can the team produce this condition at all" check needs to model;
+    each field state here is tested independently by the caller, which
+    already accommodates that. Tailwind and Trick Room only affect
+    speed/turn order (unlike weather/terrain's direct damage
+    interactions) -- that's handled correctly by the real calc engine
+    once given the right FieldSpec input; this function's only job is
+    constructing that input correctly, not modeling the mechanics itself.
+    """
+    out: list["FieldSpec"] = []
+    seen: set[str] = set()
+    for context in locked:
+        if exclude_slot is not None and context.slot_index == exclude_slot:
+            continue
+        for mechanism in context.role_decision.mechanisms:
+            if not mechanism.present or mechanism.relation != "provides":
+                continue
+            condition = mechanism_condition(mechanism)
+            if condition is None or condition not in TRACKED_CONDITIONS or condition in seen:
+                continue
+            seen.add(condition)
+            if condition in _WEATHER_LABEL:
+                out.append({"weather": condition, "gameType": "Doubles"})  # type: ignore[typeddict-item]
+            elif condition == "Trick Room":
+                out.append({"isTrickRoom": True, "gameType": "Doubles"})  # type: ignore[typeddict-item]
+            elif condition == "Tailwind":
+                out.append(
+                    {
+                        "attackerSide": {"isTailwind": True},
+                        "gameType": "Doubles",
+                    }
+                )
+    return out
 
 
 def _as_support_need(

@@ -826,9 +826,23 @@ def _rank_key(
         counts["spof_verified_toss-up"],
         len(candidate.anchor_ids),
         len(distinct_needs),
-        best_evidence[0],
-        best_evidence[1],
-        int(candidate.fills_spof_backup_gap),
+        # Repositioned (2026-08-19), not just re-documented: previously
+        # sat AFTER best_evidence, where it was effectively dead --
+        # candidates rarely tie on evidence quality, so a field placed
+        # after it in a tuple comparison is consulted only in the rare
+        # case everything else including evidence also ties. Confirmed
+        # with Vu directly: shared-teammate co-occurrence is a real proxy
+        # for mechanism/threat-coverage synergy that Part 1's field-
+        # awareness fix doesn't fully capture on its own (speed control,
+        # ability interactions, move combos real players find but the
+        # calc-based matchup model doesn't directly model) -- moved ahead
+        # of best_evidence so it can decide between candidates that are
+        # comparably valuable on every genuinely-computed team-value
+        # field above (threat-coverage, fit, preference, needs) but
+        # differ in individual evidence confidence, which is a far more
+        # common tie than tying on evidence too. Still ranks below every
+        # substantive field above it -- never overrides genuinely correct
+        # threat-coverage superiority, per explicit design decision.
         (
             candidate.shared_min_pct
             if candidate.shared_min_pct is not None
@@ -839,6 +853,9 @@ def _rank_key(
             if candidate.shared_worst_rank is not None
             else float("-inf")
         ),
+        best_evidence[0],
+        best_evidence[1],
+        int(candidate.fills_spof_backup_gap),
     )
 
 

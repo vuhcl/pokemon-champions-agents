@@ -11,7 +11,11 @@ from __future__ import annotations
 
 from collections.abc import Collection, Sequence
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from recommender.calc_client import FieldSpec
+    from recommender.slot_fill import LockedAnchorContext
 
 from recommender.calc_client import CalcClient, CalcClientError, PokemonSpecOptional
 from recommender.counters import query_counters
@@ -315,6 +319,42 @@ def query_threat_counters(
         )
 
 
+def _best_matchup_with_forced_fields(
+    candidate_spec: PokemonSpecOptional,
+    threat_spec: PokemonSpecOptional,
+    forced_fields: Sequence["FieldSpec"],
+    *,
+    client: CalcClient | None,
+) -> MatchupResult:
+    """Neutral first; if that doesn't answer the threat, try each of the
+    team's real, achievable field states and take the best result found.
+    Same neutral-then-forced-field pattern already proven in
+    coverage.compute_team_coverage -- mirrored here rather than
+    reinvented, since both are answering essentially the same underlying
+    question (does X answer threat Y, accounting for the team's real
+    locked conditions), just for candidate discovery rather than
+    reviewing the already-locked roster.
+
+    Root-cause fix for the confirmed live bug: this function's calls to
+    classify_matchup previously always passed field=None, meaning every
+    threat-coverage evaluation was blind to the team's actual locked
+    weather/Tailwind/Trick Room -- a Fire-type candidate on a Rain team
+    got evaluated as if it weren't raining, and a Water-type candidate's
+    real Rain-boosted offense was never credited.
+    """
+    from recommender.coverage import _better_outcome
+
+    neutral = classify_matchup(candidate_spec, threat_spec, None, client=client)
+    if neutral.outcome != "no_answer" or not forced_fields:
+        return neutral
+    best = neutral
+    for forced_field in forced_fields:
+        r = classify_matchup(candidate_spec, threat_spec, forced_field, client=client)
+        if r.outcome != "no_answer":
+            best = _better_outcome(r, best if best.outcome != "no_answer" else None)
+    return best
+
+
 def query_candidates_for_threats(
     objective: Sequence[TeamThreatObjectiveRow],
     *,
@@ -324,6 +364,8 @@ def query_candidates_for_threats(
     available_pool: list[str] | None = None,
     ownership_mode: OwnershipMode = "off",
     excluded_species: Collection[str] = (),
+    locked_contexts: Sequence["LockedAnchorContext"] = (),
+    exclude_slot: int | None = None,
 ) -> TeamThreatDiscovery:
     """Discover once per team objective, then verify every admitted candidate."""
     if not objective:
@@ -347,6 +389,9 @@ def query_candidates_for_threats(
         ownership_mode=ownership_mode,
     )
     objective_ids = sorted(threats_by_id)
+    from recommender.condition_resilience import team_field_states
+
+    forced_fields = team_field_states(locked_contexts, exclude_slot=exclude_slot)
     try:
         rows: list[ThreatCounterCandidate] = []
         for merged_row in static:
@@ -367,10 +412,10 @@ def query_candidates_for_threats(
                 verified.append(
                     (
                         threat_id,
-                        classify_matchup(
+                        _best_matchup_with_forced_fields(
                             candidate_spec,
                             _most_common_verify_spec(threat_species),
-                            None,
+                            forced_fields,
                             client=client,
                         ),
                     )

@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Any
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, Any
 
 from recommender.calc_client import CalcClient, FieldSpec, PokemonSpecOptional
-from recommender.contingent_value import TERRAIN_SETTERS, WEATHER_SETTERS
 from recommender.ids import to_id
 from recommender.matchup import MatchupResult, Severity, classify_matchup
+
+if TYPE_CHECKING:
+    from recommender.slot_fill import LockedAnchorContext
 from recommender.ranking import rank_and_cut
 from recommender.state import (
     RecommenderState,
@@ -246,35 +248,6 @@ def _slot_to_spec(slot: Slot, *, regulation: str = "champions") -> PokemonSpecOp
     return spec
 
 
-def _forced_fields_from_draft(
-    team_draft: list[Slot],
-    *,
-    regulation: str,
-    exclude_slot: int | None = None,
-) -> list[FieldSpec]:
-    seen: set[tuple[str | None, str | None]] = set()
-    out: list[FieldSpec] = []
-    for i, slot in enumerate(team_draft):
-        if exclude_slot is not None and i == exclude_slot:
-            continue
-        if not slot.species.value or not slot.species.locked:
-            continue
-        spec = _slot_to_spec(slot, regulation=regulation)
-        if not spec:
-            continue
-        aid = to_id(spec.get("ability") or "")
-        if aid not in WEATHER_SETTERS and aid not in TERRAIN_SETTERS:
-            continue
-        field = ABILITY_TO_FIELD.get(aid)
-        if not field:
-            continue
-        key = (field.get("weather"), field.get("terrain"))
-        if key in seen:
-            continue
-        seen.add(key)
-        out.append(field)
-    return out
-
 
 def _better_outcome(a: MatchupResult, b: MatchupResult | None) -> MatchupResult:
     if b is None:
@@ -333,13 +306,25 @@ def compute_team_coverage(
     *,
     exclude_slot: int | None = None,
     regulation: str = "champions",
+    locked_contexts: "Sequence[LockedAnchorContext]" = (),
 ) -> list[ThreatCoverageResult]:
+    """`locked_contexts` (from collect_locked_anchor_contexts) supplies the
+    team's real, achievable field states (weather/Tailwind/Trick Room,
+    both ability- and move-based providers) via
+    condition_resilience.team_field_states -- replaces the older,
+    ability-only _forced_fields_from_draft this function used to call
+    directly, which could never detect Tailwind at all (there is no
+    Tailwind-setting ability). Defaults to empty (no known field
+    providers) rather than silently falling back to the old, narrower
+    behavior -- callers that care about field-awareness must supply real
+    contexts explicitly.
+    """
     if not threats:
         return []
 
-    forced_fields = _forced_fields_from_draft(
-        team_draft, regulation=regulation, exclude_slot=exclude_slot
-    )
+    from recommender.condition_resilience import team_field_states
+
+    forced_fields = team_field_states(locked_contexts, exclude_slot=exclude_slot)
     results: list[ThreatCoverageResult] = []
 
     for threat in threats:
@@ -347,6 +332,7 @@ def compute_team_coverage(
         best: MatchupResult | None = None
         any_result: MatchupResult | None = None
         forced_field: FieldSpec | None = None
+
 
         for i, slot in enumerate(team_draft):
             if exclude_slot is not None and i == exclude_slot:
@@ -425,9 +411,10 @@ def detect_spof(
     client: CalcClient | None = None,
     *,
     regulation: str = "champions",
+    locked_contexts: "Sequence[LockedAnchorContext]" = (),
 ) -> list[SPOFFinding]:
     baseline = compute_team_coverage(
-        team_draft, threats, client, regulation=regulation
+        team_draft, threats, client, regulation=regulation, locked_contexts=locked_contexts
     )
     by_slot: dict[int, tuple[list[PokemonSpecOptional], dict[str, Severity]]] = {}
 
@@ -435,7 +422,12 @@ def detect_spof(
         if not slot.species.value:
             continue
         minus = compute_team_coverage(
-            team_draft, threats, client, exclude_slot=i, regulation=regulation
+            team_draft,
+            threats,
+            client,
+            exclude_slot=i,
+            regulation=regulation,
+            locked_contexts=locked_contexts,
         )
         for base, without in zip(baseline, minus):
             if base.best_outcome.outcome == "no_answer":
