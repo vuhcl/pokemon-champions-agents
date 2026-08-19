@@ -53,7 +53,7 @@ from recommender.state import (
     ThreatCounterCandidate,
     all_locked,
 )
-from recommender.support_needs import query_support_needs
+from recommender.support_needs import SupportNeed, query_support_needs
 from recommender.teammates import SharedTeammateQueryResult
 from recommender.usage_data import featured_or_common_set, lineage_ids
 from recommender.usage_spreads import move_category_counts
@@ -602,7 +602,7 @@ def annotate_composition_impact(
             decision.primary_function != "unknown"
             and primary_counts.get(decision.primary_function, 0) == 0
         )
-        fills_gap = _candidate_fills_condition_gap(
+        fills_missing, fills_spof_backup = _candidate_fills_condition_gap(
             decision,
             condition_resilience,
             candidate_build=build,
@@ -615,7 +615,8 @@ def annotate_composition_impact(
             candidate.anchored_needs
             or missing_primary
             or corrects_skew
-            or fills_gap
+            or fills_missing
+            or fills_spof_backup
             or fills_pf_spof
         ):
             fit = "complementary"
@@ -628,7 +629,12 @@ def annotate_composition_impact(
         else:
             fit = "neutral"
         out.append(
-            replace(candidate, composition_fit=fit, fills_essential_gap=fills_gap)
+            replace(
+                candidate,
+                composition_fit=fit,
+                fills_essential_gap=fills_missing,
+                fills_spof_backup_gap=fills_spof_backup,
+            )
         )
     return out
 
@@ -645,10 +651,26 @@ def _candidate_fills_condition_gap(
     *,
     candidate_build: ResolvedAnchorBuild,
     locked: Sequence[LockedAnchorContext],
-) -> bool:
+) -> tuple[bool, bool]:
+    """Returns (fills_missing_provider_gap, fills_spof_backup_gap) --
+    split rather than a single bool, so the caller (and _rank_key) can
+    give these two genuinely different situations different ranking
+    priority. missing_provider is a real, currently-unmet need and
+    should always win top priority in ranking. single_provider_spof is
+    real backup value (per the condition's own essential/preferred
+    classification) established via build divergence from the existing
+    provider -- confirmed by an existing test as a meaningful, legitimate
+    signal on its own -- but confirmed live it must NOT compete for the
+    SAME top-priority rank slot as a genuinely missing need, since a
+    weak, low-confidence backup-only candidate was outranking strong,
+    high-confidence, unrelated candidates entirely because the two cases
+    were previously collapsed into one boolean.
+    """
     if report is None:
-        return False
+        return False, False
     by_slot = _locked_by_slot(locked)
+    fills_missing = False
+    fills_spof_backup = False
     for row in report.conditions:
         if row.gap not in {"missing_provider", "single_provider_spof"}:
             continue
@@ -662,7 +684,8 @@ def _candidate_fills_condition_gap(
         ):
             continue
         if row.gap == "missing_provider":
-            return True
+            fills_missing = True
+            continue
         if len(row.providers) != 1:
             continue
         provider = by_slot.get(row.providers[0].slot_index)
@@ -680,8 +703,8 @@ def _candidate_fills_condition_gap(
             shared_provider_tags=shared,
         )
         if score >= DIVERGENCE_COMPLEMENTARY_THRESHOLD:
-            return True
-    return False
+            fills_spof_backup = True
+    return fills_missing, fills_spof_backup
 
 
 def _candidate_fills_primary_function_spof(
@@ -805,6 +828,7 @@ def _rank_key(
         len(distinct_needs),
         best_evidence[0],
         best_evidence[1],
+        int(candidate.fills_spof_backup_gap),
         (
             candidate.shared_min_pct
             if candidate.shared_min_pct is not None

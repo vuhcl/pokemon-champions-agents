@@ -113,6 +113,18 @@ class AnnotatedCandidate:
     anchor_slot_indices: frozenset[int] = frozenset()
     composition_fit: CompositionFit = "neutral"
     fills_essential_gap: bool = False
+    # Split from fills_essential_gap: a genuinely missing provider
+    # (gap=="missing_provider") always ranks in fills_essential_gap
+    # (unconditional top priority). A single_provider_spof backup
+    # opportunity with real complementary value (build divergence from
+    # the existing provider) is tracked separately here -- confirmed
+    # live, collapsing both into one boolean let a weak, low-confidence
+    # backup-only candidate outrank strong, high-confidence, unrelated
+    # candidates entirely, since fills_essential_gap was the FIRST,
+    # highest-priority field in ranking. See _rank_key/_sort_annotated
+    # for where this is now given a deliberately lower priority than
+    # evidence quality, rather than removed from ranking entirely.
+    fills_spof_backup_gap: bool = False
     shared_min_pct: float | None = None
     shared_worst_rank: int | None = None
     anchored_needs: tuple[AnchoredSupportNeed, ...] = ()
@@ -1408,6 +1420,7 @@ def _sort_annotated(rows: list[AnnotatedCandidate]) -> list[AnnotatedCandidate]:
         key=lambda r: (
             -int(r.fills_essential_gap),
             _compendium_rank(r),
+            -int(r.fills_spof_backup_gap),
             -len(r.matching_needs),
             -(
                 r.threat_row.verified_score

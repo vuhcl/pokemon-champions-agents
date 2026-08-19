@@ -36,6 +36,7 @@ from recommender.state import (
 )
 from recommender.support_needs import SupportNeed
 from recommender.team_candidates import (
+    _rank_key,
     annotate_composition_impact,
     build_team_threat_objective,
     material_completion_preferences,
@@ -1133,7 +1134,16 @@ def test_discover_multi_locked_publishes_resilience_and_keeps_backup_rain_setter
 
     politoed_row = next(row for row in annotated_by_discover if row.species == "Politoed")
     assert politoed_row.composition_fit == "complementary"
-    assert politoed_row.fills_essential_gap is True
+    # Split from a single fills_essential_gap bool (2026-08-19): Politoed
+    # here is a single_provider_spof backup with real build-divergent
+    # value, not a genuinely missing provider -- fills_essential_gap is
+    # now reserved for missing_provider specifically (always top ranking
+    # priority), while this SPOF-backup case is tracked separately with
+    # deliberately lower ranking priority (see _rank_key), since a weak
+    # backup-only candidate was previously outranking strong, unrelated
+    # candidates by sharing the same top-priority boolean.
+    assert politoed_row.fills_essential_gap is False
+    assert politoed_row.fills_spof_backup_gap is True
     # Live divergence vs locked Pelipper must clear the provisional threshold.
     from recommender.divergence import (
         DIVERGENCE_COMPLEMENTARY_THRESHOLD,
@@ -1208,6 +1218,9 @@ def test_unrelated_mechanic_duplication_still_demoted():
         "moves": ["Soft-Boiled", "Seismic Toss", "Toxic", "Protect"],
     }
     build, decision = _role_decision("Blissey", spec, "champions-reg-mb")
+    # Split from a single bool into (fills_missing_provider_gap,
+    # fills_spof_backup_gap) (2026-08-19) -- Blissey doesn't provide Rain
+    # at all here, so neither signal should fire.
     assert (
         _candidate_fills_condition_gap(
             decision,
@@ -1215,7 +1228,7 @@ def test_unrelated_mechanic_duplication_still_demoted():
             candidate_build=build,
             locked=contexts,
         )
-        is False
+        == (False, False)
     )
 
     candidates = [_candidate("Blissey", spec=spec)]
@@ -1499,3 +1512,103 @@ def test_residual_gap_attaches_single_synthetic_anchored_need():
     assert len(farig.anchored_needs) == 1
     assert farig.target_role_decision is not None
     assert farig.target_role_decision.role_id == "trick_room_setter"  # type: ignore[union-attr]
+
+
+def test_rank_key_weak_spof_backup_does_not_outrank_strong_unrelated_candidate():
+    """Regression, confirmed live (2026-08-19): after a Tailwind setter
+    was locked, a weak, low-confidence, mechanical_only Tailwind-backup
+    candidate (Altaria) ranked #1 -- ahead of strong, usage_backed/high-
+    confidence candidates entirely unrelated to any tracked condition
+    (Garchomp, Delphox) -- purely because fills_essential_gap treated a
+    genuinely missing need and a mere single_provider_spof backup
+    opportunity identically, and that single boolean was the FIRST,
+    highest-priority field in the rank key, ahead of evidence quality.
+
+    This is the real, deeper root cause behind the "Altaria/Staraptor
+    both tailwind_setter" alternatives-selection bug -- fixed separately
+    by _redundancy_tier_for_candidates, but that fix only ever reorders
+    candidates[1:] (the alternatives), never candidates[0] (the default),
+    so a weak SPOF-backup-only candidate could still win the default slot
+    outright. This test confirms the actual ranking order is now correct,
+    not just the alternatives display.
+    """
+    def evidence(basis, confidence):
+        return CandidateEvidence(basis=basis, confidence=confidence, producer_name="x")
+
+    # SPOF-backup-only (no missing_provider gap), weak evidence -- exactly
+    # the observed Altaria shape.
+    weak_spof_backup = AnnotatedCandidate(
+        species="Altaria",
+        matching_needs=(),
+        source="mechanical",
+        target_role_decision=TargetRoleDecision(
+            role_id="tailwind_setter", source="mechanical_only"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=True,
+        evidence=(evidence("mechanical_only", "low"),),
+        composition_fit="complementary",
+    )
+    # No gap involvement of any kind, but strong, real evidence -- exactly
+    # the observed Garchomp shape.
+    strong_unrelated = AnnotatedCandidate(
+        species="Garchomp",
+        matching_needs=(),
+        source="usage",
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_physical_attacker", source="usage_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("usage_backed", "high"),),
+        composition_fit="complementary",
+    )
+
+    key_weak = _rank_key(
+        weak_spof_backup, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    key_strong = _rank_key(
+        strong_unrelated, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    assert key_strong > key_weak, "strong unrelated evidence must outrank a weak SPOF-backup-only candidate"
+
+
+def test_rank_key_still_prioritizes_genuinely_missing_provider():
+    """A genuinely missing need (fills_essential_gap=True) must still
+    unconditionally outrank a strong, unrelated candidate -- confirms the
+    split didn't weaken the ORIGINAL, correct priority for missing_provider,
+    only separated it from the different single_provider_spof case."""
+    def evidence(basis, confidence):
+        return CandidateEvidence(basis=basis, confidence=confidence, producer_name="x")
+
+    genuinely_missing = AnnotatedCandidate(
+        species="Pelipper",
+        matching_needs=(),
+        source="mechanical",
+        target_role_decision=TargetRoleDecision(
+            role_id="tailwind_setter", source="mechanical_only"
+        ),
+        fills_essential_gap=True,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("mechanical_only", "low"),),
+        composition_fit="complementary",
+    )
+    strong_unrelated = AnnotatedCandidate(
+        species="Garchomp",
+        matching_needs=(),
+        source="usage",
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_physical_attacker", source="usage_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("usage_backed", "high"),),
+        composition_fit="complementary",
+    )
+    key_missing = _rank_key(
+        genuinely_missing, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    key_strong = _rank_key(
+        strong_unrelated, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    assert key_missing > key_strong, "a genuinely missing provider must still win top priority"
