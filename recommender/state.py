@@ -173,6 +173,12 @@ class SelectBuildPayload(TypedDict):
     # selected option's resulting spread, not the pre-selection spread.
     spread_set: NotRequired[dict[str, int] | None]
     spread_delta: NotRequired[dict[str, int] | None]
+    # Set when the same turn also carried a non-spread field edit (e.g.
+    # "1, but with Choice Scarf" -- field="item", value="Choice Scarf").
+    # Applied as an override composed alongside the selected option's own
+    # overrides, same mechanism, not a separate step.
+    extra_field: NotRequired[str | None]
+    extra_value: NotRequired[object]
 
 
 class ComparePayload(TypedDict):
@@ -355,6 +361,7 @@ class PendingPresentation(TypedDict, total=False):
         "confirm_abandon_build",
         "spread_reallocation_question",
         "spread_target_question",
+        "item_moveset_conflict_question",
     ]
     slot_index: int
     options: list[PendingPresentationOption]
@@ -379,6 +386,13 @@ class PendingPresentation(TypedDict, total=False):
     target_question_diffs: tuple[str, ...]
     target_question_edited_fields: tuple[str, ...]
     target_question_rejection_reason: str
+    # item_moveset_conflict_question only:
+    conflict_attempted_item: str
+    conflict_previous_item: str
+    conflict_moves: tuple[str, ...]
+    conflict_move_alternatives: tuple[str, ...]
+    conflict_edited_fields: tuple[str, ...]
+    conflict_rejection_reason: str
 
 
 @dataclass(frozen=True)

@@ -249,6 +249,40 @@ def _format_spread_target_question(pending: Mapping[str, Any]) -> list[str]:
     return lines
 
 
+def _format_item_moveset_conflict_question(pending: Mapping[str, Any]) -> list[str]:
+    """Structured-data-driven, same convention as every other pending
+    kind in this module -- the item/move/alternatives are stored fields,
+    not a stashed message string."""
+    item = pending.get("conflict_attempted_item") or "that item"
+    previous = pending.get("conflict_previous_item") or "the previous item"
+    moves = pending.get("conflict_moves") or ()
+    alternatives = pending.get("conflict_move_alternatives") or ()
+    reason = pending.get("conflict_rejection_reason")
+
+    lines: list[str] = []
+    move_list = ", ".join(moves) if moves else "a non-damaging move"
+    if reason:
+        lines.append(str(reason))
+    else:
+        lines.append(
+            f"{item} locks you into repeating one move, which doesn't work with "
+            f"{move_list} still in the set."
+        )
+    if alternatives:
+        lines.append("Pick a damaging move to replace it:")
+        for i, move in enumerate(alternatives, start=1):
+            lines.append(f"{i}. {move}")
+        lines.append(
+            f"Reply with a move name or number, 'keep it' to leave {move_list} "
+            f"as-is, or 'defer' to revert to {previous}."
+        )
+    else:
+        lines.append(
+            f"Reply 'keep it' to leave it as-is, or 'defer' to revert to {previous}."
+        )
+    return lines
+
+
 def _format_full_build(state: Mapping[str, Any]) -> list[str]:
     provisional = state.get("provisional_slot")
     pending = state.get("pending_presentation") or {}
@@ -367,6 +401,8 @@ def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
             blocks.extend(_format_spread_reallocation_question(pending))
         elif kind == "spread_target_question":
             blocks.extend(_format_spread_target_question(pending))
+        elif kind == "item_moveset_conflict_question":
+            blocks.extend(_format_item_moveset_conflict_question(pending))
         else:
             blocks.append(f"(pending kind: {kind})")
 

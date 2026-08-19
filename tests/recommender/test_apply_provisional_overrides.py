@@ -806,3 +806,326 @@ def test_spread_target_question_reasks_on_unparseable_reply():
     assert result["turn_intent"] == "pending_response"
     assert result["pending_presentation"]["kind"] == "spread_target_question"
     assert result["pending_presentation"]["target_question_rejection_reason"]
+
+
+def _archaludon_choice_scarf_scenario():
+    """Exact live scenario: Archaludon locked with Choice Scarf, real
+    kit including Protect -- confirmed live to trigger the Choice-item/
+    status-move conflict."""
+    provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=_decision(),
+        species="Archaludon",
+        ability="Stamina",
+        item="Leftovers",
+        moves=("Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"),
+        nature="Modest",
+        spread={"hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3},
+        fingerprint="fp",
+    )
+    return provisional
+
+
+def test_item_edit_creating_choice_status_conflict_asks_interactively():
+    """Regression for the item/moveset-conflict feature request: "use
+    Choice Scarf" on Archaludon's real kit (Protect present) must produce
+    an interactive question with real, usage-backed move alternatives --
+    not a dead-end error."""
+    from recommender.nodes import apply_provisional_edit
+
+    provisional = _archaludon_choice_scarf_scenario()
+    state = _state(
+        provisional,
+        payload={"field": "item", "value": "Choice Scarf", "scope": "field_only"},
+    )
+    out = apply_provisional_edit(state)
+    assert out.get("slot_commit_error") is None
+    pending = out["pending_presentation"]
+    assert pending["kind"] == "item_moveset_conflict_question"
+    assert pending["conflict_attempted_item"] == "Choice Scarf"
+    assert pending["conflict_previous_item"] == "Leftovers"
+    assert "Protect" in pending["conflict_moves"]
+    assert len(pending["conflict_move_alternatives"]) > 0
+    assert "Aura Sphere" in pending["conflict_move_alternatives"]
+    # The base is the pre-edit, still-valid provisional, not the
+    # conflicted attempt -- confirms defer needs no special-case logic.
+    assert out["provisional_slot"] == provisional
+
+
+def test_item_moveset_conflict_resolves_by_replacing_move():
+    """Picking a move alternative (by name) replaces the conflicting move
+    and keeps the new item."""
+    from recommender.nodes import (
+        apply_provisional_edit,
+        classify_pending,
+        resolve_item_moveset_conflict,
+    )
+
+    provisional = _archaludon_choice_scarf_scenario()
+    out1 = apply_provisional_edit(
+        _state(
+            provisional,
+            payload={"field": "item", "value": "Choice Scarf", "scope": "field_only"},
+        )
+    )
+    question = out1["pending_presentation"]
+
+    dispatch = classify_pending("Aura Sphere", question)
+    assert dispatch["turn_intent"] == "resolve_item_moveset_conflict"
+    assert dispatch["turn_payload"] == {"action": "replace_move", "move": "Aura Sphere"}
+
+    out2 = resolve_item_moveset_conflict(
+        _state(provisional, pending=question, payload=dispatch["turn_payload"])
+    )
+    assert out2.get("slot_commit_error") is None
+    result = out2["provisional_slot"]
+    assert result.item == "Choice Scarf"
+    assert "Aura Sphere" in result.moves
+    assert "Protect" not in result.moves
+
+
+def test_item_moveset_conflict_resolves_by_move_number():
+    """A bare number reply selects from the offered alternatives list by
+    position, matching this project's established numbered-option
+    convention."""
+    from recommender.nodes import apply_provisional_edit, classify_pending
+
+    provisional = _archaludon_choice_scarf_scenario()
+    out1 = apply_provisional_edit(
+        _state(
+            provisional,
+            payload={"field": "item", "value": "Choice Scarf", "scope": "field_only"},
+        )
+    )
+    question = out1["pending_presentation"]
+    first_alt = question["conflict_move_alternatives"][0]
+
+    dispatch = classify_pending("1", question)
+    assert dispatch["turn_payload"] == {"action": "replace_move", "move": first_alt}
+
+
+def test_item_moveset_conflict_resolves_by_keeping_it():
+    """'keep it' applies the item change and deliberately keeps the
+    flagged move, without asking for a replacement."""
+    from recommender.nodes import (
+        apply_provisional_edit,
+        classify_pending,
+        resolve_item_moveset_conflict,
+    )
+
+    provisional = _archaludon_choice_scarf_scenario()
+    out1 = apply_provisional_edit(
+        _state(
+            provisional,
+            payload={"field": "item", "value": "Choice Scarf", "scope": "field_only"},
+        )
+    )
+    question = out1["pending_presentation"]
+
+    dispatch = classify_pending("keep it", question)
+    assert dispatch["turn_payload"] == {"action": "keep"}
+
+    out2 = resolve_item_moveset_conflict(
+        _state(provisional, pending=question, payload=dispatch["turn_payload"])
+    )
+    assert out2.get("slot_commit_error") is None
+    result = out2["provisional_slot"]
+    assert result.item == "Choice Scarf"
+    assert "Protect" in result.moves
+
+
+def test_item_moveset_conflict_defer_restores_held_pending():
+    from recommender.nodes import apply_provisional_edit, classify_pending
+
+    provisional = _archaludon_choice_scarf_scenario()
+    held = {"schema_version": 1, "kind": "full_build_confirmation", "slot_index": 0}
+    out1 = apply_provisional_edit(
+        _state(
+            provisional,
+            pending=held,
+            payload={"field": "item", "value": "Choice Scarf", "scope": "field_only"},
+        )
+    )
+    question = out1["pending_presentation"]
+    assert question["held_pending"] == held
+
+    dispatch = classify_pending("defer", question)
+    assert dispatch["turn_intent"] == "pending_response"
+    assert dispatch["pending_presentation"] == held
+
+
+def test_item_moveset_conflict_reasks_on_unparseable_reply():
+    from recommender.nodes import apply_provisional_edit, classify_pending
+
+    provisional = _archaludon_choice_scarf_scenario()
+    out1 = apply_provisional_edit(
+        _state(
+            provisional,
+            payload={"field": "item", "value": "Choice Scarf", "scope": "field_only"},
+        )
+    )
+    question = out1["pending_presentation"]
+
+    dispatch = classify_pending("blah blah", question)
+    assert dispatch["turn_intent"] == "pending_response"
+    assert dispatch["pending_presentation"]["kind"] == "item_moveset_conflict_question"
+    assert dispatch["pending_presentation"]["conflict_rejection_reason"]
+
+
+def test_fake_illegal_item_is_not_misidentified_as_a_conflict():
+    """Regression for a real bug found while building this feature: an
+    obviously illegal/fake item was incorrectly intercepted as an
+    item_moveset_conflict_question, masking the real 'illegal edited slot'
+    error, because the first draft of _handle_item_moveset_conflict only
+    checked whether the moveset happened to contain a status move --
+    never whether the item was actually a real Choice item at all."""
+    from recommender.nodes import apply_provisional_edit
+
+    provisional = _provisional()  # base fixture, includes Protect
+    state = _state(
+        provisional,
+        payload={"field": "item", "value": "NotARealItemXYZ", "scope": "field_only"},
+    )
+    out = apply_provisional_edit(state)
+    assert out.get("slot_commit_error")
+    assert out.get("pending_presentation") is None
+
+
+def test_accept_status_move_conflict_does_not_bypass_unrelated_speed_conflict():
+    """Regression for the explicit narrow-scoping decision: accepting the
+    shown Choice-item/status-move conflict must NOT silently bypass a
+    SEPARATE, unrelated conflict bundled in the same group (Choice Scarf +
+    Trick Room speed-direction). Tested directly against
+    _verify_provisional_hard, with check_set mocked to isolate the
+    conflict-check logic from real move-learnset legality constraints.
+    """
+    from unittest.mock import patch
+
+    from recommender.legality import LegalityResult
+    from recommender.nodes import _verify_provisional_hard
+
+    provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=TargetRoleDecision(
+            role_id="trick_room_setter", source="usage_backed"
+        ),
+        species="Farigiraf",
+        ability="Armor Tail",
+        item="Choice Scarf",
+        moves=("Trick Room", "Encore", "Psychic", "Hyper Voice"),
+        nature="Quiet",
+        spread={"hp": 32, "atk": 0, "def": 1, "spa": 29, "spd": 4, "spe": 0},
+        fingerprint="fp",
+    )
+    state = {"team_draft": [empty_slot()], "regulation_mod": "champions-reg-mb"}
+
+    with patch(
+        "recommender.nodes.check_set",
+        return_value=LegalityResult(ok=True, failures=()),
+    ):
+        err_normal = _verify_provisional_hard(provisional, state)
+        assert err_normal is not None
+        err_accepted = _verify_provisional_hard(
+            provisional, state, accept_status_move_conflict=True
+        )
+        assert err_accepted is not None
+        assert "Trick Room" in err_accepted
+
+
+def test_select_plus_item_edit_end_to_end_triggers_conflict_flow():
+    """Full end-to-end regression, exact live scenario: '1, but with
+    Choice Scarf' resolves through apply_provisional_option (not
+    apply_provisional_edit), applying the selected option's spread AND
+    the item change together, and correctly triggers the interactive
+    item_moveset_conflict_question when the combination creates a real
+    conflict (Choice Scarf + Protect)."""
+    from recommender.nodes import apply_provisional_option
+
+    provisional = _archaludon_choice_scarf_scenario()
+    pending = {
+        "schema_version": 1,
+        "kind": "full_build_confirmation",
+        "build_option_groups": (
+            {
+                "axis": "spread_nature",
+                "prompt": "x",
+                "options": (
+                    {
+                        "option_id": "spread_nature:default",
+                        "label": "Recommended default",
+                        "overrides": {},
+                    },
+                    {
+                        "option_id": "spread_nature:1",
+                        "label": "Timid",
+                        "overrides": {
+                            "nature": "Timid",
+                            "spread": {
+                                "hp": 2, "atk": 0, "def": 0, "spa": 32,
+                                "spd": 0, "spe": 32,
+                            },
+                        },
+                    },
+                ),
+            },
+        ),
+    }
+    state = _state(
+        provisional,
+        pending=pending,
+        payload={
+            "option_ids": ("spread_nature:1",),
+            "extra_field": "item",
+            "extra_value": "Choice Scarf",
+        },
+    )
+    out = apply_provisional_option(state)
+    assert out.get("slot_commit_error") is None
+    question = out["pending_presentation"]
+    assert question["kind"] == "item_moveset_conflict_question"
+    assert question["conflict_attempted_item"] == "Choice Scarf"
+    assert "Protect" in question["conflict_moves"]
+    # Confirms the selected option's spread/nature was also applied, not
+    # just the item -- the base for the conflict question is the FULL
+    # composed selection, not just the item change in isolation.
+    assert out["provisional_slot"].nature != "Timid"  # base is pre-edit (unchanged)
+
+
+def test_select_plus_item_edit_overlapping_key_rejected():
+    """extra_field colliding with a key the selected option already
+    overrides must be rejected the same way option-to-option overlaps
+    already are, not silently let one win."""
+    from recommender.nodes import apply_provisional_option
+
+    provisional = _provisional()
+    pending: PendingPresentation = {
+        "schema_version": 1,
+        "kind": "full_build_confirmation",
+        "build_option_groups": (
+            {
+                "axis": "item",
+                "prompt": "x",
+                "options": (
+                    {
+                        "option_id": "item:1",
+                        "label": "Choice Specs",
+                        "overrides": {"item": "Choice Specs"},
+                    },
+                ),
+            },
+        ),
+    }
+    state = _state(
+        provisional,
+        pending=pending,
+        payload={
+            "option_ids": ("item:1",),
+            "extra_field": "item",
+            "extra_value": "Life Orb",
+        },
+    )
+    out = apply_provisional_option(state)
+    assert out.get("slot_commit_error")
+    assert "overlapping" in out["slot_commit_error"]

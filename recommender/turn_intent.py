@@ -9,6 +9,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
+from recommender.ids import to_id
 from recommender.llm_invoke import LLMInvokeTimeout, invoke_with_timeout
 from recommender.state import (
     ArchetypeChangePayload,
@@ -382,6 +383,49 @@ def _is_select_plus_partial_spread(extraction: TurnIntentExtraction) -> bool:
     return has_partial_spread and not has_other_edit_signal
 
 
+def _is_select_plus_single_field_edit(extraction: TurnIntentExtraction) -> bool:
+    """True when a select/compare-shaped signal is paired with specifically
+    one non-spread field edit (ability/item/nature/moves) and nothing else
+    edit-shaped. The resolvable counterpart to _is_select_plus_partial_spread
+    for non-spread fields: "1, but with Choice Scarf" means apply the
+    selection, then apply the field edit on top of the result -- the same
+    order-dependent two-step reading, just for a different field.
+
+    Confirmed live: "1, but with Choice Scarf" produced turn_intent=
+    "select_build_option" with a bare, unresolved option_ids value (the
+    model's own extraction gave "1" rather than the real "spread_nature:1"
+    id) -- separately handled by _extract_leading_option_id's text-based
+    recovery in nodes.py. This function only concerns whether the
+    combination of signals is resolvable at all, not whether the specific
+    ids extracted are valid.
+    """
+    field = extraction.field
+    if field not in {"ability", "item", "nature", "moves"}:
+        return False
+    if len(extraction.option_ids or []) != 1:
+        # Exactly one selection is a well-defined "pick this, then adjust
+        # it" two-step operation. Two or more is a genuinely different,
+        # ambiguous case -- which of several selected options would the
+        # edit even apply to? Confirmed by a real regression: "make it
+        # modest, or actually compare these two first" (two option_ids,
+        # a genuine either/or) must still route to the compound-ambiguity
+        # clarifying question, not be silently resolved as if one option
+        # were selected.
+        return False
+    has_value = (
+        _populated(extraction.value_moves)
+        if field == "moves"
+        else _populated(extraction.value_text)
+    )
+    if not has_value:
+        return False
+    has_spread_signal = any(
+        _populated(getattr(extraction, f))
+        for f in ("value_spread", "value_spread_set", "value_spread_delta")
+    )
+    return not has_spread_signal
+
+
 def _has_compound_edit_and_compare_signal(extraction: TurnIntentExtraction) -> bool:
     """True when a single extraction carries both edit- and compare/select-
     shaped fields at once, regardless of which single turn_intent was
@@ -407,8 +451,9 @@ def _has_compound_edit_and_compare_signal(extraction: TurnIntentExtraction) -> b
     )
     if not (has_compare_signal and has_edit_signal):
         return False
-    if extraction.turn_intent != "compare" and _is_select_plus_partial_spread(
-        extraction
+    if extraction.turn_intent != "compare" and (
+        _is_select_plus_partial_spread(extraction)
+        or _is_select_plus_single_field_edit(extraction)
     ):
         return False
     return True
@@ -422,7 +467,8 @@ class TurnIntentParseError(ValueError):
 
 
 _LEADING_OPTION_REF_RE = re.compile(
-    r"^\s*(?:option\s+)?\d+\s*(?:,|\bbut\b)\s*", re.IGNORECASE
+    r"^\s*(?:option\s+)?\d+\s*(?:,\s*(?:\bbut\b\s*)?|\bbut\b\s*|\+\s*)",
+    re.IGNORECASE,
 )
 _DELTA_INDICATOR_WORDS = frozenset({"more", "extra", "additional", "by"})
 
@@ -482,6 +528,125 @@ def extract_single_stat_target(text: str) -> tuple[str, int, bool] | None:
     window = tokens[max(0, num_idx - 3) : num_idx + 4]
     is_delta = any(tok.lower() in _DELTA_INDICATOR_WORDS for tok in window)
     return stat, num_value, is_delta
+
+
+_REAL_NATURES = {
+    "hardy": "Hardy", "lonely": "Lonely", "brave": "Brave", "adamant": "Adamant",
+    "naughty": "Naughty", "bold": "Bold", "docile": "Docile", "relaxed": "Relaxed",
+    "impish": "Impish", "lax": "Lax", "timid": "Timid", "hasty": "Hasty",
+    "serious": "Serious", "jolly": "Jolly", "naive": "Naive", "modest": "Modest",
+    "mild": "Mild", "quiet": "Quiet", "bashful": "Bashful", "rash": "Rash",
+    "calm": "Calm", "gentle": "Gentle", "sassy": "Sassy", "careful": "Careful",
+    "quirky": "Quirky",
+}
+
+
+def _find_known_value_in_text(text: str, candidates: dict[str, str]) -> str | None:
+    """Scan text for a substring matching a real, known value -- no
+    trigger phrases required at all; any phrasing works as long as the
+    real name appears somewhere in the text ('put a Choice Scarf on it',
+    'I want it to hold Life Orb', 'use Choice Scarf instead' all resolve
+    the same way). `candidates` maps normalized id -> real display name.
+
+    Exists specifically to replace trigger-phrase matching (a fragile
+    approach that only ever covers the exact phrasings anticipated in
+    advance, guaranteed to keep missing new real phrasings as they come
+    up) with something that generalizes: detect the real, known value
+    directly, regardless of the sentence built around it.
+
+    Returns the single unambiguous match, or None if zero or multiple
+    genuinely distinct real values are found -- never guesses among
+    several. A shorter match that's wholly contained inside a longer
+    match is not counted as a second, competing candidate (e.g. this
+    doesn't falsely flag ambiguity if one real name happens to be a
+    substring of another).
+    """
+    normalized_text = to_id(text)
+    hits = [
+        (cid, name) for cid, name in candidates.items() if cid and cid in normalized_text
+    ]
+    if not hits:
+        return None
+    ids = [cid for cid, _ in hits]
+    reduced = [
+        (cid, name)
+        for cid, name in hits
+        if not any(cid != other and cid in other for other in ids)
+    ]
+    distinct_names = {name for _, name in reduced}
+    if len(distinct_names) != 1:
+        return None
+    return next(iter(distinct_names))
+
+
+def extract_item_name_target(text: str) -> str | None:
+    """Deterministically extract an item-change instruction from free
+    text, resolved against real item data (583 real entries). See
+    _find_known_value_in_text for why this doesn't require specific
+    trigger phrasing.
+    """
+    from recommender.legality import load_snapshot
+
+    stripped = _LEADING_OPTION_REF_RE.sub("", text)
+    items = (load_snapshot() or {}).get("items") or {}
+    candidates = {
+        str(item.get("id") or ""): str(item.get("name") or "")
+        for item in items.values()
+    }
+    return _find_known_value_in_text(stripped, candidates)
+
+
+def extract_nature_name_target(text: str) -> str | None:
+    """Same as extract_item_name_target, for the 25 real natures (a fixed,
+    small list -- no data source needed)."""
+    stripped = _LEADING_OPTION_REF_RE.sub("", text)
+    return _find_known_value_in_text(stripped, _REAL_NATURES)
+
+
+def extract_ability_name_target(text: str) -> str | None:
+    """Same idea, for ability names. Real per-species ability data exists
+    in this codebase (species[id]['abilities']), but nothing globally
+    scoped -- built here as a deduped union across every species' real
+    abilities (311 distinct names), not scoped to any one species'
+    actual legal abilities. Weaker than the item/nature checks in that
+    sense (could match an ability the target species could never
+    actually have), but downstream legality validation already catches
+    an invalid ability for a given species, so a wrong match here fails
+    safely rather than silently, and broader coverage is worth that
+    tradeoff over not attempting ability recovery at all.
+    """
+    from recommender.legality import load_snapshot
+
+    stripped = _LEADING_OPTION_REF_RE.sub("", text)
+    species = (load_snapshot() or {}).get("species") or {}
+    candidates: dict[str, str] = {}
+    for sp in species.values():
+        for ability in (sp.get("abilities") or {}).values():
+            candidates[to_id(ability)] = ability
+    return _find_known_value_in_text(stripped, candidates)
+
+
+def detect_dropped_edit_field(text: str) -> tuple[str, str] | None:
+    """Try item, nature, and ability detection in turn; return (field,
+    value) for whichever one unambiguously matches. If more than one
+    field type matches (e.g. text that happens to contain both a real
+    item name and a real nature name), declines rather than guessing
+    which one the user actually meant -- same fail-closed contract as
+    every other extractor in this module.
+    """
+    hits: list[tuple[str, str]] = []
+    item = extract_item_name_target(text)
+    if item is not None:
+        hits.append(("item", item))
+    nature = extract_nature_name_target(text)
+    if nature is not None:
+        hits.append(("nature", nature))
+    ability = extract_ability_name_target(text)
+    if ability is not None:
+        hits.append(("ability", ability))
+    if len(hits) != 1:
+        return None
+    return hits[0]
 
 
 def _populated(value: object) -> bool:
@@ -585,6 +750,13 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
         if _is_select_plus_partial_spread(extraction):
             select_payload["spread_set"] = extraction.value_spread_set
             select_payload["spread_delta"] = extraction.value_spread_delta
+        elif _is_select_plus_single_field_edit(extraction):
+            select_payload["extra_field"] = extraction.field
+            select_payload["extra_value"] = (
+                extraction.value_moves
+                if extraction.field == "moves"
+                else extraction.value_text
+            )
         return SelectBuildPayload(**select_payload)  # type: ignore[typeddict-item]
     if intent == "compare":
         return ComparePayload(
@@ -722,6 +894,32 @@ def parse_turn_intent(
             else:
                 object.__setattr__(extraction, "value_spread_set", {stat: num_value})
 
+    if (
+        extraction.option_ids
+        and extraction.field is None
+        and not _populated(extraction.value_text)
+        and not _populated(extraction.value_moves)
+        and not _populated(extraction.value_spread)
+        and not _populated(extraction.value_spread_set)
+        and not _populated(extraction.value_spread_delta)
+    ):
+        # Confirmed live: the model can drop an edit signal entirely when
+        # combined with a selection in the same utterance ("1, but use
+        # Choice Scarf instead" produced option_ids=['1'] with EVERY
+        # edit-value field empty) -- not mis-formatted, genuinely absent.
+        # Try to recover it directly from the text before falling through
+        # to a plain selection that silently drops the other half of the
+        # request. Generalized beyond item: detect_dropped_edit_field
+        # covers ability/item/nature via real-value substring matching,
+        # not phrase-specific triggers -- a fix scoped to just item would
+        # have needed re-doing for every other field this same failure
+        # mode eventually shows up on.
+        detected = detect_dropped_edit_field(user_text)
+        if detected is not None:
+            field, value = detected
+            object.__setattr__(extraction, "field", field)
+            object.__setattr__(extraction, "value_text", value)
+
     if _has_compound_edit_and_compare_signal(extraction):
         second = "comparison" if extraction.turn_intent == "compare" else "selection"
         return {
@@ -743,16 +941,29 @@ def parse_turn_intent(
     # silently dropped even though the compound-signal check above already
     # correctly identified this as resolvable, not ambiguous. Force the
     # select_build_option treatment whenever the shape is right, regardless
-    # of which literal turn_intent value the model happened to choose.
-    if extraction.option_ids and _is_select_plus_partial_spread(extraction):
+    # of which literal turn_intent value the model happened to choose. Same
+    # reasoning applies to select+single-field-edit ("1, but with Choice
+    # Scarf"), confirmed live the same way.
+    if extraction.option_ids and (
+        _is_select_plus_partial_spread(extraction)
+        or _is_select_plus_single_field_edit(extraction)
+    ):
         select_intent = "select_build_option"
         select_payload: dict[str, Any] = {
             "option_ids": tuple(str(i).strip() for i in extraction.option_ids)
         }
-        if _populated(extraction.value_spread_set):
-            select_payload["spread_set"] = extraction.value_spread_set
-        if _populated(extraction.value_spread_delta):
-            select_payload["spread_delta"] = extraction.value_spread_delta
+        if _is_select_plus_partial_spread(extraction):
+            if _populated(extraction.value_spread_set):
+                select_payload["spread_set"] = extraction.value_spread_set
+            if _populated(extraction.value_spread_delta):
+                select_payload["spread_delta"] = extraction.value_spread_delta
+        else:
+            select_payload["extra_field"] = extraction.field
+            select_payload["extra_value"] = (
+                extraction.value_moves
+                if extraction.field == "moves"
+                else extraction.value_text
+            )
         out = {
             "turn_intent": select_intent,
             "turn_payload": SelectBuildPayload(**select_payload),  # type: ignore[typeddict-item]

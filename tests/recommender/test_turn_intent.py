@@ -1436,3 +1436,337 @@ def test_bare_spread_edit_without_leading_option_ref_is_unaffected():
     )
     assert result["turn_intent"] == "edit"
     assert result["turn_payload"]["spread_set"] == {"spe": 5}
+
+
+def test_select_plus_item_edit_resolves_end_to_end():
+    """Regression, confirmed live (2026-08-18): '1, but with Choice Scarf'
+    -- the model extracted turn_intent='select_build_option' with a bare,
+    unresolved option_id ('1' instead of the real 'spread_nature:2') AND
+    field='item'/value_text='Choice Scarf'. Confirms the full chain: the
+    bare option id is recovered from the raw text (same mechanism as the
+    spread-edit case), and the item edit is carried through as
+    extra_field/extra_value rather than silently dropped.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": ["2"],
+            "field": "item",
+            "value_text": "Choice Scarf",
+        }
+    )
+    result = classify_pending(
+        "2, but with Choice Scarf",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"
+
+
+def test_select_plus_item_edit_resolves_when_model_picks_edit_intent():
+    """Same compound shape, but the model's literal turn_intent is 'edit'
+    with option_ids also populated -- confirms the symmetric-dispatch
+    handling (already proven for select+partial-spread) also covers the
+    non-spread-field case."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "edit_scope": "field_only",
+            "value_text": "Choice Scarf",
+            "option_ids": [_CONFIRM_IDS[1]],
+        }
+    )
+    result = classify_pending(
+        "2, but with Choice Scarf",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"
+
+
+def test_select_plus_item_edit_requires_exactly_one_option():
+    """Two or more option_ids combined with an edit signal remains
+    genuinely ambiguous (which option would the edit apply to?) and must
+    still route to the compound-ambiguity clarifying question -- confirmed
+    by the real regression this exact scoping fix was caught by:
+    'make it modest, or actually compare these two first' with TWO
+    option_ids must not be silently resolved as if only one were selected.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": [_CONFIRM_IDS[0], _CONFIRM_IDS[1]],
+            "field": "item",
+            "value_text": "Choice Scarf",
+        }
+    )
+    result = classify_pending(
+        "either of these, but with Choice Scarf",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "pending_response"
+
+
+def test_bare_leading_option_id_recovered_inside_gap_fill():
+    """Regression for the exact live failure: a bare, unresolved option id
+    ('1') from the model must be recovered from raw text BEFORE the
+    'Unknown build option id' safety net rejects it outright -- not just
+    after, which is too late since the gate already replaced the result
+    with a dead-end pending_response by then.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": ["2"],
+        }
+    )
+    result = classify_pending(
+        "2",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    assert result["turn_payload"]["option_ids"] == (_CONFIRM_IDS[1],)
+
+
+def test_leading_option_ref_regex_consumes_comma_and_but_together():
+    """Regression: the original regex only ever consumed a comma OR a
+    following 'but', never both together, leaving a dangling 'but' at the
+    start of the remaining text -- harmless for the unanchored stat
+    extractor (tokenizes without caring about position), but would have
+    silently broken any anchored extractor, like the item-name one added
+    alongside this fix. Also confirms fixing this didn't introduce the
+    opposite bug (a bare leading number with NO separator getting
+    stripped when it shouldn't be -- caught and fixed before this test
+    was written, not after).
+    """
+    from recommender.turn_intent import _LEADING_OPTION_REF_RE
+
+    assert (
+        _LEADING_OPTION_REF_RE.sub("", "1, but use Choice Scarf instead")
+        == "use Choice Scarf instead"
+    )
+    assert (
+        _LEADING_OPTION_REF_RE.sub("", "2, but make it 5 Spe")
+        == "make it 5 Spe"
+    )
+    # No separator at all -- the leading number is the actual value being
+    # discussed, not an option reference, and must NOT be stripped.
+    assert _LEADING_OPTION_REF_RE.sub("", "5 more Spe") == "5 more Spe"
+
+
+def test_extract_item_name_target_covers_live_phrasing():
+    """Regression, confirmed live (2026-08-18): '1, but use Choice Scarf
+    instead' produced option_ids=['1'] with EVERY edit-value field empty
+    -- the model dropped the item signal entirely, not just formatted it
+    wrong. Confirms the deterministic extractor reads it directly from
+    text, and correctly declines for unrelated phrasing.
+    """
+    from recommender.turn_intent import extract_item_name_target
+
+    assert extract_item_name_target("1, but use Choice Scarf instead") == "Choice Scarf"
+    assert extract_item_name_target("use Choice Scarf instead") == "Choice Scarf"
+    assert extract_item_name_target("1, but with Choice Scarf") == "Choice Scarf"
+    assert extract_item_name_target("with Leftovers") == "Leftovers"
+    assert extract_item_name_target("change item to Choice Specs") == "Choice Specs"
+    assert extract_item_name_target("make it 5 Spe") is None
+    assert extract_item_name_target("shift all the pts in Def to SpD") is None
+
+
+def test_dropped_item_signal_recovered_end_to_end():
+    """Full regression: the exact live raw extraction (option_ids=['1'],
+    field=None, value_text=None -- everything else empty too) resolves
+    correctly to a select_build_option with both the recovered option id
+    and the recovered item, composed together, not just one or the
+    other.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": ["2"],
+        }
+    )
+    result = classify_pending(
+        "2, but use Choice Scarf instead",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"
+
+
+def test_leading_option_ref_regex_recognizes_plus_separator():
+    """Regression, confirmed live (2026-08-18): '2+use Choice Scarf' left
+    the leading '2+' entirely unstripped, since the regex previously only
+    recognized comma/'but' as separators -- not '+', despite '+' being
+    this interface's own documented composition syntax ("pick option ids
+    (compose with +)")."""
+    from recommender.turn_intent import _LEADING_OPTION_REF_RE
+
+    assert _LEADING_OPTION_REF_RE.sub("", "2+use Choice Scarf") == "use Choice Scarf"
+    assert (
+        _LEADING_OPTION_REF_RE.sub("", "2 + use Choice Scarf") == "use Choice Scarf"
+    )
+    # Still correctly declines to touch pure multi-option composition text
+    # (no edit signal involved) -- not this function's job to resolve that.
+    assert _LEADING_OPTION_REF_RE.sub("", "1+2") == "2"
+
+
+def test_dropped_option_id_recovered_for_non_spread_edit():
+    """Regression, confirmed live (2026-08-18): '2+use Choice Scarf'
+    correctly extracted field='item'/value_text='Choice Scarf' but
+    dropped option_ids entirely (None). The existing leading-option-id
+    recovery was scoped to field=='spread' only -- generalized here to
+    cover item/ability/nature/moves too, using the same extra_field/
+    extra_value shape the reverse-direction fix already established.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "edit_scope": "field_only",
+            "value_text": "Choice Scarf",
+            "option_ids": None,
+        }
+    )
+    result = classify_pending(
+        "2+use Choice Scarf",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"
+
+
+def test_general_value_scanner_covers_phrasing_the_old_trigger_list_never_could():
+    """Regression for the real generalization request: the previous
+    approach matched only a fixed list of trigger phrases ('use X',
+    'with X', 'give it X', etc.), guaranteed to keep missing new real
+    phrasings as they came up. The general substring scanner detects the
+    real, known value directly, regardless of how it's introduced --
+    confirms phrasing the old trigger-phrase list could never have
+    covered, not just the previously-confirmed live cases.
+    """
+    from recommender.turn_intent import extract_item_name_target
+
+    # Previously covered, must still work.
+    assert extract_item_name_target("1, but use Choice Scarf instead") == "Choice Scarf"
+    # Genuinely new phrasing, never matched any trigger phrase.
+    assert extract_item_name_target("put a Choice Scarf on it") == "Choice Scarf"
+    assert extract_item_name_target("I want it to hold Life Orb") == "Life Orb"
+    assert extract_item_name_target("2, equip Rocky Helmet please") == "Rocky Helmet"
+    assert extract_item_name_target("give it Assault Vest") == "Assault Vest"
+
+
+def test_general_value_scanner_covers_nature_and_ability_not_just_item():
+    """New capability: the previous fix only ever covered item edits --
+    the general scanner covers nature and ability too, using the same
+    mechanism, since the underlying model failure (dropping an edit
+    signal entirely when combined with a selection) was never
+    item-specific in the first place."""
+    from recommender.turn_intent import (
+        extract_ability_name_target,
+        extract_nature_name_target,
+    )
+
+    assert extract_nature_name_target("1, but make it Modest") == "Modest"
+    assert extract_nature_name_target("change the nature to Jolly") == "Jolly"
+    assert extract_ability_name_target("2, but give it Intimidate") == "Intimidate"
+
+
+def test_detect_dropped_edit_field_declines_when_ambiguous_across_types():
+    """If text plausibly matches more than one field type (e.g. mentions
+    both a real item and a real nature), decline rather than guess which
+    one the user meant -- same fail-closed contract as every other
+    extractor in this module."""
+    from recommender.turn_intent import detect_dropped_edit_field
+
+    assert detect_dropped_edit_field("use Choice Scarf and make it Modest") is None
+    assert detect_dropped_edit_field("shift all the pts in Def to SpD") is None
+
+
+def test_dropped_edit_field_recovered_end_to_end_for_new_phrasing():
+    """Full chain regression: a phrasing the OLD trigger-phrase approach
+    could never have matched ('put a Choice Scarf on it') now resolves
+    correctly end-to-end through classify_pending, the same as the
+    originally-confirmed live phrasing did."""
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "select_build_option",
+            "option_ids": ["2"],
+        }
+    )
+    result = classify_pending(
+        "2, but put a Choice Scarf on it",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"
+
+
+def test_find_option_reference_anywhere_covers_position_and_separator_variety():
+    """Regression for further real feedback: separator-word-list-based
+    fixes were already flagged as a fragile pattern. Confirms option
+    references are now found regardless of position (leading, trailing)
+    or separator word ('and', 'also', 'plus', 'as well', no word at
+    all) -- not just the specific comma/but/+ patterns fixed earlier.
+    """
+    from recommender.nodes import find_option_reference_anywhere
+
+    pending = _confirmation_with_groups()
+    target = _CONFIRM_IDS[1]
+
+    assert find_option_reference_anywhere("2, but use Choice Scarf", pending) == target
+    assert find_option_reference_anywhere("use Choice Scarf and 2", pending) == target
+    assert find_option_reference_anywhere("also select 2", pending) == target
+    assert find_option_reference_anywhere("option 2 as well", pending) == target
+    assert find_option_reference_anywhere("use Choice Scarf plus 2", pending) == target
+    # No option reference at all -- must correctly decline, not guess.
+    assert find_option_reference_anywhere("make it 5 Spe", pending) is None
+
+
+def test_trailing_option_reference_recovered_end_to_end():
+    """Full chain: a purely TRAILING option reference (no leading
+    position at all) resolves correctly for a non-spread edit, since
+    item/ability/nature/moves have no numeric value of their own to
+    create ambiguity with the option number, wherever it appears.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "item",
+            "edit_scope": "field_only",
+            "value_text": "Choice Scarf",
+            "option_ids": None,
+        }
+    )
+    result = classify_pending(
+        "use Choice Scarf and also select 2",
+        _confirmation_with_groups(),
+        turn_intent_parser=parser,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    payload = result["turn_payload"]
+    assert payload["option_ids"] == (_CONFIRM_IDS[1],)
+    assert payload["extra_field"] == "item"
+    assert payload["extra_value"] == "Choice Scarf"
