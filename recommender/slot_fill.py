@@ -1468,7 +1468,7 @@ def resolve_condition_beneficiaries(
                 parts.append(
                     CandidateEvidence(
                         basis="mechanical_only",
-                        confidence="low",
+                        confidence="high",
                         producer_name="resolve_condition_beneficiaries",
                         evidence=(
                             "need:condition_beneficiary",

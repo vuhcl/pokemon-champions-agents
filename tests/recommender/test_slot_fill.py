@@ -411,7 +411,7 @@ def test_pelipper_rain_beneficiaries_exclude_self_and_ignore_tailwind():
         if ev.producer_name == "resolve_condition_beneficiaries"
     ]
     assert ability_hits
-    assert all(ev.basis == "mechanical_only" and ev.confidence == "low" for ev in ability_hits)
+    assert all(ev.basis == "mechanical_only" and ev.confidence == "high" for ev in ability_hits)
 
 
 def test_torkoal_sun_beneficiaries_exclude_self():
@@ -2023,3 +2023,28 @@ def test_scoped_evidence_returns_full_evidence_when_no_category_keys():
     this fix existed."""
     full_evidence = (_threat_evidence_row(), _need_evidence_row())
     assert _scoped_evidence(full_evidence, []) == full_evidence
+
+
+def test_ability_based_condition_beneficiary_gets_high_not_low_confidence():
+    """Regression, confirmed live: an ability-based condition-beneficiary
+    match (e.g. Swift Swim under Rain) was hardcoded to confidence="low"
+    regardless of how strong the match actually is -- backwards from the
+    whole specificity-spectrum framework this project uses elsewhere.
+    An innate ability directly interacting with a locked condition is
+    the most mechanically certain, narrowest tier of evidence possible
+    (no "might not run it" ambiguity the way a move-commitment check
+    has) -- it should be high confidence, not the same low tier as a
+    generic, broadly-applicable match. Confirmed live: Swampert-Mega's
+    real Swift Swim match under a real, locked Rain team.
+    """
+    rows = _resolve_beneficiaries("Pelipper")
+    by_id = {to_id(row.species): row for row in rows}
+    swampert_mega = by_id.get("swampertmega")
+    assert swampert_mega is not None
+    ability_evidence = [
+        ev
+        for ev in swampert_mega.evidence
+        if ev.producer_name == "resolve_condition_beneficiaries"
+    ]
+    assert ability_evidence
+    assert all(ev.confidence == "high" for ev in ability_evidence)
