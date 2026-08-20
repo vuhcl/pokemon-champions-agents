@@ -2126,3 +2126,62 @@ def test_multi_signal_default_requires_strong_evidence_not_just_top3():
     assert result["tracks"].get("Gholdengo") != (
         "threat coverage + type synergy + support/utility"
     )
+
+
+def test_select_diverse_candidates_excludes_low_confidence_only_from_category_b_c():
+    """Regression, confirmed live: a candidate whose ONLY evidence for a
+    category is low confidence must not be selected as that category's
+    representative at all, even as its top-ranked candidate within a
+    weak pool -- confirmed as a deliberate design decision, not assumed:
+    other signals (shared-teammate, additional matching_needs) are only
+    meant to rank candidates within a genuine confidence tier, never to
+    substitute for one. A category with no strong-evidence candidate at
+    all correctly contributes nothing, falling through to whatever
+    other categories have available (existing fallback logic, unchanged
+    by this fix).
+    """
+    weak_only = AnnotatedCandidate(
+        species="Sylveon",
+        matching_needs=(_need("healing_cleric"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Sylveon"},
+        evidence=(
+            CandidateEvidence(
+                basis="mechanical_only",
+                confidence="low",
+                producer_name="test",
+                branch="need",
+            ),
+        ),
+        branches=frozenset({"need"}),
+    )
+    strong_a = _synth_category_a(
+        "Garchomp", (("t1", "clean_kill", "decisive"),)
+    )
+    result = select_diverse_candidates([weak_only, strong_a], (), n_alternatives=2)
+    assert "Sylveon" not in {result["default"], *result["alternatives"]}
+
+
+def test_select_diverse_candidates_still_includes_genuinely_strong_category_b():
+    """Confirms the fix is targeted, not a blanket exclusion of Category
+    B/C -- a candidate with genuine, non-low evidence for the category
+    must still be selectable."""
+    strong_b = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="test",
+                branch="need",
+            ),
+        ),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates([strong_b], (), n_alternatives=2)
+    assert result["default"] == "Grimmsnarl"
