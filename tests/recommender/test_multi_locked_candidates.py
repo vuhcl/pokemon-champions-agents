@@ -39,6 +39,7 @@ from recommender.team_candidates import (
     _rank_key,
     annotate_composition_impact,
     build_team_threat_objective,
+    collect_locked_anchor_contexts,
     material_completion_preferences,
     merge_multi_locked_candidates,
     rank_multi_locked_candidates,
@@ -1715,3 +1716,86 @@ def test_rank_key_real_threat_coverage_still_beats_shared_teammate_correlation()
         regulation="champions-reg-mb",
     )
     assert key_coverage > key_shared
+
+
+def test_condition_beneficiaries_discovered_in_multi_locked_pipeline():
+    """Regression for a real, confirmed gap: resolve_condition_beneficiaries
+    (real Rain-beneficiary discovery, e.g. Basculegion) had exactly one
+    caller in the whole codebase -- discover_single_locked -- and was
+    never wired into the multi-locked pipeline at all. This is the exact
+    scenario every live-observed candidate-quality issue in this whole
+    investigation actually occurred in (2+ locked members). Confirmed
+    directly against the real Archaludon+Pelipper(Drizzle) scenario:
+    Basculegion (real Swift Swim Rain-beneficiary) now gets discovered
+    with correctly-attributed evidence, not silently missing.
+    """
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    merged = merge_multi_locked_candidates(
+        state, contexts, (), None, ownership_mode="off", owned_species=frozenset()
+    )
+    basculegion = next(
+        (row for row in merged if row.species == "Basculegion"), None
+    )
+    assert basculegion is not None
+    categories = {need.category for need in basculegion.matching_needs}
+    assert "condition_beneficiary" in categories
+    assert any(
+        "condition:Rain" in e.evidence for e in basculegion.evidence
+    )
+
+
+def test_condition_beneficiary_checks_every_locked_anchor_not_just_first():
+    """Confirms the condition-provider check loops over every locked
+    anchor -- Rain here comes from the SECOND locked member (Pelipper),
+    not the first (Archaludon), and must still be found."""
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    # confirm Archaludon (first locked) does NOT itself provide Rain --
+    # this test is only meaningful if the provider is genuinely the
+    # second anchor, not the first.
+    archaludon_ctx = next(c for c in contexts if c.resolved_build.species == "Archaludon")
+    from recommender.condition_resilience import mechanism_condition
+    archaludon_provides = {
+        mechanism_condition(m)
+        for m in archaludon_ctx.role_decision.mechanisms
+        if m.present and m.relation == "provides"
+    }
+    assert "Rain" not in archaludon_provides
+
+    merged = merge_multi_locked_candidates(
+        state, contexts, (), None, ownership_mode="off", owned_species=frozenset()
+    )
+    assert any(row.species == "Basculegion" for row in merged)

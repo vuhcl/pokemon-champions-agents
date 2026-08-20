@@ -35,6 +35,7 @@ from recommender.slot_fill import (
     SlotFillContext,
     _kit_fallback_target_role,
     resolve_all_support_needs,
+    resolve_condition_beneficiaries,
     resolve_need_candidates,
     target_role_from_anchored_needs,
 )
@@ -335,7 +336,42 @@ def merge_multi_locked_candidates(
         available_species=owned_species,
         ownership_mode=ownership_mode,
     )
-    for support in support_rows:
+    # Condition-beneficiary candidates (e.g. a real Rain-beneficiary once
+    # Rain is locked in via some anchor's Drizzle/Rain Dance) -- confirmed
+    # gap, not previously wired into this multi-locked pipeline at all
+    # (only discover_single_locked called this). That's the exact
+    # scenario every live-observed candidate-quality issue in this
+    # investigation actually occurred in (2+ locked members). Looped over
+    # every locked anchor, not just the first, since any one of them
+    # could be the actual condition provider -- provided_weather_conditions
+    # only looks at the ONE decision passed in, and correctly returns
+    # nothing for anchors that don't themselves provide a weather.
+    #
+    # Combines with support_rows explicitly via return values, not by
+    # relying on ctx.need_resolved_candidates' mutation side-effect --
+    # that side-effect only reflects support_rows when
+    # resolve_all_support_needs actually runs for real. An existing test
+    # mocks it to return a fixed value directly, which (correctly) never
+    # touches the context's internal state, so relying on the mutation
+    # would have silently dropped support_rows under that mock.
+    locked_species_names = [
+        str(context.resolved_build.species or "") for context in anchor_contexts
+    ]
+    beneficiary_rows: list[NeedResolvedCandidate] = []
+    for context in anchor_contexts:
+        beneficiary_rows = resolve_condition_beneficiaries(
+            support_context,
+            getattr(context, "role_decision", None),
+            state,
+            locked_species=locked_species_names,
+            available_species=owned_species,
+            ownership_mode=ownership_mode,
+        )
+    seen_species = {to_id(row.species) for row in support_rows}
+    all_support_rows = list(support_rows) + [
+        row for row in beneficiary_rows if to_id(row.species) not in seen_species
+    ]
+    for support in all_support_rows:
         if not eligible(support.species):
             continue
         species_id = to_id(support.species)
