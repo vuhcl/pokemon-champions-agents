@@ -11,6 +11,7 @@ from recommender.counters import (
     QUERY_COUNTERS_SLACK,
     _ko_best_move,
     _scaled_base_power,
+    defensive_synergy_score,
     query_counters,
     threat_tier,
     type_effectiveness,
@@ -413,3 +414,44 @@ def test_battle_state_bp_assumptions_not_conflated():
     )
     assert abs(so_bp - base_bp * 1.2) < 1e-6
     assert so_bp > base_bp
+
+
+def test_defensive_synergy_score_no_locked_team_returns_zero():
+    assert defensive_synergy_score(["Water", "Ground"], []) == 0.0
+
+
+def test_defensive_synergy_score_matches_validated_worked_examples():
+    """Regression, confirmed against Vu's own worked examples and cross-
+    checked directly against the real TYPE_CHART before being written as
+    production code: for an Archaludon (Steel/Dragon) + Pelipper
+    (Water/Flying) locked team, Swampert (a real teammate) should score
+    clearly positive -- its one weakness (Grass) is shared by neither
+    locked member, and it covers Pelipper's severe 4x Electric weakness
+    via immunity. Kingambit (confirmed NOT purely explained by this
+    signal alone -- it's a real teammate for reasons outside type-chart
+    math, see the multi-signal design) should score clearly negative on
+    THIS signal specifically -- its Fighting/Ground weaknesses directly
+    compound with Archaludon's own.
+    """
+    locked = [["Steel", "Dragon"], ["Water", "Flying"]]
+    swampert = defensive_synergy_score(["Water", "Ground"], locked)
+    kingambit = defensive_synergy_score(["Dark", "Steel"], locked)
+    assert swampert > 0
+    assert kingambit < 0
+    assert swampert > kingambit
+
+
+def test_defensive_synergy_score_penalizes_weakness_severity_not_flat():
+    """Regression for a real bug caught and fixed during validation: the
+    baseline fragility penalty (for a weakness with zero team overlap)
+    must scale with the weakness's own severity, not apply a flat
+    penalty regardless of magnitude -- a candidate with a severe 4x
+    weakness should score worse than one with only a 2x weakness in the
+    same type, all else equal, even when neither weakness overlaps with
+    the locked team at all (isolating severity from the compounding
+    penalty entirely).
+    """
+    locked = [["Fire"]]  # shares neither candidate's Grass weakness below
+    four_x_grass_weak = defensive_synergy_score(["Water", "Ground"], locked)
+    two_x_grass_weak = defensive_synergy_score(["Water"], locked)
+    assert four_x_grass_weak < two_x_grass_weak
