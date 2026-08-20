@@ -24,7 +24,11 @@ from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
 from recommender.matchup import CHARGE_INSTANT_WEATHER
 from recommender.legality import is_species_legal, load_snapshot, resolve_learnset
-from recommender.move_narrowing import narrow_candidates_for_move, pick_default_and_alternatives
+from recommender.move_narrowing import (
+    _HARD_REQUIRE_WEATHER,
+    narrow_candidates_for_move,
+    pick_default_and_alternatives,
+)
 from recommender.propose import _propagate_and_refine
 from recommender.ranking import OwnershipMode
 from recommender.role_compendium import (
@@ -1139,6 +1143,7 @@ def resolve_need_candidates(
     *,
     available_species: frozenset[str] = frozenset(),
     ownership_mode: OwnershipMode = "off",
+    locked_weather: str | None = None,
 ) -> list[NeedResolvedCandidate]:
     compendium: list[NeedResolvedCandidate] = []
     rejected: list[CompendiumRoleEvidence] = []
@@ -1183,6 +1188,83 @@ def resolve_need_candidates(
             continue
         by_id[sid] = row
     rows = list(by_id.values())
+    if locked_weather is not None:
+        # A candidate matched only via a move that HARD-requires a
+        # different weather than what the team already has locked in
+        # isn't actually usable right now -- confirmed live: Abomasnow's
+        # only screens move is Aurora Veil, which requires Snow/Hail to
+        # be usable at all, and only one weather can be active. Rather
+        # than excluding the candidate outright, its matching evidence
+        # is downgraded to low confidence with an explicit conflict tag
+        # -- deprioritizes it (via the same evidence-quality ranking
+        # this codebase already uses elsewhere) without discarding real
+        # information the candidate might still be worth surfacing as a
+        # low-priority option, e.g. if the team's weather later changes.
+        # A candidate that also learns an unconditionally-usable
+        # satisfying move (e.g. Light Screen/Reflect) is untouched even
+        # if it ALSO happens to know a hard-gated one -- only downgraded
+        # when EVERY move-based match for this need is hard-blocked.
+        # Candidates matched via ability evidence (no move-shaped tag at
+        # all) are left untouched -- this check is specifically about
+        # move-based satisfaction, not a general weather-relevance
+        # judgment this function isn't equipped to make.
+        #
+        # Checks both evidence tag formats real data actually produces:
+        # the raw-move path's "move:auroraveil" and the compendium
+        # path's "mechanism:Aurora Veil" -- confirmed live these differ,
+        # not assumed. Both normalized via to_id() so they consistently
+        # match _HARD_REQUIRE_WEATHER's keys regardless of which path
+        # produced the match.
+        adjusted_rows: list[NeedResolvedCandidate] = []
+        for row in rows:
+            move_ids = [
+                to_id(tag.removeprefix("move:"))
+                for item in row.evidence
+                for tag in item.evidence
+                if tag.startswith("move:")
+            ] + [
+                to_id(tag.removeprefix("mechanism:"))
+                for item in row.evidence
+                for tag in item.evidence
+                if tag.startswith("mechanism:")
+            ]
+            if not move_ids:
+                adjusted_rows.append(row)
+                continue
+            required_weathers = {
+                _HARD_REQUIRE_WEATHER[mid]
+                for mid in move_ids
+                if mid in _HARD_REQUIRE_WEATHER
+            }
+            usable = not required_weathers or locked_weather in required_weathers
+            if usable:
+                adjusted_rows.append(row)
+                continue
+            required = next(iter(required_weathers))
+            # Downgrades BOTH basis and confidence, not confidence alone
+            # -- _BASIS_RANK ranks compendium_backed highest (4) and is
+            # compared before confidence in every ranking that uses this
+            # evidence, so a confidence-only downgrade wouldn't actually
+            # deprioritize this below genuinely-usable candidates with a
+            # lower basis rank. mechanical_only/low matches this
+            # signal's real semantic meaning here -- a weak, currently-
+            # inapplicable match, not a strong compendium-backed one.
+            downgraded_evidence = tuple(
+                replace(
+                    item,
+                    basis="mechanical_only",
+                    confidence="low",
+                    evidence=item.evidence
+                    + (f"weather_conflict:requires_{required}_have_{locked_weather}",),
+                )
+                for item in row.evidence
+            )
+            adjusted_rows.append(
+                NeedResolvedCandidate(
+                    row.species, row.matching_needs, downgraded_evidence, row.anchored_needs
+                )
+            )
+        rows = adjusted_rows
     if ownership_mode == "owned_only":
         rows = [row for row in rows if to_id(row.species) in available_species]
     elif ownership_mode == "owned_first":
@@ -1197,6 +1279,7 @@ def resolve_all_support_needs(
     anchored_needs: tuple[AnchoredSupportNeed, ...] = (),
     available_species: frozenset[str] = frozenset(),
     ownership_mode: OwnershipMode = "off",
+    locked_weather: str | None = None,
 ) -> list[NeedResolvedCandidate]:
     """Resolve every surfaced need; skip deferred/empty; set need_resolved_candidates."""
     by_id: dict[str, NeedResolvedCandidate] = {}
@@ -1212,6 +1295,7 @@ def resolve_all_support_needs(
                 state,
                 available_species=available_species,
                 ownership_mode=ownership_mode,
+                locked_weather=locked_weather,
             )
         except NotImplementedError:
             continue

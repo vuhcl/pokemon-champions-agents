@@ -2744,11 +2744,19 @@ def discover_single_locked(state: RecommenderState) -> dict:
 
     context = discovery.context
     annotate_overlap(context)
+    from recommender.anchor_roles import provided_weather_conditions
+
+    anchor_weathers = (
+        provided_weather_conditions(discovery.anchor_role_decision)
+        if hasattr(discovery.anchor_role_decision, "mechanisms")
+        else ()
+    )
     resolve_all_support_needs(
         context,
         state,
         available_species=owned_species_ids(state),
         ownership_mode=state.get("ownership_mode", "off"),
+        locked_weather=anchor_weathers[0] if anchor_weathers else None,
     )
     resolve_condition_beneficiaries(
         context,

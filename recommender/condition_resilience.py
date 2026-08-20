@@ -111,7 +111,10 @@ def team_field_states(
     for context in locked:
         if exclude_slot is not None and context.slot_index == exclude_slot:
             continue
-        for mechanism in context.role_decision.mechanisms:
+        role_decision = getattr(context, "role_decision", None)
+        if role_decision is None:
+            continue
+        for mechanism in role_decision.mechanisms:
             if not mechanism.present or mechanism.relation != "provides":
                 continue
             condition = mechanism_condition(mechanism)

@@ -329,12 +329,23 @@ def merge_multi_locked_candidates(
         need for context in anchor_contexts for need in context.support_needs
     )
     support_context = SlotFillContext(anchor=None, role_shape_context=None)
+    from recommender.condition_resilience import team_field_states
+
+    locked_weather = next(
+        (
+            field["weather"]
+            for field in team_field_states(anchor_contexts)
+            if "weather" in field
+        ),
+        None,
+    )
     support_rows = resolve_all_support_needs(
         support_context,
         state,
         anchored_needs=anchored_needs,
         available_species=owned_species,
         ownership_mode=ownership_mode,
+        locked_weather=locked_weather,
     )
     # Condition-beneficiary candidates (e.g. a real Rain-beneficiary once
     # Rain is locked in via some anchor's Drizzle/Rain Dance) -- confirmed

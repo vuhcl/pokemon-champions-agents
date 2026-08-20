@@ -1135,6 +1135,130 @@ def test_resolve_screens_uses_real_compendium_not_generic_mechanical_only():
     assert any(e.basis == "compendium_backed" for e in meowstic.evidence)
 
 
+def test_resolve_screens_deprioritizes_hard_weather_gated_candidate_under_conflicting_weather():
+    """Regression, confirmed live: Abomasnow's real, correctly-attributed
+    'screens' match comes from Aurora Veil (via Snow Warning), a move
+    that HARD-requires Snow/Hail to be usable at all -- not just boosted,
+    genuinely unusable without it. On a real team with Rain already
+    locked (only one weather can be active), Abomasnow's screens value
+    is currently zero, since it would never actually get to use Aurora
+    Veil without abandoning the team's real weather strategy entirely.
+
+    Deprioritized, not excluded (confirmed as the right design directly,
+    not assumed): removing it entirely would discard real information --
+    it might still be worth surfacing as a low-priority option, e.g. if
+    the team's weather situation later changes. Downgrades BOTH basis
+    and confidence, not confidence alone -- _BASIS_RANK ranks
+    compendium_backed (Abomasnow's real original basis here) highest,
+    and is compared before confidence in every ranking that uses this
+    evidence, so a confidence-only downgrade would not have actually
+    deprioritized it below genuinely-usable, lower-basis candidates.
+
+    Confirmed the exact real evidence-tag shape before writing this fix:
+    Abomasnow's screens match comes through the compendium path
+    ('mechanism:Aurora Veil'), not the raw-move path
+    ('move:auroraveil') -- both tag formats are checked, confirmed by
+    testing this exact scenario directly against real data, not assumed
+    to be the same shape.
+    """
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    names = resolve_need_candidates(need, _base_state(), locked_weather="Rain")
+    by_id = {to_id(row.species): row for row in names}
+    abomasnow = by_id.get("abomasnow")
+    assert abomasnow is not None, "must still be present, just deprioritized"
+    assert all(e.basis == "mechanical_only" for e in abomasnow.evidence)
+    assert all(e.confidence == "low" for e in abomasnow.evidence)
+    assert any(
+        "weather_conflict:requires_Snow_have_Rain" in e.evidence
+        for e in abomasnow.evidence
+    )
+    # Real, unconditionally-usable screens candidates must be unaffected.
+    grimmsnarl = by_id.get("grimmsnarl")
+    assert grimmsnarl is not None
+    assert not any(
+        tag.startswith("weather_conflict:")
+        for e in grimmsnarl.evidence
+        for tag in e.evidence
+    )
+
+
+def test_resolve_screens_ranks_deprioritized_candidate_below_usable_ones():
+    """Confirms the deprioritization actually changes ranking outcome,
+    not just evidence metadata -- Abomasnow must sort below genuinely
+    usable screens candidates once ranked by evidence quality (the same
+    ranking select_diverse_candidates' Category B/C use)."""
+    from recommender.team_candidates import _rank_by_need_evidence
+    from recommender.slot_fill import AnnotatedCandidate
+
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    names = resolve_need_candidates(need, _base_state(), locked_weather="Rain")
+    candidates = [
+        AnnotatedCandidate(
+            species=row.species,
+            matching_needs=row.matching_needs,
+            source="need",
+            threat_row=None,
+            spec={"species": row.species},
+            evidence=row.evidence,
+            branches=frozenset({"need"}),
+        )
+        for row in names
+    ]
+    ranked = _rank_by_need_evidence(candidates)
+    order = [c.species for c in ranked]
+    assert order.index("Abomasnow") > order.index("Grimmsnarl")
+
+
+def test_resolve_screens_keeps_hard_weather_gated_candidate_undowngraded_under_matching_weather():
+    """Confirms the deprioritization is genuinely conditional, not a
+    blanket downgrade of Abomasnow or Aurora Veil -- under a team that
+    has actually locked in Snow, Abomasnow's screens value is completely
+    real and must not be touched."""
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    names = resolve_need_candidates(need, _base_state(), locked_weather="Snow")
+    by_id = {to_id(row.species): row for row in names}
+    abomasnow = by_id.get("abomasnow")
+    assert abomasnow is not None
+    assert any(e.basis == "compendium_backed" for e in abomasnow.evidence)
+    assert not any(
+        tag.startswith("weather_conflict:")
+        for e in abomasnow.evidence
+        for tag in e.evidence
+    )
+
+
+def test_resolve_screens_keeps_hard_weather_gated_candidate_undowngraded_with_no_locked_weather():
+    """No weather locked at all (locked_weather=None, the default) -- the
+    downgrade must not fire, since there's nothing to conflict with
+    yet."""
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    names = resolve_need_candidates(need, _base_state())
+    by_id = {to_id(row.species): row for row in names}
+    abomasnow = by_id.get("abomasnow")
+    assert abomasnow is not None
+    assert any(e.basis == "compendium_backed" for e in abomasnow.evidence)
+
+
 def test_resolve_all_and_merge_without_chosen_need():
     tr = _trick_room_need()
     fo = SupportNeed(
