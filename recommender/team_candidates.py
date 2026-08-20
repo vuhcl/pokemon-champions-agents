@@ -328,9 +328,25 @@ def merge_multi_locked_candidates(
     anchored_needs = tuple(
         need for context in anchor_contexts for need in context.support_needs
     )
-    support_context = SlotFillContext(anchor=None, role_shape_context=None)
-    from recommender.condition_resilience import team_field_states
+    from recommender.condition_resilience import provided_conditions, team_field_states
 
+    # Filter out already-satisfied provider needs (trick_room/tailwind)
+    # before candidate resolution -- confirmed live: Pelipper already
+    # provides Tailwind via its own move, but Archaludon's "tailwind"
+    # support need (a real, speed-tier-triggered need, not a generic
+    # placeholder) was still being surfaced as unmet, feeding candidate
+    # discovery for a condition the team already has. Only trick_room and
+    # tailwind map to a TRACKED_CONDITIONS provider check this way --
+    # other need categories (healing_cleric, screens, etc.) aren't
+    # binary "provided or not" the same way, so they're unaffected here.
+    already_provided = provided_conditions(anchor_contexts)
+    _PROVIDER_NEED_CONDITION = {"trick_room": "Trick Room", "tailwind": "Tailwind"}
+    anchored_needs = tuple(
+        need
+        for need in anchored_needs
+        if _PROVIDER_NEED_CONDITION.get(need.need.category) not in already_provided
+    )
+    support_context = SlotFillContext(anchor=None, role_shape_context=None)
     locked_weather = next(
         (
             field["weather"]
@@ -991,6 +1007,13 @@ def _rank_by_need_evidence(candidates: list[AnnotatedCandidate]) -> list[Annotat
     return sorted(candidates, key=sort_key)
 
 
+_TRACK_LABELS = {
+    "A": "threat coverage + type synergy",
+    "B": "support/utility",
+    "C": "condition synergy",
+}
+
+
 def select_diverse_candidates(
     candidates: Sequence[AnnotatedCandidate],
     locked_contexts: Sequence[LockedAnchorContext],
@@ -1021,6 +1044,15 @@ def select_diverse_candidates(
     top pick. Alternatives: the top pick from each of the OTHER
     categories, skipping to the next-best within a category if its top
     pick was already used as the default or as another alternative.
+
+    Returns a "tracks" mapping (species -> human-readable label) alongside
+    default/alternatives, surfacing which track each pick actually came
+    from -- confirmed live this matters for real debugging (candidates
+    that "feel like" they should be one category can genuinely be
+    multi-category, e.g. a strong threat-counter that also happens to
+    satisfy a support-need), not just future steering (explicitly scoped
+    out of this change -- surfacing the track is the only thing
+    implemented here, not acting on a request for "a different track").
     """
     category_a: list[AnnotatedCandidate] = []
     category_b: list[AnnotatedCandidate] = []
@@ -1066,6 +1098,7 @@ def select_diverse_candidates(
     }
 
     default: AnnotatedCandidate | None = None
+    default_categories: list[str] = []
     if genuine_multi_signal_lineages:
         # Among genuine multi-signal candidates, prefer whichever ranks
         # best in Category A (the closest existing analog to "strongest
@@ -1081,12 +1114,21 @@ def select_diverse_candidates(
                             best_rank = (candidate_rank, c)
         if best_rank is not None:
             default = best_rank[1]
+            default_lineage = frozenset(lineage_ids(default.species))
+            default_categories = [
+                key
+                for key, lineages in top3_lineages.items()
+                if default_lineage in lineages
+            ]
     if default is None and ranked_a:
         default = ranked_a[0]
+        default_categories = ["A"]
     elif default is None and ranked_b:
         default = ranked_b[0]
+        default_categories = ["B"]
     elif default is None and ranked_c:
         default = ranked_c[0]
+        default_categories = ["C"]
 
     # Dedup by lineage, not exact species id -- confirmed live necessary:
     # a plain to_id() comparison doesn't catch a mega/regional-form
@@ -1097,19 +1139,30 @@ def select_diverse_candidates(
         set(lineage_ids(default.species)) if default is not None else set()
     )
     alternatives: list[AnnotatedCandidate] = []
-    for ranked in (ranked_b, ranked_c, ranked_a):
+    alternative_categories: list[str] = []
+    for key, ranked in (("B", ranked_b), ("C", ranked_c), ("A", ranked_a)):
         if len(alternatives) >= n_alternatives:
             break
         for c in ranked:
             c_lineage = set(lineage_ids(c.species))
             if not (c_lineage & used_lineages):
                 alternatives.append(c)
+                alternative_categories.append(key)
                 used_lineages |= c_lineage
                 break
+
+    tracks: dict[str, str] = {}
+    if default is not None:
+        tracks[default.species] = " + ".join(
+            _TRACK_LABELS[key] for key in default_categories
+        )
+    for c, key in zip(alternatives, alternative_categories):
+        tracks[c.species] = _TRACK_LABELS[key]
 
     return {
         "default": default.species if default is not None else None,
         "alternatives": [c.species for c in alternatives[:n_alternatives]],
+        "tracks": tracks,
     }
 
 

@@ -262,6 +262,7 @@ class PresentedCandidate:
     species: str
     source: Source
     evidence: tuple[CandidateEvidence, ...]
+    track: str | None = None
 
 
 @dataclass(frozen=True)
@@ -1603,6 +1604,7 @@ def present_candidates(
         picked = pick_default_and_alternatives(names, redundancy_tier=tier_for)
     default = picked.get("default")
     alts = list(picked.get("alternatives") or [])
+    tracks: dict[str, str] = picked.get("tracks") or {}
     options: list[str] = []
     if default:
         options.append(default)
@@ -1615,6 +1617,7 @@ def present_candidates(
                 species=species,
                 source=by_species[to_id(species)].source,
                 evidence=by_species[to_id(species)].evidence,
+                track=tracks.get(species),
             )
             for species in options
         ),
@@ -1647,6 +1650,8 @@ def _pending_presentation(
             option["primary_function"] = row.primary_function
         if row.mechanism_ids is not None:
             option["mechanism_ids"] = row.mechanism_ids
+        if candidate.track is not None:
+            option["track"] = candidate.track
         options.append(option)
     pending: PendingPresentation = {
         "schema_version": 1,

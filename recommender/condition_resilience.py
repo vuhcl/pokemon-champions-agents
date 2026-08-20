@@ -75,6 +75,34 @@ def mechanism_condition(m: MechanismEvidence) -> str | None:
     return None
 
 
+def provided_conditions(
+    locked: Sequence[LockedAnchorContext],
+    *,
+    exclude_slot: int | None = None,
+) -> frozenset[str]:
+    """The set of TRACKED_CONDITIONS this locked team already provides
+    (e.g. {"Rain", "Tailwind"}) -- same mechanism-detection team_field_states
+    uses, but returning condition names directly rather than FieldSpec
+    dicts, for callers that just need to check "does the team already
+    have X" (e.g. filtering already-satisfied support needs) rather than
+    build calc input.
+    """
+    out: set[str] = set()
+    for context in locked:
+        if exclude_slot is not None and context.slot_index == exclude_slot:
+            continue
+        role_decision = getattr(context, "role_decision", None)
+        if role_decision is None:
+            continue
+        for mechanism in role_decision.mechanisms:
+            if not mechanism.present or mechanism.relation != "provides":
+                continue
+            condition = mechanism_condition(mechanism)
+            if condition is not None and condition in TRACKED_CONDITIONS:
+                out.add(condition)
+    return frozenset(out)
+
+
 def team_field_states(
     locked: Sequence[LockedAnchorContext],
     *,

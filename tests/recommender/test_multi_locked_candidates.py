@@ -1932,3 +1932,147 @@ def test_select_diverse_candidates_picks_from_each_nonempty_category():
     selected = {result["default"], *result["alternatives"]}
     assert "Grimmsnarl" in selected
     assert "Basculegion" in selected
+
+
+def test_merge_multi_locked_filters_already_provided_tailwind_need():
+    """Regression, confirmed live: Archaludon's real, speed-tier-triggered
+    'tailwind' support need was still being surfaced as unmet even though
+    Pelipper (also locked) already provides Tailwind via its own move --
+    query_support_needs generates needs per-anchor with zero awareness of
+    what the rest of the locked team already has. Confirms trick_room (a
+    provider-type need the team genuinely does NOT yet have) is
+    unaffected -- this is a targeted filter, not a blanket removal of
+    speed-control needs.
+    """
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    merged = merge_multi_locked_candidates(
+        state, contexts, (), None, ownership_mode="off", owned_species=frozenset()
+    )
+    tailwind_matches = [
+        row for row in merged if any(n.category == "tailwind" for n in row.matching_needs)
+    ]
+    assert tailwind_matches == []
+    trick_room_matches = [
+        row for row in merged if any(n.category == "trick_room" for n in row.matching_needs)
+    ]
+    assert len(trick_room_matches) > 0
+
+
+def test_provided_conditions_reflects_real_locked_mechanisms():
+    """Direct unit test for the new helper: confirms it correctly
+    identifies Tailwind as team-provided (via Pelipper's move) and
+    Trick Room as NOT provided, using the real anchor-resolution
+    pipeline, not a hand-constructed mock."""
+    from recommender.condition_resilience import provided_conditions
+
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    conditions = provided_conditions(contexts)
+    assert "Tailwind" in conditions
+    assert "Rain" in conditions
+    assert "Trick Room" not in conditions
+
+
+def test_select_diverse_candidates_returns_track_labels():
+    """Confirms select_diverse_candidates surfaces which track each pick
+    came from -- default and each alternative -- using the exact labels
+    requested directly, not an inferred format."""
+    category_a = _synth_category_a(
+        "Garchomp", (("t1", "clean_kill", "decisive"),)
+    )
+    category_b = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    category_c = AnnotatedCandidate(
+        species="Basculegion",
+        matching_needs=(_need("condition_beneficiary"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Basculegion"},
+        evidence=(_evidence("mechanical_only"),),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates(
+        [category_a, category_b, category_c], (), n_alternatives=2
+    )
+    tracks = result["tracks"]
+    assert tracks["Garchomp"] == "threat coverage + type synergy"
+    assert tracks["Grimmsnarl"] == "support/utility"
+    assert tracks["Basculegion"] == "condition synergy"
+
+
+def test_select_diverse_candidates_combines_track_labels_for_multi_signal_default():
+    """A genuinely multi-signal default (strong in more than one
+    category) should have its track label reflect ALL contributing
+    categories, not just one -- confirms the combined-label logic, not
+    just single-category labeling."""
+    # A candidate that is BOTH a real threat-counter AND satisfies a
+    # support-need -- confirmed multi-signal by construction here.
+    multi_signal = AnnotatedCandidate(
+        species="Sylveon",
+        matching_needs=(_need("screens"),),
+        source="both",
+        threat_row=_counter(
+            "Sylveon", outcome="clean_kill", severity="decisive", usage_rank=1
+        ),
+        spec={"species": "Sylveon"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"threat", "need"}),
+    )
+    weak_a_only = _synth_category_a(
+        "Delphox", (("t2", "intentional_non_ko_answer", "toss-up"),)
+    )
+    weak_b_only = AnnotatedCandidate(
+        species="Klefki",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Klefki"},
+        evidence=(_evidence("mechanical_only"),),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates(
+        [multi_signal, weak_a_only, weak_b_only], (), n_alternatives=2
+    )
+    assert result["default"] == "Sylveon"
+    assert result["tracks"]["Sylveon"] == (
+        "threat coverage + type synergy + support/utility"
+    )
