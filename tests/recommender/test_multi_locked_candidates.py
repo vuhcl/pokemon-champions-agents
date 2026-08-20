@@ -36,6 +36,7 @@ from recommender.state import (
 )
 from recommender.support_needs import SupportNeed
 from recommender.team_candidates import (
+    _rank_category_a,
     _rank_key,
     annotate_composition_impact,
     build_team_threat_objective,
@@ -43,6 +44,7 @@ from recommender.team_candidates import (
     material_completion_preferences,
     merge_multi_locked_candidates,
     rank_multi_locked_candidates,
+    select_diverse_candidates,
 )
 from recommender.teammate_types import (
     SharedAnchorEvidence,
@@ -1799,3 +1801,134 @@ def test_condition_beneficiary_checks_every_locked_anchor_not_just_first():
         state, contexts, (), None, ownership_mode="off", owned_species=frozenset()
     )
     assert any(row.species == "Basculegion" for row in merged)
+
+
+def _synth_category_a(species: str, matchups) -> AnnotatedCandidate:
+    row = _counter(species, matchups=matchups, usage_rank=None)
+    return AnnotatedCandidate(
+        species=species,
+        matching_needs=(),
+        source="threat",
+        threat_row=row,
+        spec={"species": species},
+        evidence=(),
+        branches=frozenset({"threat"}),
+    )
+
+
+_ARCHALUDON_PELIPPER_LOCKED_TYPES = [["Steel", "Dragon"], ["Water", "Flying"]]
+
+
+def test_rank_category_a_balances_verified_score_against_synergy():
+    """Regression, confirmed live: a prior naive-sum combination of
+    threat-counter breadth and type-synergy let the higher-magnitude
+    signal (verified_score, can be 8+ across multiple threats) dominate
+    the much smaller-magnitude signal (defensive_synergy_score,
+    typically single-digit) completely, the same failure mode already
+    found once in this investigation for a different pair of signals.
+    Rank-based combination (this test) must NOT let raw magnitude decide
+    -- Kingambit has the highest raw verified_score of anyone here, but
+    its severe negative synergy (compounds Archaludon's own weaknesses)
+    must pull it out of the top spot, and Swampert-Mega's weak raw
+    verified_score must not prevent it from beating several stronger-
+    verified but synergy-poor candidates.
+    """
+    pool = [
+        _synth_category_a(
+            "Kingambit",
+            (("t1", "clean_kill", "decisive"), ("t2", "clean_kill", "decisive"), ("t3", "intentional_non_ko_answer", "costly")),
+        ),
+        _synth_category_a(
+            "Excadrill",
+            (("t1", "clean_kill", "decisive"), ("t2", "clean_kill", "costly")),
+        ),
+        _synth_category_a(
+            "Gholdengo",
+            (("t1", "clean_kill", "decisive"), ("t2", "intentional_non_ko_answer", "decisive"), ("t3", "clean_kill", "toss-up")),
+        ),
+        _synth_category_a(
+            "Garchomp",
+            (("t1", "clean_kill", "decisive"), ("t2", "clean_kill", "decisive")),
+        ),
+        _synth_category_a("Delphox", (("t1", "intentional_non_ko_answer", "costly"),)),
+        _synth_category_a(
+            "Swampert-Mega",
+            (("t1", "clean_kill", "costly"), ("t2", "intentional_non_ko_answer", "toss-up")),
+        ),
+    ]
+    ranked = _rank_category_a(pool, _ARCHALUDON_PELIPPER_LOCKED_TYPES)
+    order = [c.species for c in ranked]
+    kingambit_rank = order.index("Kingambit")
+    swampert_rank = order.index("Swampert-Mega")
+    # Kingambit has the single highest raw verified_score in the pool
+    # (9.0) but must not win outright given its terrible synergy.
+    assert order[0] != "Kingambit"
+    # Swampert-Mega has the second-LOWEST raw verified_score (2.5) but
+    # its strong synergy must still let it beat Kingambit specifically.
+    assert swampert_rank < kingambit_rank
+
+
+def test_select_diverse_candidates_dedupes_by_lineage_not_exact_species_id():
+    """Regression for a real bug found live: the dedup logic only checked
+    exact species-id match, which doesn't catch a mega/regional-form
+    duplicate of the same underlying species (Abomasnow and
+    Abomasnow-Mega both selected as if genuinely different candidates).
+    Fixed via lineage_ids grouping -- confirms it holds across both the
+    multi-signal-detection step and the final alternatives dedup.
+    """
+    base = _synth_category_a(
+        "Abomasnow", (("t1", "clean_kill", "decisive"),)
+    )
+    mega = _synth_category_a(
+        "Abomasnow-Mega", (("t1", "clean_kill", "decisive"),)
+    )
+    other = _synth_category_a(
+        "Garchomp", (("t1", "intentional_non_ko_answer", "costly"),)
+    )
+    result = select_diverse_candidates(
+        [base, mega, other], (), n_alternatives=2
+    )
+    all_selected = [result["default"], *result["alternatives"]]
+    all_selected = [s for s in all_selected if s is not None]
+    from recommender.usage_data import lineage_ids
+
+    seen_lineages: list[set] = []
+    for species in all_selected:
+        lineage = set(lineage_ids(species))
+        assert not any(lineage & seen for seen in seen_lineages), (
+            f"{species} shares a lineage with an already-selected candidate"
+        )
+        seen_lineages.append(lineage)
+
+
+def test_select_diverse_candidates_picks_from_each_nonempty_category():
+    """End-to-end: with real candidates present in all three categories,
+    confirms the selection draws from more than just one category rather
+    than collapsing back to a single ranking."""
+    category_a = _synth_category_a(
+        "Garchomp", (("t1", "clean_kill", "decisive"),)
+    )
+    category_b = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    category_c = AnnotatedCandidate(
+        species="Basculegion",
+        matching_needs=(_need("condition_beneficiary"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Basculegion"},
+        evidence=(_evidence("mechanical_only"),),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates(
+        [category_a, category_b, category_c], (), n_alternatives=2
+    )
+    selected = {result["default"], *result["alternatives"]}
+    assert "Grimmsnarl" in selected
+    assert "Basculegion" in selected

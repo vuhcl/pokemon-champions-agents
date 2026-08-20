@@ -895,6 +895,213 @@ def _rank_key(
     )
 
 
+def _shared_teammate_tiebreak(candidate: AnnotatedCandidate) -> tuple[float, float]:
+    """Lower is better. Reused as the within-category secondary signal
+    for select_diverse_candidates -- same role shared-teammate evidence
+    already has in _rank_key, just scoped locally to one category instead
+    of globally across the whole pool."""
+    return (
+        -(candidate.shared_min_pct if candidate.shared_min_pct is not None else -1.0),
+        (
+            candidate.shared_worst_rank
+            if candidate.shared_worst_rank is not None
+            else float("inf")
+        ),
+    )
+
+
+def _rank_category_a(
+    candidates: list[AnnotatedCandidate],
+    locked_types_list: list[list[str]],
+) -> list[AnnotatedCandidate]:
+    """Type-synergy + threat-counter breadth, combined by RANK position
+    rather than raw value -- confirmed necessary, not a stylistic choice:
+    verified_score (calc-verified, can be 40+ across many threats) and
+    defensive_synergy_score (typically single-digit) are on wildly
+    different scales, and a naive sum let the larger-magnitude signal
+    dominate the same way a prior, separately-discovered ranking bug did
+    (fills_essential_gap completely overriding evidence quality). Rank-
+    based combination is scale-invariant by construction, avoiding the
+    need to guess at normalization weights between two very differently-
+    behaved raw signals.
+    """
+    from recommender.counters import _species_types, defensive_synergy_score
+    from recommender.legality import load_snapshot
+
+    if not candidates:
+        return []
+    snap = load_snapshot()
+    scored = [
+        (
+            c,
+            c.threat_row.verified_score if c.threat_row else 0.0,
+            defensive_synergy_score(
+                _species_types(snap, c.species), locked_types_list
+            ),
+        )
+        for c in candidates
+    ]
+    verified_rank = {
+        to_id(item[0].species): i
+        for i, item in enumerate(sorted(scored, key=lambda x: -x[1]))
+    }
+    synergy_rank = {
+        to_id(item[0].species): i
+        for i, item in enumerate(sorted(scored, key=lambda x: -x[2]))
+    }
+
+    def sort_key(item: tuple[AnnotatedCandidate, float, float]):
+        sid = to_id(item[0].species)
+        return (
+            verified_rank[sid] + synergy_rank[sid],
+            _shared_teammate_tiebreak(item[0]),
+        )
+
+    return [item[0] for item in sorted(scored, key=sort_key)]
+
+
+def _rank_by_need_evidence(candidates: list[AnnotatedCandidate]) -> list[AnnotatedCandidate]:
+    """Categories B (support-needs) and C (condition-benefit) share the
+    same ranking approach: best evidence quality (reusing the same
+    _BASIS_RANK/_CONFIDENCE_RANK convention _rank_key already uses),
+    shared-teammate correlation as the secondary tie-break.
+    """
+    def sort_key(c: AnnotatedCandidate):
+        best = (
+            max(
+                (_BASIS_RANK[item.basis], _CONFIDENCE_RANK[item.confidence])
+                for item in c.evidence
+            )
+            if c.evidence
+            else (0, 0)
+        )
+        return (-best[0], -best[1], _shared_teammate_tiebreak(c))
+
+    return sorted(candidates, key=sort_key)
+
+
+def select_diverse_candidates(
+    candidates: Sequence[AnnotatedCandidate],
+    locked_contexts: Sequence[LockedAnchorContext],
+    *,
+    n_alternatives: int = 2,
+) -> dict[str, Any]:
+    """Default + N alternatives via a multi-signal, per-category
+    approach, replacing a single combined ranking for this specific
+    selection step. Confirmed with Vu directly, following live evidence
+    that a single ranking (even after fixing several real bugs in it)
+    kept surfacing narrow, redundant, or context-blind candidate sets --
+    e.g. three Steel-type picks that all individually looked reasonable
+    but collectively piled onto the same shared weakness, or real
+    teammates (a screens setter, a Rain-boosted sweeper) that never
+    entered the top ranks because their real value lives outside what
+    any single score can see.
+
+    Three categories, each scored independently:
+    - A: type-synergy + threat-counter breadth (_rank_category_a)
+    - B: support-needs (screens, trick_room, healing_cleric, etc.)
+    - C: condition-benefit (Rain-beneficiary, etc.)
+    Shared-teammate correlation is the secondary tie-break within every
+    category, not a separate global signal.
+
+    Default: a genuine multi-category candidate (confirmed strong -- top
+    3 -- in more than one category) if one exists, since that represents
+    real, multi-dimensional value; otherwise falls back to Category A's
+    top pick. Alternatives: the top pick from each of the OTHER
+    categories, skipping to the next-best within a category if its top
+    pick was already used as the default or as another alternative.
+    """
+    category_a: list[AnnotatedCandidate] = []
+    category_b: list[AnnotatedCandidate] = []
+    category_c: list[AnnotatedCandidate] = []
+    for c in candidates:
+        if c.threat_row is not None:
+            category_a.append(c)
+        need_categories = {n.category for n in c.matching_needs}
+        if "condition_beneficiary" in need_categories:
+            category_c.append(c)
+        if need_categories - {"condition_beneficiary"}:
+            category_b.append(c)
+
+    from recommender.counters import _species_types
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    locked_types_list = [
+        _species_types(snap, ctx.resolved_build.species) for ctx in locked_contexts
+    ]
+
+    ranked_a = _rank_category_a(category_a, locked_types_list)
+    ranked_b = _rank_by_need_evidence(category_b)
+    ranked_c = _rank_by_need_evidence(category_c)
+    ranked_by_category = {"A": ranked_a, "B": ranked_b, "C": ranked_c}
+
+    # Multi-category default: a candidate confirmed in the top-3 of more
+    # than one category's own ranking represents real, multi-dimensional
+    # value -- not just "happened to be top in one narrow signal".
+    # Grouped by lineage, not exact species id, for the same reason the
+    # alternatives dedup below is -- a mega/regional form shouldn't be
+    # treated as a separate candidate from its base species here either.
+    top3_lineages: dict[str, set[frozenset[str]]] = {
+        key: {frozenset(lineage_ids(c.species)) for c in ranked[:3]}
+        for key, ranked in ranked_by_category.items()
+    }
+    multi_signal_lineages: dict[frozenset[str], int] = {}
+    for key, lineages in top3_lineages.items():
+        for lineage in lineages:
+            multi_signal_lineages[lineage] = multi_signal_lineages.get(lineage, 0) + 1
+    genuine_multi_signal_lineages = {
+        lineage for lineage, count in multi_signal_lineages.items() if count > 1
+    }
+
+    default: AnnotatedCandidate | None = None
+    if genuine_multi_signal_lineages:
+        # Among genuine multi-signal candidates, prefer whichever ranks
+        # best in Category A (the closest existing analog to "strongest
+        # overall"), falling back to its rank in whichever category it's
+        # strongest in otherwise.
+        best_rank = None
+        for lineage in genuine_multi_signal_lineages:
+            for key, ranked in ranked_by_category.items():
+                for i, c in enumerate(ranked):
+                    if frozenset(lineage_ids(c.species)) == lineage:
+                        candidate_rank = (i, key != "A")
+                        if best_rank is None or candidate_rank < best_rank[0]:
+                            best_rank = (candidate_rank, c)
+        if best_rank is not None:
+            default = best_rank[1]
+    if default is None and ranked_a:
+        default = ranked_a[0]
+    elif default is None and ranked_b:
+        default = ranked_b[0]
+    elif default is None and ranked_c:
+        default = ranked_c[0]
+
+    # Dedup by lineage, not exact species id -- confirmed live necessary:
+    # a plain to_id() comparison doesn't catch a mega/regional-form
+    # duplicate of the same underlying species (e.g. Abomasnow and
+    # Abomasnow-Mega both getting selected as if they were genuinely
+    # different alternatives, when they're the same Pokemon).
+    used_lineages: set[str] = (
+        set(lineage_ids(default.species)) if default is not None else set()
+    )
+    alternatives: list[AnnotatedCandidate] = []
+    for ranked in (ranked_b, ranked_c, ranked_a):
+        if len(alternatives) >= n_alternatives:
+            break
+        for c in ranked:
+            c_lineage = set(lineage_ids(c.species))
+            if not (c_lineage & used_lineages):
+                alternatives.append(c)
+                used_lineages |= c_lineage
+                break
+
+    return {
+        "default": default.species if default is not None else None,
+        "alternatives": [c.species for c in alternatives[:n_alternatives]],
+    }
+
+
 def rank_multi_locked_candidates(
     candidates: Sequence[AnnotatedCandidate],
     *,
