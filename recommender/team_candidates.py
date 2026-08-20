@@ -1079,15 +1079,37 @@ def select_diverse_candidates(
     ranked_c = _rank_by_need_evidence(category_c)
     ranked_by_category = {"A": ranked_a, "B": ranked_b, "C": ranked_c}
 
+    def _has_strong_evidence(c: AnnotatedCandidate) -> bool:
+        return any(item.confidence != "low" for item in c.evidence)
+
     # Multi-category default: a candidate confirmed in the top-3 of more
     # than one category's own ranking represents real, multi-dimensional
     # value -- not just "happened to be top in one narrow signal".
     # Grouped by lineage, not exact species id, for the same reason the
     # alternatives dedup below is -- a mega/regional form shouldn't be
     # treated as a separate candidate from its base species here either.
+    #
+    # For B/C specifically, only candidates with genuinely strong
+    # evidence (confidence != low) count toward this top-3 check --
+    # confirmed live: a candidate's weak, trigger=None match (already
+    # downgraded to low confidence) could still rank top-3 within B/C
+    # purely because many candidates for an unconditional need (e.g.
+    # screens) share that same low floor, letting a candidate that's
+    # only WEAKLY capable of the support role look like it has real,
+    # multi-dimensional value it doesn't actually have. This only
+    # affects multi-signal DETECTION -- weak candidates can still appear
+    # as a genuine, if weak, Category B/C alternative when nothing
+    # stronger exists; they just can't inflate the default's status.
     top3_lineages: dict[str, set[frozenset[str]]] = {
-        key: {frozenset(lineage_ids(c.species)) for c in ranked[:3]}
-        for key, ranked in ranked_by_category.items()
+        "A": {frozenset(lineage_ids(c.species)) for c in ranked_a[:3]},
+        "B": {
+            frozenset(lineage_ids(c.species))
+            for c in [c for c in ranked_b if _has_strong_evidence(c)][:3]
+        },
+        "C": {
+            frozenset(lineage_ids(c.species))
+            for c in [c for c in ranked_c if _has_strong_evidence(c)][:3]
+        },
     }
     multi_signal_lineages: dict[frozenset[str], int] = {}
     for key, lineages in top3_lineages.items():

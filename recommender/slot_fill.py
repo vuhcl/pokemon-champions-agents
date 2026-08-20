@@ -993,10 +993,10 @@ def _resolve_condition_setter(
 def _compendium_roles_for_need(need: SupportNeed) -> list[tuple[str, str]]:
     if need.category == "trick_room":
         return [("trick_room_setter", "")]
-    if need.category == "fake_out_protection":
-        return [("redirection", "")]
     if need.category == "screens":
         return [("screens_support", "")]
+    if need.category == "tailwind":
+        return [("tailwind_setter", "")]
     if need.category == "condition_setter" and need.trigger:
         weather = {"rain": "Rain", "sun": "Sun", "sand": "Sand", "snow": "Snow"}
         return [
@@ -1167,6 +1167,7 @@ def resolve_need_candidates(
             if existing is not None
             else row
         )
+    has_real_compendium = bool(_compendium_roles_for_need(need))
     for row in _raw_need_candidates(
         need,
         state,
@@ -1183,6 +1184,17 @@ def resolve_need_candidates(
                     existing.matching_needs,
                     _merge_evidence(existing.evidence, usage),
                 )
+            continue
+        # A need with a real compendium category (screens, tailwind,
+        # trick_room, fake_out_protection) only matches candidates the
+        # compendium actually recognizes -- confirmed live: Gholdengo
+        # genuinely isn't a recognized screens user despite mechanically
+        # learning Light Screen/Reflect, so it must not match at all, not
+        # even at low confidence, when a real compendium exists to check
+        # against. Needs without a real compendium (healing_cleric,
+        # taunt_disruption) are unaffected -- there's nothing to
+        # restrict against for those.
+        if has_real_compendium:
             continue
         if not _raw_claim_survives_rejection(
             need, row.species, tuple(rejected), state=state

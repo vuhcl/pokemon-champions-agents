@@ -2076,3 +2076,53 @@ def test_select_diverse_candidates_combines_track_labels_for_multi_signal_defaul
     assert result["tracks"]["Sylveon"] == (
         "threat coverage + type synergy + support/utility"
     )
+
+
+def test_multi_signal_default_requires_strong_evidence_not_just_top3():
+    """Regression, confirmed live: Gholdengo's screens match was
+    trigger=None (already downgraded to low confidence by an earlier
+    fix), yet Gholdengo still won default status as "genuinely multi-
+    signal" purely by ranking top-3 within Category B -- possible only
+    because screens' unconditional generation means many candidates
+    share that same low-confidence floor, making "top 3 of a category
+    where everyone is weak" look identical to genuine multi-dimensional
+    strength. A weak Category B match must not inflate multi-signal
+    status; only strong (confidence != low) evidence should count.
+    """
+    strong_a_only = _synth_category_a(
+        "Garchomp", (("t1", "clean_kill", "decisive"),)
+    )
+    weak_evidence = CandidateEvidence(
+        basis="mechanical_only",
+        confidence="low",
+        producer_name="test",
+        branch="need",
+    )
+    weak_multi = AnnotatedCandidate(
+        species="Gholdengo",
+        matching_needs=(_need("screens"),),
+        source="both",
+        threat_row=_counter(
+            "Gholdengo", outcome="clean_kill", severity="decisive", usage_rank=1
+        ),
+        spec={"species": "Gholdengo"},
+        evidence=(weak_evidence,),
+        branches=frozenset({"threat", "need"}),
+    )
+    other_b = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(weak_evidence,),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates(
+        [strong_a_only, weak_multi, other_b], (), n_alternatives=2
+    )
+    # Gholdengo must NOT get the combined "threat coverage + support/
+    # utility" label -- its screens evidence is too weak to count.
+    assert result["tracks"].get("Gholdengo") != (
+        "threat coverage + type synergy + support/utility"
+    )

@@ -26,6 +26,7 @@ from recommender.slot_fill import (
     _FO_PROTECTION_ABILITIES,
     _NEED_SATISFIERS,
     _NEED_TARGET_ROLES,
+    _compendium_roles_for_need,
     _redundancy_tier_for_candidates,
     _sort_annotated,
     _threat_evidence,
@@ -1281,7 +1282,14 @@ def test_resolve_all_and_merge_without_chosen_need():
     assert any(r.source in ("need", "both") for r in rows)
 
 
-def test_compendium_candidates_lead_stronger_raw_move_evidence():
+def test_compendium_species_not_diluted_by_unrecognized_raw_move_species():
+    """Behavior changed intentionally, not a regression: trick_room now
+    has a real compendium mapping, so a genuinely different species
+    found only via raw-move search ("Raw Ace", never appearing in the
+    compendium at all) is no longer added alongside the real,
+    compendium-backed candidate -- confirmed live: a need with a real
+    compendium should only surface candidates it actually recognizes,
+    same principle as excluding Gholdengo from screens."""
     need = _trick_room_need()
     admitted = CompendiumRoleEvidence(
         species="Verified Setter",
@@ -1308,13 +1316,23 @@ def test_compendium_candidates_lead_stronger_raw_move_evidence():
     ):
         rows = resolve_need_candidates(need, _base_state())
 
-    assert [row.species for row in rows] == ["Verified Setter", "Raw Ace"]
+    assert [row.species for row in rows] == ["Verified Setter"]
     assert rows[0].evidence[0].basis == "compendium_backed"
-    assert rows[1].evidence[0].basis == "usage_backed"
 
 
 def test_species_popularity_alone_is_not_usage_backed_execution_evidence():
-    need = _trick_room_need()
+    """Uses healing_cleric, not trick_room -- trick_room now has a real
+    compendium mapping and skips the raw-move fallback entirely for
+    non-compendium species, so it can no longer exercise this test's
+    actual purpose (raw-move resolution's own popularity-vs-commitment
+    distinction). healing_cleric has no real compendium category and
+    still uses the raw-move path unrestricted."""
+    need = SupportNeed(
+        category="healing_cleric",
+        name="Healing / cleric support",
+        description="x",
+        trigger="tank_no_self_heal",
+    )
     raw = NarrowResult(
         candidates=["Popular Learner"],
         stopped_at=3,
@@ -1337,6 +1355,15 @@ def test_species_popularity_alone_is_not_usage_backed_execution_evidence():
 
 
 def test_full_role_rejection_is_not_reintroduced_by_raw_move_search():
+    """Behavior changed intentionally, not a regression: trick_room now
+    has a real compendium mapping, so the raw-move fallback is skipped
+    entirely for it, not just for rejected species specifically. Even a
+    genuinely new, non-rejected species ("Raw Setter") found only via
+    raw-move search no longer gets added -- confirmed live: a need with
+    a real compendium to check against should only surface candidates
+    the compendium actually recognizes, the same principle behind
+    excluding Gholdengo from screens despite mechanically learning the
+    moves."""
     need = _trick_room_need()
     rejected = CompendiumRoleEvidence(
         species="Rejected Setter",
@@ -1360,11 +1387,17 @@ def test_full_role_rejection_is_not_reintroduced_by_raw_move_search():
     ):
         rows = resolve_need_candidates(need, _base_state())
 
-    assert [row.species for row in rows] == ["Raw Setter"]
+    assert [row.species for row in rows] == []
 
 
 def test_unmapped_need_keeps_raw_resolution_without_compendium_query():
-    need = SupportNeed("tailwind", "Tailwind", "Needs Tailwind", "speed_tier:middling")
+    """Uses taunt_disruption, not tailwind -- tailwind now has a real
+    compendium mapping (tailwind_setter), so it's no longer an example
+    of an unmapped need. taunt_disruption genuinely has no compendium
+    category and still skips the compendium query entirely."""
+    need = SupportNeed(
+        "taunt_disruption", "Taunt disruption", "Needs Taunt", None
+    )
     with (
         patch("recommender.slot_fill.role_category_evidence") as compendium,
         patch(
@@ -1836,3 +1869,66 @@ def test_resolve_all_support_needs_downgrades_confidence_for_untriggered_needs()
     # confidence -- confirms the downgrade is genuinely conditional on
     # trigger, not applied blanket to every need.
     assert any(e.confidence != "low" for e in tr_evidence)
+
+
+def test_screens_excludes_species_not_in_compendium_even_if_mechanically_capable():
+    """Regression, confirmed live: Gholdengo mechanically learns Light
+    Screen and Reflect, but is genuinely not a recognized screens user
+    in the real compendium. It must not match the screens need at all,
+    not even at low/mechanical_only confidence -- confirmed as the
+    right design directly: a need with a real compendium to check
+    against should only surface candidates the compendium actually
+    recognizes."""
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    names = resolve_need_candidates(need, _base_state())
+    ids = {to_id(row.species) for row in names}
+    assert "gholdengo" not in ids
+
+
+def test_tailwind_need_now_uses_real_compendium():
+    """Regression, confirmed live: tailwind had no compendium mapping at
+    all before this fix -- every match, including a real, recognized
+    "Good"-tier setter like Staraptor-Mega, only ever got raw-move
+    (mechanical_only) evidence. Confirms the new mapping surfaces real
+    compendium-backed evidence at the correct tier-derived confidence."""
+    need = SupportNeed(
+        category="tailwind",
+        name="Tailwind",
+        description="x",
+        trigger="speed_tier:middling",
+    )
+    names = resolve_need_candidates(need, _base_state())
+    by_id = {to_id(row.species): row for row in names}
+    staraptor_mega = by_id.get("staraptormega")
+    assert staraptor_mega is not None
+    assert any(e.basis == "compendium_backed" for e in staraptor_mega.evidence)
+    assert any(
+        "tier:Good" in tag
+        for e in staraptor_mega.evidence
+        for tag in e.evidence
+    )
+
+
+def test_fake_out_protection_has_no_compendium_mapping():
+    """Regression, confirmed live: redirection can't stop Fake Out
+    (higher priority than redirection moves), so the previous
+    fake_out_protection -> redirection compendium mapping was
+    mechanically wrong. No real "priority protection" compendium
+    category exists either (confirmed directly against real compendium
+    data -- would only have 2 candidates even if it did, not
+    representative enough to restrict against). fake_out_protection now
+    has no compendium mapping at all, same as healing_cleric/
+    taunt_disruption, and stays on the raw-move/ability path
+    unrestricted."""
+    need = SupportNeed(
+        category="fake_out_protection",
+        name="Fake Out protection",
+        description="x",
+        trigger="requires_setup_turn:fake_out",
+    )
+    assert _compendium_roles_for_need(need) == []
