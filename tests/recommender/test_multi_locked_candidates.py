@@ -1901,6 +1901,24 @@ def test_select_diverse_candidates_dedupes_by_lineage_not_exact_species_id():
         seen_lineages.append(lineage)
 
 
+def _condition_beneficiary_evidence(
+    basis: str = "mechanical_only", confidence: str = "high"
+) -> CandidateEvidence:
+    """Matches real production evidence shape from
+    resolve_condition_beneficiaries -- includes the 'need:
+    condition_beneficiary' tag the scoping logic in
+    _need_branch_evidence requires to correctly distinguish Category C
+    from Category B evidence, unlike the generic _evidence() helper,
+    which doesn't set any evidence tags at all."""
+    return CandidateEvidence(
+        basis=basis,  # type: ignore[arg-type]
+        confidence=confidence,  # type: ignore[arg-type]
+        producer_name="test",
+        branch="need",
+        evidence=("need:condition_beneficiary", "condition:Rain"),
+    )
+
+
 def test_select_diverse_candidates_picks_from_each_nonempty_category():
     """End-to-end: with real candidates present in all three categories,
     confirms the selection draws from more than just one category rather
@@ -1923,7 +1941,7 @@ def test_select_diverse_candidates_picks_from_each_nonempty_category():
         source="need",
         threat_row=None,
         spec={"species": "Basculegion"},
-        evidence=(_evidence("mechanical_only"),),
+        evidence=(_condition_beneficiary_evidence(),),
         branches=frozenset({"need"}),
     )
     result = select_diverse_candidates(
@@ -2027,7 +2045,7 @@ def test_select_diverse_candidates_returns_track_labels():
         source="need",
         threat_row=None,
         spec={"species": "Basculegion"},
-        evidence=(_evidence("mechanical_only"),),
+        evidence=(_condition_beneficiary_evidence(),),
         branches=frozenset({"need"}),
     )
     result = select_diverse_candidates(
@@ -2185,3 +2203,67 @@ def test_select_diverse_candidates_still_includes_genuinely_strong_category_b():
     )
     result = select_diverse_candidates([strong_b], (), n_alternatives=2)
     assert result["default"] == "Grimmsnarl"
+
+
+def test_rank_by_need_evidence_scoped_to_relevant_category_not_full_evidence():
+    """Regression, confirmed live: a candidate's strong, unrelated
+    evidence (e.g. real threat-counter data) mixed into its overall
+    evidence tuple was incorrectly letting it pass Category B's
+    confidence gate and rank highly within it, even though its actual,
+    genuinely weak support-need evidence never should have qualified on
+    its own. Same class of bug as the earlier evidence-display scoping
+    fix, but here affecting the underlying selection logic itself, not
+    just what gets displayed afterward.
+    """
+    strong_threat_evidence = CandidateEvidence(
+        basis="usage_backed",
+        confidence="high",
+        producer_name="query_counters",
+        branch="threat",
+        evidence=("usage:sylveon",),
+    )
+    weak_need_evidence = CandidateEvidence(
+        basis="mechanical_only",
+        confidence="low",
+        producer_name="test",
+        branch="need",
+        evidence=("need:healing_cleric", "trigger:tank_no_self_heal", "move:wish"),
+    )
+    sylveon_shaped = AnnotatedCandidate(
+        species="Sylveon",
+        matching_needs=(_need("healing_cleric"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Sylveon"},
+        evidence=(strong_threat_evidence, weak_need_evidence),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates([sylveon_shaped], (), n_alternatives=2)
+    assert result["default"] is None
+    assert result["alternatives"] == []
+
+
+def test_rank_by_need_evidence_correctly_distinguishes_b_and_c_scoping():
+    """Confirms _need_branch_evidence's condition_beneficiary parameter
+    actually changes which evidence counts -- a candidate whose only
+    strong evidence is condition_beneficiary-tagged should qualify for
+    Category C but not Category B, and vice versa."""
+    condition_evidence = CandidateEvidence(
+        basis="mechanical_only",
+        confidence="high",
+        producer_name="test",
+        branch="need",
+        evidence=("need:condition_beneficiary", "condition:Rain"),
+    )
+    rain_only = AnnotatedCandidate(
+        species="Basculegion",
+        matching_needs=(_need("condition_beneficiary"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Basculegion"},
+        evidence=(condition_evidence,),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates([rain_only], (), n_alternatives=2)
+    assert result["default"] == "Basculegion"
+    assert result["tracks"]["Basculegion"] == "condition synergy"

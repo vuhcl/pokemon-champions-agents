@@ -987,19 +987,51 @@ def _rank_category_a(
     return [item[0] for item in sorted(scored, key=sort_key)]
 
 
-def _rank_by_need_evidence(candidates: list[AnnotatedCandidate]) -> list[AnnotatedCandidate]:
+def _need_branch_evidence(
+    c: AnnotatedCandidate, *, condition_beneficiary: bool
+) -> tuple[CandidateEvidence, ...]:
+    """Scopes a candidate's evidence to the specific category (B or C)
+    being evaluated, not the candidate's full, unscoped evidence tuple.
+
+    Confirmed live, a real bug: a candidate with strong, unrelated
+    evidence (e.g. real threat-counter data) mixed into its overall
+    evidence tuple was incorrectly ranking high within -- and passing
+    the confidence gate for -- Category B/C based on that unrelated
+    evidence, not its actual, genuinely weak support-need match. Same
+    class of bug as the earlier evidence-display scoping fix, but here
+    affecting the underlying ranking/gating logic itself, not just what
+    gets shown afterward -- confirmed both needed the same fix, not
+    just the display layer.
+    """
+    return tuple(
+        item
+        for item in c.evidence
+        if item.branch == "need"
+        and (
+            any("need:condition_beneficiary" in tag for tag in item.evidence)
+            == condition_beneficiary
+        )
+    )
+
+
+def _rank_by_need_evidence(
+    candidates: list[AnnotatedCandidate], *, condition_beneficiary: bool = False
+) -> list[AnnotatedCandidate]:
     """Categories B (support-needs) and C (condition-benefit) share the
     same ranking approach: best evidence quality (reusing the same
     _BASIS_RANK/_CONFIDENCE_RANK convention _rank_key already uses),
-    shared-teammate correlation as the secondary tie-break.
+    shared-teammate correlation as the secondary tie-break. Scoped to
+    the relevant category's own evidence via _need_branch_evidence, not
+    the candidate's full evidence tuple.
     """
     def sort_key(c: AnnotatedCandidate):
+        relevant = _need_branch_evidence(c, condition_beneficiary=condition_beneficiary)
         best = (
             max(
                 (_BASIS_RANK[item.basis], _CONFIDENCE_RANK[item.confidence])
-                for item in c.evidence
+                for item in relevant
             )
-            if c.evidence
+            if relevant
             else (0, 0)
         )
         return (-best[0], -best[1], _shared_teammate_tiebreak(c))
@@ -1076,8 +1108,9 @@ def select_diverse_candidates(
 
     ranked_a = _rank_category_a(category_a, locked_types_list)
 
-    def _has_strong_evidence(c: AnnotatedCandidate) -> bool:
-        return any(item.confidence != "low" for item in c.evidence)
+    def _has_strong_evidence(c: AnnotatedCandidate, *, condition_beneficiary: bool) -> bool:
+        relevant = _need_branch_evidence(c, condition_beneficiary=condition_beneficiary)
+        return any(item.confidence != "low" for item in relevant)
 
     # Categories B/C are filtered to strong evidence (confidence != low)
     # immediately after ranking -- confirmed live, a real, deliberate
@@ -1095,8 +1128,16 @@ def select_diverse_candidates(
     # simply contributes nothing here -- existing fallback logic below
     # (default falls through A -> B -> C; alternatives skip empty
     # categories naturally) already handles an empty category correctly.
-    ranked_b = [c for c in _rank_by_need_evidence(category_b) if _has_strong_evidence(c)]
-    ranked_c = [c for c in _rank_by_need_evidence(category_c) if _has_strong_evidence(c)]
+    ranked_b = [
+        c
+        for c in _rank_by_need_evidence(category_b, condition_beneficiary=False)
+        if _has_strong_evidence(c, condition_beneficiary=False)
+    ]
+    ranked_c = [
+        c
+        for c in _rank_by_need_evidence(category_c, condition_beneficiary=True)
+        if _has_strong_evidence(c, condition_beneficiary=True)
+    ]
     ranked_by_category = {"A": ranked_a, "B": ranked_b, "C": ranked_c}
 
     # Multi-category default: a candidate confirmed in the top-3 of more
