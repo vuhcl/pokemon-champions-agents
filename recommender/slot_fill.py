@@ -181,6 +181,7 @@ class SlotFillContext:
     threat_discovery_error: CandidateDiscoveryError | None = None
     notices: tuple[str, ...] = ()
     condition_resilience: ConditionResilienceReport | None = None
+    locked_contexts: tuple[LockedAnchorContext, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1582,8 +1583,24 @@ def present_candidates(
 ) -> SlotFillPresentation:
     rows = _ordered_annotated(ctx)
     names = [r.species for r in rows]
-    tier_for = _redundancy_tier_for_candidates(rows, ctx.condition_resilience)
-    picked = pick_default_and_alternatives(names, redundancy_tier=tier_for)
+    if ctx.locked_contexts:
+        # Multi-signal, per-category selection (select_diverse_candidates)
+        # replaces the single-ranking + redundancy-tier approach here --
+        # confirmed with Vu directly, following extensive live evidence
+        # that a single ranking kept surfacing narrow or context-blind
+        # candidate sets even after several real ranking bugs were fixed.
+        # Deliberately scoped to the multi-locked path only (non-empty
+        # locked_contexts): its three categories (type-synergy+threat-
+        # counter, support-needs, condition-benefit) are built around
+        # signals that are only meaningful once multiple team members
+        # already exist to create real type/condition interactions --
+        # single-locked keeps the older approach unchanged.
+        from recommender.team_candidates import select_diverse_candidates
+
+        picked = select_diverse_candidates(rows, ctx.locked_contexts)
+    else:
+        tier_for = _redundancy_tier_for_candidates(rows, ctx.condition_resilience)
+        picked = pick_default_and_alternatives(names, redundancy_tier=tier_for)
     default = picked.get("default")
     alts = list(picked.get("alternatives") or [])
     options: list[str] = []

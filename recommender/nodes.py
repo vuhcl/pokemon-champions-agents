@@ -3063,6 +3063,7 @@ def discover_multi_locked(
             candidates_pre_ranked=True,
             notices=mega_ceiling_notices(state),
             condition_resilience=resilience,
+            locked_contexts=tuple(contexts),
         ),
         state,
         slot_index=slot_index,

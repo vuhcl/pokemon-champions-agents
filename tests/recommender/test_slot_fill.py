@@ -1727,3 +1727,63 @@ def test_redundancy_tier_non_condition_role_is_always_tier_0():
 def test_redundancy_tier_none_resilience_returns_empty():
     rows = [_redundancy_test_row("Garchomp", "fast_physical_attacker")]
     assert _redundancy_tier_for_candidates(rows, None) == {}
+
+
+def test_present_candidates_routes_through_select_diverse_candidates_when_locked_contexts_present():
+    """Confirms the actual wiring, not just that it doesn't crash: when
+    locked_contexts is populated (the multi-locked path), present_candidates
+    must call select_diverse_candidates -- the multi-signal, per-category
+    selection built and validated earlier in this investigation --
+    rather than the older single-ranking + redundancy-tier approach.
+    """
+    rows = [
+        AnnotatedCandidate(
+            species="Garchomp",
+            matching_needs=(),
+            source="threat",
+            spec={"species": "Garchomp"},
+            evidence=(),
+        ),
+    ]
+    ctx = SlotFillContext(
+        anchor=None,
+        role_shape_context=None,
+        annotated_candidates=rows,
+        candidates_pre_ranked=True,
+        locked_contexts=(object(),),  # non-empty is all the branch checks
+    )
+    with patch(
+        "recommender.team_candidates.select_diverse_candidates",
+        return_value={"default": "Garchomp", "alternatives": []},
+    ) as mocked:
+        presentation = present_candidates(ctx, slot_index=0)
+    mocked.assert_called_once()
+    assert presentation.default == "Garchomp"
+
+
+def test_present_candidates_uses_old_path_when_locked_contexts_empty():
+    """Confirms the routing is genuinely conditional -- with no
+    locked_contexts (the single/zero-locked case, matching every existing
+    present_candidates test in this file), the older redundancy-tier
+    approach must still be used, not select_diverse_candidates."""
+    rows = [
+        AnnotatedCandidate(
+            species="Garchomp",
+            matching_needs=(),
+            source="threat",
+            spec={"species": "Garchomp"},
+            evidence=(),
+        ),
+    ]
+    ctx = SlotFillContext(
+        anchor=None,
+        role_shape_context=None,
+        annotated_candidates=rows,
+        candidates_pre_ranked=True,
+    )
+    with patch(
+        "recommender.team_candidates.select_diverse_candidates"
+    ) as mocked:
+        presentation = present_candidates(ctx, slot_index=0)
+    mocked.assert_not_called()
+    assert presentation.default == "Garchomp"
