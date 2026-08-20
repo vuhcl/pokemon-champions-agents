@@ -1304,6 +1304,18 @@ def resolve_all_support_needs(
         for row in names:
             sid = to_id(row.species)
             subject_id = f"{need.category}:{to_id(need.trigger or '')}"
+            # Confidence reflects where this match falls on the broad-to-
+            # specific spectrum, not just whether real data backs it.
+            # Confirmed directly: needs generated without a specific
+            # trigger (e.g. healing_cleric/screens' unconditional
+            # "attacker-universal" fallback) are real but weak, non-
+            # discriminating signals -- almost any offense-shaped anchor
+            # "benefits somewhat", which isn't the same as a genuinely
+            # specific reason (a tanky anchor with no self-heal, a
+            # particular speed tier). basis is left untouched -- the
+            # DATA SOURCE isn't questionable here the way a weather-
+            # conflicted move is, only the match's specificity is.
+            confidence_override = "low" if need.trigger is None else None
             evidence = tuple(
                 replace(
                     item,
@@ -1315,6 +1327,11 @@ def resolve_all_support_needs(
                         anchored.anchor_id if anchored is not None else None
                     ),
                     subject_id=subject_id,
+                    confidence=(
+                        confidence_override
+                        if confidence_override is not None
+                        else item.confidence
+                    ),
                 )
                 for item in row.evidence
             )
