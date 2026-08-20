@@ -1608,6 +1608,48 @@ def _redundancy_tier_for_candidates(
     return tiers
 
 
+def _scoped_evidence(
+    evidence: tuple[CandidateEvidence, ...], category_keys: list[str]
+) -> tuple[CandidateEvidence, ...]:
+    """Filters a candidate's full evidence tuple down to only the
+    item(s) relevant to the track(s) it actually won, so the displayed
+    evidence corresponds to why the candidate is being shown -- not the
+    single highest-quality item across every need it happens to satisfy
+    regardless of relevance.
+
+    Confirmed live, a real bug: a candidate labeled "support/utility"
+    displayed "usage_backed, high confidence" -- evidence that turned
+    out to belong to its (unrelated, unlabeled) threat-counter data, not
+    its actual support-need match, which was really mechanical_only/low.
+    The label and the evidence told two different, inconsistent stories.
+
+    Category A evidence has branch="threat"; categories B and C both
+    have branch="need" (support-needs and condition-benefit are both
+    resolved through the same need-resolution machinery) -- C is
+    distinguished from B via the "need:condition_beneficiary" evidence
+    tag specifically, confirmed against real evidence data before
+    relying on it.
+    """
+    if not category_keys or not evidence:
+        return evidence
+    wants_a = "A" in category_keys
+    wants_b = "B" in category_keys
+    wants_c = "C" in category_keys
+    scoped = tuple(
+        item
+        for item in evidence
+        if (wants_a and item.branch == "threat")
+        or (
+            item.branch == "need"
+            and (
+                (wants_c and any("need:condition_beneficiary" in tag for tag in item.evidence))
+                or (wants_b and not any("need:condition_beneficiary" in tag for tag in item.evidence))
+            )
+        )
+    )
+    return scoped or evidence
+
+
 def present_candidates(
     ctx: SlotFillContext, *, slot_index: int
 ) -> SlotFillPresentation:
@@ -1634,6 +1676,7 @@ def present_candidates(
     default = picked.get("default")
     alts = list(picked.get("alternatives") or [])
     tracks: dict[str, str] = picked.get("tracks") or {}
+    category_keys: dict[str, list[str]] = picked.get("category_keys") or {}
     options: list[str] = []
     if default:
         options.append(default)
@@ -1645,7 +1688,10 @@ def present_candidates(
             PresentedCandidate(
                 species=species,
                 source=by_species[to_id(species)].source,
-                evidence=by_species[to_id(species)].evidence,
+                evidence=_scoped_evidence(
+                    by_species[to_id(species)].evidence,
+                    category_keys.get(species, []),
+                ),
                 track=tracks.get(species),
             )
             for species in options

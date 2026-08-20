@@ -1174,17 +1174,21 @@ def select_diverse_candidates(
                 break
 
     tracks: dict[str, str] = {}
+    category_keys: dict[str, list[str]] = {}
     if default is not None:
         tracks[default.species] = " + ".join(
             _TRACK_LABELS[key] for key in default_categories
         )
+        category_keys[default.species] = default_categories
     for c, key in zip(alternatives, alternative_categories):
         tracks[c.species] = _TRACK_LABELS[key]
+        category_keys[c.species] = [key]
 
     return {
         "default": default.species if default is not None else None,
         "alternatives": [c.species for c in alternatives[:n_alternatives]],
         "tracks": tracks,
+        "category_keys": category_keys,
     }
 
 

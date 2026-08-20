@@ -28,6 +28,7 @@ from recommender.slot_fill import (
     _NEED_TARGET_ROLES,
     _compendium_roles_for_need,
     _redundancy_tier_for_candidates,
+    _scoped_evidence,
     _sort_annotated,
     _threat_evidence,
     _union_move_candidates,
@@ -1932,3 +1933,93 @@ def test_fake_out_protection_has_no_compendium_mapping():
         trigger="requires_setup_turn:fake_out",
     )
     assert _compendium_roles_for_need(need) == []
+
+
+def _threat_evidence_row() -> CandidateEvidence:
+    return CandidateEvidence(
+        basis="usage_backed",
+        confidence="high",
+        producer_name="query_counters",
+        branch="threat",
+        evidence=("usage:test",),
+    )
+
+
+def _need_evidence_row(condition_beneficiary: bool = False) -> CandidateEvidence:
+    tag = "need:condition_beneficiary" if condition_beneficiary else "need:healing_cleric"
+    return CandidateEvidence(
+        basis="mechanical_only",
+        confidence="low",
+        producer_name="test",
+        branch="need",
+        evidence=(tag,),
+    )
+
+
+def test_scoped_evidence_shows_real_matching_needs_evidence_not_unrelated_threat_evidence():
+    """Regression, confirmed live: a candidate labeled "support/utility"
+    displayed 'usage_backed, high confidence' -- evidence that actually
+    belonged to its unrelated threat-counter data, while its real
+    support-need match was genuinely mechanical_only/low. The label and
+    the displayed evidence told two different, inconsistent stories.
+    Confirms scoping to Category B specifically surfaces the real,
+    weaker matching_needs evidence, not the stronger but irrelevant one.
+    """
+    full_evidence = (_threat_evidence_row(), _need_evidence_row())
+    scoped = _scoped_evidence(full_evidence, ["B"])
+    assert scoped == (_need_evidence_row(),)
+
+
+def test_scoped_evidence_shows_threat_evidence_for_category_a_only():
+    full_evidence = (_threat_evidence_row(), _need_evidence_row())
+    scoped = _scoped_evidence(full_evidence, ["A"])
+    assert scoped == (_threat_evidence_row(),)
+
+
+def test_scoped_evidence_includes_all_relevant_categories_for_multi_signal():
+    """A genuinely multi-signal candidate (strong in more than one
+    category) should show evidence from every category it's labeled
+    for, not just one."""
+    full_evidence = (_threat_evidence_row(), _need_evidence_row())
+    scoped = _scoped_evidence(full_evidence, ["A", "B"])
+    assert set(scoped) == {_threat_evidence_row(), _need_evidence_row()}
+
+
+def test_scoped_evidence_distinguishes_condition_benefit_from_support_need():
+    """Category B and C both use branch='need' -- confirms they're
+    correctly told apart via the need:condition_beneficiary tag, not
+    conflated just because they share a branch value."""
+    need_row = _need_evidence_row(condition_beneficiary=False)
+    benefit_row = _need_evidence_row(condition_beneficiary=True)
+    full_evidence = (need_row, benefit_row)
+
+    scoped_b = _scoped_evidence(full_evidence, ["B"])
+    assert scoped_b == (need_row,)
+
+    scoped_c = _scoped_evidence(full_evidence, ["C"])
+    assert scoped_c == (benefit_row,)
+
+
+def test_scoped_evidence_falls_back_to_full_evidence_when_nothing_matches():
+    """If filtering would produce an empty result (e.g. all evidence is
+    teammate-branched, which doesn't correspond to any A/B/C track),
+    falls back to the full, unfiltered evidence rather than silently
+    showing nothing."""
+    teammate_only = (
+        CandidateEvidence(
+            basis="teammate_backed",
+            confidence="medium",
+            producer_name="query_shared_teammates",
+            branch="teammate",
+        ),
+    )
+    scoped = _scoped_evidence(teammate_only, ["A"])
+    assert scoped == teammate_only
+
+
+def test_scoped_evidence_returns_full_evidence_when_no_category_keys():
+    """No category_keys at all (e.g. the older, single-locked path that
+    never sets this) -- returns the evidence unchanged, same as before
+    this fix existed."""
+    full_evidence = (_threat_evidence_row(), _need_evidence_row())
+    assert _scoped_evidence(full_evidence, []) == full_evidence
