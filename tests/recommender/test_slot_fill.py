@@ -2048,3 +2048,50 @@ def test_ability_based_condition_beneficiary_gets_high_not_low_confidence():
     ]
     assert ability_evidence
     assert all(ev.confidence == "high" for ev in ability_evidence)
+
+
+def test_wish_only_healer_gets_downgraded_for_delayed_delivery():
+    """Regression, confirmed live: Wish doesn't heal immediately -- it
+    heals whoever is on the field one turn later, which in practice
+    means switching the Wish-user out and the intended target in. That
+    costs a real, vulnerable switch-in turn (the incoming Pokemon can't
+    attack, since switching consumes the turn) and loses any stat boosts
+    the switched-out user had. A real, structural delivery cost the
+    plain "does it satisfy the need" check doesn't capture on its own.
+    Confirmed a real species (Sylveon, whose only healing_cleric move is
+    Wish) gets downgraded with an explicit, transparent tag.
+    """
+    need = SupportNeed(
+        category="healing_cleric",
+        name="Healing / cleric support",
+        description="x",
+        trigger="tank_no_self_heal",
+    )
+    names = resolve_need_candidates(need, _base_state())
+    by_id = {to_id(row.species): row for row in names}
+    sylveon = by_id.get("sylveon")
+    assert sylveon is not None
+    assert all(e.confidence == "low" for e in sylveon.evidence)
+    assert any(
+        "delayed_delivery:wish" in e.evidence for e in sylveon.evidence
+    )
+
+
+def test_candidate_with_real_immediate_heal_option_not_downgraded_for_wish():
+    """Confirms the downgrade is targeted, not blanket -- a candidate
+    that also knows a real immediate-heal move (Heal Pulse, Life Dew)
+    must not be downgraded just because it ALSO happens to know Wish,
+    since it has a better delivery option available regardless."""
+    need = SupportNeed(
+        category="healing_cleric",
+        name="Healing / cleric support",
+        description="x",
+        trigger="tank_no_self_heal",
+    )
+    names = resolve_need_candidates(need, _base_state())
+    by_id = {to_id(row.species): row for row in names}
+    clefable = by_id.get("clefable")
+    assert clefable is not None
+    assert not any(
+        "delayed_delivery:wish" in e.evidence for e in clefable.evidence
+    )

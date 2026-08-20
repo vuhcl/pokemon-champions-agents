@@ -102,6 +102,20 @@ _NEED_SATISFIERS: dict[NeedCategory, _NeedSatisfier] = {
     "condition_setter": _NeedSatisfier(abilities=frozenset(ABILITY_TO_FIELD)),
 }
 
+# Moves that mechanically satisfy a need but have a real, structural
+# delivery cost the plain "does it satisfy the need" check doesn't
+# capture -- confirmed directly, not assumed: Wish doesn't heal
+# immediately, it heals whoever is on the field one turn later. In
+# practice that means switching the Wish-user out and the intended
+# target in, costing a real, vulnerable switch-in turn (the incoming
+# Pokemon can't attack, since switching consumes the turn) and losing
+# any stat boosts the switched-out user had. A real, structural cost
+# compared to an immediate-heal move (Heal Pulse, Aromatherapy, Heal
+# Bell, Life Dew).
+_DELAYED_DELIVERY_MOVES: dict[NeedCategory, frozenset[str]] = {
+    "healing_cleric": frozenset({"wish"}),
+}
+
 
 @dataclass(frozen=True)
 class AnnotatedCandidate:
@@ -1279,6 +1293,53 @@ def resolve_need_candidates(
                 )
             )
         rows = adjusted_rows
+
+    if need.category in _DELAYED_DELIVERY_MOVES:
+        # Wish's real mechanical drawback, confirmed directly, not
+        # assumed: it doesn't heal immediately -- the healing lands one
+        # turn later, on whoever is on the field then. In practice that
+        # means switching the Wish-user OUT and the intended target IN,
+        # which costs a real, vulnerable switch-in turn (the incoming
+        # Pokemon can't attack that turn, since switching consumes it),
+        # and any stat boosts the switched-out Wish-user had are lost.
+        # This is a real, structural cost compared to an immediate-heal
+        # move (Heal Pulse, Aromatherapy, Heal Bell, Life Dew), not
+        # captured by the mechanical "does it satisfy the need" check
+        # alone. Downgraded the same way as the weather-conflict case --
+        # deprioritize, don't exclude, since Wish is still a real,
+        # legitimate option when nothing better is available. Only
+        # downgraded when EVERY healing_cleric-satisfying move a
+        # candidate has is Wish -- a candidate that also knows a real
+        # immediate-heal move is untouched, since it has a better
+        # delivery option available regardless of also knowing Wish.
+        delayed_moves = _DELAYED_DELIVERY_MOVES[need.category]
+        adjusted_rows = []
+        for row in rows:
+            move_ids = {
+                to_id(tag.removeprefix("move:"))
+                for item in row.evidence
+                for tag in item.evidence
+                if tag.startswith("move:")
+            }
+            if not move_ids or not move_ids <= delayed_moves:
+                adjusted_rows.append(row)
+                continue
+            downgraded_evidence = tuple(
+                replace(
+                    item,
+                    basis="mechanical_only",
+                    confidence="low",
+                    evidence=item.evidence + ("delayed_delivery:wish",),
+                )
+                for item in row.evidence
+            )
+            adjusted_rows.append(
+                NeedResolvedCandidate(
+                    row.species, row.matching_needs, downgraded_evidence, row.anchored_needs
+                )
+            )
+        rows = adjusted_rows
+
     if ownership_mode == "owned_only":
         rows = [row for row in rows if to_id(row.species) in available_species]
     elif ownership_mode == "owned_first":
