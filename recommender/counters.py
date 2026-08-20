@@ -318,18 +318,38 @@ def defensive_synergy_score(
        objectively worse), scaled by how severe the weakness is (a 4x
        weakness costs more than a 2x one) -- NOT a flat penalty
        regardless of magnitude, which was a real bug caught and fixed
-       during validation (it let a severe 4x weakness `pile up`
-       stacking weaknesses without being penalized any more than a mild
-       2x one).
+       during validation (it let a severe 4x weakness pile up stacking
+       weaknesses without being penalized any more than a mild 2x one).
+    4. Baseline-penalty mitigation: confirmed live, a real gap -- a
+       candidate adding a weakness the locked team already RESISTS or is
+       IMMUNE to (not just "doesn't share") was penalized the same as
+       adding a weakness with zero team backup at all. Real example:
+       Sylveon adding Steel/Poison weaknesses to a team where Archaludon
+       is immune to Poison and both Archaludon and Pelipper resist Steel
+       -- the team as a whole isn't actually exposed there even though
+       Sylveon itself is. The baseline penalty (point 3) is scaled down
+       by the team's best (lowest) multiplier for that type when it's
+       genuinely below neutral -- full backup (immune, 0x) all but zeroes
+       the penalty; partial backup (resist, 0.5x) roughly halves it.
+       Deliberately separate from the compounding penalty (point 1) and
+       coverage bonus (point 2), which already handle the "team also
+       weak" and "candidate covers team's weakness" directions -- this
+       is the third, previously-missing direction: "team already backs
+       up the candidate's own weakness."
 
     Explicitly bounded, not a complete answer on its own: confirmed via
     the same 16-species validation that this signal alone gets roughly
     60-70% accuracy against real known teammates -- it has no visibility
     into role/utility (a screens setter's value), condition-synergy
     (a Rain-boosted attacker's real offensive upside), or meta-context
-    (countering what OTHER teams commonly run). Meant to be one signal
-    among several (see team_candidates.py's per-category candidate
-    selection), not a dominant or standalone ranking factor.
+    (countering what OTHER teams commonly run). Confirmed directly that
+    the baseline-penalty-mitigation refinement (point 4) does NOT change
+    this accuracy figure on the original 16-species validation set --
+    its real misses (Grimmsnarl, Basculegion, Metagross, Charizard-Mega-Y)
+    have a different root cause entirely, not addressed by this
+    refinement. Meant to be one signal among several (see
+    team_candidates.py's per-category candidate selection), not a
+    dominant or standalone ranking factor.
     """
     if not locked_types_list:
         return 0.0
@@ -342,7 +362,11 @@ def defensive_synergy_score(
         if cand_mult > 1.0:
             shared_weak_count = sum(1 for m in locked_mults if m > 1.0)
             score -= cand_mult * shared_weak_count
-            score -= (cand_mult - 1.0) * 0.5
+            baseline_penalty = (cand_mult - 1.0) * 0.5
+            team_best = min(locked_mults) if locked_mults else 1.0
+            if team_best < 1.0:
+                baseline_penalty *= team_best
+            score -= baseline_penalty
         if cand_mult < 1.0:
             worst_locked = max(locked_mults) if locked_mults else 1.0
             if worst_locked > 1.0:

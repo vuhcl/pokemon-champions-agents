@@ -451,7 +451,59 @@ def test_defensive_synergy_score_penalizes_weakness_severity_not_flat():
     the locked team at all (isolating severity from the compounding
     penalty entirely).
     """
-    locked = [["Fire"]]  # shares neither candidate's Grass weakness below
+    # Normal is genuinely neutral (1.0x) to Grass -- unlike an earlier
+    # version of this test that used Fire, which actually resists Grass
+    # (0.5x) and, after the backup-mitigation refinement, scaled both
+    # cases down to the same value, masking the severity difference this
+    # test exists to isolate. Confirmed directly before trusting it.
+    locked = [["Normal"]]
     four_x_grass_weak = defensive_synergy_score(["Water", "Ground"], locked)
     two_x_grass_weak = defensive_synergy_score(["Water"], locked)
     assert four_x_grass_weak < two_x_grass_weak
+
+
+def test_defensive_synergy_score_mitigates_baseline_penalty_when_team_has_real_backup():
+    """Regression, confirmed live: a candidate adding a weakness the
+    locked team already RESISTS or is IMMUNE to should not be penalized
+    the same as adding a weakness with zero team backup at all -- the
+    team as a whole isn't actually exposed there even though the
+    candidate itself is. Real example: Sylveon (Fairy) adds Steel and
+    Poison weaknesses to an Archaludon(Steel/Dragon)+Pelipper(Water/
+    Flying) team where Archaludon is immune to Poison and both
+    Archaludon and Pelipper resist Steel -- confirmed against the real
+    type chart before writing this test. Deliberately separate from the
+    compounding penalty and coverage bonus, which already handle "team
+    also weak" and "candidate covers team's weakness" -- this is the
+    third direction: "team already backs up the candidate's own
+    weakness."
+    """
+    locked = [["Steel", "Dragon"], ["Water", "Flying"]]  # Archaludon, Pelipper
+    sylveon_with_mitigation = defensive_synergy_score(["Fairy"], locked)
+    # Same weaknesses (Steel, Poison, both 2x), but against a locked team
+    # with genuinely zero relationship to either type -- confirms the
+    # mitigated score is meaningfully higher than what an unmitigated
+    # baseline penalty would have produced for the identical weaknesses.
+    neutral_locked = [["Normal"]]
+    sylveon_no_backup = defensive_synergy_score(["Fairy"], neutral_locked)
+    assert sylveon_with_mitigation > sylveon_no_backup
+
+
+def test_defensive_synergy_score_full_immunity_backs_up_more_than_partial_resist():
+    """Confirms immunity (0x) backup mitigates the baseline weakness
+    penalty more strongly than a plain resist (0.5x) does, for the same
+    added weakness.
+
+    Not a fully isolated single-effect test -- confirmed directly that
+    no such pairing exists in the real type chart without also
+    triggering some other real interaction (the compounding penalty or
+    coverage bonus), since types are too interconnected for a pure
+    single-effect example to exist. Ghost is immune to Fighting and
+    Flying resists it; Normal (weak only to Fighting) against each
+    isolates the weakness type itself even if other real terms also
+    contribute -- the comparison (immune backup scoring meaningfully
+    higher than resist backup) is what this test actually needs to hold,
+    not a claim of zero other interaction.
+    """
+    resist_backup = defensive_synergy_score(["Normal"], [["Flying"]])
+    immune_backup = defensive_synergy_score(["Normal"], [["Ghost"]])
+    assert immune_backup > resist_backup
