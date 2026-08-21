@@ -665,11 +665,13 @@ def annotate_composition_impact(
             decision.primary_function != "unknown"
             and primary_counts.get(decision.primary_function, 0) == 0
         )
-        fills_missing, fills_spof_backup = _candidate_fills_condition_gap(
-            decision,
-            condition_resilience,
-            candidate_build=build,
-            locked=locked,
+        fills_missing, fills_spof_backup, backup_conditions = (
+            _candidate_fills_condition_gap(
+                decision,
+                condition_resilience,
+                candidate_build=build,
+                locked=locked,
+            )
         )
         fills_pf_spof = _candidate_fills_primary_function_spof(
             decision, build, pf_report, locked
@@ -691,12 +693,30 @@ def annotate_composition_impact(
             fit = "duplicative"
         else:
             fit = "neutral"
+        evidence = candidate.evidence
+        if fills_spof_backup and backup_conditions:
+            # Without this, fills_spof_backup_gap is computed correctly but
+            # is invisible to _categorize_candidates/select_diverse_candidates:
+            # a genuine backup-provider candidate with no other matching_needs
+            # had no "need"-branch evidence at all, so it couldn't pass
+            # Category B's confidence gate even after being routed there.
+            evidence = evidence + tuple(
+                CandidateEvidence(
+                    basis="synthesized",
+                    confidence="medium",
+                    producer_name="condition_gap_backup",
+                    evidence=("need:spof_backup", f"condition:{condition}"),
+                    branch="need",
+                )
+                for condition in backup_conditions
+            )
         out.append(
             replace(
                 candidate,
                 composition_fit=fit,
                 fills_essential_gap=fills_missing,
                 fills_spof_backup_gap=fills_spof_backup,
+                evidence=evidence,
             )
         )
     return out
@@ -714,13 +734,13 @@ def _candidate_fills_condition_gap(
     *,
     candidate_build: ResolvedAnchorBuild,
     locked: Sequence[LockedAnchorContext],
-) -> tuple[bool, bool]:
-    """Returns (fills_missing_provider_gap, fills_spof_backup_gap) --
-    split rather than a single bool, so the caller (and _rank_key) can
-    give these two genuinely different situations different ranking
-    priority. missing_provider is a real, currently-unmet need and
-    should always win top priority in ranking. single_provider_spof is
-    real backup value (per the condition's own essential/preferred
+) -> tuple[bool, bool, tuple[str, ...]]:
+    """Returns (fills_missing_provider_gap, fills_spof_backup_gap,
+    backup_conditions) -- split rather than a single bool, so the caller
+    (and _rank_key) can give these two genuinely different situations
+    different ranking priority. missing_provider is a real, currently-unmet
+    need and should always win top priority in ranking. single_provider_spof
+    is real backup value (per the condition's own essential/preferred
     classification) established via build divergence from the existing
     provider -- confirmed by an existing test as a meaningful, legitimate
     signal on its own -- but confirmed live it must NOT compete for the
@@ -728,12 +748,20 @@ def _candidate_fills_condition_gap(
     weak, low-confidence backup-only candidate was outranking strong,
     high-confidence, unrelated candidates entirely because the two cases
     were previously collapsed into one boolean.
+
+    backup_conditions names which condition(s) actually earned
+    fills_spof_backup_gap, so the caller can attach real, honest evidence
+    (2026-08-21: this signal was computed correctly but was never wired
+    into select_diverse_candidates' category membership or its confidence
+    gate at all -- a backup-provider candidate with no other matching_needs
+    was structurally invisible no matter how strong its divergence score).
     """
     if report is None:
-        return False, False
+        return False, False, ()
     by_slot = _locked_by_slot(locked)
     fills_missing = False
     fills_spof_backup = False
+    backup_conditions: list[str] = []
     for row in report.conditions:
         if row.gap not in {"missing_provider", "single_provider_spof"}:
             continue
@@ -767,7 +795,8 @@ def _candidate_fills_condition_gap(
         )
         if score >= DIVERGENCE_COMPLEMENTARY_THRESHOLD:
             fills_spof_backup = True
-    return fills_missing, fills_spof_backup
+            backup_conditions.append(row.condition)
+    return fills_missing, fills_spof_backup, tuple(backup_conditions)
 
 
 def _candidate_fills_primary_function_spof(
@@ -1063,7 +1092,21 @@ def _categorize_candidates(
         need_categories = {n.category for n in c.matching_needs}
         if "condition_beneficiary" in need_categories:
             category_c.append(c)
-        if need_categories - {"condition_beneficiary"}:
+        in_category_b = bool(need_categories - {"condition_beneficiary"})
+        # fills_essential_gap/fills_spof_backup_gap (2026-08-21 fix): these
+        # are computed correctly elsewhere but were never consulted here at
+        # all -- a real backup-provider candidate (fills_spof_backup_gap)
+        # typically has NO matching_needs of its own (that's precisely why
+        # this signal exists as a separate annotation: the anchor's own
+        # dependency is already satisfied, so query_support_needs never asks
+        # for it), so it had no category to land in no matter how strong its
+        # divergence score. fills_essential_gap is usually already covered
+        # via a real matching_needs entry (gap_support_needs still fires
+        # normally for missing_provider), but is included here too for
+        # parity and to guard against that path being unavailable.
+        if not in_category_b and (c.fills_essential_gap or c.fills_spof_backup_gap):
+            in_category_b = True
+        if in_category_b:
             category_b.append(c)
     return category_a, category_b, category_c
 
