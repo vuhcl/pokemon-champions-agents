@@ -315,6 +315,74 @@ def test_gap_support_needs_dedupes_anchored_trick_room():
     assert gap_support_needs(report, needs) == ()
 
 
+def test_gap_support_needs_does_not_fire_for_single_provider_spof_tailwind():
+    """Regression: live testing (2026-08-21) showed Whimsicott/Aerodactyl kept
+    surfacing as compendium-backed 'tailwind_setter' support picks *after* a
+    real Tailwind provider (Pelipper) was already locked. Root cause: the
+    already-provided filter in team_candidates.py strips satisfied tailwind/
+    trick_room needs out of anchored_needs *before* passing that same tuple
+    into gap_support_needs as existing_needs, so _condition_already_covered
+    could never see the coverage it was supposed to check for, and
+    gap_support_needs re-emitted a full-strength need for the
+    single_provider_spof case every time. A real team never wants a second
+    *primary* setter once one exists, so single_provider_spof must never
+    reach gap_support_needs at all, regardless of what existing_needs
+    contains.
+    """
+    report = ConditionResilienceReport(
+        conditions=(
+            ConditionResilienceRow(
+                condition="Tailwind",
+                classification="essential",
+                provider_count=1,
+                providers=(ConditionProviderMember(1, "Pelipper", "Tailwind"),),
+                dependents=(),
+                gap="single_provider_spof",
+            ),
+        )
+    )
+    # Even with existing_needs empty (the exact failure mode: the coverage
+    # signal was already stripped upstream), single_provider_spof must not
+    # generate a gap need on its own.
+    assert gap_support_needs(report, ()) == ()
+
+
+def test_gap_support_needs_does_not_fire_for_single_provider_spof_trick_room():
+    report = ConditionResilienceReport(
+        conditions=(
+            ConditionResilienceRow(
+                condition="Trick Room",
+                classification="preferred",
+                provider_count=1,
+                providers=(ConditionProviderMember(1, "Sinistcha", "Trick Room"),),
+                dependents=(),
+                gap="single_provider_spof",
+            ),
+        )
+    )
+    assert gap_support_needs(report, ()) == ()
+
+
+def test_gap_support_needs_does_not_fire_for_single_provider_spof_weather():
+    report = ConditionResilienceReport(
+        conditions=(
+            ConditionResilienceRow(
+                condition="Rain",
+                classification="essential",
+                provider_count=1,
+                providers=(ConditionProviderMember(1, "Pelipper", "Drizzle"),),
+                dependents=(),
+                gap="single_provider_spof",
+            ),
+        )
+    )
+    # Backup-Rain-setter value is real but must come exclusively through
+    # fills_spof_backup_gap / _candidate_fills_condition_gap, which annotates
+    # candidates already in the pool for other reasons rather than searching
+    # the Role Compendium's primary-setter tier list for a second specialist.
+    assert gap_support_needs(report, ()) == ()
+
+
 def _kingambit_tr():
     return classify_anchor_role(
         resolve_anchor_build("Kingambit"), user_role="trick_room_sweeper"

@@ -1184,6 +1184,64 @@ def test_discover_multi_locked_publishes_resilience_and_keeps_backup_rain_setter
     assert any(opt["species"] == "Politoed" for opt in presentation["options"])
 
 
+def test_fills_spof_backup_gap_alone_reaches_select_diverse_candidates():
+    """Regression, confirmed live (2026-08-21): fills_spof_backup_gap was
+    computed correctly by _candidate_fills_condition_gap but was never read
+    by _categorize_candidates, _rank_category_a, or select_diverse_candidates
+    at all -- a candidate whose ONLY qualifying signal was a real backup-
+    provider value (no threat_row, no other matching_needs, which is the
+    normal shape for this case since the anchor's own dependency is already
+    satisfied and query_support_needs never asks for a backup) was
+    structurally invisible no matter how strong its divergence score. Live
+    symptom: no 2nd Rain-setter ever got suggested even when that was the
+    real, open need. This isolates the exact signal with no other category
+    membership available, so it can only pass via the fills_spof_backup_gap
+    wiring in _categorize_candidates.
+    """
+    from recommender.team_candidates import _categorize_candidates
+
+    backup_only = AnnotatedCandidate(
+        species="Politoed",
+        matching_needs=(),
+        source="need",
+        threat_row=None,
+        branches=frozenset({"need"}),
+        composition_fit="complementary",
+        fills_essential_gap=False,
+        fills_spof_backup_gap=True,
+        evidence=(
+            CandidateEvidence(
+                basis="synthesized",
+                confidence="medium",
+                producer_name="condition_gap_backup",
+                evidence=("need:spof_backup", "condition:Rain"),
+                branch="need",
+            ),
+        ),
+    )
+    # A handful of unrelated filler candidates so this isn't a pool of one.
+    filler = [
+        AnnotatedCandidate(
+            species=f"Filler{i}",
+            matching_needs=(),
+            source="threat",
+            threat_row=_counter(f"Filler{i}"),
+            branches=frozenset({"threat"}),
+        )
+        for i in range(3)
+    ]
+    candidates = [backup_only, *filler]
+    cat_a, cat_b, cat_c = _categorize_candidates(candidates)
+    assert backup_only in cat_b
+    assert backup_only not in cat_a
+
+    ranked = rank_multi_locked_by_category(candidates, ())
+    picked = select_diverse_candidates(ranked, ())
+    all_shown = {picked["default"], *picked["alternatives"]}
+    assert "Politoed" in all_shown
+    assert picked["tracks"]["Politoed"] == "support/utility"
+
+
 def test_unrelated_mechanic_duplication_still_demoted():
     from recommender.condition_resilience import assess_condition_resilience
     from recommender.team_candidates import (
@@ -1223,8 +1281,9 @@ def test_unrelated_mechanic_duplication_still_demoted():
     }
     build, decision = _role_decision("Blissey", spec, "champions-reg-mb")
     # Split from a single bool into (fills_missing_provider_gap,
-    # fills_spof_backup_gap) (2026-08-19) -- Blissey doesn't provide Rain
-    # at all here, so neither signal should fire.
+    # fills_spof_backup_gap, backup_conditions) (2026-08-19, extended
+    # 2026-08-21) -- Blissey doesn't provide Rain at all here, so none of
+    # the three should fire.
     assert (
         _candidate_fills_condition_gap(
             decision,
@@ -1232,7 +1291,7 @@ def test_unrelated_mechanic_duplication_still_demoted():
             candidate_build=build,
             locked=contexts,
         )
-        == (False, False)
+        == (False, False, ())
     )
 
     candidates = [_candidate("Blissey", spec=spec)]
@@ -1992,6 +2051,63 @@ def test_merge_multi_locked_filters_already_provided_tailwind_need():
         row for row in merged if any(n.category == "trick_room" for n in row.matching_needs)
     ]
     assert len(trick_room_matches) > 0
+
+
+def test_merge_multi_locked_filters_already_provided_tailwind_need_with_resilience_wired():
+    """Regression, confirmed live (2026-08-21): the sibling test above
+    (test_merge_multi_locked_filters_already_provided_tailwind_need) passes
+    condition_resilience=None, which skips gap_support_needs entirely --
+    so it could never have caught this. discover_multi_locked always wires
+    a real condition_resilience through, and once it's present,
+    gap_support_needs re-derived a 'tailwind' need for the exact
+    single_provider_spof case the first filter had just removed, because it
+    checked coverage against the same already-filtered anchored_needs tuple.
+    Live symptom: Whimsicott and Aerodactyl kept appearing as
+    compendium-backed 'tailwind_setter' support/utility picks turn after
+    turn despite Pelipper already providing Tailwind. This test wires
+    condition_resilience the same way discover_multi_locked does, so a
+    regression here can't hide behind an under-specified test call again.
+    """
+    from recommender.condition_resilience import assess_condition_resilience
+
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    resilience = assess_condition_resilience(contexts)
+    merged = merge_multi_locked_candidates(
+        state,
+        contexts,
+        (),
+        None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+        condition_resilience=resilience,
+    )
+    tailwind_matches = [
+        row for row in merged if any(n.category == "tailwind" for n in row.matching_needs)
+    ]
+    assert tailwind_matches == []
+    whimsicott = [row for row in merged if row.species == "Whimsicott"]
+    if whimsicott:
+        assert all(n.category != "tailwind" for n in whimsicott[0].matching_needs)
+    aerodactyl = [row for row in merged if row.species == "Aerodactyl"]
+    if aerodactyl:
+        assert all(n.category != "tailwind" for n in aerodactyl[0].matching_needs)
 
 
 def test_provided_conditions_reflects_real_locked_mechanisms():

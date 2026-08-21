@@ -362,10 +362,25 @@ def gap_support_needs(
     report: ConditionResilienceReport,
     existing_needs: Sequence[SupportNeed] | Sequence[AnchoredSupportNeed],
 ) -> tuple[SupportNeed, ...]:
-    """Emit gap needs only for conditions not already covered by existing_needs."""
+    """Emit gap needs only for conditions with zero providers.
+
+    A ``single_provider_spof`` gap is deliberately excluded here, not just
+    deduplicated: a real team never wants a second *primary* setter for a
+    condition it already has one of -- the ``existing_needs`` dedup check
+    below can't reliably distinguish "genuinely missing" from "already
+    covered, backup would be nice" once the caller has already filtered
+    already-satisfied needs out of ``existing_needs`` upstream (team_
+    candidates.py's already-provided filter), which silently defeated this
+    dedup for exactly the essential/preferred, single-provider case.
+    Backup-provider value for an existing single provider is real but is a
+    *different* candidate shape (a secondary provider found via divergence
+    from the existing provider, not a primary-role Compendium search) and
+    is handled exclusively by ``fills_spof_backup_gap`` /
+    ``_candidate_fills_condition_gap``.
+    """
     out: list[SupportNeed] = []
     for row in report.conditions:
-        if row.gap == "none":
+        if row.gap != "missing_provider":
             continue
         if _condition_already_covered(row.condition, existing_needs):
             continue
