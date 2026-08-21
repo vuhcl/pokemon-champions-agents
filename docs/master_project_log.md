@@ -4627,6 +4627,82 @@ Full history: `feat/item-moveset-conflict-resolution`, 6 commits, merged into `m
 Every commit individually test-verified (full suite green at each step, 1199 passed / 8 skipped by
 the final commit).
 
+## 2026-08-20: Candidate-ranking correctness deep-dive — 23 commits, PR #107 merged
+
+What started as a narrow fix ("Altaria shouldn't be suggested twice as a Tailwind setter")
+grew into a full-session investigation across the entire multi-locked candidate-ranking
+pipeline, driven by extensive live, unscripted testing that kept surfacing a deeper root cause
+underneath each symptom fixed — a genuinely different working mode from most sessions this
+project has logged, where nearly every fix uncovered the next one rather than closing the loop.
+See ADR-033, ADR-034, and amendments to ADR-022/026/028 for full technical detail. Summary here
+is chronological/narrative; the ADRs are the source of truth for the actual decisions.
+
+**Ranking-priority and field-awareness bugs in the original single-ranking approach**
+(ADR-028 Amendment 2026-08-20a and predecessors): `fills_essential_gap` split into two
+distinct signals; every threat-coverage matchup evaluation was confirmed to be blind to the
+team's own locked weather/Tailwind/Trick Room, fixed with a canonical field-deriver; a real,
+second-order gap in that same fix (an already-answered matchup never re-checked for a
+field-improvable margin) was found and fixed in a follow-up commit the same day.
+
+**A new multi-signal, per-category selection architecture** (ADR-033) replaced the single
+ranking for the specific step of choosing what to present to the user, after confirming live
+that even a fully-corrected single ranking structurally couldn't represent three different
+kinds of candidate value at once.
+
+**Several instances of the same class of bug — a real signal correctly computed but
+positioned so it couldn't actually influence anything** — recurred across different parts of
+the pipeline: shared-teammate evidence in an effectively-dead last-resort tie-break position;
+a support-need's evidence confidence hardcoded low regardless of real match strength; a
+Showdown-usage fallback for mega-form popularity that was itself correct but still lost every
+real cutoff comparison by design; and — found last, the deepest instance — an entire new
+selection architecture (ADR-033) being silently defeated by an unrelated, earlier top-10 cut
+still using the exact single-ranking approach it was built to replace.
+
+**A confidence-specificity spectrum for support-needs** (ADR-022 Amendment 2026-08-20b):
+distinguishes needs with no real discriminating trigger from genuinely specific ones, and
+separately flags Wish's real mechanical delivery cost — both refinements motivated by live
+transcripts where a technically-correct match still felt wrong to accept at face value.
+
+**A significant, confirmed data-source bug specific to mega forms** (ADR-034): the offline
+in-game usage dataset has no separate entries for mega forms at all. Fixed by retargeting a
+base species to its dominant mega form using real in-game item-usage share when that share is
+dominant enough — directly reusing a design already reviewed in an earlier session rather than
+reinventing one, confirmed by searching past conversations before implementing.
+
+**Verification discipline maintained throughout, not relaxed for a fast-moving session:**
+1267 tests passing at merge (up from 1174 at branch start), full suite run after every single
+commit, every significant claim checked against real code or real data before being acted on.
+Several real mistakes were caught and corrected mid-investigation rather than compounded — a
+wrong key format that led to an incorrect "Showdown also lacks mega data" conclusion, later
+corrected directly; a naive string-suffix-matching heuristic for multi-mega-form
+disambiguation that never actually matched anything, caught by a dedicated test before
+shipping; test fixtures that didn't match real production evidence shape, found and fixed
+rather than loosening the test's assertion to match the wrong fixture.
+
+**Known, disclosed follow-ups — not silently dropped:**
+- The user's chosen orientation preference (attacker/support/balanced) no longer factors into
+  the new category-aware candidate cut at all (ADR-033) — a real, open design question.
+- `query_threat_counters` (the separate, single-Pokemon-only path feeding
+  `discover_single_locked`) was not extended to be field-aware.
+- Condition-beneficiary discovery doesn't yet cover terrains, and only implements the
+  narrowest specificity tier (exact ability/move mechanics) — a middle tier (crediting a plain
+  Water-type's real STAB boost under Rain, with no special mechanic involved) doesn't exist.
+- "Specialist crowding" in `select_diverse_candidates` (a strong generalist satisfying
+  multiple categories at once can crowd out true specialists) is a known, disclosed limitation.
+- **Two new issues found in live post-merge testing, not yet investigated:** the agent
+  repeatedly re-recommends a support/utility role the team already has covered (observed
+  live: Aerodactyl suggested for Tailwind, then Trick Room repeatedly re-suggested, both
+  already provided by locked teammates) rather than surfacing a genuinely different need (a
+  real 2nd Rain-setter was the actual open need in that scenario and was never suggested). This
+  may be a gap in the already-provided-need filter (ADR-028 Amendment 2026-08-20a) not
+  covering every condition/role it should, or a separate issue in how repeat presentations are
+  generated across turns — not yet diagnosed.
+
+**Note on this log file's own state:** this project's copy of `master_project_log.md` was
+found to end at 2026-08-09 while `architecture_decisions.md` continues through 2026-08-16 and
+beyond — worth checking whether the live, canonical log file is actually current, since this
+entry is being appended based on a possibly-stale local snapshot.
+
 ---
 
 ## TOOLS & RESOURCES

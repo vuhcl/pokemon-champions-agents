@@ -5016,6 +5016,36 @@ confirmed each test's actual prior purpose before rewriting, not just patched to
 
 ---
 
+### ADR-022 — Amendment 2026-08-20b
+
+**A confidence-specificity spectrum added for support-need evidence: unconditional
+(trigger=None) needs downgraded; Wish downgraded for a real, structural delivery cost.**
+
+**Needs generated unconditionally for an anchor's shape** (e.g. `screens`/`healing_cleric`'s
+broad, "attacker-universal" fallback trigger, `trigger=None`) previously received the same
+evidence confidence as a genuinely, specifically-triggered need (e.g. `trick_room`'s real
+`speed_tier:middling` trigger). Confirmed live this let broad, weakly-discriminating matches
+look equivalent in strength to real, specific ones. `resolve_all_support_needs` now forces
+confidence to `"low"` for any need with `trigger=None`, leaving `basis` untouched (the data
+source quality isn't in question, only the match's specificity) — confirmed a real,
+specifically-triggered need in the same resolution pass (e.g. `trick_room`,
+`healing_cleric`'s `tank_no_self_heal` override) is correctly unaffected.
+
+**Wish downgraded for a real, structural delivery cost the plain move-satisfies-need check
+doesn't capture:** confirmed directly, not assumed — Wish doesn't heal immediately, it heals
+whoever is on the field one turn later, meaning delivering it costs a real, vulnerable
+switch-in turn (the incoming Pokemon can't attack, since switching consumes the turn) and
+loses any stat boosts the switched-out user had, a genuinely worse mechanism than an
+immediate-heal move. New `_DELAYED_DELIVERY_MOVES` constant; downgraded only when EVERY
+healing_cleric-satisfying move a candidate has is Wish — a candidate that also knows a real
+immediate-heal move is untouched.
+
+**Status:** Implemented and verified against real species data (Sylveon: Wish-only,
+downgraded with an explicit tag; Clefable: also knows Heal Pulse/Life Dew, correctly
+unaffected).
+
+---
+
 ## ADR-023: Orchestrator consumption procedure — how ADR-022's tool outputs actually get
 combined, held, and merged across a single slot-fill
 
