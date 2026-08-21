@@ -22,7 +22,11 @@ from recommender.legality import is_species_legal, load_snapshot
 from recommender.matchup import effective_accuracy, expected_hit_factor
 from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.state import ThreatCandidate
-from recommender.usage_data import featured_or_common_set, ingame_species_map
+from recommender.usage_data import (
+    featured_or_common_set,
+    ingame_species_map,
+    showdown_species_map,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 _ACCURACY_PATH = REPO_ROOT / "data" / "moves" / "gen9_accuracy.v1.json"
@@ -571,6 +575,7 @@ def query_counters(
 
     attack_types = _anchor_attack_types(snap, pokemon, anchor_types)
     ig = ingame_species_map(DEFAULT_REGULATION)
+    sd = showdown_species_map(DEFAULT_REGULATION)
     pool: list[ThreatCandidate] = []
 
     for sid, entry in snap["species"].items():
@@ -623,6 +628,20 @@ def query_counters(
         rank_i = int(rank) if rank is not None else None
         name = str(ig_entry.get("name") or entry.get("name") or sid)
 
+        # Confirmed live: mega forms (and potentially other species) have
+        # no in-game usage_rank at all -- the underlying in-game usage
+        # data doesn't track them separately from their base form. Real
+        # Showdown usage data does exist for them (confirmed directly,
+        # under a to_id()-style key like "swampertmega", not the
+        # hyphenated species name), so it's used as a fallback popularity
+        # signal via _usage_popularity rather than always treating these
+        # species as maximally unpopular.
+        showdown_pct: float | None = None
+        if rank_i is None:
+            sd_entry = sd.get(sid) or {}
+            pct = sd_entry.get("usage_pct")
+            showdown_pct = float(pct) if pct is not None else None
+
         spec: PokemonSpecOptional = {"species": name}
         if usage_set:
             if usage_set.get("ability"):
@@ -641,7 +660,7 @@ def query_counters(
                 ladder_species=name,
                 usage_rank=rank_i,
                 form=name,
-                showdown_usage_pct=None,
+                showdown_usage_pct=showdown_pct,
                 showdown_formes=(),
                 spec=spec,
                 build_source="ingame",

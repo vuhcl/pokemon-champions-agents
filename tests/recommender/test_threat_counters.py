@@ -12,6 +12,7 @@ from recommender.state import (
 )
 from recommender.threat_counters import (
     _best_matchup_with_forced_fields,
+    _usage_popularity,
     aggregate_verified,
     pair_score,
     query_candidates_for_threats,
@@ -789,3 +790,64 @@ def test_best_matchup_with_forced_fields_does_not_downgrade_when_field_is_worse(
         )
     assert result.outcome == "clean_kill"
     assert result.severity == "costly"
+
+
+def _tc_with_showdown_pct(species: str, showdown_usage_pct: float) -> ThreatCandidate:
+    return ThreatCandidate(
+        ladder_species=species,
+        usage_rank=None,
+        form=species,
+        showdown_usage_pct=showdown_usage_pct,
+        showdown_formes=(),
+        spec={"species": species, "moves": ["Tackle"], "ability": "Dummy"},
+        build_source="ingame",
+    )
+
+
+def test_usage_popularity_falls_back_to_showdown_pct_when_no_ingame_rank():
+    """Regression, confirmed live: mega forms have no in-game usage_rank
+    at all (the underlying in-game usage data doesn't track them
+    separately from their base form), even though real Showdown usage
+    data exists for them. Falls back to Showdown's usage_pct rather than
+    always treating these species as maximally unpopular (float('-inf')),
+    which previously meant a mega form could never win any usage-based
+    tie-break against literally anything, including other equally
+    unranked candidates.
+    """
+    real_rank = _tc("Garchomp", usage_rank=1)
+    fallback_only = _tc_with_showdown_pct("Swampert-Mega", 5.0)
+    assert _usage_popularity(real_rank) > _usage_popularity(fallback_only)
+
+
+def test_usage_popularity_fallback_still_differentiates_among_fallback_only():
+    """Confirms the fallback isn't just 'better than -inf' uniformly --
+    among species that only have the fallback signal, a higher Showdown
+    usage_pct must still correctly outrank a lower one."""
+    higher_pct = _tc_with_showdown_pct("Blaziken-Mega", 3.6)
+    lower_pct = _tc_with_showdown_pct("Houndoom-Mega", 0.3)
+    assert _usage_popularity(higher_pct) > _usage_popularity(lower_pct)
+
+
+def test_usage_popularity_no_data_at_all_still_returns_negative_infinity():
+    """No in-game rank AND no Showdown data at all -- still the original,
+    maximally-unpopular fallback, unchanged."""
+    no_data = _tc("SomeObscureForm", usage_rank=None)
+    assert _usage_popularity(no_data) == float("-inf")
+
+
+def test_query_counters_populates_showdown_fallback_for_real_mega_counters():
+    """End-to-end confirmation against real data: a real mega-form
+    counter-candidate (confirmed live: Houndoom-Mega/Blaziken-Mega/
+    Lucario-Mega/Emboar-Mega all genuinely counter Kingambit) gets a
+    real showdown_usage_pct populated, not None, and a correspondingly
+    real (non-negative-infinity) popularity value.
+    """
+    from recommender.counters import query_counters
+
+    counters = query_counters({"species": "Kingambit"})
+    mega_counters = [c for c in counters if "mega" in c.ladder_species.lower()]
+    assert mega_counters
+    for c in mega_counters:
+        assert c.usage_rank is None
+        assert c.showdown_usage_pct is not None
+        assert _usage_popularity(c) > float("-inf")

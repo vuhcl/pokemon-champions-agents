@@ -77,6 +77,17 @@ def _species_id(tc: ThreatCandidate) -> str:
 def _usage_popularity(tc: ThreatCandidate) -> float:
     if tc.usage_rank is not None:
         return -float(tc.usage_rank)
+    if tc.showdown_usage_pct is not None:
+        # Confirmed live: mega forms have no in-game usage_rank at all
+        # (the underlying in-game usage data doesn't track them
+        # separately from their base form), but real Showdown usage
+        # data does exist for them. Falls back to that directly rather
+        # than always treating them as maximally unpopular -- offset
+        # well below any real usage_rank value so a real rank always
+        # wins a comparison, but among species that ONLY have this
+        # fallback, higher Showdown usage_pct still differentiates them
+        # meaningfully instead of tying at float("-inf").
+        return -1_000_000.0 + tc.showdown_usage_pct
     return float("-inf")
 
 
