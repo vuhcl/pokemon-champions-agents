@@ -43,6 +43,7 @@ from recommender.team_candidates import (
     collect_locked_anchor_contexts,
     material_completion_preferences,
     merge_multi_locked_candidates,
+    rank_multi_locked_by_category,
     rank_multi_locked_candidates,
     select_diverse_candidates,
 )
@@ -2267,3 +2268,38 @@ def test_rank_by_need_evidence_correctly_distinguishes_b_and_c_scoping():
     result = select_diverse_candidates([rain_only], (), n_alternatives=2)
     assert result["default"] == "Basculegion"
     assert result["tracks"]["Basculegion"] == "condition synergy"
+
+
+def test_rank_multi_locked_by_category_gives_each_category_its_own_cut():
+    """Regression, confirmed live: rank_multi_locked_candidates' single,
+    combined top-10 cut (via the old _rank_key) was defeating
+    select_diverse_candidates' entire purpose -- genuinely valuable
+    Category B/C candidates got cut from the pool entirely whenever
+    10+ candidates ranked higher by threat-coverage/type-synergy
+    criteria alone, the common case with real threat-counter data.
+    Confirms each category now gets its own top-N cut: 15 strong
+    Category A candidates and 1 real Category B candidate must both
+    survive, not just the 10 A-category candidates a shared cut would
+    have kept.
+    """
+    category_a_candidates = [
+        _synth_category_a(f"Attacker{i}", (("t1", "clean_kill", "decisive"),))
+        for i in range(15)
+    ]
+    category_b_candidate = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    pool = [*category_a_candidates, category_b_candidate]
+    result = rank_multi_locked_by_category(pool, (), n_per_category=10)
+    result_species = {c.species for c in result}
+    assert "Grimmsnarl" in result_species, (
+        "Category B candidate must survive its own cut, not be squeezed "
+        "out by 15 Category A candidates in a shared ranking"
+    )
+    assert len(result_species) == 11  # 10 from category A + 1 from B

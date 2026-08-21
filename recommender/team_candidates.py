@@ -1046,6 +1046,80 @@ _TRACK_LABELS = {
 }
 
 
+def _categorize_candidates(
+    candidates: Sequence[AnnotatedCandidate],
+) -> tuple[list[AnnotatedCandidate], list[AnnotatedCandidate], list[AnnotatedCandidate]]:
+    """Splits a candidate pool into the three categories (A: threat-
+    coverage+type-synergy, B: support-needs, C: condition-benefit) --
+    shared by select_diverse_candidates and rank_multi_locked_by_category
+    so their categorization logic can't silently drift apart.
+    """
+    category_a: list[AnnotatedCandidate] = []
+    category_b: list[AnnotatedCandidate] = []
+    category_c: list[AnnotatedCandidate] = []
+    for c in candidates:
+        if c.threat_row is not None:
+            category_a.append(c)
+        need_categories = {n.category for n in c.matching_needs}
+        if "condition_beneficiary" in need_categories:
+            category_c.append(c)
+        if need_categories - {"condition_beneficiary"}:
+            category_b.append(c)
+    return category_a, category_b, category_c
+
+
+def rank_multi_locked_by_category(
+    candidates: Sequence[AnnotatedCandidate],
+    locked_contexts: Sequence[LockedAnchorContext],
+    *,
+    n_per_category: int = 10,
+) -> list[AnnotatedCandidate]:
+    """Gives each of the three categories its own top-N cut, instead of
+    one shared, combined top-N ranking.
+
+    Confirmed live, a real, significant bug: rank_multi_locked_candidates'
+    single, combined top-10 cut (via the old _rank_key) was defeating the
+    entire purpose of select_diverse_candidates' category-aware
+    selection -- genuinely valuable Category B/C candidates (a real
+    screens setter, a real Rain-beneficiary) got cut from the pool
+    ENTIRELY whenever 10+ candidates ranked higher by threat-coverage/
+    type-synergy criteria alone, which is the common case with real
+    threat-counter data from live calc. select_diverse_candidates never
+    even got a chance to consider them.
+
+    Deliberately a separate function, not a change to
+    rank_multi_locked_candidates itself -- that function has a second,
+    different caller (material_completion_preferences) where the single-
+    ranking, n=3 behavior is still the right tool for comparing
+    preference-based orderings, not for feeding select_diverse_candidates.
+    """
+    category_a, category_b, category_c = _categorize_candidates(candidates)
+
+    from recommender.counters import _species_types
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    locked_types_list = [
+        _species_types(snap, ctx.resolved_build.species) for ctx in locked_contexts
+    ]
+    ranked_a = _rank_category_a(category_a, locked_types_list)[:n_per_category]
+    ranked_b = _rank_by_need_evidence(category_b, condition_beneficiary=False)[
+        :n_per_category
+    ]
+    ranked_c = _rank_by_need_evidence(category_c, condition_beneficiary=True)[
+        :n_per_category
+    ]
+
+    seen: set[str] = set()
+    combined: list[AnnotatedCandidate] = []
+    for c in (*ranked_a, *ranked_b, *ranked_c):
+        sid = to_id(c.species)
+        if sid not in seen:
+            seen.add(sid)
+            combined.append(c)
+    return combined
+
+
 def select_diverse_candidates(
     candidates: Sequence[AnnotatedCandidate],
     locked_contexts: Sequence[LockedAnchorContext],
@@ -1086,17 +1160,7 @@ def select_diverse_candidates(
     out of this change -- surfacing the track is the only thing
     implemented here, not acting on a request for "a different track").
     """
-    category_a: list[AnnotatedCandidate] = []
-    category_b: list[AnnotatedCandidate] = []
-    category_c: list[AnnotatedCandidate] = []
-    for c in candidates:
-        if c.threat_row is not None:
-            category_a.append(c)
-        need_categories = {n.category for n in c.matching_needs}
-        if "condition_beneficiary" in need_categories:
-            category_c.append(c)
-        if need_categories - {"condition_beneficiary"}:
-            category_b.append(c)
+    category_a, category_b, category_c = _categorize_candidates(candidates)
 
     from recommender.counters import _species_types
     from recommender.legality import load_snapshot

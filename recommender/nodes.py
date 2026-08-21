@@ -2907,7 +2907,7 @@ def discover_multi_locked(
         mega_ceiling_notices,
         merge_multi_locked_candidates,
         owned_species_ids,
-        rank_multi_locked_candidates,
+        rank_multi_locked_by_category,
     )
     from recommender.threat_counters import query_candidates_for_threats
     from recommender.usage_data import lineage_ids
@@ -3036,14 +3036,14 @@ def discover_multi_locked(
                 },
             }
 
-    ranked = rank_multi_locked_candidates(
-        candidates,
-        objective=objective,
-        preference=preference,
-        ownership_mode=ownership_mode,
-        owned_species=owned,
-        regulation=state.get("regulation_mod") or "champions-reg-mb",
-    )
+    # Category-aware cut, not the old single-ranking rank_multi_locked_candidates
+    # -- confirmed live, a real, significant bug: that function's shared
+    # top-10 cut (via the old _rank_key) was defeating select_diverse_candidates'
+    # entire purpose, since genuinely valuable Category B/C candidates
+    # got cut from the pool entirely whenever 10+ candidates ranked
+    # higher by threat-coverage/type-synergy criteria alone -- the
+    # common case with real threat-counter data from live calc.
+    ranked = rank_multi_locked_by_category(candidates, contexts)
     if not ranked:
         # Mirrors discover_single_locked's leniency exactly: try an
         # archetype-driven proposal before giving up outright, rather than
