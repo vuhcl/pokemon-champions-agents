@@ -342,6 +342,7 @@ class PendingPresentationOption(TypedDict):
     strategic_role_id: NotRequired[str]
     primary_function: NotRequired[Literal["offense", "support", "unknown"]]
     mechanism_ids: NotRequired[tuple[str, ...]]
+    track: NotRequired[str]
 
 
 class ReviewFlag(TypedDict):

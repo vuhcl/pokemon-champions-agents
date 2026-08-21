@@ -15,6 +15,7 @@ from recommender.role_compendium import (
     CompendiumRoleEvidence,
     ReverseCompendiumEvidence,
 )
+from recommender.condition_types import ConditionResilienceReport, ConditionResilienceRow
 from recommender.slot_fill import (
     AnnotatedCandidate,
     NeedResolvedCandidate,
@@ -25,6 +26,9 @@ from recommender.slot_fill import (
     _FO_PROTECTION_ABILITIES,
     _NEED_SATISFIERS,
     _NEED_TARGET_ROLES,
+    _compendium_roles_for_need,
+    _redundancy_tier_for_candidates,
+    _scoped_evidence,
     _sort_annotated,
     _threat_evidence,
     _union_move_candidates,
@@ -407,7 +411,7 @@ def test_pelipper_rain_beneficiaries_exclude_self_and_ignore_tailwind():
         if ev.producer_name == "resolve_condition_beneficiaries"
     ]
     assert ability_hits
-    assert all(ev.basis == "mechanical_only" and ev.confidence == "low" for ev in ability_hits)
+    assert all(ev.basis == "mechanical_only" and ev.confidence == "high" for ev in ability_hits)
 
 
 def test_torkoal_sun_beneficiaries_exclude_self():
@@ -1133,6 +1137,130 @@ def test_resolve_screens_uses_real_compendium_not_generic_mechanical_only():
     assert any(e.basis == "compendium_backed" for e in meowstic.evidence)
 
 
+def test_resolve_screens_deprioritizes_hard_weather_gated_candidate_under_conflicting_weather():
+    """Regression, confirmed live: Abomasnow's real, correctly-attributed
+    'screens' match comes from Aurora Veil (via Snow Warning), a move
+    that HARD-requires Snow/Hail to be usable at all -- not just boosted,
+    genuinely unusable without it. On a real team with Rain already
+    locked (only one weather can be active), Abomasnow's screens value
+    is currently zero, since it would never actually get to use Aurora
+    Veil without abandoning the team's real weather strategy entirely.
+
+    Deprioritized, not excluded (confirmed as the right design directly,
+    not assumed): removing it entirely would discard real information --
+    it might still be worth surfacing as a low-priority option, e.g. if
+    the team's weather situation later changes. Downgrades BOTH basis
+    and confidence, not confidence alone -- _BASIS_RANK ranks
+    compendium_backed (Abomasnow's real original basis here) highest,
+    and is compared before confidence in every ranking that uses this
+    evidence, so a confidence-only downgrade would not have actually
+    deprioritized it below genuinely-usable, lower-basis candidates.
+
+    Confirmed the exact real evidence-tag shape before writing this fix:
+    Abomasnow's screens match comes through the compendium path
+    ('mechanism:Aurora Veil'), not the raw-move path
+    ('move:auroraveil') -- both tag formats are checked, confirmed by
+    testing this exact scenario directly against real data, not assumed
+    to be the same shape.
+    """
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    names = resolve_need_candidates(need, _base_state(), locked_weather="Rain")
+    by_id = {to_id(row.species): row for row in names}
+    abomasnow = by_id.get("abomasnow")
+    assert abomasnow is not None, "must still be present, just deprioritized"
+    assert all(e.basis == "mechanical_only" for e in abomasnow.evidence)
+    assert all(e.confidence == "low" for e in abomasnow.evidence)
+    assert any(
+        "weather_conflict:requires_Snow_have_Rain" in e.evidence
+        for e in abomasnow.evidence
+    )
+    # Real, unconditionally-usable screens candidates must be unaffected.
+    grimmsnarl = by_id.get("grimmsnarl")
+    assert grimmsnarl is not None
+    assert not any(
+        tag.startswith("weather_conflict:")
+        for e in grimmsnarl.evidence
+        for tag in e.evidence
+    )
+
+
+def test_resolve_screens_ranks_deprioritized_candidate_below_usable_ones():
+    """Confirms the deprioritization actually changes ranking outcome,
+    not just evidence metadata -- Abomasnow must sort below genuinely
+    usable screens candidates once ranked by evidence quality (the same
+    ranking select_diverse_candidates' Category B/C use)."""
+    from recommender.team_candidates import _rank_by_need_evidence
+    from recommender.slot_fill import AnnotatedCandidate
+
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    names = resolve_need_candidates(need, _base_state(), locked_weather="Rain")
+    candidates = [
+        AnnotatedCandidate(
+            species=row.species,
+            matching_needs=row.matching_needs,
+            source="need",
+            threat_row=None,
+            spec={"species": row.species},
+            evidence=row.evidence,
+            branches=frozenset({"need"}),
+        )
+        for row in names
+    ]
+    ranked = _rank_by_need_evidence(candidates)
+    order = [c.species for c in ranked]
+    assert order.index("Abomasnow") > order.index("Grimmsnarl")
+
+
+def test_resolve_screens_keeps_hard_weather_gated_candidate_undowngraded_under_matching_weather():
+    """Confirms the deprioritization is genuinely conditional, not a
+    blanket downgrade of Abomasnow or Aurora Veil -- under a team that
+    has actually locked in Snow, Abomasnow's screens value is completely
+    real and must not be touched."""
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    names = resolve_need_candidates(need, _base_state(), locked_weather="Snow")
+    by_id = {to_id(row.species): row for row in names}
+    abomasnow = by_id.get("abomasnow")
+    assert abomasnow is not None
+    assert any(e.basis == "compendium_backed" for e in abomasnow.evidence)
+    assert not any(
+        tag.startswith("weather_conflict:")
+        for e in abomasnow.evidence
+        for tag in e.evidence
+    )
+
+
+def test_resolve_screens_keeps_hard_weather_gated_candidate_undowngraded_with_no_locked_weather():
+    """No weather locked at all (locked_weather=None, the default) -- the
+    downgrade must not fire, since there's nothing to conflict with
+    yet."""
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    names = resolve_need_candidates(need, _base_state())
+    by_id = {to_id(row.species): row for row in names}
+    abomasnow = by_id.get("abomasnow")
+    assert abomasnow is not None
+    assert any(e.basis == "compendium_backed" for e in abomasnow.evidence)
+
+
 def test_resolve_all_and_merge_without_chosen_need():
     tr = _trick_room_need()
     fo = SupportNeed(
@@ -1155,7 +1283,14 @@ def test_resolve_all_and_merge_without_chosen_need():
     assert any(r.source in ("need", "both") for r in rows)
 
 
-def test_compendium_candidates_lead_stronger_raw_move_evidence():
+def test_compendium_species_not_diluted_by_unrecognized_raw_move_species():
+    """Behavior changed intentionally, not a regression: trick_room now
+    has a real compendium mapping, so a genuinely different species
+    found only via raw-move search ("Raw Ace", never appearing in the
+    compendium at all) is no longer added alongside the real,
+    compendium-backed candidate -- confirmed live: a need with a real
+    compendium should only surface candidates it actually recognizes,
+    same principle as excluding Gholdengo from screens."""
     need = _trick_room_need()
     admitted = CompendiumRoleEvidence(
         species="Verified Setter",
@@ -1182,13 +1317,23 @@ def test_compendium_candidates_lead_stronger_raw_move_evidence():
     ):
         rows = resolve_need_candidates(need, _base_state())
 
-    assert [row.species for row in rows] == ["Verified Setter", "Raw Ace"]
+    assert [row.species for row in rows] == ["Verified Setter"]
     assert rows[0].evidence[0].basis == "compendium_backed"
-    assert rows[1].evidence[0].basis == "usage_backed"
 
 
 def test_species_popularity_alone_is_not_usage_backed_execution_evidence():
-    need = _trick_room_need()
+    """Uses healing_cleric, not trick_room -- trick_room now has a real
+    compendium mapping and skips the raw-move fallback entirely for
+    non-compendium species, so it can no longer exercise this test's
+    actual purpose (raw-move resolution's own popularity-vs-commitment
+    distinction). healing_cleric has no real compendium category and
+    still uses the raw-move path unrestricted."""
+    need = SupportNeed(
+        category="healing_cleric",
+        name="Healing / cleric support",
+        description="x",
+        trigger="tank_no_self_heal",
+    )
     raw = NarrowResult(
         candidates=["Popular Learner"],
         stopped_at=3,
@@ -1211,6 +1356,15 @@ def test_species_popularity_alone_is_not_usage_backed_execution_evidence():
 
 
 def test_full_role_rejection_is_not_reintroduced_by_raw_move_search():
+    """Behavior changed intentionally, not a regression: trick_room now
+    has a real compendium mapping, so the raw-move fallback is skipped
+    entirely for it, not just for rejected species specifically. Even a
+    genuinely new, non-rejected species ("Raw Setter") found only via
+    raw-move search no longer gets added -- confirmed live: a need with
+    a real compendium to check against should only surface candidates
+    the compendium actually recognizes, the same principle behind
+    excluding Gholdengo from screens despite mechanically learning the
+    moves."""
     need = _trick_room_need()
     rejected = CompendiumRoleEvidence(
         species="Rejected Setter",
@@ -1234,11 +1388,17 @@ def test_full_role_rejection_is_not_reintroduced_by_raw_move_search():
     ):
         rows = resolve_need_candidates(need, _base_state())
 
-    assert [row.species for row in rows] == ["Raw Setter"]
+    assert [row.species for row in rows] == []
 
 
 def test_unmapped_need_keeps_raw_resolution_without_compendium_query():
-    need = SupportNeed("tailwind", "Tailwind", "Needs Tailwind", "speed_tier:middling")
+    """Uses taunt_disruption, not tailwind -- tailwind now has a real
+    compendium mapping (tailwind_setter), so it's no longer an example
+    of an unmapped need. taunt_disruption genuinely has no compendium
+    category and still skips the compendium query entirely."""
+    need = SupportNeed(
+        "taunt_disruption", "Taunt disruption", "Needs Taunt", None
+    )
     with (
         patch("recommender.slot_fill.role_category_evidence") as compendium,
         patch(
@@ -1503,3 +1663,435 @@ def test_archaludon_single_locked_pool_labels_rain_setter():
         to_id(row.species) == "pelipper" for row in (*labeled, *ambiguous_rain)
     )
 
+
+
+def _redundancy_test_need(category: str) -> SupportNeed:
+    return SupportNeed(category=category, name="x", description="x", trigger=None)
+
+
+def _redundancy_test_row(species: str, role_id: str, *categories: str) -> AnnotatedCandidate:
+    return AnnotatedCandidate(
+        species=species,
+        matching_needs=tuple(_redundancy_test_need(c) for c in categories),
+        source="usage",
+        target_role_decision=TargetRoleDecision(role_id=role_id, source="usage_backed"),
+    )
+
+
+def test_redundancy_tier_fully_resolved_condition_deprioritizes_duplicate_role():
+    """Regression, confirmed live (2026-08-18): after a Tailwind setter
+    was locked, more tailwind_setter candidates were still offered as
+    alternatives with no redundancy awareness at all. gap=='none' means
+    the condition is fully resolved -- no backup value -- so a candidate
+    whose only real contribution is the same role gets deprioritized."""
+    resilience = ConditionResilienceReport(
+        conditions=(
+            ConditionResilienceRow(
+                condition="Tailwind", classification="preferred",
+                provider_count=1, providers=(), dependents=(), gap="none",
+            ),
+        )
+    )
+    rows = [
+        _redundancy_test_row("Altaria", "tailwind_setter", "tailwind"),
+        _redundancy_test_row("Staraptor", "tailwind_setter", "tailwind"),
+        _redundancy_test_row("Garchomp", "fast_physical_attacker", "defensive_coverage"),
+    ]
+    tiers = _redundancy_tier_for_candidates(rows, resilience)
+    assert tiers == {"Altaria": 2, "Staraptor": 2, "Garchomp": 0}
+
+
+def test_redundancy_tier_missing_provider_is_never_deprioritized():
+    """A genuinely unmet need (gap=='missing_provider') is always tier 0,
+    regardless of how many candidates offer it -- fills_essential_gap
+    already prioritizes these in ranking, and this must not undo that."""
+    resilience = ConditionResilienceReport(
+        conditions=(
+            ConditionResilienceRow(
+                condition="Tailwind", classification="preferred",
+                provider_count=0, providers=(), dependents=(), gap="missing_provider",
+            ),
+        )
+    )
+    rows = [
+        _redundancy_test_row("Altaria", "tailwind_setter", "tailwind"),
+        _redundancy_test_row("Staraptor", "tailwind_setter", "tailwind"),
+    ]
+    tiers = _redundancy_tier_for_candidates(rows, resilience)
+    assert tiers == {"Altaria": 0, "Staraptor": 0}
+
+
+def test_redundancy_tier_spof_backup_needs_additional_value_to_rank_above_redundant():
+    """Real design requirement, confirmed with Vu directly: a
+    single_provider_spof condition (real backup value, per the
+    condition's own essential/preferred classification) should NOT be
+    prioritized ahead of other unmet needs -- UNLESS the candidate also
+    contributes toward another, distinct need (the Sableye case: both a
+    rain_setter and a screens provider). A SPOF-eligible role with no
+    other contributing value stays tier 2, same as a fully-resolved one.
+    """
+    resilience = ConditionResilienceReport(
+        conditions=(
+            ConditionResilienceRow(
+                condition="Rain", classification="preferred",
+                provider_count=1, providers=(), dependents=(),
+                gap="single_provider_spof",
+            ),
+        )
+    )
+    rows = [
+        _redundancy_test_row("Pelipper", "rain_setter", "condition_setter"),
+        _redundancy_test_row(
+            "Sableye", "rain_setter", "condition_setter", "screens"
+        ),
+    ]
+    tiers = _redundancy_tier_for_candidates(rows, resilience)
+    assert tiers == {"Pelipper": 2, "Sableye": 1}
+
+
+def test_redundancy_tier_non_condition_role_is_always_tier_0():
+    """A candidate whose role doesn't map to any tracked condition at all
+    (e.g. a pure attacker) is never deprioritized by this mechanism."""
+    resilience = ConditionResilienceReport(conditions=())
+    rows = [_redundancy_test_row("Garchomp", "fast_physical_attacker", "defensive_coverage")]
+    tiers = _redundancy_tier_for_candidates(rows, resilience)
+    assert tiers == {"Garchomp": 0}
+
+
+def test_redundancy_tier_none_resilience_returns_empty():
+    rows = [_redundancy_test_row("Garchomp", "fast_physical_attacker")]
+    assert _redundancy_tier_for_candidates(rows, None) == {}
+
+
+def test_present_candidates_routes_through_select_diverse_candidates_when_locked_contexts_present():
+    """Confirms the actual wiring, not just that it doesn't crash: when
+    locked_contexts is populated (the multi-locked path), present_candidates
+    must call select_diverse_candidates -- the multi-signal, per-category
+    selection built and validated earlier in this investigation --
+    rather than the older single-ranking + redundancy-tier approach.
+    """
+    rows = [
+        AnnotatedCandidate(
+            species="Garchomp",
+            matching_needs=(),
+            source="threat",
+            spec={"species": "Garchomp"},
+            evidence=(),
+        ),
+    ]
+    ctx = SlotFillContext(
+        anchor=None,
+        role_shape_context=None,
+        annotated_candidates=rows,
+        candidates_pre_ranked=True,
+        locked_contexts=(object(),),  # non-empty is all the branch checks
+    )
+    with patch(
+        "recommender.team_candidates.select_diverse_candidates",
+        return_value={"default": "Garchomp", "alternatives": []},
+    ) as mocked:
+        presentation = present_candidates(ctx, slot_index=0)
+    mocked.assert_called_once()
+    assert presentation.default == "Garchomp"
+
+
+def test_present_candidates_uses_old_path_when_locked_contexts_empty():
+    """Confirms the routing is genuinely conditional -- with no
+    locked_contexts (the single/zero-locked case, matching every existing
+    present_candidates test in this file), the older redundancy-tier
+    approach must still be used, not select_diverse_candidates."""
+    rows = [
+        AnnotatedCandidate(
+            species="Garchomp",
+            matching_needs=(),
+            source="threat",
+            spec={"species": "Garchomp"},
+            evidence=(),
+        ),
+    ]
+    ctx = SlotFillContext(
+        anchor=None,
+        role_shape_context=None,
+        annotated_candidates=rows,
+        candidates_pre_ranked=True,
+    )
+    with patch(
+        "recommender.team_candidates.select_diverse_candidates"
+    ) as mocked:
+        presentation = present_candidates(ctx, slot_index=0)
+    mocked.assert_not_called()
+    assert presentation.default == "Garchomp"
+
+
+def test_resolve_all_support_needs_downgrades_confidence_for_untriggered_needs():
+    """Regression, confirmed live: needs generated without a specific
+    trigger (trigger=None -- e.g. screens' unconditional "attacker-
+    universal" generation) are real but weak, non-discriminating
+    signals -- almost any offense-shaped anchor "benefits somewhat",
+    which isn't the same as a genuinely specific reason. Confidence is
+    downgraded to reflect where a match falls on the broad-to-specific
+    spectrum; basis is left untouched -- the data source itself isn't
+    questionable, only the match's specificity is. Contrasted directly
+    against a real-triggered need (trick_room, speed_tier-based) in the
+    same resolution call, which must keep its original confidence.
+    """
+    screens_need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    tr_need = _trick_room_need()
+    ctx = SlotFillContext(
+        anchor={"species": "Garchomp"},
+        role_shape_context=_shape(),
+        support_needs=[screens_need, tr_need],
+    )
+    resolved = resolve_all_support_needs(ctx, _base_state())
+    by_id = {to_id(row.species): row for row in resolved}
+
+    screens_evidence = [
+        e
+        for row in resolved
+        for e in row.evidence
+        if any("need:screens" in tag for tag in e.evidence)
+    ]
+    assert screens_evidence
+    assert all(e.confidence == "low" for e in screens_evidence)
+
+    tr_evidence = [
+        e
+        for row in resolved
+        for e in row.evidence
+        if any("need:trick_room" in tag for tag in e.evidence)
+    ]
+    assert tr_evidence
+    # At least one real trick_room match should retain non-low
+    # confidence -- confirms the downgrade is genuinely conditional on
+    # trigger, not applied blanket to every need.
+    assert any(e.confidence != "low" for e in tr_evidence)
+
+
+def test_screens_excludes_species_not_in_compendium_even_if_mechanically_capable():
+    """Regression, confirmed live: Gholdengo mechanically learns Light
+    Screen and Reflect, but is genuinely not a recognized screens user
+    in the real compendium. It must not match the screens need at all,
+    not even at low/mechanical_only confidence -- confirmed as the
+    right design directly: a need with a real compendium to check
+    against should only surface candidates the compendium actually
+    recognizes."""
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    names = resolve_need_candidates(need, _base_state())
+    ids = {to_id(row.species) for row in names}
+    assert "gholdengo" not in ids
+
+
+def test_tailwind_need_now_uses_real_compendium():
+    """Regression, confirmed live: tailwind had no compendium mapping at
+    all before this fix -- every match, including a real, recognized
+    "Good"-tier setter like Staraptor-Mega, only ever got raw-move
+    (mechanical_only) evidence. Confirms the new mapping surfaces real
+    compendium-backed evidence at the correct tier-derived confidence."""
+    need = SupportNeed(
+        category="tailwind",
+        name="Tailwind",
+        description="x",
+        trigger="speed_tier:middling",
+    )
+    names = resolve_need_candidates(need, _base_state())
+    by_id = {to_id(row.species): row for row in names}
+    staraptor_mega = by_id.get("staraptormega")
+    assert staraptor_mega is not None
+    assert any(e.basis == "compendium_backed" for e in staraptor_mega.evidence)
+    assert any(
+        "tier:Good" in tag
+        for e in staraptor_mega.evidence
+        for tag in e.evidence
+    )
+
+
+def test_fake_out_protection_has_no_compendium_mapping():
+    """Regression, confirmed live: redirection can't stop Fake Out
+    (higher priority than redirection moves), so the previous
+    fake_out_protection -> redirection compendium mapping was
+    mechanically wrong. No real "priority protection" compendium
+    category exists either (confirmed directly against real compendium
+    data -- would only have 2 candidates even if it did, not
+    representative enough to restrict against). fake_out_protection now
+    has no compendium mapping at all, same as healing_cleric/
+    taunt_disruption, and stays on the raw-move/ability path
+    unrestricted."""
+    need = SupportNeed(
+        category="fake_out_protection",
+        name="Fake Out protection",
+        description="x",
+        trigger="requires_setup_turn:fake_out",
+    )
+    assert _compendium_roles_for_need(need) == []
+
+
+def _threat_evidence_row() -> CandidateEvidence:
+    return CandidateEvidence(
+        basis="usage_backed",
+        confidence="high",
+        producer_name="query_counters",
+        branch="threat",
+        evidence=("usage:test",),
+    )
+
+
+def _need_evidence_row(condition_beneficiary: bool = False) -> CandidateEvidence:
+    tag = "need:condition_beneficiary" if condition_beneficiary else "need:healing_cleric"
+    return CandidateEvidence(
+        basis="mechanical_only",
+        confidence="low",
+        producer_name="test",
+        branch="need",
+        evidence=(tag,),
+    )
+
+
+def test_scoped_evidence_shows_real_matching_needs_evidence_not_unrelated_threat_evidence():
+    """Regression, confirmed live: a candidate labeled "support/utility"
+    displayed 'usage_backed, high confidence' -- evidence that actually
+    belonged to its unrelated threat-counter data, while its real
+    support-need match was genuinely mechanical_only/low. The label and
+    the displayed evidence told two different, inconsistent stories.
+    Confirms scoping to Category B specifically surfaces the real,
+    weaker matching_needs evidence, not the stronger but irrelevant one.
+    """
+    full_evidence = (_threat_evidence_row(), _need_evidence_row())
+    scoped = _scoped_evidence(full_evidence, ["B"])
+    assert scoped == (_need_evidence_row(),)
+
+
+def test_scoped_evidence_shows_threat_evidence_for_category_a_only():
+    full_evidence = (_threat_evidence_row(), _need_evidence_row())
+    scoped = _scoped_evidence(full_evidence, ["A"])
+    assert scoped == (_threat_evidence_row(),)
+
+
+def test_scoped_evidence_includes_all_relevant_categories_for_multi_signal():
+    """A genuinely multi-signal candidate (strong in more than one
+    category) should show evidence from every category it's labeled
+    for, not just one."""
+    full_evidence = (_threat_evidence_row(), _need_evidence_row())
+    scoped = _scoped_evidence(full_evidence, ["A", "B"])
+    assert set(scoped) == {_threat_evidence_row(), _need_evidence_row()}
+
+
+def test_scoped_evidence_distinguishes_condition_benefit_from_support_need():
+    """Category B and C both use branch='need' -- confirms they're
+    correctly told apart via the need:condition_beneficiary tag, not
+    conflated just because they share a branch value."""
+    need_row = _need_evidence_row(condition_beneficiary=False)
+    benefit_row = _need_evidence_row(condition_beneficiary=True)
+    full_evidence = (need_row, benefit_row)
+
+    scoped_b = _scoped_evidence(full_evidence, ["B"])
+    assert scoped_b == (need_row,)
+
+    scoped_c = _scoped_evidence(full_evidence, ["C"])
+    assert scoped_c == (benefit_row,)
+
+
+def test_scoped_evidence_falls_back_to_full_evidence_when_nothing_matches():
+    """If filtering would produce an empty result (e.g. all evidence is
+    teammate-branched, which doesn't correspond to any A/B/C track),
+    falls back to the full, unfiltered evidence rather than silently
+    showing nothing."""
+    teammate_only = (
+        CandidateEvidence(
+            basis="teammate_backed",
+            confidence="medium",
+            producer_name="query_shared_teammates",
+            branch="teammate",
+        ),
+    )
+    scoped = _scoped_evidence(teammate_only, ["A"])
+    assert scoped == teammate_only
+
+
+def test_scoped_evidence_returns_full_evidence_when_no_category_keys():
+    """No category_keys at all (e.g. the older, single-locked path that
+    never sets this) -- returns the evidence unchanged, same as before
+    this fix existed."""
+    full_evidence = (_threat_evidence_row(), _need_evidence_row())
+    assert _scoped_evidence(full_evidence, []) == full_evidence
+
+
+def test_ability_based_condition_beneficiary_gets_high_not_low_confidence():
+    """Regression, confirmed live: an ability-based condition-beneficiary
+    match (e.g. Swift Swim under Rain) was hardcoded to confidence="low"
+    regardless of how strong the match actually is -- backwards from the
+    whole specificity-spectrum framework this project uses elsewhere.
+    An innate ability directly interacting with a locked condition is
+    the most mechanically certain, narrowest tier of evidence possible
+    (no "might not run it" ambiguity the way a move-commitment check
+    has) -- it should be high confidence, not the same low tier as a
+    generic, broadly-applicable match. Confirmed live: Swampert-Mega's
+    real Swift Swim match under a real, locked Rain team.
+    """
+    rows = _resolve_beneficiaries("Pelipper")
+    by_id = {to_id(row.species): row for row in rows}
+    swampert_mega = by_id.get("swampertmega")
+    assert swampert_mega is not None
+    ability_evidence = [
+        ev
+        for ev in swampert_mega.evidence
+        if ev.producer_name == "resolve_condition_beneficiaries"
+    ]
+    assert ability_evidence
+    assert all(ev.confidence == "high" for ev in ability_evidence)
+
+
+def test_wish_only_healer_gets_downgraded_for_delayed_delivery():
+    """Regression, confirmed live: Wish doesn't heal immediately -- it
+    heals whoever is on the field one turn later, which in practice
+    means switching the Wish-user out and the intended target in. That
+    costs a real, vulnerable switch-in turn (the incoming Pokemon can't
+    attack, since switching consumes the turn) and loses any stat boosts
+    the switched-out user had. A real, structural delivery cost the
+    plain "does it satisfy the need" check doesn't capture on its own.
+    Confirmed a real species (Sylveon, whose only healing_cleric move is
+    Wish) gets downgraded with an explicit, transparent tag.
+    """
+    need = SupportNeed(
+        category="healing_cleric",
+        name="Healing / cleric support",
+        description="x",
+        trigger="tank_no_self_heal",
+    )
+    names = resolve_need_candidates(need, _base_state())
+    by_id = {to_id(row.species): row for row in names}
+    sylveon = by_id.get("sylveon")
+    assert sylveon is not None
+    assert all(e.confidence == "low" for e in sylveon.evidence)
+    assert any(
+        "delayed_delivery:wish" in e.evidence for e in sylveon.evidence
+    )
+
+
+def test_candidate_with_real_immediate_heal_option_not_downgraded_for_wish():
+    """Confirms the downgrade is targeted, not blanket -- a candidate
+    that also knows a real immediate-heal move (Heal Pulse, Life Dew)
+    must not be downgraded just because it ALSO happens to know Wish,
+    since it has a better delivery option available regardless."""
+    need = SupportNeed(
+        category="healing_cleric",
+        name="Healing / cleric support",
+        description="x",
+        trigger="tank_no_self_heal",
+    )
+    names = resolve_need_candidates(need, _base_state())
+    by_id = {to_id(row.species): row for row in names}
+    clefable = by_id.get("clefable")
+    assert clefable is not None
+    assert not any(
+        "delayed_delivery:wish" in e.evidence for e in clefable.evidence
+    )

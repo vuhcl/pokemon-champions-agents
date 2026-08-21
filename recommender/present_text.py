@@ -174,7 +174,9 @@ def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
     options = pending.get("options") or []
     for i, option in enumerate(options, start=1):
         species = option.get("species") or "?"
-        bits = [f"{i}. {species}"]
+        track = option.get("track")
+        prefix = f"{i}. {track}: {species}" if track else f"{i}. {species}"
+        bits = [prefix]
         if option.get("direction_label"):
             bits.append(str(option["direction_label"]))
         role_bit = _format_option_role_bit(option.get("target_role_decision"))

@@ -22,7 +22,11 @@ from recommender.legality import is_species_legal, load_snapshot
 from recommender.matchup import effective_accuracy, expected_hit_factor
 from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.state import ThreatCandidate
-from recommender.usage_data import featured_or_common_set, ingame_species_map
+from recommender.usage_data import (
+    featured_or_common_set,
+    ingame_species_map,
+    showdown_species_map,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 _ACCURACY_PATH = REPO_ROOT / "data" / "moves" / "gen9_accuracy.v1.json"
@@ -291,6 +295,90 @@ def type_effectiveness(
     return mult
 
 
+def defensive_synergy_score(
+    candidate_types: list[str], locked_types_list: list[list[str]]
+) -> float:
+    """Positive = candidate's weaknesses are generally covered by the
+    locked team, and/or the candidate covers weaknesses the locked team
+    already has. Negative = candidate compounds shared vulnerabilities.
+    Zero if there's no locked team yet.
+
+    Bidirectional, confirmed against real data (Vu's own worked examples
+    and a 16-species stress test against known real teammates of
+    Archaludon+Pelipper) before being written as production code:
+
+    1. Compounding penalty: for each type the candidate is weak to,
+       penalize proportional to (candidate's own weakness severity) x
+       (number of locked members who ALSO share that weakness) -- a
+       weakness two team members share is a real, concentrated risk
+       (lose the one Pokemon that resists it, and both are now exposed),
+       not just "someone happens to answer it."
+    2. Coverage bonus: for each type the candidate resists/is immune to,
+       reward proportional to (how severely the team is already exposed
+       via its worst-off locked member) x (how much the candidate
+       mitigates it -- 1.0 for immunity, 0.5 for a plain resist).
+    3. Severity-scaled baseline penalty: a real weakness costs something
+       even with zero team overlap (more exploitable surface area is
+       objectively worse), scaled by how severe the weakness is (a 4x
+       weakness costs more than a 2x one) -- NOT a flat penalty
+       regardless of magnitude, which was a real bug caught and fixed
+       during validation (it let a severe 4x weakness pile up stacking
+       weaknesses without being penalized any more than a mild 2x one).
+    4. Baseline-penalty mitigation: confirmed live, a real gap -- a
+       candidate adding a weakness the locked team already RESISTS or is
+       IMMUNE to (not just "doesn't share") was penalized the same as
+       adding a weakness with zero team backup at all. Real example:
+       Sylveon adding Steel/Poison weaknesses to a team where Archaludon
+       is immune to Poison and both Archaludon and Pelipper resist Steel
+       -- the team as a whole isn't actually exposed there even though
+       Sylveon itself is. The baseline penalty (point 3) is scaled down
+       by the team's best (lowest) multiplier for that type when it's
+       genuinely below neutral -- full backup (immune, 0x) all but zeroes
+       the penalty; partial backup (resist, 0.5x) roughly halves it.
+       Deliberately separate from the compounding penalty (point 1) and
+       coverage bonus (point 2), which already handle the "team also
+       weak" and "candidate covers team's weakness" directions -- this
+       is the third, previously-missing direction: "team already backs
+       up the candidate's own weakness."
+
+    Explicitly bounded, not a complete answer on its own: confirmed via
+    the same 16-species validation that this signal alone gets roughly
+    60-70% accuracy against real known teammates -- it has no visibility
+    into role/utility (a screens setter's value), condition-synergy
+    (a Rain-boosted attacker's real offensive upside), or meta-context
+    (countering what OTHER teams commonly run). Confirmed directly that
+    the baseline-penalty-mitigation refinement (point 4) does NOT change
+    this accuracy figure on the original 16-species validation set --
+    its real misses (Grimmsnarl, Basculegion, Metagross, Charizard-Mega-Y)
+    have a different root cause entirely, not addressed by this
+    refinement. Meant to be one signal among several (see
+    team_candidates.py's per-category candidate selection), not a
+    dominant or standalone ranking factor.
+    """
+    if not locked_types_list:
+        return 0.0
+    score = 0.0
+    for attack_type in TYPE_CHART:
+        cand_mult = type_effectiveness(attack_type, candidate_types)
+        locked_mults = [
+            type_effectiveness(attack_type, t) for t in locked_types_list
+        ]
+        if cand_mult > 1.0:
+            shared_weak_count = sum(1 for m in locked_mults if m > 1.0)
+            score -= cand_mult * shared_weak_count
+            baseline_penalty = (cand_mult - 1.0) * 0.5
+            team_best = min(locked_mults) if locked_mults else 1.0
+            if team_best < 1.0:
+                baseline_penalty *= team_best
+            score -= baseline_penalty
+        if cand_mult < 1.0:
+            worst_locked = max(locked_mults) if locked_mults else 1.0
+            if worst_locked > 1.0:
+                mitigation = 1.0 - cand_mult
+                score += worst_locked * mitigation
+    return score
+
+
 def _species_types(snap: dict[str, Any], species: str) -> list[str]:
     entry = snap["species"].get(to_id(species))
     if not entry:
@@ -448,6 +536,76 @@ def threat_tier(kinds: frozenset[str]) -> int:
     return max(0, 2 - n)
 
 
+_MEGA_STONE_DOMINANCE_THRESHOLD = 80.0
+
+
+def _mega_forms_by_base(snap: dict[str, Any]) -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    for sid, entry in snap["species"].items():
+        base_id = entry.get("base_species_id")
+        if base_id:
+            out.setdefault(base_id, []).append(sid)
+    return out
+
+
+def _dominant_mega_form(
+    snap: dict[str, Any],
+    base_sid: str,
+    ig_entry: dict[str, Any],
+    mega_forms_by_base: dict[str, list[str]],
+) -> str | None:
+    """If a base species' real in-game usage is dominated (>= threshold)
+    by holding a specific mega stone, returns the corresponding mega
+    form's sid -- otherwise None.
+
+    Confirmed live, a real, significant bug: "Swampert" in real in-game
+    usage data is 95.5% Swampertite -- the usage_rank/popularity
+    currently attributed to the base form (Torrent, base stats) actually
+    belongs to the mega form (Swift Swim, boosted stats) in practice.
+    The in-game usage dataset has no separate entry for mega forms at
+    all (confirmed separately), so this is the only way to recover which
+    form real usage actually represents, using data the in-game dataset
+    already has (per-item usage share) rather than inferring anything
+    from a different, weaker-signal dataset.
+
+    No structured mega-stone-to-species link exists in either the
+    species or items snapshot data (confirmed directly) -- matches via
+    the item name containing the base species' name (e.g. "Swampertite"
+    contains "Swampert"), which reliably distinguishes real mega stones
+    from unrelated items without needing a hand-built lookup table.
+    """
+    mega_ids = mega_forms_by_base.get(base_sid)
+    if not mega_ids:
+        return None
+    base_name_id = to_id(snap["species"][base_sid]["name"])
+    items = ig_entry.get("common_items") or []
+    best_item_id: str | None = None
+    best_pct = 0.0
+    for item in items:
+        item_id = to_id(str(item.get("name") or ""))
+        if base_name_id not in item_id or item_id == base_name_id:
+            continue
+        pct = float(item.get("pct") or 0.0)
+        if pct > best_pct:
+            best_pct = pct
+            best_item_id = item_id
+    if best_item_id is None or best_pct < _MEGA_STONE_DOMINANCE_THRESHOLD:
+        return None
+    if len(mega_ids) == 1:
+        return mega_ids[0]
+    # Multiple mega forms (e.g. Charizard X/Y) -- "Charizardite Y" and
+    # "Charizard-Mega-Y" share no common suffix string beyond the final
+    # distinguishing letter itself (confirmed directly, not assumed --
+    # an earlier version of this logic incorrectly compared the full
+    # suffix and never matched anything for multi-form species). Compare
+    # just that final letter when it's the real X/Y disambiguator.
+    if best_item_id and best_item_id[-1] in ("x", "y"):
+        for mega_id in mega_ids:
+            if mega_id.endswith(best_item_id[-1]):
+                return mega_id
+    return None
+
+
 def query_counters(
     pokemon: PokemonSpecOptional,
     n: int = 20,
@@ -487,24 +645,69 @@ def query_counters(
 
     attack_types = _anchor_attack_types(snap, pokemon, anchor_types)
     ig = ingame_species_map(DEFAULT_REGULATION)
+    sd = showdown_species_map(DEFAULT_REGULATION)
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    # Precompute dominant mega forms once, before the main loop -- avoids
+    # both a retargeted base entry AND that same mega form's own,
+    # separate (weaker, fallback-only) iteration both appearing in the
+    # final pool as if they were two different candidates.
+    dominant_mega_by_base: dict[str, str] = {}
+    for base_sid in mega_forms_by_base:
+        ig_entry_for_base = ig.get(base_sid) or {}
+        mega_sid = _dominant_mega_form(
+            snap, base_sid, ig_entry_for_base, mega_forms_by_base
+        )
+        if mega_sid is not None:
+            dominant_mega_by_base[base_sid] = mega_sid
+    superseded_mega_sids = set(dominant_mega_by_base.values())
     pool: list[ThreatCandidate] = []
 
     for sid, entry in snap["species"].items():
         if sid == anchor_id or not is_species_legal(snap, sid):
             continue
-        if allowed is not None and sid not in allowed:
+        if sid in superseded_mega_sids:
+            # Already covered via its base form's retargeted processing
+            # below -- confirmed live, without this a mega form with
+            # dominant real usage would otherwise appear TWICE: once
+            # correctly (via the base form's retargeting, with the real,
+            # strong usage_rank) and once again on its own separate
+            # iteration (with only a weak, fallback-only popularity
+            # signal), as if they were two different candidates.
             continue
 
-        cand_types = list(entry.get("types") or [])
+        # Confirmed live, a real, significant bug: in-game usage data
+        # has no separate entry for mega forms at all, but a base
+        # species' real item-usage share often shows it's actually
+        # mega-evolved in practice (e.g. "Swampert" is 95.5% Swampertite
+        # in real usage) -- the usage_rank currently attributed to the
+        # base form genuinely belongs to the mega form. Retargets the
+        # mechanical evaluation (types/ability/moveset) to the dominant
+        # mega form's own real data, while keeping the base sid for the
+        # ig_entry/usage_rank lookup below, since that's where the real
+        # popularity data actually lives.
+        eval_sid = dominant_mega_by_base.get(sid, sid)
+        eval_entry = snap["species"][eval_sid]
+
+        # Checked against BOTH sid and eval_sid -- confirmed live, a real
+        # bug: a candidate_pool/available_pool filter naturally
+        # references the mega form's name once query_counters correctly
+        # reports it as such (e.g. "Delphox-Mega"), but the species being
+        # iterated here is still the base sid ("delphox") -- checking
+        # only the base sid against `allowed` would incorrectly exclude
+        # a retargeted candidate whose mega form IS in the allowed set.
+        if allowed is not None and sid not in allowed and eval_sid not in allowed:
+            continue
+
+        cand_types = list(eval_entry.get("types") or [])
         if not cand_types:
             continue
 
-        usage_set = featured_or_common_set(sid, regulation=DEFAULT_REGULATION)
+        usage_set = featured_or_common_set(eval_sid, regulation=DEFAULT_REGULATION)
         ability = None
         if usage_set and usage_set.get("ability"):
             ability = str(usage_set["ability"])
         else:
-            ability = _legality_ability(snap, sid)
+            ability = _legality_ability(snap, eval_sid)
 
         kinds: set[str] = set()
         ko_score = 0.0
@@ -517,7 +720,7 @@ def query_counters(
                 cand_types=cand_types,
                 anchor_types=anchor_types,
                 ability=ability,
-                species=sid,
+                species=eval_sid,
             )
             ko_score = min(1.0, best_bp / KO_THRESHOLD_BP) if KO_THRESHOLD_BP else 0.0
             if ko_score >= 1.0:
@@ -537,7 +740,25 @@ def query_counters(
         ig_entry = ig.get(sid) or {}
         rank = ig_entry.get("usage_rank")
         rank_i = int(rank) if rank is not None else None
-        name = str(ig_entry.get("name") or entry.get("name") or sid)
+        # When retargeted to a mega form, ig_entry's own "name" field is
+        # the BASE form's name (since ig_entry is looked up via the
+        # original base sid, where the real usage_rank lives) -- prefer
+        # eval_entry's real name in that case, not the base's.
+        name = str(eval_entry.get("name") or ig_entry.get("name") or eval_sid)
+
+        # Confirmed live: mega forms (and potentially other species) have
+        # no in-game usage_rank at all -- the underlying in-game usage
+        # data doesn't track them separately from their base form. Real
+        # Showdown usage data does exist for them (confirmed directly,
+        # under a to_id()-style key like "swampertmega", not the
+        # hyphenated species name), so it's used as a fallback popularity
+        # signal via _usage_popularity rather than always treating these
+        # species as maximally unpopular.
+        showdown_pct: float | None = None
+        if rank_i is None:
+            sd_entry = sd.get(sid) or {}
+            pct = sd_entry.get("usage_pct")
+            showdown_pct = float(pct) if pct is not None else None
 
         spec: PokemonSpecOptional = {"species": name}
         if usage_set:
@@ -557,7 +778,7 @@ def query_counters(
                 ladder_species=name,
                 usage_rank=rank_i,
                 form=name,
-                showdown_usage_pct=None,
+                showdown_usage_pct=showdown_pct,
                 showdown_formes=(),
                 spec=spec,
                 build_source="ingame",

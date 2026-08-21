@@ -36,11 +36,16 @@ from recommender.state import (
 )
 from recommender.support_needs import SupportNeed
 from recommender.team_candidates import (
+    _rank_category_a,
+    _rank_key,
     annotate_composition_impact,
     build_team_threat_objective,
+    collect_locked_anchor_contexts,
     material_completion_preferences,
     merge_multi_locked_candidates,
+    rank_multi_locked_by_category,
     rank_multi_locked_candidates,
+    select_diverse_candidates,
 )
 from recommender.teammate_types import (
     SharedAnchorEvidence,
@@ -1133,7 +1138,16 @@ def test_discover_multi_locked_publishes_resilience_and_keeps_backup_rain_setter
 
     politoed_row = next(row for row in annotated_by_discover if row.species == "Politoed")
     assert politoed_row.composition_fit == "complementary"
-    assert politoed_row.fills_essential_gap is True
+    # Split from a single fills_essential_gap bool (2026-08-19): Politoed
+    # here is a single_provider_spof backup with real build-divergent
+    # value, not a genuinely missing provider -- fills_essential_gap is
+    # now reserved for missing_provider specifically (always top ranking
+    # priority), while this SPOF-backup case is tracked separately with
+    # deliberately lower ranking priority (see _rank_key), since a weak
+    # backup-only candidate was previously outranking strong, unrelated
+    # candidates by sharing the same top-priority boolean.
+    assert politoed_row.fills_essential_gap is False
+    assert politoed_row.fills_spof_backup_gap is True
     # Live divergence vs locked Pelipper must clear the provisional threshold.
     from recommender.divergence import (
         DIVERGENCE_COMPLEMENTARY_THRESHOLD,
@@ -1208,6 +1222,9 @@ def test_unrelated_mechanic_duplication_still_demoted():
         "moves": ["Soft-Boiled", "Seismic Toss", "Toxic", "Protect"],
     }
     build, decision = _role_decision("Blissey", spec, "champions-reg-mb")
+    # Split from a single bool into (fills_missing_provider_gap,
+    # fills_spof_backup_gap) (2026-08-19) -- Blissey doesn't provide Rain
+    # at all here, so neither signal should fire.
     assert (
         _candidate_fills_condition_gap(
             decision,
@@ -1215,7 +1232,7 @@ def test_unrelated_mechanic_duplication_still_demoted():
             candidate_build=build,
             locked=contexts,
         )
-        is False
+        == (False, False)
     )
 
     candidates = [_candidate("Blissey", spec=spec)]
@@ -1499,3 +1516,790 @@ def test_residual_gap_attaches_single_synthetic_anchored_need():
     assert len(farig.anchored_needs) == 1
     assert farig.target_role_decision is not None
     assert farig.target_role_decision.role_id == "trick_room_setter"  # type: ignore[union-attr]
+
+
+def test_rank_key_weak_spof_backup_does_not_outrank_strong_unrelated_candidate():
+    """Regression, confirmed live (2026-08-19): after a Tailwind setter
+    was locked, a weak, low-confidence, mechanical_only Tailwind-backup
+    candidate (Altaria) ranked #1 -- ahead of strong, usage_backed/high-
+    confidence candidates entirely unrelated to any tracked condition
+    (Garchomp, Delphox) -- purely because fills_essential_gap treated a
+    genuinely missing need and a mere single_provider_spof backup
+    opportunity identically, and that single boolean was the FIRST,
+    highest-priority field in the rank key, ahead of evidence quality.
+
+    This is the real, deeper root cause behind the "Altaria/Staraptor
+    both tailwind_setter" alternatives-selection bug -- fixed separately
+    by _redundancy_tier_for_candidates, but that fix only ever reorders
+    candidates[1:] (the alternatives), never candidates[0] (the default),
+    so a weak SPOF-backup-only candidate could still win the default slot
+    outright. This test confirms the actual ranking order is now correct,
+    not just the alternatives display.
+    """
+    def evidence(basis, confidence):
+        return CandidateEvidence(basis=basis, confidence=confidence, producer_name="x")
+
+    # SPOF-backup-only (no missing_provider gap), weak evidence -- exactly
+    # the observed Altaria shape.
+    weak_spof_backup = AnnotatedCandidate(
+        species="Altaria",
+        matching_needs=(),
+        source="mechanical",
+        target_role_decision=TargetRoleDecision(
+            role_id="tailwind_setter", source="mechanical_only"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=True,
+        evidence=(evidence("mechanical_only", "low"),),
+        composition_fit="complementary",
+    )
+    # No gap involvement of any kind, but strong, real evidence -- exactly
+    # the observed Garchomp shape.
+    strong_unrelated = AnnotatedCandidate(
+        species="Garchomp",
+        matching_needs=(),
+        source="usage",
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_physical_attacker", source="usage_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("usage_backed", "high"),),
+        composition_fit="complementary",
+    )
+
+    key_weak = _rank_key(
+        weak_spof_backup, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    key_strong = _rank_key(
+        strong_unrelated, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    assert key_strong > key_weak, "strong unrelated evidence must outrank a weak SPOF-backup-only candidate"
+
+
+def test_rank_key_still_prioritizes_genuinely_missing_provider():
+    """A genuinely missing need (fills_essential_gap=True) must still
+    unconditionally outrank a strong, unrelated candidate -- confirms the
+    split didn't weaken the ORIGINAL, correct priority for missing_provider,
+    only separated it from the different single_provider_spof case."""
+    def evidence(basis, confidence):
+        return CandidateEvidence(basis=basis, confidence=confidence, producer_name="x")
+
+    genuinely_missing = AnnotatedCandidate(
+        species="Pelipper",
+        matching_needs=(),
+        source="mechanical",
+        target_role_decision=TargetRoleDecision(
+            role_id="tailwind_setter", source="mechanical_only"
+        ),
+        fills_essential_gap=True,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("mechanical_only", "low"),),
+        composition_fit="complementary",
+    )
+    strong_unrelated = AnnotatedCandidate(
+        species="Garchomp",
+        matching_needs=(),
+        source="usage",
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_physical_attacker", source="usage_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("usage_backed", "high"),),
+        composition_fit="complementary",
+    )
+    key_missing = _rank_key(
+        genuinely_missing, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    key_strong = _rank_key(
+        strong_unrelated, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    assert key_missing > key_strong, "a genuinely missing provider must still win top priority"
+
+
+def test_rank_key_shared_teammate_decides_over_raw_evidence_when_otherwise_tied():
+    """Real design decision, confirmed with Vu directly: shared-teammate
+    co-occurrence (a proxy for real mechanism/threat-coverage synergy the
+    calc-based matchup model doesn't fully capture on its own) should have
+    meaningful ranking influence, not be an effectively-dead last-resort
+    tie-break. Previously positioned immediately after best_evidence,
+    where candidates almost never actually tie (evidence quality varies
+    constantly), making it structurally unable to matter in practice.
+    Repositioned ahead of best_evidence: confirms a candidate with a real,
+    strong shared-teammate signal now correctly outranks one with only
+    stronger raw evidence confidence, when every genuinely-computed
+    team-value field (threat-coverage, fit, preference, needs) ties.
+    """
+    def evidence(basis, confidence):
+        return CandidateEvidence(basis=basis, confidence=confidence, producer_name="x")
+
+    strong_shared_teammate = AnnotatedCandidate(
+        species="Swampert-Mega",
+        matching_needs=(),
+        source="teammate_backed",
+        target_role_decision=TargetRoleDecision(
+            role_id="rain_attacker", source="teammate_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("mechanical_only", "low"),),
+        composition_fit="complementary",
+        shared_min_pct=48.5,
+        shared_worst_rank=2,
+    )
+    strong_evidence_no_shared = AnnotatedCandidate(
+        species="Delphox",
+        matching_needs=(),
+        source="usage",
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_special_attacker", source="usage_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("usage_backed", "high"),),
+        composition_fit="complementary",
+        shared_min_pct=None,
+        shared_worst_rank=None,
+    )
+    key_shared = _rank_key(
+        strong_shared_teammate, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    key_evidence = _rank_key(
+        strong_evidence_no_shared, objective=(), preference=None, regulation="champions-reg-mb"
+    )
+    assert key_shared > key_evidence
+
+
+def test_rank_key_real_threat_coverage_still_beats_shared_teammate_correlation():
+    """Confirms the design boundary holds: shared-teammate evidence must
+    NOT override genuinely-computed, real threat-coverage superiority --
+    it only matters as a tie-breaker among comparably-valuable candidates,
+    per the explicit design decision this repositioning was scoped to."""
+    def evidence(basis, confidence):
+        return CandidateEvidence(basis=basis, confidence=confidence, producer_name="x")
+
+    objective = (_objective(threat_id="target", kinds=frozenset({"uncovered"})),)
+    real_coverage = AnnotatedCandidate(
+        species="Garchomp",
+        matching_needs=(),
+        source="usage",
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_physical_attacker", source="usage_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("usage_backed", "high"),),
+        composition_fit="complementary",
+        shared_min_pct=None,
+        shared_worst_rank=None,
+        threat_row=_counter("Garchomp", outcome="clean_kill", severity="decisive"),
+    )
+    weak_but_strongly_shared = AnnotatedCandidate(
+        species="Sinistcha",
+        matching_needs=(),
+        source="teammate_backed",
+        target_role_decision=TargetRoleDecision(
+            role_id="cleric", source="teammate_backed"
+        ),
+        fills_essential_gap=False,
+        fills_spof_backup_gap=False,
+        evidence=(evidence("mechanical_only", "low"),),
+        composition_fit="complementary",
+        shared_min_pct=99.0,
+        shared_worst_rank=1,
+    )
+    key_coverage = _rank_key(
+        real_coverage, objective=objective, preference=None, regulation="champions-reg-mb"
+    )
+    key_shared = _rank_key(
+        weak_but_strongly_shared,
+        objective=objective,
+        preference=None,
+        regulation="champions-reg-mb",
+    )
+    assert key_coverage > key_shared
+
+
+def test_condition_beneficiaries_discovered_in_multi_locked_pipeline():
+    """Regression for a real, confirmed gap: resolve_condition_beneficiaries
+    (real Rain-beneficiary discovery, e.g. Basculegion) had exactly one
+    caller in the whole codebase -- discover_single_locked -- and was
+    never wired into the multi-locked pipeline at all. This is the exact
+    scenario every live-observed candidate-quality issue in this whole
+    investigation actually occurred in (2+ locked members). Confirmed
+    directly against the real Archaludon+Pelipper(Drizzle) scenario:
+    Basculegion (real Swift Swim Rain-beneficiary) now gets discovered
+    with correctly-attributed evidence, not silently missing.
+    """
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    merged = merge_multi_locked_candidates(
+        state, contexts, (), None, ownership_mode="off", owned_species=frozenset()
+    )
+    basculegion = next(
+        (row for row in merged if row.species == "Basculegion"), None
+    )
+    assert basculegion is not None
+    categories = {need.category for need in basculegion.matching_needs}
+    assert "condition_beneficiary" in categories
+    assert any(
+        "condition:Rain" in e.evidence for e in basculegion.evidence
+    )
+
+
+def test_condition_beneficiary_checks_every_locked_anchor_not_just_first():
+    """Confirms the condition-provider check loops over every locked
+    anchor -- Rain here comes from the SECOND locked member (Pelipper),
+    not the first (Archaludon), and must still be found."""
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    # confirm Archaludon (first locked) does NOT itself provide Rain --
+    # this test is only meaningful if the provider is genuinely the
+    # second anchor, not the first.
+    archaludon_ctx = next(c for c in contexts if c.resolved_build.species == "Archaludon")
+    from recommender.condition_resilience import mechanism_condition
+    archaludon_provides = {
+        mechanism_condition(m)
+        for m in archaludon_ctx.role_decision.mechanisms
+        if m.present and m.relation == "provides"
+    }
+    assert "Rain" not in archaludon_provides
+
+    merged = merge_multi_locked_candidates(
+        state, contexts, (), None, ownership_mode="off", owned_species=frozenset()
+    )
+    assert any(row.species == "Basculegion" for row in merged)
+
+
+def _synth_category_a(species: str, matchups) -> AnnotatedCandidate:
+    row = _counter(species, matchups=matchups, usage_rank=None)
+    return AnnotatedCandidate(
+        species=species,
+        matching_needs=(),
+        source="threat",
+        threat_row=row,
+        spec={"species": species},
+        evidence=(),
+        branches=frozenset({"threat"}),
+    )
+
+
+_ARCHALUDON_PELIPPER_LOCKED_TYPES = [["Steel", "Dragon"], ["Water", "Flying"]]
+
+
+def test_rank_category_a_balances_verified_score_against_synergy():
+    """Regression, confirmed live: a prior naive-sum combination of
+    threat-counter breadth and type-synergy let the higher-magnitude
+    signal (verified_score, can be 8+ across multiple threats) dominate
+    the much smaller-magnitude signal (defensive_synergy_score,
+    typically single-digit) completely, the same failure mode already
+    found once in this investigation for a different pair of signals.
+    Rank-based combination (this test) must NOT let raw magnitude decide
+    -- Kingambit has the highest raw verified_score of anyone here, but
+    its severe negative synergy (compounds Archaludon's own weaknesses)
+    must pull it out of the top spot, and Swampert-Mega's weak raw
+    verified_score must not prevent it from beating several stronger-
+    verified but synergy-poor candidates.
+    """
+    pool = [
+        _synth_category_a(
+            "Kingambit",
+            (("t1", "clean_kill", "decisive"), ("t2", "clean_kill", "decisive"), ("t3", "intentional_non_ko_answer", "costly")),
+        ),
+        _synth_category_a(
+            "Excadrill",
+            (("t1", "clean_kill", "decisive"), ("t2", "clean_kill", "costly")),
+        ),
+        _synth_category_a(
+            "Gholdengo",
+            (("t1", "clean_kill", "decisive"), ("t2", "intentional_non_ko_answer", "decisive"), ("t3", "clean_kill", "toss-up")),
+        ),
+        _synth_category_a(
+            "Garchomp",
+            (("t1", "clean_kill", "decisive"), ("t2", "clean_kill", "decisive")),
+        ),
+        _synth_category_a("Delphox", (("t1", "intentional_non_ko_answer", "costly"),)),
+        _synth_category_a(
+            "Swampert-Mega",
+            (("t1", "clean_kill", "costly"), ("t2", "intentional_non_ko_answer", "toss-up")),
+        ),
+    ]
+    ranked = _rank_category_a(pool, _ARCHALUDON_PELIPPER_LOCKED_TYPES)
+    order = [c.species for c in ranked]
+    kingambit_rank = order.index("Kingambit")
+    swampert_rank = order.index("Swampert-Mega")
+    # Kingambit has the single highest raw verified_score in the pool
+    # (9.0) but must not win outright given its terrible synergy.
+    assert order[0] != "Kingambit"
+    # Swampert-Mega has the second-LOWEST raw verified_score (2.5) but
+    # its strong synergy must still let it beat Kingambit specifically.
+    assert swampert_rank < kingambit_rank
+
+
+def test_select_diverse_candidates_dedupes_by_lineage_not_exact_species_id():
+    """Regression for a real bug found live: the dedup logic only checked
+    exact species-id match, which doesn't catch a mega/regional-form
+    duplicate of the same underlying species (Abomasnow and
+    Abomasnow-Mega both selected as if genuinely different candidates).
+    Fixed via lineage_ids grouping -- confirms it holds across both the
+    multi-signal-detection step and the final alternatives dedup.
+    """
+    base = _synth_category_a(
+        "Abomasnow", (("t1", "clean_kill", "decisive"),)
+    )
+    mega = _synth_category_a(
+        "Abomasnow-Mega", (("t1", "clean_kill", "decisive"),)
+    )
+    other = _synth_category_a(
+        "Garchomp", (("t1", "intentional_non_ko_answer", "costly"),)
+    )
+    result = select_diverse_candidates(
+        [base, mega, other], (), n_alternatives=2
+    )
+    all_selected = [result["default"], *result["alternatives"]]
+    all_selected = [s for s in all_selected if s is not None]
+    from recommender.usage_data import lineage_ids
+
+    seen_lineages: list[set] = []
+    for species in all_selected:
+        lineage = set(lineage_ids(species))
+        assert not any(lineage & seen for seen in seen_lineages), (
+            f"{species} shares a lineage with an already-selected candidate"
+        )
+        seen_lineages.append(lineage)
+
+
+def _condition_beneficiary_evidence(
+    basis: str = "mechanical_only", confidence: str = "high"
+) -> CandidateEvidence:
+    """Matches real production evidence shape from
+    resolve_condition_beneficiaries -- includes the 'need:
+    condition_beneficiary' tag the scoping logic in
+    _need_branch_evidence requires to correctly distinguish Category C
+    from Category B evidence, unlike the generic _evidence() helper,
+    which doesn't set any evidence tags at all."""
+    return CandidateEvidence(
+        basis=basis,  # type: ignore[arg-type]
+        confidence=confidence,  # type: ignore[arg-type]
+        producer_name="test",
+        branch="need",
+        evidence=("need:condition_beneficiary", "condition:Rain"),
+    )
+
+
+def test_select_diverse_candidates_picks_from_each_nonempty_category():
+    """End-to-end: with real candidates present in all three categories,
+    confirms the selection draws from more than just one category rather
+    than collapsing back to a single ranking."""
+    category_a = _synth_category_a(
+        "Garchomp", (("t1", "clean_kill", "decisive"),)
+    )
+    category_b = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    category_c = AnnotatedCandidate(
+        species="Basculegion",
+        matching_needs=(_need("condition_beneficiary"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Basculegion"},
+        evidence=(_condition_beneficiary_evidence(),),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates(
+        [category_a, category_b, category_c], (), n_alternatives=2
+    )
+    selected = {result["default"], *result["alternatives"]}
+    assert "Grimmsnarl" in selected
+    assert "Basculegion" in selected
+
+
+def test_merge_multi_locked_filters_already_provided_tailwind_need():
+    """Regression, confirmed live: Archaludon's real, speed-tier-triggered
+    'tailwind' support need was still being surfaced as unmet even though
+    Pelipper (also locked) already provides Tailwind via its own move --
+    query_support_needs generates needs per-anchor with zero awareness of
+    what the rest of the locked team already has. Confirms trick_room (a
+    provider-type need the team genuinely does NOT yet have) is
+    unaffected -- this is a targeted filter, not a blanket removal of
+    speed-control needs.
+    """
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    merged = merge_multi_locked_candidates(
+        state, contexts, (), None, ownership_mode="off", owned_species=frozenset()
+    )
+    tailwind_matches = [
+        row for row in merged if any(n.category == "tailwind" for n in row.matching_needs)
+    ]
+    assert tailwind_matches == []
+    trick_room_matches = [
+        row for row in merged if any(n.category == "trick_room" for n in row.matching_needs)
+    ]
+    assert len(trick_room_matches) > 0
+
+
+def test_provided_conditions_reflects_real_locked_mechanisms():
+    """Direct unit test for the new helper: confirms it correctly
+    identifies Tailwind as team-provided (via Pelipper's move) and
+    Trick Room as NOT provided, using the real anchor-resolution
+    pipeline, not a hand-constructed mock."""
+    from recommender.condition_resilience import provided_conditions
+
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    conditions = provided_conditions(contexts)
+    assert "Tailwind" in conditions
+    assert "Rain" in conditions
+    assert "Trick Room" not in conditions
+
+
+def test_select_diverse_candidates_returns_track_labels():
+    """Confirms select_diverse_candidates surfaces which track each pick
+    came from -- default and each alternative -- using the exact labels
+    requested directly, not an inferred format."""
+    category_a = _synth_category_a(
+        "Garchomp", (("t1", "clean_kill", "decisive"),)
+    )
+    category_b = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    category_c = AnnotatedCandidate(
+        species="Basculegion",
+        matching_needs=(_need("condition_beneficiary"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Basculegion"},
+        evidence=(_condition_beneficiary_evidence(),),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates(
+        [category_a, category_b, category_c], (), n_alternatives=2
+    )
+    tracks = result["tracks"]
+    assert tracks["Garchomp"] == "threat coverage + type synergy"
+    assert tracks["Grimmsnarl"] == "support/utility"
+    assert tracks["Basculegion"] == "condition synergy"
+
+
+def test_select_diverse_candidates_combines_track_labels_for_multi_signal_default():
+    """A genuinely multi-signal default (strong in more than one
+    category) should have its track label reflect ALL contributing
+    categories, not just one -- confirms the combined-label logic, not
+    just single-category labeling."""
+    # A candidate that is BOTH a real threat-counter AND satisfies a
+    # support-need -- confirmed multi-signal by construction here.
+    multi_signal = AnnotatedCandidate(
+        species="Sylveon",
+        matching_needs=(_need("screens"),),
+        source="both",
+        threat_row=_counter(
+            "Sylveon", outcome="clean_kill", severity="decisive", usage_rank=1
+        ),
+        spec={"species": "Sylveon"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"threat", "need"}),
+    )
+    weak_a_only = _synth_category_a(
+        "Delphox", (("t2", "intentional_non_ko_answer", "toss-up"),)
+    )
+    weak_b_only = AnnotatedCandidate(
+        species="Klefki",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Klefki"},
+        evidence=(_evidence("mechanical_only"),),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates(
+        [multi_signal, weak_a_only, weak_b_only], (), n_alternatives=2
+    )
+    assert result["default"] == "Sylveon"
+    assert result["tracks"]["Sylveon"] == (
+        "threat coverage + type synergy + support/utility"
+    )
+
+
+def test_multi_signal_default_requires_strong_evidence_not_just_top3():
+    """Regression, confirmed live: Gholdengo's screens match was
+    trigger=None (already downgraded to low confidence by an earlier
+    fix), yet Gholdengo still won default status as "genuinely multi-
+    signal" purely by ranking top-3 within Category B -- possible only
+    because screens' unconditional generation means many candidates
+    share that same low-confidence floor, making "top 3 of a category
+    where everyone is weak" look identical to genuine multi-dimensional
+    strength. A weak Category B match must not inflate multi-signal
+    status; only strong (confidence != low) evidence should count.
+    """
+    strong_a_only = _synth_category_a(
+        "Garchomp", (("t1", "clean_kill", "decisive"),)
+    )
+    weak_evidence = CandidateEvidence(
+        basis="mechanical_only",
+        confidence="low",
+        producer_name="test",
+        branch="need",
+    )
+    weak_multi = AnnotatedCandidate(
+        species="Gholdengo",
+        matching_needs=(_need("screens"),),
+        source="both",
+        threat_row=_counter(
+            "Gholdengo", outcome="clean_kill", severity="decisive", usage_rank=1
+        ),
+        spec={"species": "Gholdengo"},
+        evidence=(weak_evidence,),
+        branches=frozenset({"threat", "need"}),
+    )
+    other_b = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(weak_evidence,),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates(
+        [strong_a_only, weak_multi, other_b], (), n_alternatives=2
+    )
+    # Gholdengo must NOT get the combined "threat coverage + support/
+    # utility" label -- its screens evidence is too weak to count.
+    assert result["tracks"].get("Gholdengo") != (
+        "threat coverage + type synergy + support/utility"
+    )
+
+
+def test_select_diverse_candidates_excludes_low_confidence_only_from_category_b_c():
+    """Regression, confirmed live: a candidate whose ONLY evidence for a
+    category is low confidence must not be selected as that category's
+    representative at all, even as its top-ranked candidate within a
+    weak pool -- confirmed as a deliberate design decision, not assumed:
+    other signals (shared-teammate, additional matching_needs) are only
+    meant to rank candidates within a genuine confidence tier, never to
+    substitute for one. A category with no strong-evidence candidate at
+    all correctly contributes nothing, falling through to whatever
+    other categories have available (existing fallback logic, unchanged
+    by this fix).
+    """
+    weak_only = AnnotatedCandidate(
+        species="Sylveon",
+        matching_needs=(_need("healing_cleric"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Sylveon"},
+        evidence=(
+            CandidateEvidence(
+                basis="mechanical_only",
+                confidence="low",
+                producer_name="test",
+                branch="need",
+            ),
+        ),
+        branches=frozenset({"need"}),
+    )
+    strong_a = _synth_category_a(
+        "Garchomp", (("t1", "clean_kill", "decisive"),)
+    )
+    result = select_diverse_candidates([weak_only, strong_a], (), n_alternatives=2)
+    assert "Sylveon" not in {result["default"], *result["alternatives"]}
+
+
+def test_select_diverse_candidates_still_includes_genuinely_strong_category_b():
+    """Confirms the fix is targeted, not a blanket exclusion of Category
+    B/C -- a candidate with genuine, non-low evidence for the category
+    must still be selectable."""
+    strong_b = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="test",
+                branch="need",
+            ),
+        ),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates([strong_b], (), n_alternatives=2)
+    assert result["default"] == "Grimmsnarl"
+
+
+def test_rank_by_need_evidence_scoped_to_relevant_category_not_full_evidence():
+    """Regression, confirmed live: a candidate's strong, unrelated
+    evidence (e.g. real threat-counter data) mixed into its overall
+    evidence tuple was incorrectly letting it pass Category B's
+    confidence gate and rank highly within it, even though its actual,
+    genuinely weak support-need evidence never should have qualified on
+    its own. Same class of bug as the earlier evidence-display scoping
+    fix, but here affecting the underlying selection logic itself, not
+    just what gets displayed afterward.
+    """
+    strong_threat_evidence = CandidateEvidence(
+        basis="usage_backed",
+        confidence="high",
+        producer_name="query_counters",
+        branch="threat",
+        evidence=("usage:sylveon",),
+    )
+    weak_need_evidence = CandidateEvidence(
+        basis="mechanical_only",
+        confidence="low",
+        producer_name="test",
+        branch="need",
+        evidence=("need:healing_cleric", "trigger:tank_no_self_heal", "move:wish"),
+    )
+    sylveon_shaped = AnnotatedCandidate(
+        species="Sylveon",
+        matching_needs=(_need("healing_cleric"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Sylveon"},
+        evidence=(strong_threat_evidence, weak_need_evidence),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates([sylveon_shaped], (), n_alternatives=2)
+    assert result["default"] is None
+    assert result["alternatives"] == []
+
+
+def test_rank_by_need_evidence_correctly_distinguishes_b_and_c_scoping():
+    """Confirms _need_branch_evidence's condition_beneficiary parameter
+    actually changes which evidence counts -- a candidate whose only
+    strong evidence is condition_beneficiary-tagged should qualify for
+    Category C but not Category B, and vice versa."""
+    condition_evidence = CandidateEvidence(
+        basis="mechanical_only",
+        confidence="high",
+        producer_name="test",
+        branch="need",
+        evidence=("need:condition_beneficiary", "condition:Rain"),
+    )
+    rain_only = AnnotatedCandidate(
+        species="Basculegion",
+        matching_needs=(_need("condition_beneficiary"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Basculegion"},
+        evidence=(condition_evidence,),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates([rain_only], (), n_alternatives=2)
+    assert result["default"] == "Basculegion"
+    assert result["tracks"]["Basculegion"] == "condition synergy"
+
+
+def test_rank_multi_locked_by_category_gives_each_category_its_own_cut():
+    """Regression, confirmed live: rank_multi_locked_candidates' single,
+    combined top-10 cut (via the old _rank_key) was defeating
+    select_diverse_candidates' entire purpose -- genuinely valuable
+    Category B/C candidates got cut from the pool entirely whenever
+    10+ candidates ranked higher by threat-coverage/type-synergy
+    criteria alone, the common case with real threat-counter data.
+    Confirms each category now gets its own top-N cut: 15 strong
+    Category A candidates and 1 real Category B candidate must both
+    survive, not just the 10 A-category candidates a shared cut would
+    have kept.
+    """
+    category_a_candidates = [
+        _synth_category_a(f"Attacker{i}", (("t1", "clean_kill", "decisive"),))
+        for i in range(15)
+    ]
+    category_b_candidate = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    pool = [*category_a_candidates, category_b_candidate]
+    result = rank_multi_locked_by_category(pool, (), n_per_category=10)
+    result_species = {c.species for c in result}
+    assert "Grimmsnarl" in result_species, (
+        "Category B candidate must survive its own cut, not be squeezed "
+        "out by 15 Category A candidates in a shared ranking"
+    )
+    assert len(result_species) == 11  # 10 from category A + 1 from B

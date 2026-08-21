@@ -2744,11 +2744,19 @@ def discover_single_locked(state: RecommenderState) -> dict:
 
     context = discovery.context
     annotate_overlap(context)
+    from recommender.anchor_roles import provided_weather_conditions
+
+    anchor_weathers = (
+        provided_weather_conditions(discovery.anchor_role_decision)
+        if hasattr(discovery.anchor_role_decision, "mechanisms")
+        else ()
+    )
     resolve_all_support_needs(
         context,
         state,
         available_species=owned_species_ids(state),
         ownership_mode=state.get("ownership_mode", "off"),
+        locked_weather=anchor_weathers[0] if anchor_weathers else None,
     )
     resolve_condition_beneficiaries(
         context,
@@ -2809,6 +2817,7 @@ def _compute_team_review(
     state: RecommenderState, config: RunnableConfig
 ) -> TeamReviewResult:
     from recommender.matchup import bind_matchup_memo_thread
+    from recommender.team_candidates import collect_locked_anchor_contexts
 
     thread_id = (config.get("configurable") or {}).get("thread_id")
     bind_matchup_memo_thread(thread_id)
@@ -2816,12 +2825,17 @@ def _compute_team_review(
     specs = [c.spec for c in candidates]
     regulation = state.get("regulation_mod") or "champions"
     draft = state["team_draft"]
+    locked_contexts = collect_locked_anchor_contexts(state)
     try:
-        coverage = compute_team_coverage(draft, specs, regulation=regulation)
+        coverage = compute_team_coverage(
+            draft, specs, regulation=regulation, locked_contexts=locked_contexts
+        )
     except (CalcClientError, MatchupEvidenceError) as exc:
         return _unavailable_team_review(candidates, exc, "coverage")
     try:
-        spofs = detect_spof(draft, specs, regulation=regulation)
+        spofs = detect_spof(
+            draft, specs, regulation=regulation, locked_contexts=locked_contexts
+        )
     except (CalcClientError, MatchupEvidenceError) as exc:
         return _unavailable_team_review(candidates, exc, "spof")
     return TeamReviewResult(
@@ -2893,7 +2907,7 @@ def discover_multi_locked(
         mega_ceiling_notices,
         merge_multi_locked_candidates,
         owned_species_ids,
-        rank_multi_locked_candidates,
+        rank_multi_locked_by_category,
     )
     from recommender.threat_counters import query_candidates_for_threats
     from recommender.usage_data import lineage_ids
@@ -2970,6 +2984,7 @@ def discover_multi_locked(
         available_pool=sorted(owned),
         ownership_mode=ownership_mode,
         excluded_species=excluded,
+        locked_contexts=contexts,
     )
     if threat_discovery.status == "unavailable":
         return {
@@ -3021,14 +3036,14 @@ def discover_multi_locked(
                 },
             }
 
-    ranked = rank_multi_locked_candidates(
-        candidates,
-        objective=objective,
-        preference=preference,
-        ownership_mode=ownership_mode,
-        owned_species=owned,
-        regulation=state.get("regulation_mod") or "champions-reg-mb",
-    )
+    # Category-aware cut, not the old single-ranking rank_multi_locked_candidates
+    # -- confirmed live, a real, significant bug: that function's shared
+    # top-10 cut (via the old _rank_key) was defeating select_diverse_candidates'
+    # entire purpose, since genuinely valuable Category B/C candidates
+    # got cut from the pool entirely whenever 10+ candidates ranked
+    # higher by threat-coverage/type-synergy criteria alone -- the
+    # common case with real threat-counter data from live calc.
+    ranked = rank_multi_locked_by_category(candidates, contexts)
     if not ranked:
         # Mirrors discover_single_locked's leniency exactly: try an
         # archetype-driven proposal before giving up outright, rather than
@@ -3047,6 +3062,8 @@ def discover_multi_locked(
             annotated_candidates=ranked,
             candidates_pre_ranked=True,
             notices=mega_ceiling_notices(state),
+            condition_resilience=resilience,
+            locked_contexts=tuple(contexts),
         ),
         state,
         slot_index=slot_index,

@@ -9,8 +9,11 @@ from recommender.counters import (
     ASSUMED_HITS_TAKEN,
     KO_THRESHOLD_BP,
     QUERY_COUNTERS_SLACK,
+    _dominant_mega_form,
     _ko_best_move,
+    _mega_forms_by_base,
     _scaled_base_power,
+    defensive_synergy_score,
     query_counters,
     threat_tier,
     type_effectiveness,
@@ -413,3 +416,177 @@ def test_battle_state_bp_assumptions_not_conflated():
     )
     assert abs(so_bp - base_bp * 1.2) < 1e-6
     assert so_bp > base_bp
+
+
+def test_defensive_synergy_score_no_locked_team_returns_zero():
+    assert defensive_synergy_score(["Water", "Ground"], []) == 0.0
+
+
+def test_defensive_synergy_score_matches_validated_worked_examples():
+    """Regression, confirmed against Vu's own worked examples and cross-
+    checked directly against the real TYPE_CHART before being written as
+    production code: for an Archaludon (Steel/Dragon) + Pelipper
+    (Water/Flying) locked team, Swampert (a real teammate) should score
+    clearly positive -- its one weakness (Grass) is shared by neither
+    locked member, and it covers Pelipper's severe 4x Electric weakness
+    via immunity. Kingambit (confirmed NOT purely explained by this
+    signal alone -- it's a real teammate for reasons outside type-chart
+    math, see the multi-signal design) should score clearly negative on
+    THIS signal specifically -- its Fighting/Ground weaknesses directly
+    compound with Archaludon's own.
+    """
+    locked = [["Steel", "Dragon"], ["Water", "Flying"]]
+    swampert = defensive_synergy_score(["Water", "Ground"], locked)
+    kingambit = defensive_synergy_score(["Dark", "Steel"], locked)
+    assert swampert > 0
+    assert kingambit < 0
+    assert swampert > kingambit
+
+
+def test_defensive_synergy_score_penalizes_weakness_severity_not_flat():
+    """Regression for a real bug caught and fixed during validation: the
+    baseline fragility penalty (for a weakness with zero team overlap)
+    must scale with the weakness's own severity, not apply a flat
+    penalty regardless of magnitude -- a candidate with a severe 4x
+    weakness should score worse than one with only a 2x weakness in the
+    same type, all else equal, even when neither weakness overlaps with
+    the locked team at all (isolating severity from the compounding
+    penalty entirely).
+    """
+    # Normal is genuinely neutral (1.0x) to Grass -- unlike an earlier
+    # version of this test that used Fire, which actually resists Grass
+    # (0.5x) and, after the backup-mitigation refinement, scaled both
+    # cases down to the same value, masking the severity difference this
+    # test exists to isolate. Confirmed directly before trusting it.
+    locked = [["Normal"]]
+    four_x_grass_weak = defensive_synergy_score(["Water", "Ground"], locked)
+    two_x_grass_weak = defensive_synergy_score(["Water"], locked)
+    assert four_x_grass_weak < two_x_grass_weak
+
+
+def test_defensive_synergy_score_mitigates_baseline_penalty_when_team_has_real_backup():
+    """Regression, confirmed live: a candidate adding a weakness the
+    locked team already RESISTS or is IMMUNE to should not be penalized
+    the same as adding a weakness with zero team backup at all -- the
+    team as a whole isn't actually exposed there even though the
+    candidate itself is. Real example: Sylveon (Fairy) adds Steel and
+    Poison weaknesses to an Archaludon(Steel/Dragon)+Pelipper(Water/
+    Flying) team where Archaludon is immune to Poison and both
+    Archaludon and Pelipper resist Steel -- confirmed against the real
+    type chart before writing this test. Deliberately separate from the
+    compounding penalty and coverage bonus, which already handle "team
+    also weak" and "candidate covers team's weakness" -- this is the
+    third direction: "team already backs up the candidate's own
+    weakness."
+    """
+    locked = [["Steel", "Dragon"], ["Water", "Flying"]]  # Archaludon, Pelipper
+    sylveon_with_mitigation = defensive_synergy_score(["Fairy"], locked)
+    # Same weaknesses (Steel, Poison, both 2x), but against a locked team
+    # with genuinely zero relationship to either type -- confirms the
+    # mitigated score is meaningfully higher than what an unmitigated
+    # baseline penalty would have produced for the identical weaknesses.
+    neutral_locked = [["Normal"]]
+    sylveon_no_backup = defensive_synergy_score(["Fairy"], neutral_locked)
+    assert sylveon_with_mitigation > sylveon_no_backup
+
+
+def test_defensive_synergy_score_full_immunity_backs_up_more_than_partial_resist():
+    """Confirms immunity (0x) backup mitigates the baseline weakness
+    penalty more strongly than a plain resist (0.5x) does, for the same
+    added weakness.
+
+    Not a fully isolated single-effect test -- confirmed directly that
+    no such pairing exists in the real type chart without also
+    triggering some other real interaction (the compounding penalty or
+    coverage bonus), since types are too interconnected for a pure
+    single-effect example to exist. Ghost is immune to Fighting and
+    Flying resists it; Normal (weak only to Fighting) against each
+    isolates the weakness type itself even if other real terms also
+    contribute -- the comparison (immune backup scoring meaningfully
+    higher than resist backup) is what this test actually needs to hold,
+    not a claim of zero other interaction.
+    """
+    resist_backup = defensive_synergy_score(["Normal"], [["Flying"]])
+    immune_backup = defensive_synergy_score(["Normal"], [["Ghost"]])
+    assert immune_backup > resist_backup
+
+
+def test_dominant_mega_form_swampert_real_data():
+    """Regression, confirmed live: "Swampert" in real in-game usage data
+    is 95.5% Swampertite -- the usage_rank currently attributed to the
+    base form (Torrent, base stats) actually belongs to the mega form
+    (Swift Swim, boosted stats) in practice. Confirms the real, exact
+    scenario that motivated this fix.
+    """
+    from recommender.legality import load_snapshot
+    from recommender.usage_data import ingame_species_map
+
+    snap = load_snapshot()
+    ig = ingame_species_map("champions-reg-mb")
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    ig_entry = ig.get("swampert") or {}
+    result = _dominant_mega_form(snap, "swampert", ig_entry, mega_forms_by_base)
+    assert result == "swampertmega"
+
+
+def test_dominant_mega_form_handles_multi_form_species_charizard():
+    """Charizard has two real mega forms (X/Y) -- confirms the dominant
+    one (Y, per real in-game item share) is correctly identified, not
+    just "some" mega form or the wrong one."""
+    from recommender.legality import load_snapshot
+    from recommender.usage_data import ingame_species_map
+
+    snap = load_snapshot()
+    ig = ingame_species_map("champions-reg-mb")
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    ig_entry = ig.get("charizard") or {}
+    result = _dominant_mega_form(snap, "charizard", ig_entry, mega_forms_by_base)
+    assert result == "charizardmegay"
+
+
+def test_dominant_mega_form_returns_none_below_threshold():
+    """A species with no dominant mega-stone item share (or no mega form
+    at all) must not be retargeted -- confirms this is a real, threshold-
+    gated decision, not applied blanket to every species with a mega
+    form available."""
+    from recommender.legality import load_snapshot
+    from recommender.usage_data import ingame_species_map
+
+    snap = load_snapshot()
+    ig = ingame_species_map("champions-reg-mb")
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    # A species with no mega form at all
+    ig_entry = ig.get("garchomp") or {}
+    result = _dominant_mega_form(snap, "garchomp", ig_entry, mega_forms_by_base)
+    assert result is None
+
+
+def test_query_counters_reports_mega_form_directly_not_base():
+    """End-to-end confirmation against real data: querying for threats to
+    Archaludon now correctly surfaces "Swampert-Mega" directly (Swift
+    Swim, Swampertite, real usage_rank retargeted from the base entry's
+    real popularity), not "Swampert" (Torrent, base stats) -- the exact
+    live scenario that motivated this whole investigation.
+    """
+    counters = query_counters({"species": "Archaludon"})
+    swampert_related = [c for c in counters if "swampert" in c.ladder_species.lower()]
+    assert len(swampert_related) == 1
+    candidate = swampert_related[0]
+    assert candidate.ladder_species == "Swampert-Mega"
+    assert candidate.usage_rank == 20
+    assert candidate.spec.get("ability") == "Swift Swim"
+
+
+def test_query_counters_candidate_pool_matches_retargeted_mega_name():
+    """Regression, a real bug found while verifying this fix: a
+    candidate_pool/available_pool filter naturally references a
+    retargeted mega form's real name (e.g. "Delphox-Mega", once
+    query_counters correctly reports it as such) -- confirms this is
+    matched correctly against the base species actually being iterated
+    internally, not incorrectly excluded because the base id itself
+    isn't literally in the allowed set.
+    """
+    result = query_counters(
+        {"species": "Archaludon"}, candidate_pool=[{"species": "Swampert-Mega"}]
+    )
+    assert any(c.ladder_species == "Swampert-Mega" for c in result)

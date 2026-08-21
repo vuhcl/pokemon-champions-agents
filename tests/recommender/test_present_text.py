@@ -484,3 +484,62 @@ def test_no_pending_message_idle_unchanged():
     assert (
         format_no_pending({"pending_presentation": None}) == NO_PENDING_MESSAGE
     )
+
+
+def test_candidate_selection_renders_track_before_species():
+    """Confirms the track label renders first, before the species name --
+    explicit design requirement, not incidental formatting ('state the
+    track they come from first, so the user can say "give me a different
+    threat coverage"'). Surfacing only, steering itself is explicitly
+    scoped out."""
+    text = format_turn(
+        {
+            "pending_presentation": {
+                "kind": "candidate_selection",
+                "slot_index": 0,
+                "options": [
+                    {
+                        "species": "Grimmsnarl",
+                        "source": "need",
+                        "track": "support/utility",
+                        "evidence": (
+                            CandidateEvidence(
+                                "compendium_backed",
+                                "high",
+                                "resolve_need_candidates",
+                                (),
+                            ),
+                        ),
+                    }
+                ],
+            }
+        }
+    )
+    assert "1. support/utility: Grimmsnarl" in text
+
+
+def test_candidate_selection_omits_track_segment_when_absent():
+    """Confirms the older (single/zero-locked) path, which never sets
+    track, renders exactly as before -- no stray empty segment."""
+    text = format_turn(
+        {
+            "pending_presentation": {
+                "kind": "candidate_selection",
+                "slot_index": 0,
+                "options": [
+                    {
+                        "species": "Incineroar",
+                        "source": "threat",
+                        "evidence": (
+                            CandidateEvidence(
+                                "usage_backed", "high", "query_counters", ()
+                            ),
+                        ),
+                    }
+                ],
+            }
+        }
+    )
+    assert "1. Incineroar" in text
+    assert "1. None: Incineroar" not in text
+    assert ": Incineroar" not in text

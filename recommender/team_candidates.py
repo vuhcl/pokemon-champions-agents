@@ -35,6 +35,7 @@ from recommender.slot_fill import (
     SlotFillContext,
     _kit_fallback_target_role,
     resolve_all_support_needs,
+    resolve_condition_beneficiaries,
     resolve_need_candidates,
     target_role_from_anchored_needs,
 )
@@ -53,7 +54,7 @@ from recommender.state import (
     ThreatCounterCandidate,
     all_locked,
 )
-from recommender.support_needs import query_support_needs
+from recommender.support_needs import SupportNeed, query_support_needs
 from recommender.teammates import SharedTeammateQueryResult
 from recommender.usage_data import featured_or_common_set, lineage_ids
 from recommender.usage_spreads import move_category_counts
@@ -327,15 +328,77 @@ def merge_multi_locked_candidates(
     anchored_needs = tuple(
         need for context in anchor_contexts for need in context.support_needs
     )
+    from recommender.condition_resilience import provided_conditions, team_field_states
+
+    # Filter out already-satisfied provider needs (trick_room/tailwind)
+    # before candidate resolution -- confirmed live: Pelipper already
+    # provides Tailwind via its own move, but Archaludon's "tailwind"
+    # support need (a real, speed-tier-triggered need, not a generic
+    # placeholder) was still being surfaced as unmet, feeding candidate
+    # discovery for a condition the team already has. Only trick_room and
+    # tailwind map to a TRACKED_CONDITIONS provider check this way --
+    # other need categories (healing_cleric, screens, etc.) aren't
+    # binary "provided or not" the same way, so they're unaffected here.
+    already_provided = provided_conditions(anchor_contexts)
+    _PROVIDER_NEED_CONDITION = {"trick_room": "Trick Room", "tailwind": "Tailwind"}
+    anchored_needs = tuple(
+        need
+        for need in anchored_needs
+        if _PROVIDER_NEED_CONDITION.get(need.need.category) not in already_provided
+    )
     support_context = SlotFillContext(anchor=None, role_shape_context=None)
+    locked_weather = next(
+        (
+            field["weather"]
+            for field in team_field_states(anchor_contexts)
+            if "weather" in field
+        ),
+        None,
+    )
     support_rows = resolve_all_support_needs(
         support_context,
         state,
         anchored_needs=anchored_needs,
         available_species=owned_species,
         ownership_mode=ownership_mode,
+        locked_weather=locked_weather,
     )
-    for support in support_rows:
+    # Condition-beneficiary candidates (e.g. a real Rain-beneficiary once
+    # Rain is locked in via some anchor's Drizzle/Rain Dance) -- confirmed
+    # gap, not previously wired into this multi-locked pipeline at all
+    # (only discover_single_locked called this). That's the exact
+    # scenario every live-observed candidate-quality issue in this
+    # investigation actually occurred in (2+ locked members). Looped over
+    # every locked anchor, not just the first, since any one of them
+    # could be the actual condition provider -- provided_weather_conditions
+    # only looks at the ONE decision passed in, and correctly returns
+    # nothing for anchors that don't themselves provide a weather.
+    #
+    # Combines with support_rows explicitly via return values, not by
+    # relying on ctx.need_resolved_candidates' mutation side-effect --
+    # that side-effect only reflects support_rows when
+    # resolve_all_support_needs actually runs for real. An existing test
+    # mocks it to return a fixed value directly, which (correctly) never
+    # touches the context's internal state, so relying on the mutation
+    # would have silently dropped support_rows under that mock.
+    locked_species_names = [
+        str(context.resolved_build.species or "") for context in anchor_contexts
+    ]
+    beneficiary_rows: list[NeedResolvedCandidate] = []
+    for context in anchor_contexts:
+        beneficiary_rows = resolve_condition_beneficiaries(
+            support_context,
+            getattr(context, "role_decision", None),
+            state,
+            locked_species=locked_species_names,
+            available_species=owned_species,
+            ownership_mode=ownership_mode,
+        )
+    seen_species = {to_id(row.species) for row in support_rows}
+    all_support_rows = list(support_rows) + [
+        row for row in beneficiary_rows if to_id(row.species) not in seen_species
+    ]
+    for support in all_support_rows:
         if not eligible(support.species):
             continue
         species_id = to_id(support.species)
@@ -602,7 +665,7 @@ def annotate_composition_impact(
             decision.primary_function != "unknown"
             and primary_counts.get(decision.primary_function, 0) == 0
         )
-        fills_gap = _candidate_fills_condition_gap(
+        fills_missing, fills_spof_backup = _candidate_fills_condition_gap(
             decision,
             condition_resilience,
             candidate_build=build,
@@ -615,7 +678,8 @@ def annotate_composition_impact(
             candidate.anchored_needs
             or missing_primary
             or corrects_skew
-            or fills_gap
+            or fills_missing
+            or fills_spof_backup
             or fills_pf_spof
         ):
             fit = "complementary"
@@ -628,7 +692,12 @@ def annotate_composition_impact(
         else:
             fit = "neutral"
         out.append(
-            replace(candidate, composition_fit=fit, fills_essential_gap=fills_gap)
+            replace(
+                candidate,
+                composition_fit=fit,
+                fills_essential_gap=fills_missing,
+                fills_spof_backup_gap=fills_spof_backup,
+            )
         )
     return out
 
@@ -645,10 +714,26 @@ def _candidate_fills_condition_gap(
     *,
     candidate_build: ResolvedAnchorBuild,
     locked: Sequence[LockedAnchorContext],
-) -> bool:
+) -> tuple[bool, bool]:
+    """Returns (fills_missing_provider_gap, fills_spof_backup_gap) --
+    split rather than a single bool, so the caller (and _rank_key) can
+    give these two genuinely different situations different ranking
+    priority. missing_provider is a real, currently-unmet need and
+    should always win top priority in ranking. single_provider_spof is
+    real backup value (per the condition's own essential/preferred
+    classification) established via build divergence from the existing
+    provider -- confirmed by an existing test as a meaningful, legitimate
+    signal on its own -- but confirmed live it must NOT compete for the
+    SAME top-priority rank slot as a genuinely missing need, since a
+    weak, low-confidence backup-only candidate was outranking strong,
+    high-confidence, unrelated candidates entirely because the two cases
+    were previously collapsed into one boolean.
+    """
     if report is None:
-        return False
+        return False, False
     by_slot = _locked_by_slot(locked)
+    fills_missing = False
+    fills_spof_backup = False
     for row in report.conditions:
         if row.gap not in {"missing_provider", "single_provider_spof"}:
             continue
@@ -662,7 +747,8 @@ def _candidate_fills_condition_gap(
         ):
             continue
         if row.gap == "missing_provider":
-            return True
+            fills_missing = True
+            continue
         if len(row.providers) != 1:
             continue
         provider = by_slot.get(row.providers[0].slot_index)
@@ -680,8 +766,8 @@ def _candidate_fills_condition_gap(
             shared_provider_tags=shared,
         )
         if score >= DIVERGENCE_COMPLEMENTARY_THRESHOLD:
-            return True
-    return False
+            fills_spof_backup = True
+    return fills_missing, fills_spof_backup
 
 
 def _candidate_fills_primary_function_spof(
@@ -803,8 +889,23 @@ def _rank_key(
         counts["spof_verified_toss-up"],
         len(candidate.anchor_ids),
         len(distinct_needs),
-        best_evidence[0],
-        best_evidence[1],
+        # Repositioned (2026-08-19), not just re-documented: previously
+        # sat AFTER best_evidence, where it was effectively dead --
+        # candidates rarely tie on evidence quality, so a field placed
+        # after it in a tuple comparison is consulted only in the rare
+        # case everything else including evidence also ties. Confirmed
+        # with Vu directly: shared-teammate co-occurrence is a real proxy
+        # for mechanism/threat-coverage synergy that Part 1's field-
+        # awareness fix doesn't fully capture on its own (speed control,
+        # ability interactions, move combos real players find but the
+        # calc-based matchup model doesn't directly model) -- moved ahead
+        # of best_evidence so it can decide between candidates that are
+        # comparably valuable on every genuinely-computed team-value
+        # field above (threat-coverage, fit, preference, needs) but
+        # differ in individual evidence confidence, which is a far more
+        # common tie than tying on evidence too. Still ranks below every
+        # substantive field above it -- never overrides genuinely correct
+        # threat-coverage superiority, per explicit design decision.
         (
             candidate.shared_min_pct
             if candidate.shared_min_pct is not None
@@ -815,7 +916,386 @@ def _rank_key(
             if candidate.shared_worst_rank is not None
             else float("-inf")
         ),
+        best_evidence[0],
+        best_evidence[1],
+        int(candidate.fills_spof_backup_gap),
     )
+
+
+def _shared_teammate_tiebreak(candidate: AnnotatedCandidate) -> tuple[float, float]:
+    """Lower is better. Reused as the within-category secondary signal
+    for select_diverse_candidates -- same role shared-teammate evidence
+    already has in _rank_key, just scoped locally to one category instead
+    of globally across the whole pool."""
+    return (
+        -(candidate.shared_min_pct if candidate.shared_min_pct is not None else -1.0),
+        (
+            candidate.shared_worst_rank
+            if candidate.shared_worst_rank is not None
+            else float("inf")
+        ),
+    )
+
+
+def _rank_category_a(
+    candidates: list[AnnotatedCandidate],
+    locked_types_list: list[list[str]],
+) -> list[AnnotatedCandidate]:
+    """Type-synergy + threat-counter breadth, combined by RANK position
+    rather than raw value -- confirmed necessary, not a stylistic choice:
+    verified_score (calc-verified, can be 40+ across many threats) and
+    defensive_synergy_score (typically single-digit) are on wildly
+    different scales, and a naive sum let the larger-magnitude signal
+    dominate the same way a prior, separately-discovered ranking bug did
+    (fills_essential_gap completely overriding evidence quality). Rank-
+    based combination is scale-invariant by construction, avoiding the
+    need to guess at normalization weights between two very differently-
+    behaved raw signals.
+    """
+    from recommender.counters import _species_types, defensive_synergy_score
+    from recommender.legality import load_snapshot
+
+    if not candidates:
+        return []
+    snap = load_snapshot()
+    scored = [
+        (
+            c,
+            c.threat_row.verified_score if c.threat_row else 0.0,
+            defensive_synergy_score(
+                _species_types(snap, c.species), locked_types_list
+            ),
+        )
+        for c in candidates
+    ]
+    verified_rank = {
+        to_id(item[0].species): i
+        for i, item in enumerate(sorted(scored, key=lambda x: -x[1]))
+    }
+    synergy_rank = {
+        to_id(item[0].species): i
+        for i, item in enumerate(sorted(scored, key=lambda x: -x[2]))
+    }
+
+    def sort_key(item: tuple[AnnotatedCandidate, float, float]):
+        sid = to_id(item[0].species)
+        return (
+            verified_rank[sid] + synergy_rank[sid],
+            _shared_teammate_tiebreak(item[0]),
+        )
+
+    return [item[0] for item in sorted(scored, key=sort_key)]
+
+
+def _need_branch_evidence(
+    c: AnnotatedCandidate, *, condition_beneficiary: bool
+) -> tuple[CandidateEvidence, ...]:
+    """Scopes a candidate's evidence to the specific category (B or C)
+    being evaluated, not the candidate's full, unscoped evidence tuple.
+
+    Confirmed live, a real bug: a candidate with strong, unrelated
+    evidence (e.g. real threat-counter data) mixed into its overall
+    evidence tuple was incorrectly ranking high within -- and passing
+    the confidence gate for -- Category B/C based on that unrelated
+    evidence, not its actual, genuinely weak support-need match. Same
+    class of bug as the earlier evidence-display scoping fix, but here
+    affecting the underlying ranking/gating logic itself, not just what
+    gets shown afterward -- confirmed both needed the same fix, not
+    just the display layer.
+    """
+    return tuple(
+        item
+        for item in c.evidence
+        if item.branch == "need"
+        and (
+            any("need:condition_beneficiary" in tag for tag in item.evidence)
+            == condition_beneficiary
+        )
+    )
+
+
+def _rank_by_need_evidence(
+    candidates: list[AnnotatedCandidate], *, condition_beneficiary: bool = False
+) -> list[AnnotatedCandidate]:
+    """Categories B (support-needs) and C (condition-benefit) share the
+    same ranking approach: best evidence quality (reusing the same
+    _BASIS_RANK/_CONFIDENCE_RANK convention _rank_key already uses),
+    shared-teammate correlation as the secondary tie-break. Scoped to
+    the relevant category's own evidence via _need_branch_evidence, not
+    the candidate's full evidence tuple.
+    """
+    def sort_key(c: AnnotatedCandidate):
+        relevant = _need_branch_evidence(c, condition_beneficiary=condition_beneficiary)
+        best = (
+            max(
+                (_BASIS_RANK[item.basis], _CONFIDENCE_RANK[item.confidence])
+                for item in relevant
+            )
+            if relevant
+            else (0, 0)
+        )
+        return (-best[0], -best[1], _shared_teammate_tiebreak(c))
+
+    return sorted(candidates, key=sort_key)
+
+
+_TRACK_LABELS = {
+    "A": "threat coverage + type synergy",
+    "B": "support/utility",
+    "C": "condition synergy",
+}
+
+
+def _categorize_candidates(
+    candidates: Sequence[AnnotatedCandidate],
+) -> tuple[list[AnnotatedCandidate], list[AnnotatedCandidate], list[AnnotatedCandidate]]:
+    """Splits a candidate pool into the three categories (A: threat-
+    coverage+type-synergy, B: support-needs, C: condition-benefit) --
+    shared by select_diverse_candidates and rank_multi_locked_by_category
+    so their categorization logic can't silently drift apart.
+    """
+    category_a: list[AnnotatedCandidate] = []
+    category_b: list[AnnotatedCandidate] = []
+    category_c: list[AnnotatedCandidate] = []
+    for c in candidates:
+        if c.threat_row is not None:
+            category_a.append(c)
+        need_categories = {n.category for n in c.matching_needs}
+        if "condition_beneficiary" in need_categories:
+            category_c.append(c)
+        if need_categories - {"condition_beneficiary"}:
+            category_b.append(c)
+    return category_a, category_b, category_c
+
+
+def rank_multi_locked_by_category(
+    candidates: Sequence[AnnotatedCandidate],
+    locked_contexts: Sequence[LockedAnchorContext],
+    *,
+    n_per_category: int = 10,
+) -> list[AnnotatedCandidate]:
+    """Gives each of the three categories its own top-N cut, instead of
+    one shared, combined top-N ranking.
+
+    Confirmed live, a real, significant bug: rank_multi_locked_candidates'
+    single, combined top-10 cut (via the old _rank_key) was defeating the
+    entire purpose of select_diverse_candidates' category-aware
+    selection -- genuinely valuable Category B/C candidates (a real
+    screens setter, a real Rain-beneficiary) got cut from the pool
+    ENTIRELY whenever 10+ candidates ranked higher by threat-coverage/
+    type-synergy criteria alone, which is the common case with real
+    threat-counter data from live calc. select_diverse_candidates never
+    even got a chance to consider them.
+
+    Deliberately a separate function, not a change to
+    rank_multi_locked_candidates itself -- that function has a second,
+    different caller (material_completion_preferences) where the single-
+    ranking, n=3 behavior is still the right tool for comparing
+    preference-based orderings, not for feeding select_diverse_candidates.
+    """
+    category_a, category_b, category_c = _categorize_candidates(candidates)
+
+    from recommender.counters import _species_types
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    locked_types_list = [
+        _species_types(snap, ctx.resolved_build.species) for ctx in locked_contexts
+    ]
+    ranked_a = _rank_category_a(category_a, locked_types_list)[:n_per_category]
+    ranked_b = _rank_by_need_evidence(category_b, condition_beneficiary=False)[
+        :n_per_category
+    ]
+    ranked_c = _rank_by_need_evidence(category_c, condition_beneficiary=True)[
+        :n_per_category
+    ]
+
+    seen: set[str] = set()
+    combined: list[AnnotatedCandidate] = []
+    for c in (*ranked_a, *ranked_b, *ranked_c):
+        sid = to_id(c.species)
+        if sid not in seen:
+            seen.add(sid)
+            combined.append(c)
+    return combined
+
+
+def select_diverse_candidates(
+    candidates: Sequence[AnnotatedCandidate],
+    locked_contexts: Sequence[LockedAnchorContext],
+    *,
+    n_alternatives: int = 2,
+) -> dict[str, Any]:
+    """Default + N alternatives via a multi-signal, per-category
+    approach, replacing a single combined ranking for this specific
+    selection step. Confirmed with Vu directly, following live evidence
+    that a single ranking (even after fixing several real bugs in it)
+    kept surfacing narrow, redundant, or context-blind candidate sets --
+    e.g. three Steel-type picks that all individually looked reasonable
+    but collectively piled onto the same shared weakness, or real
+    teammates (a screens setter, a Rain-boosted sweeper) that never
+    entered the top ranks because their real value lives outside what
+    any single score can see.
+
+    Three categories, each scored independently:
+    - A: type-synergy + threat-counter breadth (_rank_category_a)
+    - B: support-needs (screens, trick_room, healing_cleric, etc.)
+    - C: condition-benefit (Rain-beneficiary, etc.)
+    Shared-teammate correlation is the secondary tie-break within every
+    category, not a separate global signal.
+
+    Default: a genuine multi-category candidate (confirmed strong -- top
+    3 -- in more than one category) if one exists, since that represents
+    real, multi-dimensional value; otherwise falls back to Category A's
+    top pick. Alternatives: the top pick from each of the OTHER
+    categories, skipping to the next-best within a category if its top
+    pick was already used as the default or as another alternative.
+
+    Returns a "tracks" mapping (species -> human-readable label) alongside
+    default/alternatives, surfacing which track each pick actually came
+    from -- confirmed live this matters for real debugging (candidates
+    that "feel like" they should be one category can genuinely be
+    multi-category, e.g. a strong threat-counter that also happens to
+    satisfy a support-need), not just future steering (explicitly scoped
+    out of this change -- surfacing the track is the only thing
+    implemented here, not acting on a request for "a different track").
+    """
+    category_a, category_b, category_c = _categorize_candidates(candidates)
+
+    from recommender.counters import _species_types
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    locked_types_list = [
+        _species_types(snap, ctx.resolved_build.species) for ctx in locked_contexts
+    ]
+
+    ranked_a = _rank_category_a(category_a, locked_types_list)
+
+    def _has_strong_evidence(c: AnnotatedCandidate, *, condition_beneficiary: bool) -> bool:
+        relevant = _need_branch_evidence(c, condition_beneficiary=condition_beneficiary)
+        return any(item.confidence != "low" for item in relevant)
+
+    # Categories B/C are filtered to strong evidence (confidence != low)
+    # immediately after ranking -- confirmed live, a real, deliberate
+    # design decision, not just a multi-signal-detection nuance: if the
+    # BEST available candidate for a category is only low confidence, it
+    # should not be suggested as that category's candidate at all, not
+    # even as a weak fallback. A weak, trigger=None match (e.g. an
+    # unconditionally-generated need like screens) can still rank "top"
+    # within its own category purely because many candidates for that
+    # need share the same low floor -- that's not the same as being a
+    # genuinely reliable pick. Other signals (shared-teammate,
+    # threat-coverage, additional matching_needs) are only meant to rank
+    # candidates WITHIN a real confidence tier, never to substitute for
+    # one. If nothing in a category clears this bar, that category
+    # simply contributes nothing here -- existing fallback logic below
+    # (default falls through A -> B -> C; alternatives skip empty
+    # categories naturally) already handles an empty category correctly.
+    ranked_b = [
+        c
+        for c in _rank_by_need_evidence(category_b, condition_beneficiary=False)
+        if _has_strong_evidence(c, condition_beneficiary=False)
+    ]
+    ranked_c = [
+        c
+        for c in _rank_by_need_evidence(category_c, condition_beneficiary=True)
+        if _has_strong_evidence(c, condition_beneficiary=True)
+    ]
+    ranked_by_category = {"A": ranked_a, "B": ranked_b, "C": ranked_c}
+
+    # Multi-category default: a candidate confirmed in the top-3 of more
+    # than one category's own ranking represents real, multi-dimensional
+    # value -- not just "happened to be top in one narrow signal".
+    # Grouped by lineage, not exact species id, for the same reason the
+    # alternatives dedup below is -- a mega/regional form shouldn't be
+    # treated as a separate candidate from its base species here either.
+    # B/C are already strong-evidence-only at this point (filtered
+    # above), so no additional filtering is needed here.
+    top3_lineages: dict[str, set[frozenset[str]]] = {
+        "A": {frozenset(lineage_ids(c.species)) for c in ranked_a[:3]},
+        "B": {frozenset(lineage_ids(c.species)) for c in ranked_b[:3]},
+        "C": {frozenset(lineage_ids(c.species)) for c in ranked_c[:3]},
+    }
+    multi_signal_lineages: dict[frozenset[str], int] = {}
+    for key, lineages in top3_lineages.items():
+        for lineage in lineages:
+            multi_signal_lineages[lineage] = multi_signal_lineages.get(lineage, 0) + 1
+    genuine_multi_signal_lineages = {
+        lineage for lineage, count in multi_signal_lineages.items() if count > 1
+    }
+
+    default: AnnotatedCandidate | None = None
+    default_categories: list[str] = []
+    if genuine_multi_signal_lineages:
+        # Among genuine multi-signal candidates, prefer whichever ranks
+        # best in Category A (the closest existing analog to "strongest
+        # overall"), falling back to its rank in whichever category it's
+        # strongest in otherwise.
+        best_rank = None
+        for lineage in genuine_multi_signal_lineages:
+            for key, ranked in ranked_by_category.items():
+                for i, c in enumerate(ranked):
+                    if frozenset(lineage_ids(c.species)) == lineage:
+                        candidate_rank = (i, key != "A")
+                        if best_rank is None or candidate_rank < best_rank[0]:
+                            best_rank = (candidate_rank, c)
+        if best_rank is not None:
+            default = best_rank[1]
+            default_lineage = frozenset(lineage_ids(default.species))
+            default_categories = [
+                key
+                for key, lineages in top3_lineages.items()
+                if default_lineage in lineages
+            ]
+    if default is None and ranked_a:
+        default = ranked_a[0]
+        default_categories = ["A"]
+    elif default is None and ranked_b:
+        default = ranked_b[0]
+        default_categories = ["B"]
+    elif default is None and ranked_c:
+        default = ranked_c[0]
+        default_categories = ["C"]
+
+    # Dedup by lineage, not exact species id -- confirmed live necessary:
+    # a plain to_id() comparison doesn't catch a mega/regional-form
+    # duplicate of the same underlying species (e.g. Abomasnow and
+    # Abomasnow-Mega both getting selected as if they were genuinely
+    # different alternatives, when they're the same Pokemon).
+    used_lineages: set[str] = (
+        set(lineage_ids(default.species)) if default is not None else set()
+    )
+    alternatives: list[AnnotatedCandidate] = []
+    alternative_categories: list[str] = []
+    for key, ranked in (("B", ranked_b), ("C", ranked_c), ("A", ranked_a)):
+        if len(alternatives) >= n_alternatives:
+            break
+        for c in ranked:
+            c_lineage = set(lineage_ids(c.species))
+            if not (c_lineage & used_lineages):
+                alternatives.append(c)
+                alternative_categories.append(key)
+                used_lineages |= c_lineage
+                break
+
+    tracks: dict[str, str] = {}
+    category_keys: dict[str, list[str]] = {}
+    if default is not None:
+        tracks[default.species] = " + ".join(
+            _TRACK_LABELS[key] for key in default_categories
+        )
+        category_keys[default.species] = default_categories
+    for c, key in zip(alternatives, alternative_categories):
+        tracks[c.species] = _TRACK_LABELS[key]
+        category_keys[c.species] = [key]
+
+    return {
+        "default": default.species if default is not None else None,
+        "alternatives": [c.species for c in alternatives[:n_alternatives]],
+        "tracks": tracks,
+        "category_keys": category_keys,
+    }
 
 
 def rank_multi_locked_candidates(

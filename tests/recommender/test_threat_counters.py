@@ -11,6 +11,8 @@ from recommender.state import (
     ThreatCounterCandidate,
 )
 from recommender.threat_counters import (
+    _best_matchup_with_forced_fields,
+    _usage_popularity,
     aggregate_verified,
     pair_score,
     query_candidates_for_threats,
@@ -598,3 +600,263 @@ def test_query_threat_counters_degraded_on_calc_failure():
         assert row.estimate_kind == "static"
         assert row.verified_vs == ()
         assert row.verified_score == 0.0
+
+
+def test_best_matchup_with_forced_fields_neutral_answers_skips_field_check():
+    """If the neutral matchup already answers the threat, forced fields
+    are never even tried -- confirms the fallback only fires when
+    genuinely needed, not on every call."""
+    with patch(
+        "recommender.threat_counters.classify_matchup",
+        return_value=MatchupResult("clean_kill", "decisive"),
+    ) as cm:
+        result = _best_matchup_with_forced_fields(
+            {"species": "Garchomp"},
+            {"species": "SomeThreat"},
+            [{"weather": "Rain"}],
+            client=None,
+        )
+    assert result.outcome == "clean_kill"
+    assert cm.call_count == 1  # only the neutral call, forced field never tried
+
+
+def test_best_matchup_with_forced_fields_falls_back_when_neutral_fails():
+    """Regression for the confirmed root-cause bug: a candidate that only
+    answers a threat under a real, team-provided field (e.g. a Water-type
+    that only threatens a Fire-type target once Rain actually boosts its
+    offense) must be credited for that -- not evaluated as if the team's
+    real Rain were never in play."""
+    def fake_classify(cand, threat, field, *, client=None):
+        if field is None:
+            return MatchupResult("no_answer", "toss-up")
+        assert field == {"weather": "Rain"}
+        return MatchupResult("clean_kill", "decisive")
+
+    with patch(
+        "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+    ):
+        result = _best_matchup_with_forced_fields(
+            {"species": "Swampert-Mega"},
+            {"species": "SomeFireThreat"},
+            [{"weather": "Rain"}],
+            client=None,
+        )
+    assert result.outcome == "clean_kill"
+
+
+def test_best_matchup_with_forced_fields_no_forced_fields_returns_neutral():
+    """No locked field providers at all -- falls through to the neutral
+    result unchanged, same as before this fix existed."""
+    with patch(
+        "recommender.threat_counters.classify_matchup",
+        return_value=MatchupResult("no_answer", "toss-up"),
+    ) as cm:
+        result = _best_matchup_with_forced_fields(
+            {"species": "Delphox"}, {"species": "SomeThreat"}, [], client=None
+        )
+    assert result.outcome == "no_answer"
+    assert cm.call_count == 1
+
+
+def test_query_candidates_for_threats_credits_field_dependent_answer():
+    """Full end-to-end regression, exact shape of the confirmed live bug:
+    a candidate that only counters the threat once the team's real,
+    locked field state (Rain) is accounted for must show up as
+    'verified' against that threat -- previously this was structurally
+    impossible, since every classify_matchup call in this function
+    passed field=None unconditionally."""
+    objective = (TeamThreatObjectiveRow(_tc("FireThreat"), frozenset({"uncovered"})),)
+
+    def fake_classify(cand, threat, field, *, client=None):
+        if field is None:
+            return MatchupResult("no_answer", "toss-up")
+        return MatchupResult("clean_kill", "decisive")
+
+    with (
+        patch(
+            "recommender.threat_counters.query_counters",
+            return_value=[_tc("Swampert-Mega")],
+        ),
+        patch(
+            "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+        ),
+    ):
+        result = query_candidates_for_threats(
+            objective, locked_contexts=(), exclude_slot=None
+        )
+    # With no locked_contexts (no team-provided field), the candidate
+    # correctly does NOT get credited -- confirms the baseline behavior
+    # (no forced fields available) is unchanged before testing the fix.
+    assert result.candidates[0].verified_score == 0.0
+
+    class _FakeMechanism:
+        def __init__(self):
+            self.present = True
+            self.relation = "provides"
+            self.mechanic = "Drizzle"
+            self.evidence = ("condition:Rain",)
+
+    class _FakeRoleDecision:
+        mechanisms = (_FakeMechanism(),)
+
+    class _FakeContext:
+        slot_index = 0
+        role_decision = _FakeRoleDecision()
+
+    with (
+        patch(
+            "recommender.threat_counters.query_counters",
+            return_value=[_tc("Swampert-Mega")],
+        ),
+        patch(
+            "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+        ),
+    ):
+        result_with_rain = query_candidates_for_threats(
+            objective, locked_contexts=(_FakeContext(),)
+        )
+    assert result_with_rain.candidates[0].verified_score > 0.0
+
+
+def test_best_matchup_with_forced_fields_upgrades_already_answered_but_improvable_result():
+    """Regression for a real, confirmed gap found live: a Steel-type
+    candidate already 'answers' a Fire-type threat neutrally (surviving
+    via bulk despite Steel's real 2x Fire weakness) but only at 'costly'
+    severity -- the original fix's short-circuit ('return neutral
+    whenever it isn't a hard no_answer') would never have re-checked
+    whether Rain (halving Fire's power) makes that matchup meaningfully
+    safer. Severity feeds directly into the real ranking score via
+    pair_score/aggregate_verified, so this is a ranking-correctness gap,
+    not cosmetic. Confirms the fix now correctly checks and upgrades.
+    """
+    def fake_classify(cand, threat, field, *, client=None):
+        if field is None:
+            return MatchupResult("intentional_non_ko_answer", "costly")
+        assert field == {"weather": "Rain"}
+        return MatchupResult("intentional_non_ko_answer", "decisive")
+
+    with patch(
+        "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+    ):
+        result = _best_matchup_with_forced_fields(
+            {"species": "Kingambit"},
+            {"species": "SomeFireThreat"},
+            [{"weather": "Rain"}],
+            client=None,
+        )
+    assert result.outcome == "intentional_non_ko_answer"
+    assert result.severity == "decisive"
+
+
+def test_best_matchup_with_forced_fields_skips_check_only_at_absolute_ceiling():
+    """The one legitimate short-circuit: neutral is already clean_kill +
+    decisive (pair_score 4.0, the real maximum per _OUTCOME_POINTS/
+    _SEVERITY_POINTS) -- nothing can improve on that, so the forced-field
+    check is correctly skipped, confirmed against the real point tables
+    rather than assumed."""
+    with patch(
+        "recommender.threat_counters.classify_matchup",
+        return_value=MatchupResult("clean_kill", "decisive"),
+    ) as cm:
+        result = _best_matchup_with_forced_fields(
+            {"species": "Garchomp"},
+            {"species": "SomeThreat"},
+            [{"weather": "Rain"}],
+            client=None,
+        )
+    assert result.outcome == "clean_kill"
+    assert result.severity == "decisive"
+    assert cm.call_count == 1
+
+
+def test_best_matchup_with_forced_fields_does_not_downgrade_when_field_is_worse():
+    """A candidate that answers well neutrally but WORSE under a forced
+    field (e.g. a matchup that's actually harder under Rain for some
+    other reason) must not be downgraded -- the best result across all
+    evaluated states wins, not just the last one checked."""
+    def fake_classify(cand, threat, field, *, client=None):
+        if field is None:
+            return MatchupResult("clean_kill", "costly")
+        return MatchupResult("intentional_non_ko_answer", "toss-up")
+
+    with patch(
+        "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+    ):
+        result = _best_matchup_with_forced_fields(
+            {"species": "Kingambit"},
+            {"species": "SomeThreat"},
+            [{"weather": "Rain"}],
+            client=None,
+        )
+    assert result.outcome == "clean_kill"
+    assert result.severity == "costly"
+
+
+def _tc_with_showdown_pct(species: str, showdown_usage_pct: float) -> ThreatCandidate:
+    return ThreatCandidate(
+        ladder_species=species,
+        usage_rank=None,
+        form=species,
+        showdown_usage_pct=showdown_usage_pct,
+        showdown_formes=(),
+        spec={"species": species, "moves": ["Tackle"], "ability": "Dummy"},
+        build_source="ingame",
+    )
+
+
+def test_usage_popularity_falls_back_to_showdown_pct_when_no_ingame_rank():
+    """Regression, confirmed live: mega forms have no in-game usage_rank
+    at all (the underlying in-game usage data doesn't track them
+    separately from their base form), even though real Showdown usage
+    data exists for them. Falls back to Showdown's usage_pct rather than
+    always treating these species as maximally unpopular (float('-inf')),
+    which previously meant a mega form could never win any usage-based
+    tie-break against literally anything, including other equally
+    unranked candidates.
+    """
+    real_rank = _tc("Garchomp", usage_rank=1)
+    fallback_only = _tc_with_showdown_pct("Swampert-Mega", 5.0)
+    assert _usage_popularity(real_rank) > _usage_popularity(fallback_only)
+
+
+def test_usage_popularity_fallback_still_differentiates_among_fallback_only():
+    """Confirms the fallback isn't just 'better than -inf' uniformly --
+    among species that only have the fallback signal, a higher Showdown
+    usage_pct must still correctly outrank a lower one."""
+    higher_pct = _tc_with_showdown_pct("Blaziken-Mega", 3.6)
+    lower_pct = _tc_with_showdown_pct("Houndoom-Mega", 0.3)
+    assert _usage_popularity(higher_pct) > _usage_popularity(lower_pct)
+
+
+def test_usage_popularity_no_data_at_all_still_returns_negative_infinity():
+    """No in-game rank AND no Showdown data at all -- still the original,
+    maximally-unpopular fallback, unchanged."""
+    no_data = _tc("SomeObscureForm", usage_rank=None)
+    assert _usage_popularity(no_data) == float("-inf")
+
+
+def test_query_counters_populates_showdown_fallback_for_real_mega_counters():
+    """End-to-end confirmation against real data: real mega-form counter-
+    candidates to Kingambit (Houndoom-Mega/Blaziken-Mega/Lucario-Mega/
+    Emboar-Mega all genuinely counter it) each get a real, non-negative-
+    infinity popularity signal -- either a real, retargeted usage_rank
+    (when the base form's real in-game item usage is dominated by its
+    mega stone, confirmed live for Blaziken specifically -- 82.4%
+    Blazikenite) or the Showdown usage_pct fallback otherwise (when the
+    base form isn't mega-stone-dominant, so no retargeting applies).
+    Confirms this is a real, mixed outcome, not a blanket claim that
+    every mega form lacks usage_rank.
+    """
+    from recommender.counters import query_counters
+
+    counters = query_counters({"species": "Kingambit"})
+    mega_counters = [c for c in counters if "mega" in c.ladder_species.lower()]
+    assert mega_counters
+    retargeted = [c for c in mega_counters if c.usage_rank is not None]
+    fallback_only = [c for c in mega_counters if c.usage_rank is None]
+    assert retargeted, "expected at least one mega form to be correctly retargeted"
+    assert fallback_only, "expected at least one mega form to still need the fallback"
+    for c in fallback_only:
+        assert c.showdown_usage_pct is not None
+    for c in mega_counters:
+        assert _usage_popularity(c) > float("-inf")

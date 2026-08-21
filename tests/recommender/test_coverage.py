@@ -403,8 +403,30 @@ def test_field_conditional_coverage():
     }
     client = DualFieldMock(neutral, rain)
 
+    from recommender.state import Attr
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
+    # collect_locked_anchor_contexts resolves through real species/learnset
+    # data (not this file's _patch_specs mock, which only covers
+    # compute_team_coverage's own matchup calls) -- needs every Attr
+    # locked, unlike this file's lighter-weight _slot helper.
+    fully_locked_pelipper = Slot(
+        role=Attr(value="rain_setter", locked=True),
+        species=Attr(value=PELIPPER["species"], locked=True),
+        ability=Attr(value=PELIPPER["ability"], locked=True),
+        item=Attr(value=PELIPPER["item"], locked=True),
+        moveset=Attr(value=list(PELIPPER["moves"]), locked=True),
+        spread=Attr(value=dict(PELIPPER["evs"]), locked=True),
+        nature=Attr(value="Modest", locked=True),
+    )
+    locked_contexts = collect_locked_anchor_contexts(
+        {"team_draft": [fully_locked_pelipper], "regulation_mod": "champions"}
+    )
+
     with _patch_specs({"Pelipper": PELIPPER, "Swampert": SWAMPERT}):
-        coverage = compute_team_coverage(draft, [threat], client=client)
+        coverage = compute_team_coverage(
+            draft, [threat], client=client, locked_contexts=locked_contexts
+        )
 
     assert coverage[0].best_outcome.outcome == "conditionally_dependent_answer"
     assert coverage[0].forced_field is not None

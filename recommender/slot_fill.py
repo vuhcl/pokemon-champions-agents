@@ -18,12 +18,17 @@ from recommender.anchor_roles import (
 )
 from recommender.by_usage import query_by_usage
 from recommender.calc_client import PokemonSpecOptional
+from recommender.condition_types import ConditionResilienceReport
 from recommender.contingent_value import REDIRECT_MOVES
 from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
 from recommender.matchup import CHARGE_INSTANT_WEATHER
 from recommender.legality import is_species_legal, load_snapshot, resolve_learnset
-from recommender.move_narrowing import narrow_candidates_for_move, pick_default_and_alternatives
+from recommender.move_narrowing import (
+    _HARD_REQUIRE_WEATHER,
+    narrow_candidates_for_move,
+    pick_default_and_alternatives,
+)
 from recommender.propose import _propagate_and_refine
 from recommender.ranking import OwnershipMode
 from recommender.role_compendium import (
@@ -97,6 +102,20 @@ _NEED_SATISFIERS: dict[NeedCategory, _NeedSatisfier] = {
     "condition_setter": _NeedSatisfier(abilities=frozenset(ABILITY_TO_FIELD)),
 }
 
+# Moves that mechanically satisfy a need but have a real, structural
+# delivery cost the plain "does it satisfy the need" check doesn't
+# capture -- confirmed directly, not assumed: Wish doesn't heal
+# immediately, it heals whoever is on the field one turn later. In
+# practice that means switching the Wish-user out and the intended
+# target in, costing a real, vulnerable switch-in turn (the incoming
+# Pokemon can't attack, since switching consumes the turn) and losing
+# any stat boosts the switched-out user had. A real, structural cost
+# compared to an immediate-heal move (Heal Pulse, Aromatherapy, Heal
+# Bell, Life Dew).
+_DELAYED_DELIVERY_MOVES: dict[NeedCategory, frozenset[str]] = {
+    "healing_cleric": frozenset({"wish"}),
+}
+
 
 @dataclass(frozen=True)
 class AnnotatedCandidate:
@@ -112,6 +131,18 @@ class AnnotatedCandidate:
     anchor_slot_indices: frozenset[int] = frozenset()
     composition_fit: CompositionFit = "neutral"
     fills_essential_gap: bool = False
+    # Split from fills_essential_gap: a genuinely missing provider
+    # (gap=="missing_provider") always ranks in fills_essential_gap
+    # (unconditional top priority). A single_provider_spof backup
+    # opportunity with real complementary value (build divergence from
+    # the existing provider) is tracked separately here -- confirmed
+    # live, collapsing both into one boolean let a weak, low-confidence
+    # backup-only candidate outrank strong, high-confidence, unrelated
+    # candidates entirely, since fills_essential_gap was the FIRST,
+    # highest-priority field in ranking. See _rank_key/_sort_annotated
+    # for where this is now given a deliberately lower priority than
+    # evidence quality, rather than removed from ranking entirely.
+    fills_spof_backup_gap: bool = False
     shared_min_pct: float | None = None
     shared_worst_rank: int | None = None
     anchored_needs: tuple[AnchoredSupportNeed, ...] = ()
@@ -163,6 +194,8 @@ class SlotFillContext:
     )
     threat_discovery_error: CandidateDiscoveryError | None = None
     notices: tuple[str, ...] = ()
+    condition_resilience: ConditionResilienceReport | None = None
+    locked_contexts: tuple[LockedAnchorContext, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -243,6 +276,7 @@ class PresentedCandidate:
     species: str
     source: Source
     evidence: tuple[CandidateEvidence, ...]
+    track: str | None = None
 
 
 @dataclass(frozen=True)
@@ -973,10 +1007,10 @@ def _resolve_condition_setter(
 def _compendium_roles_for_need(need: SupportNeed) -> list[tuple[str, str]]:
     if need.category == "trick_room":
         return [("trick_room_setter", "")]
-    if need.category == "fake_out_protection":
-        return [("redirection", "")]
     if need.category == "screens":
         return [("screens_support", "")]
+    if need.category == "tailwind":
+        return [("tailwind_setter", "")]
     if need.category == "condition_setter" and need.trigger:
         weather = {"rain": "Rain", "sun": "Sun", "sand": "Sand", "snow": "Snow"}
         return [
@@ -1125,6 +1159,7 @@ def resolve_need_candidates(
     *,
     available_species: frozenset[str] = frozenset(),
     ownership_mode: OwnershipMode = "off",
+    locked_weather: str | None = None,
 ) -> list[NeedResolvedCandidate]:
     compendium: list[NeedResolvedCandidate] = []
     rejected: list[CompendiumRoleEvidence] = []
@@ -1146,6 +1181,7 @@ def resolve_need_candidates(
             if existing is not None
             else row
         )
+    has_real_compendium = bool(_compendium_roles_for_need(need))
     for row in _raw_need_candidates(
         need,
         state,
@@ -1163,12 +1199,147 @@ def resolve_need_candidates(
                     _merge_evidence(existing.evidence, usage),
                 )
             continue
+        # A need with a real compendium category (screens, tailwind,
+        # trick_room, fake_out_protection) only matches candidates the
+        # compendium actually recognizes -- confirmed live: Gholdengo
+        # genuinely isn't a recognized screens user despite mechanically
+        # learning Light Screen/Reflect, so it must not match at all, not
+        # even at low confidence, when a real compendium exists to check
+        # against. Needs without a real compendium (healing_cleric,
+        # taunt_disruption) are unaffected -- there's nothing to
+        # restrict against for those.
+        if has_real_compendium:
+            continue
         if not _raw_claim_survives_rejection(
             need, row.species, tuple(rejected), state=state
         ):
             continue
         by_id[sid] = row
     rows = list(by_id.values())
+    if locked_weather is not None:
+        # A candidate matched only via a move that HARD-requires a
+        # different weather than what the team already has locked in
+        # isn't actually usable right now -- confirmed live: Abomasnow's
+        # only screens move is Aurora Veil, which requires Snow/Hail to
+        # be usable at all, and only one weather can be active. Rather
+        # than excluding the candidate outright, its matching evidence
+        # is downgraded to low confidence with an explicit conflict tag
+        # -- deprioritizes it (via the same evidence-quality ranking
+        # this codebase already uses elsewhere) without discarding real
+        # information the candidate might still be worth surfacing as a
+        # low-priority option, e.g. if the team's weather later changes.
+        # A candidate that also learns an unconditionally-usable
+        # satisfying move (e.g. Light Screen/Reflect) is untouched even
+        # if it ALSO happens to know a hard-gated one -- only downgraded
+        # when EVERY move-based match for this need is hard-blocked.
+        # Candidates matched via ability evidence (no move-shaped tag at
+        # all) are left untouched -- this check is specifically about
+        # move-based satisfaction, not a general weather-relevance
+        # judgment this function isn't equipped to make.
+        #
+        # Checks both evidence tag formats real data actually produces:
+        # the raw-move path's "move:auroraveil" and the compendium
+        # path's "mechanism:Aurora Veil" -- confirmed live these differ,
+        # not assumed. Both normalized via to_id() so they consistently
+        # match _HARD_REQUIRE_WEATHER's keys regardless of which path
+        # produced the match.
+        adjusted_rows: list[NeedResolvedCandidate] = []
+        for row in rows:
+            move_ids = [
+                to_id(tag.removeprefix("move:"))
+                for item in row.evidence
+                for tag in item.evidence
+                if tag.startswith("move:")
+            ] + [
+                to_id(tag.removeprefix("mechanism:"))
+                for item in row.evidence
+                for tag in item.evidence
+                if tag.startswith("mechanism:")
+            ]
+            if not move_ids:
+                adjusted_rows.append(row)
+                continue
+            required_weathers = {
+                _HARD_REQUIRE_WEATHER[mid]
+                for mid in move_ids
+                if mid in _HARD_REQUIRE_WEATHER
+            }
+            usable = not required_weathers or locked_weather in required_weathers
+            if usable:
+                adjusted_rows.append(row)
+                continue
+            required = next(iter(required_weathers))
+            # Downgrades BOTH basis and confidence, not confidence alone
+            # -- _BASIS_RANK ranks compendium_backed highest (4) and is
+            # compared before confidence in every ranking that uses this
+            # evidence, so a confidence-only downgrade wouldn't actually
+            # deprioritize this below genuinely-usable candidates with a
+            # lower basis rank. mechanical_only/low matches this
+            # signal's real semantic meaning here -- a weak, currently-
+            # inapplicable match, not a strong compendium-backed one.
+            downgraded_evidence = tuple(
+                replace(
+                    item,
+                    basis="mechanical_only",
+                    confidence="low",
+                    evidence=item.evidence
+                    + (f"weather_conflict:requires_{required}_have_{locked_weather}",),
+                )
+                for item in row.evidence
+            )
+            adjusted_rows.append(
+                NeedResolvedCandidate(
+                    row.species, row.matching_needs, downgraded_evidence, row.anchored_needs
+                )
+            )
+        rows = adjusted_rows
+
+    if need.category in _DELAYED_DELIVERY_MOVES:
+        # Wish's real mechanical drawback, confirmed directly, not
+        # assumed: it doesn't heal immediately -- the healing lands one
+        # turn later, on whoever is on the field then. In practice that
+        # means switching the Wish-user OUT and the intended target IN,
+        # which costs a real, vulnerable switch-in turn (the incoming
+        # Pokemon can't attack that turn, since switching consumes it),
+        # and any stat boosts the switched-out Wish-user had are lost.
+        # This is a real, structural cost compared to an immediate-heal
+        # move (Heal Pulse, Aromatherapy, Heal Bell, Life Dew), not
+        # captured by the mechanical "does it satisfy the need" check
+        # alone. Downgraded the same way as the weather-conflict case --
+        # deprioritize, don't exclude, since Wish is still a real,
+        # legitimate option when nothing better is available. Only
+        # downgraded when EVERY healing_cleric-satisfying move a
+        # candidate has is Wish -- a candidate that also knows a real
+        # immediate-heal move is untouched, since it has a better
+        # delivery option available regardless of also knowing Wish.
+        delayed_moves = _DELAYED_DELIVERY_MOVES[need.category]
+        adjusted_rows = []
+        for row in rows:
+            move_ids = {
+                to_id(tag.removeprefix("move:"))
+                for item in row.evidence
+                for tag in item.evidence
+                if tag.startswith("move:")
+            }
+            if not move_ids or not move_ids <= delayed_moves:
+                adjusted_rows.append(row)
+                continue
+            downgraded_evidence = tuple(
+                replace(
+                    item,
+                    basis="mechanical_only",
+                    confidence="low",
+                    evidence=item.evidence + ("delayed_delivery:wish",),
+                )
+                for item in row.evidence
+            )
+            adjusted_rows.append(
+                NeedResolvedCandidate(
+                    row.species, row.matching_needs, downgraded_evidence, row.anchored_needs
+                )
+            )
+        rows = adjusted_rows
+
     if ownership_mode == "owned_only":
         rows = [row for row in rows if to_id(row.species) in available_species]
     elif ownership_mode == "owned_first":
@@ -1183,6 +1354,7 @@ def resolve_all_support_needs(
     anchored_needs: tuple[AnchoredSupportNeed, ...] = (),
     available_species: frozenset[str] = frozenset(),
     ownership_mode: OwnershipMode = "off",
+    locked_weather: str | None = None,
 ) -> list[NeedResolvedCandidate]:
     """Resolve every surfaced need; skip deferred/empty; set need_resolved_candidates."""
     by_id: dict[str, NeedResolvedCandidate] = {}
@@ -1198,12 +1370,25 @@ def resolve_all_support_needs(
                 state,
                 available_species=available_species,
                 ownership_mode=ownership_mode,
+                locked_weather=locked_weather,
             )
         except NotImplementedError:
             continue
         for row in names:
             sid = to_id(row.species)
             subject_id = f"{need.category}:{to_id(need.trigger or '')}"
+            # Confidence reflects where this match falls on the broad-to-
+            # specific spectrum, not just whether real data backs it.
+            # Confirmed directly: needs generated without a specific
+            # trigger (e.g. healing_cleric/screens' unconditional
+            # "attacker-universal" fallback) are real but weak, non-
+            # discriminating signals -- almost any offense-shaped anchor
+            # "benefits somewhat", which isn't the same as a genuinely
+            # specific reason (a tanky anchor with no self-heal, a
+            # particular speed tier). basis is left untouched -- the
+            # DATA SOURCE isn't questionable here the way a weather-
+            # conflicted move is, only the match's specificity is.
+            confidence_override = "low" if need.trigger is None else None
             evidence = tuple(
                 replace(
                     item,
@@ -1215,6 +1400,11 @@ def resolve_all_support_needs(
                         anchored.anchor_id if anchored is not None else None
                     ),
                     subject_id=subject_id,
+                    confidence=(
+                        confidence_override
+                        if confidence_override is not None
+                        else item.confidence
+                    ),
                 )
                 for item in row.evidence
             )
@@ -1339,7 +1529,7 @@ def resolve_condition_beneficiaries(
                 parts.append(
                     CandidateEvidence(
                         basis="mechanical_only",
-                        confidence="low",
+                        confidence="high",
                         producer_name="resolve_condition_beneficiaries",
                         evidence=(
                             "need:condition_beneficiary",
@@ -1406,6 +1596,7 @@ def _sort_annotated(rows: list[AnnotatedCandidate]) -> list[AnnotatedCandidate]:
         key=lambda r: (
             -int(r.fills_essential_gap),
             _compendium_rank(r),
+            -int(r.fills_spof_backup_gap),
             -len(r.matching_needs),
             -(
                 r.threat_row.verified_score
@@ -1422,14 +1613,131 @@ def _ordered_annotated(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
     return rows if ctx.candidates_pre_ranked else _sort_annotated(rows)
 
 
+def _redundancy_tier_for_candidates(
+    rows: list[AnnotatedCandidate],
+    resilience: ConditionResilienceReport | None,
+) -> dict[str, int]:
+    """species -> 0 (prefer)/1/2 (deprioritize), used only for which
+    alternatives to show alongside the default -- never affects ranking
+    or which species is the default itself.
+
+    Confirmed live: two of three "strategically different alternatives"
+    were both tailwind_setter after a Tailwind setter was already locked
+    -- fills_essential_gap (the ranking boost) treats "missing_provider"
+    and "single_provider_spof" identically, so ranking alone doesn't
+    distinguish a genuinely unmet need from a role that's merely eligible
+    for backup redundancy, and either can independently rank highly
+    enough to fill multiple alternative slots.
+
+    Tier 0: role doesn't correspond to a tracked condition, or the
+    condition still has gap=="missing_provider" -- a genuinely unmet
+    need, always preferred.
+    Tier 1: gap=="single_provider_spof" (the condition's own
+    classification -- essential/preferred -- already means a backup
+    provider has real strategic value, not merely optional) AND the
+    candidate also matches another, distinct support-need category --
+    e.g. Sableye as both a rain_setter and a screens provider. Backup
+    value is real, but must come bundled with something else to compete
+    with tier 0.
+    Tier 2: gap=="none" (fully resolved, no backup value at all), or a
+    SPOF-eligible role with no other contributing need -- purely
+    redundant, shown only if there aren't enough tier 0/1 candidates to
+    fill the alternative slots.
+    """
+    if resilience is None:
+        return {}
+    from recommender.condition_resilience import _SETTER_ROLE_FOR_CONDITION
+
+    condition_for_role = {v: k for k, v in _SETTER_ROLE_FOR_CONDITION.items()}
+    gap_by_condition = {row.condition: row.gap for row in resilience.conditions}
+
+    tiers: dict[str, int] = {}
+    for row in rows:
+        role_id = getattr(row.target_role_decision, "role_id", None)
+        condition = condition_for_role.get(role_id) if role_id else None
+        if condition is None:
+            tiers[row.species] = 0
+            continue
+        gap = gap_by_condition.get(condition, "none")
+        if gap == "missing_provider":
+            tiers[row.species] = 0
+        elif gap == "single_provider_spof":
+            distinct_categories = {need.category for need in row.matching_needs}
+            tiers[row.species] = 1 if len(distinct_categories) > 1 else 2
+        else:
+            tiers[row.species] = 2
+    return tiers
+
+
+def _scoped_evidence(
+    evidence: tuple[CandidateEvidence, ...], category_keys: list[str]
+) -> tuple[CandidateEvidence, ...]:
+    """Filters a candidate's full evidence tuple down to only the
+    item(s) relevant to the track(s) it actually won, so the displayed
+    evidence corresponds to why the candidate is being shown -- not the
+    single highest-quality item across every need it happens to satisfy
+    regardless of relevance.
+
+    Confirmed live, a real bug: a candidate labeled "support/utility"
+    displayed "usage_backed, high confidence" -- evidence that turned
+    out to belong to its (unrelated, unlabeled) threat-counter data, not
+    its actual support-need match, which was really mechanical_only/low.
+    The label and the evidence told two different, inconsistent stories.
+
+    Category A evidence has branch="threat"; categories B and C both
+    have branch="need" (support-needs and condition-benefit are both
+    resolved through the same need-resolution machinery) -- C is
+    distinguished from B via the "need:condition_beneficiary" evidence
+    tag specifically, confirmed against real evidence data before
+    relying on it.
+    """
+    if not category_keys or not evidence:
+        return evidence
+    wants_a = "A" in category_keys
+    wants_b = "B" in category_keys
+    wants_c = "C" in category_keys
+    scoped = tuple(
+        item
+        for item in evidence
+        if (wants_a and item.branch == "threat")
+        or (
+            item.branch == "need"
+            and (
+                (wants_c and any("need:condition_beneficiary" in tag for tag in item.evidence))
+                or (wants_b and not any("need:condition_beneficiary" in tag for tag in item.evidence))
+            )
+        )
+    )
+    return scoped or evidence
+
+
 def present_candidates(
     ctx: SlotFillContext, *, slot_index: int
 ) -> SlotFillPresentation:
     rows = _ordered_annotated(ctx)
     names = [r.species for r in rows]
-    picked = pick_default_and_alternatives(names)
+    if ctx.locked_contexts:
+        # Multi-signal, per-category selection (select_diverse_candidates)
+        # replaces the single-ranking + redundancy-tier approach here --
+        # confirmed with Vu directly, following extensive live evidence
+        # that a single ranking kept surfacing narrow or context-blind
+        # candidate sets even after several real ranking bugs were fixed.
+        # Deliberately scoped to the multi-locked path only (non-empty
+        # locked_contexts): its three categories (type-synergy+threat-
+        # counter, support-needs, condition-benefit) are built around
+        # signals that are only meaningful once multiple team members
+        # already exist to create real type/condition interactions --
+        # single-locked keeps the older approach unchanged.
+        from recommender.team_candidates import select_diverse_candidates
+
+        picked = select_diverse_candidates(rows, ctx.locked_contexts)
+    else:
+        tier_for = _redundancy_tier_for_candidates(rows, ctx.condition_resilience)
+        picked = pick_default_and_alternatives(names, redundancy_tier=tier_for)
     default = picked.get("default")
     alts = list(picked.get("alternatives") or [])
+    tracks: dict[str, str] = picked.get("tracks") or {}
+    category_keys: dict[str, list[str]] = picked.get("category_keys") or {}
     options: list[str] = []
     if default:
         options.append(default)
@@ -1441,7 +1749,11 @@ def present_candidates(
             PresentedCandidate(
                 species=species,
                 source=by_species[to_id(species)].source,
-                evidence=by_species[to_id(species)].evidence,
+                evidence=_scoped_evidence(
+                    by_species[to_id(species)].evidence,
+                    category_keys.get(species, []),
+                ),
+                track=tracks.get(species),
             )
             for species in options
         ),
@@ -1474,6 +1786,8 @@ def _pending_presentation(
             option["primary_function"] = row.primary_function
         if row.mechanism_ids is not None:
             option["mechanism_ids"] = row.mechanism_ids
+        if candidate.track is not None:
+            option["track"] = candidate.track
         options.append(option)
     pending: PendingPresentation = {
         "schema_version": 1,
