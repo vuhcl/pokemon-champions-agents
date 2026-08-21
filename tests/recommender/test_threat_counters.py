@@ -836,18 +836,27 @@ def test_usage_popularity_no_data_at_all_still_returns_negative_infinity():
 
 
 def test_query_counters_populates_showdown_fallback_for_real_mega_counters():
-    """End-to-end confirmation against real data: a real mega-form
-    counter-candidate (confirmed live: Houndoom-Mega/Blaziken-Mega/
-    Lucario-Mega/Emboar-Mega all genuinely counter Kingambit) gets a
-    real showdown_usage_pct populated, not None, and a correspondingly
-    real (non-negative-infinity) popularity value.
+    """End-to-end confirmation against real data: real mega-form counter-
+    candidates to Kingambit (Houndoom-Mega/Blaziken-Mega/Lucario-Mega/
+    Emboar-Mega all genuinely counter it) each get a real, non-negative-
+    infinity popularity signal -- either a real, retargeted usage_rank
+    (when the base form's real in-game item usage is dominated by its
+    mega stone, confirmed live for Blaziken specifically -- 82.4%
+    Blazikenite) or the Showdown usage_pct fallback otherwise (when the
+    base form isn't mega-stone-dominant, so no retargeting applies).
+    Confirms this is a real, mixed outcome, not a blanket claim that
+    every mega form lacks usage_rank.
     """
     from recommender.counters import query_counters
 
     counters = query_counters({"species": "Kingambit"})
     mega_counters = [c for c in counters if "mega" in c.ladder_species.lower()]
     assert mega_counters
-    for c in mega_counters:
-        assert c.usage_rank is None
+    retargeted = [c for c in mega_counters if c.usage_rank is not None]
+    fallback_only = [c for c in mega_counters if c.usage_rank is None]
+    assert retargeted, "expected at least one mega form to be correctly retargeted"
+    assert fallback_only, "expected at least one mega form to still need the fallback"
+    for c in fallback_only:
         assert c.showdown_usage_pct is not None
+    for c in mega_counters:
         assert _usage_popularity(c) > float("-inf")

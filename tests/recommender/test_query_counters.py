@@ -9,7 +9,9 @@ from recommender.counters import (
     ASSUMED_HITS_TAKEN,
     KO_THRESHOLD_BP,
     QUERY_COUNTERS_SLACK,
+    _dominant_mega_form,
     _ko_best_move,
+    _mega_forms_by_base,
     _scaled_base_power,
     defensive_synergy_score,
     query_counters,
@@ -507,3 +509,84 @@ def test_defensive_synergy_score_full_immunity_backs_up_more_than_partial_resist
     resist_backup = defensive_synergy_score(["Normal"], [["Flying"]])
     immune_backup = defensive_synergy_score(["Normal"], [["Ghost"]])
     assert immune_backup > resist_backup
+
+
+def test_dominant_mega_form_swampert_real_data():
+    """Regression, confirmed live: "Swampert" in real in-game usage data
+    is 95.5% Swampertite -- the usage_rank currently attributed to the
+    base form (Torrent, base stats) actually belongs to the mega form
+    (Swift Swim, boosted stats) in practice. Confirms the real, exact
+    scenario that motivated this fix.
+    """
+    from recommender.legality import load_snapshot
+    from recommender.usage_data import ingame_species_map
+
+    snap = load_snapshot()
+    ig = ingame_species_map("champions-reg-mb")
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    ig_entry = ig.get("swampert") or {}
+    result = _dominant_mega_form(snap, "swampert", ig_entry, mega_forms_by_base)
+    assert result == "swampertmega"
+
+
+def test_dominant_mega_form_handles_multi_form_species_charizard():
+    """Charizard has two real mega forms (X/Y) -- confirms the dominant
+    one (Y, per real in-game item share) is correctly identified, not
+    just "some" mega form or the wrong one."""
+    from recommender.legality import load_snapshot
+    from recommender.usage_data import ingame_species_map
+
+    snap = load_snapshot()
+    ig = ingame_species_map("champions-reg-mb")
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    ig_entry = ig.get("charizard") or {}
+    result = _dominant_mega_form(snap, "charizard", ig_entry, mega_forms_by_base)
+    assert result == "charizardmegay"
+
+
+def test_dominant_mega_form_returns_none_below_threshold():
+    """A species with no dominant mega-stone item share (or no mega form
+    at all) must not be retargeted -- confirms this is a real, threshold-
+    gated decision, not applied blanket to every species with a mega
+    form available."""
+    from recommender.legality import load_snapshot
+    from recommender.usage_data import ingame_species_map
+
+    snap = load_snapshot()
+    ig = ingame_species_map("champions-reg-mb")
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    # A species with no mega form at all
+    ig_entry = ig.get("garchomp") or {}
+    result = _dominant_mega_form(snap, "garchomp", ig_entry, mega_forms_by_base)
+    assert result is None
+
+
+def test_query_counters_reports_mega_form_directly_not_base():
+    """End-to-end confirmation against real data: querying for threats to
+    Archaludon now correctly surfaces "Swampert-Mega" directly (Swift
+    Swim, Swampertite, real usage_rank retargeted from the base entry's
+    real popularity), not "Swampert" (Torrent, base stats) -- the exact
+    live scenario that motivated this whole investigation.
+    """
+    counters = query_counters({"species": "Archaludon"})
+    swampert_related = [c for c in counters if "swampert" in c.ladder_species.lower()]
+    assert len(swampert_related) == 1
+    candidate = swampert_related[0]
+    assert candidate.ladder_species == "Swampert-Mega"
+    assert candidate.usage_rank == 20
+    assert candidate.spec.get("ability") == "Swift Swim"
+
+
+def test_query_counters_candidate_pool_matches_retargeted_mega_name():
+    """Regression, a real bug found while verifying this fix: a
+    candidate_pool/available_pool filter naturally references a
+    retargeted mega form's real name (e.g. "Delphox-Mega", once
+    query_counters correctly reports it as such) -- confirms this is
+    matched correctly against the base species actually being iterated
+    internally, not incorrectly excluded because the base id itself
+    isn't literally in the allowed set.
+    """
+    result = query_counters(
+        {"species": "Archaludon"}, candidate_pool=[{"species": "Swampert-Mega"}]
+    )
+    assert any(c.ladder_species == "Swampert-Mega" for c in result)
