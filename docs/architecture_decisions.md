@@ -4981,6 +4981,41 @@ introduces query_by_usage as the toolkit's bootstrap mechanism.
 
 ---
 
+### ADR-022 — Amendment 2026-08-20a
+
+**Support-need resolution restricted to real compendium candidates only, for any need
+category with a real compendium mapping — plus two wrong/missing compendium mappings fixed.**
+
+**A raw-move-learns-it fallback was too permissive for needs with a real compendium to check
+against.** Confirmed live: Gholdengo mechanically learns Light Screen and Reflect but is
+genuinely not a recognized screens user (confirmed directly against the real screens
+compendium) — the raw-move fallback let it match anyway, at low confidence. Confirmed as the
+correct design directly, not assumed: a need with a real compendium should exclude
+unrecognized candidates entirely, not merely deprioritize them, since here the capability
+claim itself isn't backed by real data (unlike the weather-conflict case, ADR-028 Amendment
+2026-08-20a, where the capability is real but currently inapplicable). Scope, confirmed
+directly rather than guessed: applies to every need category with a real compendium mapping
+(`screens`, `tailwind`, `trick_room`); needs without one (`healing_cleric`,
+`taunt_disruption`) are unaffected, since there's nothing to restrict against.
+
+**Two compendium-role mappings corrected.** `_compendium_roles_for_need` had no case for
+`"tailwind"` at all, despite a real `tailwind_setter` compendium category existing — every
+tailwind match, including a real "Good"-tier setter (Staraptor-Mega), only ever received
+raw-move (mechanical_only) evidence. Added the mapping. Separately, the existing
+`fake_out_protection -> redirection` mapping was mechanically wrong — redirection cannot stop
+Fake Out, which has higher priority than redirection moves — and no real "priority protection"
+compendium alternative exists (confirmed directly: would have ~2 candidates even if built, not
+representative enough to restrict against). Removed the mapping entirely;
+`fake_out_protection` now stays on the raw-move/ability path unrestricted, same as
+`healing_cleric`/`taunt_disruption`.
+
+**Status:** Implemented and verified. Three pre-existing tests needed updating to reflect the
+new, intentional behavior (a species found only via raw-move, with no real compendium
+recognition, is no longer added for a category that now has a real compendium mapping) —
+confirmed each test's actual prior purpose before rewriting, not just patched to pass.
+
+---
+
 ## ADR-023: Orchestrator consumption procedure — how ADR-022's tool outputs actually get
 combined, held, and merged across a single slot-fill
 
@@ -5856,6 +5891,31 @@ display text; left open.
 
 ---
 
+### ADR-026 — Amendment 2026-08-20a
+
+**select_diverse_candidates (ADR-033) supersedes this ADR's severity-staged ranking for the
+default/alternatives-selection step specifically — the underlying evidence-aggregation and
+`rank_multi_locked_candidates`/`_rank_key` machinery this ADR describes is otherwise
+unchanged.**
+
+Confirmed via extensive live testing across an entire session (not a design preference decided
+up front) that the severity-staged single ranking this ADR establishes, while correct for
+discovery/aggregation, could not represent three genuinely different kinds of candidate value
+(threat-coverage, support-needs, condition-benefit) in one scalar/tuple without one kind
+systematically crowding out the others. See ADR-033 for the full replacement design.
+
+`rank_multi_locked_candidates` itself is untouched and still used by
+`material_completion_preferences` (comparing attacker/support/balanced orderings) — a
+genuinely different use case where the single-ranking approach remains the right tool. Only
+`discover_multi_locked`'s call feeding `present_candidates`'s selection step was changed, to
+`rank_multi_locked_by_category` (ADR-033).
+
+**Status:** `select_diverse_candidates`'s architecture (ADR-033) is the current, correct design
+for candidate presentation. This ADR's discovery/aggregation decisions remain in effect
+unchanged.
+
+---
+
 ## ADR-027: Empty-team bootstrap — LLM-backed free-form extraction behind a
 deterministic-verification boundary; ADR-013's first real runtime consumer
 
@@ -6076,6 +6136,67 @@ deferred: condition-independent fallback-mode demonstration (e.g. Icy Wind subst
 Trick Room); weather-war contest reliability (who wins when two automatic setters contest, as
 distinct from provider count); terrains as tracked conditions; Protosynthesis's Booster Energy
 exemption (v1 always emits Sun-wanted regardless of item).
+
+---
+
+### ADR-028 — Amendment 2026-08-20a
+
+**`fills_essential_gap` split into two distinct signals; ability-based condition-beneficiary
+evidence confidence corrected; a real weather-conflict and an already-provided-need bug fixed.**
+
+**`_candidate_fills_condition_gap` previously collapsed two genuinely different situations
+into one top-priority boolean:** a candidate closing a genuinely missing provider gap
+(`missing_provider`), and a candidate merely adding backup depth behind an existing
+single-point-of-failure provider (`single_provider_spof`). Split into
+`fills_essential_gap` (missing provider, unconditional top priority — unchanged) and the new
+`fills_spof_backup_gap` (SPOF backup, real but deliberately lower priority, placed after
+evidence quality in the ranking tuple) — confirmed live this was letting a mere backup
+candidate outrank a genuinely stronger, higher-evidence-quality candidate that didn't happen
+to touch the gapped condition at all.
+
+**Ability-based condition-beneficiary evidence (`resolve_condition_beneficiaries`) was
+hardcoded to `confidence="low"` regardless of match strength** — backwards from this project's
+specificity-spectrum framework, since an innate ability directly interacting with a locked
+condition (e.g. Swift Swim under Rain) is the most mechanically certain evidence tier
+available, with none of the "might not actually run this" ambiguity a move-commitment check
+has. Corrected to `confidence="high"`. Move-based condition-beneficiary matches are unaffected
+and correctly retain usage-commitment-derived confidence, since that asymmetry (innate ability
+vs. a move a species merely can learn) is real, not an inconsistency to unify away.
+
+**Weather-conflict deprioritization confirmed and extended:** a support-need candidate whose
+only satisfying move hard-requires a weather the team's already-locked weather conflicts with
+(confirmed live: Abomasnow's Aurora Veil requiring Snow on a Rain team, matched via both the
+raw-move and compendium evidence-tag formats, which were confirmed to differ) is downgraded,
+not excluded — it may still be the least-bad option if nothing better exists.
+
+**A tailwind-already-provided bug fixed:** a locked anchor's own, legitimately-triggered
+tailwind support-need (a real speed-tier trigger, not a false generation) was still being
+surfaced as unmet even when a different locked teammate already provides Tailwind — fixed via
+a new `provided_conditions()` check filtering already-satisfied needs (tailwind/trick_room)
+out of `anchored_needs` before candidate generation.
+
+**Status:** All four fixes implemented and verified, each with dedicated regression tests
+confirming the specific real scenario that motivated it, not just the general mechanism.
+
+---
+
+### ADR-028 — Amendment 2026-08-20b
+
+**Mega-form retargeting (ADR-034) is also load-bearing for condition-beneficiary discovery,
+not just general threat-counter discovery.**
+
+Confirmed live: Swampert-Mega's real Swift Swim match under a locked Rain team was the
+motivating case for both the confidence fix (Amendment 2026-08-20a) and for discovering
+ADR-034's mega-form-identity gap in the first place — the two fixes are independent but
+compound: `resolve_condition_beneficiaries`' own species-lookup logic
+(`_species_with_abilities`) was confirmed to correctly find Swampert-Mega directly (it queries
+the legality snapshot, not the affected in-game usage dataset), but `query_counters`
+(consulted separately for Category A threat-coverage on the same candidate) previously would
+have surfaced the base form instead. ADR-034's fix resolves this for both paths from one
+underlying correction.
+
+**Status:** No new code from this amendment — documents a cross-ADR dependency that wasn't
+obvious until both investigations converged on the same live scenario.
 
 ---
 
@@ -7163,3 +7284,118 @@ This ADR does not propose changing that existing, correct behavior.
 A real discovery pass, when picked up — confirming exact `multi_locked` state shape at the
 moment multiple slots are genuinely open, and resolving the open questions above before any
 design gets locked further.
+
+---
+
+## ADR-033: Multi-signal, per-category candidate presentation — select_diverse_candidates
+
+**Decision:** For the `multi_locked` default/alternatives-selection step specifically (which
+candidates to actually present to the user, not the underlying discovery/evidence-aggregation
+ADR-026 already covers), replace the single combined ranking with three independently-scored
+categories: A (type-synergy + threat-counter breadth), B (support-needs), C
+(condition-benefit). Default is a genuine multi-category candidate (confirmed strong — top 3,
+and only counting confidence != "low" evidence — in more than one category) when one exists,
+otherwise falls back to Category A's top pick. Alternatives fill from each remaining category
+in turn. Category B/C candidates must clear a real confidence bar (any evidence item with
+confidence != "low") to be eligible at all — other signals (shared-teammate correlation,
+additional matching_needs) only rank candidates within a tier, never substitute for one.
+Evidence displayed alongside a candidate is scoped to the specific category it won, not the
+single highest-quality item across its entire merged evidence tuple. Feeding this step
+requires a category-aware top-N pre-cut (`rank_multi_locked_by_category`, each category gets
+its own top-10, not one shared top-10) rather than the existing `rank_multi_locked_candidates`.
+
+**Alternatives considered:** Keep refining the single combined ranking's tuple order (already
+attempted multiple times this session — `fills_essential_gap` split, shared-teammate
+repositioning — each fix surfaced a different symptom of the same underlying problem: one
+scalar/tuple ordering cannot represent three genuinely different kinds of value
+simultaneously). Use the existing `rank_multi_locked_candidates`/`_rank_key` top-10 cut
+unmodified, accepting that Category B/C candidates ranking below 10 by threat-coverage
+criteria alone would never be considered.
+
+**Why:** Confirmed via extensive live, unscripted testing across this entire session that a
+single ranking — even after several individually-correct fixes — kept surfacing narrow or
+context-blind candidate sets: three Steel-type picks piling onto the same shared weakness, or
+a real screens/Rain-beneficiary teammate that never entered the top ranks because its value
+lives outside what any single score can see. Each of the three sub-fixes was independently
+necessary, not redundant: without the confidence-tier gate, a uniformly-weak category (e.g.
+every screens candidate sharing the same low-confidence floor, since screens is generated
+unconditionally) could still produce a "top-ranked" pick that looks equivalent to a genuinely
+strong one. Without evidence-scoping, a multi-signal candidate's displayed evidence could come
+from an unrelated, stronger branch (confirmed live: a candidate labeled "support/utility"
+displaying its unrelated real threat-counter evidence instead of its actual, weak
+support-need match). Without the category-aware pre-cut, the entire architecture was
+structurally defeated upstream — confirmed live, real Category B/C candidates (a real screens
+setter, a real Rain-beneficiary) were being cut from the pool before this selection logic ever
+ran, by an earlier top-10 cut still using the single, old `_rank_key`.
+
+**Status:** Implemented and verified — 1267 tests passing at the end of the session that
+introduced it (up from 1174 at branch start). Two real, confirmed bugs found and fixed during
+its own development, not glossed over: (1) the multi-signal confidence-gate and the ranking
+key both initially iterated a candidate's FULL, unscoped evidence tuple rather than the
+evidence relevant to the specific category being evaluated — a candidate with strong,
+unrelated evidence (real threat-counter data) could pass Category B's confidence gate purely
+because of that unrelated strength; fixed via a shared `_need_branch_evidence` scoping helper.
+(2) `rank_multi_locked_by_category`'s categorization logic was extracted into a shared
+`_categorize_candidates` helper specifically to prevent it and `select_diverse_candidates`
+from silently drifting apart over time.
+
+**Deliberately deferred, disclosed not silently dropped:** the user's chosen orientation
+preference (attacker/support/balanced) no longer factors into `rank_multi_locked_by_category`'s
+cut at all — neither `_rank_category_a` nor `_rank_by_need_evidence` use it, unlike the old
+`_rank_key`'s `preference_fit`. No design decision made on how to fold this back in; flagged
+directly as an open question rather than guessed at, given the branch's size at merge time.
+"Specialist crowding" (a strong generalist satisfying both threat-counter and support-need
+criteria simultaneously can dominate multiple categories, crowding out true specialists) is a
+known, disclosed limitation, not addressed this session.
+
+---
+
+## ADR-034: Mega-form identity resolution in threat-counter discovery (query_counters)
+
+**Decision:** `query_counters` retargets a base species to its dominant mega form when that
+base species' real in-game item-usage share shows a specific mega stone dominating usage
+(>= 80%, confirmed live: e.g. "Swampert" is 95.5% Swampertite) — using the base form's own
+real, strong `usage_rank` for the retargeted mega candidate's popularity, while evaluating its
+actual mechanical properties (types/ability/moveset) using the mega form's own real data. For
+species without a dominant mega-stone share, `_usage_popularity` falls back to Showdown's
+`usage_pct` (a dataset that does track mega forms as separate entries) rather than always
+treating a species lacking in-game `usage_rank` as maximally unpopular.
+
+**Alternatives considered:** Give every mega form a weak, always-below-any-real-rank fallback
+popularity signal derived from Showdown usage_pct alone (implemented first, in isolation,
+before the deeper issue was found). Leave mega forms entirely unranked/absent from
+threat-counter discovery.
+
+**Why:** Confirmed live, the real root cause: the offline in-game usage dataset has no
+separate entries for mega forms at all — most likely because usage-tracking records the
+species brought to the team (base form + mega stone), not the mid-battle mega-evolved state.
+This meant every mega form's mechanical evaluation (correctly using its own real ability/stats
+via `featured_or_common_set`, confirmed unaffected) was paired with either no popularity
+signal at all, or — after the first, shallower fix — a Showdown-usage_pct fallback
+deliberately offset far below any real usage_rank so real ranks would always win ties. That
+first fix was real and correct as far as it went, but was confirmed live to be structurally
+self-defeating: it meant a mega form could correctly qualify as a real, mechanically-verified
+counter (confirmed directly: Swampert-Mega's real best_bp against Archaludon, 300.0, exceeds
+even the base form's 270.75) yet still always lose the pre-selection top-N cut whenever 20+
+real-ranked candidates also qualified — the common case. The retargeting fix instead recovers
+which form real popularity actually belongs to, using data the in-game dataset already has
+(per-item usage share), directly reusing a design already reviewed and confirmed in an earlier
+session (the "≥80%-single-stone heuristic," at the time superseded by a direct Showdown-ladder
+query for a different, offline compendium-construction context) rather than reinventing an
+approach from scratch — confirmed by searching past conversations before implementing, per
+this project's standing discipline around prior decisions.
+
+**Status:** Implemented and verified against real, live-motivating data at each step, not
+mocked in isolation — confirmed the exact original live bug (`query_counters` for Archaludon
+now reports "Swampert-Mega" directly, Swift Swim/Swampertite/usage_rank=20, not "Swampert"
+with Torrent/base stats) is closed. Two real, confirmed bugs found and fixed during
+verification: (1) `allowed`/`candidate_pool` filtering checked only the original base species
+id against the allowed set, not the retargeted mega form's id — meaning a filter naturally
+built from a retargeted candidate's own, correctly-reported name would incorrectly exclude it;
+caught by an existing test's real, dynamically-computed data breaking after this change, not a
+hand-constructed scenario. (2) Multi-mega-form disambiguation (e.g. Charizard X/Y) initially
+compared the wrong strings ("Charizardite Y" and "Charizard-Mega-Y" share no common suffix
+beyond the final letter itself) and never matched anything for multi-form species — caught by
+a formal test before considering this done, not just the common single-form case.
+
+**Deliberately scoped:** the 80% dominance threshold is a fixed constant
