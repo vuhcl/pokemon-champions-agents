@@ -31,7 +31,23 @@ from recommender.state import (
     ThreatCounterCandidate,
     empty_slot,
 )
-from recommender.support_needs import RoleShapeContext
+from recommender.support_needs import RoleShapeContext, SupportNeed
+
+# A minimal, real "obvious need" -- these orchestration tests exercise
+# discover_single_locked's internal call order, not anchor_has_obvious_need
+# itself (see test_condition_resilience.py for that), so they need a
+# realistic trigger to avoid being routed to discover_multi_locked instead
+# (2026-08-21: discover_single_locked now routes there when the anchor has
+# nothing obvious to fill).
+_OBVIOUS_NEED = [
+    SupportNeed(
+        category="trick_room",
+        name="Trick Room",
+        description="Low Spe attacker with no priority.",
+        trigger="speed_tier:low_no_priority",
+        stance="need",
+    )
+]
 
 VGC_MB = "[Gen 9 Champions] VGC 2026 Reg M-B"
 SPREAD = {"hp": 32, "atk": 32, "def": 2, "spa": 0, "spd": 0, "spe": 0}
@@ -90,7 +106,7 @@ def test_single_locked_runs_existing_helpers_in_required_order():
         anchor={"species": "Kingambit"},
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
-        support_needs=[],
+        support_needs=_OBVIOUS_NEED,
     )
     order: list[str] = []
 
@@ -156,6 +172,86 @@ def test_single_locked_runs_existing_helpers_in_required_order():
     assert result["shared_teammates"] is None
 
 
+def test_single_locked_routes_to_multi_locked_when_anchor_has_no_obvious_need():
+    """Regression, confirmed live (2026-08-21): single_locked's own
+    candidate generation produced near-arbitrary results (Archaludon and
+    Sinistcha suggested despite actively conflicting with the team's
+    locked Sun; Kangaskhan suggested despite zero real teammate
+    co-occurrence with the anchor) when the anchor has nothing obvious to
+    fill -- e.g. Charizard-Mega-Y needs Sun but provides it itself, so
+    there's no outstanding external dependency for anything to satisfy.
+    Rather than rebuild single_locked's own weaker machinery, it now
+    routes to discover_multi_locked instead, which already has field-aware
+    threat coverage, real query_shared_teammates data, and the
+    select_diverse_candidates category architecture.
+    """
+    state = _state([_locked("Charizard-Mega-Y"), *[empty_slot() for _ in range(5)]])
+    context = SlotFillContext(
+        anchor={"species": "Charizard-Mega-Y"},
+        role_shape_context=RoleShapeContext(),
+        threat_counter_results=[],
+        support_needs=[],  # Nothing obvious -- the generic fallback only.
+    )
+    calls: list[str] = []
+
+    def resolve(*_args, **_kwargs):
+        calls.append("resolve_all_support_needs")
+        return []
+
+    with (
+        patch(
+            "recommender.slot_fill.build_anchored_slot_fill_context",
+            # anchor_role_decision has no .mechanisms attribute at all --
+            # anchor_has_obvious_need must handle that safely (getattr
+            # default), not just the "real mechanisms, none needed" case.
+            return_value=AnchoredSlotDiscovery(context, object(), object(), False),
+        ),
+        patch("recommender.slot_fill.annotate_overlap"),
+        patch("recommender.slot_fill.resolve_all_support_needs", side_effect=resolve),
+        patch(
+            "recommender.nodes.discover_multi_locked",
+            return_value={"pending_presentation": None, "coverage": [], "spofs": []},
+        ) as multi_locked,
+    ):
+        result = discover_single_locked(state)
+
+    multi_locked.assert_called_once()
+    # discover_single_locked's own candidate generation must never run --
+    # confirmed via the mocked resolve_all_support_needs never firing, not
+    # just that the final result happens to look routed.
+    assert calls == []
+    assert result == {"pending_presentation": None, "coverage": [], "spofs": []}
+
+
+def test_single_locked_does_not_route_when_anchor_has_obvious_need():
+    """Sibling of the routing test above: confirms Archaludon-shaped real
+    external dependencies keep single_locked's own path, not just that
+    Charizard-Mega-Y-shaped self-sufficient ones get routed away.
+    """
+    state = _state([_locked("Archaludon"), *[empty_slot() for _ in range(5)]])
+    context = SlotFillContext(
+        anchor={"species": "Archaludon"},
+        role_shape_context=RoleShapeContext(),
+        threat_counter_results=[],
+        support_needs=_OBVIOUS_NEED,
+    )
+
+    with (
+        patch(
+            "recommender.slot_fill.build_anchored_slot_fill_context",
+            return_value=AnchoredSlotDiscovery(context, object(), object(), False),
+        ),
+        patch("recommender.slot_fill.annotate_overlap"),
+        patch("recommender.slot_fill.resolve_all_support_needs", return_value=[]),
+        patch("recommender.slot_fill.resolve_condition_beneficiaries", return_value=[]),
+        patch("recommender.slot_fill.merge_need_resolved"),
+        patch("recommender.nodes.discover_multi_locked") as multi_locked,
+    ):
+        discover_single_locked(state)
+
+    multi_locked.assert_not_called()
+
+
 def test_single_locked_passes_ownership_mode_and_expanded_owned_ids():
     from recommender.team_candidates import owned_species_ids
 
@@ -166,7 +262,7 @@ def test_single_locked_passes_ownership_mode_and_expanded_owned_ids():
         anchor={"species": "Kingambit"},
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
-        support_needs=[],
+        support_needs=_OBVIOUS_NEED,
     )
     captured: dict = {}
     captured_ben: dict = {}
@@ -343,7 +439,7 @@ def test_single_locked_empty_candidate_set_uses_legacy_fallback():
         anchor={"species": "Kingambit"},
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
-        support_needs=[],
+        support_needs=_OBVIOUS_NEED,
     )
     with (
         patch(
@@ -385,7 +481,7 @@ def test_single_locked_degraded_empty_does_not_call_fill_team_draft():
         anchor={"species": "Kingambit"},
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
-        support_needs=[],
+        support_needs=_OBVIOUS_NEED,
         threat_discovery_status="degraded",
         threat_discovery_error=error,
     )
@@ -441,7 +537,7 @@ def test_single_locked_degraded_with_candidates_presents_without_fill_team_draft
         anchor={"species": "Kingambit"},
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[static_row],
-        support_needs=[],
+        support_needs=_OBVIOUS_NEED,
         threat_discovery_status="degraded",
         threat_discovery_error=error,
     )
@@ -542,7 +638,7 @@ def test_single_locked_degraded_evidence_tokens():
         anchor={"species": "Kingambit"},
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[row],
-        support_needs=[],
+        support_needs=_OBVIOUS_NEED,
         need_resolved_candidates=[],
         threat_discovery_status="degraded",
         threat_discovery_error=error,

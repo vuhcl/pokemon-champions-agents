@@ -374,6 +374,11 @@ def merge_multi_locked_candidates(
         available_species=owned_species,
         ownership_mode=ownership_mode,
         locked_weather=locked_weather,
+        locked_species=[
+            context.resolved_build.species
+            for context in anchor_contexts
+            if context.resolved_build.species
+        ],
     )
     # Condition-beneficiary candidates (e.g. a real Rain-beneficiary once
     # Rain is locked in via some anchor's Drizzle/Rain Dance) -- confirmed

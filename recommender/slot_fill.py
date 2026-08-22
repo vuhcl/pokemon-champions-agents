@@ -1160,6 +1160,7 @@ def resolve_need_candidates(
     available_species: frozenset[str] = frozenset(),
     ownership_mode: OwnershipMode = "off",
     locked_weather: str | None = None,
+    locked_species: Sequence[str] = (),
 ) -> list[NeedResolvedCandidate]:
     compendium: list[NeedResolvedCandidate] = []
     rejected: list[CompendiumRoleEvidence] = []
@@ -1216,6 +1217,21 @@ def resolve_need_candidates(
             continue
         by_id[sid] = row
     rows = list(by_id.values())
+    if locked_species:
+        # Exclude already-locked lineage members -- confirmed live
+        # (2026-08-21): this function had no already-locked exclusion at
+        # all, unlike resolve_condition_beneficiaries's locked_lineages
+        # check right next to it in the same module. Not yet observed as
+        # a triggered live bug here specifically, but a structurally
+        # identical gap sitting right next to one that's already
+        # protected -- e.g. a base Charizard could in principle surface
+        # via a real support-need match even with Charizard-Mega-Y
+        # already locked. Mirrors resolve_condition_beneficiaries's
+        # pattern exactly rather than inventing a second convention.
+        locked_lineages = {
+            lid for name in locked_species for lid in lineage_ids(name)
+        }
+        rows = [row for row in rows if to_id(row.species) not in locked_lineages]
     if locked_weather is not None:
         # A candidate matched only via a move that HARD-requires a
         # different weather than what the team already has locked in
@@ -1355,6 +1371,7 @@ def resolve_all_support_needs(
     available_species: frozenset[str] = frozenset(),
     ownership_mode: OwnershipMode = "off",
     locked_weather: str | None = None,
+    locked_species: Sequence[str] = (),
 ) -> list[NeedResolvedCandidate]:
     """Resolve every surfaced need; skip deferred/empty; set need_resolved_candidates."""
     by_id: dict[str, NeedResolvedCandidate] = {}
@@ -1371,6 +1388,7 @@ def resolve_all_support_needs(
                 available_species=available_species,
                 ownership_mode=ownership_mode,
                 locked_weather=locked_weather,
+                locked_species=locked_species,
             )
         except NotImplementedError:
             continue
@@ -1439,7 +1457,26 @@ def resolve_condition_beneficiaries(
     available_species: frozenset[str] = frozenset(),
     ownership_mode: OwnershipMode = "off",
 ) -> list[NeedResolvedCandidate]:
-    """Invert present weather provides into kit-emitted benefits_from candidates."""
+    """Invert present weather provides into kit-emitted benefits_from candidates.
+
+    NOT ADDRESSED HERE, logged explicitly rather than silently dropped
+    (2026-08-21): this function inverts what the ANCHOR provides into
+    candidates who BENEFIT from it -- it has no corresponding check in
+    the other direction, whether a CANDIDATE's own kit conflicts with
+    what's already locked. Confirmed live: Archaludon (needs Rain for
+    Electro Shot) and Sinistcha (Grass, real Fire-weakness gets worse
+    under boosted Sun) both surfaced on a team already committed to Sun.
+    Neither is a condition_beneficiary bug specifically -- Archaludon came
+    through the real threat-coverage branch (query_threat_counters,
+    already flagged 2026-08-20 as not field-aware), and the type-weakness-
+    amplification case (Sinistcha) has no existing mechanism to extend at
+    all, in this function or anywhere else in the codebase. This is a
+    distinct, currently unimplemented capability -- a real
+    benefits_from/type-matchup-vs-locked-condition conflict check -- not
+    something the discover_single_locked -> discover_multi_locked routing
+    fix (same investigation) was ever going to solve, since neither
+    pipeline has this check.
+    """
     existing = list(ctx.need_resolved_candidates or [])
     if decision is None or not hasattr(decision, "mechanisms"):
         ctx.need_resolved_candidates = existing

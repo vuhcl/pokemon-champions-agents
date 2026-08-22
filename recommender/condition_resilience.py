@@ -148,6 +148,78 @@ def has_reliable_screens_provider(
     return False
 
 
+def anchor_has_obvious_need(
+    anchor_role_decision: object,
+    support_needs: Sequence[SupportNeed] | None,
+) -> bool:
+    """Whether a single locked anchor has a genuine, externally-facing need
+    -- something else on the team would actually need to fill -- as
+    opposed to nothing obvious at all.
+
+    Confirmed live (2026-08-21): discover_single_locked produces sharp,
+    well-targeted candidates when the anchor has a real external
+    dependency (e.g. Archaludon needs Rain for Electro Shot and can't
+    provide it itself -- query_support_needs correctly identifies a real
+    gap, driving real Rain-setter suggestions). It produces much weaker,
+    near-arbitrary candidates when the anchor has nothing obvious to fill
+    -- either because its own real "needed" dependency is self-satisfied
+    (Charizard-Mega-Y needs Sun for Solar Beam, but provides Sun itself
+    via Drought -- no outstanding gap for anything else to fill) or
+    because it only ever generates the generic, unconditional
+    "attacker-universal" fallback needs (healing_cleric/screens,
+    trigger=None -- real but deliberately low-confidence, not a specific
+    ask). This is the signal used to decide whether to keep
+    discover_single_locked's own candidate generation (works well, proven
+    live) or route to discover_multi_locked instead (better-tested
+    machinery: field-aware threat coverage progressively fixed across
+    ADR-028's amendments, real query_shared_teammates co-occurrence data,
+    the select_diverse_candidates category architecture) rather than
+    maintaining a second, weaker copy of the same problem.
+
+    Returns True (an obvious need exists, keep single_locked's own path)
+    if either:
+    - Any support_needs entry has a real, specific trigger (not None --
+      the generic attacker-universal fallback is deliberately excluded)
+      AND isn't explicitly marked a weak "want" stance -- confirmed live:
+      speed_tier:already_fast is a real, specifically-triggered Tailwind
+      need ("further Speed still helps against faster threats") but is
+      deliberately stance="want", the same deliberately-weak tier as a
+      strategic Trick-Room-sweeper's own aspirational TR ask -- neither
+      should count as "obvious" on their own, or Charizard-Mega-Y (fast,
+      self-sufficient for its own real needed dependency) would have
+      incorrectly kept single_locked's weaker path anyway. Every other
+      need category never sets stance at all (stays None), so this only
+      narrows the specific, already-identified weak tier -- it doesn't
+      require every need to explicitly opt in.
+    - The anchor has an unmet, needed-importance benefits_from mechanism
+      for a condition it doesn't already provide itself.
+
+    Does NOT attempt to judge whether a candidate would conflict with the
+    anchor's own kit or locked weather -- that's a distinct, currently
+    unimplemented check (see resolve_condition_beneficiaries/
+    resolve_need_candidates), not something this routing decision can or
+    should paper over.
+    """
+    if support_needs and any(
+        need.trigger is not None and need.stance != "want" for need in support_needs
+    ):
+        return True
+    mechanisms = getattr(anchor_role_decision, "mechanisms", None)
+    if not mechanisms:
+        return False
+    provided = {
+        mechanism_condition(m)
+        for m in mechanisms
+        if m.present and m.relation == "provides"
+    }
+    for m in mechanisms:
+        if m.present and m.relation == "benefits_from" and m.importance == "needed":
+            condition = mechanism_condition(m)
+            if condition is None or condition not in provided:
+                return True
+    return False
+
+
 def team_field_states(
     locked: Sequence[LockedAnchorContext],
     *,

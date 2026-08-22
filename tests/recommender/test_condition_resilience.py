@@ -383,6 +383,61 @@ def test_gap_support_needs_does_not_fire_for_single_provider_spof_weather():
     assert gap_support_needs(report, ()) == ()
 
 
+def test_anchor_has_obvious_need_archaludon_real_external_dependency():
+    """Archaludon needs Rain for Electro Shot and can't provide it itself
+    -- a real, unmet, needed-importance benefits_from dependency. Direct
+    unit test using the real anchor pipeline (classify_anchor_role/
+    resolve_anchor_build/query_support_needs), not a hand-constructed
+    mock, matching this project's verification discipline.
+    """
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.condition_resilience import anchor_has_obvious_need
+    from recommender.support_needs import RoleShapeContext, query_support_needs
+
+    build = resolve_anchor_build("Archaludon")
+    decision = classify_anchor_role(build)
+    shape = RoleShapeContext(
+        primary_function="offense", tankiness="tanky", requires_setup_turn=False
+    )
+    needs = query_support_needs(build.as_pokemon(), shape)
+    assert anchor_has_obvious_need(decision, needs) is True
+
+
+def test_anchor_has_obvious_need_charizard_mega_y_self_sufficient():
+    """Regression, confirmed live (2026-08-21): Charizard-Mega-Y needs Sun
+    for Solar Beam but provides Sun itself via Drought -- a real needed
+    dependency, but self-satisfied, so there's nothing external left to
+    fill. Its only other real signal is a deliberately weak,
+    stance="want" speed_tier:already_fast Tailwind ask ("further Speed
+    still helps"), not a genuine gap -- must not count as obvious on its
+    own, or this anchor would incorrectly keep single_locked's weaker
+    candidate-generation path despite having nothing real to drive it.
+    """
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.condition_resilience import anchor_has_obvious_need
+    from recommender.support_needs import RoleShapeContext, query_support_needs
+
+    build = resolve_anchor_build("Charizard-Mega-Y")
+    decision = classify_anchor_role(build)
+    shape = RoleShapeContext(
+        primary_function="offense", tankiness="frail", requires_setup_turn=False
+    )
+    needs = query_support_needs(build.as_pokemon(), shape)
+    assert anchor_has_obvious_need(decision, needs) is False
+
+
+def test_anchor_has_obvious_need_handles_missing_mechanisms_attribute():
+    """anchor_has_obvious_need must not raise when anchor_role_decision
+    doesn't have a real .mechanisms attribute at all (e.g. a test double
+    or an as-yet-unresolved decision) -- getattr default, not an
+    assumption every caller passes a fully-resolved AnchorRoleDecision.
+    """
+    from recommender.condition_resilience import anchor_has_obvious_need
+
+    assert anchor_has_obvious_need(object(), None) is False
+    assert anchor_has_obvious_need(object(), []) is False
+
+
 def _kingambit_tr():
     return classify_anchor_role(
         resolve_anchor_build("Kingambit"), user_role="trick_room_sweeper"

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import replace
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 
 from langgraph.types import RunnableConfig
 
@@ -2702,8 +2702,11 @@ def bootstrap_direction(state: RecommenderState) -> dict:
     }
 
 
-def discover_single_locked(state: RecommenderState) -> dict:
+def discover_single_locked(
+    state: RecommenderState, config: Optional[RunnableConfig] = None
+) -> dict:
     """Run existing anchored discovery, or preserve legacy partial-slot handling."""
+    from recommender.condition_resilience import anchor_has_obvious_need
     from recommender.propose import fill_team_draft
     from recommender.slot_fill import (
         annotate_overlap,
@@ -2744,6 +2747,41 @@ def discover_single_locked(state: RecommenderState) -> dict:
 
     context = discovery.context
     annotate_overlap(context)
+
+    # Route to discover_multi_locked instead of continuing with
+    # single_locked's own (weaker) candidate generation when the anchor
+    # has nothing obvious to fill (see anchor_has_obvious_need). Confirmed
+    # live (2026-08-21): single_locked produces sharp, well-targeted
+    # candidates when a real external dependency exists (Archaludon needs
+    # Rain, can't provide it -- real Rain-setters surface correctly), but
+    # near-arbitrary ones otherwise (Charizard-Mega-Y is self-sufficient
+    # for its own real need -- Archaludon and Sinistcha surfaced despite
+    # actively conflicting with the team's locked Sun; Kangaskhan
+    # surfaced despite zero real teammate co-occurrence with the anchor,
+    # since query_shared_teammates is never even called in this
+    # function). Rather than rebuilding single_locked's own weaker
+    # threat-coverage/condition-beneficiary/ranking machinery piece by
+    # piece, reuse discover_multi_locked's better-tested one -- it
+    # already handles N=1 locked anchors correctly (collect_locked_
+    # anchor_contexts/assess_condition_resilience/merge_multi_locked_
+    # candidates have no hardcoded assumption of multiple locked
+    # members). This does NOT fix every gap found in that investigation:
+    # resolve_condition_beneficiaries' hardcoded confidence (Castform,
+    # pinned by a dedicated test, not fixed here -- needs a real design
+    # decision on how to fold usage into evidence quality) is a shared
+    # function called from both pipelines, unaffected by routing; a
+    # genuine benefits_from/type-weakness-vs-locked-weather conflict
+    # check (Archaludon/Sinistcha specifically) doesn't exist in either
+    # pipeline and is a distinct, not-yet-implemented capability -- not
+    # something this routing decision can or should paper over.
+    # (resolve_need_candidates' missing already-locked exclusion, found
+    # during the same investigation, was fixed directly in this same
+    # change, not just routed around -- see its own docstring.)
+    if not anchor_has_obvious_need(
+        discovery.anchor_role_decision, context.support_needs
+    ):
+        return discover_multi_locked(state, config or {})
+
     from recommender.anchor_roles import provided_weather_conditions
 
     anchor_weathers = (
@@ -2757,6 +2795,7 @@ def discover_single_locked(state: RecommenderState) -> dict:
         available_species=owned_species_ids(state),
         ownership_mode=state.get("ownership_mode", "off"),
         locked_weather=anchor_weathers[0] if anchor_weathers else None,
+        locked_species=[str(anchors[0].species.value)],
     )
     resolve_condition_beneficiaries(
         context,
