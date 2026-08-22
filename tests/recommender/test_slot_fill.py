@@ -411,7 +411,20 @@ def test_pelipper_rain_beneficiaries_exclude_self_and_ignore_tailwind():
         if ev.producer_name == "resolve_condition_beneficiaries"
     ]
     assert ability_hits
-    assert all(ev.basis == "mechanical_only" and ev.confidence == "high" for ev in ability_hits)
+    # Confidence/basis now reflect real usage where confirmed (2026-08-21
+    # fix, see test_ability_based_condition_beneficiary_is_usage_aware_
+    # not_a_blanket_high below for the specific Castform/Swampert-Mega
+    # cases) -- no longer a single hardcoded value for every match.
+    # basis="usage_backed" only ever pairs with confidence="high" here;
+    # "mechanical_only" can be either "high" (no real data either way --
+    # a known data gap, not evidence of poor quality) or "low" (confirmed
+    # negligible real usage).
+    for ev in ability_hits:
+        assert ev.basis in ("mechanical_only", "usage_backed")
+        if ev.basis == "usage_backed":
+            assert ev.confidence == "high"
+        else:
+            assert ev.confidence in ("high", "low")
 
 
 def test_torkoal_sun_beneficiaries_exclude_self():
@@ -426,44 +439,65 @@ def test_torkoal_sun_beneficiaries_exclude_self():
     )
 
 
-def test_resolve_condition_beneficiaries_confidence_is_hardcoded_not_usage_aware():
-    """PINS A KNOWN, CONFIRMED, NOT-YET-FIXED BUG -- does not assert
-    correct behavior. Update or remove this test when the real fix lands;
-    do not treat it as validating that hardcoded confidence is desired.
+def test_resolve_condition_beneficiaries_confidence_is_usage_aware():
+    """Regression, confirmed live (2026-08-21) and fixed here: Castform
+    kept surfacing as a top-3 "condition synergy" suggestion under Sun
+    despite being objectively among the worst legal Pokemon in the
+    format -- absent from the in-game top-50 usage snapshot entirely,
+    and confirmed directly at 0.037% real Showdown usage. Root cause:
+    resolve_condition_beneficiaries hardcoded basis="mechanical_only",
+    confidence="high" for every species matching a beneficiary ability,
+    with zero real-usage weighting.
 
-    Confirmed live (2026-08-21): Castform kept surfacing as a top-3
-    "condition synergy" suggestion under Sun despite being objectively
-    among the worst legal Pokemon in the format -- absent from the
-    in-game top-50 usage snapshot entirely, #266 of 302 in the Showdown
-    dataset. Root cause confirmed directly: resolve_condition_
-    beneficiaries hardcodes basis="mechanical_only", confidence="high"
-    for every species matching a beneficiary ability, with zero real-
-    usage weighting -- _rank_by_usage computes a correct, real ordering
-    upstream (confirmed separately: Castform ranks 10th of 15 real
-    Sun-ability candidates there), but nothing downstream (_rank_key has
-    no usage-awareness of its own) ever consults it, so it's silently
-    discarded before it can matter. A real fix needs an actual design
-    decision (fold usage into the evidence basis/confidence itself,
-    consistent with how _BASIS_RANK already ranks usage_backed above
-    mechanical_only elsewhere in this codebase, vs. some other approach)
-    -- deliberately not attempted here; this test only pins the bug so it
-    can't quietly be forgotten or silently "fixed" by unrelated
-    refactoring without a real test failing to mark the moment it changes.
-
-    (Also visible in this same evidence, but a distinct, separate,
-    likewise not-yet-fixed issue: Castform/Castform-Sunny/Castform-Rainy
-    all appear as independent rows here rather than collapsing to one
-    candidate -- the forme-identity gap, not the confidence gap this test
-    is specifically about.)
+    Fix distinguishes "confirmed negligible real usage" (Castform: present
+    in Showdown data, but below move_narrowing.MIN_USAGE_PCT) from "no
+    real data either way" (a known, separate gap -- mega forms are
+    entirely absent from the in-game top-50 snapshot, confirmed directly
+    for Swampert-Mega despite it having genuine, substantial 8.19%
+    Showdown usage) -- the latter preserves the original, deliberate
+    high-confidence default for ability-based matches (mechanically
+    certain, always-active, unlike a move that might not be run) rather
+    than penalizing a data gap as if it were a real negative signal.
     """
     rows = _resolve_beneficiaries("Torkoal")
     castform_rows = [row for row in rows if to_id(row.species).startswith("castform")]
     assert castform_rows, "Castform should still match Torkoal's real Sun objective"
     for row in castform_rows:
-        assert all(
-            ev.basis == "mechanical_only" and ev.confidence == "high"
+        ability_hits = [
+            ev
             for ev in row.evidence
+            if ev.producer_name == "resolve_condition_beneficiaries"
+        ]
+        assert ability_hits
+        assert all(
+            ev.basis == "mechanical_only" and ev.confidence == "low"
+            for ev in ability_hits
         )
+
+
+def test_ability_based_condition_beneficiary_is_usage_aware_not_a_blanket_high():
+    """Sibling of the Castform test above: confirms this isn't just
+    "everything gets downgraded now" -- a species with genuine, confirmed
+    real usage (Swampert-Mega, 8.19% Showdown, just absent from the
+    in-game top-50 the same way all mega forms are) still correctly gets
+    usage_backed/high, distinct from the "no real data at all" case which
+    also lands on high but via mechanical_only (see
+    test_pelipper_rain_beneficiaries_exclude_self_and_ignore_tailwind).
+    """
+    rows = _resolve_beneficiaries("Pelipper")
+    by_id = {to_id(row.species): row for row in rows}
+    swampert_mega = by_id.get("swampertmega")
+    assert swampert_mega is not None
+    ability_evidence = [
+        ev
+        for ev in swampert_mega.evidence
+        if ev.producer_name == "resolve_condition_beneficiaries"
+    ]
+    assert ability_evidence
+    assert all(
+        ev.basis == "usage_backed" and ev.confidence == "high"
+        for ev in ability_evidence
+    )
 
 
 def test_tyranitar_sand_beneficiaries_exclude_lineage():

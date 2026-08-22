@@ -25,6 +25,7 @@ from recommender.ids import to_id
 from recommender.matchup import CHARGE_INSTANT_WEATHER
 from recommender.legality import is_species_legal, load_snapshot, resolve_learnset
 from recommender.move_narrowing import (
+    MIN_USAGE_PCT,
     _HARD_REQUIRE_WEATHER,
     narrow_candidates_for_move,
     pick_default_and_alternatives,
@@ -40,8 +41,10 @@ from recommender.role_compendium import (
 from recommender.state import (
     Attr,
     CandidateBranch,
+    CandidateConfidence,
     CandidateDiscoveryError,
     CandidateEvidence,
+    CandidateEvidenceBasis,
     CompositionFit,
     PendingPresentation,
     PendingPresentationOption,
@@ -65,7 +68,12 @@ from recommender.support_needs import (
     _weather_category_match,
     field_labels_from_trigger,
 )
-from recommender.usage_data import featured_or_common_set, lineage_ids
+from recommender.usage_data import (
+    featured_or_common_set,
+    ingame_species_map,
+    lineage_ids,
+    showdown_species_map,
+)
 
 Source = PresentationSource
 SlotFillAction = Literal["accept_default", "choose", "defer"]
@@ -1559,14 +1567,65 @@ def resolve_condition_beneficiaries(
             available_species=available_species,
             ownership_mode=ownership_mode,
         )
+        ingame_map = ingame_species_map(regulation)
+        showdown_map = showdown_species_map(regulation)
         for name in ranked:
             sid = to_id(name)
             parts: list[CandidateEvidence] = []
             if sid in ability_hits:
+                # Confidence now reflects real usage where it's actually
+                # confirmed, rather than a hardcoded "high" regardless --
+                # confirmed live (2026-08-21): Castform (0.037% Showdown
+                # usage, absent from the in-game top-50) got the same
+                # "high confidence" as a genuinely strong pick purely from
+                # matching a beneficiary ability.
+                #
+                # Deliberately does NOT simply invert to "low unless
+                # proven popular" -- query_by_usage (used for ordering
+                # above) always returns usage_rank=None/showdown_usage_pct
+                # =None regardless of real data (confirmed directly; it
+                # never actually populates that field), and mega forms are
+                # entirely absent from the in-game top-50 snapshot as a
+                # known, separate data gap -- confirmed directly:
+                # Swampert-Mega is absent from ingame_species_map but has
+                # a real, substantial 8.19% Showdown usage. Absence from a
+                # known-incomplete dataset is not evidence of poor
+                # quality, so it must not be penalized the same way as a
+                # species that IS present in real data but negligible
+                # there (Castform). The existing, deliberate "ability-
+                # based match = high confidence" convention (an ability is
+                # mechanically certain/always-active, unlike a move that
+                # might not be run) is preserved as the default and only
+                # overridden by confirmed negative evidence, not by a data
+                # gap. Reuses move_narrowing.MIN_USAGE_PCT (1.0), the same
+                # negligible-usage floor already established elsewhere in
+                # this codebase.
+                # Resolved to the lineage base (lineage_ids[0] is always
+                # the base species regardless of which member is queried,
+                # confirmed directly) before the usage lookup -- Castform-
+                # Sunny/Rainy/Snowy each have their own species id with no
+                # usage entry of their own; only base "castform" carries
+                # the real Showdown data. This does NOT fix the separate,
+                # still-open forme-duplication bug (they still surface as
+                # 3 independent candidate rows) -- it only makes sure
+                # whichever row does get generated reads the correct real
+                # usage data instead of silently missing it by id mismatch.
+                in_ingame = lineage_ids(sid)[0] in ingame_map
+                sw_entry = showdown_map.get(lineage_ids(sid)[0])
+                sw_pct = sw_entry.get("usage_pct") if sw_entry else None
+                if in_ingame or (sw_pct is not None and sw_pct >= MIN_USAGE_PCT):
+                    basis: CandidateEvidenceBasis = "usage_backed"
+                    confidence: CandidateConfidence = "high"
+                elif sw_pct is not None and sw_pct < MIN_USAGE_PCT:
+                    basis = "mechanical_only"
+                    confidence = "low"
+                else:
+                    basis = "mechanical_only"
+                    confidence = "high"
                 parts.append(
                     CandidateEvidence(
-                        basis="mechanical_only",
-                        confidence="high",
+                        basis=basis,
+                        confidence=confidence,
                         producer_name="resolve_condition_beneficiaries",
                         evidence=(
                             "need:condition_beneficiary",
