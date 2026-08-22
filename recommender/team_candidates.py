@@ -115,6 +115,79 @@ def mega_ceiling_notices(state: RecommenderState) -> tuple[str, ...]:
     )
 
 
+def _candidate_mega_base(build: ResolvedAnchorBuild, snap: dict) -> str | None:
+    """Returns the lineage base id if this build is itself a mega-stone
+    holder (mega form species, or a mega stone item on the matching base),
+    else None. Shared by mega_ceiling_notices' locked-side detection and
+    candidate_wastes_core_slot's candidate-side detection, so they can't
+    silently drift into two different notions of "is this a mega."
+    """
+    sid = to_id(build.species or "")
+    if not sid:
+        return None
+    base = lineage_ids(sid)[0]
+    item = to_id(build.item or "")
+    if _is_mega_sid(sid) or _item_mega_forme(item, base, snap):
+        return base
+    return None
+
+
+def candidate_wastes_core_slot(
+    decision: AnchorRoleDecision,
+    build: ResolvedAnchorBuild,
+    locked: Sequence[LockedAnchorContext],
+    *,
+    is_core_slot: bool,
+) -> bool:
+    """Whether recommending this candidate for THIS slot would waste a
+    core-team slot on a scarce, single-use resource that's already
+    claimed in a conflicting way.
+
+    Confirmed live (2026-08-21): Swampert-Mega (real Rain-abuse value)
+    surfaced as a top-3 "threat coverage + type synergy" pick for slot 4
+    on a team already committed to Sun via a locked Charizard-Mega-Y --
+    Sun and Rain are mutually exclusive, so Swampert-Mega's actual
+    distinguishing strength can never fire on this team as currently
+    built. A second mega-stone holder is the same shape of problem: only
+    one Pokemon can Mega Evolve per battle, so a second one occupying one
+    of the first picked_team_size slots wastes that slot's real,
+    always-available flexibility on a mechanic that's already spoken for.
+
+    Deliberately scoped to is_core_slot only -- a second weather or mega
+    is legitimate, real alternate-core bench value once the core is
+    settled (confirmed: real teams build a Sun-core AND a Rain-core
+    variant sharing the same locked anchors, swapped in per matchup),
+    not something to discourage there. Callers are responsible for
+    computing is_core_slot (slot_index < picked_team_size) -- this
+    function only judges the resource-conflict question, not slot
+    position, to keep the two concerns independently testable.
+    """
+    if not is_core_slot:
+        return False
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+
+    candidate_mega_base = _candidate_mega_base(build, snap)
+    if candidate_mega_base is not None:
+        for context in locked:
+            locked_mega_base = _candidate_mega_base(context.resolved_build, snap)
+            if locked_mega_base is not None and locked_mega_base != candidate_mega_base:
+                return True
+
+    from recommender.condition_resilience import mechanism_condition, provided_conditions
+
+    _WEATHERS = frozenset({"Rain", "Sun", "Sand", "Snow"})
+    locked_weathers = provided_conditions(locked) & _WEATHERS
+    if locked_weathers:
+        for m in decision.mechanisms:
+            if m.present and m.relation == "benefits_from" and m.importance == "needed":
+                condition = mechanism_condition(m)
+                if condition in _WEATHERS and condition not in locked_weathers:
+                    return True
+    return False
+
+
 def _threat_id(threat: ThreatCandidate) -> str:
     return to_id(threat.spec.get("species") or threat.form or threat.ladder_species)
 
@@ -633,6 +706,20 @@ def annotate_composition_impact(
         if locked_anchors is not None
         else collect_locked_anchor_contexts(state)
     )
+    picked_team_size = state.get("picked_team_size")
+    open_slot_index = next(
+        (
+            index
+            for index, slot in enumerate(state.get("team_draft") or [])
+            if not all_locked(slot)
+        ),
+        None,
+    )
+    is_core_slot = (
+        picked_team_size is not None
+        and open_slot_index is not None
+        and open_slot_index < picked_team_size
+    )
     primary_counts: dict[str, int] = {}
     role_counts: dict[str, int] = {}
     mechanism_counts: dict[str, int] = {}
@@ -693,6 +780,9 @@ def annotate_composition_impact(
         fills_pf_spof = _candidate_fills_primary_function_spof(
             decision, build, pf_report, locked
         )
+        wastes_core_slot = candidate_wastes_core_slot(
+            decision, build, locked, is_core_slot=is_core_slot
+        )
         if (
             candidate.anchored_needs
             or missing_primary
@@ -734,6 +824,7 @@ def annotate_composition_impact(
                 fills_essential_gap=fills_missing,
                 fills_spof_backup_gap=fills_spof_backup,
                 evidence=evidence,
+                wastes_core_slot=wastes_core_slot,
             )
         )
     return out
@@ -921,6 +1012,7 @@ def _rank_key(
         (need.need.category, need.need.trigger) for need in candidate.anchored_needs
     }
     return (
+        int(not candidate.wastes_core_slot),
         int(candidate.fills_essential_gap),
         counts["uncovered_verified_decisive"],
         counts["uncovered_verified_costly"],
@@ -1026,6 +1118,7 @@ def _rank_category_a(
     def sort_key(item: tuple[AnnotatedCandidate, float, float]):
         sid = to_id(item[0].species)
         return (
+            int(item[0].wastes_core_slot),
             verified_rank[sid] + synergy_rank[sid],
             _shared_teammate_tiebreak(item[0]),
         )
@@ -1100,6 +1193,7 @@ def _rank_by_need_evidence(
             else (0, 0)
         )
         return (
+            int(c.wastes_core_slot),
             int(_is_backup_only(relevant)),
             -best[0],
             -best[1],
