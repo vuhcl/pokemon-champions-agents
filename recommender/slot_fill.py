@@ -938,6 +938,45 @@ def _union_move_resolved(
     return list(by_id.values())
 
 
+def _is_battle_only_transient_forme(sid: str, entry: dict[str, Any], regulation: str) -> bool:
+    """Whether sid is a forme that only ever appears automatically during
+    battle (weather/terastal/etc.-triggered) rather than something a
+    player independently picks and boxes -- Castform's weather formes,
+    not Rotom's appliance formes.
+
+    Confirmed live (2026-08-22): resolve_condition_beneficiaries surfaced
+    Castform/Castform-Sunny/Castform-Rainy/Castform-Snowy as four
+    independent candidates, when a player only ever picks base "Castform"
+    -- the weather-triggered formes aren't a real, separate team-building
+    choice. Verified directly, not assumed: every battle-only automatic
+    forme checked (Castform's three weather formes, Terapagos-Stellar,
+    Zygarde-Complete) has zero rows in BOTH ingame_species_map and
+    showdown_species_map -- they can never appear in a real team export,
+    because they can't exist outside of live battle state. Genuinely
+    separate, player-chosen formes (Rotom-Wash/Heat/Fan/Frost/Mow) all
+    have real Showdown rows, since players do independently pick and
+    report them. Some other battle-only formes (Mimikyu-Busted, Cramorant-
+    Gulping/Gorging, Eiscue-Noice, Minior's core forme) aren't even
+    independently is_species_legal entries at all -- _species_with_
+    abilities's own legal-species filter already excludes those before
+    this check would ever run, confirmed directly; this function only
+    needs to handle the ones that DO pass that filter despite being
+    battle-only.
+
+    Deliberately requires base_species_id to be set (a real forme
+    relationship), not just "zero usage rows alone" -- a genuinely new,
+    independently-legal, real species that simply has low usage must
+    never be excluded here; this collapses formes, it doesn't gate on
+    popularity (that's Amendment 2026-08-22a's job, elsewhere).
+    """
+    base = entry.get("base_species_id")
+    if not base or base == sid:
+        return False
+    return sid not in ingame_species_map(regulation) and sid not in showdown_species_map(
+        regulation
+    )
+
+
 def _species_with_abilities(
     ability_ids: frozenset[str],
     *,
@@ -947,6 +986,8 @@ def _species_with_abilities(
     out: list[str] = []
     for sid, entry in (snap.get("species") or {}).items():
         if not is_species_legal(snap, sid):
+            continue
+        if _is_battle_only_transient_forme(sid, entry, regulation):
             continue
         name = str(entry.get("name") or sid)
         if _species_abilities(name, snap=snap, regulation=regulation) & ability_ids:
