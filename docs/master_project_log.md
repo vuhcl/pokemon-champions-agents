@@ -4703,6 +4703,81 @@ found to end at 2026-08-09 while `architecture_decisions.md` continues through 2
 beyond — worth checking whether the live, canonical log file is actually current, since this
 entry is being appended based on a possibly-stale local snapshot.
 
+## 2026-08-21: Repeat support-role suggestions and missing 2nd Rain-setter — both root-caused
+and fixed, PR #108 merged
+
+Closes both items flagged as "not yet investigated" at the end of the 2026-08-20 entry above.
+Live testing surfaced two symptoms that read like one problem but had two independent, unrelated
+root causes — see ADR-028 Amendment 2026-08-21a and ADR-033 Amendment 2026-08-21a for full
+technical detail.
+
+**Repeat Tailwind/Trick Room suggestions:** traced through several wrong hypotheses first —
+a display/attribution mismatch, then a Category A/B ranking-compounding theory — before direct
+reproduction against the real pipeline found the actual mechanism: `gap_support_needs` checked
+condition coverage against the *same* `anchored_needs` tuple the already-provided filter
+(ADR-028 Amendment 2026-08-20a) had just stripped satisfied needs out of, in the same function,
+a few lines earlier. Once a real provider existed, that coverage signal was gone by the time
+`gap_support_needs` looked for it, so it re-emitted a full-strength need every turn,
+indistinguishable from a genuinely missing one, routed through the same Role-Compendium
+primary-tier lookup that had generated the original (correctly-fixed) symptom. Confirmed this
+also explains Aerodactyl's specific appearance, an open question from earlier in the session —
+same mechanism, not a separate bug.
+
+**Missing 2nd Rain-setter:** `fills_essential_gap`/`fills_spof_backup_gap` were computed
+correctly by `_candidate_fills_condition_gap` (built in the 2026-08-20 session specifically for
+this case) but never read anywhere in the `select_diverse_candidates` architecture that same
+session introduced — confirmed via grep, the only consumer was the old `_rank_key`, which every
+existing test for these fields called directly. A genuine backup-provider candidate has no
+`matching_needs` of its own by design, so it had no category to land in regardless of divergence
+score.
+
+**A real design conversation preceded the fix, not just a bug hunt.** Before deciding how to fix
+either, established that a real team never wants a second *primary* setter for a condition it
+already has one — confirmed against actual team-building practice (Sableye's real value is
+screens-primary with incidental Rain support, not being a second Pelipper) — which settled that
+`gap_support_needs` should stop firing for `single_provider_spof` entirely rather than get a
+smarter dedup check, with any legitimate backup value routed exclusively through
+`fills_spof_backup_gap`'s existing, structurally-correct "annotate an existing candidate" model.
+
+**Implemented directly, not via Cursor — a deliberate, disclosed deviation from the standard
+workflow, not an oversight.** Cursor was unavailable this session; this fix didn't require
+calc-service access (unlike two other findings from the same investigation, below), so it was
+scoped, implemented, tested, and shipped in this Claude Project session directly, following the
+same branch/PR discipline Cursor would have. Both regressions confirmed via tests that fail on
+pre-fix code and pass after, not just added coverage. 1272 tests passing (up from 1267), 8
+skipped. Two stale, fully-merged branches (`fix/tailwind-redundant-alternatives`,
+`feat/item-moveset-conflict-resolution`) deleted as housekeeping during the same session.
+
+**New findings from this investigation, deliberately left open — for Cursor's own discovery
+pass once available, not worked from secondhand conclusions:**
+- A sharper, more mechanistic version of "specialist crowding" (flagged 2026-08-20, previously
+  vague): any candidate with even one weak `threat_row` entry can compete for Category A's
+  top-3 "genuine multi-signal" default slot on the same terms as a real threat-counter,
+  structurally disadvantaging dedicated support specialists that rarely rank well on
+  `verified_score`. Requires real calc-verified threat data to investigate further, not
+  available in this session's environment.
+- Category C (condition-benefit) never surfaced a single candidate across an entire live
+  session, despite offline reproduction showing real, high-confidence Category C candidates
+  that clear the selection gate in isolation. Root cause not found — genuinely open.
+- Confirmed `TRACKED_CONDITIONS`' exclusion of screens is a deliberate ADR-028 decision, not
+  staleness — but also confirmed (correcting an initial wrong assumption) that screens setters
+  in this meta do functionally contest a single "provider" slot via Light Clay + Item Clause
+  exclusivity, not the "stacks freely" case they first looked like. Whether/how to extend
+  provider-cardinality modeling to screens remains a real, undecided design question.
+- **New, not previously flagged:** past roughly the 4th locked slot, Category A's
+  "threat coverage + type synergy" framing implicitly treats all 6 roster slots as if they play
+  simultaneously and permanently — confirmed via direct check, `threat_counters.py` has zero
+  awareness of `picked_team_size`. For slots 5-6, the more useful question is probably "does
+  this cover a real weakness in the current best-4 subset" (a flex/bench role) rather than
+  "does this add more stackable coverage" — a different scoring question this system doesn't
+  currently ask. Distinct from ADR-011/012's separate, deliberately-scoped "given a built 6 and
+  a revealed opponent, which 4 to bring" tool — this is about how slots 5-6 should be scored
+  *during* building, not a Team Preview decision. No direction decided.
+
+**Housekeeping still outstanding:** the GitHub token used this session (and the prior PR #107
+session) still needs revoking — flagged repeatedly across sessions now, still live as of this
+entry.
+
 ---
 
 ## TOOLS & RESOURCES

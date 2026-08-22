@@ -6230,6 +6230,66 @@ obvious until both investigations converged on the same live scenario.
 
 ---
 
+### ADR-028 — Amendment 2026-08-21a
+
+**`gap_support_needs` now fires only for `gap == "missing_provider"`, never
+`single_provider_spof` — the dedup check it relied on was structurally
+unable to see coverage for exactly the case it mattered most.**
+
+Confirmed live: Whimsicott and Aerodactyl kept surfacing as compendium-backed
+`tailwind_setter` support/utility picks turn after turn, and
+Farigiraf/Aromatisse/Audino/Audino-Mega as `trick_room_setter` picks, despite
+Pelipper and Sinistcha already providing those conditions. Root cause: inside
+`merge_multi_locked_candidates`, the already-provided filter (Amendment
+2026-08-20a) strips satisfied tailwind/trick_room needs out of
+`anchored_needs` *before* that same, now-filtered tuple is passed into
+`gap_support_needs` as `existing_needs`. `gap_support_needs`'
+`_condition_already_covered` check looks for coverage evidence in exactly
+that tuple — so once the real fix stripped it, the second function could
+never see it, and re-emitted a full-strength need for the
+`single_provider_spof` case every time, indistinguishable from a genuinely
+missing provider, routed through the same `_compendium_roles_for_need`
+primary-role Compendium lookup.
+
+The original ADR-028 text already states the intended design — gap-need
+generation was supposed to "deduplicate against needs already surfaced
+through each anchor's own `query_support_needs` resolution, firing
+independently only for the aggregate-only case." This amendment doesn't
+change that intent; it corrects the implementation to actually match it, by
+removing `single_provider_spof` from `gap_support_needs`' scope entirely
+rather than depending on a dedup check that can't reliably tell "genuinely
+missing" from "already covered, backup would be nice" once the coverage
+signal has been deliberately removed upstream.
+
+**Why exclusion, not a better dedup check:** a real team never wants a
+second *primary* setter for a condition it already has one of — confirmed
+directly against real team-building practice (a second Rain/Tailwind/Trick-
+Room specialist competes for a roster slot the same team never spends twice
+on the same primary job; any real "backup" value comes from a Pokémon
+chosen for a *different* primary reason that happens to also carry the
+condition, e.g. Sableye as a screens setter with incidental Rain support,
+not a second Pelipper). `gap_support_needs`' mechanism — a direct
+Role-Compendium primary-tier search — is structurally the wrong shape for
+that secondary-provider case regardless of the dedup bug; legitimate backup
+value is handled exclusively by `fills_spof_backup_gap` /
+`_candidate_fills_condition_gap`, which annotates candidates already in the
+pool for other reasons instead of searching for more specialists.
+
+**Status:** Implemented and verified via PR #108 (merged, commit `656abb4`).
+Confirmed via a test reproducing the exact live scenario (`condition_
+resilience` wired through `merge_multi_locked_candidates` the same way
+`discover_multi_locked` does) that fails on pre-fix code with Aerodactyl
+surfacing via a spurious `tailwind` need, and passes after. 3 additional
+direct unit tests on `gap_support_needs` for the tailwind/trick-room/weather
+single-provider-spof cases. Screens and redirection are explicitly out of
+scope — `TRACKED_CONDITIONS` has never covered them; whether/how to extend
+provider-cardinality modeling to screens (which contest via Light Clay +
+Item Clause exclusivity rather than a single automatic ability — confirmed
+this isn't the "stacks freely" case it first looked like) is a separate,
+undecided design question. 1272 tests passing (up from 1267), 8 skipped.
+
+---
+
 ## ADR-029: Calc-unavailable static fallback — labeled degraded discovery for single_locked,
 fail-closed unchanged for multi_locked and coverage/SPOF claims
 
@@ -7377,6 +7437,60 @@ directly as an open question rather than guessed at, given the branch's size at 
 "Specialist crowding" (a strong generalist satisfying both threat-counter and support-need
 criteria simultaneously can dominate multiple categories, crowding out true specialists) is a
 known, disclosed limitation, not addressed this session.
+
+---
+
+### ADR-033 — Amendment 2026-08-21a
+
+**`fills_essential_gap`/`fills_spof_backup_gap` are now consulted by
+`_categorize_candidates` — they were computed correctly but never read by
+any part of the category pipeline this ADR introduced.**
+
+Confirmed via direct trace: `_FIT_RANK`/`composition_fit` and
+`fills_essential_gap`/`fills_spof_backup_gap` were each consumed in exactly
+one place — the old `_rank_key` — which this ADR's `select_diverse_
+candidates` path bypasses entirely for `multi_locked` presentation. Every
+existing test exercising these two fields called `_rank_key` directly, never
+`select_diverse_candidates`, so the gap had no test coverage that could have
+caught it. `fills_spof_backup_gap` in particular represents a candidate with
+no `matching_needs` of its own by design (the anchor's own dependency is
+already satisfied, so `query_support_needs` never asks for a backup) — with
+`_categorize_candidates` routing candidates into B/C purely by
+`matching_needs` category, such a candidate had no category to land in
+regardless of how strong its divergence score was. Live symptom: no 2nd
+Rain-setter ever got suggested even when that was the real, open need.
+
+`_candidate_fills_condition_gap` now also returns which condition(s) earned
+the backup flag. When it fires, real evidence (`branch="need"`,
+`basis="synthesized"`, `confidence="medium"`, tagged `condition:<name>`) gets
+attached in `annotate_composition_impact` so the candidate can clear
+Category B's existing confidence gate (`_has_strong_evidence`) — without
+this, routing it into Category B alone would have been silently defeated by
+the same gate ADR-033 built to keep weak, unconditional matches out.
+`_categorize_candidates` now also checks `fills_essential_gap`/
+`fills_spof_backup_gap` directly, not just `matching_needs`.
+
+**Why `fills_essential_gap` is included too, despite likely redundancy:**
+the missing-provider case already gets a real `matching_needs` entry through
+the normal (unaffected-by-this-fix) `gap_support_needs` path, so this is
+probably belt-and-suspenders rather than fixing a second live bug — included
+for parity and as a guard against that path being unavailable in some edge
+case, not because a second live symptom was confirmed for it specifically.
+
+**Status:** Implemented and verified via PR #108 (merged, commit `656abb4`),
+same PR as the ADR-028 amendment above (found in the same live-testing
+session; landed together since they compound). Confirmed via a test
+isolating a candidate whose *only* signal is `fills_spof_backup_gap=True`
+(no `threat_row`, no other `matching_needs`) — fails on pre-fix code with an
+empty Category B, passes after. Does not address "specialist crowding"
+(already disclosed, unaddressed, as of this ADR's original text) — a
+related but distinct live finding this session sharpened: any candidate with
+even one weak `threat_row` entry can compete for Category A's top-3 "genuine
+multi-signal" default slot on the same terms as a real threat-counter,
+structurally disadvantaging dedicated support specialists who rarely rank
+well on `verified_score`. No fix decided or attempted; flagged as an open
+design question requiring real calc-verified threat data to investigate
+further, left for Cursor's own discovery pass.
 
 ---
 
