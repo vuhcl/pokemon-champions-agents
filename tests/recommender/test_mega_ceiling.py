@@ -25,7 +25,20 @@ from recommender.state import (
     ThreatCounterCandidate,
     empty_slot,
 )
-from recommender.support_needs import RoleShapeContext
+from recommender.support_needs import RoleShapeContext, SupportNeed
+
+# See test_team_phase_routing.py's _OBVIOUS_NEED -- same reasoning: this
+# orchestration test needs a realistic trigger to avoid discover_single_
+# locked routing it to discover_multi_locked instead (2026-08-21).
+_OBVIOUS_NEED = [
+    SupportNeed(
+        category="trick_room",
+        name="Trick Room",
+        description="Low Spe attacker with no priority.",
+        trigger="speed_tier:low_no_priority",
+        stance="need",
+    )
+]
 from recommender.team_candidates import (
     mega_ceiling_notices,
     mega_useful_ceiling,
@@ -197,7 +210,7 @@ def test_discover_single_locked_sets_notice_on_first_mega_lock():
         anchor={"species": "Charizard-Mega-X"},
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
-        support_needs=[],
+        support_needs=_OBVIOUS_NEED,
     )
     captured: dict = {}
 

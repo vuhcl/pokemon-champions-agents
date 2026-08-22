@@ -426,6 +426,46 @@ def test_torkoal_sun_beneficiaries_exclude_self():
     )
 
 
+def test_resolve_condition_beneficiaries_confidence_is_hardcoded_not_usage_aware():
+    """PINS A KNOWN, CONFIRMED, NOT-YET-FIXED BUG -- does not assert
+    correct behavior. Update or remove this test when the real fix lands;
+    do not treat it as validating that hardcoded confidence is desired.
+
+    Confirmed live (2026-08-21): Castform kept surfacing as a top-3
+    "condition synergy" suggestion under Sun despite being objectively
+    among the worst legal Pokemon in the format -- absent from the
+    in-game top-50 usage snapshot entirely, #266 of 302 in the Showdown
+    dataset. Root cause confirmed directly: resolve_condition_
+    beneficiaries hardcodes basis="mechanical_only", confidence="high"
+    for every species matching a beneficiary ability, with zero real-
+    usage weighting -- _rank_by_usage computes a correct, real ordering
+    upstream (confirmed separately: Castform ranks 10th of 15 real
+    Sun-ability candidates there), but nothing downstream (_rank_key has
+    no usage-awareness of its own) ever consults it, so it's silently
+    discarded before it can matter. A real fix needs an actual design
+    decision (fold usage into the evidence basis/confidence itself,
+    consistent with how _BASIS_RANK already ranks usage_backed above
+    mechanical_only elsewhere in this codebase, vs. some other approach)
+    -- deliberately not attempted here; this test only pins the bug so it
+    can't quietly be forgotten or silently "fixed" by unrelated
+    refactoring without a real test failing to mark the moment it changes.
+
+    (Also visible in this same evidence, but a distinct, separate,
+    likewise not-yet-fixed issue: Castform/Castform-Sunny/Castform-Rainy
+    all appear as independent rows here rather than collapsing to one
+    candidate -- the forme-identity gap, not the confidence gap this test
+    is specifically about.)
+    """
+    rows = _resolve_beneficiaries("Torkoal")
+    castform_rows = [row for row in rows if to_id(row.species).startswith("castform")]
+    assert castform_rows, "Castform should still match Torkoal's real Sun objective"
+    for row in castform_rows:
+        assert all(
+            ev.basis == "mechanical_only" and ev.confidence == "high"
+            for ev in row.evidence
+        )
+
+
 def test_tyranitar_sand_beneficiaries_exclude_lineage():
     rows = _resolve_beneficiaries("Tyranitar")
     names = {to_id(row.species) for row in rows}
@@ -1135,6 +1175,43 @@ def test_resolve_screens_uses_real_compendium_not_generic_mechanical_only():
     meowstic = by_id.get("meowstic")
     assert meowstic is not None
     assert any(e.basis == "compendium_backed" for e in meowstic.evidence)
+
+
+def test_resolve_need_candidates_excludes_already_locked_lineage():
+    """Regression, confirmed live (2026-08-21): resolve_need_candidates had
+    no already-locked exclusion at all, unlike resolve_condition_
+    beneficiaries's locked_lineages check right next to it in the same
+    module -- a real, structurally identical gap sitting undetected next
+    to one that's already protected. Not yet observed as a triggered live
+    bug (no case surfaced where the same species both matched a real
+    support need AND was already locked in another form), but the
+    principle is the same one already confirmed necessary elsewhere:
+    if Charizard-Mega-Y is locked, no other Charizard form should be
+    suggestable, regardless of which code path would have surfaced it.
+    """
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="Attacker-shaped anchors benefit from screens support.",
+        trigger=None,
+    )
+    unfiltered = resolve_need_candidates(need, _base_state())
+    ids = {to_id(row.species) for row in unfiltered}
+    assert "grimmsnarl" in ids  # Confirms this need genuinely matches it.
+
+    excluded = resolve_need_candidates(
+        need, _base_state(), locked_species=["Grimmsnarl"]
+    )
+    assert "grimmsnarl" not in {to_id(row.species) for row in excluded}
+
+    # Lineage collapsing must work in both directions: locking the BASE
+    # form excludes a mega/alt form that also matches, and vice versa --
+    # mirrors resolve_condition_beneficiaries's already-proven behavior.
+    assert "froslassmega" in ids
+    excluded_via_base = resolve_need_candidates(
+        need, _base_state(), locked_species=["Froslass"]
+    )
+    assert "froslassmega" not in {to_id(row.species) for row in excluded_via_base}
 
 
 def test_resolve_screens_deprioritizes_hard_weather_gated_candidate_under_conflicting_weather():
