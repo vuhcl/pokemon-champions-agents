@@ -1242,6 +1242,77 @@ def test_fills_spof_backup_gap_alone_reaches_select_diverse_candidates():
     assert picked["tracks"]["Politoed"] == "support/utility"
 
 
+def test_backup_only_candidate_ranks_behind_genuine_need_match():
+    """Regression, confirmed live (2026-08-21): Sableye kept surfacing
+    prominently even once its dominant purpose (screens) was already
+    covered, riding on its real but secondary backup-Rain value alone.
+    A candidate whose only relevant evidence is a fills_spof_backup_gap
+    annotation must rank behind any candidate with a genuine, non-backup
+    need match within the same category -- same "backup shouldn't compete
+    with a real need" priority ADR-026 Amendment 2026-08-17a already
+    established for fills_essential_gap vs. fills_spof_backup_gap, now
+    extended to evidence-based Category B/C ranking.
+
+    Deliberately constructed as a tie on the pre-existing basis/confidence
+    numbers alone (not just a case the existing ranking already handles):
+    "synthesized" (the backup evidence's basis) and "ownership_backed"
+    share the same, lowest _BASIS_RANK tier, so a genuine-need candidate
+    stuck at "ownership_backed"/low confidence would previously have LOST
+    a tie-break to a backup-only candidate's higher "medium" confidence --
+    confirmed this exact setup fails without the new tier check (verified
+    against pre-fix code before finalizing this test), not just a case
+    that already happened to work via basis rank alone.
+    """
+    from recommender.support_needs import SupportNeed
+    from recommender.team_candidates import _rank_by_need_evidence
+
+    backup_only = AnnotatedCandidate(
+        species="Sableye",
+        matching_needs=(),
+        source="need",
+        threat_row=None,
+        branches=frozenset({"need"}),
+        fills_spof_backup_gap=True,
+        evidence=(
+            CandidateEvidence(
+                basis="synthesized",
+                confidence="medium",
+                producer_name="condition_gap_backup",
+                evidence=("need:spof_backup", "condition:Rain"),
+                branch="need",
+            ),
+        ),
+    )
+    genuine_need = AnnotatedCandidate(
+        species="Farigiraf",
+        matching_needs=(
+            SupportNeed(
+                category="trick_room",
+                name="Trick Room",
+                description="x",
+                trigger="speed_tier:middling",
+            ),
+        ),
+        source="need",
+        threat_row=None,
+        branches=frozenset({"need"}),
+        # Tied with "synthesized" on _BASIS_RANK (both rank 0) and
+        # deliberately lower confidence -- without the tier check, this
+        # loses the tie-break to the backup candidate's higher confidence.
+        evidence=(
+            CandidateEvidence(
+                basis="ownership_backed",
+                confidence="low",
+                producer_name="ownership_match",
+                evidence=("need:trick_room",),
+                branch="need",
+            ),
+        ),
+    )
+    ranked = _rank_by_need_evidence([backup_only, genuine_need])
+    assert [c.species for c in ranked] == ["Farigiraf", "Sableye"]
+
+
 def test_unrelated_mechanic_duplication_still_demoted():
     from recommender.condition_resilience import assess_condition_resilience
     from recommender.team_candidates import (
@@ -2108,6 +2179,84 @@ def test_merge_multi_locked_filters_already_provided_tailwind_need_with_resilien
     aerodactyl = [row for row in merged if row.species == "Aerodactyl"]
     if aerodactyl:
         assert all(n.category != "tailwind" for n in aerodactyl[0].matching_needs)
+
+
+def test_merge_multi_locked_filters_already_covered_screens_need():
+    """Regression, confirmed live (2026-08-21): Sableye kept surfacing as a
+    fresh 'screens_support' candidate turn after turn even after Grimmsnarl
+    -- a real, committed screens setter (Light Clay + both Light Screen and
+    Reflect) -- was already locked. Unlike tailwind/trick_room/weather,
+    screens is deliberately NOT one of TRACKED_CONDITIONS (ADR-028's
+    original scoping -- it doesn't fit the same 0/1/2+ provider-cardinality
+    model), so it never got an already-provided filter at all: the
+    unconditional 'screens' need (query_support_needs, trigger=None, fires
+    for every offense-primary anchor) has zero team-state awareness on its
+    own. has_reliable_screens_provider adds a narrower, boolean-only check
+    (not a full provider-cardinality model) reusing anchor_roles.py's
+    existing wanted/secondary distinction for screens mechanisms.
+    """
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        _locked(
+            "Grimmsnarl",
+            role="screens_support",
+            ability="Prankster",
+            item="Light Clay",
+            moves=["Parting Shot", "Reflect", "Light Screen", "Spirit Break"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+    merged = merge_multi_locked_candidates(
+        state, contexts, (), None, ownership_mode="off", owned_species=frozenset()
+    )
+    screens_matches = [
+        row for row in merged if any(n.category == "screens" for n in row.matching_needs)
+    ]
+    assert screens_matches == []
+    sableye = [row for row in merged if row.species == "Sableye"]
+    if sableye:
+        assert all(n.category != "screens" for n in sableye[0].matching_needs)
+
+
+def test_has_reliable_screens_provider_requires_genuine_commitment():
+    """A single incidental screen move (secondary importance) must not
+    count -- only Aurora Veil, both Light Screen and Reflect, or Light
+    Clay plus at least one screen move (anchor_roles.py's existing
+    'wanted' bar) should suppress the generic screens need. Confirms the
+    boolean check isn't accidentally looser than the real mechanism
+    evidence it's built on.
+    """
+    from recommender.condition_resilience import has_reliable_screens_provider
+
+    committed = [
+        _locked(
+            "Grimmsnarl",
+            role="screens_support",
+            ability="Prankster",
+            item="Light Clay",
+            moves=["Parting Shot", "Reflect", "Light Screen", "Spirit Break"],
+        ),
+    ]
+    incidental = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            # Single, incidental Reflect -- not a real screens commitment.
+            moves=["Reflect", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+    ]
+    assert has_reliable_screens_provider(collect_locked_anchor_contexts(_state(committed)))
+    assert not has_reliable_screens_provider(
+        collect_locked_anchor_contexts(_state(incidental))
+    )
 
 
 def test_provided_conditions_reflects_real_locked_mechanisms():

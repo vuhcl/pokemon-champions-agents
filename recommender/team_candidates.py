@@ -328,22 +328,34 @@ def merge_multi_locked_candidates(
     anchored_needs = tuple(
         need for context in anchor_contexts for need in context.support_needs
     )
-    from recommender.condition_resilience import provided_conditions, team_field_states
+    from recommender.condition_resilience import (
+        has_reliable_screens_provider,
+        provided_conditions,
+        team_field_states,
+    )
 
-    # Filter out already-satisfied provider needs (trick_room/tailwind)
-    # before candidate resolution -- confirmed live: Pelipper already
-    # provides Tailwind via its own move, but Archaludon's "tailwind"
-    # support need (a real, speed-tier-triggered need, not a generic
-    # placeholder) was still being surfaced as unmet, feeding candidate
-    # discovery for a condition the team already has. Only trick_room and
-    # tailwind map to a TRACKED_CONDITIONS provider check this way --
-    # other need categories (healing_cleric, screens, etc.) aren't
-    # binary "provided or not" the same way, so they're unaffected here.
+    # Filter out already-satisfied provider needs (trick_room/tailwind/
+    # screens) before candidate resolution -- confirmed live: Pelipper
+    # already provides Tailwind via its own move, but Archaludon's
+    # "tailwind" support need (a real, speed-tier-triggered need, not a
+    # generic placeholder) was still being surfaced as unmet, feeding
+    # candidate discovery for a condition the team already has.
+    # trick_room/tailwind map to a TRACKED_CONDITIONS provider check;
+    # screens isn't one of TRACKED_CONDITIONS (doesn't fit the same
+    # 0/1/2+ provider-cardinality model) but confirmed live to need the
+    # same already-covered suppression regardless -- Sableye kept
+    # surfacing as a fresh "screens" candidate even after Grimmsnarl (a
+    # real, committed screens setter) was already locked, since the
+    # unconditional "screens" need has zero team-state awareness on its
+    # own. Other need categories (healing_cleric, etc.) still aren't
+    # binary "provided or not" the same way and remain unaffected here.
     already_provided = provided_conditions(anchor_contexts)
+    has_screens = has_reliable_screens_provider(anchor_contexts)
     _PROVIDER_NEED_CONDITION = {"trick_room": "Trick Room", "tailwind": "Tailwind"}
     anchored_needs = tuple(
         need
         for need in anchored_needs
+        if need.need.category != "screens" or not has_screens
         if _PROVIDER_NEED_CONDITION.get(need.need.category) not in already_provided
     )
     support_context = SlotFillContext(anchor=None, role_shape_context=None)
@@ -1052,7 +1064,26 @@ def _rank_by_need_evidence(
     shared-teammate correlation as the secondary tie-break. Scoped to
     the relevant category's own evidence via _need_branch_evidence, not
     the candidate's full evidence tuple.
+
+    A candidate whose ONLY relevant evidence is a fills_spof_backup_gap
+    annotation (tagged "need:spof_backup") ranks behind any candidate
+    with at least one genuine, non-backup need match, regardless of raw
+    basis/confidence numbers -- confirmed live (2026-08-21): a secondary/
+    backup purpose (Sableye's incidental Rain value) should never
+    out-rank or crowd out a candidate answering a genuinely open need,
+    the same "backup shouldn't compete with genuinely missing" priority
+    ADR-026 Amendment 2026-08-17a already established for
+    fills_essential_gap vs. fills_spof_backup_gap directly -- this
+    extends that same principle to evidence-based ranking now that
+    fills_spof_backup_gap actually reaches this ranking step at all.
     """
+
+    def _is_backup_only(relevant: tuple[CandidateEvidence, ...]) -> bool:
+        return bool(relevant) and all(
+            any("need:spof_backup" in tag for tag in item.evidence)
+            for item in relevant
+        )
+
     def sort_key(c: AnnotatedCandidate):
         relevant = _need_branch_evidence(c, condition_beneficiary=condition_beneficiary)
         best = (
@@ -1063,7 +1094,12 @@ def _rank_by_need_evidence(
             if relevant
             else (0, 0)
         )
-        return (-best[0], -best[1], _shared_teammate_tiebreak(c))
+        return (
+            int(_is_backup_only(relevant)),
+            -best[0],
+            -best[1],
+            _shared_teammate_tiebreak(c),
+        )
 
     return sorted(candidates, key=sort_key)
 
