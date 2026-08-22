@@ -19,6 +19,7 @@ from recommender.coverage import (
 )
 from recommender.contingent_value import TERRAIN_SETTERS, WEATHER_SETTERS
 from recommender.graph import compile_graph
+from recommender.ids import to_id
 from recommender.legality import classify_item_failure, load_snapshot
 from recommender.matchup import clear_matchup_memo
 from recommender.state import (
@@ -521,3 +522,194 @@ def test_primal_weather_in_ability_to_field():
 def test_silkscarf_type_locked_severity():
     snap = load_snapshot()
     assert classify_item_failure("Silk Scarf", [], snap) == "type_locked_swap"
+
+
+# --- bench-slot coverage-subset tests ---
+
+
+def _dummy_locked_context(slot_index: int, alias: str) -> "LockedAnchorContext":
+    """Minimal-but-real LockedAnchorContext for slot_index tracking in
+    candidate_improves_best_bring tests -- reuses Garchomp's real,
+    resolved build/role_decision (renamed via replace, not a hand-rolled
+    fake) since neither provides any weather/mega mechanism, matching
+    this test's actual no-field-dependency scenario. resolved_build/
+    role_decision here only feed team_field_states (weather forcing);
+    the real matchup calc data comes entirely from the scripted
+    MockCalcClient responses via _patch_specs, independent of this.
+    """
+    from dataclasses import replace as _replace
+
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.slot_fill import LockedAnchorContext
+    from recommender.support_needs import RoleShapeContext
+
+    build = _replace(resolve_anchor_build("Garchomp"), species=alias)
+    decision = classify_anchor_role(build)
+    return LockedAnchorContext(
+        slot_index=slot_index,
+        anchor_id=to_id(alias),
+        pokemon={"species": alias},
+        resolved_build=build,
+        role_decision=decision,
+        role_shape_context=RoleShapeContext(),
+        support_needs=(),
+    )
+
+
+def _cloned_garchomp(alias: str) -> tuple[Slot, dict[str, Any]]:
+    """A species-aliased clone of GARCHOMP -- same real build/moves under
+    a distinct name, so it can be scripted with independent calc responses
+    the way test_two_covering_slots_no_spof already does.
+    """
+    spec = {**GARCHOMP, "species": alias}
+    return _slot(spec), spec
+
+
+def _losing_responses(alias: str) -> dict[tuple[str, str, str], dict[str, Any]]:
+    """alias loses to Kingambit -- reuses _NO_ANSWER_CHOMP_KING's real
+    scripted outcome under the alias's own species name.
+    """
+    return {
+        (alias, "Kingambit", "Earthquake"): _NO_ANSWER_CHOMP_KING[
+            ("Garchomp", "Kingambit", "Earthquake")
+        ],
+        (alias, "Kingambit", "Dragon Claw"): _NO_ANSWER_CHOMP_KING[
+            ("Garchomp", "Kingambit", "Dragon Claw")
+        ],
+        ("Kingambit", alias, "Sucker Punch"): _NO_ANSWER_CHOMP_KING[
+            ("Kingambit", "Garchomp", "Sucker Punch")
+        ],
+        ("Kingambit", alias, "Kowtow Cleave"): _NO_ANSWER_CHOMP_KING[
+            ("Kingambit", "Garchomp", "Kowtow Cleave")
+        ],
+    }
+
+
+def _winning_responses(alias: str) -> dict[tuple[str, str, str], dict[str, Any]]:
+    """alias beats Kingambit -- reuses _CHOMP_VS_KING's real scripted
+    outcome under the alias's own species name.
+    """
+    return {
+        (alias, "Kingambit", "Earthquake"): _CHOMP_VS_KING[
+            ("Garchomp", "Kingambit", "Earthquake")
+        ],
+        (alias, "Kingambit", "Dragon Claw"): _CHOMP_VS_KING[
+            ("Garchomp", "Kingambit", "Dragon Claw")
+        ],
+        ("Kingambit", alias, "Sucker Punch"): _CHOMP_VS_KING[
+            ("Kingambit", "Garchomp", "Sucker Punch")
+        ],
+        ("Kingambit", alias, "Kowtow Cleave"): _CHOMP_VS_KING[
+            ("Kingambit", "Garchomp", "Kowtow Cleave")
+        ],
+    }
+
+
+def test_candidate_improves_best_bring_when_it_covers_a_real_gap():
+    """4 locked slots (A, B, C, D) all genuinely lose to the one real
+    threat (Kingambit) -- the best achievable bring-4 from the locked
+    roster alone leaves it uncovered. A 5th candidate (E) genuinely beats
+    Kingambit. Once E is available, the best 4-of-5 combination (drop any
+    one of A/B/C/D, keep E) covers it -- E has real bench value, the
+    exact "does this candidate improve the best real bring" question
+    Category A should be asking for slots beyond the core, confirmed
+    live (2026-08-21) it currently doesn't ask at all.
+    """
+    from recommender.coverage import candidate_improves_best_bring
+
+    aliases = ["ChompA", "ChompB", "ChompC", "ChompD"]
+    candidate_alias = "ChompE"
+    slots = [_slot({**GARCHOMP, "species": a}) for a in aliases]
+    candidate_slot = _slot({**GARCHOMP, "species": candidate_alias})
+    draft = [*slots, candidate_slot]
+
+    responses: dict[tuple[str, str, str], dict[str, Any]] = {}
+    for a in aliases:
+        responses.update(_losing_responses(a))
+    responses.update(_winning_responses(candidate_alias))
+    client = MockCalcClient(responses)
+
+    spec_map = {a: {**GARCHOMP, "species": a} for a in aliases}
+    spec_map[candidate_alias] = {**GARCHOMP, "species": candidate_alias}
+    spec_map["Kingambit"] = KINGAMBIT
+
+    locked_contexts = [_dummy_locked_context(i, a) for i, a in enumerate(aliases)]
+    with _patch_specs(spec_map):
+        improves = candidate_improves_best_bring(
+            draft,
+            locked_contexts=locked_contexts,
+            candidate_slot_index=4,
+            pick_count=4,
+            threats=[KINGAMBIT],
+            client=client,
+        )
+    assert improves is True
+
+
+def test_candidate_does_not_improve_best_bring_when_gap_already_closed():
+    """Sibling of the test above: if the locked roster's best bring-4
+    already covers the threat via TWO real answers (not a SPOF), adding a
+    candidate that also beats it can't improve on an already-optimal
+    (0 uncovered, 0 spof) outcome -- confirms this isn't just "always True
+    once the candidate is strong," it's genuinely comparative. (A single
+    existing answer, by contrast, IS a real SPOF, and a candidate closing
+    that SPOF is genuine improvement -- confirmed as a separate, correct
+    case, not the scenario this test is about.)
+    """
+    from recommender.coverage import candidate_improves_best_bring
+
+    aliases = ["ChompA", "ChompB", "ChompC", "ChompD"]
+    candidate_alias = "ChompE"
+    slots = [_slot({**GARCHOMP, "species": a}) for a in aliases]
+    candidate_slot = _slot({**GARCHOMP, "species": candidate_alias})
+    draft = [*slots, candidate_slot]
+
+    responses: dict[tuple[str, str, str], dict[str, Any]] = {}
+    # ChompA and ChompB already win -- two real answers, not a SPOF,
+    # unlike the sibling test where only one locked member covers it.
+    responses.update(_winning_responses("ChompA"))
+    responses.update(_winning_responses("ChompB"))
+    for a in aliases[2:]:
+        responses.update(_losing_responses(a))
+    responses.update(_winning_responses(candidate_alias))
+    client = MockCalcClient(responses)
+
+    spec_map = {a: {**GARCHOMP, "species": a} for a in aliases}
+    spec_map[candidate_alias] = {**GARCHOMP, "species": candidate_alias}
+    spec_map["Kingambit"] = KINGAMBIT
+
+    locked_contexts = [_dummy_locked_context(i, a) for i, a in enumerate(aliases)]
+    with _patch_specs(spec_map):
+        improves = candidate_improves_best_bring(
+            draft,
+            locked_contexts=locked_contexts,
+            candidate_slot_index=4,
+            pick_count=4,
+            threats=[KINGAMBIT],
+            client=client,
+        )
+    assert improves is False
+
+
+def test_candidate_improves_best_bring_returns_false_before_a_real_baseline_exists():
+    """With fewer than pick_count locked slots, there's no real "best
+    bring" to compare against yet -- must not fabricate a baseline or
+    raise, just decline to judge.
+    """
+    from recommender.coverage import candidate_improves_best_bring
+
+    slots = [_slot(GARCHOMP)]
+    candidate_slot = _slot({**GARCHOMP, "species": "ChompE"})
+    draft = [*slots, candidate_slot]
+
+    locked_contexts = [_dummy_locked_context(0, "Garchomp")]
+    with _patch_specs({"Garchomp": GARCHOMP, "ChompE": {**GARCHOMP, "species": "ChompE"}}):
+        improves = candidate_improves_best_bring(
+            draft,
+            locked_contexts=locked_contexts,
+            candidate_slot_index=1,
+            pick_count=4,
+            threats=[KINGAMBIT],
+            client=MockCalcClient({}),
+        )
+    assert improves is False
