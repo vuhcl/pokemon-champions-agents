@@ -11,6 +11,15 @@ from recommender.state import ProvisionalSlot, RecommenderState, ReviewFlag
 StatName = Literal["atk", "def", "spa", "spd", "spe"]
 
 # All 25 natures → (plus_stat | None, minus_stat | None). HP is never boosted/hindered.
+# Regression, confirmed live (2026-08-21): Jolly was listed as ("spe", "atk")
+# -- an exact duplicate of Timid's row -- when Jolly's real minus-stat is
+# "spa", not "atk". Jolly is one of the most common physical-attacker
+# natures in the game specifically because it leaves Attack untouched; the
+# bug caused collect_provisional_review_flags to falsely warn "Nature Jolly
+# conflicts with physical role" for a nature that never conflicts with a
+# physical role at all. Every other entry checked directly against the real
+# nature chart and confirmed correct -- this was an isolated, single-row
+# copy-paste error, not a systematic table problem.
 _NATURE_MODIFIERS: dict[str, tuple[StatName | None, StatName | None]] = {
     "Hardy": (None, None),
     "Docile": (None, None),
@@ -35,7 +44,7 @@ _NATURE_MODIFIERS: dict[str, tuple[StatName | None, StatName | None]] = {
     "Sassy": ("spd", "spe"),
     "Timid": ("spe", "atk"),
     "Hasty": ("spe", "def"),
-    "Jolly": ("spe", "atk"),
+    "Jolly": ("spe", "spa"),
     "Naive": ("spe", "spd"),
 }
 
