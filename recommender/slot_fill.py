@@ -150,6 +150,19 @@ class AnnotatedCandidate:
     strategic_role_id: str | None = None
     primary_function: Literal["offense", "support", "unknown"] | None = None
     mechanism_ids: tuple[str, ...] | None = None
+    # Confirmed live (2026-08-21): during core-slot construction (slot_index
+    # < picked_team_size), a candidate whose real distinguishing value
+    # depends on a scarce, single-use team resource (weather, mega
+    # evolution) that's already claimed -- in a CONFLICTING way -- by
+    # something locked in wastes a core slot on a mechanic that can't
+    # actually fire this battle (Swampert-Mega's real Rain-abuse value on
+    # a team already committed to Sun via a locked Charizard-Mega-Y; a
+    # second mega-stone holder when only one can Mega Evolve per battle).
+    # Deliberately does NOT apply to bench slots (5-6) -- a second weather
+    # or mega is legitimate alternate-core flexibility there, a real
+    # pattern this project has separately confirmed, not something to
+    # discourage. See team_candidates.candidate_wastes_core_slot.
+    wastes_core_slot: bool = False
 
 
 @dataclass(frozen=True)

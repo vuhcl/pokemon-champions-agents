@@ -1313,6 +1313,140 @@ def test_backup_only_candidate_ranks_behind_genuine_need_match():
     assert [c.species for c in ranked] == ["Farigiraf", "Sableye"]
 
 
+def test_candidate_wastes_core_slot_weather_conflict():
+    """Regression, confirmed live (2026-08-21): Swampert-Mega (real
+    Rain-abuse value via Swift Swim) surfaced as a top-3 threat-coverage
+    pick for slot 4 on a team already committed to Sun via a locked
+    Charizard-Mega-Y. Sun and Rain are mutually exclusive, so Swampert-
+    Mega's actual distinguishing strength can never fire on this team as
+    built. Must only apply during core-slot construction -- a second
+    weather is legitimate real alternate-core bench value once the core
+    is settled (confirmed: real teams build a Sun-core and a Rain-core
+    variant sharing the same anchors, swapped in per matchup).
+    """
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.team_candidates import candidate_wastes_core_slot
+
+    draft = [
+        _locked(
+            "Charizard-Mega-Y",
+            role="sun_setter",
+            ability="Drought",
+            item="Charizardite Y",
+            moves=["Heat Wave", "Protect", "Weather Ball", "Solar Beam"],
+        ),
+        *[empty_slot() for _ in range(5)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+
+    build = resolve_anchor_build("Swampert-Mega")
+    decision = classify_anchor_role(build)
+    assert (
+        candidate_wastes_core_slot(decision, build, contexts, is_core_slot=True)
+        is True
+    )
+    assert (
+        candidate_wastes_core_slot(decision, build, contexts, is_core_slot=False)
+        is False
+    )
+
+
+def test_candidate_wastes_core_slot_second_mega():
+    """Regression, confirmed live (2026-08-21): only one Pokemon can Mega
+    Evolve per battle -- a second mega-stone holder occupying one of the
+    first picked_team_size slots wastes that slot's real flexibility on
+    a mechanic that's already spoken for. Same is_core_slot-only scoping
+    as the weather case: a second mega is legitimate bench flexibility
+    once the core is settled, not something to discourage there.
+    """
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.team_candidates import candidate_wastes_core_slot
+
+    draft = [
+        _locked(
+            "Charizard-Mega-Y",
+            role="sun_setter",
+            ability="Drought",
+            item="Charizardite Y",
+            moves=["Heat Wave", "Protect", "Weather Ball", "Solar Beam"],
+        ),
+        *[empty_slot() for _ in range(5)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+
+    build = resolve_anchor_build("Metagross-Mega")
+    decision = classify_anchor_role(build)
+    assert (
+        candidate_wastes_core_slot(decision, build, contexts, is_core_slot=True)
+        is True
+    )
+    assert (
+        candidate_wastes_core_slot(decision, build, contexts, is_core_slot=False)
+        is False
+    )
+
+
+def test_candidate_wastes_core_slot_no_conflict():
+    """A candidate with no mega-stone requirement and no needed-importance
+    weather dependency must never be flagged, regardless of slot -- this
+    check is specifically about scarce-resource conflicts, not a general
+    penalty on every candidate during core construction.
+    """
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.team_candidates import candidate_wastes_core_slot
+
+    draft = [
+        _locked(
+            "Charizard-Mega-Y",
+            role="sun_setter",
+            ability="Drought",
+            item="Charizardite Y",
+            moves=["Heat Wave", "Protect", "Weather Ball", "Solar Beam"],
+        ),
+        *[empty_slot() for _ in range(5)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+
+    build = resolve_anchor_build("Garchomp")
+    decision = classify_anchor_role(build)
+    assert (
+        candidate_wastes_core_slot(decision, build, contexts, is_core_slot=True)
+        is False
+    )
+
+
+def test_rank_category_a_demotes_wastes_core_slot_candidate():
+    """Confirms the discount actually reaches Category A ranking, not
+    just the underlying candidate_wastes_core_slot check in isolation --
+    Swampert-Mega surfaced specifically as a "threat coverage + type
+    synergy" pick live, so this is the ranking function that must respect
+    the flag.
+    """
+    from recommender.team_candidates import _rank_category_a
+
+    strong_but_wastes = AnnotatedCandidate(
+        species="Swampert-Mega",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("Swampert-Mega", usage_rank=1),
+        branches=frozenset({"threat"}),
+        wastes_core_slot=True,
+    )
+    weaker_but_usable = AnnotatedCandidate(
+        species="Garchomp",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("Garchomp", usage_rank=50),
+        branches=frozenset({"threat"}),
+        wastes_core_slot=False,
+    )
+    ranked = _rank_category_a([strong_but_wastes, weaker_but_usable], [[]])
+    assert [c.species for c in ranked] == ["Garchomp", "Swampert-Mega"]
+
+
 def test_unrelated_mechanic_duplication_still_demoted():
     from recommender.condition_resilience import assess_condition_resilience
     from recommender.team_candidates import (
