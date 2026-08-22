@@ -500,6 +500,77 @@ def test_ability_based_condition_beneficiary_is_usage_aware_not_a_blanket_high()
     )
 
 
+def test_battle_only_transient_formes_collapse_to_base_species():
+    """Regression, confirmed live (2026-08-22): Castform/Castform-Sunny/
+    Castform-Rainy/Castform-Snowy surfaced as four independent candidates
+    from resolve_condition_beneficiaries, when a player only ever picks
+    base "Castform" -- the weather-triggered formes are automatic, only
+    exist during live battle, and can never be an independent team-
+    building choice. _species_with_abilities now excludes a forme when
+    (a) it has a real base_species_id (a genuine forme relationship, not
+    a standalone species that's simply low-usage) and (b) it has zero
+    rows in both ingame_species_map and showdown_species_map -- confirmed
+    directly this is true for every battle-only automatic forme checked,
+    since none of them can ever appear in a real team export.
+    """
+    from recommender.legality import load_snapshot
+    from recommender.slot_fill import _species_with_abilities
+
+    snap = load_snapshot()
+    names = _species_with_abilities(
+        frozenset({"forecast"}), snap=snap, regulation="champions-reg-mb"
+    )
+    castform_names = [n for n in names if "castform" in n.lower()]
+    assert castform_names == ["Castform"]
+
+
+def test_genuinely_separate_player_chosen_formes_are_not_collapsed():
+    """Sibling of the test above, checking the case the fix must NOT
+    touch: Rotom's appliance formes (Wash/Heat/Fan/Frost/Mow) are chosen
+    at team-build time and stay that way -- a real, independent pick for
+    each, not a transient battle state. Confirmed directly: unlike
+    Castform's weather formes, every one of these has a real Showdown
+    usage row, so the zero-usage-rows condition never fires for them.
+    A naive "collapse every forme to its base species" fix would have
+    broken this case -- Rotom-Wash isn't the same team-building choice
+    as base Rotom.
+    """
+    from recommender.legality import load_snapshot
+    from recommender.slot_fill import _species_with_abilities
+
+    snap = load_snapshot()
+    names = _species_with_abilities(
+        frozenset({"levitate"}), snap=snap, regulation="champions-reg-mb"
+    )
+    rotom_names = {n for n in names if "rotom" in n.lower()}
+    assert rotom_names == {
+        "Rotom",
+        "Rotom-Heat",
+        "Rotom-Wash",
+        "Rotom-Frost",
+        "Rotom-Fan",
+        "Rotom-Mow",
+    }
+
+
+def test_species_that_is_simply_low_usage_is_not_collapsed():
+    """The exclusion must gate on being a genuine forme (base_species_id
+    set), not on low usage alone -- a real, independently-legal species
+    that simply has negligible usage (e.g. Castform itself, base form,
+    0.037% real Showdown usage per Amendment 2026-08-22a) must still
+    appear on its own, not be silently dropped as if it were a transient
+    forme of something else.
+    """
+    from recommender.legality import load_snapshot
+    from recommender.slot_fill import _species_with_abilities
+
+    snap = load_snapshot()
+    names = _species_with_abilities(
+        frozenset({"forecast"}), snap=snap, regulation="champions-reg-mb"
+    )
+    assert "Castform" in names
+
+
 def test_tyranitar_sand_beneficiaries_exclude_lineage():
     rows = _resolve_beneficiaries("Tyranitar")
     names = {to_id(row.species) for row in rows}
