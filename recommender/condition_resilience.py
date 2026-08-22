@@ -103,6 +103,51 @@ def provided_conditions(
     return frozenset(out)
 
 
+def has_reliable_screens_provider(
+    locked: Sequence[LockedAnchorContext],
+    *,
+    exclude_slot: int | None = None,
+) -> bool:
+    """Whether the locked team already has a genuinely committed screens
+    setter -- not just anyone carrying a single screen move incidentally.
+
+    Screens (Light Screen/Reflect/Aurora Veil) is deliberately NOT one of
+    TRACKED_CONDITIONS (see ADR-028's original scoping) -- it doesn't fit
+    the same 0/1/2+ provider-cardinality model weather/Trick Room/Tailwind
+    do. This is a narrower, boolean check for a narrower purpose: the
+    unconditional "screens" support need (query_support_needs fires it for
+    every offense-primary anchor, trigger=None, with zero team-state
+    awareness) has no equivalent of the already-provided filter tailwind/
+    trick_room got, and confirmed live, that meant a genuine screens setter
+    (Grimmsnarl, real Light Clay + both Light Screen and Reflect) didn't
+    stop a second screens candidate (Sableye) from surfacing turn after
+    turn the same way Whimsicott/Aerodactyl did for tailwind before that
+    fix. This does not attempt to model screens' own provider-cardinality
+    question (Light Clay + Item Clause exclusivity, confirmed real in
+    conversation but out of scope here) -- it only answers "is there
+    already a real, primary screens setter," using the same wanted/
+    secondary distinction anchor_roles.py's screens mechanism already
+    computes (Aurora Veil, or both Light Screen and Reflect, or Light Clay
+    with at least one screen move present) -- someone running Reflect as
+    a single incidental move does not count.
+    """
+    for context in locked:
+        if exclude_slot is not None and context.slot_index == exclude_slot:
+            continue
+        role_decision = getattr(context, "role_decision", None)
+        if role_decision is None:
+            continue
+        for mechanism in role_decision.mechanisms:
+            if (
+                mechanism.present
+                and mechanism.relation == "provides"
+                and mechanism.kind == "screens"
+                and mechanism.importance == "wanted"
+            ):
+                return True
+    return False
+
+
 def team_field_states(
     locked: Sequence[LockedAnchorContext],
     *,
