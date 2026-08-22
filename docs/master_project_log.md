@@ -4778,6 +4778,48 @@ pass once available, not worked from secondhand conclusions:**
 session) still needs revoking — flagged repeatedly across sessions now, still live as of this
 entry.
 
+## 2026-08-22: Core-slot/bench-slot ranking split, Castform confidence fix, and a fully
+scoped (not implemented) masked alternate-core discovery design
+
+Three PRs merged from the 2026-08-21 live-testing session's backlog: candidate_wastes_core_slot
+(weather/mega scarce-resource discount for core slots), candidate_improves_best_bring
+(bench-slot coverage-subset primitive, deliberately not wired into ranking yet), and the
+Castform confidence fix (resolve_condition_beneficiaries now usage-aware). See ADR-035 and
+ADR-028 Amendment 2026-08-22a for full technical detail.
+
+**A substantial design conversation followed the coverage-subset primitive's PR, converging
+on a real capability not yet implemented: masked alternate-core discovery.** When a strong
+candidate conflicts with a locked core member over a scarce resource, rather than just
+ranking the candidate down, the system should be able to explore masking the conflicting
+locked member (never unlocking or rebuilding its actual kit) and running real discovery
+against the resulting gap — cascading through subsequent slots only as far as the roster
+naturally allows, with no artificial depth cap needed. Key points locked in discussion,
+not yet built:
+- Masking never revisits a locked member's build (species/ability/moves stay exactly as
+  locked) — build-level optimization (e.g. replacing Pelipper's Tailwind once Whimsicott
+  is confirmed the better setter) is explicitly a separate, later capability.
+- A permanent-exemption case exists: once a search for a backup provider comes up empty on
+  the last open slot, the provider (e.g. Pelipper) is confirmed unmaskable for the
+  remainder of that build — not a general rule, a consequence of no slots being left.
+- When a conflict has multiple plausible resolutions, present each as its own labeled
+  option — including "don't take the new candidate" when the existing core is already
+  coherent — rather than silently picking one.
+- Candidate-quality resolution needs two signals to agree, not either alone: a
+  lift-adjusted pairwise teammate signal plus real group co-occurrence (narrowing,
+  correcting for candidates that are simply generically popular rather than
+  situationally strong) feeding into real calc verification *and* usage-backed validation
+  before a candidate is trusted — specifically to catch Mega-Mawile/Tinkaton-shaped false
+  positives (mechanically plausible, not actually good in practice).
+- A real, generalized gap this design exposed: `candidate_wastes_core_slot` only checks
+  weather and mega conflicts. A Mega-Mawile-shaped Trick-Room dependency wouldn't trip
+  either check — needs the same `needed`/`benefits_from` detection generalized beyond
+  weather specifically.
+
+Not implemented; fully scoped for whenever it's picked up. Sequencing agreed for what comes
+next: Castform fix (done) → wire `candidate_improves_best_bring` with the pairing-logic
+simplification → generalize dependency detection beyond weather/mega → Mawile-Mega
+dependency-reliability ranking → masked alternate-core discovery itself.
+
 ---
 
 ## TOOLS & RESOURCES

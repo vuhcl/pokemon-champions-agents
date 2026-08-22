@@ -6290,6 +6290,49 @@ undecided design question. 1272 tests passing (up from 1267), 8 skipped.
 
 ---
 
+### ADR-028 — Amendment 2026-08-22a
+
+**`resolve_condition_beneficiaries`'s ability-based confidence is now usage-aware,
+correcting the gap Amendment 2026-08-20a's "high confidence" default left open.**
+
+Amendment 2026-08-20a correctly fixed ability-based condition-beneficiary evidence from a
+blanket `confidence="low"` to `confidence="high"`, reasoning that an innate ability is the
+most mechanically certain evidence tier available. Confirmed live (2026-08-21) this default
+had no upper bound: Castform (0.037% real Showdown usage, absent from the in-game top-50
+snapshot entirely) received the identical "high confidence" as a genuinely strong pick,
+purely from mechanically matching Forecast under Sun.
+
+Two wrong approaches were caught during implementation, not shipped uncorrected. First,
+`query_by_usage`'s `usage_rank`/`showdown_usage_pct` fields were tried as the signal —
+confirmed directly that `query_by_usage` always returns `showdown_usage_pct=None`
+regardless of real data; it never actually populates that field. Switched to querying
+`ingame_species_map`/`showdown_species_map` directly. Second, a plain "usage present →
+high, absent → low" rule was tried and broke the exact convention Amendment 2026-08-20a
+established: it downgraded Swampert-Mega, which is absent from the in-game top-50 (the
+same, separate data gap ADR-034 already covers — mega forms aren't in that dataset at all)
+but has genuine, substantial 8.19% real Showdown usage. Absence from a known-incomplete
+dataset is not evidence of poor quality.
+
+**Final rule:** downgrade to `mechanical_only`/`low` only on *confirmed* negative evidence
+— present in Showdown data, but below `move_narrowing.MIN_USAGE_PCT` (the same negligible-
+usage floor already established elsewhere in this codebase). Real usage anywhere (in-game
+top-50, or Showdown ≥ `MIN_USAGE_PCT`) → `usage_backed`/`high`. No data in either dataset →
+`mechanical_only`/`high`, preserving Amendment 2026-08-20a's original default rather than
+penalizing a data gap as a negative signal. Each species id is resolved to its lineage base
+before the usage lookup — Castform's weather-formes each carry their own species id with no
+usage entry of their own; only the base form has real data. This does not fix the separate,
+still-open forme-duplication bug (they still surface as independent candidate rows) — it
+only ensures whichever row is generated reads correct real usage data.
+
+**Status:** Implemented and verified. Updated the prior pinning test into a real regression
+test confirming Castform now gets `mechanical_only`/`low`; updated a second, pre-existing
+test that had been asserting the old hardcoded behavior as correct; added a dedicated
+sibling test confirming Swampert-Mega still correctly gets `usage_backed`/`high`, confirming
+this is genuinely differentiated, not a blanket downgrade. Both new/updated tests confirmed
+to fail on pre-fix code and pass after. 1285 passed, 8 skipped.
+
+---
+
 ## ADR-029: Calc-unavailable static fallback — labeled degraded discovery for single_locked,
 fail-closed unchanged for multi_locked and coverage/SPOF claims
 
@@ -7543,3 +7586,85 @@ beyond the final letter itself) and never matched anything for multi-form specie
 a formal test before considering this done, not just the common single-form case.
 
 **Deliberately scoped:** the 80% dominance threshold is a fixed constant
+
+---
+
+## ADR-035: Core-slot scarce-resource discount and bench-slot coverage-subset
+reframing — two unified pieces of the same principle
+
+**Context:** Live testing (2026-08-21) surfaced Swampert-Mega (real Rain-abuse value)
+ranking as a top-3 threat-coverage pick for a core slot on a team already committed to
+Sun via a locked Charizard-Mega-Y — Sun and Rain are mutually exclusive, so its actual
+distinguishing strength could never fire on this team as built. Separately,
+`mega_ceiling_notices` already correctly computed how many mega-stone holders a team can
+usefully carry, but that signal was purely informational — never wired into ranking at
+all, the same "signal computed but discarded" shape as `fills_spof_backup_gap` (ADR-026
+Amendment 2026-08-17a) and this session's screens/Castform findings.
+
+**Decision, part 1 (implemented): `candidate_wastes_core_slot`.** Both symptoms are the
+same underlying principle: a candidate's real strength depends on a scarce, single-use
+team resource (one weather, one mega evolution per battle) already claimed in a
+*conflicting* way by something locked in. The check is scoped specifically to core-slot
+construction (`slot_index < picked_team_size`) — confirmed directly in design discussion
+that a second weather or mega is legitimate, real alternate-core bench value once the
+core is settled (a Sun-core and Rain-core variant sharing the same locked anchors, swapped
+in per matchup), not something to discourage there. Triggers on exactly two conditions,
+nothing else: (a) the candidate requires a mega stone and a locked slot already holds a
+*different* mega-stone base lineage; (b) the candidate has a real, `needed`-importance
+`benefits_from` mechanism for a weather different from one a locked slot already
+`provides`. `wastes_core_slot` pushes a candidate to the bottom of its category regardless
+of raw score — wired into `_rank_category_a`, `_rank_by_need_evidence` (Category B/C), and
+`_rank_key` (`discover_single_locked`'s remaining "obvious need" path).
+
+**Decision, part 2 (implemented, deliberately NOT wired into ranking yet):
+`candidate_improves_best_bring`.** Only `picked_team_size` of a roster ever actually plays
+together in a given game — Category A has been asking the wrong question for slots beyond
+the core ("does this add more stackable coverage," which assumes the whole roster fields
+simultaneously). The right question is "does this candidate improve some real, coherent
+bring-N combination." No plausibility filter on which combinations count — confirmed in
+design discussion that almost any coherent combination of real picks is somebody's
+legitimate answer to some real matchup, so there's no principled way to exclude one ahead
+of time. Compares the best (fewest uncovered, then fewest spof) gap counts achievable from
+any `pick_count`-sized combination of the locked roster alone against the best achievable
+once the candidate is added.
+
+Deliberately does not weight by threat severity: `MatchupResult.severity` is always the
+placeholder `"toss-up"` for a genuine `no_answer` outcome, not a real signal — a real
+severity-aware version needs the threat objective's own baseline severity classification,
+not something this function has access to. Logged as a known, undertaken refinement.
+
+**Wiring deferred pending a design refinement, not just a performance question.**
+`candidate_improves_best_bring` is O(C(N, pick_count)) subset evaluations per candidate;
+naively running it over a full bench-slot candidate pool multiplies real calc calls.
+Design discussion (2026-08-21/22) converged on a cheaper, more correct approach than raw
+enumeration: a candidate with an unmet `needed` dependency (e.g. Mega-Swampert wanting
+Rain) must be evaluated *jointly* with a real provider of that dependency drawn from the
+same candidate pool, not independently — both because independent evaluation is
+combinatorially wasteful, and because `team_field_states` only forces a weather onto a
+subset's matchup calc if that subset actually contains a real provider, so evaluating a
+dependent candidate alone produces an honestly *wrong* (unamplified) coverage number for
+it, not just an incomplete one. This reframes wiring from a search problem into direct
+slot arithmetic (does a real provider exist in the remaining pool, is there an open slot
+left to hold it) for the coupled case, with the full subset primitive reserved for
+candidates with no hard dependency. Not yet implemented.
+
+**Verification:** `candidate_wastes_core_slot`: 4 tests, each confirmed to fail on pre-fix
+code and pass after, verified against real data (Swampert-Mega/weather, Metagross-Mega/
+second-mega, Garchomp/no-conflict, both core and bench slot cases).
+`candidate_improves_best_bring`: 3 tests built with real, deterministic `MockCalcClient`
+scenarios (existing `test_coverage.py` convention), not synthetic pre-computed coverage
+results — exercises the actual `compute_team_coverage`/`detect_spof` calls with scripted
+calc responses. One test's own premise was caught as wrong during verification (assumed a
+baseline with zero uncovered gaps couldn't be improved; the real behavior — a second
+answer closing an existing SPOF is genuine improvement — was correct, the test's scenario
+was fixed, not the code). Full suite: 1288 passed, 8 skipped at part-1 merge; 1287 passed,
+8 skipped at part-2 merge.
+
+**Deliberately out of scope for this ADR, scoped separately in design discussion (not
+implemented):** masked alternate-core discovery (re-running discovery against a masked
+locked slot when a strong conflicting candidate is found, rather than just ranking it
+down); generalizing `wastes_core_slot`'s dependency detection beyond weather/mega to any
+`needed` condition (blocks Mega-Mawile/Trick-Room-style cases); orientation-narrowing at
+the bench-slot boundary (asking the user which of coverage/support/alternate-core they
+want before presenting candidates, sharpening the still-unaddressed ADR-033 orientation-
+preference gap).
