@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
+from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
 from recommender.calc_client import CalcClient, FieldSpec, PokemonSpecOptional
@@ -13,6 +14,7 @@ if TYPE_CHECKING:
     from recommender.slot_fill import LockedAnchorContext
 from recommender.ranking import rank_and_cut
 from recommender.state import (
+    Attr,
     RecommenderState,
     Slot,
     SPOFFinding,
@@ -445,3 +447,174 @@ def detect_spof(
         SPOFFinding(slot_index=i, threats_lost=lost, threat_severity=severities)
         for i, (lost, severities) in sorted(by_slot.items())
     ]
+
+
+def spec_to_slot(spec: PokemonSpecOptional) -> Slot:
+    """Inverse of _slot_to_spec -- builds a real Slot from a spec dict, for
+    candidates that don't have one yet (they're not locked). Needed
+    because compute_team_coverage/detect_spof take list[Slot], not specs,
+    so evaluating a hypothetical hybrid subset (locked slots + a not-yet-
+    locked candidate) requires a real Slot for the candidate too.
+    """
+    return Slot(
+        species=Attr(value=spec.get("species")),
+        ability=Attr(value=spec.get("ability")),
+        item=Attr(value=spec.get("item")),
+        moveset=Attr(value=list(spec["moves"]) if spec.get("moves") else None),
+        spread=Attr(value=dict(spec["evs"]) if spec.get("evs") else None),
+    )
+
+
+def _reindexed_subset(
+    team_draft: list[Slot],
+    locked_contexts: Sequence["LockedAnchorContext"],
+    subset_indices: Sequence[int],
+) -> tuple[list[Slot], tuple["LockedAnchorContext", ...]]:
+    """Builds a synthetic team_draft containing only subset_indices,
+    re-indexed to their new positions -- compute_team_coverage/detect_spof
+    report covering_slot_indices/slot_index against team_draft's own
+    positions, so a filtered-but-not-reindexed list would misattribute
+    coverage to the wrong (original) slot number.
+    """
+    ordered = list(subset_indices)
+    draft = [team_draft[i] for i in ordered]
+    old_to_new = {old: new for new, old in enumerate(ordered)}
+    contexts = tuple(
+        replace(ctx, slot_index=old_to_new[ctx.slot_index])
+        for ctx in locked_contexts
+        if ctx.slot_index in old_to_new
+    )
+    return draft, contexts
+
+
+def subset_gap_counts(
+    team_draft: list[Slot],
+    locked_contexts: Sequence["LockedAnchorContext"],
+    subset_indices: Sequence[int],
+    threats: list[PokemonSpecOptional],
+    client: CalcClient | None = None,
+    *,
+    regulation: str = "champions",
+) -> tuple[int, int]:
+    """(uncovered_count, spof_count) for exactly this subset of team_draft
+    positions -- the real quality metric a specific 4-of-N bring would
+    have against the given threats. Lower is better on both; callers
+    compare subsets by this tuple, not a single combined score, since
+    collapsing "uncovered" and "spof" into one number would obscure which
+    kind of gap actually remains (a real product/design choice deferred
+    to whoever consumes this, not resolved here).
+
+    Deliberately does not weight by threat severity -- MatchupResult's
+    severity field is always "toss-up" for a genuine no_answer outcome
+    (a placeholder, not a real signal), so severity-weighting the
+    "uncovered" bucket from coverage results alone would be spurious.
+    A real severity-aware version would need the threat objective's own
+    baseline severity classification (TeamThreatObjectiveRow), not
+    something this function has access to -- left as a known,
+    undertaken refinement, not attempted here.
+    """
+    draft, contexts = _reindexed_subset(team_draft, locked_contexts, subset_indices)
+    coverage = compute_team_coverage(
+        draft, threats, client, regulation=regulation, locked_contexts=contexts
+    )
+    spofs = detect_spof(
+        draft, threats, client, regulation=regulation, locked_contexts=contexts
+    )
+    uncovered = sum(1 for row in coverage if row.best_outcome.outcome == "no_answer")
+    return uncovered, len(spofs)
+
+
+def best_achievable_gap_counts(
+    team_draft: list[Slot],
+    locked_contexts: Sequence["LockedAnchorContext"],
+    available_indices: Sequence[int],
+    pick_count: int,
+    threats: list[PokemonSpecOptional],
+    client: CalcClient | None = None,
+    *,
+    regulation: str = "champions",
+) -> tuple[int, int]:
+    """The best (fewest uncovered, then fewest spof) gap counts achievable
+    from ANY pick_count-sized combination of available_indices -- e.g.
+    "the best real bring-4 this roster can produce," not "does the full
+    roster together cover everything." No plausibility filter on which
+    combinations count -- confirmed directly in conversation: almost any
+    coherent combination of real picks is somebody's legitimate answer to
+    some real matchup, so there's no principled way to exclude one ahead
+    of time. Cost is combinatorial (C(len(available_indices), pick_count))
+    but cheap at the roster sizes this format actually has (N<=6); the
+    real cost driver is calc calls, and classify_matchup's own per-pair
+    memoization means the same pairwise matchup is reused across however
+    many subsets happen to share it, not recomputed per-subset.
+    """
+    from itertools import combinations
+
+    if len(available_indices) < pick_count:
+        # Can't form a full bring yet -- e.g. only 2 locked and picking a
+        # 3rd with pick_count=4. No real "best 4" exists; caller should
+        # treat this as "no baseline to compare against" rather than a
+        # real (0, 0) or worst-case answer.
+        raise ValueError(
+            f"need at least {pick_count} available_indices, got {len(available_indices)}"
+        )
+    best: tuple[int, int] | None = None
+    for subset in combinations(available_indices, pick_count):
+        counts = subset_gap_counts(
+            team_draft, locked_contexts, subset, threats, client, regulation=regulation
+        )
+        if best is None or counts < best:
+            best = counts
+    assert best is not None
+    return best
+
+
+def candidate_improves_best_bring(
+    team_draft: list[Slot],
+    locked_contexts: Sequence["LockedAnchorContext"],
+    candidate_slot_index: int,
+    pick_count: int,
+    threats: list[PokemonSpecOptional],
+    client: CalcClient | None = None,
+    *,
+    regulation: str = "champions",
+) -> bool:
+    """Whether including this candidate allows some pick_count-sized
+    combination to beat the best combination achievable from the locked
+    roster alone -- the real "does this candidate have genuine bench/flex
+    value" question for slots beyond the core (slot_index >= pick_count),
+    as opposed to "does this candidate add more stackable coverage" (the
+    wrong question once only pick_count of the roster will ever actually
+    be brought together -- confirmed live, 2026-08-21).
+
+    team_draft/locked_contexts must already include the candidate at
+    candidate_slot_index (as a real, if hypothetical, Slot -- see
+    spec_to_slot) -- this function only decides whether its presence
+    changes the best achievable outcome, it doesn't construct the
+    hypothetical team itself.
+    """
+    locked_indices = [ctx.slot_index for ctx in locked_contexts]
+    if len(locked_indices) < pick_count:
+        # No real baseline exists yet (e.g. only 3 locked, picking a
+        # candidate 4th slot) -- every candidate that helps complete the
+        # first real bring has value by definition, not something this
+        # comparison is equipped to judge one way or the other.
+        return False
+    baseline = best_achievable_gap_counts(
+        team_draft,
+        locked_contexts,
+        locked_indices,
+        pick_count,
+        threats,
+        client,
+        regulation=regulation,
+    )
+    with_candidate = best_achievable_gap_counts(
+        team_draft,
+        locked_contexts,
+        [*locked_indices, candidate_slot_index],
+        pick_count,
+        threats,
+        client,
+        regulation=regulation,
+    )
+    return with_candidate < baseline
