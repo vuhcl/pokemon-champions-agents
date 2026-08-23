@@ -1418,6 +1418,148 @@ def test_candidate_wastes_core_slot_no_conflict():
     )
 
 
+def _bench_state(*, n_locked=4):
+    """4 real locked slots (a complete core, picked_team_size=4 per this
+    file's _state) + open bench slots -- the exact precondition
+    candidate_improves_best_bring needs to have a real baseline to
+    compare against.
+    """
+    locked = [
+        _locked(
+            f"Garchomp{i}" if i else "Garchomp",
+            moves=["Dragon Claw", "Rock Slide", "Earthquake", "Protect"],
+        )
+        for i in range(n_locked)
+    ]
+    draft = [*locked, *[empty_slot() for _ in range(6 - n_locked)]]
+    return _state(draft)
+
+
+def test_annotate_composition_impact_wires_bench_subset_for_bench_slot():
+    """Confirms annotate_composition_impact actually calls
+    candidate_improves_best_bring for a bench slot with no dependency,
+    and correctly threads its result onto improves_bench_subset --
+    candidate_improves_best_bring's own correctness (real
+    compute_team_coverage/detect_spof behavior) is already verified
+    separately with real MockCalcClient scenarios (test_coverage.py);
+    this only tests that THIS wiring calls it and uses the result.
+    """
+    from recommender.condition_resilience import assess_condition_resilience
+    from recommender.state import TeamThreatObjectiveRow, ThreatCandidate
+
+    state = _bench_state()
+    contexts = collect_locked_anchor_contexts(state)
+    resilience = assess_condition_resilience(contexts)
+    objective = [
+        TeamThreatObjectiveRow(
+            threat=ThreatCandidate(
+                ladder_species="Kingambit",
+                usage_rank=1,
+                form="Kingambit",
+                showdown_usage_pct=None,
+                showdown_formes=(),
+                spec={"species": "Kingambit"},
+                build_source="ingame",
+            ),
+            kinds=frozenset({"uncovered"}),
+        )
+    ]
+    candidates = [_candidate("Whimsicott", spec={"species": "Whimsicott"})]
+
+    with patch(
+        "recommender.coverage.candidate_improves_best_bring",
+        return_value=True,
+    ) as mocked:
+        annotated = annotate_composition_impact(
+            candidates,
+            state,
+            locked_anchors=contexts,
+            condition_resilience=resilience,
+            objective=objective,
+        )
+    mocked.assert_called_once()
+    assert annotated[0].improves_bench_subset is True
+
+
+def test_annotate_composition_impact_does_not_evaluate_bench_subset_for_core_slot():
+    """Sibling: with fewer than picked_team_size locked (still building
+    the core), candidate_improves_best_bring must never be called at
+    all -- there's no real baseline yet, and this is core-slot territory
+    handled by candidate_wastes_core_slot instead.
+    """
+    from recommender.condition_resilience import assess_condition_resilience
+
+    state = _bench_state(n_locked=2)  # Still building the core.
+    contexts = collect_locked_anchor_contexts(state)
+    resilience = assess_condition_resilience(contexts)
+    candidates = [_candidate("Whimsicott", spec={"species": "Whimsicott"})]
+
+    with patch(
+        "recommender.coverage.candidate_improves_best_bring"
+    ) as mocked:
+        annotated = annotate_composition_impact(
+            candidates, state, locked_anchors=contexts, condition_resilience=resilience
+        )
+    mocked.assert_not_called()
+    assert annotated[0].improves_bench_subset is False
+
+
+def test_annotate_composition_impact_does_not_evaluate_dependent_candidate():
+    """A candidate with an unmet needed weather dependency (Swampert-Mega
+    wanting Rain) must never reach candidate_improves_best_bring --
+    evaluating it alone would produce an honestly wrong, unamplified
+    coverage number (team_field_states only forces Rain when a real
+    provider is also in the subset). Pairing it correctly is a separate,
+    not-yet-built capability, deliberately not approximated here.
+    """
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.condition_resilience import assess_condition_resilience
+    from recommender.state import TeamThreatObjectiveRow, ThreatCandidate
+
+    state = _bench_state()
+    contexts = collect_locked_anchor_contexts(state)
+    resilience = assess_condition_resilience(contexts)
+    objective = [
+        TeamThreatObjectiveRow(
+            threat=ThreatCandidate(
+                ladder_species="Kingambit",
+                usage_rank=1,
+                form="Kingambit",
+                showdown_usage_pct=None,
+                showdown_formes=(),
+                spec={"species": "Kingambit"},
+                build_source="ingame",
+            ),
+            kinds=frozenset({"uncovered"}),
+        )
+    ]
+    swampert_build = resolve_anchor_build("Swampert-Mega")
+    candidates = [
+        _candidate(
+            "Swampert-Mega",
+            spec={
+                "species": "Swampert-Mega",
+                "ability": swampert_build.ability,
+                "item": swampert_build.item,
+                "moves": list(swampert_build.moves),
+            },
+        )
+    ]
+
+    with patch(
+        "recommender.coverage.candidate_improves_best_bring"
+    ) as mocked:
+        annotated = annotate_composition_impact(
+            candidates,
+            state,
+            locked_anchors=contexts,
+            condition_resilience=resilience,
+            objective=objective,
+        )
+    mocked.assert_not_called()
+    assert annotated[0].improves_bench_subset is False
+
+
 def test_rank_category_a_demotes_wastes_core_slot_candidate():
     """Confirms the discount actually reaches Category A ranking, not
     just the underlying candidate_wastes_core_slot check in isolation --

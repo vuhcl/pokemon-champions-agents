@@ -171,6 +171,23 @@ class AnnotatedCandidate:
     # pattern this project has separately confirmed, not something to
     # discourage. See team_candidates.candidate_wastes_core_slot.
     wastes_core_slot: bool = False
+    # Confirmed live (2026-08-21/22, design discussion): for bench slots
+    # (slot_index >= picked_team_size), "does this add more stackable
+    # coverage" is the wrong question -- only picked_team_size of the
+    # roster ever plays together in a given game. True when
+    # candidate_improves_best_bring confirms some real, coherent bring-N
+    # combination including this candidate beats every combination
+    # achievable from the locked roster alone. Deliberately scoped to
+    # candidates with NO unmet needed-importance weather dependency --
+    # a dependent candidate (Mega-Swampert-shaped) evaluated alone
+    # would get an honestly wrong (unamplified) coverage number, since
+    # team_field_states only forces a weather when a real provider is
+    # also in the subset; correctly pairing it with one is a separate,
+    # not-yet-built capability (masked alternate-core discovery),
+    # deliberately not approximated here. False for core slots and for
+    # dependent candidates -- not evaluated, not "confirmed doesn't
+    # improve."
+    improves_bench_subset: bool = False
 
 
 @dataclass(frozen=True)

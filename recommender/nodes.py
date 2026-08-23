@@ -3053,6 +3053,7 @@ def discover_multi_locked(
         state,
         locked_anchors=contexts,
         condition_resilience=resilience,
+        objective=objective,
     )
     preference = state.get("team_completion_preference")
     if preference is None:
