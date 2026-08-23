@@ -18,6 +18,7 @@ from recommender.counters import (
     threat_tier,
     type_effectiveness,
 )
+from recommender.usage_data import showdown_species_map
 from recommender.legality import load_snapshot
 from recommender.ids import to_id
 from recommender.matchup import effective_accuracy, expected_hit_factor
@@ -315,26 +316,48 @@ def test_ownership_off_and_owned_first_with_duplicate_box_entries():
 
 
 def test_owned_last_only_breaks_a_complete_query_key_tie():
+    """Regression, updated 2026-08-23: this test used to mine the live
+    snapshot for a coincidental usage_rank=None tie -- valid under the
+    old bug (every usage_rank=None candidate sorted as float("-inf"),
+    genuinely indistinguishable), but no longer findable now that real
+    Showdown popularity differentiates almost every candidate (confirmed
+    directly: zero candidates in this exact query lack both usage_rank
+    AND showdown_usage_pct entirely). Constructs a deliberate, controlled
+    tie instead -- two real candidates that already share threat_tier and
+    ko_threshold_score, with their real showdown_usage_pct forced equal
+    via a patched showdown_species_map -- rather than depending on
+    real data happening to coincide, which the _key fix specifically
+    made much less likely.
+    """
     full = query_counters({"species": "Blaziken-Mega"}, n=1000)
-    ties: dict[tuple[int, int | None, float], list[ThreatCandidate]] = {}
+    groups: dict[tuple, list[ThreatCandidate]] = {}
     for candidate in full:
-        key = (
-            threat_tier(candidate.threat_kinds),
-            candidate.usage_rank,
-            candidate.ko_threshold_score,
-        )
-        ties.setdefault(key, []).append(candidate)
-    tied = next(group for group in ties.values() if len(group) >= 2)[:2]
-    candidate_pool = [{"species": c.form} for c in tied]
-    owned = tied[-1].form
+        if candidate.usage_rank is not None:
+            continue
+        key = (threat_tier(candidate.threat_kinds), candidate.ko_threshold_score)
+        groups.setdefault(key, []).append(candidate)
+    pair = next(group for group in groups.values() if len(group) >= 2)[:2]
+    a_id, b_id = to_id(pair[0].form), to_id(pair[1].form)
 
-    out = query_counters(
-        {"species": "Blaziken-Mega"},
-        n=20,
-        candidate_pool=candidate_pool,
-        available_pool=[owned],
-        ownership_mode="owned_last",
-    )
+    real_sd = showdown_species_map("champions-reg-mb")
+    forced_pct = real_sd.get(a_id, {}).get("usage_pct", 1.0)
+    patched_sd = dict(real_sd)
+    patched_sd[b_id] = {**patched_sd.get(b_id, {}), "usage_pct": forced_pct}
+    patched_sd[a_id] = {**patched_sd.get(a_id, {}), "usage_pct": forced_pct}
+
+    candidate_pool = [{"species": pair[0].form}, {"species": pair[1].form}]
+    owned = pair[1].form
+
+    with patch(
+        "recommender.counters.showdown_species_map", return_value=patched_sd
+    ):
+        out = query_counters(
+            {"species": "Blaziken-Mega"},
+            n=20,
+            candidate_pool=candidate_pool,
+            available_pool=[owned],
+            ownership_mode="owned_last",
+        )
     assert to_id(out[0].form) == to_id(owned)
     assert {to_id(c.form) for c in out} == {
         to_id(p["species"]) for p in candidate_pool
@@ -559,6 +582,147 @@ def test_dominant_mega_form_returns_none_below_threshold():
     ig_entry = ig.get("garchomp") or {}
     result = _dominant_mega_form(snap, "garchomp", ig_entry, mega_forms_by_base)
     assert result is None
+
+
+def test_dominant_mega_form_handles_shortened_stone_names():
+    """Regression, confirmed live (2026-08-23): several real mega stones
+    trim or alter the base species name's ending before appending "ite"
+    rather than cleanly appending it -- "staraptor" -> "staraptite" (not
+    "staraptorite"), "mawile" -> "mawilite", "floette" -> "floettite",
+    "sceptile" -> "sceptilite", "blastoise" -> "blastoisinite". The
+    original substring check ("base_name_id in item_id") required an
+    exact containment match and missed every one of these, despite each
+    having genuine, dominant real mega-stone usage (55-99%, checked
+    directly against real in-game data) -- silently evaluating the
+    weaker base form indefinitely instead, with no visible sign anything
+    was wrong. Confirmed via a direct before/after comparison that this
+    fix strictly adds these cases without removing any of the
+    previously-correct ones (Blaziken, Charizard, Delphox, Froslass,
+    Gardevoir, Metagross, Raichu, Swampert all still retarget exactly as
+    before).
+    """
+    from recommender.legality import load_snapshot
+    from recommender.usage_data import ingame_species_map
+
+    snap = load_snapshot()
+    ig = ingame_species_map("champions-reg-mb")
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    expected = {
+        "staraptor": "staraptormega",
+        "mawile": "mawilemega",
+        "sceptile": "sceptilemega",
+    }
+    for base_sid, expected_mega in expected.items():
+        ig_entry = ig.get(base_sid) or {}
+        result = _dominant_mega_form(snap, base_sid, ig_entry, mega_forms_by_base)
+        assert result == expected_mega, base_sid
+
+
+def test_dominant_mega_form_prefers_true_mega_over_non_mega_alternate():
+    """Regression, confirmed live (2026-08-23): Blastoise and Floette
+    each have TWO real alternate forms in this snapshot -- Blastoise has
+    ['blastoisemega', 'blastoisegmax'], Floette has ['floetteeternal',
+    'floettemega'] -- and the multi-form disambiguation logic only ever
+    handled Charizard-style X/Y suffixes, so a matched "-ite" item (which
+    is specifically a mega-evolution mechanic, never a Gmax or other
+    alternate-forme trigger) fell through to None for both, despite
+    Blastoise showing 95.0% real Blastoisinite usage and Floette showing
+    99.0% real Floettite usage. When exactly one of the multiple
+    alternates actually contains "mega", that's now treated as an
+    unambiguous match regardless of naming, without needing the narrower
+    X/Y-suffix path at all.
+    """
+    from recommender.legality import load_snapshot
+    from recommender.usage_data import ingame_species_map
+
+    snap = load_snapshot()
+    ig = ingame_species_map("champions-reg-mb")
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    for base_sid, expected_mega in [
+        ("blastoise", "blastoisemega"),
+        ("floette", "floettemega"),
+    ]:
+        ig_entry = ig.get(base_sid) or {}
+        result = _dominant_mega_form(snap, base_sid, ig_entry, mega_forms_by_base)
+        assert result == expected_mega, base_sid
+
+
+def test_dominant_mega_form_still_respects_dominance_threshold_for_shortened_names():
+    """The shortened-name matching fix must not bypass the real 80%
+    dominance threshold -- confirmed directly: Dragonite's real
+    Dragoninite usage is 55.4%, genuinely below the threshold, and must
+    still correctly return None, not get swept in just because the name-
+    matching heuristic is now more permissive.
+    """
+    from recommender.legality import load_snapshot
+    from recommender.usage_data import ingame_species_map
+
+    snap = load_snapshot()
+    ig = ingame_species_map("champions-reg-mb")
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    ig_entry = ig.get("dragonite") or {}
+    result = _dominant_mega_form(snap, "dragonite", ig_entry, mega_forms_by_base)
+    assert result is None
+
+
+def test_query_counters_showdown_only_candidates_ranked_by_real_popularity():
+    """Regression, confirmed live (2026-08-23): candidates with no real
+    in-game usage_rank (every mega form without a dominant base-form
+    item redirect) were all sorted as the single worst possible value,
+    genuinely indistinguishable from each other regardless of real
+    Showdown popularity -- the code's own prior comment claimed a
+    fallback function used showdown_usage_pct for exactly this case, but
+    that function never actually existed anywhere in this codebase.
+
+    End-to-end against the real query_counters (not a re-implementation
+    of its internal _key) -- two real candidates that already share
+    threat_tier and ko_threshold_score (found the same way the tie-break
+    test above finds its pair), with one candidate's real Showdown
+    percentage patched higher than the other's. The higher-percentage
+    one must now rank first; under the pre-fix behavior both were tied
+    at float("-inf") and ownership_mode/pool order would have decided
+    it, not real popularity.
+    """
+    full = query_counters({"species": "Blaziken-Mega"}, n=1000)
+    groups: dict[tuple, list[ThreatCandidate]] = {}
+    for candidate in full:
+        if candidate.usage_rank is not None:
+            continue
+        key = (threat_tier(candidate.threat_kinds), candidate.ko_threshold_score)
+        groups.setdefault(key, []).append(candidate)
+    pair = next(group for group in groups.values() if len(group) >= 2)[:2]
+    a_id, b_id = to_id(pair[0].form), to_id(pair[1].form)
+
+    real_sd = showdown_species_map("champions-reg-mb")
+    patched_sd = dict(real_sd)
+    # Assign the LOWER percentage to whichever of the two comes first in
+    # the raw snapshot's own species dict ordering, and the HIGHER
+    # percentage to whichever comes second -- candidate_pool only
+    # filters which species are allowed, it does not control iteration
+    # order (confirmed directly: reordering candidate_pool alone did not
+    # change output order, since the actual stable-tie order comes from
+    # snap["species"].items()'s own fixed ordering). This guarantees a
+    # real discriminating test regardless of what that raw order happens
+    # to be: under the pre-fix bug (both tied at float("-inf")), a
+    # stable sort would preserve raw-snapshot order, putting the LOWER-
+    # percentage one first (wrong); the fix must reorder them by real
+    # percentage regardless of raw snapshot order.
+    from recommender.legality import load_snapshot
+
+    snap_order = list(load_snapshot()["species"].keys())
+    first_id, second_id = sorted((a_id, b_id), key=snap_order.index)
+    patched_sd[first_id] = {**patched_sd.get(first_id, {}), "usage_pct": 0.01}
+    patched_sd[second_id] = {**patched_sd.get(second_id, {}), "usage_pct": 50.0}
+
+    candidate_pool = [{"species": pair[0].form}, {"species": pair[1].form}]
+    with patch(
+        "recommender.counters.showdown_species_map", return_value=patched_sd
+    ):
+        out = query_counters(
+            {"species": "Blaziken-Mega"}, n=20, candidate_pool=candidate_pool
+        )
+    assert to_id(out[0].form) == second_id
+    assert to_id(out[1].form) == first_id
 
 
 def test_query_counters_reports_mega_form_directly_not_base():
