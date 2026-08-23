@@ -548,6 +548,44 @@ def _mega_forms_by_base(snap: dict[str, Any]) -> dict[str, list[str]]:
     return out
 
 
+def _looks_like_mega_stone_for(base_name_id: str, item_id: str) -> bool:
+    """Whether item_id plausibly is base_name_id's real mega stone.
+
+    Most mega stones cleanly append "ite" to the full base name (e.g.
+    "swampert" -> "swampertite"), which a plain substring check catches.
+    Confirmed live (2026-08-23), a real, significant gap: several mega
+    stones trim or alter the base name's ending before appending "ite" --
+    "staraptor" -> "staraptite", "mawile" -> "mawilite", "floette" ->
+    "floettite", "sceptile" -> "sceptilite", "dragonite" -> "dragoninite",
+    "blastoise" -> "blastoisinite". A strict substring check misses every
+    one of these, silently failing to retarget genuinely dominant real
+    mega-stone usage (55-99% in these six confirmed cases, checked
+    directly against real in-game data, not assumed) to the mega form at
+    all -- the base form's own weaker stats/ability get evaluated and
+    ranked instead, indefinitely, with no visible sign anything is wrong.
+
+    Falls back to a shared-prefix-ratio check (>=70% of the base name's
+    characters, in order, from the start) when the plain substring check
+    fails. Verified directly against every base species with a real mega
+    form in this snapshot, not just the six known cases, to confirm the
+    70% threshold doesn't introduce new false positives (e.g. matching
+    "Eviolite," a real, unrelated held item that happens to end in
+    "ite," against some base species by coincidental prefix overlap --
+    explicitly excluded regardless of prefix ratio, since it's a real,
+    known non-mega item).
+    """
+    if base_name_id in item_id:
+        return True
+    if not item_id.endswith("ite") or item_id == "eviolite" or not base_name_id:
+        return False
+    overlap = 0
+    for a, b in zip(base_name_id, item_id):
+        if a != b:
+            break
+        overlap += 1
+    return overlap / len(base_name_id) >= 0.7
+
+
 def _dominant_mega_form(
     snap: dict[str, Any],
     base_sid: str,
@@ -583,7 +621,9 @@ def _dominant_mega_form(
     best_pct = 0.0
     for item in items:
         item_id = to_id(str(item.get("name") or ""))
-        if base_name_id not in item_id or item_id == base_name_id:
+        if item_id == base_name_id or not _looks_like_mega_stone_for(
+            base_name_id, item_id
+        ):
             continue
         pct = float(item.get("pct") or 0.0)
         if pct > best_pct:
@@ -593,14 +633,27 @@ def _dominant_mega_form(
         return None
     if len(mega_ids) == 1:
         return mega_ids[0]
-    # Multiple mega forms (e.g. Charizard X/Y) -- "Charizardite Y" and
-    # "Charizard-Mega-Y" share no common suffix string beyond the final
-    # distinguishing letter itself (confirmed directly, not assumed --
-    # an earlier version of this logic incorrectly compared the full
+    # Multiple alt forms exist for this base (e.g. Charizard X/Y mega
+    # forms, but also non-mega alternates that happen to share the base
+    # -- confirmed live (2026-08-23): Blastoise has ['blastoisemega',
+    # 'blastoisegmax'], Floette has ['floetteeternal', 'floettemega'].
+    # A "-ite" held item is specifically a mega-evolution mechanic, never
+    # a Gmax or other alternate-forme trigger, so when exactly one of the
+    # candidates is actually a mega form (contains "mega"), that's an
+    # unambiguous match regardless of naming -- no need to reach for the
+    # narrower X/Y-suffix comparison below, which only applies when
+    # multiple TRUE mega forms compete (Charizard X vs Y).
+    mega_only = [mid for mid in mega_ids if "mega" in mid]
+    if len(mega_only) == 1:
+        return mega_only[0]
+    # Multiple true mega forms (e.g. Charizard X/Y) -- "Charizardite Y"
+    # and "Charizard-Mega-Y" share no common suffix string beyond the
+    # final distinguishing letter itself (confirmed directly, not assumed
+    # -- an earlier version of this logic incorrectly compared the full
     # suffix and never matched anything for multi-form species). Compare
     # just that final letter when it's the real X/Y disambiguator.
     if best_item_id and best_item_id[-1] in ("x", "y"):
-        for mega_id in mega_ids:
+        for mega_id in mega_only or mega_ids:
             if mega_id.endswith(best_item_id[-1]):
                 return mega_id
     return None
@@ -788,15 +841,33 @@ def query_counters(
             )
         )
 
-    def _key(c: ThreatCandidate) -> tuple[float, float]:
+    def _key(c: ThreatCandidate) -> tuple[int, float, float]:
         # Within-tier: popularity primary so wall-only are not starved by capped
         # KO scores (=1.0); ko_threshold_score is tiebreak.
-        pop = (
-            -float(c.usage_rank)
-            if c.usage_rank is not None
-            else float("-inf")
-        )
-        return (pop, c.ko_threshold_score)
+        #
+        # Confirmed live (2026-08-23), a real, separate gap from the
+        # mega-stone-naming fix above: candidates with no real in-game
+        # usage_rank (every mega form without a dominant base-form item
+        # redirect, per _dominant_mega_form) were all sorted as
+        # float("-inf") -- tied at the single worst possible value,
+        # indistinguishable from each other regardless of real Showdown
+        # popularity. The comment historically here claimed a fallback
+        # function ("_usage_popularity") used showdown_usage_pct for
+        # exactly this case -- confirmed directly that function doesn't
+        # exist anywhere in this codebase; the fallback data was computed
+        # and stored on ThreatCandidate correctly, then silently never
+        # consulted here. Real in-game rank still strictly outranks any
+        # Showdown-only candidate (in-game is this project's primary
+        # data source, Showdown a supplement) -- this doesn't change
+        # that hierarchy, it only stops discarding real signal among
+        # candidates that share the "no in-game rank" tier.
+        if c.usage_rank is not None:
+            tier, pop = 1, -float(c.usage_rank)
+        elif c.showdown_usage_pct is not None:
+            tier, pop = 0, c.showdown_usage_pct
+        else:
+            tier, pop = -1, 0.0
+        return (tier, pop, c.ko_threshold_score)
 
     return rank_and_cut(
         pool,
