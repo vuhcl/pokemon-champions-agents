@@ -1589,6 +1589,80 @@ def test_rank_category_a_demotes_wastes_core_slot_candidate():
     assert [c.species for c in ranked] == ["Garchomp", "Swampert-Mega"]
 
 
+def test_rank_category_a_demotes_unreliable_dependency_at_equal_strength():
+    """Confirms dependency_reliability actually reaches Category A
+    ranking as a soft nudge, not a hard gate -- two candidates with
+    IDENTICAL raw verified_score/defensive_synergy inputs must be
+    ordered by reliability alone, and the less-reliable one must still
+    appear in the ranked output (not excluded), unlike wastes_core_slot's
+    behavior for a genuinely disqualifying conflict.
+
+    Uses fake species names (not real ones) specifically so
+    defensive_synergy_score is genuinely tied at its neutral default --
+    confirmed real species have real, differing types even against an
+    empty locked_types_list (e.g. Mawile-Mega -1.0 vs Excadrill -2.0),
+    which would confound this test's intended isolation of reliability
+    as the only differentiating signal.
+    """
+    from recommender.team_candidates import _rank_category_a
+
+    unreliable = AnnotatedCandidate(
+        species="Unreliable",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("Unreliable", usage_rank=5),
+        branches=frozenset({"threat"}),
+        dependency_reliability=0.572,
+    )
+    reliable = AnnotatedCandidate(
+        species="Reliable",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("Reliable", usage_rank=5),
+        branches=frozenset({"threat"}),
+        dependency_reliability=1.0,
+    )
+    ranked = _rank_category_a([unreliable, reliable], [[]])
+    assert [c.species for c in ranked] == ["Reliable", "Unreliable"]
+    assert "Unreliable" in [c.species for c in ranked]
+
+
+def test_rank_category_a_reliability_ties_do_not_inject_spurious_ordering():
+    """Regression, confirmed during implementation (2026-08-22): a real
+    bug in this feature's own first draft -- when every candidate shares
+    the same dependency_reliability (the common case, nobody has a real
+    dependency), a naive stable-sort-based rank still assigned distinct
+    sequential positions purely from list order, silently corrupting
+    otherwise-unrelated verified_score/defensive_synergy ordering. Caught
+    by an existing test (test_rank_category_a_balances_verified_score_
+    against_synergy) breaking once this field was added, not shipped
+    uncorrected. This test locks in the fix directly: candidates tied on
+    dependency_reliability (all at the 1.0 default) must rank purely by
+    their other real signals, regardless of input list order.
+    """
+    from recommender.team_candidates import _rank_category_a
+
+    weaker = AnnotatedCandidate(
+        species="Weaker",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("Weaker", outcome="intentional_non_ko_answer", severity="toss-up"),
+        branches=frozenset({"threat"}),
+    )
+    stronger = AnnotatedCandidate(
+        species="Stronger",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("Stronger", outcome="clean_kill", severity="decisive"),
+        branches=frozenset({"threat"}),
+    )
+    # Deliberately list the weaker candidate FIRST -- if reliability_rank
+    # were still list-order-sensitive, this input order could flip the
+    # otherwise-correct result.
+    ranked = _rank_category_a([weaker, stronger], [[]])
+    assert [c.species for c in ranked] == ["Stronger", "Weaker"]
+
+
 def test_unrelated_mechanic_duplication_still_demoted():
     from recommender.condition_resilience import assess_condition_resilience
     from recommender.team_candidates import (

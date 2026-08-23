@@ -103,6 +103,146 @@ def provided_conditions(
     return frozenset(out)
 
 
+def _provider_move_commitment(
+    species: str, move_id: str, regulation: str
+) -> float | None:
+    """Real in-game commitment (0-100) to move_id on species, or None if
+    the species isn't in the in-game dataset at all -- a real data gap,
+    distinct from "confirmed low commitment," matching the same
+    distinction already established for usage/confidence elsewhere in
+    this codebase (see ADR-028 Amendment 2026-08-22a).
+    """
+    from recommender.ids import to_id
+    from recommender.usage_data import ingame_species_map
+
+    entry = ingame_species_map(regulation).get(to_id(species))
+    if entry is None:
+        return None
+    for m in entry.get("common_moves") or []:
+        if to_id(str(m.get("name") or "")) == move_id:
+            pct = m.get("pct")
+            return float(pct) if pct is not None else None
+    return 0.0
+
+
+def condition_provider_reliability(
+    condition: str, locked: Sequence[LockedAnchorContext], *, regulation: str
+) -> float:
+    """How much a dependent candidate should trust condition being real,
+    reliable support -- 1.0 (fully reliable) down to 0.0, based on the
+    BEST (most reliable) locked provider of condition, since a dependent
+    only needs one good enabler.
+
+    Confirmed live (2026-08-22): Mawile-Mega's real Trick Room dependency
+    can be "satisfied" by a locked Sinistcha whose real, aggregate
+    Trick Room commitment (57.2%) is barely more than a coinflip against
+    its actual defining move, Rage Powder (95.6%) -- Sinistcha's real
+    primary job is redirection, with Trick Room as a secondary, often-
+    dropped tech option, not a genuine Trick-Room-specialist build the
+    way Farigiraf is. The condition being physically present in THIS
+    locked build doesn't resolve that: a low aggregate commitment rate is
+    a proxy for "this isn't really a dedicated setter's build" (EVs,
+    item, and moveset choices for a real specialist are generally
+    optimized around reliably getting the condition up, in ways a
+    secondary carrier's usually aren't), not a claim that the locked
+    move might vanish.
+
+    Ability-based providers (e.g. Drizzle) are always 1.0 -- an ability
+    is mechanically certain/always-active, the same "ability-based match
+    is the most mechanically certain evidence tier" reasoning already
+    established (ADR-028 Amendment 2026-08-20a) for a different purpose.
+    Move-based providers use their real in-game commitment percentage,
+    normalized to 0-1. A real data gap (provider absent from the in-game
+    dataset entirely) defaults to 1.0 -- not evidence of unreliability,
+    the same "don't penalize a data gap as a negative signal" principle
+    already established (ADR-034 Amendment 2026-08-23a) for a different
+    purpose.
+    """
+    best = 0.0
+    found_any = False
+    for context in locked:
+        role_decision = getattr(context, "role_decision", None)
+        if role_decision is None:
+            continue
+        for mechanism in role_decision.mechanisms:
+            if not mechanism.present or mechanism.relation != "provides":
+                continue
+            if mechanism_condition(mechanism) != condition:
+                continue
+            found_any = True
+            if mechanism.activation != "move":
+                best = max(best, 1.0)
+                continue
+            move_id = next(
+                (
+                    tag.removeprefix("move:")
+                    for tag in mechanism.evidence
+                    if tag.startswith("move:")
+                ),
+                None,
+            )
+            if move_id is None:
+                best = max(best, 1.0)
+                continue
+            pct = _provider_move_commitment(
+                context.resolved_build.species or "", move_id, regulation
+            )
+            reliability = 1.0 if pct is None else pct / 100.0
+            best = max(best, reliability)
+    return best if found_any else 1.0
+
+
+def candidate_dependency_reliability(
+    decision: object,
+    locked: Sequence[LockedAnchorContext],
+    *,
+    regulation: str,
+) -> float:
+    """Worst-case reliability across every TRACKED_CONDITIONS dependency
+    this candidate actually has satisfied by the locked team -- 1.0 if it
+    has no such dependency, or if a dependency exists but is genuinely
+    unmet (that's a different, existing concern -- see
+    candidate_wastes_core_slot / candidate_has_unmet_needed_weather_
+    dependency -- not something this function tries to also judge).
+
+    Generalizes beyond weather specifically (the scope of the two
+    functions above) to all six TRACKED_CONDITIONS, since Mawile-Mega's
+    real dependency is Trick Room, not weather -- reuses
+    mechanism_condition, which already covers the full set, rather than
+    widening either of those weather-specific functions and risking
+    their already-verified behavior.
+
+    Deliberately includes BOTH "needed" and "wanted" importance tiers,
+    unlike candidate_wastes_core_slot's stricter "needed"-only gate --
+    confirmed directly that Trick Room/Tailwind benefits_from mechanisms
+    are classified "wanted" everywhere in this codebase, never "needed"
+    (weather-move dependencies like Electro Shot/Rain are the ones that
+    get "needed", a real, deliberate distinction: a hindering-nature/
+    slow-attacker TR preference is inherently softer and inferred, not
+    tied to a specific locked move the way a real weather-move mechanic
+    is). Also deliberately does not require mechanism.present -- "wanted"
+    dependencies are typically present=False by design (inferred from
+    role/nature, not concretely move-locked the way "needed" ones are);
+    requiring it here would make this function unable to fire for
+    exactly the case it exists to catch.
+    """
+    mechanisms = getattr(decision, "mechanisms", None)
+    if not mechanisms:
+        return 1.0
+    provided = provided_conditions(locked)
+    worst = 1.0
+    for m in mechanisms:
+        if m.relation != "benefits_from" or m.importance not in ("needed", "wanted"):
+            continue
+        condition = mechanism_condition(m)
+        if condition is None or condition not in provided:
+            continue
+        worst = min(
+            worst, condition_provider_reliability(condition, locked, regulation=regulation)
+        )
+    return worst
+
+
 def has_reliable_screens_provider(
     locked: Sequence[LockedAnchorContext],
     *,
