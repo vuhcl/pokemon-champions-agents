@@ -4820,6 +4820,62 @@ next: Castform fix (done) → wire `candidate_improves_best_bring` with the pair
 simplification → generalize dependency detection beyond weather/mega → Mawile-Mega
 dependency-reliability ranking → masked alternate-core discovery itself.
 
+## 2026-08-22 (cont.): Bench-subset wiring completed; mega-stone naming gap found and fixed
+via a live "why not the mega form" question
+
+Two PRs merged, both tracing back to earlier work this week. See ADR-035 Amendment
+2026-08-23a and ADR-034 Amendment 2026-08-23a for full technical detail.
+
+**candidate_improves_best_bring (2026-08-21's bench-slot coverage-subset primitive)
+is now wired into real Category A ranking** for the case it was always meant to
+handle cleanly: candidates with no unmet weather dependency. Dependent candidates
+(Mega-Swampert-shaped) remain deliberately unevaluated, pending masked alternate-core
+discovery — still the next real prerequisite in the sequence, not skipped or
+forgotten. Verification here was honestly incomplete in one respect: no live calc
+service was available, so the wiring's correctness was verified at the mock boundary
+and the live behavioral change couldn't be directly confirmed in this session. A
+follow-up live test (same Archaludon/Pelipper/Swampert-Mega/Sinistcha core from
+earlier) showed identical output to `main` for that specific team — traced directly
+and confirmed this is consistent with the wiring correctly finding no real
+improvement available for an already well-covered core, not with it failing to
+activate, but this distinction matters and is worth remembering if the same question
+comes up again on a different team.
+
+**A live question about Staraptor vs. Staraptor-Mega surfaced two real, distinct bugs
+in ADR-034's mega-form identity/ranking machinery**, plus indirectly validated a
+Sinistcha pick and Primarina's real defensive value along the way (checked via
+`query_shared_teammates` and the real type chart, both confirmed correct — not
+bugs, useful positive confirmation).
+
+The actual root cause, fully resolved: `_dominant_mega_form`'s item-matching required
+an exact substring match between the base species name and its mega stone's item id.
+Six real species — Staraptor, Mawile, Floette, Sceptile, Blastoise, and (partially;
+see below) Dragonite — have mega stones that trim or alter the base name's ending
+before appending "ite" rather than cleanly appending it, and all six were silently
+missed, with dominant real usage (55-99%) going unrecognized indefinitely. Mawile and
+Floette are both species that came up earlier this week in the masked-alternate-core
+design discussion — this fix may materially change how those cases actually surface
+once tested live again.
+
+A second, separate, genuinely distinct bug was also found and fixed in the same
+investigation: `query_counters`'s ranking function discarded a real Showdown-usage
+fallback for any candidate without an in-game usage rank, silently treating every
+such candidate as equally, maximally unpopular. Explicitly noted in the ADR record
+that this was *not* the actual cause of the Staraptor question — the naming fix alone
+fully resolved it — flagged honestly rather than left to look like it solved
+something it didn't.
+
+Dragonite's real mega-stone usage (55.4%) is confirmed genuinely below the existing
+80% dominance threshold — correctly still not retargeted, not a bug, the threshold
+working as designed.
+
+**Housekeeping note:** two of Claude's own test-construction mistakes were caught and
+corrected during this work, not shipped uncorrected — see the ADR amendment for
+detail. Worth remembering as a caution specifically for future work on
+`query_counters`'s ranking/tie-break behavior: real data differentiates candidates
+far more thoroughly than it used to, so tests that used to find natural ties in live
+data may need deliberately constructed ones going forward.
+
 ---
 
 ## TOOLS & RESOURCES

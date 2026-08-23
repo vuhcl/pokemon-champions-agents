@@ -7589,6 +7589,85 @@ a formal test before considering this done, not just the common single-form case
 
 ---
 
+### ADR-034 — Amendment 2026-08-22a
+
+**Two real, distinct bugs in the mega-form identity/ranking machinery
+this ADR introduced, found via a live question about why Staraptor was
+suggested over the empirically more popular Staraptor-Mega.**
+
+**Bug 1, and the actual, complete root cause of the live question:**
+`_dominant_mega_form`'s item match required the mega stone's item id to
+contain the base species name as an exact substring. Most stones cleanly
+append "ite" (`swampert` → `swampertite`, this ADR's original motivating
+case), but several trim or alter the base name's ending first:
+`staraptor` → `staraptite`, `mawile` → `mawilite`, `floette` →
+`floettite`, `sceptile` → `sceptilite`, `dragonite` → `dragoninite`,
+`blastoise` → `blastoisinite`. Confirmed directly against real in-game
+data: all six have genuine, dominant real mega-stone usage (55-99%),
+silently evaluated as their weaker base form indefinitely instead, with
+no visible sign anything was wrong. Fixed via a shared-prefix-ratio
+fallback (≥70% of the base name's characters matching from the start,
+excluding `eviolite` explicitly since it's a real, unrelated item ending
+in "ite") when the plain substring check fails — verified against every
+base species with a real mega form in the snapshot, not just the six
+known cases, confirming the previously-correct 8 retargets are unchanged
+and Dragonite (55.4%, genuinely below the 80% dominance threshold)
+correctly still returns `None`.
+
+Also fixed multi-alternate-form disambiguation: Blastoise
+(`['blastoisemega', 'blastoisegmax']`) and Floette
+(`['floetteeternal', 'floettemega']`) each have two real alternate forms,
+and the existing disambiguation only ever handled Charizard-style X/Y
+suffixes — neither stone name ends in x/y, so both fell through to `None`
+despite 95-99% real dominant usage. A "-ite" item is specifically a
+mega-evolution mechanic, never a Gmax or other alternate-forme trigger,
+so when exactly one candidate actually contains "mega" that's now an
+unambiguous match, without needing the narrower X/Y path.
+
+Confirmed via direct `query_counters` call that this fix *alone* fully
+resolves the original question — Staraptor now correctly reports as
+"Staraptor-Mega" with `usage_rank=11` (its base form's real, strong
+in-game rank).
+
+**Bug 2, a separate, real gap — explicitly not what caused the live
+question, stated plainly rather than left ambiguous:** `query_counters`'
+`_key` sorted every candidate without a real in-game `usage_rank` as
+`float("-inf")` — tied at the single worst possible value regardless of
+real Showdown popularity. This function's own comment claimed a fallback
+(`_usage_popularity`) used `showdown_usage_pct` for exactly this case;
+confirmed directly that function doesn't exist anywhere in this
+codebase — the fallback data was computed and stored on `ThreatCandidate`
+correctly, then silently never consulted. Fixed with an explicit tier:
+real in-game rank still strictly outranks Showdown-only candidates
+(in-game remains this project's primary data source), but Showdown-only
+candidates are now ordered by real relative popularity instead of tied.
+Likely affects other mega forms with genuine independent Showdown
+popularity but no correspondingly-dominant base-form item share — not
+confirmed against a second live case, flagged as a real possibility, not
+verified further.
+
+**Two of Claude's own test-construction mistakes caught and corrected
+during verification, not shipped uncorrected — worth keeping in the
+record as a caution for future work on this function, not just a
+footnote:** an existing test (`test_owned_last_only_breaks_a_complete_
+query_key_tie`) mined the live snapshot for a coincidental tie among
+`usage_rank=None` candidates; that tie no longer exists once bug 2 is
+fixed (real Showdown data now differentiates almost every candidate —
+confirmed zero candidates in the test query lack both signals entirely),
+so it was rebuilt to construct a deliberate, controlled tie via a patched
+`showdown_species_map`. Separately, an initial version of the new bug-2
+regression test passed on *both* old and new code — traced to a wrong
+assumption that `candidate_pool` ordering controls tie-break order, when
+it only filters which species are allowed; the real stable-tie order
+comes from the raw snapshot dict's own key ordering. Rebuilt to determine
+that order directly and assign test data against it deliberately.
+
+**Status:** Implemented and merged (PR #117). 6 new/updated tests, each
+confirmed to fail on pre-fix code and pass after. Full suite: 1299
+passed, 8 skipped.
+
+---
+
 ## ADR-035: Core-slot scarce-resource discount and bench-slot coverage-subset
 reframing — two unified pieces of the same principle
 
@@ -7668,3 +7747,59 @@ down); generalizing `wastes_core_slot`'s dependency detection beyond weather/meg
 the bench-slot boundary (asking the user which of coverage/support/alternate-core they
 want before presenting candidates, sharpening the still-unaddressed ADR-033 orientation-
 preference gap).
+
+---
+
+### ADR-035 — Amendment 2026-08-22a
+
+**Part 2 (bench-slot coverage-subset) is now wired into `_rank_category_a`,
+completing what the original ADR left deliberately unwired.**
+
+Scoped specifically to the "simple case" from that design discussion:
+candidates with no unmet needed-importance weather dependency. For bench
+slots (`slot_index >= picked_team_size`) with a real, `picked_team_size`-
+sized core already locked, `annotate_composition_impact` constructs a
+hypothetical `Slot` for the candidate (`coverage.spec_to_slot`) and calls
+`candidate_improves_best_bring` with the real threat objective, now
+threaded through via a new `objective` parameter from
+`discover_multi_locked`. Result populates a new `improves_bench_subset`
+field, wired into `_rank_category_a`'s sort key as a leading
+discriminator — a no-op (constant) for core slots, meaningful only for
+bench slots, positioned the same way `wastes_core_slot` sits at the
+opposite end of the same tuple.
+
+`candidate_has_unmet_needed_weather_dependency` (new) reuses the same
+`mechanism_condition`/`provided_conditions` check as
+`candidate_wastes_core_slot`'s weather half, asking a different question:
+not "does this conflict" but "is this dependency unmet at all." This gate
+is a correctness requirement, not just a scope limitation — evaluating a
+dependent candidate (Mega-Swampert-shaped) alone would produce an
+honestly *wrong* coverage number, since `team_field_states` only forces a
+weather onto a subset's matchup calc if that subset actually contains a
+real provider. Dependent candidates remain deliberately unevaluated
+(neither credited nor penalized) pending masked alternate-core discovery,
+which is the capability actually equipped to pair them with a real
+provider correctly.
+
+**Verification is honestly incomplete in one respect, disclosed rather
+than glossed over:** no live calc service was available to verify the
+real, live behavioral change end-to-end — the same limitation as all of
+Category A's testing this session. Verified instead that the wiring
+itself is correct by mocking `candidate_improves_best_bring` at its
+source module boundary (confirmed via `recommender.coverage`, not
+`recommender.team_candidates` — it's a local import, discovered by
+hitting the `AttributeError` this produces when patched at the wrong
+module first), trusting that function's own already-verified correctness
+(real `MockCalcClient` scenarios, this ADR's original text). Live-tested
+afterward against a real transcript (Archaludon/Pelipper/Swampert-Mega/
+Sinistcha core, deciding Grimmsnarl's slot) and traced the gate's
+activation directly: it correctly switches on for that exact state, and
+all three real bench candidates (Mawile-Mega, Grimmsnarl, Basculegion)
+correctly reach the real calc-dependent check — the observed identical-
+to-`main` output for that specific team is consistent with the wiring
+correctly finding no real subset improvement available for an already
+well-covered core, not with the wiring failing to activate.
+
+**Status:** Implemented and merged (PR #116). 3 new tests, each confirmed
+to fail on pre-fix code (`TypeError` on the new `objective` kwarg) and
+pass after. Full suite: 1298 passed, 8 skipped.
