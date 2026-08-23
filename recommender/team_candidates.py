@@ -188,6 +188,40 @@ def candidate_wastes_core_slot(
     return False
 
 
+def candidate_has_unmet_needed_weather_dependency(
+    decision: AnchorRoleDecision, locked: Sequence[LockedAnchorContext]
+) -> bool:
+    """Whether this candidate has a real, needed-importance benefits_from
+    weather dependency that the locked team doesn't already provide.
+
+    Used to gate candidate_improves_best_bring (bench-slot coverage-
+    subset evaluation) to candidates with no hard dependency at all.
+    Evaluating a dependent candidate (Mega-Swampert-shaped) alone would
+    produce an honestly WRONG coverage number, not just an incomplete
+    one -- team_field_states only forces a weather onto a subset's
+    matchup calc if that subset actually contains a real provider, so a
+    solo evaluation understates the candidate's real value rather than
+    just failing to credit it. Correctly pairing a dependent candidate
+    with a real provider (confirmed in design discussion: this is a
+    two-slot-at-once decision, not a ranking tweak) is a separate,
+    not-yet-built capability -- deliberately not approximated here.
+    Reuses the exact same mechanism_condition/provided_conditions check
+    as candidate_wastes_core_slot's weather half, since it's the same
+    underlying question asked for a different purpose (is this
+    dependency unmet at all, vs. does it specifically conflict).
+    """
+    from recommender.condition_resilience import mechanism_condition, provided_conditions
+
+    _WEATHERS = frozenset({"Rain", "Sun", "Sand", "Snow"})
+    provided = provided_conditions(locked) & _WEATHERS
+    for m in decision.mechanisms:
+        if m.present and m.relation == "benefits_from" and m.importance == "needed":
+            condition = mechanism_condition(m)
+            if condition in _WEATHERS and condition not in provided:
+                return True
+    return False
+
+
 def _threat_id(threat: ThreatCandidate) -> str:
     return to_id(threat.spec.get("species") or threat.form or threat.ladder_species)
 
@@ -699,6 +733,7 @@ def annotate_composition_impact(
     *,
     locked_anchors: Sequence[LockedAnchorContext] | None = None,
     condition_resilience: ConditionResilienceReport | None = None,
+    objective: Sequence[TeamThreatObjectiveRow] = (),
 ) -> list[AnnotatedCandidate]:
     regulation = state.get("regulation_mod") or "champions-reg-mb"
     locked = (
@@ -719,6 +754,21 @@ def annotate_composition_impact(
         picked_team_size is not None
         and open_slot_index is not None
         and open_slot_index < picked_team_size
+    )
+    # Only meaningful for bench slots with a real, complete core already
+    # locked (candidate_improves_best_bring needs a real pick_count-sized
+    # baseline to compare against -- see its own docstring). Threats
+    # extracted once here, not per-candidate, since they don't vary by
+    # candidate.
+    bench_threats = (
+        [row.threat.spec for row in objective]
+        if (
+            not is_core_slot
+            and picked_team_size is not None
+            and len(locked) >= picked_team_size
+            and open_slot_index is not None
+        )
+        else None
     )
     primary_counts: dict[str, int] = {}
     role_counts: dict[str, int] = {}
@@ -742,6 +792,8 @@ def annotate_composition_impact(
             attackers += 1
 
     pf_report = assess_primary_function_resilience(locked)
+    if bench_threats is not None:
+        from recommender.coverage import candidate_improves_best_bring, spec_to_slot
     out: list[AnnotatedCandidate] = []
     for candidate in candidates:
         build, decision = _role_decision(
@@ -783,6 +835,28 @@ def annotate_composition_impact(
         wastes_core_slot = candidate_wastes_core_slot(
             decision, build, locked, is_core_slot=is_core_slot
         )
+        improves_bench_subset = False
+        if bench_threats is not None and not candidate_has_unmet_needed_weather_dependency(
+            decision, locked
+        ):
+            candidate_spec = {
+                "species": build.species,
+                "ability": build.ability,
+                "item": build.item,
+                "moves": list(build.moves),
+                "evs": dict(build.evs),
+            }
+            hypothetical_draft = list(state.get("team_draft") or [])
+            hypothetical_draft[open_slot_index] = spec_to_slot(candidate_spec)
+            improves_bench_subset = candidate_improves_best_bring(
+                hypothetical_draft,
+                locked,
+                open_slot_index,
+                picked_team_size,
+                bench_threats,
+                None,
+                regulation=regulation,
+            )
         if (
             candidate.anchored_needs
             or missing_primary
@@ -825,6 +899,7 @@ def annotate_composition_impact(
                 fills_spof_backup_gap=fills_spof_backup,
                 evidence=evidence,
                 wastes_core_slot=wastes_core_slot,
+                improves_bench_subset=improves_bench_subset,
             )
         )
     return out
@@ -1119,6 +1194,7 @@ def _rank_category_a(
         sid = to_id(item[0].species)
         return (
             int(item[0].wastes_core_slot),
+            int(not item[0].improves_bench_subset),
             verified_rank[sid] + synergy_rank[sid],
             _shared_teammate_tiebreak(item[0]),
         )
