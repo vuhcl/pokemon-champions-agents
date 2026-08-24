@@ -3322,3 +3322,159 @@ def test_rank_multi_locked_by_category_gives_each_category_its_own_cut():
         "out by 15 Category A candidates in a shared ranking"
     )
     assert len(result_species) == 11  # 10 from category A + 1 from B
+
+
+def _category_b_need_candidate(
+    species: str,
+    categories: tuple[str, ...],
+    *,
+    confidence: str = "medium",
+    basis: str = "compendium_backed",
+) -> AnnotatedCandidate:
+    needs = tuple(_need(category) for category in categories)
+    evidence = tuple(
+        CandidateEvidence(
+            basis=basis,  # type: ignore[arg-type]
+            confidence=confidence,  # type: ignore[arg-type]
+            producer_name="test",
+            evidence=tuple(f"need:{category}" for category in categories),
+            branch="need",
+        )
+        for category in categories
+    )
+    return AnnotatedCandidate(
+        species=species,
+        matching_needs=needs,
+        source="need",
+        threat_row=None,
+        spec={"species": species},
+        evidence=evidence,
+        branches=frozenset({"need"}),
+    )
+
+
+def test_diversify_fallback_prefers_new_category_over_redundant():
+    from recommender.team_candidates import _diversify_by_need_category
+
+    pool = [
+        _category_b_need_candidate("SinistchaLike", ("healing_cleric", "trick_room")),
+        _category_b_need_candidate("AromatisseLike", ("healing_cleric", "trick_room")),
+        _category_b_need_candidate("GrimmsnarlLike", ("screens",)),
+        _category_b_need_candidate("AudinoLike", ("healing_cleric", "trick_room")),
+        _category_b_need_candidate("IncineroarLike", ("fake_out_protection",)),
+    ]
+    picked = _diversify_by_need_category(pool, n=3)
+    assert [c.species for c in picked] == [
+        "SinistchaLike",
+        "GrimmsnarlLike",
+        "IncineroarLike",
+    ]
+
+
+def test_diversify_fallback_skips_duplicate_need_profile():
+    from recommender.team_candidates import _diversify_by_need_category
+
+    pool = [
+        _category_b_need_candidate("SinistchaLike", ("healing_cleric", "trick_room")),
+        _category_b_need_candidate("AromatisseLike", ("healing_cleric", "trick_room")),
+        _category_b_need_candidate("KlefkiLike", ("screens", "trick_room")),
+        _category_b_need_candidate("AudinoLike", ("healing_cleric", "trick_room")),
+        _category_b_need_candidate("SableyeLike", ("screens",)),
+    ]
+    picked = _diversify_by_need_category(pool, n=3)
+    assert [c.species for c in picked] == [
+        "SinistchaLike",
+        "KlefkiLike",
+        "SableyeLike",
+    ]
+
+
+def test_support_widens_category_b_cut_for_support_only():
+    pool = [
+        _category_b_need_candidate(
+            f"Rank{i}",
+            ("healing_cleric", "trick_room"),
+            confidence="high",
+        )
+        for i in range(10)
+    ]
+    pool.append(_category_b_need_candidate("Sableye", ("screens",), confidence="medium"))
+    ranked_default = rank_multi_locked_by_category(pool, (), n_per_category=10)
+    ranked_wide = rank_multi_locked_by_category(pool, (), category_b_uncapped=True)
+    ranked_none = rank_multi_locked_by_category(pool, (), category_b_n=None)
+    default_species = {c.species for c in ranked_default}
+    wide_species = {c.species for c in ranked_wide}
+    assert "Sableye" not in default_species
+    assert "Sableye" in wide_species
+    assert default_species == {c.species for c in ranked_none}
+
+
+def test_discover_multi_locked_passes_widened_b_cut_for_support():
+    from recommender.nodes import discover_multi_locked
+    from recommender.slot_fill import SlotFillPresentation, SlotFillTerminalResult
+
+    terminal = SlotFillTerminalResult(
+        presentation=SlotFillPresentation(slot_index=2, candidates=(), notices=()),
+        state_updates={},
+        deferred=False,
+    )
+
+    draft = [
+        _locked(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+        ),
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    stub = _category_b_need_candidate("Stub", ("screens",))
+    review = TeamReviewResult(threats=[], coverage=[], spofs=[])
+    threat = TeamThreatDiscovery(status="available", candidates=(), error=None)
+
+    with (
+        patch("recommender.nodes._compute_team_review", return_value=review),
+        patch("recommender.nodes.query_shared_teammates", return_value=None),
+        patch(
+            "recommender.threat_counters.query_candidates_for_threats",
+            return_value=threat,
+        ),
+        patch(
+            "recommender.team_candidates.merge_multi_locked_candidates",
+            return_value=[stub],
+        ),
+        patch(
+            "recommender.team_candidates.annotate_composition_impact",
+            side_effect=lambda rows, *args, **kwargs: list(rows),
+        ),
+        patch(
+            "recommender.team_candidates.gather_masked_core_packages",
+            return_value=[],
+        ),
+        patch(
+            "recommender.team_candidates.rank_multi_locked_by_category",
+        ) as mocked_cut,
+        patch("recommender.slot_fill.run_slot_fill_terminal", return_value=terminal),
+    ):
+        mocked_cut.return_value = [stub]
+        support_state = {
+            **_state(draft),
+            "team_completion_preference": "support",
+        }
+        discover_multi_locked(support_state, {})  # type: ignore[arg-type]
+        assert mocked_cut.call_args.kwargs.get("category_b_uncapped") is True
+
+        mocked_cut.reset_mock()
+        attacker_state = {
+            **_state(draft),
+            "team_completion_preference": "attacker",
+        }
+        discover_multi_locked(attacker_state, {})  # type: ignore[arg-type]
+        assert mocked_cut.call_args.kwargs.get("category_b_uncapped") is False

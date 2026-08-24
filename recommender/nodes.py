@@ -3295,7 +3295,11 @@ def discover_multi_locked(
     # got cut from the pool entirely whenever 10+ candidates ranked
     # higher by threat-coverage/type-synergy criteria alone -- the
     # common case with real threat-counter data from live calc.
-    ranked = rank_multi_locked_by_category(candidates, contexts)
+    ranked = rank_multi_locked_by_category(
+        candidates,
+        contexts,
+        category_b_uncapped=preference == "support",
+    )
     if not ranked:
         # Mirrors discover_single_locked's leniency exactly: try an
         # archetype-driven proposal before giving up outright, rather than
