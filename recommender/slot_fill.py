@@ -188,6 +188,21 @@ class AnnotatedCandidate:
     # dependent candidates -- not evaluated, not "confirmed doesn't
     # improve."
     improves_bench_subset: bool = False
+    # Confirmed live (2026-08-22): Mawile-Mega's real Trick Room
+    # dependency can be nominally "satisfied" by a locked Sinistcha whose
+    # real, aggregate Trick Room commitment (57.2%) is barely more than
+    # a coinflip against its actual defining move, Rage Powder (95.6%)
+    # -- Sinistcha's real primary job is redirection, not a genuine
+    # Trick-Room-specialist build the way Farigiraf is. 1.0 = no
+    # dependency, or a fully reliable one (ability-based, or a real
+    # dedicated specialist's move commitment); lower = the team's
+    # provision of a real, benefits_from dependency is less trustworthy.
+    # A ranking signal, not a hard gate -- unlike wastes_core_slot, this
+    # never excludes or forces a candidate to the bottom on its own; it
+    # only nudges rank-sum ordering, since an unreliable enabler is a
+    # real but soft downside, not a disqualifying one. See
+    # condition_resilience.candidate_dependency_reliability.
+    dependency_reliability: float = 1.0
 
 
 @dataclass(frozen=True)

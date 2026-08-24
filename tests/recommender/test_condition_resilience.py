@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+import pytest
+
 from recommender.anchor_roles import (
     MechanismEvidence,
     classify_anchor_role,
@@ -436,6 +438,218 @@ def test_anchor_has_obvious_need_handles_missing_mechanisms_attribute():
 
     assert anchor_has_obvious_need(object(), None) is False
     assert anchor_has_obvious_need(object(), []) is False
+
+
+def _locked_for_reliability_test(species: str, **kw):
+    from recommender.state import Attr, Slot
+
+    return Slot(
+        role=Attr(kw.get("role", "bulky_attacker"), locked=True),
+        species=Attr(species, locked=True),
+        ability=Attr(kw.get("ability", "Pressure"), locked=True),
+        item=Attr(kw.get("item", "Leftovers"), locked=True),
+        moveset=Attr(
+            kw.get("moves") or ["Tackle", "Protect", "Rest", "Sleep Talk"], locked=True
+        ),
+        spread=Attr(
+            kw.get("spread")
+            or {"hp": 32, "atk": 32, "def": 2, "spa": 0, "spd": 0, "spe": 0},
+            locked=True,
+        ),
+        nature=Attr(kw.get("nature", "Adamant"), locked=True),
+    )
+
+
+def test_condition_provider_reliability_reflects_real_commitment_split():
+    """Regression, confirmed live (2026-08-22): Sinistcha's real, aggregate
+    Trick Room commitment (57.2%) is barely more than a coinflip against
+    its actual defining move, Rage Powder (95.6%) -- its real primary job
+    is redirection, not a genuine Trick-Room-specialist build. Confirms
+    the raw reliability primitive reflects this directly against real
+    in-game data, and that a genuine specialist (Farigiraf) scores
+    meaningfully higher on the same check.
+    """
+    from recommender.condition_resilience import condition_provider_reliability
+    from recommender.state import empty_slot
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
+    sinistcha_state = {
+        "team_draft": [
+            _locked_for_reliability_test(
+                "Sinistcha",
+                role="trick_room_setter",
+                ability="Hospitality",
+                item="Kasib Berry",
+                moves=["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"],
+                nature="Bold",
+                spread={"hp": 32, "atk": 0, "def": 32, "spa": 2, "spd": 0, "spe": 0},
+            ),
+            *[empty_slot() for _ in range(5)],
+        ]
+    }
+    contexts = collect_locked_anchor_contexts(sinistcha_state)
+    reliability = condition_provider_reliability(
+        "Trick Room", contexts, regulation="champions-reg-mb"
+    )
+    assert reliability == pytest.approx(0.572, abs=0.001)
+
+    farigiraf_state = {
+        "team_draft": [
+            _locked_for_reliability_test(
+                "Farigiraf",
+                role="trick_room_setter",
+                ability="Armor Tail",
+                moves=["Trick Room", "Hyper Voice", "Helping Hand", "Protect"],
+                nature="Sassy",
+                spread={"hp": 32, "atk": 0, "def": 8, "spa": 0, "spd": 28, "spe": 0},
+            ),
+            *[empty_slot() for _ in range(5)],
+        ]
+    }
+    contexts2 = collect_locked_anchor_contexts(farigiraf_state)
+    reliability2 = condition_provider_reliability(
+        "Trick Room", contexts2, regulation="champions-reg-mb"
+    )
+    assert reliability2 > reliability
+
+
+def test_condition_provider_reliability_ability_based_is_always_full():
+    """An ability-based provider (e.g. Drizzle) is mechanically certain
+    and always-active -- must be 1.0 regardless of any move-commitment
+    data, the same "ability-based = most mechanically certain evidence"
+    reasoning already established for a different purpose (ADR-028
+    Amendment 2026-08-20a).
+    """
+    from recommender.condition_resilience import condition_provider_reliability
+    from recommender.state import empty_slot
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
+    state = {
+        "team_draft": [
+            _locked_for_reliability_test(
+                "Pelipper",
+                role="support_speed_control",
+                ability="Drizzle",
+                item="Focus Sash",
+                moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+                nature="Modest",
+                spread={"hp": 2, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 32},
+            ),
+            *[empty_slot() for _ in range(5)],
+        ]
+    }
+    contexts = collect_locked_anchor_contexts(state)
+    assert (
+        condition_provider_reliability("Rain", contexts, regulation="champions-reg-mb")
+        == 1.0
+    )
+
+
+def test_condition_provider_reliability_no_provider_defaults_to_full():
+    """No locked provider of the condition at all is a different, existing
+    concern (missing dependency, not unreliable provision) -- must not be
+    conflated with "unreliable," which would double-penalize a candidate
+    already correctly handled by candidate_wastes_core_slot /
+    candidate_has_unmet_needed_weather_dependency.
+    """
+    from recommender.condition_resilience import condition_provider_reliability
+
+    assert (
+        condition_provider_reliability("Trick Room", (), regulation="champions-reg-mb")
+        == 1.0
+    )
+
+
+def test_candidate_dependency_reliability_mawile_mega_real_data():
+    """Regression, confirmed live (2026-08-22): the actual motivating
+    case -- Mawile-Mega's real Trick Room dependency (classified
+    "wanted", not "needed" -- confirmed directly, every Trick Room
+    benefits_from mechanism in this codebase is "wanted", never "needed",
+    a real, deliberate distinction from weather-move dependencies like
+    Electro Shot/Rain) inherits Sinistcha's real, middling reliability
+    when Sinistcha is the team's provider, and a much higher one when a
+    genuine specialist (Farigiraf) is.
+    """
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.condition_resilience import candidate_dependency_reliability
+    from recommender.state import empty_slot
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
+    build = resolve_anchor_build("Mawile-Mega")
+    decision = classify_anchor_role(build)
+
+    sinistcha_state = {
+        "team_draft": [
+            _locked_for_reliability_test(
+                "Sinistcha",
+                role="trick_room_setter",
+                ability="Hospitality",
+                item="Kasib Berry",
+                moves=["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"],
+                nature="Bold",
+                spread={"hp": 32, "atk": 0, "def": 32, "spa": 2, "spd": 0, "spe": 0},
+            ),
+            *[empty_slot() for _ in range(5)],
+        ]
+    }
+    contexts = collect_locked_anchor_contexts(sinistcha_state)
+    reliability = candidate_dependency_reliability(
+        decision, contexts, regulation="champions-reg-mb"
+    )
+    assert reliability == pytest.approx(0.572, abs=0.001)
+
+    farigiraf_state = {
+        "team_draft": [
+            _locked_for_reliability_test(
+                "Farigiraf",
+                role="trick_room_setter",
+                ability="Armor Tail",
+                moves=["Trick Room", "Hyper Voice", "Helping Hand", "Protect"],
+                nature="Sassy",
+                spread={"hp": 32, "atk": 0, "def": 8, "spa": 0, "spd": 28, "spe": 0},
+            ),
+            *[empty_slot() for _ in range(5)],
+        ]
+    }
+    contexts2 = collect_locked_anchor_contexts(farigiraf_state)
+    reliability2 = candidate_dependency_reliability(
+        decision, contexts2, regulation="champions-reg-mb"
+    )
+    assert reliability2 > reliability
+
+
+def test_candidate_dependency_reliability_no_dependency_is_full():
+    """A candidate with no real TRACKED_CONDITIONS dependency at all must
+    always get 1.0, regardless of what the locked team looks like --
+    this function only judges reliability of a dependency that actually
+    exists, never penalizes a candidate for having none.
+    """
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.condition_resilience import candidate_dependency_reliability
+    from recommender.state import empty_slot
+    from recommender.team_candidates import collect_locked_anchor_contexts
+
+    build = resolve_anchor_build("Garchomp")
+    decision = classify_anchor_role(build)
+    state = {
+        "team_draft": [
+            _locked_for_reliability_test(
+                "Sinistcha",
+                role="trick_room_setter",
+                ability="Hospitality",
+                item="Kasib Berry",
+                moves=["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"],
+            ),
+            *[empty_slot() for _ in range(5)],
+        ]
+    }
+    contexts = collect_locked_anchor_contexts(state)
+    assert (
+        candidate_dependency_reliability(
+            decision, contexts, regulation="champions-reg-mb"
+        )
+        == 1.0
+    )
 
 
 def _kingambit_tr():

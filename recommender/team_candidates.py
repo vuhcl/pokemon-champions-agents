@@ -14,6 +14,7 @@ from recommender.anchor_roles import (
 )
 from recommender.condition_resilience import (
     ConditionResilienceReport,
+    candidate_dependency_reliability,
     gap_support_needs,
     mechanism_condition,
 )
@@ -835,6 +836,9 @@ def annotate_composition_impact(
         wastes_core_slot = candidate_wastes_core_slot(
             decision, build, locked, is_core_slot=is_core_slot
         )
+        dependency_reliability = candidate_dependency_reliability(
+            decision, locked, regulation=regulation
+        )
         improves_bench_subset = False
         if bench_threats is not None and not candidate_has_unmet_needed_weather_dependency(
             decision, locked
@@ -900,6 +904,7 @@ def annotate_composition_impact(
                 evidence=evidence,
                 wastes_core_slot=wastes_core_slot,
                 improves_bench_subset=improves_bench_subset,
+                dependency_reliability=dependency_reliability,
             )
         )
     return out
@@ -1150,6 +1155,29 @@ def _shared_teammate_tiebreak(candidate: AnnotatedCandidate) -> tuple[float, flo
     )
 
 
+def _dense_rank(items: list, value_fn, *, descending: bool = True) -> dict[str, int]:
+    """Rank items by value_fn's output, keyed by to_id(item.species) --
+    exact ties share the identical rank (dense rank), not distinct
+    sequential positions from a stable sort.
+
+    Confirmed a real, pre-existing bug in this function's own callers
+    during verification of an unrelated feature (dependency_reliability,
+    2026-08-22): a naive `{to_id(item.species): i for i, item in
+    enumerate(sorted(...))}` pattern silently assigns distinct sequential
+    ranks even when every value is exactly tied, purely from whatever
+    order the input list happened to be in -- not a theoretical concern,
+    directly observed producing a wrong result (two mutually-cancelling
+    arbitrary tie-breaks let a candidate with 8x worse verified_score win
+    over one with identical, tied defensive_synergy_score). Reused here
+    for verified_rank, synergy_rank, AND reliability_rank uniformly,
+    rather than leaving the two pre-existing ones broken while only
+    fixing the new one.
+    """
+    unique_values = sorted({value_fn(item) for item in items}, reverse=descending)
+    value_rank = {value: i for i, value in enumerate(unique_values)}
+    return {to_id(item.species): value_rank[value_fn(item)] for item in items}
+
+
 def _rank_category_a(
     candidates: list[AnnotatedCandidate],
     locked_types_list: list[list[str]],
@@ -1171,35 +1199,40 @@ def _rank_category_a(
     if not candidates:
         return []
     snap = load_snapshot()
-    scored = [
-        (
-            c,
-            c.threat_row.verified_score if c.threat_row else 0.0,
-            defensive_synergy_score(
-                _species_types(snap, c.species), locked_types_list
-            ),
+    scored_verified = {
+        to_id(c.species): c.threat_row.verified_score if c.threat_row else 0.0
+        for c in candidates
+    }
+    scored_synergy = {
+        to_id(c.species): defensive_synergy_score(
+            _species_types(snap, c.species), locked_types_list
         )
         for c in candidates
-    ]
-    verified_rank = {
-        to_id(item[0].species): i
-        for i, item in enumerate(sorted(scored, key=lambda x: -x[1]))
     }
-    synergy_rank = {
-        to_id(item[0].species): i
-        for i, item in enumerate(sorted(scored, key=lambda x: -x[2]))
-    }
+    verified_rank = _dense_rank(candidates, lambda c: scored_verified[to_id(c.species)])
+    synergy_rank = _dense_rank(candidates, lambda c: scored_synergy[to_id(c.species)])
+    # Confirmed live (2026-08-22): Mawile-Mega's real Trick Room
+    # dependency, nominally satisfied by a locked Sinistcha whose real
+    # aggregate TR commitment (57.2%) is barely more than a coinflip
+    # against its actual defining move (Rage Powder, 95.6%), should rank
+    # behind a candidate with the same real threat-coverage/type-synergy
+    # profile but a genuinely reliable (or no) dependency -- a soft
+    # ranking nudge, not a hard gate, so it joins the same rank-summed
+    # combination as verified_score/defensive_synergy rather than
+    # excluding or force-bottoming a candidate the way wastes_core_slot
+    # does for a genuinely disqualifying conflict.
+    reliability_rank = _dense_rank(candidates, lambda c: c.dependency_reliability)
 
-    def sort_key(item: tuple[AnnotatedCandidate, float, float]):
-        sid = to_id(item[0].species)
+    def sort_key(c: AnnotatedCandidate):
+        sid = to_id(c.species)
         return (
-            int(item[0].wastes_core_slot),
-            int(not item[0].improves_bench_subset),
-            verified_rank[sid] + synergy_rank[sid],
-            _shared_teammate_tiebreak(item[0]),
+            int(c.wastes_core_slot),
+            int(not c.improves_bench_subset),
+            verified_rank[sid] + synergy_rank[sid] + reliability_rank[sid],
+            _shared_teammate_tiebreak(c),
         )
 
-    return [item[0] for item in sorted(scored, key=sort_key)]
+    return sorted(candidates, key=sort_key)
 
 
 def _need_branch_evidence(
