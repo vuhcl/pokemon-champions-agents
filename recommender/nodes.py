@@ -3197,6 +3197,7 @@ def discover_multi_locked(
             notices=mega_ceiling_notices(state),
             condition_resilience=resilience,
             locked_contexts=tuple(contexts),
+            team_completion_preference=preference,
         ),
         state,
         slot_index=slot_index,

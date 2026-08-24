@@ -56,6 +56,7 @@ from recommender.state import (
     TargetRoleDecision,
     TargetRoleId,
     TargetRoleResult,
+    TeamCompletionPreference,
     ThreatCounterCandidate,
     UnresolvedSlotRefinement,
     UnresolvedTargetRoleDecision,
@@ -260,6 +261,7 @@ class SlotFillContext:
     notices: tuple[str, ...] = ()
     condition_resilience: ConditionResilienceReport | None = None
     locked_contexts: tuple[LockedAnchorContext, ...] = ()
+    team_completion_preference: TeamCompletionPreference | None = None
 
 
 @dataclass(frozen=True)
@@ -1923,7 +1925,9 @@ def present_candidates(
         # single-locked keeps the older approach unchanged.
         from recommender.team_candidates import select_diverse_candidates
 
-        picked = select_diverse_candidates(rows, ctx.locked_contexts)
+        picked = select_diverse_candidates(
+            rows, ctx.locked_contexts, preference=ctx.team_completion_preference
+        )
     else:
         tier_for = _redundancy_tier_for_candidates(rows, ctx.condition_resilience)
         picked = pick_default_and_alternatives(names, redundancy_tier=tier_for)
