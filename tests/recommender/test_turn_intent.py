@@ -902,6 +902,18 @@ def _candidate_pending():
     }
 
 
+def _multi_candidate_pending():
+    return {
+        "schema_version": 1,
+        "kind": "candidate_selection",
+        "slot_index": 2,
+        "options": [
+            {"species": "Farigiraf", "source": "bootstrap"},
+            {"species": "Incineroar", "source": "threat"},
+        ],
+    }
+
+
 def _preference_pending():
     return {
         "schema_version": 2,
@@ -1200,6 +1212,102 @@ def test_abandon_narrow_set_keeps_screen(reply: str):
     assert result["turn_intent"] == "pending_response"
     assert "pending_presentation" not in result
     assert calls == []
+
+
+def test_reject_n_deterministic_on_candidate_selection():
+    pending = _multi_candidate_pending()
+    reject = classify_pending("reject 2", pending)
+    assert reject["turn_intent"] == "rejection"
+    assert reject["turn_payload"]["species"] == "Incineroar"
+    assert reject["turn_payload"]["slot_index"] == 2
+
+    select = classify_pending("2", pending)
+    assert select["turn_intent"] == "slot_candidate_selected"
+    assert select["selected_option"]["species"] == "Incineroar"
+
+
+def test_reject_n_out_of_range_falls_through_to_gap_fill():
+    calls: list[object] = []
+    result = classify_pending(
+        "reject 99",
+        _multi_candidate_pending(),
+        turn_intent_parser=RunnableLambda(
+            lambda payload: calls.append(payload) or {"turn_intent": "pending_response"}
+        ),
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert len(calls) == 1
+
+
+def test_preference_revision_clears_preference_and_sets_force_flag():
+    result = classify_pending("different focus", _multi_candidate_pending())
+    assert result["turn_intent"] == "continue"
+    assert result["team_completion_preference"] is None
+    assert result["pending_presentation"] is None
+    assert result["force_completion_preference_prompt"] is True
+    assert "rejected" not in result
+
+
+def test_preference_revision_not_triggered_on_completion_preference():
+    calls: list[object] = []
+    result = classify_pending(
+        "different focus",
+        _preference_pending(),
+        turn_intent_parser=RunnableLambda(
+            lambda payload: calls.append(payload) or {"turn_intent": "pending_response"}
+        ),
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert "force_completion_preference_prompt" not in result
+    assert len(calls) == 1
+
+
+def test_rejected_species_filtered_after_revision_rediscovery():
+    from recommender.state import (
+        MatchupResult,
+        RecommenderState,
+        ThreatCandidate,
+        ThreatCounterCandidate,
+    )
+    from recommender.team_candidates import merge_multi_locked_candidates
+    from recommender.threat_counters import aggregate_verified
+
+    def _counter(species: str) -> ThreatCounterCandidate:
+        return ThreatCounterCandidate(
+            candidate=ThreatCandidate(
+                ladder_species=species,
+                usage_rank=1,
+                form=species,
+                showdown_usage_pct=None,
+                showdown_formes=(),
+                spec={"species": species},
+                build_source="test",
+            ),
+            threats_countered=("target",),
+            threats_countered_count=1,
+            verified_score=aggregate_verified(
+                [MatchupResult(outcome="clean_kill", severity="costly")]
+            ),
+            verified_vs=(("target", MatchupResult(outcome="clean_kill", severity="costly")),),
+        )
+
+    state: RecommenderState = {
+        "format_id": "[Gen 9 Champions] VGC 2026 Reg M-B",
+        "regulation_mod": "champions-reg-mb",
+        "rejected": [{"species": "Grimmsnarl", "reason": "nope", "turn": 1}],
+        "team_draft": [empty_slot() for _ in range(6)],
+    }  # type: ignore[typeddict-item]
+    rows = merge_multi_locked_candidates(
+        state,
+        [],
+        (_counter("Grimmsnarl"), _counter("Farigiraf")),
+        None,
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    species = {row.species for row in rows}
+    assert "Grimmsnarl" not in species
+    assert "Farigiraf" in species
 
 
 def test_continue_on_candidate_selection_still_clears_pending():

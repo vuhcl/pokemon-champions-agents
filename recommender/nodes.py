@@ -106,6 +106,18 @@ _ORDINAL_REPLIES = {
 }
 _SELECTION_PREFIXES = ("choose ", "pick ", "go with ")
 _BARE_NUMBER_RE = re.compile(r"^(?:option )?(\d+)$")
+_REJECT_OPTION_RE = re.compile(r"^reject(?:\s+option)?\s+(\d+)$")
+_PREFERENCE_REVISION_REPLIES = frozenset(
+    {
+        "different focus",
+        "change focus",
+        "other focus",
+        "switch focus",
+        "change preference",
+        "different preference",
+        "pick a different focus",
+    }
+)
 
 
 def _requested_option_number(part: str) -> int | None:
@@ -1183,6 +1195,95 @@ def resolve_item_moveset_conflict(state: RecommenderState) -> dict[str, Any]:
     return out
 
 
+def _parse_reject_option_index(reply: str) -> int | None:
+    match = _REJECT_OPTION_RE.match(reply)
+    if not match:
+        return None
+    return int(match.group(1)) - 1
+
+
+def _classify_candidate_selection_reply(
+    text: str,
+    reply: str,
+    pending_presentation: PendingPresentation,
+    *,
+    turn_intent_parser,
+    gap_fill_context: dict[str, str] | None,
+    team_draft: list[Slot] | None,
+) -> dict[str, Any]:
+    options = pending_presentation.get("options") or []
+    signals = {
+        signal
+        for signal, matched in (
+            ("affirm", reply in _AFFIRMATIVE_REPLIES),
+            ("defer", reply in _DEFER_REPLIES),
+            ("reject", reply in _REJECT_ALL_REPLIES),
+        )
+        if matched
+    }
+
+    if signals == {"defer"}:
+        return {"turn_intent": "deferred", "pending_presentation": None}
+
+    reject_index = _parse_reject_option_index(reply)
+    if reject_index is not None and 0 <= reject_index < len(options):
+        return {
+            "turn_intent": "rejection",
+            "turn_payload": {
+                "species": options[reject_index]["species"],
+                "slot_index": pending_presentation["slot_index"],
+                "reason": text.strip(),
+            },
+        }
+
+    if reply in _PREFERENCE_REVISION_REPLIES:
+        return {
+            "turn_intent": "continue",
+            "team_completion_preference": None,
+            "pending_presentation": None,
+            "force_completion_preference_prompt": True,
+        }
+
+    selected: set[int] = set()
+    candidate_text = reply
+    for prefix in _SELECTION_PREFIXES:
+        if reply.startswith(prefix):
+            candidate_text = reply[len(prefix) :].strip()
+            break
+    resolved = resolve_species_label(candidate_text, load_snapshot())
+    candidate_id = to_id(resolved.name) if resolved else None
+    selected.update(
+        i
+        for i, option in enumerate(options)
+        if candidate_id is not None and to_id(option["species"]) == candidate_id
+    )
+
+    ordinal = _ORDINAL_REPLIES.get(reply)
+    if ordinal is not None and ordinal < len(options):
+        selected.add(ordinal)
+
+    if len(selected) == 1 and not signals:
+        index = next(iter(selected))
+    elif not selected and signals == {"affirm"} and options:
+        index = 0
+    else:
+        if turn_intent_parser is None:
+            return {"turn_intent": "pending_response"}
+        return _gap_fill(
+            text,
+            turn_intent_parser=turn_intent_parser,
+            gap_fill_context=gap_fill_context,
+            had_pending=True,
+            pending_presentation=pending_presentation,
+            team_draft=team_draft,
+        )
+
+    return {
+        "turn_intent": "slot_candidate_selected",
+        "selected_option": options[index],
+    }
+
+
 def classify_pending(
     text: str,
     pending_presentation: PendingPresentation | None = None,
@@ -1551,6 +1652,16 @@ def classify_pending(
                     }
         return result
 
+    if pending_presentation.get("kind") == "candidate_selection":
+        return _classify_candidate_selection_reply(
+            text,
+            reply,
+            pending_presentation,
+            turn_intent_parser=turn_intent_parser,
+            gap_fill_context=gap_fill_context,
+            team_draft=team_draft,
+        )
+
     options = pending_presentation.get("options") or []
     selected: set[int] = set()
 
@@ -1647,6 +1758,8 @@ def initialize(state: RecommenderState) -> dict:
         out["species_resolve_notices"] = ()
     if "team_completion_preference" not in state:
         out["team_completion_preference"] = None
+    if "force_completion_preference_prompt" not in state:
+        out["force_completion_preference_prompt"] = False
     if "masked_slot_indices" not in state:
         out["masked_slot_indices"] = ()
     if "candidate_discovery_error" not in state:
@@ -1711,6 +1824,7 @@ def classify_input(
         "provisional_slot",
         "provisional_refinement",
         "team_completion_preference",
+        "force_completion_preference_prompt",
         "masked_slot_indices",
     ):
         if key in result:
@@ -3149,6 +3263,7 @@ def discover_multi_locked(
             },
         }
     preference = state.get("team_completion_preference")
+    force_prompt = bool(state.get("force_completion_preference_prompt"))
     if preference is None:
         choices = material_completion_preferences(
             candidates,
@@ -3157,15 +3272,19 @@ def discover_multi_locked(
             owned_species=owned,
             regulation=state.get("regulation_mod") or "champions-reg-mb",
         )
-        if choices:
+        prompt_choices = choices or (
+            ("attacker", "support", "balanced") if force_prompt else ()
+        )
+        if prompt_choices:
             return {
                 **signals,
                 "candidate_discovery_error": None,
+                "force_completion_preference_prompt": False,
                 "pending_presentation": {
                     "schema_version": 2,
                     "kind": "completion_preference",
                     "slot_index": slot_index,
-                    "preference_options": choices,
+                    "preference_options": prompt_choices,
                 },
             }
 

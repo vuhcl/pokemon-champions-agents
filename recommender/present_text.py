@@ -31,7 +31,9 @@ _FOOTERS: dict[str, str] = {
         "Reply with a direction, anchor, available pool, or 'you pick'."
     ),
     "candidate_selection": (
-        "Reply with a species name, 1/2/3, 'yes' for the default, or 'defer'."
+        "Reply with a species name, 1/2/3, 'yes' for the default, "
+        "'reject N' to skip an option, 'different focus' to change preference, "
+        "or 'defer'."
     ),
     "completion_preference": (
         "Reply with a preference name, 1/2/3, or 'defer'."
