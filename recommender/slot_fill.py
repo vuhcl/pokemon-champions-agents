@@ -56,6 +56,7 @@ from recommender.state import (
     TargetRoleDecision,
     TargetRoleId,
     TargetRoleResult,
+    TeamCompletionPreference,
     ThreatCounterCandidate,
     UnresolvedSlotRefinement,
     UnresolvedTargetRoleDecision,
@@ -123,6 +124,20 @@ _NEED_SATISFIERS: dict[NeedCategory, _NeedSatisfier] = {
 _DELAYED_DELIVERY_MOVES: dict[NeedCategory, frozenset[str]] = {
     "healing_cleric": frozenset({"wish"}),
 }
+
+
+@dataclass(frozen=True)
+class CoreSlotConflict:
+    """Which locked member a candidate conflicts with over a scarce
+    core-slot resource (weather or mega). Identity sibling to
+    wastes_core_slot's bool -- ranking still uses the bool; masking
+    needs the slot.
+    """
+
+    kind: Literal["weather", "mega"]
+    locked_slot_index: int
+    locked_species: str
+    resource: str  # "Sun" or mega lineage base id
 
 
 @dataclass(frozen=True)
@@ -203,6 +218,7 @@ class AnnotatedCandidate:
     # real but soft downside, not a disqualifying one. See
     # condition_resilience.candidate_dependency_reliability.
     dependency_reliability: float = 1.0
+    core_slot_conflicts: tuple[CoreSlotConflict, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -249,6 +265,7 @@ class SlotFillContext:
     notices: tuple[str, ...] = ()
     condition_resilience: ConditionResilienceReport | None = None
     locked_contexts: tuple[LockedAnchorContext, ...] = ()
+    team_completion_preference: TeamCompletionPreference | None = None
 
 
 @dataclass(frozen=True)
@@ -1912,7 +1929,9 @@ def present_candidates(
         # single-locked keeps the older approach unchanged.
         from recommender.team_candidates import select_diverse_candidates
 
-        picked = select_diverse_candidates(rows, ctx.locked_contexts)
+        picked = select_diverse_candidates(
+            rows, ctx.locked_contexts, preference=ctx.team_completion_preference
+        )
     else:
         tier_for = _redundancy_tier_for_candidates(rows, ctx.condition_resilience)
         picked = pick_default_and_alternatives(names, redundancy_tier=tier_for)

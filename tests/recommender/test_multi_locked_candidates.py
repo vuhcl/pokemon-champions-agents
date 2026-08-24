@@ -40,6 +40,7 @@ from recommender.team_candidates import (
     _rank_key,
     annotate_composition_impact,
     build_team_threat_objective,
+    candidate_core_slot_conflicts,
     collect_locked_anchor_contexts,
     material_completion_preferences,
     merge_multi_locked_candidates,
@@ -1617,6 +1618,115 @@ def test_candidate_wastes_core_slot_no_conflict():
     )
 
 
+def test_candidate_core_slot_conflicts_weather_names_charizard_slot():
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+
+    draft = [
+        _locked(
+            "Charizard-Mega-Y",
+            role="sun_setter",
+            ability="Drought",
+            item="Charizardite Y",
+            moves=["Heat Wave", "Protect", "Weather Ball", "Solar Beam"],
+        ),
+        *[empty_slot() for _ in range(5)],
+    ]
+    contexts = collect_locked_anchor_contexts(_state(draft))
+    build = resolve_anchor_build("Swampert-Mega")
+    decision = classify_anchor_role(build)
+    conflicts = candidate_core_slot_conflicts(
+        decision, build, contexts, is_core_slot=True
+    )
+    weather = [c for c in conflicts if c.kind == "weather"]
+    assert weather
+    assert {c.locked_slot_index for c in weather} == {0}
+    assert all(c.locked_species == "Charizard-Mega-Y" for c in weather)
+    assert all(c.resource == "Sun" for c in weather)
+    assert candidate_core_slot_conflicts(
+        decision, build, contexts, is_core_slot=False
+    ) == ()
+
+
+def test_candidate_core_slot_conflicts_mega_names_locked_mega():
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+
+    draft = [
+        _locked(
+            "Charizard-Mega-Y",
+            role="sun_setter",
+            ability="Drought",
+            item="Charizardite Y",
+            moves=["Heat Wave", "Protect", "Weather Ball", "Solar Beam"],
+        ),
+        *[empty_slot() for _ in range(5)],
+    ]
+    contexts = collect_locked_anchor_contexts(_state(draft))
+    build = resolve_anchor_build("Metagross-Mega")
+    decision = classify_anchor_role(build)
+    conflicts = candidate_core_slot_conflicts(
+        decision, build, contexts, is_core_slot=True
+    )
+    mega = [c for c in conflicts if c.kind == "mega"]
+    assert mega
+    assert {c.locked_slot_index for c in mega} == {0}
+    assert all(c.locked_species == "Charizard-Mega-Y" for c in mega)
+
+
+def test_candidate_core_slot_conflicts_swampert_vs_charizard_is_one_slot():
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+
+    draft = [
+        _locked(
+            "Charizard-Mega-Y",
+            role="sun_setter",
+            ability="Drought",
+            item="Charizardite Y",
+            moves=["Heat Wave", "Protect", "Weather Ball", "Solar Beam"],
+        ),
+        *[empty_slot() for _ in range(5)],
+    ]
+    contexts = collect_locked_anchor_contexts(_state(draft))
+    build = resolve_anchor_build("Swampert-Mega")
+    decision = classify_anchor_role(build)
+    conflicts = candidate_core_slot_conflicts(
+        decision, build, contexts, is_core_slot=True
+    )
+    assert {c.locked_slot_index for c in conflicts} == {0}
+    kinds = {c.kind for c in conflicts}
+    assert "weather" in kinds
+    assert "mega" in kinds
+
+
+def test_candidate_core_slot_conflicts_two_sun_providers_both_listed():
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+
+    draft = [
+        _locked(
+            "Charizard-Mega-Y",
+            role="sun_setter",
+            ability="Drought",
+            item="Charizardite Y",
+            moves=["Heat Wave", "Protect", "Weather Ball", "Solar Beam"],
+        ),
+        _locked(
+            "Torkoal",
+            role="sun_setter",
+            ability="Drought",
+            item="Heat Rock",
+            moves=["Eruption", "Protect", "Earth Power", "Solar Beam"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+    contexts = collect_locked_anchor_contexts(_state(draft))
+    build = resolve_anchor_build("Swampert-Mega")
+    decision = classify_anchor_role(build)
+    conflicts = candidate_core_slot_conflicts(
+        decision, build, contexts, is_core_slot=True
+    )
+    weather_slots = {c.locked_slot_index for c in conflicts if c.kind == "weather"}
+    assert weather_slots == {0, 1}
+
+
 def _bench_state(*, n_locked=4):
     """4 real locked slots (a complete core, picked_team_size=4 per this
     file's _state) + open bench slots -- the exact precondition
@@ -2630,6 +2740,50 @@ def test_select_diverse_candidates_picks_from_each_nonempty_category():
     selected = {result["default"], *result["alternatives"]}
     assert "Grimmsnarl" in selected
     assert "Basculegion" in selected
+
+
+def test_select_diverse_candidates_soft_nudge_by_completion_preference():
+    """Preference reorders default vs alternatives; it does not cut a
+    category. None/attacker/balanced keep ADR-033 (A-default); support
+    puts Category B in the default slot with A still in alternatives.
+    """
+    category_a = _synth_category_a(
+        "Garchomp", (("t1", "clean_kill", "decisive"),)
+    )
+    category_b = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    category_c = AnnotatedCandidate(
+        species="Basculegion",
+        matching_needs=(_need("condition_beneficiary"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Basculegion"},
+        evidence=(_condition_beneficiary_evidence(),),
+        branches=frozenset({"need"}),
+    )
+    pool = [category_a, category_b, category_c]
+
+    omitted = select_diverse_candidates(pool, (), n_alternatives=2)
+    assert omitted["default"] == "Garchomp"
+
+    for pref in ("attacker", "balanced"):
+        result = select_diverse_candidates(
+            pool, (), n_alternatives=2, preference=pref
+        )
+        assert result["default"] == "Garchomp"
+
+    support = select_diverse_candidates(
+        pool, (), n_alternatives=2, preference="support"
+    )
+    assert support["default"] == "Grimmsnarl"
+    assert "Garchomp" in support["alternatives"]
 
 
 def test_merge_multi_locked_filters_already_provided_tailwind_need():

@@ -401,6 +401,7 @@ def query_candidates_for_threats(
     excluded_species: Collection[str] = (),
     locked_contexts: Sequence["LockedAnchorContext"] = (),
     exclude_slot: int | None = None,
+    exclude_slots: frozenset[int] = frozenset(),
 ) -> TeamThreatDiscovery:
     """Discover once per team objective, then verify every admitted candidate."""
     if not objective:
@@ -426,7 +427,11 @@ def query_candidates_for_threats(
     objective_ids = sorted(threats_by_id)
     from recommender.condition_resilience import team_field_states
 
-    forced_fields = team_field_states(locked_contexts, exclude_slot=exclude_slot)
+    forced_fields = team_field_states(
+        locked_contexts,
+        exclude_slot=exclude_slot,
+        exclude_slots=exclude_slots,
+    )
     try:
         rows: list[ThreatCounterCandidate] = []
         for merged_row in static:
