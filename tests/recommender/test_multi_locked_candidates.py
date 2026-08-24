@@ -2742,11 +2742,156 @@ def test_select_diverse_candidates_picks_from_each_nonempty_category():
     assert "Basculegion" in selected
 
 
-def test_select_diverse_candidates_soft_nudge_by_completion_preference():
-    """Preference reorders default vs alternatives; it does not cut a
-    category. None/attacker/balanced keep ADR-033 (A-default); support
-    puts Category B in the default slot with A still in alternatives.
-    """
+def test_select_diverse_candidates_attacker_hard_excludes_category_b():
+    """Attacker preference hard-excludes Category B as a selection source.
+    B-only species never appear; dual-branch A+B species may appear via A."""
+    category_a = _synth_category_a(
+        "Garchomp", (("t1", "clean_kill", "decisive"),)
+    )
+    dual_branch = AnnotatedCandidate(
+        species="Sylveon",
+        matching_needs=(_need("screens"),),
+        source="both",
+        threat_row=_counter(
+            "Sylveon", outcome="clean_kill", severity="decisive", usage_rank=1
+        ),
+        spec={"species": "Sylveon"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"threat", "need"}),
+    )
+    b_only = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    category_c = AnnotatedCandidate(
+        species="Basculegion",
+        matching_needs=(_need("condition_beneficiary"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Basculegion"},
+        evidence=(_condition_beneficiary_evidence(),),
+        branches=frozenset({"need"}),
+    )
+    pool = [category_a, dual_branch, b_only, category_c]
+    result = select_diverse_candidates(
+        pool, (), n_alternatives=2, preference="attacker"
+    )
+    selected = {result["default"], *result["alternatives"]}
+    assert "Grimmsnarl" not in selected
+    assert result["default"] == "Garchomp"
+    assert "Basculegion" in selected
+
+
+def test_select_diverse_candidates_balanced_dedupes_dual_branch_lineage():
+    """Balanced picks one per category; a dual-branch species counts once."""
+    dual_branch = AnnotatedCandidate(
+        species="Sylveon",
+        matching_needs=(_need("screens"),),
+        source="both",
+        threat_row=_counter(
+            "Sylveon", outcome="clean_kill", severity="decisive", usage_rank=1
+        ),
+        spec={"species": "Sylveon"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"threat", "need"}),
+    )
+    category_b = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("trick_room"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    category_c = AnnotatedCandidate(
+        species="Basculegion",
+        matching_needs=(_need("condition_beneficiary"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Basculegion"},
+        evidence=(_condition_beneficiary_evidence(),),
+        branches=frozenset({"need"}),
+    )
+    result = select_diverse_candidates(
+        [dual_branch, category_b, category_c], (), n_alternatives=2
+    )
+    selected = [result["default"], *result["alternatives"]]
+    assert len(selected) == 3
+    assert len(set(selected)) == 3
+    assert "Sylveon" in selected
+    assert result["tracks"]["Sylveon"] == "threat coverage + type synergy"
+
+
+def test_select_diverse_candidates_support_diversifies_by_need_category():
+    """Support preference diversifies within Category B by NeedCategory."""
+    trick_room_1 = AnnotatedCandidate(
+        species="Hatterene",
+        matching_needs=(_need("trick_room"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Hatterene"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    trick_room_2 = AnnotatedCandidate(
+        species="Gothitelle",
+        matching_needs=(_need("trick_room"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Gothitelle"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    trick_room_3 = AnnotatedCandidate(
+        species="Oranguru",
+        matching_needs=(_need("trick_room"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Oranguru"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    screens = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(_need("screens"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Grimmsnarl"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    fake_out = AnnotatedCandidate(
+        species="Incineroar",
+        matching_needs=(_need("fake_out_protection"),),
+        source="need",
+        threat_row=None,
+        spec={"species": "Incineroar"},
+        evidence=(_evidence("compendium_backed"),),
+        branches=frozenset({"need"}),
+    )
+    pool = [trick_room_1, trick_room_2, trick_room_3, screens, fake_out]
+    result = select_diverse_candidates(
+        pool, (), n_alternatives=2, preference="support"
+    )
+    selected = [result["default"], *result["alternatives"]]
+    categories = set()
+    by_species = {c.species: c for c in pool}
+    for species in selected:
+        for need in by_species[species].matching_needs:
+            if need.category != "condition_beneficiary":
+                categories.add(need.category)
+    assert len(categories) >= 2
+    assert all(result["tracks"][s] == "support/utility" for s in selected)
+
+
+def test_select_diverse_candidates_support_preference_is_b_only():
+    """Support puts Category B in the default slot with B-only picks."""
     category_a = _synth_category_a(
         "Garchomp", (("t1", "clean_kill", "decisive"),)
     )
@@ -2769,21 +2914,15 @@ def test_select_diverse_candidates_soft_nudge_by_completion_preference():
         branches=frozenset({"need"}),
     )
     pool = [category_a, category_b, category_c]
-
-    omitted = select_diverse_candidates(pool, (), n_alternatives=2)
-    assert omitted["default"] == "Garchomp"
-
-    for pref in ("attacker", "balanced"):
-        result = select_diverse_candidates(
-            pool, (), n_alternatives=2, preference=pref
-        )
-        assert result["default"] == "Garchomp"
-
     support = select_diverse_candidates(
         pool, (), n_alternatives=2, preference="support"
     )
     assert support["default"] == "Grimmsnarl"
-    assert "Garchomp" in support["alternatives"]
+    assert all(
+        support["tracks"][s] == "support/utility"
+        for s in [support["default"], *support["alternatives"]]
+        if s
+    )
 
 
 def test_merge_multi_locked_filters_already_provided_tailwind_need():
@@ -3025,94 +3164,6 @@ def test_select_diverse_candidates_returns_track_labels():
     assert tracks["Grimmsnarl"] == "support/utility"
     assert tracks["Basculegion"] == "condition synergy"
 
-
-def test_select_diverse_candidates_combines_track_labels_for_multi_signal_default():
-    """A genuinely multi-signal default (strong in more than one
-    category) should have its track label reflect ALL contributing
-    categories, not just one -- confirms the combined-label logic, not
-    just single-category labeling."""
-    # A candidate that is BOTH a real threat-counter AND satisfies a
-    # support-need -- confirmed multi-signal by construction here.
-    multi_signal = AnnotatedCandidate(
-        species="Sylveon",
-        matching_needs=(_need("screens"),),
-        source="both",
-        threat_row=_counter(
-            "Sylveon", outcome="clean_kill", severity="decisive", usage_rank=1
-        ),
-        spec={"species": "Sylveon"},
-        evidence=(_evidence("compendium_backed"),),
-        branches=frozenset({"threat", "need"}),
-    )
-    weak_a_only = _synth_category_a(
-        "Delphox", (("t2", "intentional_non_ko_answer", "toss-up"),)
-    )
-    weak_b_only = AnnotatedCandidate(
-        species="Klefki",
-        matching_needs=(_need("screens"),),
-        source="need",
-        threat_row=None,
-        spec={"species": "Klefki"},
-        evidence=(_evidence("mechanical_only"),),
-        branches=frozenset({"need"}),
-    )
-    result = select_diverse_candidates(
-        [multi_signal, weak_a_only, weak_b_only], (), n_alternatives=2
-    )
-    assert result["default"] == "Sylveon"
-    assert result["tracks"]["Sylveon"] == (
-        "threat coverage + type synergy + support/utility"
-    )
-
-
-def test_multi_signal_default_requires_strong_evidence_not_just_top3():
-    """Regression, confirmed live: Gholdengo's screens match was
-    trigger=None (already downgraded to low confidence by an earlier
-    fix), yet Gholdengo still won default status as "genuinely multi-
-    signal" purely by ranking top-3 within Category B -- possible only
-    because screens' unconditional generation means many candidates
-    share that same low-confidence floor, making "top 3 of a category
-    where everyone is weak" look identical to genuine multi-dimensional
-    strength. A weak Category B match must not inflate multi-signal
-    status; only strong (confidence != low) evidence should count.
-    """
-    strong_a_only = _synth_category_a(
-        "Garchomp", (("t1", "clean_kill", "decisive"),)
-    )
-    weak_evidence = CandidateEvidence(
-        basis="mechanical_only",
-        confidence="low",
-        producer_name="test",
-        branch="need",
-    )
-    weak_multi = AnnotatedCandidate(
-        species="Gholdengo",
-        matching_needs=(_need("screens"),),
-        source="both",
-        threat_row=_counter(
-            "Gholdengo", outcome="clean_kill", severity="decisive", usage_rank=1
-        ),
-        spec={"species": "Gholdengo"},
-        evidence=(weak_evidence,),
-        branches=frozenset({"threat", "need"}),
-    )
-    other_b = AnnotatedCandidate(
-        species="Grimmsnarl",
-        matching_needs=(_need("screens"),),
-        source="need",
-        threat_row=None,
-        spec={"species": "Grimmsnarl"},
-        evidence=(weak_evidence,),
-        branches=frozenset({"need"}),
-    )
-    result = select_diverse_candidates(
-        [strong_a_only, weak_multi, other_b], (), n_alternatives=2
-    )
-    # Gholdengo must NOT get the combined "threat coverage + support/
-    # utility" label -- its screens evidence is too weak to count.
-    assert result["tracks"].get("Gholdengo") != (
-        "threat coverage + type synergy + support/utility"
-    )
 
 
 def test_select_diverse_candidates_excludes_low_confidence_only_from_category_b_c():
