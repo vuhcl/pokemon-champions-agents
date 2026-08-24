@@ -262,6 +262,7 @@ class SlotFillContext:
     condition_resilience: ConditionResilienceReport | None = None
     locked_contexts: tuple[LockedAnchorContext, ...] = ()
     team_completion_preference: TeamCompletionPreference | None = None
+    banned_profiles: frozenset[frozenset[str]] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -1470,6 +1471,19 @@ def resolve_need_candidates(
     return rows
 
 
+def _confidence_for_need_evidence(
+    need: SupportNeed, item: CandidateEvidence
+) -> Literal["high", "medium", "low"]:
+    """Unconditional needs default low; keep real in-game commitment confidence."""
+    if need.trigger is not None:
+        return item.confidence
+    if item.basis == "usage_backed" and any(
+        tag.startswith("commitment_pct:") for tag in item.evidence
+    ):
+        return item.confidence
+    return "low"
+
+
 def resolve_all_support_needs(
     ctx: SlotFillContext,
     state: RecommenderState,
@@ -1502,18 +1516,15 @@ def resolve_all_support_needs(
         for row in names:
             sid = to_id(row.species)
             subject_id = f"{need.category}:{to_id(need.trigger or '')}"
-            # Confidence reflects where this match falls on the broad-to-
-            # specific spectrum, not just whether real data backs it.
-            # Confirmed directly: needs generated without a specific
-            # trigger (e.g. healing_cleric/screens' unconditional
-            # "attacker-universal" fallback) are real but weak, non-
-            # discriminating signals -- almost any offense-shaped anchor
-            # "benefits somewhat", which isn't the same as a genuinely
-            # specific reason (a tanky anchor with no self-heal, a
-            # particular speed tier). basis is left untouched -- the
-            # DATA SOURCE isn't questionable here the way a weather-
-            # conflicted move is, only the match's specificity is.
-            confidence_override = "low" if need.trigger is None else None
+            # Unconditional needs (trigger=None: screens/healing_cleric
+            # attacker-universal fallbacks) are weakly specific as a
+            # *category*, but a candidate's real in-game commitment to
+            # filling them is a separate signal -- already attached as
+            # usage_backed + commitment_pct by _narrow_need_candidates
+            # (ingame_species_map only). Blanket "low" was filtering
+            # Excellent/high-commitment screens users (Grimmsnarl) before
+            # ranked_b. Keep item.confidence when commitment is present;
+            # otherwise keep the low override. Never invent Showdown here.
             evidence = tuple(
                 replace(
                     item,
@@ -1525,11 +1536,7 @@ def resolve_all_support_needs(
                         anchored.anchor_id if anchored is not None else None
                     ),
                     subject_id=subject_id,
-                    confidence=(
-                        confidence_override
-                        if confidence_override is not None
-                        else item.confidence
-                    ),
+                    confidence=_confidence_for_need_evidence(need, item),
                 )
                 for item in row.evidence
             )
@@ -1926,7 +1933,10 @@ def present_candidates(
         from recommender.team_candidates import select_diverse_candidates
 
         picked = select_diverse_candidates(
-            rows, ctx.locked_contexts, preference=ctx.team_completion_preference
+            rows,
+            ctx.locked_contexts,
+            preference=ctx.team_completion_preference,
+            banned_profiles=ctx.banned_profiles,
         )
     else:
         tier_for = _redundancy_tier_for_candidates(rows, ctx.condition_resilience)

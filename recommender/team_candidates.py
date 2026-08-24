@@ -438,14 +438,18 @@ def merge_multi_locked_candidates(
         for context in anchor_contexts
         for lineage in lineage_ids(context.resolved_build.species or "")
     }
-    rejected = {to_id(row["species"]) for row in state.get("rejected", [])}
+    rejected_lineages = {
+        lineage
+        for row in state.get("rejected", [])
+        for lineage in lineage_ids(row["species"])
+    }
 
     def eligible(species: str) -> bool:
         species_id = to_id(species)
         return bool(
             species_id
             and species_id not in locked_lineages
-            and species_id not in rejected
+            and not (set(lineage_ids(species)) & rejected_lineages)
             and (ownership_mode != "owned_only" or species_id in owned_species)
         )
 
@@ -1503,6 +1507,7 @@ def _pick_first_new_lineage(
 
 
 def _support_need_categories(c: AnnotatedCandidate) -> frozenset[str]:
+    """Raw matching_needs categories (tests / callers that want unfiltered)."""
     return frozenset(
         n.category
         for n in c.matching_needs
@@ -1510,9 +1515,75 @@ def _support_need_categories(c: AnnotatedCandidate) -> frozenset[str]:
     )
 
 
+_DIVERSITY_TIERS_COUNT = frozenset({"Excellent", "Good"})
+_DIVERSITY_TIERS_DROP = frozenset({"Acceptable"})
+
+
+def _diversity_need_categories_from_evidence(
+    evidence: Sequence[CandidateEvidence],
+    categories: Sequence[str],
+) -> frozenset[str]:
+    """Which need categories count toward support diversification.
+
+    Commitment tags (in-game only via narrow_candidates) always count.
+    Without commitment: Good/Excellent tier counts; Acceptable does not;
+    missing tier tags count (neutral — unit fixtures / unknown).
+    Never consults Showdown.
+    """
+    out: set[str] = set()
+    for category in categories:
+        if category == "condition_beneficiary":
+            continue
+        need_tag = f"need:{category}"
+        relevant = [
+            item
+            for item in evidence
+            if item.branch == "need" and need_tag in item.evidence
+        ]
+        if not relevant:
+            # matching_needs listed it but no need-branch row — keep (neutral)
+            out.add(category)
+            continue
+        if any(
+            tag.startswith("commitment_pct:")
+            for item in relevant
+            for tag in item.evidence
+        ):
+            out.add(category)
+            continue
+        tiers = {
+            tag.removeprefix("tier:")
+            for item in relevant
+            for tag in item.evidence
+            if tag.startswith("tier:")
+        }
+        if not tiers:
+            out.add(category)
+            continue
+        if tiers & _DIVERSITY_TIERS_COUNT:
+            out.add(category)
+            continue
+        # Acceptable-only (or other non-Good/Excellent) without commitment
+        if tiers <= _DIVERSITY_TIERS_DROP:
+            continue
+        out.add(category)
+    return frozenset(out)
+
+
+def _diversity_need_categories(c: AnnotatedCandidate) -> frozenset[str]:
+    cats = [
+        n.category
+        for n in c.matching_needs
+        if n.category != "condition_beneficiary"
+    ]
+    return _diversity_need_categories_from_evidence(c.evidence, cats)
+
+
 def _diversify_by_need_category(
     ranked_b: Sequence[AnnotatedCandidate],
     n: int,
+    *,
+    banned_profiles: frozenset[frozenset[str]] = frozenset(),
 ) -> list[AnnotatedCandidate]:
     picked: list[AnnotatedCandidate] = []
     used_lineages: set[str] = set()
@@ -1525,15 +1596,17 @@ def _diversify_by_need_category(
         lineage = set(lineage_ids(c.species))
         if lineage & used_lineages:
             continue
-        cats = _support_need_categories(c)
+        cats = _diversity_need_categories(c)
         if not cats or not (cats - covered):
+            continue
+        if cats in banned_profiles:
             continue
         picked.append(c)
         used_lineages |= lineage
         covered |= cats
         picked_ids.add(to_id(c.species))
 
-    picked_profiles = {_support_need_categories(c) for c in picked}
+    picked_profiles = {_diversity_need_categories(c) for c in picked}
     for c in ranked_b:
         if len(picked) >= n:
             break
@@ -1542,8 +1615,12 @@ def _diversify_by_need_category(
         lineage = set(lineage_ids(c.species))
         if lineage & used_lineages:
             continue
-        cats = _support_need_categories(c)
-        if cats in picked_profiles:
+        cats = _diversity_need_categories(c)
+        if not cats or not (cats - covered):
+            continue
+        if any(cats <= profile for profile in picked_profiles):
+            continue
+        if cats in banned_profiles:
             continue
         picked.append(c)
         used_lineages |= lineage
@@ -1558,11 +1635,25 @@ def _diversify_by_need_category(
         lineage = set(lineage_ids(c.species))
         if lineage & used_lineages:
             continue
+        cats = _diversity_need_categories(c)
+        if cats in banned_profiles:
+            continue
         picked.append(c)
         used_lineages |= lineage
         picked_ids.add(to_id(c.species))
 
     return picked
+
+
+def banned_profiles_from_rejected(
+    rejected: Sequence[dict[str, Any]] | None,
+) -> frozenset[frozenset[str]]:
+    out: set[frozenset[str]] = set()
+    for row in rejected or ():
+        cats = row.get("need_categories")
+        if cats:
+            out.add(frozenset(cats))
+    return frozenset(out)
 
 
 def _select_attacker(
@@ -1632,8 +1723,11 @@ def _select_support(
     ranked_b: Sequence[AnnotatedCandidate],
     *,
     n_alternatives: int,
+    banned_profiles: frozenset[frozenset[str]] = frozenset(),
 ) -> list[tuple[AnnotatedCandidate, str]]:
-    picked = _diversify_by_need_category(ranked_b, n_alternatives + 1)
+    picked = _diversify_by_need_category(
+        ranked_b, n_alternatives + 1, banned_profiles=banned_profiles
+    )
     return [(c, "B") for c in picked]
 
 
@@ -1671,6 +1765,7 @@ def select_diverse_candidates(
     *,
     n_alternatives: int = 2,
     preference: TeamCompletionPreference | None = None,
+    banned_profiles: frozenset[frozenset[str]] = frozenset(),
 ) -> dict[str, Any]:
     """Default + N alternatives via per-preference selection shapes.
 
@@ -1722,7 +1817,11 @@ def select_diverse_candidates(
     if effective == "attacker":
         picks = _select_attacker(ranked_a, ranked_c, n_alternatives=n_alternatives)
     elif effective == "support":
-        picks = _select_support(ranked_b, n_alternatives=n_alternatives)
+        picks = _select_support(
+            ranked_b,
+            n_alternatives=n_alternatives,
+            banned_profiles=banned_profiles,
+        )
     else:
         picks = _select_balanced(
             ranked_a, ranked_b, ranked_c, n_alternatives=n_alternatives

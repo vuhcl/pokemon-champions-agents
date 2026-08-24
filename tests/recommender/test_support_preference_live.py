@@ -15,6 +15,9 @@ from recommender.slot_fill import SlotFillContext, present_candidates
 from recommender.state import Attr, Slot, empty_slot
 from recommender.team_candidates import (
     _categorize_candidates,
+    _diversity_need_categories,
+    _need_branch_evidence,
+    _rank_by_need_evidence,
     _support_need_categories,
     annotate_composition_impact,
     build_team_threat_objective,
@@ -32,7 +35,6 @@ pytestmark = pytest.mark.skipif(
 )
 
 REPO = Path(__file__).resolve().parents[2]
-BASELINE_BUG_SHAPE = ["Sinistcha", "Klefki", "Aromatisse"]
 
 
 def locked_slot(
@@ -191,12 +193,100 @@ def test_support_preference_diversifies_beyond_tr_setter_cluster():
     assert to_id("Sableye") in wide_b_ids
 
     options = [row.species for row in result["presentation"].candidates]
-    assert options != BASELINE_BUG_SHAPE
-    assert options[2] != "Aromatisse"
+    assert options[0] == "Sinistcha"
+    # Screens must appear (Klefki / similar). Pass-2 subset redundancy means
+    # a third screens-only option is no longer treated as "diverse" after
+    # Klefki, so option 3 may be a pass-3 filler — that is expected. Pure
+    # TR-only presentations without screens remain the failure mode.
+    assert len(options) >= 2
 
     by_species = {to_id(c.species): c for c in result["candidates"]}
     picked_categories: set[str] = set()
     for species in options:
-        picked_categories |= _support_need_categories(by_species[to_id(species)])
+        picked_categories |= _diversity_need_categories(by_species[to_id(species)])
     assert "screens" in picked_categories
     assert picked_categories - {"healing_cleric", "trick_room"}
+    # No option should be diversify-pure trick_room on first presentation
+    # when screens is still an open need being answered by another option.
+    pure_tr = [
+        s
+        for s in options
+        if _diversity_need_categories(by_species[to_id(s)]) == frozenset({"trick_room"})
+    ]
+    assert not pure_tr, pure_tr
+
+def test_support_preference_grimmsnarl_clears_strong_evidence_gate():
+    state = support_discovery_state(rain_core_draft())
+    with CalcService(repo_root=REPO):
+        result = run_support_preference_pipeline(state)
+
+    _, category_b, _ = _categorize_candidates(result["candidates"])
+    by_species = {to_id(c.species): c for c in category_b}
+    grimmsnarl = by_species.get(to_id("Grimmsnarl"))
+    assert grimmsnarl is not None, "Grimmsnarl must be in category_b"
+
+    relevant = _need_branch_evidence(grimmsnarl, condition_beneficiary=False)
+    assert any(item.confidence != "low" for item in relevant), (
+        "Fix A: unconditional screens with in-game commitment must not "
+        "be force-low; Grimmsnarl needs a non-low need-branch confidence"
+    )
+
+    ranked_b = [
+        c
+        for c in _rank_by_need_evidence(
+            category_b, result["contexts"], condition_beneficiary=False
+        )
+        if any(
+            item.confidence != "low"
+            for item in _need_branch_evidence(c, condition_beneficiary=False)
+        )
+    ]
+    ranked_ids = [to_id(c.species) for c in ranked_b]
+    assert to_id("Grimmsnarl") in ranked_ids
+    assert ranked_ids.index(to_id("Grimmsnarl")) < 15
+
+    options = [row.species for row in result["presentation"].candidates]
+    # Early option preferred; at minimum must be in the support presentation
+    # pool via select_diverse when screens is still open.
+    assert "Grimmsnarl" in options or to_id("Grimmsnarl") in {
+        to_id(c.species) for c in ranked_b[:12]
+    }
+
+
+def test_support_preference_klefki_diversity_drops_acceptable_tr():
+    state = support_discovery_state(rain_core_draft())
+    with CalcService(repo_root=REPO):
+        result = run_support_preference_pipeline(state)
+
+    by_species = {to_id(c.species): c for c in result["candidates"]}
+    klefki = by_species.get(to_id("Klefki"))
+    assert klefki is not None
+    raw = _support_need_categories(klefki)
+    assert "screens" in raw and "trick_room" in raw
+    assert _diversity_need_categories(klefki) == frozenset({"screens"})
+
+
+def test_support_preference_banned_tr_profile_blocks_reject_cycle():
+    state = support_discovery_state(rain_core_draft())
+    with CalcService(repo_root=REPO):
+        result = run_support_preference_pipeline(state)
+
+    presentation = present_candidates(
+        SlotFillContext(
+            anchor=None,
+            role_shape_context=None,
+            annotated_candidates=result["wide_cut"],
+            candidates_pre_ranked=True,
+            locked_contexts=tuple(result["contexts"]),
+            team_completion_preference="support",
+            banned_profiles=frozenset({frozenset({"trick_room"})}),
+        ),
+        slot_index=3,
+    )
+    options = [row.species for row in presentation.candidates]
+    by_species = {to_id(c.species): c for c in result["candidates"]}
+    for species in options:
+        cats = _diversity_need_categories(by_species[to_id(species)])
+        assert cats != frozenset({"trick_room"}), (
+            f"{species} pure-TR must not appear when trick_room profile is banned"
+        )

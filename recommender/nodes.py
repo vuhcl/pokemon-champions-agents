@@ -2673,6 +2673,36 @@ def record_rejection(state: RecommenderState) -> dict:
         reason=payload.get("reason", ""),
         turn=turn,
     )
+    pending = state.get("pending_presentation")
+    if isinstance(pending, dict):
+        species_id = to_id(payload["species"])
+        for option in pending.get("options") or ():
+            if to_id(str(option.get("species") or "")) != species_id:
+                continue
+            evidence = option.get("evidence") or ()
+            categories: list[str] = []
+            seen: set[str] = set()
+            for item in evidence:
+                tags = getattr(item, "evidence", None) or ()
+                for tag in tags:
+                    if not isinstance(tag, str) or not tag.startswith("need:"):
+                        continue
+                    cat = tag.removeprefix("need:")
+                    if cat == "condition_beneficiary" or cat in seen:
+                        continue
+                    seen.add(cat)
+                    categories.append(cat)
+            if categories:
+                from recommender.team_candidates import (
+                    _diversity_need_categories_from_evidence,
+                )
+
+                filtered = _diversity_need_categories_from_evidence(
+                    evidence, categories
+                )
+                if filtered:
+                    entry["need_categories"] = sorted(filtered)
+            break
     out: dict = {"rejected": [*state.get("rejected", []), entry]}
 
     slot_index = payload.get("slot_index")
@@ -3115,6 +3145,7 @@ def discover_multi_locked(
     from recommender.slot_fill import SlotFillContext, run_slot_fill_terminal
     from recommender.team_candidates import (
         annotate_composition_impact,
+        banned_profiles_from_rejected,
         build_team_threat_objective,
         collect_locked_anchor_contexts,
         material_completion_preferences,
@@ -3321,6 +3352,7 @@ def discover_multi_locked(
             condition_resilience=resilience,
             locked_contexts=tuple(contexts),
             team_completion_preference=preference,
+            banned_profiles=banned_profiles_from_rejected(state.get("rejected")),
         ),
         state,
         slot_index=slot_index,
