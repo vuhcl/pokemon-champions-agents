@@ -617,6 +617,7 @@ class RecommenderState(TypedDict):
     unresolved_pool_entries: NotRequired[tuple[str, ...]]
     species_resolve_notices: NotRequired[tuple[str, ...]]
     team_completion_preference: NotRequired[Optional[TeamCompletionPreference]]
+    force_completion_preference_prompt: NotRequired[bool]
     masked_slot_indices: NotRequired[tuple[int, ...]]
     candidate_discovery_error: NotRequired[Optional[CandidateDiscoveryError]]
 

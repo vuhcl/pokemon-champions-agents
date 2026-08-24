@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from contextlib import contextmanager
 
 import pytest
 from langchain_core.runnables import RunnableLambda
@@ -18,6 +19,7 @@ from recommender.state import (
     Slot,
     TargetRoleDecision,
     TeamReviewResult,
+    TeamThreatDiscovery,
     UnresolvedSlotRefinement,
     all_locked,
     empty_slot,
@@ -905,3 +907,156 @@ def test_team_review_on_confirmation_overlays_roster_without_calc():
         affirmed = graph.invoke({"pending_input": "yes"}, config=config)
         assert len(calls) == intercept_calls
         assert affirmed["turn_intent"] == "full_slot_confirmed"
+
+
+def _multi_locked_discover_state(**extra):
+    draft = [
+        _locked_member("Pelipper", role="rain_setter"),
+        _locked_member("Archaludon"),
+        *[empty_slot() for _ in range(4)],
+    ]
+    base = {
+        "format_id": VGC_MB,
+        "game_type": "doubles",
+        "regulation_mod": "champions-reg-mb",
+        "picked_team_size": 4,
+        "available_pool": [],
+        "team_draft": draft,
+        "archetype": Attr(),
+        "rejected": [],
+        "constraints": [],
+        "messages": [],
+        "team_completion_preference": None,
+        "force_completion_preference_prompt": False,
+    }
+    base.update(extra)
+    return base
+
+
+def _available_review():
+    return TeamReviewResult(threats=[], coverage=[], spofs=[])
+
+
+def _threat_available():
+    return TeamThreatDiscovery(status="available", candidates=(), error=None)
+
+
+def _discover_patches(*, packages=(), material_prefs=()):
+    @contextmanager
+    def _ctx():
+        with (
+            patch(
+                "recommender.nodes._compute_team_review",
+                return_value=_available_review(),
+            ),
+            patch("recommender.nodes.query_shared_teammates", return_value=None),
+            patch(
+                "recommender.team_candidates.collect_locked_anchor_contexts",
+                return_value=(),
+            ),
+            patch(
+                "recommender.threat_counters.query_candidates_for_threats",
+                return_value=_threat_available(),
+            ),
+            patch(
+                "recommender.team_candidates.merge_multi_locked_candidates",
+                return_value=[],
+            ),
+            patch(
+                "recommender.team_candidates.material_completion_preferences",
+                return_value=material_prefs,
+            ),
+            patch(
+                "recommender.team_candidates.gather_masked_core_packages",
+                return_value=packages,
+            ),
+        ):
+            yield
+
+    return _ctx()
+
+
+def test_force_prompt_when_material_preferences_empty():
+    from recommender.nodes import discover_multi_locked
+
+    state = _multi_locked_discover_state(force_completion_preference_prompt=True)
+    with _discover_patches(material_prefs=()):
+        result = discover_multi_locked(state, {})  # type: ignore[arg-type]
+    pending = result["pending_presentation"]
+    assert pending["kind"] == "completion_preference"
+    assert pending["preference_options"] == ("attacker", "support", "balanced")
+    assert result["force_completion_preference_prompt"] is False
+
+
+def test_force_prompt_survives_core_resolution_intercept():
+    from recommender.nodes import discover_multi_locked
+    from recommender.team_candidates import MaskedCorePackage
+    from recommender.slot_fill import AnnotatedCandidate
+
+    state = _multi_locked_discover_state(force_completion_preference_prompt=True)
+    fill = AnnotatedCandidate(
+        species="Pelipper",
+        matching_needs=(),
+        source="threat",
+        threat_row=None,
+        spec={"species": "Pelipper"},
+        evidence=(),
+        branches=frozenset({"threat"}),
+    )
+    package = MaskedCorePackage(
+        AnnotatedCandidate(
+            species="Swampert-Mega",
+            matching_needs=(),
+            source="threat",
+            threat_row=None,
+            spec={"species": "Swampert-Mega"},
+            evidence=(),
+            branches=frozenset({"threat"}),
+        ),
+        (0,),
+        fill,
+        "Weather core",
+    )
+    with _discover_patches(packages=(package,), material_prefs=()):
+        result = discover_multi_locked(state, {})  # type: ignore[arg-type]
+    assert result["pending_presentation"]["kind"] == "core_resolution"
+    assert "force_completion_preference_prompt" not in result
+
+
+def test_preference_revision_reprompts_via_classify_input():
+    from recommender.nodes import discover_multi_locked
+
+    pending = {
+        "schema_version": 1,
+        "kind": "candidate_selection",
+        "slot_index": 2,
+        "options": [
+            {"species": "Farigiraf", "source": "bootstrap"},
+            {"species": "Incineroar", "source": "threat"},
+        ],
+    }
+    classified = classify_input(
+        {
+            "pending_input": "different focus",
+            "pending_presentation": pending,
+            "team_completion_preference": "support",
+            "team_draft": _multi_locked_discover_state()["team_draft"],
+            "turn": 1,
+        }  # type: ignore[arg-type]
+    )
+    assert classified["turn_intent"] == "continue"
+    assert classified["team_completion_preference"] is None
+    assert classified["force_completion_preference_prompt"] is True
+    assert classified["pending_presentation"] is None
+
+    state = {**_multi_locked_discover_state(), **classified}
+    with _discover_patches(
+        material_prefs=("attacker", "support", "balanced"),
+    ):
+        result = discover_multi_locked(state, {})  # type: ignore[arg-type]
+    assert result["pending_presentation"]["kind"] == "completion_preference"
+    assert result["pending_presentation"]["preference_options"] == (
+        "attacker",
+        "support",
+        "balanced",
+    )
