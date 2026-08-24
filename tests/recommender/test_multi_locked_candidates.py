@@ -1313,6 +1313,205 @@ def test_backup_only_candidate_ranks_behind_genuine_need_match():
     assert [c.species for c in ranked] == ["Farigiraf", "Sableye"]
 
 
+def test_single_purpose_speed_control_demoted_when_team_already_has_some():
+    """Regression, confirmed live (2026-08-22): Trick Room and Tailwind
+    are NOT mutually exclusive (a team can legitimately run both), so
+    this is deliberately not a candidate_wastes_core_slot-style hard
+    conflict -- but a candidate whose ENTIRE real support-need value is
+    trick_room or tailwind alone, and nothing else, is genuinely lower
+    value once the team already has some real speed control. Live
+    symptom: Aromatisse (single-purpose, compendium-backed medium
+    confidence trick_room match) kept outranking genuinely multi-purpose
+    real alternatives (Sableye: screens + backup rain) with a locked
+    Pelipper already providing Tailwind.
+    """
+    from recommender.team_candidates import _rank_by_need_evidence
+
+    from recommender.condition_resilience import assess_condition_resilience
+
+    draft = [
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+        *[empty_slot() for _ in range(5)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+
+    tr_only = AnnotatedCandidate(
+        species="Aromatisse",
+        matching_needs=(
+            SupportNeed(
+                category="trick_room", name="Trick Room", description="x", trigger=None
+            ),
+        ),
+        source="need",
+        branches=frozenset({"need"}),
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="role_category_evidence",
+                evidence=("need:trick_room",),
+                branch="need",
+            ),
+        ),
+    )
+    screens_only = AnnotatedCandidate(
+        species="Sableye",
+        matching_needs=(
+            SupportNeed(
+                category="screens", name="Screens", description="x", trigger=None
+            ),
+        ),
+        source="need",
+        branches=frozenset({"need"}),
+        # Deliberately LOWER raw confidence than the TR-only candidate --
+        # the demotion must win regardless of raw evidence quality, the
+        # same "soft nudge, not just a tiebreak" shape as wastes_core_slot
+        # and _is_backup_only.
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="low",
+                producer_name="role_category_evidence",
+                evidence=("need:screens",),
+                branch="need",
+            ),
+        ),
+    )
+    ranked = _rank_by_need_evidence(
+        [tr_only, screens_only], contexts, condition_beneficiary=False
+    )
+    assert [c.species for c in ranked] == ["Sableye", "Aromatisse"]
+    assert "Aromatisse" in [c.species for c in ranked]
+
+
+def test_single_purpose_speed_control_not_demoted_when_team_has_none():
+    """Sibling of the test above: when the team has NO real speed control
+    locked at all, a genuinely-needed trick_room-only candidate must NOT
+    be demoted -- this check is specifically about redundancy, not a
+    blanket penalty on single-purpose speed-control candidates.
+    """
+    from recommender.team_candidates import _rank_by_need_evidence
+
+    tr_only = AnnotatedCandidate(
+        species="Aromatisse",
+        matching_needs=(
+            SupportNeed(
+                category="trick_room", name="Trick Room", description="x", trigger=None
+            ),
+        ),
+        source="need",
+        branches=frozenset({"need"}),
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="role_category_evidence",
+                evidence=("need:trick_room",),
+                branch="need",
+            ),
+        ),
+    )
+    screens_only = AnnotatedCandidate(
+        species="Sableye",
+        matching_needs=(
+            SupportNeed(
+                category="screens", name="Screens", description="x", trigger=None
+            ),
+        ),
+        source="need",
+        branches=frozenset({"need"}),
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="low",
+                producer_name="role_category_evidence",
+                evidence=("need:screens",),
+                branch="need",
+            ),
+        ),
+    )
+    ranked = _rank_by_need_evidence(
+        [tr_only, screens_only], (), condition_beneficiary=False
+    )
+    assert [c.species for c in ranked] == ["Aromatisse", "Sableye"]
+
+
+def test_multi_purpose_speed_control_candidate_not_demoted():
+    """A candidate whose real support-need value includes speed control
+    AND something else (e.g. a real screens match alongside a trick_room
+    match) must not be demoted -- the check is specifically "is this
+    candidate's ENTIRE value redundant speed control," not "does it
+    provide any speed control at all."
+    """
+    from recommender.team_candidates import _rank_by_need_evidence
+
+    draft = [
+        _locked(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+        ),
+        *[empty_slot() for _ in range(5)],
+    ]
+    state = _state(draft)
+    contexts = collect_locked_anchor_contexts(state)
+
+    multi_purpose = AnnotatedCandidate(
+        species="Grimmsnarl",
+        matching_needs=(
+            SupportNeed(
+                category="trick_room", name="Trick Room", description="x", trigger=None
+            ),
+            SupportNeed(
+                category="screens", name="Screens", description="x", trigger=None
+            ),
+        ),
+        source="need",
+        branches=frozenset({"need"}),
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="role_category_evidence",
+                evidence=("need:trick_room",),
+                branch="need",
+            ),
+        ),
+    )
+    tr_only = AnnotatedCandidate(
+        species="Aromatisse",
+        matching_needs=(
+            SupportNeed(
+                category="trick_room", name="Trick Room", description="x", trigger=None
+            ),
+        ),
+        source="need",
+        branches=frozenset({"need"}),
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="role_category_evidence",
+                evidence=("need:trick_room",),
+                branch="need",
+            ),
+        ),
+    )
+    ranked = _rank_by_need_evidence(
+        [tr_only, multi_purpose], contexts, condition_beneficiary=False
+    )
+    assert ranked[0].species == "Grimmsnarl"
+
+
 def test_candidate_wastes_core_slot_weather_conflict():
     """Regression, confirmed live (2026-08-21): Swampert-Mega (real
     Rain-abuse value via Swift Swim) surfaced as a top-3 threat-coverage

@@ -1263,7 +1263,10 @@ def _need_branch_evidence(
 
 
 def _rank_by_need_evidence(
-    candidates: list[AnnotatedCandidate], *, condition_beneficiary: bool = False
+    candidates: list[AnnotatedCandidate],
+    locked: Sequence["LockedAnchorContext"] = (),
+    *,
+    condition_beneficiary: bool = False,
 ) -> list[AnnotatedCandidate]:
     """Categories B (support-needs) and C (condition-benefit) share the
     same ranking approach: best evidence quality (reusing the same
@@ -1283,6 +1286,18 @@ def _rank_by_need_evidence(
     fills_essential_gap vs. fills_spof_backup_gap directly -- this
     extends that same principle to evidence-based ranking now that
     fills_spof_backup_gap actually reaches this ranking step at all.
+
+    Confirmed live (2026-08-22): Trick Room and Tailwind are NOT
+    mutually exclusive -- a team can legitimately run both, so this is
+    deliberately not a candidate_wastes_core_slot-style hard conflict.
+    But a candidate whose ENTIRE real support-need value is trick_room
+    or tailwind ALONE, and nothing else, is genuinely lower-value once
+    the team already has some real speed control locked (Aromatisse,
+    Armarouge -- single-purpose TR-only compendium entries, repeatedly
+    resurfacing turn after turn ahead of genuinely multi-purpose real
+    alternatives like Sableye [screens + backup rain] or Grimmsnarl
+    [screens + disruption]) -- a soft demotion, same shape as
+    _is_backup_only, not exclusion.
     """
 
     def _is_backup_only(relevant: tuple[CandidateEvidence, ...]) -> bool:
@@ -1290,6 +1305,18 @@ def _rank_by_need_evidence(
             any("need:spof_backup" in tag for tag in item.evidence)
             for item in relevant
         )
+
+    from recommender.condition_resilience import provided_conditions
+
+    already_has_speed_control = bool(
+        provided_conditions(locked) & {"Trick Room", "Tailwind"}
+    )
+
+    def _is_redundant_speed_control_only(c: AnnotatedCandidate) -> bool:
+        if not already_has_speed_control:
+            return False
+        need_categories = {n.category for n in c.matching_needs}
+        return bool(need_categories) and need_categories <= {"trick_room", "tailwind"}
 
     def sort_key(c: AnnotatedCandidate):
         relevant = _need_branch_evidence(c, condition_beneficiary=condition_beneficiary)
@@ -1303,6 +1330,7 @@ def _rank_by_need_evidence(
         )
         return (
             int(c.wastes_core_slot),
+            int(_is_redundant_speed_control_only(c)),
             int(_is_backup_only(relevant)),
             -best[0],
             -best[1],
@@ -1390,12 +1418,12 @@ def rank_multi_locked_by_category(
         _species_types(snap, ctx.resolved_build.species) for ctx in locked_contexts
     ]
     ranked_a = _rank_category_a(category_a, locked_types_list)[:n_per_category]
-    ranked_b = _rank_by_need_evidence(category_b, condition_beneficiary=False)[
-        :n_per_category
-    ]
-    ranked_c = _rank_by_need_evidence(category_c, condition_beneficiary=True)[
-        :n_per_category
-    ]
+    ranked_b = _rank_by_need_evidence(
+        category_b, locked_contexts, condition_beneficiary=False
+    )[:n_per_category]
+    ranked_c = _rank_by_need_evidence(
+        category_c, locked_contexts, condition_beneficiary=True
+    )[:n_per_category]
 
     seen: set[str] = set()
     combined: list[AnnotatedCandidate] = []
@@ -1481,12 +1509,16 @@ def select_diverse_candidates(
     # categories naturally) already handles an empty category correctly.
     ranked_b = [
         c
-        for c in _rank_by_need_evidence(category_b, condition_beneficiary=False)
+        for c in _rank_by_need_evidence(
+            category_b, locked_contexts, condition_beneficiary=False
+        )
         if _has_strong_evidence(c, condition_beneficiary=False)
     ]
     ranked_c = [
         c
-        for c in _rank_by_need_evidence(category_c, condition_beneficiary=True)
+        for c in _rank_by_need_evidence(
+            category_c, locked_contexts, condition_beneficiary=True
+        )
         if _has_strong_evidence(c, condition_beneficiary=True)
     ]
     ranked_by_category = {"A": ranked_a, "B": ranked_b, "C": ranked_c}
