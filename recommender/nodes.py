@@ -3121,7 +3121,6 @@ def discover_multi_locked(
         mega_ceiling_notices,
         merge_multi_locked_candidates,
         owned_species_ids,
-        SUPPORT_CATEGORY_B_POOL_N,
         rank_multi_locked_by_category,
         gather_masked_core_packages,
     )
@@ -3299,7 +3298,7 @@ def discover_multi_locked(
     ranked = rank_multi_locked_by_category(
         candidates,
         contexts,
-        category_b_n=SUPPORT_CATEGORY_B_POOL_N if preference == "support" else None,
+        category_b_uncapped=preference == "support",
     )
     if not ranked:
         # Mirrors discover_single_locked's leniency exactly: try an

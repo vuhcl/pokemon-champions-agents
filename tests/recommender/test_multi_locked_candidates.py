@@ -47,7 +47,6 @@ from recommender.team_candidates import (
     rank_multi_locked_by_category,
     rank_multi_locked_candidates,
     select_diverse_candidates,
-    SUPPORT_CATEGORY_B_POOL_N,
 )
 from recommender.teammate_types import (
     SharedAnchorEvidence,
@@ -3401,9 +3400,7 @@ def test_support_widens_category_b_cut_for_support_only():
     ]
     pool.append(_category_b_need_candidate("Sableye", ("screens",), confidence="medium"))
     ranked_default = rank_multi_locked_by_category(pool, (), n_per_category=10)
-    ranked_wide = rank_multi_locked_by_category(
-        pool, (), category_b_n=SUPPORT_CATEGORY_B_POOL_N
-    )
+    ranked_wide = rank_multi_locked_by_category(pool, (), category_b_uncapped=True)
     ranked_none = rank_multi_locked_by_category(pool, (), category_b_n=None)
     default_species = {c.species for c in ranked_default}
     wide_species = {c.species for c in ranked_wide}
@@ -3415,7 +3412,6 @@ def test_support_widens_category_b_cut_for_support_only():
 def test_discover_multi_locked_passes_widened_b_cut_for_support():
     from recommender.nodes import discover_multi_locked
     from recommender.slot_fill import SlotFillPresentation, SlotFillTerminalResult
-    from recommender.team_candidates import SUPPORT_CATEGORY_B_POOL_N
 
     terminal = SlotFillTerminalResult(
         presentation=SlotFillPresentation(slot_index=2, candidates=(), notices=()),
@@ -3473,10 +3469,7 @@ def test_discover_multi_locked_passes_widened_b_cut_for_support():
             "team_completion_preference": "support",
         }
         discover_multi_locked(support_state, {})  # type: ignore[arg-type]
-        assert (
-            mocked_cut.call_args.kwargs.get("category_b_n")
-            == SUPPORT_CATEGORY_B_POOL_N
-        )
+        assert mocked_cut.call_args.kwargs.get("category_b_uncapped") is True
 
         mocked_cut.reset_mock()
         attacker_state = {
@@ -3484,4 +3477,4 @@ def test_discover_multi_locked_passes_widened_b_cut_for_support():
             "team_completion_preference": "attacker",
         }
         discover_multi_locked(attacker_state, {})  # type: ignore[arg-type]
-        assert mocked_cut.call_args.kwargs.get("category_b_n") is None
+        assert mocked_cut.call_args.kwargs.get("category_b_uncapped") is False

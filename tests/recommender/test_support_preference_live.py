@@ -14,7 +14,6 @@ from recommender.nodes import _compute_team_review
 from recommender.slot_fill import SlotFillContext, present_candidates
 from recommender.state import Attr, Slot, empty_slot
 from recommender.team_candidates import (
-    SUPPORT_CATEGORY_B_POOL_N,
     _categorize_candidates,
     _support_need_categories,
     annotate_composition_impact,
@@ -149,7 +148,7 @@ def run_support_preference_pipeline(state: dict[str, Any]):
     wide_cut = rank_multi_locked_by_category(
         candidates,
         contexts,
-        category_b_n=SUPPORT_CATEGORY_B_POOL_N,
+        category_b_uncapped=True,
     )
     ctx = SlotFillContext(
         anchor=None,
