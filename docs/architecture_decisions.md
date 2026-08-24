@@ -7803,3 +7803,121 @@ well-covered core, not with the wiring failing to activate.
 **Status:** Implemented and merged (PR #116). 3 new tests, each confirmed
 to fail on pre-fix code (`TypeError` on the new `objective` kwarg) and
 pass after. Full suite: 1298 passed, 8 skipped.
+
+---
+
+## ADR-036: Dependency-reliability ranking — a soft demotion for candidates
+whose real enabler isn't a genuine specialist
+
+**Context:** Mawile-Mega's real Trick Room dependency can be nominally
+"satisfied" by a locked Sinistcha whose real, aggregate Trick Room
+commitment (57.2%) is barely more than a coinflip against its actual
+defining move, Rage Powder (95.6%) — Sinistcha's real primary job is
+redirection, not a genuine Trick-Room-specialist build the way Farigiraf
+is. Nothing in the existing pipeline distinguished "a real provider
+exists" from "a real, trustworthy specialist provides it."
+
+**Decision:** `candidate_dependency_reliability` (condition_resilience.py)
+computes a 0.0-1.0 score for a candidate's worst-case dependency, used as
+an additional soft rank-sum dimension in `_rank_category_a` (team_
+candidates.py) — never a hard gate, unlike `wastes_core_slot`. Ability-
+based providers (Drizzle, etc.) are always 1.0 — mechanically certain,
+the same reasoning already established for ability-based evidence
+confidence (ADR-028 Amendment 2026-08-20a). Move-based providers use
+real in-game commitment percentage for the specific providing move. A
+real data gap (provider absent from the in-game dataset) defaults to 1.0,
+not penalized as a negative signal (the same principle established in
+ADR-034 Amendment 2026-08-23a for a different purpose).
+
+Generalizes dependency detection beyond weather (`candidate_wastes_core_
+slot`'s scope) to all six TRACKED_CONDITIONS, since Mawile-Mega's
+dependency is Trick Room, not weather. Deliberately includes both
+"needed" and "wanted" importance tiers, unlike `candidate_wastes_core_
+slot`'s stricter "needed"-only gate — confirmed directly that every
+Trick Room/Tailwind `benefits_from` mechanism in this codebase is
+classified "wanted", never "needed" (weather-move dependencies like
+Electro Shot/Rain are the ones that get "needed" — a real, deliberate
+distinction: a hindering-nature/slow-attacker TR preference is inherently
+softer and inferred, not tied to a specific locked move). Also does not
+require `mechanism.present` — "wanted" dependencies are typically
+`present=False` by design (inferred from role/nature, not concretely
+move-locked).
+
+**A real, unplanned finding along the way:** while building this
+feature's own dense-rank tie-handling (to avoid injecting a spurious
+per-candidate offset when every candidate ties on `dependency_
+reliability`, the common case), directly demonstrated the SAME bug
+already existed in the pre-existing `verified_rank`/`synergy_rank`
+computations in `_rank_category_a` — not hypothetical: constructed a
+case where two arbitrary tie-breaks exactly cancelled out, letting a
+candidate with 8x worse `verified_score` (0.5 vs 4.0) win purely from
+input list order, with both raw signals genuinely, correctly computed
+and differentiated. Fixed all three rank dimensions uniformly with a
+shared `_dense_rank` helper rather than leaving the two pre-existing
+ones broken.
+
+**Verification:** 9 new tests — 5 for the reliability primitives
+directly against real data (Sinistcha 0.572, Farigiraf 0.952, ability-
+based always 1.0, no-provider defaults to 1.0, no-dependency always
+1.0), 2 for `_rank_category_a` wiring (soft nudge, not exclusion), 1
+explicitly locking in the dense-rank fix with a concrete, non-contrived
+demonstration. Full suite: 1309 passed, 8 skipped.
+
+**Status:** Implemented and merged (PR #118).
+
+---
+
+## ADR-037: Redundant single-purpose speed-control demotion
+
+**Context:** Found via live testing (2026-08-22) immediately after PR
+#118 merged. Aromatisse (a single-purpose, compendium-backed `trick_
+room` match) kept outranking genuinely multi-purpose real alternatives
+(Sableye: screens + backup rain; Grimmsnarl: screens + disruption)
+despite a locked Pelipper already providing Tailwind.
+
+**A real correction made before implementation, not glossed over:**
+first proposed as a `candidate_wastes_core_slot`-style hard conflict,
+mirroring the weather/mega scarce-resource check. Corrected directly by
+Vu: Trick Room and Tailwind are NOT mutually exclusive — a team can
+legitimately run both. The real issue is narrower: a candidate whose
+ENTIRE real support-need value is `trick_room` or `tailwind` alone, with
+nothing else, is genuinely lower value once the team already has some
+real speed control — not because they conflict, but because a single-
+purpose pick offering only a partially-redundant thing has less to offer
+than a multi-purpose one. Same "cumulative remaining value" principle
+already established for Sableye's screens+backup-rain case (ADR-026
+Amendment 2026-08-17a), applied to a new, narrower trigger condition.
+
+**Decision:** `_rank_by_need_evidence` (team_candidates.py) gets a new
+soft demotion tier, same shape as the existing `wastes_core_slot`/`_is_
+backup_only` tiers — a candidate whose `matching_needs` is entirely a
+subset of `{trick_room, tailwind}` ranks behind others once `provided_
+conditions` confirms the team already has real speed control from
+either. Deliberately does not fire when the team has no speed control
+yet (a genuinely-needed single-purpose match stays un-demoted), and does
+not fire for a multi-purpose candidate (real screens + trick_room both)
+even when its speed-control half is redundant, since its other purpose
+remains real, undiminished value.
+
+**Verification:** 4 new tests, each confirmed to fail on pre-fix code
+and pass after: redundant single-purpose TR demoted below a lower-
+confidence but non-redundant screens candidate; not demoted with no
+speed control locked at all; a multi-purpose candidate not demoted
+despite redundant TR. Full suite: 1305 passed, 8 skipped.
+
+**Explicitly not addressed here, from the same live-testing session —
+handed to Cursor for discovery (2026-08-24):**
+- Sinistcha's displayed "trick_room_setter" label vs. its real primary
+  role (redirection, confirmed via Rage Powder 95.6% vs Trick Room 57.2%
+  real commitment) — fresh evidence for the already-known, deprioritized
+  role-label-accuracy backlog item, not fixed here.
+- Orientation preference confirmed (again, via direct code trace) to
+  never reach actual candidate ranking — the ADR-033 gap, still open.
+- A possible reject-parsing reliability issue — traced through three
+  candidate-pool mechanisms (exclusion set construction, categorization,
+  default/alternatives selection), all three structurally correct for
+  the "ran out of candidates" theory, meaning any real bug here is
+  likely in a layer (state propagation, LLM intent classification) not
+  verifiable through static code review alone.
+
+**Status:** Implemented and merged (PR #119).

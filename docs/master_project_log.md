@@ -4876,6 +4876,54 @@ detail. Worth remembering as a caution specifically for future work on
 far more thoroughly than it used to, so tests that used to find natural ties in live
 data may need deliberately constructed ones going forward.
 
+## 2026-08-22 to 2026-08-24: Dependency-reliability ranking, redundant
+speed-control demotion, and handoff back to Cursor
+
+Two PRs merged (#118, #119), both surfaced through live testing of the
+recommender against real team-building sessions rather than designed
+speculatively. See ADR-036 and ADR-037 for full technical detail.
+
+candidate_dependency_reliability (ADR-036) ranks down a candidate whose
+real dependency is only nominally satisfied by an unreliable locked
+provider — Mawile-Mega + Sinistcha (real primary role redirection, not
+Trick Room) being the motivating, now-fixed case. Building this exposed
+and fixed a real, unplanned bug in the pre-existing verified_rank/
+synergy_rank tie-handling, not just the new feature's own logic.
+
+_rank_by_need_evidence's new redundant-speed-control demotion (ADR-037)
+started as a proposed hard conflict check and was corrected mid-design:
+Trick Room and Tailwind aren't mutually exclusive, so the real fix is a
+soft, redundancy-aware demotion, not an exclusion.
+
+**Cursor is back as of 2026-08-24.** Two parallel discovery/implementation
+threads handed off:
+1. Masked alternate-core discovery — the large, fully-scoped design from
+   earlier this week (masking mechanics, cascading resolution, dual
+   pairwise+group-co-occurrence candidate ranking, calc+usage dual-signal
+   validation). Discovery + plan phase only; four open questions given
+   explicitly (candidate_wastes_core_slot's conflict-target reporting,
+   how multi-resolution presentation integrates with the still-open
+   orientation-preference mechanism, a trigger threshold to bound cost,
+   and whether this needs its own broader dependency-conflict detection
+   or should wait on/reuse candidate_dependency_reliability's TRACKED_
+   CONDITIONS generalization).
+2. Three smaller, independent items as separate sub-agent tracks:
+   orientation-preference wiring (ready for a real implementation plan —
+   confirmed via code trace, twice now, that the attacker/support/
+   balanced choice never reaches actual ranking); role-label accuracy
+   (discovery only — Sinistcha is fresh evidence for a backlog item that
+   went quiet after Tinkaton didn't pan out, needs a systematic sweep
+   before any fix, not a single-example patch); reject-parsing
+   reliability (discovery only, needs live reproduction — a concrete,
+   testable hypothesis is that "reject N" collides with a co-displayed
+   "N of M Mega-Stone holders locked" notice sharing the same leading
+   digit, not yet confirmed).
+
+Claude's role reverts to architecture/design/review partner now that
+Cursor is available; the run of direct-implementation PRs from Claude
+(#108 through #119) reflected Cursor's temporary unavailability across
+this stretch, disclosed at each step per standing practice.
+
 ---
 
 ## TOOLS & RESOURCES
