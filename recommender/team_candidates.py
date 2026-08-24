@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import replace
+from dataclasses import dataclass, replace
 
 from recommender.anchor_roles import (
     AnchorRoleDecision,
@@ -32,6 +32,7 @@ from recommender.reconcile import _item_mega_forme
 from recommender.slot_fill import (
     AnnotatedCandidate,
     AnchoredSupportNeed,
+    CoreSlotConflict,
     LockedAnchorContext,
     SlotFillContext,
     _kit_fallback_target_role,
@@ -133,6 +134,67 @@ def _candidate_mega_base(build: ResolvedAnchorBuild, snap: dict) -> str | None:
     return None
 
 
+_WEATHERS = frozenset({"Rain", "Sun", "Sand", "Snow"})
+
+
+def candidate_core_slot_conflicts(
+    decision: AnchorRoleDecision,
+    build: ResolvedAnchorBuild,
+    locked: Sequence[LockedAnchorContext],
+    *,
+    is_core_slot: bool,
+) -> tuple[CoreSlotConflict, ...]:
+    """Locked members this candidate conflicts with over weather or mega."""
+    if not is_core_slot:
+        return ()
+    from recommender.condition_resilience import mechanism_condition, provided_conditions
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    conflicts: list[CoreSlotConflict] = []
+    candidate_mega_base = _candidate_mega_base(build, snap)
+    if candidate_mega_base is not None:
+        for context in locked:
+            locked_mega_base = _candidate_mega_base(context.resolved_build, snap)
+            if locked_mega_base is not None and locked_mega_base != candidate_mega_base:
+                conflicts.append(
+                    CoreSlotConflict(
+                        kind="mega",
+                        locked_slot_index=context.slot_index,
+                        locked_species=context.resolved_build.species or "",
+                        resource=locked_mega_base,
+                    )
+                )
+    locked_weathers = provided_conditions(locked) & _WEATHERS
+    if locked_weathers:
+        needed: set[str] = set()
+        for m in decision.mechanisms:
+            if m.present and m.relation == "benefits_from" and m.importance == "needed":
+                condition = mechanism_condition(m)
+                if condition in _WEATHERS and condition not in locked_weathers:
+                    needed.add(condition)
+        if needed:
+            for context in locked:
+                role_decision = getattr(context, "role_decision", None)
+                if role_decision is None:
+                    continue
+                for mechanism in role_decision.mechanisms:
+                    if not mechanism.present or mechanism.relation != "provides":
+                        continue
+                    provided = mechanism_condition(mechanism)
+                    if provided in locked_weathers:
+                        conflicts.append(
+                            CoreSlotConflict(
+                                kind="weather",
+                                locked_slot_index=context.slot_index,
+                                locked_species=context.resolved_build.species or "",
+                                resource=provided,
+                            )
+                        )
+                        break
+    return tuple(conflicts)
+
+
 def candidate_wastes_core_slot(
     decision: AnchorRoleDecision,
     build: ResolvedAnchorBuild,
@@ -163,30 +225,11 @@ def candidate_wastes_core_slot(
     function only judges the resource-conflict question, not slot
     position, to keep the two concerns independently testable.
     """
-    if not is_core_slot:
-        return False
-    from recommender.legality import load_snapshot
-
-    snap = load_snapshot()
-
-    candidate_mega_base = _candidate_mega_base(build, snap)
-    if candidate_mega_base is not None:
-        for context in locked:
-            locked_mega_base = _candidate_mega_base(context.resolved_build, snap)
-            if locked_mega_base is not None and locked_mega_base != candidate_mega_base:
-                return True
-
-    from recommender.condition_resilience import mechanism_condition, provided_conditions
-
-    _WEATHERS = frozenset({"Rain", "Sun", "Sand", "Snow"})
-    locked_weathers = provided_conditions(locked) & _WEATHERS
-    if locked_weathers:
-        for m in decision.mechanisms:
-            if m.present and m.relation == "benefits_from" and m.importance == "needed":
-                condition = mechanism_condition(m)
-                if condition in _WEATHERS and condition not in locked_weathers:
-                    return True
-    return False
+    return bool(
+        candidate_core_slot_conflicts(
+            decision, build, locked, is_core_slot=is_core_slot
+        )
+    )
 
 
 def candidate_has_unmet_needed_weather_dependency(
@@ -312,8 +355,11 @@ def collect_locked_anchor_contexts(
     state: RecommenderState,
 ) -> tuple[LockedAnchorContext, ...]:
     regulation = state.get("regulation_mod") or "champions-reg-mb"
+    masked = frozenset(state.get("masked_slot_indices") or ())
     contexts: list[LockedAnchorContext] = []
     for slot_index, slot in enumerate(state["team_draft"]):
+        if slot_index in masked:
+            continue
         if not all_locked(slot) or not slot.species.value:
             continue
         resolved = resolve_anchor_build(
@@ -833,9 +879,10 @@ def annotate_composition_impact(
         fills_pf_spof = _candidate_fills_primary_function_spof(
             decision, build, pf_report, locked
         )
-        wastes_core_slot = candidate_wastes_core_slot(
+        core_slot_conflicts = candidate_core_slot_conflicts(
             decision, build, locked, is_core_slot=is_core_slot
         )
+        wastes_core_slot = bool(core_slot_conflicts)
         dependency_reliability = candidate_dependency_reliability(
             decision, locked, regulation=regulation
         )
@@ -905,6 +952,7 @@ def annotate_composition_impact(
                 wastes_core_slot=wastes_core_slot,
                 improves_bench_subset=improves_bench_subset,
                 dependency_reliability=dependency_reliability,
+                core_slot_conflicts=core_slot_conflicts,
             )
         )
     return out
@@ -1672,3 +1720,382 @@ def material_completion_preferences(
         for preference in preferences
     }
     return preferences if len(orders) > 1 else ()
+
+
+
+@dataclass(frozen=True)
+class MaskedCorePackage:
+    candidate: AnnotatedCandidate
+    masked_slot_indices: tuple[int, ...]
+    fill: AnnotatedCandidate
+    label: str
+
+
+def remaining_open_after_place(state: RecommenderState) -> int:
+    draft = state.get("team_draft") or []
+    open_count = sum(1 for slot in draft if not all_locked(slot))
+    return max(0, open_count - 1)
+
+
+def mask_slots_for(candidate: AnnotatedCandidate) -> tuple[int, ...]:
+    return tuple(sorted({row.locked_slot_index for row in candidate.core_slot_conflicts}))
+
+
+def _has_usage_backed(candidate: AnnotatedCandidate) -> bool:
+    return any(getattr(item, "basis", None) == "usage_backed" for item in candidate.evidence)
+
+
+def _has_verified_threat(candidate: AnnotatedCandidate) -> bool:
+    row = candidate.threat_row
+    if row is None:
+        return False
+    return bool(getattr(row, "verified_vs", None))
+
+
+def independently_strong_category_a(
+    candidate: AnnotatedCandidate,
+    pool: Sequence[AnnotatedCandidate],
+    locked: Sequence[LockedAnchorContext],
+) -> bool:
+    ignored = [replace(row, wastes_core_slot=False) for row in pool]
+    category_a, _, _ = _categorize_candidates(ignored)
+    from recommender.counters import _species_types
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    locked_types: list[list[str]] = []
+    for context in locked:
+        species = context.resolved_build.species or ""
+        try:
+            locked_types.append(_species_types(snap, species))
+        except Exception:
+            locked_types.append([])
+    ranked = _rank_category_a(list(category_a), locked_types)
+    top = {to_id(row.species) for row in ranked[:3]}
+    return to_id(candidate.species) in top
+
+
+def should_try_masked_core(
+    candidate: AnnotatedCandidate,
+    pool: Sequence[AnnotatedCandidate],
+    state: RecommenderState,
+    locked: Sequence[LockedAnchorContext],
+) -> bool:
+    if not candidate.wastes_core_slot:
+        return False
+    if remaining_open_after_place(state) < 1:
+        return False
+    if not (_has_verified_threat(candidate) and _has_usage_backed(candidate)):
+        return False
+    return independently_strong_category_a(candidate, pool, locked)
+
+
+def _package_label(
+    candidate: AnnotatedCandidate,
+    locked: Sequence[LockedAnchorContext],
+    mask: frozenset[int],
+) -> str:
+    by_slot = {context.slot_index: context for context in locked}
+    names: list[str] = []
+    for index in sorted(mask):
+        context = by_slot.get(index)
+        species = (
+            (context.resolved_build.species or "") if context is not None else ""
+        )
+        names.append(species or f"slot {index}")
+    benched = ", ".join(names)
+    kinds = {row.kind for row in candidate.core_slot_conflicts}
+    if "weather" in kinds:
+        return f"Weather core — {benched} benched"
+    return f"Mega core — {benched} benched"
+
+
+def _synthetic_candidate_context(
+    candidate: AnnotatedCandidate,
+    slot_index: int,
+    state: RecommenderState,
+) -> LockedAnchorContext:
+    from recommender.coverage import spec_to_slot
+
+    spec = dict(candidate.spec) if candidate.spec else {"species": candidate.species}
+    spec.setdefault("species", candidate.species)
+    slot = spec_to_slot(spec)
+    regulation = state.get("regulation_mod") or "champions-reg-mb"
+    resolved = resolve_anchor_build(
+        slot, role_hint=slot.role.value, regulation=regulation
+    )
+    decision = classify_anchor_role(resolved, explicit_role=None)
+    shape = derive_role_shape_context(decision)
+    pokemon = resolved.as_pokemon()
+    anchor_id = to_id(resolved.species or candidate.species)
+    needs = tuple(
+        AnchoredSupportNeed(slot_index, anchor_id, need)
+        for need in query_support_needs(
+            pokemon,
+            shape,
+            team_draft=state["team_draft"],
+            state=state,
+            regulation=regulation,
+        )
+    )
+    return LockedAnchorContext(
+        slot_index=slot_index,
+        anchor_id=anchor_id,
+        pokemon=pokemon,
+        resolved_build=resolved,
+        role_decision=decision,
+        role_shape_context=shape,
+        support_needs=needs,
+    )
+
+
+def _is_sole_needed_provider(
+    slot_index: int,
+    locked: Sequence[LockedAnchorContext],
+    mask: frozenset[int],
+) -> bool:
+    from recommender.condition_resilience import mechanism_condition
+
+    target = next((row for row in locked if row.slot_index == slot_index), None)
+    if target is None:
+        return False
+    provided: set[str] = set()
+    for mechanism in target.role_decision.mechanisms:
+        if mechanism.present and mechanism.relation == "provides":
+            condition = mechanism_condition(mechanism)
+            if condition:
+                provided.add(condition)
+    if not provided:
+        return False
+    others = [
+        row
+        for row in locked
+        if row.slot_index != slot_index and row.slot_index not in mask
+    ]
+    other_provided: set[str] = set()
+    for row in others:
+        for mechanism in row.role_decision.mechanisms:
+            if mechanism.present and mechanism.relation == "provides":
+                condition = mechanism_condition(mechanism)
+                if condition:
+                    other_provided.add(condition)
+    unique = provided - other_provided
+    if not unique:
+        return False
+    for row in others:
+        for mechanism in row.role_decision.mechanisms:
+            if (
+                mechanism.present
+                and mechanism.relation == "benefits_from"
+                and mechanism.importance == "needed"
+                and mechanism_condition(mechanism) in unique
+            ):
+                return True
+    return False
+
+
+def _calc_agrees(
+    candidate: AnnotatedCandidate,
+    fill: AnnotatedCandidate,
+    state: RecommenderState,
+    working: Sequence[LockedAnchorContext],
+    objective: Sequence[object],
+    fill_index: int,
+    candidate_index: int,
+) -> bool:
+    from recommender.coverage import candidate_improves_best_bring, spec_to_slot
+
+    pick = state.get("picked_team_size")
+    threat_specs = []
+    for row in objective:
+        threat = getattr(row, "threat", None)
+        spec = getattr(threat, "spec", None) if threat is not None else None
+        if spec:
+            threat_specs.append(spec)
+    if not threat_specs or pick is None or len(working) < pick:
+        return True
+    draft = list(state.get("team_draft") or [])
+    cand_spec = dict(candidate.spec) if candidate.spec else {"species": candidate.species}
+    cand_spec.setdefault("species", candidate.species)
+    fill_spec = dict(fill.spec) if fill.spec else {"species": fill.species}
+    fill_spec.setdefault("species", fill.species)
+    draft[candidate_index] = spec_to_slot(cand_spec)
+    draft[fill_index] = spec_to_slot(fill_spec)
+    regulation = state.get("regulation_mod") or "champions-reg-mb"
+    return candidate_improves_best_bring(
+        draft,
+        working,
+        fill_index,
+        pick,
+        threat_specs,
+        None,
+        regulation=regulation,
+    )
+
+
+def _search_gap_fill(
+    candidate: AnnotatedCandidate,
+    state: RecommenderState,
+    locked: Sequence[LockedAnchorContext],
+    mask: frozenset[int],
+    objective: Sequence[object],
+    candidate_index: int,
+) -> AnnotatedCandidate | None:
+    from recommender.condition_resilience import assess_condition_resilience
+    from recommender.teammates import pairwise_teammate_lift, query_shared_teammates
+    from recommender.threat_counters import query_candidates_for_threats
+    from recommender.usage_data import lineage_ids
+
+    filtered = [row for row in locked if row.slot_index not in mask]
+    synthetic = _synthetic_candidate_context(candidate, candidate_index, state)
+    working = [*filtered, synthetic]
+    regulation = state.get("regulation_mod") or "champions-reg-mb"
+    ownership_mode = state.get("ownership_mode", "off")
+    owned = owned_species_ids(state)
+    names = [
+        row.resolved_build.species
+        for row in working
+        if row.resolved_build.species
+    ]
+    shared = query_shared_teammates(names, regulation)
+    resilience = assess_condition_resilience(working)
+    locked_species = [str(name) for name in names]
+    excluded = {
+        lineage for species in locked_species for lineage in lineage_ids(species)
+    }
+    try:
+        discovery = query_candidates_for_threats(
+            objective,  # type: ignore[arg-type]
+            available_pool=sorted(owned),
+            ownership_mode=ownership_mode,
+            excluded_species=excluded,
+            locked_contexts=working,
+            exclude_slots=mask,
+        )
+        threat_rows = (
+            discovery.candidates if discovery.status != "unavailable" else ()
+        )
+    except Exception:
+        threat_rows = ()
+    merged = merge_multi_locked_candidates(
+        state,
+        working,
+        threat_rows,
+        shared,
+        ownership_mode=ownership_mode,
+        owned_species=owned,
+        condition_resilience=resilience,
+    )
+    annotated = annotate_composition_impact(
+        merged,
+        state,
+        locked_anchors=working,
+        condition_resilience=resilience,
+        objective=objective,  # type: ignore[arg-type]
+    )
+    ranked = rank_multi_locked_by_category(annotated, working)
+    blocked = {to_id(candidate.species)}
+    blocked.update(to_id(row.resolved_build.species or "") for row in working)
+    ranked = [row for row in ranked if to_id(row.species) not in blocked]
+    shared_ids: set[str] = set()
+    if shared is not None and getattr(shared, "status", None) == "available":
+        shared_ids = {to_id(getattr(row, "species_id", "")) for row in (shared.rows or ())}
+
+    def sort_key(row: AnnotatedCandidate) -> tuple[int, float]:
+        hit = to_id(row.species) in shared_ids
+        lift = pairwise_teammate_lift(candidate.species, row.species, regulation)
+        return (0 if hit else 1, -(lift if lift is not None else 0.0))
+
+    ranked = sorted(ranked, key=sort_key)
+    opens = [
+        index
+        for index, slot in enumerate(state.get("team_draft") or [])
+        if not all_locked(slot)
+    ]
+    fill_index = opens[1] if len(opens) > 1 else None
+    for row in ranked:
+        if not _has_usage_backed(row):
+            continue
+        if fill_index is not None and not _calc_agrees(
+            candidate, row, state, working, objective, fill_index, candidate_index
+        ):
+            continue
+        return row
+    return None
+
+
+def discover_masked_core_package(
+    candidate: AnnotatedCandidate,
+    state: RecommenderState,
+    locked: Sequence[LockedAnchorContext],
+    *,
+    objective: Sequence[object] = (),
+) -> MaskedCorePackage | None:
+    """Pure gap-fill against a masked exclusive-resource conflict. No graph."""
+    mask = set(mask_slots_for(candidate))
+    remaining = remaining_open_after_place(state)
+    if not mask or remaining < 1 or len(mask) > remaining:
+        return None
+    opens = [
+        index
+        for index, slot in enumerate(state.get("team_draft") or [])
+        if not all_locked(slot)
+    ]
+    if len(opens) < 2:
+        return None
+    used_fills = 0
+    fill: AnnotatedCandidate | None = None
+    while True:
+        fill = _search_gap_fill(
+            candidate, state, locked, frozenset(mask), objective, opens[0]
+        )
+        if fill is None:
+            return None
+        used_fills += 1
+        extra = {
+            row.locked_slot_index
+            for row in fill.core_slot_conflicts
+            if row.locked_slot_index not in mask
+        }
+        if remaining - used_fills <= 0:
+            extra = {
+                index
+                for index in extra
+                if not _is_sole_needed_provider(index, locked, frozenset(mask))
+            }
+        extra -= mask
+        if not extra:
+            break
+        if used_fills >= remaining:
+            return None
+        mask |= extra
+        if len(mask) > remaining:
+            return None
+    if fill is None:
+        return None
+    frozen = frozenset(mask)
+    return MaskedCorePackage(
+        candidate=candidate,
+        masked_slot_indices=tuple(sorted(frozen)),
+        fill=fill,
+        label=_package_label(candidate, locked, frozen),
+    )
+
+
+def gather_masked_core_packages(
+    candidates: Sequence[AnnotatedCandidate],
+    state: RecommenderState,
+    locked: Sequence[LockedAnchorContext],
+    *,
+    objective: Sequence[object] = (),
+) -> tuple[MaskedCorePackage, ...]:
+    packages: list[MaskedCorePackage] = []
+    for candidate in candidates:
+        if not should_try_masked_core(candidate, candidates, state, locked):
+            continue
+        package = discover_masked_core_package(
+            candidate, state, locked, objective=objective
+        )
+        if package is not None:
+            packages.append(package)
+    return tuple(packages)

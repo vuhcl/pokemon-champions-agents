@@ -307,6 +307,7 @@ def compute_team_coverage(
     client: CalcClient | None = None,
     *,
     exclude_slot: int | None = None,
+    exclude_slots: frozenset[int] = frozenset(),
     regulation: str = "champions",
     locked_contexts: "Sequence[LockedAnchorContext]" = (),
 ) -> list[ThreatCoverageResult]:
@@ -326,7 +327,12 @@ def compute_team_coverage(
 
     from recommender.condition_resilience import team_field_states
 
-    forced_fields = team_field_states(locked_contexts, exclude_slot=exclude_slot)
+    skip = set(exclude_slots)
+    if exclude_slot is not None:
+        skip.add(exclude_slot)
+    forced_fields = team_field_states(
+        locked_contexts, exclude_slot=exclude_slot, exclude_slots=exclude_slots
+    )
     results: list[ThreatCoverageResult] = []
 
     for threat in threats:
@@ -337,7 +343,7 @@ def compute_team_coverage(
 
 
         for i, slot in enumerate(team_draft):
-            if exclude_slot is not None and i == exclude_slot:
+            if i in skip:
                 continue
             spec = _slot_to_spec(slot, regulation=regulation)
             if not spec:
