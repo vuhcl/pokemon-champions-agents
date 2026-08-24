@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
+from typing import Any
 
 from recommender.anchor_roles import (
     AnchorRoleDecision,
@@ -1483,45 +1484,184 @@ def rank_multi_locked_by_category(
     return combined
 
 
+def _pick_first_new_lineage(
+    ranked: Sequence[AnnotatedCandidate],
+    used_lineages: set[str],
+) -> AnnotatedCandidate | None:
+    for c in ranked:
+        lineage = set(lineage_ids(c.species))
+        if not (lineage & used_lineages):
+            return c
+    return None
+
+
+def _support_need_categories(c: AnnotatedCandidate) -> frozenset[str]:
+    return frozenset(
+        n.category
+        for n in c.matching_needs
+        if n.category != "condition_beneficiary"
+    )
+
+
+def _diversify_by_need_category(
+    ranked_b: Sequence[AnnotatedCandidate],
+    n: int,
+) -> list[AnnotatedCandidate]:
+    picked: list[AnnotatedCandidate] = []
+    used_lineages: set[str] = set()
+    covered: set[str] = set()
+    picked_ids: set[str] = set()
+
+    for c in ranked_b:
+        if len(picked) >= n:
+            break
+        lineage = set(lineage_ids(c.species))
+        if lineage & used_lineages:
+            continue
+        cats = _support_need_categories(c)
+        if not cats or not (cats - covered):
+            continue
+        picked.append(c)
+        used_lineages |= lineage
+        covered |= cats
+        picked_ids.add(to_id(c.species))
+
+    for c in ranked_b:
+        if len(picked) >= n:
+            break
+        if to_id(c.species) in picked_ids:
+            continue
+        lineage = set(lineage_ids(c.species))
+        if lineage & used_lineages:
+            continue
+        picked.append(c)
+        used_lineages |= lineage
+        picked_ids.add(to_id(c.species))
+
+    return picked
+
+
+def _select_attacker(
+    ranked_a: Sequence[AnnotatedCandidate],
+    ranked_c: Sequence[AnnotatedCandidate],
+    *,
+    n_alternatives: int,
+) -> list[tuple[AnnotatedCandidate, str]]:
+    total = n_alternatives + 1
+    picks: list[tuple[AnnotatedCandidate, str]] = []
+    used_lineages: set[str] = set()
+
+    if ranked_a and ranked_c:
+        default = ranked_a[0]
+        picks.append((default, "A"))
+        used_lineages |= set(lineage_ids(default.species))
+
+        if len(picks) < total:
+            alt_c = _pick_first_new_lineage(ranked_c, used_lineages)
+            if alt_c is not None:
+                picks.append((alt_c, "C"))
+                used_lineages |= set(lineage_ids(alt_c.species))
+
+        if len(picks) < total:
+            alt_a = _pick_first_new_lineage(ranked_a[1:], used_lineages)
+            if alt_a is not None:
+                picks.append((alt_a, "A"))
+            elif len(picks) < total:
+                alt_c = _pick_first_new_lineage(ranked_c[1:], used_lineages)
+                if alt_c is not None:
+                    picks.append((alt_c, "C"))
+    else:
+        pool = [(c, "A") for c in ranked_a] + [(c, "C") for c in ranked_c]
+        for c, key in pool:
+            if len(picks) >= total:
+                break
+            lineage = set(lineage_ids(c.species))
+            if lineage & used_lineages:
+                continue
+            picks.append((c, key))
+            used_lineages |= lineage
+
+    return picks
+
+
+def _select_balanced(
+    ranked_a: Sequence[AnnotatedCandidate],
+    ranked_b: Sequence[AnnotatedCandidate],
+    ranked_c: Sequence[AnnotatedCandidate],
+    *,
+    n_alternatives: int,
+) -> list[tuple[AnnotatedCandidate, str]]:
+    total = n_alternatives + 1
+    picks: list[tuple[AnnotatedCandidate, str]] = []
+    used_lineages: set[str] = set()
+    for key, ranked in (("A", ranked_a), ("B", ranked_b), ("C", ranked_c)):
+        if len(picks) >= total:
+            break
+        c = _pick_first_new_lineage(ranked, used_lineages)
+        if c is not None:
+            picks.append((c, key))
+            used_lineages |= set(lineage_ids(c.species))
+    return picks
+
+
+def _select_support(
+    ranked_b: Sequence[AnnotatedCandidate],
+    *,
+    n_alternatives: int,
+) -> list[tuple[AnnotatedCandidate, str]]:
+    picked = _diversify_by_need_category(ranked_b, n_alternatives + 1)
+    return [(c, "B") for c in picked]
+
+
+def _build_select_result(
+    picks: Sequence[tuple[AnnotatedCandidate, str]],
+    *,
+    n_alternatives: int,
+) -> dict[str, Any]:
+    if not picks:
+        return {
+            "default": None,
+            "alternatives": [],
+            "tracks": {},
+            "category_keys": {},
+        }
+    default_c, default_key = picks[0]
+    tracks: dict[str, str] = {default_c.species: _TRACK_LABELS[default_key]}
+    category_keys: dict[str, list[str]] = {default_c.species: [default_key]}
+    alternatives: list[str] = []
+    for c, key in picks[1 : n_alternatives + 1]:
+        alternatives.append(c.species)
+        tracks[c.species] = _TRACK_LABELS[key]
+        category_keys[c.species] = [key]
+    return {
+        "default": default_c.species,
+        "alternatives": alternatives,
+        "tracks": tracks,
+        "category_keys": category_keys,
+    }
+
+
 def select_diverse_candidates(
     candidates: Sequence[AnnotatedCandidate],
     locked_contexts: Sequence[LockedAnchorContext],
     *,
     n_alternatives: int = 2,
+    preference: TeamCompletionPreference | None = None,
 ) -> dict[str, Any]:
-    """Default + N alternatives via a multi-signal, per-category
-    approach, replacing a single combined ranking for this specific
-    selection step. Confirmed with Vu directly, following live evidence
-    that a single ranking (even after fixing several real bugs in it)
-    kept surfacing narrow, redundant, or context-blind candidate sets --
-    e.g. three Steel-type picks that all individually looked reasonable
-    but collectively piled onto the same shared weakness, or real
-    teammates (a screens setter, a Rain-boosted sweeper) that never
-    entered the top ranks because their real value lives outside what
-    any single score can see.
+    """Default + N alternatives via per-preference selection shapes.
 
     Three categories, each scored independently:
     - A: type-synergy + threat-counter breadth (_rank_category_a)
     - B: support-needs (screens, trick_room, healing_cleric, etc.)
     - C: condition-benefit (Rain-beneficiary, etc.)
-    Shared-teammate correlation is the secondary tie-break within every
-    category, not a separate global signal.
 
-    Default: a genuine multi-category candidate (confirmed strong -- top
-    3 -- in more than one category) if one exists, since that represents
-    real, multi-dimensional value; otherwise falls back to Category A's
-    top pick. Alternatives: the top pick from each of the OTHER
-    categories, skipping to the next-best within a category if its top
-    pick was already used as the default or as another alternative.
+    Preference selects among distinct presentation shapes:
+    - attacker: hard-excludes Category B as a selection source (A+C only)
+    - balanced / unset: one pick per category A→B→C, lineage-deduped
+    - support: B-only, diversified by NeedCategory within ranked_b
 
     Returns a "tracks" mapping (species -> human-readable label) alongside
-    default/alternatives, surfacing which track each pick actually came
-    from -- confirmed live this matters for real debugging (candidates
-    that "feel like" they should be one category can genuinely be
-    multi-category, e.g. a strong threat-counter that also happens to
-    satisfy a support-need), not just future steering (explicitly scoped
-    out of this change -- surfacing the track is the only thing
-    implemented here, not acting on a request for "a different track").
+    default/alternatives, surfacing which track each pick came from.
     """
     category_a, category_b, category_c = _categorize_candidates(candidates)
 
@@ -1539,22 +1679,6 @@ def select_diverse_candidates(
         relevant = _need_branch_evidence(c, condition_beneficiary=condition_beneficiary)
         return any(item.confidence != "low" for item in relevant)
 
-    # Categories B/C are filtered to strong evidence (confidence != low)
-    # immediately after ranking -- confirmed live, a real, deliberate
-    # design decision, not just a multi-signal-detection nuance: if the
-    # BEST available candidate for a category is only low confidence, it
-    # should not be suggested as that category's candidate at all, not
-    # even as a weak fallback. A weak, trigger=None match (e.g. an
-    # unconditionally-generated need like screens) can still rank "top"
-    # within its own category purely because many candidates for that
-    # need share the same low floor -- that's not the same as being a
-    # genuinely reliable pick. Other signals (shared-teammate,
-    # threat-coverage, additional matching_needs) are only meant to rank
-    # candidates WITHIN a real confidence tier, never to substitute for
-    # one. If nothing in a category clears this bar, that category
-    # simply contributes nothing here -- existing fallback logic below
-    # (default falls through A -> B -> C; alternatives skip empty
-    # categories naturally) already handles an empty category correctly.
     ranked_b = [
         c
         for c in _rank_by_need_evidence(
@@ -1569,100 +1693,18 @@ def select_diverse_candidates(
         )
         if _has_strong_evidence(c, condition_beneficiary=True)
     ]
-    ranked_by_category = {"A": ranked_a, "B": ranked_b, "C": ranked_c}
 
-    # Multi-category default: a candidate confirmed in the top-3 of more
-    # than one category's own ranking represents real, multi-dimensional
-    # value -- not just "happened to be top in one narrow signal".
-    # Grouped by lineage, not exact species id, for the same reason the
-    # alternatives dedup below is -- a mega/regional form shouldn't be
-    # treated as a separate candidate from its base species here either.
-    # B/C are already strong-evidence-only at this point (filtered
-    # above), so no additional filtering is needed here.
-    top3_lineages: dict[str, set[frozenset[str]]] = {
-        "A": {frozenset(lineage_ids(c.species)) for c in ranked_a[:3]},
-        "B": {frozenset(lineage_ids(c.species)) for c in ranked_b[:3]},
-        "C": {frozenset(lineage_ids(c.species)) for c in ranked_c[:3]},
-    }
-    multi_signal_lineages: dict[frozenset[str], int] = {}
-    for key, lineages in top3_lineages.items():
-        for lineage in lineages:
-            multi_signal_lineages[lineage] = multi_signal_lineages.get(lineage, 0) + 1
-    genuine_multi_signal_lineages = {
-        lineage for lineage, count in multi_signal_lineages.items() if count > 1
-    }
-
-    default: AnnotatedCandidate | None = None
-    default_categories: list[str] = []
-    if genuine_multi_signal_lineages:
-        # Among genuine multi-signal candidates, prefer whichever ranks
-        # best in Category A (the closest existing analog to "strongest
-        # overall"), falling back to its rank in whichever category it's
-        # strongest in otherwise.
-        best_rank = None
-        for lineage in genuine_multi_signal_lineages:
-            for key, ranked in ranked_by_category.items():
-                for i, c in enumerate(ranked):
-                    if frozenset(lineage_ids(c.species)) == lineage:
-                        candidate_rank = (i, key != "A")
-                        if best_rank is None or candidate_rank < best_rank[0]:
-                            best_rank = (candidate_rank, c)
-        if best_rank is not None:
-            default = best_rank[1]
-            default_lineage = frozenset(lineage_ids(default.species))
-            default_categories = [
-                key
-                for key, lineages in top3_lineages.items()
-                if default_lineage in lineages
-            ]
-    if default is None and ranked_a:
-        default = ranked_a[0]
-        default_categories = ["A"]
-    elif default is None and ranked_b:
-        default = ranked_b[0]
-        default_categories = ["B"]
-    elif default is None and ranked_c:
-        default = ranked_c[0]
-        default_categories = ["C"]
-
-    # Dedup by lineage, not exact species id -- confirmed live necessary:
-    # a plain to_id() comparison doesn't catch a mega/regional-form
-    # duplicate of the same underlying species (e.g. Abomasnow and
-    # Abomasnow-Mega both getting selected as if they were genuinely
-    # different alternatives, when they're the same Pokemon).
-    used_lineages: set[str] = (
-        set(lineage_ids(default.species)) if default is not None else set()
-    )
-    alternatives: list[AnnotatedCandidate] = []
-    alternative_categories: list[str] = []
-    for key, ranked in (("B", ranked_b), ("C", ranked_c), ("A", ranked_a)):
-        if len(alternatives) >= n_alternatives:
-            break
-        for c in ranked:
-            c_lineage = set(lineage_ids(c.species))
-            if not (c_lineage & used_lineages):
-                alternatives.append(c)
-                alternative_categories.append(key)
-                used_lineages |= c_lineage
-                break
-
-    tracks: dict[str, str] = {}
-    category_keys: dict[str, list[str]] = {}
-    if default is not None:
-        tracks[default.species] = " + ".join(
-            _TRACK_LABELS[key] for key in default_categories
+    effective = preference or "balanced"
+    if effective == "attacker":
+        picks = _select_attacker(ranked_a, ranked_c, n_alternatives=n_alternatives)
+    elif effective == "support":
+        picks = _select_support(ranked_b, n_alternatives=n_alternatives)
+    else:
+        picks = _select_balanced(
+            ranked_a, ranked_b, ranked_c, n_alternatives=n_alternatives
         )
-        category_keys[default.species] = default_categories
-    for c, key in zip(alternatives, alternative_categories):
-        tracks[c.species] = _TRACK_LABELS[key]
-        category_keys[c.species] = [key]
 
-    return {
-        "default": default.species if default is not None else None,
-        "alternatives": [c.species for c in alternatives[:n_alternatives]],
-        "tracks": tracks,
-        "category_keys": category_keys,
-    }
+    return _build_select_result(picks, n_alternatives=n_alternatives)
 
 
 def rank_multi_locked_candidates(
