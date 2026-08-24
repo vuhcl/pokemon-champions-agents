@@ -3121,6 +3121,7 @@ def discover_multi_locked(
         mega_ceiling_notices,
         merge_multi_locked_candidates,
         owned_species_ids,
+        SUPPORT_CATEGORY_B_POOL_N,
         rank_multi_locked_by_category,
         gather_masked_core_packages,
     )
@@ -3295,7 +3296,11 @@ def discover_multi_locked(
     # got cut from the pool entirely whenever 10+ candidates ranked
     # higher by threat-coverage/type-synergy criteria alone -- the
     # common case with real threat-counter data from live calc.
-    ranked = rank_multi_locked_by_category(candidates, contexts)
+    ranked = rank_multi_locked_by_category(
+        candidates,
+        contexts,
+        category_b_n=SUPPORT_CATEGORY_B_POOL_N if preference == "support" else None,
+    )
     if not ranked:
         # Mirrors discover_single_locked's leniency exactly: try an
         # archetype-driven proposal before giving up outright, rather than

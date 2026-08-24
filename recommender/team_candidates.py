@@ -1395,6 +1395,11 @@ _TRACK_LABELS = {
     "C": "condition synergy",
 }
 
+# ponytail: 30 is calibrated from live discovery (2026-08-24): 30 Category-B
+# candidates post strong-evidence gate; screens-only Sableye at rank 11 missed
+# the default [:10] cut. Upgrade path: raise this constant or derive from pool.
+SUPPORT_CATEGORY_B_POOL_N = 30
+
 
 def _categorize_candidates(
     candidates: Sequence[AnnotatedCandidate],
@@ -1437,6 +1442,7 @@ def rank_multi_locked_by_category(
     locked_contexts: Sequence[LockedAnchorContext],
     *,
     n_per_category: int = 10,
+    category_b_n: int | None = None,
 ) -> list[AnnotatedCandidate]:
     """Gives each of the three categories its own top-N cut, instead of
     one shared, combined top-N ranking.
@@ -1467,9 +1473,10 @@ def rank_multi_locked_by_category(
         _species_types(snap, ctx.resolved_build.species) for ctx in locked_contexts
     ]
     ranked_a = _rank_category_a(category_a, locked_types_list)[:n_per_category]
+    b_n = n_per_category if category_b_n is None else category_b_n
     ranked_b = _rank_by_need_evidence(
         category_b, locked_contexts, condition_beneficiary=False
-    )[:n_per_category]
+    )[:b_n]
     ranked_c = _rank_by_need_evidence(
         category_c, locked_contexts, condition_beneficiary=True
     )[:n_per_category]
@@ -1524,6 +1531,39 @@ def _diversify_by_need_category(
         picked.append(c)
         used_lineages |= lineage
         covered |= cats
+        picked_ids.add(to_id(c.species))
+
+    for c in ranked_b:
+        if len(picked) >= n:
+            break
+        if to_id(c.species) in picked_ids:
+            continue
+        lineage = set(lineage_ids(c.species))
+        if lineage & used_lineages:
+            continue
+        cats = _support_need_categories(c)
+        if not cats or not (cats - covered):
+            continue
+        picked.append(c)
+        used_lineages |= lineage
+        covered |= cats
+        picked_ids.add(to_id(c.species))
+
+    picked_profiles = {_support_need_categories(c) for c in picked}
+    for c in ranked_b:
+        if len(picked) >= n:
+            break
+        if to_id(c.species) in picked_ids:
+            continue
+        lineage = set(lineage_ids(c.species))
+        if lineage & used_lineages:
+            continue
+        cats = _support_need_categories(c)
+        if cats in picked_profiles:
+            continue
+        picked.append(c)
+        used_lineages |= lineage
+        picked_profiles.add(cats)
         picked_ids.add(to_id(c.species))
 
     for c in ranked_b:
