@@ -75,10 +75,22 @@ def mechanism_condition(m: MechanismEvidence) -> str | None:
     return None
 
 
+def _skipped_slots(
+    *,
+    exclude_slot: int | None = None,
+    exclude_slots: frozenset[int] = frozenset(),
+) -> frozenset[int]:
+    skip = set(exclude_slots)
+    if exclude_slot is not None:
+        skip.add(exclude_slot)
+    return frozenset(skip)
+
+
 def provided_conditions(
     locked: Sequence[LockedAnchorContext],
     *,
     exclude_slot: int | None = None,
+    exclude_slots: frozenset[int] = frozenset(),
 ) -> frozenset[str]:
     """The set of TRACKED_CONDITIONS this locked team already provides
     (e.g. {"Rain", "Tailwind"}) -- same mechanism-detection team_field_states
@@ -88,8 +100,9 @@ def provided_conditions(
     build calc input.
     """
     out: set[str] = set()
+    skip = _skipped_slots(exclude_slot=exclude_slot, exclude_slots=exclude_slots)
     for context in locked:
-        if exclude_slot is not None and context.slot_index == exclude_slot:
+        if getattr(context, "slot_index", None) in skip:
             continue
         role_decision = getattr(context, "role_decision", None)
         if role_decision is None:
@@ -247,6 +260,7 @@ def has_reliable_screens_provider(
     locked: Sequence[LockedAnchorContext],
     *,
     exclude_slot: int | None = None,
+    exclude_slots: frozenset[int] = frozenset(),
 ) -> bool:
     """Whether the locked team already has a genuinely committed screens
     setter -- not just anyone carrying a single screen move incidentally.
@@ -271,8 +285,9 @@ def has_reliable_screens_provider(
     with at least one screen move present) -- someone running Reflect as
     a single incidental move does not count.
     """
+    skip = _skipped_slots(exclude_slot=exclude_slot, exclude_slots=exclude_slots)
     for context in locked:
-        if exclude_slot is not None and context.slot_index == exclude_slot:
+        if getattr(context, "slot_index", None) in skip:
             continue
         role_decision = getattr(context, "role_decision", None)
         if role_decision is None:
@@ -364,6 +379,7 @@ def team_field_states(
     locked: Sequence[LockedAnchorContext],
     *,
     exclude_slot: int | None = None,
+    exclude_slots: frozenset[int] = frozenset(),
 ) -> list["FieldSpec"]:
     """Real, achievable field states this locked team can produce -- one
     FieldSpec per distinct provided condition, not a single combined
@@ -393,8 +409,9 @@ def team_field_states(
     """
     out: list["FieldSpec"] = []
     seen: set[str] = set()
+    skip = _skipped_slots(exclude_slot=exclude_slot, exclude_slots=exclude_slots)
     for context in locked:
-        if exclude_slot is not None and context.slot_index == exclude_slot:
+        if getattr(context, "slot_index", None) in skip:
             continue
         role_decision = getattr(context, "role_decision", None)
         if role_decision is None:

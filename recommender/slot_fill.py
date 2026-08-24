@@ -126,6 +126,16 @@ _DELAYED_DELIVERY_MOVES: dict[NeedCategory, frozenset[str]] = {
 
 
 @dataclass(frozen=True)
+class CoreSlotConflict:
+    """Which locked member a candidate conflicts with over weather or mega."""
+
+    kind: Literal["weather", "mega"]
+    locked_slot_index: int
+    locked_species: str
+    resource: str
+
+
+@dataclass(frozen=True)
 class AnnotatedCandidate:
     species: str
     matching_needs: tuple[SupportNeed, ...]
@@ -203,6 +213,7 @@ class AnnotatedCandidate:
     # real but soft downside, not a disqualifying one. See
     # condition_resilience.candidate_dependency_reliability.
     dependency_reliability: float = 1.0
+    core_slot_conflicts: tuple[CoreSlotConflict, ...] = ()
 
 
 @dataclass(frozen=True)

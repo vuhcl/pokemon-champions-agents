@@ -36,6 +36,9 @@ _FOOTERS: dict[str, str] = {
     "completion_preference": (
         "Reply with a preference name, 1/2/3, or 'defer'."
     ),
+    "core_resolution": (
+        "Reply with a resolution name, 1/2/3, or 'defer'."
+    ),
     "full_build_confirmation": (
         "Reply 'yes' to accept, pick option ids (compose with +), "
         "'compare A B', free-text edit, or 'defer'."
@@ -388,6 +391,10 @@ def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
             blocks.append("Prefer next slot orientation:")
             for i, pref in enumerate(pending.get("preference_options") or (), start=1):
                 blocks.append(f"{i}. {pref}")
+        elif kind == "core_resolution":
+            blocks.append("This candidate conflicts with the locked core:")
+            for i, option in enumerate(pending.get("resolution_options") or (), start=1):
+                blocks.append(f"{i}. {option.get('label')}")
         elif kind == "full_build_confirmation":
             blocks.extend(_format_full_build(state))
         elif kind == "confirm_abandon_build":

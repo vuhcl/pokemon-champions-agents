@@ -344,6 +344,52 @@ def query_teammates(
 TeammateQuery = Callable[[str, str], TeammateQueryResult]
 
 
+def pairwise_teammate_lift(
+    anchor: str,
+    partner: str,
+    regulation: str = "champions",
+    *,
+    query: TeammateQuery = query_teammates,
+) -> float | None:
+    """conditional_pct / usage_pct for an exact-attribution pair.
+
+    Missing usage is no signal (None), never 1.0.
+    """
+    result = query(anchor, regulation)
+    if result.status != "available" or not result.rows:
+        return None
+    partner_id = to_id(partner)
+    row = next(
+        (
+            item
+            for item in result.rows
+            if item.species_id == partner_id or to_id(item.name) == partner_id
+        ),
+        None,
+    )
+    if (
+        row is None
+        or row.attribution_status != "exact"
+        or row.conditional_pct is None
+    ):
+        return None
+    entry = showdown_species_map(regulation).get(partner_id)
+    if not isinstance(entry, dict):
+        return None
+    usage = entry.get("usage_pct")
+    if usage is None:
+        usage = entry.get("usage")
+    try:
+        usage_f = float(usage)
+    except (TypeError, ValueError):
+        return None
+    if usage_f <= 0:
+        return None
+    if usage_f <= 1.0:
+        usage_f *= 100.0
+    return float(row.conditional_pct) / usage_f
+
+
 def query_shared_teammates(
     species: Sequence[str],
     regulation: str = "champions",

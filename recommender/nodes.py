@@ -142,6 +142,7 @@ def _is_default_phrase(part: str) -> bool:
 _BLOCKED_ON_KIND = {
     "candidate_selection": frozenset({"edit", "select_build_option", "compare"}),
     "completion_preference": frozenset({"edit", "select_build_option", "compare"}),
+    "core_resolution": frozenset({"edit", "select_build_option", "compare"}),
     "full_build_confirmation": frozenset({"lock"}),  # all lock, including cross-slot
     "none": frozenset({"edit", "select_build_option", "compare"}),
 }
@@ -870,6 +871,12 @@ def build_gap_fill_context(state: RecommenderState) -> dict[str, str]:
         elif kind == "completion_preference":
             prefs = pending.get("preference_options") or ()
             pending_context = f"preference options: {', '.join(str(p) for p in prefs)}"
+        elif kind == "core_resolution":
+            labels = [
+                str(option.get("label") or "")
+                for option in pending.get("resolution_options") or ()
+            ]
+            pending_context = f"core resolution options: {', '.join(labels)}"
         elif kind == "full_build_confirmation":
             intent = state.get("pending_slot_intent")
             provisional = state.get("provisional_slot")
@@ -1273,6 +1280,57 @@ def classify_pending(
             pending_presentation=pending_presentation,
             team_draft=team_draft,
         )
+    if pending_presentation.get("kind") == "core_resolution":
+        if version != 2:
+            return {
+                "turn_intent": "pending_response",
+                "pending_presentation": None,
+                "slot_commit_error": f"unsupported pending schema version: {version}",
+            }
+        options = pending_presentation.get("resolution_options") or ()
+        ordinal = _ORDINAL_REPLIES.get(reply)
+        selected = next(
+            (
+                option
+                for option in options
+                if reply == str(option.get("label") or "").casefold()
+                or reply == str(option.get("id") or "").casefold()
+            ),
+            None,
+        )
+        if selected is None and ordinal is not None and ordinal < len(options):
+            selected = options[ordinal]
+        if selected is not None:
+            if selected.get("id") == "keep_core":
+                return {
+                    "turn_intent": "continue",
+                    "pending_presentation": None,
+                }
+            constructed = selected.get("option")
+            if not constructed:
+                return {"turn_intent": "pending_response"}
+            return {
+                "turn_intent": "slot_candidate_selected",
+                "selected_option": constructed,
+                "masked_slot_indices": tuple(selected.get("masked_slot_indices") or ()),
+                "team_completion_preference": None,
+                "pending_presentation": None,
+            }
+        if reply in _DEFER_REPLIES:
+            return {
+                "turn_intent": "deferred",
+                "pending_presentation": None,
+            }
+        if turn_intent_parser is None:
+            return {"turn_intent": "pending_response"}
+        return _gap_fill(
+            text,
+            turn_intent_parser=turn_intent_parser,
+            gap_fill_context=gap_fill_context,
+            had_pending=True,
+            pending_presentation=pending_presentation,
+            team_draft=team_draft,
+        )
     if pending_presentation.get("kind") == "confirm_abandon_build":
         if pending_presentation.get("schema_version", 1) != 1:
             return {"turn_intent": "pending_response"}
@@ -1589,6 +1647,8 @@ def initialize(state: RecommenderState) -> dict:
         out["species_resolve_notices"] = ()
     if "team_completion_preference" not in state:
         out["team_completion_preference"] = None
+    if "masked_slot_indices" not in state:
+        out["masked_slot_indices"] = ()
     if "candidate_discovery_error" not in state:
         out["candidate_discovery_error"] = None
     return out
@@ -1651,6 +1711,7 @@ def classify_input(
         "provisional_slot",
         "provisional_refinement",
         "team_completion_preference",
+        "masked_slot_indices",
     ):
         if key in result:
             out[key] = result[key]
@@ -2947,6 +3008,7 @@ def discover_multi_locked(
         merge_multi_locked_candidates,
         owned_species_ids,
         rank_multi_locked_by_category,
+        gather_masked_core_packages,
     )
     from recommender.threat_counters import query_candidates_for_threats
     from recommender.usage_data import lineage_ids
@@ -3055,6 +3117,37 @@ def discover_multi_locked(
         condition_resilience=resilience,
         objective=objective,
     )
+    packages = gather_masked_core_packages(
+        candidates, state, contexts, objective=objective
+    )
+    if packages:
+        resolution_options: list[dict] = [
+            {"id": "keep_core", "label": "Keep current core"}
+        ]
+        for index, package in enumerate(packages):
+            resolution_options.append(
+                {
+                    "id": f"package_{index}",
+                    "label": package.label,
+                    "masked_slot_indices": package.masked_slot_indices,
+                    "option": {
+                        "species": package.candidate.species,
+                        "source": package.candidate.source,
+                        "evidence": package.candidate.evidence,
+                        "track": package.label,
+                    },
+                }
+            )
+        return {
+            **signals,
+            "candidate_discovery_error": None,
+            "pending_presentation": {
+                "schema_version": 2,
+                "kind": "core_resolution",
+                "slot_index": slot_index,
+                "resolution_options": resolution_options,
+            },
+        }
     preference = state.get("team_completion_preference")
     if preference is None:
         choices = material_completion_preferences(
