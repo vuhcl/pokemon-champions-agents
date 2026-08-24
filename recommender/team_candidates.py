@@ -1787,6 +1787,13 @@ def should_try_masked_core(
         return False
     if not (_has_verified_threat(candidate) and _has_usage_backed(candidate)):
         return False
+    pick = state.get("picked_team_size")
+    if pick is None:
+        return False
+    mask = set(mask_slots_for(candidate))
+    unmasked = sum(1 for row in locked if row.slot_index not in mask)
+    if unmasked + 1 < pick:
+        return False
     return independently_strong_category_a(candidate, pool, locked)
 
 
@@ -1912,8 +1919,8 @@ def _calc_agrees(
         spec = getattr(threat, "spec", None) if threat is not None else None
         if spec:
             threat_specs.append(spec)
-    if not threat_specs or pick is None or len(working) < pick:
-        return True
+    if pick is None or not threat_specs or len(working) < pick:
+        return False
     draft = list(state.get("team_draft") or [])
     cand_spec = dict(candidate.spec) if candidate.spec else {"species": candidate.species}
     cand_spec.setdefault("species", candidate.species)
@@ -2012,6 +2019,8 @@ def _search_gap_fill(
         for index, slot in enumerate(state.get("team_draft") or [])
         if not all_locked(slot)
     ]
+    # discover_masked_core_package requires len(opens) >= 2, so fill_index is
+    # always set on the only production call path.
     fill_index = opens[1] if len(opens) > 1 else None
     for row in ranked:
         if not _has_usage_backed(row):

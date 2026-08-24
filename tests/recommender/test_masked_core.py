@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import ExitStack
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -18,6 +19,7 @@ from recommender.team_candidates import (
     mega_ceiling_notices,
     remaining_open_after_place,
     should_try_masked_core,
+    _search_gap_fill,
 )
 from recommender.teammate_types import TeammateEvidence, TeammateQueryResult
 from recommender.teammates import pairwise_teammate_lift
@@ -98,13 +100,62 @@ def _fill(species: str = "Pelipper") -> AnnotatedCandidate:
     return _candidate(species, wastes=False, conflicts=())
 
 
-def _conflict() -> CoreSlotConflict:
+def _conflict(*, slot: int = 0) -> CoreSlotConflict:
     return CoreSlotConflict(
         kind="weather",
-        locked_slot_index=0,
+        locked_slot_index=slot,
         locked_species="Charizard-Mega-Y",
         resource="Sun",
     )
+
+
+def _objective_row(species: str = "Gholdengo"):
+    threat = SimpleNamespace(spec={"species": species})
+    return SimpleNamespace(threat=threat)
+
+
+def _four_locked_draft() -> list[Slot]:
+    return [
+        _locked("Archaludon"),
+        _locked("Incineroar"),
+        _locked("Amoonguss"),
+        _locked(
+            "Charizard-Mega-Y",
+            ability="Drought",
+            item="Charizardite Y",
+            moves=["Heat Wave", "Protect", "Weather Ball", "Solar Beam"],
+        ),
+        empty_slot(),
+        empty_slot(),
+    ]
+
+
+def _gap_fill_patches(fill: AnnotatedCandidate):
+    return (
+        patch(
+            "recommender.team_candidates.merge_multi_locked_candidates",
+            return_value=[fill],
+        ),
+        patch(
+            "recommender.team_candidates.annotate_composition_impact",
+            side_effect=lambda rows, *args, **kwargs: list(rows),
+        ),
+        patch(
+            "recommender.team_candidates.rank_multi_locked_by_category",
+            side_effect=lambda rows, *args: list(rows),
+        ),
+        patch(
+            "recommender.threat_counters.query_candidates_for_threats",
+            return_value=SimpleNamespace(status="available", candidates=()),
+        ),
+    )
+
+
+def _run_gap_fill(*args, fill: AnnotatedCandidate, **kwargs):
+    with ExitStack() as stack:
+        for item in _gap_fill_patches(fill):
+            stack.enter_context(item)
+        return _search_gap_fill(*args, **kwargs)
 
 
 def _query_result(row: TeammateEvidence) -> TeammateQueryResult:
@@ -178,6 +229,78 @@ def test_pairwise_teammate_lift_non_exact_is_none():
             )
             is None
         )
+
+
+def test_search_gap_fill_rejects_when_working_too_small():
+    draft = [
+        _locked(
+            "Charizard-Mega-Y",
+            role="sun_setter",
+            ability="Drought",
+            item="Charizardite Y",
+            moves=["Heat Wave", "Protect", "Weather Ball", "Solar Beam"],
+        ),
+        *[empty_slot() for _ in range(5)],
+    ]
+    state = _state(draft)
+    locked = collect_locked_anchor_contexts(state)
+    candidate = _candidate("Swampert-Mega", conflicts=(_conflict(),))
+    fill = _fill("Pelipper")
+    result = _run_gap_fill(
+        candidate,
+        state,
+        locked,
+        frozenset({0}),
+        (_objective_row(),),
+        1,
+        fill=fill,
+    )
+    assert result is None
+
+
+def test_search_gap_fill_rejects_empty_objective():
+    draft = _four_locked_draft()
+    state = _state(draft)
+    locked = collect_locked_anchor_contexts(state)
+    candidate = _candidate("Swampert-Mega", conflicts=(_conflict(slot=3),))
+    fill = _fill("Pelipper")
+    result = _run_gap_fill(
+        candidate,
+        state,
+        locked,
+        frozenset({3}),
+        (),
+        4,
+        fill=fill,
+    )
+    assert result is None
+
+
+def test_should_try_false_when_working_too_small():
+    draft = [
+        _locked("Charizard-Mega-Y", ability="Drought", item="Charizardite Y"),
+        *[empty_slot() for _ in range(5)],
+    ]
+    state = _state(draft)
+    locked = collect_locked_anchor_contexts(state)
+    candidate = _candidate("Swampert-Mega", conflicts=(_conflict(),))
+    with patch(
+        "recommender.team_candidates.independently_strong_category_a",
+        return_value=True,
+    ):
+        assert should_try_masked_core(candidate, [candidate], state, locked) is False
+
+
+def test_should_try_true_when_working_meets_pick():
+    draft = _four_locked_draft()
+    state = _state(draft)
+    locked = collect_locked_anchor_contexts(state)
+    candidate = _candidate("Swampert-Mega", conflicts=(_conflict(slot=3),))
+    with patch(
+        "recommender.team_candidates.independently_strong_category_a",
+        return_value=True,
+    ):
+        assert should_try_masked_core(candidate, [candidate], state, locked) is True
 
 
 def test_engine_returns_none_when_fill_empty():
@@ -264,13 +387,10 @@ def test_mechanical_only_fill_fails_dual_signal():
 
 
 def test_two_candidates_same_mask_are_two_packages():
-    draft = [
-        _locked("Charizard-Mega-Y", ability="Drought", item="Charizardite Y"),
-        *[empty_slot() for _ in range(5)],
-    ]
+    draft = _four_locked_draft()
     state = _state(draft)
     locked = collect_locked_anchor_contexts(state)
-    conflict = _conflict()
+    conflict = _conflict(slot=3)
     swampert = _candidate("Swampert-Mega", conflicts=(conflict,))
     kingdra = _candidate("Kingdra", conflicts=(conflict,))
     fill = _fill("Pelipper")
@@ -283,10 +403,10 @@ def test_two_candidates_same_mask_are_two_packages():
             "recommender.team_candidates.discover_masked_core_package",
             side_effect=[
                 MaskedCorePackage(
-                    swampert, (0,), fill, "Weather core — Charizard-Mega-Y benched"
+                    swampert, (3,), fill, "Weather core — Charizard-Mega-Y benched"
                 ),
                 MaskedCorePackage(
-                    kingdra, (0,), fill, "Weather core — Charizard-Mega-Y benched"
+                    kingdra, (3,), fill, "Weather core — Charizard-Mega-Y benched"
                 ),
             ],
         ),
@@ -294,7 +414,7 @@ def test_two_candidates_same_mask_are_two_packages():
         packages = gather_masked_core_packages([swampert, kingdra], state, locked)
     assert len(packages) == 2
     assert {p.candidate.species for p in packages} == {"Swampert-Mega", "Kingdra"}
-    assert packages[0].masked_slot_indices == packages[1].masked_slot_indices
+    assert packages[0].masked_slot_indices == packages[1].masked_slot_indices == (3,)
 
 
 def test_weather_and_mega_same_slot_is_one_mask():
