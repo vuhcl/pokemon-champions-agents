@@ -593,12 +593,29 @@ def query_support_needs(
             needs.append(enriched)
             healing = enriched
 
-    # --- Redirection (offense-primary or setup execution risk) ---
-    if primary == "offense" or role_shape_context.requires_setup_turn:
+    # --- Redirection (offense-primary, setup, or self Def/SpD debuff) ---
+    # ponytail: only ability id weakarmor until abilities extract has structured
+    # hit-triggered Def drops (no invented Weak Armor–class list).
+    # Lazy import: role_compendium ↔ support_needs cycle; next PR extracts
+    # load_stat_boosts / _self_defense_drops into a thin shared module.
+    from recommender.role_compendium import _self_defense_drops
+
+    self_def_spd_debuff = to_id(ability or "") == "weakarmor" or any(
+        _self_defense_drops(to_id(m)) for m in moves
+    )
+    hard_redir = role_shape_context.requires_setup_turn or self_def_spd_debuff
+    if primary == "offense" or hard_redir:
         if role_shape_context.requires_setup_turn:
             redir_trigger = "requires_setup_turn:redirection"
             redir_desc = (
                 "Turn-limited/setup-dependent role wants Follow Me / Rage Powder."
+            )
+            redir_stance = None
+        elif self_def_spd_debuff:
+            redir_trigger = "kit:self_def_spd_debuff"
+            redir_desc = (
+                "Kit self-lowers Def/SpD (move or Weak Armor); wants "
+                "Follow Me / Rage Powder."
             )
             redir_stance = None
         else:

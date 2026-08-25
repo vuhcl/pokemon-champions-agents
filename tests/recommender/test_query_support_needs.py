@@ -214,6 +214,47 @@ def test_support_no_setup_no_redirection():
     assert "redirection" not in _cats(out)
 
 
+def test_self_defense_drops_close_combat_wired():
+    from recommender.role_compendium import _self_defense_drops
+
+    assert _self_defense_drops("closecombat") == {"def": -1, "spd": -1}
+
+
+def test_offense_close_combat_hard_redirection():
+    out = query_support_needs(
+        {
+            "species": "Machamp",
+            "moves": ["Close Combat", "Knock Off", "Bullet Punch", "Protect"],
+        },
+        RoleShapeContext(
+            match_status="partial",
+            primary_function="offense",
+            tankiness="tanky",
+            setup_dependent=False,
+        ),
+    )
+    redir = _by_cat(out, "redirection")
+    assert len(redir) == 1
+    assert redir[0].trigger == "kit:self_def_spd_debuff"
+    assert redir[0].stance is None
+
+
+def test_support_weak_armor_hard_redirection():
+    out = query_support_needs(
+        {"species": "Garbodor", "ability": "Weak Armor", "moves": ["Protect"]},
+        RoleShapeContext(
+            match_status="partial",
+            primary_function="support",
+            tankiness="tanky",
+            setup_dependent=False,
+        ),
+    )
+    redir = _by_cat(out, "redirection")
+    assert len(redir) == 1
+    assert redir[0].trigger == "kit:self_def_spd_debuff"
+    assert redir[0].stance is None
+
+
 def test_contrary_no_stat_lowering_partner():
     # Contrary no longer emits a NeedCategory (Disruption/partner-answer, not ally need).
     out = query_support_needs(
