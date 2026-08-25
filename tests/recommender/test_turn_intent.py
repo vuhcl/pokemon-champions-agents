@@ -1220,10 +1220,44 @@ def test_reject_n_deterministic_on_candidate_selection():
     assert reject["turn_intent"] == "rejection"
     assert reject["turn_payload"]["species"] == "Incineroar"
     assert reject["turn_payload"]["slot_index"] == 2
+    assert "ban_need_categories" not in reject["turn_payload"]
 
     select = classify_pending("2", pending)
     assert select["turn_intent"] == "slot_candidate_selected"
     assert select["selected_option"]["species"] == "Incineroar"
+
+
+def test_reject_n_because_tr_stamps_singleton_profile():
+    pending = _multi_candidate_pending()
+    reject = classify_pending("reject 2 because TR", pending)
+    assert reject["turn_intent"] == "rejection"
+    assert reject["turn_payload"]["species"] == "Incineroar"
+    assert reject["turn_payload"]["ban_need_categories"] == ["trick_room"]
+
+    reject_no = classify_pending("reject 2, no TR", pending)
+    assert reject_no["turn_payload"]["ban_need_categories"] == ["trick_room"]
+
+
+def test_reject_n_as_trick_room_is_not_profile_stamp():
+    """'as' must not be treated as profile reject."""
+    calls: list[object] = []
+    result = classify_pending(
+        "reject 2 as trick room",
+        _multi_candidate_pending(),
+        turn_intent_parser=RunnableLambda(
+            lambda payload: calls.append(payload) or {"turn_intent": "pending_response"}
+        ),
+    )
+    assert result["turn_intent"] == "pending_response"
+    assert len(calls) == 1
+
+
+def test_global_no_more_trick_room_profile_reject():
+    pending = _multi_candidate_pending()
+    reject = classify_pending("no more trick room", pending)
+    assert reject["turn_intent"] == "rejection"
+    assert reject["turn_payload"]["species"] == ""
+    assert reject["turn_payload"]["ban_need_categories"] == ["trick_room"]
 
 
 def test_reject_n_out_of_range_falls_through_to_gap_fill():

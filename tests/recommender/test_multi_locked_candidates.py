@@ -3503,6 +3503,7 @@ def test_diversify_pass2_skips_subset_of_covered_trick_room():
 
 
 def test_diversify_banned_profiles_blocks_pure_tr_in_pass3():
+    """Singleton {trick_room} ban hits anyone with raw trick_room (incl. multi-need)."""
     from recommender.team_candidates import _diversify_by_need_category
 
     pool = [
@@ -3510,14 +3511,13 @@ def test_diversify_banned_profiles_blocks_pure_tr_in_pass3():
         _category_b_need_candidate("KlefkiLike", ("screens", "trick_room")),
         _category_b_need_candidate("ArmarougeLike", ("trick_room",)),
         _category_b_need_candidate("ChandelureLike", ("trick_room",)),
+        _category_b_need_candidate("GrimmsnarlLike", ("screens",)),
     ]
     banned = frozenset({frozenset({"trick_room"})})
     picked = _diversify_by_need_category(pool, n=3, banned_profiles=banned)
-    assert [c.species for c in picked] == ["SinistchaLike", "KlefkiLike"]
+    assert [c.species for c in picked] == ["GrimmsnarlLike"]
     assert all(
-        "trick_room" not in {n.category for n in c.matching_needs}
-        or len({n.category for n in c.matching_needs} - {"condition_beneficiary"}) > 1
-        for c in picked
+        "trick_room" not in {n.category for n in c.matching_needs} for c in picked
     )
 
 
@@ -3702,9 +3702,8 @@ def _tiered_need_candidate(
     )
 
 
-def test_record_rejection_stamps_raw_need_when_diversity_filter_empty():
-    """Acceptable-only TR drops from diversity filter; stamp must still
-    record trick_room so sticky-ban can fire on rediscovery."""
+def test_record_rejection_bare_reject_does_not_stamp_need_categories():
+    """Bare reject N is species-only — no auto need stamp from option evidence."""
     from recommender.nodes import record_rejection
 
     evidence = (
@@ -3714,7 +3713,8 @@ def test_record_rejection_stamps_raw_need_when_diversity_filter_empty():
             producer_name="test",
             evidence=(
                 "need:trick_room",
-                "tier:Acceptable",
+                "need:healing_cleric",
+                "tier:Good",
                 "role:trick_room_setter",
             ),
             branch="need",
@@ -3724,8 +3724,8 @@ def test_record_rejection_stamps_raw_need_when_diversity_filter_empty():
         **_state(),
         "turn": 1,
         "turn_payload": {
-            "species": "Armarouge",
-            "reason": "reject 3",
+            "species": "Aromatisse",
+            "reason": "reject 1",
             "slot_index": None,
         },
         "pending_presentation": {
@@ -3734,7 +3734,7 @@ def test_record_rejection_stamps_raw_need_when_diversity_filter_empty():
             "slot_index": 3,
             "options": [
                 {
-                    "species": "Armarouge",
+                    "species": "Aromatisse",
                     "source": "need",
                     "evidence": evidence,
                 }
@@ -3743,7 +3743,102 @@ def test_record_rejection_stamps_raw_need_when_diversity_filter_empty():
         "rejected": [],
     }
     out = record_rejection(state)  # type: ignore[arg-type]
+    assert "need_categories" not in out["rejected"][-1]
+
+
+def test_record_rejection_stamps_ban_need_categories_from_payload():
+    from recommender.nodes import record_rejection
+
+    state = {
+        **_state(),
+        "turn": 1,
+        "turn_payload": {
+            "species": "Aromatisse",
+            "reason": "reject 1 because TR",
+            "slot_index": None,
+            "ban_need_categories": ["trick_room"],
+        },
+        "pending_presentation": {
+            "schema_version": 1,
+            "kind": "candidate_selection",
+            "slot_index": 3,
+            "options": [],
+        },
+        "rejected": [],
+    }
+    out = record_rejection(state)  # type: ignore[arg-type]
     assert out["rejected"][-1]["need_categories"] == ["trick_room"]
+
+
+def test_record_rejection_global_profile_empty_species():
+    from recommender.nodes import record_rejection
+
+    state = {
+        **_state(),
+        "turn": 1,
+        "turn_payload": {
+            "species": "",
+            "reason": "no more trick room",
+            "slot_index": 3,
+            "ban_need_categories": ["trick_room"],
+        },
+        "rejected": [],
+    }
+    out = record_rejection(state)  # type: ignore[arg-type]
+    assert out["rejected"][-1]["species"] == ""
+    assert out["rejected"][-1]["need_categories"] == ["trick_room"]
+    assert "team_draft" not in out
+
+
+def test_diversify_banned_tr_blocks_acceptable_on_cleric_via_raw_subset():
+    """Acceptable TR dropped from diversity but raw still has trick_room."""
+    from recommender.team_candidates import (
+        _diversity_need_categories,
+        _diversify_by_need_category,
+        profile_is_banned,
+    )
+
+    cleric_tr = AnnotatedCandidate(
+        species="AudinoLike",
+        matching_needs=(_need("healing_cleric"), _need("trick_room")),
+        source="need",
+        threat_row=None,
+        spec={"species": "AudinoLike"},
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="test",
+                evidence=(
+                    "need:healing_cleric",
+                    "tier:Good",
+                    "role:healing_cleric",
+                ),
+                branch="need",
+            ),
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="test",
+                evidence=(
+                    "need:trick_room",
+                    "tier:Acceptable",
+                    "role:trick_room_setter",
+                ),
+                branch="need",
+            ),
+        ),
+        branches=frozenset({"need"}),
+    )
+    screens = _category_b_need_candidate("GrimmsnarlLike", ("screens",))
+    assert "trick_room" not in _diversity_need_categories(cleric_tr)
+    assert profile_is_banned(cleric_tr, frozenset({frozenset({"trick_room"})}))
+    picked = _diversify_by_need_category(
+        [cleric_tr, screens],
+        2,
+        banned_profiles=frozenset({frozenset({"trick_room"})}),
+    )
+    assert [c.species for c in picked] == ["GrimmsnarlLike"]
 
 
 def test_diversify_banned_tr_blocks_acceptable_empty_diversity_profile():

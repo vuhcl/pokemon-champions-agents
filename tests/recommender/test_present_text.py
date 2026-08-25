@@ -161,6 +161,34 @@ def test_candidate_selection_evidence_line():
     )
     assert "1. Pelipper" in text
     assert "usage_backed, high confidence" in text
+    assert "reject N drops only that species" in text
+
+
+def test_candidate_selection_shows_slash_need_categories():
+    text = format_turn(
+        {
+            "pending_presentation": {
+                "kind": "candidate_selection",
+                "slot_index": 0,
+                "options": [
+                    {
+                        "species": "Aromatisse",
+                        "source": "need",
+                        "need_categories": ["healing_cleric", "trick_room"],
+                        "evidence": (
+                            CandidateEvidence(
+                                "usage_backed",
+                                "medium",
+                                "test",
+                                ("need:healing_cleric",),
+                            ),
+                        ),
+                    }
+                ],
+            }
+        }
+    )
+    assert "healing_cleric / trick_room" in text
 
 
 def test_candidate_selection_uses_best_evidence_not_first():
