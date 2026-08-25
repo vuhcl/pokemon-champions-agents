@@ -2017,6 +2017,12 @@ def _pending_presentation(
     return pending
 
 
+_EMPTY_CANDIDATE_POOL_PROMPT = (
+    "No more candidates for this slot. Reply 'different focus', "
+    "pick a remaining option if any, or 'defer'."
+)
+
+
 def run_slot_fill_terminal(
     ctx: SlotFillContext,
     state: RecommenderState,
@@ -2029,7 +2035,16 @@ def run_slot_fill_terminal(
 
     if response is None:
         if not pending["options"]:
-            raise ValueError("cannot persist: no species resolved from presentation")
+            # Exhausted pool after reject / ban — teachable pending, not raise.
+            pending = {
+                **pending,
+                "prompt_text": _EMPTY_CANDIDATE_POOL_PROMPT,
+            }
+            return SlotFillTerminalResult(
+                presentation=presentation,
+                state_updates={"pending_presentation": pending},
+                deferred=False,
+            )
         return SlotFillTerminalResult(
             presentation=presentation,
             state_updates={"pending_presentation": pending},

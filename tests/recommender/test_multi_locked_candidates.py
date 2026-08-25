@@ -3907,3 +3907,43 @@ def test_rank_category_a_demotes_covered_screens_provider_role():
         [screens_role, other], [[]], locked_contexts=locked
     )
     assert [c.species for c in ranked] == ["OtherA", "ScreensA"]
+
+
+def test_rank_category_a_demotes_support_speed_control_when_tailwind_provided():
+    from recommender.team_candidates import _is_covered_provider_utility, _rank_category_a
+
+    locked = collect_locked_anchor_contexts(
+        _state(
+            [
+                _locked(
+                    "Pelipper",
+                    role="rain_setter",
+                    ability="Drizzle",
+                    item="Damp Rock",
+                    moves=["Hurricane", "U-turn", "Tailwind", "Protect"],
+                ),
+            ]
+        )
+    )
+    speed_ctrl = AnnotatedCandidate(
+        species="WhimsicottLike",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("WhimsicottLike", usage_rank=5),
+        branches=frozenset({"threat"}),
+        strategic_role_id="support_speed_control",
+    )
+    other = AnnotatedCandidate(
+        species="OtherA",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("OtherA", usage_rank=5),
+        branches=frozenset({"threat"}),
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_physical_attacker",
+            source="other",
+        ),
+    )
+    assert _is_covered_provider_utility(speed_ctrl, locked)
+    ranked = _rank_category_a([speed_ctrl, other], [[]], locked_contexts=locked)
+    assert [c.species for c in ranked] == ["OtherA", "WhimsicottLike"]

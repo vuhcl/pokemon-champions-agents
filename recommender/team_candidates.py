@@ -1295,6 +1295,8 @@ def _is_covered_provider_utility(
         return "Trick Room" in provided_conditions(locked_contexts)
     if role_id == "tailwind_setter":
         return "Tailwind" in provided_conditions(locked_contexts)
+    if role_id == "support_speed_control":
+        return "Tailwind" in provided_conditions(locked_contexts)
     return False
 
 
