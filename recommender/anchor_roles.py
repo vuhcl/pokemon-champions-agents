@@ -14,7 +14,7 @@ from recommender.matchup import CHARGE_INSTANT_WEATHER
 from recommender.move_narrowing import WEATHER_SETTING_MOVES
 from recommender.recommend import infer_role
 from recommender.resolved_builds import get_resolved_build
-from recommender.role_compendium import (
+from recommender.role_compendium_read import (
     CompendiumRoleEvidence,
     ReverseCompendiumEvidence,
     reverse_compendium_evidence,
