@@ -35,16 +35,22 @@ def _uctx(cbd_moves: list[str], sd_moves: list[str], *, cbd_items: list[str] | N
     )
 
 
-def test_same_row_both_moves_uses_showdown_when_cbd_lacks_one(monkeypatch):
-    monkeypatch.setattr(
-        "recommender.role_compendium.load_usage",
-        lambda: {
-            "ingame_doubles": {"species": {}},
-            "showdown_vgc_mb": {"species": {}},
-            "species": {},
-        },
-    )
+_EMPTY_USAGE = {
+    "ingame_doubles": {"species": {}},
+    "showdown_vgc_mb": {"species": {}},
+    "species": {},
+}
+
+
+def _patch_empty_usage_maps(monkeypatch) -> None:
+    monkeypatch.setattr("recommender.role_compendium.load_usage", lambda: _EMPTY_USAGE)
+    monkeypatch.setattr("recommender.role_compendium_usage.load_usage", lambda: _EMPTY_USAGE)
     monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium_usage.showdown_species_map", lambda: {})
+
+
+def test_same_row_both_moves_uses_showdown_when_cbd_lacks_one(monkeypatch):
+    _patch_empty_usage_maps(monkeypatch)
     uctx = _uctx(["Brave Bird"], ["Iron Defense", "Body Press"])
     assert _same_row_both_moves(
         "Skarmory",
@@ -57,15 +63,7 @@ def test_same_row_both_moves_uses_showdown_when_cbd_lacks_one(monkeypatch):
 
 
 def test_same_row_both_moves_false_when_split_across_sources(monkeypatch):
-    monkeypatch.setattr(
-        "recommender.role_compendium.load_usage",
-        lambda: {
-            "ingame_doubles": {"species": {}},
-            "showdown_vgc_mb": {"species": {}},
-            "species": {},
-        },
-    )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    _patch_empty_usage_maps(monkeypatch)
     uctx = _uctx(["Iron Defense"], ["Body Press"])
     assert not _same_row_both_moves(
         "Skarmory",
@@ -78,15 +76,7 @@ def test_same_row_both_moves_false_when_split_across_sources(monkeypatch):
 
 
 def test_delivery_hits_showdown_when_cbd_row_lacks_move(monkeypatch):
-    monkeypatch.setattr(
-        "recommender.role_compendium.load_usage",
-        lambda: {
-            "ingame_doubles": {"species": {}},
-            "showdown_vgc_mb": {"species": {}},
-            "species": {},
-        },
-    )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    _patch_empty_usage_maps(monkeypatch)
     uctx = _uctx(["Psychic"], ["Trick Room", "Psychic"])
     hits, source = _delivery_usage_hits(
         "Chimecho",
@@ -101,15 +91,7 @@ def test_delivery_hits_showdown_when_cbd_row_lacks_move(monkeypatch):
 
 
 def test_usage_has_item_falls_back_to_showdown(monkeypatch):
-    monkeypatch.setattr(
-        "recommender.role_compendium.load_usage",
-        lambda: {
-            "ingame_doubles": {"species": {}},
-            "showdown_vgc_mb": {"species": {}},
-            "species": {},
-        },
-    )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    _patch_empty_usage_maps(monkeypatch)
     uctx = _uctx(["Light Screen"], ["Light Screen"], cbd_items=[])
     uctx.showdown_fetch = lambda _n: {  # type: ignore[method-assign]
         "name": "Whimsicott",
@@ -128,15 +110,7 @@ def test_usage_has_item_falls_back_to_showdown(monkeypatch):
 
 
 def test_delivery_hits_drops_below_set_pct_floor(monkeypatch):
-    monkeypatch.setattr(
-        "recommender.role_compendium.load_usage",
-        lambda: {
-            "ingame_doubles": {"species": {}},
-            "showdown_vgc_mb": {"species": {}},
-            "species": {},
-        },
-    )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    _patch_empty_usage_maps(monkeypatch)
     uctx = _uctx([], ["Light Screen"])
     uctx.showdown_fetch = lambda _n: {  # type: ignore[method-assign]
         "name": "Sableye-Mega",
@@ -158,15 +132,7 @@ def test_delivery_hits_drops_below_set_pct_floor(monkeypatch):
 
 
 def test_delivery_hits_keeps_whimsicott_ls_at_screens_floor(monkeypatch):
-    monkeypatch.setattr(
-        "recommender.role_compendium.load_usage",
-        lambda: {
-            "ingame_doubles": {"species": {}},
-            "showdown_vgc_mb": {"species": {}},
-            "species": {},
-        },
-    )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    _patch_empty_usage_maps(monkeypatch)
     uctx = _uctx([], [])
     uctx.showdown_fetch = lambda _n: {  # type: ignore[method-assign]
         "name": "Whimsicott",
@@ -195,15 +161,7 @@ def test_delivery_hits_keeps_whimsicott_ls_at_screens_floor(monkeypatch):
 
 
 def test_trick_room_floor_drops_attacker_incidental(monkeypatch):
-    monkeypatch.setattr(
-        "recommender.role_compendium.load_usage",
-        lambda: {
-            "ingame_doubles": {"species": {}},
-            "showdown_vgc_mb": {"species": {}},
-            "species": {},
-        },
-    )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    _patch_empty_usage_maps(monkeypatch)
     uctx = _uctx([], [])
     uctx.showdown_fetch = lambda _n: {  # type: ignore[method-assign]
         "name": "Gallade-Mega",

@@ -18,6 +18,20 @@ from recommender.usage_data import (
     set_from_showdown,
     showdown_species_map,
 )
+from recommender.role_compendium_usage import (
+    _best_move_set_pct,
+    _cbd_base_move_implausible_vs_mega,
+    _hits_clear_set_pct_floor,
+    _mega_pair_ids,
+    _mega_stone_on_entry,
+    _mega_usage_attribution,
+    _move_display,
+    _move_pct,
+    _same_row_both_moves,
+    _showdown_entry,
+    _species_types,
+    _stone_fallback_usage,
+)
 from recommender.role_compendium import (
     CalculateBatch,
     CandidateEval,
@@ -70,20 +84,12 @@ from recommender.role_compendium import (
     _UsageCtx,
     _admit_move_delivery,
     _base_stats,
-    _best_move_set_pct,
-    _cbd_base_move_implausible_vs_mega,
     _discount_outcome,
     _draft_with_tiers,
     _drain_frac_from_result,
     _entry_has_item,
     _entry_has_move,
     _excellent_secondary,
-    _hits_clear_set_pct_floor,
-    _mega_pair_ids,
-    _mega_stone_on_entry,
-    _mega_usage_attribution,
-    _move_display,
-    _move_pct,
     _offline_usage_row,
     _pool_index,
     _recoil_frac_from_result,
@@ -92,11 +98,8 @@ from recommender.role_compendium import (
     _self_boosts,
     _self_defense_drops,
     _serialize_criteria,
-    _showdown_entry,
     _species_abilities,
     _species_id_is_mega,
-    _species_types,
-    _stone_fallback_usage,
     exact_self_boost_move,
     exclusive_self_boost_move,
     load_stat_boosts,
@@ -2619,72 +2622,6 @@ def _construct_setup_attacker(
     )
 
 
-def _delivery_usage_hits(
-    name: str,
-    move_ids: frozenset[str] | set[str],
-    *,
-    uctx: _UsageCtx,
-    sd_cache: dict[str, dict[str, Any] | None],
-    showdown_fetch: LiveFetch | None,
-    set_pct_floor: float = _USAGE_SET_PCT_FLOOR,
-) -> tuple[set[str], str]:
-    """Moves on CBD and/or Showdown at or above set_pct_floor. CBD does not suppress SD."""
-    mids = {to_id(m) for m in move_ids}
-    champ = uctx.champions_entry(name)
-    sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)
-    cbd_hits = {mid for mid in mids if _entry_has_move(champ, mid)}
-    sd_hits = {mid for mid in mids if _entry_has_move(sd, mid)}
-    hits = cbd_hits | sd_hits
-    if not hits:
-        return hits, "none"
-    extra_sd = sd_hits - cbd_hits
-    if not extra_sd:
-        source = "champions"
-    elif champ is None:
-        source = "showdown (no Champions row)"
-    elif not cbd_hits:
-        source = "showdown"
-    else:
-        source = "champions+showdown"
-    cleared = {
-        mid
-        for mid in hits
-        if max(_move_pct(champ, mid), _move_pct(sd, mid)) >= set_pct_floor
-    }
-    if not cleared:
-        return set(), f"{source}_below_floor"
-    return cleared, source
-
-
-def _usage_has_item(
-    name: str,
-    item_id: str,
-    *,
-    uctx: _UsageCtx,
-    sd_cache: dict[str, dict[str, Any] | None],
-    showdown_fetch: LiveFetch | None,
-) -> bool:
-    if _entry_has_item(uctx.champions_entry(name), item_id):
-        return True
-    sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)
-    return _entry_has_item(sd, item_id)
-
-
-def _same_row_both_moves(
-    name: str,
-    move_a: str,
-    move_b: str,
-    *,
-    uctx: _UsageCtx,
-    sd_cache: dict[str, dict[str, Any] | None],
-    showdown_fetch: LiveFetch | None,
-) -> bool:
-    """Both moves on CBD, else both on Showdown. Never split across sources."""
-    ch = uctx.champions_entry(name)
-    if _entry_has_move(ch, move_a) and _entry_has_move(ch, move_b):
-        return True
-    sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)
-    return bool(sd) and _entry_has_move(sd, move_a) and _entry_has_move(sd, move_b)
 
 
 def _construct_offense_stage_setup(
