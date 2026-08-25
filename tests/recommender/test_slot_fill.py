@@ -345,7 +345,13 @@ def test_need_only_without_kit_role_still_unresolved_on_refine():
             NeedResolvedCandidate("Qwilfish", (need,), (evidence,)),
         ],
     )
-    with patch("recommender.slot_fill._kit_fallback_target_role", return_value=None):
+    with (
+        patch(
+            "recommender.slot_fill_target_role._kit_fallback_target_role",
+            return_value=None,
+        ),
+        patch("recommender.slot_fill._kit_fallback_target_role", return_value=None),
+    ):
         rows = merge_need_resolved(ctx)
         qwil = next(r for r in rows if r.species == "Qwilfish")
         assert qwil.target_role_decision is None

@@ -428,8 +428,8 @@ def test_unresolved_target_role_refine_rediscovers_pending_presentation():
     with patch(
         "recommender.nodes.discover_single_locked", return_value=rediscovered
     ) as discover, patch(
-        "recommender.slot_fill._kit_fallback_target_role", return_value=None
-    ):
+        "recommender.slot_fill_target_role._kit_fallback_target_role", return_value=None
+    ), patch("recommender.slot_fill._kit_fallback_target_role", return_value=None):
         graph = compile_graph(checkpointer=MemorySaver())
         suffix = "refine-unresolved-target-role"
         config = _thread(suffix)
