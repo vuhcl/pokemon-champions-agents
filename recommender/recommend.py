@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal, NotRequired, TypedDict
 
+from recommender.matchup import _MULTI_HIT_MOVES
 from recommender.ids import to_id
 from recommender.legality import (
     LegalityResult,
@@ -45,27 +46,7 @@ _SCREEN_MOVES = frozenset({"lightscreen", "reflect", "auroraveil"})
 _BULKY_ITEMS = frozenset({"sitrusberry", "leftovers", "rockyhelmet"})
 _FAST_ITEMS = frozenset({"lifeorb", "choiceband", "choicespecs", "choicescarf"})
 _WEATHER_SPEED = frozenset({"swiftswim", "chlorophyll", "sandrush", "slushrush"})
-# ponytail: snapshot has no multihit field — keep explicit set; extend with matchup._MULTI_HIT_MOVES if needed
-_MULTI_HIT = frozenset(
-    {
-        "populationbomb",
-        "bulletseed",
-        "iciclespear",
-        "rockblast",
-        "pinmissile",
-        "tailslap",
-        "scaleshot",
-        "surgingstrikes",
-        "bonerush",
-        "doublehit",
-        "dragondarts",
-        "dualwingbeat",
-        "tripleaxel",
-        "twinbeam",
-        "watershuriken",
-        "armthrust",
-    }
-)
+_MULTI_HIT = _MULTI_HIT_MOVES | frozenset({"armthrust"})
 
 _ROLE_SPREADS: dict[str, StatsTable] = {
     "fast_physical_attacker": {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32},

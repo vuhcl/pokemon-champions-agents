@@ -85,15 +85,3 @@ def resolve_llm_parsers(
         f"Unknown POKEMON_CHAMPIONS_LLM_PROVIDER={name!r}; "
         "expected ollama, anthropic, or none."
     )
-
-
-def resolve_bootstrap_parser(
-    provider: str | None = None,
-) -> tuple[Any | None, str | None]:
-    """Return ``(bootstrap_parser_or_none, startup_warning_or_none)``.
-
-    Thin wrapper over :func:`resolve_llm_parsers` for callers that only need bootstrap.
-    """
-
-    bootstrap, _turn, warning = resolve_llm_parsers(provider)
-    return bootstrap, warning
