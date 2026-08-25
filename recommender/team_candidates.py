@@ -17,7 +17,9 @@ from recommender.condition_resilience import (
     ConditionResilienceReport,
     candidate_dependency_reliability,
     gap_support_needs,
+    has_reliable_screens_provider,
     mechanism_condition,
+    provided_conditions,
 )
 from recommender.divergence import (
     DIVERGENCE_COMPLEMENTARY_THRESHOLD,
@@ -1265,9 +1267,41 @@ def _dense_rank(items: list, value_fn, *, descending: bool = True) -> dict[str, 
     return {to_id(item.species): value_rank[value_fn(item)] for item in items}
 
 
+def _provider_role_id(c: AnnotatedCandidate) -> str | None:
+    """Role id used for covered-utility demotion — same sources as CLI labels."""
+    if c.strategic_role_id:
+        return c.strategic_role_id
+    trd = c.target_role_decision
+    if isinstance(trd, TargetRoleDecision):
+        return trd.role_id
+    fallback = _kit_fallback_target_role(c.species)
+    if fallback is not None:
+        return fallback.role_id
+    return None
+
+
+def _is_covered_provider_utility(
+    c: AnnotatedCandidate,
+    locked_contexts: Sequence[LockedAnchorContext],
+) -> bool:
+    """Soft demote Category A when primary provider role is already covered."""
+    if not locked_contexts:
+        return False
+    role_id = _provider_role_id(c)
+    if role_id == "screens_support":
+        return has_reliable_screens_provider(locked_contexts)
+    if role_id == "trick_room_setter":
+        return "Trick Room" in provided_conditions(locked_contexts)
+    if role_id == "tailwind_setter":
+        return "Tailwind" in provided_conditions(locked_contexts)
+    return False
+
+
 def _rank_category_a(
     candidates: list[AnnotatedCandidate],
     locked_types_list: list[list[str]],
+    *,
+    locked_contexts: Sequence[LockedAnchorContext] = (),
 ) -> list[AnnotatedCandidate]:
     """Type-synergy + threat-counter breadth, combined by RANK position
     rather than raw value -- confirmed necessary, not a stylistic choice:
@@ -1314,6 +1348,7 @@ def _rank_category_a(
         sid = to_id(c.species)
         return (
             int(c.wastes_core_slot),
+            int(_is_covered_provider_utility(c, locked_contexts)),
             int(not c.improves_bench_subset),
             verified_rank[sid] + synergy_rank[sid] + reliability_rank[sid],
             _shared_teammate_tiebreak(c),
@@ -1504,7 +1539,9 @@ def rank_multi_locked_by_category(
     locked_types_list = [
         _species_types(snap, ctx.resolved_build.species) for ctx in locked_contexts
     ]
-    ranked_a = _rank_category_a(category_a, locked_types_list)[:n_per_category]
+    ranked_a = _rank_category_a(
+        category_a, locked_types_list, locked_contexts=locked_contexts
+    )[:n_per_category]
     ranked_b_full = _rank_by_need_evidence(
         category_b, locked_contexts, condition_beneficiary=False
     )
@@ -1611,6 +1648,18 @@ def _diversity_need_categories(c: AnnotatedCandidate) -> frozenset[str]:
     return _diversity_need_categories_from_evidence(c.evidence, cats)
 
 
+def _sticky_ban_profile(c: AnnotatedCandidate) -> frozenset[str]:
+    """Profile used for sticky-ban matching after reject.
+
+    Diversity cats drop Acceptable-without-commitment (intentional for
+    within-presentation diversify). Ban checks fall back to raw support
+    need categories so Acceptable-only pure-TR cannot bypass a
+    {trick_room} ban via an empty frozenset.
+    """
+    cats = _diversity_need_categories(c)
+    return cats if cats else _support_need_categories(c)
+
+
 def _diversify_by_need_category(
     ranked_b: Sequence[AnnotatedCandidate],
     n: int,
@@ -1631,7 +1680,7 @@ def _diversify_by_need_category(
         cats = _diversity_need_categories(c)
         if not cats or not (cats - covered):
             continue
-        if cats in banned_profiles:
+        if _sticky_ban_profile(c) in banned_profiles:
             continue
         picked.append(c)
         used_lineages |= lineage
@@ -1652,7 +1701,7 @@ def _diversify_by_need_category(
             continue
         if any(cats <= profile for profile in picked_profiles):
             continue
-        if cats in banned_profiles:
+        if _sticky_ban_profile(c) in banned_profiles:
             continue
         picked.append(c)
         used_lineages |= lineage
@@ -1667,8 +1716,7 @@ def _diversify_by_need_category(
         lineage = set(lineage_ids(c.species))
         if lineage & used_lineages:
             continue
-        cats = _diversity_need_categories(c)
-        if cats in banned_profiles:
+        if _sticky_ban_profile(c) in banned_profiles:
             continue
         picked.append(c)
         used_lineages |= lineage
@@ -1750,7 +1798,7 @@ def _select_balanced(
             pool = [
                 c
                 for c in ranked
-                if _diversity_need_categories(c) not in banned_profiles
+                if _sticky_ban_profile(c) not in banned_profiles
             ]
         c = _pick_first_new_lineage(pool, used_lineages)
         if c is not None:
@@ -1832,7 +1880,9 @@ def select_diverse_candidates(
         _species_types(snap, ctx.resolved_build.species) for ctx in locked_contexts
     ]
 
-    ranked_a = _rank_category_a(category_a, locked_types_list)
+    ranked_a = _rank_category_a(
+        category_a, locked_types_list, locked_contexts=locked_contexts
+    )
 
     def _has_strong_evidence(c: AnnotatedCandidate, *, condition_beneficiary: bool) -> bool:
         relevant = _need_branch_evidence(c, condition_beneficiary=condition_beneficiary)
@@ -1979,7 +2029,9 @@ def independently_strong_category_a(
             locked_types.append(_species_types(snap, species))
         except Exception:
             locked_types.append([])
-    ranked = _rank_category_a(list(category_a), locked_types)
+    ranked = _rank_category_a(
+        list(category_a), locked_types, locked_contexts=locked
+    )
     top = {to_id(row.species) for row in ranked[:3]}
     return to_id(candidate.species) in top
 

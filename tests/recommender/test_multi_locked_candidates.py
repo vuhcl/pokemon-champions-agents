@@ -3669,3 +3669,146 @@ def test_pick_best_evidence_prefers_commitment_over_lower_compendium():
     assert no_override is not None
     assert no_override.basis == "compendium_backed"
     assert no_override.confidence == "medium"
+
+
+def _tiered_need_candidate(
+    species: str,
+    category: str,
+    *,
+    tier: str,
+) -> AnnotatedCandidate:
+    return AnnotatedCandidate(
+        species=species,
+        matching_needs=(_need(category),),
+        source="need",
+        threat_row=None,
+        spec={"species": species},
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="test",
+                evidence=(
+                    f"need:{category}",
+                    f"tier:{tier}",
+                    f"role:{category}_setter"
+                    if category != "screens"
+                    else "role:screens_support",
+                ),
+                branch="need",
+            ),
+        ),
+        branches=frozenset({"need"}),
+    )
+
+
+def test_record_rejection_stamps_raw_need_when_diversity_filter_empty():
+    """Acceptable-only TR drops from diversity filter; stamp must still
+    record trick_room so sticky-ban can fire on rediscovery."""
+    from recommender.nodes import record_rejection
+
+    evidence = (
+        CandidateEvidence(
+            basis="compendium_backed",
+            confidence="medium",
+            producer_name="test",
+            evidence=(
+                "need:trick_room",
+                "tier:Acceptable",
+                "role:trick_room_setter",
+            ),
+            branch="need",
+        ),
+    )
+    state = {
+        **_state(),
+        "turn": 1,
+        "turn_payload": {
+            "species": "Armarouge",
+            "reason": "reject 3",
+            "slot_index": None,
+        },
+        "pending_presentation": {
+            "schema_version": 1,
+            "kind": "candidate_selection",
+            "slot_index": 3,
+            "options": [
+                {
+                    "species": "Armarouge",
+                    "source": "need",
+                    "evidence": evidence,
+                }
+            ],
+        },
+        "rejected": [],
+    }
+    out = record_rejection(state)  # type: ignore[arg-type]
+    assert out["rejected"][-1]["need_categories"] == ["trick_room"]
+
+
+def test_diversify_banned_tr_blocks_acceptable_empty_diversity_profile():
+    from recommender.team_candidates import (
+        _diversity_need_categories,
+        _diversify_by_need_category,
+        _sticky_ban_profile,
+    )
+
+    good_tr = _tiered_need_candidate("GoodTR", "trick_room", tier="Good")
+    acceptable_tr = _tiered_need_candidate(
+        "AcceptableTR", "trick_room", tier="Acceptable"
+    )
+    screens = _tiered_need_candidate("ScreensLike", "screens", tier="Excellent")
+    assert _diversity_need_categories(acceptable_tr) == frozenset()
+    assert _sticky_ban_profile(acceptable_tr) == frozenset({"trick_room"})
+
+    banned = frozenset({frozenset({"trick_room"})})
+    picked = _diversify_by_need_category(
+        [good_tr, acceptable_tr, screens], n=3, banned_profiles=banned
+    )
+    assert [c.species for c in picked] == ["ScreensLike"]
+    assert all(_sticky_ban_profile(c) != frozenset({"trick_room"}) for c in picked)
+
+
+def test_rank_category_a_demotes_covered_screens_provider_role():
+    """Soft demote: screens_support behind peer when screens already provided."""
+    from recommender.team_candidates import _rank_category_a
+
+    locked = collect_locked_anchor_contexts(
+        _state(
+            [
+                _locked(
+                    "Grimmsnarl",
+                    role="screens_support",
+                    ability="Prankster",
+                    item="Light Clay",
+                    moves=["Parting Shot", "Reflect", "Light Screen", "Spirit Break"],
+                ),
+            ]
+        )
+    )
+    screens_role = AnnotatedCandidate(
+        species="ScreensA",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("ScreensA", usage_rank=5),
+        branches=frozenset({"threat"}),
+        target_role_decision=TargetRoleDecision(
+            role_id="screens_support",
+            source="other",
+        ),
+    )
+    other = AnnotatedCandidate(
+        species="OtherA",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("OtherA", usage_rank=5),
+        branches=frozenset({"threat"}),
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_physical_attacker",
+            source="other",
+        ),
+    )
+    ranked = _rank_category_a(
+        [screens_role, other], [[]], locked_contexts=locked
+    )
+    assert [c.species for c in ranked] == ["OtherA", "ScreensA"]

@@ -2700,8 +2700,12 @@ def record_rejection(state: RecommenderState) -> dict:
                 filtered = _diversity_need_categories_from_evidence(
                     evidence, categories
                 )
-                if filtered:
-                    entry["need_categories"] = sorted(filtered)
+                # Acceptable-only TR/etc. drops out of diversity filter;
+                # still stamp raw need tags so sticky-ban can block the
+                # same profile on rediscovery (confirmed live pass-3 cycle).
+                stamp = filtered if filtered else frozenset(categories)
+                if stamp:
+                    entry["need_categories"] = sorted(stamp)
             break
     out: dict = {"rejected": [*state.get("rejected", []), entry]}
 
