@@ -215,7 +215,7 @@ def test_support_no_setup_no_redirection():
 
 
 def test_self_defense_drops_close_combat_wired():
-    from recommender.role_compendium import _self_defense_drops
+    from recommender.stat_boosts import _self_defense_drops
 
     assert _self_defense_drops("closecombat") == {"def": -1, "spd": -1}
 

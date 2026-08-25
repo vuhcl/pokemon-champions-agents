@@ -49,9 +49,14 @@ from recommender.usage_data import (
 )
 from recommender.usage_showdown import fetch_showdown_vgc_species
 
+from recommender.stat_boosts import (
+    _self_boosts,
+    _self_defense_drops,
+    load_stat_boosts,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ROLES_DIR = ROOT / "data" / "roles"
-_STAT_BOOSTS_PATH = ROOT / "data" / "moves" / "stat_boosts.v1.json"
 
 LiveFetch = Callable[[str], dict[str, Any] | None]
 CalculateBatch = Callable[[list[dict[str, Any]]], list[dict[str, Any]]]
@@ -1620,35 +1625,6 @@ def _mega_usage_attribution(
                 f"for {base_name}/{mega_name}"
             )
     return pair_usage, pair_notes, stone_fallback_used
-
-
-def load_stat_boosts() -> dict[str, Any]:
-    return json.loads(_STAT_BOOSTS_PATH.read_text())
-
-
-def _self_boosts(entry: dict[str, Any]) -> dict[str, int]:
-    """Stat changes the move always applies to its own user (chance-gated ones excluded)."""
-    out: dict[str, int] = {}
-    for eff in entry.get("boosts") or []:
-        if eff.get("to") != "self" or eff.get("chance") != 100:
-            continue
-        for stat, stages in (eff.get("stats") or {}).items():
-            out[stat] = out.get(stat, 0) + int(stages)
-    return out
-
-
-@lru_cache(maxsize=None)
-def _self_defense_drops(mid: str) -> dict[str, int]:
-    """Guaranteed self Def/SpD drops for a damaging move (empty if none)."""
-    ent = (load_stat_boosts().get("moves") or {}).get(to_id(mid)) or {}
-    if ent.get("category") == "Status":
-        return {}
-    drops = {
-        s: st
-        for s, st in _self_boosts(ent).items()
-        if s in {"def", "spd"} and st < 0
-    }
-    return drops
 
 
 def _recoil_frac_from_result(r: Any, mid: str) -> float:
