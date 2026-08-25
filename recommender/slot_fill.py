@@ -19,6 +19,7 @@ from recommender.anchor_roles import (
 from recommender.by_usage import query_by_usage
 from recommender.calc_client import PokemonSpecOptional
 from recommender.condition_types import ConditionResilienceReport
+from recommender.contingent_value import REDIRECT_MOVES
 from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
 from recommender.matchup import CHARGE_INSTANT_WEATHER
@@ -89,6 +90,7 @@ class _NeedSatisfier:
 _NEED_SATISFIERS: dict[NeedCategory, _NeedSatisfier] = {
     "trick_room": _NeedSatisfier(moves=frozenset({"trickroom"})),
     "tailwind": _NeedSatisfier(moves=frozenset({"tailwind"})),
+    "redirection": _NeedSatisfier(moves=frozenset(REDIRECT_MOVES)),
     "healing_cleric": _NeedSatisfier(
         moves=frozenset(
             {"wish", "healpulse", "lifedew", "aromatherapy", "healbell"}
@@ -372,6 +374,7 @@ class SlotFillTerminalResult:
 _NEED_TARGET_ROLES: dict[NeedCategory, tuple[TargetRoleId, str]] = {
     "trick_room": ("trick_room_setter", "move:trickroom"),
     "tailwind": ("tailwind_setter", "move:tailwind"),
+    "redirection": ("redirection", "move:followme"),
 }
 _CONDITION_SETTER_TARGET_ROLES: dict[str, tuple[TargetRoleId, str]] = {
     "rain": ("rain_setter", "role:rain_setter"),
@@ -1108,6 +1111,8 @@ def _compendium_roles_for_need(need: SupportNeed) -> list[tuple[str, str]]:
         return [("screens_support", "")]
     if need.category == "tailwind":
         return [("tailwind_setter", "")]
+    if need.category == "redirection":
+        return [("redirection", "")]
     if need.category == "condition_setter" and need.trigger:
         weather = {"rain": "Rain", "sun": "Sun", "sand": "Sand", "snow": "Snow"}
         return [

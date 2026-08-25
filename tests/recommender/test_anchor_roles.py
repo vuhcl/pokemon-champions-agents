@@ -52,6 +52,7 @@ def test_kingambit_trick_room_sweeper_still_teammate_expected_dependent():
     categories = {need.category for need in query_support_needs(build.as_pokemon(), shape)}
     assert "fake_out_protection" not in categories
     assert "taunt_disruption" not in categories
+    # Offense/setup shapes may emit redirection; Kingambit TR sweeper is setup-shaped.
 
 
 def test_archaludon_electro_shot_emits_needed_rain_benefit():

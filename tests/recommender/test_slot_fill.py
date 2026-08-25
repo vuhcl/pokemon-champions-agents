@@ -1173,6 +1173,31 @@ def test_accept_with_empty_pool_raises():
         assert "no species" in str(e)
 
 
+def test_redirection_need_matches_rage_powder():
+    from recommender.legality import load_snapshot
+
+    need = SupportNeed(
+        category="redirection",
+        name="Redirection",
+        description="wants Follow Me / Rage Powder",
+        trigger="offense:redirection",
+    )
+    assert _NEED_SATISFIERS["redirection"].moves == frozenset({"followme", "ragepowder"})
+    snap = load_snapshot()
+    # Champions learnset: Sinistcha has Rage Powder; Incineroar does not redirect.
+    assert _candidate_satisfies_need("Sinistcha", need, snap=snap)
+    assert not _candidate_satisfies_need("Incineroar", need, snap=snap)
+
+
+def test_redirection_has_compendium_mapping():
+    need = SupportNeed(
+        category="redirection",
+        name="Redirection",
+        description="x",
+        trigger="offense:redirection",
+    )
+    assert _compendium_roles_for_need(need) == [("redirection", "")]
+    assert _NEED_TARGET_ROLES["redirection"] == ("redirection", "move:followme")
 
 
 def test_field_label_matches_primal_weather():
@@ -1411,17 +1436,17 @@ def test_resolve_screens_keeps_hard_weather_gated_candidate_undowngraded_with_no
 
 def test_resolve_all_and_merge_without_chosen_need():
     tr = _trick_room_need()
-    screens = SupportNeed(
-        category="screens",
-        name="Screens",
-        description="wants screens",
-        trigger=None,
+    redir = SupportNeed(
+        category="redirection",
+        name="Redirection",
+        description="wants redirection",
+        trigger="offense:redirection",
     )
     ctx = SlotFillContext(
         anchor={"species": "Garchomp"},
         role_shape_context=_shape(),
         threat_counter_results=[_tc("Incineroar")],
-        support_needs=[tr, screens],
+        support_needs=[tr, redir],
         chosen_need=None,
     )
     resolved = resolve_all_support_needs(ctx, _base_state())
@@ -1662,6 +1687,19 @@ def test_concrete_matching_build_promotes_compendium_confidence():
     )
     assert compendium.confidence == "high"
 
+
+def test_rejected_redirector_still_surfaces_via_raw_when_no_compendium_reject_block():
+    """Redirection need uses compendium; rejected-only evidence without raw keep
+    path is covered elsewhere — keep a smoke resolve for redirection need."""
+    need = SupportNeed(
+        "redirection",
+        "Redirection",
+        "Needs redirection",
+        "offense:redirection",
+    )
+    assert _compendium_roles_for_need(need) == [("redirection", "")]
+    rows = resolve_need_candidates(need, _base_state())
+    assert rows  # at least some Rage Powder / Follow Me users
 
 
 def test_union_move_candidates_uses_deterministic_move_order():

@@ -21,6 +21,7 @@ PrimaryFunction = Literal["offense", "support", "unknown"]
 Tankiness = Literal["tanky", "glass", "unknown"]
 NeedCategory = Literal[
     "defensive_coverage",
+    "redirection",
     "healing_cleric",
     "screens",
     "condition_setter",
@@ -28,12 +29,21 @@ NeedCategory = Literal[
     "tailwind",
     "condition_beneficiary",
 ]
+NeedUmbrella = Literal[
+    "damage_mitigation",
+    "redirection",
+    "healing",
+    "condition",
+    "speed_control",
+    "defensive_coverage",
+]
 SpeTier = Literal["low", "middling", "already_fast"]
 Stance = Literal["need", "want"]
 
 # Presentation order only — not a ranking.
 _CATEGORY_ORDER: tuple[NeedCategory, ...] = (
     "defensive_coverage",
+    "redirection",
     "healing_cleric",
     "screens",
     "condition_setter",
@@ -42,6 +52,17 @@ _CATEGORY_ORDER: tuple[NeedCategory, ...] = (
     "condition_beneficiary",
 )
 
+# Taxonomy only — emit/satisfiers/bans stay leaf NeedCategory.
+_NEED_UMBRELLA: dict[NeedCategory, NeedUmbrella] = {
+    "defensive_coverage": "defensive_coverage",
+    "redirection": "redirection",
+    "healing_cleric": "healing",
+    "screens": "damage_mitigation",
+    "condition_setter": "condition",
+    "condition_beneficiary": "condition",
+    "trick_room": "speed_control",
+    "tailwind": "speed_control",
+}
 
 # ponytail: 1.5× Def/SpD ratio is a calibrated heuristic (Archaludon 130/65);
 # Role Compendium / richer bulk models can replace later.
@@ -571,6 +592,32 @@ def query_support_needs(
         else:
             needs.append(enriched)
             healing = enriched
+
+    # --- Redirection (offense-primary or setup execution risk) ---
+    if primary == "offense" or role_shape_context.requires_setup_turn:
+        if role_shape_context.requires_setup_turn:
+            redir_trigger = "requires_setup_turn:redirection"
+            redir_desc = (
+                "Turn-limited/setup-dependent role wants Follow Me / Rage Powder."
+            )
+            redir_stance = None
+        else:
+            redir_trigger = "offense:redirection"
+            redir_desc = (
+                "Offense-primary anchor wants Follow Me / Rage Powder redirection."
+            )
+            # Soft ask — same tier as already_fast Tailwind; must not alone
+            # flip anchor_has_obvious_need for self-sufficient offense anchors.
+            redir_stance = "want"
+        needs.append(
+            SupportNeed(
+                category="redirection",
+                name="Redirection",
+                description=redir_desc,
+                trigger=redir_trigger,
+                stance=redir_stance,
+            )
+        )
 
     # --- Speed axis ---
     needs.extend(

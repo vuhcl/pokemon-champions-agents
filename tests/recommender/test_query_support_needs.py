@@ -8,6 +8,8 @@ from recommender.state import Attr, Slot
 from recommender.support_needs import (
     RoleShapeContext,
     SupportNeed,
+    _CATEGORY_ORDER,
+    _NEED_UMBRELLA,
     _field_matches,
     _has_offensive_priority,
     _has_self_heal,
@@ -23,6 +25,14 @@ def _cats(needs: list[SupportNeed]) -> set[str]:
 
 def _by_cat(needs: list[SupportNeed], cat: str) -> list[SupportNeed]:
     return [n for n in needs if n.category == cat]
+
+
+def test_need_umbrella_covers_every_category():
+    assert set(_NEED_UMBRELLA) == set(_CATEGORY_ORDER)
+    assert _NEED_UMBRELLA["trick_room"] == "speed_control"
+    assert _NEED_UMBRELLA["screens"] == "damage_mitigation"
+    assert _NEED_UMBRELLA["redirection"] == "redirection"
+    assert _NEED_UMBRELLA["defensive_coverage"] == "defensive_coverage"
 
 
 def test_clean_classification_does_not_suppress_raw_analysis():
@@ -122,7 +132,7 @@ def test_glass_gate_no_defensive_coverage():
     assert "healing_cleric" in _cats(out)
 
 
-def test_killed_disruption_and_slp_needs_absent():
+def test_setup_dependent_redirection():
     out = query_support_needs(
         {"species": "Farigiraf"},
         RoleShapeContext(
@@ -131,17 +141,88 @@ def test_killed_disruption_and_slp_needs_absent():
             setup_dependent=True,
         ),
     )
+    redir = _by_cat(out, "redirection")
+    assert len(redir) == 1
+    assert redir[0].trigger == "requires_setup_turn:redirection"
+    assert "screens" not in _cats(out)
+    assert "taunt_disruption" not in _cats(out)
+    assert "fake_out_protection" not in _cats(out)
+
+
+def test_setup_offense_kingambit_redirection():
+    """Kingambit-shaped: setup_dependent offense still surfaces redirection."""
+    out = query_support_needs(
+        {"species": "Kingambit"},
+        RoleShapeContext(
+            match_status="partial",
+            primary_function="offense",
+            tankiness="tanky",
+            setup_dependent=True,
+        ),
+    )
+    redir = _by_cat(out, "redirection")
+    assert len(redir) == 1
+    assert redir[0].trigger == "requires_setup_turn:redirection"
+    assert "taunt_disruption" not in _cats(out)
+
+
+def test_offense_redirection_not_setup():
+    """Offense-primary (glass or tanky) emits redirection without setup."""
+    out = query_support_needs(
+        {"species": "Garchomp"},
+        RoleShapeContext(
+            match_status="partial",
+            primary_function="offense",
+            tankiness="glass",
+            setup_dependent=False,
+        ),
+    )
+    redir = _by_cat(out, "redirection")
+    assert len(redir) == 1
+    assert redir[0].trigger == "offense:redirection"
+    assert redir[0].stance == "want"
+    assert "taunt_disruption" not in _cats(out)
+    assert "fake_out_protection" not in _cats(out)
+
+
+def test_tanky_offense_gets_redirection_without_setup():
+    """Offense emit gate is wider than old FO glass-only path."""
+    out = query_support_needs(
+        {"species": "Archaludon"},
+        RoleShapeContext(
+            match_status="partial",
+            primary_function="offense",
+            tankiness="tanky",
+            setup_dependent=False,
+        ),
+    )
+    assert "redirection" in _cats(out)
     assert "fake_out_protection" not in _cats(out)
     assert "taunt_disruption" not in _cats(out)
+
+
+def test_support_no_setup_no_redirection():
+    out = query_support_needs(
+        {"species": "Indeedee"},
+        RoleShapeContext(
+            match_status="partial",
+            primary_function="support",
+            tankiness="tanky",
+            setup_dependent=False,
+        ),
+    )
     assert "redirection" not in _cats(out)
 
 
 def test_contrary_no_stat_lowering_partner():
+    # Contrary no longer emits a NeedCategory (Disruption/partner-answer, not ally need).
     out = query_support_needs(
         {"species": "Staraptor-Mega"},
         RoleShapeContext(match_status="partial", primary_function="offense"),
     )
     assert "stat_lowering_partner" not in _cats(out)
+    assert "redirection" in _cats(out)  # offense-primary
+
 
 
 def test_inconclusive_no_attacker_universals():

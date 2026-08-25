@@ -2870,7 +2870,7 @@ def test_select_diverse_candidates_support_diversifies_by_need_category():
     )
     fake_out = AnnotatedCandidate(
         species="Incineroar",
-        matching_needs=(_need("tailwind"),),
+        matching_needs=(_need("redirection"),),
         source="need",
         threat_row=None,
         spec={"species": "Incineroar"},
@@ -3362,7 +3362,7 @@ def test_diversify_fallback_prefers_new_category_over_redundant():
         _category_b_need_candidate("AromatisseLike", ("healing_cleric", "trick_room")),
         _category_b_need_candidate("GrimmsnarlLike", ("screens",)),
         _category_b_need_candidate("AudinoLike", ("healing_cleric", "trick_room")),
-        _category_b_need_candidate("IncineroarLike", ("tailwind",)),
+        _category_b_need_candidate("IncineroarLike", ("redirection",)),
     ]
     picked = _diversify_by_need_category(pool, n=3)
     assert [c.species for c in picked] == [
@@ -3493,7 +3493,7 @@ def test_diversify_pass2_skips_subset_of_covered_trick_room():
         _category_b_need_candidate("KlefkiLike", ("screens", "trick_room")),
         _category_b_need_candidate("ArmarougeLike", ("trick_room",)),
         _category_b_need_candidate("ChandelureLike", ("trick_room",)),
-        _category_b_need_candidate("IncineroarLike", ("tailwind",)),
+        _category_b_need_candidate("IncineroarLike", ("redirection",)),
     ]
     # No banned_profiles: pass 2 skips pure-TR subsets; pass 3 may still fill.
     picked = _diversify_by_need_category(pool, n=3)
