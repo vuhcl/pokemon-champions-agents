@@ -1135,7 +1135,9 @@ def test_atomic_commit_rejects_illegal_ability_without_partial_update():
     assert "ability:Drizzle" in result["slot_commit_error"]
 
 
-def test_present_only_rejects_empty_presentation():
+def test_present_only_empty_pool_returns_teachable_pending():
+    from recommender.slot_fill import _EMPTY_CANDIDATE_POOL_PROMPT
+
     ctx = SlotFillContext(
         anchor={"species": "Kingambit"},
         role_shape_context=_shape(),
@@ -1144,8 +1146,11 @@ def test_present_only_rejects_empty_presentation():
     )
     annotate_overlap(ctx)
 
-    with pytest.raises(ValueError, match="no species"):
-        run_slot_fill_terminal(ctx, _base_state(), slot_index=0)
+    result = run_slot_fill_terminal(ctx, _base_state(), slot_index=0)
+    pending = result.state_updates["pending_presentation"]
+    assert pending["options"] == []
+    assert pending["prompt_text"] == _EMPTY_CANDIDATE_POOL_PROMPT
+    assert result.deferred is False
 
 
 def test_accept_with_empty_pool_raises():
