@@ -1993,6 +1993,15 @@ def _pending_presentation(
             option["primary_function"] = row.primary_function
         if row.mechanism_ids is not None:
             option["mechanism_ids"] = row.mechanism_ids
+        need_cats = sorted(
+            {
+                n.category
+                for n in row.matching_needs
+                if n.category != "condition_beneficiary"
+            }
+        )
+        if need_cats:
+            option["need_categories"] = need_cats
         if candidate.track is not None:
             option["track"] = candidate.track
         options.append(option)

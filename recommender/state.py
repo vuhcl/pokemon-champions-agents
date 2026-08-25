@@ -94,6 +94,7 @@ class RejectionPayload(TypedDict, total=False):
     species: str
     slot_index: int
     reason: str
+    ban_need_categories: list[str]
 
 
 SlotAttrName = Literal[
@@ -344,6 +345,7 @@ class PendingPresentationOption(TypedDict):
     primary_function: NotRequired[Literal["offense", "support", "unknown"]]
     mechanism_ids: NotRequired[tuple[str, ...]]
     track: NotRequired[str]
+    need_categories: NotRequired[list[str]]
 
 
 class ReviewFlag(TypedDict):

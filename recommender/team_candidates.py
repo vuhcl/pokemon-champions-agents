@@ -443,6 +443,7 @@ def merge_multi_locked_candidates(
     rejected_lineages = {
         lineage
         for row in state.get("rejected", [])
+        if str(row.get("species") or "").strip()
         for lineage in lineage_ids(row["species"])
     }
 
@@ -1660,6 +1661,22 @@ def _sticky_ban_profile(c: AnnotatedCandidate) -> frozenset[str]:
     return cats if cats else _support_need_categories(c)
 
 
+def profile_is_banned(
+    c: AnnotatedCandidate,
+    banned_profiles: frozenset[frozenset[str]],
+) -> bool:
+    """True if any banned profile equals sticky profile or is ⊆ raw needs.
+
+    Exact sticky match covers diversity-shaped bans; subset-of-raw covers
+    Acceptable-TR-on-cleric vs a singleton {trick_room} ban.
+    """
+    if not banned_profiles:
+        return False
+    sticky = _sticky_ban_profile(c)
+    raw = _support_need_categories(c)
+    return any(banned == sticky or banned <= raw for banned in banned_profiles)
+
+
 def _diversify_by_need_category(
     ranked_b: Sequence[AnnotatedCandidate],
     n: int,
@@ -1680,7 +1697,7 @@ def _diversify_by_need_category(
         cats = _diversity_need_categories(c)
         if not cats or not (cats - covered):
             continue
-        if _sticky_ban_profile(c) in banned_profiles:
+        if profile_is_banned(c, banned_profiles):
             continue
         picked.append(c)
         used_lineages |= lineage
@@ -1701,7 +1718,7 @@ def _diversify_by_need_category(
             continue
         if any(cats <= profile for profile in picked_profiles):
             continue
-        if _sticky_ban_profile(c) in banned_profiles:
+        if profile_is_banned(c, banned_profiles):
             continue
         picked.append(c)
         used_lineages |= lineage
@@ -1716,7 +1733,7 @@ def _diversify_by_need_category(
         lineage = set(lineage_ids(c.species))
         if lineage & used_lineages:
             continue
-        if _sticky_ban_profile(c) in banned_profiles:
+        if profile_is_banned(c, banned_profiles):
             continue
         picked.append(c)
         used_lineages |= lineage
@@ -1798,7 +1815,7 @@ def _select_balanced(
             pool = [
                 c
                 for c in ranked
-                if _sticky_ban_profile(c) not in banned_profiles
+                if not profile_is_banned(c, banned_profiles)
             ]
         c = _pick_first_new_lineage(pool, used_lineages)
         if c is not None:

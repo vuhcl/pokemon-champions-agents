@@ -107,6 +107,30 @@ _ORDINAL_REPLIES = {
 _SELECTION_PREFIXES = ("choose ", "pick ", "go with ")
 _BARE_NUMBER_RE = re.compile(r"^(?:option )?(\d+)$")
 _REJECT_OPTION_RE = re.compile(r"^reject(?:\s+option)?\s+(\d+)$")
+_REJECT_OPTION_NO_PROFILE_RE = re.compile(
+    r"^reject(?:\s+option)?\s+(\d+)\s*,\s*no\s+(.+)$",
+    re.IGNORECASE,
+)
+_REJECT_OPTION_BECAUSE_PROFILE_RE = re.compile(
+    r"^reject(?:\s+option)?\s+(\d+)\s+because\s+(.+)$",
+    re.IGNORECASE,
+)
+_GLOBAL_PROFILE_REJECT_RE = re.compile(
+    r"^(?:no(?:\s+more)?\s+|reject\s+)(.+)$",
+    re.IGNORECASE,
+)
+_PROFILE_ALIAS_TO_NEED: dict[str, str] = {
+    "tr": "trick_room",
+    "trick room": "trick_room",
+    "trickroom": "trick_room",
+    "tw": "tailwind",
+    "tailwind": "tailwind",
+    "screens": "screens",
+    "screen": "screens",
+    "healing": "healing_cleric",
+    "cleric": "healing_cleric",
+    "healing cleric": "healing_cleric",
+}
 _PREFERENCE_REVISION_REPLIES = frozenset(
     {
         "different focus",
@@ -1202,6 +1226,131 @@ def _parse_reject_option_index(reply: str) -> int | None:
     return int(match.group(1)) - 1
 
 
+def _normalize_profile_alias_key(text: str) -> str:
+    return " ".join(text.lower().split())
+
+
+def _parse_need_category_alias(text: str) -> str | None:
+    return _PROFILE_ALIAS_TO_NEED.get(_normalize_profile_alias_key(text))
+
+
+def _rejection_payload_for_option(
+    *,
+    species: str,
+    slot_index: int,
+    reason: str,
+    ban_need_categories: list[str] | None = None,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "species": species,
+        "slot_index": slot_index,
+        "reason": reason,
+    }
+    if ban_need_categories:
+        payload["ban_need_categories"] = ban_need_categories
+    return {
+        "turn_intent": "rejection",
+        "turn_payload": payload,
+    }
+
+
+def _try_classify_candidate_rejection(
+    text: str,
+    reply: str,
+    pending_presentation: PendingPresentation,
+) -> dict[str, Any] | None:
+    """Deterministic reject parse for candidate_selection. None = not handled."""
+    options = pending_presentation.get("options") or []
+    slot_index = pending_presentation["slot_index"]
+
+    for pattern in (_REJECT_OPTION_NO_PROFILE_RE, _REJECT_OPTION_BECAUSE_PROFILE_RE):
+        match = pattern.match(reply)
+        if match is None:
+            continue
+        index = int(match.group(1)) - 1
+        need = _parse_need_category_alias(match.group(2))
+        if need is None or not (0 <= index < len(options)):
+            return None
+        return _rejection_payload_for_option(
+            species=options[index]["species"],
+            slot_index=slot_index,
+            reason=text.strip(),
+            ban_need_categories=[need],
+        )
+
+    reject_index = _parse_reject_option_index(reply)
+    if reject_index is not None and 0 <= reject_index < len(options):
+        return _rejection_payload_for_option(
+            species=options[reject_index]["species"],
+            slot_index=slot_index,
+            reason=text.strip(),
+        )
+
+    if reply.startswith("reject "):
+        rest = reply[len("reject ") :].strip()
+        ban_need: list[str] | None = None
+        species_part = rest
+        for sep in (", no ", " because ", " no "):
+            # ", no " / " because " / " no " — not " as "
+            idx = rest.find(sep)
+            if idx < 0:
+                continue
+            species_part = rest[:idx].strip()
+            need = _parse_need_category_alias(rest[idx + len(sep) :])
+            if need is None:
+                return None
+            ban_need = [need]
+            break
+        if species_part.isdigit() or species_part.startswith("option "):
+            return None
+        resolved = resolve_species_label(species_part, load_snapshot())
+        if resolved is None:
+            # Global profile: "reject trick room"
+            need = _parse_need_category_alias(rest)
+            if need is None:
+                return None
+            return _rejection_payload_for_option(
+                species="",
+                slot_index=slot_index,
+                reason=text.strip(),
+                ban_need_categories=[need],
+            )
+        candidate_id = to_id(resolved.name)
+        matches = [
+            opt
+            for opt in options
+            if to_id(opt["species"]) == candidate_id
+        ]
+        if len(matches) == 1:
+            return _rejection_payload_for_option(
+                species=matches[0]["species"],
+                slot_index=slot_index,
+                reason=text.strip(),
+                ban_need_categories=ban_need,
+            )
+        if ban_need is None:
+            # Species named but not in options — still lineage-exclude
+            return _rejection_payload_for_option(
+                species=resolved.name,
+                slot_index=slot_index,
+                reason=text.strip(),
+            )
+        return None
+
+    global_match = _GLOBAL_PROFILE_REJECT_RE.match(reply)
+    if global_match and not reply.startswith("reject "):
+        # "no trick room" / "no more trick room" (reject … handled above)
+        need = _parse_need_category_alias(global_match.group(1))
+        if need is not None:
+            return _rejection_payload_for_option(
+                species="",
+                slot_index=slot_index,
+                reason=text.strip(),
+                ban_need_categories=[need],
+            )
+    return None
+
+
 def _classify_candidate_selection_reply(
     text: str,
     reply: str,
@@ -1225,16 +1374,11 @@ def _classify_candidate_selection_reply(
     if signals == {"defer"}:
         return {"turn_intent": "deferred", "pending_presentation": None}
 
-    reject_index = _parse_reject_option_index(reply)
-    if reject_index is not None and 0 <= reject_index < len(options):
-        return {
-            "turn_intent": "rejection",
-            "turn_payload": {
-                "species": options[reject_index]["species"],
-                "slot_index": pending_presentation["slot_index"],
-                "reason": text.strip(),
-            },
-        }
+    classified_reject = _try_classify_candidate_rejection(
+        text, reply, pending_presentation
+    )
+    if classified_reject is not None:
+        return classified_reject
 
     if reply in _PREFERENCE_REVISION_REPLIES:
         return {
@@ -2669,48 +2813,17 @@ def record_rejection(state: RecommenderState) -> dict:
     payload: RejectionPayload = state["turn_payload"]  # type: ignore[assignment]
     turn = state.get("turn", 0)
     entry = RejectedEntry(
-        species=payload["species"],
+        species=payload.get("species") or "",
         reason=payload.get("reason", ""),
         turn=turn,
     )
-    pending = state.get("pending_presentation")
-    if isinstance(pending, dict):
-        species_id = to_id(payload["species"])
-        for option in pending.get("options") or ():
-            if to_id(str(option.get("species") or "")) != species_id:
-                continue
-            evidence = option.get("evidence") or ()
-            categories: list[str] = []
-            seen: set[str] = set()
-            for item in evidence:
-                tags = getattr(item, "evidence", None) or ()
-                for tag in tags:
-                    if not isinstance(tag, str) or not tag.startswith("need:"):
-                        continue
-                    cat = tag.removeprefix("need:")
-                    if cat == "condition_beneficiary" or cat in seen:
-                        continue
-                    seen.add(cat)
-                    categories.append(cat)
-            if categories:
-                from recommender.team_candidates import (
-                    _diversity_need_categories_from_evidence,
-                )
-
-                filtered = _diversity_need_categories_from_evidence(
-                    evidence, categories
-                )
-                # Acceptable-only TR/etc. drops out of diversity filter;
-                # still stamp raw need tags so sticky-ban can block the
-                # same profile on rediscovery (confirmed live pass-3 cycle).
-                stamp = filtered if filtered else frozenset(categories)
-                if stamp:
-                    entry["need_categories"] = sorted(stamp)
-            break
+    ban = payload.get("ban_need_categories")
+    if ban:
+        entry["need_categories"] = list(ban)
     out: dict = {"rejected": [*state.get("rejected", []), entry]}
 
     slot_index = payload.get("slot_index")
-    if slot_index is not None:
+    if slot_index is not None and entry["species"]:
         draft = list(state["team_draft"])
         slot = draft[slot_index]
         if not slot.species.locked:

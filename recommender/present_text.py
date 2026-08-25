@@ -175,6 +175,12 @@ def _format_option_role_bit(role: object) -> str | None:
     return None
 
 
+_REJECT_HINT = (
+    "reject N drops only that species. To also skip Trick Room–shaped picks: "
+    "reject N, no TR or no more trick room."
+)
+
+
 def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
     lines: list[str] = []
     prompt = pending.get("prompt_text")
@@ -191,6 +197,9 @@ def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
         role_bit = _format_option_role_bit(option.get("target_role_decision"))
         if role_bit:
             bits.append(role_bit)
+        need_cats = option.get("need_categories") or ()
+        if need_cats:
+            bits.append(" / ".join(str(c) for c in need_cats))
         if option.get("primary_function"):
             bits.append(str(option["primary_function"]))
         evidence_rows = option.get("evidence") or ()
@@ -199,6 +208,8 @@ def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
         else:
             bits.append("no evidence")
         lines.append(" — ".join(bits))
+    if options:
+        lines.append(_REJECT_HINT)
     return lines
 
 
