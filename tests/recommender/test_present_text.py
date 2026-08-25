@@ -175,6 +175,16 @@ def test_candidate_selection_shows_slash_need_categories():
                         "species": "Aromatisse",
                         "source": "need",
                         "need_categories": ["healing_cleric", "trick_room"],
+                        "secondary_trick_room": True,
+                        "target_role_decision": {
+                            "role_id": "trick_room_setter",
+                            "source": "support_need",
+                            "evidence": (),
+                            "needed_constraints": (),
+                            "confidence": "high",
+                            "provenance": (),
+                            "producer_name": "test",
+                        },
                         "evidence": (
                             CandidateEvidence(
                                 "usage_backed",
@@ -189,6 +199,8 @@ def test_candidate_selection_shows_slash_need_categories():
         }
     )
     assert "healing_cleric / trick_room" in text
+    assert "trick_room_setter" not in text
+    assert "base build includes Trick Room" in text
 
 
 def test_candidate_selection_uses_best_evidence_not_first():

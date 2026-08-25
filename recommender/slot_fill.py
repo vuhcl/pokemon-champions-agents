@@ -375,6 +375,7 @@ _NEED_TARGET_ROLES: dict[NeedCategory, tuple[TargetRoleId, str]] = {
     "trick_room": ("trick_room_setter", "move:trickroom"),
     "tailwind": ("tailwind_setter", "move:tailwind"),
     "redirection": ("redirection", "move:followme"),
+    "screens": ("screens_support", "move:lightscreen"),
 }
 _CONDITION_SETTER_TARGET_ROLES: dict[str, tuple[TargetRoleId, str]] = {
     "rain": ("rain_setter", "role:rain_setter"),
@@ -460,6 +461,17 @@ def target_role_from_needs(
             relevant.append((need, role_id, constraint))
     if not relevant:
         return None
+
+    # Prefer non-TR mapped roles when multi-need unless the peer is also
+    # speed control (TR+TW stays unresolved ambiguity).
+    _SPEED_ROLES = frozenset({"trick_room_setter", "tailwind_setter"})
+    non_tr = [row for row in relevant if row[1] != "trick_room_setter"]
+    if (
+        non_tr
+        and any(role_id == "trick_room_setter" for _, role_id, _ in relevant)
+        and any(role_id not in _SPEED_ROLES for _, role_id, _ in non_tr)
+    ):
+        relevant = non_tr
 
     role_ids = tuple(dict.fromkeys(role_id for _, role_id, _ in relevant))
     needed = tuple(
@@ -1966,6 +1978,8 @@ def _pending_presentation(
         )
         if need_cats:
             option["need_categories"] = need_cats
+            if "trick_room" in need_cats and len(need_cats) > 1:
+                option["secondary_trick_room"] = True
         if candidate.track is not None:
             option["track"] = candidate.track
         options.append(option)

@@ -1198,6 +1198,7 @@ def test_redirection_has_compendium_mapping():
     )
     assert _compendium_roles_for_need(need) == [("redirection", "")]
     assert _NEED_TARGET_ROLES["redirection"] == ("redirection", "move:followme")
+    assert _NEED_TARGET_ROLES["screens"][0] == "screens_support"
 
 
 def test_field_label_matches_primal_weather():
@@ -1770,6 +1771,13 @@ def test_target_role_from_needs_maps_rain_condition_setter():
     assert decision.role_id == "rain_setter"
 
 
+def test_target_role_from_needs_prefers_screens_over_trick_room():
+    screens = SupportNeed("screens", "Screens", "Wants screens", None)
+    tr = _trick_room_need()
+    decision = target_role_from_needs([tr, screens])
+    assert isinstance(decision, TargetRoleDecision)
+    assert decision.role_id == "screens_support"
+
 
 def test_archaludon_single_locked_pool_labels_rain_setter():
     from recommender.team_candidates import owned_species_ids
@@ -2069,6 +2077,9 @@ def test_tailwind_need_now_uses_real_compendium():
         for tag in e.evidence
     )
 
+
+def test_screens_target_role_mapped():
+    assert _NEED_TARGET_ROLES["screens"] == ("screens_support", "move:lightscreen")
 
 
 def _threat_evidence_row() -> CandidateEvidence:

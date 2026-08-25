@@ -194,10 +194,17 @@ def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
         bits = [prefix]
         if option.get("direction_label"):
             bits.append(str(option["direction_label"]))
+        need_cats = option.get("need_categories") or ()
         role_bit = _format_option_role_bit(option.get("target_role_decision"))
+        # Multi-need with TR: slash needs already show TR — omit lone TR role bit.
+        if (
+            role_bit == "trick_room_setter"
+            and "trick_room" in need_cats
+            and len(need_cats) > 1
+        ):
+            role_bit = None
         if role_bit:
             bits.append(role_bit)
-        need_cats = option.get("need_categories") or ()
         if need_cats:
             bits.append(" / ".join(str(c) for c in need_cats))
         if option.get("primary_function"):
@@ -207,6 +214,10 @@ def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
             bits.append(format_evidence_summary(_best_evidence_row(evidence_rows)))
         else:
             bits.append("no evidence")
+        if option.get("secondary_trick_room"):
+            bits.append(
+                "base build includes Trick Room — say if you want it replaced"
+            )
         lines.append(" — ".join(bits))
     if options:
         lines.append(_REJECT_HINT)

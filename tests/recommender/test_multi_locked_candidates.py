@@ -3503,8 +3503,8 @@ def test_diversify_pass2_skips_subset_of_covered_trick_room():
 
 
 def test_diversify_banned_profiles_blocks_pure_tr_in_pass3():
-    """Singleton {trick_room} ban hits anyone with raw trick_room (incl. multi-need)."""
-    from recommender.team_candidates import _diversify_by_need_category
+    """Singleton {trick_room} ban hits pure-TR sticky only (not secondary TR)."""
+    from recommender.team_candidates import _diversify_by_need_category, profile_is_banned
 
     pool = [
         _category_b_need_candidate("SinistchaLike", ("healing_cleric", "trick_room")),
@@ -3514,11 +3514,13 @@ def test_diversify_banned_profiles_blocks_pure_tr_in_pass3():
         _category_b_need_candidate("GrimmsnarlLike", ("screens",)),
     ]
     banned = frozenset({frozenset({"trick_room"})})
+    assert not profile_is_banned(pool[0], banned)
+    assert profile_is_banned(pool[2], banned)
     picked = _diversify_by_need_category(pool, n=3, banned_profiles=banned)
-    assert [c.species for c in picked] == ["GrimmsnarlLike"]
-    assert all(
-        "trick_room" not in {n.category for n in c.matching_needs} for c in picked
-    )
+    assert "ArmarougeLike" not in {c.species for c in picked}
+    assert "ChandelureLike" not in {c.species for c in picked}
+    assert "GrimmsnarlLike" in {c.species for c in picked}
+    assert "SinistchaLike" in {c.species for c in picked}
 
 
 def test_diversity_need_categories_drops_acceptable_without_commitment():
@@ -3790,8 +3792,8 @@ def test_record_rejection_global_profile_empty_species():
     assert "team_draft" not in out
 
 
-def test_diversify_banned_tr_blocks_acceptable_on_cleric_via_raw_subset():
-    """Acceptable TR dropped from diversity but raw still has trick_room."""
+def test_diversify_banned_tr_does_not_block_cleric_with_secondary_tr():
+    """Pure-{trick_room} ban is main-job only — not subset-of-raw on multi-need."""
     from recommender.team_candidates import (
         _diversity_need_categories,
         _diversify_by_need_category,
@@ -3832,13 +3834,13 @@ def test_diversify_banned_tr_blocks_acceptable_on_cleric_via_raw_subset():
     )
     screens = _category_b_need_candidate("GrimmsnarlLike", ("screens",))
     assert "trick_room" not in _diversity_need_categories(cleric_tr)
-    assert profile_is_banned(cleric_tr, frozenset({frozenset({"trick_room"})}))
+    assert not profile_is_banned(cleric_tr, frozenset({frozenset({"trick_room"})}))
     picked = _diversify_by_need_category(
         [cleric_tr, screens],
         2,
         banned_profiles=frozenset({frozenset({"trick_room"})}),
     )
-    assert [c.species for c in picked] == ["GrimmsnarlLike"]
+    assert {c.species for c in picked} == {"AudinoLike", "GrimmsnarlLike"}
 
 
 def test_diversify_banned_tr_blocks_acceptable_empty_diversity_profile():
