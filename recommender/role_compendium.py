@@ -894,10 +894,6 @@ def _excellent_secondary(
     return bool(set(secondary_move_ids) & excellent_move_ids)
 
 
-def _execution_reinforce_ok(abs_map: dict[str, str]) -> bool:
-    return bool(execution_reinforce_abilities(abs_map))
-
-
 def _secondary_support_notes(
     entry: dict[str, Any] | None,
     *,
@@ -943,11 +939,6 @@ def _ref_members(
 
 def _condition_label(sub_criteria: dict[str, Any]) -> str:
     return str(sub_criteria.get("condition") or "")
-
-
-def _move_display(snap: dict[str, Any], move_id: str) -> str:
-    entry = (snap.get("moves") or {}).get(move_id) or {}
-    return str(entry.get("name") or move_id)
 
 
 def _degree_tuple(c: CandidateEval) -> tuple[str, str, str]:
