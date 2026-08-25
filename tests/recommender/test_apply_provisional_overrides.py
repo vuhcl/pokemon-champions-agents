@@ -1022,7 +1022,7 @@ def test_accept_status_move_conflict_does_not_bypass_unrelated_speed_conflict():
     state = {"team_draft": [empty_slot()], "regulation_mod": "champions-reg-mb"}
 
     with patch(
-        "recommender.nodes.check_set",
+        "recommender.nodes_classify.check_set",
         return_value=LegalityResult(ok=True, failures=()),
     ):
         err_normal = _verify_provisional_hard(provisional, state)
