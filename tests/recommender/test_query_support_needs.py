@@ -122,7 +122,7 @@ def test_glass_gate_no_defensive_coverage():
     assert "healing_cleric" in _cats(out)
 
 
-def test_setup_dependent_fake_out_and_taunt():
+def test_killed_disruption_and_slp_needs_absent():
     out = query_support_needs(
         {"species": "Farigiraf"},
         RoleShapeContext(
@@ -131,73 +131,17 @@ def test_setup_dependent_fake_out_and_taunt():
             setup_dependent=True,
         ),
     )
-    fo = _by_cat(out, "fake_out_protection")
-    assert len(fo) == 1
-    assert fo[0].trigger == "requires_setup_turn:fake_out"
-    taunt = _by_cat(out, "taunt_disruption")
-    assert len(taunt) == 1
-    assert taunt[0].notes and "no clean mechanical counter" in taunt[0].notes.lower()
-    assert "screens" not in _cats(out)
-
-
-def test_setup_offense_kingambit_still_fake_out():
-    """Kingambit-shaped: setup_dependent offense still surfaces FO (existing path)."""
-    out = query_support_needs(
-        {"species": "Kingambit"},
-        RoleShapeContext(
-            match_status="partial",
-            primary_function="offense",
-            tankiness="tanky",
-            setup_dependent=True,
-        ),
-    )
-    fo = _by_cat(out, "fake_out_protection")
-    assert len(fo) == 1
-    assert fo[0].trigger == "requires_setup_turn:fake_out"
-    assert "taunt_disruption" in _cats(out)
-
-
-def test_glass_offense_fake_out_not_setup():
-    """Garchomp-shaped: glass offense, not setup_dependent → FO yes, Taunt no."""
-    out = query_support_needs(
-        {"species": "Garchomp"},
-        RoleShapeContext(
-            match_status="partial",
-            primary_function="offense",
-            tankiness="glass",
-            setup_dependent=False,
-        ),
-    )
-    fo = _by_cat(out, "fake_out_protection")
-    assert len(fo) == 1
-    assert fo[0].trigger == "glass_offense:fake_out"
-    assert "taunt_disruption" not in _cats(out)
-
-
-def test_tanky_offense_no_fake_out_without_setup():
-    """Non-glass, non-setup offense must not get the widened FO gate."""
-    out = query_support_needs(
-        {"species": "Archaludon"},
-        RoleShapeContext(
-            match_status="partial",
-            primary_function="offense",
-            tankiness="tanky",
-            setup_dependent=False,
-        ),
-    )
     assert "fake_out_protection" not in _cats(out)
     assert "taunt_disruption" not in _cats(out)
+    assert "redirection" not in _cats(out)
 
 
-def test_contrary_stat_lowering_partner():
-    # Species-only: featured may say "noability"; must fall back to legality Contrary.
+def test_contrary_no_stat_lowering_partner():
     out = query_support_needs(
         {"species": "Staraptor-Mega"},
         RoleShapeContext(match_status="partial", primary_function="offense"),
     )
-    sl = _by_cat(out, "stat_lowering_partner")
-    assert len(sl) == 1
-    assert sl[0].trigger == "ability:contrary"
+    assert "stat_lowering_partner" not in _cats(out)
 
 
 def test_inconclusive_no_attacker_universals():

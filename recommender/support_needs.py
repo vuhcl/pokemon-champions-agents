@@ -20,10 +20,7 @@ from recommender.usage_spreads import effective_spe
 PrimaryFunction = Literal["offense", "support", "unknown"]
 Tankiness = Literal["tanky", "glass", "unknown"]
 NeedCategory = Literal[
-    "stat_lowering_partner",
     "defensive_coverage",
-    "fake_out_protection",
-    "taunt_disruption",
     "healing_cleric",
     "screens",
     "condition_setter",
@@ -36,10 +33,7 @@ Stance = Literal["need", "want"]
 
 # Presentation order only — not a ranking.
 _CATEGORY_ORDER: tuple[NeedCategory, ...] = (
-    "stat_lowering_partner",
     "defensive_coverage",
-    "fake_out_protection",
-    "taunt_disruption",
     "healing_cleric",
     "screens",
     "condition_setter",
@@ -47,6 +41,7 @@ _CATEGORY_ORDER: tuple[NeedCategory, ...] = (
     "tailwind",
     "condition_beneficiary",
 )
+
 
 # ponytail: 1.5× Def/SpD ratio is a calibrated heuristic (Archaludon 130/65);
 # Role Compendium / richer bulk models can replace later.
@@ -540,20 +535,6 @@ def query_support_needs(
             )
         )
 
-    # --- Contrary ---
-    if to_id(ability or "") == "contrary":
-        needs.append(
-            SupportNeed(
-                category="stat_lowering_partner",
-                name="Stat-lowering partner",
-                description=(
-                    "Contrary wants a teammate providing a stat-lowering effect "
-                    "(self- or opponent-directed)."
-                ),
-                trigger="ability:contrary",
-            )
-        )
-
     # --- Defensive asymmetry ---
     if tankiness == "tanky" and primary in ("offense", "support"):
         defense, sp_def = stats.get("def", 0), stats.get("spd", 0)
@@ -590,42 +571,6 @@ def query_support_needs(
         else:
             needs.append(enriched)
             healing = enriched
-
-    # --- Fake Out / redirection (setup execution risk OR glass offense) ---
-    # Taunt stays setup-only — not a glass-offense universal.
-    if role_shape_context.requires_setup_turn or (
-        primary == "offense" and tankiness == "glass"
-    ):
-        if role_shape_context.requires_setup_turn:
-            fo_trigger = "requires_setup_turn:fake_out"
-            fo_desc = "Turn-limited/setup-dependent role wants Fake Out protection."
-        else:
-            fo_trigger = "glass_offense:fake_out"
-            fo_desc = (
-                "Glass offense-primary anchor wants Fake Out protection."
-            )
-        needs.append(
-            SupportNeed(
-                category="fake_out_protection",
-                name="Fake Out protection",
-                description=fo_desc,
-                trigger=fo_trigger,
-                notes="Known counters: Psychic Terrain, Armor Tail, Queenly Majesty",
-            )
-        )
-    if role_shape_context.requires_setup_turn:
-        needs.append(
-            SupportNeed(
-                category="taunt_disruption",
-                name="Taunt disruption",
-                description=(
-                    "Setup-dependent role wants a teammate that can Taunt first "
-                    "or otherwise disrupt the opponent's Taunt user."
-                ),
-                trigger="requires_setup_turn:taunt",
-                notes="No clean mechanical counter identified",
-            )
-        )
 
     # --- Speed axis ---
     needs.extend(

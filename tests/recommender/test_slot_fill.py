@@ -23,7 +23,6 @@ from recommender.slot_fill import (
     SlotFillContext,
     SlotFillResponse,
     _CONDITION_SETTER_TARGET_ROLES,
-    _FO_PROTECTION_ABILITIES,
     _NEED_SATISFIERS,
     _NEED_TARGET_ROLES,
     _candidate_satisfies_need,
@@ -1174,63 +1173,6 @@ def test_accept_with_empty_pool_raises():
         assert "no species" in str(e)
 
 
-def test_contrary_need_does_not_match_intimidate():
-    need = SupportNeed(
-        category="stat_lowering_partner",
-        name="Stat-lowering partner",
-        description="Contrary kit gap",
-        trigger="ability:contrary",
-    )
-    ctx = SlotFillContext(
-        anchor={"species": "Staraptor-Mega"},
-        role_shape_context=_shape(),
-        threat_counter_results=[_tc("Incineroar")],
-        support_needs=[need],
-    )
-    rows = annotate_overlap(ctx)
-    assert rows[0].matching_needs == ()
-    assert rows[0].source == "threat"
-    assert resolve_need_candidates(need, _base_state()) == []
-
-
-def test_fake_out_need_matches_armor_tail_ability():
-    assert _FO_PROTECTION_ABILITIES == frozenset(
-        {"armortail", "queenlymajesty", "dazzling"}
-    )
-    need = SupportNeed(
-        category="fake_out_protection",
-        name="Fake Out protection",
-        description="wants FO protection",
-        trigger="glass_offense:fake_out",
-    )
-    ctx = SlotFillContext(
-        anchor={"species": "Garchomp"},
-        role_shape_context=_shape(),
-        threat_counter_results=[_tc("Farigiraf"), _tc("Incineroar")],
-        support_needs=[need],
-    )
-    rows = annotate_overlap(ctx)
-    by_name = {r.species: r for r in rows}
-    assert any(n.category == "fake_out_protection" for n in by_name["Farigiraf"].matching_needs)
-    assert by_name["Farigiraf"].source == "both"
-
-
-def test_fake_out_protection_satisfiers_exclude_redirect_moves():
-    """Redirect cannot stop Fake Out (priority); drop from satisfiers."""
-    from recommender.legality import load_snapshot
-
-    assert _NEED_SATISFIERS["fake_out_protection"].moves == frozenset({"fakeout"})
-    need = SupportNeed(
-        category="fake_out_protection",
-        name="Fake Out protection",
-        description="wants FO protection",
-        trigger="glass_offense:fake_out",
-    )
-    snap = load_snapshot()
-    # Amoonguss: Rage Powder, no Fake Out, no Armor Tail–class ability
-    assert not _candidate_satisfies_need("Amoonguss", need, snap=snap)
-    assert _candidate_satisfies_need("Incineroar", need, snap=snap)
-    assert _candidate_satisfies_need("Farigiraf", need, snap=snap)
 
 
 def test_field_label_matches_primal_weather():
@@ -1284,7 +1226,7 @@ def test_resolve_healing_cleric_union_nonempty():
 
 def test_resolve_screens_uses_real_compendium_not_generic_mechanical_only():
     """Regression: screens needs previously fell through _compendium_roles_for_need
-    unmapped (unlike trick_room/fake_out_protection/condition_setter), even
+    unmapped (unlike trick_room/condition_setter), even
     though screens_support.v1.json is fully persisted and real. This meant
     every screens-capable candidate got mechanical_only/low evidence
     regardless of actual compendium tier -- a real data-quality gap found
@@ -1469,17 +1411,17 @@ def test_resolve_screens_keeps_hard_weather_gated_candidate_undowngraded_with_no
 
 def test_resolve_all_and_merge_without_chosen_need():
     tr = _trick_room_need()
-    fo = SupportNeed(
-        category="fake_out_protection",
-        name="Fake Out protection",
-        description="wants FO",
-        trigger="glass_offense:fake_out",
+    screens = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="wants screens",
+        trigger=None,
     )
     ctx = SlotFillContext(
         anchor={"species": "Garchomp"},
         role_shape_context=_shape(),
         threat_counter_results=[_tc("Incineroar")],
-        support_needs=[tr, fo],
+        support_needs=[tr, screens],
         chosen_need=None,
     )
     resolved = resolve_all_support_needs(ctx, _base_state())
@@ -1598,24 +1540,31 @@ def test_full_role_rejection_is_not_reintroduced_by_raw_move_search():
 
 
 def test_unmapped_need_keeps_raw_resolution_without_compendium_query():
-    """Uses taunt_disruption, not tailwind -- tailwind now has a real
-    compendium mapping (tailwind_setter), so it's no longer an example
-    of an unmapped need. taunt_disruption genuinely has no compendium
-    category and still skips the compendium query entirely."""
+    """healing_cleric has no compendium mapping and skips the query."""
     need = SupportNeed(
-        "taunt_disruption", "Taunt disruption", "Needs Taunt", None
+        "healing_cleric", "Healing / cleric support", "Needs healing", None
     )
     with (
         patch("recommender.slot_fill.role_category_evidence") as compendium,
         patch(
-            "recommender.slot_fill.narrow_candidates_for_move",
-            return_value=NarrowResult(["Whimsicott"], 1),
+            "recommender.slot_fill._union_move_resolved",
+            return_value=[
+                NeedResolvedCandidate(
+                    "Blissey",
+                    (need,),
+                    (
+                        CandidateEvidence(
+                            "mechanical_only", "low", "_union_move_resolved"
+                        ),
+                    ),
+                )
+            ],
         ),
     ):
         rows = resolve_need_candidates(need, _base_state())
 
     compendium.assert_not_called()
-    assert [row.species for row in rows] == ["Whimsicott"]
+    assert [row.species for row in rows] == ["Blissey"]
     assert rows[0].evidence[0].basis == "mechanical_only"
 
 
@@ -1714,43 +1663,6 @@ def test_concrete_matching_build_promotes_compendium_confidence():
     assert compendium.confidence == "high"
 
 
-def test_rejected_redirector_can_still_enter_via_priority_denial():
-    need = SupportNeed(
-        "fake_out_protection",
-        "Fake Out protection",
-        "Needs protection",
-        "glass_offense:fake_out",
-    )
-    rejected = CompendiumRoleEvidence(
-        species="Farigiraf",
-        role_id="redirection",
-        category="redirection",
-        condition="",
-        tier=None,
-        mechanism=None,
-        source_file="redirection.v1.json",
-        reason="not a redirector",
-    )
-    raw = NeedResolvedCandidate(
-        "Farigiraf",
-        (need,),
-        (
-            CandidateEvidence(
-                "mechanical_only", "low", "_species_with_abilities"
-            ),
-        ),
-    )
-    with (
-        patch(
-            "recommender.slot_fill.role_category_evidence",
-            return_value=ReverseCompendiumEvidence(rejected=(rejected,)),
-        ),
-        patch("recommender.slot_fill._raw_need_candidates", return_value=[raw]),
-    ):
-        rows = resolve_need_candidates(need, _base_state())
-
-    assert [row.species for row in rows] == ["Farigiraf"]
-
 
 def test_union_move_candidates_uses_deterministic_move_order():
     calls: list[str] = []
@@ -1818,6 +1730,7 @@ def test_target_role_from_needs_maps_rain_condition_setter():
     decision = target_role_from_needs([need])
     assert isinstance(decision, TargetRoleDecision)
     assert decision.role_id == "rain_setter"
+
 
 
 def test_archaludon_single_locked_pool_labels_rain_setter():
@@ -2118,25 +2031,6 @@ def test_tailwind_need_now_uses_real_compendium():
         for tag in e.evidence
     )
 
-
-def test_fake_out_protection_has_no_compendium_mapping():
-    """Regression, confirmed live: redirection can't stop Fake Out
-    (higher priority than redirection moves), so the previous
-    fake_out_protection -> redirection compendium mapping was
-    mechanically wrong. No real "priority protection" compendium
-    category exists either (confirmed directly against real compendium
-    data -- would only have 2 candidates even if it did, not
-    representative enough to restrict against). fake_out_protection now
-    has no compendium mapping at all, same as healing_cleric/
-    taunt_disruption, and stays on the raw-move/ability path
-    unrestricted."""
-    need = SupportNeed(
-        category="fake_out_protection",
-        name="Fake Out protection",
-        description="x",
-        trigger="requires_setup_turn:fake_out",
-    )
-    assert _compendium_roles_for_need(need) == []
 
 
 def _threat_evidence_row() -> CandidateEvidence:
