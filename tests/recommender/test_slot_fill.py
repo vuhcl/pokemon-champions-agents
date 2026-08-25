@@ -2006,16 +2006,11 @@ def test_present_candidates_uses_old_path_when_locked_contexts_empty():
 
 
 def test_resolve_all_support_needs_downgrades_confidence_for_untriggered_needs():
-    """Regression, confirmed live: needs generated without a specific
-    trigger (trigger=None -- e.g. screens' unconditional "attacker-
-    universal" generation) are real but weak, non-discriminating
-    signals -- almost any offense-shaped anchor "benefits somewhat",
-    which isn't the same as a genuinely specific reason. Confidence is
-    downgraded to reflect where a match falls on the broad-to-specific
-    spectrum; basis is left untouched -- the data source itself isn't
-    questionable, only the match's specificity is. Contrasted directly
-    against a real-triggered need (trick_room, speed_tier-based) in the
-    same resolution call, which must keep its original confidence.
+    """Unconditional needs (trigger=None) default to low confidence, but
+    real in-game commitment (usage_backed + commitment_pct) keeps the
+    candidate's own confidence -- category specificity and candidate
+    commitment are separate signals. Triggered needs (trick_room) are
+    unaffected.
     """
     screens_need = SupportNeed(
         category="screens",
@@ -2030,7 +2025,6 @@ def test_resolve_all_support_needs_downgrades_confidence_for_untriggered_needs()
         support_needs=[screens_need, tr_need],
     )
     resolved = resolve_all_support_needs(ctx, _base_state())
-    by_id = {to_id(row.species): row for row in resolved}
 
     screens_evidence = [
         e
@@ -2039,7 +2033,14 @@ def test_resolve_all_support_needs_downgrades_confidence_for_untriggered_needs()
         if any("need:screens" in tag for tag in e.evidence)
     ]
     assert screens_evidence
-    assert all(e.confidence == "low" for e in screens_evidence)
+    for e in screens_evidence:
+        has_commitment = e.basis == "usage_backed" and any(
+            tag.startswith("commitment_pct:") for tag in e.evidence
+        )
+        if has_commitment:
+            assert e.confidence != "low"
+        else:
+            assert e.confidence == "low"
 
     tr_evidence = [
         e
@@ -2048,9 +2049,6 @@ def test_resolve_all_support_needs_downgrades_confidence_for_untriggered_needs()
         if any("need:trick_room" in tag for tag in e.evidence)
     ]
     assert tr_evidence
-    # At least one real trick_room match should retain non-low
-    # confidence -- confirms the downgrade is genuinely conditional on
-    # trigger, not applied blanket to every need.
     assert any(e.confidence != "low" for e in tr_evidence)
 
 

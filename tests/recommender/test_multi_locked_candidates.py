@@ -8,6 +8,7 @@ import pytest
 
 from recommender.matchup import MatchupEvidenceError, MatchupResult
 from recommender.nodes import classify_pending, commit_full_slot, discover_multi_locked
+from recommender.ids import to_id
 from recommender.slot_fill import (
     AnnotatedCandidate,
     AnchoredSupportNeed,
@@ -3382,11 +3383,15 @@ def test_diversify_fallback_skips_duplicate_need_profile():
         _category_b_need_candidate("SableyeLike", ("screens",)),
     ]
     picked = _diversify_by_need_category(pool, n=3)
+    # Pass 1: SinistchaLike then KlefkiLike (new screens).
+    # Pass 2: SableyeLike {screens} is a subset of covered / KlefkiLike — skipped.
+    # Pass 3: next lineage fills (AromatisseLike), not Sableye as "diverse".
     assert [c.species for c in picked] == [
         "SinistchaLike",
         "KlefkiLike",
-        "SableyeLike",
+        "AromatisseLike",
     ]
+    assert "SableyeLike" not in [c.species for c in picked]
 
 
 def test_support_widens_category_b_cut_for_support_only():
@@ -3478,3 +3483,124 @@ def test_discover_multi_locked_passes_widened_b_cut_for_support():
         }
         discover_multi_locked(attacker_state, {})  # type: ignore[arg-type]
         assert mocked_cut.call_args.kwargs.get("category_b_uncapped") is False
+
+
+def test_diversify_pass2_skips_subset_of_covered_trick_room():
+    from recommender.team_candidates import _diversify_by_need_category
+
+    pool = [
+        _category_b_need_candidate("SinistchaLike", ("healing_cleric", "trick_room")),
+        _category_b_need_candidate("KlefkiLike", ("screens", "trick_room")),
+        _category_b_need_candidate("ArmarougeLike", ("trick_room",)),
+        _category_b_need_candidate("ChandelureLike", ("trick_room",)),
+        _category_b_need_candidate("IncineroarLike", ("fake_out_protection",)),
+    ]
+    # No banned_profiles: pass 2 skips pure-TR subsets; pass 3 may still fill.
+    picked = _diversify_by_need_category(pool, n=3)
+    assert picked[0].species == "SinistchaLike"
+    assert picked[1].species == "KlefkiLike"
+    assert picked[2].species == "IncineroarLike"
+
+
+def test_diversify_banned_profiles_blocks_pure_tr_in_pass3():
+    from recommender.team_candidates import _diversify_by_need_category
+
+    pool = [
+        _category_b_need_candidate("SinistchaLike", ("healing_cleric", "trick_room")),
+        _category_b_need_candidate("KlefkiLike", ("screens", "trick_room")),
+        _category_b_need_candidate("ArmarougeLike", ("trick_room",)),
+        _category_b_need_candidate("ChandelureLike", ("trick_room",)),
+    ]
+    banned = frozenset({frozenset({"trick_room"})})
+    picked = _diversify_by_need_category(pool, n=3, banned_profiles=banned)
+    assert [c.species for c in picked] == ["SinistchaLike", "KlefkiLike"]
+    assert all(
+        "trick_room" not in {n.category for n in c.matching_needs}
+        or len({n.category for n in c.matching_needs} - {"condition_beneficiary"}) > 1
+        for c in picked
+    )
+
+
+def test_diversity_need_categories_drops_acceptable_without_commitment():
+    from recommender.team_candidates import _diversity_need_categories
+
+    evidence = (
+        CandidateEvidence(
+            basis="compendium_backed",
+            confidence="low",
+            producer_name="test",
+            evidence=(
+                "need:screens",
+                "tier:Excellent",
+                "role:screens_support",
+            ),
+            branch="need",
+        ),
+        CandidateEvidence(
+            basis="compendium_backed",
+            confidence="medium",
+            producer_name="test",
+            evidence=(
+                "need:trick_room",
+                "tier:Acceptable",
+                "role:trick_room_setter",
+            ),
+            branch="need",
+        ),
+    )
+    c = AnnotatedCandidate(
+        species="Klefki",
+        matching_needs=(_need("screens"), _need("trick_room")),
+        source="need",
+        threat_row=None,
+        spec={"species": "Klefki"},
+        evidence=evidence,
+        branches=frozenset({"need"}),
+    )
+    assert _diversity_need_categories(c) == frozenset({"screens"})
+
+
+def test_diversity_need_categories_keeps_untiered_fixture_categories():
+    from recommender.team_candidates import _diversity_need_categories
+
+    c = _category_b_need_candidate("Fixture", ("screens", "trick_room"))
+    assert _diversity_need_categories(c) == frozenset({"screens", "trick_room"})
+
+
+def test_reject_lineage_excludes_gourgeist_forms():
+    state = _state()
+    state["rejected"] = [
+        {"species": "Gourgeist", "reason": "nope", "turn": 1},
+    ]
+    rows = merge_multi_locked_candidates(
+        state,
+        [],
+        (
+            _counter("Gourgeist"),
+            _counter("Gourgeist-Large"),
+            _counter("Gourgeist-Small"),
+            _counter("Armarouge"),
+        ),
+        _shared(),
+        ownership_mode="off",
+        owned_species=frozenset(),
+    )
+    names = {row.species for row in rows}
+    assert "Armarouge" in names
+    assert not any(to_id(n).startswith("gourgeist") for n in names)
+
+
+def test_banned_profiles_from_rejected_entries():
+    from recommender.team_candidates import banned_profiles_from_rejected
+
+    assert banned_profiles_from_rejected(
+        [
+            {"species": "Armarouge", "reason": "", "turn": 1},
+            {
+                "species": "Chandelure",
+                "reason": "",
+                "turn": 2,
+                "need_categories": ["trick_room"],
+            },
+        ]
+    ) == frozenset({frozenset({"trick_room"})})

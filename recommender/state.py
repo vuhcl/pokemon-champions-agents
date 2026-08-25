@@ -76,6 +76,7 @@ class RejectedEntry(TypedDict):
     species: str
     reason: str
     turn: int
+    need_categories: NotRequired[list[str]]
 
 
 class ConstraintPayload(TypedDict):
