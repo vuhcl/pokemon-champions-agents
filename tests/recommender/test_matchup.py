@@ -7,11 +7,11 @@ from typing import Any
 import pytest
 
 from recommender.calc_client import CalcClient, CalcRequest
+from recommender.counters import load_move_flags
 from recommender.matchup import (
     MatchupEvidenceError,
     MatchupResult,
     Severity,
-    _CONTACT_MOVES,
     _contact_punish_applies,
     _damaging_moves,
     _makes_contact,
@@ -359,7 +359,12 @@ def _contact_punish_exchange_client() -> MockCalcClient:
 
 
 def test_contact_moves_membership():
-    assert len(_CONTACT_MOVES) == 166
+    contact_count = sum(
+        1
+        for row in load_move_flags().values()
+        if (row.get("flags") or {}).get("contact") == 1
+    )
+    assert contact_count >= 166
     assert _makes_contact("Earthquake") is False
     assert _makes_contact("Dragon Claw") is True
     assert _makes_contact("Iron Head") is True

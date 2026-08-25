@@ -215,6 +215,12 @@ def _move_has_sound_flag(move_id: str) -> bool:
     return flags.get("sound") == 1
 
 
+def _move_has_contact_flag(move_id: str) -> bool:
+    entry = load_move_flags().get(to_id(move_id)) or {}
+    flags = entry.get("flags") or {}
+    return flags.get("contact") == 1
+
+
 def effective_move_type(
     snap: dict[str, Any],
     move: str,
