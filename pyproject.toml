@@ -27,3 +27,4 @@ include = ["recommender*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests/recommender"]
+pythonpath = ["tests/recommender"]
