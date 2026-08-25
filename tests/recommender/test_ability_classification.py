@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from recommender.ability_classification import (
     abilities_with_tag,
+    ability_self_def_drop_on_physical_hit,
     actionable_abilities,
     get_ability,
     hit_triggered_opponent_disrupt_ids,
@@ -181,3 +182,9 @@ def test_hit_triggered_opponent_disrupt_ids():
         "teraformzero",
     ):
         assert excluded not in got
+
+
+def test_ability_self_def_drop_on_physical_hit():
+    load_abilities.cache_clear()
+    assert ability_self_def_drop_on_physical_hit("Weak Armor") is True
+    assert ability_self_def_drop_on_physical_hit("Intimidate") is False

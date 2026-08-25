@@ -13,6 +13,7 @@ from recommender.calc_client import FieldSpec, PokemonSpecOptional
 from recommender.coverage import ABILITY_TO_FIELD, get_relevant_threats
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
+from recommender.ability_classification import ability_self_def_drop_on_physical_hit
 from recommender.stat_boosts import _self_defense_drops
 from recommender.state import Attr, RecommenderState, Slot
 from recommender.usage_data import SLOT_THREAT_N, featured_or_common_set
@@ -595,11 +596,9 @@ def query_support_needs(
             healing = enriched
 
     # --- Redirection (offense-primary, setup, or self Def/SpD debuff) ---
-    # ponytail: only ability id weakarmor until abilities extract has structured
-    # hit-triggered Def drops (no invented Weak Armor–class list).
-    self_def_spd_debuff = to_id(ability or "") == "weakarmor" or any(
-        _self_defense_drops(to_id(m)) for m in moves
-    )
+    self_def_spd_debuff = ability_self_def_drop_on_physical_hit(
+        ability or ""
+    ) or any(_self_defense_drops(to_id(m)) for m in moves)
     hard_redir = role_shape_context.requires_setup_turn or self_def_spd_debuff
     if primary == "offense" or hard_redir:
         if role_shape_context.requires_setup_turn:

@@ -119,6 +119,24 @@ def hit_triggered_opponent_disrupt_ids(path: str | None = None) -> frozenset[str
     return frozenset(out)
 
 
+def ability_self_def_drop_on_physical_hit(
+    ability_id: str,
+    data: dict[str, Any] | None = None,
+) -> bool:
+    """True when ability data records a self Def/SpD drop on physical hit."""
+    entry = get_ability(ability_id, data)
+    if not entry:
+        return False
+    stages = (entry.get("on_physical_hit") or {}).get("self_stages") or {}
+    for stat in ("def", "spd"):
+        try:
+            if int(stages.get(stat) or 0) < 0:
+                return True
+        except (TypeError, ValueError):
+            continue
+    return False
+
+
 # Self-provided protection against the two disruptions every slow-by-design
 # setter is maximally exposed to: Fake Out and Taunt. Phrases verified against
 # all.v1.json; the sets are re-derived, not chat-assembled name lists.
