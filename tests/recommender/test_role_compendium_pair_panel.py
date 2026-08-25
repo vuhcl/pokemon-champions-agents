@@ -6,7 +6,7 @@ from typing import Any
 
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
-from recommender.role_compendium import (
+from recommender.role_compendium_setup import (
     _is_spread_damage_mid,
     _pair_entry_label,
     _setup_kit_matrix_score,

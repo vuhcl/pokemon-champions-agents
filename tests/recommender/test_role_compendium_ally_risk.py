@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 from recommender.legality import load_snapshot
-from recommender.role_compendium import (
-    _ALLY_HIT_DAMAGE_MOVE_IDS,
-    _ally_damage_risk_note,
-)
+from recommender.role_compendium_setup_constants import _ALLY_HIT_DAMAGE_MOVE_IDS
+from recommender.role_compendium_setup import _ally_damage_risk_note
 
 
 def test_ally_hit_subset_matches_calc_all_adjacent():

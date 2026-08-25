@@ -7,12 +7,7 @@ from typing import Any
 
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
-from recommender.role_compendium import (
-    SWORDS_DANCE_ATTACKER_CRITERIA,
-    RejectedCandidate,
-    _SETUP_ACCEPTABLE_FLOOR_MULT,
-    _SETUP_BOTH_BRANCH_SCORE_DIV,
-    _SETUP_DAMAGE_FRAC_CAP,
+from recommender.role_compendium_setup import (
     _partition_by_admission_floor,
     _setup_adjusted_score,
     _setup_branch_a,
@@ -22,12 +17,20 @@ from recommender.role_compendium import (
     _setup_payoff_candidates,
     _setup_priority_kind,
     _setup_self_drop_moves,
-    _self_boosts,
+)
+from recommender.role_compendium_setup_constants import (
+    _SETUP_ACCEPTABLE_FLOOR_MULT,
+    _SETUP_BOTH_BRANCH_SCORE_DIV,
+    _SETUP_DAMAGE_FRAC_CAP,
+)
+from recommender.stat_boosts import _self_boosts, load_stat_boosts
+from recommender.role_compendium import (
+    SWORDS_DANCE_ATTACKER_CRITERIA,
+    RejectedCandidate,
     construct_role_category,
     critique_role_ranking,
     exclusive_self_boost_move,
     legal_species_pool,
-    load_stat_boosts,
     rebuild_role_category,
 )
 
@@ -268,7 +271,7 @@ def test_acceptable_floor_note_emitted():
 def test_cbd_move_implausible_vs_mega_helper():
     from recommender.role_compendium import _cbd_base_move_implausible_vs_mega
 
-    base = {"common_moves": [{"name": "Swords Dance", "pct": 19.5}]}
+    base= {"common_moves": [{"name": "Swords Dance", "pct": 19.5}]}
     mega = {"common_moves": [{"name": "Swords Dance", "pct": 9.2}]}
     assert _cbd_base_move_implausible_vs_mega(base, mega, "swordsdance")
     assert not _cbd_base_move_implausible_vs_mega(
@@ -702,7 +705,8 @@ def test_best_payoff_skips_self_spa_drop():
 
 
 def test_best_payoff_skips_focus_punch_and_recharge():
-    from recommender.role_compendium import _best_payoff_move, _setup_payoff_candidates
+    from recommender.role_compendium_setup import _best_payoff_move
+    from recommender.role_compendium import _setup_payoff_candidates
     from recommender.legality import load_snapshot
 
     snap = load_snapshot()
@@ -727,7 +731,8 @@ def test_best_payoff_skips_focus_punch_and_recharge():
 
 def test_best_payoff_skips_lockin_moves():
     """Lock-in carries the same unmodeled multi-turn cost as charge/recharge."""
-    from recommender.role_compendium import _best_payoff_move, _setup_payoff_candidates
+    from recommender.role_compendium_setup import _best_payoff_move
+    from recommender.role_compendium import _setup_payoff_candidates
     from recommender.legality import load_snapshot
 
     snap = load_snapshot()
@@ -949,7 +954,7 @@ def test_turn_order_missing_spe_fail_open():
 def test_disguise_clears_branch_b_without_bulk():
     from recommender.role_compendium import _setup_branches
 
-    branches = _setup_branches(
+    branches= _setup_branches(
         learnset={"shadowsneak", "playrough"},
         abs_map={"disguise": "Disguise"},
         stats={"hp": 55, "def": 80, "spd": 105, "spe": 96},  # bulk 295 < 400
@@ -983,9 +988,7 @@ def test_disguise_turn_order_credits_when_slower():
 
 
 def test_speed_boost_turn_order_rescues_slower():
-    from recommender.role_compendium import _damage_score
-
-    # 100 < 140, but 100*1.5=150 > 140
+    from recommender.role_compendium_setup import _damage_score  # 100 < 140, but 100*1.5=150 > 140
     def calc(reqs: list[dict[str, Any]]) -> list[dict[str, Any]]:
         return [_panel_result(dmg=200, hp=200, atk_spe=100, def_spe=140) for _ in reqs]
 
@@ -1116,7 +1119,7 @@ def test_ranked_payoff_ragefist_outranks_shadowclaw_at_hits_taken_bp():
     from recommender.counters import ASSUMED_HITS_TAKEN
     from recommender.role_compendium import _ranked_payoff_moves
 
-    assert 50 * (1 + ASSUMED_HITS_TAKEN) > 70
+    assert 50* (1 + ASSUMED_HITS_TAKEN) > 70
     snap = {
         "species": {"annihilape": {"types": ["Fighting", "Ghost"]}},
         "moves": {
@@ -1141,7 +1144,7 @@ def test_ranked_payoff_liquid_voice_makes_hyper_voice_water_stab():
     from recommender.legality import load_snapshot
     from recommender.role_compendium import _ranked_payoff_moves
 
-    snap = load_snapshot()
+    snap= load_snapshot()
     usage = ["blizzard", "hypervoice", "hydropump"]
     plain = _ranked_payoff_moves(
         snap,
@@ -1310,7 +1313,7 @@ def test_damage_score_skips_when_all_moves_zero():
 def test_payoff_coverage_note_lists_per_defender_fallbacks():
     from recommender.role_compendium import _payoff_coverage_note
 
-    snap = {
+    snap= {
         "moves": {
             "psychic": {"name": "Psychic"},
             "shadowball": {"name": "Shadow Ball"},
@@ -1333,7 +1336,7 @@ def test_payoff_coverage_note_lists_per_defender_fallbacks():
 def test_setup_payoff_notes_orders_by_mid_counts():
     from recommender.role_compendium import _setup_payoff_notes
 
-    used = [
+    used= [
         ("Garchomp", "playrough"),
         ("Whimsicott", "playrough"),
         ("Incineroar", "doubleedge"),
@@ -1356,13 +1359,8 @@ def test_sd_construct_structured_payoff_mawile_shaped(monkeypatch):
     """Multi-mid kit winners → payoff_moves/targets + plural execution traits."""
     import inspect
 
-    from recommender.role_compendium import (
-        RoleConstructionDraft,
-        _attacker_kit,
-        _construct_def_payoff_setup,
-        _construct_offense_stage_setup,
-        _move_display,
-    )
+    from recommender.role_compendium_setup import _attacker_kit
+    from recommender.role_compendium import RoleConstructionDraft, _construct_def_payoff_setup, _construct_offense_stage_setup, _move_display
 
     snap = load_snapshot()
     panel = [
@@ -1479,7 +1477,8 @@ def test_sd_construct_structured_payoff_mawile_shaped(monkeypatch):
 
 def test_damage_score_sweep_ohko_and_survive_remain():
     """Outgoing OHKO k/n + outsped-survive remain from the same batches."""
-    from recommender.role_compendium import _damage_score, _sweep_note_fields
+    from recommender.role_compendium_setup import _damage_score
+    from recommender.role_compendium import _sweep_note_fields
     from recommender.legality import load_snapshot
 
     snap = load_snapshot()
@@ -1541,7 +1540,8 @@ def test_damage_score_sweep_ohko_and_survive_remain():
 
 def test_damage_score_sweep_n_surv_zero_is_na():
     """Faster than the panel → survive fields n/a, never imputed."""
-    from recommender.role_compendium import _damage_score, _sweep_note_fields
+    from recommender.role_compendium_setup import _damage_score
+    from recommender.role_compendium import _sweep_note_fields
     from recommender.legality import load_snapshot
 
     snap = load_snapshot()
@@ -1762,11 +1762,8 @@ def test_aegislash_no_ks_no_combined_ko_gets_no_remain():
 
 
 def test_aegislash_branch_b_matches_shield_defender():
-    from recommender.role_compendium import (
-        _base_stats,
-        _candidate_defender_spec,
-        _setup_bulk_ok,
-    )
+    from recommender.role_compendium_setup import _candidate_defender_spec, _setup_bulk_ok
+    from recommender.role_compendium import _base_stats
     from recommender.legality import load_snapshot
 
     snap = load_snapshot()
@@ -1779,7 +1776,7 @@ def test_aegislash_branch_b_matches_shield_defender():
 def test_connect_recoil_move_set_locked():
     from recommender.role_compendium import _CONNECT_RECOIL_MOVES
 
-    assert _CONNECT_RECOIL_MOVES == frozenset(
+    assert _CONNECT_RECOIL_MOVES== frozenset(
         {
             "bravebird",
             "doubleedge",
@@ -1934,7 +1931,7 @@ def test_recoil_remain_gated_vs_non_recoil_payoff():
 def test_drain_move_set_locked():
     from recommender.role_compendium import _DRAIN_MOVES
 
-    assert _DRAIN_MOVES == frozenset(
+    assert _DRAIN_MOVES== frozenset(
         {
             "bitterblade",
             "drainpunch",
@@ -1956,16 +1953,14 @@ def test_drain_move_set_locked():
 def test_drain_frac_from_result_reads_recovery_over_maxhp():
     from recommender.role_compendium import _drain_frac_from_result
 
-    r50 = _panel_result(dmg=60, hp=100, recovery_hp=50, atk_hp=100)
+    r50= _panel_result(dmg=60, hp=100, recovery_hp=50, atk_hp=100)
     r75 = _panel_result(dmg=60, hp=100, recovery_hp=75, atk_hp=100)
     assert abs(_drain_frac_from_result(r50, "bitterblade") - 0.50) < 1e-9
     assert abs(_drain_frac_from_result(r75, "drainingkiss") - 0.75) < 1e-9
 
 
 def test_drain_frac_gated_ignores_shell_bell_on_non_drain():
-    from recommender.role_compendium import _drain_frac_from_result
-
-    # Shell Bell (or any item heal) populates raw.recovery on non-drain moves.
+    from recommender.role_compendium import _drain_frac_from_result  # Shell Bell heal on non-drain moves
     payload = _panel_result(dmg=60, hp=100, recovery_hp=13, atk_hp=154)
     assert _drain_frac_from_result(payload, "shadowsneak") == 0.0
     assert abs(_drain_frac_from_result(payload, "bitterblade") - (13 / 154)) < 1e-9
@@ -2304,7 +2299,7 @@ _ELIGIBLE_FINISHER_CASES = [
 def test_setup_priority_finisher_set_excludes_banned_and_deferred():
     from recommender.role_compendium import _SETUP_PRIORITY_FINISHER_MOVES
 
-    assert "fakeout" not in _SETUP_PRIORITY_FINISHER_MOVES
+    assert"fakeout" not in _SETUP_PRIORITY_FINISHER_MOVES
     assert "firstimpression" not in _SETUP_PRIORITY_FINISHER_MOVES
     assert "upperhand" not in _SETUP_PRIORITY_FINISHER_MOVES
     assert "grassyglide" not in _SETUP_PRIORITY_FINISHER_MOVES
@@ -2454,13 +2449,8 @@ def _empty_usage_maps():
 
 def test_present_usage_payoff_ids_drops_sub_floor_leftovers(monkeypatch):
     """Problem A: ~0% common_moves leftovers leave the bag; real alts stay."""
-    from recommender.role_compendium import (
-        _SETUP_PRESENCE_SET_PCT_FLOOR,
-        _UsageCtx,
-        _present_usage_payoff_ids,
-        _select_setup_payoff,
-        _usage_payoff_move_ids,
-    )
+    from recommender.role_compendium_setup import _present_usage_payoff_ids, _select_setup_payoff, _usage_payoff_move_ids
+    from recommender.role_compendium import _SETUP_PRESENCE_SET_PCT_FLOOR, _UsageCtx
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage", lambda: _empty_usage_maps()
@@ -2531,11 +2521,8 @@ def test_present_usage_payoff_ids_keeps_high_pct_regression(monkeypatch):
 
 
 def test_present_usage_empty_bag_select_returns_none(monkeypatch):
-    from recommender.role_compendium import (
-        _UsageCtx,
-        _present_usage_payoff_ids,
-        _select_setup_payoff,
-    )
+    from recommender.role_compendium_setup import _present_usage_payoff_ids, _select_setup_payoff
+    from recommender.role_compendium import _UsageCtx
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage", lambda: _empty_usage_maps()

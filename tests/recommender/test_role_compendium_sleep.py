@@ -3,11 +3,7 @@
 from __future__ import annotations
 
 from recommender.legality import load_snapshot
-from recommender.role_compendium import (
-    SLEEP_STATUS_SPREADER_CRITERIA,
-    construct_role_category,
-    legal_species_pool,
-)
+from recommender.role_compendium import SLEEP_STATUS_SPREADER_CRITERIA, construct_role_category, legal_species_pool
 
 
 def test_sleep_construct_runs_offline_and_emits_candidates():

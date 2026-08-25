@@ -8,17 +8,8 @@ from typing import Any
 from recommender.ability_classification import load_abilities
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
-from recommender.role_compendium import (
-    SCREENS_SUPPORT_CRITERIA,
-    CandidateEval,
-    construct_role_category,
-    critique_role_ranking,
-    legal_species_pool,
-    rebuild_role_category,
-    _SCREENS_SPE_FLOOR,
-    _USAGE_SET_PCT_FLOOR,
-    _screens_mech_dual,
-)
+from recommender.role_compendium_support import _screens_mech_dual
+from recommender.role_compendium import SCREENS_SUPPORT_CRITERIA, CandidateEval, construct_role_category, critique_role_ranking, legal_species_pool, rebuild_role_category, _SCREENS_SPE_FLOOR, _USAGE_SET_PCT_FLOOR
 
 
 LOCKED_EXCELLENT = {"Grimmsnarl", "Klefki", "Meowstic", "Sableye"}
