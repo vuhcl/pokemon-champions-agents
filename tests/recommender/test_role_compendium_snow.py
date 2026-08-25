@@ -4,12 +4,7 @@ from __future__ import annotations
 
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
-from recommender.role_compendium import (
-    SNOW_SETTER_CRITERIA,
-    construct_role_category,
-    critique_role_ranking,
-    legal_species_pool,
-)
+from recommender.role_compendium import SNOW_SETTER_CRITERIA, construct_role_category, critique_role_ranking, legal_species_pool
 
 
 def _snow_draft(pool: list[str] | None = None, showdown_fetch=None):

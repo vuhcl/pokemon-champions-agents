@@ -7,6 +7,8 @@ from recommender.role_compendium import (
     _TRICK_ROOM_SET_PCT_FLOOR,
     _USAGE_SET_PCT_FLOOR,
     _UsageCtx,
+)
+from recommender.role_compendium_usage import (
     _delivery_usage_hits,
     _hits_clear_set_pct_floor,
     _same_row_both_moves,

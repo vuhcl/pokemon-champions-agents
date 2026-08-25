@@ -18,12 +18,12 @@ from recommender.ability_classification import (
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
 from recommender.move_narrowing import move_priority
+from recommender.role_compendium_usage import _mega_usage_attribution
 from recommender.role_compendium import (
     TRICK_ROOM_SETTER_CRITERIA,
     CandidateEval,
     ClaimedTrait,
     RoleConstructionDraft,
-    _mega_usage_attribution,
     _TRICK_ROOM_BULK_FLOOR,
     _TRICK_ROOM_SECONDARY_MOVES,
     _UsageCtx,
@@ -265,7 +265,7 @@ def test_tailwind_and_trick_room_excluded_from_secondary_allowlist():
 
 def test_champions_row_without_trick_room_does_not_suppress_showdown(monkeypatch):
     """CBD presence is not a Showdown blackout (Chimecho-shaped)."""
-    from recommender.role_compendium import _delivery_usage_hits
+    from recommender.role_compendium_usage import _delivery_usage_hits
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage",

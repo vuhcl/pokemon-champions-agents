@@ -32,15 +32,7 @@ from recommender.role_compendium_usage import (
     _species_types,
     _stone_fallback_usage,
 )
-from recommender.role_compendium import (
-    CalculateBatch,
-    CandidateEval,
-    ClaimedTrait,
-    LiveFetch,
-    RejectedCandidate,
-    RoleConstructionDraft,
-    SetupPriorityKind,
-    ROLE_TIER_ORDER,
+from recommender.role_compendium_setup_constants import (
     _ALLY_HIT_DAMAGE_MOVE_IDS,
     _ALLY_HIT_TYPE_PROTECTIONS,
     _BODY_PRESS_EVS,
@@ -49,7 +41,6 @@ from recommender.role_compendium import (
     _DD_SETUP_PRESENCE_FLOOR,
     _DEF_PAYOFF_DELTA_EPS,
     _DRAIN_MOVES,
-    _OFFENSIVE_PRIORITY_MOVES,
     _PIKALYTICS_PAIRS_PATH,
     _SETUP_ACCEPTABLE_FLOOR_MULT,
     _SETUP_BANNED_PAYOFF,
@@ -80,6 +71,17 @@ from recommender.role_compendium import (
     _SETUP_THREAT_USAGE_PCT_FLOOR,
     _SOUND_ALLY_HIT_MOVE_IDS,
     _SPREAD_DAMAGE_MOVE_IDS,
+)
+from recommender.support_needs import _OFFENSIVE_PRIORITY_MOVES
+from recommender.role_compendium import (
+    CalculateBatch,
+    CandidateEval,
+    ClaimedTrait,
+    LiveFetch,
+    RejectedCandidate,
+    RoleConstructionDraft,
+    SetupPriorityKind,
+    ROLE_TIER_ORDER,
     _USAGE_SET_PCT_FLOOR,
     _UsageCtx,
     _admit_move_delivery,

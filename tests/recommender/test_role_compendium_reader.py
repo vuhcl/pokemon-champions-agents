@@ -3,14 +3,7 @@
 import json
 from pathlib import Path
 
-from recommender.role_compendium import (
-    DEFAULT_ROLES_DIR,
-    ROLE_TIER_ORDER,
-    load_role_category,
-    reverse_compendium_evidence,
-    role_category_evidence,
-    role_candidates,
-)
+from recommender.role_compendium import DEFAULT_ROLES_DIR, ROLE_TIER_ORDER, load_role_category, reverse_compendium_evidence, role_category_evidence, role_candidates
 
 
 def test_reads_a_shipped_unconditioned_role():

@@ -5,6 +5,20 @@ from __future__ import annotations
 from typing import Any
 
 from recommender.ids import to_id
+from recommender.role_compendium_setup import (
+    _is_bulk_crossing,
+    _ko_frac_bin,
+    _ranked_payoff_moves,
+    _setup_bulk_crossings,
+    _setup_threat_defenders,
+    _sort_members_by_crossings,
+    _sort_members_by_sweep,
+)
+from recommender.role_compendium_setup_constants import (
+    _SETUP_THREAT_ENCOUNTER_GAMES,
+    _SETUP_THREAT_USAGE_PCT_FLOOR,
+)
+from recommender.stat_boosts import _self_boosts, load_stat_boosts
 from recommender.role_compendium import (
     BULK_UP_ATTACKER_CRITERIA,
     CALM_MIND_ATTACKER_CRITERIA,
@@ -12,18 +26,7 @@ from recommender.role_compendium import (
     IRON_DEFENSE_BODY_PRESS_CRITERIA,
     NASTY_PLOT_ATTACKER_CRITERIA,
     CandidateEval,
-    _SETUP_THREAT_ENCOUNTER_GAMES,
-    _SETUP_THREAT_USAGE_PCT_FLOOR,
-    _is_bulk_crossing,
-    _ko_frac_bin,
-    _ranked_payoff_moves,
-    _self_boosts,
-    _setup_bulk_crossings,
-    _setup_threat_defenders,
-    _sort_members_by_crossings,
-    _sort_members_by_sweep,
     exact_self_boost_move,
-    load_stat_boosts,
 )
 
 
@@ -356,11 +359,8 @@ def test_bulk_up_aquajet_priority_finisher_combined_ko():
 def test_present_usage_payoff_ids_stage_and_idbp_coverage(monkeypatch):
     """CM/BU bag and ID+BP coverage fallbacks drop sub-floor leftovers."""
     from recommender.legality import load_snapshot
-    from recommender.role_compendium import (
-        _UsageCtx,
-        _present_usage_payoff_ids,
-        _ranked_payoff_moves,
-    )
+    from recommender.role_compendium_setup import _present_usage_payoff_ids, _ranked_payoff_moves
+    from recommender.role_compendium import _UsageCtx
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage",
@@ -449,12 +449,9 @@ def test_present_usage_payoff_ids_stage_and_idbp_coverage(monkeypatch):
 
 def test_dd_setup_presence_floor_excludes_thin_keeps_cluster(monkeypatch):
     """DD 1.0% floor: Dragonite-Mega 0.390 out; Scrafty-Mega 1.363 in."""
-    from recommender.role_compendium import (
-        _DD_SETUP_PRESENCE_FLOOR,
-        _SETUP_PRESENCE_SET_PCT_FLOOR,
-        _UsageCtx,
-        _hits_clear_set_pct_floor,
-    )
+    from recommender.role_compendium_setup_constants import _DD_SETUP_PRESENCE_FLOOR
+    from recommender.role_compendium_usage import _hits_clear_set_pct_floor
+    from recommender.role_compendium import _SETUP_PRESENCE_SET_PCT_FLOOR, _UsageCtx
 
     assert _DD_SETUP_PRESENCE_FLOOR == 1.0
     assert _SETUP_PRESENCE_SET_PCT_FLOOR == 0.1
@@ -510,12 +507,9 @@ def test_dd_setup_presence_floor_excludes_thin_keeps_cluster(monkeypatch):
 
 def test_cm_bu_presence_floor_unaffected_by_dd_override(monkeypatch):
     """CM/BU at DD's excluded band still clear the shared 0.1% floor."""
-    from recommender.role_compendium import (
-        _DD_SETUP_PRESENCE_FLOOR,
-        _SETUP_PRESENCE_SET_PCT_FLOOR,
-        _UsageCtx,
-        _hits_clear_set_pct_floor,
-    )
+    from recommender.role_compendium_setup_constants import _DD_SETUP_PRESENCE_FLOOR
+    from recommender.role_compendium_usage import _hits_clear_set_pct_floor
+    from recommender.role_compendium import _SETUP_PRESENCE_SET_PCT_FLOOR, _UsageCtx
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage",

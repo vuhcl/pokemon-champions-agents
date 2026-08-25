@@ -7,18 +7,7 @@ from typing import Any
 
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
-from recommender.role_compendium import (
-    RAIN_SETTER_CRITERIA,
-    REDIRECTION_CRITERIA,
-    CandidateEval,
-    ClaimedTrait,
-    RoleConstructionDraft,
-    construct_role_category,
-    critique_role_ranking,
-    legal_species_pool,
-    persist_approved,
-    rebuild_role_category,
-)
+from recommender.role_compendium import RAIN_SETTER_CRITERIA, REDIRECTION_CRITERIA, CandidateEval, ClaimedTrait, RoleConstructionDraft, construct_role_category, critique_role_ranking, legal_species_pool, persist_approved, rebuild_role_category
 
 
 def _mock_clefable_follow_me(name: str) -> dict[str, Any] | None:
