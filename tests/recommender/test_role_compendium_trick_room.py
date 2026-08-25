@@ -373,6 +373,7 @@ def _sd_pair(*, mega_has_move: bool) -> Any:
 
 def _attribution(monkeypatch, *, mega_has_move: bool) -> tuple[dict[str, bool], dict[str, str]]:
     monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium_usage.showdown_species_map", lambda: {})
     notes: list[str] = []
     pair_usage, pair_notes, _stone = _mega_usage_attribution(
         {"gallade": "Gallade", "gallademega": "Gallade-Mega"},

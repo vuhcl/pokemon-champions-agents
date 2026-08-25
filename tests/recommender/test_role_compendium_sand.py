@@ -61,9 +61,8 @@ def test_sand_excellent_includes_tyranitar_pair_and_hippowdon():
 
 
 def test_sand_discount_artifact_base(monkeypatch):
-    monkeypatch.setattr(
-        "recommender.role_compendium.showdown_species_map", lambda: {}
-    )
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium_usage.showdown_species_map", lambda: {})
 
     def sd_fetch(name: str):
         sid = to_id(name)
