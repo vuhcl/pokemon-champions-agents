@@ -602,7 +602,7 @@ def query_support_needs(
         else:
             fo_trigger = "glass_offense:fake_out"
             fo_desc = (
-                "Glass offense-primary anchor wants Fake Out / redirection protection."
+                "Glass offense-primary anchor wants Fake Out protection."
             )
         needs.append(
             SupportNeed(

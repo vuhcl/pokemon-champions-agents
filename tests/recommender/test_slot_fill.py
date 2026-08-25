@@ -26,6 +26,7 @@ from recommender.slot_fill import (
     _FO_PROTECTION_ABILITIES,
     _NEED_SATISFIERS,
     _NEED_TARGET_ROLES,
+    _candidate_satisfies_need,
     _compendium_roles_for_need,
     _redundancy_tier_for_candidates,
     _scoped_evidence,
@@ -1207,6 +1208,24 @@ def test_fake_out_need_matches_armor_tail_ability():
     by_name = {r.species: r for r in rows}
     assert any(n.category == "fake_out_protection" for n in by_name["Farigiraf"].matching_needs)
     assert by_name["Farigiraf"].source == "both"
+
+
+def test_fake_out_protection_satisfiers_exclude_redirect_moves():
+    """Redirect cannot stop Fake Out (priority); drop from satisfiers."""
+    from recommender.legality import load_snapshot
+
+    assert _NEED_SATISFIERS["fake_out_protection"].moves == frozenset({"fakeout"})
+    need = SupportNeed(
+        category="fake_out_protection",
+        name="Fake Out protection",
+        description="wants FO protection",
+        trigger="glass_offense:fake_out",
+    )
+    snap = load_snapshot()
+    # Amoonguss: Rage Powder, no Fake Out, no Armor Tail–class ability
+    assert not _candidate_satisfies_need("Amoonguss", need, snap=snap)
+    assert _candidate_satisfies_need("Incineroar", need, snap=snap)
+    assert _candidate_satisfies_need("Farigiraf", need, snap=snap)
 
 
 def test_field_label_matches_primal_weather():
