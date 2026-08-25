@@ -49,6 +49,19 @@ from recommender.usage_data import (
 )
 from recommender.usage_showdown import fetch_showdown_vgc_species
 
+from recommender.role_compendium_read import (
+    DEFAULT_ROLES_DIR,
+    ROLE_TIER_ORDER,
+    CompendiumRoleEvidence,
+    ReverseCompendiumEvidence,
+    _roles_filename,
+    load_prior_compendium,
+    load_role_category,
+    role_candidates,
+    role_category_evidence,
+    reverse_compendium_evidence,
+)
+
 from recommender.stat_boosts import (
     _self_boosts,
     _self_defense_drops,
@@ -56,7 +69,6 @@ from recommender.stat_boosts import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_ROLES_DIR = ROOT / "data" / "roles"
 
 LiveFetch = Callable[[str], dict[str, Any] | None]
 CalculateBatch = Callable[[list[dict[str, Any]]], list[dict[str, Any]]]
@@ -6925,153 +6937,6 @@ def role_candidates(
     return [row.species for row in evidence.species]
 
 
-@dataclass(frozen=True)
-class CompendiumRoleEvidence:
-    """One reverse lookup result, kept distinct by evidence strength."""
-
-    species: str
-    role_id: str
-    category: str
-    condition: str
-    tier: str | None
-    mechanism: str | None
-    source_file: str
-    reason: str | None = None
-
-
-@dataclass(frozen=True)
-class ReverseCompendiumEvidence:
-    exact: tuple[CompendiumRoleEvidence, ...] = ()
-    species: tuple[CompendiumRoleEvidence, ...] = ()
-    rejected: tuple[CompendiumRoleEvidence, ...] = ()
-
-
-def _strategic_role_id(category: str, condition: str) -> str:
-    if category == "weather_setter" and condition:
-        return f"{to_id(condition)}_setter"
-    return category.strip().lower().replace("-", "_").replace(" ", "_")
-
-
-def _entry_evidence(raw: dict[str, Any], source_file: str) -> ReverseCompendiumEvidence:
-    category = str(raw.get("category") or "")
-    condition = str(raw.get("condition") or "")
-    role_id = _strategic_role_id(category, condition)
-    candidates = {
-        to_id(str(row.get("species_id") or row.get("species") or "")): row
-        for row in raw.get("candidates") or []
-    }
-    admitted: list[CompendiumRoleEvidence] = []
-    for tier in ROLE_TIER_ORDER:
-        for species in (raw.get("tiers") or {}).get(tier) or []:
-            candidate = candidates.get(to_id(str(species))) or {}
-            admitted.append(
-                CompendiumRoleEvidence(
-                    species=str(candidate.get("species") or species),
-                    role_id=role_id,
-                    category=category,
-                    condition=condition,
-                    tier=tier,
-                    mechanism=str(candidate.get("mechanism") or "") or None,
-                    source_file=source_file,
-                )
-            )
-    rejected = tuple(
-        CompendiumRoleEvidence(
-            species=str(candidate.get("species") or candidate.get("species_id") or ""),
-            role_id=role_id,
-            category=category,
-            condition=condition,
-            tier=None,
-            mechanism=str(candidate.get("mechanism") or "") or None,
-            source_file=source_file,
-            reason=str(candidate.get("reason") or ""),
-        )
-        for candidate in raw.get("considered_rejected") or []
-    )
-    return ReverseCompendiumEvidence(species=tuple(admitted), rejected=rejected)
-
-
-def role_category_evidence(
-    category: str,
-    condition: str = "",
-    *,
-    roles_dir: Path | None = None,
-) -> ReverseCompendiumEvidence:
-    """Forward role evidence; no concrete build exists to promote into exact."""
-    root = roles_dir or DEFAULT_ROLES_DIR
-    path = root / _roles_filename(category, {"condition": condition})
-    raw = load_prior_compendium(path)
-    return _entry_evidence(raw, path.name) if raw is not None else ReverseCompendiumEvidence()
-
-
-def reverse_compendium_evidence(
-    species: str,
-    *,
-    moves: list[str] | tuple[str, ...] = (),
-    ability: str | None = None,
-    roles_dir: Path | None = None,
-) -> ReverseCompendiumEvidence:
-    """Find exact-build, species-only, and rejected compendium evidence.
-
-    Exact means the candidate's named delivery mechanism is present in this
-    build. Other positive membership remains species evidence; it is never
-    promoted across a different set.
-    """
-    root = roles_dir or DEFAULT_ROLES_DIR
-    sid = to_id(species)
-    present = {to_id(m) for m in moves}
-    if ability:
-        present.add(to_id(ability))
-    exact: list[CompendiumRoleEvidence] = []
-    species_only: list[CompendiumRoleEvidence] = []
-    rejected: list[CompendiumRoleEvidence] = []
-    for path in sorted(root.glob("*.v1.json")):
-        rows = _entry_evidence(json.loads(path.read_text()), path.name)
-        for row in rows.species:
-            if to_id(row.species) != sid:
-                continue
-            (
-                exact
-                if row.mechanism and to_id(row.mechanism) in present
-                else species_only
-            ).append(row)
-        for row in rows.rejected:
-            if to_id(row.species) != sid:
-                continue
-            rejected.append(row)
-    return ReverseCompendiumEvidence(
-        exact=tuple(exact),
-        species=tuple(species_only),
-        rejected=tuple(rejected),
-    )
-
-
-def persist_approved(
-    draft: RoleConstructionDraft,
-    roles_dir: Path,
-    *,
-    filename: str | None = None,
-) -> Path:
-    roles_dir.mkdir(parents=True, exist_ok=True)
-    name = filename or _roles_filename(draft.category, draft.sub_criteria)
-    current = roles_dir / name
-    if current.exists():
-        hist = roles_dir / "history"
-        hist.mkdir(parents=True, exist_ok=True)
-        ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        stem = name.replace(".v1.json", "")
-        shutil.copy2(current, hist / f"{stem}.{ts}.json")
-    current.write_text(json.dumps(draft_to_dict(draft), indent=2) + "\n")
-    return current
-
-
-def legal_species_pool(snap: dict[str, Any] | None = None) -> list[str]:
-    snap = snap or load_snapshot()
-    out: list[str] = []
-    for sid, entry in (snap.get("species") or {}).items():
-        if is_species_legal(snap, sid):
-            out.append(str(entry.get("name") or sid))
-    return out
 
 
 def rebuild_role_category(
