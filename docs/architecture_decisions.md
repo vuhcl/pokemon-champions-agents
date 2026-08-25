@@ -6333,6 +6333,41 @@ to fail on pre-fix code and pass after. 1285 passed, 8 skipped.
 
 ---
 
+### ADR-028 — Amendment 2026-08-22b
+
+**Battle-only transient formes now collapse to their base species in
+`_species_with_abilities`, closing the forme-duplication gap flagged
+alongside Amendment 2026-08-22a but not fixed there.**
+
+Castform/Castform-Sunny/Castform-Rainy/Castform-Snowy surfaced as four
+independent candidates from `resolve_condition_beneficiaries`, when a
+player only ever picks base Castform — the weather-triggered formes are
+automatic, exist only during live battle, and were never a real,
+separate team-building choice.
+
+A forme is now excluded when it has a real `base_species_id` (a genuine
+forme relationship, not a standalone low-usage species) AND has zero
+rows in both `ingame_species_map` and `showdown_species_map`. Verified
+broadly, not just for Castform: every battle-only automatic forme
+checked (Castform's three weather formes, Terapagos-Stellar,
+Zygarde-Complete) has zero usage rows anywhere, since none can ever
+appear in a real team export. Explicitly checked the adjacent case that
+would break a naive "collapse every forme to its base" rule: Rotom's
+appliance formes (Wash/Heat/Fan/Frost/Mow) are chosen at team-build time
+and stay that way — confirmed every one has a real Showdown usage row,
+so the exclusion correctly never fires for them.
+
+Does not fix the display side of forme identity — a genuinely
+low-usage-but-real species (base Castform itself, 0.037% Showdown usage)
+must still appear on its own; the exclusion gates on being a forme
+relationship, not on usage alone, confirmed by a dedicated test.
+
+**Status:** Implemented and merged (PR #115). 3 new tests, each
+confirmed to fail on pre-fix code and pass after. Full suite: 1295
+passed, 8 skipped.
+
+---
+
 ## ADR-029: Calc-unavailable static fallback — labeled degraded discovery for single_locked,
 fail-closed unchanged for multi_locked and coverage/SPOF claims
 
@@ -7668,6 +7703,54 @@ passed, 8 skipped.
 
 ---
 
+### ADR-034 — Amendment 2026-08-23a
+
+**Two real, distinct bugs found via a live question about why Staraptor
+was suggested over the empirically more popular Staraptor-Mega.**
+
+**Bug 1, the actual root cause:** `_dominant_mega_form`'s item match
+required the mega stone's item id to contain the base species name as an
+exact substring. Most stones cleanly append "ite" (`swampert` →
+`swampertite`), but several trim or alter the base name's ending first:
+`staraptor` → `staraptite`, `mawile` → `mawilite`, `floette` →
+`floettite`, `sceptile` → `sceptilite`, `dragonite` → `dragoninite`,
+`blastoise` → `blastoisinite`. Confirmed directly: all six have genuine,
+dominant real mega-stone usage (55-99%), silently evaluated as their
+weaker base form indefinitely instead. Fixed via a shared-prefix-ratio
+fallback (≥70% of the base name's characters matching from the start)
+when the plain substring check fails — verified against every base
+species with a real mega form in the snapshot, confirming the
+previously-correct 8 retargets are unchanged and Dragonite (55.4%,
+genuinely below the 80% dominance threshold) still correctly returns
+`None`. Also fixed multi-alternate-form disambiguation (Blastoise:
+mega vs. Gmax; Floette: mega vs. eternal) — a "-ite" item is specifically
+a mega-evolution mechanic, so when exactly one alternate actually
+contains "mega," that's now an unambiguous match. Confirmed via direct
+`query_counters` call that this fix alone fully resolves the original
+question.
+
+**Bug 2, a separate, real gap — explicitly not what caused the live
+question:** `query_counters`' `_key` sorted every candidate without a
+real in-game `usage_rank` as `float("-inf")` — tied at the worst
+possible value regardless of real Showdown popularity. The comment
+historically here claimed a fallback function used `showdown_usage_pct`
+for exactly this case; confirmed that function doesn't exist anywhere in
+this codebase. Fixed with an explicit tier: real in-game rank still
+strictly outranks Showdown-only candidates, but Showdown-only candidates
+are now ordered by real relative popularity instead of tied.
+
+Two of Claude's own test-construction mistakes were caught and corrected
+during verification, not shipped uncorrected — a stale-tie test that
+depended on real-data coincidence no longer possible post-fix, and an
+initial regression test that passed on both old and new code due to a
+wrong assumption about what controls iteration order.
+
+**Status:** Implemented and merged (PR #117). 6 new/updated tests, each
+confirmed to fail on pre-fix code and pass after. Full suite: 1299
+passed, 8 skipped.
+
+---
+
 ## ADR-035: Core-slot scarce-resource discount and bench-slot coverage-subset
 reframing — two unified pieces of the same principle
 
@@ -7806,6 +7889,48 @@ pass after. Full suite: 1298 passed, 8 skipped.
 
 ---
 
+### ADR-035 — Amendment 2026-08-23a
+
+**Part 2 (bench-slot coverage-subset) is now wired into `_rank_category_a`,
+completing what the original ADR left deliberately unwired.**
+
+Scoped to the "simple case": candidates with no unmet needed-importance
+weather dependency. For bench slots with a real, `picked_team_size`-sized
+core already locked, `annotate_composition_impact` constructs a
+hypothetical `Slot` for the candidate and calls
+`candidate_improves_best_bring` with the real threat objective, threaded
+through via a new `objective` parameter from `discover_multi_locked`.
+Result populates `improves_bench_subset`, wired into `_rank_category_a`'s
+sort key as a leading discriminator — a no-op for core slots, meaningful
+only for bench slots, mirroring `wastes_core_slot`'s position at the
+opposite end of the same tuple.
+
+`candidate_has_unmet_needed_weather_dependency` (new) reuses the same
+`mechanism_condition`/`provided_conditions` check as
+`candidate_wastes_core_slot`'s weather half, asking a different
+question: not "does this conflict" but "is this dependency unmet at
+all." Evaluating a dependent candidate alone would produce an honestly
+*wrong* coverage number — `team_field_states` only forces a weather onto
+a subset's matchup calc if that subset actually contains a real
+provider — so this gate is a correctness requirement, not just a scope
+limitation. Dependent candidates remain deliberately unevaluated
+pending masked alternate-core discovery (ADR-038), which is the
+capability actually equipped to pair them with a real provider correctly.
+
+Verification could not confirm the real, live behavioral change
+end-to-end — no live calc service available. Verified instead that the
+wiring itself is correct by mocking `candidate_improves_best_bring` at
+its source module boundary, trusting that function's own
+already-verified correctness. Live-tested afterward against a real
+transcript and confirmed the gate correctly activates and reaches the
+real calc-dependent check for all real bench candidates.
+
+**Status:** Implemented and merged (PR #116). 3 new tests, each
+confirmed to fail on pre-fix code and pass after. Full suite: 1298
+passed, 8 skipped.
+
+---
+
 ## ADR-036: Dependency-reliability ranking — a soft demotion for candidates
 whose real enabler isn't a genuine specialist
 
@@ -7921,3 +8046,229 @@ handed to Cursor for discovery (2026-08-24):**
   verifiable through static code review alone.
 
 **Status:** Implemented and merged (PR #119).
+
+---
+
+## ADR-038: Masked alternate-core discovery
+
+When a core-slot candidate is independently strong (Category A top-3
+with `wastes_core_slot` ignored, real calc-verified evidence, and
+`usage_backed` basis) and conflicts with a locked member over an
+exclusive resource (weather or mega evolution), the system now offers
+labeled `core_resolution` options: keep the current core (the existing
+rank-down, unchanged) vs. each real masked package. Masking excludes the
+conflicting locked slot(s) from needs and field-state computation only —
+kits stay locked, never rebuilt; the masked member still counts for mega
+ceiling and Item Clause. Identity comes from `candidate_core_slot_conflicts`
+(new — names the locked slot/species/resource), with
+`candidate_wastes_core_slot` remaining a `bool()` wrapper over it so
+existing ranking is untouched.
+
+Gap-fill (`discover_masked_core_package`) is a pure function reuse of
+merge/annotate/rank — deliberately not a graph re-entry, enforced by a
+code-review gate (the engine module has no `nodes` import). Cascades by
+consuming one genuinely fresh open slot per step until the roster ends;
+a sole remaining provider of a hard dependency on the last open slot is
+unmaskable for the rest of that build — no artificial recursion-depth
+cap needed, roster size (max 6) is the natural stopping point. Package
+ranking requires two signals to agree: lift-adjusted pairwise teammate
+correlation plus real group co-occurrence (`query_shared_teammates`),
+and calc-verified + `usage_backed` evidence — specifically to guard
+against Mega-Mawile/Tinkaton-shaped false positives (mechanically
+plausible, not actually good). Accepting a package sets
+`masked_slot_indices` and locks only the current-slot candidate via
+`slot_candidate_selected`; the shown gap-fill preview (e.g. a rain
+setter) is not itself pre-locked — it's what normal discovery will
+likely surface next, not a commitment made in the same action.
+
+**Deliberately out of v1 scope, disclosed rather than silently absent:**
+Mawile-Mega/Trick-Room-shaped conflicts do not trigger this path — TR
+`benefits_from` is always "wanted," never "needed," and TR is not
+exclusive with Tailwind, so generalizing the trigger to all
+`TRACKED_CONDITIONS` would not correctly catch this case; it stays on
+`candidate_dependency_reliability`'s ranking-only treatment instead.
+Candidates whose Category A top-3 status depends entirely on the masked/
+hypothetical field will not trigger exploration in v1 — the trigger bar
+deliberately checks against the *current* field to avoid a full recalc
+before a package is known to exist, so a candidate that's only strong
+once the mask is applied is invisible to the trigger. Build-level kit
+edits on locked members, folding `team_completion_preference` into
+category-rank, and a formal cascade-mask-growth safeguard are all
+explicitly not attempted.
+
+**Amendment 2026-08-24a — `_calc_agrees` pessimistic-default fix, landed
+before merge, not a separate PR.** The dual-signal calc gate
+(`_search_gap_fill`) originally defaulted to `True` ("agrees") whenever
+`picked_team_size` was unset, the threat objective was empty, or the
+working roster was smaller than pick size — the opposite of
+`candidate_improves_best_bring`'s own established "insufficient baseline
+→ not favorable" convention, and a real gap: it let a package present
+with a silently weaker verification basis specifically in early-game
+scenarios, exactly when a real calc backstop matters most. Fixed to
+return `False` in all three cases, unified into one branch (empty
+objective and insufficient roster both mean "nothing was actually
+verified"). `should_try_masked_core` additionally now requires
+`unmasked_locked + 1 >= picked_team_size` before it fires at all, so the
+`core_resolution` UI never presents when it's already known upfront that
+calc verification can't succeed — with `pick = 4` and a typical 1-slot
+mask, `core_resolution` cannot trigger until 4 real members are locked;
+slots 1-3 get rank-down only. Confirmed via direct diff this was a real,
+not-yet-caught bug — no test in the original PR covered either
+pessimistic-default path.
+
+**Status:** Implemented and merged (PR #121, including the amendment
+above before merge). Full suite: 1338 passed, 8 skipped.
+
+---
+
+## ADR-039: Orientation preference — real per-preference selection
+shapes, a revision escape hatch, and deterministic reject-N
+
+**Context.** The soft category-order nudge from a prior attempt
+(referenced in ADR-033 discussion but never merged — built on a
+contaminated branch and discarded, see below) did not match the real
+intended behavior. Confirmed directly with Vu: each of the three
+preferences needed a genuinely distinct selection shape, not a shared
+ranking nudge.
+
+**Decision — three real shapes in `select_diverse_candidates`:**
+`attacker` hard-excludes Category B as a selection source (B is
+excluded as a source, not as a species attribute — a dual-branch
+candidate with real A-side value may still appear via Category A).
+`balanced`/unset picks exactly one candidate per category (A→B→C),
+lineage-deduped, skipping the prior "genuine multi-signal default"
+detection entirely since that logic could cover fewer than three
+distinct categories with one multi-signal pick. `support` draws multiple
+candidates from Category B specifically, diversified by
+`SupportNeed.category` via new `_diversify_by_need_category` — greedy
+new-category-first, then (per Amendment 2026-08-24b below) duplicate-
+profile-aware fallback, then pure-rank fill only as a last resort.
+
+**A real process failure worth recording plainly:** the first
+implementation attempt was built via a cloud-agent workflow whose local-
+sync step swept in a large, unrelated contaminated commit (most of the
+masked-core implementation in a partial, pre-fix state, plus four
+unrelated debug scripts) as the base the real feature was built on top
+of. This surfaced only on review (5 real test failures on that branch,
+confirmed absent on clean `main`) and could not be resolved by rebase —
+the branch was discarded and the real feature (functionally identical,
+verified line-for-line against what had already been reviewed) rebuilt
+fresh, locally, off current `main`. No functional design was lost; only
+the branch history was.
+
+**Decision — preference-revision escape hatch (PR #123).** A user can
+request a different orientation preference mid-`candidate_selection`
+("different focus" and near-synonyms, a fixed deterministic phrase set,
+deliberately not LLM-classified). Mechanism is `continue` + a state
+patch (`team_completion_preference: None`, `pending_presentation: None`,
+`force_completion_preference_prompt: True`) — not a new `turn_intent`,
+not `archetype_change`/`reset` (both verified wrong semantics).
+`rejected` is untouched by revision — a species rejected under one
+preference stays rejected after the preference changes. The one-shot
+force flag exists because `discover_multi_locked` normally skips the
+preference prompt when `material_completion_preferences()` returns
+empty (all three orderings identical) — without the flag, an explicit
+revision request could silently fail to re-prompt. Confirmed directly
+against the real code that the flag correctly survives a
+`core_resolution` intercept (masked-alternate-core-discovery's own
+early-return path, which sits before the preference-prompt check) —
+verified with a real, non-vacuous test, not assumed.
+
+**Decision — deterministic reject-N, shipped in the same PR.** `reject
+N`/`reject option N` on `candidate_selection` now resolves to a direct
+`rejection` intent via regex, not LLM classification. Out-of-range N
+falls through to the existing LLM path rather than erroring (so "reject
+Tornadus" still works). Gated specifically to `kind == "candidate_selection"`
+via an extracted `_classify_candidate_selection_reply` helper, so future
+schema-v1 kinds can't silently inherit this behavior.
+
+**Amendment 2026-08-24a — subset-redundancy in `_diversify_by_need_category`'s
+fallback, and an uncapped Category-B pool for `support` (PR #124).**
+Live testing surfaced the actual original complaint (support preference
+showing 3 `trick_room_setter` candidates) as two compounding causes, not
+one: (1) the fallback phase had zero category awareness, admitting a
+fully-redundant-profile candidate once genuinely new categories were
+exhausted; (2) Category B was capped to the same 10-candidate slice used
+for A/C, excluding a genuinely different-category real candidate
+(confirmed reachable only via manual rejection) from ever being
+considered. Fixed both: fallback now skips a candidate whose exact
+support-need-category profile duplicates an already-picked one before
+falling back to pure rank; Category B is genuinely uncapped for the
+support path specifically (`category_b_uncapped`), not bumped to a
+larger fixed number — `_diversify_by_need_category`'s own output stays
+bounded to `n_alternatives + 1` regardless of input size, so widening
+the input pool carries no real cost. A dead loop (an exact duplicate of
+the greedy pass, mathematically guaranteed to find nothing) was found
+and removed during this fix, not left as harmless redundancy.
+
+**Amendment 2026-08-24b — the confidence gate and per-candidate
+commitment weighting (PR #125).** Root-caused, not assumed: the fallback
+fix alone did not resolve the symptom, because a screens candidate with
+genuine 86%+ real commitment (Grimmsnarl) was being filtered out
+*before* diversification ever ran. Unconditional-trigger support needs
+(`trigger is None`, e.g. screens) were blanket-downgraded to `low`
+confidence regardless of the *candidate's* real commitment to filling
+them — conflating "is this need category conditionally specific" with
+"is this candidate's real commitment strong," the same distinction
+already established for `candidate_dependency_reliability`. Fixed to
+reuse that exact pattern: unconditional needs stay low unless the
+evidence is `usage_backed` with a real `commitment_pct` tag (in-game
+data only, deliberately never falls back to Showdown-only data for this
+purpose — a species absent from the in-game snapshot, like Klefki, has
+no reliable per-move commitment signal available, and Showdown data
+alone was confirmed to give an actively misleading picture for Klefki
+specifically, not just an incomplete one). Separately, `_diversity_need_categories`
+now discounts a matched need category from diversification credit when
+its evidence is Role-Compendium-tier "Acceptable" with no real
+commitment backing — Klefki's real primary job is screens (confirmed:
+its `trick_room` match is Acceptable-tier, no commitment data,
+correctly dropped from its diversification profile; its `screens` match
+survives). The *displayed* role label (`target_role_from_needs`) is
+still unresolved — same open backlog item as Sinistcha, now with Klefki
+as a second confirmed case, not fixed in this PR.
+
+Reject is now lineage-expanding for sticky-ban purposes (rejecting one
+Gourgeist form correctly excludes the others), and `RejectedEntry.need_categories`
+feeds a new `SlotFillContext.banned_profiles`, so a rejected candidate's
+whole profile stays excluded across the rest of the reject cycle for
+`support` specifically — the mechanism that most directly fixed the
+live "cycling through 8 near-identical TR setters" complaint.
+
+**Known, disclosed, not yet fixed — carried forward, not silently
+dropped:**
+- The sticky-ban/subset-redundancy protection above is scoped to
+  `_select_support` only. `_select_balanced` (and possibly `attacker`,
+  if a B candidate ever surfaces there) has no equivalent protection —
+  confirmed live, the identical "cycle through many near-duplicate TR
+  setters" symptom reproduces under `balanced` preference, just via a
+  different code path.
+- `Grimmsnarl` (and any candidate whose gate-passing evidence is a
+  `usage_backed`/`commitment_pct` entry that ranks below a `compendium_backed`
+  entry on the same candidate) still *displays* a misleadingly low
+  confidence — `_format_best_evidence`'s basis-first tuple comparison
+  ranks `compendium_backed` above `usage_backed` for display purposes,
+  independent of and unrelated to the gate fix above. Real, narrow,
+  not yet fixed.
+- A confirmed regression, not yet fixed: `_NEED_SATISFIERS["fake_out_protection"]`
+  still lists redirection moves as valid satisfiers, despite this exact
+  mechanical error (redirection cannot stop Fake Out — priority +2 vs.
+  +3) having been identified and removed from a different layer
+  (`_compendium_roles_for_need`) in an earlier session (2026-08-21).
+  The raw move-satisfier layer was never updated to match.
+- A deeper, unresolved design question, deliberately held rather than
+  guessed at: whether "protection" needs (`fake_out_protection`,
+  likely `taunt_disruption`) should be structurally demoted below the
+  needs they protect, given they are inherently softer — and whether
+  the "glass offense" trigger for `fake_out_protection` specifically
+  (as opposed to `requires_setup_turn`, which has a cleaner mutual-
+  exclusivity rationale) survives scrutiny given every Pokémon already
+  has universal access to Protect. Not scoped, not scheduled.
+- Whether real need-detection systematically under-generates several
+  entire `NeedCategory` values (`fake_out_protection`, `taunt_disruption`,
+  `defensive_coverage`, `stat_lowering_partner`) for realistic teams,
+  independent of anything the diversification-layer fixes above can
+  address — flagged, not yet investigated.
+
+**Status:** Implemented and merged (PR #122, #123, #124, #125). Full
+suite at last verification: 1356 passed, 12 skipped (environment-only
+skips — live calc, ollama).
