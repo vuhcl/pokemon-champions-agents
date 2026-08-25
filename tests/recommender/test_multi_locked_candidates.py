@@ -3604,3 +3604,68 @@ def test_banned_profiles_from_rejected_entries():
             },
         ]
     ) == frozenset({frozenset({"trick_room"})})
+
+
+def test_select_balanced_skips_banned_trick_room_b_profile():
+    """Sticky-ban only: pure-{trick_room} B is skipped after reject; A/C unchanged."""
+    from recommender.team_candidates import _select_balanced
+
+    ranked_a = [_synth_category_a("Kingambit", [])]
+    ranked_b = [
+        _category_b_need_candidate("FarigirafLike", ("trick_room",)),
+        _category_b_need_candidate("GalladeLike", ("trick_room",)),
+        _category_b_need_candidate("GrimmsnarlLike", ("screens",)),
+    ]
+    ranked_c = [
+        _category_b_need_candidate("BasculegionLike", ("condition_beneficiary",)),
+    ]
+    banned = frozenset({frozenset({"trick_room"})})
+    picks = _select_balanced(
+        ranked_a, ranked_b, ranked_c, n_alternatives=2, banned_profiles=banned
+    )
+    by_key = {key: c.species for c, key in picks}
+    assert by_key["A"] == "Kingambit"
+    assert by_key["B"] == "GrimmsnarlLike"
+    assert by_key["C"] == "BasculegionLike"
+    assert "FarigirafLike" not in by_key.values()
+    assert "GalladeLike" not in by_key.values()
+
+
+def test_pick_best_evidence_prefers_commitment_over_lower_compendium():
+    from recommender.team_candidates import (
+        _BASIS_RANK,
+        _CONFIDENCE_RANK,
+        _pick_best_evidence_item,
+    )
+
+    low_compendium = CandidateEvidence(
+        basis="compendium_backed",
+        confidence="low",
+        producer_name="test",
+        evidence=("need:screens", "tier:Excellent", "role:screens_support"),
+        branch="need",
+    )
+    commitment = CandidateEvidence(
+        basis="usage_backed",
+        confidence="medium",
+        producer_name="test",
+        evidence=("need:screens", "commitment_pct:86.1", "move:lightscreen"),
+        branch="need",
+    )
+    picked = _pick_best_evidence_item((low_compendium, commitment))
+    assert picked is not None
+    assert picked.basis == "usage_backed"
+    assert picked.confidence == "medium"
+    assert (_BASIS_RANK[picked.basis], _CONFIDENCE_RANK[picked.confidence]) == (3, 1)
+
+    equal_compendium = CandidateEvidence(
+        basis="compendium_backed",
+        confidence="medium",
+        producer_name="test",
+        evidence=("need:screens", "tier:Excellent"),
+        branch="need",
+    )
+    no_override = _pick_best_evidence_item((equal_compendium, commitment))
+    assert no_override is not None
+    assert no_override.basis == "compendium_backed"
+    assert no_override.confidence == "medium"

@@ -7,6 +7,7 @@ from recommender.present_text import (
     BOOTSTRAP_PARSER_NOT_CONFIGURED,
     NO_PENDING_MESSAGE,
     UNMATCHED_REPLY_PREFIX,
+    _best_evidence_row,
     format_evidence_summary,
     format_no_pending,
     format_roster,
@@ -60,6 +61,58 @@ def test_format_evidence_summary_degradation_tokens():
     assert "mechanical_only, low confidence" in line
     assert "calc_unavailable" in line
     assert "static_type_estimate" in line
+
+
+def test_best_evidence_row_prefers_commitment_over_lower_compendium():
+    """Grimmsnarl-shaped: Fix A downgrades Excellent screens to low, but
+    real commitment_pct usage_backed/medium must win display."""
+    rows = (
+        CandidateEvidence(
+            basis="compendium_backed",
+            confidence="low",
+            producer_name="role_compendium",
+            evidence=("need:screens", "tier:Excellent", "role:screens_support"),
+            branch="need",
+        ),
+        CandidateEvidence(
+            basis="usage_backed",
+            confidence="medium",
+            producer_name="narrow_candidates_for_move",
+            evidence=(
+                "need:screens",
+                "commitment_pct:86.1",
+                "move:lightscreen",
+            ),
+            branch="need",
+        ),
+    )
+    assert (
+        format_evidence_summary(_best_evidence_row(rows))
+        == "usage_backed, medium confidence"
+    )
+
+
+def test_best_evidence_row_keeps_compendium_when_confidence_tied():
+    rows = (
+        CandidateEvidence(
+            basis="compendium_backed",
+            confidence="medium",
+            producer_name="role_compendium",
+            evidence=("need:screens", "tier:Excellent"),
+            branch="need",
+        ),
+        CandidateEvidence(
+            basis="usage_backed",
+            confidence="medium",
+            producer_name="narrow_candidates_for_move",
+            evidence=("need:screens", "commitment_pct:86.1"),
+            branch="need",
+        ),
+    )
+    assert (
+        format_evidence_summary(_best_evidence_row(rows))
+        == "compendium_backed, medium confidence"
+    )
 
 
 def test_bootstrap_intake_renders_prompt_and_notices():
