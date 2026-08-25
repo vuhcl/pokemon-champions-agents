@@ -19,7 +19,6 @@ from recommender.anchor_roles import (
 from recommender.by_usage import query_by_usage
 from recommender.calc_client import PokemonSpecOptional
 from recommender.condition_types import ConditionResilienceReport
-from recommender.contingent_value import REDIRECT_MOVES
 from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
 from recommender.matchup import CHARGE_INSTANT_WEATHER
@@ -95,8 +94,11 @@ class _NeedSatisfier:
 _NEED_SATISFIERS: dict[NeedCategory, _NeedSatisfier] = {
     "trick_room": _NeedSatisfier(moves=frozenset({"trickroom"})),
     "tailwind": _NeedSatisfier(moves=frozenset({"tailwind"})),
+    # Redirect (Follow Me / Rage Powder) cannot stop Fake Out (lower priority);
+    # keep Fake Out + priority-blocking abilities only — matches
+    # _raw_claim_survives_rejection and the removed redirection compendium map.
     "fake_out_protection": _NeedSatisfier(
-        moves=frozenset({"fakeout"}) | frozenset(REDIRECT_MOVES),
+        moves=frozenset({"fakeout"}),
         abilities=_FO_PROTECTION_ABILITIES,
     ),
     "taunt_disruption": _NeedSatisfier(moves=frozenset({"taunt"})),
