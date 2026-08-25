@@ -1667,16 +1667,25 @@ def profile_is_banned(
     c: AnnotatedCandidate,
     banned_profiles: frozenset[frozenset[str]],
 ) -> bool:
-    """True if any banned profile equals sticky profile or is ⊆ raw needs.
+    """True if any banned profile matches sticky, or (non-TR) is ⊆ raw needs.
 
-    Exact sticky match covers diversity-shaped bans; subset-of-raw covers
-    Acceptable-TR-on-cleric vs a singleton {trick_room} ban.
+    Exact sticky match covers diversity-shaped bans. Subset-of-raw covers
+    Acceptable-only tags on multi-need kits — except singleton {trick_room},
+    which bans only pure-TR sticky (main-job setters), not secondary-TR clerics.
     """
     if not banned_profiles:
         return False
     sticky = _sticky_ban_profile(c)
     raw = _support_need_categories(c)
-    return any(banned == sticky or banned <= raw for banned in banned_profiles)
+    pure_tr = frozenset({"trick_room"})
+    for banned in banned_profiles:
+        if banned == pure_tr:
+            if sticky == pure_tr:
+                return True
+            continue
+        if banned == sticky or banned <= raw:
+            return True
+    return False
 
 
 def _diversify_by_need_category(

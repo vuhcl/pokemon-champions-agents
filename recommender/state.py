@@ -346,6 +346,7 @@ class PendingPresentationOption(TypedDict):
     mechanism_ids: NotRequired[tuple[str, ...]]
     track: NotRequired[str]
     need_categories: NotRequired[list[str]]
+    secondary_trick_room: NotRequired[bool]
 
 
 class ReviewFlag(TypedDict):

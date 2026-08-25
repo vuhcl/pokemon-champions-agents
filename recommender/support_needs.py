@@ -20,10 +20,8 @@ from recommender.usage_spreads import effective_spe
 PrimaryFunction = Literal["offense", "support", "unknown"]
 Tankiness = Literal["tanky", "glass", "unknown"]
 NeedCategory = Literal[
-    "stat_lowering_partner",
     "defensive_coverage",
-    "fake_out_protection",
-    "taunt_disruption",
+    "redirection",
     "healing_cleric",
     "screens",
     "condition_setter",
@@ -31,15 +29,21 @@ NeedCategory = Literal[
     "tailwind",
     "condition_beneficiary",
 ]
+NeedUmbrella = Literal[
+    "damage_mitigation",
+    "redirection",
+    "healing",
+    "condition",
+    "speed_control",
+    "defensive_coverage",
+]
 SpeTier = Literal["low", "middling", "already_fast"]
 Stance = Literal["need", "want"]
 
 # Presentation order only — not a ranking.
 _CATEGORY_ORDER: tuple[NeedCategory, ...] = (
-    "stat_lowering_partner",
     "defensive_coverage",
-    "fake_out_protection",
-    "taunt_disruption",
+    "redirection",
     "healing_cleric",
     "screens",
     "condition_setter",
@@ -47,6 +51,18 @@ _CATEGORY_ORDER: tuple[NeedCategory, ...] = (
     "tailwind",
     "condition_beneficiary",
 )
+
+# Taxonomy only — emit/satisfiers/bans stay leaf NeedCategory.
+_NEED_UMBRELLA: dict[NeedCategory, NeedUmbrella] = {
+    "defensive_coverage": "defensive_coverage",
+    "redirection": "redirection",
+    "healing_cleric": "healing",
+    "screens": "damage_mitigation",
+    "condition_setter": "condition",
+    "condition_beneficiary": "condition",
+    "trick_room": "speed_control",
+    "tailwind": "speed_control",
+}
 
 # ponytail: 1.5× Def/SpD ratio is a calibrated heuristic (Archaludon 130/65);
 # Role Compendium / richer bulk models can replace later.
@@ -540,20 +556,6 @@ def query_support_needs(
             )
         )
 
-    # --- Contrary ---
-    if to_id(ability or "") == "contrary":
-        needs.append(
-            SupportNeed(
-                category="stat_lowering_partner",
-                name="Stat-lowering partner",
-                description=(
-                    "Contrary wants a teammate providing a stat-lowering effect "
-                    "(self- or opponent-directed)."
-                ),
-                trigger="ability:contrary",
-            )
-        )
-
     # --- Defensive asymmetry ---
     if tankiness == "tanky" and primary in ("offense", "support"):
         defense, sp_def = stats.get("def", 0), stats.get("spd", 0)
@@ -591,39 +593,46 @@ def query_support_needs(
             needs.append(enriched)
             healing = enriched
 
-    # --- Fake Out / redirection (setup execution risk OR glass offense) ---
-    # Taunt stays setup-only — not a glass-offense universal.
-    if role_shape_context.requires_setup_turn or (
-        primary == "offense" and tankiness == "glass"
-    ):
+    # --- Redirection (offense-primary, setup, or self Def/SpD debuff) ---
+    # ponytail: only ability id weakarmor until abilities extract has structured
+    # hit-triggered Def drops (no invented Weak Armor–class list).
+    # Lazy import: role_compendium ↔ support_needs cycle; next PR extracts
+    # load_stat_boosts / _self_defense_drops into a thin shared module.
+    from recommender.role_compendium import _self_defense_drops
+
+    self_def_spd_debuff = to_id(ability or "") == "weakarmor" or any(
+        _self_defense_drops(to_id(m)) for m in moves
+    )
+    hard_redir = role_shape_context.requires_setup_turn or self_def_spd_debuff
+    if primary == "offense" or hard_redir:
         if role_shape_context.requires_setup_turn:
-            fo_trigger = "requires_setup_turn:fake_out"
-            fo_desc = "Turn-limited/setup-dependent role wants Fake Out protection."
+            redir_trigger = "requires_setup_turn:redirection"
+            redir_desc = (
+                "Turn-limited/setup-dependent role wants Follow Me / Rage Powder."
+            )
+            redir_stance = None
+        elif self_def_spd_debuff:
+            redir_trigger = "kit:self_def_spd_debuff"
+            redir_desc = (
+                "Kit self-lowers Def/SpD (move or Weak Armor); wants "
+                "Follow Me / Rage Powder."
+            )
+            redir_stance = None
         else:
-            fo_trigger = "glass_offense:fake_out"
-            fo_desc = (
-                "Glass offense-primary anchor wants Fake Out protection."
+            redir_trigger = "offense:redirection"
+            redir_desc = (
+                "Offense-primary anchor wants Follow Me / Rage Powder redirection."
             )
+            # Soft ask — same tier as already_fast Tailwind; must not alone
+            # flip anchor_has_obvious_need for self-sufficient offense anchors.
+            redir_stance = "want"
         needs.append(
             SupportNeed(
-                category="fake_out_protection",
-                name="Fake Out protection",
-                description=fo_desc,
-                trigger=fo_trigger,
-                notes="Known counters: Psychic Terrain, Armor Tail, Queenly Majesty",
-            )
-        )
-    if role_shape_context.requires_setup_turn:
-        needs.append(
-            SupportNeed(
-                category="taunt_disruption",
-                name="Taunt disruption",
-                description=(
-                    "Setup-dependent role wants a teammate that can Taunt first "
-                    "or otherwise disrupt the opponent's Taunt user."
-                ),
-                trigger="requires_setup_turn:taunt",
-                notes="No clean mechanical counter identified",
+                category="redirection",
+                name="Redirection",
+                description=redir_desc,
+                trigger=redir_trigger,
+                stance=redir_stance,
             )
         )
 

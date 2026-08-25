@@ -19,6 +19,7 @@ from recommender.anchor_roles import (
 from recommender.by_usage import query_by_usage
 from recommender.calc_client import PokemonSpecOptional
 from recommender.condition_types import ConditionResilienceReport
+from recommender.contingent_value import REDIRECT_MOVES
 from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
 from recommender.matchup import CHARGE_INSTANT_WEATHER
@@ -78,30 +79,18 @@ from recommender.usage_data import (
 Source = PresentationSource
 SlotFillAction = Literal["accept_default", "choose", "defer"]
 
-_FO_PROTECTION_ABILITIES = frozenset(
-    {"armortail", "queenlymajesty", "dazzling"}
-)
-
-
 @dataclass(frozen=True)
 class _NeedSatisfier:
     moves: frozenset[str] = frozenset()
     abilities: frozenset[str] = frozenset()
 
 
-# Annotate: learnset ∩ moves OR abilities ∩ ability ids. No defensive_coverage /
-# stat_lowering_partner entry — no cheap teammate signal → never matches.
+# Annotate: learnset ∩ moves OR abilities ∩ ability ids. No defensive_coverage
+# entry — no cheap teammate signal → never matches.
 _NEED_SATISFIERS: dict[NeedCategory, _NeedSatisfier] = {
     "trick_room": _NeedSatisfier(moves=frozenset({"trickroom"})),
     "tailwind": _NeedSatisfier(moves=frozenset({"tailwind"})),
-    # Redirect (Follow Me / Rage Powder) cannot stop Fake Out (lower priority);
-    # keep Fake Out + priority-blocking abilities only — matches
-    # _raw_claim_survives_rejection and the removed redirection compendium map.
-    "fake_out_protection": _NeedSatisfier(
-        moves=frozenset({"fakeout"}),
-        abilities=_FO_PROTECTION_ABILITIES,
-    ),
-    "taunt_disruption": _NeedSatisfier(moves=frozenset({"taunt"})),
+    "redirection": _NeedSatisfier(moves=frozenset(REDIRECT_MOVES)),
     "healing_cleric": _NeedSatisfier(
         moves=frozenset(
             {"wish", "healpulse", "lifedew", "aromatherapy", "healbell"}
@@ -385,6 +374,8 @@ class SlotFillTerminalResult:
 _NEED_TARGET_ROLES: dict[NeedCategory, tuple[TargetRoleId, str]] = {
     "trick_room": ("trick_room_setter", "move:trickroom"),
     "tailwind": ("tailwind_setter", "move:tailwind"),
+    "redirection": ("redirection", "move:followme"),
+    "screens": ("screens_support", "move:lightscreen"),
 }
 _CONDITION_SETTER_TARGET_ROLES: dict[str, tuple[TargetRoleId, str]] = {
     "rain": ("rain_setter", "role:rain_setter"),
@@ -470,6 +461,17 @@ def target_role_from_needs(
             relevant.append((need, role_id, constraint))
     if not relevant:
         return None
+
+    # Prefer non-TR mapped roles when multi-need unless the peer is also
+    # speed control (TR+TW stays unresolved ambiguity).
+    _SPEED_ROLES = frozenset({"trick_room_setter", "tailwind_setter"})
+    non_tr = [row for row in relevant if row[1] != "trick_room_setter"]
+    if (
+        non_tr
+        and any(role_id == "trick_room_setter" for _, role_id, _ in relevant)
+        and any(role_id not in _SPEED_ROLES for _, role_id, _ in non_tr)
+    ):
+        relevant = non_tr
 
     role_ids = tuple(dict.fromkeys(role_id for _, role_id, _ in relevant))
     needed = tuple(
@@ -1121,6 +1123,8 @@ def _compendium_roles_for_need(need: SupportNeed) -> list[tuple[str, str]]:
         return [("screens_support", "")]
     if need.category == "tailwind":
         return [("tailwind_setter", "")]
+    if need.category == "redirection":
+        return [("redirection", "")]
     if need.category == "condition_setter" and need.trigger:
         weather = {"rain": "Rain", "sun": "Sun", "sand": "Sand", "snow": "Snow"}
         return [
@@ -1162,8 +1166,6 @@ def _raw_need_candidates(
     ownership_mode: OwnershipMode,
 ) -> list[NeedResolvedCandidate]:
     cat = need.category
-    if cat == "stat_lowering_partner":
-        return []
     if cat == "defensive_coverage":
         raise NotImplementedError(
             f"need {need.category}: compendium/ability-search deferred"
@@ -1186,7 +1188,7 @@ def _raw_need_candidates(
             f"need {need.category}: compendium/ability-search deferred"
         )
 
-    if cat in ("trick_room", "tailwind", "taunt_disruption"):
+    if cat in ("trick_room", "tailwind"):
         mid = next(iter(sat.moves))
         return _narrow_need_candidates(
             need,
@@ -1196,37 +1198,13 @@ def _raw_need_candidates(
             ownership_mode=ownership_mode,
         )
 
-    rows = _union_move_resolved(
+    return _union_move_resolved(
         need,
         sat.moves,
         state,
         available_species=available_species,
         ownership_mode=ownership_mode,
     )
-    if cat == "fake_out_protection" and sat.abilities:
-        snap = load_snapshot()
-        regulation = _regulation(state)
-        seen = {to_id(row.species) for row in rows}
-        names = [row.species for row in rows]
-        for n in _species_with_abilities(
-            sat.abilities, snap=snap, regulation=regulation
-        ):
-            sid = to_id(n)
-            if sid not in seen:
-                seen.add(sid)
-                names.append(n)
-        ranked = _rank_by_usage(
-            names,
-            available_species=available_species,
-            ownership_mode=ownership_mode,
-        )
-        by_id = {to_id(row.species): row for row in rows}
-        return [
-            by_id.get(to_id(name))
-            or _mechanical_rows(need, [name], "_species_with_abilities")[0]
-            for name in ranked
-        ]
-    return rows
 
 
 def _raw_claim_survives_rejection(
@@ -1245,10 +1223,7 @@ def _raw_claim_survives_rejection(
         return False
     snap = load_snapshot()
     regulation = _regulation(state)
-    learnset = set(resolve_learnset(snap, species) or [])
     abilities = _species_abilities(species, snap=snap, regulation=regulation)
-    if need.category == "fake_out_protection":
-        return "fakeout" in learnset or bool(abilities & _FO_PROTECTION_ABILITIES)
     if need.category == "condition_setter" and need.trigger:
         labels = field_labels_from_trigger(need.trigger)
         matching = {
@@ -1311,14 +1286,13 @@ def resolve_need_candidates(
                 )
             continue
         # A need with a real compendium category (screens, tailwind,
-        # trick_room, fake_out_protection) only matches candidates the
+        # trick_room, redirection) only matches candidates the
         # compendium actually recognizes -- confirmed live: Gholdengo
         # genuinely isn't a recognized screens user despite mechanically
         # learning Light Screen/Reflect, so it must not match at all, not
         # even at low confidence, when a real compendium exists to check
-        # against. Needs without a real compendium (healing_cleric,
-        # taunt_disruption) are unaffected -- there's nothing to
-        # restrict against for those.
+        # against. Needs without a real compendium (healing_cleric) are
+        # unaffected -- there's nothing to restrict against for those.
         if has_real_compendium:
             continue
         if not _raw_claim_survives_rejection(
@@ -2004,6 +1978,8 @@ def _pending_presentation(
         )
         if need_cats:
             option["need_categories"] = need_cats
+            if "trick_room" in need_cats and len(need_cats) > 1:
+                option["secondary_trick_room"] = True
         if candidate.track is not None:
             option["track"] = candidate.track
         options.append(option)
