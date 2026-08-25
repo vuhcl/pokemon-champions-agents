@@ -10,7 +10,7 @@ from recommender.state import (
     ProvisionalSlot,
     all_locked,
 )
-from recommender.team_candidates import _BASIS_RANK, _CONFIDENCE_RANK
+from recommender.team_candidates import _pick_best_evidence_item
 
 NO_PENDING_MESSAGE = (
     "No pending question to answer; start :new or wait for a prompt."
@@ -72,29 +72,33 @@ def format_evidence_summary(evidence: CandidateEvidence | Mapping[str, Any]) -> 
 def _best_evidence_row(
     evidence_rows: tuple[CandidateEvidence | Mapping[str, Any], ...],
 ) -> CandidateEvidence | Mapping[str, Any]:
-    """Pick the highest-quality evidence item, mirroring _rank_key's best_evidence.
+    """Pick the highest-quality evidence item via _pick_best_evidence_item.
 
-    A candidate's evidence tuple is merged across every support need it
-    happens to satisfy, not just the one it's being displayed/ranked for —
-    e.g. a rain-setter candidate that also incidentally knows a screens
-    move carries both Rain and screens evidence in one tuple. evidence[0]
-    reflects arrival order (which need got resolved first), not quality;
-    ranking already correctly ignores order and picks the best item, so
-    display must use the same rule or the two can disagree.
+    Same rule as Category B/C ranking (_rank_by_need_evidence), including
+    the commitment_pct override when a lower-confidence compendium_backed
+    row would otherwise win on basis alone. A candidate's evidence tuple is
+    merged across every support need it happens to satisfy — evidence[0]
+    is arrival order, not quality — so display must share ranking's pick.
     """
-
-    def rank(row: CandidateEvidence | Mapping[str, Any]) -> tuple[int, int]:
+    if not evidence_rows:
+        raise ValueError("_best_evidence_row requires a non-empty evidence tuple")
+    normalized: list[CandidateEvidence] = []
+    for row in evidence_rows:
         if isinstance(row, CandidateEvidence):
-            basis, confidence = row.basis, row.confidence
-        else:
-            basis = str(row.get("basis") or "unknown")
-            confidence = str(row.get("confidence") or "unknown")
-        return (
-            _BASIS_RANK.get(basis, -1),
-            _CONFIDENCE_RANK.get(confidence, -1),
+            normalized.append(row)
+            continue
+        normalized.append(
+            CandidateEvidence(
+                basis=str(row.get("basis") or "unknown"),  # type: ignore[arg-type]
+                confidence=str(row.get("confidence") or "unknown"),  # type: ignore[arg-type]
+                producer_name=str(row.get("producer_name") or "unknown"),
+                evidence=tuple(row.get("evidence") or ()),
+                branch=row.get("branch"),  # type: ignore[arg-type]
+            )
         )
-
-    return max(evidence_rows, key=rank)
+    picked = _pick_best_evidence_item(normalized)
+    assert picked is not None
+    return picked
 
 
 def format_roster(state: Mapping[str, Any]) -> str:

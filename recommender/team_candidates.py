@@ -1088,6 +1088,40 @@ _BASIS_RANK = {
 _CONFIDENCE_RANK = {"low": 0, "medium": 1, "high": 2}
 
 
+def _pick_best_evidence_item(
+    items: Sequence[CandidateEvidence],
+) -> CandidateEvidence | None:
+    """Max by (basis, confidence); override only when winner is
+    compendium_backed and a usage_backed row with commitment_pct: has
+    strictly higher confidence.
+
+    Display (_best_evidence_row) and Category B/C ranking
+    (_rank_by_need_evidence) share this so Fix A's downgraded
+    Role Compendium row cannot understate a real commitment-backed
+    usage entry (Grimmsnarl screens). Does not change _BASIS_RANK.
+    """
+    if not items:
+        return None
+
+    def quality(item: CandidateEvidence) -> tuple[int, int]:
+        return (_BASIS_RANK[item.basis], _CONFIDENCE_RANK[item.confidence])
+
+    winner = max(items, key=quality)
+    if winner.basis != "compendium_backed":
+        return winner
+    winner_conf = _CONFIDENCE_RANK[winner.confidence]
+    commitment = [
+        item
+        for item in items
+        if item.basis == "usage_backed"
+        and any(tag.startswith("commitment_pct:") for tag in item.evidence)
+        and _CONFIDENCE_RANK[item.confidence] > winner_conf
+    ]
+    if not commitment:
+        return winner
+    return max(commitment, key=lambda item: _CONFIDENCE_RANK[item.confidence])
+
+
 def _primary_function(candidate: AnnotatedCandidate, regulation: str) -> str:
     return _role_decision(candidate.species, dict(candidate.spec), regulation)[
         1
@@ -1373,12 +1407,10 @@ def _rank_by_need_evidence(
 
     def sort_key(c: AnnotatedCandidate):
         relevant = _need_branch_evidence(c, condition_beneficiary=condition_beneficiary)
+        picked = _pick_best_evidence_item(relevant)
         best = (
-            max(
-                (_BASIS_RANK[item.basis], _CONFIDENCE_RANK[item.confidence])
-                for item in relevant
-            )
-            if relevant
+            (_BASIS_RANK[picked.basis], _CONFIDENCE_RANK[picked.confidence])
+            if picked is not None
             else (0, 0)
         )
         return (
@@ -1705,6 +1737,7 @@ def _select_balanced(
     ranked_c: Sequence[AnnotatedCandidate],
     *,
     n_alternatives: int,
+    banned_profiles: frozenset[frozenset[str]] = frozenset(),
 ) -> list[tuple[AnnotatedCandidate, str]]:
     total = n_alternatives + 1
     picks: list[tuple[AnnotatedCandidate, str]] = []
@@ -1712,7 +1745,14 @@ def _select_balanced(
     for key, ranked in (("A", ranked_a), ("B", ranked_b), ("C", ranked_c)):
         if len(picks) >= total:
             break
-        c = _pick_first_new_lineage(ranked, used_lineages)
+        pool: Sequence[AnnotatedCandidate] = ranked
+        if key == "B" and banned_profiles:
+            pool = [
+                c
+                for c in ranked
+                if _diversity_need_categories(c) not in banned_profiles
+            ]
+        c = _pick_first_new_lineage(pool, used_lineages)
         if c is not None:
             picks.append((c, key))
             used_lineages |= set(lineage_ids(c.species))
@@ -1824,7 +1864,11 @@ def select_diverse_candidates(
         )
     else:
         picks = _select_balanced(
-            ranked_a, ranked_b, ranked_c, n_alternatives=n_alternatives
+            ranked_a,
+            ranked_b,
+            ranked_c,
+            n_alternatives=n_alternatives,
+            banned_profiles=banned_profiles,
         )
 
     return _build_select_result(picks, n_alternatives=n_alternatives)
