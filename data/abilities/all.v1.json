@@ -4473,7 +4473,10 @@
           "activation": "triggered",
           "purpose": "disrupt"
         }
-      ]
+      ],
+      "on_physical_hit": {
+        "self_stages": {"def": -1, "spe": 2}
+      }
     },
     "wellbakedbody": {
       "id": "wellbakedbody",

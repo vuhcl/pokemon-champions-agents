@@ -10,6 +10,7 @@ from recommender.counters import _move_base_accuracy, _scaled_base_power, effect
 from recommender.ids import to_id
 from recommender.legality import load_snapshot, resolve_learnset
 from recommender.matchup import _makes_contact, effective_accuracy
+from recommender.pair_panel_ids import pair_lookup_species_id
 from recommender.reconcile import _item_mega_forme
 from recommender.usage_data import (
     featured_or_common_set,
@@ -589,9 +590,6 @@ def _pikalytics_panel_pair_counts() -> dict[tuple[str, str], int]:
 
 def _attach_top1_partners(panel: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Attach each primary's highest-count panel partner (directed top-1)."""
-    # Lazy: team_candidates ↔ role_compendium would cycle at import time.
-    from recommender.team_candidates import pair_lookup_species_id
-
     if len(panel) < 2:
         return panel
     by_sid = {to_id(str(d.get("species") or "")): d for d in panel}
