@@ -32,7 +32,7 @@ from recommender.move_narrowing import (
 )
 from recommender.propose import _propagate_and_refine
 from recommender.ranking import OwnershipMode
-from recommender.role_compendium import (
+from recommender.role_compendium_read import (
     CompendiumRoleEvidence,
     ReverseCompendiumEvidence,
     role_category_evidence,

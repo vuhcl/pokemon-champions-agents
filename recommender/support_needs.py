@@ -13,6 +13,7 @@ from recommender.calc_client import FieldSpec, PokemonSpecOptional
 from recommender.coverage import ABILITY_TO_FIELD, get_relevant_threats
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
+from recommender.stat_boosts import _self_defense_drops
 from recommender.state import Attr, RecommenderState, Slot
 from recommender.usage_data import SLOT_THREAT_N, featured_or_common_set
 from recommender.usage_spreads import effective_spe
@@ -596,10 +597,6 @@ def query_support_needs(
     # --- Redirection (offense-primary, setup, or self Def/SpD debuff) ---
     # ponytail: only ability id weakarmor until abilities extract has structured
     # hit-triggered Def drops (no invented Weak Armor–class list).
-    # Lazy import: role_compendium ↔ support_needs cycle; next PR extracts
-    # load_stat_boosts / _self_defense_drops into a thin shared module.
-    from recommender.role_compendium import _self_defense_drops
-
     self_def_spd_debuff = to_id(ability or "") == "weakarmor" or any(
         _self_defense_drops(to_id(m)) for m in moves
     )
