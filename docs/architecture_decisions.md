@@ -8272,3 +8272,248 @@ dropped:**
 **Status:** Implemented and merged (PR #122, #123, #124, #125). Full
 suite at last verification: 1356 passed, 12 skipped (environment-only
 skips — live calc, ollama).
+
+---
+
+## ADR-040: Sticky-ban parity for balanced preference, and commitment-preferred
+evidence for display and ranking
+
+**Context.** Live testing surfaced two gaps in the just-shipped support-preference
+fixes (ADR-039). First: `balanced` preference reproduced the exact original
+"cycle through near-duplicate TR setters" symptom, since `_select_balanced`
+never called `_diversify_by_need_category` and had no `banned_profiles` check at
+all. Second: Grimmsnarl displayed "compendium_backed, low confidence" despite
+genuinely passing the strong-evidence gate via a real, commitment-backed
+`usage_backed` entry (86%+ on both Light Screen and Reflect) — `_BASIS_RANK`
+ranks `compendium_backed` above `usage_backed`, so the best-evidence selector
+picked the lower-confidence entry purely on basis, independent of confidence.
+
+**Decision, sticky-ban only, not full diversification.** `_select_balanced`'s
+Category-B pick now checks `banned_profiles` before taking the first
+lineage-new candidate — deliberately NOT wired to the rest of
+`_diversify_by_need_category` (the new-category-first greedy pass would
+change *which* B candidate gets chosen even on the very first presentation,
+a second, unrelated behavior change `balanced` never asked for). Subset-
+redundancy (comparing multiple simultaneous B picks) was confirmed to have no
+meaningful transfer to a single-pick context — `balanced` never shows more
+than one B candidate at once, so there's nothing for it to deduplicate
+against; the cross-turn reject-cycling frustration is sticky-ban's job alone.
+
+**Decision, commitment-preferred evidence.** When the best-ranked evidence by
+`(_BASIS_RANK, _CONFIDENCE_RANK)` is a `compendium_backed` entry, and a
+`usage_backed` entry with a real `commitment_pct` tag exists at strictly
+higher confidence, the commitment-backed entry is now preferred — for both
+display (`_best_evidence_row`, present_text.py) and ranking
+(`_rank_by_need_evidence`'s own best-evidence selection, team_candidates.py).
+Extended to ranking deliberately, not just display: a label that reads better
+than the underlying decision-making is worse than an honestly-low one, since
+it invites trust the ranking hasn't earned. `_BASIS_RANK`'s general ordering
+is untouched — this is a narrow override for the specific case where a
+real, quantified commitment signal is available and clearly stronger.
+
+**Status:** Implemented and merged (PR #126, #127). Full suite green.
+
+---
+
+## ADR-041: Fake Out redirection regression fix, and a real species-vs-profile
+reject distinction
+
+**Decision, satisfier fix.** `_NEED_SATISFIERS["fake_out_protection"]`
+(pre-ADR-042, see below) still listed redirection moves as valid satisfiers,
+despite this exact mechanical error — redirection cannot stop Fake Out,
+priority +2 vs. +3 — having already been identified and removed from a
+different layer (`_compendium_roles_for_need`'s role-routing) in an earlier
+session (2026-08-21). The raw move-satisfier layer was never updated to
+match at the time. Fixed by dropping redirection moves from that satisfier
+set. Superseded shortly after by ADR-042's removal of `fake_out_protection`
+as a category entirely, but recorded here since it was a real, standalone
+fix landed first.
+
+**Decision, reject-species-vs-reject-profile.** Resolves the "reject
+candidate vs. reject role" question held open before this session: a bare
+`reject N` / `reject <species>` excludes only that species' lineage, with
+no automatic profile ban — the default, matching the common case where a
+rejection is about that specific Pokémon, not its whole role. An explicit
+signal (`reject N, no TR` / `reject N because TR` / a bare "no more trick
+room") stamps a real, singleton profile ban. Profile-ban matching was
+widened to `banned <= raw` support needs (not just exact/sticky match),
+closing a hole where an Acceptable-tier TR tag riding along on an otherwise-
+unrelated cleric pick could dodge an explicit ban. Candidate option display
+now shows all matched need categories (slash-separated), not just one, and
+a short reject-usage hint was added to the CLI footer.
+
+**Status:** Implemented and merged (PR #128, #129). Full suite green.
+
+---
+
+## ADR-042 (part 1): Category A speed-control redundancy parity, and a
+fail-closed empty candidate pool
+
+`support_speed_control`-shaped Category A candidates (e.g. Whimsicott,
+Aerodactyl) now get the same redundant-speed-control demotion Category B's
+`tailwind_setter`/`trick_room_setter` needs already had (ADR-037) — closing
+a gap where a Category A speed-control pick could be just as redundant
+against an already-locked Tailwind but wasn't being demoted the same way.
+
+Separately: exhausting the candidate pool via repeated rejection now returns
+a clear, honest empty-pool prompt instead of raising or falling through to a
+generic "couldn't parse" response — a real reliability fix given how much
+reject-cycling came up in this week's live testing.
+
+**Status:** Implemented and merged (PR #130). Full suite green.
+
+---
+
+## ADR-042 (part 2): Disruption-shaped needs removed; redirection promoted
+to a first-class category; TR sticky-ban specialized to pure main-job
+
+**Context — resolves the deepest open question from before this session,**
+more decisively than the "should this be a softer tier" framing it was held
+under. `fake_out_protection`, `taunt_disruption`, and `stat_lowering_partner`
+were modeled as "ally-emit" needs — something a teammate provides the way a
+Trick-Room-setter provides Trick Room. That framing doesn't hold up
+mechanically: unlike Trick Room/Tailwind/Screens, there is no single,
+portable, ally-provided resource that reliably "answers" opposing Fake
+Out/Taunt/stat-drops the way a dedicated setter answers a real team need —
+redirection helps sometimes, priority-immunity abilities are rare and
+narrow, and (per the mechanical correction surfaced this week) even the
+Prankster-based reasoning used to justify similar needs in an earlier
+session was itself wrong (+1 priority does not beat Fake Out's +3). These
+were a category error, not a tier error — removed as `NeedCategory` values
+entirely rather than demoted.
+
+**`redirection` (Follow Me / Rage Powder) is promoted to its own real,
+first-class `NeedCategory`** — this is a genuine, portable, ally-provided
+resource in the way the removed categories weren't, and it directly absorbs
+what `fake_out_protection`'s satisfier list was reaching for (ADR-041)
+without the mechanical error, since it's evaluated on its own real merits
+now rather than borrowed as a mismatched satisfier for a threat it can't
+actually stop.
+
+**The hard/soft split directly answers the "every Pokémon already has
+Protect" critique.** A hard (needed) redirection ask now requires a
+concrete, kit-derived vulnerability: `requires_setup_turn` (Protect and the
+setup move are mutually exclusive — a real, forced cost) or a genuine
+self-inflicted Defense/Special Defense drop (Weak Armor, or a move flagged
+via `_self_defense_drops`). Plain offense-primary alone, without either,
+gets only a soft `want` — deliberately not enough on its own to flip
+`anchor_has_obvious_need`. Scoped conservatively: only the single confirmed
+Weak Armor ability id is checked, not an invented "Weak-Armor-class"
+ability list, pending a future abilities-extract pass with real structured
+data on hit-triggered stat drops.
+
+**A leaf→umbrella taxonomy** (`speed_control`, `damage_mitigation`,
+`redirection`, `healing`, `condition`) groups related leaf categories for
+reporting/diversification purposes, deliberately without its own
+satisfier or reject logic at the umbrella level — matching is still leaf-only.
+
+**TR sticky-ban specialized to pure main-job only.** Rejecting a pure
+`{trick_room}` candidate (a genuine main-job setter — Armarouge, Chandelure)
+sticky-bans that exact profile. A multi-purpose candidate whose real
+diversification profile includes `trick_room` as a secondary tag (e.g. a
+cleric with an Acceptable-tier TR option) is NOT caught by that same ban —
+confirmed directly in code: `profile_is_banned`'s singleton-`{trick_room}`
+case only matches when the candidate's own sticky profile is *also* exactly
+`{trick_room}`, not merely a superset containing it. Multi-need candidates
+now display all matched categories (slash-separated) with a note when a
+secondary-TR option exists, rather than only ever showing one.
+
+**Known follow-up, disclosed, not yet done:** a lazy import
+(`role_compendium` -> `support_needs`) was needed to reach
+`_self_defense_drops` and works correctly, but introduces a real import
+cycle between the two modules. Next step is extracting the shared stat-drop
+data into a thin, dependency-free module both can import from directly.
+
+**Status:** Implemented and merged (PR #131). Full suite: 1377 passed, 12
+skipped (environment-only skips).
+
+---
+
+## ADR-043: Role Compendium decomposition ("ponytail audit" phases 1-2)
+
+**Context.** `role_compendium.py` had grown to ~7149 LOC, mixing dispatch,
+setup-construct scoring, weather/support/sleep constructs, usage/Showdown
+attribution, and JSON evidence reading in one file — high blast radius for
+any change, and the direct cause of at least one real, confirmed bug this
+week (ADR-042's `weakarmor` hardcoded-id follow-up lived here specifically
+because the real data path was buried in this same god-file). Decomposed
+across ten PRs (#132-140, #139 abandoned/unmerged) plus five more
+(#142-148) continuing the same effort into `slot_fill.py` and `nodes.py`.
+Explicitly disclosed throughout: product behavior is intentionally
+unchanged except where separately noted (the Weak Armor data-driven fix,
+below) — this is a decomposition effort, not a behavior change.
+
+**Decision — split along existing dispatch seams, not a new framework.**
+`construct_role_category` stays on the `role_compendium.py` façade as the
+single dispatch router; each construct category was extracted to its own
+leaf module (`role_compendium_setup.py`, `_support.py`, `_weather.py`,
+`_usage.py`, `_read.py`, `_setup_constants.py`) and imported lazily inside
+the relevant dispatch branch, avoiding import cycles without a generic
+constructor abstraction. A generic `RoleConstructor` ABC / shared runner
+framework was explicitly considered and rejected — splitting along seams
+`construct_role_category` already implied was judged sufficient, consistent
+with this project's standing preference for the smallest change that
+resolves the real problem. `__getattr__`-based re-export frozensets
+(`_SETUP_REEXPORTS`, `_USAGE_REEXPORTS`, `_SUPPORT_REEXPORTS`) kept every
+existing call site and test working unchanged during the migration,
+letting tests be moved to canonical imports incrementally rather than in
+one disruptive pass. Verified directly: façade shrank from ~7149 to 1385
+LOC, and every extracted module's line count matches exactly what was
+claimed at each step.
+
+**Decision — `stat_boosts.py` (PR #135) directly resolves the import-cycle
+follow-up flagged in ADR-042 part 2.** `support_needs.py`'s lazy import of
+`_self_defense_drops` from `role_compendium` (needed for the redirection
+hard-ask's self-Def/SpD-debuff check) was real technical debt from
+ADR-042, not a deliberate design choice — extracting the thin, ~43-line
+`stat_boosts` module (JSON-backed, `@lru_cache`d) let `support_needs` take
+a top-level import instead, breaking the cycle at its root rather than
+working around it. Confirmed directly in the current code: `support_needs.py`
+now imports `_self_defense_drops` from `recommender.stat_boosts` at module
+level, no lazy import remaining.
+
+**Decision — Weak Armor becomes data-driven, superseding ADR-042's
+disclosed ponytail-scoped gap (PR #147/#148).** ADR-042 explicitly checked
+only the single confirmed `weakarmor` ability id, declining to invent a
+broader "Weak-Armor-class" ability list without real supporting data.
+`ability_self_def_drop_on_physical_hit()` (new, `ability_classification.py`)
+now reads a real `on_physical_hit.self_stages` field from
+`data/abilities/all.v1.json`, so any ability with a genuine, data-backed
+physical-hit Def/SpD self-drop is caught automatically — not just Weak
+Armor — without ever having to hand-curate or guess at which abilities
+qualify. This is the right way to resolve that kind of gap: real structured
+data replacing a hand-picked id, not a broader guess.
+
+**Decision — contact-move detection moved to real data (PR #146).**
+`matchup.py` carried a ~174-line hardcoded `_CONTACT_MOVES` frozenset,
+duplicating `data/moves/flags.v1.json` and drifting from ADR-007's
+data-first convention. Replaced with a shared `counters._move_has_contact_flag()`
+helper reading the real JSON directly. A real, if minor, mistake was
+caught and fixed within this same PR, not shipped uncorrected: `_WIDE_LENS`
+was accidentally deleted during the edit and restored on review — worth
+recording as a reminder that even "pure mechanical" refactors need real
+verification, not just diffing line counts.
+
+**Test infrastructure work, no product implications:** the ~2800-line
+`test_role_compendium_swords_dance.py` monolith was split by concern
+(construct/payoff-select/damage-score) into focused modules sharing common
+fixtures (PR #142); `pair_panel_ids.py`, `slot_fill_target_role.py`, and
+`nodes_classify.py` were extracted from `team_candidates.py`, `slot_fill.py`,
+and `nodes.py` respectively for the same import-cycle and blast-radius
+reasons (PR #143-145) — `nodes.py` specifically kept a full re-export façade
+so `graph.py` and every existing caller needed zero changes.
+
+**Explicitly deferred, disclosed rather than silently dropped:**
+`team_candidates.py` (~2383 LOC), `slot_fill.py` (~2249 LOC), and
+`role_compendium_setup.py` (~3312 LOC, itself now a large single module)
+remain unsplit — no further decomposition planned until a real "explore"
+pass confirms a clean seam exists, matching the same discipline already
+applied here (split along real, existing boundaries, not an imposed
+structure). `lookup_live_build`/`fetch_live_build` (PR16 in the original
+plan) has real ADR sign-off but is blocked on a separate, unresolved
+featured-set mechanism design question, not implemented.
+
+**Status:** Implemented and merged (PR #132-138, #140, #142-148; #139
+abandoned/unmerged, its work absorbed into #140). Verified directly: full
+suite 1379 passed, 12 skipped (environment-only skips), matching the
+claimed baseline at every checked stack tip.
