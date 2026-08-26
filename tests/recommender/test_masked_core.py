@@ -2,27 +2,50 @@
 
 from __future__ import annotations
 
+import os
 from contextlib import ExitStack
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import patch
 
-from recommender.condition_resilience import provided_conditions, team_field_states
-from recommender.nodes import classify_pending, initialize
+import pytest
+
+from recommender.anchor_roles import resolve_anchor_build
+from recommender.condition_resilience import (
+    assess_condition_resilience,
+    provided_conditions,
+    team_field_states,
+)
+from recommender.nodes import _compute_team_review, classify_pending, discover_multi_locked, initialize
 from recommender.present_text import format_turn
 from recommender.slot_fill import AnnotatedCandidate, CoreSlotConflict
 from recommender.state import Attr, CandidateEvidence, Slot, empty_slot
 from recommender.team_candidates import (
     MaskedCorePackage,
+    annotate_composition_impact,
+    build_team_threat_objective,
     collect_locked_anchor_contexts,
+    detect_core_resource_conflicts,
     discover_masked_core_package,
     gather_masked_core_packages,
+    independently_strong_category_a,
     mega_ceiling_notices,
+    merge_multi_locked_candidates,
     remaining_open_after_place,
     should_try_masked_core,
     _search_gap_fill,
 )
 from recommender.teammate_types import TeammateEvidence, TeammateQueryResult
-from recommender.teammates import pairwise_teammate_lift
+from recommender.teammates import pairwise_teammate_lift, query_shared_teammates
+from recommender.threat_counters import query_candidates_for_threats
+from recommender.usage_data import lineage_ids, to_id
+
+REG = "champions-reg-mb"
+
+pytestmark_live = pytest.mark.skipif(
+    os.environ.get("CALC_LIVE") != "1",
+    reason="needs live calc service (CALC_LIVE=1)",
+)
 
 
 def _locked(
@@ -128,6 +151,77 @@ def _four_locked_draft() -> list[Slot]:
         empty_slot(),
         empty_slot(),
     ]
+
+
+def _locked_from_species(species: str, *, role: str = "bulky_attacker") -> Slot:
+    build = resolve_anchor_build(species, regulation=REG)
+    return Slot(
+        role=Attr(role, locked=True),
+        species=Attr(build.species or species, locked=True),
+        ability=Attr(build.ability or "", locked=True),
+        item=Attr(build.item or "", locked=True),
+        moveset=Attr(list(build.moves or ()), locked=True),
+        spread=Attr(dict(build.spread or {}), locked=True),
+        nature=Attr(build.nature or "Serious", locked=True),
+    )
+
+
+def _sun_core_sequential_draft() -> list[Slot]:
+    """Transcript A: 4 locks in order, filling slot 5 (index 4)."""
+    return [
+        _locked_from_species("Archaludon", role="bulky_special_attacker"),
+        _locked_from_species("Incineroar", role="support"),
+        _locked_from_species("Amoonguss", role="support"),
+        _locked_from_species("Charizard-Mega-Y", role="sun_setter"),
+        empty_slot(),
+        empty_slot(),
+    ]
+
+
+def _run_sequential_annotation_pipeline(state: dict[str, Any]):
+    draft = state["team_draft"]
+    contexts = collect_locked_anchor_contexts(state)
+    resilience = assess_condition_resilience(contexts)
+    locked_species = [
+        str(slot.species.value)
+        for slot in draft
+        if slot.species.value and slot.species.locked
+    ]
+    shared = query_shared_teammates(locked_species, state["regulation_mod"])
+    review = _compute_team_review(state, {"configurable": {"thread_id": "masked-core-test"}})
+    assert review.status != "unavailable", review.error
+    objective = build_team_threat_objective(review)
+    excluded = {lineage for sp in locked_species for lineage in lineage_ids(sp)}
+    threat_discovery = query_candidates_for_threats(
+        objective,
+        available_pool=[],
+        ownership_mode="off",
+        excluded_species=excluded,
+        locked_contexts=contexts,
+    )
+    assert threat_discovery.status == "available", threat_discovery.error
+    merged = merge_multi_locked_candidates(
+        state,
+        contexts,
+        threat_discovery.candidates,
+        shared,
+        ownership_mode="off",
+        owned_species=frozenset(),
+        condition_resilience=resilience,
+    )
+    candidates = annotate_composition_impact(
+        merged,
+        state,
+        locked_anchors=contexts,
+        condition_resilience=resilience,
+        objective=objective,
+    )
+    return {
+        "contexts": contexts,
+        "candidates": candidates,
+        "objective": objective,
+        "resilience": resilience,
+    }
 
 
 def _gap_fill_patches(fill: AnnotatedCandidate):
@@ -508,3 +602,115 @@ def test_preference_cleared_on_take_package():
     )
     assert result.get("team_completion_preference") is None
     assert result["turn_intent"] == "slot_candidate_selected"
+
+
+def test_detect_core_resource_conflicts_helper():
+    draft = _four_locked_draft()
+    contexts = collect_locked_anchor_contexts(_state(draft))
+    assert detect_core_resource_conflicts(contexts[:3], 4) is False
+    assert detect_core_resource_conflicts(contexts, 4) is True
+    assert detect_core_resource_conflicts(contexts, None) is False
+
+
+def test_annotate_splits_conflicts_on_sequential_bench_slot():
+    state = _state(_sun_core_sequential_draft())
+    pipe = _run_sequential_annotation_pipeline(state)
+    sw = next(
+        (c for c in pipe["candidates"] if to_id(c.species) == "swampertmega"),
+        None,
+    )
+    assert sw is not None, "Swampert-Mega expected in threat pool"
+    assert sw.wastes_core_slot is False
+    assert len(sw.core_slot_conflicts) > 0
+
+
+def test_should_try_true_sequential_four_lock_conflict_candidate():
+    state = _state(_sun_core_sequential_draft())
+    pipe = _run_sequential_annotation_pipeline(state)
+    pool = pipe["candidates"]
+    contexts = pipe["contexts"]
+    trigger = next(
+        (
+            c
+            for c in pool
+            if c.core_slot_conflicts
+            and independently_strong_category_a(c, pool, contexts)
+        ),
+        None,
+    )
+    assert trigger is not None, "expected A-top-3 candidate with core_slot_conflicts"
+    assert trigger.wastes_core_slot is False
+    assert should_try_masked_core(trigger, pool, state, contexts) is True
+
+
+@pytestmark_live
+def test_discover_multi_locked_core_resolution_sequential_sun_core():
+    state = _state(
+        _sun_core_sequential_draft(),
+        team_completion_preference="balanced",
+    )
+    result = discover_multi_locked(state, {"configurable": {"thread_id": "masked-e2e"}})
+    pending = result.get("pending_presentation") or {}
+    assert pending.get("kind") == "core_resolution"
+    options = [
+        o
+        for o in pending.get("resolution_options") or []
+        if o.get("id") != "keep_core"
+    ]
+    assert options
+    assert any(o.get("masked_slot_indices") for o in options)
+
+
+def test_three_locked_core_slot_stays_demote_only():
+    draft = [
+        _locked_from_species("Charizard-Mega-Y", role="sun_setter"),
+        _locked_from_species("Archaludon", role="bulky_special_attacker"),
+        _locked_from_species("Incineroar", role="support"),
+        empty_slot(),
+        empty_slot(),
+        empty_slot(),
+    ]
+    state = _state(draft)
+    pipe = _run_sequential_annotation_pipeline(state)
+    sw = next(
+        (c for c in pipe["candidates"] if to_id(c.species) == "swampertmega"),
+        None,
+    )
+    assert sw is not None
+    assert sw.wastes_core_slot is True
+    assert sw.core_slot_conflicts == ()
+    assert should_try_masked_core(sw, pipe["candidates"], state, pipe["contexts"]) is False
+
+
+def test_bench_subset_and_conflicts_coexist_at_slot_five():
+    state = _state(_sun_core_sequential_draft())
+    pipe = _run_sequential_annotation_pipeline(state)
+    from recommender.team_candidates import candidate_has_unmet_needed_weather_dependency
+    from recommender.anchor_roles import classify_anchor_role
+
+    target = None
+    for c in pipe["candidates"]:
+        if not c.core_slot_conflicts:
+            continue
+        build = resolve_anchor_build(c.species, regulation=REG)
+        decision = classify_anchor_role(build)
+        if candidate_has_unmet_needed_weather_dependency(decision, pipe["contexts"]):
+            continue
+        target = c
+        break
+    assert target is not None
+
+    with patch(
+        "recommender.coverage.candidate_improves_best_bring",
+        return_value=True,
+    ):
+        annotated = annotate_composition_impact(
+            [target],
+            state,
+            locked_anchors=pipe["contexts"],
+            condition_resilience=pipe["resilience"],
+            objective=pipe["objective"],
+        )
+    row = annotated[0]
+    assert row.core_slot_conflicts
+    assert row.improves_bench_subset is True
