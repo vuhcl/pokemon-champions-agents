@@ -168,10 +168,10 @@ class AnnotatedCandidate:
     # actually fire this battle (Swampert-Mega's real Rain-abuse value on
     # a team already committed to Sun via a locked Charizard-Mega-Y; a
     # second mega-stone holder when only one can Mega Evolve per battle).
-    # Deliberately does NOT apply to bench slots (5-6) -- a second weather
-    # or mega is legitimate alternate-core flexibility there, a real
-    # pattern this project has separately confirmed, not something to
-    # discourage. See team_candidates.candidate_wastes_core_slot.
+    # Index-based rank demotion only -- bench slots (slot_index >=
+    # picked_team_size) keep wastes_core_slot=False even when
+    # core_slot_conflicts is populated for masked-core discovery.
+    # See team_candidates.candidate_wastes_core_slot.
     wastes_core_slot: bool = False
     # Confirmed live (2026-08-21/22, design discussion): for bench slots
     # (slot_index >= picked_team_size), "does this add more stackable
@@ -205,6 +205,9 @@ class AnnotatedCandidate:
     # real but soft downside, not a disqualifying one. See
     # condition_resilience.candidate_dependency_reliability.
     dependency_reliability: float = 1.0
+    # Populated once len(state_locked) >= picked_team_size (core complete),
+    # independent of wastes_core_slot / index-based rank demotion. Drives
+    # masked alternate-core discovery (should_try_masked_core, mask indices).
     core_slot_conflicts: tuple[CoreSlotConflict, ...] = ()
 
 
