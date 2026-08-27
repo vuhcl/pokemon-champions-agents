@@ -2229,6 +2229,45 @@ def _calc_agrees(
     )
 
 
+def _gap_fill_mask_extra(
+    fill: AnnotatedCandidate,
+    mask: frozenset[int],
+    locked: Sequence[LockedAnchorContext],
+    remaining: int,
+    used_fills: int,
+) -> frozenset[int]:
+    extra = {
+        row.locked_slot_index
+        for row in fill.core_slot_conflicts
+        if row.locked_slot_index not in mask
+    }
+    if remaining - used_fills <= 0:
+        extra = {
+            index
+            for index in extra
+            if not _is_sole_needed_provider(index, locked, mask)
+        }
+    return frozenset(extra - mask)
+
+
+def _fill_viable_for_package(
+    fill: AnnotatedCandidate,
+    mask: frozenset[int],
+    locked: Sequence[LockedAnchorContext],
+    remaining: int,
+    used_fills_before: int,
+) -> bool:
+    used_after = used_fills_before + 1
+    extra = _gap_fill_mask_extra(fill, mask, locked, remaining, used_after)
+    if not extra:
+        return True
+    if used_after >= remaining:
+        return False
+    if len(mask | extra) > remaining:
+        return False
+    return True
+
+
 def _search_gap_fill(
     candidate: AnnotatedCandidate,
     state: RecommenderState,
@@ -2236,6 +2275,8 @@ def _search_gap_fill(
     mask: frozenset[int],
     objective: Sequence[object],
     candidate_index: int,
+    *,
+    used_fills_before: int = 0,
 ) -> AnnotatedCandidate | None:
     from recommender.condition_resilience import assess_condition_resilience
     from recommender.teammates import pairwise_teammate_lift, query_shared_teammates
@@ -2311,11 +2352,16 @@ def _search_gap_fill(
     # discover_masked_core_package requires len(opens) >= 2, so fill_index is
     # always set on the only production call path.
     fill_index = opens[1] if len(opens) > 1 else None
+    remaining = remaining_open_after_place(state)
     for row in ranked:
         if not _has_usage_backed(row):
             continue
         if fill_index is not None and not _calc_agrees(
             candidate, row, state, working, objective, fill_index, candidate_index
+        ):
+            continue
+        if not _fill_viable_for_package(
+            row, mask, locked, remaining, used_fills_before
         ):
             continue
         return row
@@ -2345,23 +2391,20 @@ def discover_masked_core_package(
     fill: AnnotatedCandidate | None = None
     while True:
         fill = _search_gap_fill(
-            candidate, state, locked, frozenset(mask), objective, opens[0]
+            candidate,
+            state,
+            locked,
+            frozenset(mask),
+            objective,
+            opens[0],
+            used_fills_before=used_fills,
         )
         if fill is None:
             return None
         used_fills += 1
-        extra = {
-            row.locked_slot_index
-            for row in fill.core_slot_conflicts
-            if row.locked_slot_index not in mask
-        }
-        if remaining - used_fills <= 0:
-            extra = {
-                index
-                for index in extra
-                if not _is_sole_needed_provider(index, locked, frozenset(mask))
-            }
-        extra -= mask
+        extra = _gap_fill_mask_extra(
+            fill, frozenset(mask), locked, remaining, used_fills
+        )
         if not extra:
             break
         if used_fills >= remaining:

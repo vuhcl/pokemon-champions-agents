@@ -245,9 +245,38 @@ def _gap_fill_patches(fill: AnnotatedCandidate):
     )
 
 
+def _gap_fill_patches_multi(*fills: AnnotatedCandidate):
+    return (
+        patch(
+            "recommender.team_candidates.merge_multi_locked_candidates",
+            return_value=list(fills),
+        ),
+        patch(
+            "recommender.team_candidates.annotate_composition_impact",
+            side_effect=lambda rows, *args, **kwargs: list(rows),
+        ),
+        patch(
+            "recommender.team_candidates.rank_multi_locked_by_category",
+            side_effect=lambda rows, *args: list(rows),
+        ),
+        patch(
+            "recommender.threat_counters.query_candidates_for_threats",
+            return_value=SimpleNamespace(status="available", candidates=()),
+        ),
+        patch("recommender.team_candidates._calc_agrees", return_value=True),
+    )
+
+
 def _run_gap_fill(*args, fill: AnnotatedCandidate, **kwargs):
     with ExitStack() as stack:
         for item in _gap_fill_patches(fill):
+            stack.enter_context(item)
+        return _search_gap_fill(*args, **kwargs)
+
+
+def _run_gap_fill_multi(*args, fills: tuple[AnnotatedCandidate, ...], **kwargs):
+    with ExitStack() as stack:
+        for item in _gap_fill_patches_multi(*fills):
             stack.enter_context(item)
         return _search_gap_fill(*args, **kwargs)
 
@@ -368,6 +397,58 @@ def test_search_gap_fill_rejects_empty_objective():
         fill=fill,
     )
     assert result is None
+
+
+def test_search_gap_fill_skips_budget_exhausting_first_pick():
+    draft = _four_locked_draft()
+    state = _state(draft)
+    locked = collect_locked_anchor_contexts(state)
+    candidate = _candidate("Swampert-Mega", conflicts=(_conflict(slot=3),))
+    conflicting = _candidate(
+        "Aerodactyl-Mega",
+        wastes=False,
+        conflicts=(
+            CoreSlotConflict("mega", 4, "Swampert-Mega", "swampert"),
+        ),
+    )
+    clean = _fill("Primarina")
+    result = _run_gap_fill_multi(
+        candidate,
+        state,
+        locked,
+        frozenset({3}),
+        (_objective_row(),),
+        4,
+        fills=(conflicting, clean),
+    )
+    assert result is not None
+    assert result.species == "Primarina"
+
+
+def test_discover_masked_core_package_skips_budget_exhausting_fill():
+    draft = _four_locked_draft()
+    state = _state(draft)
+    locked = collect_locked_anchor_contexts(state)
+    candidate = _candidate("Swampert-Mega", conflicts=(_conflict(slot=3),))
+    conflicting = _candidate(
+        "Aerodactyl-Mega",
+        wastes=False,
+        conflicts=(
+            CoreSlotConflict("mega", 4, "Swampert-Mega", "swampert"),
+        ),
+    )
+    clean = _fill("Primarina")
+    with ExitStack() as stack:
+        for item in _gap_fill_patches_multi(conflicting, clean):
+            stack.enter_context(item)
+        package = discover_masked_core_package(
+            candidate,
+            state,
+            locked,
+            objective=(_objective_row(),),
+        )
+    assert package is not None
+    assert package.fill.species == "Primarina"
 
 
 def test_should_try_false_when_working_too_small():
