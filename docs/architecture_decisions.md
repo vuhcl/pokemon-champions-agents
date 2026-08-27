@@ -2312,6 +2312,116 @@ live cost of still-deferred canonical name/form resolution, not fixed here.
 
 ---
 
+### ADR-015 Amendment 2026-08-26a — Explicit "no item" representation, distinct from unspecified
+
+**Decision:** `item`'s type changes from `str` to `str | None` across the pipeline
+(`recommend_build`, `find_set_matching`, `get_resolved_build`, `anchor_roles.resolve_anchor_build`,
+`propose._refine_defaults`). `None` means unspecified — no item signal received yet.
+`""` (empty string) means explicitly no held item — a real, deliberate build choice (e.g.
+itemless Acrobatics Talonflame, or avoiding Knock Off/Poltergeist item-loss punishment),
+not missing data. Both `anchor_roles.py` gates and `propose.py`'s cache-lookup gate had the
+same latent bug — a truthiness check (`and values["item"]`) that treated `None` and `""`
+identically, silently skipping tier-1 exact-match and cache lookups for any itemless request
+regardless of intent. Both fixed to `is not None`.
+
+At the intake/parsing layer (`turn_intent.py`): a new `_field_value_present` helper
+special-cases the `item` field so an explicit `""` is recognized as present (existing
+`_populated` stays untouched — it's deliberately truthy for other fields, per a documented
+prior fix for model-inconsistent empty-dict/list handling on unrelated structured fields,
+and this work correctly avoided disturbing that). A new phrase detector
+(`_extract_explicit_itemless`) recognizes explicit signals ("no item," "itemless," "without
+item," "holding nothing," "no held item") and maps them to `field="item", value_text=""`.
+A real item name in the same message always wins over an itemless phrase. Silence never
+implies itemlessness — absence of any item mention defaults to `None`, only an explicit
+signal produces `""`.
+
+Cache-write safety: `get_resolved_build` and the cache-write path in `recommend_build` both
+short-circuit on `item is None`, preventing `to_id(None)` (which raises `AttributeError`,
+confirmed directly against `recommender/ids.py`) from ever being reached.
+
+**Why:** This was a real, pre-existing gap surfaced while designing VGCPastes exact-match
+coverage (Amendment 2026-08-26b) — the corpus contains genuine itemless builds (3 members,
+confirmed all itemless Acrobatics Talonflame) that the pipeline couldn't represent as a
+distinct request from "item not yet specified," meaning those builds could never be matched
+even once corpus coverage existed.
+
+**Status:** Implemented and verified. Branch `feature/explicit-itemless-representation`,
+merged via PR #150. 176 passed, 1 skipped on the named validation suite; full suite green
+(1389 passed, 13 skipped) once cross-checked against the CI calc-service fix (Amendment
+below, PR #152). One implementation improvement beyond the original plan: `recommend.py`'s
+`b_item = built.get("item") or item` was also corrected to `if "item" in built: b_item =
+built["item"]`, since the `or` form would have silently discarded a real explicit `""` via
+the same class of truthiness bug being fixed elsewhere — caught and fixed proactively, not
+spelled out in the original plan.
+
+**Explicitly out of scope, not touched:** `lookup_live_build`'s stub status;
+`ProvisionalSlot.item`'s own `str` type (provisional slots keep using `""`, not `None`);
+a pre-existing, unrelated `str(None)` bug in `slot_fill._provisional_from_refined`.
+
+---
+
+### ADR-015 Amendment 2026-08-26b — VGCPastes exact-match priority over synthetic featured_sets
+
+**Decision:** `find_set_matching` (tier-1 exact moves+item match) now scans the VGCPastes
+corpus (`data/team-composition/champions-reg-mb.vgcpastes-builds.v1.json` — 712 real 6-mon
+teams, resolved 2026-08-12, already wired into `build_alternatives.py`'s sibling generator)
+**before** the legacy synthetic `featured_sets` row, and a VGCPastes match always wins when
+both would match the same key — real joint player data outranks a mechanically-derived
+top-4-moves/top-item marginal, even on the same combo. Return type changed from
+`PokemonSet | None` to a ranked list (`SetMatchResult`): empty = miss, first element =
+primary, remainder = alternatives. Each entry carries `source` (`"vgcpastes"` | `"featured"`),
+determining both EV-strip behavior (`"featured"` hits still strip EVs — still a marginal;
+`"vgcpastes"` hits keep real evs/nature) and whether alternatives can exist at all (only
+`"vgcpastes"` hits can have more than one entry).
+
+When multiple VGCPastes rows match the same (species, moves, item) key with different
+(nature, spread): primary = highest-occurrence-count bucket; ties broken by earliest parsed
+`date_shared` (real date parsing, `"%d %b %Y"` — corpus has 56 distinct date string formats,
+confirmed unsuitable for lexicographic sort). Unparseable dates lose tie-break priority
+(sorted last via an internal sentinel) without crashing or surfacing a bogus value.
+Zero-EV corpus rows (52 teams, moves+item only) still count as a match — spread/nature
+omitted from the built set, falling through to tier-2 (`select_usage_spread`) for EVs while
+keeping the matched moves/item/ability. `RecommendResult` gained `match_alternatives`
+(reusing `state.py`'s existing `"vgcpastes"` provenance literal, no new taxonomy).
+
+Mega/form handling reuses `reconcile._item_mega_forme`'s exact logic (snapshot-existence
+check and Meowstic special case intact), extracted to a new cycle-free shared module
+(`recommender/species_forms.py`) rather than duplicated — the direct import would have
+created a real cycle (`usage_data → reconcile → recommend → usage_data`, since
+`reconcile.py` imports `infer_role` from `recommend.py`). An initial implementation instead
+shipped a thinner, unvalidated string-suffix heuristic; caught in review (untested branch,
+weaker than the real mechanism) and corrected before merge.
+
+**Coverage, verified directly (not estimated):** 186 of 316 legal species have VGCPastes
+coverage; 130 have none. Cross-checked those 130 against a larger 16,638-team tournament
+corpus (`champions-reg-mb.pikalytics-team-usage.v1.json`) — only 11 have zero real tournament
+presence; the other 119 (including Mega Venusaur at 970 uses, Mega Gengar at 743) are real,
+played species the smaller VGCPastes sheet just doesn't happen to have full builds for.
+That gap is disclosed, not silently closed — Pikalytics' team-usage data has species
+co-occurrence but no spread/nature, so it can't supply what's missing.
+
+**Alternatives considered — a dedicated live full-build fetcher (the original PR16 shape).**
+Rejected for now: tracing the actual miss path in `recommend.py` shows a tier-1 miss already
+falls through to (a) assembly from the user's own requested moves+item, then (b) tier-2's
+`select_usage_spread`, which already has its own approved live-fetch exception (ADR-014
+Amendment 2026-08-08a, `fetch_live_spreads`) for species with no offline usage row —
+structurally the same problem as the 119-species gap. Building new live infrastructure for a
+gap that already degrades gracefully through an existing, approved path would be speculative
+scope. **Deferred, not abandoned** — revisit if real usage shows the fallback (user's exact
+move/item choice + tier-2 spread) is unsatisfying in practice.
+
+**Status:** Implemented and verified. Branch `feature/vgcpastes-priority-match`, merged via
+PR #151. Named validation suite: 69 passed. Full suite green (1405 passed, 13 skipped) once
+rebased onto `main` including both Amendment 2026-08-26a and the CI calc-service fix
+(PR #152). New tests cover: VGCPastes-wins-over-featured on a shared key, featured fallback
+when no VGCPastes match, multi-spread ranking with alternatives, zero-EV match falling
+through to tier-2, itemless corpus members matching an explicit empty item, unspecified item
+returning an empty list, base-species-plus-mega-stone-item matching, and both the equal-count
+and unparseable-date tie-break cases specifically (the last two added after review flagged
+the original multi-spread test only exercised count-based ranking, never an actual tie).
+
+---
+
 ## ADR-016: Resolved-build cache — tier-1 accumulates verified knowledge over time
 
 **Decision:** Maintain a persistent, shareable local store of resolved builds — species +

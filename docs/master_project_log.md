@@ -4924,6 +4924,56 @@ Cursor is available; the run of direct-implementation PRs from Claude
 (#108 through #119) reflected Cursor's temporary unavailability across
 this stretch, disclosed at each step per standing practice.
 
+## 2026-08-26 — CI fix: local calc service never started in GitHub Actions
+
+**What was found:** `.github/workflows/tests.yml` ran `uv sync` + `uv run pytest` with no
+step building or starting the local `@smogon/calc` HTTP service. Any test exercising the real
+pipeline (e.g. the masked-core reachability tests from the prior session, PR #149) failed on
+CI with `calc_unavailable` / connection-refused — not because of a code regression, but
+because the service the tests depend on was never running. This predated today's session
+entirely; it surfaced because it was checked directly rather than assumed while verifying
+Thread B's CI run.
+
+**Fix:** Added a step starting the local calc service (`npm ci && npm start &`) and polling
+its real `/health` endpoint (`GET /health` → `{"status":"ok"}` on `127.0.0.1:4173`,
+confirmed against `services/calc/server.ts`) before running pytest — failing the job hard if
+the service dies early or never becomes healthy within 30s, rather than masking a real
+startup failure behind a fixed sleep. Does not set `CALC_LIVE=1`; the five existing
+CALC_LIVE-gated live tests stay skipped as before. Branch `fix/ci-start-calc-service`,
+merged via PR #152.
+
+**Verified directly** (not just trusted from the report): reproduced the exact start/poll
+sequence locally — service healthy on attempt 3 (~1.5s) — then ran the full suite with it
+live: 1384 passed, 13 skipped, matching the expected gated-skip count with zero unexplained
+failures.
+
+## 2026-08-26 — Session summary: masked-core reachability, VGCPastes tier-1 priority,
+explicit itemless representation, CI calc-service fix
+
+Four units shipped and independently verified this session, in order: (1) masked
+alternate-core discovery reachability fix (ADR-038 Amendment 2026-08-26a, PR #149) — traced
+via two live-transcript discovery passes to a structural gating mismatch between
+`is_core_slot` (index-based) and ADR-038's "4 real locks" trigger condition; (2) explicit
+itemless representation (ADR-015 Amendment 2026-08-26a, PR #150); (3) VGCPastes exact-match
+priority (ADR-015 Amendment 2026-08-26b, PR #151); (4) CI calc-service fix (above, PR #152).
+
+**PR16 (`lookup_live_build`) status: deferred, not resolved as originally scoped.** The
+original three-shape framing (offline snapshot / dedicated live fetch / VGCPastes corpus)
+turned out to be a false choice once the VGCPastes corpus was found to already exist,
+already vetted, and already wired in elsewhere — reusing it for tier-1 closed most of the
+real gap without any new live infrastructure. The residual 119-species gap (real tournament
+usage, no VGCPastes build coverage) is disclosed and left to degrade through the existing
+tier-1-assembly-plus-tier-2-live-spread path rather than justify new speculative scope.
+
+**Process note:** one plan deviation caught in review this session — an implementation
+substituted a thinner, unvalidated heuristic for a mega-form check the plan explicitly named
+an existing, tested function to reuse (`reconcile._item_mega_forme`), for a real reason (an
+otherwise-genuine import cycle) that wasn't surfaced until asked. Corrected before merge by
+extracting the real function to a new cycle-free module (`recommender/species_forms.py`)
+rather than accepting the weaker substitute. Worth remembering as a recurring shape: a
+legitimate technical constraint is a reason to solve the constraint, not license to quietly
+ship a weaker mechanism in its place.
+
 ---
 
 ## TOOLS & RESOURCES
