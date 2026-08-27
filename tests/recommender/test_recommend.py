@@ -252,3 +252,43 @@ def test_recommend_live_still_requires_full_budget():
     assert 'assert spread_sum(built.get("evs")) == SP_BUDGET' in src
     # Offline paths that complete spreads still hit the budget (see missing/partial tests).
     assert spread_sum({"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32}) == SP_BUDGET
+
+
+def test_unspecified_item_skips_tier1_and_cache():
+    moves = ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"]
+    with (
+        patch("recommender.recommend.get_resolved_build") as cached,
+        patch("recommender.recommend.find_set_matching") as matched,
+        patch("recommender.recommend.lookup_live_build", return_value=None),
+        patch("recommender.recommend.select_usage_spread", return_value=None),
+        patch(
+            "recommender.recommend.species_usage",
+            return_value={"common_abilities": [{"name": "Rough Skin"}], "top_spreads": []},
+        ),
+        patch("recommender.recommend.put_resolved_build") as put,
+    ):
+        out = recommend_build("Garchomp", moves, None, write_cache=True)
+    assert out["ok"]
+    cached.assert_not_called()
+    matched.assert_not_called()
+    put.assert_not_called()
+    assert out["set"].get("item") is None
+
+
+def test_explicit_empty_item_attempts_tier1():
+    moves = ["Brave Bird", "Flare Blitz", "Tailwind", "Protect"]
+    with (
+        patch("recommender.recommend.get_resolved_build", return_value=None),
+        patch("recommender.recommend.find_set_matching", return_value=None) as matched,
+        patch("recommender.recommend.lookup_live_build", return_value=None),
+        patch("recommender.recommend.select_usage_spread", return_value=None),
+        patch(
+            "recommender.recommend.species_usage",
+            return_value={"common_abilities": [{"name": "Gale Wings"}], "top_spreads": []},
+        ),
+    ):
+        out = recommend_build("Talonflame", moves, "", write_cache=False)
+    assert out["ok"]
+    matched.assert_called_once()
+    assert matched.call_args.args[2] == ""
+    assert out["set"].get("item") == ""

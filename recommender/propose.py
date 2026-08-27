@@ -389,7 +389,7 @@ def _refine_defaults(
 
     # 4. Spread once moves+item exist
     reason = ReasonRef(kind="tier2_heuristic", ref=species)
-    if (need_moves or need_item or need_spread) and moves and item:
+    if (need_moves or need_item or need_spread) and moves and item is not None:
         cached = get_resolved_build(species, moves, item, regulation)
         if cached and need_spread and spread is None:
             if not (
