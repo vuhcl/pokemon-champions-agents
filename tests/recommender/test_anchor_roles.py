@@ -148,7 +148,7 @@ def _mock_no_usage(monkeypatch):
         "recommender.anchor_roles.featured_or_common_set", lambda *args, **kwargs: None
     )
     monkeypatch.setattr(
-        "recommender.anchor_roles.find_set_matching", lambda *args, **kwargs: None
+        "recommender.anchor_roles.find_set_matching", lambda *args, **kwargs: []
     )
     monkeypatch.setattr(
         "recommender.anchor_roles.get_resolved_build", lambda *args, **kwargs: None
@@ -393,7 +393,7 @@ def test_explicit_empty_item_reaches_find_set_matching():
         item=Attr("", locked=True),
     )
     with patch(
-        "recommender.anchor_roles.find_set_matching", return_value=None
+        "recommender.anchor_roles.find_set_matching", return_value=[]
     ) as mocked:
         resolve_anchor_build(slot)
     mocked.assert_called_once()
@@ -411,7 +411,7 @@ def test_unspecified_item_skips_find_set_matching():
         item=Attr(None),
     )
     with patch(
-        "recommender.anchor_roles.find_set_matching", return_value=None
+        "recommender.anchor_roles.find_set_matching", return_value=[]
     ) as mocked:
         resolve_anchor_build(slot)
     mocked.assert_not_called()
