@@ -25,7 +25,8 @@ from recommender.usage_data import (
     TEAM_THREAT_N,
     SLOT_THREAT_N,
     featured_or_common_set,
-    ingame_species_map,
+    ingame_excluded_ids,
+    ingame_ladder_species_map,
     lineage_ids,
     set_from_ingame,
     set_from_showdown,
@@ -111,6 +112,7 @@ def _expand_ladder_species(
     *,
     regulation: str,
     sd: dict[str, Any],
+    ingame_builds: bool = True,
 ) -> list[ThreatCandidate]:
     ladder_name = entry.get("name") or sid
     rank = entry.get("usage_rank")
@@ -187,6 +189,8 @@ def _expand_ladder_species(
                     build_source="showdown_form",
                 )
             ]
+        if not ingame_builds:
+            return []
         poke = set_from_ingame(sid, regulation=regulation)
         if not poke:
             return []
@@ -202,6 +206,8 @@ def _expand_ladder_species(
             )
         ]
 
+    if not ingame_builds:
+        return []
     poke = set_from_ingame(sid, regulation=regulation)
     if not poke:
         return []
@@ -279,12 +285,24 @@ def get_relevant_threats(
     if n is None:
         n = SLOT_THREAT_N if relevance_filter is not None else TEAM_THREAT_N
 
-    ig = ingame_species_map(regulation)
+    ladder = ingame_ladder_species_map(regulation)
+    excluded = ingame_excluded_ids()
     sd = showdown_species_map(regulation)
     # Expand+filter first so empty survivors do not consume n; rank ordinal ascending.
     survivors: list[tuple[str, dict[str, Any], list[ThreatCandidate]]] = []
-    for sid, entry in ig.items():
-        cands = _expand_ladder_species(sid, entry, regulation=regulation, sd=sd)
+    for sid, entry in ladder.items():
+        ingame_builds = sid not in excluded
+        build_entry = entry if ingame_builds else {
+            "name": entry.get("name") or sid,
+            "usage_rank": entry.get("usage_rank"),
+        }
+        cands = _expand_ladder_species(
+            sid,
+            build_entry,
+            regulation=regulation,
+            sd=sd,
+            ingame_builds=ingame_builds,
+        )
         if relevance_filter is not None:
             cands = [c for c in cands if relevance_filter(c.spec)]
         if cands:

@@ -1,7 +1,7 @@
 {
   "meta": {
     "ingame_ladder_n": 158,
-    "ingame_excluded_mega_capable_n": 73,
+    "ingame_excluded_mega_capable_n": 77,
     "ingame_exclusion_policy": "mega_capable_lineages",
     "schema_version": 3,
     "regulation": "champions-reg-mb",
@@ -30,7 +30,9 @@
       "championsbattledata",
       "smogon-chaos"
     ],
-    "extracted_at": "2026-08-27T18:05:05Z"
+    "extracted_at": "2026-08-27T18:05:05Z",
+    "ingame_ranked_n": 236,
+    "ingame_fetch_failed_n": 0
   },
   "ingame_doubles": {
     "species": {
@@ -31806,6 +31808,468 @@
         "featured_sets": [],
         "source": "championsbattledata",
         "usage_rank": 236
+      },
+      "garchomp": {
+        "id": "garchomp",
+        "name": "Garchomp",
+        "usage_rank": 2,
+        "ladder_rank_only": true
+      },
+      "staraptor": {
+        "id": "staraptor",
+        "name": "Staraptor",
+        "usage_rank": 9,
+        "ladder_rank_only": true
+      },
+      "charizard": {
+        "id": "charizard",
+        "name": "Charizard",
+        "usage_rank": 10,
+        "ladder_rank_only": true
+      },
+      "raichu": {
+        "id": "raichu",
+        "name": "Raichu",
+        "usage_rank": 12,
+        "ladder_rank_only": true
+      },
+      "tyranitar": {
+        "id": "tyranitar",
+        "name": "Tyranitar",
+        "usage_rank": 13,
+        "ladder_rank_only": true
+      },
+      "aerodactyl": {
+        "id": "aerodactyl",
+        "name": "Aerodactyl",
+        "usage_rank": 17,
+        "ladder_rank_only": true
+      },
+      "venusaur": {
+        "id": "venusaur",
+        "name": "Venusaur",
+        "usage_rank": 18,
+        "ladder_rank_only": true
+      },
+      "froslass": {
+        "id": "froslass",
+        "name": "Froslass",
+        "usage_rank": 19,
+        "ladder_rank_only": true
+      },
+      "delphox": {
+        "id": "delphox",
+        "name": "Delphox",
+        "usage_rank": 20,
+        "ladder_rank_only": true
+      },
+      "swampert": {
+        "id": "swampert",
+        "name": "Swampert",
+        "usage_rank": 22,
+        "ladder_rank_only": true
+      },
+      "dragonite": {
+        "id": "dragonite",
+        "name": "Dragonite",
+        "usage_rank": 23,
+        "ladder_rank_only": true
+      },
+      "blastoise": {
+        "id": "blastoise",
+        "name": "Blastoise",
+        "usage_rank": 26,
+        "ladder_rank_only": true
+      },
+      "floette": {
+        "id": "floette",
+        "name": "Floette",
+        "usage_rank": 28,
+        "ladder_rank_only": true
+      },
+      "sableye": {
+        "id": "sableye",
+        "name": "Sableye",
+        "usage_rank": 30,
+        "ladder_rank_only": true
+      },
+      "excadrill": {
+        "id": "excadrill",
+        "name": "Excadrill",
+        "usage_rank": 31,
+        "ladder_rank_only": true
+      },
+      "glimmora": {
+        "id": "glimmora",
+        "name": "Glimmora",
+        "usage_rank": 32,
+        "ladder_rank_only": true
+      },
+      "metagross": {
+        "id": "metagross",
+        "name": "Metagross",
+        "usage_rank": 34,
+        "ladder_rank_only": true
+      },
+      "gengar": {
+        "id": "gengar",
+        "name": "Gengar",
+        "usage_rank": 36,
+        "ladder_rank_only": true
+      },
+      "mawile": {
+        "id": "mawile",
+        "name": "Mawile",
+        "usage_rank": 37,
+        "ladder_rank_only": true
+      },
+      "scizor": {
+        "id": "scizor",
+        "name": "Scizor",
+        "usage_rank": 38,
+        "ladder_rank_only": true
+      },
+      "scovillain": {
+        "id": "scovillain",
+        "name": "Scovillain",
+        "usage_rank": 42,
+        "ladder_rank_only": true
+      },
+      "kangaskhan": {
+        "id": "kangaskhan",
+        "name": "Kangaskhan",
+        "usage_rank": 44,
+        "ladder_rank_only": true
+      },
+      "gardevoir": {
+        "id": "gardevoir",
+        "name": "Gardevoir",
+        "usage_rank": 48,
+        "ladder_rank_only": true
+      },
+      "blaziken": {
+        "id": "blaziken",
+        "name": "Blaziken",
+        "usage_rank": 52,
+        "ladder_rank_only": true
+      },
+      "gallade": {
+        "id": "gallade",
+        "name": "Gallade",
+        "usage_rank": 53,
+        "ladder_rank_only": true
+      },
+      "chandelure": {
+        "id": "chandelure",
+        "name": "Chandelure",
+        "usage_rank": 57,
+        "ladder_rank_only": true
+      },
+      "camerupt": {
+        "id": "camerupt",
+        "name": "Camerupt",
+        "usage_rank": 58,
+        "ladder_rank_only": true
+      },
+      "greninja": {
+        "id": "greninja",
+        "name": "Greninja",
+        "usage_rank": 60,
+        "ladder_rank_only": true
+      },
+      "gyarados": {
+        "id": "gyarados",
+        "name": "Gyarados",
+        "usage_rank": 68,
+        "ladder_rank_only": true
+      },
+      "scrafty": {
+        "id": "scrafty",
+        "name": "Scrafty",
+        "usage_rank": 70,
+        "ladder_rank_only": true
+      },
+      "malamar": {
+        "id": "malamar",
+        "name": "Malamar",
+        "usage_rank": 71,
+        "ladder_rank_only": true
+      },
+      "sceptile": {
+        "id": "sceptile",
+        "name": "Sceptile",
+        "usage_rank": 72,
+        "ladder_rank_only": true
+      },
+      "clefable": {
+        "id": "clefable",
+        "name": "Clefable",
+        "usage_rank": 74,
+        "ladder_rank_only": true
+      },
+      "meganium": {
+        "id": "meganium",
+        "name": "Meganium",
+        "usage_rank": 77,
+        "ladder_rank_only": true
+      },
+      "meowstic": {
+        "id": "meowstic",
+        "name": "Meowstic",
+        "usage_rank": 79,
+        "ladder_rank_only": true
+      },
+      "drampa": {
+        "id": "drampa",
+        "name": "Drampa",
+        "usage_rank": 85,
+        "ladder_rank_only": true
+      },
+      "lucario": {
+        "id": "lucario",
+        "name": "Lucario",
+        "usage_rank": 86,
+        "ladder_rank_only": true
+      },
+      "eelektross": {
+        "id": "eelektross",
+        "name": "Eelektross",
+        "usage_rank": 87,
+        "ladder_rank_only": true
+      },
+      "pyroar": {
+        "id": "pyroar",
+        "name": "Pyroar",
+        "usage_rank": 88,
+        "ladder_rank_only": true
+      },
+      "lopunny": {
+        "id": "lopunny",
+        "name": "Lopunny",
+        "usage_rank": 94,
+        "ladder_rank_only": true
+      },
+      "ampharos": {
+        "id": "ampharos",
+        "name": "Ampharos",
+        "usage_rank": 98,
+        "ladder_rank_only": true
+      },
+      "altaria": {
+        "id": "altaria",
+        "name": "Altaria",
+        "usage_rank": 99,
+        "ladder_rank_only": true
+      },
+      "starmie": {
+        "id": "starmie",
+        "name": "Starmie",
+        "usage_rank": 101,
+        "ladder_rank_only": true
+      },
+      "audino": {
+        "id": "audino",
+        "name": "Audino",
+        "usage_rank": 103,
+        "ladder_rank_only": true
+      },
+      "alakazam": {
+        "id": "alakazam",
+        "name": "Alakazam",
+        "usage_rank": 104,
+        "ladder_rank_only": true
+      },
+      "steelix": {
+        "id": "steelix",
+        "name": "Steelix",
+        "usage_rank": 105,
+        "ladder_rank_only": true
+      },
+      "golurk": {
+        "id": "golurk",
+        "name": "Golurk",
+        "usage_rank": 106,
+        "ladder_rank_only": true
+      },
+      "abomasnow": {
+        "id": "abomasnow",
+        "name": "Abomasnow",
+        "usage_rank": 107,
+        "ladder_rank_only": true
+      },
+      "hawlucha": {
+        "id": "hawlucha",
+        "name": "Hawlucha",
+        "usage_rank": 114,
+        "ladder_rank_only": true
+      },
+      "gallademega": {
+        "id": "gallademega",
+        "name": "Gallade-Mega",
+        "usage_rank": 115,
+        "ladder_rank_only": true
+      },
+      "crabominable": {
+        "id": "crabominable",
+        "name": "Crabominable",
+        "usage_rank": 116,
+        "ladder_rank_only": true
+      },
+      "chesnaught": {
+        "id": "chesnaught",
+        "name": "Chesnaught",
+        "usage_rank": 118,
+        "ladder_rank_only": true
+      },
+      "aggron": {
+        "id": "aggron",
+        "name": "Aggron",
+        "usage_rank": 122,
+        "ladder_rank_only": true
+      },
+      "dragalge": {
+        "id": "dragalge",
+        "name": "Dragalge",
+        "usage_rank": 124,
+        "ladder_rank_only": true
+      },
+      "feraligatr": {
+        "id": "feraligatr",
+        "name": "Feraligatr",
+        "usage_rank": 126,
+        "ladder_rank_only": true
+      },
+      "houndoom": {
+        "id": "houndoom",
+        "name": "Houndoom",
+        "usage_rank": 133,
+        "ladder_rank_only": true
+      },
+      "medicham": {
+        "id": "medicham",
+        "name": "Medicham",
+        "usage_rank": 140,
+        "ladder_rank_only": true
+      },
+      "skarmory": {
+        "id": "skarmory",
+        "name": "Skarmory",
+        "usage_rank": 143,
+        "ladder_rank_only": true
+      },
+      "slowbrogalar": {
+        "id": "slowbrogalar",
+        "name": "Slowbro-Galar",
+        "usage_rank": 145,
+        "ladder_rank_only": true
+      },
+      "heracross": {
+        "id": "heracross",
+        "name": "Heracross",
+        "usage_rank": 148,
+        "ladder_rank_only": true
+      },
+      "slowbro": {
+        "id": "slowbro",
+        "name": "Slowbro",
+        "usage_rank": 149,
+        "ladder_rank_only": true
+      },
+      "scolipede": {
+        "id": "scolipede",
+        "name": "Scolipede",
+        "usage_rank": 157,
+        "ladder_rank_only": true
+      },
+      "banette": {
+        "id": "banette",
+        "name": "Banette",
+        "usage_rank": 158,
+        "ladder_rank_only": true
+      },
+      "manectric": {
+        "id": "manectric",
+        "name": "Manectric",
+        "usage_rank": 164,
+        "ladder_rank_only": true
+      },
+      "pidgeot": {
+        "id": "pidgeot",
+        "name": "Pidgeot",
+        "usage_rank": 168,
+        "ladder_rank_only": true
+      },
+      "pinsir": {
+        "id": "pinsir",
+        "name": "Pinsir",
+        "usage_rank": 169,
+        "ladder_rank_only": true
+      },
+      "chimecho": {
+        "id": "chimecho",
+        "name": "Chimecho",
+        "usage_rank": 171,
+        "ladder_rank_only": true
+      },
+      "glalie": {
+        "id": "glalie",
+        "name": "Glalie",
+        "usage_rank": 172,
+        "ladder_rank_only": true
+      },
+      "sharpedo": {
+        "id": "sharpedo",
+        "name": "Sharpedo",
+        "usage_rank": 173,
+        "ladder_rank_only": true
+      },
+      "beedrill": {
+        "id": "beedrill",
+        "name": "Beedrill",
+        "usage_rank": 174,
+        "ladder_rank_only": true
+      },
+      "falinks": {
+        "id": "falinks",
+        "name": "Falinks",
+        "usage_rank": 181,
+        "ladder_rank_only": true
+      },
+      "victreebel": {
+        "id": "victreebel",
+        "name": "Victreebel",
+        "usage_rank": 185,
+        "ladder_rank_only": true
+      },
+      "absol": {
+        "id": "absol",
+        "name": "Absol",
+        "usage_rank": 189,
+        "ladder_rank_only": true
+      },
+      "emboar": {
+        "id": "emboar",
+        "name": "Emboar",
+        "usage_rank": 190,
+        "ladder_rank_only": true
+      },
+      "meowsticf": {
+        "id": "meowsticf",
+        "name": "Meowstic-F",
+        "usage_rank": 192,
+        "ladder_rank_only": true
+      },
+      "barbaracle": {
+        "id": "barbaracle",
+        "name": "Barbaracle",
+        "usage_rank": 196,
+        "ladder_rank_only": true
+      },
+      "raichualola": {
+        "id": "raichualola",
+        "name": "Raichu-Alola",
+        "usage_rank": 210,
+        "ladder_rank_only": true
       }
     }
   },

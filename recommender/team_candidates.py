@@ -61,7 +61,7 @@ from recommender.state import (
 )
 from recommender.support_needs import SupportNeed, query_support_needs
 from recommender.teammates import SharedTeammateQueryResult
-from recommender.usage_data import featured_or_common_set, lineage_ids
+from recommender.usage_data import calc_species_label, featured_or_common_set, lineage_ids
 from recommender.usage_spreads import move_category_counts
 
 from recommender.pair_panel_ids import (
@@ -899,7 +899,7 @@ def annotate_composition_impact(
             decision, locked
         ):
             candidate_spec = {
-                "species": build.species,
+                "species": calc_species_label(build.species, dict(candidate.spec)),
                 "ability": build.ability,
                 "item": build.item,
                 "moves": list(build.moves),

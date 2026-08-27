@@ -66,8 +66,18 @@ def ingame_excluded_ids() -> frozenset[str]:
     return ingame_excluded_species_ids(load_legality_snapshot())
 
 
+def ingame_ladder_species_map(regulation: str = "champions-reg-mb") -> dict[str, Any]:
+    """Raw in-game doubles ladder rows (rank/membership only — not build-safe).
+
+    Includes mega-capable bases for popularity rank and threat-ladder membership.
+    Do not use for move/item/spread build construction; use ingame_species_map()
+    or Showdown for builds.
+    """
+    return (load_usage(regulation).get("ingame_doubles") or {}).get("species") or {}
+
+
 def ingame_species_map(regulation: str = "champions-reg-mb") -> dict[str, Any]:
-    raw = (load_usage(regulation).get("ingame_doubles") or {}).get("species") or {}
+    raw = ingame_ladder_species_map(regulation)
     excluded = ingame_excluded_ids()
     if not excluded:
         return raw
@@ -99,6 +109,13 @@ def _nature_from_usage(entry: dict[str, Any]) -> str | None:
     if spreads and spreads[0].get("nature"):
         return str(spreads[0]["nature"])
     return None
+
+
+def calc_species_label(species: str, spec: dict[str, Any] | None = None) -> str:
+    """Calc-service species label for a build (e.g. Aegislash → Aegislash-Shield)."""
+    sid = to_id(species)
+    entry = {"id": sid, "name": (spec or {}).get("species") or species}
+    return _species_for_spec(entry, species)
 
 
 def _species_for_spec(entry: dict[str, Any], fallback: str) -> str:

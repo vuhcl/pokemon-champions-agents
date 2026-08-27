@@ -25,6 +25,7 @@ from recommender.species_forms import mega_capable_base_ids
 from recommender.state import ThreatCandidate
 from recommender.usage_data import (
     featured_or_common_set,
+    ingame_ladder_species_map,
     ingame_species_map,
     showdown_species_map,
 )
@@ -733,6 +734,7 @@ def query_counters(
 
     attack_types = _anchor_attack_types(snap, pokemon, anchor_types)
     ig = ingame_species_map(DEFAULT_REGULATION)
+    ladder = ingame_ladder_species_map(DEFAULT_REGULATION)
     sd = showdown_species_map(DEFAULT_REGULATION)
     mega_forms_by_base = _mega_forms_by_base(snap)
     mega_capable = mega_capable_base_ids(snap)
@@ -833,7 +835,10 @@ def query_counters(
             continue
 
         ig_entry = ig.get(sid) or {}
-        rank = ig_entry.get("usage_rank")
+        ladder_entry = ladder.get(sid) or {}
+        rank = ladder_entry.get("usage_rank")
+        if rank is None:
+            rank = ig_entry.get("usage_rank")
         rank_i = int(rank) if rank is not None else None
         # When retargeted to a mega form, ig_entry's own "name" field is
         # the BASE form's name (since ig_entry is looked up via the

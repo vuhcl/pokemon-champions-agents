@@ -4,18 +4,35 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
+from recommender.coverage import get_relevant_threats
 from recommender.legality import load_snapshot
 from recommender.move_narrowing import _commitment_pct
-from recommender.usage_data import ingame_species_map
 from recommender.role_compendium import _UsageCtx
 from recommender.species_forms import ingame_excluded_species_ids, mega_capable_base_ids
 from recommender.usage_data import (
     ingame_excluded_ids,
+    ingame_ladder_species_map,
     ingame_species_map,
     load_usage,
     set_from_ingame,
     set_from_showdown,
 )
+
+
+def test_ingame_ladder_species_map_includes_mega_capable_bases():
+    ladder = ingame_ladder_species_map("champions-reg-mb")
+    filtered = ingame_species_map("champions-reg-mb")
+    assert "charizard" in ladder
+    assert "charizard" not in filtered
+
+
+def test_get_relevant_threats_includes_mega_from_excluded_base():
+    threats = get_relevant_threats({"regulation_mod": "champions-reg-mb"}, n=50)
+    forms = {t.form for t in threats}
+    assert any("Mega" in form for form in forms)
+    mega = next(t for t in threats if "Metagross-Mega" in t.form)
+    assert mega.usage_rank is not None
+    assert mega.build_source.startswith("showdown")
 
 
 def test_mega_capable_base_ids_spot_check():
@@ -125,8 +142,15 @@ def test_extract_ingame_skips_mega_capable(monkeypatch):
     monkeypatch.setattr(mod, "fetch_json", lambda _url: _fake_index())
     monkeypatch.setattr(mod, "fetch_ingame_doubles_species", _fake_fetch)
 
-    out = mod.extract_ingame(top_n=None)
-    assert "charizard" not in out
+    out, stats = mod.extract_ingame(top_n=None)
+    assert out["charizard"].get("ladder_rank_only") is True
+    assert "common_moves" not in out["charizard"]
     assert "klefki" in out
     assert fetched == ["Klefki"]
+    assert stats == {
+        "ranked_n": 2,
+        "excluded_n": 1,
+        "fetch_failed_n": 0,
+        "build_n": 1,
+    }
     assert "charizard" in excluded

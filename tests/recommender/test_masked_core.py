@@ -627,10 +627,6 @@ def test_annotate_splits_conflicts_on_sequential_bench_slot():
     assert len(conflicted.core_slot_conflicts) > 0
 
 
-@pytest.mark.skip(
-    reason="Full ingame ladder refresh: sun-sequential fixture no longer yields a "
-    "core-conflict candidate that passes should_try_masked_core (was Swampert-Mega)."
-)
 def test_should_try_true_sequential_four_lock_conflict_candidate():
     state = _state(_sun_core_sequential_draft())
     pipe = _run_sequential_annotation_pipeline(state)

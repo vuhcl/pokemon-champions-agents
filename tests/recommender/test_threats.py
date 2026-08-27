@@ -74,13 +74,15 @@ def test_lineage_charizard_includes_megas_and_gmax():
     assert "charizardgmax" in kids
 
 
-def test_mega_capable_bases_absent_from_ingame_threat_ladder():
-    """Mega-capable lineages are excluded from the in-game threat pool."""
-    cands = get_relevant_threats({"regulation_mod": "champions"}, n=50)  # type: ignore[arg-type]
-    ladder = {c.ladder_species for c in cands}
-    assert "Charizard" not in ladder
-    assert "Garchomp" not in ladder
-    assert "Swampert" not in ladder
+def test_mega_capable_bases_in_threat_ladder_with_showdown_builds():
+    """Mega-capable bases stay on the ladder for rank; builds come from Showdown."""
+    from recommender.usage_data import set_from_ingame
+
+    cands = get_relevant_threats({"regulation_mod": "champions-reg-mb"}, n=50)
+    charizard = [c for c in cands if c.ladder_species == "Charizard"]
+    assert charizard
+    assert all(c.build_source.startswith("showdown") for c in charizard)
+    assert set_from_ingame("Charizard") is None
 
 
 def test_ranked_by_ingame_usage_rank():

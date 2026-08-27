@@ -22,9 +22,10 @@ import sys
 import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from recommender.ids import regulation_file_tag, to_id
-from recommender.species_forms import ingame_excluded_species_ids, mega_capable_base_ids
+from recommender.species_forms import ingame_excluded_species_ids
 from recommender.teammates import (
     TEAMMATE_LIMIT,
     normalize_munch_teammates,
@@ -54,7 +55,7 @@ TEAM_LADDER_N = 50
 _SPREAD_LIMIT = 8  # spreads are not the truncation bug; keep a short featured list
 
 
-def extract_ingame(top_n: int | None = None) -> dict[str, dict]:
+def extract_ingame(top_n: int | None = None) -> tuple[dict[str, dict], dict[str, int]]:
     legality = json.loads((ROOT / "data" / "legality" / "champions.v1.json").read_text())
     excluded = ingame_excluded_species_ids(legality)
     idx = fetch_json(f"{CBD_API}/api/index")
@@ -71,13 +72,24 @@ def extract_ingame(top_n: int | None = None) -> dict[str, dict]:
         sid = to_id(p.get("showdownId") or p.get("slug") or name)
         ranked.append((int(pos), name, sid))
     ranked.sort()
+    ladder_slice = ranked if top_n is None else ranked[:top_n]
     species: dict[str, dict] = {}
-    for pos, name, sid in ranked[:top_n]:
+    excluded_n = 0
+    fetch_failed_n = 0
+    for pos, name, sid in ladder_slice:
         if sid in excluded:
-            print(f"  ingame #{pos} {sid} SKIP mega-capable", file=sys.stderr)
+            excluded_n += 1
+            species[sid] = {
+                "id": sid,
+                "name": name,
+                "usage_rank": pos,
+                "ladder_rank_only": True,
+            }
+            print(f"  ingame #{pos} {sid} SKIP mega-capable (rank-only)", file=sys.stderr)
             continue
         entry = fetch_ingame_doubles_species(name)
         if entry is None:
+            fetch_failed_n += 1
             print(f"  ingame #{pos} {sid} SKIP (fetch failed)", file=sys.stderr)
             continue
         entry["usage_rank"] = pos
@@ -85,7 +97,16 @@ def extract_ingame(top_n: int | None = None) -> dict[str, dict]:
             entry["id"] = sid
         species[str(entry["id"])] = entry
         print(f"  ingame #{pos} {entry['id']}", file=sys.stderr)
-    return species
+    ranked_n = len(ladder_slice)
+    stub_n = sum(1 for row in species.values() if row.get("ladder_rank_only"))
+    assert ranked_n == len(species) + fetch_failed_n
+    assert stub_n == excluded_n
+    return species, {
+        "ranked_n": ranked_n,
+        "excluded_n": excluded_n,
+        "fetch_failed_n": fetch_failed_n,
+        "build_n": len(species) - stub_n,
+    }
 
 
 def _name_resolvers(legality: dict) -> tuple:
@@ -428,17 +449,41 @@ def main(argv: list[str] | None = None) -> int:
     if args.refresh_cbd:
         print("extracting in-game doubles ladder...", file=sys.stderr)
         top_n = args.cbd_top_n if args.cbd_top_n > 0 else None
-        ingame = extract_ingame(top_n)
+        ingame, ingame_stats = extract_ingame(top_n)
     else:
         print(f"reusing CBD slice from {out_path}...", file=sys.stderr)
         ingame = _load_existing_cbd(out_path)
+        ingame_stats = None
 
     legality = json.loads((ROOT / "data" / "legality" / "champions.v1.json").read_text())
-    ingame_meta = {
-        "ingame_ladder_n": len(ingame),
-        "ingame_excluded_mega_capable_n": len(mega_capable_base_ids(legality)),
+    ingame_meta: dict[str, Any] = {
+        "ingame_ladder_n": (
+            ingame_stats["build_n"] if ingame_stats is not None else len(ingame)
+        ),
         "ingame_exclusion_policy": "mega_capable_lineages",
     }
+    if ingame_stats is not None:
+        ingame_meta.update(
+            {
+                "ingame_ranked_n": ingame_stats["ranked_n"],
+                "ingame_excluded_mega_capable_n": ingame_stats["excluded_n"],
+                "ingame_fetch_failed_n": ingame_stats["fetch_failed_n"],
+            }
+        )
+    else:
+        existing = {}
+        if out_path.exists():
+            existing = (
+                json.loads(out_path.read_text()).get("meta") or {}
+            )
+        ingame_meta.setdefault(
+            "ingame_excluded_mega_capable_n",
+            existing.get("ingame_excluded_mega_capable_n"),
+        )
+        ingame_meta.setdefault("ingame_ranked_n", existing.get("ingame_ranked_n"))
+        ingame_meta.setdefault(
+            "ingame_fetch_failed_n", existing.get("ingame_fetch_failed_n")
+        )
 
     print(
         f"extracting showdown {args.source} {args.month} "

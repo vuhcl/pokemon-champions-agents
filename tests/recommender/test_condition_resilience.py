@@ -886,8 +886,10 @@ def test_tr_spe_discount_floor_interior_gap_and_fallback():
     assert _tr_spe_discount_floor([]) is None
 
 
-def test_live_tr_spe_discount_floor_is_167():
-    assert _tr_spe_discount_floor(_threat_speeds(None, "champions-reg-mb")) == 167
+def test_live_tr_spe_discount_floor_is_125():
+    # Expanded ladder membership (mega-capable rank stubs) shifts the live
+    # SLOT_THREAT_N speed sample used by _threat_speeds.
+    assert _tr_spe_discount_floor(_threat_speeds(None, "champions-reg-mb")) == 125
 
 
 def test_kingambit_declared_sweeper_counts_as_wanted_tr():
