@@ -8121,6 +8121,61 @@ above before merge). Full suite: 1338 passed, 8 skipped.
 
 ---
 
+### ADR-038 — Amendment 2026-08-26a — Masked-alternate-core reachability fix
+
+**Context:** Live discovery (2026-08-26) found that masked-alternate-core
+discovery, as specified in ADR-038, was unreachable on the normal sequential
+4-lock fill path. `is_core_slot` (`open_slot_index < picked_team_size`) was
+the sole gate for both rank-demotion (`wastes_core_slot`) and conflict
+computation feeding `should_try_masked_core`. ADR-038's own prior amendment
+(2026-08-24a) states core_resolution should trigger once 4 real members are
+locked — but on sequential fill, filling slot 5 means `open_slot_index=4`,
+which is `>= picked_team_size`, so `is_core_slot` is False and conflicts
+were never computed. The feature only ever fired on out-of-order ("gap-lock")
+fill patterns, never on the sequential path most users take.
+
+A global redefinition of `is_core_slot` was evaluated and rejected: `is_core_slot`
+also gates bench-subset evaluation (`improves_bench_subset`) with the opposite
+polarity, and redefining it to a lock-count-based check regresses both
+bench-subset wiring and 3-lock rank-demotion behavior, each with existing
+test coverage.
+
+**Decision:** Split the single flag into two independent conditions:
+
+- `is_core_slot` (unchanged, index-based) continues to gate rank-demotion
+  (`wastes_core_slot`) and bench-subset eval — no change to either path.
+- New `detect_core_resource_conflicts(state_locked, picked_team_size)` —
+  `True` once `len(state_locked) >= picked_team_size`, computed from
+  state-level locks (not gap-fill working rosters) — gates whether
+  `core_slot_conflicts` is populated at all.
+- `candidate_core_slot_conflicts` is now invoked whenever *either* condition
+  holds (`is_core_slot or detect`); `wastes_core_slot` and `core_slot_conflicts`
+  are then derived separately from that shared raw result, each gated on its
+  own condition.
+- `should_try_masked_core`'s first gate now checks `core_slot_conflicts`
+  non-empty, not `wastes_core_slot` — decoupling the masked-core trigger from
+  rank-demotion entirely.
+
+Bench-subset eval and masked-core conflict detection can now both be true for
+the same candidate at the same slot (confirmed as intended: they answer
+different questions — remaining threat coverage vs. scarce-resource waste —
+with no reason one should suppress the other). The 3-locked/filling-core-slot
+case remains demote-only, consistent with both existing tests and ADR-038's
+"4 real locks" trigger condition.
+
+**Consequence:** Masked-alternate-core discovery now reaches
+`core_resolution` on sequential fill once 4 real members are locked, verified
+via live transcript replay (Metagross-Mega surfaced as the conflict candidate
+on a sequential sun-core fixture, not Swampert — `independently_strong_category_a`
+still gates which species can trigger, unchanged). `is_core_slot`'s definition,
+bench-subset gating, and rank-demotion semantics are untouched. New tests
+(`tests/recommender/test_masked_core.py`, Tests 0–5) cover the helper, the
+annotation split, the decoupled trigger, the 3-lock negative case, and
+bench/conflict coexistence. Full suite: 132 passed, 1 skipped (CALC_LIVE-gated
+integration test). PR merged off `fix/masked-core-reachability`.
+
+---
+
 ## ADR-039: Orientation preference — real per-preference selection
 shapes, a revision escape hatch, and deterministic reject-N
 
