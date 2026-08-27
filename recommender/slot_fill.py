@@ -285,6 +285,7 @@ def build_anchored_slot_fill_context(
         resolve_anchor_build,
     )
     from recommender.support_needs import query_support_needs
+    from recommender.team_candidates import collect_locked_anchor_contexts
     from recommender.threat_counters import query_threat_counters
 
     regulation = _regulation(state)
@@ -312,7 +313,8 @@ def build_anchored_slot_fill_context(
         discovery_status: Literal["available", "unavailable", "degraded"] = "available"
         discovery_error: CandidateDiscoveryError | None = None
     else:
-        discovery = query_threat_counters(pokemon)
+        locked = collect_locked_anchor_contexts(state)
+        discovery = query_threat_counters(pokemon, locked_contexts=locked)
         threats = list(discovery.candidates)
         discovery_status = discovery.status
         discovery_error = discovery.error
