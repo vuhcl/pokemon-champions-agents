@@ -851,3 +851,21 @@ def test_kingambit_without_sweeper_role_has_no_needed_trick_room():
     assert all(
         n.trigger is not None and n.trigger.startswith("speed_tier:") for n in tr
     )
+
+
+def test_physical_sweeper_emits_offense_universal_needs():
+    from recommender.anchor_roles import (
+        classify_anchor_role,
+        derive_role_shape_context,
+        resolve_anchor_build,
+    )
+
+    build = resolve_anchor_build("Dragapult")
+    decision = classify_anchor_role(build, explicit_role="physical_sweeper")
+    shape = derive_role_shape_context(decision)
+    assert shape.primary_function == "offense"
+    needs = query_support_needs(build.as_pokemon(), shape)
+    cats = {n.category for n in needs}
+    assert "screens" in cats
+    assert "healing_cleric" in cats
+    assert "redirection" in cats

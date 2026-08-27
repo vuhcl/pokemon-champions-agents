@@ -790,19 +790,9 @@ def _has_tr_provides(mechanisms: list[MechanismEvidence]) -> bool:
 
 
 def _primary_function(role_id: str) -> PrimaryFunction:
-    if role_id.endswith("_attacker") or role_id in {
-        "bulky_pivot",
-        "fast_pivot",
-        "trick_room_sweeper",
-    }:
-        return "offense"
-    if role_id.endswith("_setter") or role_id in {
-        "support_speed_control",
-        "screens_support",
-        "redirection",
-    }:
-        return "support"
-    return "unknown"
+    from recommender.role_taxonomy import primary_function_for_role_id
+
+    return primary_function_for_role_id(role_id)
 
 
 def _durability(build: ResolvedAnchorBuild, mechanisms: list[MechanismEvidence]) -> DurabilityIntent:
