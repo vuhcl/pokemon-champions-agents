@@ -245,3 +245,134 @@ def test_mega_form_label_matches_base_paste_member():
         )
     assert matches
     assert to_id(matches[0]["set"]["species"]) in {"charizard", "charizardmegay"}
+
+
+_CHARIZARD_MEGA_Y_TEAMS = {
+    "teams": [
+        {
+            "date_shared": "1 Jul 2026",
+            "members": [
+                {
+                    "species": "charizard",
+                    "species_display": "Charizard",
+                    "item": "Charizardite Y",
+                    "ability": "Blaze",
+                    "nature": "Modest",
+                    "evs": {"hp": 4, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 30},
+                    "moves": ["Heat Wave", "Weather Ball", "Helping Hand", "Protect"],
+                }
+            ],
+        }
+    ]
+}
+
+_CHARIZARD_MEGA_Y_MOVES = ["Heat Wave", "Weather Ball", "Helping Hand", "Protect"]
+
+
+def test_base_species_with_mega_stone_matches_paste_member():
+    with patch("recommender.usage_data.load_vgcpastes_builds", return_value=_CHARIZARD_MEGA_Y_TEAMS):
+        matches = find_set_matching(
+            "Charizard",
+            _CHARIZARD_MEGA_Y_MOVES,
+            "Charizardite Y",
+            regulation="champions",
+        )
+    assert matches
+    assert matches[0]["source"] == "vgcpastes"
+    assert matches[0]["set"]["item"] == "Charizardite Y"
+    assert matches[0]["set"]["moves"] == _CHARIZARD_MEGA_Y_MOVES
+
+
+def test_equal_count_buckets_tie_break_by_earliest_date():
+    teams = {
+        "teams": [
+            {
+                "date_shared": "15 Aug 2026",
+                "members": [
+                    {
+                        "species": "garchomp",
+                        "species_display": "Garchomp",
+                        "item": "Life Orb",
+                        "ability": "Rough Skin",
+                        "nature": "Jolly",
+                        "evs": {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32},
+                        "moves": ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
+                    }
+                ],
+            },
+            {
+                "date_shared": "1 Jun 2026",
+                "members": [
+                    {
+                        "species": "garchomp",
+                        "species_display": "Garchomp",
+                        "item": "Life Orb",
+                        "ability": "Rough Skin",
+                        "nature": "Adamant",
+                        "evs": {"hp": 20, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 14},
+                        "moves": ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
+                    }
+                ],
+            },
+        ]
+    }
+    with patch("recommender.usage_data.load_vgcpastes_builds", return_value=teams):
+        matches = find_set_matching(
+            "Garchomp",
+            ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
+            "Life Orb",
+            regulation="champions",
+        )
+    assert len(matches) == 2
+    assert matches[0]["set"]["nature"] == "Adamant"
+    assert matches[0]["occurrence_count"] == 1
+    assert matches[0]["date_shared_earliest"] == "2026-06-01"
+    assert matches[1]["set"]["nature"] == "Jolly"
+    assert matches[1]["occurrence_count"] == 1
+
+
+def test_unparseable_date_loses_tiebreak_priority():
+    teams = {
+        "teams": [
+            {
+                "date_shared": "not-a-real-date",
+                "members": [
+                    {
+                        "species": "garchomp",
+                        "species_display": "Garchomp",
+                        "item": "Life Orb",
+                        "ability": "Rough Skin",
+                        "nature": "Jolly",
+                        "evs": {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32},
+                        "moves": ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
+                    }
+                ],
+            },
+            {
+                "date_shared": "1 Jun 2026",
+                "members": [
+                    {
+                        "species": "garchomp",
+                        "species_display": "Garchomp",
+                        "item": "Life Orb",
+                        "ability": "Rough Skin",
+                        "nature": "Adamant",
+                        "evs": {"hp": 20, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 14},
+                        "moves": ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
+                    }
+                ],
+            },
+        ]
+    }
+    with patch("recommender.usage_data.load_vgcpastes_builds", return_value=teams):
+        matches = find_set_matching(
+            "Garchomp",
+            ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
+            "Life Orb",
+            regulation="champions",
+        )
+    assert len(matches) == 2
+    assert matches[0]["set"]["nature"] == "Adamant"
+    assert matches[0]["date_shared_earliest"] == "2026-06-01"
+    assert matches[1]["set"]["nature"] == "Jolly"
+    assert "date_shared_earliest" not in matches[1]

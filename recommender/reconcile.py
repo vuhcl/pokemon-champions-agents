@@ -10,6 +10,7 @@ from recommender.ids import to_id
 from recommender.legality import load_snapshot
 from recommender.matchup import Severity
 from recommender.recommend import infer_role
+from recommender.species_forms import item_mega_forme as _item_mega_forme
 from recommender.state import (
     Attr,
     PendingFlag,
@@ -664,26 +665,6 @@ def _reachable_formes(slot: Slot, snap: dict[str, Any]) -> list[str]:
         if mega and mega not in formes:
             formes.append(mega)
     return formes
-
-
-def _item_mega_forme(item_id: str, base_species_id: str, snap: dict[str, Any]) -> str | None:
-    if item_id.endswith("itex"):
-        candidate = f"{base_species_id}megax"
-    elif item_id.endswith("itey"):
-        candidate = f"{base_species_id}megay"
-    elif item_id.endswith("ite"):
-        candidate = f"{base_species_id}mega"
-    else:
-        return None
-    species = snap.get("species") or {}
-    if candidate in species:
-        return candidate
-    # Showdown's ungendered meowstic is the male/default; F/M Megas are
-    # mechanically identical (same stats, both Trace). meowsticf already
-    # resolves via {base}mega → meowsticfmega.
-    if base_species_id == "meowstic" and item_id.endswith("ite") and "meowsticmmega" in species:
-        return "meowsticmmega"
-    return None
 
 
 def _species_types(snap: dict[str, Any], species_id: str) -> list[str]:

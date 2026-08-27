@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Literal, NotRequired, TypedDict
 
 from recommender.ids import regulation_file_tag, to_id
+from recommender.species_forms import item_mega_forme
 from recommender.sp_convert import evs_to_sp
 from recommender.state import PokemonSet, StatsTable
 
@@ -261,30 +262,21 @@ def parse_date_shared(raw: str | None) -> date | None:
         return None
 
 
-def _is_mega_stone_id(item_id: str) -> bool:
-    return bool(item_id) and (
-        item_id.endswith("itex") or item_id.endswith("itey") or item_id.endswith("ite")
-    )
-
-
 def vgcpastes_lookup_species_ids(species: str, item: str | None) -> tuple[str, ...]:
     """Species ids to scan in VGCPastes (base + mega label when holding a stone)."""
     requested = to_id(species)
-    ids: list[str] = [requested]
-    ent = _legality_species().get(requested) or {}
-    base = ent.get("base_species_id")
-    if isinstance(base, str) and base and base not in ids:
-        # Mega/form label: always include base (paste stores base + stone).
-        ids.append(base)
+    snap = {"species": _legality_species()}
+    ent = snap["species"].get(requested) or {}
+    base = ent.get("base_species_id") or requested
+    ids: list[str] = []
+    for candidate in (requested, base):
+        if candidate and candidate not in ids:
+            ids.append(candidate)
     item_id = to_id(item) if item else ""
-    if item_id and _is_mega_stone_id(item_id):
-        # Base species + mega stone: ensure base id is scanned.
-        if requested not in ids:
-            ids.append(requested)
-        # If caller used base id already, still fine; if mega form, base added above.
-        base_for_stone = base if isinstance(base, str) and base else requested
-        if base_for_stone not in ids:
-            ids.append(base_for_stone)
+    if item_id:
+        mega = item_mega_forme(item_id, base, snap)
+        if mega and mega not in ids:
+            ids.append(mega)
     return tuple(ids)
 
 
@@ -333,11 +325,7 @@ def _match_vgcpastes(
         count = len(rows)
         dates = [d for d, _ in rows if d is not None]
         earliest = min(dates) if dates else far_future
-        # Prefer a row with a real spread when the bucket has one.
-        member = next(
-            (m for d, m in rows if normalize_member_evs(m.get("evs")) is not None),
-            rows[0][1],
-        )
+        member = rows[0][1]
         ranked.append((count, earliest, key, member))
 
     # occurrence desc, then earliest date asc
