@@ -386,7 +386,11 @@ def _calc_request(
     move: str,
     field: FieldSpec | None,
 ) -> CalcRequest:
-    req: CalcRequest = {"attacker": attacker, "defender": defender, "move": move}
+    req: CalcRequest = {
+        "attacker": dict(attacker),
+        "defender": dict(defender),
+        "move": move,
+    }
     if field is not None:
         req["field"] = field
     return req

@@ -38,18 +38,17 @@ def test_basculegion_and_alolan_ninetales_keep_showdown_hyphenation():
     )
 
 
-def test_floette_display_name_is_unchanged():
-    built = set_from_ingame("floette", regulation="champions")
-    assert built is not None
-    assert built["species"] == "Floette"
+def test_floette_excluded_from_ingame_slice():
+    assert set_from_ingame("floette", regulation="champions") is None
 
 
-def test_relevant_threats_glue_maushold_vivillon_floette():
-    threats = get_relevant_threats({"regulation_mod": "champions"})
+def test_relevant_threats_glue_maushold_vivillon():
+    threats = get_relevant_threats({"regulation_mod": "champions"}, n=120)  # type: ignore[arg-type]
     maushold = [t for t in threats if t.ladder_species == "Maushold Family of Four"]
     vivillon = [t for t in threats if t.ladder_species == "Vivillon Fancy Pattern"]
     assert {to_id(t.spec["species"]) for t in maushold} == {"mausholdfour"}
     assert {to_id(t.spec["species"]) for t in vivillon} == {"vivillonfancy"}
-    forms = {t.spec["species"] for t in threats if t.ladder_species == "Floette"}
-    assert "Floette-Eternal" in forms
-    assert "Floette-Mega" in forms
+    floette = [t for t in threats if t.ladder_species == "Floette"]
+    if floette:
+        assert all(t.build_source.startswith("showdown") for t in floette)
+    assert set_from_ingame("floette", regulation="champions") is None

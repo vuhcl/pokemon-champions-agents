@@ -55,10 +55,8 @@ def test_showdown_species_with_late_blanks_stamp_four_real_moves():
         assert len(built["moves"]) == 4, sid
 
 
-def test_relevant_threats_kangaskhan_has_no_blank_move():
-    threats = get_relevant_threats({"regulation_mod": "champions"})
-    kangs = [t for t in threats if to_id(t.spec["species"]) == "kangaskhan"]
-    assert kangs
-    for t in kangs:
-        assert "" not in (t.spec.get("moves") or [])
-        assert len(t.spec.get("moves") or []) == 4
+def test_kangaskhan_mega_showdown_build_has_no_blank_move():
+    built = set_from_showdown("kangaskhanmega")
+    assert built is not None
+    assert "" not in built["moves"]
+    assert len(built["moves"]) == 4

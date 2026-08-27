@@ -72,6 +72,7 @@ from recommender.support_needs import (
 from recommender.usage_data import (
     featured_or_common_set,
     ingame_species_map,
+    ingame_ladder_species_map,
     lineage_ids,
     showdown_species_map,
 )
@@ -1443,7 +1444,7 @@ def resolve_condition_beneficiaries(
             available_species=available_species,
             ownership_mode=ownership_mode,
         )
-        ingame_map = ingame_species_map(regulation)
+        ladder_map = ingame_ladder_species_map(regulation)
         showdown_map = showdown_species_map(regulation)
         for name in ranked:
             sid = to_id(name)
@@ -1486,8 +1487,8 @@ def resolve_condition_beneficiaries(
                 # 3 independent candidate rows) -- it only makes sure
                 # whichever row does get generated reads the correct real
                 # usage data instead of silently missing it by id mismatch.
-                in_ingame = lineage_ids(sid)[0] in ingame_map
-                sw_entry = showdown_map.get(lineage_ids(sid)[0])
+                in_ingame = lineage_ids(sid)[0] in ladder_map
+                sw_entry = showdown_map.get(sid) or showdown_map.get(lineage_ids(sid)[0])
                 sw_pct = sw_entry.get("usage_pct") if sw_entry else None
                 if in_ingame or (sw_pct is not None and sw_pct >= MIN_USAGE_PCT):
                     basis: CandidateEvidenceBasis = "usage_backed"

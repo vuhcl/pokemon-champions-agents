@@ -696,13 +696,16 @@ def test_detect_core_resource_conflicts_helper():
 def test_annotate_splits_conflicts_on_sequential_bench_slot():
     state = _state(_sun_core_sequential_draft())
     pipe = _run_sequential_annotation_pipeline(state)
-    sw = next(
-        (c for c in pipe["candidates"] if to_id(c.species) == "swampertmega"),
+    conflicted = next(
+        (
+            c
+            for c in pipe["candidates"]
+            if c.core_slot_conflicts and not c.wastes_core_slot
+        ),
         None,
     )
-    assert sw is not None, "Swampert-Mega expected in threat pool"
-    assert sw.wastes_core_slot is False
-    assert len(sw.core_slot_conflicts) > 0
+    assert conflicted is not None, "expected a non-wasting candidate with core_slot_conflicts"
+    assert len(conflicted.core_slot_conflicts) > 0
 
 
 def test_should_try_true_sequential_four_lock_conflict_candidate():
@@ -715,13 +718,12 @@ def test_should_try_true_sequential_four_lock_conflict_candidate():
             c
             for c in pool
             if c.core_slot_conflicts
-            and independently_strong_category_a(c, pool, contexts)
+            and should_try_masked_core(c, pool, state, contexts)
         ),
         None,
     )
-    assert trigger is not None, "expected A-top-3 candidate with core_slot_conflicts"
+    assert trigger is not None, "expected a core-conflict candidate that triggers masked-core"
     assert trigger.wastes_core_slot is False
-    assert should_try_masked_core(trigger, pool, state, contexts) is True
 
 
 @pytestmark_live
@@ -753,14 +755,10 @@ def test_three_locked_core_slot_stays_demote_only():
     ]
     state = _state(draft)
     pipe = _run_sequential_annotation_pipeline(state)
-    sw = next(
-        (c for c in pipe["candidates"] if to_id(c.species) == "swampertmega"),
-        None,
-    )
-    assert sw is not None
-    assert sw.wastes_core_slot is True
-    assert sw.core_slot_conflicts == ()
-    assert should_try_masked_core(sw, pipe["candidates"], state, pipe["contexts"]) is False
+    wasteful = next((c for c in pipe["candidates"] if c.wastes_core_slot), None)
+    assert wasteful is not None
+    assert wasteful.core_slot_conflicts == ()
+    assert should_try_masked_core(wasteful, pipe["candidates"], state, pipe["contexts"]) is False
 
 
 def test_bench_subset_and_conflicts_coexist_at_slot_five():

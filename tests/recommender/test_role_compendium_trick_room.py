@@ -183,15 +183,15 @@ def test_ghost_typing_lands_good_on_fake_out_immunity():
 
 
 def test_unprotected_member_is_acceptable_and_externally_dependent():
-    live = {**_CHAMPIONS_TR_PCT, "gardevoirmega": 40.0}
+    live = {**_CHAMPIONS_TR_PCT, "klefki": 40.0}
     draft = _tr_draft(
         live_fetch=lambda n: _champions_row(n, live.get(to_id(n))),
     )
-    mega = _find(draft, "gardevoirmega")
-    assert mega.tier == "Acceptable"
-    assert mega.excellence_basis == "unprotected"
-    assert mega.reinforce_class == "none"
-    assert "depends on a teammate" in mega.criteria_notes["execution"]
+    member = _find(draft, "klefki")
+    assert member.tier == "Acceptable"
+    assert member.excellence_basis == "unprotected"
+    assert member.reinforce_class == "none"
+    assert "depends on a teammate" in member.criteria_notes["execution"]
 
 
 def test_flinch_denial_below_tr_floor_is_rejected():
@@ -268,13 +268,9 @@ def test_champions_row_without_trick_room_does_not_suppress_showdown(monkeypatch
     from recommender.role_compendium_usage import _delivery_usage_hits
 
     monkeypatch.setattr(
-        "recommender.role_compendium.load_usage",
-        lambda: {
-            "ingame_doubles": {"species": {}},
-            "showdown_vgc_mb": {"species": {}},
-            "species": {},
-        },
+        "recommender.role_compendium.ingame_species_map", lambda _reg="champions-reg-mb": {}
     )
+    monkeypatch.setattr("recommender.role_compendium.ingame_excluded_ids", lambda: frozenset())
     monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
     cbd = {
         "name": "Chimecho",
@@ -311,13 +307,17 @@ def test_forme_without_champions_row_falls_back_to_ladder():
     assert "Gardevoir-Mega" not in {c.species for c in draft.candidates if c.tier}
 
 
-def test_champions_entry_never_returns_ladder_data():
+def test_champions_entry_never_returns_ladder_data(monkeypatch):
     calls: list[str] = []
 
     def live(name: str) -> dict[str, Any] | None:
         calls.append(name)
         return {"name": name, "id": to_id(name), "source": "championsbattledata"}
 
+    monkeypatch.setattr(
+        "recommender.role_compendium.ingame_species_map", lambda _reg="champions-reg-mb": {}
+    )
+    monkeypatch.setattr("recommender.role_compendium.ingame_excluded_ids", lambda: frozenset())
     uctx = _UsageCtx(live_fetch=live, showdown_fetch=None)
     row = uctx.champions_entry("Cofagrigus")
     assert row is not None
@@ -326,6 +326,20 @@ def test_champions_entry_never_returns_ladder_data():
     # Cached: no second fetch.
     uctx.champions_entry("Cofagrigus")
     assert calls == ["Cofagrigus"]
+
+
+def test_champions_entry_offline_snapshot_hit(monkeypatch):
+    """Non-excluded species with a snapshot row never live-fetch."""
+    calls: list[str] = []
+
+    def live(name: str) -> dict[str, Any] | None:
+        calls.append(name)
+        return None
+
+    uctx = _UsageCtx(live_fetch=live, showdown_fetch=None)
+    row = uctx.champions_entry("Cofagrigus")
+    assert row is not None
+    assert calls == []
 
 
 def test_mega_attribution_rejects_base_when_mega_also_delivers():

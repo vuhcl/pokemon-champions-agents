@@ -21,9 +21,11 @@ from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot
 from recommender.matchup import effective_accuracy, expected_hit_factor
 from recommender.ranking import OwnershipMode, rank_and_cut
+from recommender.species_forms import mega_capable_base_ids
 from recommender.state import ThreatCandidate
 from recommender.usage_data import (
     featured_or_common_set,
+    ingame_ladder_species_map,
     ingame_species_map,
     showdown_species_map,
 )
@@ -665,6 +667,34 @@ def _dominant_mega_form(
     return None
 
 
+def _dominant_mega_from_showdown(
+    sd: dict[str, Any],
+    snap: dict[str, Any],
+    base_sid: str,
+    mega_forms_by_base: dict[str, list[str]],
+) -> str | None:
+    """Pick the legal mega child with highest Showdown usage_pct."""
+    mega_ids = mega_forms_by_base.get(base_sid)
+    if not mega_ids:
+        return None
+    mega_only = [
+        mid for mid in mega_ids if "mega" in mid and is_species_legal(snap, mid)
+    ]
+    if not mega_only:
+        return None
+    best_sid: str | None = None
+    best_pct = -1.0
+    for mid in mega_only:
+        entry = sd.get(mid)
+        if not entry:
+            continue
+        pct = float(entry.get("usage_pct") or 0.0)
+        if pct > best_pct:
+            best_pct = pct
+            best_sid = mid
+    return best_sid
+
+
 def query_counters(
     pokemon: PokemonSpecOptional,
     n: int = 20,
@@ -704,8 +734,10 @@ def query_counters(
 
     attack_types = _anchor_attack_types(snap, pokemon, anchor_types)
     ig = ingame_species_map(DEFAULT_REGULATION)
+    ladder = ingame_ladder_species_map(DEFAULT_REGULATION)
     sd = showdown_species_map(DEFAULT_REGULATION)
     mega_forms_by_base = _mega_forms_by_base(snap)
+    mega_capable = mega_capable_base_ids(snap)
     # Precompute dominant mega forms once, before the main loop -- avoids
     # both a retargeted base entry AND that same mega form's own,
     # separate (weaker, fallback-only) iteration both appearing in the
@@ -718,6 +750,12 @@ def query_counters(
         )
         if mega_sid is not None:
             dominant_mega_by_base[base_sid] = mega_sid
+        elif base_sid in mega_capable:
+            mega_sid = _dominant_mega_from_showdown(
+                sd, snap, base_sid, mega_forms_by_base
+            )
+            if mega_sid is not None:
+                dominant_mega_by_base[base_sid] = mega_sid
     superseded_mega_sids = set(dominant_mega_by_base.values())
     pool: list[ThreatCandidate] = []
 
@@ -797,7 +835,10 @@ def query_counters(
             continue
 
         ig_entry = ig.get(sid) or {}
-        rank = ig_entry.get("usage_rank")
+        ladder_entry = ladder.get(sid) or {}
+        rank = ladder_entry.get("usage_rank")
+        if rank is None:
+            rank = ig_entry.get("usage_rank")
         rank_i = int(rank) if rank is not None else None
         # When retargeted to a mega form, ig_entry's own "name" field is
         # the BASE form's name (since ig_entry is looked up via the

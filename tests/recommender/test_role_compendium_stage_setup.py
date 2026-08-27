@@ -76,9 +76,9 @@ def test_setup_threat_panel_uses_15_game_usage_floor():
     assert all(d.get("partner") and d["partner"].get("species") for d in panel)
     sable = next(d for d in panel if d["species"] == "Sableye")
     assert any(to_id(m) == "foulplay" for m in sable.get("usage_moves") or [])
-    assert to_id(sable.get("item") or "") == "lightclay"
+    assert to_id(sable.get("item") or "") == "roseliberry"
     sini = next(d for d in panel if d["species"] == "Sinistcha")
-    assert to_id(sini.get("item") or "") == "kasibberry"
+    assert to_id(sini.get("item") or "") == "sitrusberry"
     cmy = next(d for d in panel if d["species"] == "Charizard-Mega-Y")
     assert to_id(cmy.get("item") or "") == "charizarditey"
     assert to_id(cmy.get("ability") or "") == "drought"

@@ -13,7 +13,7 @@ from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot
 from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.state import ThreatCandidate
-from recommender.usage_data import ingame_species_map
+from recommender.usage_data import ingame_ladder_species_map, ingame_species_map
 
 # Same regulation tag as counters.DEFAULT_REGULATION (duplicated to avoid coupling).
 _REGULATION = "champions-reg-mb"
@@ -38,6 +38,7 @@ def query_by_usage(
     Caller-provided specs are preserved; default-pool specs are bare ``{species}``.
     """
     snap = load_snapshot()
+    ladder = ingame_ladder_species_map(_REGULATION)
     ig = ingame_species_map(_REGULATION)
     owned = {sid for species in available_species if (sid := to_id(species))}
     cands: list[ThreatCandidate] = []
@@ -48,8 +49,11 @@ def query_by_usage(
                 continue
             if ownership_mode == "owned_only" and sid not in owned:
                 continue
+            ladder_entry = ladder.get(sid) or {}
             ig_entry = ig.get(sid) or {}
-            rank = ig_entry.get("usage_rank")
+            rank = ladder_entry.get("usage_rank")
+            if rank is None:
+                rank = ig_entry.get("usage_rank")
             rank_i = int(rank) if rank is not None else None
             name = str(ig_entry.get("name") or entry.get("name") or sid)
             cands.append(
@@ -76,8 +80,11 @@ def query_by_usage(
                 continue
             seen.add(sid)
             entry = snap["species"].get(sid) or {}
+            ladder_entry = ladder.get(sid) or {}
             ig_entry = ig.get(sid) or {}
-            rank = ig_entry.get("usage_rank")
+            rank = ladder_entry.get("usage_rank")
+            if rank is None:
+                rank = ig_entry.get("usage_rank")
             rank_i = int(rank) if rank is not None else None
             name = str(ig_entry.get("name") or entry.get("name") or species)
             cands.append(

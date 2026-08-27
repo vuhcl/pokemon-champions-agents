@@ -10,7 +10,8 @@ from pathlib import Path
 from typing import Any, Literal, NotRequired, TypedDict
 
 from recommender.ids import regulation_file_tag, to_id
-from recommender.species_forms import item_mega_forme
+from recommender.legality import load_snapshot as load_legality_snapshot
+from recommender.species_forms import ingame_excluded_species_ids, item_mega_forme
 from recommender.sp_convert import evs_to_sp
 from recommender.state import PokemonSet, StatsTable
 
@@ -60,9 +61,27 @@ def species_usage(species: str, *, regulation: str = "champions-reg-mb") -> dict
     return snap.get("species", {}).get(to_id(species))
 
 
+@lru_cache(maxsize=1)
+def ingame_excluded_ids() -> frozenset[str]:
+    return ingame_excluded_species_ids(load_legality_snapshot())
+
+
+def ingame_ladder_species_map(regulation: str = "champions-reg-mb") -> dict[str, Any]:
+    """Raw in-game doubles ladder rows (rank/membership only — not build-safe).
+
+    Includes mega-capable bases for popularity rank and threat-ladder membership.
+    Do not use for move/item/spread build construction; use ingame_species_map()
+    or Showdown for builds.
+    """
+    return (load_usage(regulation).get("ingame_doubles") or {}).get("species") or {}
+
+
 def ingame_species_map(regulation: str = "champions-reg-mb") -> dict[str, Any]:
-    snap = load_usage(regulation)
-    return (snap.get("ingame_doubles") or {}).get("species") or {}
+    raw = ingame_ladder_species_map(regulation)
+    excluded = ingame_excluded_ids()
+    if not excluded:
+        return raw
+    return {sid: row for sid, row in raw.items() if sid not in excluded}
 
 
 def showdown_species_map(regulation: str = "champions-reg-mb") -> dict[str, Any]:
@@ -92,10 +111,19 @@ def _nature_from_usage(entry: dict[str, Any]) -> str | None:
     return None
 
 
+def calc_species_label(species: str, spec: dict[str, Any] | None = None) -> str:
+    """Calc-service species label for a build (e.g. Aegislash → Aegislash-Shield)."""
+    sid = to_id(species)
+    entry = {"id": sid, "name": (spec or {}).get("species") or species}
+    return _species_for_spec(entry, species)
+
+
 def _species_for_spec(entry: dict[str, Any], fallback: str) -> str:
     """Calc-compatible species label: display name only when it to_id-matches the stored id."""
-    name = entry.get("name") or fallback
     sid = to_id(entry.get("id") or fallback)
+    if sid == "aegislash":
+        return "Aegislash-Shield"
+    name = entry.get("name") or fallback
     if to_id(name) == sid:
         return name
     legal = (_legality_species().get(sid) or {}).get("name")

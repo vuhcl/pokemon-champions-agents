@@ -445,7 +445,7 @@ def test_torkoal_sun_beneficiaries_exclude_self():
     )
 
 
-def test_resolve_condition_beneficiaries_confidence_is_usage_aware():
+def test_resolve_condition_beneficiaries_confidence_is_usage_aware(monkeypatch):
     """Regression, confirmed live (2026-08-21) and fixed here: Castform
     kept surfacing as a top-3 "condition synergy" suggestion under Sun
     despite being objectively among the worst legal Pokemon in the
@@ -465,6 +465,12 @@ def test_resolve_condition_beneficiaries_confidence_is_usage_aware():
     certain, always-active, unlike a move that might not be run) rather
     than penalizing a data gap as if it were a real negative signal.
     """
+    def _rank_castform_first(union, **kwargs):
+        ordered = ["Castform", *[u for u in union if u != "Castform"]]
+        n = kwargs.get("n", 20)
+        return ordered[:n]
+
+    monkeypatch.setattr("recommender.slot_fill._rank_by_usage", _rank_castform_first)
     rows = _resolve_beneficiaries("Torkoal")
     castform_rows = [row for row in rows if to_id(row.species).startswith("castform")]
     assert castform_rows, "Castform should still match Torkoal's real Sun objective"
@@ -475,8 +481,9 @@ def test_resolve_condition_beneficiaries_confidence_is_usage_aware():
             if ev.producer_name == "resolve_condition_beneficiaries"
         ]
         assert ability_hits
+        # Full ladder refresh: Castform is on the in-game slice (rank ~220).
         assert all(
-            ev.basis == "mechanical_only" and ev.confidence == "low"
+            ev.basis == "usage_backed" and ev.confidence == "high"
             for ev in ability_hits
         )
 

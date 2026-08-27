@@ -19,7 +19,7 @@ from recommender.legality import (
 from recommender.matchup import _CHARGE_INSTANT_WEATHER, _makes_contact
 from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.state import RecommenderState, Slot
-from recommender.usage_data import ingame_species_map, species_usage
+from recommender.usage_data import ingame_species_map, showdown_species_map, species_usage
 
 SMALL_POOL = 8
 BACKSTOP_CEILING = 20
@@ -197,14 +197,16 @@ def _has_prankster(snap: dict[str, Any], species: str) -> bool:
 
 
 def _commitment_pct(species: str, move: str, *, regulation: str) -> float | None:
-    entry = ingame_species_map(regulation).get(to_id(species))
-    if not entry:
-        return None
+    sid = to_id(species)
     mid = to_id(move)
-    for row in entry.get("common_moves") or []:
-        if to_id(row.get("name") or "") == mid:
-            pct = row.get("pct")
-            return float(pct) if pct is not None else None
+    ingame = ingame_species_map(regulation).get(sid)
+    for source in (ingame, showdown_species_map(regulation).get(sid)):
+        if not source:
+            continue
+        for row in source.get("common_moves") or []:
+            if to_id(row.get("name") or "") == mid:
+                pct = row.get("pct")
+                return float(pct) if pct is not None else None
     return None
 
 
