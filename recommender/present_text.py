@@ -8,6 +8,8 @@ from recommender.state import (
     CandidateDiscoveryError,
     CandidateEvidence,
     ProvisionalSlot,
+    TargetRoleDecision,
+    UnresolvedTargetRoleDecision,
     all_locked,
 )
 from recommender.team_candidates import _pick_best_evidence_item
@@ -181,6 +183,18 @@ _REJECT_HINT = (
 )
 
 
+def _should_show_species_primary(option: Mapping[str, Any]) -> bool:
+    species_primary = option.get("species_primary_role")
+    if not species_primary or species_primary == "unresolved":
+        return False
+    trd = option.get("target_role_decision")
+    if isinstance(trd, TargetRoleDecision):
+        return species_primary != trd.role_id
+    if isinstance(trd, UnresolvedTargetRoleDecision):
+        return species_primary not in trd.ambiguity
+    return False
+
+
 def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
     lines: list[str] = []
     prompt = pending.get("prompt_text")
@@ -207,6 +221,8 @@ def _format_candidate_selection(pending: Mapping[str, Any]) -> list[str]:
             bits.append(role_bit)
         if need_cats:
             bits.append(" / ".join(str(c) for c in need_cats))
+        if _should_show_species_primary(option):
+            bits.append(f"primary: {option['species_primary_role']}")
         if option.get("primary_function"):
             bits.append(str(option["primary_function"]))
         evidence_rows = option.get("evidence") or ()

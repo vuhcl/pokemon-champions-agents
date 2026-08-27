@@ -763,6 +763,58 @@ def test_present_only_persists_ordered_options_with_sources():
     assert pending["options"][1]["source"] == "threat"
 
 
+def test_annotate_composition_impact_sets_species_primary_role():
+    from recommender.team_candidates import annotate_composition_impact
+
+    cand = AnnotatedCandidate(
+        species="Sinistcha",
+        matching_needs=(_trick_room_need(),),
+        source="need",
+        spec={"species": "Sinistcha"},
+    )
+    out = annotate_composition_impact([cand], _base_state())
+    assert out[0].species_primary_role == "redirection"
+    assert (
+        classify_anchor_role(resolve_anchor_build("Sinistcha")).role_id
+        == "redirection"
+    )
+
+
+def test_species_primary_role_uses_candidate_spec_resolution():
+    from recommender.team_candidates import (
+        _role_decision,
+        species_primary_role_for_candidate,
+    )
+
+    reg = "champions-reg-mb"
+    spec = {"species": "Klefki"}
+    assert species_primary_role_for_candidate("Klefki", spec, reg) == _role_decision(
+        "Klefki", spec, reg
+    )[1].role_id
+
+
+def test_pending_presentation_wires_species_primary_role():
+    from recommender.team_candidates import annotate_composition_impact
+
+    need = _trick_room_need()
+    ctx = SlotFillContext(
+        anchor={"species": "Kingambit"},
+        role_shape_context=_shape(),
+        threat_counter_results=[_tc("Sinistcha")],
+        support_needs=[need],
+    )
+    annotate_overlap(ctx)
+    ctx.annotated_candidates = annotate_composition_impact(
+        ctx.annotated_candidates or [], _base_state()
+    )
+    result = run_slot_fill_terminal(ctx, _base_state(), slot_index=2)
+    pending = result.state_updates["pending_presentation"]
+    sinistcha = next(
+        o for o in pending["options"] if o["species"] == "Sinistcha"
+    )
+    assert sinistcha["species_primary_role"] == "redirection"
+
+
 def test_threat_only_choice_gets_kit_fallback_not_open_slot_role():
     """Threat-only rows must not inherit the open-slot support role.
 

@@ -203,6 +203,107 @@ def test_candidate_selection_shows_slash_need_categories():
     assert "base build includes Trick Room" in text
 
 
+def test_candidate_selection_shows_primary_role_when_differs_from_need_role():
+    text = format_turn(
+        {
+            "pending_presentation": {
+                "kind": "candidate_selection",
+                "slot_index": 0,
+                "options": [
+                    {
+                        "species": "Sinistcha",
+                        "source": "need",
+                        "need_categories": ["trick_room"],
+                        "target_role_decision": TargetRoleDecision(
+                            role_id="trick_room_setter",
+                            source="support_need",
+                        ),
+                        "species_primary_role": "redirection",
+                        "evidence": (
+                            CandidateEvidence(
+                                "usage_backed",
+                                "high",
+                                "test",
+                                ("need:trick_room",),
+                            ),
+                        ),
+                    }
+                ],
+            }
+        }
+    )
+    assert "trick_room" in text
+    assert "trick_room_setter" in text
+    assert "primary: redirection" in text
+
+
+def test_candidate_selection_hides_primary_role_when_agrees():
+    text = format_turn(
+        {
+            "pending_presentation": {
+                "kind": "candidate_selection",
+                "slot_index": 0,
+                "options": [
+                    {
+                        "species": "Grimmsnarl",
+                        "source": "need",
+                        "need_categories": ["screens"],
+                        "target_role_decision": TargetRoleDecision(
+                            role_id="screens_support",
+                            source="support_need",
+                        ),
+                        "species_primary_role": "screens_support",
+                        "evidence": (
+                            CandidateEvidence(
+                                "usage_backed",
+                                "medium",
+                                "test",
+                                ("need:screens",),
+                            ),
+                        ),
+                    }
+                ],
+            }
+        }
+    )
+    assert "screens" in text
+    assert "primary:" not in text
+
+
+def test_candidate_selection_shows_primary_when_tr_role_bit_suppressed():
+    text = format_turn(
+        {
+            "pending_presentation": {
+                "kind": "candidate_selection",
+                "slot_index": 0,
+                "options": [
+                    {
+                        "species": "Sinistcha",
+                        "source": "need",
+                        "need_categories": ["healing_cleric", "trick_room"],
+                        "secondary_trick_room": True,
+                        "target_role_decision": TargetRoleDecision(
+                            role_id="trick_room_setter",
+                            source="support_need",
+                        ),
+                        "species_primary_role": "redirection",
+                        "evidence": (
+                            CandidateEvidence(
+                                "usage_backed",
+                                "medium",
+                                "test",
+                                ("need:trick_room",),
+                            ),
+                        ),
+                    }
+                ],
+            }
+        }
+    )
+    assert "trick_room_setter" not in text
+    assert "primary: redirection" in text
+
+
 def test_candidate_selection_uses_best_evidence_not_first():
     """Regression for the rain-suggestion display bug (2026-08-16/17).
 

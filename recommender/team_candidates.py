@@ -778,6 +778,14 @@ def _role_decision(species: str, spec: dict, regulation: str):
     return build, classify_anchor_role(build)
 
 
+def species_primary_role_for_candidate(
+    species: str, spec: dict, regulation: str
+) -> str | None:
+    """classify_anchor_role(build).role_id from candidate.spec — not kit_role."""
+    role_id = _role_decision(species, spec, regulation)[1].role_id
+    return None if role_id == "unresolved" else role_id
+
+
 def annotate_composition_impact(
     candidates: Sequence[AnnotatedCandidate],
     state: RecommenderState,
@@ -950,6 +958,9 @@ def annotate_composition_impact(
                 )
                 for condition in backup_conditions
             )
+        primary_role = (
+            None if decision.role_id == "unresolved" else decision.role_id
+        )
         out.append(
             replace(
                 candidate,
@@ -961,6 +972,7 @@ def annotate_composition_impact(
                 improves_bench_subset=improves_bench_subset,
                 dependency_reliability=dependency_reliability,
                 core_slot_conflicts=core_slot_conflicts,
+                species_primary_role=primary_role,
             )
         )
     return out
