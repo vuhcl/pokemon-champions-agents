@@ -10,8 +10,55 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
+
+      # Calc HTTP service (services/calc via root package.json). No engines field;
+      # @types/node ^22 in package.json → Node 22. Readiness: GET /health →
+      # {"status":"ok"} on 127.0.0.1:4173 (services/calc/server.ts).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
       - run: uv sync --extra dev --frozen
+
+      - name: Install and start calc service
+        run: |
+          set -euo pipefail
+          npm ci
+          npm start &
+          calc_pid=$!
+          echo "calc_pid=$calc_pid" >> "$GITHUB_ENV"
+          ready=0
+          for i in $(seq 1 60); do
+            if ! kill -0 "$calc_pid" 2>/dev/null; then
+              echo "calc service exited before becoming healthy (pid=$calc_pid)" >&2
+              wait "$calc_pid" || true
+              exit 1
+            fi
+            if curl -sf http://127.0.0.1:4173/health | grep -q '"status":"ok"'; then
+              echo "calc service healthy on http://127.0.0.1:4173 (attempt $i)"
+              ready=1
+              break
+            fi
+            sleep 0.5
+          done
+          if [ "$ready" != "1" ]; then
+            echo "calc service did not become healthy within 30s" >&2
+            kill "$calc_pid" 2>/dev/null || true
+            exit 1
+          fi
+
+      # Do not set CALC_LIVE=1 — the five CALC_LIVE-gated live tests stay skipped.
       - run: uv run pytest
+
+      - name: Stop calc service
+        if: always()
+        run: |
+          if [ -n "${calc_pid:-}" ]; then
+            kill "$calc_pid" 2>/dev/null || true
+            wait "$calc_pid" 2>/dev/null || true
+          fi
