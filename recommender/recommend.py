@@ -14,7 +14,12 @@ from recommender.legality import (
 )
 from recommender.resolved_builds import get_resolved_build, put_resolved_build
 from recommender.state import PokemonSet, Slot, StatsTable
-from recommender.usage_data import featured_or_common_set, find_set_matching, species_usage
+from recommender.usage_data import (
+    SetMatchEntry,
+    featured_or_common_set,
+    find_set_matching,
+    species_usage,
+)
 from recommender.usage_spreads import select_usage_spread
 
 SP_BUDGET = 66
@@ -73,6 +78,7 @@ class RecommendResult(TypedDict):
     source_tier: str
     verification: NotRequired[list[str]]
     failures: NotRequired[list[str]]
+    match_alternatives: NotRequired[tuple[SetMatchEntry, ...]]
 
 
 def lookup_live_build(
@@ -369,17 +375,28 @@ def recommend_build(
         }
 
     # --- Tier 1: usage exact match ---
-    matched = (
+    matches = (
         find_set_matching(species, moves, item, regulation=regulation)
         if item is not None
-        else None
+        else []
     )
-    source = "champions-native"
-    built: PokemonSet | None = dict(matched) if matched else None
-    if built:
-        # Usage spread is a species-level marginal, not correlated with this set.
+    primary = matches[0] if matches else None
+    built: PokemonSet | None = dict(primary["set"]) if primary else None
+    match_alternatives: tuple[SetMatchEntry, ...] = ()
+    if primary and primary["source"] == "featured":
+        # Synthetic featured row attaches species-level marginal spreads — strip.
+        assert built is not None
         built.pop("evs", None)
-    rationale = "tier1 usage exact moves+item match" if matched else ""
+        source = "champions-native"
+        rationale = "tier1 usage exact moves+item match"
+    elif primary and primary["source"] == "vgcpastes":
+        # Real joint paste builds keep evs/nature.
+        source = "vgcpastes-exact"
+        rationale = "tier1 vgcpastes exact moves+item match"
+        match_alternatives = tuple(matches[1:])
+    else:
+        source = "champions-native"
+        rationale = ""
 
     if not built:
         # Broader: featured/common for species (may differ moves — only if moves empty?)
@@ -536,10 +553,13 @@ def recommend_build(
     built["species"] = species
     built["moves"] = b_moves
     built["item"] = b_item
-    return {
+    result: RecommendResult = {
         "ok": True,
         "set": built,
         "rationale": rationale or "recommended",
         "source_tier": source_tier_out,
         "verification": verification,
     }
+    if match_alternatives:
+        result["match_alternatives"] = match_alternatives
+    return result

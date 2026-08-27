@@ -3,15 +3,20 @@
 from __future__ import annotations
 
 import json
+from collections import defaultdict
+from datetime import date, datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, NotRequired, TypedDict
 
 from recommender.ids import regulation_file_tag, to_id
+from recommender.species_forms import item_mega_forme
+from recommender.sp_convert import evs_to_sp
 from recommender.state import PokemonSet, StatsTable
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 USAGE_DIR = REPO_ROOT / "data" / "usage"
+TEAM_COMP_DIR = REPO_ROOT / "data" / "team-composition"
 
 # Doubles coverage pool (no relevance_filter). Not Role Compendium's 20-30 scale.
 TEAM_THREAT_N = 50
@@ -23,6 +28,22 @@ SLOT_THREAT_N = 10  # allowed range 5-10; default top of range
 # Smogon convention: 1500+ = high-level ladder filter (casual play stripped).
 # Confirmed 2026-06 gen9championsvgc2026regmb: 1_163_315 battles at 1500 — adequate.
 SHOWDOWN_USAGE_RATING = 1500
+
+_STAT_KEYS = ("hp", "atk", "def", "spa", "spd", "spe")
+
+SetMatchSource = Literal["vgcpastes", "featured"]
+SetMatchProvenance = Literal["vgcpastes", "featured"]
+
+
+class SetMatchEntry(TypedDict):
+    set: PokemonSet
+    source: SetMatchSource
+    provenance: SetMatchProvenance
+    occurrence_count: NotRequired[int]
+    date_shared_earliest: NotRequired[str]
+
+
+SetMatchResult = list[SetMatchEntry]
 
 
 @lru_cache(maxsize=4)
@@ -162,19 +183,27 @@ def find_set_matching(
     item: str | None,
     *,
     regulation: str = "champions-reg-mb",
-) -> PokemonSet | None:
-    """Exact moves+item match against featured sets.
+) -> SetMatchResult:
+    """Exact moves+item match: VGCPastes first, then synthetic featured_sets.
 
     ``item is None`` means unspecified (no exact match attempted).
     ``item == ""`` means explicitly no held item.
+    Returns a ranked list (empty = miss; [0] = primary; [1:] = alternatives).
     """
     if item is None:
-        return None
-    entry = species_usage(species, regulation=regulation)
-    if not entry:
-        return None
+        return []
     want_moves = sorted(to_id(m) for m in moves)
     want_item = to_id(item)
+
+    vgcpastes_hits = _match_vgcpastes(
+        species, want_moves, want_item, item=item, regulation=regulation
+    )
+    if vgcpastes_hits:
+        return vgcpastes_hits
+
+    entry = species_usage(species, regulation=regulation)
+    if not entry:
+        return []
     for fs in entry.get("featured_sets") or []:
         fs_moves = sorted(to_id(m) for m in (fs.get("moves") or []))
         fs_item = to_id(fs.get("item") or "")
@@ -189,8 +218,147 @@ def find_set_matching(
             spread = _spread_from_usage(entry)
             if spread:
                 out["evs"] = spread
-            return out
-    return None
+            return [
+                {
+                    "set": out,
+                    "source": "featured",
+                    "provenance": "featured",
+                }
+            ]
+    return []
+
+
+@lru_cache(maxsize=4)
+def load_vgcpastes_builds(regulation: str = "champions-reg-mb") -> dict[str, Any]:
+    tag = regulation_file_tag(regulation)
+    path = TEAM_COMP_DIR / f"{tag}.vgcpastes-builds.v1.json"
+    if not path.exists():
+        return {"meta": {}, "teams": [], "cores": []}
+    return json.loads(path.read_text())
+
+
+def normalize_member_evs(raw: dict[str, Any] | None) -> dict[str, int] | None:
+    """Normalize paste EVs to Champions SP (0–32, sum 66). None if unusable."""
+    if not isinstance(raw, dict):
+        return None
+    try:
+        spread = {stat: int(raw.get(stat, 0)) for stat in _STAT_KEYS}
+    except (TypeError, ValueError):
+        return None
+    if any(v > 32 for v in spread.values()):
+        spread = evs_to_sp(spread)
+    if sum(spread.values()) != 66 or any(v < 0 or v > 32 for v in spread.values()):
+        return None
+    return spread
+
+
+def parse_date_shared(raw: str | None) -> date | None:
+    """Parse VGCPastes ``date_shared`` strings like ``12 Aug 2026``."""
+    if not raw or not str(raw).strip():
+        return None
+    try:
+        return datetime.strptime(str(raw).strip(), "%d %b %Y").date()
+    except ValueError:
+        return None
+
+
+def vgcpastes_lookup_species_ids(species: str, item: str | None) -> tuple[str, ...]:
+    """Species ids to scan in VGCPastes (base + mega label when holding a stone)."""
+    requested = to_id(species)
+    snap = {"species": _legality_species()}
+    ent = snap["species"].get(requested) or {}
+    base = ent.get("base_species_id") or requested
+    ids: list[str] = []
+    for candidate in (requested, base):
+        if candidate and candidate not in ids:
+            ids.append(candidate)
+    item_id = to_id(item) if item else ""
+    if item_id:
+        mega = item_mega_forme(item_id, base, snap)
+        if mega and mega not in ids:
+            ids.append(mega)
+    return tuple(ids)
+
+
+def _match_vgcpastes(
+    species: str,
+    want_moves: list[str],
+    want_item: str,
+    *,
+    item: str,
+    regulation: str,
+) -> SetMatchResult:
+    data = load_vgcpastes_builds(regulation)
+    lookup_ids = set(vgcpastes_lookup_species_ids(species, item))
+    # bucket_key -> list of (parsed_date_or_max, member, team)
+    buckets: dict[
+        tuple[str, tuple[int, ...] | None],
+        list[tuple[date | None, dict[str, Any]]],
+    ] = defaultdict(list)
+
+    for team in data.get("teams") or []:
+        team_date = parse_date_shared(team.get("date_shared"))
+        for member in team.get("members") or []:
+            sid = to_id(str(member.get("species") or ""))
+            if sid not in lookup_ids:
+                continue
+            moves = member.get("moves") or []
+            if len(moves) != 4 or not all(moves):
+                continue
+            mem_moves = sorted(to_id(m) for m in moves)
+            mem_item = to_id(member.get("item") or "")
+            if mem_moves != want_moves or mem_item != want_item:
+                continue
+            spread = normalize_member_evs(member.get("evs"))
+            nature = str(member.get("nature") or "")
+            spread_key: tuple[int, ...] | None = (
+                tuple(spread[s] for s in _STAT_KEYS) if spread is not None else None
+            )
+            buckets[(nature, spread_key)].append((team_date, member))
+
+    if not buckets:
+        return []
+
+    ranked: list[tuple[int, date, tuple[str, tuple[int, ...] | None], dict[str, Any]]] = []
+    far_future = date(9999, 12, 31)
+    for key, rows in buckets.items():
+        count = len(rows)
+        dates = [d for d, _ in rows if d is not None]
+        earliest = min(dates) if dates else far_future
+        member = rows[0][1]
+        ranked.append((count, earliest, key, member))
+
+    # occurrence desc, then earliest date asc
+    ranked.sort(key=lambda r: (-r[0], r[1]))
+
+    out: SetMatchResult = []
+    for count, earliest, key, member in ranked:
+        nature, spread_key = key
+        built: PokemonSet = {
+            "species": str(member.get("species_display") or member.get("species") or species),
+            "moves": [str(m) for m in (member.get("moves") or [])][:4],
+        }
+        raw_item = member.get("item")
+        if raw_item:
+            built["item"] = _display_item(str(raw_item))
+        else:
+            built["item"] = ""
+        if member.get("ability"):
+            built["ability"] = _display_ability(str(member["ability"]))
+        if nature:
+            built["nature"] = nature
+        if spread_key is not None:
+            built["evs"] = {s: spread_key[i] for i, s in enumerate(_STAT_KEYS)}
+        entry: SetMatchEntry = {
+            "set": built,
+            "source": "vgcpastes",
+            "provenance": "vgcpastes",
+            "occurrence_count": count,
+        }
+        if earliest != far_future:
+            entry["date_shared_earliest"] = earliest.isoformat()
+        out.append(entry)
+    return out
 
 
 @lru_cache(maxsize=1)
@@ -220,6 +388,8 @@ def _ability_display() -> dict[str, str]:
 
 
 def _display_item(raw: str) -> str:
+    if not raw:
+        return ""
     ent = (_legality_blob().get("items") or {}).get(to_id(raw))
     return (ent or {}).get("name") or raw
 

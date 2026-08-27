@@ -170,7 +170,7 @@ def test_tier2_exhaustion_synthesizes_tier3_role_spread():
     moves = ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"]
     with (
         patch("recommender.recommend.get_resolved_build", return_value=None),
-        patch("recommender.recommend.find_set_matching", return_value=None),
+        patch("recommender.recommend.find_set_matching", return_value=[]),
         patch("recommender.recommend.lookup_live_build", return_value=None),
         patch("recommender.recommend.select_usage_spread", return_value=None),
         patch(
@@ -201,7 +201,7 @@ def test_partial_spread_preserves_base_and_flags_remainder():
     }
     with (
         patch("recommender.recommend.get_resolved_build", return_value=None),
-        patch("recommender.recommend.find_set_matching", return_value=None),
+        patch("recommender.recommend.find_set_matching", return_value=[]),
         patch("recommender.recommend.lookup_live_build", return_value=matched),
     ):
         out = recommend_build("Garchomp", moves, "Life Orb", write_cache=False)
@@ -228,7 +228,7 @@ def test_full_exact_live_spread_keeps_live_provenance():
     }
     with (
         patch("recommender.recommend.get_resolved_build", return_value=None),
-        patch("recommender.recommend.find_set_matching", return_value=None),
+        patch("recommender.recommend.find_set_matching", return_value=[]),
         patch("recommender.recommend.lookup_live_build", return_value=matched),
     ):
         out = recommend_build("Garchomp", moves, "Life Orb", write_cache=False)
@@ -279,7 +279,7 @@ def test_explicit_empty_item_attempts_tier1():
     moves = ["Brave Bird", "Flare Blitz", "Tailwind", "Protect"]
     with (
         patch("recommender.recommend.get_resolved_build", return_value=None),
-        patch("recommender.recommend.find_set_matching", return_value=None) as matched,
+        patch("recommender.recommend.find_set_matching", return_value=[]) as matched,
         patch("recommender.recommend.lookup_live_build", return_value=None),
         patch("recommender.recommend.select_usage_spread", return_value=None),
         patch(
@@ -292,3 +292,82 @@ def test_explicit_empty_item_attempts_tier1():
     matched.assert_called_once()
     assert matched.call_args.args[2] == ""
     assert out["set"].get("item") == ""
+
+
+def test_vgcpastes_hit_keeps_evs():
+    moves = ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"]
+    evs = {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32}
+    matches = [
+        {
+            "set": {
+                "species": "Garchomp",
+                "moves": moves,
+                "item": "Life Orb",
+                "ability": "Rough Skin",
+                "nature": "Jolly",
+                "evs": dict(evs),
+            },
+            "source": "vgcpastes",
+            "provenance": "vgcpastes",
+            "occurrence_count": 3,
+        },
+        {
+            "set": {
+                "species": "Garchomp",
+                "moves": moves,
+                "item": "Life Orb",
+                "nature": "Adamant",
+                "evs": {"hp": 20, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 14},
+            },
+            "source": "vgcpastes",
+            "provenance": "vgcpastes",
+            "occurrence_count": 1,
+        },
+    ]
+    with (
+        patch("recommender.recommend.get_resolved_build", return_value=None),
+        patch("recommender.recommend.find_set_matching", return_value=matches),
+    ):
+        out = recommend_build("Garchomp", moves, "Life Orb", write_cache=False)
+    assert out["ok"]
+    assert out["set"]["evs"] == evs
+    assert out["source_tier"] == "vgcpastes-exact"
+    assert out.get("match_alternatives")
+    assert out["match_alternatives"][0]["provenance"] == "vgcpastes"
+
+
+def test_match_alternatives_populated():
+    moves = ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"]
+    matches = [
+        {
+            "set": {
+                "species": "Garchomp",
+                "moves": moves,
+                "item": "Life Orb",
+                "evs": {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32},
+                "nature": "Jolly",
+            },
+            "source": "vgcpastes",
+            "provenance": "vgcpastes",
+            "occurrence_count": 2,
+        },
+        {
+            "set": {
+                "species": "Garchomp",
+                "moves": moves,
+                "item": "Life Orb",
+                "evs": {"hp": 20, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 14},
+                "nature": "Adamant",
+            },
+            "source": "vgcpastes",
+            "provenance": "vgcpastes",
+            "occurrence_count": 1,
+        },
+    ]
+    with (
+        patch("recommender.recommend.get_resolved_build", return_value=None),
+        patch("recommender.recommend.find_set_matching", return_value=matches),
+    ):
+        out = recommend_build("Garchomp", moves, "Life Orb", write_cache=False)
+    assert len(out.get("match_alternatives") or ()) == 1
+    assert out["match_alternatives"][0]["set"]["nature"] == "Adamant"

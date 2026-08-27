@@ -9,13 +9,10 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import Counter
-from functools import lru_cache
-from pathlib import Path
 from typing import Any
 
-from recommender.ids import regulation_file_tag, to_id
+from recommender.ids import to_id
 from recommender.legality import check_set
-from recommender.sp_convert import evs_to_sp
 from recommender.state import (
     BuildAxis,
     BuildConfirmationOption,
@@ -27,11 +24,13 @@ from recommender.state import (
     Slot,
     TargetRoleDecision,
 )
-from recommender.usage_data import featured_or_common_set, species_usage
+from recommender.usage_data import (
+    featured_or_common_set,
+    load_vgcpastes_builds,
+    normalize_member_evs,
+    species_usage,
+)
 from recommender.usage_spreads import effective_spe
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-TEAM_COMP_DIR = REPO_ROOT / "data" / "team-composition"
 
 # ponytail: provisional calibration — raise/lower when ladder joint-build data exists
 VGCPASETES_MIN_OCCURRENCES = 15
@@ -184,15 +183,6 @@ def ally_support_investment_notes(
     return tuple(notes)
 
 
-@lru_cache(maxsize=4)
-def load_vgcpastes_builds(regulation: str = "champions-reg-mb") -> dict[str, Any]:
-    tag = regulation_file_tag(regulation)
-    path = TEAM_COMP_DIR / f"{tag}.vgcpastes-builds.v1.json"
-    if not path.exists():
-        return {"meta": {}, "teams": [], "cores": []}
-    return json.loads(path.read_text())
-
-
 def _vgcpastes_species_counts(data: dict[str, Any]) -> Counter[str]:
     counts: Counter[str] = Counter()
     for team in data.get("teams") or []:
@@ -201,20 +191,6 @@ def _vgcpastes_species_counts(data: dict[str, Any]) -> Counter[str]:
             if sid:
                 counts[sid] += 1
     return counts
-
-
-def _normalize_member_evs(raw: dict[str, Any] | None) -> dict[str, int] | None:
-    if not isinstance(raw, dict):
-        return None
-    try:
-        spread = {stat: int(raw.get(stat, 0)) for stat in _STAT_KEYS}
-    except (TypeError, ValueError):
-        return None
-    if any(v > 32 for v in spread.values()):
-        spread = evs_to_sp(spread)
-    if sum(spread.values()) != 66 or any(v < 0 or v > 32 for v in spread.values()):
-        return None
-    return spread
 
 
 def _diff_summary(base: ProvisionalSlot, overrides: BuildFieldOverrides) -> str:
@@ -335,7 +311,7 @@ def _usage_spread_siblings(
         if len(out) >= _MAX_SIBLINGS:
             break
         evs = row.get("evs") or row
-        spread = _normalize_member_evs(evs if isinstance(evs, dict) else None)
+        spread = normalize_member_evs(evs if isinstance(evs, dict) else None)
         if spread is None:
             continue
         nature = str(row.get("nature") or provisional.nature)
@@ -387,7 +363,7 @@ def _vgcpastes_siblings(
         for member in team.get("members") or []:
             if to_id(str(member.get("species") or "")) != sid:
                 continue
-            spread = _normalize_member_evs(member.get("evs"))
+            spread = normalize_member_evs(member.get("evs"))
             moves = member.get("moves") or []
             if spread is None or len(moves) != 4 or not all(moves):
                 continue

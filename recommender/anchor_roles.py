@@ -270,12 +270,13 @@ def resolve_anchor_build(
     species = str(values["species"] or "")
     exact = None
     if species and values["moves"] and values["item"] is not None:
-        exact = find_set_matching(
+        matches = find_set_matching(
             species,
             list(values["moves"]),
             values["item"],
             regulation=regulation,
         )
+        exact = matches[0]["set"] if matches else None
     if exact:
         group = "usage-exact:" + hashlib.sha1(
             json.dumps(
@@ -301,6 +302,9 @@ def resolve_anchor_build(
         if values["evs"] is None and exact.get("evs") is not None:
             values["evs"] = exact["evs"]
             provenance["evs"] = FieldProvenance("evs", "usage_derived")
+        if values["nature"] is None and exact.get("nature") is not None:
+            values["nature"] = exact["nature"]
+            provenance["nature"] = FieldProvenance("nature", "usage_derived")
 
     if species and values["moves"] and values["item"] is not None and values["evs"] is None:
         cached = get_resolved_build(
