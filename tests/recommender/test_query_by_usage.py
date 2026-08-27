@@ -57,9 +57,8 @@ def test_composes_into_query_counters():
 
 
 def test_usage_admission_honors_ownership_before_cut():
-    top = query_by_usage(n=2)
-    pool = [row.spec for row in top]
-    owned = str(pool[1]["species"])
+    pool = [{"species": "Kingambit"}, {"species": "Sinistcha"}]
+    owned = "Sinistcha"
     assert [
         row.spec["species"]
         for row in query_by_usage(

@@ -46,7 +46,16 @@ _EMPTY_USAGE = {
 
 def _patch_empty_usage_maps(monkeypatch) -> None:
     monkeypatch.setattr("recommender.role_compendium.load_usage", lambda: _EMPTY_USAGE)
-    monkeypatch.setattr("recommender.role_compendium_usage.load_usage", lambda: _EMPTY_USAGE)
+    monkeypatch.setattr(
+        "recommender.role_compendium.ingame_species_map", lambda _reg="champions-reg-mb": {}
+    )
+    monkeypatch.setattr(
+        "recommender.role_compendium.ingame_excluded_ids", lambda: frozenset()
+    )
+    monkeypatch.setattr(
+        "recommender.role_compendium_usage.ingame_species_map",
+        lambda _reg="champions-reg-mb": {},
+    )
     monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
     monkeypatch.setattr("recommender.role_compendium_usage.showdown_species_map", lambda: {})
 

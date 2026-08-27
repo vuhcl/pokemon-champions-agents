@@ -475,8 +475,9 @@ def test_resolve_condition_beneficiaries_confidence_is_usage_aware():
             if ev.producer_name == "resolve_condition_beneficiaries"
         ]
         assert ability_hits
+        # Full ladder refresh: Castform is on the in-game slice (rank ~220).
         assert all(
-            ev.basis == "mechanical_only" and ev.confidence == "low"
+            ev.basis == "usage_backed" and ev.confidence == "high"
             for ev in ability_hits
         )
 

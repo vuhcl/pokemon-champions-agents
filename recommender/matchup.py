@@ -380,13 +380,24 @@ def _evaluate_exchange(
     )
 
 
+def _calc_ready_spec(spec: PokemonSpecOptional) -> PokemonSpecOptional:
+    out: PokemonSpecOptional = dict(spec)
+    if to_id(str(out.get("species") or "")) == "aegislash":
+        out["species"] = "Aegislash-Shield"
+    return out
+
+
 def _calc_request(
     attacker: PokemonSpecOptional,
     defender: PokemonSpecOptional,
     move: str,
     field: FieldSpec | None,
 ) -> CalcRequest:
-    req: CalcRequest = {"attacker": attacker, "defender": defender, "move": move}
+    req: CalcRequest = {
+        "attacker": _calc_ready_spec(attacker),
+        "defender": _calc_ready_spec(defender),
+        "move": move,
+    }
     if field is not None:
         req["field"] = field
     return req

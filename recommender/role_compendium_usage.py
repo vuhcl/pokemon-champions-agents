@@ -6,7 +6,7 @@ from typing import Any
 
 from recommender.ids import to_id
 from recommender.reconcile import _item_mega_forme
-from recommender.usage_data import load_usage, showdown_species_map
+from recommender.usage_data import ingame_species_map, showdown_species_map
 from recommender.role_compendium import (
     LiveFetch,
     _MEGA_STONE_FALLBACK_PCT,
@@ -27,8 +27,7 @@ def _best_move_set_pct(
 ) -> float:
     """Max of CBD pct and Showdown set% for one move. Does not live-fetch."""
     sid = to_id(name)
-    ingame = (load_usage().get("ingame_doubles") or {}).get("species") or {}
-    ch = ingame.get(sid)
+    ch = ingame_species_map().get(sid)
     if not isinstance(ch, dict):
         ch = uctx.cache.get(sid)  # already-fetched live CBD only
     sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)

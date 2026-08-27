@@ -10,6 +10,7 @@ from recommender.counters import (
     KO_THRESHOLD_BP,
     QUERY_COUNTERS_SLACK,
     _dominant_mega_form,
+    _dominant_mega_from_showdown,
     _ko_best_move,
     _mega_forms_by_base,
     _scaled_base_power,
@@ -21,6 +22,29 @@ from recommender.counters import (
 from recommender.usage_data import showdown_species_map
 from recommender.legality import load_snapshot
 from recommender.ids import to_id
+
+
+def _raw_cbd_entry(sid: str) -> dict:
+    """Synthetic CBD rows for stone-heuristic unit tests (mega rows omitted from snapshot)."""
+    fixtures: dict[str, dict] = {
+        "swampert": {
+            "common_items": [{"name": "Swampertite", "pct": 95.5}, {"name": "Leftovers", "pct": 4.5}]
+        },
+        "charizard": {
+            "common_items": [
+                {"name": "Charizardite Y", "pct": 93.6},
+                {"name": "Charizardite X", "pct": 5.0},
+            ]
+        },
+        "garchomp": {"common_items": [{"name": "Rocky Helmet", "pct": 40.0}]},
+        "staraptor": {"common_items": [{"name": "Staraptite", "pct": 88.0}]},
+        "mawile": {"common_items": [{"name": "Mawilite", "pct": 90.0}]},
+        "sceptile": {"common_items": [{"name": "Sceptilite", "pct": 85.0}]},
+        "blastoise": {"common_items": [{"name": "Blastoisinite", "pct": 95.0}]},
+        "floette": {"common_items": [{"name": "Floettite", "pct": 99.0}]},
+        "dragonite": {"common_items": [{"name": "Dragoninite", "pct": 55.4}]},
+    }
+    return dict(fixtures.get(sid) or {})
 from recommender.matchup import effective_accuracy, expected_hit_factor
 from recommender.ranking import rank_and_cut
 from recommender.state import ThreatCandidate
@@ -342,8 +366,17 @@ def test_owned_last_only_breaks_a_complete_query_key_tie():
     real_sd = showdown_species_map("champions-reg-mb")
     forced_pct = real_sd.get(a_id, {}).get("usage_pct", 1.0)
     patched_sd = dict(real_sd)
-    patched_sd[b_id] = {**patched_sd.get(b_id, {}), "usage_pct": forced_pct}
-    patched_sd[a_id] = {**patched_sd.get(a_id, {}), "usage_pct": forced_pct}
+
+    def _set_pct(sid: str, pct: float) -> None:
+        patched_sd[sid] = {**patched_sd.get(sid, {}), "usage_pct": pct}
+        from recommender.legality import load_snapshot
+
+        base = (load_snapshot().get("species") or {}).get(sid, {}).get("base_species_id")
+        if base:
+            patched_sd[base] = {**patched_sd.get(base, {}), "usage_pct": pct}
+
+    _set_pct(a_id, forced_pct)
+    _set_pct(b_id, forced_pct)
 
     candidate_pool = [{"species": pair[0].form}, {"species": pair[1].form}]
     owned = pair[1].form
@@ -535,21 +568,33 @@ def test_defensive_synergy_score_full_immunity_backs_up_more_than_partial_resist
 
 
 def test_dominant_mega_form_swampert_real_data():
-    """Regression, confirmed live: "Swampert" in real in-game usage data
-    is 95.5% Swampertite -- the usage_rank currently attributed to the
-    base form (Torrent, base stats) actually belongs to the mega form
-    (Swift Swim, boosted stats) in practice. Confirms the real, exact
-    scenario that motivated this fix.
-    """
+    """Stone-heuristic retarget still works when given raw CBD fixture data."""
     from recommender.legality import load_snapshot
-    from recommender.usage_data import ingame_species_map
 
     snap = load_snapshot()
-    ig = ingame_species_map("champions-reg-mb")
     mega_forms_by_base = _mega_forms_by_base(snap)
-    ig_entry = ig.get("swampert") or {}
+    ig_entry = _raw_cbd_entry("swampert")
     result = _dominant_mega_form(snap, "swampert", ig_entry, mega_forms_by_base)
     assert result == "swampertmega"
+
+
+def test_dominant_mega_form_empty_ig_entry_returns_none():
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    assert _dominant_mega_form(snap, "swampert", {}, mega_forms_by_base) is None
+
+
+def test_dominant_mega_from_showdown_picks_highest_usage_mega():
+    from recommender.legality import load_snapshot
+    from recommender.usage_data import showdown_species_map
+
+    snap = load_snapshot()
+    sd = showdown_species_map("champions-reg-mb")
+    mega_forms_by_base = _mega_forms_by_base(snap)
+    result = _dominant_mega_from_showdown(sd, snap, "charizard", mega_forms_by_base)
+    assert result in {"charizardmegax", "charizardmegay"}
 
 
 def test_dominant_mega_form_handles_multi_form_species_charizard():
@@ -557,12 +602,10 @@ def test_dominant_mega_form_handles_multi_form_species_charizard():
     one (Y, per real in-game item share) is correctly identified, not
     just "some" mega form or the wrong one."""
     from recommender.legality import load_snapshot
-    from recommender.usage_data import ingame_species_map
 
     snap = load_snapshot()
-    ig = ingame_species_map("champions-reg-mb")
     mega_forms_by_base = _mega_forms_by_base(snap)
-    ig_entry = ig.get("charizard") or {}
+    ig_entry = _raw_cbd_entry("charizard")
     result = _dominant_mega_form(snap, "charizard", ig_entry, mega_forms_by_base)
     assert result == "charizardmegay"
 
@@ -573,13 +616,10 @@ def test_dominant_mega_form_returns_none_below_threshold():
     gated decision, not applied blanket to every species with a mega
     form available."""
     from recommender.legality import load_snapshot
-    from recommender.usage_data import ingame_species_map
 
     snap = load_snapshot()
-    ig = ingame_species_map("champions-reg-mb")
     mega_forms_by_base = _mega_forms_by_base(snap)
-    # A species with no mega form at all
-    ig_entry = ig.get("garchomp") or {}
+    ig_entry = _raw_cbd_entry("garchomp")
     result = _dominant_mega_form(snap, "garchomp", ig_entry, mega_forms_by_base)
     assert result is None
 
@@ -602,10 +642,8 @@ def test_dominant_mega_form_handles_shortened_stone_names():
     before).
     """
     from recommender.legality import load_snapshot
-    from recommender.usage_data import ingame_species_map
 
     snap = load_snapshot()
-    ig = ingame_species_map("champions-reg-mb")
     mega_forms_by_base = _mega_forms_by_base(snap)
     expected = {
         "staraptor": "staraptormega",
@@ -613,7 +651,7 @@ def test_dominant_mega_form_handles_shortened_stone_names():
         "sceptile": "sceptilemega",
     }
     for base_sid, expected_mega in expected.items():
-        ig_entry = ig.get(base_sid) or {}
+        ig_entry = _raw_cbd_entry(base_sid)
         result = _dominant_mega_form(snap, base_sid, ig_entry, mega_forms_by_base)
         assert result == expected_mega, base_sid
 
@@ -633,16 +671,14 @@ def test_dominant_mega_form_prefers_true_mega_over_non_mega_alternate():
     X/Y-suffix path at all.
     """
     from recommender.legality import load_snapshot
-    from recommender.usage_data import ingame_species_map
 
     snap = load_snapshot()
-    ig = ingame_species_map("champions-reg-mb")
     mega_forms_by_base = _mega_forms_by_base(snap)
     for base_sid, expected_mega in [
         ("blastoise", "blastoisemega"),
         ("floette", "floettemega"),
     ]:
-        ig_entry = ig.get(base_sid) or {}
+        ig_entry = _raw_cbd_entry(base_sid)
         result = _dominant_mega_form(snap, base_sid, ig_entry, mega_forms_by_base)
         assert result == expected_mega, base_sid
 
@@ -655,12 +691,10 @@ def test_dominant_mega_form_still_respects_dominance_threshold_for_shortened_nam
     matching heuristic is now more permissive.
     """
     from recommender.legality import load_snapshot
-    from recommender.usage_data import ingame_species_map
 
     snap = load_snapshot()
-    ig = ingame_species_map("champions-reg-mb")
     mega_forms_by_base = _mega_forms_by_base(snap)
-    ig_entry = ig.get("dragonite") or {}
+    ig_entry = _raw_cbd_entry("dragonite")
     result = _dominant_mega_form(snap, "dragonite", ig_entry, mega_forms_by_base)
     assert result is None
 
@@ -726,18 +760,15 @@ def test_query_counters_showdown_only_candidates_ranked_by_real_popularity():
 
 
 def test_query_counters_reports_mega_form_directly_not_base():
-    """End-to-end confirmation against real data: querying for threats to
-    Archaludon now correctly surfaces "Swampert-Mega" directly (Swift
-    Swim, Swampertite, real usage_rank retargeted from the base entry's
-    real popularity), not "Swampert" (Torrent, base stats) -- the exact
-    live scenario that motivated this whole investigation.
-    """
-    counters = query_counters({"species": "Archaludon"})
+    """End-to-end: mega-capable bases retarget via Showdown when CBD excluded."""
+    counters = query_counters(
+        {"species": "Archaludon"},
+        candidate_pool=[{"species": "Swampert"}],
+    )
     swampert_related = [c for c in counters if "swampert" in c.ladder_species.lower()]
     assert len(swampert_related) == 1
     candidate = swampert_related[0]
     assert candidate.ladder_species == "Swampert-Mega"
-    assert candidate.usage_rank == 20
     assert candidate.spec.get("ability") == "Swift Swim"
 
 

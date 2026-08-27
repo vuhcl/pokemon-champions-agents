@@ -237,26 +237,24 @@ def _row_named(result: TeammateQueryResult, species_id: str) -> TeammateEvidence
     return next(row for row in result.rows or () if row.species_id == species_id)
 
 
-def test_cbd_swampert_remaps_to_mega():
+def test_cbd_swampert_stays_ambiguous_without_base_page():
     result = _cbd_only("vivillonfancy")
     assert result.source == "cbd-offline"
-    row = _row_named(result, "swampertmega")
-    assert row.name == "Swampert-Mega"
-    assert row.attribution_status == "exact"
-    assert all(row.species_id != "swampert" for row in result.rows or ())
+    row = _row_named(result, "swampert")
+    assert row.name == "Swampert"
+    assert row.attribution_status == "ambiguous"
 
 
-def test_cbd_raichu_remaps_to_mega_y_not_x():
+def test_cbd_raichu_stays_ambiguous_without_base_page():
     result = _force_cbd("ninetalesalola")
     assert result.source == "cbd-offline"
-    row = _row_named(result, "raichumegay")
-    assert row.name == "Raichu-Mega-Y"
-    assert row.attribution_status == "exact"
-    assert all(row.species_id not in {"raichu", "raichumegax"} for row in result.rows or ())
+    row = _row_named(result, "raichu")
+    assert row.name == "Raichu"
+    assert row.attribution_status == "ambiguous"
 
 
 def test_cbd_tyranitar_stays_ambiguous():
-    result = _force_cbd("excadrill")
+    result = _force_cbd("sinistcha")
     assert result.source == "cbd-offline"
     row = _row_named(result, "tyranitar")
     assert row.name == "Tyranitar"
@@ -271,18 +269,17 @@ def test_cbd_garchomp_stays_ambiguous():
     assert row.attribution_status == "ambiguous"
 
 
-def test_cbd_mawile_shared_query_is_mega_exact():
+def test_cbd_mawile_shared_query_stays_ambiguous():
     result = query_shared_teammates(
-        ["mausholdfour", "vivillonfancy"],
+        ["vivillonfancy"],
         query=lambda species, regulation: query_teammates(
             species, regulation, live_showdown_fetch=_no_live
         ),
     )
     assert result.status == "available"
-    row = next(r for r in result.rows or () if r.species_id == "mawilemega")
-    assert row.name == "Mawile-Mega"
-    assert row.attribution_status == "exact"
-    assert all(r.species_id != "mawile" for r in result.rows or ())
+    row = next(r for r in result.rows or () if r.species_id == "swampert")
+    assert row.name == "Swampert"
+    assert row.attribution_status == "ambiguous"
 
 
 def test_cbd_sinistcha_and_flavor_names_untouched():
@@ -293,14 +290,14 @@ def test_cbd_sinistcha_and_flavor_names_untouched():
     assert sinistcha.name == "Sinistcha"
     assert sinistcha.attribution_status == "ambiguous"
 
-    mawile = _cbd_only("mawile")
-    four = _row_named(mawile, "mausholdfamilyoffour")
+    talonflame = _force_cbd("talonflame")
+    four = _row_named(talonflame, "mausholdfamilyoffour")
     assert four.name == "Maushold Family of Four"
     assert four.attribution_status == "unresolved"
 
     fancy_page = _cbd_only("vivillonfancy")
     assert fancy_page.anchor_id == "vivillonfancy"
-    gengar = _force_cbd("gengar")
-    fancy = _row_named(gengar, "vivillonfancypattern")
+    politoed = _force_cbd("politoed")
+    fancy = _row_named(politoed, "vivillonfancypattern")
     assert fancy.name == "Vivillon Fancy Pattern"
     assert fancy.attribution_status == "unresolved"

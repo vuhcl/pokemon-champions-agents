@@ -41,6 +41,7 @@ from recommender.support_needs import _OFFENSIVE_PRIORITY_MOVES, _SELF_HEAL_MOVE
 from recommender.usage_cbd import fetch_ingame_doubles_species
 from recommender.usage_data import (
     featured_or_common_set,
+    ingame_excluded_ids,
     ingame_species_map,
     load_usage,
     set_from_ingame,
@@ -522,8 +523,9 @@ class _UsageCtx:
         live-fetch cache.
         """
         sid = to_id(species)
-        ingame = (load_usage().get("ingame_doubles") or {}).get("species") or {}
-        row = ingame.get(sid)
+        if sid in ingame_excluded_ids():
+            return None
+        row = ingame_species_map().get(sid)
         if isinstance(row, dict):
             return row
         if self.live_fetch is None:
@@ -541,7 +543,7 @@ def _offline_usage_row(sid: str) -> dict[str, Any] | None:
     """Any usage map entry whose key == sid or startswith(sid)."""
     usage = load_usage()
     maps: list[dict[str, Any]] = [usage.get("species") or {}]
-    maps.append((usage.get("ingame_doubles") or {}).get("species") or {})
+    maps.append(ingame_species_map())
     maps.append((usage.get("showdown_vgc_mb") or {}).get("species") or {})
     for smap in maps:
         if sid in smap and isinstance(smap[sid], dict):

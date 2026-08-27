@@ -119,22 +119,29 @@ def provided_conditions(
 def _provider_move_commitment(
     species: str, move_id: str, regulation: str
 ) -> float | None:
-    """Real in-game commitment (0-100) to move_id on species, or None if
-    the species isn't in the in-game dataset at all -- a real data gap,
-    distinct from "confirmed low commitment," matching the same
-    distinction already established for usage/confidence elsewhere in
-    this codebase (see ADR-028 Amendment 2026-08-22a).
+    """Real commitment (0-100) to move_id on species, ingame then Showdown.
+
+    None only when the species is absent from the in-game dataset entirely
+    (a real data gap). Move missing from both sources after an ingame row
+    exists returns 0.0.
     """
     from recommender.ids import to_id
-    from recommender.usage_data import ingame_species_map
+    from recommender.usage_data import ingame_species_map, showdown_species_map
 
-    entry = ingame_species_map(regulation).get(to_id(species))
-    if entry is None:
+    sid = to_id(species)
+    ingame = ingame_species_map(regulation).get(sid)
+    for source in (
+        ingame,
+        showdown_species_map(regulation).get(sid),
+    ):
+        if not source:
+            continue
+        for m in source.get("common_moves") or []:
+            if to_id(str(m.get("name") or "")) == move_id:
+                pct = m.get("pct")
+                return float(pct) if pct is not None else None
+    if ingame is None:
         return None
-    for m in entry.get("common_moves") or []:
-        if to_id(str(m.get("name") or "")) == move_id:
-            pct = m.get("pct")
-            return float(pct) if pct is not None else None
     return 0.0
 
 

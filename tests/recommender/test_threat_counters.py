@@ -910,10 +910,8 @@ def test_query_counters_populates_showdown_fallback_for_real_mega_counters():
     counters = query_counters({"species": "Kingambit"})
     mega_counters = [c for c in counters if "mega" in c.ladder_species.lower()]
     assert mega_counters
-    retargeted = [c for c in mega_counters if c.usage_rank is not None]
     fallback_only = [c for c in mega_counters if c.usage_rank is None]
-    assert retargeted, "expected at least one mega form to be correctly retargeted"
-    assert fallback_only, "expected at least one mega form to still need the fallback"
+    assert fallback_only, "mega-capable CBD excluded; Showdown fallback expected"
     for c in fallback_only:
         assert c.showdown_usage_pct is not None
     for c in mega_counters:

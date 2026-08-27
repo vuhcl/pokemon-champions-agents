@@ -24,6 +24,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from recommender.ids import regulation_file_tag, to_id
+from recommender.species_forms import ingame_excluded_species_ids, mega_capable_base_ids
 from recommender.teammates import (
     TEAMMATE_LIMIT,
     normalize_munch_teammates,
@@ -48,12 +49,14 @@ from recommender.usage_chaos import (
 ROOT = Path(__file__).resolve().parents[2]
 USAGE_DIR = ROOT / "data" / "usage"
 
-# Smogon 1500+ = high-level ladder filter (casual play stripped).
-TEAM_LADDER_N = 50  # matches TEAM_THREAT_N inclusion scale
+# Legacy cap for partial dev pulls (--cbd-top-n N). Default extract is full ladder.
+TEAM_LADDER_N = 50
 _SPREAD_LIMIT = 8  # spreads are not the truncation bug; keep a short featured list
 
 
-def extract_ingame(top_n: int = TEAM_LADDER_N) -> dict[str, dict]:
+def extract_ingame(top_n: int | None = None) -> dict[str, dict]:
+    legality = json.loads((ROOT / "data" / "legality" / "champions.v1.json").read_text())
+    excluded = ingame_excluded_species_ids(legality)
     idx = fetch_json(f"{CBD_API}/api/index")
     if not isinstance(idx, dict):
         raise SystemExit("CBD /api/index failed")
@@ -70,6 +73,9 @@ def extract_ingame(top_n: int = TEAM_LADDER_N) -> dict[str, dict]:
     ranked.sort()
     species: dict[str, dict] = {}
     for pos, name, sid in ranked[:top_n]:
+        if sid in excluded:
+            print(f"  ingame #{pos} {sid} SKIP mega-capable", file=sys.stderr)
+            continue
         entry = fetch_ingame_doubles_species(name)
         if entry is None:
             print(f"  ingame #{pos} {sid} SKIP (fetch failed)", file=sys.stderr)
@@ -404,9 +410,14 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--refresh-cbd",
         action="store_true",
-        help="Re-fetch Champions in-game doubles top-N instead of reusing the snapshot",
+        help="Re-fetch Champions in-game doubles ladder instead of reusing the snapshot",
     )
-    p.add_argument("--cbd-top-n", type=int, default=TEAM_LADDER_N)
+    p.add_argument(
+        "--cbd-top-n",
+        type=int,
+        default=0,
+        help="CBD species to fetch; 0 = full ranked ladder (default)",
+    )
     p.add_argument("--out", type=Path, default=None)
     args = p.parse_args(argv)
 
@@ -416,10 +427,18 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.refresh_cbd:
         print("extracting in-game doubles ladder...", file=sys.stderr)
-        ingame = extract_ingame(args.cbd_top_n)
+        top_n = args.cbd_top_n if args.cbd_top_n > 0 else None
+        ingame = extract_ingame(top_n)
     else:
         print(f"reusing CBD slice from {out_path}...", file=sys.stderr)
         ingame = _load_existing_cbd(out_path)
+
+    legality = json.loads((ROOT / "data" / "legality" / "champions.v1.json").read_text())
+    ingame_meta = {
+        "ingame_ladder_n": len(ingame),
+        "ingame_excluded_mega_capable_n": len(mega_capable_base_ids(legality)),
+        "ingame_exclusion_policy": "mega_capable_lineages",
+    }
 
     print(
         f"extracting showdown {args.source} {args.month} "
@@ -443,6 +462,7 @@ def main(argv: list[str] | None = None) -> int:
         rating=args.rating,
         regulation=tag,
         source=source_label,
+        base_meta=ingame_meta,
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(snap, indent=2) + "\n")

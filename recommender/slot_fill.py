@@ -1487,7 +1487,7 @@ def resolve_condition_beneficiaries(
                 # whichever row does get generated reads the correct real
                 # usage data instead of silently missing it by id mismatch.
                 in_ingame = lineage_ids(sid)[0] in ingame_map
-                sw_entry = showdown_map.get(lineage_ids(sid)[0])
+                sw_entry = showdown_map.get(sid) or showdown_map.get(lineage_ids(sid)[0])
                 sw_pct = sw_entry.get("usage_pct") if sw_entry else None
                 if in_ingame or (sw_pct is not None and sw_pct >= MIN_USAGE_PCT):
                     basis: CandidateEvidenceBasis = "usage_backed"

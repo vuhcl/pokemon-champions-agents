@@ -5,7 +5,7 @@ ranks plus Showdown chaos @ 1500 per-form builds.
 
 | Path | Role |
 |------|------|
-| `champions-reg-mb.v1.json` | In-game top-50 + Showdown@1500 formes/builds and exact-form teammate co-occurrence (schema v3) |
+| `champions-reg-mb.v1.json` | Full in-game doubles ladder (minus mega-capable lineages) + Showdown@1500 formes/builds and exact-form teammate co-occurrence (schema v3) |
 
 ## Rebuild (regulation-change / monthly refresh)
 
@@ -34,8 +34,11 @@ uv run python scripts/extract_usage/fetch_usage_mb.py \
 uv run python scripts/extract_usage/fetch_usage_mb.py --source munchstats --month YYYY-MM
 ```
 
-`--refresh-cbd` re-fetches Champions Battle Data doubles top-N. Omit it to keep
-the existing in-game slice and only replace Showdown.
+`--refresh-cbd` re-fetches the full Champions Battle Data doubles ladder (236 ranked
+species by default; pass `--cbd-top-n N` for a partial dev pull). Mega-capable
+lineages (base + mega formes) are omitted from the in-game slice; Showdown remains
+authoritative for those species. Omit `--refresh-cbd` to keep the existing in-game
+slice and only replace Showdown.
 
 Meta records `showdown_month`, `showdown_format`, `showdown_rating`,
 `showdown_source` (`smogon-chaos` | `munchstats-showdown`), `showdown_pct_kind`

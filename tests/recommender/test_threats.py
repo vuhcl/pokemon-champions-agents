@@ -74,14 +74,13 @@ def test_lineage_charizard_includes_megas_and_gmax():
     assert "charizardgmax" in kids
 
 
-def test_charizard_expands_megas_not_gmax():
-    """Gmax linked in legality but absent from Showdown@1500 → not expanded."""
-    cands = get_relevant_threats({"regulation_mod": "champions"}, n=10)  # type: ignore[arg-type]
-    char = [c for c in cands if c.ladder_species == "Charizard"]
-    forms = {c.form for c in char}
-    assert forms == {"Charizard", "Charizard-Mega-X", "Charizard-Mega-Y"}
-    assert all(c.build_source == "showdown_form" for c in char)
-    assert not any("gmax" in c.form.lower() for c in char)
+def test_mega_capable_bases_absent_from_ingame_threat_ladder():
+    """Mega-capable lineages are excluded from the in-game threat pool."""
+    cands = get_relevant_threats({"regulation_mod": "champions"}, n=50)  # type: ignore[arg-type]
+    ladder = {c.ladder_species for c in cands}
+    assert "Charizard" not in ladder
+    assert "Garchomp" not in ladder
+    assert "Swampert" not in ladder
 
 
 def test_ranked_by_ingame_usage_rank():
@@ -90,7 +89,7 @@ def test_ranked_by_ingame_usage_rank():
     # Ladder order preserved across expand (same rank may repeat for formes)
     assert ranks == sorted(ranks)
     assert cands[0].usage_rank == 1
-    assert "Garchomp" in cands[0].ladder_species or "garchomp" in cands[0].ladder_species.lower()
+    assert cands[0].ladder_species == "Kingambit"
 
 
 def test_team_default_n_is_50_ladder_species():
@@ -113,10 +112,10 @@ def test_relevance_filter_drops_non_matching():
     cands = get_relevant_threats(
         {"regulation_mod": "champions"},  # type: ignore[arg-type]
         n=20,
-        relevance_filter=lambda s: "garchomp" in s["species"].lower().replace("-", ""),
+        relevance_filter=lambda s: "kingambit" in s["species"].lower().replace("-", ""),
     )
     assert cands
-    assert all("garchomp" in c.spec["species"].lower().replace("-", "") for c in cands)
+    assert all("kingambit" in c.spec["species"].lower().replace("-", "") for c in cands)
 
 
 def test_multi_form_never_ingame_build_source():
