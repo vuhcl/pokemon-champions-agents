@@ -4974,6 +4974,76 @@ rather than accepting the weaker substitute. Worth remembering as a recurring sh
 legitimate technical constraint is a reason to solve the constraint, not license to quietly
 ship a weaker mechanism in its place.
 
+## 2026-08-27 — target_role_from_needs display-label accuracy: discovery
+complete, fix deferred pending a design decision
+
+Confirmed root cause via direct testing (not re-derived from old ADR
+figures): `target_role_from_needs` derives the displayed role label purely
+from which team-need categories a candidate satisfied in a given selection
+round, with no visibility into the candidate's own real usage/commitment
+profile. `classify_anchor_role` — the same, now-improved mechanism behind
+ADR-024's Amendment 2026-08-26a — already resolves Sinistcha's real primary
+job correctly (`role_id="redirection"`, verified directly against its real
+resolved build) independent of the NeedCategory system entirely. A
+species-aware fallback (`_kit_fallback_target_role`) already exists and is
+built on this same mechanism, but only fires when the need-derived path
+returns nothing at all — never to cross-check or override a present-but-
+wrong need-derived label like Sinistcha's "trick_room_setter."
+
+Also found and corrected mid-investigation: the initial Klefki test used
+`resolve_anchor_build`'s default (Showdown-ladder-derived) set, already
+separately confirmed misleading for this exact species in a prior session
+(Amendment 2026-08-24b). Re-checking with `user_role="screens_support"`
+supplied directly confirms `classify_anchor_role`'s *logic* is correct for
+Klefki too — the disagreement was a data-source artifact, not a second
+confirmed bug.
+
+A systematic sweep beyond Sinistcha/Klefki (Maushold, Ariados, Vivillon,
+Volcarona, Clefable, Grimmsnarl, Meowstic, Serperior, Sableye, Whimsicott,
+Farigiraf, Hatterene) found the disagreement pattern concentrates on (a)
+dual-role kits where a secondary matched need wins the mapped label, and
+(b) species whose default usage build isn't the strategic role the
+Compendium grades them for — the same shape as the Klefki data-source
+issue, not yet independently re-verified per species.
+
+**Real design options scoped, none chosen:** always compute both labels
+and flag/prefer on disagreement with strong species evidence; a
+confidence-gated override mirroring the existing Amendment 2026-08-24b
+pattern; or separating the two questions display-side ("why was this
+candidate picked" vs. "what is this candidate's real job") as two distinct
+fields rather than overloading one. Explicitly not a one-line rewire —
+two separate production call sites feed the same display field, and the
+learnset-annotate path can produce different `need_cats` than the
+multi-locked Compendium-resolve path for the same candidate, making the
+symptom path-dependent. **Deferred pending a product decision on which
+option to pursue** — no fix implemented this session.
+
+## 2026-08-27 — Session summary: single-locked threat-counter field
+awareness, ingame_doubles coverage/mega-exclusion (with a real
+masked-core regression found and fixed), conflict-aware gap-fill, and
+display-label discovery
+
+Four units shipped, one scoped and deferred: (1) `query_threat_counters`
+forced-field wiring (ADR-045, PR #154); (2) ingame_doubles full-ladder
+expansion + mega-capable CBD exclusion, including an in-session-caught
+masked-core regression fix, a meta-count bug fix, and an Aegislash revert
+(ADR-046); (3) conflict-aware gap-fill search (ADR-047); (4)
+`target_role_from_needs` display-label discovery, deferred pending a
+design decision (above).
+
+**Process note worth keeping:** ADR-046's masked-core regression was
+caught only because the CALC_LIVE E2E test was run directly with live
+calc rather than accepted as "expected to skip" — the first report
+characterized the failure as a live-calc dependency, and only running it
+for real (twice, at two different points in the investigation) surfaced
+that it was failing, not skipping. The eventual fix (ADR-047) was
+correctly kept out of the regression-carrying branch and shipped as an
+independent PR once it was confirmed the CALC_LIVE test already passed
+trivially on plain `main` — verified via both a stacked cherry-pick and,
+before merge, a real (non-simulated) git merge of both branches together.
+Bar for "actually fixed" throughout: the original live-transcript-verified
+behavior restored end-to-end, not just a passing unit test.
+
 ---
 
 ## TOOLS & RESOURCES

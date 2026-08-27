@@ -8916,3 +8916,173 @@ calc-verified or static-proxy approach is used for each. The one concrete
 decision made — parallel terrain-specific functions rather than a unified
 vocabulary, because weather and terrain can stack — is ready to inform
 whatever gets built first, whenever that's decided.
+
+---
+
+## ADR-045: Single-locked threat verification now honors real locked field states
+
+**Context:** `query_threat_counters` (the single-anchor threat-discovery path)
+hardcoded `classify_matchup(cand_spec, threat_spec, None, ...)` — always
+evaluating candidates as if no weather/Tailwind/Trick Room were in play,
+even when a real locked teammate provided one. `_best_matchup_with_forced_fields`
+already solved exactly this for the multi-locked path
+(`query_candidates_for_threats`), including its own documented root-cause
+fix for the same bug shape, but was never wired into the single-anchor path.
+The one real caller (`slot_fill.py:315`, inside `build_anchored_slot_fill_context`)
+had `state["team_draft"]` sitting in scope — passed to `query_support_needs`
+two lines earlier — but never threaded it into the threat-counters call.
+
+**Decision:** Extended `query_threat_counters` with `locked_contexts`,
+`exclude_slot`, and `exclude_slots` parameters, mirroring
+`query_candidates_for_threats`'s existing signature exactly. `forced_fields`
+computed via the existing `team_field_states` helper before the `try` block
+(matching the multi-locked path's placement precisely), then passed through
+`_best_matchup_with_forced_fields` instead of the old direct
+`classify_matchup(..., None, ...)` call. The call site now derives
+`locked_contexts` via `collect_locked_anchor_contexts(state)` — the same
+helper already used for this purpose elsewhere — and includes the anchor's
+own field contribution rather than excluding it, since production
+`discover_single_locked` only ever runs when exactly one anchor is locked
+(confirmed: `len(anchors) != 1` returns early in `nodes.py`), making that
+single anchor the only possible field provider. Excluding it would have
+made the entire wiring a no-op on the only real production path.
+
+No new forced-field mechanism was built — this is pure reuse of
+`_best_matchup_with_forced_fields`/`team_field_states`, exactly the kind of
+existing-and-tested machinery this project's standing discipline calls for
+reusing rather than reimplementing.
+
+**Status:** Implemented and verified. Branch `fix/single-locked-forced-fields`,
+merged as PR #154. New regression test
+(`test_query_threat_counters_credits_field_dependent_answer`) confirms a
+candidate only receives a decisive verified score once a real locked field
+is applied, using different species names from the sibling multi-locked
+regression test to avoid masking a copy-paste error. Full suite green
+(1454 passed, 13 skipped) with the local calc service live.
+
+---
+
+## ADR-046: ingame_doubles ladder coverage expanded to the full CBD ladder;
+mega-capable species excluded from CBD entirely, not just build synthesis
+
+**Context:** Surfaced while investigating the `target_role_from_needs`
+display-label backlog item — Klefki has no `ingame_doubles` entry at all
+because the CBD extraction script (`fetch_usage_mb.py`) hardcoded a 50-species
+cap (`TEAM_LADDER_N`). Confirmed directly: this was a script parameter, not
+a source limitation — the live CBD `/api/index` endpoint returns the full
+236-species ranked Doubles ladder; Klefki's real rank is #117.
+
+A second, more serious issue surfaced during scoping: CBD structurally
+conflates base and Mega-form usage under one shared species bucket (verified
+at both the index level — no forme-disambiguation field exists to extract —
+and the battle-API level — Mega-form pages 404 outright; e.g. Charizard's
+base CBD page shows 93.6% Charizardite Y in its item distribution, meaning
+its moves/spreads reflect blended base+Mega play). This meant a mega-capable
+species' *base*-identity CBD data is untrustworthy too, not just its
+(nonexistent) separate mega identity — ruling out a "Showdown for mega,
+in-game for base" split in favor of "Showdown for both forms, for any
+species with a legal mega form."
+
+**Decision:** `--cbd-top-n` now defaults to the full live ladder (236,
+confirmed live; no cap). New `mega_capable_base_ids`/`ingame_excluded_species_ids`
+(`recommender/species_forms.py`) identify any species with a legal mega form
+via the legality snapshot's `base_species_id` graph — the same source
+`_item_mega_forme` already reads. `ingame_species_map()` filters these out
+entirely at read time (`usage_data.py`), inherited automatically by every
+real consumer (build synthesis, `commitment_pct` confidence gating,
+Role-Compendium CBD-first paths, `query_counters` popularity, the teammate
+stone-remap heuristic) rather than requiring a per-call-site check.
+
+**A real regression was found and fixed during this work, not shipped
+silently.** The initial exclusion design filtered `ingame_species_map()`
+uniformly for both build-data AND threat-ladder rank/membership purposes.
+Since masked-alternate-core discovery's entire premise is mega-slot
+conflicts, and its `usage_backed` signal for threat-sourced candidates
+derives from ladder rank via this same accessor
+(`coverage.py`'s `get_relevant_threats`), excluding every mega-capable
+species from the ladder meant masked-core discovery's primary use case
+could never satisfy its dual signal again — confirmed via bisect that this
+broke `should_try_masked_core` for the exact fixture and species
+(Metagross-Mega) verified working in this morning's PR #149 fix, and that
+it reproduced even on the pre-expansion snapshot (code-caused, not a data-
+staleness artifact). **Fix:** a new `ingame_ladder_species_map()` returns
+raw, unfiltered ladder rows for rank/membership purposes only (explicitly
+documented as "not build-safe"); `get_relevant_threats` iterates this raw
+ladder for rank, but passes a rank-only stub (never the raw CBD entry) into
+`_expand_ladder_species` for excluded species, which then falls through to
+Showdown build data via its existing fallback chain. The same
+rank-vs-build conflation was checked and confirmed present in
+`query_counters`, `query_by_usage`, and `resolve_condition_beneficiaries`'
+membership check — all three updated to read the new ladder-only accessor
+for rank while keeping build data on the filtered/Showdown path.
+
+**Two smaller review findings fixed in the same branch:** the snapshot's
+own `ingame_excluded_mega_capable_n` meta field was wrong (counted static
+legality-graph mega-capable bases, not actual ladder entries skipped —
+undercounted by 5; root-caused and replaced with a real reconciliation
+formula, asserted before every write). A separate, unrelated,
+undisclosed `_calc_ready_spec` change in `matchup.py` — forcing bare
+`"Aegislash"` to `"Aegislash-Shield"` on *both* attacker and defender in
+every calc call — was caught in review as contradicting an existing,
+tested, correct Blade/Shield split already present elsewhere
+(`role_compendium_setup.py`, locked by
+`test_aegislash_incoming_uses_shield_forme`) and reverted; the correct
+fix (forme-aware normalization at the actual call sites producing bare
+Aegislash specs) is deferred to its own scoped review.
+
+**Status:** Implemented and verified. Branch `feat/ingame-ladder-mega-exclusion`,
+merged. Full suite green (1471 passed, 13 skipped) confirmed via a real
+git merge (not simulation) with the local calc service live and
+`CALC_LIVE=1` set.
+
+---
+
+## ADR-047: Masked-core gap-fill search made conflict-aware
+
+**Context:** A direct consequence of ADR-046's ladder/build decoupling.
+Dominant-mega retargeting in `query_counters` (via the new
+`_dominant_mega_from_showdown` fallback) correctly resolves Garchomp's
+real threat-counter identity to Garchomp-Mega once its CBD row is excluded
+— but this caused base Garchomp to disappear entirely as an independent
+gap-fill candidate on the masked-core sun-sequential fixture, exactly the
+context where the *non-mega* form was the safer pick (no second mega
+conflict). `_search_gap_fill` picked the next-ranked candidate,
+Aerodactyl-Mega, which itself created a mega-vs-mega conflict against the
+synthetically-placed masked-core candidate, exhausting the remaining
+gap-fill budget and aborting package construction entirely — confirmed via
+deterministic replay (not the interactive ADR-038 transcript session) that
+this was a genuine regression, reproducing even on old pre-expansion data
+with only ADR-046's code present.
+
+Explicitly not addressed by "fixing" the dominant-mega retargeting itself:
+confirmed there is no single correct "which form is dominant" rule —
+real cases split three ways (Garchomp: base stronger; Swampert: mega
+stronger; Venusaur: both valid depending on role), so any threshold-based
+identity rule will be wrong for some real species. The fix instead targets
+the consumer.
+
+**Decision:** `_search_gap_fill`'s ranked-candidate loop now skips any
+candidate whose own `core_slot_conflicts` would exhaust the remaining
+gap-fill budget, continuing to the next-ranked candidate instead of
+returning the first usage-backed, calc-agreeing row unconditionally. The
+viability check (`_fill_viable_for_package`, `_gap_fill_mask_extra`) is a
+byte-for-byte extraction of the existing abort logic already present in
+`discover_masked_core_package` — not new logic, just moved earlier so it
+can prevent a bad pick instead of only detecting it after the fact.
+Deliberately does not attempt to resolve the ambiguous "intermediate
+expansion, might still work" case within the new helper — that stays with
+the existing outer loop, unchanged.
+
+**Status:** Implemented and verified. Branch `fix/conflict-aware-gap-fill`,
+branched from and merged independently of ADR-046's branch (no shared
+regression to gate on — confirmed the CALC_LIVE E2E acceptance test
+already passed trivially on plain `main`, so a real, targeted unit test
+proving the skip-and-continue behavior was made the primary CI-enforced
+proof instead). Two new tests confirm the fix picks a conflict-free
+candidate over a higher-ranked conflicting one, both via `_search_gap_fill`
+directly and via the full, unmocked `discover_masked_core_package` path.
+The actual regression fix was confirmed via a stacked cherry-pick and,
+separately, a real (non-simulated) git merge of both branches together —
+`CALC_LIVE=1` end-to-end test passes, `core_resolution` correctly restored
+on the original broken fixture. Full suite green post-merge (1471 passed,
+13 skipped).
