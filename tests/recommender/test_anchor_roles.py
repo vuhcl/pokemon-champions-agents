@@ -91,6 +91,7 @@ def test_pelipper_primary_rain_secondary_tailwind_without_setup():
     drizzle = next(m for m in decision.mechanisms if m.mechanic == "Drizzle")
     tailwind = next(m for m in decision.mechanisms if m.mechanic == "Tailwind")
     roles = {decision.role_id, *decision.secondary_role_ids}
+    assert decision.role_id == "rain_setter"
     assert roles >= {"rain_setter", "tailwind_setter"}
     assert "condition:Rain" in drizzle.evidence
     assert "condition:Tailwind" in tailwind.evidence

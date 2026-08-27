@@ -16,6 +16,12 @@ DEFAULT_ROLES_DIR = ROOT / "data" / "roles"
 ROLE_TIER_ORDER = ("Excellent", "Good", "Acceptable")
 
 
+def _tier_rank(tier: str | None) -> int:
+    if tier in ROLE_TIER_ORDER:
+        return ROLE_TIER_ORDER.index(tier)
+    return len(ROLE_TIER_ORDER)  # missing/unknown tier sorts last
+
+
 @dataclass(frozen=True)
 class CompendiumRoleEvidence:
     """One reverse lookup result, kept distinct by evidence strength."""
@@ -162,6 +168,8 @@ def reverse_compendium_evidence(
             if to_id(row.species) != sid:
                 continue
             rejected.append(row)
+    # Excellent > Good > Acceptable; same-tier ties → alphabetical source_file, then role_id.
+    exact.sort(key=lambda row: (_tier_rank(row.tier), row.source_file, row.role_id))
     return ReverseCompendiumEvidence(
         exact=tuple(exact),
         species=tuple(species_only),

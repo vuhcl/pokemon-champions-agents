@@ -102,3 +102,55 @@ def test_reverse_reader_separates_exact_species_and_rejected():
 
     arch = reverse_compendium_evidence("Archaludon")
     assert any(row.role_id == "swords_dance_attacker" for row in arch.rejected)
+
+
+def test_reverse_exact_matches_prefer_higher_tier_over_alphabetical_file():
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+
+    build = resolve_anchor_build("Pelipper")
+    evidence = reverse_compendium_evidence(
+        build.species or "", moves=build.moves, ability=build.ability
+    )
+    assert len(evidence.exact) >= 2
+    assert evidence.exact[0].role_id == "rain_setter"
+    assert evidence.exact[0].tier == "Excellent"
+    assert classify_anchor_role(build).role_id == "rain_setter"
+
+
+def test_reverse_exact_tie_break_alphabetical_by_source_file(tmp_path: Path):
+    (tmp_path / "alpha_role.v1.json").write_text(
+        json.dumps(
+            {
+                "category": "alpha_role",
+                "tiers": {"Excellent": ["Pelipper"]},
+                "candidates": [
+                    {
+                        "species": "Pelipper",
+                        "species_id": "pelipper",
+                        "mechanism": "AlphaMech",
+                    }
+                ],
+            }
+        )
+    )
+    (tmp_path / "zulu_role.v1.json").write_text(
+        json.dumps(
+            {
+                "category": "zulu_role",
+                "tiers": {"Excellent": ["Pelipper"]},
+                "candidates": [
+                    {
+                        "species": "Pelipper",
+                        "species_id": "pelipper",
+                        "mechanism": "ZuluMech",
+                    }
+                ],
+            }
+        )
+    )
+    evidence = reverse_compendium_evidence(
+        "Pelipper", moves=["AlphaMech", "ZuluMech"], roles_dir=tmp_path
+    )
+    assert len(evidence.exact) == 2
+    assert evidence.exact[0].source_file == "alpha_role.v1.json"
+    assert evidence.exact[1].source_file == "zulu_role.v1.json"
