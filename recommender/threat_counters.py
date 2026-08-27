@@ -216,6 +216,9 @@ def query_threat_counters(
     candidate_pool: list[PokemonSpecOptional] | None = None,
     available_pool: list[str] | None = None,
     ownership_mode: OwnershipMode = "off",
+    locked_contexts: Sequence["LockedAnchorContext"] = (),
+    exclude_slot: int | None = None,
+    exclude_slots: frozenset[int] = frozenset(),
 ) -> TeamThreatDiscovery:
     """Candidates that counter the anchor's threats; final order from verified matchups.
 
@@ -223,10 +226,12 @@ def query_threat_counters(
     threat identification (step 1), which always uses the full unrestricted meta.
     Ownership follows the same candidate-side-only boundary.
 
-    On calc failure returns ``status="degraded"`` with static type-effectiveness
-    discovery rows (from ``query_counters`` / ``_static_cut``), not verified
-    matchups. Weather/terrain are not passed into static type rewrites today —
-    Weather Ball / Terrain Pulse stay base-typed under that ceiling.
+    Verified matchups honor ``locked_contexts`` via the same forced-field path as
+    ``query_candidates_for_threats``. On calc failure returns ``status="degraded"``
+    with static type-effectiveness discovery rows (from ``query_counters`` /
+    ``_static_cut``), not verified matchups. Weather/terrain are not passed into
+    static type rewrites today — Weather Ball / Terrain Pulse stay base-typed
+    under that ceiling.
     """
     if not anchor.get("species"):
         return TeamThreatDiscovery(status="available", candidates=())
@@ -266,6 +271,11 @@ def query_threat_counters(
     verify_ids = {_species_id(t) for t in verify_threats}
 
     # --- 6. classify_matchup on credited ∩ verify set; verified score is real rank ---
+    from recommender.condition_resilience import team_field_states
+
+    forced_fields = team_field_states(
+        locked_contexts, exclude_slot=exclude_slot, exclude_slots=exclude_slots
+    )
     try:
         out_rows: list[ThreatCounterCandidate] = []
         for m in static:
@@ -286,7 +296,9 @@ def query_threat_counters(
                     threat.spec.get("species") or threat.form or threat.ladder_species
                 )
                 threat_spec = _most_common_verify_spec(threat_species)
-                result = classify_matchup(cand_spec, threat_spec, None, client=client)
+                result = _best_matchup_with_forced_fields(
+                    cand_spec, threat_spec, forced_fields, client=client
+                )
                 verified.append((tid, result))
             score = aggregate_verified([r for _, r in verified])
             out_rows.append(

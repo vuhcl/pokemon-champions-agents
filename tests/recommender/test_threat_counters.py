@@ -718,6 +718,64 @@ def test_query_candidates_for_threats_credits_field_dependent_answer():
     assert result_with_rain.candidates[0].verified_score > 0.0
 
 
+def test_query_threat_counters_credits_field_dependent_answer():
+    """Single-locked twin of the multi-locked Rain regression: a candidate
+    that only answers once the locked team's real field is applied must be
+    credited by query_threat_counters -- previously stage-6 always called
+    classify_matchup with field=None and never reached
+    _best_matchup_with_forced_fields."""
+    threats = [_tc("BlazikenThreat", usage_rank=1)]
+
+    def fake_qc(pokemon, n=20, candidate_pool=None, **kwargs):
+        sp = pokemon.get("species") or ""
+        if sp == "Anchor":
+            return list(threats)
+        return [_tc("Kabutops", usage_rank=5)]
+
+    def fake_classify(cand, threat, field, *, client=None):
+        if field is None:
+            return MatchupResult("no_answer", "toss-up")
+        return MatchupResult("clean_kill", "decisive")
+
+    with (
+        patch("recommender.threat_counters.query_counters", side_effect=fake_qc),
+        patch(
+            "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+        ),
+    ):
+        baseline = query_threat_counters(
+            {"species": "Anchor"}, locked_contexts=(), verify_threats_n=5
+        )
+    assert baseline.candidates[0].verified_score == 0.0
+
+    class _FakeMechanism:
+        def __init__(self):
+            self.present = True
+            self.relation = "provides"
+            self.mechanic = "Drizzle"
+            self.evidence = ("condition:Rain",)
+
+    class _FakeRoleDecision:
+        mechanisms = (_FakeMechanism(),)
+
+    class _FakeContext:
+        slot_index = 0
+        role_decision = _FakeRoleDecision()
+
+    with (
+        patch("recommender.threat_counters.query_counters", side_effect=fake_qc),
+        patch(
+            "recommender.threat_counters.classify_matchup", side_effect=fake_classify
+        ),
+    ):
+        with_rain = query_threat_counters(
+            {"species": "Anchor"},
+            locked_contexts=(_FakeContext(),),
+            verify_threats_n=5,
+        )
+    assert with_rain.candidates[0].verified_score > 0.0
+
+
 def test_best_matchup_with_forced_fields_upgrades_already_answered_but_improvable_result():
     """Regression for a real, confirmed gap found live: a Steel-type
     candidate already 'answers' a Fire-type threat neutrally (surviving
