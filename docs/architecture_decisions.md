@@ -8766,3 +8766,153 @@ featured-set mechanism design question, not implemented.
 abandoned/unmerged, its work absorbed into #140). Verified directly: full
 suite 1379 passed, 12 skipped (environment-only skips), matching the
 claimed baseline at every checked stack tip.
+
+---
+
+## ADR-044: condition_beneficiary shape taxonomy — terrain coverage, damage
+mitigation, denial effects, and item/move gaps (comprehensive scoping, no
+implementation)
+
+**Context:** condition_beneficiary discovery (`provided_weather_conditions` →
+`resolve_condition_beneficiaries`, ADR-024's `RoleShapeContext` lineage) was
+known to be weather-only and to lack a "type-general middle tier" — flagged
+repeatedly since the original design doc
+(`docs/single_locked_condition_beneficiary_discovery_and_design_2026-08-11.md`)
+deliberately deferred both. A systematic investigation this session — five
+successive discovery passes, each surfacing a real shape the previous one
+missed — replaced that open-ended flag with a complete, verified taxonomy.
+**Every claim below was checked directly against real calc/game data
+(`vendor/smogon-calc/dist/mechanics/champions.js`/`gen789.js`, the ability and
+item extracts, the Champions legality snapshot) — nothing here is assumed or
+conversation-assembled.** No implementation, tier assignment, or hard/soft
+stance is decided by this ADR. This is a scoping document; build-order and
+tier decisions are explicitly deferred to a future session.
+
+**Decision (scope framing only):** condition_beneficiary's real design space
+decomposes into seven mechanically distinct shapes, not one:
+
+| # | Shape | Example | Real pool size (Champions-legal) | Wired today? |
+|---|---|---|---|---|
+| 1 | Offensive (STAB/BP/speed ability) | Water STAB under Rain; Swift Swim | 25–39/condition (STAB); small (ability) | Ability-tier only, weather-only |
+| 2 | Defensive mitigation (damage ×0.5, def stat ×1.5) | Rain halves incoming Fire; Sand boosts Rock SpD | 20–106/condition, wider variance than offense | No |
+| 3 | Denial (status/sleep/priority/chip block) | Electric blocks sleep; Psychic blocks priority; Sand chip immunity | 20–280/condition — **near-universal (87%) for Electric/Misty/Psychic at species-level "grounded" gate** | No (Psychic priority block exists in calc; Electric/Misty status denial is a game rule outside calc entirely) |
+| 4 | Ability/move-specific (existing invert) | Swift Swim; Electro Shot charge-skip | Small, precise | Yes, weather-only (`weather_beneficiary_ability_ids`, `CHARGE_INSTANT_WEATHER`) |
+| 5 | One-time held-item trigger | Terrain Seeds (Electric/Grassy → +1 Def; Misty/Psychic → +1 SpD) | ~entire legal dex if legal (species-agnostic) | No; all four seeds currently `is_nonstandard: "Past"`, 0 legal carriers |
+| 6 | Duration extension | Heat/Damp/Icy/Smooth Rock, Terrain Extender | N/A — supports the *setter*, not a beneficiary | Already correctly classified as non-severe/duration in `legality.py:115-122` |
+| 7 | Opt-out / anti-beneficiary | Utility Umbrella | N/A — cancels weather effects entirely for holder | Currently illegal; calc-aware if it returns |
+
+**Terrain coverage — structural gap, confirmed at every layer.** Five real
+terrain-setting abilities exist (Electric Surge, Grassy Surge, Psychic Surge,
+Misty Surge, Hadron Engine — Electric Terrain has two independent setters);
+`_mechanisms` (`anchor_roles.py:507-528`) reads only `field.get("weather")`
+from `ABILITY_TO_FIELD`, never `field.get("terrain")` — terrain-setting
+abilities produce zero mechanism evidence today. `provided_weather_conditions`,
+`weather_beneficiary_ability_ids`, and the move-beneficiary charge table
+(`CHARGE_INSTANT_WEATHER`) are all independently weather-keyed with no terrain
+counterpart at any layer. **Seed Sower** (sets Grassy Terrain on being hit) is
+a genuine asymmetry against even the surge-only pattern already assumed
+elsewhere in the codebase — a real gap in an existing convention, not just a
+missing terrain case. Current Champions legality makes this structurally real
+but currently low-stakes: Electric Surge (Raichu-Mega-X) is the only legal
+terrain setter; the Tapus and Indeedee (the game's other classic setters) are
+all `Illegal` (Restricted Legendary / Past).
+
+**Resolved this session: terrain generalization approach.** Rejected a
+unified `condition:{label}` vocabulary spanning weather and terrain in favor
+of **parallel, terrain-specific functions alongside the untouched weather
+ones** — because weather and terrain can be simultaneously active (they
+stack), and a unified single-value representation can't cleanly express "one
+of each," which a shared vocabulary would obscure. This is the one concrete
+implementation-shape decision made in this scoping pass; the surrounding
+question of whether terrains join `TRACKED_CONDITIONS` (the resilience/
+backup-setter closed set) remains open, per the original 2026-08-11 doc's
+deferral.
+
+**Type-general "middle tier" (offensive) — genuinely ambiguous, not resolved.**
+A plain STAB-move qualifying bar (≥1 legal damaging move of the boosted type)
+produces 25–39 species per condition where an offensive boost exists at all
+(Rain/Water, Sun/Fire, Electric/Electric, Grassy/Grass — Sand/Snow/Misty/
+Psychic have no symmetric offensive boost). No qualifying bar found is both
+mechanically honest and non-noisy; six real design options were laid out
+(status quo / featured-set-only gate / exclude ability-tier overlap /
+move-specific-only / separate presentation category / offense-primary-only
+prefilter), each with a real tradeoff, deliberately not chosen here.
+
+**Defensive mitigation — mechanically distinct from offense, pool-size
+comparison inconclusive on its own.** Three qualifying shapes within
+mitigation itself: incoming-type-damage halving (Rain/Fire, Sun/Water,
+Misty/Dragon, Grassy/EQ-Bulldoze — gated by ≥2× or ≥4× weakness to the
+mitigated type), own-type defensive stat boost (Sand/Rock SpD, Snow/Ice
+Def — gated by the *holder's own typing*, not weakness), and ability×field
+hybrids (Grass Pelt, 0 legal carriers). At the ≥2× weakness gate, Rain/Sun/
+Grassy mitigation pools (69–106 species) are *larger* than their offensive
+counterparts, reversing the intuition that mitigation would be more targeted;
+a ≥4×-only gate produces much smaller, more plausible pools (4–7 species) but
+is a different, stricter design choice, not an inherent property of the
+shape. **Correction applied this session:** Sun's 35-species overlap
+(≥2×-Water-weak ∩ Fire-STAB) is a double *benefit* (halved incoming Water
+damage and boosted outgoing Fire damage simultaneously) — an earlier framing
+of this as "helps and hurts the same species" was backwards and has been
+corrected. The real open question from this overlap is attribution
+(double-counting across an offense tier and a mitigation tier), not harm.
+
+**Denial — real, but likely too broad to use as-is.** Three terrain denial
+effects (Electric Terrain blocks sleep/Yawn/Rest; Misty Terrain blocks
+non-volatile status and confusion; Psychic Terrain blocks priority moves
+entirely, the only one of the three actually modeled in `@smogon/calc`'s
+damage path) plus Sand/Hail end-of-turn chip immunity and primal-weather
+move-fail (Heavy Rain kills Fire moves, Harsh Sunshine kills Water moves).
+At the natural species-level qualifying gate ("grounded" — not Flying-type,
+no Levitate/Eelevatate, no Air Balloon), **87% of the legal dex qualifies**,
+independently re-verified this session (276/316, consistent with the
+original report's 280/320 despite a minor species-count-methodology
+difference between passes). This is a finding, not a recommendation: denial
+is mechanically real and interesting, but at the obvious gate it fails to
+discriminate at all, and would need a materially tighter qualifier (a real
+kit-derived status vulnerability, a calc-verified priority-threat exposure)
+to be a useful `condition_beneficiary` signal rather than near-universal noise.
+
+**Held items — three further distinct shapes, none currently actionable.**
+Terrain Seeds (shape 5 above) are species-agnostic and currently illegal
+(0 legal carriers) — explicitly documented for future-regulation readiness
+per this session's direction, not dismissed for being currently illegal.
+Duration-extending rocks and Terrain Extender are already correctly
+classified elsewhere in the codebase as setter-support, not beneficiary
+items. Utility Umbrella is a real, calc-modeled opt-out (cancels both
+weather boosts and mitigation for its holder) — currently illegal, and
+structurally an anti-beneficiary case rather than a beneficiary one if it
+returns.
+
+**Move effects — most are unwired, several outside the calc-modeled path
+entirely.** Only three moves are wired into beneficiary invert today (Solar
+Beam, Solar Blade, Electro Shot — all weather charge-skip). At least a dozen
+more real condition-dependent move effects exist and are unwired (Rising
+Voltage, Terrain Pulse, Expanding Force, Weather Ball, Misty Explosion,
+Steel Roller's move-fail-without-terrain, Nature Power's terrain-dependent
+type rewrite). A further category — accuracy changes (Thunder/Hurricane/
+Blizzard), weather-dependent healing (Synthesis/Moonlight/Morning Sun/Shore
+Up), and stat-change moves (Growth) — sits entirely outside `@smogon/calc`'s
+damage-calculation path and would need a separate rules data source if ever
+scoped, not an extension of the existing calc-based invert.
+
+**Calc-layer vs. static-lookup — an explicit open design question, not
+resolved.** Several shapes (mitigation, Psychic priority denial) are already
+calc-modeled and already used elsewhere in this codebase for a structurally
+similar purpose (`threat_counters.py`'s `_best_matchup_with_forced_fields`
+re-evaluates locked-field matchups through real calc specifically because
+Rain/Fire halving changes real severity). A static type-chart proxy is
+cheap but ability/item-blind (Utility Umbrella, Thick Fat, Freeze-Dry, Tera
+typing); a fully calc-verified beneficiary signal is faithful but heavier
+and needs real threat context, mirroring the forced-field pattern rather
+than a simple lookup. Not decided here.
+
+**Status:** Discovery and scoping complete; nothing implemented. This ADR
+exists to close out an open-ended investigation with a converged, verified
+reference document rather than leave the shape taxonomy scattered across
+session transcripts. **Explicitly deferred to a future session:** which of
+the seven shapes (if any) get built, in what order, at what tier (hard
+need / soft want / presentation-only / not modeled at all), and whether the
+calc-verified or static-proxy approach is used for each. The one concrete
+decision made — parallel terrain-specific functions rather than a unified
+vocabulary, because weather and terrain can stack — is ready to inform
+whatever gets built first, whenever that's decided.
