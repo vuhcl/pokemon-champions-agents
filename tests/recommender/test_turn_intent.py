@@ -1912,3 +1912,111 @@ def test_trailing_option_reference_recovered_end_to_end():
     assert payload["option_ids"] == (_CONFIRM_IDS[1],)
     assert payload["extra_field"] == "item"
     assert payload["extra_value"] == "Choice Scarf"
+
+
+def test_explicit_itemless_phrases_return_empty_string():
+    from recommender.turn_intent import detect_dropped_edit_field
+
+    for phrase in (
+        "run it with no item",
+        "make it itemless",
+        "holding nothing",
+        "without an item",
+        "no held item please",
+    ):
+        assert detect_dropped_edit_field(phrase) == ("item", ""), phrase
+
+
+def test_silence_does_not_imply_itemless():
+    from recommender.turn_intent import detect_dropped_edit_field
+
+    assert detect_dropped_edit_field("make it faster") is None
+    assert detect_dropped_edit_field("use Earthquake") is None
+    assert detect_dropped_edit_field("1") is None
+
+
+def test_item_name_beats_itemless_when_both_present():
+    from recommender.turn_intent import detect_dropped_edit_field
+
+    # Real item name wins over an itemless phrase in the same utterance.
+    assert detect_dropped_edit_field("use Choice Scarf, no item") == (
+        "item",
+        "Choice Scarf",
+    )
+    assert detect_dropped_edit_field("no item but Choice Scarf") == (
+        "item",
+        "Choice Scarf",
+    )
+
+
+def test_select_plus_itemless_edit_routes_with_empty_value():
+    """Recovered value_text=\"\" must still count as a present item edit."""
+    from recommender.turn_intent import (
+        TurnIntentExtraction,
+        _is_select_plus_single_field_edit,
+        detect_dropped_edit_field,
+    )
+
+    assert detect_dropped_edit_field("1, but itemless") == ("item", "")
+    extraction = TurnIntentExtraction(
+        turn_intent="select_build_option",
+        option_ids=["spread_nature:1"],
+        field="item",
+        value_text="",
+    )
+    assert _is_select_plus_single_field_edit(extraction) is True
+
+
+
+def test_explicit_itemless_phrases_return_empty_string():
+    from recommender.turn_intent import detect_dropped_edit_field
+
+    for phrase in (
+        "run it with no item",
+        "make it itemless",
+        "holding nothing",
+        "without an item",
+        "no held item please",
+    ):
+        assert detect_dropped_edit_field(phrase) == ("item", ""), phrase
+
+
+def test_silence_does_not_imply_itemless():
+    from recommender.turn_intent import detect_dropped_edit_field
+
+    assert detect_dropped_edit_field("make it faster") is None
+    assert detect_dropped_edit_field("use Earthquake") is None
+    assert detect_dropped_edit_field("1") is None
+
+
+def test_item_name_beats_itemless_when_both_present():
+    from recommender.turn_intent import detect_dropped_edit_field
+
+    # Real item name wins over an itemless phrase in the same utterance.
+    assert detect_dropped_edit_field("use Choice Scarf, no item") == (
+        "item",
+        "Choice Scarf",
+    )
+    assert detect_dropped_edit_field("no item but Choice Scarf") == (
+        "item",
+        "Choice Scarf",
+    )
+
+
+def test_select_plus_itemless_edit_routes_with_empty_value():
+    """Recovered value_text=\"\" must still count as a present item edit."""
+    from recommender.turn_intent import (
+        TurnIntentExtraction,
+        _is_select_plus_single_field_edit,
+        detect_dropped_edit_field,
+    )
+
+    assert detect_dropped_edit_field("1, but itemless") == ("item", "")
+    extraction = TurnIntentExtraction(
+        turn_intent="select_build_option",
+        option_ids=["spread_nature:1"],
+        field="item",
+        value_text="",
+    )
+    assert _is_select_plus_single_field_edit(extraction) is True
+

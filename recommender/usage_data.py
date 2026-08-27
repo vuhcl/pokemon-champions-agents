@@ -159,11 +159,17 @@ def set_from_ingame(species: str, *, regulation: str = "champions-reg-mb") -> Po
 def find_set_matching(
     species: str,
     moves: list[str],
-    item: str,
+    item: str | None,
     *,
     regulation: str = "champions-reg-mb",
 ) -> PokemonSet | None:
-    """Exact moves+item match against featured sets."""
+    """Exact moves+item match against featured sets.
+
+    ``item is None`` means unspecified (no exact match attempted).
+    ``item == ""`` means explicitly no held item.
+    """
+    if item is None:
+        return None
     entry = species_usage(species, regulation=regulation)
     if not entry:
         return None

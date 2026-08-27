@@ -124,6 +124,10 @@ Rules:
     edit_scope=field_only
   - "swap item to Leftovers only" -> edit, field=item, value_text=Leftovers,
     edit_scope=field_only
+  - "run it with no item" / "itemless" / "holding nothing" -> edit, field=item,
+    value_text="" (empty string means explicitly no held item; never invent
+    itemless from silence — omit value_text / leave it null when the user
+    did not mention an item at all)
   - "use these four moves and rebuild" -> edit, field=moves, value_moves=[...],
     edit_scope=regenerate
   - "252 SpA / 4 SpD / 252 Spe" only -> edit, field=spread, value_spread={{...}},
@@ -249,11 +253,23 @@ class TurnIntentExtraction(BaseModel):
     )
 
     @field_validator(
-        "message", "predicate", "species", "reason", "attr", "field", "value_text"
+        "message", "predicate", "species", "reason", "attr", "field"
     )
     @classmethod
     def _nonempty_optional_text(cls, value: str | None) -> str | None:
         if value is not None and not value.strip():
+            raise ValueError("optional text must be null or nonempty")
+        return value
+
+    @field_validator("value_text")
+    @classmethod
+    def _value_text_null_or_allowed_empty(cls, value: str | None) -> str | None:
+        """Allow \"\" for explicit itemless; reject whitespace-only strings."""
+        if value is None:
+            return None
+        if value == "":
+            return value
+        if not value.strip():
             raise ValueError("optional text must be null or nonempty")
         return value
 
@@ -415,7 +431,7 @@ def _is_select_plus_single_field_edit(extraction: TurnIntentExtraction) -> bool:
     has_value = (
         _populated(extraction.value_moves)
         if field == "moves"
-        else _populated(extraction.value_text)
+        else _field_value_present(field, extraction)
     )
     if not has_value:
         return False
@@ -596,6 +612,24 @@ def extract_item_name_target(text: str) -> str | None:
     return _find_known_value_in_text(stripped, candidates)
 
 
+_ITEMLESS_PHRASE_RE = re.compile(
+    r"\b(?:"
+    r"no\s+held\s+item|"
+    r"holding\s+nothing|"
+    r"without\s+(?:an?\s+)?item|"
+    r"no\s+item|"
+    r"itemless"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+def _extract_explicit_itemless(text: str) -> bool:
+    """True only for an explicit no-item request — never inferred from silence."""
+    stripped = _LEADING_OPTION_REF_RE.sub("", text)
+    return bool(_ITEMLESS_PHRASE_RE.search(stripped))
+
+
 def extract_nature_name_target(text: str) -> str | None:
     """Same as extract_item_name_target, for the 25 real natures (a fixed,
     small list -- no data source needed)."""
@@ -633,11 +667,16 @@ def detect_dropped_edit_field(text: str) -> tuple[str, str] | None:
     item name and a real nature name), declines rather than guessing
     which one the user actually meant -- same fail-closed contract as
     every other extractor in this module.
+
+    Explicit itemless phrases map to field=item, value=\"\" (empty string).
+    A real item name always wins over an itemless phrase in the same text.
     """
     hits: list[tuple[str, str]] = []
     item = extract_item_name_target(text)
     if item is not None:
         hits.append(("item", item))
+    elif _extract_explicit_itemless(text):
+        hits.append(("item", ""))
     nature = extract_nature_name_target(text)
     if nature is not None:
         hits.append(("nature", nature))
@@ -667,6 +706,19 @@ def _populated(value: object) -> bool:
     return bool(value)
 
 
+def _field_value_present(field: str, extraction: TurnIntentExtraction) -> bool:
+    """Whether the edit value slot for ``field`` is present.
+
+    For item, empty string is a valid explicit-none value (unlike ability/
+    nature, where empty text is not meaningful).
+    """
+    if field == "item":
+        return extraction.value_text is not None
+    if field == "moves":
+        return _populated(extraction.value_moves)
+    return _populated(extraction.value_text)
+
+
 def _edit_value_slot_ok(extraction: TurnIntentExtraction) -> bool:
     """Exactly the value slot(s) for ``field`` are filled; other value slots empty.
 
@@ -682,8 +734,10 @@ def _edit_value_slot_ok(extraction: TurnIntentExtraction) -> bool:
     spread_set = extraction.value_spread_set
     spread_delta = extraction.value_spread_delta
     if field in {"ability", "item", "nature"}:
+        # item: "" is explicit none; ability/nature require nonempty text
+        text_ok = text is not None if field == "item" else bool(text and text.strip())
         return (
-            text is not None
+            text_ok
             and not _populated(moves)
             and not _populated(spread)
             and not _populated(spread_set)

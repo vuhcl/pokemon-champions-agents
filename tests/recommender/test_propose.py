@@ -569,3 +569,20 @@ def test_real_archaludon_data_file_produces_correct_nature_end_to_end():
     assert dict(result.spread) == {
         "hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3,
     }
+
+
+def test_explicit_empty_item_attempts_cache_lookup():
+    """item=\"\" is a real key; truthiness must not skip get_resolved_build."""
+    from recommender.propose import _refine_defaults
+
+    moves = ["Brave Bird", "Flare Blitz", "Tailwind", "Protect"]
+    slot = Slot(
+        species=Attr(value="Talonflame", locked=True),
+        moveset=Attr(value=moves, locked=True),
+        item=Attr(value="", locked=True),
+    )
+    state = _base_state(team_draft=[slot, *[empty_slot() for _ in range(5)]])
+    with patch("recommender.propose.get_resolved_build", return_value=None) as cached:
+        _refine_defaults(slot, state, regulation="champions")
+    cached.assert_called_once()
+    assert cached.call_args.args[2] == ""

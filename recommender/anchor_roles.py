@@ -269,17 +269,21 @@ def resolve_anchor_build(
 
     species = str(values["species"] or "")
     exact = None
-    if species and values["moves"] and values["item"]:
+    if species and values["moves"] and values["item"] is not None:
         exact = find_set_matching(
             species,
             list(values["moves"]),
-            str(values["item"]),
+            values["item"],
             regulation=regulation,
         )
     if exact:
         group = "usage-exact:" + hashlib.sha1(
             json.dumps(
-                [to_id(species), sorted(to_id(m) for m in values["moves"]), to_id(values["item"])],
+                [
+                    to_id(species),
+                    sorted(to_id(m) for m in values["moves"]),
+                    to_id(values["item"]),
+                ],
                 separators=(",", ":"),
             ).encode()
         ).hexdigest()[:12]
@@ -298,9 +302,9 @@ def resolve_anchor_build(
             values["evs"] = exact["evs"]
             provenance["evs"] = FieldProvenance("evs", "usage_derived")
 
-    if species and values["moves"] and values["item"] and values["evs"] is None:
+    if species and values["moves"] and values["item"] is not None and values["evs"] is None:
         cached = get_resolved_build(
-            species, list(values["moves"]), str(values["item"]), regulation
+            species, list(values["moves"]), values["item"], regulation
         )
         if cached and cached.get("spread"):
             values["evs"] = dict(cached["spread"])

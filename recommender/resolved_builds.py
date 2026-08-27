@@ -74,12 +74,14 @@ def _write_all(path: Path, rows: list[dict[str, Any]]) -> None:
 def get_resolved_build(
     species: str,
     moves: list[str],
-    item: str,
+    item: str | None,
     regulation: str,
     *,
     root: Path = DEFAULT_DIR,
     chain: bool = True,
 ) -> ResolvedBuild | None:
+    if item is None:
+        return None
     tags = (
         regulation_lookup_chain(regulation)
         if chain

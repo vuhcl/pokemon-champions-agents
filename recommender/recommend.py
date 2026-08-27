@@ -76,7 +76,7 @@ class RecommendResult(TypedDict):
 
 
 def lookup_live_build(
-    species: str, moves: list[str], item: str, *, regulation: str
+    species: str, moves: list[str], item: str | None, *, regulation: str
 ) -> PokemonSet | None:
     # ponytail: ADR-014a live lookup not wired; return miss until a real fetcher exists
     return None
@@ -336,7 +336,7 @@ def _tier3_verify_spread(
 def recommend_build(
     species: str,
     moves: list[str],
-    item: str,
+    item: str | None,
     *,
     regulation: str = "champions",
     team_draft: list[Slot] | None = None,
@@ -347,7 +347,12 @@ def recommend_build(
     verification: list[str] = []
 
     # --- Cache (ADR-016) ---
-    cached = get_resolved_build(species, moves, item, regulation)
+    # item is None = unspecified (no cache key); "" = explicitly no item (valid key).
+    cached = (
+        get_resolved_build(species, moves, item, regulation)
+        if item is not None
+        else None
+    )
     if cached:
         s: PokemonSet = {
             "species": species,
@@ -364,7 +369,11 @@ def recommend_build(
         }
 
     # --- Tier 1: usage exact match ---
-    matched = find_set_matching(species, moves, item, regulation=regulation)
+    matched = (
+        find_set_matching(species, moves, item, regulation=regulation)
+        if item is not None
+        else None
+    )
     source = "champions-native"
     built: PokemonSet | None = dict(matched) if matched else None
     if built:
@@ -396,15 +405,24 @@ def recommend_build(
 
     assert built is not None
     b_moves = list(built.get("moves") or moves)
-    b_item = built.get("item") or item
+    # Preserve explicit "" over falling back; only use caller item when key absent.
+    if "item" in built:
+        b_item = built["item"]
+    else:
+        b_item = item
     b_ability = built.get("ability")
 
     legal = check_set(
-        species, b_moves, b_item, ability=b_ability, team_draft=team_draft, snap=snap
+        species,
+        b_moves,
+        b_item or "",
+        ability=b_ability,
+        team_draft=team_draft,
+        snap=snap,
     )
     if not legal.ok:
         adapted, note = diagnose_and_substitute(
-            species, b_moves, b_item, legal, team_draft=team_draft, snap=snap
+            species, b_moves, b_item or "", legal, team_draft=team_draft, snap=snap
         )
         if adapted is None:
             return {
@@ -419,7 +437,7 @@ def recommend_build(
         rationale = f"{rationale}; {note}".strip("; ")
         verification.append(note)
 
-    gaps = current_availability_gaps(species, b_moves, b_item, b_ability, snap)
+    gaps = current_availability_gaps(species, b_moves, b_item or "", b_ability, snap)
     if gaps.get("unused_legal_moves"):
         verification.append(
             f"current-availability: {len(gaps['unused_legal_moves'])} unused legal moves (not auto-applied)"
@@ -432,7 +450,7 @@ def recommend_build(
     )
 
     # Completeness: exact partials retain their real base; missing spreads use tier 2.
-    role = infer_role(b_moves, b_item, b_ability)
+    role = infer_role(b_moves, b_item or "", b_ability)
     evs = built.get("evs")
     used = spread_sum(evs)
     if used >= SP_BUDGET:
@@ -482,12 +500,13 @@ def recommend_build(
 
     # Tier 3 when we have calc and incomplete was topped OR always light verify for tier2
     # Prefer threats from usage teammates inverted — keep simple fixed list filtered to available
+    can_cache = write_cache and item is not None and b_item is not None
     if calculate_batch is not None and built.get("evs"):
         notes = _tier3_verify_spread(
-            species, b_moves, b_item, built["evs"], opponents, calculate_batch=calculate_batch  # type: ignore[arg-type]
+            species, b_moves, b_item or "", built["evs"], opponents, calculate_batch=calculate_batch  # type: ignore[arg-type]
         )
         verification.extend(notes)
-        if write_cache:
+        if can_cache:
             put_resolved_build(
                 species,
                 b_moves,
@@ -502,7 +521,7 @@ def recommend_build(
                 },
             )
             verification.append("wrote cache after tier3")
-    elif write_cache and built.get("evs"):
+    elif can_cache and built.get("evs"):
         put_resolved_build(
             species,
             b_moves,

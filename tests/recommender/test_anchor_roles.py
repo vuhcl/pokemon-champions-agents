@@ -383,3 +383,35 @@ def test_hatterene_quiet_skips_hindering_tr_benefit():
         m.present and m.relation == "provides" and "condition:Trick Room" in m.evidence
         for m in decision.mechanisms
     )
+
+
+def test_explicit_empty_item_reaches_find_set_matching():
+    moves = ["Brave Bird", "Flare Blitz", "Tailwind", "Protect"]
+    slot = Slot(
+        species=Attr("Talonflame", locked=True),
+        moveset=Attr(moves, locked=True),
+        item=Attr("", locked=True),
+    )
+    with patch(
+        "recommender.anchor_roles.find_set_matching", return_value=None
+    ) as mocked:
+        resolve_anchor_build(slot)
+    mocked.assert_called_once()
+    args, kwargs = mocked.call_args
+    assert args[0] == "Talonflame"
+    assert list(args[1]) == moves
+    assert args[2] == ""
+
+
+def test_unspecified_item_skips_find_set_matching():
+    moves = ["Brave Bird", "Flare Blitz", "Tailwind", "Protect"]
+    slot = Slot(
+        species=Attr("Talonflame", locked=True),
+        moveset=Attr(moves, locked=True),
+        item=Attr(None),
+    )
+    with patch(
+        "recommender.anchor_roles.find_set_matching", return_value=None
+    ) as mocked:
+        resolve_anchor_build(slot)
+    mocked.assert_not_called()
