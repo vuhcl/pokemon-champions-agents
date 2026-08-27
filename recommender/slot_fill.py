@@ -159,6 +159,7 @@ class AnnotatedCandidate:
     anchored_needs: tuple[AnchoredSupportNeed, ...] = ()
     direction_label: str | None = None
     strategic_role_id: str | None = None
+    species_primary_role: str | None = None
     primary_function: Literal["offense", "support", "unknown"] | None = None
     mechanism_ids: tuple[str, ...] | None = None
     # Confirmed live (2026-08-21): during core-slot construction (slot_index
@@ -1740,8 +1741,12 @@ def present_candidates(
 
 
 def _pending_presentation(
-    ctx: SlotFillContext, presentation: SlotFillPresentation
+    ctx: SlotFillContext,
+    presentation: SlotFillPresentation,
+    *,
+    regulation: str,
 ) -> PendingPresentation:
+    from recommender.team_candidates import species_primary_role_for_candidate
     rows = _ordered_annotated(ctx)
     by_species: dict[str, AnnotatedCandidate] = {}
     for row in rows:
@@ -1764,6 +1769,13 @@ def _pending_presentation(
             option["primary_function"] = row.primary_function
         if row.mechanism_ids is not None:
             option["mechanism_ids"] = row.mechanism_ids
+        primary_role = row.species_primary_role
+        if primary_role is None:
+            primary_role = species_primary_role_for_candidate(
+                row.species, dict(row.spec or {}), regulation
+            )
+        if primary_role:
+            option["species_primary_role"] = primary_role
         need_cats = sorted(
             {
                 n.category
@@ -1802,7 +1814,7 @@ def run_slot_fill_terminal(
     response: SlotFillResponse | None = None,
 ) -> SlotFillTerminalResult:
     presentation = present_candidates(ctx, slot_index=slot_index)
-    pending = _pending_presentation(ctx, presentation)
+    pending = _pending_presentation(ctx, presentation, regulation=_regulation(state))
 
     if response is None:
         if not pending["options"]:

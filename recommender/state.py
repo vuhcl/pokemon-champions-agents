@@ -342,6 +342,7 @@ class PendingPresentationOption(TypedDict):
     evidence: NotRequired[tuple[CandidateEvidence, ...]]
     direction_label: NotRequired[str]
     strategic_role_id: NotRequired[str]
+    species_primary_role: NotRequired[str]
     primary_function: NotRequired[Literal["offense", "support", "unknown"]]
     mechanism_ids: NotRequired[tuple[str, ...]]
     track: NotRequired[str]

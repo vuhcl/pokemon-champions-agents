@@ -17,6 +17,7 @@ from recommender.legality import load_snapshot
 from recommender.llm_invoke import LLMInvokeTimeout, invoke_with_timeout
 from recommender.species_resolve import resolve_species_label
 from recommender.ranking import OwnershipMode
+from recommender.team_candidates import species_primary_role_for_candidate
 from recommender.slot_fill import (
     AnnotatedCandidate,
     build_provisional_slot,
@@ -498,6 +499,9 @@ def discover_bootstrap_directions(
             ),
             direction_label=_direction_label(decision.role_id),
             strategic_role_id=decision.role_id,
+            species_primary_role=species_primary_role_for_candidate(
+                species, dict(usage_row.spec), "champions-reg-mb"
+            ),
             primary_function=anchor_role.primary_function,
             mechanism_ids=mechanisms,
         )
