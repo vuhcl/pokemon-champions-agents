@@ -43,27 +43,6 @@ _COMPONENT_TO_ROLE: dict[str, TargetRoleId] = {
 _ROLE_ARCHETYPES = frozenset(get_args(RoleArchetype)) | frozenset(_DEPRECATED_ROLE_ALIASES)
 _CHOICE_ITEMS = frozenset({"choiceband", "choicespecs", "choicescarf"})
 _ITEM_SWAP_MOVES = frozenset({"trick", "switcheroo"})
-_OFFENSE_ROLES = frozenset(
-    {
-        "fast_attacker",
-        "bulky_attacker",
-        "fast_physical_attacker",
-        "fast_special_attacker",
-        "fast_mixed_attacker",
-        "standard_physical_attacker",
-        "standard_special_attacker",
-        "standard_mixed_attacker",
-        "bulky_physical_attacker",
-        "bulky_special_attacker",
-        "bulky_mixed_attacker",
-        "fast_pivot",
-        "trick_room_sweeper",
-        "swords_dance_attacker",
-        "nasty_plot_attacker",
-    }
-)
-
-
 def fill_team_draft(state: RecommenderState) -> dict:
     draft = list(state["team_draft"])
     regulation = state.get("regulation_mod") or "champions"
@@ -252,7 +231,9 @@ def _choice_spread(item_id: str) -> StatsTable:
 
 
 def _default_item_candidates(role: str | None) -> tuple[str, ...]:
-    if role in _OFFENSE_ROLES or (role or "").endswith("_attacker"):
+    from recommender.role_taxonomy import primary_function_for_role_id
+
+    if primary_function_for_role_id(role or "") == "offense":
         return ("Life Orb", "Sitrus Berry", "Focus Sash")
     return ("Sitrus Berry", "Life Orb", "Focus Sash")
 

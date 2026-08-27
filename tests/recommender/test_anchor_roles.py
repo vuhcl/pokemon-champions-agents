@@ -1,5 +1,9 @@
 from dataclasses import fields, replace
+from pathlib import Path
 from unittest.mock import patch
+import json
+
+import pytest
 
 from recommender.anchor_roles import (
     classify_anchor_role,
@@ -9,6 +13,11 @@ from recommender.anchor_roles import (
     weather_beneficiary_ability_ids,
 )
 from recommender.ids import to_id
+from recommender.role_compendium_read import _strategic_role_id
+from recommender.role_taxonomy import (
+    normalize_role_id,
+    primary_function_for_role_id,
+)
 from recommender.state import Attr, ReasonRef, Slot
 from recommender.support_needs import query_support_needs
 from recommender.usage_spreads import _SPEED_MINUS, _SPEED_PLUS
@@ -415,3 +424,119 @@ def test_unspecified_item_skips_find_set_matching():
     ) as mocked:
         resolve_anchor_build(slot)
     mocked.assert_not_called()
+
+
+_SUPPORT_ROLE_IDS = frozenset(
+    {
+        "rain_setter",
+        "sun_setter",
+        "sand_setter",
+        "snow_setter",
+        "trick_room_setter",
+        "tailwind_setter",
+        "redirection",
+        "screens_support",
+        "support_speed_control",
+        "support",
+        "sleep_status_spreader",
+    }
+)
+
+_CLOSED_VOCABULARY_ROLE_IDS = (
+    "bulk_up_attacker",
+    "bulky_attacker",
+    "bulky_mixed_attacker",
+    "bulky_physical_attacker",
+    "bulky_pivot",
+    "bulky_rain_attacker",
+    "bulky_special_attacker",
+    "calm_mind_attacker",
+    "dragon_dance_attacker",
+    "fast_attacker",
+    "fast_mixed_attacker",
+    "fast_physical_attacker",
+    "fast_pivot",
+    "fast_special_attacker",
+    "iron_defense_body_press",
+    "nasty_plot_attacker",
+    "physical_attacker",
+    "physical_rain_attacker",
+    "physical_sweeper",
+    "rain_setter",
+    "redirection",
+    "sand_setter",
+    "screens_support",
+    "setup_attacker",
+    "sleep_status_spreader",
+    "snow_setter",
+    "special_attacker",
+    "special_sweeper",
+    "standard_mixed_attacker",
+    "standard_physical_attacker",
+    "standard_special_attacker",
+    "sun_setter",
+    "support",
+    "support_speed_control",
+    "swords_dance_attacker",
+    "tailwind_setter",
+    "trick_room_attacker",
+    "trick_room_setter",
+    "trick_room_sweeper",
+    "unresolved",
+)
+
+
+@pytest.mark.parametrize(
+    "role_id,expected",
+    [
+        (role_id, "support" if role_id in _SUPPORT_ROLE_IDS else "unknown" if role_id == "unresolved" else "offense")
+        for role_id in _CLOSED_VOCABULARY_ROLE_IDS
+    ],
+    ids=list(_CLOSED_VOCABULARY_ROLE_IDS),
+)
+def test_primary_function_covers_closed_vocabulary(role_id: str, expected: str):
+    assert primary_function_for_role_id(role_id) == expected
+
+
+def test_compendium_role_ids_map_to_known_primary_function():
+    roles_dir = Path(__file__).resolve().parents[2] / "data" / "roles"
+    for path in sorted(roles_dir.glob("*.json")):
+        raw = json.loads(path.read_text())
+        role_id = _strategic_role_id(
+            str(raw.get("category") or ""),
+            str(raw.get("condition") or ""),
+        )
+        assert primary_function_for_role_id(role_id) != "unknown", path.name
+
+
+@pytest.mark.parametrize("species", ["Dragapult"])
+def test_declared_physical_sweeper_projects_offense_primary(species: str):
+    build = resolve_anchor_build(species)
+    decision = classify_anchor_role(build, explicit_role="physical_sweeper")
+    assert decision.role_id == "physical_sweeper"
+    assert decision.primary_function == "offense"
+
+
+@pytest.mark.parametrize("species", ["Incineroar", "Klefki"])
+def test_declared_coarse_support_projects_support_primary(species: str):
+    build = resolve_anchor_build(species)
+    decision = classify_anchor_role(build, explicit_role="support")
+    assert decision.role_id == "support"
+    assert decision.primary_function == "support"
+
+
+def test_compendium_edge_roles_primary_function():
+    assert primary_function_for_role_id("iron_defense_body_press") == "offense"
+    assert primary_function_for_role_id("sleep_status_spreader") == "support"
+
+
+@pytest.mark.parametrize(
+    "alias,canonical",
+    [
+        ("bulky_attacker", "bulky_physical_attacker"),
+        ("fast_attacker", "fast_physical_attacker"),
+    ],
+)
+def test_deprecated_aliases_normalize_before_primary_function(alias: str, canonical: str):
+    assert normalize_role_id(alias) == canonical
+    assert primary_function_for_role_id(alias) == "offense"
