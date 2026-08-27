@@ -5776,6 +5776,90 @@ scope for this fix, unchanged.
 
 ---
 
+### ADR-024 Amendment 2026-08-26a — `_primary_function` vocabulary hole closed; consolidated into a shared role taxonomy
+
+**Decision:** `_primary_function` (the classifier feeding `RoleShapeContext`'s `primary_function`
+field) was a partial suffix heuristic — it recognized `role_id`s ending in `_attacker` plus a
+small explicit offense set, and `_setter` plus a small explicit support set, silently mapping
+everything else to `"unknown"`. A systematic sweep (30 anchor runs across 5 deliberately varied
+archetypes — Trick Room-only, hyper offense, screens balance, mono-fire, tailwind offense —
+explicitly avoiding this project's recurring Archaludon/Rain default) found this suppressed
+every offense-universal need (`screens` want, `healing_cleric`'s universal path, `redirection`
+soft-ask) for any anchor whose `role_id` didn't match the narrow pattern, and doubly excluded
+`defensive_coverage` candidates whose `role_id` is bare `"support"`.
+
+A full, verified enumeration of every real `role_id`-producing source (`classify_anchor_role`'s
+priority chain: declared opaque string, Role Compendium exact hit, mechanism primary,
+`infer_role` fallback, `"unresolved"`) found 40 distinct real ids in use, cross-checked against
+live literals (`RoleArchetype`, `TargetRoleId`, all 15 `data/roles/*.json` files) rather than
+assembled from what came up in discussion — matching this project's standing discipline after
+prior incidents (Sand Force, the redirection candidate list) where a hardcoded list scoped to
+conversation-mentioned cases missed a structurally identical one. `_sweeper`-suffixed ids
+(`physical_sweeper`, `special_sweeper`) and bare `"support"` were the two patterns missing
+generic coverage; `iron_defense_body_press` and `sleep_status_spreader` needed explicit
+overrides (no suffix match). Consolidated into a new shared module,
+`recommender/role_taxonomy.py` (`primary_function_for_role_id`, `normalize_role_id`), replacing
+two independently-drifted hardcoded implementations — `anchor_roles._primary_function` and a
+separate, inconsistent `_OFFENSE_ROLES` frozenset in `propose._default_item_candidates` (which
+had the same `_attacker`-suffix-only gap, silently defaulting `physical_sweeper`/`special_sweeper`
+anchors to the wrong tier-3 item default, Sitrus Berry-first instead of Life Orb-first).
+
+**Important scoping clarification, worth stating plainly rather than leaving implicit:** the
+`_sweeper` and coarse-`support` gap is not a moveset-classification bug. Verified directly
+against `infer_role`'s real logic: it is a closed function that can only emit one of 14
+`RoleArchetype` values, and no code path in it can produce `physical_sweeper`,
+`special_sweeper`, or bare `support` — every `_attacker_role` return is constructed from real
+move-category bias, not guessed. Those strings only ever enter the system through the
+*declared* role path (`user_role`/`explicit_role`), which per ADR-024's original design accepts
+any caller-supplied opaque string with no vocabulary validation. This fix makes declared-role
+strings degrade gracefully when they resemble but don't exactly match the closed vocabulary's
+naming — it does not change or improve `infer_role`'s real, moveset-derived classification,
+which was already correct.
+
+**`defensive_coverage`'s detection rate is unchanged on the sweep's own fixtures (1/30 → 1/33
+after the sweep's `physical_sweeper_regression` fixture was added) — traced precisely, not
+assumed.** The support-role anchors that gained a correct `primary_function` classification
+(Klefki, Grimmsnarl, Incineroar) still fail `defensive_coverage`'s separate Def/SpD asymmetry
+gate (their real ratios: 1.00–1.15, below the 1.5 threshold) — the semantic fix is real
+(these anchors now correctly register as `"support"` rather than `"unknown"`, mattering for any
+future asymmetric-bulk support case) but doesn't move this specific number on this specific
+data.
+
+**Alternatives considered:** deriving `primary_function` from Role Compendium category metadata
+directly rather than continuing string-pattern matching. Rejected as YAGNI — 13 of 15 real
+compendium categories already match the suffix rules, only 2 need explicit overrides, and the
+fix adds a parametrized 40-id test plus a live glob-guard test (reading `data/roles/*.json`
+directly, not a hardcoded snapshot) specifically to catch future staleness as new categories are
+added, rather than trusting the string convention to hold forever unchecked.
+
+**Also resolved in the same sweep, findings corrected rather than escalated:** the initial
+discovery pass flagged a "`healing_cleric` satisfier/resolution gap" (Blissey, Clefairy,
+Amoonguss, Comfey failing to match the satisfier move list). Checked directly against the real
+Champions legality snapshot: all four are `tier: "Illegal"` — none are valid candidates
+regardless of movepool, so their absence of Wish-family moves is moot, not a data or code gap.
+The three legal species in the same probe (Incineroar, Toxapex, Whimsicott) genuinely lack any
+satisfier move in real learnset data, which is correct, not a bug; Sinistcha and Clefable (the
+two legal species that do carry a satisfier move) match correctly. **Downgraded from "likely
+real gap" to "not supported" — the trigger side of `healing_cleric` was already correct (30/30
+detections in the original sweep), and re-checking the satisfier side against real legality data
+found no gap once illegal species were excluded from the probe set.**
+
+**`condition_beneficiary`'s terrain/type-general-middle-tier gap** — confirmed by the same
+sweep (Rillaboom Grassy Surge produces no beneficiary-path activity; `provided_weather_conditions`
+is weather-only) but not newly discovered or changed by it. Remains a separate, already-tracked
+open item.
+
+**Status:** Implemented and verified. Branch `cursor/primary-function-vocabulary-fix`, merged
+into `main`. Named validation suite: 121 passed. Full suite green: 1453 passed, 13 skipped.
+New tests: a 40-id parametrized table (independently hand-written expected values, not derived
+by calling the implementation on itself), a live compendium glob-guard, declared-string
+integration tests for `physical_sweeper` and coarse `support` through the real `classify_anchor_role`
+path, and a deprecated-alias normalization test. Sweep re-run post-fix (33 runs) confirms
+`physical_sweeper` (Dragapult) now correctly resolves `primary: "offense"` and gains
+`healing_cleric`/`redirection`/`screens`/`tailwind`.
+
+---
+
 ## ADR-025: Team-phase routing — confirmed-lock-count phases with a per-lock recompute
 trigger, not a fixed threshold
 
