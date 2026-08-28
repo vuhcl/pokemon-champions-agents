@@ -3949,3 +3949,205 @@ def test_rank_category_a_demotes_support_speed_control_when_tailwind_provided():
     assert _is_covered_provider_utility(speed_ctrl, locked)
     ranked = _rank_category_a([speed_ctrl, other], [[]], locked_contexts=locked)
     assert [c.species for c in ranked] == ["OtherA", "WhimsicottLike"]
+
+
+def _sinistcha_redirect_draft() -> list[Slot]:
+    return [
+        _locked(
+            "Garchomp",
+            role="physical_attacker",
+            ability="Rough Skin",
+            moves=["Earthquake", "Dragon Claw", "Protect", "Rock Slide"],
+        ),
+        _locked(
+            "Sinistcha",
+            role="redirection",
+            ability="Hospitality",
+            item="Sitrus Berry",
+            moves=["Rage Powder", "Matcha Gotcha", "Trick Room", "Shadow Ball"],
+        ),
+        *[empty_slot() for _ in range(4)],
+    ]
+
+
+def test_sinistcha_mechanism_emits_wanted_redirection():
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+
+    build = resolve_anchor_build("Sinistcha", regulation="champions-reg-mb")
+    decision = classify_anchor_role(build)
+    redirect = [
+        m
+        for m in decision.mechanisms
+        if m.kind == "redirection" and m.relation == "provides"
+    ]
+    assert redirect
+    assert redirect[0].importance == "wanted"
+    assert redirect[0].present
+
+
+def test_redirection_coverage_requires_primary_not_incidental():
+    from recommender.condition_resilience import provider_need_category_open
+
+    incidental = [
+        _locked(
+            "Garchomp",
+            role="physical_attacker",
+            ability="Rough Skin",
+            moves=["Earthquake", "Dragon Claw", "Protect", "Follow Me"],
+        ),
+    ]
+    contexts = collect_locked_anchor_contexts(_state(incidental))
+    assert provider_need_category_open("redirection", contexts)
+
+
+def test_merge_filters_redirection_when_sinistcha_locked():
+    state = _state(_sinistcha_redirect_draft())
+    contexts = collect_locked_anchor_contexts(state)
+    merged = merge_multi_locked_candidates(
+        state, contexts, (), None, ownership_mode="off", owned_species=frozenset()
+    )
+    assert not any(
+        "redirection" in {n.category for n in row.matching_needs} for row in merged
+    )
+    assert not any(row.species == "Ariados" for row in merged)
+
+
+def test_category_b_demotes_redirection_only_when_sinistcha_locked():
+    from recommender.team_candidates import _rank_by_need_evidence
+
+    contexts = collect_locked_anchor_contexts(_state(_sinistcha_redirect_draft()))
+    redir_only = AnnotatedCandidate(
+        species="Ariados",
+        matching_needs=(
+            SupportNeed(
+                category="redirection", name="Redirection", description="x", trigger=None
+            ),
+        ),
+        source="need",
+        branches=frozenset({"need"}),
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="role_category_evidence",
+                evidence=("need:redirection",),
+                branch="need",
+            ),
+        ),
+    )
+    screens_only = AnnotatedCandidate(
+        species="ScreensPeer",
+        matching_needs=(
+            SupportNeed(
+                category="screens", name="Screens", description="x", trigger=None
+            ),
+        ),
+        source="need",
+        branches=frozenset({"need"}),
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="low",
+                producer_name="role_category_evidence",
+                evidence=("need:screens",),
+                branch="need",
+            ),
+        ),
+    )
+    ranked = _rank_by_need_evidence(
+        [redir_only, screens_only], contexts, condition_beneficiary=False
+    )
+    assert [c.species for c in ranked] == ["ScreensPeer", "Ariados"]
+
+
+def test_category_a_demotes_redirection_role_when_sinistcha_locked():
+    from recommender.team_candidates import _rank_category_a
+
+    locked = collect_locked_anchor_contexts(_state(_sinistcha_redirect_draft()))
+    redirect_role = AnnotatedCandidate(
+        species="Maushold",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("Maushold", usage_rank=5),
+        branches=frozenset({"threat"}),
+        target_role_decision=TargetRoleDecision(
+            role_id="redirection",
+            source="other",
+        ),
+    )
+    other = AnnotatedCandidate(
+        species="OtherA",
+        matching_needs=(),
+        source="threat",
+        threat_row=_counter("OtherA", usage_rank=5),
+        branches=frozenset({"threat"}),
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_physical_attacker",
+            source="other",
+        ),
+    )
+    ranked = _rank_category_a(
+        [redirect_role, other], [[]], locked_contexts=locked
+    )
+    assert [c.species for c in ranked] == ["OtherA", "Maushold"]
+
+
+def test_multi_purpose_redirection_not_demoted_when_sinistcha_locked():
+    from recommender.team_candidates import _rank_by_need_evidence
+
+    contexts = collect_locked_anchor_contexts(_state(_sinistcha_redirect_draft()))
+    multi = AnnotatedCandidate(
+        species="Clefable",
+        matching_needs=(
+            SupportNeed(
+                category="redirection", name="Redirection", description="x", trigger=None
+            ),
+            SupportNeed(
+                category="healing_cleric", name="Healing", description="x", trigger=None
+            ),
+        ),
+        source="need",
+        branches=frozenset({"need"}),
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="role_category_evidence",
+                evidence=("need:redirection",),
+                branch="need",
+            ),
+        ),
+    )
+    redir_only = AnnotatedCandidate(
+        species="Ariados",
+        matching_needs=(
+            SupportNeed(
+                category="redirection", name="Redirection", description="x", trigger=None
+            ),
+        ),
+        source="need",
+        branches=frozenset({"need"}),
+        evidence=(
+            CandidateEvidence(
+                basis="compendium_backed",
+                confidence="medium",
+                producer_name="role_category_evidence",
+                evidence=("need:redirection",),
+                branch="need",
+            ),
+        ),
+    )
+    ranked = _rank_by_need_evidence(
+        [multi, redir_only], contexts, condition_beneficiary=False
+    )
+    assert ranked[0].species == "Clefable"
+
+
+def test_select_diverse_default_not_ariados_when_sinistcha_locked():
+    state = _state(_sinistcha_redirect_draft())
+    contexts = collect_locked_anchor_contexts(state)
+    merged = merge_multi_locked_candidates(
+        state, contexts, (), None, ownership_mode="off", owned_species=frozenset()
+    )
+    result = select_diverse_candidates(merged, contexts)
+    assert result["default"] != "Ariados"
