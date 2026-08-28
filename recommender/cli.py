@@ -65,7 +65,10 @@ def handle_line(
     if stripped == ":team":
         return state, config, thread_id, format_roster(state), False
 
-    if state.get("pending_presentation") is None:
+    if (
+        state.get("pending_presentation") is None
+        and state.get("candidate_discovery_error") is not None
+    ):
         return state, config, thread_id, format_no_pending(state), False
 
     try:
