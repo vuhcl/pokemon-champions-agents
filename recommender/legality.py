@@ -166,6 +166,32 @@ def team_item_ids(team_draft: list[Slot] | None, *, exclude_slot: int | None = N
     return used
 
 
+def _default_item_candidates(role: str | None) -> tuple[str, ...]:
+    from recommender.role_taxonomy import primary_function_for_role_id
+
+    if primary_function_for_role_id(role or "") == "offense":
+        return ("Life Orb", "Sitrus Berry", "Focus Sash")
+    return ("Sitrus Berry", "Life Orb", "Focus Sash")
+
+
+def pick_synthesized_default_item(
+    role_id: str | None,
+    team_draft: list[Slot] | None,
+    *,
+    regulation: str = "champions-reg-mb",
+) -> str | None:
+    """Tier-3 universal item fallback, skipping items already on team_draft."""
+    del regulation  # ponytail: regulation-aware item bans not in snapshot yet
+    snap = load_snapshot()
+    used = team_item_ids(team_draft)
+    for cand in _default_item_candidates(role_id):
+        if to_id(cand) in used:
+            continue
+        if is_item_legal(snap, cand):
+            return cand
+    return None
+
+
 def check_set(
     species: str,
     moves: list[str],

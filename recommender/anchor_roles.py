@@ -239,6 +239,8 @@ def resolve_anchor_build(
     synthesized: dict[str, Any] | None = None,
     role_hint: str | None = None,
     regulation: str = "champions-reg-mb",
+    team_draft: list[Slot] | None = None,
+    exclude_slot: int | None = None,
 ) -> ResolvedAnchorBuild:
     """Resolve fields independently in descending precedence without fake joins."""
     slot = anchor if isinstance(anchor, Slot) else Slot(species=Attr(value=anchor))
@@ -336,7 +338,6 @@ def resolve_anchor_build(
     for field, key in (
         ("species", "species"),
         ("ability", "ability"),
-        ("item", "item"),
         ("nature", "nature"),
         ("evs", "evs"),
         ("moves", "moves"),
@@ -350,6 +351,29 @@ def resolve_anchor_build(
             # Representative APIs combine marginal spread evidence; deliberately
             # do not claim a co-occurrence group.
             provenance[field] = FieldProvenance(field, "usage_derived")
+
+    if values["item"] is None and species:
+        if team_draft is not None:
+            from recommender.legality import pick_synthesized_default_item, team_item_ids
+            from recommender.usage_data import pick_team_aware_usage_item
+
+            used = team_item_ids(team_draft, exclude_slot=exclude_slot)
+            picked = pick_team_aware_usage_item(
+                species, regulation=regulation, used=used
+            )
+            if picked:
+                values["item"] = picked
+                provenance["item"] = FieldProvenance("item", "usage_derived")
+            else:
+                syn = pick_synthesized_default_item(
+                    role_hint, team_draft, regulation=regulation
+                )
+                if syn:
+                    values["item"] = syn
+                    provenance["item"] = FieldProvenance("item", "synthesized")
+        elif representative and representative.get("item") is not None:
+            values["item"] = representative["item"]
+            provenance["item"] = FieldProvenance("item", "usage_derived")
 
     for raw_field, value in (synthesized or {}).items():
         field = aliases.get(raw_field, raw_field)

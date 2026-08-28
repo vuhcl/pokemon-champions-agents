@@ -183,6 +183,46 @@ def _set_from_entry(entry: dict[str, Any], species: str) -> PokemonSet | None:
     return out  # type: ignore[return-value]
 
 
+def _iter_usage_ranked_items(entry: dict[str, Any]):
+    """Usage-ranked item ids: featured_sets (4-move rows) then common_items."""
+    seen: set[str] = set()
+    for fs in entry.get("featured_sets") or []:
+        real = _nonempty_moves(fs.get("moves") or [])
+        if len(real) >= 4 and fs.get("item") and fs.get("item") != "Nothing":
+            iid = to_id(fs["item"])
+            if iid not in seen:
+                seen.add(iid)
+                yield _display_item(fs["item"])
+    for row in entry.get("common_items") or []:
+        iid = to_id(row["name"])
+        if iid not in seen:
+            seen.add(iid)
+            yield _display_item(row["name"])
+
+
+def pick_team_aware_usage_item(
+    species: str,
+    *,
+    regulation: str = "champions-reg-mb",
+    used: set[str],
+    entry: dict[str, Any] | None = None,
+    snap: dict[str, Any] | None = None,
+) -> str | None:
+    """First legal usage-ranked item not already on team_draft (Item Clause)."""
+    from recommender.legality import is_item_legal, load_snapshot
+
+    row = entry if entry is not None else species_usage(species, regulation=regulation)
+    if not row:
+        return None
+    snap = snap or load_snapshot()
+    for item in _iter_usage_ranked_items(row):
+        if to_id(item) in used:
+            continue
+        if is_item_legal(snap, item):
+            return item
+    return None
+
+
 def featured_or_common_set(species: str, *, regulation: str = "champions-reg-mb") -> PokemonSet | None:
     """Most representative set: first featured with 4 moves, else top common moves+item."""
     entry = species_usage(species, regulation=regulation)
