@@ -15,6 +15,7 @@ _INTENT_ROUTES = {
     "reset": "reset_team",
     "restore": "restore_superseded",
     "continue": "route_team_phase",
+    "build_abandoned": "route_team_phase",
     "team_review": "generate_team_review",
     "bootstrap_response": "record_bootstrap_response",
     "pending_response": "finish_pending_response",
