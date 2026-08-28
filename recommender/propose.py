@@ -106,7 +106,9 @@ def fill_team_draft(state: RecommenderState) -> dict:
                     slot = draft[i]
                     changed = True
 
-        new_slot, did = _propagate_and_refine(slot, state, regulation=regulation)
+        new_slot, did = _propagate_and_refine(
+            slot, state, regulation=regulation, team_draft=draft
+        )
         if did:
             draft[i] = new_slot
             changed = True
@@ -161,7 +163,11 @@ def _pick_role(
 
 
 def _propagate_and_refine(
-    slot: Slot, state: RecommenderState, *, regulation: str
+    slot: Slot,
+    state: RecommenderState,
+    *,
+    regulation: str,
+    team_draft: list[Slot] | None = None,
 ) -> tuple[Slot, bool]:
     """Single-pass dependency-circle fill from locked pins + residual defaults."""
     updates: dict[str, Attr[Any]] = {}
@@ -217,7 +223,9 @@ def _propagate_and_refine(
     if working.species.value is None:
         return working, bool(updates)
 
-    refined, did_refine = _refine_defaults(working, state, regulation=regulation)
+    refined, did_refine = _refine_defaults(
+        working, state, regulation=regulation, team_draft=team_draft
+    )
     return refined, bool(updates) or did_refine
 
 
@@ -230,25 +238,14 @@ def _choice_spread(item_id: str) -> StatsTable:
     return {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32}
 
 
-def _default_item_candidates(role: str | None) -> tuple[str, ...]:
-    from recommender.role_taxonomy import primary_function_for_role_id
-
-    if primary_function_for_role_id(role or "") == "offense":
-        return ("Life Orb", "Sitrus Berry", "Focus Sash")
-    return ("Sitrus Berry", "Life Orb", "Focus Sash")
-
-
 def _synthesize_item(slot: Slot, state: RecommenderState) -> str | None:
-    from recommender.legality import is_item_legal, team_item_ids
+    from recommender.legality import pick_synthesized_default_item
 
-    snap = load_snapshot()
-    used = team_item_ids(list(state.get("team_draft") or []))
-    for cand in _default_item_candidates(slot.role.value):
-        if to_id(cand) in used:
-            continue
-        if is_item_legal(snap, cand):
-            return cand
-    return None
+    return pick_synthesized_default_item(
+        slot.role.value,
+        list(state.get("team_draft") or []),
+        regulation=state.get("regulation_mod") or "champions",
+    )
 
 
 def _nature_for_spread(spread: StatsTable, role: str | None) -> str:
@@ -276,11 +273,17 @@ def _nature_for_spread(spread: StatsTable, role: str | None) -> str:
 
 
 def _refine_defaults(
-    slot: Slot, state: RecommenderState, *, regulation: str
+    slot: Slot,
+    state: RecommenderState,
+    *,
+    regulation: str,
+    team_draft: list[Slot] | None = None,
 ) -> tuple[Slot, bool]:
     # Calc verify stays optional post-complete elsewhere; never required to emit ProvisionalSlot.
     from recommender.anchor_roles import _ability_for_target_role, _unique_legal_ability
+    from recommender.legality import pick_synthesized_default_item, team_item_ids
     from recommender.move_narrowing import assemble_moveset_fallback
+    from recommender.usage_data import pick_team_aware_usage_item
 
     species = slot.species.value
     assert species is not None
@@ -301,6 +304,13 @@ def _refine_defaults(
     usage_missed = False
     updates: dict[str, Attr[Any]] = {}
     spread = dict(slot.spread.value) if slot.spread.value else None
+    item_from_synth = False
+
+    draft_for_items = (
+        team_draft
+        if team_draft is not None
+        else list(state.get("team_draft") or [])
+    )
 
     if usage:
         if need_ability and usage.get("ability"):
@@ -318,7 +328,17 @@ def _refine_defaults(
         if need_moves and moves is None:
             moves = list(usage.get("moves") or [])
         if need_item and item is None:
-            item = usage.get("item")
+            used = team_item_ids(draft_for_items)
+            item = pick_team_aware_usage_item(
+                species, regulation=regulation, used=used
+            )
+            if item is None:
+                item = pick_synthesized_default_item(
+                    slot.role.value,
+                    draft_for_items,
+                    regulation=regulation,
+                )
+                item_from_synth = True
     else:
         usage_missed = bool(need_moves or need_item or need_ability)
         # 1. Ability (unique legality_only, else role-constraint synthesized)
@@ -438,8 +458,12 @@ def _refine_defaults(
 
         if need_moves and not usage_missed:
             updates["moveset"] = Attr(value=moves, locked=False, reason=reason)
-        if need_item and not usage_missed:
-            updates["item"] = Attr(value=item, locked=False, reason=reason)
+        if need_item and not usage_missed and item is not None:
+            if item_from_synth:
+                item_reason = ReasonRef(kind="tier2_heuristic", ref="tier3_item_default")
+            else:
+                item_reason = ReasonRef(kind="tier2_heuristic", ref="usage")
+            updates["item"] = Attr(value=item, locked=False, reason=item_reason)
         if need_spread and spread is not None:
             updates["spread"] = Attr(value=spread, locked=False, reason=reason)
 
