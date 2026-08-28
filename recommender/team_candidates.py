@@ -16,9 +16,11 @@ from recommender.anchor_roles import (
 from recommender.condition_resilience import (
     ConditionResilienceReport,
     candidate_dependency_reliability,
+    candidate_is_redundant_single_purpose_provider,
     gap_support_needs,
-    has_reliable_screens_provider,
     mechanism_condition,
+    provider_need_category_open,
+    provider_role_redundantly_covered,
     provided_conditions,
 )
 from recommender.divergence import (
@@ -487,34 +489,15 @@ def merge_multi_locked_candidates(
         need for context in anchor_contexts for need in context.support_needs
     )
     from recommender.condition_resilience import (
-        has_reliable_screens_provider,
         provided_conditions,
         team_field_states,
     )
 
-    # Filter out already-satisfied provider needs (trick_room/tailwind/
-    # screens) before candidate resolution -- confirmed live: Pelipper
-    # already provides Tailwind via its own move, but Archaludon's
-    # "tailwind" support need (a real, speed-tier-triggered need, not a
-    # generic placeholder) was still being surfaced as unmet, feeding
-    # candidate discovery for a condition the team already has.
-    # trick_room/tailwind map to a TRACKED_CONDITIONS provider check;
-    # screens isn't one of TRACKED_CONDITIONS (doesn't fit the same
-    # 0/1/2+ provider-cardinality model) but confirmed live to need the
-    # same already-covered suppression regardless -- Sableye kept
-    # surfacing as a fresh "screens" candidate even after Grimmsnarl (a
-    # real, committed screens setter) was already locked, since the
-    # unconditional "screens" need has zero team-state awareness on its
-    # own. Other need categories (healing_cleric, etc.) still aren't
-    # binary "provided or not" the same way and remain unaffected here.
-    already_provided = provided_conditions(anchor_contexts)
-    has_screens = has_reliable_screens_provider(anchor_contexts)
-    _PROVIDER_NEED_CONDITION = {"trick_room": "Trick Room", "tailwind": "Tailwind"}
+    # Filter out already-satisfied provider needs before candidate resolution.
     anchored_needs = tuple(
         need
         for need in anchored_needs
-        if need.need.category != "screens" or not has_screens
-        if _PROVIDER_NEED_CONDITION.get(need.need.category) not in already_provided
+        if provider_need_category_open(need.need.category, anchor_contexts)
     )
     support_context = SlotFillContext(anchor=None, role_shape_context=None)
     locked_weather = next(
@@ -1298,18 +1281,7 @@ def _is_covered_provider_utility(
     locked_contexts: Sequence[LockedAnchorContext],
 ) -> bool:
     """Soft demote Category A when primary provider role is already covered."""
-    if not locked_contexts:
-        return False
-    role_id = _provider_role_id(c)
-    if role_id == "screens_support":
-        return has_reliable_screens_provider(locked_contexts)
-    if role_id == "trick_room_setter":
-        return "Trick Room" in provided_conditions(locked_contexts)
-    if role_id == "tailwind_setter":
-        return "Tailwind" in provided_conditions(locked_contexts)
-    if role_id == "support_speed_control":
-        return "Tailwind" in provided_conditions(locked_contexts)
-    return False
+    return provider_role_redundantly_covered(_provider_role_id(c), locked_contexts)
 
 
 def _rank_category_a(
@@ -1443,18 +1415,6 @@ def _rank_by_need_evidence(
             for item in relevant
         )
 
-    from recommender.condition_resilience import provided_conditions
-
-    already_has_speed_control = bool(
-        provided_conditions(locked) & {"Trick Room", "Tailwind"}
-    )
-
-    def _is_redundant_speed_control_only(c: AnnotatedCandidate) -> bool:
-        if not already_has_speed_control:
-            return False
-        need_categories = {n.category for n in c.matching_needs}
-        return bool(need_categories) and need_categories <= {"trick_room", "tailwind"}
-
     def sort_key(c: AnnotatedCandidate):
         relevant = _need_branch_evidence(c, condition_beneficiary=condition_beneficiary)
         picked = _pick_best_evidence_item(relevant)
@@ -1465,7 +1425,7 @@ def _rank_by_need_evidence(
         )
         return (
             int(c.wastes_core_slot),
-            int(_is_redundant_speed_control_only(c)),
+            int(candidate_is_redundant_single_purpose_provider(c, locked)),
             int(_is_backup_only(relevant)),
             -best[0],
             -best[1],

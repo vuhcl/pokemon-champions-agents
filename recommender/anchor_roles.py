@@ -7,6 +7,7 @@ import json
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from recommender.contingent_value import REDIRECT_MOVES
 from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
@@ -701,6 +702,31 @@ def _mechanisms(build: ResolvedAnchorBuild) -> list[MechanismEvidence]:
                 build.source_for("moves"),
                 "self_supplied",
                 tuple(evidence),
+                "high",
+            )
+        )
+
+    redirect_present = sorted(mid for mid in REDIRECT_MOVES if mid in move_ids)
+    if redirect_present:
+        comp = reverse_compendium_evidence(
+            build.species or "", moves=build.moves, ability=build.ability
+        )
+        primary_redirect = "redirection" in {row.role_id for row in comp.exact}
+        redirect_mid = redirect_present[0]
+        out.append(
+            MechanismEvidence(
+                move_ids[redirect_mid],
+                "redirection",
+                "provides",
+                "wanted" if primary_redirect else "secondary",
+                "redirection" if primary_redirect else None,
+                True,
+                False,
+                "move",
+                True,
+                build.source_for("moves"),
+                "self_supplied",
+                (f"move:{redirect_mid}",),
                 "high",
             )
         )

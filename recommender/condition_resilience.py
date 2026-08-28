@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from recommender.calc_client import FieldSpec
+    from recommender.slot_fill import AnnotatedCandidate
 
 from recommender.anchor_roles import MechanismEvidence, ResolvedAnchorBuild
+from recommender.contingent_value import REDIRECT_MOVES
 from recommender.condition_types import (
     MIN_WANTED_DEPENDENTS_FOR_ESSENTIAL,
     TRACKED_CONDITIONS,
@@ -22,6 +25,7 @@ from recommender.condition_types import (
 from recommender.ids import to_id
 from recommender.slot_fill import AnchoredSupportNeed, LockedAnchorContext
 from recommender.support_needs import (
+    NeedCategory,
     SupportNeed,
     _spe_tier,
     _threat_speeds,
@@ -54,8 +58,12 @@ __all__ = [
     "ConditionResilienceReport",
     "ConditionResilienceRow",
     "assess_condition_resilience",
+    "candidate_is_redundant_single_purpose_provider",
     "gap_support_needs",
+    "has_reliable_screens_provider",
     "mechanism_condition",
+    "provider_need_category_open",
+    "provider_role_redundantly_covered",
 ]
 
 
@@ -263,6 +271,145 @@ def candidate_dependency_reliability(
     return worst
 
 
+_PROVIDER_NEED_LEAVES: frozenset[NeedCategory] = frozenset(
+    {"trick_room", "tailwind", "screens", "redirection"}
+)
+
+
+@dataclass(frozen=True)
+class ProviderRedundancyGroup:
+    leaves: frozenset[NeedCategory]
+    is_group_covered: Callable[[Sequence[LockedAnchorContext]], bool]
+
+
+def _locked_team_covers_screens(
+    locked: Sequence[LockedAnchorContext],
+    *,
+    exclude_slot: int | None = None,
+    exclude_slots: frozenset[int] = frozenset(),
+) -> bool:
+    skip = _skipped_slots(exclude_slot=exclude_slot, exclude_slots=exclude_slots)
+    for context in locked:
+        if getattr(context, "slot_index", None) in skip:
+            continue
+        role_decision = getattr(context, "role_decision", None)
+        if role_decision is None:
+            continue
+        for mechanism in role_decision.mechanisms:
+            if (
+                mechanism.present
+                and mechanism.relation == "provides"
+                and mechanism.kind == "screens"
+                and mechanism.importance == "wanted"
+            ):
+                return True
+    return False
+
+
+def _locked_team_covers_redirection(
+    locked: Sequence[LockedAnchorContext],
+    *,
+    exclude_slot: int | None = None,
+    exclude_slots: frozenset[int] = frozenset(),
+) -> bool:
+    skip = _skipped_slots(exclude_slot=exclude_slot, exclude_slots=exclude_slots)
+    for context in locked:
+        if getattr(context, "slot_index", None) in skip:
+            continue
+        role_decision = getattr(context, "role_decision", None)
+        if role_decision is None:
+            continue
+        for mechanism in role_decision.mechanisms:
+            if (
+                mechanism.present
+                and mechanism.relation == "provides"
+                and mechanism.kind == "redirection"
+                and mechanism.importance == "wanted"
+            ):
+                return True
+        if role_decision.role_id == "redirection":
+            moves = context.resolved_build.moves or ()
+            if REDIRECT_MOVES & {to_id(m) for m in moves}:
+                return True
+    return False
+
+
+def _provider_need_leaf_covered(
+    category: NeedCategory,
+    locked: Sequence[LockedAnchorContext],
+) -> bool:
+    provided = provided_conditions(locked)
+    if category == "trick_room":
+        return "Trick Room" in provided
+    if category == "tailwind":
+        return "Tailwind" in provided
+    if category == "screens":
+        return _locked_team_covers_screens(locked)
+    if category == "redirection":
+        return _locked_team_covers_redirection(locked)
+    return False
+
+
+def provider_need_category_open(
+    category: NeedCategory,
+    locked: Sequence[LockedAnchorContext],
+) -> bool:
+    """Whether a support-need category should still drive candidate discovery."""
+    if category not in _PROVIDER_NEED_LEAVES:
+        return True
+    return not _provider_need_leaf_covered(category, locked)
+
+
+def provider_role_redundantly_covered(
+    role_id: str | None,
+    locked: Sequence[LockedAnchorContext],
+) -> bool:
+    """Soft Category A demotion when a provider role is already on the team."""
+    if not role_id or not locked:
+        return False
+    if role_id == "screens_support":
+        return _locked_team_covers_screens(locked)
+    if role_id == "trick_room_setter":
+        return "Trick Room" in provided_conditions(locked)
+    if role_id in ("tailwind_setter", "support_speed_control"):
+        return "Tailwind" in provided_conditions(locked)
+    if role_id == "redirection":
+        return _locked_team_covers_redirection(locked)
+    return False
+
+
+_PROVIDER_REDUNDANCY_GROUPS: tuple[ProviderRedundancyGroup, ...] = (
+    ProviderRedundancyGroup(
+        frozenset({"trick_room", "tailwind"}),
+        lambda locked: bool(
+            provided_conditions(locked) & {"Trick Room", "Tailwind"}
+        ),
+    ),
+    ProviderRedundancyGroup(
+        frozenset({"screens"}),
+        _locked_team_covers_screens,
+    ),
+    ProviderRedundancyGroup(
+        frozenset({"redirection"}),
+        _locked_team_covers_redirection,
+    ),
+)
+
+
+def candidate_is_redundant_single_purpose_provider(
+    candidate: AnnotatedCandidate,
+    locked: Sequence[LockedAnchorContext],
+) -> bool:
+    """Category B soft demotion for single-purpose provider-need matches."""
+    need_categories = {n.category for n in candidate.matching_needs}
+    if not need_categories:
+        return False
+    for group in _PROVIDER_REDUNDANCY_GROUPS:
+        if group.is_group_covered(locked) and need_categories <= group.leaves:
+            return True
+    return False
+
+
 def has_reliable_screens_provider(
     locked: Sequence[LockedAnchorContext],
     *,
@@ -292,22 +439,9 @@ def has_reliable_screens_provider(
     with at least one screen move present) -- someone running Reflect as
     a single incidental move does not count.
     """
-    skip = _skipped_slots(exclude_slot=exclude_slot, exclude_slots=exclude_slots)
-    for context in locked:
-        if getattr(context, "slot_index", None) in skip:
-            continue
-        role_decision = getattr(context, "role_decision", None)
-        if role_decision is None:
-            continue
-        for mechanism in role_decision.mechanisms:
-            if (
-                mechanism.present
-                and mechanism.relation == "provides"
-                and mechanism.kind == "screens"
-                and mechanism.importance == "wanted"
-            ):
-                return True
-    return False
+    return _locked_team_covers_screens(
+        locked, exclude_slot=exclude_slot, exclude_slots=exclude_slots
+    )
 
 
 def anchor_has_obvious_need(
