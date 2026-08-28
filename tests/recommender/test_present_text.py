@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
+from recommender.matchup import MatchupResult
 from recommender.present_text import (
     BOOTSTRAP_PARSER_FIX_HINT,
     BOOTSTRAP_PARSER_NOT_CONFIGURED,
     NO_PENDING_MESSAGE,
     UNMATCHED_REPLY_PREFIX,
     _best_evidence_row,
+    format_builds,
     format_evidence_summary,
     format_no_pending,
     format_roster,
+    format_team_review,
     format_turn,
 )
 from recommender.state import (
@@ -19,9 +22,13 @@ from recommender.state import (
     CandidateEvidence,
     ProvisionalSlot,
     Slot,
+    SPOFFinding,
     TargetRoleDecision,
     TeamReviewResult,
+    ThreatCandidate,
+    ThreatCoverageResult,
     UnresolvedTargetRoleDecision,
+    empty_slot,
 )
 
 
@@ -519,19 +526,145 @@ def test_calc_unavailable_error_only_no_fake_options():
     assert "Incineroar" not in text
 
 
+def test_format_builds_locked_slots():
+    text = format_builds({"team_draft": [_locked("Incineroar")]})
+    assert "Incineroar" in text
+    assert "Pressure" in text
+    assert "Leftovers" in text
+    assert "Adamant" in text
+    assert "Protect" in text
+    assert "Tackle" in text
+
+
+def test_format_builds_empty():
+    assert "no locked members" in format_builds({"team_draft": []})
+
+
+def test_format_builds_skips_partial():
+    partial = empty_slot()
+    partial.species = Attr("Pelipper", locked=True)
+    text = format_builds({"team_draft": [partial, _locked("Incineroar")]})
+    assert "Incineroar" in text
+    assert "Pelipper" not in text
+
+
+def _sample_threat() -> ThreatCandidate:
+    return ThreatCandidate(
+        ladder_species="Kingambit",
+        usage_rank=3,
+        form="Kingambit",
+        showdown_usage_pct=None,
+        showdown_formes=(),
+        spec={"species": "Kingambit"},
+        build_source="ingame",
+    )
+
+
+def test_format_team_review_gaps_and_spofs():
+    draft = [_locked("Incineroar")]
+    review = TeamReviewResult(
+        threats=[_sample_threat()],
+        coverage=[
+            ThreatCoverageResult(
+                {"species": "Gapmon"},
+                MatchupResult("no_answer", "toss-up"),
+                [],
+                None,
+                False,
+            )
+        ],
+        spofs=[SPOFFinding(0, [{"species": "Gapmon"}], {"gapmon": "costly"})],
+    )
+    text = format_team_review(review, team_draft=draft)
+    assert "Kingambit" in text
+    assert "Gapmon" in text
+    assert "no_answer" in text
+    assert "1. Incineroar loses Gapmon" in text
+
+
+def test_format_team_review_flagged_separate():
+    review = TeamReviewResult(
+        threats=[],
+        coverage=[
+            ThreatCoverageResult(
+                {"species": "Conditional"},
+                MatchupResult("conditionally_dependent_answer", "costly"),
+                [0],
+                None,
+                True,
+            )
+        ],
+        spofs=[],
+    )
+    text = format_team_review(review, team_draft=[_locked("Incineroar")])
+    assert "Conditional coverage:" in text
+    assert "Conditional:" in text
+    assert "Coverage gaps:\n  (none)" in text
+
+
+def test_format_team_review_unavailable():
+    error = CandidateDiscoveryError(
+        kind="calc_unavailable",
+        stage="coverage",
+        message="calc down",
+        retryable=True,
+    )
+    review = TeamReviewResult([], [], [], status="unavailable", error=error)
+    with_error = format_team_review(review, include_error=True)
+    without_error = format_team_review(review, include_error=False)
+    assert "calc_unavailable" in with_error
+    assert "calc down" in with_error
+    assert "calc_unavailable" not in without_error
+
+
+def test_format_turn_review_dedupes_error():
+    error = CandidateDiscoveryError(
+        kind="calc_unavailable",
+        stage="coverage",
+        message="calc down",
+        retryable=True,
+    )
+    text = format_turn(
+        {
+            "pending_presentation": None,
+            "team_draft": [_locked("Mon0")],
+            "candidate_discovery_error": error,
+            "last_team_review": TeamReviewResult(
+                [], [], [], status="unavailable", error=error
+            ),
+        }
+    )
+    assert text.count("calc_unavailable") == 1
+    assert "Team review:" in text
+
+
 def test_complete_roster_and_review_status():
     draft = [_locked(f"Mon{i}") for i in range(6)]
+    review = TeamReviewResult(
+        threats=[_sample_threat()],
+        coverage=[
+            ThreatCoverageResult(
+                {"species": "Gapmon"},
+                MatchupResult("no_answer", "toss-up"),
+                [],
+                None,
+                False,
+            )
+        ],
+        spofs=[],
+        status="available",
+    )
     text = format_turn(
         {
             "pending_presentation": None,
             "team_draft": draft,
-            "last_team_review": TeamReviewResult(
-                threats=[], coverage=[], spofs=[], status="unavailable"
-            ),
+            "last_team_review": review,
         }
     )
     assert "Mon0" in text
-    assert "Team review status: unavailable" in text
+    assert "Kingambit" in text
+    assert "Gapmon" in text
+    assert "Team review status:" not in text
 
 
 def test_unmatched_prefix():

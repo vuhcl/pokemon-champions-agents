@@ -19,9 +19,13 @@ from recommender.state import (
     Attr,
     CandidateDiscoveryError,
     Slot,
+    SPOFFinding,
     TeamReviewResult,
+    ThreatCandidate,
+    ThreatCoverageResult,
     empty_slot,
 )
+from recommender.matchup import MatchupResult
 
 
 def _rain_parser():
@@ -149,7 +153,71 @@ def _partial_draft() -> list[Slot]:
 
 
 def _stub_team_review() -> TeamReviewResult:
-    return TeamReviewResult(threats=[], coverage=[{"species": "X"}], spofs=[])
+    return TeamReviewResult(
+        threats=[
+            ThreatCandidate(
+                ladder_species="Kingambit",
+                usage_rank=3,
+                form="Kingambit",
+                showdown_usage_pct=None,
+                showdown_formes=(),
+                spec={"species": "Kingambit"},
+                build_source="ingame",
+            )
+        ],
+        coverage=[
+            ThreatCoverageResult(
+                {"species": "Gapmon"},
+                MatchupResult("no_answer", "toss-up"),
+                [],
+                None,
+                False,
+            )
+        ],
+        spofs=[],
+    )
+
+
+def test_handle_line_meta_builds():
+    graph = MagicMock()
+    state = {"team_draft": [_locked_archaludon()]}
+    _, _, _, output, should_exit = handle_line(
+        graph, thread_config("t"), state, ":builds", format_id=DEFAULT_FORMAT_ID, thread_id="t"
+    )
+    graph.invoke.assert_not_called()
+    assert should_exit is False
+    assert output is not None
+    assert "Stamina" in output
+    assert "Assault Vest" in output
+    assert "Modest" in output
+
+
+def test_handle_line_meta_review_cached():
+    graph = MagicMock()
+    state = {
+        "team_draft": [_locked_archaludon()],
+        "last_team_review": _stub_team_review(),
+    }
+    _, _, _, output, should_exit = handle_line(
+        graph, thread_config("t"), state, ":review", format_id=DEFAULT_FORMAT_ID, thread_id="t"
+    )
+    graph.invoke.assert_not_called()
+    assert should_exit is False
+    assert output is not None
+    assert "Kingambit" in output
+    assert "Gapmon" in output
+
+
+def test_handle_line_meta_review_empty():
+    graph = MagicMock()
+    state = {"team_draft": [], "last_team_review": None}
+    _, _, _, output, should_exit = handle_line(
+        graph, thread_config("t"), state, ":review", format_id=DEFAULT_FORMAT_ID, thread_id="t"
+    )
+    graph.invoke.assert_not_called()
+    assert should_exit is False
+    assert output is not None
+    assert "not cached" in output
 
 
 def test_handle_line_idle_without_parser_invokes_and_catches_not_implemented():
@@ -289,7 +357,7 @@ def test_handle_line_idle_team_review_complete_team():
     )
     state = graph.get_state(config).values
     with patch("recommender.nodes._compute_team_review", return_value=_stub_team_review()):
-        new_state, _, _, _, should_exit = handle_line(
+        new_state, _, _, output, should_exit = handle_line(
             graph,
             config,
             state,
@@ -301,6 +369,9 @@ def test_handle_line_idle_team_review_complete_team():
     assert new_state.get("turn_intent") == "team_review"
     assert team_phase(new_state) == "complete"
     assert new_state.get("last_team_review") is not None
+    assert output is not None
+    assert "Kingambit" in output
+    assert "Gapmon" in output
 
 
 def test_handle_line_idle_team_review_partial_team():

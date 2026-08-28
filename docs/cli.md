@@ -133,6 +133,8 @@ Typed at the `>` prompt (exact match after strip):
 | `:q` / `:quit` / `quit` | Exit the REPL. |
 | `:thread` | Print the current thread id. |
 | `:team` | Print locked roster members (`Team: (no locked members)` if none). |
+| `:builds` | Print full locked-slot builds (ability, item, nature, moves, spread). |
+| `:review` | Print cached team review findings (threats, coverage gaps, SPOFs). |
 | `:new` / `:reset` | Start a new session and print its first turn. |
 
 Anything else is treated as an answer to the current pending question (if any).
