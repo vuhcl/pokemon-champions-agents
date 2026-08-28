@@ -7,8 +7,8 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END
 
 from recommender.graph import _route_after_refine, compile_graph
-from recommender.nodes import classify_input, classify_pending
-from recommender.present_text import format_turn
+from recommender.nodes import classify_input, classify_pending, discover_multi_locked
+from recommender.present_text import NO_PENDING_MESSAGE, format_turn
 from recommender.state import (
     Attr,
     CandidateDiscoveryError,
@@ -26,6 +26,70 @@ from recommender.state import (
 )
 
 VGC_MB = "[Gen 9 Champions] VGC 2026 Reg M-B"
+
+
+def _locked_slot(
+    species: str,
+    *,
+    role: str,
+    ability: str,
+    item: str,
+    moves: list[str],
+    nature: str,
+    spread: dict[str, int],
+) -> Slot:
+    return Slot(
+        role=Attr(role, locked=True),
+        species=Attr(species, locked=True),
+        ability=Attr(ability, locked=True),
+        item=Attr(item, locked=True),
+        moveset=Attr(moves, locked=True),
+        spread=Attr(spread, locked=True),
+        nature=Attr(nature, locked=True),
+    )
+
+
+def _four_lock_support_draft() -> list[Slot]:
+    return [
+        _locked_slot(
+            "Archaludon",
+            role="bulky_special_attacker",
+            ability="Stamina",
+            item="Leftovers",
+            moves=["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"],
+            nature="Calm",
+            spread={"hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3},
+        ),
+        _locked_slot(
+            "Pelipper",
+            role="support_speed_control",
+            ability="Drizzle",
+            item="Focus Sash",
+            moves=["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"],
+            nature="Modest",
+            spread={"hp": 32, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 2},
+        ),
+        _locked_slot(
+            "Swampert-Mega",
+            role="bulky_attacker",
+            ability="Swift Swim",
+            item="Swampertite",
+            moves=["Protect", "Wave Crash", "Ice Punch", "Earthquake"],
+            nature="Adamant",
+            spread={"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32},
+        ),
+        _locked_slot(
+            "Sinistcha",
+            role="redirection",
+            ability="Hospitality",
+            item="Sitrus Berry",
+            moves=["Matcha Gotcha", "Rage Powder", "Strength Sap", "Protect"],
+            nature="Bold",
+            spread={"hp": 252, "atk": 0, "def": 252, "spa": 0, "spd": 4, "spe": 0},
+        ),
+        empty_slot(),
+        empty_slot(),
+    ]
 
 
 def _graph():
@@ -526,17 +590,112 @@ def test_pending_presentation_defer_clears_without_locking():
             "kind": "completion_preference",
             "preference_options": ("attacker", "support", "balanced"),
         },
-        {"schema_version": 1, "kind": "full_build_confirmation"},
     ],
 )
 def test_classify_pending_defer_emits_deferred(pending):
     result = classify_pending("defer", pending)
     assert result["turn_intent"] == "deferred"
     assert result["pending_presentation"] is None
-    if pending["kind"] == "full_build_confirmation":
-        assert result["pending_slot_intent"] is None
-        assert result["provisional_slot"] is None
-        assert result["provisional_refinement"] is None
+
+
+def test_classify_pending_full_build_defer_emits_build_abandoned():
+    result = classify_pending(
+        "defer", {"schema_version": 1, "kind": "full_build_confirmation"}
+    )
+    assert result["turn_intent"] == "build_abandoned"
+    assert result["pending_presentation"] is None
+    assert result["pending_slot_intent"] is None
+    assert result["provisional_slot"] is None
+    assert result["provisional_refinement"] is None
+
+
+def test_classify_pending_core_resolution_defer_still_deferred():
+    pending = {
+        "schema_version": 2,
+        "kind": "core_resolution",
+        "slot_index": 2,
+        "resolution_options": [{"id": "keep_core", "label": "Keep current core"}],
+    }
+    result = classify_pending("defer", pending)
+    assert result["turn_intent"] == "deferred"
+    assert result["pending_presentation"] is None
+
+
+def test_full_build_defer_rediscovers_candidates():
+    graph = _graph()
+    suffix = "build-abandon-rediscover"
+    cfg = _thread(suffix)
+    graph.invoke({"format_id": VGC_MB}, config=cfg)
+    graph.update_state(
+        cfg,
+        {
+            "team_draft": _four_lock_support_draft(),
+            "team_completion_preference": "support",
+        },
+    )
+    review = TeamReviewResult(threats=[], coverage=[], spofs=[])
+    with (
+        patch("recommender.nodes._compute_team_review", return_value=review),
+        patch("recommender.nodes.query_shared_teammates", return_value=None),
+    ):
+        state = graph.get_state(cfg).values
+        baseline_disc = discover_multi_locked(state, cfg)
+    baseline_pending = baseline_disc["pending_presentation"]
+    assert baseline_pending is not None
+    assert baseline_pending["kind"] == "candidate_selection"
+    baseline_species = [o["species"] for o in baseline_pending["options"]]
+    baseline_slot_index = baseline_pending["slot_index"]
+    pick_index = next(
+        (
+            i
+            for i, option in enumerate(baseline_pending["options"])
+            if option["species"] == "Ariados"
+        ),
+        0,
+    )
+    picked_species = baseline_species[pick_index]
+
+    graph.update_state(cfg, {"pending_presentation": baseline_pending})
+    moves = ["Protect", "Sucker Punch", "Knock Off", "Rage Powder"]
+    spread = {"hp": 252, "atk": 0, "def": 252, "spa": 0, "spd": 4, "spe": 0}
+    with (
+        patch("recommender.nodes._compute_team_review", return_value=review),
+        patch("recommender.nodes.query_shared_teammates", return_value=None),
+        patch(
+            "recommender.propose.featured_or_common_set",
+            return_value={
+                "species": picked_species,
+                "ability": "Insomnia",
+                "moves": moves,
+                "item": "Focus Sash",
+                "nature": "Bold",
+            },
+        ),
+        patch(
+            "recommender.propose.get_resolved_build",
+            return_value={"spread": spread, "source_tier": "test", "verified": True},
+        ),
+    ):
+        full_build = graph.invoke(
+            {"pending_input": str(pick_index + 1)},
+            config=cfg,
+        )
+    assert full_build["pending_presentation"]["kind"] == "full_build_confirmation"
+
+    with (
+        patch("recommender.nodes._compute_team_review", return_value=review),
+        patch("recommender.nodes.query_shared_teammates", return_value=None),
+    ):
+        after_defer = graph.invoke({"pending_input": "defer"}, config=cfg)
+
+    assert after_defer["turn_intent"] == "build_abandoned"
+    assert after_defer["pending_presentation"]["kind"] == "candidate_selection"
+    assert after_defer["pending_presentation"]["slot_index"] == baseline_slot_index
+    assert [
+        o["species"] for o in after_defer["pending_presentation"]["options"]
+    ] == baseline_species
+    assert not all_locked(after_defer["team_draft"][baseline_slot_index])
+    assert NO_PENDING_MESSAGE not in format_turn(after_defer)
 
 
 def test_classify_pending_unmatched_keeps_pending_out_of_update():

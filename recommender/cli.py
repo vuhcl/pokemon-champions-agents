@@ -75,7 +75,7 @@ def handle_line(
     except Exception:
         return state, config, thread_id, CLASSIFY_FAIL_USER_MSG, False
 
-    # pending_response means unmatched only; successful defer emits "deferred".
+    # pending_response means unmatched only; full_build abandon emits build_abandoned.
     unmatched = state.get("turn_intent") == "pending_response"
     return state, config, thread_id, format_turn(state, unmatched=unmatched), False
 

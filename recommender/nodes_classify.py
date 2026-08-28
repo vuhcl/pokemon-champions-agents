@@ -1777,7 +1777,7 @@ def classify_pending(
             return {"turn_intent": "full_slot_confirmed"}
         if signals == {"defer"}:
             return {
-                "turn_intent": "deferred",
+                "turn_intent": "build_abandoned",
                 "pending_presentation": None,
                 "pending_slot_intent": None,
                 "provisional_slot": None,
