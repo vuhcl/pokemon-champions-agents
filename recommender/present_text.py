@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any, Mapping
 
 from recommender.state import (
     CandidateDiscoveryError,
     CandidateEvidence,
     ProvisionalSlot,
+    Slot,
+    SPOFFinding,
     TargetRoleDecision,
+    TeamReviewResult,
+    ThreatCandidate,
+    ThreatCoverageResult,
     UnresolvedTargetRoleDecision,
     all_locked,
 )
@@ -16,6 +22,9 @@ from recommender.team_candidates import _pick_best_evidence_item
 
 NO_PENDING_MESSAGE = (
     "No pending question to answer; start :new or wait for a prompt."
+)
+NO_TEAM_REVIEW_MESSAGE = (
+    "Team review: (not cached — ask for a team review or continue on a complete team)"
 )
 UNMATCHED_REPLY_PREFIX = "Didn't catch that."
 BOOTSTRAP_PARSER_NOT_CONFIGURED = "bootstrap intake parser is not configured"
@@ -101,6 +110,205 @@ def _best_evidence_row(
     picked = _pick_best_evidence_item(normalized)
     assert picked is not None
     return picked
+
+
+def _format_build_fields(
+    *,
+    ability: object,
+    item: object,
+    nature: object,
+    moves: Sequence[object],
+    spread: object,
+) -> list[str]:
+    return [
+        f"  Ability: {ability}",
+        f"  Item: {item}",
+        f"  Nature: {nature}",
+        f"  Moves: {', '.join(str(m) for m in moves)}",
+        f"  Spread: {spread}",
+    ]
+
+
+def _locked_slot_build_fields(slot: Slot) -> tuple[str, str | None, str | None, str | None, str | None, list[str], dict[str, int]]:
+    return (
+        getattr(slot.species, "value", None) or "?",
+        getattr(slot.role, "value", None),
+        getattr(slot.ability, "value", None),
+        getattr(slot.item, "value", None),
+        getattr(slot.nature, "value", None),
+        list(getattr(slot.moveset, "value", None) or ()),
+        dict(getattr(slot.spread, "value", None) or {}),
+    )
+
+
+def format_builds(state: Mapping[str, Any]) -> str:
+    """Full locked-slot builds from team_draft."""
+
+    draft = state.get("team_draft") or []
+    blocks: list[str] = []
+    for index, slot in enumerate(draft):
+        if not all_locked(slot):
+            continue
+        species, role, ability, item, nature, moves, spread = _locked_slot_build_fields(slot)
+        header = f"{index + 1}. {species}"
+        if role:
+            header = f"{header} ({role})"
+        blocks.append(f"{header}:")
+        blocks.extend(
+            _format_build_fields(
+                ability=ability,
+                item=item,
+                nature=nature,
+                moves=moves,
+                spread=spread,
+            )
+        )
+    if not blocks:
+        return "Builds: (no locked members)"
+    return "Builds:\n" + "\n".join(blocks)
+
+
+def _slot_label(team_draft: Sequence[Slot], index: int) -> str:
+    if 0 <= index < len(team_draft):
+        species = getattr(team_draft[index].species, "value", None)
+        if species:
+            return f"{index + 1}. {species}"
+    return f"slot {index + 1}"
+
+
+def _threat_species(threat: object) -> str:
+    if isinstance(threat, Mapping):
+        return str(threat.get("species") or "?")
+    spec = getattr(threat, "spec", None)
+    if isinstance(spec, Mapping) and spec.get("species"):
+        return str(spec["species"])
+    form = getattr(threat, "form", None)
+    if form:
+        return str(form)
+    ladder = getattr(threat, "ladder_species", None)
+    if ladder:
+        return str(ladder)
+    return "?"
+
+
+def _coverage_row(row: ThreatCoverageResult | Mapping[str, Any]) -> tuple[object, object, list[int], bool]:
+    if isinstance(row, ThreatCoverageResult):
+        return row.threat, row.best_outcome, list(row.covering_slot_indices), row.flagged
+    threat = row.get("threat")
+    best = row.get("best_outcome")
+    covering = list(row.get("covering_slot_indices") or ())
+    flagged = bool(row.get("flagged"))
+    return threat, best, covering, flagged
+
+
+def _matchup_bits(outcome: object) -> tuple[str | None, str | None]:
+    if outcome is None:
+        return None, None
+    if isinstance(outcome, Mapping):
+        return outcome.get("outcome"), outcome.get("severity")
+    return getattr(outcome, "outcome", None), getattr(outcome, "severity", None)
+
+
+def format_team_review(
+    review: TeamReviewResult | Mapping[str, Any],
+    *,
+    team_draft: Sequence[Slot] = (),
+    include_error: bool = True,
+) -> str:
+    """Render cached team review findings (threats, coverage gaps, SPOFs)."""
+
+    if isinstance(review, TeamReviewResult):
+        status = review.status
+        error = review.error
+        threats = review.threats
+        coverage = review.coverage
+        spofs = review.spofs
+    else:
+        status = review.get("status") or "available"
+        error = review.get("error")
+        threats = review.get("threats") or ()
+        coverage = review.get("coverage") or ()
+        spofs = review.get("spofs") or ()
+
+    lines: list[str] = ["Team review:"]
+    if include_error and status == "unavailable" and error is not None:
+        lines.append(_format_discovery_error(error))
+
+    lines.append("Threats:")
+    if threats:
+        for threat in threats:
+            if isinstance(threat, ThreatCandidate):
+                label = threat.form or threat.ladder_species
+                rank = threat.usage_rank
+                source = threat.build_source
+            elif isinstance(threat, Mapping):
+                label = str(threat.get("form") or threat.get("ladder_species") or "?")
+                rank = threat.get("usage_rank")
+                source = threat.get("build_source")
+            else:
+                label = _threat_species(threat)
+                rank = getattr(threat, "usage_rank", None)
+                source = getattr(threat, "build_source", None)
+            bits = [label]
+            if rank is not None:
+                bits.append(f"rank {rank}")
+            if source:
+                bits.append(str(source))
+            lines.append(f"  - {' · '.join(bits)}")
+    else:
+        lines.append("  (none)")
+
+    gaps: list[str] = []
+    conditional: list[str] = []
+    covered: list[str] = []
+    for row in coverage:
+        threat, best, covering, flagged = _coverage_row(row)
+        species = _threat_species(threat)
+        outcome, severity = _matchup_bits(best)
+        outcome_text = outcome or "unknown"
+        if severity:
+            outcome_text = f"{outcome_text} ({severity})"
+        if not covering:
+            gaps.append(f"  - {species}: {outcome_text}")
+        elif flagged:
+            conditional.append(f"  - {species}: {outcome_text}")
+        else:
+            cover_labels = ", ".join(_slot_label(team_draft, i) for i in covering)
+            covered.append(f"  - {species}: covered by {cover_labels} ({outcome_text})")
+
+    lines.append("Coverage gaps:")
+    lines.extend(gaps or ["  (none)"])
+    lines.append("Conditional coverage:")
+    lines.extend(conditional or ["  (none)"])
+    if covered:
+        lines.append("Covered:")
+        lines.extend(covered)
+
+    lines.append("SPOFs:")
+    if spofs:
+        for finding in spofs:
+            if isinstance(finding, SPOFFinding):
+                slot_index = finding.slot_index
+                lost = finding.threats_lost
+                severities = finding.threat_severity
+            elif isinstance(finding, Mapping):
+                slot_index = int(finding.get("slot_index", -1))
+                lost = finding.get("threats_lost") or ()
+                severities = finding.get("threat_severity") or {}
+            else:
+                slot_index = getattr(finding, "slot_index", -1)
+                lost = getattr(finding, "threats_lost", ()) or ()
+                severities = getattr(finding, "threat_severity", {}) or {}
+            lost_names = ", ".join(_threat_species(t) for t in lost) or "?"
+            sev_bits = ", ".join(f"{k}={v}" for k, v in severities.items())
+            sev_suffix = f" [{sev_bits}]" if sev_bits else ""
+            lines.append(
+                f"  - {_slot_label(team_draft, slot_index)} loses {lost_names}{sev_suffix}"
+            )
+    else:
+        lines.append("  (none)")
+
+    return "\n".join(lines)
 
 
 def format_roster(state: Mapping[str, Any]) -> str:
@@ -361,15 +569,15 @@ def _format_full_build(state: Mapping[str, Any]) -> list[str]:
         nature = provisional.get("nature")
         moves = provisional.get("moves") or ()
         spread = dict(provisional.get("spread") or ())
+    lines.append(f"Proposed build for {species} ({role}):")
     lines.extend(
-        [
-            f"Proposed build for {species} ({role}):",
-            f"  Ability: {ability}",
-            f"  Item: {item}",
-            f"  Nature: {nature}",
-            f"  Moves: {', '.join(str(m) for m in moves)}",
-            f"  Spread: {spread}",
-        ]
+        _format_build_fields(
+            ability=ability,
+            item=item,
+            nature=nature,
+            moves=moves,
+            spread=spread,
+        )
     )
     for flag in pending.get("review_flags") or ():
         lines.append(f"Note: {flag.get('claim')}")
@@ -466,10 +674,12 @@ def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
         blocks.append(format_roster(state))
         review = state.get("last_team_review")
         if review is not None:
-            status = getattr(review, "status", None) or (
-                review.get("status") if isinstance(review, Mapping) else None
+            blocks.append(
+                format_team_review(
+                    review,
+                    team_draft=state.get("team_draft") or [],
+                    include_error=discovery_err is None,
+                )
             )
-            if status:
-                blocks.append(f"Team review status: {status}")
 
     return "\n".join(blocks)

@@ -11,8 +11,11 @@ from recommender.graph import compile_cli_graph
 from recommender.llm_provider import resolve_llm_parsers
 from recommender.present_text import (
     NO_PENDING_MESSAGE,
+    NO_TEAM_REVIEW_MESSAGE,
+    format_builds,
     format_no_pending,
     format_roster,
+    format_team_review,
     format_turn,
 )
 from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
@@ -64,6 +67,19 @@ def handle_line(
         return state, config, thread_id, thread_id, False
     if stripped == ":team":
         return state, config, thread_id, format_roster(state), False
+    if stripped == ":builds":
+        return state, config, thread_id, format_builds(state), False
+    if stripped == ":review":
+        review = state.get("last_team_review")
+        if review is None:
+            output = NO_TEAM_REVIEW_MESSAGE
+        else:
+            output = format_team_review(
+                review,
+                team_draft=state.get("team_draft") or [],
+                include_error=True,
+            )
+        return state, config, thread_id, output, False
 
     if (
         state.get("pending_presentation") is None
