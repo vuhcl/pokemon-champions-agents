@@ -5,13 +5,23 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
 from langchain_core.runnables import RunnableLambda
+from langgraph.checkpoint.memory import MemorySaver
 
 from recommender.cli import handle_line, invoke_user_text, main
 from recommender.graph import compile_cli_graph, compile_graph
+from recommender.nodes import team_phase
+from recommender.nodes_classify import _MISMATCH_MSG
 from recommender.present_text import NO_PENDING_MESSAGE, UNMATCHED_REPLY_PREFIX
 from recommender.session import DEFAULT_FORMAT_ID, thread_config
-from recommender.state import Attr, CandidateDiscoveryError, Slot
+from recommender.state import (
+    Attr,
+    CandidateDiscoveryError,
+    Slot,
+    TeamReviewResult,
+    empty_slot,
+)
 
 
 def _rain_parser():
@@ -108,36 +118,59 @@ _CANDIDATE_PENDING = {
 }
 
 
-def test_handle_line_pre_guard_skips_invoke_without_pending():
+def _locked_species(species: str) -> Slot:
+    return Slot(
+        role=Attr("bulky_attacker", locked=True),
+        species=Attr(species, locked=True),
+        ability=Attr("Stamina", locked=True),
+        item=Attr("Leftovers", locked=True),
+        moveset=Attr(["Protect", "Iron Head", "Body Press", "Rock Slide"], locked=True),
+        spread=Attr({"hp": 32, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 0}, locked=True),
+        nature=Attr("Adamant", locked=True),
+    )
+
+
+def _complete_draft() -> list[Slot]:
+    return [
+        _locked_species(name)
+        for name in (
+            "Archaludon",
+            "Pelipper",
+            "Incineroar",
+            "Sinistcha",
+            "Meowstic",
+            "Farigiraf",
+        )
+    ]
+
+
+def _partial_draft() -> list[Slot]:
+    return [_locked_species("Archaludon"), _locked_species("Pelipper"), *[empty_slot() for _ in range(4)]]
+
+
+def _stub_team_review() -> TeamReviewResult:
+    return TeamReviewResult(threats=[], coverage=[{"species": "X"}], spofs=[])
+
+
+def test_handle_line_idle_without_parser_invokes_and_catches_not_implemented():
     graph = MagicMock()
+    graph.invoke.side_effect = NotImplementedError(
+        "classify_pending is not wired; monkeypatch in tests or configure ADR-013 LLM"
+    )
     state = {"pending_presentation": None, "team_draft": []}
     config = thread_config("t")
     new_state, new_config, tid, output, should_exit = handle_line(
         graph, config, state, "hello", format_id=DEFAULT_FORMAT_ID, thread_id="t"
     )
+    graph.invoke.assert_called_once_with({"pending_input": "hello"}, config)
     assert output == NO_PENDING_MESSAGE
     assert should_exit is False
-    graph.invoke.assert_not_called()
     assert new_state is state
+    assert new_config is config
     assert tid == "t"
 
 
-def test_handle_line_unexpected_error_with_pending_is_friendly():
-    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
-
-    graph = MagicMock()
-    graph.invoke.side_effect = RuntimeError("OUTPUT_PARSING_FAILURE boom")
-    state = {"pending_presentation": _CANDIDATE_PENDING, "team_draft": []}
-    _, _, _, output, should_exit = handle_line(
-        graph, thread_config("t"), state, "hello", format_id=DEFAULT_FORMAT_ID, thread_id="t"
-    )
-    assert output == CLASSIFY_FAIL_USER_MSG
-    assert "OUTPUT_PARSING_FAILURE" not in output
-    assert "RuntimeError" not in output
-    assert should_exit is False
-
-
-def test_handle_line_pre_guard_reports_fail_closed_discovery():
+def test_handle_line_discovery_error_skips_invoke():
     graph = MagicMock()
     state = {
         "pending_presentation": None,
@@ -158,6 +191,199 @@ def test_handle_line_pre_guard_reports_fail_closed_discovery():
     assert "wait for a prompt" not in output
     assert should_exit is False
     graph.invoke.assert_not_called()
+
+
+def test_handle_line_degraded_candidate_with_error_still_invokes():
+    graph = MagicMock()
+    graph.invoke.return_value = {
+        "turn_intent": "deferred",
+        "pending_presentation": None,
+        "team_draft": [_locked_archaludon()],
+    }
+    error = CandidateDiscoveryError(
+        kind="calc_incomplete",
+        stage="threat_coverage",
+        message="batch damage verification incomplete",
+        retryable=True,
+    )
+    state = {
+        "pending_presentation": _CANDIDATE_PENDING,
+        "candidate_discovery_error": error,
+        "team_draft": [_locked_archaludon()],
+    }
+    handle_line(
+        graph,
+        thread_config("t"),
+        state,
+        "defer",
+        format_id=DEFAULT_FORMAT_ID,
+        thread_id="t",
+    )
+    graph.invoke.assert_called_once()
+
+
+def test_handle_line_idle_continue_empty_team():
+    parser = RunnableLambda(lambda _: {"turn_intent": "continue"})
+    graph = compile_graph(checkpointer=MemorySaver(), turn_intent_parser=parser)
+    thread_id = "idle-empty-continue"
+    config = thread_config(thread_id)
+    state = graph.invoke({"format_id": DEFAULT_FORMAT_ID}, config)
+    graph.update_state(config, {"pending_presentation": None})
+    state = graph.get_state(config).values
+    new_state, _, _, output, should_exit = handle_line(
+        graph,
+        config,
+        state,
+        "what next",
+        format_id=DEFAULT_FORMAT_ID,
+        thread_id=thread_id,
+    )
+    assert should_exit is False
+    assert output is not None
+    assert new_state.get("pending_presentation", {}).get("kind") == "bootstrap_intake"
+
+
+def test_handle_line_idle_continue_complete_team():
+    parser = RunnableLambda(lambda _: {"turn_intent": "continue"})
+    graph = compile_graph(checkpointer=MemorySaver(), turn_intent_parser=parser)
+    thread_id = "idle-complete-continue"
+    config = thread_config(thread_id)
+    graph.invoke({"format_id": DEFAULT_FORMAT_ID}, config)
+    graph.update_state(
+        config,
+        {
+            "pending_presentation": None,
+            "team_draft": _complete_draft(),
+            "bootstrap_intake_complete": True,
+        },
+    )
+    state = graph.get_state(config).values
+    with patch("recommender.nodes._compute_team_review", return_value=_stub_team_review()):
+        new_state, _, _, _, should_exit = handle_line(
+            graph,
+            config,
+            state,
+            "what next",
+            format_id=DEFAULT_FORMAT_ID,
+            thread_id=thread_id,
+        )
+    assert should_exit is False
+    assert team_phase(new_state) == "complete"
+    assert new_state.get("pending_presentation") is None
+    assert new_state.get("last_team_review") is not None
+
+
+def test_handle_line_idle_team_review_complete_team():
+    parser = RunnableLambda(lambda _: {"turn_intent": "team_review"})
+    graph = compile_graph(checkpointer=MemorySaver(), turn_intent_parser=parser)
+    thread_id = "idle-complete-review"
+    config = thread_config(thread_id)
+    graph.invoke({"format_id": DEFAULT_FORMAT_ID}, config)
+    graph.update_state(
+        config,
+        {
+            "pending_presentation": None,
+            "team_draft": _complete_draft(),
+            "bootstrap_intake_complete": True,
+        },
+    )
+    state = graph.get_state(config).values
+    with patch("recommender.nodes._compute_team_review", return_value=_stub_team_review()):
+        new_state, _, _, _, should_exit = handle_line(
+            graph,
+            config,
+            state,
+            "show me the team",
+            format_id=DEFAULT_FORMAT_ID,
+            thread_id=thread_id,
+        )
+    assert should_exit is False
+    assert new_state.get("turn_intent") == "team_review"
+    assert team_phase(new_state) == "complete"
+    assert new_state.get("last_team_review") is not None
+
+
+def test_handle_line_idle_team_review_partial_team():
+    parser = RunnableLambda(lambda _: {"turn_intent": "team_review"})
+    graph = compile_graph(checkpointer=MemorySaver(), turn_intent_parser=parser)
+    thread_id = "idle-partial-review"
+    config = thread_config(thread_id)
+    graph.invoke({"format_id": DEFAULT_FORMAT_ID}, config)
+    graph.update_state(
+        config,
+        {
+            "pending_presentation": None,
+            "team_draft": _partial_draft(),
+            "bootstrap_intake_complete": True,
+        },
+    )
+    state = graph.get_state(config).values
+    with patch("recommender.nodes._compute_team_review", return_value=_stub_team_review()):
+        new_state, _, _, _, should_exit = handle_line(
+            graph,
+            config,
+            state,
+            "show me the team",
+            format_id=DEFAULT_FORMAT_ID,
+            thread_id=thread_id,
+        )
+    assert should_exit is False
+    assert new_state.get("turn_intent") == "team_review"
+    assert team_phase(new_state) == "multi_locked"
+    assert new_state.get("last_team_review") is not None
+
+
+@pytest.mark.parametrize(
+    ("intent", "payload"),
+    [
+        (
+            "edit",
+            {
+                "turn_intent": "edit",
+                "field": "nature",
+                "value_text": "Modest",
+                "edit_scope": "field_only",
+            },
+        ),
+        ("select_build_option", {"turn_intent": "select_build_option", "option_ids": ["1"]}),
+        ("compare", {"turn_intent": "compare", "option_ids": ["1", "2"]}),
+    ],
+)
+def test_handle_line_idle_blocked_intents(intent, payload):
+    parser = RunnableLambda(lambda _: payload)
+    graph = compile_graph(checkpointer=MemorySaver(), turn_intent_parser=parser)
+    thread_id = f"idle-blocked-{intent}"
+    config = thread_config(thread_id)
+    graph.invoke({"format_id": DEFAULT_FORMAT_ID}, config)
+    graph.update_state(config, {"pending_presentation": None})
+    state = graph.get_state(config).values
+    new_state, _, _, output, should_exit = handle_line(
+        graph,
+        config,
+        state,
+        "ambiguous request",
+        format_id=DEFAULT_FORMAT_ID,
+        thread_id=thread_id,
+    )
+    assert should_exit is False
+    assert output is not None
+    assert new_state.get("turn_intent") == "pending_response"
+    assert output.startswith(_MISMATCH_MSG)
+
+
+def test_handle_line_unexpected_error_with_pending_is_friendly():
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
+    graph = MagicMock()
+    graph.invoke.side_effect = RuntimeError("OUTPUT_PARSING_FAILURE boom")
+    state = {"pending_presentation": _CANDIDATE_PENDING, "team_draft": []}
+    _, _, _, output, should_exit = handle_line(
+        graph, thread_config("t"), state, "hello", format_id=DEFAULT_FORMAT_ID, thread_id="t"
+    )
+    assert output == CLASSIFY_FAIL_USER_MSG
+    assert "OUTPUT_PARSING_FAILURE" not in output
+    assert "RuntimeError" not in output
+    assert should_exit is False
 
 
 def _handle_deferred(incoming_pending, returned_state, reply="defer"):
