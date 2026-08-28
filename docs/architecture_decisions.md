@@ -5860,6 +5860,82 @@ path, and a deprecated-alias normalization test. Sweep re-run post-fix (33 runs)
 
 ---
 
+### ADR-024 Amendment 2026-08-28a — Compendium exact-match ordering ranked by
+tier, not file-glob order
+
+**Context:** Surfaced via live testing of the `species_primary_role` display
+feature (Amendment 2026-08-26a's follow-through) — Pelipper displayed
+`primary: tailwind_setter` despite its entire identity being Drizzle-based
+rain-setting. Traced precisely: `reverse_compendium_evidence`
+(`role_compendium_read.py`) iterates `sorted(root.glob("*.v1.json"))` —
+alphabetical filename order — and appends every qualifying candidate row to
+`exact` in that order with no tier comparison anywhere. `classify_anchor_role`
+then blindly takes `compendium.exact[0].role_id`. Pelipper genuinely
+qualifies as **Excellent** tier in `weather_setter_rain.v1.json` (via
+Drizzle — the file explicitly notes "ability-guaranteed, more reliable than
+move") and **Acceptable** tier (the lowest) in `tailwind_setter.v1.json`
+(via the Tailwind move) — and because `"tailwind_setter.v1.json"` sorts
+before `"weather_setter_rain.v1.json"` alphabetically, the weaker match won.
+The compendium data itself was correct throughout; this was purely an
+ordering bug in how multiple real matches get prioritized.
+
+**Decision:** `CompendiumRoleEvidence` already carried a `tier` field —
+`exact` is now sorted by tier (Excellent > Good > Acceptable) before return,
+falling back to alphabetical `source_file` then `role_id` only for genuine
+same-tier ties. No new field threading was needed.
+
+**Status:** Implemented and verified. Branch `fix/compendium-exact-tier-sort`,
+merged. A full-dex sweep (not just Pelipper) found 4 real affected species —
+Pelipper, Froslass-Mega, Ninetales-Alola, Tyranitar-Mega — each previously
+resolving to a lower-tier alphabetically-earlier match; all corrected.
+Sinistcha was flagged by the sweep as a multi-tier case but was never
+actually wrong (its correct tier happened to already sort first
+alphabetically too) — confirmed by independent cross-check, not just
+trusted from the report. New regression test uses Sinistcha's and Pelipper's
+real resolved builds, not synthetic fixtures. Full suite green.
+
+---
+
+### ADR-015 Amendment 2026-08-28a — Tier-1 default item selection is now
+Item-Clause-aware
+
+**Context:** Live transcript testing found Ariados proposed with Sitrus
+Berry while Sinistcha (already locked) also held Sitrus Berry. Confirmed
+this is a real legality violation, not an efficiency nitpick — "Item Clause
+= 1" is active in the current ruleset. Tier-1 default item selection (the
+dominant path — 305 of the species with usage data hit it) was entirely
+blind to `team_draft`: `featured_or_common_set`, `_refine_defaults`'s
+usage-hit branch, and `resolve_anchor_build`'s representative-fill all took
+the top usage item with no collision check. Two *other* paths
+(`_synthesize_item`, `diagnose_and_substitute`) already handled this
+correctly but neither sits on the dominant path.
+
+**Decision:** New `pick_team_aware_usage_item` (`usage_data.py`) walks real
+usage evidence in rank order (featured sets, then `common_items`), skipping
+items already on the team and illegal items, falling through to the
+existing tier-3 synthesized-default logic (extracted to
+`pick_synthesized_default_item` in `legality.py` to avoid a circular
+import) only when every real alternative is exhausted. Wired into
+`_refine_defaults` unconditionally; given `resolve_anchor_build` as an
+**opt-in** parameter (default off) specifically because three other real
+callers (`slot_fill.py:294`, `team_candidates.py:360-368`, `team_candidates.py:2128-2136`)
+use it for role/need *classification*, not build proposal, and making
+those depend on unrelated teammates' items would couple "what is this
+Pokémon" to team context in a way worse than the bug being fixed — verified
+each call site's real purpose directly before deciding, not assumed.
+
+**Also found and fixed in the same branch:** `fill_team_draft` passed the
+original, stale `state` into `_propagate_and_refine` instead of its own
+locally-updated working draft, meaning same-pass multi-slot fills couldn't
+see each other's newly-assigned items. Fixed by threading the working
+draft through.
+
+**Status:** Implemented and verified. Branch `feat/tier1-item-clause-awareness`,
+merged. Confirmed via diff that the three classification-only call sites
+are byte-for-byte untouched, not just claimed. Full suite green.
+
+---
+
 ## ADR-025: Team-phase routing — confirmed-lock-count phases with a per-lock recompute
 trigger, not a fixed threshold
 
@@ -8678,6 +8754,58 @@ skipped (environment-only skips).
 
 ---
 
+### ADR-042 Amendment 2026-08-28a — Redundant-provider demotion generalized
+(speed control, screens, redirection unified; no third one-off)
+
+**Context:** Live transcript testing found Ariados (redirection) still
+ranked #1 default candidate with Sinistcha already locked as a real
+redirector. Confirmed no equivalent existed to PR #119's speed-control
+redundancy demotion or screens' separate `has_reliable_screens_provider`
+boolean — redirection had no coverage-detection, no merge-time
+suppression, no Category A or B demotion. Root cause partly deliberate
+(ADR-037 explicitly deferred this exact case; redirection excluded from
+`TRACKED_CONDITIONS` by design per ADR-028) and partly an implementation
+gap (screens got a parallel workaround after also being excluded from
+`TRACKED_CONDITIONS`; redirection did not, even after being promoted to a
+first-class `NeedCategory` in this same ADR's part 2).
+
+Recognized mid-scoping that this would be the **third** bespoke,
+non-reusable implementation of "is this team-need already reliably
+covered" logic (speed control, then screens, now redirection) — the same
+scoping failure shape already documented on this project elsewhere
+(building for the specific case raised, not the general pattern it's an
+instance of). Decision: generalize now, replacing both existing one-offs,
+not adding a third.
+
+**Decision:** New `ProviderNeedCoverage` registry (`condition_resilience.py`)
+with three public functions (`provider_need_category_open`,
+`provider_role_redundantly_covered`,
+`candidate_is_redundant_single_purpose_provider`) that speed control,
+screens, and redirection all plug into. `has_reliable_screens_provider`
+kept as a thin backward-compatible wrapper (an existing test imports it
+directly). Rejected extending `TRACKED_CONDITIONS` to cover screens/
+redirection — would activate `assess_condition_resilience` side effects
+with a real, cited regression risk.
+
+Redirection detection required new mechanism emission in
+`anchor_roles._mechanisms()` (Follow Me/Rage Powder previously produced no
+`provides` evidence at all) plus a coverage check mirroring screens'
+existing pattern exactly, with a user-role fallback for compendium-absent
+redirectors. An initial draft used `infer_role(...) == "redirection"` —
+caught in plan review as impossible, since `infer_role` has no redirection
+branch at all (confirmed directly: Sinistcha's real build returns
+`kit_role="trick_room_sweeper"` from `infer_role`, never redirection) —
+corrected to use `reverse_compendium_evidence` before implementation.
+
+**Status:** Implemented and verified. Branch `feat/generalize-provider-redundancy`,
+merged. All three call sites migrated with old bespoke implementations
+fully deleted, not left dangling. 10 existing speed-control/screens
+regression tests plus 7 new redirection tests, including the exact
+live-transcript reproduction (`Sinistcha locked -> Ariados no longer
+default`). Full suite green.
+
+---
+
 ## ADR-043: Role Compendium decomposition ("ponytail audit" phases 1-2)
 
 **Context.** `role_compendium.py` had grown to ~7149 LOC, mixing dispatch,
@@ -9086,3 +9214,79 @@ separately, a real (non-simulated) git merge of both branches together —
 `CALC_LIVE=1` end-to-end test passes, `core_resolution` correctly restored
 on the original broken fixture. Full suite green post-merge (1471 passed,
 13 skipped).
+
+---
+
+## ADR-048: CLI idle-turn steering and presentation gaps (message
+correctness, defer-abandon recovery, pre-guard relaxation, builds/review
+visibility)
+
+**Context:** A single live-transcript testing session surfaced four related
+gaps in what happens when `pending_presentation` is `None` — an accidental
+Ariados selection had no recovery path, and the generic fallback message
+("wait for a prompt") was actively wrong once a team was complete, since
+the graph deliberately never re-prompts after `generate_team_review`. All
+four were scoped and fixed as a deliberately sequenced chain rather than
+one large change, given real architectural decisions were embedded inside
+what first looked like simple bugs.
+
+**1 — Message correctness (contained fix, no design decision).**
+`format_no_pending` gained a `team_phase == "complete"` branch showing the
+roster and truthful guidance, instead of always claiming a prompt is
+coming. Extends the same branching pattern already used for the
+discovery-error case.
+
+**2 — Defer-abandon routing, context-specific (not a global change).**
+Root cause: `"deferred": "finish_pending_response"` (a no-op straight to
+`END`) is the *shared* routing entry for four separate defer contexts
+(`full_build_confirmation`, `candidate_selection`, `completion_preference`,
+`core_resolution`). Changing it globally would have fixed the abandoned-pick
+case but risked breaking legitimate "pause" semantics for the other three.
+**Decision:** a new, distinct intent (`build_abandoned`) emitted only by
+the `full_build_confirmation` defer branch, routed to `route_team_phase`
+(mirroring `continue`) — the other three contexts still emit `deferred`,
+confirmed byte-for-byte unchanged in the diff, not just claimed. Verified
+directly that the real annotation pipeline is fully deterministic (three
+independent runs on identical locked state, byte-identical output) before
+deciding recompute-not-storage was sufficient — no new "held candidate
+options" state field was needed to restore the exact prior list.
+
+**3 — CLI pre-guard relaxed for idle steering (a real architecture
+decision, checked against its own history before changing).** The CLI
+blocked *all* graph invokes whenever `pending_presentation` was `None`,
+citing two design docs (2026-08-08, 2026-08-10) that deliberately kept
+`classify_pending` "presentation-bound." Direct historical reconciliation
+(git log, an interim design doc, live graph probes) found this was
+**already superseded**, just never caught up to by the CLI: `_gap_fill`
+(PR #66, 2026-08-12) is a later, deliberate, documented exception that
+already supports unprompted `continue`/`team_review`/`constraint`/`lock`/
+`reset`/`restore` via an LLM parser — confirmed working via live graph
+probes, not just reading code. **Decision:** replace the blanket guard with
+a compound one (`pending is None AND candidate_discovery_error is set`) —
+caught in plan review that an error-only guard would have regressed a real
+case where `discover_single_locked` can set both an error *and* a genuine
+answerable `pending_presentation` simultaneously (degraded calc, candidates
+still shown). No-parser idle behavior is unchanged (still resolves via the
+existing `NotImplementedError` catch). Complete-team behavior for
+`continue`/`team_review` was resolved via a real live probe rather than
+assumed: both converge on refreshing the team review, which is correct and
+useful, not confusing.
+
+**4 — Presentation gaps closed (no new graph computation).** Confirmed
+full per-slot builds and `TeamReviewResult` findings (threats, coverage
+gaps, SPOFs) were already computed and stored, just never rendered outside
+a transient confirmation screen. New `:builds` and `:review` meta commands
+(read-only, no graph invoke, matching `:team`'s existing pattern exactly)
+plus idle `format_turn` now renders real review findings instead of a bare
+status word. `_format_build_fields` extracted and genuinely reused between
+the new `format_builds` and the existing `_format_full_build` — confirmed
+via diff, not duplicated.
+
+**Status:** All four implemented and verified across four sequential PRs
+(`fix/*` message and defer-abandon, `fix/relax-cli-idle-guard`,
+`feat/cli-builds-review-formatters`), each independently confirmed against
+real source and a live calc service, full suite green throughout (final:
+1512 passed, 13 skipped). **Deliberately deferred, not addressed:**
+revise-a-locked-slot and export-to-Showdown-paste — genuinely new product
+features with no existing supporting capability, distinct from the
+presentation-only gaps closed here.
