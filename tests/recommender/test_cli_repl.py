@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -11,7 +12,7 @@ from langgraph.checkpoint.memory import MemorySaver
 
 from recommender.cli import handle_line, invoke_user_text, main
 from recommender.graph import compile_cli_graph, compile_graph
-from recommender.nodes import team_phase
+from recommender.nodes import LOCK_FULLY_LOCKED_SLOT_MSG, team_phase
 from recommender.nodes_classify import _MISMATCH_MSG
 from recommender.present_text import NO_PENDING_MESSAGE, UNMATCHED_REPLY_PREFIX
 from recommender.session import DEFAULT_FORMAT_ID, thread_config
@@ -339,6 +340,48 @@ def test_handle_line_idle_continue_complete_team():
     assert team_phase(new_state) == "complete"
     assert new_state.get("pending_presentation") is None
     assert new_state.get("last_team_review") is not None
+
+
+def test_handle_line_idle_lock_on_fully_locked_slot_rejected():
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "lock",
+            "slot_index": 1,
+            "attr": "species",
+            "value": "Kingambit",
+        }
+    )
+    graph = compile_graph(checkpointer=MemorySaver(), turn_intent_parser=parser)
+    thread_id = "idle-lock-fully-locked"
+    config = thread_config(thread_id)
+    graph.invoke({"format_id": DEFAULT_FORMAT_ID}, config)
+    graph.update_state(
+        config,
+        {
+            "pending_presentation": None,
+            "team_draft": _complete_draft(),
+            "bootstrap_intake_complete": True,
+        },
+    )
+    state = graph.get_state(config).values
+    before_draft = copy.deepcopy(state["team_draft"])
+    with patch("recommender.nodes._compute_team_review", return_value=_stub_team_review()):
+        new_state, _, _, output, should_exit = handle_line(
+            graph,
+            config,
+            state,
+            "change slot 2 to Kingambit",
+            format_id=DEFAULT_FORMAT_ID,
+            thread_id=thread_id,
+        )
+    assert should_exit is False
+    assert new_state.get("turn_intent") == "lock"
+    assert new_state.get("slot_commit_error") == LOCK_FULLY_LOCKED_SLOT_MSG
+    assert new_state["team_draft"][1].species.value == "Pelipper"
+    assert new_state["team_draft"] == before_draft
+    assert output is not None
+    assert "Slot commit error:" in output
+    assert LOCK_FULLY_LOCKED_SLOT_MSG in output
 
 
 def test_handle_line_idle_team_review_complete_team():

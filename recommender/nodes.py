@@ -636,6 +636,9 @@ def _full_slot_error(message: str) -> dict:
     return {"slot_commit_error": message}
 
 
+LOCK_FULLY_LOCKED_SLOT_MSG = "Revise a locked slot is not supported yet."
+
+
 def commit_full_slot(state: RecommenderState) -> dict:
     """Prevalidate every field, then replace one slot exactly once."""
     intent = state.get("pending_slot_intent")
@@ -738,6 +741,10 @@ def commit_full_slot(state: RecommenderState) -> dict:
 
 def apply_lock(state: RecommenderState) -> dict:
     payload: LockPayload = state["turn_payload"]  # type: ignore[assignment]
+    slot_index = payload["slot_index"]
+    draft = state["team_draft"]
+    if 0 <= slot_index < len(draft) and all_locked(draft[slot_index]):
+        return _full_slot_error(LOCK_FULLY_LOCKED_SLOT_MSG)
     if payload.get("locks"):
         out = _apply_locks_batch(state, payload)
     else:

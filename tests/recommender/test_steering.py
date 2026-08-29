@@ -7,7 +7,13 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END
 
 from recommender.graph import _route_after_refine, compile_graph
-from recommender.nodes import classify_input, classify_pending, discover_multi_locked
+from recommender.nodes import (
+    LOCK_FULLY_LOCKED_SLOT_MSG,
+    apply_lock,
+    classify_input,
+    classify_pending,
+    discover_multi_locked,
+)
 from recommender.present_text import NO_PENDING_MESSAGE, format_turn
 from recommender.state import (
     Attr,
@@ -193,6 +199,94 @@ def test_lock_turn_with_value():
     assert slot.species.locked
     assert slot.species.reason is not None
     assert slot.species.reason.kind == "user_stated"
+
+
+def test_lock_second_attr_on_partial_slot_still_allowed():
+    graph = _graph()
+    suffix = "lock-incremental-ability"
+    state = _seed_first_turn(graph, suffix)
+    draft = list(state["team_draft"])
+    draft[0] = Slot(species=Attr(value="Garchomp", locked=True))
+    graph.update_state(_thread(suffix), {"team_draft": draft})
+
+    result = _second_turn(
+        graph,
+        suffix,
+        "lock Rough Skin on slot 0",
+        {
+            "turn_intent": "lock",
+            "turn_payload": {
+                "slot_index": 0,
+                "attr": "ability",
+                "value": "Rough Skin",
+            },
+        },
+    )
+    slot = result["team_draft"][0]
+    assert slot.ability.value == "Rough Skin"
+    assert slot.ability.locked
+    assert not all_locked(slot)
+    assert result.get("slot_commit_error") is None
+
+
+def _base_lock_state(*, team_draft: list[Slot], turn_payload: dict) -> dict:
+    return {
+        "format_id": VGC_MB,
+        "game_type": "doubles",
+        "regulation_mod": "champions",
+        "picked_team_size": 4,
+        "team_draft": team_draft,
+        "archetype": Attr(),
+        "rejected": [],
+        "constraints": [],
+        "messages": [],
+        "turn_payload": turn_payload,
+    }
+
+
+def test_apply_lock_rejects_single_on_fully_locked_slot():
+    locked = _locked_slot(
+        "Incineroar",
+        role="bulky_attacker",
+        ability="Intimidate",
+        item="Sitrus Berry",
+        moves=["Fake Out", "Flare Blitz", "Knock Off", "Parting Shot"],
+        nature="Adamant",
+        spread={"hp": 32, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+    )
+    state = _base_lock_state(
+        team_draft=[locked, *[empty_slot() for _ in range(5)]],
+        turn_payload={
+            "slot_index": 0,
+            "attr": "species",
+            "value": "Kingambit",
+        },
+    )
+    out = apply_lock(state)  # type: ignore[arg-type]
+    assert out == {"slot_commit_error": LOCK_FULLY_LOCKED_SLOT_MSG}
+    assert "team_draft" not in out
+
+
+def test_apply_lock_rejects_batch_on_fully_locked_slot():
+    locked = _locked_slot(
+        "Incineroar",
+        role="bulky_attacker",
+        ability="Intimidate",
+        item="Sitrus Berry",
+        moves=["Fake Out", "Flare Blitz", "Knock Off", "Parting Shot"],
+        nature="Adamant",
+        spread={"hp": 32, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+    )
+    state = _base_lock_state(
+        team_draft=[locked, *[empty_slot() for _ in range(5)]],
+        turn_payload={
+            "slot_index": 0,
+            "locks": [{"attr": "item", "value": "Choice Scarf"}],
+        },
+    )
+    out = apply_lock(state)  # type: ignore[arg-type]
+    assert out == {"slot_commit_error": LOCK_FULLY_LOCKED_SLOT_MSG}
+    assert "team_draft" not in out
 
 
 def test_lock_clears_matching_stale_rejection():
