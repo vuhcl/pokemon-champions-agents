@@ -259,6 +259,9 @@ class SlotFillContext:
     locked_contexts: tuple[LockedAnchorContext, ...] = ()
     team_completion_preference: TeamCompletionPreference | None = None
     banned_profiles: frozenset[frozenset[str]] = frozenset()
+    soft_mechanical: tuple = field(default_factory=tuple)
+    constraint_slot_index: int | None = None
+    constraint_team_draft: list | None = None
 
 
 @dataclass(frozen=True)
@@ -1564,7 +1567,25 @@ def _compendium_rank(row: AnnotatedCandidate) -> int:
     return 2
 
 
-def _sort_annotated(rows: list[AnnotatedCandidate]) -> list[AnnotatedCandidate]:
+def _sort_annotated(
+    rows: list[AnnotatedCandidate],
+    *,
+    soft_mechanical: tuple = (),
+    team_draft: list | None = None,
+    open_slot_index: int | None = None,
+) -> list[AnnotatedCandidate]:
+    from recommender.constraint_enforcement import soft_rank_bonus
+
+    def _soft_bonus(row: AnnotatedCandidate) -> int:
+        if not soft_mechanical:
+            return 0
+        return soft_rank_bonus(
+            row.species,
+            soft_mechanical,
+            team_draft=team_draft or [],
+            open_slot_index=open_slot_index,
+        )
+
     return sorted(
         rows,
         key=lambda r: (
@@ -1578,13 +1599,21 @@ def _sort_annotated(rows: list[AnnotatedCandidate]) -> list[AnnotatedCandidate]:
                 else 0.0
             ),
             _usage_rank_key(r),
+            _soft_bonus(r),
         ),
     )
 
 
 def _ordered_annotated(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
     rows = list(ctx.annotated_candidates or [])
-    return rows if ctx.candidates_pre_ranked else _sort_annotated(rows)
+    if ctx.candidates_pre_ranked:
+        return rows
+    return _sort_annotated(
+        rows,
+        soft_mechanical=ctx.soft_mechanical,
+        team_draft=ctx.constraint_team_draft,
+        open_slot_index=ctx.constraint_slot_index,
+    )
 
 
 def _redundancy_tier_for_candidates(

@@ -698,6 +698,8 @@ LOCK_FULLY_LOCKED_SLOT_MSG = "Revise a locked slot is not supported yet."
 
 def commit_full_slot(state: RecommenderState) -> dict:
     """Prevalidate every field, then replace one slot exactly once."""
+    from recommender.constraint_enforcement import commit_unsupported_hard_predicates
+
     intent = state.get("pending_slot_intent")
     provisional = state.get("provisional_slot")
     pending = state.get("pending_presentation")
@@ -753,13 +755,7 @@ def commit_full_slot(state: RecommenderState) -> dict:
             "illegal provisional slot: "
             + "; ".join(f"{failure.kind}:{failure.element}" for failure in legality.failures)
         )
-    unsupported_hard = [
-        constraint.predicate
-        for constraint in state.get("constraints", [])
-        if constraint.type == "hard"
-        and constraint.still_active
-        and "item" not in constraint.predicate.casefold()
-    ]
+    unsupported_hard = commit_unsupported_hard_predicates(state.get("constraints", []))
     if unsupported_hard:
         return _full_slot_error(
             "unvalidated hard constraint: " + ", ".join(unsupported_hard)
@@ -1001,14 +997,10 @@ def _apply_locks_batch(state: RecommenderState, payload: LockPayload) -> dict:
 
 
 def record_constraint(state: RecommenderState) -> dict:
+    from recommender.constraint_enforcement import build_constraint
+
     payload: ConstraintPayload = state["turn_payload"]  # type: ignore[assignment]
-    constraint = Constraint(
-        type=payload["type"],
-        predicate=payload["predicate"],
-        source_turn=state.get("turn", 0),
-        scope=payload["scope"],
-        groundedness=payload["groundedness"],
-    )
+    constraint = build_constraint(payload, source_turn=state.get("turn", 0))
     return {"constraints": [*state.get("constraints", []), constraint]}
 
 
@@ -1105,15 +1097,11 @@ def reset_team(state: RecommenderState) -> dict:
         if "archetype" in payload:
             out["archetype"] = Attr(value=payload["archetype"])
         if "constraint" in payload:
+            from recommender.constraint_enforcement import build_constraint
+
             c = payload["constraint"]
             out["constraints"] = [
-                Constraint(
-                    type=c["type"],
-                    predicate=c["predicate"],
-                    source_turn=state.get("turn", 0),
-                    scope=c["scope"],
-                    groundedness=c["groundedness"],
-                )
+                build_constraint(c, source_turn=state.get("turn", 0)),
             ]
     return out
 
@@ -1357,6 +1345,27 @@ def discover_single_locked(
             locked_anchors=locked_contexts,
             condition_resilience=resilience,
         )
+        from recommender.constraint_enforcement import (
+            apply_mechanical_constraints_to_discovery,
+            discovery_soft_specs,
+        )
+
+        filtered, constraint_err = apply_mechanical_constraints_to_discovery(
+            context.annotated_candidates,
+            state.get("constraints", []),
+            team_draft=state["team_draft"],
+            open_slot_index=slot_index,
+        )
+        if constraint_err is not None:
+            return {
+                **cleared,
+                "candidate_discovery_error": constraint_err,
+                "pending_presentation": None,
+            }
+        context.annotated_candidates = filtered
+        context.soft_mechanical = discovery_soft_specs(state.get("constraints", []))
+        context.constraint_slot_index = slot_index
+        context.constraint_team_draft = state["team_draft"]
 
     if context.threat_discovery_status == "degraded":
         if not context.annotated_candidates:
@@ -1523,24 +1532,6 @@ def discover_multi_locked(
             "candidate_discovery_error": None,
         }
 
-    hard_constraints = [
-        constraint.predicate
-        for constraint in state.get("constraints", [])
-        if constraint.type == "hard" and constraint.still_active
-    ]
-    if hard_constraints:
-        error = CandidateDiscoveryError(
-            kind="unsupported_constraint",
-            stage="constraint_validation",
-            message="Unsupported hard constraints: " + ", ".join(hard_constraints),
-            retryable=False,
-        )
-        return {
-            **signals,
-            "candidate_discovery_error": error,
-            "pending_presentation": None,
-        }
-
     objective = build_team_threat_objective(review)
     excluded = {
         lineage for species in locked_species for lineage in lineage_ids(species)
@@ -1582,6 +1573,24 @@ def discover_multi_locked(
         condition_resilience=resilience,
         objective=objective,
     )
+    from recommender.constraint_enforcement import (
+        apply_mechanical_constraints_to_discovery,
+        discovery_soft_specs,
+    )
+
+    candidates, constraint_err = apply_mechanical_constraints_to_discovery(
+        candidates,
+        state.get("constraints", []),
+        team_draft=state["team_draft"],
+        open_slot_index=slot_index,
+    )
+    if constraint_err is not None:
+        return {
+            **signals,
+            "candidate_discovery_error": constraint_err,
+            "pending_presentation": None,
+        }
+    soft_mechanical = discovery_soft_specs(state.get("constraints", []))
     packages = gather_masked_core_packages(
         candidates, state, contexts, objective=objective
     )
@@ -1650,6 +1659,9 @@ def discover_multi_locked(
         candidates,
         contexts,
         category_b_uncapped=preference == "support",
+        soft_mechanical=soft_mechanical,
+        team_draft=state["team_draft"],
+        open_slot_index=slot_index,
     )
     if not ranked:
         # Mirrors discover_single_locked's leniency exactly: try an
@@ -1673,6 +1685,9 @@ def discover_multi_locked(
             locked_contexts=tuple(contexts),
             team_completion_preference=preference,
             banned_profiles=banned_profiles_from_rejected(state.get("rejected")),
+            soft_mechanical=soft_mechanical,
+            constraint_slot_index=slot_index,
+            constraint_team_draft=state["team_draft"],
         ),
         state,
         slot_index=slot_index,

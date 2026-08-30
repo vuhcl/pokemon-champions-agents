@@ -79,6 +79,9 @@ class RejectedEntry(TypedDict):
     need_categories: NotRequired[list[str]]
 
 
+MechanicalConstraintKind = Literal["type", "ability", "item", "no_duplicate_items"]
+
+
 class ConstraintPayload(TypedDict):
     type: Literal["hard", "soft"]
     predicate: str
@@ -88,6 +91,8 @@ class ConstraintPayload(TypedDict):
         "enumerable-but-uncoded",
         "judgment-only",
     ]
+    mechanical_kind: NotRequired[MechanicalConstraintKind]
+    mechanical_value: NotRequired[str]
 
 
 class RejectionPayload(TypedDict, total=False):
@@ -297,6 +302,7 @@ class CandidateDiscoveryError:
         "calc_incomplete",
         "no_candidates",
         "unsupported_constraint",
+        "constraint_unsatisfiable",
     ]
     stage: Literal[
         "constraint_validation",
@@ -518,6 +524,7 @@ class Constraint:
         "enumerable-but-uncoded",
         "judgment-only",
     ] = "mechanically-checkable"
+    mechanical: "MechanicalSpec | None" = None
 
 
 @dataclass(frozen=True)

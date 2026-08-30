@@ -1126,11 +1126,34 @@ def _primary_function(candidate: AnnotatedCandidate, regulation: str) -> str:
     ].primary_function
 
 
+def _soft_constraint_bonus(
+    candidate: AnnotatedCandidate,
+    *,
+    soft_mechanical: tuple = (),
+    team_draft: list | None = None,
+    open_slot_index: int | None = None,
+) -> int:
+    if not soft_mechanical:
+        return 0
+    from recommender.constraint_enforcement import soft_rank_bonus
+
+    return soft_rank_bonus(
+        candidate.species,
+        soft_mechanical,
+        team_draft=team_draft or [],
+        open_slot_index=open_slot_index,
+    )
+
+
 def _rank_key(
     candidate: AnnotatedCandidate,
     objective: Sequence[TeamThreatObjectiveRow],
     preference: TeamCompletionPreference | None,
     regulation: str,
+    *,
+    soft_mechanical: tuple = (),
+    team_draft: list | None = None,
+    open_slot_index: int | None = None,
 ) -> tuple:
     objective_by_id = {
         _threat_id(row.threat): row for row in objective if _threat_id(row.threat)
@@ -1222,6 +1245,12 @@ def _rank_key(
         best_evidence[0],
         best_evidence[1],
         int(candidate.fills_spof_backup_gap),
+        _soft_constraint_bonus(
+            candidate,
+            soft_mechanical=soft_mechanical,
+            team_draft=team_draft,
+            open_slot_index=open_slot_index,
+        ),
     )
 
 
@@ -1289,6 +1318,9 @@ def _rank_category_a(
     locked_types_list: list[list[str]],
     *,
     locked_contexts: Sequence[LockedAnchorContext] = (),
+    soft_mechanical: tuple = (),
+    team_draft: list | None = None,
+    open_slot_index: int | None = None,
 ) -> list[AnnotatedCandidate]:
     """Type-synergy + threat-counter breadth, combined by RANK position
     rather than raw value -- confirmed necessary, not a stylistic choice:
@@ -1339,6 +1371,12 @@ def _rank_category_a(
             int(not c.improves_bench_subset),
             verified_rank[sid] + synergy_rank[sid] + reliability_rank[sid],
             _shared_teammate_tiebreak(c),
+            _soft_constraint_bonus(
+                c,
+                soft_mechanical=soft_mechanical,
+                team_draft=team_draft,
+                open_slot_index=open_slot_index,
+            ),
         )
 
     return sorted(candidates, key=sort_key)
@@ -1376,6 +1414,9 @@ def _rank_by_need_evidence(
     locked: Sequence["LockedAnchorContext"] = (),
     *,
     condition_beneficiary: bool = False,
+    soft_mechanical: tuple = (),
+    team_draft: list | None = None,
+    open_slot_index: int | None = None,
 ) -> list[AnnotatedCandidate]:
     """Categories B (support-needs) and C (condition-benefit) share the
     same ranking approach: best evidence quality (reusing the same
@@ -1430,6 +1471,12 @@ def _rank_by_need_evidence(
             -best[0],
             -best[1],
             _shared_teammate_tiebreak(c),
+            _soft_constraint_bonus(
+                c,
+                soft_mechanical=soft_mechanical,
+                team_draft=team_draft,
+                open_slot_index=open_slot_index,
+            ),
         )
 
     return sorted(candidates, key=sort_key)
@@ -1485,6 +1532,9 @@ def rank_multi_locked_by_category(
     n_per_category: int = 10,
     category_b_n: int | None = None,
     category_b_uncapped: bool = False,
+    soft_mechanical: tuple = (),
+    team_draft: list | None = None,
+    open_slot_index: int | None = None,
 ) -> list[AnnotatedCandidate]:
     """Gives each of the three categories its own top-N cut, instead of
     one shared, combined top-N ranking.
@@ -1515,10 +1565,20 @@ def rank_multi_locked_by_category(
         _species_types(snap, ctx.resolved_build.species) for ctx in locked_contexts
     ]
     ranked_a = _rank_category_a(
-        category_a, locked_types_list, locked_contexts=locked_contexts
+        category_a,
+        locked_types_list,
+        locked_contexts=locked_contexts,
+        soft_mechanical=soft_mechanical,
+        team_draft=team_draft,
+        open_slot_index=open_slot_index,
     )[:n_per_category]
     ranked_b_full = _rank_by_need_evidence(
-        category_b, locked_contexts, condition_beneficiary=False
+        category_b,
+        locked_contexts,
+        condition_beneficiary=False,
+        soft_mechanical=soft_mechanical,
+        team_draft=team_draft,
+        open_slot_index=open_slot_index,
     )
     if category_b_uncapped:
         ranked_b = ranked_b_full
@@ -1526,7 +1586,12 @@ def rank_multi_locked_by_category(
         b_n = n_per_category if category_b_n is None else category_b_n
         ranked_b = ranked_b_full[:b_n]
     ranked_c = _rank_by_need_evidence(
-        category_c, locked_contexts, condition_beneficiary=True
+        category_c,
+        locked_contexts,
+        condition_beneficiary=True,
+        soft_mechanical=soft_mechanical,
+        team_draft=team_draft,
+        open_slot_index=open_slot_index,
     )[:n_per_category]
 
     seen: set[str] = set()
