@@ -126,6 +126,12 @@ def initialize(state: RecommenderState) -> dict:
         out["masked_slot_indices"] = ()
     if "candidate_discovery_error" not in state:
         out["candidate_discovery_error"] = None
+    if "last_system_claim" not in state:
+        out["last_system_claim"] = None
+    if "correction_response" not in state:
+        out["correction_response"] = None
+    if "claim_correction_rerun_discovery" not in state:
+        out["claim_correction_rerun_discovery"] = False
     return out
 
 
@@ -167,6 +173,7 @@ def classify_input(
         turn_intent_parser=turn_intent_parser,
         gap_fill_context=build_gap_fill_context(state),
         team_draft=state.get("team_draft"),
+        last_system_claim=state.get("last_system_claim"),
     )
     out = {
         "turn_intent": result["turn_intent"],
@@ -176,7 +183,22 @@ def classify_input(
         "slot_commit_error": None,
         "compare_analysis": None,
         "bootstrap_intake_error": None,
+        "correction_response": None,
+        "claim_correction_rerun_discovery": False,
     }
+    if result.get("turn_intent") == "pending_response":
+        payload = result.get("turn_payload")
+        message = payload.get("message") if isinstance(payload, dict) else None
+        if isinstance(message, str):
+            from recommender.system_claims import stamp_system_claim
+
+            claim = stamp_system_claim(
+                message=message,
+                originating_user_text=text,
+                turn=state.get("turn", 0) + 1,
+            )
+            if claim is not None:
+                out["last_system_claim"] = claim
     for key in (
         "pending_presentation",
         "slot_commit_error",
@@ -1004,6 +1026,61 @@ def record_constraint(state: RecommenderState) -> dict:
     return {"constraints": [*state.get("constraints", []), constraint]}
 
 
+def handle_claim_correction(state: RecommenderState) -> dict:
+    from recommender.constraint_enforcement import build_constraint
+    from recommender.legality import load_snapshot
+    from recommender.system_claims import (
+        claim_is_true_against_snapshot,
+        format_snapshot_value,
+    )
+
+    claim = state.get("last_system_claim")
+    out: dict = {
+        "correction_response": None,
+        "last_system_claim": None,
+        "claim_correction_rerun_discovery": False,
+    }
+
+    if claim is None:
+        out["correction_response"] = "There is no prior system claim to correct."
+        return out
+
+    if not claim.get("verifiable") or claim.get("kind") == "other":
+        out["correction_response"] = (
+            "I can't verify that claim against real data; I've withdrawn it."
+        )
+        return out
+
+    if claim_is_true_against_snapshot(claim):
+        snap = load_snapshot()
+        actual = format_snapshot_value(claim, snap)
+        out["correction_response"] = (
+            f"Snapshot data confirms {claim['subject_species']} "
+            f"{'has' if claim['kind'] == 'type' else 'matches'} {actual} — "
+            f"consistent with my earlier claim ({claim['asserted_value']}). "
+            f"I haven't changed your team or constraints."
+        )
+        return out
+
+    reattempt = claim.get("reattempt_constraint")
+    if reattempt is None:
+        out["correction_response"] = (
+            f"You're right — {claim['subject_species']} is not "
+            f"{claim['asserted_value']} ({claim['kind']}). "
+            f"What constraint should I apply?"
+        )
+        return out
+
+    constraint = build_constraint(reattempt, source_turn=state.get("turn", 0))
+    out["constraints"] = [*state.get("constraints", []), constraint]
+    out["claim_correction_rerun_discovery"] = True
+    out["correction_response"] = (
+        f"You're right — I withdrew that claim. "
+        f"Re-running with your {constraint.predicate!s} constraint."
+    )
+    return out
+
+
 def record_rejection(state: RecommenderState) -> dict:
     payload: RejectionPayload = state["turn_payload"]  # type: ignore[assignment]
     turn = state.get("turn", 0)
@@ -1092,6 +1169,9 @@ def reset_team(state: RecommenderState) -> dict:
         "bootstrap_intake_error": None,
         "unresolved_pool_entries": (),
         "species_resolve_notices": (),
+        "last_system_claim": None,
+        "correction_response": None,
+        "claim_correction_rerun_discovery": False,
     }
     if payload:
         if "archetype" in payload:

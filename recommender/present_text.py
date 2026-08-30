@@ -626,6 +626,10 @@ def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
     if discovery_err is not None:
         blocks.append(_format_discovery_error(discovery_err))
 
+    correction = state.get("correction_response")
+    if correction:
+        blocks.append(str(correction))
+
     pending = state.get("pending_presentation")
     if pending:
         notices = pending.get("notices") or ()

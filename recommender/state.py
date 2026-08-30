@@ -218,6 +218,30 @@ class PendingResponsePayload(TypedDict):
     message: str
 
 
+SystemClaimKind = Literal["type", "ability", "item", "other"]
+SystemClaimSource = Literal["pending_response_message"]
+
+
+class SystemClaim(TypedDict):
+    turn: int
+    kind: SystemClaimKind
+    subject_species: str
+    asserted_value: str
+    source: SystemClaimSource
+    display_excerpt: str
+    verifiable: bool
+    originating_user_text: str
+    reattempt_constraint: NotRequired[ConstraintPayload]
+
+
+class ClaimCorrectionPayload(TypedDict):
+    subject_species: str | None
+    disputed_kind: SystemClaimKind | None
+    disputed_value: str | None
+    user_text: str
+    targets_claim_turn: NotRequired[int]
+
+
 class SupersededEntry(TypedDict):
     slot_index: int
     attr: SlotAttrName
@@ -489,6 +513,7 @@ TurnPayload = Union[
     EditPayload,
     SelectBuildPayload,
     ComparePayload,
+    ClaimCorrectionPayload,
 ]
 
 
@@ -641,6 +666,9 @@ class RecommenderState(TypedDict):
     force_completion_preference_prompt: NotRequired[bool]
     masked_slot_indices: NotRequired[tuple[int, ...]]
     candidate_discovery_error: NotRequired[Optional[CandidateDiscoveryError]]
+    last_system_claim: NotRequired[Optional[SystemClaim]]
+    correction_response: NotRequired[Optional[str]]
+    claim_correction_rerun_discovery: NotRequired[bool]
 
 
 def all_locked(slot: Slot) -> bool:

@@ -27,6 +27,7 @@ from recommender.state import (
     ReasonRef,
     RecommenderState,
     Slot,
+    SystemClaim,
     TargetRoleDecision,
     UnresolvedSlotRefinement,
     all_locked,
@@ -888,6 +889,22 @@ def _handle_spread_budget_mismatch(
     }
 
 
+def _try_deterministic_claim_correction(
+    text: str,
+    last_system_claim: SystemClaim | None,
+) -> dict[str, Any] | None:
+    if last_system_claim is None or not last_system_claim.get("verifiable"):
+        return None
+    from recommender.system_claims import (
+        build_deterministic_claim_correction,
+        negation_matches_claim,
+    )
+
+    if negation_matches_claim(text, last_system_claim):
+        return build_deterministic_claim_correction(text, last_system_claim)
+    return None
+
+
 def _gap_fill(
     text: str,
     *,
@@ -896,18 +913,24 @@ def _gap_fill(
     had_pending: bool,
     pending_presentation: PendingPresentation | None = None,
     team_draft: list[Slot] | None = None,
+    last_system_claim: SystemClaim | None = None,
 ) -> dict[str, Any]:
     from recommender.turn_intent import parse_turn_intent
 
-    ctx = gap_fill_context or {}
-    result = parse_turn_intent(
-        turn_intent_parser,
-        user_text=text,
-        pending_kind=ctx.get("pending_kind") or ("none" if not had_pending else ""),
-        pending_context=ctx.get("pending_context") or "",
-        roster_summary=ctx.get("roster_summary") or "",
-        had_pending=had_pending,
-    )
+    deterministic = _try_deterministic_claim_correction(text, last_system_claim)
+    if deterministic is not None:
+        result = deterministic
+    else:
+        ctx = gap_fill_context or {}
+        result = parse_turn_intent(
+            turn_intent_parser,
+            user_text=text,
+            pending_kind=ctx.get("pending_kind") or ("none" if not had_pending else ""),
+            pending_context=ctx.get("pending_context") or "",
+            roster_summary=ctx.get("roster_summary") or "",
+            last_system_claim=ctx.get("last_system_claim") or "",
+            had_pending=had_pending,
+        )
     if (
         result.get("turn_intent") == "select_build_option"
         and pending_presentation is not None
@@ -1000,10 +1023,13 @@ def build_gap_fill_context(state: RecommenderState) -> dict[str, str]:
         if all_locked(slot):
             locked.append(str(getattr(slot.species, "value", None) or "?"))
     roster_summary = ", ".join(locked) if locked else ""
+    from recommender.system_claims import serialize_last_system_claim
+
     return {
         "pending_kind": pending_kind,
         "pending_context": pending_context,
         "roster_summary": roster_summary,
+        "last_system_claim": serialize_last_system_claim(state.get("last_system_claim")),
     }
 
 
@@ -1417,6 +1443,7 @@ def _classify_candidate_selection_reply(
     turn_intent_parser,
     gap_fill_context: dict[str, str] | None,
     team_draft: list[Slot] | None,
+    last_system_claim: SystemClaim | None = None,
 ) -> dict[str, Any]:
     options = pending_presentation.get("options") or []
     signals = {
@@ -1478,6 +1505,7 @@ def _classify_candidate_selection_reply(
             had_pending=True,
             pending_presentation=pending_presentation,
             team_draft=team_draft,
+            last_system_claim=last_system_claim,
         )
 
     return {
@@ -1494,6 +1522,7 @@ def classify_pending(
     turn_intent_parser=None,
     gap_fill_context: dict[str, str] | None = None,
     team_draft: list[Slot] | None = None,
+    last_system_claim: SystemClaim | None = None,
 ) -> dict[str, Any]:
     """Resolve a reply to a pending presentation; gap-fill via injected turn_intent_parser."""
     if pending_presentation is None:
@@ -1508,6 +1537,7 @@ def classify_pending(
             had_pending=False,
             pending_presentation=pending_presentation,
             team_draft=team_draft,
+            last_system_claim=last_system_claim,
         )
 
     reply = text.strip().casefold().strip(".!?")
@@ -1582,6 +1612,7 @@ def classify_pending(
             had_pending=True,
             pending_presentation=pending_presentation,
             team_draft=team_draft,
+            last_system_claim=last_system_claim,
         )
     if pending_presentation.get("kind") == "core_resolution":
         if version != 2:
@@ -1633,6 +1664,7 @@ def classify_pending(
             had_pending=True,
             pending_presentation=pending_presentation,
             team_draft=team_draft,
+            last_system_claim=last_system_claim,
         )
     if pending_presentation.get("kind") == "confirm_abandon_build":
         if pending_presentation.get("schema_version", 1) != 1:
@@ -1805,6 +1837,7 @@ def classify_pending(
             had_pending=True,
             pending_presentation=pending_presentation,
             team_draft=team_draft,
+            last_system_claim=last_system_claim,
         )
         if result.get("turn_intent") == "edit":
             payload = result.get("turn_payload")
@@ -1862,6 +1895,7 @@ def classify_pending(
             turn_intent_parser=turn_intent_parser,
             gap_fill_context=gap_fill_context,
             team_draft=team_draft,
+            last_system_claim=last_system_claim,
         )
 
     options = pending_presentation.get("options") or []
@@ -1900,6 +1934,7 @@ def classify_pending(
             had_pending=True,
             pending_presentation=pending_presentation,
             team_draft=team_draft,
+            last_system_claim=last_system_claim,
         )
 
     return {

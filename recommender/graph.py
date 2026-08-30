@@ -29,6 +29,7 @@ _INTENT_ROUTES = {
     "resolve_spread_target_question": "resolve_spread_target_question",
     "resolve_item_moveset_conflict": "resolve_item_moveset_conflict",
     "revise_locked_slot": "begin_locked_slot_revision",
+    "claim_correction": "handle_claim_correction",
 }
 
 _PHASE_ROUTES = {
@@ -58,6 +59,12 @@ def _route_after_refine(state: RecommenderState) -> str:
     if state.get("provisional_slot") is not None:
         return END
     return "route_team_phase"
+
+
+def _route_after_claim_correction(state: RecommenderState) -> str:
+    if state.get("claim_correction_rerun_discovery"):
+        return "route_team_phase"
+    return END
 
 
 def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> StateGraph:
@@ -95,6 +102,7 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
     g.add_node("compare_build_options", nodes.compare_build_options)
     g.add_node("commit_full_slot", nodes.commit_full_slot)
     g.add_node("begin_locked_slot_revision", nodes.begin_locked_slot_revision)
+    g.add_node("handle_claim_correction", nodes.handle_claim_correction)
 
     g.add_conditional_edges(START, _route_start, ["initialize", "classify_input"])
     g.add_edge("initialize", "accept_available_pool")
@@ -134,6 +142,11 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
         "begin_locked_slot_revision",
         nodes._route_after_locked_bootstrap,
         {"end": END, "apply_provisional_edit": "apply_provisional_edit"},
+    )
+    g.add_conditional_edges(
+        "handle_claim_correction",
+        _route_after_claim_correction,
+        ["route_team_phase", END],
     )
     return g
 
