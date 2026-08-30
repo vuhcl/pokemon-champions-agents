@@ -9290,3 +9290,107 @@ real source and a live calc service, full suite green throughout (final:
 revise-a-locked-slot and export-to-Showdown-paste — genuinely new product
 features with no existing supporting capability, distinct from the
 presentation-only gaps closed here.
+
+---
+
+### ADR-048 Amendment 2026-08-29a — apply_lock guarded against
+already-fully-locked slots
+
+**Context:** A direct, urgent consequence of this same ADR's pre-guard
+relaxation. `_apply_lock_single` (`nodes.py`) had no precondition
+checking whether the target slot was already fully locked — it would
+silently overwrite the attr, run only sibling-mismatch reconciliation
+(not full re-validation), and skip everything `commit_full_slot` does
+(no `check_set` legality gate, no spread-budget check, no clearing of
+`coverage`/`spofs`/`shared_teammates`/`last_team_review`). Before the
+pre-guard relaxation, `lock` intents were only reachable while a slot
+was still open, so this was structurally unreachable. Checked the full
+LLM extraction system prompt directly: it gives the model no guidance
+to avoid emitting `lock` against an already-committed slot, and `lock`
+is architecturally the closest-fitting existing intent for a request
+like "change slot 2 to Incineroar" — a well-tuned extractor has real
+reason to reach for it, not avoid it. This was confirmed as
+currently-reachable, not hypothetical.
+
+**Decision:** `apply_lock` now checks `all_locked(draft[slot_index])`
+before dispatching to either the single or batch attr-overwrite path,
+rejecting with `slot_commit_error` and zero `team_draft` mutation if the
+target is already fully locked — mirroring `_full_slot_error`'s
+existing response contract. Normal incremental locking (attr-by-attr on
+a still-open slot) is completely unaffected; the guard is specifically
+"slot is already fully locked," not "any attr on this slot is locked."
+
+**Status:** Implemented and verified. Branch
+`fix/guard-apply-lock-fully-locked-slot`, merged. New tests confirm
+zero-mutation rejection on both the single and batch paths, normal
+incremental locking is unaffected (regression), and the guard is
+reachable end-to-end via the real idle-steering path (post pre-guard
+relaxation), not just at the unit level. Full suite green.
+
+---
+
+## ADR-049: revise_locked_slot — attribute-level edit on a committed
+team slot
+
+**Context:** Confirmed via discovery that "revise a locked slot" is not
+one feature but two, with very different risk profiles: a full re-pick
+(species change) invalidates a wide set of downstream assumptions
+(weather/condition provision, type coverage, mega-slot usage,
+already-satisfied support needs) and has a genuinely unresolved
+cross-slot staleness policy question; an attribute-level edit (same
+species, different item/ability/nature/moves/spread) leaves those
+assumptions intact and is mechanically much closer to existing,
+tested machinery. Decided to split these explicitly and build the
+lower-risk one first, deferring full re-pick as its own, separately
+scoped feature.
+
+**A confirmed, live-demonstrated bug was found and fixed as a required
+part of this work, not a separate round:** `provisional_for_confirmation`
+(`build_alternatives.py`) unconditionally re-derives a provisional from
+`team_draft[idx]` whenever that slot has a complete build and matching
+species — which is always true when revising an already-committed slot,
+silently discarding every edit with no error. Confirmed live before any
+fix: a nature edit on a locked slot was accepted with no error, then
+silently reverted. Fix uses `provisional.base_slot_fingerprint` matching
+`slot_fingerprint(draft[idx])` as the signal to skip the sync — not
+`all_locked`, which was shown to be insufficient (the existing
+first-commit test's fixture has every attr already locked yet still
+needs the sync to run, since a slot can become incidentally fully
+locked during its very first build confirmation, before ever being
+genuinely committed).
+
+**A second real bug was caught in plan review before implementation:**
+an early draft used `collect_locked_anchor_contexts`'s `AnchorRoleDecision`
+to seed the new provisional's `target_role_decision`. Both
+`revise_provisional_slot` and `_provisional_from_draft` explicitly
+gate on `isinstance(decision, TargetRoleDecision)` — a genuinely
+different class — and silently no-op or reject otherwise. Using the
+wrong type would have made every revision attempt produce an empty or
+unresolved provisional. Corrected to construct a real
+`TargetRoleDecision(role_id=slot.role.value, source="other")` directly
+from the locked slot's own data.
+
+**Decision:** New `revise_locked_slot` intent (distinct from `edit` per
+the `build_abandoned` precedent — reusing `edit` would have required a
+narrow carve-out risking reopening it in contexts where it's
+deliberately blocked). New payload `ReviseLockedSlotPayload`
+(`slot_index` + the same field/value/scope shape as `EditPayload`, kept
+separate rather than extending `EditPayload` since the latter has no
+slot-targeting concept and is deliberately scoped to
+`full_build_confirmation`). New bootstrap node
+`begin_locked_slot_revision` guards on `all_locked`, seeds
+`PendingSlotIntent`/`ProvisionalSlot` from the locked slot's real data,
+then hands off to the fully-reused `apply_provisional_edit` →
+confirmation → `full_slot_confirmed` → `commit_full_slot` pipeline — no
+new validation logic, no new invalidation logic (`commit_full_slot`'s
+existing clears are sufficient; mega-ceiling and redirection-mechanism
+staleness both resolve on the next discovery run from the updated
+`team_draft`).
+
+**Status:** Implemented and verified. Branch `cursor/revise-locked-slot`,
+merged. Full path tested via real `graph.invoke` (not mocked at the
+validation layer) — confirmed the edited value survives both the
+confirmation screen and the final commit, directly exercising the exact
+bug the `provisional_for_confirmation` fix targets. Regression confirmed
+the `apply_lock` guard from the amendment above isn't bypassed by this
+new path. Full suite green.

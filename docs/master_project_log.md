@@ -5044,6 +5044,90 @@ before merge, a real (non-simulated) git merge of both branches together.
 Bar for "actually fixed" throughout: the original live-transcript-verified
 behavior restored end-to-end, not just a passing unit test.
 
+## 2026-08-29 — Live-transcript testing surfaced six further findings,
+queued for scoping (nothing shipped yet)
+
+Continued live CLI testing (same thread lineage as the findings that
+produced ADR-024/-042/-048's 2026-08-28 amendments and this session's
+`revise_locked_slot` work) surfaced six further issues, none yet
+scoped into tasks:
+
+1. **Default build resolution ignores available real in-game data.**
+   Confirmed directly: Klefki now has real in-game data as a result of
+   this session's ladder-expansion work (Light Screen 45.3%, Reflect
+   42.6% — its real screens identity), but `resolve_anchor_build`'s
+   default resolution still returns the old Showdown-derived set
+   (Psych Up/Draining Kiss/Calm Mind/Substitute) because
+   `featured_or_common_set` reads the flat/merged `species_usage()` map,
+   which prefers Showdown fields whenever present — the same
+   architectural principle already fixed once for `commitment_pct`
+   specifically, never extended to default-build resolution. Was
+   masked before today only because Klefki had no in-game data to
+   prefer.
+
+2. **Build synthesis is not need/role-aware at all.** A candidate's
+   proposed build comes from the species-wide default with no
+   connection to which specific role/need it was actually matched
+   against — Klefki suggested for screens can get a non-screens
+   default; Sableye suggested as `screens_support` could get a
+   Rain-Dance-inclusive default. Likely the more fundamental fix,
+   probably subsuming finding 1 for role-matched candidates if built to
+   pull from the Role Compendium's own per-category data.
+
+3. **Masked-core resolution options are unclear and can appear
+   duplicated.** `_package_label` (`team_candidates.py`) never includes
+   the actual replacement candidate's species — only who gets benched
+   and the conflict category. Confirmed this single gap explains three
+   observed symptoms at once: unclear language (no visibility into what
+   you'd actually get), apparent duplication (the label formula can't
+   distinguish different candidates since it never looks at candidate
+   identity), and the "why did it jump straight to a build" surprise
+   (selecting a resolution is, by confirmed design, equivalent to
+   already having chosen that baked-in candidate — reasonable only if
+   the label discloses it upfront, which it doesn't).
+
+4. **`TurnIntentExtraction.message` is an unvalidated LLM free-text
+   field being used to assert false factual claims.** Confirmed
+   directly: asked for "a grass type," the system claimed via this
+   field that Heliolisk has Grass typing — verified against the real
+   legality snapshot as false (Heliolisk is Electric/Normal). The field
+   is documented only as a "clarifying question for pending_response"
+   with no gate preventing it from carrying fabricated factual claims.
+   This is exactly the failure mode this project's architecture is
+   built to prevent (legality/mechanical facts must come from real data
+   lookups, never LLM assertion) — just surfacing through a field
+   nobody had scrutinized for it. **A second, independent occurrence
+   confirmed the same root cause is worse than a one-off:** requesting
+   a species-swap on a locked slot ("change basculegion to mega
+   charizard y") produced four turns of increasingly specific
+   clarifying questions gathering detail toward an operation the system
+   cannot perform (species change on a locked slot was deliberately
+   excluded from `revise_locked_slot`'s scope, per ADR-049) — with
+   nothing at any point stating plainly that it isn't supported. **Also
+   confirmed there is no recovery path**: correcting a false claim
+   ("heliolisk is not grass type") doesn't map to any real intent and
+   gets misclassified as `rejection`, silently banning the species
+   rather than correcting anything.
+
+5. **Team review display is too verbose to be usable.** Confirmed by
+   direct inspection of real output: `Threats` restates the full
+   ~50-entry ladder and `Covered` runs ~65 lines of uniformly-positive
+   matchups, while the genuinely decision-relevant sections (`Coverage
+   gaps`, `Conditional coverage`, `SPOFs`) are already appropriately
+   terse and sit buried at the bottom. Likely fix shape: summary counts
+   by default for `Threats`/`Covered`, full detail opt-in.
+
+6. **Unresolved: `core_resolution` defer appears to route somewhere
+   unexpected.** Observed live: deferring a masked-core resolution was
+   followed, with no further input, by a `completion_preference`
+   prompt. `core_resolution`'s defer was deliberately left on the plain
+   `deferred` → `finish_pending_response` → END path (per ADR-048) —
+   that routing alone cannot explain the observed behavior. Not yet
+   traced; flagged as an open mystery rather than a diagnosed bug.
+
+**Not yet scoped into tasks** — captured here for the next scoping
+session.
+
 ---
 
 ## TOOLS & RESOURCES
