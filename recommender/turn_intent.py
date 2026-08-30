@@ -13,6 +13,7 @@ from recommender.ids import to_id
 from recommender.llm_invoke import LLMInvokeTimeout, invoke_with_timeout
 from recommender.state import (
     ArchetypeChangePayload,
+    ClaimCorrectionPayload,
     ComparePayload,
     ConstraintPayload,
     EditFieldName,
@@ -25,6 +26,7 @@ from recommender.state import (
     RestorePayload,
     SelectBuildPayload,
     SlotAttrName,
+    SystemClaimKind,
 )
 
 TurnIntentName = Literal[
@@ -41,6 +43,7 @@ TurnIntentName = Literal[
     "select_build_option",
     "compare",
     "revise_locked_slot",
+    "claim_correction",
 ]
 
 _ACTIONABLE_INTENTS = frozenset(
@@ -69,7 +72,7 @@ Never invent species/items/moves as verified facts.
 
 Allowed turn_intent values only:
 - constraint, rejection, lock, archetype_change, reset, restore, continue, team_review,
-  pending_response, edit, select_build_option, compare, revise_locked_slot
+  pending_response, edit, select_build_option, compare, revise_locked_slot, claim_correction
 
 Rules:
 - When pending_kind is none and the user revises a build attribute on an already-locked
@@ -112,6 +115,11 @@ Rules:
   pending_response with a concrete clarifying question.
 - Prefer pending_response over continue when unsure.
 - pending_response requires a nonempty message.
+- claim_correction: user disputes a factual claim the bot made in last_system_claim.
+  NOT rejection (rejection bans a species from candidates).
+  "Heliolisk is not grass type" disputing prior typing claim -> claim_correction.
+  "no Heliolisk" / "reject Heliolisk" / "I don't want Heliolisk" -> rejection.
+  Only emit claim_correction when last_system_claim is present in context.
 - rejection requires species.
 - constraint requires type, predicate, scope (per_slot|team_wide), groundedness.
   For mechanically-checkable constraints, also set mechanical_kind
@@ -159,6 +167,7 @@ Rules:
 _EXTRACTION_USER_PROMPT = """pending_kind: {pending_kind}
 pending_context: {pending_context}
 roster_summary: {roster_summary}
+last_system_claim: {last_system_claim}
 <USER_RESPONSE>
 {user_text}
 </USER_RESPONSE>"""
@@ -197,6 +206,14 @@ class TurnIntentExtraction(BaseModel):
     mechanical_value: str | None = Field(
         default=None,
         description="Normalized value for mechanical_kind (omit for no_duplicate_items)",
+    )
+    disputed_kind: SystemClaimKind | None = Field(
+        default=None,
+        description="claim_correction: kind of claim being disputed",
+    )
+    disputed_value: str | None = Field(
+        default=None,
+        description="claim_correction: asserted value being disputed",
     )
     # rejection
     species: str | None = None
@@ -386,6 +403,9 @@ class TurnIntentExtraction(BaseModel):
         elif intent == "rejection":
             if self.species is None:
                 raise ValueError("rejection requires species")
+        elif intent == "claim_correction":
+            if not self.message and not self.species and not self.disputed_kind:
+                pass  # payload filled from user_text + last_system_claim downstream
         elif intent == "lock":
             has_single = self.attr is not None and self.value is not None
             has_multi = bool(self.locks)
@@ -913,6 +933,14 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
         if extraction.reason is not None:
             payload["reason"] = extraction.reason
         return payload
+    if intent == "claim_correction":
+        payload_cc: ClaimCorrectionPayload = {
+            "subject_species": extraction.species,
+            "disputed_kind": extraction.disputed_kind,
+            "disputed_value": extraction.disputed_value,
+            "user_text": "",
+        }
+        return payload_cc
     if intent == "lock":
         payload_lock: LockPayload = {"slot_index": extraction.slot_index}  # type: ignore[typeddict-item]
         if extraction.locks:
@@ -954,6 +982,7 @@ def parse_turn_intent(
     pending_kind: str = "none",
     pending_context: str = "",
     roster_summary: str = "",
+    last_system_claim: str = "",
     had_pending: bool = False,
 ) -> dict[str, Any]:
     """Invoke an injected parser and convert output to a classify_pending result dict."""
@@ -966,6 +995,7 @@ def parse_turn_intent(
                 "pending_kind": pending_kind,
                 "pending_context": pending_context,
                 "roster_summary": roster_summary,
+                "last_system_claim": last_system_claim,
             },
         )
         if isinstance(result, dict) and {
@@ -1112,6 +1142,11 @@ def parse_turn_intent(
     out: dict[str, Any] = {"turn_intent": extraction.turn_intent}
     payload = _payload_for(extraction)
     if payload is not None:
+        if extraction.turn_intent == "claim_correction" and isinstance(payload, dict):
+            payload = {
+                **payload,
+                "user_text": user_text.strip(),
+            }
         out["turn_payload"] = payload
     if extraction.turn_intent in _ACTIONABLE_INTENTS and had_pending:
         out.update(_clear_pending_keys())
