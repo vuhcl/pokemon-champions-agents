@@ -21,6 +21,7 @@ from recommender.state import (
     PendingResponsePayload,
     RejectionPayload,
     ResetPayload,
+    ReviseLockedSlotPayload,
     RestorePayload,
     SelectBuildPayload,
     SlotAttrName,
@@ -39,6 +40,7 @@ TurnIntentName = Literal[
     "edit",
     "select_build_option",
     "compare",
+    "revise_locked_slot",
 ]
 
 _ACTIONABLE_INTENTS = frozenset(
@@ -67,9 +69,13 @@ Never invent species/items/moves as verified facts.
 
 Allowed turn_intent values only:
 - constraint, rejection, lock, archetype_change, reset, restore, continue, team_review,
-  pending_response, edit, select_build_option, compare
+  pending_response, edit, select_build_option, compare, revise_locked_slot
 
 Rules:
+- When pending_kind is none and the user revises a build attribute on an already-locked
+  roster slot (names slot index or species plus field and value), emit revise_locked_slot
+  with slot_index, field, the matching value_* slot, and edit_scope. Never use edit or
+  lock for this shape at idle.
 - When pending_kind is full_build_confirmation and the user clearly names a build field and
   value (ability, item, moves, nature, or spread) plus whether to change only that field
   (field_only) or rebuild the set around it (regenerate), emit edit with field,
@@ -314,6 +320,29 @@ class TurnIntentExtraction(BaseModel):
             if not _edit_value_slot_ok(self):
                 raise ValueError(
                     "edit requires matching value_text (ability|item|nature), "
+                    "value_moves (moves), or value_spread (spread); wrong slot rejected"
+                )
+        elif intent == "revise_locked_slot":
+            if self.slot_index is None:
+                raise ValueError("revise_locked_slot requires slot_index")
+            raw_field = self.field
+            if raw_field == "moveset":
+                raw_field = "moves"
+            if raw_field is None or raw_field not in _EDIT_FIELDS:
+                raise ValueError(
+                    "revise_locked_slot requires field (ability|item|moves|nature|spread)"
+                )
+            if self.edit_scope not in _EDIT_SCOPES:
+                if self.edit_scope is not None:
+                    raise ValueError(
+                        "edit_scope must be field_only, regenerate, or omitted "
+                        f"(got {self.edit_scope!r})"
+                    )
+                object.__setattr__(self, "edit_scope", "field_only")
+            object.__setattr__(self, "field", raw_field)
+            if not _edit_value_slot_ok(self):
+                raise ValueError(
+                    "revise_locked_slot requires matching value_text (ability|item|nature), "
                     "value_moves (moves), or value_spread (spread); wrong slot rejected"
                 )
         elif intent == "rejection":
@@ -797,6 +826,17 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
             payload["spread_set"] = extraction.value_spread_set
             payload["spread_delta"] = extraction.value_spread_delta
         return EditPayload(**payload)  # type: ignore[typeddict-item]
+    if intent == "revise_locked_slot":
+        revise_payload: dict[str, Any] = {
+            "slot_index": extraction.slot_index,  # type: ignore[typeddict-item]
+            "field": extraction.field,
+            "value": _edit_value(extraction),
+            "scope": extraction.edit_scope,
+        }
+        if extraction.field == "spread":
+            revise_payload["spread_set"] = extraction.value_spread_set
+            revise_payload["spread_delta"] = extraction.value_spread_delta
+        return ReviseLockedSlotPayload(**revise_payload)  # type: ignore[typeddict-item]
     if intent == "select_build_option":
         select_payload: dict[str, Any] = {
             "option_ids": tuple(str(i).strip() for i in (extraction.option_ids or []))

@@ -28,6 +28,7 @@ _INTENT_ROUTES = {
     "resolve_spread_reallocation": "resolve_spread_reallocation",
     "resolve_spread_target_question": "resolve_spread_target_question",
     "resolve_item_moveset_conflict": "resolve_item_moveset_conflict",
+    "revise_locked_slot": "begin_locked_slot_revision",
 }
 
 _PHASE_ROUTES = {
@@ -93,6 +94,7 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
     g.add_node("resolve_item_moveset_conflict", nodes.resolve_item_moveset_conflict)
     g.add_node("compare_build_options", nodes.compare_build_options)
     g.add_node("commit_full_slot", nodes.commit_full_slot)
+    g.add_node("begin_locked_slot_revision", nodes.begin_locked_slot_revision)
 
     g.add_conditional_edges(START, _route_start, ["initialize", "classify_input"])
     g.add_edge("initialize", "accept_available_pool")
@@ -127,6 +129,11 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
         "refine_provisional_slot",
         _route_after_refine,
         [END, "route_team_phase"],
+    )
+    g.add_conditional_edges(
+        "begin_locked_slot_revision",
+        nodes._route_after_locked_bootstrap,
+        {"end": END, "apply_provisional_edit": "apply_provisional_edit"},
     )
     return g
 

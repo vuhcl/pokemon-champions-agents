@@ -147,6 +147,13 @@ def provisional_for_confirmation(
         return provisional
     if to_id(str(slot.species.value or "")) != to_id(provisional.species):
         return provisional
+    from recommender.state import slot_fingerprint
+
+    if (
+        provisional.base_slot_fingerprint
+        and slot_fingerprint(slot) == provisional.base_slot_fingerprint
+    ):
+        return provisional
     return _provisional_from_draft(provisional, slot)
 
 
