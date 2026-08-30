@@ -5130,6 +5130,41 @@ session.
 
 ---
 
+## 2026-08-29 — Session summary: from one hallucination to a standing
+correction pathway, plus the data-source half of need-aware build
+synthesis
+
+What began as a single observed bug (a false Grass-typing claim about
+Heliolisk) turned into the most architecturally significant work of
+this project's live-testing investigation to date. The sequence
+mattered: real constraint enforcement (ADR-050) closed the mechanism
+that let the hallucination cause silent damage; the correction pathway
+(ADR-051) closed the mechanism that left the user with no way out once
+it happened; and the in-game-build-preference fix (ADR-052) closed a
+concrete, related data-quality bug found along the way (Klefki), while
+honestly deferring the larger role-aware synthesis problem it revealed
+underneath.
+
+**The explicit framing that shaped this arc, worth preserving:** this
+project is deliberately model-agnostic, and a fix that lives entirely
+in prompt wording is fragile precisely because it's tuned against
+whichever model happened to be tested — it could silently regress on a
+provider swap with no signal. Every fix in this arc was built to be
+enforced in code against real data, not hoped for in prompt language,
+for exactly this reason.
+
+**Deliberately deferred, tracked as open, not silently dropped:**
+locked-slot species-swap refusal (the unsupported-operation registry,
+distinct from claim correction — no amount of retraction machinery
+fixes not knowing your own capability boundary), role-aware build
+synthesis for genuinely multi-role species, masked-core resolution
+label clarity and duplicate-option handling, team review display
+verbosity, the still-unexplained `core_resolution` defer routing
+observed live, and ability/item claim parsing in the correction
+pathway (type-only in v1 by design).
+
+---
+
 ## TOOLS & RESOURCES
 
 - **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.
