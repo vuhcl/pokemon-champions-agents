@@ -114,6 +114,18 @@ Rules:
 - pending_response requires a nonempty message.
 - rejection requires species.
 - constraint requires type, predicate, scope (per_slot|team_wide), groundedness.
+  For mechanically-checkable constraints, also set mechanical_kind
+  (type|ability|item|no_duplicate_items) and mechanical_value when applicable
+  (e.g. mechanical_kind=type, mechanical_value=Grass; item=Choice Scarf;
+  no_duplicate_items omits mechanical_value). Keep predicate as human-readable audit text.
+  Examples:
+  - "must be Grass type" -> constraint, type=hard, mechanical_kind=type,
+    mechanical_value=Grass, predicate="Grass type", scope=per_slot,
+    groundedness=mechanically-checkable
+  - "no duplicate items" -> constraint, mechanical_kind=no_duplicate_items,
+    predicate="no duplicate items", scope=team_wide, groundedness=mechanically-checkable
+  - "prefer tailwind" -> constraint, type=soft, predicate="prefer tailwind",
+    groundedness=judgment-only (no mechanical_kind)
 - select_build_option requires nonempty option_ids.
 - compare requires option_ids with length >= 2.
 - edit requires field (ability|item|moves|nature|spread) and exactly one value slot:
@@ -159,6 +171,7 @@ _CONSTRAINT_SCOPES = frozenset({"per_slot", "team_wide"})
 _GROUNDEDNESS = frozenset(
     {"mechanically-checkable", "enumerable-but-uncoded", "judgment-only"}
 )
+_CONSTRAINT_MECHANICAL_KINDS = frozenset({"type", "ability", "item", "no_duplicate_items"})
 
 
 class TurnIntentExtraction(BaseModel):
@@ -178,6 +191,13 @@ class TurnIntentExtraction(BaseModel):
         Literal["mechanically-checkable", "enumerable-but-uncoded", "judgment-only"]
         | None
     ) = None
+    mechanical_kind: Literal["type", "ability", "item", "no_duplicate_items"] | None = (
+        None
+    )
+    mechanical_value: str | None = Field(
+        default=None,
+        description="Normalized value for mechanical_kind (omit for no_duplicate_items)",
+    )
     # rejection
     species: str | None = None
     reason: str | None = None
@@ -294,6 +314,24 @@ class TurnIntentExtraction(BaseModel):
                 or self.groundedness is None
             ):
                 raise ValueError("constraint requires type, predicate, scope, groundedness")
+            if self.groundedness == "judgment-only":
+                if self.mechanical_kind is not None or self.mechanical_value is not None:
+                    raise ValueError(
+                        "judgment-only constraints must omit mechanical_kind/value"
+                    )
+            if self.mechanical_kind is not None:
+                if self.mechanical_kind not in _CONSTRAINT_MECHANICAL_KINDS:
+                    raise ValueError("invalid mechanical_kind for constraint")
+                if self.groundedness != "mechanically-checkable":
+                    raise ValueError(
+                        "mechanical_kind requires groundedness=mechanically-checkable"
+                    )
+                if self.mechanical_kind != "no_duplicate_items" and (
+                    self.mechanical_value is None or not self.mechanical_value.strip()
+                ):
+                    raise ValueError(
+                        "mechanical_kind requires nonempty mechanical_value"
+                    )
         elif intent == "edit":
             raw_field = self.field
             if raw_field == "moveset":
@@ -857,12 +895,17 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
             option_ids=tuple(str(i).strip() for i in (extraction.option_ids or []))
         )
     if intent == "constraint":
-        return ConstraintPayload(
-            type=extraction.type,  # type: ignore[arg-type]
-            predicate=extraction.predicate,  # type: ignore[arg-type]
-            scope=extraction.scope,  # type: ignore[arg-type]
-            groundedness=extraction.groundedness,  # type: ignore[arg-type]
-        )
+        payload: ConstraintPayload = {
+            "type": extraction.type,  # type: ignore[arg-type]
+            "predicate": extraction.predicate,  # type: ignore[arg-type]
+            "scope": extraction.scope,  # type: ignore[arg-type]
+            "groundedness": extraction.groundedness,  # type: ignore[arg-type]
+        }
+        if extraction.mechanical_kind is not None:
+            payload["mechanical_kind"] = extraction.mechanical_kind
+        if extraction.mechanical_value is not None:
+            payload["mechanical_value"] = extraction.mechanical_value
+        return payload
     if intent == "rejection":
         payload: RejectionPayload = {"species": extraction.species}  # type: ignore[typeddict-item]
         if extraction.slot_index is not None:
