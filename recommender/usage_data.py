@@ -61,6 +61,17 @@ def species_usage(species: str, *, regulation: str = "champions-reg-mb") -> dict
     return snap.get("species", {}).get(to_id(species))
 
 
+def build_synthesis_usage_entry(
+    species: str, *, regulation: str = "champions-reg-mb"
+) -> dict[str, Any] | None:
+    """Usage row for default build synthesis: ingame when present (ADR-046 filtered), else flat merge."""
+    sid = to_id(species)
+    ing = ingame_species_map(regulation).get(sid)
+    if ing:
+        return ing
+    return species_usage(species, regulation=regulation)
+
+
 @lru_cache(maxsize=1)
 def ingame_excluded_ids() -> frozenset[str]:
     return ingame_excluded_species_ids(load_legality_snapshot())
@@ -211,7 +222,11 @@ def pick_team_aware_usage_item(
     """First legal usage-ranked item not already on team_draft (Item Clause)."""
     from recommender.legality import is_item_legal, load_snapshot
 
-    row = entry if entry is not None else species_usage(species, regulation=regulation)
+    row = (
+        entry
+        if entry is not None
+        else build_synthesis_usage_entry(species, regulation=regulation)
+    )
     if not row:
         return None
     snap = snap or load_snapshot()
@@ -224,11 +239,16 @@ def pick_team_aware_usage_item(
 
 
 def featured_or_common_set(species: str, *, regulation: str = "champions-reg-mb") -> PokemonSet | None:
-    """Most representative set: first featured with 4 moves, else top common moves+item."""
-    entry = species_usage(species, regulation=regulation)
-    if not entry:
+    """Most representative set: ingame CBD when present, else flat merge (Showdown-backed)."""
+    entry = build_synthesis_usage_entry(species, regulation=regulation)
+    if entry:
+        built = _set_from_entry(entry, species)
+        if built:
+            return built
+    fallback = species_usage(species, regulation=regulation)
+    if not fallback:
         return None
-    return _set_from_entry(entry, species)
+    return _set_from_entry(fallback, species)
 
 
 def set_from_showdown(species: str, *, regulation: str = "champions-reg-mb") -> PokemonSet | None:

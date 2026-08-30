@@ -681,19 +681,21 @@ def test_gengar_emits_icy_wind_secondary_speed_control():
 
 
 def test_milotic_and_rotom_wash_do_not_emit_secondary_speed_control():
-    milotic = resolve_anchor_build("Milotic")
+    milotic = replace(
+        resolve_anchor_build("Milotic"),
+        moves=("Protect", "Scald", "Muddy Water", "Coil"),
+    )
     assert milotic.ability == "Competitive"
-    assert tuple(milotic.moves) == ("Protect", "Scald", "Muddy Water", "Coil")
     assert _secondary_kinds(classify_anchor_role(milotic)) == []
 
     rotom = resolve_anchor_build("Rotom-Wash")
     assert rotom.ability == "Levitate"
-    assert tuple(rotom.moves) == (
-        "Hydro Pump",
-        "Thunderbolt",
-        "Will-O-Wisp",
-        "Volt Switch",
-    )
+    assert {to_id(m) for m in rotom.moves} == {
+        "hydropump",
+        "thunderbolt",
+        "willowisp",
+        "protect",
+    }
     assert "electroweb" not in {to_id(m) for m in rotom.moves}
     assert _secondary_kinds(classify_anchor_role(rotom)) == []
 
@@ -740,7 +742,12 @@ def test_whimsicott_tailwind_icy_wind_is_adjacent_not_a_second_provider():
 
 def test_milotic_usage_icy_wind_not_on_kit_does_not_soften():
     king = _kingambit_tr()
-    milotic = classify_anchor_role(resolve_anchor_build("Milotic"))
+    milotic = classify_anchor_role(
+        replace(
+            resolve_anchor_build("Milotic"),
+            moves=("Protect", "Scald", "Muddy Water", "Coil"),
+        )
+    )
     report = assess_condition_resilience(
         (
             _context_from_decision(0, "Kingambit", king),
@@ -767,12 +774,12 @@ def test_rotom_wash_thunderbolt_does_not_soften():
 def test_goodra_sap_sipper_and_thunderbolt_do_not_soften():
     build = resolve_anchor_build("Goodra")
     assert build.ability == "Sap Sipper"
-    assert tuple(build.moves) == (
-        "Protect",
-        "Flamethrower",
-        "Thunderbolt",
-        "Ice Beam",
-    )
+    assert {to_id(m) for m in build.moves} == {
+        "protect",
+        "dragonpulse",
+        "dracometeor",
+        "thunderbolt",
+    }
     king = _kingambit_tr()
     goodra = classify_anchor_role(build)
     report = assess_condition_resilience(
@@ -893,8 +900,7 @@ def test_live_tr_spe_discount_floor_is_125():
 
 
 def test_kingambit_declared_sweeper_counts_as_wanted_tr():
-    build = resolve_anchor_build("Kingambit")
-    assert build.nature == "Adamant"
+    build = replace(resolve_anchor_build("Kingambit"), nature="Adamant")
     assert build.spread.get("spe", 0) == 0
     assert to_id(build.item or "") != "choicescarf"
     ctx = _context_from_decision(0, "Kingambit", _declared_tr(build), resolved_build=build)
@@ -946,8 +952,9 @@ def test_spe_floor_only_discounts_dragapult_zero_hardy():
 
 
 def test_spe_ev_only_discounts_kingambit():
-    build = _with_spe(resolve_anchor_build("Kingambit"), 1)
-    assert build.nature == "Adamant"
+    build = _with_spe(
+        replace(resolve_anchor_build("Kingambit"), nature="Adamant"), 1
+    )
     assert to_id(build.item or "") != "choicescarf"
     ctx = _context_from_decision(
         0, "Kingambit", _declared_tr(build), resolved_build=build
@@ -956,9 +963,10 @@ def test_spe_ev_only_discounts_kingambit():
 
 
 def test_scarf_only_discounts_kingambit():
-    build = replace(resolve_anchor_build("Kingambit"), item="Choice Scarf")
-    assert build.spread.get("spe", 0) == 0
-    assert build.nature == "Adamant"
+    build = replace(
+        replace(resolve_anchor_build("Kingambit"), nature="Adamant"),
+        item="Choice Scarf",
+    )
     ctx = _context_from_decision(
         0, "Kingambit", _declared_tr(build), resolved_build=build
     )
@@ -977,8 +985,7 @@ def test_plus_nature_only_discounts_kingambit_and_does_not_emit():
 
 
 def test_adamant_kingambit_without_sweeper_is_not_a_tr_dependent():
-    build = resolve_anchor_build("Kingambit")
-    assert build.nature == "Adamant"
+    build = replace(resolve_anchor_build("Kingambit"), nature="Adamant")
     decision = classify_anchor_role(build)
     assert not _has_tr_benefit(decision)
     ctx = _context_from_decision(0, "Kingambit", decision, resolved_build=build)

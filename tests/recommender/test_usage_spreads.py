@@ -33,7 +33,7 @@ def test_bulky_role_selects_contextual_non_top_variant():
     ]
     rows[1]["evs"]["def"] = rows[1]["evs"].pop("defense")
     with patch(
-        "recommender.usage_spreads.species_usage",
+        "recommender.usage_spreads.build_synthesis_usage_entry",
         return_value={"source": "munchstats-showdown", "top_spreads": rows},
     ):
         choice = select_usage_spread(
@@ -54,7 +54,7 @@ def test_trick_room_uses_nature_aware_low_speed_variant():
     ]
     rows[1]["evs"]["def"] = rows[1]["evs"].pop("defense")
     with patch(
-        "recommender.usage_spreads.species_usage",
+        "recommender.usage_spreads.build_synthesis_usage_entry",
         return_value={"source": "munchstats-showdown", "top_spreads": rows},
     ):
         choice = select_usage_spread(
@@ -74,7 +74,7 @@ def test_invalid_candidates_are_rejected():
         _row(hp=2, atk=33, spe=31),
     ]
     with patch(
-        "recommender.usage_spreads.species_usage",
+        "recommender.usage_spreads.build_synthesis_usage_entry",
         return_value={"top_spreads": rows},
     ):
         assert (
@@ -102,7 +102,7 @@ def test_out_of_coverage_species_uses_dedicated_live_fetch():
         calls.append((species, regulation))
         return evidence
 
-    with patch("recommender.usage_spreads.species_usage", return_value=None):
+    with patch("recommender.usage_spreads.build_synthesis_usage_entry", return_value=None):
         choice = select_usage_spread(
             "Farigiraf",
             "trick_room_sweeper",

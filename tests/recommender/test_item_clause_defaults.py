@@ -76,16 +76,16 @@ def test_sinistcha_sitrus_locked_ariados_walks_to_focus_sash():
     assert legal.ok
 
 
-def test_no_collision_sinistcha_keeps_kasib_berry():
+def test_no_collision_ariados_keeps_usage_default_item():
     slot = Slot(
-        species=Attr(value="Sinistcha", locked=True),
+        species=Attr(value="Ariados", locked=True),
         role=Attr(value="redirection"),
     )
     filler = Slot(role=Attr(value="bulky_attacker"))
     state = _base_state(team_draft=[slot, filler, *[empty_slot() for _ in range(4)]])
     out = fill_team_draft(state)
     s = out["team_draft"][0]
-    assert s.item.value == "Kasib Berry"
+    assert s.item.value == "Sitrus Berry"
     assert s.item.reason is not None
     assert s.item.reason.ref != "tier3_item_default"
 
