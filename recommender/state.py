@@ -136,6 +136,15 @@ class EditPayload(TypedDict):
     spread_delta: NotRequired[dict[str, int] | None]
 
 
+class ReviseLockedSlotPayload(TypedDict):
+    slot_index: int
+    field: EditFieldName
+    value: object
+    scope: Literal["field_only", "regenerate"]
+    spread_set: NotRequired[dict[str, int] | None]
+    spread_delta: NotRequired[dict[str, int] | None]
+
+
 BuildAxis = Literal["spread_nature", "moveset", "item", "bundled"]
 BuildProvenance = Literal[
     "featured", "usage_spread", "vgcpastes", "user_current", "team_conditioned"

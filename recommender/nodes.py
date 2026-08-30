@@ -42,6 +42,7 @@ from recommender.state import (
     RejectionPayload,
     ResetPayload,
     RestorePayload,
+    ReviseLockedSlotPayload,
     SupersededEntry,
     Slot,
     TeamReviewResult,
@@ -334,6 +335,62 @@ def refine_provisional_slot(state: RecommenderState) -> dict:
         else intent
     )
     return out
+
+
+REVISE_REQUIRES_LOCKED_MSG = "Attribute revision requires a fully locked slot."
+
+
+def _route_after_locked_bootstrap(state: RecommenderState) -> str:
+    if state.get("slot_commit_error"):
+        return "end"
+    return "apply_provisional_edit"
+
+
+def begin_locked_slot_revision(state: RecommenderState) -> dict:
+    """Seed provisional edit state from a fully locked team_draft slot."""
+    from recommender.build_alternatives import _provisional_from_draft
+
+    payload: ReviseLockedSlotPayload = state["turn_payload"]  # type: ignore[assignment]
+    slot_index = payload["slot_index"]
+    draft = state["team_draft"]
+    if not (0 <= slot_index < len(draft)):
+        return _full_slot_error("slot index is out of range")
+    slot = draft[slot_index]
+    if not all_locked(slot) or not slot.species.value or not slot.role.value:
+        return _full_slot_error(REVISE_REQUIRES_LOCKED_MSG)
+
+    decision = TargetRoleDecision(
+        role_id=slot.role.value,
+        source="other",
+    )
+    fp = slot_fingerprint(slot)
+    intent = PendingSlotIntent(
+        schema_version=1,
+        slot_index=slot_index,
+        species=str(slot.species.value),
+        target_role_decision=decision,
+        source="mixed",
+        base_slot_fingerprint=fp,
+    )
+    shell = ProvisionalSlot(
+        schema_version=1,
+        slot_index=slot_index,
+        target_role_decision=decision,
+        species=str(slot.species.value),
+        ability="",
+        item="",
+        moves=("", "", "", ""),
+        nature="",
+        spread=(),
+        base_slot_fingerprint=fp,
+        fingerprint="",
+    )
+    provisional = _provisional_from_draft(shell, slot)
+    return {
+        "pending_slot_intent": intent,
+        "provisional_slot": provisional,
+        "slot_commit_error": None,
+    }
 
 
 def apply_provisional_edit(state: RecommenderState) -> dict:

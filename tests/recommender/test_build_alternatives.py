@@ -71,6 +71,40 @@ def test_draft_has_complete_build():
     assert draft_has_complete_build(slot)
 
 
+def test_provisional_for_confirmation_skips_sync_when_base_matches_draft():
+    slot = empty_slot()
+    slot.role = Attr("fast_special_attacker", True)
+    slot.species = Attr("Gholdengo", True)
+    slot.ability = Attr("Good as Gold", True)
+    slot.item = Attr("Life Orb", True)
+    slot.moveset = Attr(
+        ["Make It Rain", "Shadow Ball", "Protect", "Nasty Plot"], True
+    )
+    slot.nature = Attr("Timid", True)
+    slot.spread = Attr(
+        {"hp": 4, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 30}, True
+    )
+    from recommender.state import slot_fingerprint
+
+    fp = slot_fingerprint(slot)
+    edited = _provisional(nature="Modest", fingerprint="fp-edited")
+    edited = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=_decision("fast_special_attacker"),
+        species="Gholdengo",
+        ability="Good as Gold",
+        item="Life Orb",
+        moves=("Make It Rain", "Shadow Ball", "Protect", "Nasty Plot"),
+        nature="Modest",
+        spread=edited.spread,
+        base_slot_fingerprint=fp,
+        fingerprint="fp-edited",
+    )
+    aligned = provisional_for_confirmation(edited, _state([slot]))
+    assert aligned.nature == "Modest"
+
+
 def test_provisional_for_confirmation_replaces_draft_on_refine():
     slot = empty_slot()
     slot.species = Attr("Pelipper", True)

@@ -153,10 +153,16 @@ def _is_default_phrase(part: str) -> bool:
 # continue on that screen is intercepted by _apply_continue_abandon_gate (Cluster B).
 # team_review on that screen is intercepted by _apply_team_review_roster_gate.
 _BLOCKED_ON_KIND = {
-    "candidate_selection": frozenset({"edit", "select_build_option", "compare"}),
-    "completion_preference": frozenset({"edit", "select_build_option", "compare"}),
-    "core_resolution": frozenset({"edit", "select_build_option", "compare"}),
-    "full_build_confirmation": frozenset({"lock"}),  # all lock, including cross-slot
+    "candidate_selection": frozenset(
+        {"edit", "select_build_option", "compare", "revise_locked_slot"}
+    ),
+    "completion_preference": frozenset(
+        {"edit", "select_build_option", "compare", "revise_locked_slot"}
+    ),
+    "core_resolution": frozenset(
+        {"edit", "select_build_option", "compare", "revise_locked_slot"}
+    ),
+    "full_build_confirmation": frozenset({"lock", "revise_locked_slot"}),
     "none": frozenset({"edit", "select_build_option", "compare"}),
 }
 _MISMATCH_MSG = "That action isn't available here."
