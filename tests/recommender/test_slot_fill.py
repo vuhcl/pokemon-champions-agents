@@ -767,15 +767,15 @@ def test_annotate_composition_impact_sets_species_primary_role():
     from recommender.team_candidates import annotate_composition_impact
 
     cand = AnnotatedCandidate(
-        species="Sinistcha",
+        species="Ariados",
         matching_needs=(_trick_room_need(),),
         source="need",
-        spec={"species": "Sinistcha"},
+        spec={"species": "Ariados"},
     )
     out = annotate_composition_impact([cand], _base_state())
     assert out[0].species_primary_role == "redirection"
     assert (
-        classify_anchor_role(resolve_anchor_build("Sinistcha")).role_id
+        classify_anchor_role(resolve_anchor_build("Ariados")).role_id
         == "redirection"
     )
 
@@ -800,7 +800,7 @@ def test_pending_presentation_wires_species_primary_role():
     ctx = SlotFillContext(
         anchor={"species": "Kingambit"},
         role_shape_context=_shape(),
-        threat_counter_results=[_tc("Sinistcha")],
+        threat_counter_results=[_tc("Ariados")],
         support_needs=[need],
     )
     annotate_overlap(ctx)
@@ -809,10 +809,10 @@ def test_pending_presentation_wires_species_primary_role():
     )
     result = run_slot_fill_terminal(ctx, _base_state(), slot_index=2)
     pending = result.state_updates["pending_presentation"]
-    sinistcha = next(
-        o for o in pending["options"] if o["species"] == "Sinistcha"
+    ariados = next(
+        o for o in pending["options"] if o["species"] == "Ariados"
     )
-    assert sinistcha["species_primary_role"] == "redirection"
+    assert ariados["species_primary_role"] == "redirection"
 
 
 def test_threat_only_choice_gets_kit_fallback_not_open_slot_role():
@@ -1032,8 +1032,8 @@ def _assert_real_strategic_role_refines(species: str, role_id: str) -> None:
     assert sum(provisional.spread_dict().values()) == 66
 
 
-def test_real_sinistcha_redirection_refines_to_full_provisional_slot():
-    _assert_real_strategic_role_refines("Sinistcha", "redirection")
+def test_real_ariados_redirection_refines_to_full_provisional_slot():
+    _assert_real_strategic_role_refines("Ariados", "redirection")
 
 
 def test_real_pelipper_rain_setter_refines_to_full_provisional_slot():

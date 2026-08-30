@@ -3970,10 +3970,10 @@ def _sinistcha_redirect_draft() -> list[Slot]:
     ]
 
 
-def test_sinistcha_mechanism_emits_wanted_redirection():
+def test_ariados_mechanism_emits_wanted_redirection():
     from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
 
-    build = resolve_anchor_build("Sinistcha", regulation="champions-reg-mb")
+    build = resolve_anchor_build("Ariados", regulation="champions-reg-mb")
     decision = classify_anchor_role(build)
     redirect = [
         m

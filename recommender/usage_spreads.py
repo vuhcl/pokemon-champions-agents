@@ -10,7 +10,7 @@ from typing import Any
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
 from recommender.state import StatsTable
-from recommender.usage_data import species_usage
+from recommender.usage_data import build_synthesis_usage_entry
 from recommender.usage_live import (
     JsonFetch,
     fetch_json,
@@ -317,10 +317,11 @@ def select_usage_spread(
     threats: Sequence[Any] = (),
     snap: dict[str, Any] | None = None,
     live_fetch: Callable[[str, str], tuple[SpreadEvidence, ...]] | None = None,
+    entry: dict[str, Any] | None = None,
 ) -> SpreadChoice | None:
     """Choose a real usage spread for the current role and threat context."""
     snapshot = snap or load_snapshot()
-    entry = species_usage(species, regulation=regulation)
+    entry = entry or build_synthesis_usage_entry(species, regulation=regulation)
     if entry is None:
         fetch = live_fetch or fetch_live_spreads
         candidates = fetch(species, regulation)

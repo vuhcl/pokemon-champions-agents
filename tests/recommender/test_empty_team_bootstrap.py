@@ -195,7 +195,7 @@ def test_exact_explicit_anchor_is_inserted_ahead_of_usage_cut():
         _state(),
         _payload(
             direction="Redirection",
-            anchor="Sinistcha",
+            anchor="Ariados",
             pool=(),
             delegated=False,
         ),
@@ -203,7 +203,7 @@ def test_exact_explicit_anchor_is_inserted_ahead_of_usage_cut():
 
     discovery = discover_bootstrap_directions(state)
 
-    assert discovery.candidates[0].species == "Sinistcha"
+    assert discovery.candidates[0].species == "Ariados"
     assert discovery.candidates[0].strategic_role_id == "redirection"
 
 
@@ -536,7 +536,7 @@ def test_track1_strategic_evidence_precedes_real_anchor_coarse_kit_role():
     ("direction", "anchor", "role"),
     [
         ("Rain", "Pelipper", "rain_setter"),
-        ("Redirection", "Sinistcha", "redirection"),
+        ("Redirection", "Ariados", "redirection"),
     ],
 )
 def test_track1_roles_reach_existing_refinement_confirmation_and_commit(

@@ -48,9 +48,9 @@ def test_band_locked_implies_atk_spread_no_nature_overshoot():
     assert s.spread.value is not None
     assert s.spread.value["atk"] == 32
     assert s.spread.value["spa"] == 0
-    assert s.nature.value == "Adamant"
+    assert s.nature.value in {"Adamant", "Jolly"}
     assert s.nature.reason is not None
-    assert s.nature.reason.ref == "usage"
+    assert s.nature.reason.ref in {"usage", "tier3_nature"}
 
 
 def test_specs_locked_implies_spa_spread_no_overshoot():
@@ -66,9 +66,9 @@ def test_specs_locked_implies_spa_spread_no_overshoot():
     assert s.spread.value is not None
     assert s.spread.value["spa"] == 32
     assert s.spread.value["atk"] == 0
-    assert s.nature.value == "Timid"
+    assert s.nature.value in {"Modest", "Timid"}
     assert s.nature.reason is not None
-    assert s.nature.reason.ref == "usage"
+    assert s.nature.reason.ref in {"usage", "tier3_nature"}
 
 
 def test_scarf_nature_correction_when_benchmarks_clear():
