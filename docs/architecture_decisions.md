@@ -9394,3 +9394,224 @@ confirmation screen and the final commit, directly exercising the exact
 bug the `provisional_for_confirmation` fix targets. Regression confirmed
 the `apply_lock` guard from the amendment above isn't bypassed by this
 new path. Full suite green.
+
+---
+
+## ADR-049 Amendment 2026-08-29a — revise_locked_slot follow-up: apply_lock
+guard, discovered from the same live-transcript investigation
+
+**Context:** During the same live testing that produced this session's
+correction-pathway work, confirmed `apply_lock`'s already-shipped guard
+(ADR-048 Amendment 2026-08-29a) correctly rejects `lock` against an
+already-fully-locked slot — but a separate, related gap surfaced live:
+requesting a species change on a locked slot ("change basculegion to
+mega charizard y") produced four turns of increasingly specific
+clarifying questions toward an operation the system was never built to
+support (species change on a locked slot is explicitly out of scope
+per ADR-049 — attribute edit only), with nothing at any point stating
+plainly that it isn't supported. This is a distinct, still-open gap
+(the "unsupported-operation registry" case) — not resolved by anything
+shipped this session. Logged here as a cross-reference since it was
+discovered via the same transcript, not to imply it's been addressed.
+
+**Status:** Not implemented. Remains queued.
+
+---
+
+## ADR-050: Real constraint enforcement (type/ability/item), replacing
+the silent dead-letter behavior
+
+**Context:** Surfaced while investigating a confirmed LLM hallucination
+(the system falsely claimed Heliolisk has Grass typing in response to
+"I want a grass type" — verified false against the real legality
+snapshot; Heliolisk is Electric/Normal). Tracing the actual constraint
+path found the hallucination was a symptom of a deeper architectural
+gap: `record_constraint` stored `Constraint.predicate` as free text with
+zero parsing or verification. Hard constraints failed discovery entirely
+and generically regardless of what the predicate actually said; soft
+constraints were silently stored and never applied — a "dead letter"
+arguably worse than no constraint system at all, since it implied
+enforcement that never happened. Confirmed directly: real type data was
+already available and correctly used elsewhere
+(`counters._species_types`), just never wired into the constraint path.
+
+**Decision:** Hybrid structured-extraction + fallback-parser design,
+grounded in a live 16-phrase model sweep (not assumed) showing predicate
+strings are highly non-canonical across phrasings — some lose critical
+information entirely ("grass mon only" → bare `species`), justifying
+why structured extraction fields (`mechanical_kind`/`mechanical_value`)
+were added to the schema rather than relying on parsing free text alone.
+New `recommender/constraint_enforcement.py` resolves structured-then-
+predicate-pattern matches for type/ability/item/no-duplicate-items,
+reusing existing real data accessors exactly
+(`counters._species_types`, `legality.species_can_have_ability`,
+`legality.is_item_legal`, `team_item_ids`) — no new lookup logic.
+
+Enforcement semantics, decided explicitly per case: hard + parsed →
+genuinely filters the candidate pool (AND across all parsed specs); hard
++ parsed + zero matches → new `constraint_unsatisfiable` error kind,
+distinct from `unsupported_constraint` (a materially more honest signal
+— "understood but nothing matches" vs. "couldn't parse this at all");
+soft + parsed → genuine ranking tie-break, never exclusion; hard or soft
++ unparseable/judgment-only → unchanged fail-closed or no-op behavior,
+exactly matching this project's standing discipline against guessing.
+
+**A critical ordering bug was caught and fixed as part of this same
+work, not a separate round:** the constraint filter must run after
+`annotate_composition_impact` and before `gather_masked_core_packages`
+— confirmed the latter iterates every candidate with zero filtering of
+its own, meaning a non-matching species could otherwise surface in a
+`core_resolution` option despite violating a hard constraint. A
+dedicated regression test tracks exactly which candidates reach
+`gather_masked_core_packages` and confirms only the constraint-matching
+one gets through.
+
+**Status:** Implemented and verified across two PRs (initial
+implementation, then a required follow-up closing a test-coverage gap
+on this exact ordering regression and on ability/item matching). Final
+state: 10/10 planned test cases present and passing, including the
+`core_resolution` ordering regression and correct avoidance of
+`pick_synthesized_default_item` for user-named item constraints (a
+subtle distinction the plan specifically flagged — that function's
+defaults have nothing to do with verifying a *named* item request).
+Full suite green throughout.
+
+---
+
+## ADR-051: claim_correction — a standing pathway for retracting and
+re-verifying false system claims
+
+**Context:** The Heliolisk hallucination (ADR-050's motivating case) had
+no recovery path once it happened. Correcting it ("heliolisk is not
+grass type") had no matching intent and got misclassified as
+`rejection`, silently banning the species instead of addressing the
+false claim — confirmed live, and confirmed there was no way to fix
+this without a genuinely new capability, not a prompt tweak. A second,
+independent case (the locked-slot species-swap confusion loop) proved
+this project needed a standing pathway, not a one-off patch — see the
+"guardrails and governance" framing this work was explicitly built
+around: prompt-only fixes are fragile precisely because this project is
+deliberately model-agnostic (local Ollama for dev, Claude API for
+prod), and something tuned against one model's behavior could silently
+regress on another with no signal.
+
+**Decision, scoped deliberately narrow:** this pathway covers only
+specific, verifiable factual claims (type/ability/item) — the same
+shape `constraint_enforcement.py` already verifies. The separate
+"system doesn't know its own capability boundary" case (locked-slot
+species swap) was explicitly kept out of scope — no amount of
+correction machinery fixes not knowing what you can't do; that needs
+the separate unsupported-operation registry, still queued.
+
+Confirmed via direct verification that state genuinely could not be
+reconstructed from anything existing: `RecommenderState.messages` is a
+real schema field but is never populated anywhere in the graph
+(confirmed via full-codebase search); `pending_input` is wiped every
+classify pass. A new `SystemClaim` record was required — populated by a
+narrow, fail-closed parser that only stamps a claim when it can
+actually be parsed into a checkable `(species, kind, value)` tuple, with
+a project-established denylist of the system's own template strings to
+avoid false-stamping non-claims.
+
+New `claim_correction` intent, deliberately excluded from
+`_ACTIONABLE_INTENTS` — confirmed that set triggers pending-state
+clearing whenever a pending screen is active, and including
+`claim_correction` there would have silently dropped an active
+`full_build_confirmation` mid-correction, a real regression the plan
+caught before implementation, not after. Disambiguation from
+`rejection` (both can mention a species negatively) requires
+`last_system_claim` in classifier context, backed by both an LLM-prompt
+rule and a deterministic pre-pass for exact negation phrasing — the
+deterministic path is tested to prove it never invokes the LLM at all
+for the clear-cut case.
+
+**Retract-and-reattempt was chosen over retract-only**, with
+`originating_user_text`/`reattempt_constraint` captured at the same
+moment the claim is stamped — deliberately **not** via a second LLM
+call at reattempt time. A second LLM guess at this exact point would
+reintroduce the same category of risk this whole pathway exists to
+eliminate, with no way for the user to know a plausible-looking
+reattempt result never actually addressed their original request.
+Fail-closed to retract-only when the deterministic parse fails,
+consistent with this project's established precedent (`_calc_agrees`
+defaults pessimistic; unparseable hard constraints already fail
+closed).
+
+**The verification-says-the-claim-was-actually-true case is handled
+explicitly, not assumed away**: if a "correction" turns out to be
+checking a claim that was genuinely correct, the response confirms the
+original claim against real snapshot data, changes nothing about
+constraints or team state, and is worded distinctly from a real
+retraction.
+
+**Status:** Implemented and verified. 14/14 tests passing, including
+the full Heliolisk case end-to-end through the real graph (false claim
+→ correction → real constraint reattempt → honest result, whether a
+real match or `constraint_unsatisfiable`), the verification-true case,
+and the disambiguation regression proving a genuine rejection with a
+claim present still classifies correctly. Full suite green.
+
+---
+
+## ADR-052: Default build synthesis now prefers real in-game data over
+Showdown, scoped to build synthesis specifically
+
+**Context:** Live testing found Klefki suggested for `screens_support`
+received a non-screens default build (Psych Up/Draining Kiss/Calm
+Mind/Substitute), because `featured_or_common_set` reads the flat/
+merged `species_usage()` map, which explicitly prefers Showdown fields
+over in-game fields whenever both exist. Confirmed this exact merge
+preference had no documented product rationale anywhere in the ADR log
+or master project log — the only trace was a docstring calling it a
+"backward-compat" layering artifact, not a sourced decision. This
+directly parallels an already-fixed case (`commitment_pct`, fixed
+earlier to read `ingame_doubles` directly for the same reason) that was
+never extended to build synthesis.
+
+Before proposing a fix, checked this wasn't a case of "helps one
+species, hurts many others" — sampled the real population (155
+dual-source species, confirmed independently) rather than generalizing
+from Klefki alone. A meaningful fraction show real top-move divergence
+between sources, with zero cases where an in-game row exists but
+Showdown's real `featured_sets` data would have been lost by
+preferring it (in-game entries never carry populated `featured_sets` in
+the current snapshot).
+
+**Decision:** rejected a blanket flip of `_merge_species_flat` — that
+would repoint every consumer of the flat merge, not just build
+synthesis, and several of those consumers (`find_set_matching`'s exact-
+match keys, `_ladder_usage_pct`) are correctly untouched by this
+concern. Instead, a new scoped runtime helper
+(`build_synthesis_usage_entry`) checks in-game data first, falling back
+to the flat merge only when no in-game row exists or it's unbuildable —
+wired specifically into the real build-synthesis consumers
+(`featured_or_common_set`, `pick_team_aware_usage_item`,
+`select_usage_spread`), leaving the underlying snapshot and all other
+consumers of the flat merge untouched.
+
+Explicitly confirmed for consistency with the mega-capable exclusion
+policy (ADR-046) already shipped this session — mega-capable species
+remain correctly excluded from `ingame_species_map`, so this change
+introduces no second, conflicting mega special-case; verified directly
+that Charizard's synthesized build is still genuinely Showdown-sourced
+and unchanged.
+
+**Explicitly not fixed by this change, and not claimed to be:**
+multi-role species (Sableye, Froslass-Mega, Ninetales-Alola) still
+produce role-mismatched default builds even with the best available
+data source, because the underlying problem is different in kind — no
+per-role build data exists anywhere (confirmed: Role Compendium entries
+carry only tier/mechanism/membership metadata, never a moveset/item/
+ability spec), so even correct in-game data can't solve a case where a
+species genuinely serves two roles and only one representative build
+can be synthesized. That gap is separately scoped as role-aware
+synthesis, deliberately deferred, not silently left unaddressed.
+
+**Status:** Implemented and verified. Regression tests include both the
+positive case (Klefki now correctly gets a real screens build:
+Light Screen/Reflect/Dazzling Gleam, item Light Clay) and the critical
+negative case (Charizard/mega-capable species' build is byte-for-byte
+identical to its real Showdown-sourced build, proving this is a scoped
+fix, not a global preference flip in disguise) — the negative case
+compares against a real computed value, not a hardcoded literal. Full
+suite green (1552 passed, 13 skipped).
