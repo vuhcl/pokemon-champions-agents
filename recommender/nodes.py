@@ -42,6 +42,7 @@ from recommender.state import (
     RejectionPayload,
     ResetPayload,
     RestorePayload,
+    RepickLockedSlotPayload,
     ReviseLockedSlotPayload,
     SupersededEntry,
     Slot,
@@ -360,6 +361,7 @@ def refine_provisional_slot(state: RecommenderState) -> dict:
 
 
 REVISE_REQUIRES_LOCKED_MSG = "Attribute revision requires a fully locked slot."
+REPICK_REQUIRES_LOCKED_MSG = "Species repick requires a fully locked slot."
 
 
 def _route_after_locked_bootstrap(state: RecommenderState) -> str:
@@ -412,6 +414,37 @@ def begin_locked_slot_revision(state: RecommenderState) -> dict:
         "pending_slot_intent": intent,
         "provisional_slot": provisional,
         "slot_commit_error": None,
+    }
+
+
+def unlock_locked_slot(state: RecommenderState) -> dict:
+    """Wipe a fully locked slot so discovery can pick a new species."""
+    payload: RepickLockedSlotPayload = state["turn_payload"]  # type: ignore[assignment]
+    slot_index = payload["slot_index"]
+    draft = list(state["team_draft"])
+    if not (0 <= slot_index < len(draft)):
+        return _full_slot_error("slot index is out of range")
+    slot = draft[slot_index]
+    if not all_locked(slot) or not slot.species.value or not slot.role.value:
+        return _full_slot_error(REPICK_REQUIRES_LOCKED_MSG)
+
+    draft[slot_index] = empty_slot()
+    masked = tuple(i for i in (state.get("masked_slot_indices") or ()) if i != slot_index)
+    return {
+        "team_draft": draft,
+        "masked_slot_indices": masked,
+        "pending_presentation": None,
+        "pending_slot_intent": None,
+        "provisional_slot": None,
+        "provisional_refinement": None,
+        "slot_commit_error": None,
+        "compare_analysis": None,
+        "coverage": [],
+        "spofs": [],
+        "shared_teammates": None,
+        "last_team_review": None,
+        "condition_resilience": None,
+        "candidate_discovery_error": None,
     }
 
 
@@ -1466,6 +1499,28 @@ def discover_single_locked(
     return {**cleared, **terminal.state_updates}
 
 
+_PROVIDER_NEED_LEAVES = ("trick_room", "tailwind", "screens", "redirection")
+
+
+def _compute_composition_gaps(
+    locked_contexts: tuple,
+) -> list[str]:
+    from recommender.condition_resilience import (
+        assess_condition_resilience,
+        provider_need_category_open,
+    )
+
+    lines: list[str] = []
+    report = assess_condition_resilience(locked_contexts)
+    for row in report.conditions:
+        if row.gap == "missing_provider":
+            lines.append(f"{row.condition}: missing provider ({row.classification})")
+    for category in _PROVIDER_NEED_LEAVES:
+        if provider_need_category_open(category, locked_contexts):
+            lines.append(f"{category}: no primary provider on locked team")
+    return lines
+
+
 def _compute_team_review(
     state: RecommenderState, config: RunnableConfig
 ) -> TeamReviewResult:
@@ -1479,32 +1534,41 @@ def _compute_team_review(
     regulation = state.get("regulation_mod") or "champions"
     draft = state["team_draft"]
     locked_contexts = collect_locked_anchor_contexts(state)
+    composition_gaps = _compute_composition_gaps(locked_contexts)
     try:
         coverage = compute_team_coverage(
             draft, specs, regulation=regulation, locked_contexts=locked_contexts
         )
     except (CalcClientError, MatchupEvidenceError) as exc:
-        return _unavailable_team_review(candidates, exc, "coverage")
+        return _unavailable_team_review(
+            candidates, exc, "coverage", composition_gaps=composition_gaps
+        )
     try:
         spofs = detect_spof(
             draft, specs, regulation=regulation, locked_contexts=locked_contexts
         )
     except (CalcClientError, MatchupEvidenceError) as exc:
-        return _unavailable_team_review(candidates, exc, "spof")
+        return _unavailable_team_review(
+            candidates, exc, "spof", composition_gaps=composition_gaps
+        )
     return TeamReviewResult(
         threats=candidates,
         coverage=coverage,
         spofs=spofs,
+        composition_gaps=composition_gaps,
     )
 
 
 def _unavailable_team_review(
-    threats, exc: CalcClientError | MatchupEvidenceError, stage: Literal["coverage", "spof"]
+    threats, exc: CalcClientError | MatchupEvidenceError, stage: Literal["coverage", "spof"],
+    *,
+    composition_gaps: list[str] | None = None,
 ) -> TeamReviewResult:
     return TeamReviewResult(
         threats=list(threats),
         coverage=[],
         spofs=[],
+        composition_gaps=composition_gaps or [],
         status="unavailable",
         error=CandidateDiscoveryError(
             kind=(

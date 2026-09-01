@@ -223,12 +223,14 @@ def format_team_review(
         threats = review.threats
         coverage = review.coverage
         spofs = review.spofs
+        composition_gaps = review.composition_gaps
     else:
         status = review.get("status") or "available"
         error = review.get("error")
         threats = review.get("threats") or ()
         coverage = review.get("coverage") or ()
         spofs = review.get("spofs") or ()
+        composition_gaps = review.get("composition_gaps") or []
 
     lines: list[str] = ["Team review:"]
     if include_error and status == "unavailable" and error is not None:
@@ -305,6 +307,12 @@ def format_team_review(
             lines.append(
                 f"  - {_slot_label(team_draft, slot_index)} loses {lost_names}{sev_suffix}"
             )
+    else:
+        lines.append("  (none)")
+
+    lines.append("Composition gaps:")
+    if composition_gaps:
+        lines.extend(f"  - {gap}" for gap in composition_gaps)
     else:
         lines.append("  (none)")
 

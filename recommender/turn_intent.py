@@ -22,6 +22,7 @@ from recommender.state import (
     PendingResponsePayload,
     RejectionPayload,
     ResetPayload,
+    RepickLockedSlotPayload,
     ReviseLockedSlotPayload,
     RestorePayload,
     SelectBuildPayload,
@@ -43,6 +44,7 @@ TurnIntentName = Literal[
     "select_build_option",
     "compare",
     "revise_locked_slot",
+    "repick_locked_slot",
     "claim_correction",
 ]
 
@@ -72,13 +74,27 @@ Never invent species/items/moves as verified facts.
 
 Allowed turn_intent values only:
 - constraint, rejection, lock, archetype_change, reset, restore, continue, team_review,
-  pending_response, edit, select_build_option, compare, revise_locked_slot, claim_correction
+  pending_response, edit, select_build_option, compare, revise_locked_slot,
+  repick_locked_slot, claim_correction
 
 Rules:
 - When pending_kind is none and the user revises a build attribute on an already-locked
   roster slot (names slot index or species plus field and value), emit revise_locked_slot
   with slot_index, field, the matching value_* slot, and edit_scope. Never use edit or
   lock for this shape at idle.
+- When pending_kind is none and the user wants to replace the species on a fully locked
+  roster slot (swap/repick/replace/different Pokémon — names slot index or the slot's
+  current species) without naming a build field (ability, item, moves, nature, spread)
+  or a new value for one, emit repick_locked_slot with slot_index only. Never use
+  revise_locked_slot, lock, edit, or rejection for this shape at idle.
+- revise_locked_slot requires a named build field AND matching value slot;
+  repick_locked_slot requires species replacement only (no field, no value).
+- Bare "change slot N" with no field name and no clear species-replace verbs
+  (swap, replace, repick, different Pokémon, new species) -> pending_response
+  asking whether they want a species swap or a field edit.
+- Naming a new target species on an already-locked slot ("use Incineroar instead of
+  Sinistcha in slot 5") is still repick_locked_slot — discovery will surface that
+  species; do not emit lock.
 - When pending_kind is full_build_confirmation and the user clearly names a build field and
   value (ability, item, moves, nature, or spread) plus whether to change only that field
   (field_only) or rebuild the set around it (regenerate), emit edit with field,
@@ -400,6 +416,11 @@ class TurnIntentExtraction(BaseModel):
                     "revise_locked_slot requires matching value_text (ability|item|nature), "
                     "value_moves (moves), or value_spread (spread); wrong slot rejected"
                 )
+        elif intent == "repick_locked_slot":
+            if self.slot_index is None:
+                raise ValueError("repick_locked_slot requires slot_index")
+            if self.field is not None:
+                raise ValueError("repick_locked_slot must not include field")
         elif intent == "rejection":
             if self.species is None:
                 raise ValueError("rejection requires species")
@@ -895,6 +916,10 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
             revise_payload["spread_set"] = extraction.value_spread_set
             revise_payload["spread_delta"] = extraction.value_spread_delta
         return ReviseLockedSlotPayload(**revise_payload)  # type: ignore[typeddict-item]
+    if intent == "repick_locked_slot":
+        return RepickLockedSlotPayload(
+            slot_index=extraction.slot_index,  # type: ignore[typeddict-item]
+        )
     if intent == "select_build_option":
         select_payload: dict[str, Any] = {
             "option_ids": tuple(str(i).strip() for i in (extraction.option_ids or []))

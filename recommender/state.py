@@ -150,6 +150,10 @@ class ReviseLockedSlotPayload(TypedDict):
     spread_delta: NotRequired[dict[str, int] | None]
 
 
+class RepickLockedSlotPayload(TypedDict):
+    slot_index: int
+
+
 BuildAxis = Literal["spread_nature", "moveset", "item", "bundled"]
 BuildProvenance = Literal[
     "featured", "usage_spread", "vgcpastes", "user_current", "team_conditioned"
@@ -602,6 +606,7 @@ class TeamReviewResult:
     threats: list[ThreatCandidate]
     coverage: list[ThreatCoverageResult]
     spofs: list[SPOFFinding]
+    composition_gaps: list[str] = field(default_factory=list)
     status: Literal["available", "unavailable"] = "available"
     error: CandidateDiscoveryError | None = None
 

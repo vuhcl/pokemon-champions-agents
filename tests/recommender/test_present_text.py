@@ -582,6 +582,19 @@ def test_format_team_review_gaps_and_spofs():
     assert "1. Incineroar loses Gapmon" in text
 
 
+def test_format_team_review_composition_gaps():
+    draft = [_locked("Incineroar")]
+    review = TeamReviewResult(
+        threats=[],
+        coverage=[],
+        spofs=[],
+        composition_gaps=["redirection: no primary provider on locked team"],
+    )
+    text = format_team_review(review, team_draft=draft)
+    assert "Composition gaps:" in text
+    assert "redirection: no primary provider on locked team" in text
+
+
 def test_format_team_review_flagged_separate():
     review = TeamReviewResult(
         threats=[],
