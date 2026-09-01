@@ -211,6 +211,38 @@ def _iter_usage_ranked_items(entry: dict[str, Any]):
             yield _display_item(row["name"])
 
 
+def _iter_usage_ranked_moves(entry: dict[str, Any]):
+    """Usage-ranked move names: featured_sets rows then common_moves."""
+    seen: set[str] = set()
+    for fs in entry.get("featured_sets") or []:
+        for move in _nonempty_moves(fs.get("moves") or []):
+            mid = to_id(move)
+            if mid not in seen:
+                seen.add(mid)
+                yield move
+    for row in entry.get("common_moves") or []:
+        mid = to_id(row["name"])
+        if mid not in seen:
+            seen.add(mid)
+            yield row["name"]
+
+
+def _iter_usage_ranked_abilities(entry: dict[str, Any]):
+    """Usage-ranked ability names: featured_sets rows then common_abilities."""
+    seen: set[str] = set()
+    for fs in entry.get("featured_sets") or []:
+        if fs.get("ability"):
+            aid = to_id(fs["ability"])
+            if aid not in seen:
+                seen.add(aid)
+                yield _display_ability(fs["ability"])
+    for row in entry.get("common_abilities") or []:
+        aid = to_id(row["name"])
+        if aid not in seen:
+            seen.add(aid)
+            yield _display_ability(row["name"])
+
+
 def pick_team_aware_usage_item(
     species: str,
     *,

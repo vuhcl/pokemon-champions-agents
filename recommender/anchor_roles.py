@@ -13,7 +13,7 @@ from recommender.ids import to_id
 from recommender.legality import load_snapshot
 from recommender.matchup import CHARGE_INSTANT_WEATHER
 from recommender.move_narrowing import WEATHER_SETTING_MOVES
-from recommender.recommend import infer_role
+from recommender.recommend import infer_role, is_valid_spread
 from recommender.resolved_builds import get_resolved_build
 from recommender.role_compendium_read import (
     CompendiumRoleEvidence,
@@ -313,7 +313,7 @@ def resolve_anchor_build(
         cached = get_resolved_build(
             species, list(values["moves"]), values["item"], regulation
         )
-        if cached and cached.get("spread"):
+        if cached and is_valid_spread(cached.get("spread")):
             values["evs"] = dict(cached["spread"])
             provenance["evs"] = FieldProvenance("evs", "cached")
 
@@ -336,6 +336,29 @@ def resolve_anchor_build(
     representative = (
         featured_or_common_set(species, regulation=regulation) if species else None
     )
+    if role_hint and species and representative:
+        from recommender.role_aware_synthesis import select_role_aware_build_fields
+        from recommender.usage_data import build_synthesis_usage_entry
+
+        entry = build_synthesis_usage_entry(species, regulation=regulation)
+        if entry:
+            selection = select_role_aware_build_fields(
+                species,
+                role_hint,
+                entry,
+                regulation=regulation,
+                usage=representative,
+                item=values.get("item"),
+            )
+            if selection:
+                if values["moves"] is None:
+                    values["moves"] = list(selection.moves)
+                    provenance["moves"] = FieldProvenance("moves", "usage_derived")
+                if values["ability"] is None and selection.ability:
+                    values["ability"] = selection.ability
+                    provenance["ability"] = FieldProvenance(
+                        "ability", "usage_derived"
+                    )
     for field, key in (
         ("species", "species"),
         ("ability", "ability"),
