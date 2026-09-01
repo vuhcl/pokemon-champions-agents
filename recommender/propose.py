@@ -313,20 +313,51 @@ def _refine_defaults(
     )
 
     if usage:
-        if need_ability and usage.get("ability"):
-            updates["ability"] = Attr(
-                value=str(usage["ability"]),
-                locked=False,
-                reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
-            )
-        if need_nature and usage.get("nature"):
-            updates["nature"] = Attr(
-                value=str(usage["nature"]),
-                locked=False,
-                reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
-            )
-        if need_moves and moves is None:
-            moves = list(usage.get("moves") or [])
+        role_selection = None
+        if slot.role.value and (need_ability or need_moves):
+            from recommender.role_aware_synthesis import select_role_aware_build_fields
+            from recommender.usage_data import build_synthesis_usage_entry
+
+            entry = build_synthesis_usage_entry(species, regulation=regulation)
+            if entry:
+                role_selection = select_role_aware_build_fields(
+                    species,
+                    slot.role.value,
+                    entry,
+                    regulation=regulation,
+                    usage=usage,
+                    state=state,
+                )
+        if role_selection:
+            if need_moves and moves is None:
+                moves = list(role_selection.moves)
+            if need_ability and role_selection.ability:
+                updates["ability"] = Attr(
+                    value=str(role_selection.ability),
+                    locked=False,
+                    reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
+                )
+            if need_nature and usage.get("nature"):
+                updates["nature"] = Attr(
+                    value=str(usage["nature"]),
+                    locked=False,
+                    reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
+                )
+        else:
+            if need_ability and usage.get("ability"):
+                updates["ability"] = Attr(
+                    value=str(usage["ability"]),
+                    locked=False,
+                    reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
+                )
+            if need_nature and usage.get("nature"):
+                updates["nature"] = Attr(
+                    value=str(usage["nature"]),
+                    locked=False,
+                    reason=ReasonRef(kind="tier2_heuristic", ref="usage"),
+                )
+            if need_moves and moves is None:
+                moves = list(usage.get("moves") or [])
         if need_item and item is None:
             used = team_item_ids(draft_for_items)
             item = pick_team_aware_usage_item(

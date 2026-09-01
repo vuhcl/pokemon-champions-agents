@@ -336,6 +336,29 @@ def resolve_anchor_build(
     representative = (
         featured_or_common_set(species, regulation=regulation) if species else None
     )
+    if role_hint and species and representative:
+        from recommender.role_aware_synthesis import select_role_aware_build_fields
+        from recommender.usage_data import build_synthesis_usage_entry
+
+        entry = build_synthesis_usage_entry(species, regulation=regulation)
+        if entry:
+            selection = select_role_aware_build_fields(
+                species,
+                role_hint,
+                entry,
+                regulation=regulation,
+                usage=representative,
+                item=values.get("item"),
+            )
+            if selection:
+                if values["moves"] is None:
+                    values["moves"] = list(selection.moves)
+                    provenance["moves"] = FieldProvenance("moves", "usage_derived")
+                if values["ability"] is None and selection.ability:
+                    values["ability"] = selection.ability
+                    provenance["ability"] = FieldProvenance(
+                        "ability", "usage_derived"
+                    )
     for field, key in (
         ("species", "species"),
         ("ability", "ability"),

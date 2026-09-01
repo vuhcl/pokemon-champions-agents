@@ -175,3 +175,36 @@ def reverse_compendium_evidence(
         species=tuple(species_only),
         rejected=tuple(rejected),
     )
+
+
+_role_move_ids_cache: dict[str, frozenset[str]] = {}
+
+
+def role_defining_move_ids(
+    role_id: str,
+    *,
+    roles_dir: Path | None = None,
+) -> frozenset[str]:
+    """Union compendium sub_criteria move ids and _ROLE_PREF_MOVES for a role."""
+    if role_id in _role_move_ids_cache:
+        return _role_move_ids_cache[role_id]
+    root = roles_dir or DEFAULT_ROLES_DIR
+    ids: set[str] = set()
+    for path in sorted(root.glob("*.v1.json")):
+        raw = json.loads(path.read_text())
+        category = str(raw.get("category") or "")
+        condition = str(raw.get("condition") or "")
+        if _strategic_role_id(category, condition) != role_id:
+            continue
+        sub = raw.get("sub_criteria") or {}
+        for mid in sub.get("move_ids") or ():
+            ids.add(to_id(str(mid)))
+        if sub.get("move_id"):
+            ids.add(to_id(str(sub["move_id"])))
+    from recommender.move_narrowing import _ROLE_PREF_MOVES
+
+    if role_id in _ROLE_PREF_MOVES:
+        ids.update(_ROLE_PREF_MOVES[role_id])
+    result = frozenset(ids)
+    _role_move_ids_cache[role_id] = result
+    return result
