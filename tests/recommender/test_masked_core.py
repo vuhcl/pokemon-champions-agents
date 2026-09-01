@@ -33,6 +33,7 @@ from recommender.team_candidates import (
     merge_multi_locked_candidates,
     remaining_open_after_place,
     should_try_masked_core,
+    _package_label,
     _search_gap_fill,
 )
 from recommender.teammate_types import TeammateEvidence, TeammateQueryResult
@@ -523,7 +524,65 @@ def test_engine_returns_package_for_rain_vs_sun():
     assert package is not None
     assert package.masked_slot_indices == (1,)
     assert package.fill.species == "Pelipper"
-    assert "benched" in package.label
+    assert package.label == "Weather core — Swampert-Mega, Charizard-Mega-Y benched"
+
+
+def test_package_label_includes_candidate_and_benched():
+    draft = _four_locked_draft()
+    locked = collect_locked_anchor_contexts(_state(draft))
+    weather = _candidate("Kingdra", conflicts=(_conflict(slot=3),))
+    mega = _candidate(
+        "Blastoise-Mega",
+        conflicts=(
+            CoreSlotConflict("mega", 3, "Charizard-Mega-Y", "charizard"),
+        ),
+    )
+    both = _candidate(
+        "Swampert-Mega",
+        conflicts=(
+            CoreSlotConflict("weather", 3, "Charizard-Mega-Y", "Sun"),
+            CoreSlotConflict("mega", 3, "Charizard-Mega-Y", "charizard"),
+        ),
+    )
+    mask = frozenset({3})
+    assert _package_label(weather, locked, mask) == (
+        "Weather core — Kingdra, Charizard-Mega-Y benched"
+    )
+    assert _package_label(mega, locked, mask) == (
+        "Mega core — Blastoise-Mega, Charizard-Mega-Y benched"
+    )
+    assert _package_label(both, locked, mask) == (
+        "Weather core — Swampert-Mega, Charizard-Mega-Y benched"
+    )
+
+
+def test_gather_dedup_collapses_identical_packages():
+    draft = _four_locked_draft()
+    state = _state(draft)
+    locked = collect_locked_anchor_contexts(state)
+    conflict = _conflict(slot=3)
+    swampert = _candidate("Swampert-Mega", conflicts=(conflict,))
+    kingdra = _candidate("Kingdra", conflicts=(conflict,))
+    fill = _fill("Pelipper")
+    shared = MaskedCorePackage(
+        swampert,
+        (3,),
+        fill,
+        "Weather core — Swampert-Mega, Charizard-Mega-Y benched",
+    )
+    with (
+        patch(
+            "recommender.team_candidates.should_try_masked_core",
+            return_value=True,
+        ),
+        patch(
+            "recommender.team_candidates.discover_masked_core_package",
+            return_value=shared,
+        ),
+    ):
+        packages = gather_masked_core_packages([swampert, kingdra], state, locked)
+    assert len(packages) == 1
+    assert packages[0] is shared
 
 
 def test_last_open_slot_skips_masked_core():
@@ -578,10 +637,16 @@ def test_two_candidates_same_mask_are_two_packages():
             "recommender.team_candidates.discover_masked_core_package",
             side_effect=[
                 MaskedCorePackage(
-                    swampert, (3,), fill, "Weather core — Charizard-Mega-Y benched"
+                    swampert,
+                    (3,),
+                    fill,
+                    "Weather core — Swampert-Mega, Charizard-Mega-Y benched",
                 ),
                 MaskedCorePackage(
-                    kingdra, (3,), fill, "Weather core — Charizard-Mega-Y benched"
+                    kingdra,
+                    (3,),
+                    fill,
+                    "Weather core — Kingdra, Charizard-Mega-Y benched",
                 ),
             ],
         ),
@@ -610,13 +675,13 @@ def _resolution_pending():
             {"id": "keep_core", "label": "Keep current core"},
             {
                 "id": "package_0",
-                "label": "Weather core — Charizard-Mega-Y benched",
+                "label": "Weather core — Swampert-Mega, Charizard-Mega-Y benched",
                 "masked_slot_indices": (0,),
                 "option": {
                     "species": "Swampert-Mega",
                     "source": "threat",
                     "evidence": (),
-                    "track": "Weather core — Charizard-Mega-Y benched",
+                    "track": "Weather core — Swampert-Mega, Charizard-Mega-Y benched",
                 },
             },
         ],
@@ -640,7 +705,7 @@ def test_core_resolution_take_package_selects_candidate():
 def test_core_resolution_present_text_lists_options():
     text = format_turn({"pending_presentation": _resolution_pending()})
     assert "Keep current core" in text
-    assert "Weather core — Charizard-Mega-Y benched" in text
+    assert "Weather core — Swampert-Mega, Charizard-Mega-Y benched" in text
     assert "defer" in text.lower()
 
 
@@ -679,7 +744,8 @@ def test_team_field_states_exclude_slots_drops_masked_weather():
 
 def test_preference_cleared_on_take_package():
     result = classify_pending(
-        "Weather core — Charizard-Mega-Y benched", _resolution_pending()
+        "Weather core — Swampert-Mega, Charizard-Mega-Y benched",
+        _resolution_pending(),
     )
     assert result.get("team_completion_preference") is None
     assert result["turn_intent"] == "slot_candidate_selected"
@@ -742,6 +808,29 @@ def test_discover_multi_locked_core_resolution_sequential_sun_core():
     ]
     assert options
     assert any(o.get("masked_slot_indices") for o in options)
+
+
+@pytestmark_live
+def test_gather_unique_labels_swampert_locked_core():
+    draft = [
+        _locked_from_species("Archaludon", role="bulky_special_attacker"),
+        _locked_from_species("Incineroar", role="support"),
+        _locked_from_species("Amoonguss", role="support"),
+        _locked_from_species("Swampert-Mega", role="bulky_attacker"),
+        empty_slot(),
+        empty_slot(),
+    ]
+    state = _state(draft)
+    pipe = _run_sequential_annotation_pipeline(state)
+    packages = gather_masked_core_packages(
+        pipe["candidates"], state, pipe["contexts"], objective=pipe["objective"]
+    )
+    assert len(packages) >= 2
+    labels = [package.label for package in packages]
+    assert len(set(labels)) == len(labels)
+    for package in packages:
+        assert package.candidate.species in package.label
+        assert "Swampert-Mega" in package.label
 
 
 def test_three_locked_core_slot_stays_demote_only():
