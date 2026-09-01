@@ -2139,8 +2139,8 @@ def _package_label(
     benched = ", ".join(names)
     kinds = {row.kind for row in candidate.core_slot_conflicts}
     if "weather" in kinds:
-        return f"Weather core — {benched} benched"
-    return f"Mega core — {benched} benched"
+        return f"Weather core — {candidate.species}, {benched} benched"
+    return f"Mega core — {candidate.species}, {benched} benched"
 
 
 def _synthetic_candidate_context(
@@ -2468,12 +2468,22 @@ def gather_masked_core_packages(
     objective: Sequence[object] = (),
 ) -> tuple[MaskedCorePackage, ...]:
     packages: list[MaskedCorePackage] = []
+    seen: set[tuple[str, tuple[int, ...], str]] = set()
     for candidate in candidates:
         if not should_try_masked_core(candidate, candidates, state, locked):
             continue
         package = discover_masked_core_package(
             candidate, state, locked, objective=objective
         )
-        if package is not None:
-            packages.append(package)
+        if package is None:
+            continue
+        key = (
+            to_id(package.candidate.species),
+            package.masked_slot_indices,
+            to_id(package.fill.species),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        packages.append(package)
     return tuple(packages)
