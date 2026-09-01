@@ -29,6 +29,7 @@ _INTENT_ROUTES = {
     "resolve_spread_target_question": "resolve_spread_target_question",
     "resolve_item_moveset_conflict": "resolve_item_moveset_conflict",
     "revise_locked_slot": "begin_locked_slot_revision",
+    "repick_locked_slot": "unlock_locked_slot",
     "claim_correction": "handle_claim_correction",
 }
 
@@ -102,6 +103,7 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
     g.add_node("compare_build_options", nodes.compare_build_options)
     g.add_node("commit_full_slot", nodes.commit_full_slot)
     g.add_node("begin_locked_slot_revision", nodes.begin_locked_slot_revision)
+    g.add_node("unlock_locked_slot", nodes.unlock_locked_slot)
     g.add_node("handle_claim_correction", nodes.handle_claim_correction)
 
     g.add_conditional_edges(START, _route_start, ["initialize", "classify_input"])
@@ -118,6 +120,7 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
         "reset_team",
         "restore_superseded",
         "commit_full_slot",
+        "unlock_locked_slot",
         "record_bootstrap_response",
     ):
         g.add_edge(handler, "route_team_phase")

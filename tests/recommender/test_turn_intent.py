@@ -1967,56 +1967,34 @@ def test_select_plus_itemless_edit_routes_with_empty_value():
     assert _is_select_plus_single_field_edit(extraction) is True
 
 
+def test_repick_locked_slot_payload_and_validator():
+    from pydantic import ValidationError
 
-def test_explicit_itemless_phrases_return_empty_string():
-    from recommender.turn_intent import detect_dropped_edit_field
+    from recommender.turn_intent import TurnIntentExtraction, _payload_for
 
-    for phrase in (
-        "run it with no item",
-        "make it itemless",
-        "holding nothing",
-        "without an item",
-        "no held item please",
-    ):
-        assert detect_dropped_edit_field(phrase) == ("item", ""), phrase
+    extraction = TurnIntentExtraction(turn_intent="repick_locked_slot", slot_index=5)
+    payload = _payload_for(extraction)
+    assert payload == {"slot_index": 5}
 
-
-def test_silence_does_not_imply_itemless():
-    from recommender.turn_intent import detect_dropped_edit_field
-
-    assert detect_dropped_edit_field("make it faster") is None
-    assert detect_dropped_edit_field("use Earthquake") is None
-    assert detect_dropped_edit_field("1") is None
+    with pytest.raises(ValidationError):
+        TurnIntentExtraction(
+            turn_intent="repick_locked_slot",
+            slot_index=5,
+            field="item",
+            value_text="Focus Sash",
+        )
 
 
-def test_item_name_beats_itemless_when_both_present():
-    from recommender.turn_intent import detect_dropped_edit_field
+def test_revise_locked_slot_payload_still_requires_field():
+    from recommender.turn_intent import TurnIntentExtraction, _payload_for
 
-    # Real item name wins over an itemless phrase in the same utterance.
-    assert detect_dropped_edit_field("use Choice Scarf, no item") == (
-        "item",
-        "Choice Scarf",
-    )
-    assert detect_dropped_edit_field("no item but Choice Scarf") == (
-        "item",
-        "Choice Scarf",
-    )
-
-
-def test_select_plus_itemless_edit_routes_with_empty_value():
-    """Recovered value_text=\"\" must still count as a present item edit."""
-    from recommender.turn_intent import (
-        TurnIntentExtraction,
-        _is_select_plus_single_field_edit,
-        detect_dropped_edit_field,
-    )
-
-    assert detect_dropped_edit_field("1, but itemless") == ("item", "")
     extraction = TurnIntentExtraction(
-        turn_intent="select_build_option",
-        option_ids=["spread_nature:1"],
+        turn_intent="revise_locked_slot",
+        slot_index=0,
         field="item",
-        value_text="",
+        value_text="Focus Sash",
+        edit_scope="field_only",
     )
-    assert _is_select_plus_single_field_edit(extraction) is True
-
+    payload = _payload_for(extraction)
+    assert payload is not None
+    assert payload["field"] == "item"  # type: ignore[index]

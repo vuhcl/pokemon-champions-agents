@@ -155,15 +155,17 @@ def _is_default_phrase(part: str) -> bool:
 # team_review on that screen is intercepted by _apply_team_review_roster_gate.
 _BLOCKED_ON_KIND = {
     "candidate_selection": frozenset(
-        {"edit", "select_build_option", "compare", "revise_locked_slot"}
+        {"edit", "select_build_option", "compare", "revise_locked_slot", "repick_locked_slot"}
     ),
     "completion_preference": frozenset(
-        {"edit", "select_build_option", "compare", "revise_locked_slot"}
+        {"edit", "select_build_option", "compare", "revise_locked_slot", "repick_locked_slot"}
     ),
     "core_resolution": frozenset(
-        {"edit", "select_build_option", "compare", "revise_locked_slot"}
+        {"edit", "select_build_option", "compare", "revise_locked_slot", "repick_locked_slot"}
     ),
-    "full_build_confirmation": frozenset({"lock", "revise_locked_slot"}),
+    "full_build_confirmation": frozenset(
+        {"lock", "revise_locked_slot", "repick_locked_slot"}
+    ),
     "none": frozenset({"edit", "select_build_option", "compare"}),
 }
 _MISMATCH_MSG = "That action isn't available here."
