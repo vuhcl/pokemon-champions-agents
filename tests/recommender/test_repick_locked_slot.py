@@ -169,7 +169,7 @@ def test_repick_recompletion_runs_team_review():
         team_draft=[_locked(f"Member{i}") for i in range(5)] + [empty_slot()]
     )
     after = [_locked(f"Member{i}") for i in range(6)]
-    review = TeamReviewResult(threats=[], coverage=[], spofs=[], composition_gaps=())
+    review = TeamReviewResult(threats=[], coverage=[], spofs=[])
     with (
         patch(
             "recommender.nodes.classify_pending",

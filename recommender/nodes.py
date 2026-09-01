@@ -1504,7 +1504,7 @@ _PROVIDER_NEED_LEAVES = ("trick_room", "tailwind", "screens", "redirection")
 
 def _compute_composition_gaps(
     locked_contexts: tuple,
-) -> tuple[str, ...]:
+) -> list[str]:
     from recommender.condition_resilience import (
         assess_condition_resilience,
         provider_need_category_open,
@@ -1518,7 +1518,7 @@ def _compute_composition_gaps(
     for category in _PROVIDER_NEED_LEAVES:
         if provider_need_category_open(category, locked_contexts):
             lines.append(f"{category}: no primary provider on locked team")
-    return tuple(lines)
+    return lines
 
 
 def _compute_team_review(
@@ -1562,13 +1562,13 @@ def _compute_team_review(
 def _unavailable_team_review(
     threats, exc: CalcClientError | MatchupEvidenceError, stage: Literal["coverage", "spof"],
     *,
-    composition_gaps: tuple[str, ...] = (),
+    composition_gaps: list[str] | None = None,
 ) -> TeamReviewResult:
     return TeamReviewResult(
         threats=list(threats),
         coverage=[],
         spofs=[],
-        composition_gaps=composition_gaps,
+        composition_gaps=composition_gaps or [],
         status="unavailable",
         error=CandidateDiscoveryError(
             kind=(

@@ -588,7 +588,7 @@ def test_format_team_review_composition_gaps():
         threats=[],
         coverage=[],
         spofs=[],
-        composition_gaps=("redirection: no primary provider on locked team",),
+        composition_gaps=["redirection: no primary provider on locked team"],
     )
     text = format_team_review(review, team_draft=draft)
     assert "Composition gaps:" in text

@@ -230,7 +230,7 @@ def format_team_review(
         threats = review.get("threats") or ()
         coverage = review.get("coverage") or ()
         spofs = review.get("spofs") or ()
-        composition_gaps = review.get("composition_gaps") or ()
+        composition_gaps = review.get("composition_gaps") or []
 
     lines: list[str] = ["Team review:"]
     if include_error and status == "unavailable" and error is not None:

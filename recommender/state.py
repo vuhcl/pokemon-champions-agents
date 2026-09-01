@@ -606,7 +606,7 @@ class TeamReviewResult:
     threats: list[ThreatCandidate]
     coverage: list[ThreatCoverageResult]
     spofs: list[SPOFFinding]
-    composition_gaps: tuple[str, ...] = ()
+    composition_gaps: list[str] = field(default_factory=list)
     status: Literal["available", "unavailable"] = "available"
     error: CandidateDiscoveryError | None = None
 
