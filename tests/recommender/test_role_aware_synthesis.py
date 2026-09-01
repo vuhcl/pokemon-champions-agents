@@ -129,3 +129,24 @@ def test_grimmsnarl_screens_support_moves_unchanged():
     assert classify_anchor_role(
         resolve_anchor_build("Grimmsnarl", regulation="champions-reg-mb")
     ).role_id == "screens_support"
+
+
+def test_pelipper_tailwind_setter_provisional_spread_meets_budget():
+    from recommender.recommend import SP_BUDGET, spread_sum
+
+    provisional = _refined("Pelipper", "tailwind_setter")
+    assert spread_sum(provisional.spread_dict()) == SP_BUDGET
+    assert classify_anchor_role(
+        resolve_anchor_build(
+            "Pelipper",
+            provisional={
+                "ability": provisional.ability,
+                "item": provisional.item,
+                "moves": list(provisional.moves),
+                "nature": provisional.nature,
+                "spread": provisional.spread_dict(),
+            },
+            role_hint="tailwind_setter",
+            regulation="champions-reg-mb",
+        )
+    ).role_id == "tailwind_setter"

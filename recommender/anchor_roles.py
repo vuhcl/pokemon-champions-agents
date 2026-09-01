@@ -13,7 +13,7 @@ from recommender.ids import to_id
 from recommender.legality import load_snapshot
 from recommender.matchup import CHARGE_INSTANT_WEATHER
 from recommender.move_narrowing import WEATHER_SETTING_MOVES
-from recommender.recommend import infer_role
+from recommender.recommend import infer_role, is_valid_spread
 from recommender.resolved_builds import get_resolved_build
 from recommender.role_compendium_read import (
     CompendiumRoleEvidence,
@@ -313,7 +313,7 @@ def resolve_anchor_build(
         cached = get_resolved_build(
             species, list(values["moves"]), values["item"], regulation
         )
-        if cached and cached.get("spread"):
+        if cached and is_valid_spread(cached.get("spread")):
             values["evs"] = dict(cached["spread"])
             provenance["evs"] = FieldProvenance("evs", "cached")
 

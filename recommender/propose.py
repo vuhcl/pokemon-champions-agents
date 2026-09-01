@@ -17,6 +17,7 @@ from recommender.recommend import (
     RoleArchetype,
     _DEPRECATED_ROLE_ALIASES,
     infer_role,
+    is_valid_spread,
     role_spread,
 )
 from recommender.resolved_builds import get_resolved_build
@@ -423,15 +424,17 @@ def _refine_defaults(
     reason = ReasonRef(kind="tier2_heuristic", ref=species)
     if (need_moves or need_item or need_spread) and moves and item is not None:
         cached = get_resolved_build(species, moves, item, regulation)
-        if cached and need_spread and spread is None:
-            if not (
-                slot.item.locked
-                and to_id(slot.item.value or "") == "choicescarf"
-                and slot.moveset.locked
-                and slot.moveset.value
-                and any(to_id(m) == "trickroom" for m in slot.moveset.value)
-            ):
-                spread = dict(cached["spread"])
+        scarf_tr_skip = (
+            slot.item.locked
+            and to_id(slot.item.value or "") == "choicescarf"
+            and slot.moveset.locked
+            and slot.moveset.value
+            and any(to_id(m) == "trickroom" for m in slot.moveset.value)
+        )
+        if cached and need_spread and spread is None and not scarf_tr_skip:
+            cached_spread = cached.get("spread")
+            if is_valid_spread(cached_spread):
+                spread = dict(cached_spread)  # type: ignore[arg-type]
                 reason = ReasonRef(kind="tier1_cache", ref=species)
                 # Some cached spreads are only correct with one specific
                 # nature (confirmed directly from real, explicit source
@@ -448,7 +451,33 @@ def _refine_defaults(
                         reason=ReasonRef(kind="tier1_cache", ref=species),
                     )
             else:
-                reason = ReasonRef(kind="tier2_heuristic", ref=species)
+                role_name = slot.role.value
+                role = (
+                    role_name
+                    if role_name in _ROLE_ARCHETYPES
+                    else infer_role(moves, item, slot.ability.value)
+                )
+                choice = select_usage_spread(
+                    species,
+                    role,
+                    moves,
+                    regulation=regulation,
+                    threats=get_relevant_threats(state, n=SLOT_THREAT_N),
+                )
+                if choice:
+                    spread = dict(choice.spread)
+                    reason = ReasonRef(kind="tier2_heuristic", ref=choice.source)
+                    if need_nature and choice.nature and "nature" not in updates:
+                        updates["nature"] = Attr(
+                            value=choice.nature,
+                            locked=False,
+                            reason=reason,
+                        )
+                else:
+                    spread = dict(role_spread(role))  # type: ignore[arg-type]
+                    reason = ReasonRef(kind="tier2_heuristic", ref="tier3_role")
+        elif cached and need_spread and spread is None and scarf_tr_skip:
+            reason = ReasonRef(kind="tier2_heuristic", ref=species)
         elif cached:
             reason = ReasonRef(kind="tier1_cache", ref=species)
         else:

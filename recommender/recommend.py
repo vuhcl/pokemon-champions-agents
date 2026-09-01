@@ -162,6 +162,17 @@ def spread_sum(evs: StatsTable | dict[str, int] | None) -> int:
     return sum(int(evs.get(k, 0)) for k in _STAT_KEYS)
 
 
+def is_valid_spread(evs: StatsTable | dict[str, int] | None) -> bool:
+    """Spread must match commit_full_slot rules (nodes.py:757-761)."""
+    if not evs:
+        return False
+    if set(evs) != set(_STAT_KEYS):
+        return False
+    if any(not isinstance(v, int) or v < 0 or v > _SP_CAP for v in evs.values()):
+        return False
+    return spread_sum(evs) == SP_BUDGET
+
+
 def _allocate_remainder(
     partial: StatsTable | dict[str, int], role: str
 ) -> tuple[StatsTable, dict[str, int]]:
