@@ -9553,6 +9553,55 @@ claim present still classifies correctly. Full suite green.
 
 ---
 
+## ADR-051 Amendment 2026-09-01a — claim_correction extended to
+ability and item claims
+
+**Context:** ADR-051 shipped with type-only claim detection in v1, an
+explicit, disclosed scope limit (ability/item parsers were "fail-closed
+optional follow-ups, not required for v1 ship"). This amendment closes
+that gap.
+
+**Decision:** Extended `system_claims.py`'s three detection/negation
+functions to ability and item claims, with zero changes to
+verification logic — confirmed directly that `resolve_mechanical` /
+`matches_species` already supported `ability`/`item` kinds (built
+during the original constraint-enforcement work, ADR-050), so only
+detection, reattempt-extraction, and negation-matching needed new code.
+`try_extract_reattempt_constraint` required no changes at all — it
+already correctly reused `extract_ability_name_target`/
+`extract_item_name_target` for the reattempt case, since "I want
+something with Intimidate" genuinely needs no species pairing, unlike
+claim *detection* ("Excadrill-Mega has Intimidate"), which required new
+regex patterns pairing species with the claimed attribute.
+
+Real utterance probing (not a single assumed pattern) found and fixed
+gaps before implementation — additional prefix patterns for both
+ability ("with"/"using" phrasing) and item ("has" phrasing, since
+"Pelipper has Leftovers" would otherwise fail to parse as an item claim
+at all) were added specifically because a live probe surfaced them,
+not because they were anticipated upfront.
+
+**A real, deliberately-scoped verification ceiling was identified and
+tested for, not hidden:** item claims verify against `is_item_legal`
+alone (`team_item_ids` is inherently skipped when verifying a single
+candidate's claim in isolation, since `matches_species` is always
+called with `team_draft=[]` here) — meaning a dispute over a *wrong but
+legal* item assignment will always "confirm" the original claim rather
+than retract it, since legality alone can't distinguish "correct" from
+"merely legal." This is the same honest-ceiling discipline already
+established for Froslass-Mega in ADR-053 — documented and tested as
+expected behavior, not silently accepted as a bug.
+
+**Status:** Implemented and verified. Excadrill-Mega/Intimidate (the
+same species confirmed false during the original ADR-051 discovery) now
+runs the full false-claim → retract → reattempt path end-to-end; the
+item-claim ceiling is directly tested (a legal item dispute correctly
+produces a "confirms" response, not a retraction, asserted explicitly
+rather than assumed). All prior type-claim tests pass unchanged. Full
+suite green.
+
+---
+
 ## ADR-052: Default build synthesis now prefers real in-game data over
 Showdown, scoped to build synthesis specifically
 
@@ -9615,3 +9664,161 @@ identical to its real Showdown-sourced build, proving this is a scoped
 fix, not a global preference flip in disguise) — the negative case
 compares against a real computed value, not a hardcoded literal. Full
 suite green (1552 passed, 13 skipped).
+
+## ADR-053: Role-aware build synthesis for genuinely multi-role species
+
+**Context:** Confirmed via prior discovery (feeding into ADR-052) that
+even with the correct in-game data source, 3 of 5 surveyed multi-role
+species still produced role-mismatched default builds — Sableye
+suggested for `screens_support` classified as `rain_setter`
+(Rain Dance dominating a kit that also had Light Screen/Reflect);
+Froslass-Mega and Ninetales-Alola suggested for `screens_support` both
+classified as `snow_setter`. Confirmed the Role Compendium has no
+curated per-role build data to fall back on — entries carry only
+tier/mechanism/membership metadata, never a moveset/item/ability spec —
+so this couldn't be solved by looking anything up; it had to be
+synthesized from real usage data.
+
+**Decision:** New `recommender/role_aware_synthesis.py` selects moves
+(and, when needed, ability) by walking a species' real usage-ranked
+options and preferring ones matching the target role's defining moves
+(reusing `_ROLE_PREF_MOVES` and Role Compendium `sub_criteria.move_ids`
+via a new `role_defining_move_ids` helper that correctly resolves
+weather-setter role IDs through `_strategic_role_id`'s existing
+category+condition mapping, not a naive filename match). Short-circuits
+to today's exact behavior when the default build already classifies to
+the target role — verified byte-identical for Pelipper/`rain_setter`
+and Grimmsnarl/`screens_support`. A structural bug was caught and fixed
+as part of this work: the pre-existing usage-hit path set `ability`
+before `moves` were resolved, which would have blocked any selection
+logic needing to choose both together (required for the
+Ninetales-Alola case) — fixed to compute both atomically.
+
+**Honestly accepted limitation, not hidden:** Froslass-Mega has no real
+usage-ranked combination of its own moves that produces a
+`screens_support`-classifying build (Snow Warning's automatic
+condition-setting always wins the compendium match at Excellent tier) —
+falls back to today's behavior, with the already-shipped
+`species_primary_role` display (role-blind by design) correctly still
+surfacing the divergence rather than hiding it behind a new warning
+mechanism.
+
+**A real regression was found and fixed during verification, not a
+separate round:** the existing `test_every_target_role_round_trips_...`
+parametrized test (covering all 25 real target roles, not just the
+5 surveyed cases) caught a case the survey missed — Pelipper targeted
+for `tailwind_setter` produced a moveset matching a pre-existing,
+checked-in, unverified resolved-build cache entry
+(`data/resolved-builds/champions-reg-mb.jsonl`, `"verified": false`)
+whose spread summed to 64, not the required 66. The moveset itself was
+correct; a stale cache entry silently regurgitated an invalid spread.
+Fixed generally — any cached spread is now validated
+(`is_valid_spread()`, mirroring `commit_full_slot`'s own budget check)
+before being trusted, falling through to real usage-spread selection
+otherwise. Not special-cased to Pelipper or this one role.
+
+**Status:** Implemented and verified across two commits (initial
+implementation, then the cache-validation fix). All 25 target roles in
+the existing parametrized round-trip test pass. Full suite green.
+
+---
+
+## ADR-054: Masked-core resolution labels disclose the replacement
+candidate; dedup safeguard added
+
+**Context:** Live testing found masked-core resolution options
+presented as `"Mega core — Swampert-Mega benched"` twice, appearing
+identical. Traced precisely: `_package_label` never referenced
+`candidate.species` anywhere — only who gets benched and the conflict
+category. Confirmed via a live pipeline reproduction (not assumed) that
+the observed case was three genuinely distinct candidates (Blastoise-
+Mega, Mawile-Mega, Staraptor-Mega, each with a different gap-fill),
+whose labels collided purely because the formula never looked at
+candidate identity — not a true duplicate. Also confirmed a real,
+previously-unnoticed secondary bug from the same root cause: option
+selection by typed label text (`classify_pending`'s `casefold()` match)
+would always resolve to whichever colliding option appeared first,
+silently ignoring which one the user meant.
+
+**Decision:** Labels now include the replacement candidate's species
+(`"Mega core — Blastoise-Mega, Swampert-Mega benched"`). A dedup
+safeguard was added to `gather_masked_core_packages` (previously a bare
+per-candidate append loop with no dedup at all) keyed on
+`(candidate.species, masked_slot_indices, fill.species)` — collapsing
+only genuinely identical packages, not cases where distinct candidates
+legitimately share a masked-slot outcome with different fills.
+
+**Status:** Implemented and verified, including a `CALC_LIVE`-gated
+integration test reproducing the real Swampert-Mega scenario and
+confirming label uniqueness as an invariant (not pinned to specific
+species, since the real triggering candidates can shift with threat
+pool/ranking changes). `should_try_masked_core`, `_search_gap_fill`,
+and `discover_masked_core_package`'s core logic are confirmed
+untouched — this is presentation plus a safety net layered on
+already-correct discovery. Full suite green.
+
+---
+
+## ADR-055: repick_locked_slot — full species re-pick on a committed
+slot, with post-swap composition-gap flagging
+
+**Context:** The deliberately-deferred "Shape A" from ADR-049
+(attribute-level revise shipped as Shape B). Decided explicitly: build
+real support for changing a locked slot's species rather than refusing
+the request, with real re-validation of later-locked slots surfaced as
+flags for the user to act on — not automatic re-fixing, and not a
+vague "you may want to review" placeholder.
+
+Discovery confirmed the unlock-and-rediscover routing was already
+graph-native with zero new wiring needed: replacing a locked slot with
+`empty_slot()` drops `team_phase` from `complete` to `multi_locked`,
+which the existing unconditional handler-to-`route_team_phase` edges
+already route through the same `discover_multi_locked` →
+`full_build_confirmation` → `commit_full_slot` path every other locked
+slot uses — confirmed via the same pattern `revise_locked_slot`
+(Shape B) already established. A complete team automatically re-runs
+`generate_team_review` with no explicit trigger needed.
+
+**What "flagging" required, precisely scoped:** confirmed
+`generate_team_review` is sufficient, unextended, for threat coverage
+gaps and calc SPOFs (these already read live `team_draft` data on every
+call). It was confirmed insufficient for three real things: provider-
+need redundancy reversal (ADR-042's registry — e.g. swapping away a
+locked redirection provider silently leaves that need newly uncovered),
+condition-resilience missing-provider rows, and sibling-reconcile
+mismatches. **Decision:** extend `TeamReviewResult` with a
+`composition_gaps` field, computed by calling the existing
+`assess_condition_resilience`/`provider_need_category_open` functions
+(no new validation logic) and rendered as a new "Composition gaps"
+section in `format_team_review`. Sibling-reconcile mismatches
+explicitly deferred as separate, larger scope — that check currently
+only runs from `apply_lock`, never `commit_full_slot`, making it new
+integration work rather than pure surfacing. No before/after diff view
+in v1 — `commit_full_slot` already clears the pre-swap review with
+nothing to honestly diff against.
+
+New `repick_locked_slot` intent, deliberately distinct from
+`revise_locked_slot` (species is confirmed structurally absent from
+`_EDIT_SLOT_ATTR` — Shape B cannot be overloaded for this).
+Disambiguation between the two is structural, not prompt-hoped:
+`revise_locked_slot`'s validator requires a field in `_EDIT_FIELDS`;
+`repick_locked_slot`'s validator rejects any field entirely. A
+genuinely ambiguous utterance ("change slot 2" with no field and no
+species-replace verb) correctly routes to a clarifying question rather
+than guessing.
+
+**A real regression was found and fixed during verification:** the new
+`composition_gaps` field was typed `tuple[str, ...]`, inconsistent with
+every other collection field on `TeamReviewResult` (all `list[...]`).
+LangGraph's checkpoint serialization (msgpack) coerces tuples to lists
+on deserialization, breaking an existing test's exact-equality
+assertion after a checkpoint round-trip. Fixed by matching the
+dataclass's own established convention (`list[str]`) rather than
+leaving the one inconsistent field in place.
+
+**Status:** Implemented and verified across two commits (initial
+implementation, then the type-consistency fix). The Sinistcha-
+redirection case — the concrete scenario that motivated the whole
+flag-surfacing requirement — is tested precisely: confirmed the
+redirection gap is genuinely absent before a swap and genuinely present
+after, not just generically asserted. Full suite green.
