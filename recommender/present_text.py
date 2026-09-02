@@ -26,6 +26,15 @@ NO_PENDING_MESSAGE = (
 NO_TEAM_REVIEW_MESSAGE = (
     "Team review: (not cached — ask for a team review or continue on a complete team)"
 )
+TEAM_REVIEW_SECTIONS_DEFAULT = frozenset({
+    "coverage_gaps",
+    "conditional_coverage",
+    "spofs",
+    "composition_gaps",
+})
+TEAM_REVIEW_DETAIL_HINT = (
+    "Full threat list: :review threats · Full coverage: :review coverage"
+)
 UNMATCHED_REPLY_PREFIX = "Didn't catch that."
 BOOTSTRAP_PARSER_NOT_CONFIGURED = "bootstrap intake parser is not configured"
 BOOTSTRAP_PARSER_FIX_HINT = (
@@ -209,13 +218,29 @@ def _matchup_bits(outcome: object) -> tuple[str | None, str | None]:
     return getattr(outcome, "outcome", None), getattr(outcome, "severity", None)
 
 
+def resolve_team_review_sections(subarg: str) -> tuple[frozenset[str], bool]:
+    """Map a ``:review`` sub-arg to sections and whether to append the detail hint."""
+
+    if subarg == "threats":
+        return frozenset({"threats"}), False
+    if subarg == "coverage":
+        return frozenset({"covered"}), False
+    return TEAM_REVIEW_SECTIONS_DEFAULT, True
+
+
 def format_team_review(
     review: TeamReviewResult | Mapping[str, Any],
     *,
     team_draft: Sequence[Slot] = (),
     include_error: bool = True,
+    sections: frozenset[str] = TEAM_REVIEW_SECTIONS_DEFAULT,
+    show_detail_hint: bool = True,
 ) -> str:
-    """Render cached team review findings (threats, coverage gaps, SPOFs)."""
+    """Render cached team review findings.
+
+    Default sections: coverage gaps, conditional coverage, SPOFs, composition gaps.
+    On-demand: ``sections=frozenset({"threats"})`` or ``frozenset({"covered"})``.
+    """
 
     if isinstance(review, TeamReviewResult):
         status = review.status
@@ -236,85 +261,99 @@ def format_team_review(
     if include_error and status == "unavailable" and error is not None:
         lines.append(_format_discovery_error(error))
 
-    lines.append("Threats:")
-    if threats:
-        for threat in threats:
-            if isinstance(threat, ThreatCandidate):
-                label = threat.form or threat.ladder_species
-                rank = threat.usage_rank
-                source = threat.build_source
-            elif isinstance(threat, Mapping):
-                label = str(threat.get("form") or threat.get("ladder_species") or "?")
-                rank = threat.get("usage_rank")
-                source = threat.get("build_source")
-            else:
-                label = _threat_species(threat)
-                rank = getattr(threat, "usage_rank", None)
-                source = getattr(threat, "build_source", None)
-            bits = [label]
-            if rank is not None:
-                bits.append(f"rank {rank}")
-            if source:
-                bits.append(str(source))
-            lines.append(f"  - {' · '.join(bits)}")
-    else:
-        lines.append("  (none)")
-
-    gaps: list[str] = []
-    conditional: list[str] = []
-    covered: list[str] = []
-    for row in coverage:
-        threat, best, covering, flagged = _coverage_row(row)
-        species = _threat_species(threat)
-        outcome, severity = _matchup_bits(best)
-        outcome_text = outcome or "unknown"
-        if severity:
-            outcome_text = f"{outcome_text} ({severity})"
-        if not covering:
-            gaps.append(f"  - {species}: {outcome_text}")
-        elif flagged:
-            conditional.append(f"  - {species}: {outcome_text}")
+    if "threats" in sections:
+        lines.append("Threats:")
+        if threats:
+            for threat in threats:
+                if isinstance(threat, ThreatCandidate):
+                    label = threat.form or threat.ladder_species
+                    rank = threat.usage_rank
+                    source = threat.build_source
+                elif isinstance(threat, Mapping):
+                    label = str(threat.get("form") or threat.get("ladder_species") or "?")
+                    rank = threat.get("usage_rank")
+                    source = threat.get("build_source")
+                else:
+                    label = _threat_species(threat)
+                    rank = getattr(threat, "usage_rank", None)
+                    source = getattr(threat, "build_source", None)
+                bits = [label]
+                if rank is not None:
+                    bits.append(f"rank {rank}")
+                if source:
+                    bits.append(str(source))
+                lines.append(f"  - {' · '.join(bits)}")
         else:
-            cover_labels = ", ".join(_slot_label(team_draft, i) for i in covering)
-            covered.append(f"  - {species}: covered by {cover_labels} ({outcome_text})")
+            lines.append("  (none)")
 
-    lines.append("Coverage gaps:")
-    lines.extend(gaps or ["  (none)"])
-    lines.append("Conditional coverage:")
-    lines.extend(conditional or ["  (none)"])
-    if covered:
-        lines.append("Covered:")
-        lines.extend(covered)
-
-    lines.append("SPOFs:")
-    if spofs:
-        for finding in spofs:
-            if isinstance(finding, SPOFFinding):
-                slot_index = finding.slot_index
-                lost = finding.threats_lost
-                severities = finding.threat_severity
-            elif isinstance(finding, Mapping):
-                slot_index = int(finding.get("slot_index", -1))
-                lost = finding.get("threats_lost") or ()
-                severities = finding.get("threat_severity") or {}
+    coverage_sections = sections & {
+        "coverage_gaps",
+        "conditional_coverage",
+        "covered",
+    }
+    if coverage_sections:
+        gaps: list[str] = []
+        conditional: list[str] = []
+        covered: list[str] = []
+        for row in coverage:
+            threat, best, covering, flagged = _coverage_row(row)
+            species = _threat_species(threat)
+            outcome, severity = _matchup_bits(best)
+            outcome_text = outcome or "unknown"
+            if severity:
+                outcome_text = f"{outcome_text} ({severity})"
+            if not covering:
+                gaps.append(f"  - {species}: {outcome_text}")
+            elif flagged:
+                conditional.append(f"  - {species}: {outcome_text}")
             else:
-                slot_index = getattr(finding, "slot_index", -1)
-                lost = getattr(finding, "threats_lost", ()) or ()
-                severities = getattr(finding, "threat_severity", {}) or {}
-            lost_names = ", ".join(_threat_species(t) for t in lost) or "?"
-            sev_bits = ", ".join(f"{k}={v}" for k, v in severities.items())
-            sev_suffix = f" [{sev_bits}]" if sev_bits else ""
-            lines.append(
-                f"  - {_slot_label(team_draft, slot_index)} loses {lost_names}{sev_suffix}"
-            )
-    else:
-        lines.append("  (none)")
+                cover_labels = ", ".join(_slot_label(team_draft, i) for i in covering)
+                covered.append(f"  - {species}: covered by {cover_labels} ({outcome_text})")
 
-    lines.append("Composition gaps:")
-    if composition_gaps:
-        lines.extend(f"  - {gap}" for gap in composition_gaps)
-    else:
-        lines.append("  (none)")
+        if "coverage_gaps" in sections:
+            lines.append("Coverage gaps:")
+            lines.extend(gaps or ["  (none)"])
+        if "conditional_coverage" in sections:
+            lines.append("Conditional coverage:")
+            lines.extend(conditional or ["  (none)"])
+        if "covered" in sections:
+            lines.append("Covered:")
+            lines.extend(covered or ["  (none)"])
+
+    if "spofs" in sections:
+        lines.append("SPOFs:")
+        if spofs:
+            for finding in spofs:
+                if isinstance(finding, SPOFFinding):
+                    slot_index = finding.slot_index
+                    lost = finding.threats_lost
+                    severities = finding.threat_severity
+                elif isinstance(finding, Mapping):
+                    slot_index = int(finding.get("slot_index", -1))
+                    lost = finding.get("threats_lost") or ()
+                    severities = finding.get("threat_severity") or {}
+                else:
+                    slot_index = getattr(finding, "slot_index", -1)
+                    lost = getattr(finding, "threats_lost", ()) or ()
+                    severities = getattr(finding, "threat_severity", {}) or {}
+                lost_names = ", ".join(_threat_species(t) for t in lost) or "?"
+                sev_bits = ", ".join(f"{k}={v}" for k, v in severities.items())
+                sev_suffix = f" [{sev_bits}]" if sev_bits else ""
+                lines.append(
+                    f"  - {_slot_label(team_draft, slot_index)} loses {lost_names}{sev_suffix}"
+                )
+        else:
+            lines.append("  (none)")
+
+    if "composition_gaps" in sections:
+        lines.append("Composition gaps:")
+        if composition_gaps:
+            lines.extend(f"  - {gap}" for gap in composition_gaps)
+        else:
+            lines.append("  (none)")
+
+    if show_detail_hint:
+        lines.append(TEAM_REVIEW_DETAIL_HINT)
 
     return "\n".join(lines)
 
@@ -691,6 +730,8 @@ def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
                     review,
                     team_draft=state.get("team_draft") or [],
                     include_error=discovery_err is None,
+                    sections=TEAM_REVIEW_SECTIONS_DEFAULT,
+                    show_detail_hint=True,
                 )
             )
 

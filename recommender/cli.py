@@ -17,6 +17,7 @@ from recommender.present_text import (
     format_roster,
     format_team_review,
     format_turn,
+    resolve_team_review_sections,
 )
 from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
 from recommender.session import (
@@ -32,6 +33,21 @@ from recommender.session import (
 def invoke_user_text(graph, config, text: str) -> Mapping[str, Any]:
     """Stuff raw user text as pending_input. Propagates NotImplementedError."""
     return graph.invoke({"pending_input": text}, config)
+
+
+def _meta_subarg(stripped: str, command: str) -> str | None:
+    """If ``stripped`` is ``:command`` or ``:command <word>``, return sub-arg (``""`` if bare).
+
+    Otherwise return None. Command match is case-insensitive; sub-arg is lowercased.
+    """
+    cmd = command.lower()
+    lower = stripped.lower()
+    if lower == cmd:
+        return ""
+    prefix = cmd + " "
+    if lower.startswith(prefix):
+        return stripped.split(None, 1)[1].strip().lower()
+    return None
 
 
 def _start_new_session(graph, format_id: str) -> tuple[str, dict, Mapping[str, Any]]:
@@ -69,15 +85,19 @@ def handle_line(
         return state, config, thread_id, format_roster(state), False
     if stripped == ":builds":
         return state, config, thread_id, format_builds(state), False
-    if stripped == ":review":
+    review_arg = _meta_subarg(stripped, ":review")
+    if review_arg is not None:
         review = state.get("last_team_review")
         if review is None:
             output = NO_TEAM_REVIEW_MESSAGE
         else:
+            sects, hint = resolve_team_review_sections(review_arg)
             output = format_team_review(
                 review,
                 team_draft=state.get("team_draft") or [],
                 include_error=True,
+                sections=sects,
+                show_detail_hint=hint,
             )
         return state, config, thread_id, output, False
 
