@@ -353,3 +353,229 @@ def test_build_deterministic_claim_correction_payload():
     result = build_deterministic_claim_correction("heliolisk is not grass type", claim)
     assert result["turn_intent"] == "claim_correction"
     assert result["turn_payload"]["disputed_value"] == "Grass"
+
+
+def _intimidate_claim(*, with_reattempt: bool = True) -> SystemClaim:
+    claim: SystemClaim = {
+        "turn": 1,
+        "kind": "ability",
+        "subject_species": "Excadrill-Mega",
+        "asserted_value": "Intimidate",
+        "source": "pending_response_message",
+        "display_excerpt": "Excadrill-Mega has Intimidate",
+        "verifiable": True,
+        "originating_user_text": "I want something with Intimidate",
+    }
+    if with_reattempt:
+        reattempt = try_extract_reattempt_constraint("I want something with Intimidate")
+        assert reattempt is not None
+        claim["reattempt_constraint"] = reattempt
+    return claim
+
+
+def _leftovers_item_claim(*, with_reattempt: bool = False) -> SystemClaim:
+    claim: SystemClaim = {
+        "turn": 1,
+        "kind": "item",
+        "subject_species": "Pelipper",
+        "asserted_value": "Leftovers",
+        "source": "pending_response_message",
+        "display_excerpt": "Pelipper's item is Leftovers",
+        "verifiable": True,
+        "originating_user_text": "give pelipper leftovers",
+    }
+    if with_reattempt:
+        reattempt = try_extract_reattempt_constraint("with Leftovers")
+        if reattempt is not None:
+            claim["reattempt_constraint"] = reattempt
+    return claim
+
+
+def test_parse_ability_claim_from_message():
+    parsed = try_parse_verifiable_claim_from_message(
+        "Excadrill-Mega has Intimidate as an option"
+    )
+    assert parsed is not None
+    assert parsed["kind"] == "ability"
+    assert parsed["subject_species"] == "Excadrill-Mega"
+    assert parsed["asserted_value"] == "Intimidate"
+
+
+def test_parse_ability_claim_with_prefix():
+    parsed = try_parse_verifiable_claim_from_message(
+        "Incineroar with Intimidate which helps"
+    )
+    assert parsed is not None
+    assert parsed["kind"] == "ability"
+    assert parsed["subject_species"] == "Incineroar"
+    assert parsed["asserted_value"] == "Intimidate"
+
+
+def test_negation_matches_ability_claim():
+    claim = _intimidate_claim(with_reattempt=False)
+    assert negation_matches_claim("excadrill-mega doesn't have Intimidate", claim)
+    assert not negation_matches_claim("I don't want Excadrill-Mega", claim)
+
+
+def test_excadrill_mega_intimidate_claim_false():
+    claim = _intimidate_claim(with_reattempt=False)
+    assert not claim_is_true_against_snapshot(claim)
+
+
+def test_excadrill_mega_piercing_drill_claim_true():
+    claim: SystemClaim = {
+        "turn": 1,
+        "kind": "ability",
+        "subject_species": "Excadrill-Mega",
+        "asserted_value": "Piercing Drill",
+        "source": "pending_response_message",
+        "display_excerpt": "Excadrill-Mega's ability is Piercing Drill",
+        "verifiable": True,
+        "originating_user_text": "needs a physical attacker",
+    }
+    assert claim_is_true_against_snapshot(claim)
+
+
+def test_extract_reattempt_ability_from_originating_text():
+    payload = try_extract_reattempt_constraint("I want something with Intimidate")
+    assert payload is not None
+    assert payload["mechanical_kind"] == "ability"
+    assert payload["mechanical_value"] == "Intimidate"
+
+
+def test_stamp_system_claim_attaches_ability_reattempt():
+    claim = stamp_system_claim(
+        message="Excadrill-Mega has Intimidate as an option",
+        originating_user_text="I want something with Intimidate",
+        turn=1,
+    )
+    assert claim is not None
+    assert claim["kind"] == "ability"
+    assert "reattempt_constraint" in claim
+
+
+def test_handle_claim_correction_false_ability_reruns_discovery():
+    state = _base_state(
+        last_system_claim=_intimidate_claim(),
+        turn_payload={
+            "subject_species": "Excadrill-Mega",
+            "disputed_kind": "ability",
+            "disputed_value": "Intimidate",
+            "user_text": "excadrill-mega doesn't have Intimidate",
+        },
+    )
+    out = handle_claim_correction(state)
+    assert out["claim_correction_rerun_discovery"] is True
+    assert out["last_system_claim"] is None
+    assert len(out["constraints"]) == 1
+    assert "withdrew" in (out["correction_response"] or "").lower()
+
+
+def test_verification_ability_claim_was_true():
+    claim: SystemClaim = {
+        "turn": 1,
+        "kind": "ability",
+        "subject_species": "Excadrill-Mega",
+        "asserted_value": "Piercing Drill",
+        "source": "pending_response_message",
+        "display_excerpt": "Excadrill-Mega's ability is Piercing Drill",
+        "verifiable": True,
+        "originating_user_text": "needs a physical attacker",
+    }
+    assert claim_is_true_against_snapshot(claim)
+    state = _base_state(
+        last_system_claim=claim,
+        turn_payload={
+            "subject_species": "Excadrill-Mega",
+            "disputed_kind": "ability",
+            "disputed_value": "Piercing Drill",
+            "user_text": "Excadrill-Mega doesn't have Piercing Drill",
+        },
+    )
+    out = handle_claim_correction(state)
+    assert not out.get("claim_correction_rerun_discovery")
+    assert "constraints" not in out
+    assert "confirms" in (out["correction_response"] or "").lower()
+
+
+def test_excadrill_mega_e2e_not_rejection():
+    calls: list[int] = []
+
+    def _fail_parser(_input):
+        calls.append(1)
+        raise AssertionError("LLM should not run when pre-pass matches")
+
+    graph = _graph(parser=_fail_parser)
+    suffix = "e2e-excadrill-not-rejection"
+    cfg = _thread(suffix)
+    graph.invoke({"format_id": VGC_MB, "team_draft": _four_lock_support_draft()}, config=cfg)
+    graph.update_state(
+        cfg,
+        {
+            "last_system_claim": _intimidate_claim(),
+            "pending_presentation": None,
+            "candidate_discovery_error": None,
+        },
+    )
+
+    result = graph.invoke(
+        {"pending_input": "excadrill-mega doesn't have Intimidate"},
+        config=cfg,
+    )
+
+    assert calls == []
+    assert result["turn_intent"] == "claim_correction"
+    assert not any(
+        entry["species"] == "Excadrill-Mega" for entry in result.get("rejected", [])
+    )
+    rendered = format_turn(result)
+    assert "withdrew" in rendered.lower() or "re-running" in rendered.lower()
+
+
+def test_parse_item_claim_from_message():
+    parsed = try_parse_verifiable_claim_from_message("Pelipper's item is Leftovers")
+    assert parsed is not None
+    assert parsed["kind"] == "item"
+    assert parsed["subject_species"] == "Pelipper"
+    assert parsed["asserted_value"] == "Leftovers"
+
+
+def test_parse_item_claim_has_prefix():
+    parsed = try_parse_verifiable_claim_from_message("Pelipper has Leftovers")
+    assert parsed is not None
+    assert parsed["kind"] == "item"
+    assert parsed["subject_species"] == "Pelipper"
+    assert parsed["asserted_value"] == "Leftovers"
+
+
+def test_negation_matches_item_claim():
+    claim = _leftovers_item_claim()
+    assert negation_matches_claim("pelipper doesn't hold Leftovers", claim)
+
+
+def test_negation_matches_item_claim_doesnt_have():
+    claim = _leftovers_item_claim()
+    assert negation_matches_claim("Pelipper doesn't have Leftovers", claim)
+
+
+def test_item_claim_legal_verifies_true():
+    claim = _leftovers_item_claim()
+    assert claim_is_true_against_snapshot(claim)
+
+
+def test_handle_claim_correction_item_true_path():
+    claim = _leftovers_item_claim()
+    assert claim_is_true_against_snapshot(claim)
+    state = _base_state(
+        last_system_claim=claim,
+        turn_payload={
+            "subject_species": "Pelipper",
+            "disputed_kind": "item",
+            "disputed_value": "Leftovers",
+            "user_text": "Pelipper doesn't hold Leftovers",
+        },
+    )
+    out = handle_claim_correction(state)
+    assert not out.get("claim_correction_rerun_discovery")
+    assert "constraints" not in out
+    assert "confirms" in (out["correction_response"] or "").lower()
