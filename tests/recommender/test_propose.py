@@ -586,3 +586,41 @@ def test_explicit_empty_item_attempts_cache_lookup():
         _refine_defaults(slot, state, regulation="champions")
     cached.assert_called_once()
     assert cached.call_args.args[2] == ""
+
+
+def test_bias_choice_moveset_backfills_basculegion():
+    from recommender.propose import _bias_choice_moveset
+
+    moves = ["Last Respects", "Aqua Jet", "Wave Crash", "Protect"]
+    out = _bias_choice_moveset(
+        moves, species="Basculegion", regulation="champions-reg-mb"
+    )
+    assert len(out) == 4
+    assert "Protect" not in out
+    assert out[:3] == ["Last Respects", "Aqua Jet", "Wave Crash"]
+    assert out[3] == "Flip Turn"
+
+
+def test_refine_defaults_non_choice_keeps_protect():
+    from recommender.propose import _refine_defaults
+
+    moves = ["Last Respects", "Aqua Jet", "Wave Crash", "Protect"]
+    slot = Slot(
+        species=Attr(value="Basculegion", locked=True),
+        moveset=Attr(value=moves, locked=False),
+        item=Attr(value="Focus Sash", locked=True),
+    )
+    state = _base_state(team_draft=[slot, *[empty_slot() for _ in range(5)]])
+    refined, _ = _refine_defaults(slot, state, regulation="champions-reg-mb")
+    assert list(refined.moveset.value or []) == moves
+
+
+def test_backfill_moves_from_usage_respects_rank_order():
+    from recommender.usage_data import backfill_moves_from_usage
+
+    out = backfill_moves_from_usage(
+        "Basculegion",
+        ["Last Respects", "Aqua Jet", "Wave Crash"],
+        regulation="champions-reg-mb",
+    )
+    assert out == ["Last Respects", "Aqua Jet", "Wave Crash", "Flip Turn"]

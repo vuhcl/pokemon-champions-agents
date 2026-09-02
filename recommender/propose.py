@@ -403,7 +403,7 @@ def _refine_defaults(
     # Soft Choice moveset bias when item locked Choice and moveset empty
     item_id = to_id(item) if item else ""
     if need_moves and moves and item_id in _CHOICE_ITEMS:
-        moves = _bias_choice_moveset(moves)
+        moves = _bias_choice_moveset(moves, species=species, regulation=regulation)
 
     if need_moves and moves and (usage_missed or not usage):
         if usage_missed:
@@ -570,7 +570,14 @@ def _refine_defaults(
     return working, bool(updates)
 
 
-def _bias_choice_moveset(moves: list[str]) -> list[str]:
+def _bias_choice_moveset(
+    moves: list[str],
+    *,
+    species: str,
+    regulation: str = "champions-reg-mb",
+) -> list[str]:
+    from recommender.usage_data import backfill_moves_from_usage
+
     snap = load_snapshot()
     moves_meta = snap.get("moves") or {}
     out: list[str] = []
@@ -583,6 +590,8 @@ def _bias_choice_moveset(moves: list[str]) -> list[str]:
         if (meta.get("category") or "") == "Status":
             continue
         out.append(m)
+    if len(out) < 4:
+        out = backfill_moves_from_usage(species, out, regulation=regulation)
     return out or moves
 
 

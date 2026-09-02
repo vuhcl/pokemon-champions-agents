@@ -232,6 +232,36 @@ def _iter_usage_ranked_moves(entry: dict[str, Any]):
             yield row["name"]
 
 
+def backfill_moves_from_usage(
+    species: str,
+    chosen: list[str],
+    *,
+    regulation: str = "champions-reg-mb",
+    exclude_status: bool = True,
+) -> list[str]:
+    """Fill moveset to 4 from usage-ranked candidates; legality-only backfill."""
+    entry = build_synthesis_usage_entry(species, regulation=regulation)
+    if not entry:
+        return list(chosen)
+    snap = load_legality_snapshot()
+    moves_meta = snap.get("moves") or {}
+    out = list(chosen)
+    seen = {to_id(m) for m in out}
+    for move in _iter_usage_ranked_moves(entry):
+        if len(out) >= 4:
+            break
+        mid = to_id(move)
+        if mid in seen:
+            continue
+        if exclude_status:
+            meta = moves_meta.get(mid) or {}
+            if (meta.get("category") or "") == "Status":
+                continue
+        out.append(move)
+        seen.add(mid)
+    return out
+
+
 def _iter_usage_ranked_abilities(entry: dict[str, Any]):
     """Usage-ranked ability names: featured_sets rows then common_abilities."""
     seen: set[str] = set()
