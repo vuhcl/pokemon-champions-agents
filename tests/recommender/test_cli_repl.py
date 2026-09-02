@@ -14,7 +14,7 @@ from recommender.cli import handle_line, invoke_user_text, main
 from recommender.graph import compile_cli_graph, compile_graph
 from recommender.nodes import LOCK_FULLY_LOCKED_SLOT_MSG, team_phase
 from recommender.nodes_classify import _MISMATCH_MSG
-from recommender.present_text import NO_PENDING_MESSAGE, UNMATCHED_REPLY_PREFIX
+from recommender.present_text import NO_PENDING_MESSAGE, TEAM_REVIEW_DETAIL_HINT, UNMATCHED_REPLY_PREFIX
 from recommender.session import DEFAULT_FORMAT_ID, thread_config
 from recommender.state import (
     Attr,
@@ -179,6 +179,39 @@ def _stub_team_review() -> TeamReviewResult:
     )
 
 
+def _stub_team_review_with_covered() -> TeamReviewResult:
+    return TeamReviewResult(
+        threats=[
+            ThreatCandidate(
+                ladder_species="Kingambit",
+                usage_rank=3,
+                form="Kingambit",
+                showdown_usage_pct=None,
+                showdown_formes=(),
+                spec={"species": "Kingambit"},
+                build_source="ingame",
+            )
+        ],
+        coverage=[
+            ThreatCoverageResult(
+                {"species": "Gapmon"},
+                MatchupResult("no_answer", "toss-up"),
+                [],
+                None,
+                False,
+            ),
+            ThreatCoverageResult(
+                {"species": "Coveredmon"},
+                MatchupResult("clean_answer", "favorable"),
+                [0],
+                None,
+                False,
+            ),
+        ],
+        spofs=[],
+    )
+
+
 def test_handle_line_meta_builds():
     graph = MagicMock()
     state = {"team_draft": [_locked_archaludon()]}
@@ -205,8 +238,87 @@ def test_handle_line_meta_review_cached():
     graph.invoke.assert_not_called()
     assert should_exit is False
     assert output is not None
-    assert "Kingambit" in output
+    assert "Kingambit" not in output
     assert "Gapmon" in output
+    assert TEAM_REVIEW_DETAIL_HINT in output
+
+
+def test_handle_line_meta_review_threats():
+    graph = MagicMock()
+    state = {
+        "team_draft": [_locked_archaludon()],
+        "last_team_review": _stub_team_review(),
+    }
+    _, _, _, output, should_exit = handle_line(
+        graph,
+        thread_config("t"),
+        state,
+        ":review threats",
+        format_id=DEFAULT_FORMAT_ID,
+        thread_id="t",
+    )
+    graph.invoke.assert_not_called()
+    assert should_exit is False
+    assert output is not None
+    assert "Kingambit" in output
+    assert "Gapmon" not in output
+    assert TEAM_REVIEW_DETAIL_HINT not in output
+
+
+def test_handle_line_meta_review_coverage():
+    graph = MagicMock()
+    state = {
+        "team_draft": [_locked_archaludon()],
+        "last_team_review": _stub_team_review_with_covered(),
+    }
+    _, _, _, output, should_exit = handle_line(
+        graph,
+        thread_config("t"),
+        state,
+        ":review coverage",
+        format_id=DEFAULT_FORMAT_ID,
+        thread_id="t",
+    )
+    graph.invoke.assert_not_called()
+    assert should_exit is False
+    assert output is not None
+    assert "Covered:" in output
+    assert "Coveredmon" in output
+    assert "Gapmon" not in output
+    assert TEAM_REVIEW_DETAIL_HINT not in output
+
+
+def test_handle_line_meta_review_unknown_arg():
+    graph = MagicMock()
+    state = {
+        "team_draft": [_locked_archaludon()],
+        "last_team_review": _stub_team_review(),
+    }
+    _, _, _, bare_output, _ = handle_line(
+        graph, thread_config("t"), state, ":review", format_id=DEFAULT_FORMAT_ID, thread_id="t"
+    )
+    _, _, _, unknown_output, _ = handle_line(
+        graph, thread_config("t"), state, ":review foo", format_id=DEFAULT_FORMAT_ID, thread_id="t"
+    )
+    graph.invoke.assert_not_called()
+    assert unknown_output == bare_output
+
+
+def test_handle_line_meta_review_subarg_no_cached():
+    graph = MagicMock()
+    state = {"team_draft": [], "last_team_review": None}
+    _, _, _, output, should_exit = handle_line(
+        graph,
+        thread_config("t"),
+        state,
+        ":review threats",
+        format_id=DEFAULT_FORMAT_ID,
+        thread_id="t",
+    )
+    graph.invoke.assert_not_called()
+    assert should_exit is False
+    assert output is not None
+    assert "not cached" in output
 
 
 def test_handle_line_meta_review_empty():
@@ -413,8 +525,9 @@ def test_handle_line_idle_team_review_complete_team():
     assert team_phase(new_state) == "complete"
     assert new_state.get("last_team_review") is not None
     assert output is not None
-    assert "Kingambit" in output
+    assert "Kingambit" not in output
     assert "Gapmon" in output
+    assert TEAM_REVIEW_DETAIL_HINT in output
 
 
 def test_handle_line_idle_team_review_partial_team():

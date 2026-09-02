@@ -7,6 +7,7 @@ from recommender.present_text import (
     BOOTSTRAP_PARSER_FIX_HINT,
     BOOTSTRAP_PARSER_NOT_CONFIGURED,
     NO_PENDING_MESSAGE,
+    TEAM_REVIEW_DETAIL_HINT,
     UNMATCHED_REPLY_PREFIX,
     _best_evidence_row,
     format_builds,
@@ -576,10 +577,59 @@ def test_format_team_review_gaps_and_spofs():
         spofs=[SPOFFinding(0, [{"species": "Gapmon"}], {"gapmon": "costly"})],
     )
     text = format_team_review(review, team_draft=draft)
-    assert "Kingambit" in text
+    assert "Kingambit" not in text
     assert "Gapmon" in text
     assert "no_answer" in text
     assert "1. Incineroar loses Gapmon" in text
+    assert TEAM_REVIEW_DETAIL_HINT in text
+
+
+def test_format_team_review_threats_section():
+    review = TeamReviewResult(threats=[_sample_threat()], coverage=[], spofs=[])
+    text = format_team_review(
+        review,
+        sections=frozenset({"threats"}),
+        show_detail_hint=False,
+    )
+    assert "Kingambit" in text
+    assert "Threats:" in text
+    assert "Coverage gaps:" not in text
+    assert "SPOFs:" not in text
+    assert TEAM_REVIEW_DETAIL_HINT not in text
+
+
+def test_format_team_review_covered_section():
+    review = TeamReviewResult(
+        threats=[],
+        coverage=[
+            ThreatCoverageResult(
+                {"species": "Coveredmon"},
+                MatchupResult("clean_answer", "favorable"),
+                [0],
+                None,
+                False,
+            )
+        ],
+        spofs=[],
+    )
+    text = format_team_review(
+        review,
+        team_draft=[_locked("Incineroar")],
+        sections=frozenset({"covered"}),
+        show_detail_hint=False,
+    )
+    assert "Covered:" in text
+    assert "covered by" in text
+    assert "Coverage gaps:" not in text
+    assert "Threats:" not in text
+
+
+def test_format_team_review_default_hint():
+    review = TeamReviewResult(threats=[_sample_threat()], coverage=[], spofs=[])
+    text = format_team_review(review)
+    assert TEAM_REVIEW_DETAIL_HINT in text
+    assert "Threats:\n" not in text
+    assert "Covered:\n" not in text
 
 
 def test_format_team_review_composition_gaps():
@@ -675,9 +725,36 @@ def test_complete_roster_and_review_status():
         }
     )
     assert "Mon0" in text
-    assert "Kingambit" in text
+    assert "Kingambit" not in text
     assert "Gapmon" in text
     assert "Team review status:" not in text
+    assert TEAM_REVIEW_DETAIL_HINT in text
+
+
+def test_format_turn_idle_review_terse():
+    review = TeamReviewResult(
+        threats=[_sample_threat()],
+        coverage=[
+            ThreatCoverageResult(
+                {"species": "Gapmon"},
+                MatchupResult("no_answer", "toss-up"),
+                [],
+                None,
+                False,
+            )
+        ],
+        spofs=[],
+    )
+    text = format_turn(
+        {
+            "pending_presentation": None,
+            "team_draft": [_locked("Mon0")],
+            "last_team_review": review,
+        }
+    )
+    assert "Gapmon" in text
+    assert "Threats:\n  -" not in text
+    assert TEAM_REVIEW_DETAIL_HINT in text
 
 
 def test_unmatched_prefix():
