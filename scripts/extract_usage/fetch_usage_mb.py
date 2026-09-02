@@ -26,6 +26,7 @@ from typing import Any
 
 from recommender.ids import regulation_file_tag, to_id
 from recommender.species_forms import ingame_excluded_species_ids
+from recommender.usage_ingame_sanity import find_stale_vs_live_suspects
 from recommender.teammates import (
     TEAMMATE_LIMIT,
     normalize_munch_teammates,
@@ -350,6 +351,7 @@ def build_snapshot(
     regulation: str,
     source: str,
     base_meta: dict | None = None,
+    ingame_refreshed: bool = False,
 ) -> dict:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     meta = dict(base_meta or {})
@@ -398,6 +400,8 @@ def build_snapshot(
     )
     if not base_meta or "extracted_at" not in meta:
         meta["extracted_at"] = now
+    if ingame_refreshed:
+        meta["ingame_doubles_extracted_at"] = now
     return {
         "meta": meta,
         "ingame_doubles": {"species": ingame},
@@ -498,6 +502,17 @@ def main(argv: list[str] | None = None) -> int:
         showdown, showdown_info = extract_showdown_munchstats(
             args.month, args.format_id, args.rating
         )
+    if not args.refresh_cbd:
+        suspects = find_stale_vs_live_suspects(ingame)
+        if suspects:
+            for sid, reason in suspects:
+                print(f"STALE CBD: {sid}: {reason}", file=sys.stderr)
+            print(
+                "stale ingame_doubles slice — re-run with --refresh-cbd",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
+
     snap = build_snapshot(
         ingame,
         showdown,
@@ -508,6 +523,7 @@ def main(argv: list[str] | None = None) -> int:
         regulation=tag,
         source=source_label,
         base_meta=ingame_meta,
+        ingame_refreshed=args.refresh_cbd,
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(snap, indent=2) + "\n")

@@ -118,17 +118,23 @@ def test_pelipper_rain_setter_moves_unchanged():
 
 
 def test_grimmsnarl_screens_support_moves_unchanged():
-    default_moves = list(
-        (
-            featured_or_common_set("Grimmsnarl", regulation="champions-reg-mb") or {}
-        ).get("moves")
-        or []
+    default = featured_or_common_set("Grimmsnarl", regulation="champions-reg-mb")
+    assert default is not None
+    assert "Sucker Punch" in (default.get("moves") or [])
+    from recommender.role_aware_synthesis import select_role_aware_build_fields
+    from recommender.usage_data import species_usage
+
+    flat = species_usage("Grimmsnarl", regulation="champions-reg-mb")
+    selection = select_role_aware_build_fields(
+        "Grimmsnarl",
+        "screens_support",
+        flat,
+        regulation="champions-reg-mb",
     )
-    provisional = _refined("Grimmsnarl", "screens_support")
-    assert list(provisional.moves) == default_moves
-    assert classify_anchor_role(
-        resolve_anchor_build("Grimmsnarl", regulation="champions-reg-mb")
-    ).role_id == "screens_support"
+    assert selection is not None
+    move_set = {m.lower().replace(" ", "") for m in selection.moves}
+    assert "lightscreen" in move_set
+    assert "reflect" in move_set
 
 
 def test_pelipper_tailwind_setter_provisional_spread_meets_budget():

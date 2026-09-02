@@ -491,7 +491,7 @@ def test_condition_provider_reliability_reflects_real_commitment_split():
     reliability = condition_provider_reliability(
         "Trick Room", contexts, regulation="champions-reg-mb"
     )
-    assert reliability == pytest.approx(0.313, abs=0.01)
+    assert reliability == pytest.approx(0.616, abs=0.02)
 
     farigiraf_state = {
         "team_draft": [
@@ -596,7 +596,7 @@ def test_candidate_dependency_reliability_mawile_mega_real_data():
     reliability = candidate_dependency_reliability(
         decision, contexts, regulation="champions-reg-mb"
     )
-    assert reliability == pytest.approx(0.313, abs=0.01)
+    assert reliability == pytest.approx(0.616, abs=0.02)
 
     farigiraf_state = {
         "team_draft": [

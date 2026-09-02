@@ -11,6 +11,7 @@ from typing import Any, Literal, NotRequired, TypedDict
 
 from recommender.ids import regulation_file_tag, to_id
 from recommender.legality import load_snapshot as load_legality_snapshot
+from recommender.usage_ingame_sanity import ingame_monotonic_tail_corrupt
 from recommender.species_forms import ingame_excluded_species_ids, item_mega_forme
 from recommender.sp_convert import evs_to_sp
 from recommender.state import PokemonSet, StatsTable
@@ -68,6 +69,10 @@ def build_synthesis_usage_entry(
     sid = to_id(species)
     ing = ingame_species_map(regulation).get(sid)
     if ing:
+        snap = load_usage(regulation)
+        sd = ((snap.get("showdown_vgc_mb") or {}).get("species") or {}).get(sid)
+        if sd and ingame_monotonic_tail_corrupt(ing, sd):
+            return species_usage(species, regulation=regulation)
         return ing
     return species_usage(species, regulation=regulation)
 
