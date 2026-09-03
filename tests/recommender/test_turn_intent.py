@@ -1675,6 +1675,62 @@ def test_select_plus_item_edit_resolves_when_model_picks_edit_intent():
     assert payload["option_ids"] == (_CONFIRM_IDS[1],)
     assert payload["extra_field"] == "item"
     assert payload["extra_value"] == "Choice Scarf"
+    # Compound select must keep provisional for apply_provisional_option.
+    assert "provisional_slot" not in result
+
+
+def test_nature_edit_ignores_hallucinated_option_ids_without_option_signal():
+    """Regression, confirmed live (2026-09-02): 'change nature to Relaxed'
+    extracted as edit+nature=Relaxed with a hallucinated option_ids pointing
+    at the Relaxed-labeled spread_nature option. Treating that as select+edit
+    cleared provisional and apply_provisional_option failed with
+    'missing or unsupported provisional option state'.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "edit_scope": "field_only",
+            "value_text": "Relaxed",
+            "option_ids": ["spread_nature:3"],
+        }
+    )
+    result = parse_turn_intent(
+        parser,
+        user_text="change nature to relaxed",
+        pending_kind="full_build_confirmation",
+        had_pending=True,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"] == {
+        "field": "nature",
+        "value": "Relaxed",
+        "scope": "field_only",
+    }
+    assert "provisional_slot" not in result
+
+
+def test_select_plus_nature_edit_still_compounds_when_text_names_option():
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "edit_scope": "field_only",
+            "value_text": "Modest",
+            "option_ids": ["spread_nature:2"],
+        }
+    )
+    result = parse_turn_intent(
+        parser,
+        user_text="2, but make it Modest",
+        pending_kind="full_build_confirmation",
+        had_pending=True,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    assert result["turn_payload"]["option_ids"] == ("spread_nature:2",)
+    assert result["turn_payload"]["extra_field"] == "nature"
+    assert result["turn_payload"]["extra_value"] == "Modest"
+    assert "provisional_slot" not in result
 
 
 def test_select_plus_item_edit_requires_exactly_one_option():
