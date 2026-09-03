@@ -121,3 +121,103 @@ def test_apply_provisional_edit_illegal_item_keeps_old():
     assert "illegal" in str(out["slot_commit_error"]).casefold() or "edit" in str(
         out["slot_commit_error"]
     ).casefold()
+
+
+def _pelipper_provisional() -> ProvisionalSlot:
+    decision = TargetRoleDecision(role_id="rain_setter", source="other")
+    return ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=decision,
+        species="Pelipper",
+        ability="Drizzle",
+        item="Damp Rock",
+        moves=("Hurricane", "Weather Ball", "Tailwind", "Protect"),
+        nature="Modest",
+        spread=(
+            ("hp", 2),
+            ("atk", 0),
+            ("def", 0),
+            ("spa", 32),
+            ("spd", 0),
+            ("spe", 32),
+        ),
+        base_slot_fingerprint="base",
+        fingerprint="fp-peli",
+    )
+
+
+def test_revise_swap_protect_for_soak_from_partial_value():
+    current = _pelipper_provisional()
+    result = revise_provisional_slot(
+        current,
+        field="moves",
+        value=["soak"],
+        scope="field_only",
+        intent=_intent(current),
+        state={
+            "regulation_mod": "champions",
+            "team_draft": [empty_slot() for _ in range(6)],
+            "last_user_text": "swap protect for soak",
+        },
+    )
+    assert isinstance(result, ProvisionalSlot)
+    assert result.moves == ("Hurricane", "Weather Ball", "Tailwind", "Soak")
+
+
+def test_revise_lowercase_nature_is_canonicalized():
+    current = _pelipper_provisional()
+    result = revise_provisional_slot(
+        current,
+        field="nature",
+        value="bold",
+        scope="field_only",
+        intent=_intent(current),
+        state={
+            "regulation_mod": "champions",
+            "team_draft": [empty_slot() for _ in range(6)],
+        },
+    )
+    assert isinstance(result, ProvisionalSlot)
+    assert result.nature == "Bold"
+
+
+def test_revise_swap_two_name_value_without_user_text():
+    current = _pelipper_provisional()
+    result = revise_provisional_slot(
+        current,
+        field="moves",
+        value=["Protect", "Soak"],
+        scope="field_only",
+        intent=_intent(current),
+        state={
+            "regulation_mod": "champions",
+            "team_draft": [empty_slot() for _ in range(6)],
+        },
+    )
+    assert isinstance(result, ProvisionalSlot)
+    assert "Soak" in result.moves
+    assert "Protect" not in result.moves
+
+
+def test_apply_provisional_edit_move_swap_fail_message():
+    from recommender.state import UnresolvedSlotRefinement
+
+    current = _pelipper_provisional()
+    state = {
+        "pending_slot_intent": _intent(current),
+        "provisional_slot": current,
+        "turn_payload": {
+            "field": "moves",
+            "value": ["Hurricane", "Weather Ball"],
+            "scope": "field_only",
+        },
+        "team_draft": [empty_slot() for _ in range(6)],
+        "regulation_mod": "champions",
+        "constraints": [],
+        "last_user_text": "swap hurricane and weather ball",
+    }
+    out = apply_provisional_edit(state)  # type: ignore[arg-type]
+    assert out.get("slot_commit_error")
+    assert "could not apply move swap" in str(out["slot_commit_error"]).casefold()
+    assert not isinstance(out.get("provisional_slot"), UnresolvedSlotRefinement)

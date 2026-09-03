@@ -353,9 +353,19 @@ def select_usage_spread(
         f"{source_tier} role={role} selected rank={selected.rank + 1} "
         f"from {len(candidates)} {selected.source} variants"
     )
+    nature = selected.nature
+    if nature is None:
+        from recommender.usage_data import nature_for_spread
+
+        nature = nature_for_spread(
+            species,
+            selected.spread,
+            regulation=regulation,
+            moves=moves,
+        )
     return SpreadChoice(
         spread=dict(selected.spread),  # type: ignore[arg-type]
-        nature=selected.nature,
+        nature=nature,
         source=source_tier,
         rationale=rationale,
     )

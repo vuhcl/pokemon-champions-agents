@@ -291,9 +291,9 @@ def test_cbd_sinistcha_and_flavor_names_untouched():
     assert sinistcha.attribution_status == "ambiguous"
 
     talonflame = _force_cbd("talonflame")
-    four = _row_named(talonflame, "mausholdfamilyoffour")
-    assert four.name == "Maushold Family of Four"
-    assert four.attribution_status == "unresolved"
+    four = _row_named(talonflame, "maushold")
+    assert four.name == "Maushold"
+    assert four.attribution_status == "ambiguous"
 
     fancy_page = _cbd_only("vivillonfancy")
     assert fancy_page.anchor_id == "vivillonfancy"

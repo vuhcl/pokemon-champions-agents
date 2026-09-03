@@ -1588,6 +1588,7 @@ def test_species_popularity_alone_is_not_usage_backed_execution_evidence():
             return_value=ReverseCompendiumEvidence(),
         ),
         patch("recommender.slot_fill.narrow_candidates_for_move", return_value=raw),
+        patch("recommender.slot_fill.move_appears_in_usage", return_value=True),
     ):
         rows = resolve_need_candidates(need, _base_state())
 
@@ -2262,16 +2263,9 @@ def test_ability_based_condition_beneficiary_gets_high_not_low_confidence():
     assert all(ev.confidence == "high" for ev in ability_evidence)
 
 
-def test_wish_only_healer_gets_downgraded_for_delayed_delivery():
-    """Regression, confirmed live: Wish doesn't heal immediately -- it
-    heals whoever is on the field one turn later, which in practice
-    means switching the Wish-user out and the intended target in. That
-    costs a real, vulnerable switch-in turn (the incoming Pokemon can't
-    attack, since switching consumes the turn) and loses any stat boosts
-    the switched-out user had. A real, structural delivery cost the
-    plain "does it satisfy the need" check doesn't capture on its own.
-    Confirmed a real species (Sylveon, whose only healing_cleric move is
-    Wish) gets downgraded with an explicit, transparent tag.
+def test_wish_only_species_absent_from_healing_cleric():
+    """Wish is not a doubles healing_cleric satisfier; Sylveon has no immediate
+    heal usage → must not appear in the healing pool at all.
     """
     need = SupportNeed(
         category="healing_cleric",
@@ -2281,19 +2275,12 @@ def test_wish_only_healer_gets_downgraded_for_delayed_delivery():
     )
     names = resolve_need_candidates(need, _base_state())
     by_id = {to_id(row.species): row for row in names}
-    sylveon = by_id.get("sylveon")
-    assert sylveon is not None
-    assert all(e.confidence == "low" for e in sylveon.evidence)
-    assert any(
-        "delayed_delivery:wish" in e.evidence for e in sylveon.evidence
-    )
+    assert by_id.get("sylveon") is None
+    assert by_id.get("farigiraf") is None
 
 
-def test_candidate_with_real_immediate_heal_option_not_downgraded_for_wish():
-    """Confirms the downgrade is targeted, not blanket -- a candidate
-    that also knows a real immediate-heal move (Heal Pulse, Life Dew)
-    must not be downgraded just because it ALSO happens to know Wish,
-    since it has a better delivery option available regardless."""
+def test_clefable_still_matches_healing_via_usage_backed_heal():
+    """Clefable Showdown Life Dew / Heal Pulse usage keeps it in the pool."""
     need = SupportNeed(
         category="healing_cleric",
         name="Healing / cleric support",
@@ -2307,3 +2294,29 @@ def test_candidate_with_real_immediate_heal_option_not_downgraded_for_wish():
     assert not any(
         "delayed_delivery:wish" in e.evidence for e in clefable.evidence
     )
+
+
+def test_farigiraf_does_not_satisfy_healing_cleric_need():
+    from recommender.legality import load_snapshot
+
+    need = SupportNeed(
+        category="healing_cleric",
+        name="Healing / cleric support",
+        description="x",
+        trigger="tank_no_self_heal",
+    )
+    assert not _candidate_satisfies_need(
+        "Farigiraf", need, snap=load_snapshot()
+    )
+
+
+def test_grimmsnarl_still_satisfies_screens_via_showdown_usage():
+    from recommender.legality import load_snapshot
+
+    need = SupportNeed(
+        category="screens",
+        name="Screens",
+        description="x",
+        trigger="offense:screens",
+    )
+    assert _candidate_satisfies_need("Grimmsnarl", need, snap=load_snapshot())

@@ -333,9 +333,25 @@ def resolve_anchor_build(
                 values["nature"] = choice.nature
                 provenance["nature"] = FieldProvenance("nature", "usage_derived")
 
-    representative = (
-        featured_or_common_set(species, regulation=regulation) if species else None
-    )
+    representative = None
+    if species:
+        if team_draft and any(
+            s.species.locked
+            and s.species.value
+            and to_id(s.species.value) != to_id(species)
+            for s in team_draft
+        ):
+            from recommender.usage_data import build_team_aware_default_set
+
+            representative = build_team_aware_default_set(
+                species,
+                regulation=regulation,
+                role_id=role_hint,
+                team_draft=team_draft,
+                featured_fn=featured_or_common_set,
+            )
+        if representative is None:
+            representative = featured_or_common_set(species, regulation=regulation)
     if role_hint and species and representative:
         from recommender.role_aware_synthesis import select_role_aware_build_fields
         from recommender.usage_data import build_synthesis_usage_entry

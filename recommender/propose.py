@@ -297,21 +297,38 @@ def _refine_defaults(
 
     moves = list(slot.moveset.value) if slot.moveset.value else None
     item = slot.item.value
-    usage = (
-        featured_or_common_set(species, regulation=regulation)
-        if need_ability or need_moves or need_item
-        else None
-    )
-    usage_missed = False
-    updates: dict[str, Attr[Any]] = {}
-    spread = dict(slot.spread.value) if slot.spread.value else None
-    item_from_synth = False
-
     draft_for_items = (
         team_draft
         if team_draft is not None
         else list(state.get("team_draft") or [])
     )
+    has_locked_teammates = any(
+        s.species.locked
+        and s.species.value
+        and to_id(s.species.value) != to_id(species)
+        for s in draft_for_items
+    )
+
+    if need_ability or need_moves or need_item:
+        if has_locked_teammates:
+            from recommender.usage_data import build_team_aware_default_set
+
+            usage = build_team_aware_default_set(
+                species,
+                regulation=regulation,
+                role_id=slot.role.value,
+                team_draft=draft_for_items,
+                state=state,
+                featured_fn=featured_or_common_set,
+            )
+        else:
+            usage = featured_or_common_set(species, regulation=regulation)
+    else:
+        usage = None
+    usage_missed = False
+    updates: dict[str, Attr[Any]] = {}
+    spread = dict(slot.spread.value) if slot.spread.value else None
+    item_from_synth = False
 
     if usage:
         role_selection = None
@@ -403,7 +420,7 @@ def _refine_defaults(
     # Soft Choice moveset bias when item locked Choice and moveset empty
     item_id = to_id(item) if item else ""
     if need_moves and moves and item_id in _CHOICE_ITEMS:
-        moves = _bias_choice_moveset(moves)
+        moves = _bias_choice_moveset(moves, species=species, regulation=regulation)
 
     if need_moves and moves and (usage_missed or not usage):
         if usage_missed:
@@ -536,13 +553,27 @@ def _refine_defaults(
         and working.nature.value is None
         and working.spread.value
     ):
-        nature = _nature_for_spread(working.spread.value, working.role.value)
+        from recommender.usage_data import nature_for_spread
+
+        move_for_join = list(working.moveset.value or moves or ())
+        joined = nature_for_spread(
+            species,
+            working.spread.value,
+            regulation=regulation,
+            moves=move_for_join,
+        )
+        nature = joined or _nature_for_spread(
+            working.spread.value, working.role.value
+        )
         updates = {
             **updates,
             "nature": Attr(
                 value=nature,
                 locked=False,
-                reason=ReasonRef(kind="tier2_heuristic", ref="tier3_nature"),
+                reason=ReasonRef(
+                    kind="tier2_heuristic",
+                    ref="usage_nature_join" if joined else "tier3_nature",
+                ),
             ),
         }
         working = replace(slot, **updates)
@@ -570,7 +601,14 @@ def _refine_defaults(
     return working, bool(updates)
 
 
-def _bias_choice_moveset(moves: list[str]) -> list[str]:
+def _bias_choice_moveset(
+    moves: list[str],
+    *,
+    species: str,
+    regulation: str = "champions-reg-mb",
+) -> list[str]:
+    from recommender.usage_data import backfill_moves_from_usage
+
     snap = load_snapshot()
     moves_meta = snap.get("moves") or {}
     out: list[str] = []
@@ -583,6 +621,8 @@ def _bias_choice_moveset(moves: list[str]) -> list[str]:
         if (meta.get("category") or "") == "Status":
             continue
         out.append(m)
+    if len(out) < 4:
+        out = backfill_moves_from_usage(species, out, regulation=regulation)
     return out or moves
 
 

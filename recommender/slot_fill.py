@@ -27,6 +27,7 @@ from recommender.legality import is_species_legal, load_snapshot, resolve_learns
 from recommender.move_narrowing import (
     MIN_USAGE_PCT,
     _HARD_REQUIRE_WEATHER,
+    move_appears_in_usage,
     narrow_candidates_for_move,
     pick_default_and_alternatives,
 )
@@ -92,29 +93,15 @@ _NEED_SATISFIERS: dict[NeedCategory, _NeedSatisfier] = {
     "trick_room": _NeedSatisfier(moves=frozenset({"trickroom"})),
     "tailwind": _NeedSatisfier(moves=frozenset({"tailwind"})),
     "redirection": _NeedSatisfier(moves=frozenset(REDIRECT_MOVES)),
+    # Wish is delayed-delivery in doubles (switch-in cost) — not a healing_cleric
+    # satisfier. Immediate heals only.
     "healing_cleric": _NeedSatisfier(
-        moves=frozenset(
-            {"wish", "healpulse", "lifedew", "aromatherapy", "healbell"}
-        )
+        moves=frozenset({"healpulse", "lifedew", "aromatherapy", "healbell"})
     ),
     "screens": _NeedSatisfier(
         moves=frozenset({"lightscreen", "reflect", "auroraveil"})
     ),
     "condition_setter": _NeedSatisfier(abilities=frozenset(ABILITY_TO_FIELD)),
-}
-
-# Moves that mechanically satisfy a need but have a real, structural
-# delivery cost the plain "does it satisfy the need" check doesn't
-# capture -- confirmed directly, not assumed: Wish doesn't heal
-# immediately, it heals whoever is on the field one turn later. In
-# practice that means switching the Wish-user out and the intended
-# target in, costing a real, vulnerable switch-in turn (the incoming
-# Pokemon can't attack, since switching consumes the turn) and losing
-# any stat boosts the switched-out user had. A real, structural cost
-# compared to an immediate-heal move (Heal Pulse, Aromatherapy, Heal
-# Bell, Life Dew).
-_DELAYED_DELIVERY_MOVES: dict[NeedCategory, frozenset[str]] = {
-    "healing_cleric": frozenset({"wish"}),
 }
 
 
@@ -441,8 +428,13 @@ def _candidate_satisfies_need(
     if sat is None:
         return False
     ls = set(resolve_learnset(snap, species) or [])
-    if sat.moves and ls & sat.moves:
-        return True
+    if sat.moves:
+        matching = ls & sat.moves
+        if matching and any(
+            move_appears_in_usage(species, mid, regulation=regulation)
+            for mid in matching
+        ):
+            return True
     if sat.abilities:
         abs_ = _species_abilities(species, snap=snap, regulation=regulation)
         if need.category == "condition_setter" and need.trigger:
@@ -729,8 +721,11 @@ def _narrow_need_candidates(
         available_species=available_species,
         ownership_mode=ownership_mode,
     )
+    regulation = _regulation(state)
     out: list[NeedResolvedCandidate] = []
     for species in result.candidates:
+        if not move_appears_in_usage(species, move_id, regulation=regulation):
+            continue
         meta = result.candidate_meta.get(to_id(species))
         if meta is not None and meta.commitment_pct is not None:
             evidence = CandidateEvidence(
@@ -1183,52 +1178,6 @@ def resolve_need_candidates(
                     confidence="low",
                     evidence=item.evidence
                     + (f"weather_conflict:requires_{required}_have_{locked_weather}",),
-                )
-                for item in row.evidence
-            )
-            adjusted_rows.append(
-                NeedResolvedCandidate(
-                    row.species, row.matching_needs, downgraded_evidence, row.anchored_needs
-                )
-            )
-        rows = adjusted_rows
-
-    if need.category in _DELAYED_DELIVERY_MOVES:
-        # Wish's real mechanical drawback, confirmed directly, not
-        # assumed: it doesn't heal immediately -- the healing lands one
-        # turn later, on whoever is on the field then. In practice that
-        # means switching the Wish-user OUT and the intended target IN,
-        # which costs a real, vulnerable switch-in turn (the incoming
-        # Pokemon can't attack that turn, since switching consumes it),
-        # and any stat boosts the switched-out Wish-user had are lost.
-        # This is a real, structural cost compared to an immediate-heal
-        # move (Heal Pulse, Aromatherapy, Heal Bell, Life Dew), not
-        # captured by the mechanical "does it satisfy the need" check
-        # alone. Downgraded the same way as the weather-conflict case --
-        # deprioritize, don't exclude, since Wish is still a real,
-        # legitimate option when nothing better is available. Only
-        # downgraded when EVERY healing_cleric-satisfying move a
-        # candidate has is Wish -- a candidate that also knows a real
-        # immediate-heal move is untouched, since it has a better
-        # delivery option available regardless of also knowing Wish.
-        delayed_moves = _DELAYED_DELIVERY_MOVES[need.category]
-        adjusted_rows = []
-        for row in rows:
-            move_ids = {
-                to_id(tag.removeprefix("move:"))
-                for item in row.evidence
-                for tag in item.evidence
-                if tag.startswith("move:")
-            }
-            if not move_ids or not move_ids <= delayed_moves:
-                adjusted_rows.append(row)
-                continue
-            downgraded_evidence = tuple(
-                replace(
-                    item,
-                    basis="mechanical_only",
-                    confidence="low",
-                    evidence=item.evidence + ("delayed_delivery:wish",),
                 )
                 for item in row.evidence
             )
@@ -2001,7 +1950,7 @@ def build_provisional_slot(
     refined, _ = _propagate_and_refine(
         seed,
         state,
-        regulation=state.get("regulation_mod") or "champions",
+        regulation=_regulation(state),
     )
     return _provisional_from_refined(intent=intent, decision=decision, refined=refined)
 
@@ -2156,6 +2105,117 @@ def apply_partial_spread(
     return result
 
 
+def _display_nature(value: object) -> str:
+    from recommender.turn_intent import _REAL_NATURES
+
+    raw = str(value)
+    return _REAL_NATURES.get(to_id(raw), raw)
+
+
+def _display_move(name: str, snap: dict[str, Any]) -> str:
+    mid = to_id(name)
+    meta = (snap.get("moves") or {}).get(mid) or {}
+    display = meta.get("name") if isinstance(meta, dict) else None
+    return str(display) if display else name
+
+
+def _reconstruct_partial_moveset(
+    current_moves: Sequence[str],
+    value: object,
+    *,
+    user_text: str,
+    species: str,
+    snap: dict[str, Any],
+) -> list[str] | None:
+    """Rebuild a 4-move set from a 1–2 name swap/replace edit."""
+    if not isinstance(value, (list, tuple)):
+        return None
+    names = [str(v) for v in value if v]
+    if len(names) == 4:
+        return [_display_move(n, snap) for n in names]
+    current = [str(m) for m in current_moves]
+    if len(current) != 4:
+        return None
+    current_by_id = {to_id(m): m for m in current}
+    learnset = set(resolve_learnset(snap, species) or [])
+
+    extracted: list[str] = []
+    seen: set[str] = set()
+    for name in names:
+        mid = to_id(name)
+        if not mid or mid in seen:
+            continue
+        seen.add(mid)
+        extracted.append(name)
+
+    on_set = [n for n in extracted if to_id(n) in current_by_id]
+    off_set = [n for n in extracted if to_id(n) not in current_by_id]
+    outgoing: str | None = None
+    incoming: str | None = None
+
+    from recommender.turn_intent import _find_known_value_in_text
+
+    if len(extracted) == 2 and len(on_set) == 1 and len(off_set) == 1:
+        outgoing, incoming = on_set[0], off_set[0]
+    elif len(extracted) == 1 and len(off_set) == 1:
+        incoming = off_set[0]
+        hit = _find_known_value_in_text(user_text, dict(current_by_id))
+        if hit is None:
+            return None
+        outgoing = hit
+    elif len(extracted) == 1 and len(on_set) == 1:
+        outgoing = on_set[0]
+        moves_meta = snap.get("moves") or {}
+        candidates: dict[str, str] = {}
+        for mid in learnset:
+            if mid in current_by_id:
+                continue
+            meta = moves_meta.get(mid) or {}
+            display = meta.get("name") if isinstance(meta, dict) else None
+            candidates[mid] = str(display) if display else mid
+        hit = _find_known_value_in_text(user_text, candidates)
+        if hit is None:
+            return None
+        incoming = hit
+    else:
+        return None
+
+    if to_id(incoming) not in learnset:
+        return None
+    incoming = _display_move(incoming, snap)
+
+    out: list[str] = []
+    replaced = False
+    for move in current:
+        if to_id(move) == to_id(outgoing) and not replaced:
+            out.append(incoming)
+            replaced = True
+        else:
+            out.append(move)
+    if not replaced or len(out) != 4:
+        return None
+    if len({to_id(m) for m in out}) != 4:
+        return None
+    return out
+
+
+def _coerce_moves_edit_value(
+    current: ProvisionalSlot,
+    value: object,
+    state: RecommenderState,
+) -> list[str] | None:
+    snap = load_snapshot()
+    if isinstance(value, (list, tuple)) and len(value) == 4:
+        return [_display_move(str(m), snap) for m in value]
+    return _reconstruct_partial_moveset(
+        current.moves,
+        value,
+        user_text=str(state.get("last_user_text") or ""),
+        species=current.species,
+        snap=snap,
+    )
+
+
 def apply_provisional_overrides(
     current: ProvisionalSlot,
     *,
@@ -2185,13 +2245,14 @@ def apply_provisional_overrides(
                 unresolved_fields=(str(field),),
             )
         if field == "moves":
-            if not isinstance(value, (list, tuple)) or len(value) != 4:
+            coerced = _coerce_moves_edit_value(current, value, state)
+            if coerced is None:
                 return UnresolvedSlotRefinement(
                     schema_version=1,
                     intent=intent,
                     unresolved_fields=("moves",),
                 )
-            attr_value: Any = list(value)
+            attr_value: Any = coerced
         elif field == "spread":
             attr_value = _coerce_full_spread(value)
             if attr_value is None:
@@ -2200,6 +2261,8 @@ def apply_provisional_overrides(
                     intent=intent,
                     unresolved_fields=("spread",),
                 )
+        elif field == "nature":
+            attr_value = _display_nature(value)
         else:
             attr_value = value
         seed = replace(seed, **{slot_attr: Attr(value=attr_value, locked=True)})
@@ -2248,13 +2311,14 @@ def revise_provisional_slot(
         )
 
     if field == "moves":
-        if not isinstance(value, (list, tuple)) or len(value) != 4:
+        coerced = _coerce_moves_edit_value(current, value, state)
+        if coerced is None:
             return UnresolvedSlotRefinement(
                 schema_version=1,
                 intent=intent,
                 unresolved_fields=("moves",),
             )
-        attr_value: Any = list(value)
+        attr_value: Any = coerced
     elif field == "spread":
         attr_value = _coerce_full_spread(value)
         if attr_value is None:
@@ -2263,6 +2327,8 @@ def revise_provisional_slot(
                 intent=intent,
                 unresolved_fields=("spread",),
             )
+    elif field == "nature":
+        attr_value = _display_nature(value)
     else:
         attr_value = value
 

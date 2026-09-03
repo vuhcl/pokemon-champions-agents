@@ -772,9 +772,7 @@ def test_edit_tolerates_null_constraint_object():
     assert result["turn_payload"]["value"] == "Modest"
 
 
-def test_incomplete_edit_returns_friendly_pending_response():
-    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
-
+def test_incomplete_edit_recovers_nature_on_full_build_confirmation():
     parser = RunnableLambda(
         lambda _: {
             "turn_intent": "edit",
@@ -793,11 +791,55 @@ def test_incomplete_edit_returns_friendly_pending_response():
         pending_kind="full_build_confirmation",
         had_pending=True,
     )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["field"] == "nature"
+    assert result["turn_payload"]["value"] == "Modest"
+    assert result["turn_payload"]["scope"] == "field_only"
+
+
+def test_change_nature_to_bold_recovers_on_validation_fail():
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "value_moves": ["A", "B", "C", "D"],
+            "edit_scope": "field_only",
+        }
+    )
+    result = parse_turn_intent(
+        parser,
+        user_text="change nature to bold",
+        pending_kind="full_build_confirmation",
+        had_pending=True,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["field"] == "nature"
+    assert result["turn_payload"]["value"] == "Bold"
+
+
+def test_incomplete_edit_still_fails_without_full_build_pending():
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "constraint": {
+                "type": None,
+                "predicate": None,
+                "scope": None,
+                "groundedness": None,
+            },
+        }
+    )
+    result = parse_turn_intent(
+        parser,
+        user_text="run Modest, just the nature",
+        pending_kind="none",
+        had_pending=True,
+    )
     assert result["turn_intent"] == "pending_response"
     assert result["turn_payload"]["message"] == CLASSIFY_FAIL_USER_MSG
-    assert "OUTPUT_PARSING_FAILURE" not in result["turn_payload"]["message"]
-    assert "validation error" not in result["turn_payload"]["message"].casefold()
-    assert "pending_presentation" not in result
 
 
 def test_include_raw_parsing_error_is_friendly():
@@ -1633,6 +1675,62 @@ def test_select_plus_item_edit_resolves_when_model_picks_edit_intent():
     assert payload["option_ids"] == (_CONFIRM_IDS[1],)
     assert payload["extra_field"] == "item"
     assert payload["extra_value"] == "Choice Scarf"
+    # Compound select must keep provisional for apply_provisional_option.
+    assert "provisional_slot" not in result
+
+
+def test_nature_edit_ignores_hallucinated_option_ids_without_option_signal():
+    """Regression, confirmed live (2026-09-02): 'change nature to Relaxed'
+    extracted as edit+nature=Relaxed with a hallucinated option_ids pointing
+    at the Relaxed-labeled spread_nature option. Treating that as select+edit
+    cleared provisional and apply_provisional_option failed with
+    'missing or unsupported provisional option state'.
+    """
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "edit_scope": "field_only",
+            "value_text": "Relaxed",
+            "option_ids": ["spread_nature:3"],
+        }
+    )
+    result = parse_turn_intent(
+        parser,
+        user_text="change nature to relaxed",
+        pending_kind="full_build_confirmation",
+        had_pending=True,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"] == {
+        "field": "nature",
+        "value": "Relaxed",
+        "scope": "field_only",
+    }
+    assert "provisional_slot" not in result
+
+
+def test_select_plus_nature_edit_still_compounds_when_text_names_option():
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "edit_scope": "field_only",
+            "value_text": "Modest",
+            "option_ids": ["spread_nature:2"],
+        }
+    )
+    result = parse_turn_intent(
+        parser,
+        user_text="2, but make it Modest",
+        pending_kind="full_build_confirmation",
+        had_pending=True,
+    )
+    assert result["turn_intent"] == "select_build_option"
+    assert result["turn_payload"]["option_ids"] == ("spread_nature:2",)
+    assert result["turn_payload"]["extra_field"] == "nature"
+    assert result["turn_payload"]["extra_value"] == "Modest"
+    assert "provisional_slot" not in result
 
 
 def test_select_plus_item_edit_requires_exactly_one_option():

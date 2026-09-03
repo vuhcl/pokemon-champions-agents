@@ -479,6 +479,20 @@ _EDIT_VALUE_FIELDS = (
 )
 
 
+def _text_has_option_signal(text: str) -> bool:
+    """Whether free text names a build-option pick (digit / default / 'option').
+
+    Pure field edits like 'change nature to Relaxed' have none of these; models
+    still sometimes hallucinate option_ids when a matching nature appears in a
+    spread_nature option label. Used to keep those as field_only edits.
+    """
+    tokens = re.findall(r"[A-Za-z]+|\d+", text)
+    if any(tok.isdigit() for tok in tokens):
+        return True
+    lower = {tok.lower() for tok in tokens}
+    return bool(lower & {"default", "option"})
+
+
 def _is_select_plus_partial_spread(extraction: TurnIntentExtraction) -> bool:
     """True when a select/compare-shaped signal is paired with *specifically*
     a partial spread edit (set or delta) and nothing else edit-shaped.
@@ -1000,6 +1014,26 @@ def _clear_pending_keys() -> dict[str, None]:
     }
 
 
+def _recover_field_only_edit(
+    user_text: str, pending_kind: str
+) -> dict[str, Any] | None:
+    """Recover ability/item/nature field_only edits after extraction failure.
+
+    Only when pending a full build confirmation — locked-slot revise needs a
+    different intent and must not be synthesized as a provisional edit.
+    """
+    if pending_kind != "full_build_confirmation":
+        return None
+    detected = detect_dropped_edit_field(user_text)
+    if detected is None:
+        return None
+    field, value = detected
+    return {
+        "turn_intent": "edit",
+        "turn_payload": EditPayload(field=field, value=value, scope="field_only"),  # type: ignore[typeddict-item]
+    }
+
+
 def parse_turn_intent(
     parser: TurnIntentParser,
     *,
@@ -1039,6 +1073,9 @@ def parse_turn_intent(
             else TurnIntentExtraction.model_validate(result)
         )
     except TurnIntentParseError:
+        recovered = _recover_field_only_edit(user_text, pending_kind)
+        if recovered is not None:
+            return recovered
         return {
             "turn_intent": "pending_response",
             "turn_payload": PendingResponsePayload(message=CLASSIFY_FAIL_USER_MSG),
@@ -1054,6 +1091,9 @@ def parse_turn_intent(
             ),
         }
     except (ValidationError, TypeError, ValueError):
+        recovered = _recover_field_only_edit(user_text, pending_kind)
+        if recovered is not None:
+            return recovered
         return {
             "turn_intent": "pending_response",
             "turn_payload": PendingResponsePayload(message=CLASSIFY_FAIL_USER_MSG),
@@ -1140,29 +1180,44 @@ def parse_turn_intent(
         _is_select_plus_partial_spread(extraction)
         or _is_select_plus_single_field_edit(extraction)
     ):
-        select_intent = "select_build_option"
-        select_payload: dict[str, Any] = {
-            "option_ids": tuple(str(i).strip() for i in extraction.option_ids)
-        }
-        if _is_select_plus_partial_spread(extraction):
-            if _populated(extraction.value_spread_set):
-                select_payload["spread_set"] = extraction.value_spread_set
-            if _populated(extraction.value_spread_delta):
-                select_payload["spread_delta"] = extraction.value_spread_delta
+        # Confirmed live (2026-09-02): "change nature to Relaxed" produced
+        # edit + field=nature + value_text=Relaxed AND a hallucinated
+        # option_ids=['spread_nature:3'] (because that option's label starts
+        # with Relaxed). Treating that as select+edit cleared provisional
+        # via _clear_pending_keys, then apply_provisional_option failed with
+        # "missing or unsupported provisional option state". Only keep the
+        # compound reading when the text itself names an option.
+        if (
+            _is_select_plus_single_field_edit(extraction)
+            and not _text_has_option_signal(user_text)
+        ):
+            object.__setattr__(extraction, "option_ids", None)
+            if extraction.turn_intent == "select_build_option":
+                object.__setattr__(extraction, "turn_intent", "edit")
+            if extraction.edit_scope is None:
+                object.__setattr__(extraction, "edit_scope", "field_only")
         else:
-            select_payload["extra_field"] = extraction.field
-            select_payload["extra_value"] = (
-                extraction.value_moves
-                if extraction.field == "moves"
-                else extraction.value_text
-            )
-        out = {
-            "turn_intent": select_intent,
-            "turn_payload": SelectBuildPayload(**select_payload),  # type: ignore[typeddict-item]
-        }
-        if had_pending:
-            out.update(_clear_pending_keys())
-        return out
+            select_intent = "select_build_option"
+            select_payload: dict[str, Any] = {
+                "option_ids": tuple(str(i).strip() for i in extraction.option_ids)
+            }
+            if _is_select_plus_partial_spread(extraction):
+                if _populated(extraction.value_spread_set):
+                    select_payload["spread_set"] = extraction.value_spread_set
+                if _populated(extraction.value_spread_delta):
+                    select_payload["spread_delta"] = extraction.value_spread_delta
+            else:
+                select_payload["extra_field"] = extraction.field
+                select_payload["extra_value"] = (
+                    extraction.value_moves
+                    if extraction.field == "moves"
+                    else extraction.value_text
+                )
+            # Never clear provisional here — apply_provisional_option needs it.
+            return {
+                "turn_intent": select_intent,
+                "turn_payload": SelectBuildPayload(**select_payload),  # type: ignore[typeddict-item]
+            }
 
     out: dict[str, Any] = {"turn_intent": extraction.turn_intent}
     payload = _payload_for(extraction)

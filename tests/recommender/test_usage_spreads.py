@@ -179,3 +179,34 @@ def test_live_fetch_caches_misses_and_rejects_unknown_regulation():
     calls.clear()
     assert fetch_live_spreads("MissingNo", "champions-reg-zz", fetch) == ()
     assert calls == []
+
+
+def test_nature_for_spread_exact_ev_and_moveset_join():
+    from recommender.usage_data import nature_for_spread
+
+    # Modal CBD Spe-0 bulky row matches Showdown Bold exactly.
+    assert (
+        nature_for_spread(
+            "Sinistcha",
+            {"hp": 32, "atk": 0, "def": 4, "spa": 0, "spd": 30, "spe": 0},
+            regulation="champions-reg-mb",
+        )
+        == "Bold"
+    )
+    # Live Quiet-ish CBD row: featured TR set wins over Spe=0 Quiet heuristic.
+    assert (
+        nature_for_spread(
+            "Sinistcha",
+            {"hp": 32, "atk": 0, "def": 32, "spa": 0, "spd": 2, "spe": 0},
+            regulation="champions-reg-mb",
+            moves=["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"],
+        )
+        == "Bold"
+    )
+    # Same Spe L1<=4 without moves still joins a real Spe-minus nature, not None.
+    joined = nature_for_spread(
+        "Sinistcha",
+        {"hp": 32, "atk": 0, "def": 32, "spa": 0, "spd": 2, "spe": 0},
+        regulation="champions-reg-mb",
+    )
+    assert joined in {"Bold", "Relaxed"}

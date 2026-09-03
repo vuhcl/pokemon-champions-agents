@@ -527,4 +527,50 @@ def test_assemble_reserves_protect_after_redundancy_rebuild():
 
 def test_chilly_reception_weather_maps():
     assert _WEATHER_MANUAL["chillyreception"] == "Snow"
+
+
+def _transcript_five_lock_state() -> RecommenderState:
+    rows = [
+        ("Archaludon", "bulky_special_attacker", ["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"]),
+        ("Pelipper", "rain_setter", ["Hurricane", "Tailwind", "Weather Ball", "Wide Guard"]),
+        ("Sinistcha", "redirection", ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"]),
+        ("Swampert-Mega", "fast_physical_attacker", ["Protect", "Wave Crash", "Ice Punch", "Earthquake"]),
+        ("Delphox-Mega", "standard_special_attacker", ["Heat Wave", "Psychic", "Dazzling Gleam", "Protect"]),
+    ]
+    draft: list[Slot] = []
+    for species, role, moves in rows:
+        draft.append(
+            Slot(
+                species=Attr(value=species, locked=True),
+                role=Attr(value=role, locked=True),
+                moveset=Attr(value=moves, locked=True),
+            )
+        )
+    draft.append(empty_slot())
+    return _state(team_draft=draft)
+
+
+def test_transcript_team_need_flags_no_spurious_redirection():
+    from recommender.move_narrowing import team_need_flags
+
+    flags = team_need_flags(_transcript_five_lock_state())
+    assert "redirection" not in flags
+
+
+def test_transcript_lightscreen_pool_includes_grimmsnarl():
+    r = narrow_candidates_for_move("lightscreen", _transcript_five_lock_state())
+    ids = {to_id(c) for c in r.candidates}
+    assert "grimmsnarl" in ids
+
+
+def test_amoonguss_rage_powder_does_not_add_redirection_flag():
+    from recommender.move_narrowing import team_need_flags
+
+    slot = Slot(
+        species=Attr(value="Amoonguss", locked=True),
+        role=Attr(value="redirection", locked=True),
+        moveset=Attr(value=["Rage Powder", "Spore", "Pollen Puff", "Protect"], locked=True),
+    )
+    state = _state(team_draft=[slot, *[empty_slot() for _ in range(5)]])
+    assert "redirection" not in team_need_flags(state)
     assert _ARCHETYPE_PREF_MOVES["Snow"] == ["snowscape", "chillyreception"]
