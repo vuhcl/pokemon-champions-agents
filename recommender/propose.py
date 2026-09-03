@@ -297,21 +297,38 @@ def _refine_defaults(
 
     moves = list(slot.moveset.value) if slot.moveset.value else None
     item = slot.item.value
-    usage = (
-        featured_or_common_set(species, regulation=regulation)
-        if need_ability or need_moves or need_item
-        else None
-    )
-    usage_missed = False
-    updates: dict[str, Attr[Any]] = {}
-    spread = dict(slot.spread.value) if slot.spread.value else None
-    item_from_synth = False
-
     draft_for_items = (
         team_draft
         if team_draft is not None
         else list(state.get("team_draft") or [])
     )
+    has_locked_teammates = any(
+        s.species.locked
+        and s.species.value
+        and to_id(s.species.value) != to_id(species)
+        for s in draft_for_items
+    )
+
+    if need_ability or need_moves or need_item:
+        if has_locked_teammates:
+            from recommender.usage_data import build_team_aware_default_set
+
+            usage = build_team_aware_default_set(
+                species,
+                regulation=regulation,
+                role_id=slot.role.value,
+                team_draft=draft_for_items,
+                state=state,
+                featured_fn=featured_or_common_set,
+            )
+        else:
+            usage = featured_or_common_set(species, regulation=regulation)
+    else:
+        usage = None
+    usage_missed = False
+    updates: dict[str, Attr[Any]] = {}
+    spread = dict(slot.spread.value) if slot.spread.value else None
+    item_from_synth = False
 
     if usage:
         role_selection = None

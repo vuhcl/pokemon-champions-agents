@@ -2001,7 +2001,7 @@ def build_provisional_slot(
     refined, _ = _propagate_and_refine(
         seed,
         state,
-        regulation=state.get("regulation_mod") or "champions",
+        regulation=_regulation(state),
     )
     return _provisional_from_refined(intent=intent, decision=decision, refined=refined)
 
