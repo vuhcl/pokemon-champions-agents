@@ -17,7 +17,6 @@ from recommender.nodes import discover_multi_locked, discover_single_locked
 from recommender.slot_fill import (
     AnchoredSlotDiscovery,
     AnnotatedCandidate,
-    CoreSlotConflict,
     SlotFillContext,
     SlotFillPresentation,
     SlotFillTerminalResult,
@@ -34,7 +33,6 @@ from recommender.state import (
     empty_slot,
 )
 from recommender.support_needs import RoleShapeContext, SupportNeed
-from recommender.team_candidates import MaskedCorePackage
 
 VGC_MB = "[Gen 9 Champions] VGC 2026 Reg M-B"
 SPREAD = {"hp": 32, "atk": 32, "def": 2, "spa": 0, "spd": 0, "spe": 0}
@@ -68,8 +66,8 @@ def _evidence(*, usage: bool = True) -> CandidateEvidence:
     )
 
 
-def _masked_core_candidate(species: str) -> AnnotatedCandidate:
-    """Candidate eligible for masked-core discovery (should_try_masked_core inputs)."""
+def _filter_stub_candidate(species: str) -> AnnotatedCandidate:
+    """Stub with enough fields for discovery constraint filtering."""
     row = SimpleNamespace(verified_vs=(("x", object()),), verified_score=8.0)
     return AnnotatedCandidate(
         species=species,
@@ -80,14 +78,6 @@ def _masked_core_candidate(species: str) -> AnnotatedCandidate:
         evidence=(_evidence(),),
         branches=frozenset({"threat"}),
         wastes_core_slot=False,
-        core_slot_conflicts=(
-            CoreSlotConflict(
-                kind="weather",
-                locked_slot_index=0,
-                locked_species="Charizard-Mega-Y",
-                resource="Sun",
-            ),
-        ),
     )
 
 
@@ -282,7 +272,7 @@ def test_discover_single_locked_applies_constraint_filter_before_terminal():
     """Plan #9 — nodes.py:1353-1368 apply_mechanical_constraints_to_discovery on single_locked path."""
     state = _state([_locked("Kingambit"), *[empty_slot() for _ in range(5)]])
     state["constraints"] = [_grass_hard_constraint()]
-    merged = [_masked_core_candidate("Rillaboom"), _masked_core_candidate("Pelipper")]
+    merged = [_filter_stub_candidate("Rillaboom"), _filter_stub_candidate("Pelipper")]
     captured: list[SlotFillContext] = []
 
     context = SlotFillContext(
@@ -336,11 +326,8 @@ def test_discover_single_locked_applies_constraint_filter_before_terminal():
     assert captured[0].soft_mechanical == ()
 
 
-def test_discover_multi_locked_core_resolution_respects_hard_type_before_gather():
-    """Plan #10 — nodes.py:1581-1594 filter before gather_masked_core_packages.
-
-    Regression: non-matching species must never reach masked-core resolution options.
-    """
+def test_discover_multi_locked_hard_type_filters_before_rank():
+    """Hard-type filter must run before category ranking / presentation."""
     draft = [
         _locked("Pelipper"),
         _locked("Archaludon"),
@@ -350,25 +337,30 @@ def test_discover_multi_locked_core_resolution_respects_hard_type_before_gather(
         empty_slot(),
     ]
     state = _state(draft, constraints=[_grass_hard_constraint()])
-    merged = [_masked_core_candidate("Rillaboom"), _masked_core_candidate("Pelipper")]
-    gathered_species: list[str] = []
+    state["team_completion_preference"] = "balanced"
+    merged = [_filter_stub_candidate("Rillaboom"), _filter_stub_candidate("Pelipper")]
+    ranked_species: list[str] = []
 
-    def tracking_gather(candidates, *args, **kwargs):
-        gathered_species.extend(c.species for c in candidates)
-        packages = []
-        for candidate in candidates:
-            packages.append(
-                MaskedCorePackage(
-                    candidate,
-                    (3,),
-                    _candidate("Amoonguss"),
-                    "Weather core",
-                )
-            )
-        return tuple(packages)
+    def tracking_rank(candidates, *args, **kwargs):
+        ranked_species.extend(c.species for c in candidates)
+        return list(candidates)
 
     review = TeamReviewResult([], [], [])
     threat = TeamThreatDiscovery(status="available", candidates=(), error=None)
+    terminal = SlotFillTerminalResult(
+        presentation=SlotFillPresentation(
+            1, (PresentedCandidate("Rillaboom", "threat", ()),)
+        ),
+        state_updates={
+            "pending_presentation": {
+                "schema_version": 1,
+                "kind": "candidate_selection",
+                "slot_index": 4,
+                "options": [{"species": "Rillaboom", "source": "threat"}],
+            }
+        },
+        deferred=False,
+    )
 
     with (
         patch("recommender.nodes._compute_team_review", return_value=review),
@@ -386,22 +378,17 @@ def test_discover_multi_locked_core_resolution_respects_hard_type_before_gather(
             side_effect=lambda rows, *args, **kwargs: list(rows),
         ),
         patch(
-            "recommender.team_candidates.gather_masked_core_packages",
-            side_effect=tracking_gather,
+            "recommender.team_candidates.rank_multi_locked_by_category",
+            side_effect=tracking_rank,
         ),
+        patch("recommender.slot_fill.run_slot_fill_terminal", return_value=terminal),
     ):
         result = discover_multi_locked(state, {})  # type: ignore[arg-type]
 
+    assert ranked_species == ["Rillaboom"]
     pending = result.get("pending_presentation") or {}
-    assert pending.get("kind") == "core_resolution"
-    assert gathered_species == ["Rillaboom"]
-    package_options = [
-        o
-        for o in pending.get("resolution_options") or []
-        if o.get("id") != "keep_core"
-    ]
-    assert package_options
-    assert all(
-        o.get("option", {}).get("species") == "Rillaboom" for o in package_options
-    )
-    assert "Pelipper" not in {o.get("option", {}).get("species") for o in package_options}
+    assert pending.get("kind") != "core_resolution"
+    options = pending.get("options") or []
+    if options:
+        assert all(o.get("species") == "Rillaboom" for o in options)
+        assert "Pelipper" not in {o.get("species") for o in options}

@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from dataclasses import replace
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import patch
 
 import pytest
 
+from recommender.anchor_roles import resolve_anchor_build
+from recommender.condition_resilience import assess_condition_resilience
 from recommender.matchup import MatchupEvidenceError, MatchupResult
-from recommender.nodes import classify_pending, commit_full_slot, discover_multi_locked
+from recommender.nodes import _compute_team_review, classify_pending, commit_full_slot, discover_multi_locked
 from recommender.ids import to_id
 from recommender.slot_fill import (
     AnnotatedCandidate,
@@ -43,6 +46,7 @@ from recommender.team_candidates import (
     build_team_threat_objective,
     candidate_core_slot_conflicts,
     collect_locked_anchor_contexts,
+    detect_core_resource_conflicts,
     material_completion_preferences,
     merge_multi_locked_candidates,
     rank_multi_locked_by_category,
@@ -54,7 +58,9 @@ from recommender.teammate_types import (
     SharedTeammate,
     SharedTeammateQueryResult,
 )
-from recommender.threat_counters import aggregate_verified
+from recommender.teammates import query_shared_teammates
+from recommender.threat_counters import aggregate_verified, query_candidates_for_threats
+from recommender.usage_data import lineage_ids
 
 
 def _threat(species: str, usage_rank: int | None = 1) -> ThreatCandidate:
@@ -3460,10 +3466,6 @@ def test_discover_multi_locked_passes_widened_b_cut_for_support():
             side_effect=lambda rows, *args, **kwargs: list(rows),
         ),
         patch(
-            "recommender.team_candidates.gather_masked_core_packages",
-            return_value=[],
-        ),
-        patch(
             "recommender.team_candidates.rank_multi_locked_by_category",
         ) as mocked_cut,
         patch("recommender.slot_fill.run_slot_fill_terminal", return_value=terminal),
@@ -4151,3 +4153,169 @@ def test_select_diverse_default_not_ariados_when_sinistcha_locked():
     )
     result = select_diverse_candidates(merged, contexts)
     assert result["default"] != "Ariados"
+
+
+# --- ADR-038 reachability / wastes demotion helpers (moved from test_masked_core) ---
+
+_REACH_REG = "champions-reg-mb"
+
+
+def _locked_from_species(species: str, *, role: str = "bulky_attacker") -> Slot:
+    build = resolve_anchor_build(species, regulation=_REACH_REG)
+    return Slot(
+        role=Attr(role, locked=True),
+        species=Attr(build.species or species, locked=True),
+        ability=Attr(build.ability or "", locked=True),
+        item=Attr(build.item or "", locked=True),
+        moveset=Attr(list(build.moves or ()), locked=True),
+        spread=Attr(dict(build.spread or {}), locked=True),
+        nature=Attr(build.nature or "Serious", locked=True),
+    )
+
+
+def _four_locked_draft_for_detect() -> list[Slot]:
+    return [
+        _locked("Archaludon"),
+        _locked("Incineroar"),
+        _locked("Amoonguss"),
+        _locked(
+            "Charizard-Mega-Y",
+            ability="Drought",
+            item="Charizardite Y",
+            moves=["Heat Wave", "Protect", "Weather Ball", "Solar Beam"],
+        ),
+        empty_slot(),
+        empty_slot(),
+    ]
+
+
+def _sun_core_sequential_draft() -> list[Slot]:
+    return [
+        _locked_from_species("Archaludon", role="bulky_special_attacker"),
+        _locked_from_species("Incineroar", role="support"),
+        _locked_from_species("Amoonguss", role="support"),
+        _locked_from_species("Charizard-Mega-Y", role="sun_setter"),
+        empty_slot(),
+        empty_slot(),
+    ]
+
+
+def _run_sequential_annotation_pipeline(state: dict[str, Any]):
+    draft = state["team_draft"]
+    contexts = collect_locked_anchor_contexts(state)
+    resilience = assess_condition_resilience(contexts)
+    locked_species = [
+        str(slot.species.value)
+        for slot in draft
+        if slot.species.value and slot.species.locked
+    ]
+    shared = query_shared_teammates(locked_species, state["regulation_mod"])
+    review = _compute_team_review(
+        state, {"configurable": {"thread_id": "core-reachability-test"}}
+    )
+    assert review.status != "unavailable", review.error
+    objective = build_team_threat_objective(review)
+    excluded = {lineage for sp in locked_species for lineage in lineage_ids(sp)}
+    threat_discovery = query_candidates_for_threats(
+        objective,
+        available_pool=[],
+        ownership_mode="off",
+        excluded_species=excluded,
+        locked_contexts=contexts,
+    )
+    assert threat_discovery.status == "available", threat_discovery.error
+    merged = merge_multi_locked_candidates(
+        state,
+        contexts,
+        threat_discovery.candidates,
+        shared,
+        ownership_mode="off",
+        owned_species=frozenset(),
+        condition_resilience=resilience,
+    )
+    candidates = annotate_composition_impact(
+        merged,
+        state,
+        locked_anchors=contexts,
+        condition_resilience=resilience,
+        objective=objective,
+    )
+    return {
+        "candidates": candidates,
+        "contexts": contexts,
+        "resilience": resilience,
+        "objective": objective,
+    }
+
+
+def test_detect_core_resource_conflicts_helper():
+    draft = _four_locked_draft_for_detect()
+    contexts = collect_locked_anchor_contexts(_state(draft))
+    assert detect_core_resource_conflicts(contexts[:3], 4) is False
+    assert detect_core_resource_conflicts(contexts, 4) is True
+    assert detect_core_resource_conflicts(contexts, None) is False
+
+
+def test_annotate_splits_conflicts_on_sequential_bench_slot():
+    state = _state(_sun_core_sequential_draft())
+    pipe = _run_sequential_annotation_pipeline(state)
+    conflicted = next(
+        (
+            c
+            for c in pipe["candidates"]
+            if c.core_slot_conflicts and not c.wastes_core_slot
+        ),
+        None,
+    )
+    assert conflicted is not None, "expected a non-wasting candidate with core_slot_conflicts"
+    assert len(conflicted.core_slot_conflicts) > 0
+
+
+def test_three_locked_core_slot_stays_demote_only():
+    draft = [
+        _locked_from_species("Charizard-Mega-Y", role="sun_setter"),
+        _locked_from_species("Archaludon", role="bulky_special_attacker"),
+        _locked_from_species("Incineroar", role="support"),
+        empty_slot(),
+        empty_slot(),
+        empty_slot(),
+    ]
+    state = _state(draft)
+    pipe = _run_sequential_annotation_pipeline(state)
+    wasteful = next((c for c in pipe["candidates"] if c.wastes_core_slot), None)
+    assert wasteful is not None
+    assert wasteful.core_slot_conflicts == ()
+
+
+def test_bench_subset_and_conflicts_coexist_at_slot_five():
+    state = _state(_sun_core_sequential_draft())
+    pipe = _run_sequential_annotation_pipeline(state)
+    from recommender.team_candidates import candidate_has_unmet_needed_weather_dependency
+    from recommender.anchor_roles import classify_anchor_role
+
+    target = None
+    for c in pipe["candidates"]:
+        if not c.core_slot_conflicts:
+            continue
+        build = resolve_anchor_build(c.species, regulation=_REACH_REG)
+        decision = classify_anchor_role(build)
+        if candidate_has_unmet_needed_weather_dependency(decision, pipe["contexts"]):
+            continue
+        target = c
+        break
+    assert target is not None
+
+    with patch(
+        "recommender.coverage.candidate_improves_best_bring",
+        return_value=True,
+    ):
+        annotated = annotate_composition_impact(
+            [target],
+            state,
+            locked_anchors=pipe["contexts"],
+            condition_resilience=pipe["resilience"],
+            objective=pipe["objective"],
+        )
+    row = annotated[0]
+    assert row.core_slot_conflicts
+    assert row.improves_bench_subset is True

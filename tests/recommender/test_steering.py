@@ -703,17 +703,6 @@ def test_classify_pending_full_build_defer_emits_build_abandoned():
     assert result["provisional_refinement"] is None
 
 
-def test_classify_pending_core_resolution_defer_still_deferred():
-    pending = {
-        "schema_version": 2,
-        "kind": "core_resolution",
-        "slot_index": 2,
-        "resolution_options": [{"id": "keep_core", "label": "Keep current core"}],
-    }
-    result = classify_pending("defer", pending)
-    assert result["turn_intent"] == "deferred"
-    assert result["pending_presentation"] is None
-
 
 def test_full_build_defer_rediscovers_candidates():
     graph = _graph()
@@ -1194,7 +1183,7 @@ def _threat_available():
     return TeamThreatDiscovery(status="available", candidates=(), error=None)
 
 
-def _discover_patches(*, packages=(), material_prefs=()):
+def _discover_patches(*, material_prefs=()):
     @contextmanager
     def _ctx():
         with (
@@ -1219,10 +1208,6 @@ def _discover_patches(*, packages=(), material_prefs=()):
                 "recommender.team_candidates.material_completion_preferences",
                 return_value=material_prefs,
             ),
-            patch(
-                "recommender.team_candidates.gather_masked_core_packages",
-                return_value=packages,
-            ),
         ):
             yield
 
@@ -1240,40 +1225,6 @@ def test_force_prompt_when_material_preferences_empty():
     assert pending["preference_options"] == ("attacker", "support", "balanced")
     assert result["force_completion_preference_prompt"] is False
 
-
-def test_force_prompt_survives_core_resolution_intercept():
-    from recommender.nodes import discover_multi_locked
-    from recommender.team_candidates import MaskedCorePackage
-    from recommender.slot_fill import AnnotatedCandidate
-
-    state = _multi_locked_discover_state(force_completion_preference_prompt=True)
-    fill = AnnotatedCandidate(
-        species="Pelipper",
-        matching_needs=(),
-        source="threat",
-        threat_row=None,
-        spec={"species": "Pelipper"},
-        evidence=(),
-        branches=frozenset({"threat"}),
-    )
-    package = MaskedCorePackage(
-        AnnotatedCandidate(
-            species="Swampert-Mega",
-            matching_needs=(),
-            source="threat",
-            threat_row=None,
-            spec={"species": "Swampert-Mega"},
-            evidence=(),
-            branches=frozenset({"threat"}),
-        ),
-        (0,),
-        fill,
-        "Weather core",
-    )
-    with _discover_patches(packages=(package,), material_prefs=()):
-        result = discover_multi_locked(state, {})  # type: ignore[arg-type]
-    assert result["pending_presentation"]["kind"] == "core_resolution"
-    assert "force_completion_preference_prompt" not in result
 
 
 def test_preference_revision_reprompts_via_classify_input():

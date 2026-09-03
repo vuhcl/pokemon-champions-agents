@@ -123,8 +123,6 @@ def initialize(state: RecommenderState) -> dict:
         out["team_completion_preference"] = None
     if "force_completion_preference_prompt" not in state:
         out["force_completion_preference_prompt"] = False
-    if "masked_slot_indices" not in state:
-        out["masked_slot_indices"] = ()
     if "candidate_discovery_error" not in state:
         out["candidate_discovery_error"] = None
     if "last_system_claim" not in state:
@@ -211,7 +209,6 @@ def classify_input(
         "provisional_refinement",
         "team_completion_preference",
         "force_completion_preference_prompt",
-        "masked_slot_indices",
     ):
         if key in result:
             out[key] = result[key]
@@ -430,10 +427,8 @@ def unlock_locked_slot(state: RecommenderState) -> dict:
         return _full_slot_error(REPICK_REQUIRES_LOCKED_MSG)
 
     draft[slot_index] = empty_slot()
-    masked = tuple(i for i in (state.get("masked_slot_indices") or ()) if i != slot_index)
     return {
         "team_draft": draft,
-        "masked_slot_indices": masked,
         "pending_presentation": None,
         "pending_slot_intent": None,
         "provisional_slot": None,
@@ -1627,7 +1622,6 @@ def discover_multi_locked(
         merge_multi_locked_candidates,
         owned_species_ids,
         rank_multi_locked_by_category,
-        gather_masked_core_packages,
     )
     from recommender.threat_counters import query_candidates_for_threats
     from recommender.usage_data import lineage_ids
@@ -1736,37 +1730,6 @@ def discover_multi_locked(
             "pending_presentation": None,
         }
     soft_mechanical = discovery_soft_specs(state.get("constraints", []))
-    packages = gather_masked_core_packages(
-        candidates, state, contexts, objective=objective
-    )
-    if packages:
-        resolution_options: list[dict] = [
-            {"id": "keep_core", "label": "Keep current core"}
-        ]
-        for index, package in enumerate(packages):
-            resolution_options.append(
-                {
-                    "id": f"package_{index}",
-                    "label": package.label,
-                    "masked_slot_indices": package.masked_slot_indices,
-                    "option": {
-                        "species": package.candidate.species,
-                        "source": package.candidate.source,
-                        "evidence": package.candidate.evidence,
-                        "track": package.label,
-                    },
-                }
-            )
-        return {
-            **signals,
-            "candidate_discovery_error": None,
-            "pending_presentation": {
-                "schema_version": 2,
-                "kind": "core_resolution",
-                "slot_index": slot_index,
-                "resolution_options": resolution_options,
-            },
-        }
     preference = state.get("team_completion_preference")
     force_prompt = bool(state.get("force_completion_preference_prompt"))
     if preference is None:
