@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import json
-from collections import defaultdict
+from collections import defaultdict, Counter
 from datetime import date, datetime
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from functools import lru_cache
 from itertools import combinations
 from pathlib import Path
@@ -716,6 +716,117 @@ def normalize_member_evs(raw: dict[str, Any] | None) -> dict[str, int] | None:
     if sum(spread.values()) != 66 or any(v < 0 or v > 32 for v in spread.values()):
         return None
     return spread
+
+
+def nature_for_spread(
+    species: str,
+    spread: StatsTable,
+    *,
+    regulation: str = "champions-reg-mb",
+    moves: Sequence[str] = (),
+) -> str | None:
+    """Join a real nature to a CBD/Showdown EV spread (or matching 4-move set).
+
+    Order: featured/paste moveset match → exact EV Showdown → exact EV pastes →
+    same-Spe L1≤4 Showdown (ponytail: 2-point spa/spd CBD noise; drop when dumps align).
+    """
+    sid = to_id(species)
+    try:
+        want = tuple(int(spread.get(k, 0)) for k in _STAT_KEYS)
+    except (TypeError, ValueError):
+        return None
+    want_spe = want[5]
+    move_list = [str(m) for m in moves if m]
+    sd = showdown_species_map(regulation).get(sid) or {}
+
+    if len(move_list) == 4:
+        want_moves = frozenset(to_id(m) for m in move_list)
+        for fs in sd.get("featured_sets") or []:
+            fs_moves = fs.get("moves") or []
+            if len(fs_moves) < 4:
+                continue
+            if frozenset(to_id(m) for m in fs_moves[:4]) != want_moves:
+                continue
+            nat = fs.get("nature")
+            if nat:
+                return str(nat)
+        paste_natures: Counter[str] = Counter()
+        lookup = set(vgcpastes_lookup_species_ids(species, None))
+        for team in load_vgcpastes_builds(regulation).get("teams") or []:
+            for member in team.get("members") or []:
+                if to_id(str(member.get("species") or "")) not in lookup:
+                    continue
+                mem_moves = member.get("moves") or []
+                if len(mem_moves) != 4:
+                    continue
+                if frozenset(to_id(m) for m in mem_moves) != want_moves:
+                    continue
+                nat = member.get("nature")
+                if nat:
+                    paste_natures[str(nat)] += 1
+        if paste_natures:
+            return paste_natures.most_common(1)[0][0]
+
+    best: str | None = None
+    best_pct = -1.0
+    for row in sd.get("top_spreads") or []:
+        nat = row.get("nature")
+        if not nat:
+            continue
+        evs = row.get("evs") or {}
+        try:
+            tup = tuple(int(evs.get(k, 0)) for k in _STAT_KEYS)
+        except (TypeError, ValueError):
+            continue
+        if tup != want:
+            continue
+        pct = float(row.get("pct") or 0)
+        if pct > best_pct:
+            best_pct = pct
+            best = str(nat)
+    if best:
+        return best
+
+    paste_exact: Counter[str] = Counter()
+    lookup = set(vgcpastes_lookup_species_ids(species, None))
+    for team in load_vgcpastes_builds(regulation).get("teams") or []:
+        for member in team.get("members") or []:
+            if to_id(str(member.get("species") or "")) not in lookup:
+                continue
+            n_evs = normalize_member_evs(member.get("evs"))
+            if n_evs is None:
+                continue
+            if tuple(n_evs[k] for k in _STAT_KEYS) != want:
+                continue
+            nat = member.get("nature")
+            if nat:
+                paste_exact[str(nat)] += 1
+    if paste_exact:
+        return paste_exact.most_common(1)[0][0]
+
+    nearest: str | None = None
+    nearest_l1 = 999
+    nearest_pct = -1.0
+    for row in sd.get("top_spreads") or []:
+        nat = row.get("nature")
+        if not nat:
+            continue
+        evs = row.get("evs") or {}
+        try:
+            tup = tuple(int(evs.get(k, 0)) for k in _STAT_KEYS)
+        except (TypeError, ValueError):
+            continue
+        if tup[5] != want_spe:
+            continue
+        l1 = sum(abs(a - b) for a, b in zip(tup, want, strict=True))
+        if l1 > 4:
+            continue
+        pct = float(row.get("pct") or 0)
+        if l1 < nearest_l1 or (l1 == nearest_l1 and pct > nearest_pct):
+            nearest_l1 = l1
+            nearest_pct = pct
+            nearest = str(nat)
+    return nearest
 
 
 def parse_date_shared(raw: str | None) -> date | None:

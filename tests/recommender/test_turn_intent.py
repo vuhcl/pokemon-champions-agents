@@ -772,9 +772,7 @@ def test_edit_tolerates_null_constraint_object():
     assert result["turn_payload"]["value"] == "Modest"
 
 
-def test_incomplete_edit_returns_friendly_pending_response():
-    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
-
+def test_incomplete_edit_recovers_nature_on_full_build_confirmation():
     parser = RunnableLambda(
         lambda _: {
             "turn_intent": "edit",
@@ -793,11 +791,55 @@ def test_incomplete_edit_returns_friendly_pending_response():
         pending_kind="full_build_confirmation",
         had_pending=True,
     )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["field"] == "nature"
+    assert result["turn_payload"]["value"] == "Modest"
+    assert result["turn_payload"]["scope"] == "field_only"
+
+
+def test_change_nature_to_bold_recovers_on_validation_fail():
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "value_moves": ["A", "B", "C", "D"],
+            "edit_scope": "field_only",
+        }
+    )
+    result = parse_turn_intent(
+        parser,
+        user_text="change nature to bold",
+        pending_kind="full_build_confirmation",
+        had_pending=True,
+    )
+    assert result["turn_intent"] == "edit"
+    assert result["turn_payload"]["field"] == "nature"
+    assert result["turn_payload"]["value"] == "Bold"
+
+
+def test_incomplete_edit_still_fails_without_full_build_pending():
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
+    parser = RunnableLambda(
+        lambda _: {
+            "turn_intent": "edit",
+            "field": "nature",
+            "constraint": {
+                "type": None,
+                "predicate": None,
+                "scope": None,
+                "groundedness": None,
+            },
+        }
+    )
+    result = parse_turn_intent(
+        parser,
+        user_text="run Modest, just the nature",
+        pending_kind="none",
+        had_pending=True,
+    )
     assert result["turn_intent"] == "pending_response"
     assert result["turn_payload"]["message"] == CLASSIFY_FAIL_USER_MSG
-    assert "OUTPUT_PARSING_FAILURE" not in result["turn_payload"]["message"]
-    assert "validation error" not in result["turn_payload"]["message"].casefold()
-    assert "pending_presentation" not in result
 
 
 def test_include_raw_parsing_error_is_friendly():

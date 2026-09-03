@@ -210,6 +210,31 @@ def _commitment_pct(species: str, move: str, *, regulation: str) -> float | None
     return None
 
 
+def move_appears_in_usage(species: str, move: str, *, regulation: str) -> bool:
+    """True if the move is in top-10 common_moves or pct >= MIN_USAGE_PCT.
+
+    Checks ingame then Showdown independently (OR). Unlike _commitment_pct,
+    rank and threshold both count — a #11 move at 5% still qualifies.
+    """
+    sid = to_id(species)
+    mid = to_id(move)
+    for source in (
+        ingame_species_map(regulation).get(sid),
+        showdown_species_map(regulation).get(sid),
+    ):
+        if not source:
+            continue
+        for i, row in enumerate(source.get("common_moves") or []):
+            if to_id(row.get("name") or "") != mid:
+                continue
+            if i < 10:
+                return True
+            pct = row.get("pct")
+            if pct is not None and float(pct) >= MIN_USAGE_PCT:
+                return True
+    return False
+
+
 def _ladder_usage_pct(species: str, *, regulation: str) -> float | None:
     entry = species_usage(species, regulation=regulation)
     if not entry:

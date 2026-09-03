@@ -1000,6 +1000,26 @@ def _clear_pending_keys() -> dict[str, None]:
     }
 
 
+def _recover_field_only_edit(
+    user_text: str, pending_kind: str
+) -> dict[str, Any] | None:
+    """Recover ability/item/nature field_only edits after extraction failure.
+
+    Only when pending a full build confirmation — locked-slot revise needs a
+    different intent and must not be synthesized as a provisional edit.
+    """
+    if pending_kind != "full_build_confirmation":
+        return None
+    detected = detect_dropped_edit_field(user_text)
+    if detected is None:
+        return None
+    field, value = detected
+    return {
+        "turn_intent": "edit",
+        "turn_payload": EditPayload(field=field, value=value, scope="field_only"),  # type: ignore[typeddict-item]
+    }
+
+
 def parse_turn_intent(
     parser: TurnIntentParser,
     *,
@@ -1039,6 +1059,9 @@ def parse_turn_intent(
             else TurnIntentExtraction.model_validate(result)
         )
     except TurnIntentParseError:
+        recovered = _recover_field_only_edit(user_text, pending_kind)
+        if recovered is not None:
+            return recovered
         return {
             "turn_intent": "pending_response",
             "turn_payload": PendingResponsePayload(message=CLASSIFY_FAIL_USER_MSG),
@@ -1054,6 +1077,9 @@ def parse_turn_intent(
             ),
         }
     except (ValidationError, TypeError, ValueError):
+        recovered = _recover_field_only_edit(user_text, pending_kind)
+        if recovered is not None:
+            return recovered
         return {
             "turn_intent": "pending_response",
             "turn_payload": PendingResponsePayload(message=CLASSIFY_FAIL_USER_MSG),

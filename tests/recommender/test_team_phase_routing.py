@@ -304,9 +304,11 @@ def test_single_locked_owned_only_presents_expanded_mega_from_real_need_resoluti
     """End-to-end: real resolve_all_support_needs + merge + present.
 
     Threat counters are emptied so candidates must come from need resolution (threats
-    are not ownership-filtered in single_locked). Slowbro→Slowbro-Mega is used because
-    Mega Swampert does not learn any current need-satisfier move; Slowbro-Mega learns
-    Trick Room and exercises the same base→Mega ownership expansion.
+    are not ownership-filtered in single_locked). Audino→Audino-Mega is used because
+    Audino-Mega has real Life Dew / Heal Pulse usage (healing_cleric has no Role
+    Compendium, so usage-gated mechanical matches still surface), exercising the same
+    base→Mega ownership expansion. Slowbro-Mega no longer qualifies: its Heal Pulse
+    usage is below threshold and it is not in the Trick Room Role Compendium.
     """
     from recommender.ids import to_id
 
@@ -323,7 +325,7 @@ def test_single_locked_owned_only_presents_expanded_mega_from_real_need_resoluti
         nature=Attr("Modest", locked=True),
     )
     state = _state([archaludon, *[empty_slot() for _ in range(5)]])
-    state["available_pool"] = [{"species": "Slowbro"}]
+    state["available_pool"] = [{"species": "Audino"}]
     state["ownership_mode"] = "owned_only"
 
     with patch(
@@ -337,7 +339,7 @@ def test_single_locked_owned_only_presents_expanded_mega_from_real_need_resoluti
     assert pending["kind"] == "candidate_selection"
     options = [option["species"] for option in pending["options"]]
     option_ids = {to_id(name) for name in options}
-    assert "slowbromega" in option_ids, options
+    assert "audinomega" in option_ids, options
 
 
 def test_single_locked_pelipper_presents_rain_condition_beneficiary():

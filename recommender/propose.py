@@ -553,13 +553,27 @@ def _refine_defaults(
         and working.nature.value is None
         and working.spread.value
     ):
-        nature = _nature_for_spread(working.spread.value, working.role.value)
+        from recommender.usage_data import nature_for_spread
+
+        move_for_join = list(working.moveset.value or moves or ())
+        joined = nature_for_spread(
+            species,
+            working.spread.value,
+            regulation=regulation,
+            moves=move_for_join,
+        )
+        nature = joined or _nature_for_spread(
+            working.spread.value, working.role.value
+        )
         updates = {
             **updates,
             "nature": Attr(
                 value=nature,
                 locked=False,
-                reason=ReasonRef(kind="tier2_heuristic", ref="tier3_nature"),
+                reason=ReasonRef(
+                    kind="tier2_heuristic",
+                    ref="usage_nature_join" if joined else "tier3_nature",
+                ),
             ),
         }
         working = replace(slot, **updates)

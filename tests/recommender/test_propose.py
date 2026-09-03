@@ -408,6 +408,7 @@ def test_tier3_role_spread_sets_nature_when_usage_spreads_miss():
         patch("recommender.propose.get_resolved_build", return_value=None),
         patch("recommender.propose.select_usage_spread", return_value=None),
         patch("recommender.propose.get_relevant_threats", return_value=[]),
+        patch("recommender.usage_data.nature_for_spread", return_value=None),
     ):
         out = fill_team_draft(state)
     s = out["team_draft"][0]

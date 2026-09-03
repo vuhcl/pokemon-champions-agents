@@ -644,6 +644,9 @@ class RecommenderState(TypedDict):
     messages: Annotated[list, add_messages]
 
     pending_input: NotRequired[Optional[str]]
+    # Cleared pending_input is gone before apply_provisional_edit; stash for
+    # swap/replace reconstruction that still needs the raw utterance.
+    last_user_text: NotRequired[Optional[str]]
     turn_intent: NotRequired[Optional[str]]
     turn_payload: NotRequired[Optional[TurnPayload]]
     turn: NotRequired[int]

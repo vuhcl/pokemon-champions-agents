@@ -180,6 +180,7 @@ def classify_input(
         "turn_intent": result["turn_intent"],
         "turn_payload": result.get("turn_payload"),
         "pending_input": None,
+        "last_user_text": text,
         "turn": state.get("turn", 0) + 1,
         "slot_commit_error": None,
         "compare_analysis": None,
@@ -540,12 +541,12 @@ def apply_provisional_edit(state: RecommenderState) -> dict:
         state=state,
     )
     if isinstance(result, UnresolvedSlotRefinement):
-        return {
-            "slot_commit_error": (
-                "Could not apply edit: "
-                + (result.reason or ",".join(result.unresolved_fields))
-            )
-        }
+        detail = (
+            "could not apply move swap"
+            if field == "moves"
+            else (result.reason or ",".join(result.unresolved_fields))
+        )
+        return {"slot_commit_error": f"Could not apply edit: {detail}"}
 
     err = _verify_provisional_hard(result, state)
     if err:
