@@ -1951,7 +1951,8 @@ def select_diverse_candidates(
 
     def _has_strong_evidence(c: AnnotatedCandidate, *, condition_beneficiary: bool) -> bool:
         relevant = _need_branch_evidence(c, condition_beneficiary=condition_beneficiary)
-        return any(item.confidence != "low" for item in relevant)
+        winner = _pick_best_evidence_item(relevant)
+        return winner is not None and winner.confidence != "low"
 
     ranked_b = [
         c

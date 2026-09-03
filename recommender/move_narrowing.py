@@ -242,9 +242,7 @@ def team_need_flags(state: RecommenderState) -> set[str]:
     for s in draft:
         if s.moveset.value:
             locked_moves.update(to_id(m) for m in s.moveset.value)
-    if not (REDIRECT_MOVES & locked_moves) and (
-        "coverage_gap" in flags or "redirection" in present_roles
-    ):
+    if not (REDIRECT_MOVES & locked_moves) and "coverage_gap" in flags:
         flags.add("redirection")
     if not (_SPEED_CONTROL & locked_moves) and (
         "speed_control" in flags or "support_speed_control" in present_roles
