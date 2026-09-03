@@ -10,7 +10,7 @@ import pytest
 from langchain_core.runnables import RunnableLambda
 from langgraph.checkpoint.memory import MemorySaver
 
-from recommender.cli import handle_line, invoke_user_text, main
+from recommender.cli import format_help, handle_line, invoke_user_text, main
 from recommender.graph import compile_cli_graph, compile_graph
 from recommender.nodes import LOCK_FULLY_LOCKED_SLOT_MSG, team_phase
 from recommender.nodes_classify import _MISMATCH_MSG
@@ -210,6 +210,61 @@ def _stub_team_review_with_covered() -> TeamReviewResult:
         ],
         spofs=[],
     )
+
+
+def test_handle_line_meta_help_no_graph():
+    graph = MagicMock()
+    state = {"pending_presentation": _CANDIDATE_PENDING, "team_draft": []}
+    new_state, _, _, output, should_exit = handle_line(
+        graph, thread_config("t"), state, ":help", format_id=DEFAULT_FORMAT_ID, thread_id="t"
+    )
+    graph.invoke.assert_not_called()
+    assert new_state is state
+    assert should_exit is False
+    assert output == format_help()
+    assert "continue" not in output
+    assert "team_review" not in output
+    assert "constraint" not in output
+    assert "Meowstic" not in output
+    assert ":help" in output
+    assert ":team" in output
+
+
+def test_handle_line_unknown_colon_does_not_rerender_pending():
+    graph = MagicMock()
+    state = {"pending_presentation": _CANDIDATE_PENDING, "team_draft": []}
+    new_state, _, _, output, should_exit = handle_line(
+        graph,
+        thread_config("t"),
+        state,
+        ":notacommand",
+        format_id=DEFAULT_FORMAT_ID,
+        thread_id="t",
+    )
+    graph.invoke.assert_not_called()
+    assert new_state is state
+    assert should_exit is False
+    assert output == "Unknown command: :notacommand. Try :help."
+    assert UNMATCHED_REPLY_PREFIX not in output
+    assert "Meowstic" not in output
+
+
+def test_handle_line_new_with_arg_is_unknown_command():
+    graph = MagicMock()
+    state = {"pending_presentation": _CANDIDATE_PENDING, "team_draft": []}
+    _, _, _, output, should_exit = handle_line(
+        graph,
+        thread_config("t"),
+        state,
+        ":new Archaludon",
+        format_id=DEFAULT_FORMAT_ID,
+        thread_id="t",
+    )
+    graph.invoke.assert_not_called()
+    assert should_exit is False
+    assert output == "Unknown command: :new. Try :help."
+    assert UNMATCHED_REPLY_PREFIX not in output
+    assert "Meowstic" not in output
 
 
 def test_handle_line_meta_builds():
