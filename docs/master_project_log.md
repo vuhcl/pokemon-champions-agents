@@ -5259,6 +5259,77 @@ verified this entire session.
 With this stack merged, the queue from this session's live-transcript
 investigation is effectively closed.
 
+### 2026-09-03 — ADR-038 (masked alternate-core discovery) reversed after root-cause investigation
+
+Started as a UX bug report on a real CLI transcript: replying "1"
+(keep current core) to a masked-core conflict prompt produced the
+identical prompt again — a genuine stuck state, not a wording problem.
+Discovery confirmed a real infinite-consult-loop bug (keep_core clears
+the pending prompt, but rediscovery re-runs gather_masked_core_packages
+with no suppression latch and re-detects the same conflict every time)
+plus a separate, unrelated bug in the same transcript: no :help
+command, and unrecognized colon-commands silently re-render the last
+pending prompt rather than surfacing as unknown input.
+
+Attempting to fix the conflict prompt's wording (which candidate is
+under discussion, what "keep current core" concretely does) surfaced a
+structural error first — the message had the candidate/locked-member
+relationship backwards — and unwinding that led to re-examining ADR-038's
+entire premise rather than just its copy. Working through it directly:
+Reg M-B doubles' only roster-legality constraints are Item Clause and
+Species Clause; neither forbids carrying multiple Mega-Stone holders on
+a 6-Pokémon roster. Mega Evolution being usable by only one Pokémon per
+battle is an in-game choice, not a team-building-time exclusivity.
+Confirmed this already had internal precedent: ADR-023 Amendment
+2026-08-16a (mega-ceiling guidance) had already corrected an earlier
+"forced" framing to "Mega Evolution is always optional," scoping its
+own guidance as informational-only with no ranking impact.
+
+Concluded core_resolution's entire masked-alternate-core flow — the
+"keep current core vs. swap" decision, masked_slot_indices, and the
+"core"/"mask" internal vocabulary that had leaked into shipped
+user-facing labels (ADR-054) — was solving a problem that doesn't exist
+at the team-building stage. A mega-capable candidate for an open slot
+is just an ordinary candidate, evaluated against the real, unmasked
+team; nothing about locking it in requires a decision about an
+already-locked member.
+
+Along the way, initially misapplied this reasoning to wastes_core_slot's
+separate, pre-existing (pre-ADR-038) demotion of a second mega/
+conflicting-weather candidate within the assumed-brought 4 — flagged as
+possibly inconsistent, then confirmed self-consistent on inspection:
+since it only demotes within the always-brought group, a second mega
+can never enter the default 4 by construction, so the mega ceiling is
+never actually approached. Left untouched. Worth noting as a real
+example of the "don't scope fixes only to what came up in conversation"
+discipline cutting the other way — the demotion's logic held up under
+scrutiny rather than needing to change.
+
+Scoped and executed a two-PR reversal, deliberately narrow rather than
+bundled: (1) core_resolution's UI/flow and exclusive helpers; (2)
+detect_core_resource_conflicts and the core_slot_conflicts field,
+gated on confirming directly in code — not assumed from the discovery
+report alone — that wastes_core_slot's ranking demotion never depended
+on detect_core_resource_conflicts's output. Also removed ADR-047's
+masked-core-specific gap-fill helpers (candidate_improves_best_bring
+itself preserved untouched) and collapsed the exclude_slots multi-slot
+parameter plumbing after confirming masked gap-fill was its only
+production caller.
+
+Verified independently: both branches confirmed based on current main;
+1596/1595 tests passed respectively (12 skipped); all remaining
+failures traced and confirmed identical on unmodified main (calc
+service unreachable in the verification sandbox — an environment
+limitation, not a regression). Both merged.
+
+Closes: the original keep_core infinite-loop bug is moot — the flow it
+lived in no longer exists.
+
+Still open from the same transcript, deliberately not bundled into this
+reversal (unrelated machinery — CLI dispatch layer, not candidate
+discovery): :help command missing; unrecognized colon-commands silently
+re-render stale pending prompts instead of surfacing as unknown input.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

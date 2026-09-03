@@ -8446,6 +8446,69 @@ integration test). PR merged off `fix/masked-core-reachability`.
 
 ---
 
+### ADR-038 — Amendment 2026-09-03a — Masked alternate-core discovery reversed
+
+The entire core_resolution flow (the "keep current core vs. swap" prompt,
+masked_slot_indices, and the masked-evaluation machinery behind it) is
+reversed. Its premise misidentified an optional soft-redundancy case
+(whether to run two mega-capable Pokémon) as a legality-driven hard
+exclusivity. Reg M-B doubles' roster-of-6 is gated only by Item Clause
+and Species Clause — neither forbids carrying multiple Mega-Stone
+holders. Mega Evolution being usable by only one Pokémon per battle is
+an in-game choice made at team-selection/in-battle time, not a
+team-building-time constraint. This already had internal precedent:
+ADR-023 Amendment 2026-08-16a (mega-ceiling guidance) explicitly
+corrected an earlier "forced" framing to "Mega Evolution is always
+optional even when multiple holders are selected together," and scoped
+its own guidance as informational-only — no ranking impact, no
+candidate exclusion. core_resolution never had that correction applied
+to its own premise.
+
+Surfaced via a real transcript bug, not a design review: replying "1"
+(keep current core) produced an infinite consult loop (rediscovery
+re-ran gather_masked_core_packages with no suppression latch and
+re-detected the same conflict every time). Attempting to fix the
+prompt's wording (it had the candidate/locked-member relationship
+backwards, and leaked internal "core"/"mask" vocabulary into user-facing
+text — already visible in shipped ADR-054 copy) led to reconsidering
+why the intercept existed at all, rather than patching it.
+
+Explicitly distinguished from and does NOT touch wastes_core_slot's
+pre-existing (pre-ADR-038), separate, index-gated demotion of a second
+mega/conflicting-weather candidate within the assumed-brought 4 slots.
+Initially suspected as inconsistent with this same reasoning, then
+confirmed self-consistent: since it only ever demotes within the
+always-brought group (slot_index < picked_team_size), a second mega can
+never enter the default 4 by construction — the format's mega ceiling
+is never actually approached, independent of the ceiling formula
+itself. This demotion remains live and unchanged.
+
+Scope of reversal, deliberately narrow, executed as two sequential PRs:
+1. Removed core_resolution's UI/flow and all exclusive helpers
+   (gather_masked_core_packages, discover_masked_core_package,
+   should_try_masked_core, keep_core handling, masked_slot_indices,
+   ADR-054's resolution labels). Also collapsed the exclude_slots
+   (plural, multi-slot) parameter on threat/condition/coverage APIs
+   back to the single-slot exclude_slot, after confirming masked gap-fill
+   was its only production caller.
+2. Removed detect_core_resource_conflicts and the core_slot_conflicts
+   candidate field, gated on confirming directly in code (not assumed
+   from discovery alone) that wastes_core_slot's ranking demotion was
+   already computed from is_core_slot alone and never read
+   detect_core_resource_conflicts's output — so this PR changes zero
+   ranking behavior.
+
+Verified independently: both branches based on current main;
+1596/1595 tests passed respectively (12 skipped); all remaining
+failures confirmed identical on unmodified main via direct comparison
+(calc-service unavailable in the verification sandbox — a sandbox
+limitation, not a regression).
+
+Status: Reversed and merged (branches
+revert/adr-038-core-resolution-ui, revert/adr-038-detect-core-resource-conflicts).
+
+---
+
 ## ADR-039: Orientation preference — real per-preference selection
 shapes, a revision escape hatch, and deterministic reject-N
 
@@ -9217,6 +9280,20 @@ on the original broken fixture. Full suite green post-merge (1471 passed,
 
 ---
 
+### ADR-047 — Amendment 2026-09-03a — Superseded by ADR-038 reversal
+
+ADR-047's conflict-aware gap-fill search (_search_gap_fill,
+_fill_viable_for_package, _gap_fill_mask_extra) existed solely in
+service of ADR-038's masked alternate-core discovery, which has been
+reversed (see ADR-038 Amendment 2026-09-03a) — the problem it was
+solving no longer exists. Removed in the same PR sequence.
+candidate_improves_best_bring, which ADR-047 built its conflict-
+awareness on top of, is preserved unchanged and continues to serve its
+independent, non-masked-core role; only the masked-core-specific call
+site and its exclusive helpers are gone.
+
+---
+
 ## ADR-048: CLI idle-turn steering and presentation gaps (message
 correctness, defer-abandon recovery, pre-guard relaxation, builds/review
 visibility)
@@ -9860,6 +9937,18 @@ pool/ranking changes). `should_try_masked_core`, `_search_gap_fill`,
 and `discover_masked_core_package`'s core logic are confirmed
 untouched — this is presentation plus a safety net layered on
 already-correct discovery. Full suite green.
+
+---
+
+### ADR-054 Amendment 2026-09-03a — Superseded by ADR-038 reversal
+
+ADR-054's resolution-label disclosure format ("Weather/Mega core —
+{candidate}, {benched} benched") existed solely for core_resolution's
+UI, which has been reversed (see ADR-038 Amendment 2026-09-03a).
+Removed with the rest of the exclusive surface. No replacement needed
+— the flow itself no longer exists, and the candidate/team-context
+disclosure this ADR was protecting now happens naturally through
+ordinary candidate presentation.
 
 ---
 
