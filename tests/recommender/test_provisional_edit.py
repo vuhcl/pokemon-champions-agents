@@ -152,7 +152,7 @@ def test_revise_swap_protect_for_soak_from_partial_value():
     result = revise_provisional_slot(
         current,
         field="moves",
-        value=["Soak"],
+        value=["soak"],
         scope="field_only",
         intent=_intent(current),
         state={
@@ -162,12 +162,24 @@ def test_revise_swap_protect_for_soak_from_partial_value():
         },
     )
     assert isinstance(result, ProvisionalSlot)
-    assert [m.casefold() for m in result.moves] == [
-        "hurricane",
-        "weather ball",
-        "tailwind",
-        "soak",
-    ]
+    assert result.moves == ("Hurricane", "Weather Ball", "Tailwind", "Soak")
+
+
+def test_revise_lowercase_nature_is_canonicalized():
+    current = _pelipper_provisional()
+    result = revise_provisional_slot(
+        current,
+        field="nature",
+        value="bold",
+        scope="field_only",
+        intent=_intent(current),
+        state={
+            "regulation_mod": "champions",
+            "team_draft": [empty_slot() for _ in range(6)],
+        },
+    )
+    assert isinstance(result, ProvisionalSlot)
+    assert result.nature == "Bold"
 
 
 def test_revise_swap_two_name_value_without_user_text():

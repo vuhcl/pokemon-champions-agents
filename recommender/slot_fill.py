@@ -2105,6 +2105,20 @@ def apply_partial_spread(
     return result
 
 
+def _display_nature(value: object) -> str:
+    from recommender.turn_intent import _REAL_NATURES
+
+    raw = str(value)
+    return _REAL_NATURES.get(to_id(raw), raw)
+
+
+def _display_move(name: str, snap: dict[str, Any]) -> str:
+    mid = to_id(name)
+    meta = (snap.get("moves") or {}).get(mid) or {}
+    display = meta.get("name") if isinstance(meta, dict) else None
+    return str(display) if display else name
+
+
 def _reconstruct_partial_moveset(
     current_moves: Sequence[str],
     value: object,
@@ -2118,7 +2132,7 @@ def _reconstruct_partial_moveset(
         return None
     names = [str(v) for v in value if v]
     if len(names) == 4:
-        return list(names)
+        return [_display_move(n, snap) for n in names]
     current = [str(m) for m in current_moves]
     if len(current) != 4:
         return None
@@ -2168,6 +2182,7 @@ def _reconstruct_partial_moveset(
 
     if to_id(incoming) not in learnset:
         return None
+    incoming = _display_move(incoming, snap)
 
     out: list[str] = []
     replaced = False
@@ -2189,14 +2204,15 @@ def _coerce_moves_edit_value(
     value: object,
     state: RecommenderState,
 ) -> list[str] | None:
+    snap = load_snapshot()
     if isinstance(value, (list, tuple)) and len(value) == 4:
-        return list(value)
+        return [_display_move(str(m), snap) for m in value]
     return _reconstruct_partial_moveset(
         current.moves,
         value,
         user_text=str(state.get("last_user_text") or ""),
         species=current.species,
-        snap=load_snapshot(),
+        snap=snap,
     )
 
 
@@ -2245,6 +2261,8 @@ def apply_provisional_overrides(
                     intent=intent,
                     unresolved_fields=("spread",),
                 )
+        elif field == "nature":
+            attr_value = _display_nature(value)
         else:
             attr_value = value
         seed = replace(seed, **{slot_attr: Attr(value=attr_value, locked=True)})
@@ -2309,6 +2327,8 @@ def revise_provisional_slot(
                 intent=intent,
                 unresolved_fields=("spread",),
             )
+    elif field == "nature":
+        attr_value = _display_nature(value)
     else:
         attr_value = value
 
