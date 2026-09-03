@@ -46,7 +46,6 @@ from recommender.team_candidates import (
     build_team_threat_objective,
     candidate_core_slot_conflicts,
     collect_locked_anchor_contexts,
-    detect_core_resource_conflicts,
     material_completion_preferences,
     merge_multi_locked_candidates,
     rank_multi_locked_by_category,
@@ -4173,22 +4172,6 @@ def _locked_from_species(species: str, *, role: str = "bulky_attacker") -> Slot:
     )
 
 
-def _four_locked_draft_for_detect() -> list[Slot]:
-    return [
-        _locked("Archaludon"),
-        _locked("Incineroar"),
-        _locked("Amoonguss"),
-        _locked(
-            "Charizard-Mega-Y",
-            ability="Drought",
-            item="Charizardite Y",
-            moves=["Heat Wave", "Protect", "Weather Ball", "Solar Beam"],
-        ),
-        empty_slot(),
-        empty_slot(),
-    ]
-
-
 def _sun_core_sequential_draft() -> list[Slot]:
     return [
         _locked_from_species("Archaludon", role="bulky_special_attacker"),
@@ -4248,29 +4231,6 @@ def _run_sequential_annotation_pipeline(state: dict[str, Any]):
     }
 
 
-def test_detect_core_resource_conflicts_helper():
-    draft = _four_locked_draft_for_detect()
-    contexts = collect_locked_anchor_contexts(_state(draft))
-    assert detect_core_resource_conflicts(contexts[:3], 4) is False
-    assert detect_core_resource_conflicts(contexts, 4) is True
-    assert detect_core_resource_conflicts(contexts, None) is False
-
-
-def test_annotate_splits_conflicts_on_sequential_bench_slot():
-    state = _state(_sun_core_sequential_draft())
-    pipe = _run_sequential_annotation_pipeline(state)
-    conflicted = next(
-        (
-            c
-            for c in pipe["candidates"]
-            if c.core_slot_conflicts and not c.wastes_core_slot
-        ),
-        None,
-    )
-    assert conflicted is not None, "expected a non-wasting candidate with core_slot_conflicts"
-    assert len(conflicted.core_slot_conflicts) > 0
-
-
 def test_three_locked_core_slot_stays_demote_only():
     draft = [
         _locked_from_species("Charizard-Mega-Y", role="sun_setter"),
@@ -4284,10 +4244,10 @@ def test_three_locked_core_slot_stays_demote_only():
     pipe = _run_sequential_annotation_pipeline(state)
     wasteful = next((c for c in pipe["candidates"] if c.wastes_core_slot), None)
     assert wasteful is not None
-    assert wasteful.core_slot_conflicts == ()
 
 
-def test_bench_subset_and_conflicts_coexist_at_slot_five():
+def test_bench_subset_eval_on_sequential_slot_five():
+    """Bench slot (index >= picked_team_size) can still set improves_bench_subset."""
     state = _state(_sun_core_sequential_draft())
     pipe = _run_sequential_annotation_pipeline(state)
     from recommender.team_candidates import candidate_has_unmet_needed_weather_dependency
@@ -4295,7 +4255,7 @@ def test_bench_subset_and_conflicts_coexist_at_slot_five():
 
     target = None
     for c in pipe["candidates"]:
-        if not c.core_slot_conflicts:
+        if c.wastes_core_slot:
             continue
         build = resolve_anchor_build(c.species, regulation=_REACH_REG)
         decision = classify_anchor_role(build)
@@ -4317,5 +4277,5 @@ def test_bench_subset_and_conflicts_coexist_at_slot_five():
             objective=pipe["objective"],
         )
     row = annotated[0]
-    assert row.core_slot_conflicts
     assert row.improves_bench_subset is True
+    assert row.wastes_core_slot is False

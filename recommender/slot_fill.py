@@ -158,8 +158,7 @@ class AnnotatedCandidate:
     # a team already committed to Sun via a locked Charizard-Mega-Y; a
     # second mega-stone holder when only one can Mega Evolve per battle).
     # Index-based rank demotion only -- bench slots (slot_index >=
-    # picked_team_size) keep wastes_core_slot=False even when
-    # core_slot_conflicts is populated for masked-core discovery.
+    # picked_team_size) keep wastes_core_slot=False.
     # See team_candidates.candidate_wastes_core_slot.
     wastes_core_slot: bool = False
     # Confirmed live (2026-08-21/22, design discussion): for bench slots
@@ -174,10 +173,9 @@ class AnnotatedCandidate:
     # would get an honestly wrong (unamplified) coverage number, since
     # team_field_states only forces a weather when a real provider is
     # also in the subset; correctly pairing it with one is a separate,
-    # not-yet-built capability (masked alternate-core discovery),
-    # deliberately not approximated here. False for core slots and for
-    # dependent candidates -- not evaluated, not "confirmed doesn't
-    # improve."
+    # not-yet-built capability, deliberately not approximated here.
+    # False for core slots and for dependent candidates -- not
+    # evaluated, not "confirmed doesn't improve."
     improves_bench_subset: bool = False
     # Confirmed live (2026-08-22): Mawile-Mega's real Trick Room
     # dependency can be nominally "satisfied" by a locked Sinistcha whose
@@ -194,10 +192,6 @@ class AnnotatedCandidate:
     # real but soft downside, not a disqualifying one. See
     # condition_resilience.candidate_dependency_reliability.
     dependency_reliability: float = 1.0
-    # Populated once len(state_locked) >= picked_team_size (core complete),
-    # independent of wastes_core_slot / index-based rank demotion. Drives
-    # masked alternate-core discovery (should_try_masked_core, mask indices).
-    core_slot_conflicts: tuple[CoreSlotConflict, ...] = ()
 
 
 @dataclass(frozen=True)

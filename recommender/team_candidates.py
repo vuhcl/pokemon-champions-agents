@@ -126,18 +126,6 @@ def _candidate_mega_base(build: ResolvedAnchorBuild, snap: dict) -> str | None:
 _WEATHERS = frozenset({"Rain", "Sun", "Sand", "Snow"})
 
 
-def detect_core_resource_conflicts(
-    locked: Sequence[LockedAnchorContext],
-    picked_team_size: int | None,
-) -> bool:
-    """Core roster complete — scarce-resource conflicts may matter for masked-core.
-
-    Uses state-level locked contexts (real locks), not hypothetical working
-    rosters passed to annotate during gap-fill.
-    """
-    return picked_team_size is not None and len(locked) >= picked_team_size
-
-
 def candidate_core_slot_conflicts(
     decision: AnchorRoleDecision,
     build: ResolvedAnchorBuild,
@@ -794,9 +782,6 @@ def annotate_composition_impact(
         and open_slot_index is not None
         and open_slot_index < picked_team_size
     )
-    state_locked = collect_locked_anchor_contexts(state)
-    detect = detect_core_resource_conflicts(state_locked, picked_team_size)
-    compute_conflicts = is_core_slot or detect
     # Only meaningful for bench slots with a real, complete core already
     # locked (candidate_improves_best_bring needs a real pick_count-sized
     # baseline to compare against -- see its own docstring). Threats
@@ -875,10 +860,9 @@ def annotate_composition_impact(
             decision, build, pf_report, locked
         )
         core_slot_conflicts_raw = candidate_core_slot_conflicts(
-            decision, build, locked, is_core_slot=compute_conflicts
+            decision, build, locked, is_core_slot=is_core_slot
         )
         wastes_core_slot = bool(core_slot_conflicts_raw) if is_core_slot else False
-        core_slot_conflicts = core_slot_conflicts_raw if detect else ()
         dependency_reliability = candidate_dependency_reliability(
             decision, locked, regulation=regulation
         )
@@ -951,7 +935,6 @@ def annotate_composition_impact(
                 wastes_core_slot=wastes_core_slot,
                 improves_bench_subset=improves_bench_subset,
                 dependency_reliability=dependency_reliability,
-                core_slot_conflicts=core_slot_conflicts,
                 species_primary_role=primary_role,
             )
         )
