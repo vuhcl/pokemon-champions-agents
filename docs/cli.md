@@ -126,7 +126,7 @@ Startup still succeeds. Observable mid-session behavior:
 
 ## Meta commands
 
-Typed at the `>` prompt (exact match after strip):
+Typed at the `>` prompt (exact match after strip, except `:review` which also accepts an optional section word, case-insensitive):
 
 | Command | Effect |
 |---------|--------|
@@ -136,8 +136,9 @@ Typed at the `>` prompt (exact match after strip):
 | `:builds` | Print full locked-slot builds (ability, item, nature, moves, spread). |
 | `:review` | Print cached team review findings (threats, coverage gaps, SPOFs). |
 | `:new` / `:reset` | Start a new session and print its first turn. |
+| `:help` | List these CLI meta-commands. |
 
-Anything else is treated as an answer to the current pending question (if any).
+A line starting with `:` that is not one of these commands is an unknown command (it is not treated as an answer to the pending question). Anything else is treated as an answer to the current pending question (if any).
 
 ## What a normal session looks like
 
@@ -168,6 +169,7 @@ Messages below are the real CLI / presentation text.
 | What you see | Meaning |
 |--------------|---------|
 | `Didn't catch that.` | Your reply did not match the pending question; the same prompt is shown again underneath. |
+| `Unknown command: … Try :help.` | The line started with `:` but is not a known meta command. The pending prompt is not re-shown. |
 | `No pending question to answer; start :new or wait for a prompt.` | There is nothing to answer right now (e.g. team complete / no presentation). Use `:new` to start over. |
 | Evidence line ending in `(calc_unavailable)` or `(static_type_estimate, calc_unavailable)` | Matchup calc was unavailable; candidates may still appear with labeled static / degraded evidence. |
 | `Discovery error [calc_unavailable] at …: … (retryable=…)` | Calc failed on a path that surfaces a structured discovery error (sometimes with no candidate list). |

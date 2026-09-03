@@ -35,6 +35,42 @@ def invoke_user_text(graph, config, text: str) -> Mapping[str, Any]:
     return graph.invoke({"pending_input": text}, config)
 
 
+# (aliases, takes_subarg, help_line) — handle_line and format_help share this.
+_META_COMMANDS: tuple[tuple[tuple[str, ...], bool, str], ...] = (
+    ((":q", ":quit", "quit"), False, "Exit the REPL."),
+    ((":new", ":reset"), False, "Start a new session."),
+    ((":thread",), False, "Print the current thread id."),
+    ((":team",), False, "Print locked roster members."),
+    ((":builds",), False, "Print locked-slot builds."),
+    (
+        (":review",),
+        True,
+        "Print cached team review (optional: threats, coverage, spofs).",
+    ),
+    ((":help",), False, "List CLI meta-commands."),
+)
+
+
+def format_help() -> str:
+    return "\n".join(
+        f"{' / '.join(aliases)}  {help_line}"
+        for aliases, _, help_line in _META_COMMANDS
+    )
+
+
+def _match_meta(stripped: str) -> tuple[str, str] | None:
+    """Return (canonical alias, subarg) or None. Exact match except takes_subarg rows."""
+    for aliases, takes_subarg, _ in _META_COMMANDS:
+        if takes_subarg:
+            for alias in aliases:
+                sub = _meta_subarg(stripped, alias)
+                if sub is not None:
+                    return aliases[0], sub
+        elif stripped in aliases:
+            return aliases[0], ""
+    return None
+
+
 def _meta_subarg(stripped: str, command: str) -> str | None:
     """If ``stripped`` is ``:command`` or ``:command <word>``, return sub-arg (``""`` if bare).
 
@@ -74,32 +110,46 @@ def handle_line(
     stripped = line.strip()
     if not stripped:
         return state, config, thread_id, None, False
-    if stripped in {":q", ":quit", "quit"}:
-        return state, config, thread_id, None, True
-    if stripped in {":new", ":reset"}:
-        thread_id, config, state = _start_new_session(graph, format_id)
-        return state, config, thread_id, format_turn(state), False
-    if stripped == ":thread":
-        return state, config, thread_id, thread_id, False
-    if stripped == ":team":
-        return state, config, thread_id, format_roster(state), False
-    if stripped == ":builds":
-        return state, config, thread_id, format_builds(state), False
-    review_arg = _meta_subarg(stripped, ":review")
-    if review_arg is not None:
-        review = state.get("last_team_review")
-        if review is None:
-            output = NO_TEAM_REVIEW_MESSAGE
-        else:
-            sects, hint = resolve_team_review_sections(review_arg)
-            output = format_team_review(
-                review,
-                team_draft=state.get("team_draft") or [],
-                include_error=True,
-                sections=sects,
-                show_detail_hint=hint,
-            )
-        return state, config, thread_id, output, False
+    matched = _match_meta(stripped)
+    if matched is not None:
+        canonical, review_arg = matched
+        if canonical == ":q":
+            return state, config, thread_id, None, True
+        if canonical == ":new":
+            thread_id, config, state = _start_new_session(graph, format_id)
+            return state, config, thread_id, format_turn(state), False
+        if canonical == ":thread":
+            return state, config, thread_id, thread_id, False
+        if canonical == ":team":
+            return state, config, thread_id, format_roster(state), False
+        if canonical == ":builds":
+            return state, config, thread_id, format_builds(state), False
+        if canonical == ":review":
+            review = state.get("last_team_review")
+            if review is None:
+                output = NO_TEAM_REVIEW_MESSAGE
+            else:
+                sects, hint = resolve_team_review_sections(review_arg)
+                output = format_team_review(
+                    review,
+                    team_draft=state.get("team_draft") or [],
+                    include_error=True,
+                    sections=sects,
+                    show_detail_hint=hint,
+                )
+            return state, config, thread_id, output, False
+        if canonical == ":help":
+            return state, config, thread_id, format_help(), False
+        raise RuntimeError(f"unhandled meta command: {canonical}")
+    if stripped.startswith(":"):
+        cmd = stripped.split()[0]
+        return (
+            state,
+            config,
+            thread_id,
+            f"Unknown command: {cmd}. Try :help.",
+            False,
+        )
 
     if (
         state.get("pending_presentation") is None
