@@ -218,7 +218,6 @@ def query_threat_counters(
     ownership_mode: OwnershipMode = "off",
     locked_contexts: Sequence["LockedAnchorContext"] = (),
     exclude_slot: int | None = None,
-    exclude_slots: frozenset[int] = frozenset(),
 ) -> TeamThreatDiscovery:
     """Candidates that counter the anchor's threats; final order from verified matchups.
 
@@ -274,7 +273,7 @@ def query_threat_counters(
     from recommender.condition_resilience import team_field_states
 
     forced_fields = team_field_states(
-        locked_contexts, exclude_slot=exclude_slot, exclude_slots=exclude_slots
+        locked_contexts, exclude_slot=exclude_slot
     )
     try:
         out_rows: list[ThreatCounterCandidate] = []
@@ -413,7 +412,6 @@ def query_candidates_for_threats(
     excluded_species: Collection[str] = (),
     locked_contexts: Sequence["LockedAnchorContext"] = (),
     exclude_slot: int | None = None,
-    exclude_slots: frozenset[int] = frozenset(),
 ) -> TeamThreatDiscovery:
     """Discover once per team objective, then verify every admitted candidate."""
     if not objective:
@@ -440,7 +438,7 @@ def query_candidates_for_threats(
     from recommender.condition_resilience import team_field_states
 
     forced_fields = team_field_states(
-        locked_contexts, exclude_slot=exclude_slot, exclude_slots=exclude_slots
+        locked_contexts, exclude_slot=exclude_slot
     )
     try:
         rows: list[ThreatCounterCandidate] = []

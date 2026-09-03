@@ -83,22 +83,16 @@ def mechanism_condition(m: MechanismEvidence) -> str | None:
     return None
 
 
-def _skipped_slots(
-    *,
-    exclude_slot: int | None = None,
-    exclude_slots: frozenset[int] = frozenset(),
-) -> frozenset[int]:
-    skip = set(exclude_slots)
-    if exclude_slot is not None:
-        skip.add(exclude_slot)
-    return frozenset(skip)
+def _skipped_slots(*, exclude_slot: int | None = None) -> frozenset[int]:
+    if exclude_slot is None:
+        return frozenset()
+    return frozenset({exclude_slot})
 
 
 def provided_conditions(
     locked: Sequence[LockedAnchorContext],
     *,
     exclude_slot: int | None = None,
-    exclude_slots: frozenset[int] = frozenset(),
 ) -> frozenset[str]:
     """The set of TRACKED_CONDITIONS this locked team already provides
     (e.g. {"Rain", "Tailwind"}) -- same mechanism-detection team_field_states
@@ -108,7 +102,7 @@ def provided_conditions(
     build calc input.
     """
     out: set[str] = set()
-    skip = _skipped_slots(exclude_slot=exclude_slot, exclude_slots=exclude_slots)
+    skip = _skipped_slots(exclude_slot=exclude_slot)
     for context in locked:
         if getattr(context, "slot_index", None) in skip:
             continue
@@ -286,9 +280,8 @@ def _locked_team_covers_screens(
     locked: Sequence[LockedAnchorContext],
     *,
     exclude_slot: int | None = None,
-    exclude_slots: frozenset[int] = frozenset(),
 ) -> bool:
-    skip = _skipped_slots(exclude_slot=exclude_slot, exclude_slots=exclude_slots)
+    skip = _skipped_slots(exclude_slot=exclude_slot)
     for context in locked:
         if getattr(context, "slot_index", None) in skip:
             continue
@@ -310,9 +303,8 @@ def _locked_team_covers_redirection(
     locked: Sequence[LockedAnchorContext],
     *,
     exclude_slot: int | None = None,
-    exclude_slots: frozenset[int] = frozenset(),
 ) -> bool:
-    skip = _skipped_slots(exclude_slot=exclude_slot, exclude_slots=exclude_slots)
+    skip = _skipped_slots(exclude_slot=exclude_slot)
     for context in locked:
         if getattr(context, "slot_index", None) in skip:
             continue
@@ -414,7 +406,6 @@ def has_reliable_screens_provider(
     locked: Sequence[LockedAnchorContext],
     *,
     exclude_slot: int | None = None,
-    exclude_slots: frozenset[int] = frozenset(),
 ) -> bool:
     """Whether the locked team already has a genuinely committed screens
     setter -- not just anyone carrying a single screen move incidentally.
@@ -440,7 +431,7 @@ def has_reliable_screens_provider(
     a single incidental move does not count.
     """
     return _locked_team_covers_screens(
-        locked, exclude_slot=exclude_slot, exclude_slots=exclude_slots
+        locked, exclude_slot=exclude_slot
     )
 
 
@@ -520,7 +511,6 @@ def team_field_states(
     locked: Sequence[LockedAnchorContext],
     *,
     exclude_slot: int | None = None,
-    exclude_slots: frozenset[int] = frozenset(),
 ) -> list["FieldSpec"]:
     """Real, achievable field states this locked team can produce -- one
     FieldSpec per distinct provided condition, not a single combined
@@ -550,7 +540,7 @@ def team_field_states(
     """
     out: list["FieldSpec"] = []
     seen: set[str] = set()
-    skip = _skipped_slots(exclude_slot=exclude_slot, exclude_slots=exclude_slots)
+    skip = _skipped_slots(exclude_slot=exclude_slot)
     for context in locked:
         if getattr(context, "slot_index", None) in skip:
             continue

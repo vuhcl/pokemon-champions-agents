@@ -160,9 +160,6 @@ _BLOCKED_ON_KIND = {
     "completion_preference": frozenset(
         {"edit", "select_build_option", "compare", "revise_locked_slot", "repick_locked_slot"}
     ),
-    "core_resolution": frozenset(
-        {"edit", "select_build_option", "compare", "revise_locked_slot", "repick_locked_slot"}
-    ),
     "full_build_confirmation": frozenset(
         {"lock", "revise_locked_slot", "repick_locked_slot"}
     ),
@@ -990,12 +987,6 @@ def build_gap_fill_context(state: RecommenderState) -> dict[str, str]:
         elif kind == "completion_preference":
             prefs = pending.get("preference_options") or ()
             pending_context = f"preference options: {', '.join(str(p) for p in prefs)}"
-        elif kind == "core_resolution":
-            labels = [
-                str(option.get("label") or "")
-                for option in pending.get("resolution_options") or ()
-            ]
-            pending_context = f"core resolution options: {', '.join(labels)}"
         elif kind == "full_build_confirmation":
             intent = state.get("pending_slot_intent")
             provisional = state.get("provisional_slot")
@@ -1598,58 +1589,6 @@ def classify_pending(
             return {
                 "turn_intent": "continue",
                 "team_completion_preference": selected,
-                "pending_presentation": None,
-            }
-        if reply in _DEFER_REPLIES:
-            return {
-                "turn_intent": "deferred",
-                "pending_presentation": None,
-            }
-        if turn_intent_parser is None:
-            return {"turn_intent": "pending_response"}
-        return _gap_fill(
-            text,
-            turn_intent_parser=turn_intent_parser,
-            gap_fill_context=gap_fill_context,
-            had_pending=True,
-            pending_presentation=pending_presentation,
-            team_draft=team_draft,
-            last_system_claim=last_system_claim,
-        )
-    if pending_presentation.get("kind") == "core_resolution":
-        if version != 2:
-            return {
-                "turn_intent": "pending_response",
-                "pending_presentation": None,
-                "slot_commit_error": f"unsupported pending schema version: {version}",
-            }
-        options = pending_presentation.get("resolution_options") or ()
-        ordinal = _ORDINAL_REPLIES.get(reply)
-        selected = next(
-            (
-                option
-                for option in options
-                if reply == str(option.get("label") or "").casefold()
-                or reply == str(option.get("id") or "").casefold()
-            ),
-            None,
-        )
-        if selected is None and ordinal is not None and ordinal < len(options):
-            selected = options[ordinal]
-        if selected is not None:
-            if selected.get("id") == "keep_core":
-                return {
-                    "turn_intent": "continue",
-                    "pending_presentation": None,
-                }
-            constructed = selected.get("option")
-            if not constructed:
-                return {"turn_intent": "pending_response"}
-            return {
-                "turn_intent": "slot_candidate_selected",
-                "selected_option": constructed,
-                "masked_slot_indices": tuple(selected.get("masked_slot_indices") or ()),
-                "team_completion_preference": None,
                 "pending_presentation": None,
             }
         if reply in _DEFER_REPLIES:

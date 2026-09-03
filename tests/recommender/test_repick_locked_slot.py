@@ -104,7 +104,6 @@ def test_unlock_locked_slot_clears_slot_and_signals():
         coverage=["stale"],
         spofs=["stale"],
         last_team_review={"x": 1},
-        masked_slot_indices=(5,),
     )
     state["turn_payload"] = {"slot_index": 5}
     out = unlock_locked_slot(state)  # type: ignore[arg-type]
@@ -114,7 +113,6 @@ def test_unlock_locked_slot_clears_slot_and_signals():
     assert out["coverage"] == []
     assert out["spofs"] == []
     assert out["last_team_review"] is None
-    assert out["masked_slot_indices"] == ()
 
 
 def test_unlock_drops_team_phase_to_multi_locked():

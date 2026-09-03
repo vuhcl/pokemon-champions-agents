@@ -406,7 +406,6 @@ class PendingPresentation(TypedDict, total=False):
         "candidate_selection",
         "full_build_confirmation",
         "completion_preference",
-        "core_resolution",
         "bootstrap_intake",
         "confirm_abandon_build",
         "spread_reallocation_question",
@@ -416,7 +415,6 @@ class PendingPresentation(TypedDict, total=False):
     slot_index: int
     options: list[PendingPresentationOption]
     preference_options: tuple[TeamCompletionPreference, ...]
-    resolution_options: list[dict]
     provisional_fingerprint: str
     prompt_text: str
     existing_pool_labels: tuple[str, ...]
@@ -672,7 +670,6 @@ class RecommenderState(TypedDict):
     species_resolve_notices: NotRequired[tuple[str, ...]]
     team_completion_preference: NotRequired[Optional[TeamCompletionPreference]]
     force_completion_preference_prompt: NotRequired[bool]
-    masked_slot_indices: NotRequired[tuple[int, ...]]
     candidate_discovery_error: NotRequired[Optional[CandidateDiscoveryError]]
     last_system_claim: NotRequired[Optional[SystemClaim]]
     correction_response: NotRequired[Optional[str]]
