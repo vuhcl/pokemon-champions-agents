@@ -9665,6 +9665,110 @@ fix, not a global preference flip in disguise) — the negative case
 compares against a real computed value, not a hardcoded literal. Full
 suite green (1552 passed, 13 skipped).
 
+---
+
+## ADR-052 Amendment 2026-09-02a — Root-caused and fixed the Sinistcha
+regression: stale snapshot, not the design
+
+**Context:** Live testing exposed a severe regression traced initially to
+ADR-052 (in-game-build-preference): Sinistcha, suggested for
+`redirection`, resolved to a build with zero redirection-relevant moves
+(Shadow Ball/Strength Sap/Imprison/Scald — no Rage Powder, no Trick
+Room). Two plausible explanations were checked directly and both ruled
+out before the real cause was found: "thin doubles sample" was ruled
+out because the same entry's ability (Hospitality 98.7%), items (a
+coherent redirection-shaped berry spread), and teammates (real doubles
+staples) were all confidently correct — inconsistent with a genuinely
+thin sample. "Singles data contamination" was ruled out because the
+real singles Sinistcha set uses Calm Mind, not Imprison, and doesn't
+feature Hospitality — the corrupted data didn't cleanly match a known
+real set from *either* format.
+
+The actual root cause, confirmed by directly querying the live CBD API
+and comparing it against the committed snapshot: the snapshot's
+`ingame_doubles.species.sinistcha` entry was stale, holding data whose
+top-listed moves matched exactly the *tail* (~positions 6-10) of the
+real live distribution — Matcha Gotcha (98.3%) and Rage Powder (94.6%)
+were completely absent from the top 5. `fetch_usage_mb.py` reuses
+existing CBD data unless `--refresh-cbd` is explicitly passed; Showdown
+data refreshes every run, in-game data does not — this asymmetric
+refresh cadence is the direct mechanism that let staleness accumulate
+silently, and became actively harmful specifically because ADR-052 now
+prefers in-game data whenever present. A full 158-species sweep
+comparing the snapshot against live data found 36 species with fully
+corrupted move identity (zero top-4 overlap with live data) and 75 with
+any mismatch — confirming this was systemic, not a one-off.
+
+This single root cause was confirmed to cascade into two further,
+separately-observed symptoms: the "redirection: no primary provider"
+composition-gap false positive (since `classify_anchor_role` couldn't
+recognize Sinistcha's corrupted build as a redirector), and part of why
+Grimmsnarl never surfaced as a screens candidate (a false
+`team_need_flags['redirection']` entry, caused by Sinistcha's corrupted
+moveset, incorrectly narrowed the screens-candidate pool downstream).
+
+**Decision:** Re-extracted the in-game snapshot via `--refresh-cbd`
+against the live CBD API. Added a permanent, precisely-scoped sanity
+gate (`recommender/usage_ingame_sanity.py`) rather than relying on
+manual refreshes alone to prevent recurrence: `ingame_monotonic_tail_corrupt`
+detects the exact corruption signature found here — an in-game top-N
+that is disjoint from Showdown's real top-4, where every one of those
+moves nonetheless appears deeper in Showdown's own ranking in the same
+relative (monotonic) order, and none of Showdown's real top-4 moves
+appear anywhere in the in-game entry at all. This is deliberately
+narrower than a blunt "any divergence is suspect" rule — verified
+directly that it does NOT fire on Klefki (ADR-052's original, confirmed
+legitimate divergence case) or on Grimmsnarl's own separate, genuine
+meta-shift (old snapshot showing a screens build while live CBD now
+shows offense — real drift, not corruption). A companion write-time gate
+(`find_stale_vs_live_suspects`) and a read-time fallback
+(`ingame_monotonic_tail_corrupt`-gated) were both added, plus a
+dedicated `meta.ingame_doubles_extracted_at` timestamp so future
+staleness is auditable rather than silent.
+
+Two further, independently-diagnosed bugs surfaced by the same
+transcript were fixed alongside the snapshot work, since both were
+confirmed live and both needed real code fixes, not just a data
+refresh:
+
+- **Basculegion's Choice-item moveset bias silently dropped a move.**
+  `_bias_choice_moveset` strips Status moves (correctly, since Choice
+  items lock the holder into one move and a locked Status move is
+  usually a mistake) but had no backfill when exactly one Status move
+  (Protect) got removed from an otherwise-correct 4-move set, leaving
+  3 moves and failing downstream validation with `incomplete_build`.
+  Fixed generally via `backfill_moves_from_usage`, which fills back to
+  4 using the species' own real usage-ranked non-Status moves — not
+  special-cased to Basculegion or this exact scenario.
+- **A false `redirection` need-flag from label/move mismatch.**
+  `team_need_flags` was setting a `redirection` flag whenever a species
+  was *labeled* `redirection` by role, regardless of whether its actual
+  resolved moveset contained a real redirect move — meaning Sinistcha's
+  corrupted build (labeled redirection, but genuinely lacking Rage
+  Powder due to the snapshot bug) incorrectly triggered downstream
+  candidate narrowing that excluded real screens candidates like
+  Grimmsnarl from ever being considered. Fixed by removing the
+  label-based trigger entirely, leaving only the genuine move-level
+  `coverage_gap` signal — a real, generalized fix independent of
+  whether the underlying data is ever corrupted again. A companion fix
+  to the evidence-strength gate (`_has_strong_evidence`, using the
+  pre-existing `_pick_best_evidence_item` rather than a naive "any
+  non-low" check) ensures a species with both a low-confidence
+  compendium match and a real usage-backed high-confidence entry isn't
+  incorrectly filtered out.
+
+**Status:** Implemented and verified across three stacked branches.
+Sinistcha's build confirmed correct end-to-end (resolves to Matcha
+Gotcha/Rage Powder/Trick Room/Protect, classifies as `redirection`).
+Grimmsnarl confirmed to genuinely re-enter the real candidate pool for
+the exact transcript-shaped team, via an end-to-end test using
+Sinistcha's now-correct moveset, not just an isolated unit check on the
+flag change alone. Basculegion's exact failing moveset from the
+transcript now backfills correctly and is directly tested. Full suite
+green throughout (1616 passed at this point in the stack).
+
+---
+
 ## ADR-053: Role-aware build synthesis for genuinely multi-role species
 
 **Context:** Confirmed via prior discovery (feeding into ADR-052) that
@@ -9822,3 +9926,126 @@ redirection case — the concrete scenario that motivated the whole
 flag-surfacing requirement — is tested precisely: confirmed the
 redirection gap is genuinely absent before a swap and genuinely present
 after, not just generically asserted. Full suite green.
+
+---
+
+## ADR-056: Team-conditioned default builds from real VGCPastes data
+
+**Context:** Prior discovery (feeding into role-aware synthesis,
+ADR-053) found that even correct data and role-aware move-preference
+walks can't fully solve build synthesis for genuinely multi-role
+species, since neither approach has access to what a *real* competitive
+team actually built around a given core. This work adds a third,
+complementary mechanism: deriving a candidate's default build from real
+VGCPastes teams that share meaningful overlap with the currently locked
+core, rather than synthesizing from the species' own usage data in
+isolation.
+
+**Decision:** `find_team_conditioned_build` matches on the current
+locked teammates against real paste-team rosters, trying progressively
+looser tiers (three shared locked teammates, then two, then one) with a
+minimum-occurrence floor (3 real teams) before trusting a match — since
+VGCPastes stores full 6-mon rosters rather than the "bring 4 of 6"
+subset actually used in a real match, this is explicitly documented in
+the code as the practical ceiling of a subset-match approach given the
+available data, not a precise simulation of real team-sheet selection,
+with a clear upgrade path noted if bring-list data ever becomes
+available.
+
+**A deliberate, explicitly-confirmed design decision:** weather-move
+trimming (`_trim_unneeded_weather_moves`) keeps a candidate's own
+weather-setting move if the locked team either already provides that
+weather *or* would benefit from it — meaning a redundant backup weather
+setter (e.g. Sableye's Rain Dance on a team where Pelipper already
+provides rain via Drizzle) is preserved rather than trimmed as
+"redundant." This is in real philosophical tension with ADR-042's
+redundant-provider-demotion registry (which demotes candidates whose
+only value is a need already covered by a locked teammate) — though not
+a direct code conflict, since weather was never one of ADR-042's
+registered leaf categories. Raised explicitly and confirmed: backup
+weather setters are a real, legitimate VGC insurance strategy (a team
+losing its sole weather provider to a KO or Taunt loses everything built
+around that weather), and this behavior should be kept as-is rather than
+aligned with ADR-042's demotion philosophy. Both directions (kept with a
+real provider present; correctly trimmed with neither a provider nor a
+beneficiary locked) are directly tested.
+
+**Status:** Implemented and verified. Wired through `_refine_defaults`,
+`build_provisional_slot`, and `resolve_anchor_build`'s representative-fill
+path. Full suite green.
+
+---
+
+## ADR-057: Live edit recovery, CBD nature-joining, and healing-support
+usage gates
+
+**Context:** A further stretch of fixes closing several distinct
+gaps surfaced during the same live-transcript investigation, none of
+which were caused by the ADR-052 snapshot corruption — these are
+independent, real issues in the edit/classification and nature-selection
+layers.
+
+**Decisions:**
+
+- **Nature-only edits ("change nature to bold") were failing closed
+  with a generic error instead of recovering.** `detect_dropped_edit_field`
+  already existed and could resolve this exact case, but was only being
+  consulted after a *valid* extraction — an incomplete nature edit hit a
+  validation error first and fell through to the generic
+  `CLASSIFY_FAIL_USER_MSG` before ever reaching that recovery logic.
+  Fixed by calling the existing detector from the parse-failure handlers
+  themselves (validation/type/value errors specifically — not timeouts,
+  not bare exceptions), reusing the same fail-closed, single-unambiguous-
+  match contract already established for every other extractor in this
+  module.
+- **Move-swap edits ("swap protect for soak") failed with
+  `incomplete_build` when the edit produced fewer than 4 moves.**
+  Root cause: the user's original text (naming what to swap *out*) was
+  being discarded — `classify_input` clears `pending_input` before
+  routing to edit application, and `messages` (a real schema field)
+  is never populated anywhere in the graph, confirmed directly earlier
+  this session during the `claim_correction` work. Fixed by stashing the
+  pre-clear text as `last_user_text` on state specifically for this
+  reconstruction path, and adding `_reconstruct_partial_moveset` to
+  correctly identify the outgoing move from the original phrasing when
+  the edit alone leaves the moveset ambiguous or incomplete.
+- **CBD spreads with no recorded nature were defaulting to a naive
+  Spe-based heuristic (Quiet whenever Spe investment is zero), even
+  when a real, better answer was available.** `nature_for_spread` now
+  joins a real nature from Showdown/VGCPastes data first — matching on
+  the full 4-move set when known, then exact EV match, then same-Spe
+  nearest-neighbor (capped at a small stat-distance to avoid false
+  matches from CBD rounding noise) — falling through to the old Spe=0
+  heuristic only when no real join exists at all. Verified directly
+  against real (now-corrected) Sinistcha data: the same spread that
+  previously defaulted to Quiet now correctly joins to Bold when its
+  real Trick Room moveset is known.
+- **Wish was the sole satisfier move for the `healing_cleric` need
+  category, despite being poorly suited to doubles** (its delayed,
+  switch-required delivery doesn't fit a fast-paced doubles environment
+  the way an immediate heal does). Replaced with the four moves that
+  actually deliver immediate healing in doubles (Heal Pulse, Life Dew,
+  Aromatherapy, Heal Bell), and removed the now-orphaned
+  `_DELAYED_DELIVERY_MOVES` downgrade mechanism entirely, since its sole
+  purpose was compensating for Wish's specific delivery problem.
+- **Move-based need satisfaction was learnset-only**, meaning a
+  species could be credited with satisfying a need (e.g.
+  `healing_cleric`) purely because a satisfier move exists somewhere in
+  its theoretical learnset, with no check that the move is ever actually
+  used in real competitive play. New `move_appears_in_usage` gate
+  (top-10 common_moves or ≥1% usage — reusing the existing
+  `MIN_USAGE_PCT` constant rather than introducing a new threshold),
+  checked across both in-game and Showdown data (OR semantics), wired
+  into both the need-satisfaction check itself and the underlying
+  candidate-narrowing step it depends on, so a species can't slip
+  through via one path when it's correctly gated on the other.
+  Confirmed directly, connecting back to this session's earlier
+  discussion: Farigiraf's real kit has never included Wish or any of
+  the four replacement moves, so it was never actually satisfying
+  `healing_cleric` as a *provider* through this specific mechanism —
+  consistent with the separate, correct "wants a cleric" trigger
+  explanation given earlier. A direct regression test using the same
+  `tank_no_self_heal` trigger now formally confirms this.
+
+**Status:** Implemented and verified. Full suite green (1624 passed, 14
+skipped) across the complete five-branch stack from this investigation.

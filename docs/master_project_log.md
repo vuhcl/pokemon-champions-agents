@@ -5209,6 +5209,56 @@ report alone.
 - **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.
 - **Original RL project** — reference only, for lessons learned on state representation and reward design, not for reuse of the trained artifact.
 
+## 2026-09-02 — Session summary: from one hallucination to a fully
+root-caused, systemically-fixed regression chain
+
+This session traced a single observed bug (a false factual claim about
+Heliolisk's typing) all the way through to a five-branch fix stack that
+found and repaired a genuine, systemic data-corruption regression
+(36/158 species with fully wrong move identity in the committed
+snapshot) — plus real, unplanned gains along the way (team-conditioned
+builds from real VGCPastes data, CBD nature-joining, and a healing-need
+usage gate).
+
+**The investigation discipline that made this possible, worth naming
+explicitly:** at each step, plausible-sounding explanations were
+checked directly against real data and ruled out before accepting the
+next one — "thin sample" and "singles contamination" were both
+seriously considered for Sinistcha's corrupted build and both
+disproven with concrete evidence (coherent ability/item/teammate data
+in the first case; a real singles set that didn't match either in the
+second) before the actual root cause (stale snapshot data, confirmed
+via a live CBD API query) was found. Guessing at a plausible cause and
+fixing that guess would very likely have shipped a fix that didn't
+actually work.
+
+**A precisely-scoped detector, not a blunt rule, was built to prevent
+recurrence:** the new snapshot sanity gate specifically distinguishes
+genuine identity corruption (a monotonic tail-slice of the real
+distribution) from legitimate divergence (Klefki's confirmed-correct
+ADR-052 case) and genuine meta drift (Grimmsnarl's real, separate
+shift in competitive usage) — verified directly against all three real
+cases, not just the one that motivated the fix.
+
+**A genuine product-philosophy tension was surfaced and explicitly
+resolved, not silently decided either way:** the new team-conditioned
+build logic's decision to preserve redundant backup weather-setters is
+in real tension with the redundant-provider-demotion philosophy
+established earlier this session (ADR-042) — raised directly rather
+than assumed, and confirmed as an intentional, case-specific decision
+(backup weather setters are legitimate competitive insurance) rather
+than an oversight.
+
+**Verification discipline held throughout a stack of five branches**,
+not just the first one — every branch was checked out individually,
+confirmed based on the correct prior tip, and verified against real
+code and real test execution rather than trusted from the implementation
+report alone, consistent with how every other piece of work was
+verified this entire session.
+
+With this stack merged, the queue from this session's live-transcript
+investigation is effectively closed.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
