@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from typing import Any, Callable
 from unittest.mock import patch
@@ -19,6 +20,10 @@ from recommender.state import (
 VGC_MB = "[Gen 9 Champions] VGC 2026 Reg M-B"
 TURN_CAP = 40
 
+# Task B calc/matchup logger tags turns via these.
+eval_scenario_id: ContextVar[str] = ContextVar("eval_scenario_id", default="")
+eval_turn_index: ContextVar[int] = ContextVar("eval_turn_index", default=0)
+
 
 @dataclass
 class ScenarioResult:
@@ -28,6 +33,7 @@ class ScenarioResult:
     pairs: list[tuple[str, str]] = field(default_factory=list)
     state: dict[str, Any] = field(default_factory=dict)
     notes: str = ""
+    compare_analysis: str | None = None
 
 
 def start_graph(*, thread_id: str, calc_degraded: bool = False):
@@ -52,6 +58,7 @@ def seed_state(graph, config, **updates: Any) -> None:
 
 
 def turn(graph, config, intent: dict[str, Any], *, text: str = "x") -> dict[str, Any]:
+    eval_turn_index.set(eval_turn_index.get() + 1)
     with patch("recommender.nodes.classify_pending", return_value=intent):
         return graph.invoke({"pending_input": text}, config=config)
 
@@ -161,6 +168,8 @@ def run_scenario(
     *,
     calc_degraded: bool = False,
 ) -> ScenarioResult:
+    tok_sc = eval_scenario_id.set(scenario_id)
+    tok_turn = eval_turn_index.set(0)
     graph, config, state, review_patch = start_graph(
         thread_id=f"eval-{scenario_id}", calc_degraded=calc_degraded
     )
@@ -169,3 +178,5 @@ def run_scenario(
     finally:
         if review_patch is not None:
             review_patch.stop()
+        eval_scenario_id.reset(tok_sc)
+        eval_turn_index.reset(tok_turn)
