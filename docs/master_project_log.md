@@ -5330,6 +5330,79 @@ reversal (unrelated machinery — CLI dispatch layer, not candidate
 discovery): :help command missing; unrecognized colon-commands silently
 re-render stale pending prompts instead of surfacing as unknown input.
 
+### 2026-09-04 — v1.0.0 published
+
+Closes the v1.0.0-handoff conversation's definition of done. Both
+Phase-1 eval gaps that were entirely TBD at the start of this arc now
+have real, measured numbers — and closing them surfaced genuine bugs
+along the way rather than producing clean numbers by accident:
+
+- **Legality-grounding accuracy: 0/28 false-legal (0.0%)** across 15
+  scripted scenarios (12 risky-path across 6 discovery paths + 3
+  baseline), verified against a genuinely independent oracle (fresh
+  Showdown-source extract, not a re-read of the production
+  `champions.v1.json` gate). One baseline stall (`baseline_intimidate`,
+  0 locked pairs at the 40-turn cap) surfaced during this work and led
+  to its own investigation (see below).
+- **Mechanical-claim verification accuracy: was 8/15 (53.3%) on Spe
+  formula fidelity, now 15/15 (100%)** after finding and fixing a real
+  bug — `effective_spe()` was running mainline Gen 1-9 stat math against
+  Champions' actual `floor(n*(base+SP+20))` system (confirmed directly
+  from the vendored `@smogon/calc` source, cross-verified against three
+  species' real base Speed stats). Damage/KO fidelity and matchup
+  outcome/severity checks were 100% from the start (4/4 and 10109/10109
+  respectively); turn-economy note confirmed populated structurally.
+- **Claude API validation: explicitly deferred**, not measured — see
+  ADR-058. Harness and 17 scenarios are built and ready; blocked solely
+  on Anthropic account credits.
+
+Along the way, closed several real bugs and one significant design
+reversal that weren't in the original handoff scope, each via the
+standard discovery -> plan -> fix -> verify workflow rather than ad hoc
+patching:
+
+- **ADR-038 (masked alternate-core discovery) reversed** after tracing
+  a real transcript bug back to its root: the whole `core_resolution`
+  UI/flow was solving a problem that doesn't exist at the team-building
+  stage (Reg M-B's only roster constraints are Item Clause and Species
+  Clause; Mega Evolution exclusivity is an in-battle choice, not a
+  team-building-time conflict). Two-PR narrow-scope removal, `wastes_core_slot`'s
+  separate pre-existing ranking demotion confirmed self-consistent and
+  left untouched.
+- **`:help` + unknown-command handling** shipped for the CLI, closing
+  the second bug from the same transcript.
+- **`effective_spe()` Champions-formula fix** (above).
+- **Tier 1 bootstrap direction-vocabulary fixes**: a real token-subsequence
+  matching bug (ability names like "Sand Force" false-positiving to
+  weather-setter directions) fixed via exact-normalized-phrase matching;
+  8 new phrases added for `TargetRoleId` destinations that already
+  existed but had no reachable phrase; failure messages now list
+  registry-derived working examples instead of a bare error. Found via
+  a systematic taxonomy cross-reference (per this project's completeness
+  discipline) rather than patching the two phrases that happened to
+  surface the gap.
+
+**Deliberately deferred, tracked as separate future scope, not folded
+into v1.0.0:**
+- Tier 2 direction-vocabulary / new `TargetRoleId` + `contingent_value`
+  destinations (Calm Mind, Bulk Up, Dragon Dance, Iron Defense/Body
+  Press, sleep-status-spreader, terrain setters, ability-driven
+  archetypes like Intimidate-core). Terrain setters prioritized once
+  picked up, given Reg M-C's 2026-09-08 start and expected terrain
+  relevance.
+- Reg M-C legality-data migration. Discovery (2026-09-04) confirmed
+  M-C ruleset data is not yet published anywhere this project sources
+  legality from (Showdown `data/mods/`, format configs, or the Smogon
+  dex format page) — nothing to act on until it lands. Migration blast
+  radius already mapped (legality extract/oracle hardcoding, `format.py`
+  /`ids.py`'s M-B-as-default assumption, ~25 recommender files with
+  M-B-defaulted regulation params) for when it does.
+- Claude API validation (see ADR-058).
+
+v1.0.0: reasoning-loop/free-text-steering functionality plus both
+measured Phase-1 eval numbers. Next milestone work begins from the
+deferred list above, prioritized by whoever picks it up next.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

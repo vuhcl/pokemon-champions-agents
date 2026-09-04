@@ -10138,3 +10138,39 @@ layers.
 
 **Status:** Implemented and verified. Full suite green (1624 passed, 14
 skipped) across the complete five-branch stack from this investigation.
+
+---
+
+## ADR-058: v1.0.0 published with Claude API validation explicitly deferred
+
+**Decision:** Ship v1.0.0 with the reasoning-loop/free-text-steering milestone
+complete and both Phase-1 eval numbers measured, while explicitly deferring
+the third closing item from the v1.0.0 handoff — a live validation pass
+against the real Claude API backend — rather than blocking the milestone
+on it.
+
+**Why:** The gap is external, not a code or design gap: `scripts/eval/
+run_claude_validation.py` and its 17 scenarios (8 turn_intent_parser, 4
+claim_correction, 5 full_build_confirmation) are built, fail closed
+correctly with no mock fallback, and are ready to run the moment a funded
+`ANTHROPIC_API_KEY` is available. There is no further design or
+implementation work blocking this — only Anthropic account credits,
+which is outside this project's own scope to resolve. Per this project's
+standing discipline (deliberately deferred items get a stated reason, not
+silent omission), this is logged as an explicit, reasoned deferral: the
+model-agnostic architecture (ADR-013) and the `claim_correction` design
+this validation targets remain unverified against the real hosted
+backend until this runs, and that residual risk is accepted knowingly
+for this release rather than discovered by surprise later.
+
+**Not a reopening of ADR-013 or claim_correction's design** — both stand
+as designed. This ADR documents only the decision to publish without the
+validation run having executed yet, and the condition under which it
+should be revisited (credits become available; run the existing harness
+before any demo/interview walkthrough per `CURSOR_HANDOFF.md` item 7,
+which remains the operative instruction).
+
+**Status:** Accepted. Re-run `scripts/eval/run_claude_validation.py`
+and fill in `eval_results.md`'s Claude API validation section the moment
+`ANTHROPIC_API_KEY` is funded — this is a re-run of existing work, not a
+new task.
