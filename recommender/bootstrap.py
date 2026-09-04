@@ -192,36 +192,42 @@ class BootstrapDirectionDiscovery:
     clarification: str | None = None
 
 
-_DIRECTION_PHRASES: tuple[tuple[str, TargetRoleId], ...] = tuple(
-    sorted(
-        (
-            ("trick room sweeper", "trick_room_sweeper"),
-            ("trick room setter", "trick_room_setter"),
-            ("trick room", "trick_room_setter"),
-            ("rain offense", "rain_setter"),
-            ("sun offense", "sun_setter"),
-            ("sand offense", "sand_setter"),
-            ("snow offense", "snow_setter"),
-            ("follow me", "redirection"),
-            ("rage powder", "redirection"),
-            ("redirection", "redirection"),
-            ("swords dance", "swords_dance_attacker"),
-            ("nasty plot", "nasty_plot_attacker"),
-            ("tailwind", "tailwind_setter"),
-            ("fast attacker", "fast_attacker"),
-            ("fast offense", "fast_attacker"),
-            ("bulky attacker", "bulky_attacker"),
-            ("bulky offense", "bulky_attacker"),
-            ("fast pivot", "fast_pivot"),
-            ("bulky pivot", "bulky_pivot"),
-            ("rain", "rain_setter"),
-            ("sun", "sun_setter"),
-            ("sand", "sand_setter"),
-            ("snow", "snow_setter"),
-        ),
-        key=lambda row: len(row[0].split()),
-        reverse=True,
-    )
+# Exact normalized-phrase match only (not subsequence-in-text): short weather
+# tokens like "sand" must not resolve inside ability names ("Sand Force").
+_DIRECTION_PHRASES: tuple[tuple[str, TargetRoleId], ...] = (
+    ("trick room sweeper", "trick_room_sweeper"),
+    ("trick room setter", "trick_room_setter"),
+    ("trick room", "trick_room_setter"),
+    ("rain offense", "rain_setter"),
+    ("sun offense", "sun_setter"),
+    ("sand offense", "sand_setter"),
+    ("snow offense", "snow_setter"),
+    ("follow me", "redirection"),
+    ("rage powder", "redirection"),
+    ("redirection", "redirection"),
+    ("swords dance", "swords_dance_attacker"),
+    ("nasty plot", "nasty_plot_attacker"),
+    ("tailwind", "tailwind_setter"),
+    ("fast attacker", "fast_attacker"),
+    ("fast offense", "fast_attacker"),
+    ("bulky attacker", "bulky_attacker"),
+    ("bulky offense", "bulky_attacker"),
+    ("fast pivot", "fast_pivot"),
+    ("bulky pivot", "bulky_pivot"),
+    ("fast physical attacker", "fast_physical_attacker"),
+    ("fast special attacker", "fast_special_attacker"),
+    ("fast mixed attacker", "fast_mixed_attacker"),
+    ("bulky physical attacker", "bulky_physical_attacker"),
+    ("bulky special attacker", "bulky_special_attacker"),
+    ("bulky mixed attacker", "bulky_mixed_attacker"),
+    ("screens support", "screens_support"),
+    ("screens", "screens_support"),
+    ("support speed control", "support_speed_control"),
+    ("speed control", "support_speed_control"),
+    ("rain", "rain_setter"),
+    ("sun", "sun_setter"),
+    ("sand", "sand_setter"),
+    ("snow", "snow_setter"),
 )
 _TARGET_ROLE_IDS = frozenset(get_args(TargetRoleId))
 _SPEED_CONTROL_ROLES = frozenset({"tailwind_setter", "trick_room_setter"})
@@ -233,24 +239,30 @@ def _map_kit_role(role: str | None) -> TargetRoleId | None:
     return role  # type: ignore[return-value]
 
 
+def _normalize_direction_text(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", text.casefold()).strip()
+
+
+def _direction_phrase_examples() -> str:
+    """One working phrase per TargetRoleId, derived from _DIRECTION_PHRASES."""
+
+    best: dict[TargetRoleId, str] = {}
+    for phrase, role_id in _DIRECTION_PHRASES:
+        prev = best.get(role_id)
+        if prev is None or len(phrase.split()) > len(prev.split()):
+            best[role_id] = phrase
+    return ", ".join(best[role] for role in sorted(best, key=lambda r: best[r]))
+
+
 def resolve_bootstrap_direction(text: str | None) -> TargetRoleId | None:
     """Resolve only the reviewed bootstrap phrase vocabulary."""
 
     if not text:
         return None
-    normalized = re.sub(r"[^a-z0-9]+", " ", text.casefold()).strip()
-    matches: list[TargetRoleId] = []
-    matched_length = 0
-    for phrase, role_id in _DIRECTION_PHRASES:
-        phrase_length = len(phrase.split())
-        if matches and phrase_length < matched_length:
-            break
-        if re.search(rf"(?:^| ){re.escape(phrase)}(?: |$)", normalized):
-            matches.append(role_id)
-            matched_length = phrase_length
-    unique = tuple(dict.fromkeys(matches))
+    normalized = _normalize_direction_text(text)
+    hits = [role for phrase, role in _DIRECTION_PHRASES if phrase == normalized]
+    unique = tuple(dict.fromkeys(hits))
     return unique[0] if len(unique) == 1 else None
-
 
 def _exact_legal_species(raw: str | None) -> str | None:
     if not raw:
@@ -425,7 +437,8 @@ def discover_bootstrap_directions(
     if response["direction_text"] and requested_role is None:
         return BootstrapDirectionDiscovery(
             (),
-            f"Couldn't map direction: {response['direction_text']}",
+            f"Couldn't map direction: {response['direction_text']}. "
+            f"Try e.g.: {_direction_phrase_examples()}.",
         )
 
     explicit_anchor = _exact_legal_species(response["anchor_text"])
