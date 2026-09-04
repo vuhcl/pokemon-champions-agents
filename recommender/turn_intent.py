@@ -172,7 +172,7 @@ Rules:
     did not mention an item at all)
   - "use these four moves and rebuild" -> edit, field=moves, value_moves=[...],
     edit_scope=regenerate
-  - "252 SpA / 4 SpD / 252 Spe" only -> edit, field=spread, value_spread={{...}},
+  - "32 SpA / 2 SpD / 32 Spe" only -> edit, field=spread, value_spread={{...}},
     edit_scope=field_only
 - lock requires slot_index plus either (attr+value) or locks. Lock uses value (object), not
   value_text / value_moves / value_spread.

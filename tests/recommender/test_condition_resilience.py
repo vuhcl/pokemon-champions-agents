@@ -893,10 +893,11 @@ def test_tr_spe_discount_floor_interior_gap_and_fallback():
     assert _tr_spe_discount_floor([]) is None
 
 
-def test_live_tr_spe_discount_floor_is_125():
+def test_live_tr_spe_discount_floor_is_138():
     # Expanded ladder membership (mega-capable rank stubs) shifts the live
-    # SLOT_THREAT_N speed sample used by _threat_speeds.
-    assert _tr_spe_discount_floor(_threat_speeds(None, "champions-reg-mb")) == 125
+    # SLOT_THREAT_N speed sample used by _threat_speeds. Value depends on
+    # effective_spe's Champions formula (floor(n*(base+SP+20))).
+    assert _tr_spe_discount_floor(_threat_speeds(None, "champions-reg-mb")) == 138
 
 
 def test_kingambit_declared_sweeper_counts_as_wanted_tr():
@@ -942,9 +943,12 @@ def test_kangaskhan_mega_brave_counts_without_declared_sweeper():
 
 
 def test_spe_floor_only_discounts_dragapult_zero_hardy():
-    build = _with_spe(resolve_anchor_build("Dragapult"), 252, nature="Timid", item=None)
+    # Max Champions Spe SP (0–32), not mainline 252 EVs.
+    build = _with_spe(resolve_anchor_build("Dragapult"), 32, nature="Timid", item=None)
     assert build.nature in _SPEED_PLUS
-    assert effective_spe(build.species, build.spread, build.nature or "Timid") >= 167
+    floor = _tr_spe_discount_floor(_threat_speeds(None, "champions-reg-mb"))
+    assert floor is not None
+    assert effective_spe(build.species, build.spread, build.nature or "Timid") >= floor
     ctx = _context_from_decision(
         0, "Dragapult", _declared_tr(build), resolved_build=build
     )

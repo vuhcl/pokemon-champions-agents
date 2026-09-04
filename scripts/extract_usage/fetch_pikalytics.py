@@ -100,7 +100,13 @@ def _featured_sets(md: str) -> list[dict]:
 
 
 def _top_spreads(md: str) -> list[dict]:
-    """FAQ line: EV spread of `h/a/d/sa/sd/sp` ... pct%."""
+    """FAQ line: EV spread of `h/a/d/sa/sd/sp` ... pct%.
+
+    Deferred: this extract is dormant (not a current usage-snapshot source). If
+    reactivated, Pikalytics FAQ numbers are mainline-scale EVs — run through
+    recommender.sp_convert.evs_to_sp before writing top_spreads, or
+    _spread_from_usage will pass unconverted EVs into calc/builds.
+    """
     out: list[dict] = []
     for m in re.finditer(
         r"EV spread of `(\d+)/(\d+)/(\d+)/(\d+)/(\d+)/(\d+)`.*?([\d.]+)%\s+of competitive",
