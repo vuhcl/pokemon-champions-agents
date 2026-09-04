@@ -63,9 +63,7 @@ npm install && npm start # calc service, separate terminal
 python -m recommender --new
 ```
 
-Recorded sessions: [`docs/demo/cli-session-0.2.txt`](docs/demo/cli-session-0.2.txt) (Pelipper lock → rain-beneficiary partners including Rain Dish / Swift Swim → Blastoise confirmed). The prior 0.1 transcript remains at [`docs/demo/cli-session-0.1.txt`](docs/demo/cli-session-0.1.txt).
-
-**TODO:** v1.0.0's headline feature — free-text steering, claim correction, and revise/repick — has no recorded demo transcript yet. The 0.1/0.2 captures predate the reasoning loop; a deliberate 1.0.0 session recording is a follow-up, not silently implied by these older transcripts.
+A recorded 1.0.0 session (Trick Room / Hatterene → free-text Focus Sash edit → compare → revise_locked_slot Quiet→Sassy → repick → `:builds`) is in [`docs/demo/cli-session-1.0.0.txt`](docs/demo/cli-session-1.0.0.txt). The prior 0.2 transcript remains at [`docs/demo/cli-session-0.2.txt`](docs/demo/cli-session-0.2.txt) (Pelipper lock → rain-beneficiary partners including Rain Dish / Swift Swim → Blastoise confirmed). The prior 0.1 transcript remains at [`docs/demo/cli-session-0.1.txt`](docs/demo/cli-session-0.1.txt).
 
 ## What shipped in 1.0
 

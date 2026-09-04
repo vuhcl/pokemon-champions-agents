@@ -1,0 +1,261 @@
+Recorded 2026-09-04 against docs/cli-session-1-0-0 (feature commit b08b627).
+Real `python -m recommender --new` session
+(Ollama qwen2.5:7b for bootstrap + turn-intent; local @smogon/calc service on :4173).
+Replies were scripted; CLI output is unmodified.
+
+Trick Room archetype (not Rain): free-text Focus Sash edit on provisional
+Hatterene, compare on Blastoise-Mega spreads, revise_locked_slot (Quiet→Sassy),
+repick slot 2 rediscovery, defer. claim_correction elicitation attempted on
+idle; local model reached the claim_correction path without a stamped prior
+claim ("There is no prior system claim to correct") — retract-of-false not
+captured in this session.
+
+What direction or anchor would you like to start with, and which Pokémon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.
+Reply with a direction, anchor, available pool, or 'you pick'.
+(thread team-6953f952a3f04630b114578b0ac6c7e6)
+> trick room with Hatterene
+Choose the recommended starting direction or one of the strategically different alternatives.
+1. Hatterene — Trick Room Setter — trick_room_setter — support — compendium_backed, high confidence
+reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
+Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
+> 1
+Proposed build for Hatterene (trick_room_setter):
+  Ability: Magic Bounce
+  Item: Life Orb
+  Nature: Quiet
+  Moves: Dazzling Gleam, Trick Room, Protect, Psychic
+  Spread: {'hp': 32, 'atk': 0, 'def': 2, 'spa': 32, 'spd': 0, 'spe': 0}
+Choose spread/nature:
+  spread_nature:default: Recommended default (default) — recommended default; Keep the refined usage recommendation
+  spread_nature:2: Quiet 32/0/0/32/2/0 — spread; Real usage spread variant
+    mech: Spe 44 (same as default)
+  spread_nature:3: Sassy 32/0/0/2/32/0 — nature Quiet→Sassy, spread; Real usage spread variant
+    mech: Spe 44 (same as default)
+  spread_nature:4: Modest 32/0/2/32/0/0 — nature Quiet→Modest; Real usage spread variant
+    mech: Spe 49 vs default 44
+Accept this build? (yes / defer / option id / free-text)
+Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.
+> change the item to Focus Sash
+Proposed build for Hatterene (trick_room_setter):
+  Ability: Magic Bounce
+  Item: Focus Sash
+  Nature: Quiet
+  Moves: Dazzling Gleam, Trick Room, Protect, Psychic
+  Spread: {'hp': 32, 'atk': 0, 'def': 2, 'spa': 32, 'spd': 0, 'spe': 0}
+Note: Focus Sash with HP≥20 reads tanky for a glass item
+Choose spread/nature:
+  spread_nature:default: Recommended default (default) — recommended default; Keep the refined usage recommendation
+  spread_nature:2: Quiet 32/0/0/32/2/0 — spread; Real usage spread variant
+    mech: Spe 44 (same as default)
+  spread_nature:3: Sassy 32/0/0/2/32/0 — nature Quiet→Sassy, spread; Real usage spread variant
+    mech: Spe 44 (same as default)
+  spread_nature:4: Modest 32/0/2/32/0/0 — nature Quiet→Modest; Real usage spread variant
+    mech: Spe 49 vs default 44
+Accept this build? (yes / defer / option id / free-text)
+Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.
+> yes
+1. Sinistcha — redirection — healing_cleric / redirection — compendium_backed, medium confidence
+2. Clefable — redirection — healing_cleric / redirection — compendium_backed, medium confidence
+3. Ariados — redirection — redirection — compendium_backed, medium confidence
+reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
+Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
+> 1
+Proposed build for Sinistcha (redirection):
+  Ability: Hospitality
+  Item: Sitrus Berry
+  Nature: Bold
+  Moves: Matcha Gotcha, Rage Powder, Trick Room, Protect
+  Spread: {'hp': 32, 'atk': 0, 'def': 32, 'spa': 0, 'spd': 2, 'spe': 0}
+Choose spread/nature:
+  spread_nature:default: Recommended default (default) — recommended default; Keep the refined usage recommendation
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:1: Bold 32/0/4/0/30/0 — spread; Real usage spread variant
+    mech: Spe 90 (same as default)
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:2: Bold 32/0/14/0/20/0 — spread; Real usage spread variant
+    mech: Spe 90 (same as default)
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:3: Relaxed 32/0/32/2/0/0 — nature Bold→Relaxed, spread; Real usage spread variant
+    mech: Spe 81 vs default 90
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+Accept this build? (yes / defer / option id / free-text)
+Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.
+> yes
+1. threat coverage + type synergy: Blastoise-Mega — standard_special_attacker — usage_backed, high confidence
+2. support/utility: Aromatisse — trick_room_sweeper — healing_cleric — primary: trick_room_setter — usage_backed, medium confidence
+reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
+Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
+> 1
+Proposed build for Blastoise-Mega (standard_special_attacker):
+  Ability: Mega Launcher
+  Item: Blastoisinite
+  Nature: Modest
+  Moves: Water Spout, Dark Pulse, Protect, Shell Smash
+  Spread: {'hp': 32, 'atk': 0, 'def': 2, 'spa': 32, 'spd': 0, 'spe': 0}
+Choose spread/nature:
+  spread_nature:default: Recommended default (default) — recommended default; Keep the refined usage recommendation
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:1: Modest 2/0/0/32/0/32 — spread; Real usage spread variant
+    mech: Spe 130 vs default 98
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:2: Modest 1/0/1/32/0/32 — spread; Real usage spread variant
+    mech: Spe 130 vs default 98
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:3: Quiet 32/0/0/32/2/0 — nature Modest→Quiet, spread; Real usage spread variant
+    mech: Spe 88 vs default 98
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+Accept this build? (yes / defer / option id / free-text)
+Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.
+> compare spread_nature:default spread_nature:3
+Compare:
+  spread_nature:default (Recommended default): Spe 98
+  spread_nature:3 (Quiet 32/0/0/32/2/0): Spe 88
+vs Kingambit:
+  spread_nature:default: Water Spout dmg=[162, 192] ko=guaranteed 2HKO (guaranteed 2HKO)
+  spread_nature:3: Water Spout dmg=[162, 192] ko=guaranteed 2HKO (guaranteed 2HKO)
+vs Garchomp:
+  spread_nature:default: Water Spout dmg=[165, 195] ko=31.3% chance to OHKO (1HKO)
+  spread_nature:3: Water Spout dmg=[165, 195] ko=31.3% chance to OHKO (1HKO)
+Proposed build for Blastoise-Mega (standard_special_attacker):
+  Ability: Mega Launcher
+  Item: Blastoisinite
+  Nature: Modest
+  Moves: Water Spout, Dark Pulse, Protect, Shell Smash
+  Spread: {'hp': 32, 'atk': 0, 'def': 2, 'spa': 32, 'spd': 0, 'spe': 0}
+Choose spread/nature:
+  spread_nature:default: Recommended default (default) — recommended default; Keep the refined usage recommendation
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:1: Modest 2/0/0/32/0/32 — spread; Real usage spread variant
+    mech: Spe 130 vs default 98
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:2: Modest 1/0/1/32/0/32 — spread; Real usage spread variant
+    mech: Spe 130 vs default 98
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:3: Quiet 32/0/0/32/2/0 — nature Modest→Quiet, spread; Real usage spread variant
+    mech: Spe 88 vs default 98
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+Accept this build? (yes / defer / option id / free-text)
+Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.
+> yes
+1 of 3 Mega-Stone holders locked — only one can Mega Evolve per battle.
+1. threat coverage + type synergy: Incineroar — bulky_pivot — usage_backed, high confidence
+2. support/utility: Abomasnow — screens_support — screens — usage_backed, medium confidence
+reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
+Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
+> defer
+Team:
+1. Hatterene (trick_room_setter)
+2. Sinistcha (redirection)
+3. Blastoise-Mega (standard_special_attacker)
+> revise locked Hatterene: set nature to Sassy
+Proposed build for Hatterene (trick_room_setter):
+  Ability: Magic Bounce
+  Item: Focus Sash
+  Nature: Sassy
+  Moves: Dazzling Gleam, Trick Room, Protect, Psychic
+  Spread: {'hp': 32, 'atk': 0, 'def': 2, 'spa': 32, 'spd': 0, 'spe': 0}
+Note: Focus Sash with HP≥20 reads tanky for a glass item
+Choose bundled:
+  bundled:default: Keep current build (default) — keep current; No change from imported/locked set
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+Choose spread/nature:
+  spread_nature:default: Keep current (default) — keep current; No change on this axis
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:1: Quiet 32/0/2/32/0/0 — nature Sassy→Quiet; Real usage spread variant
+    mech: Spe 44 (same as default)
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:2: Quiet 32/0/0/32/2/0 — nature Sassy→Quiet, spread; Real usage spread variant
+    mech: Spe 44 (same as default)
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:3: Sassy 32/0/0/2/32/0 — spread; Real usage spread variant
+    mech: Spe 44 (same as default)
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+Accept this build? (yes / defer / option id / free-text)
+Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.
+> yes
+1 of 3 Mega-Stone holders locked — only one can Mega Evolve per battle.
+1. threat coverage + type synergy: Incineroar — bulky_pivot — usage_backed, high confidence
+2. support/utility: Abomasnow — screens_support — screens — usage_backed, medium confidence
+reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
+Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
+> defer
+Team:
+1. Hatterene (trick_room_setter)
+2. Sinistcha (redirection)
+3. Blastoise-Mega (standard_special_attacker)
+> repick slot 2
+1. threat coverage + type synergy: Blastoise-Mega — standard_special_attacker — usage_backed, high confidence
+2. support/utility: Aromatisse — trick_room_sweeper — healing_cleric — primary: trick_room_setter — usage_backed, medium confidence
+reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
+Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
+> 1
+Proposed build for Blastoise-Mega (standard_special_attacker):
+  Ability: Mega Launcher
+  Item: Blastoisinite
+  Nature: Modest
+  Moves: Water Spout, Dark Pulse, Protect, Shell Smash
+  Spread: {'hp': 32, 'atk': 0, 'def': 2, 'spa': 32, 'spd': 0, 'spe': 0}
+Choose spread/nature:
+  spread_nature:default: Recommended default (default) — recommended default; Keep the refined usage recommendation
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:1: Modest 2/0/0/32/0/32 — spread; Real usage spread variant
+    mech: Spe 130 vs default 98
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:2: Modest 1/0/1/32/0/32 — spread; Real usage spread variant
+    mech: Spe 130 vs default 98
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+  spread_nature:3: Quiet 32/0/0/32/2/0 — nature Modest→Quiet, spread; Real usage spread variant
+    mech: Spe 88 vs default 98
+    team: Ally Trick Room already locked — Spe investment tradeoffs shift under TR.
+Accept this build? (yes / defer / option id / free-text)
+Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.
+> yes
+1 of 3 Mega-Stone holders locked — only one can Mega Evolve per battle.
+1. threat coverage + type synergy: Incineroar — bulky_pivot — usage_backed, high confidence
+2. support/utility: Abomasnow — screens_support — screens — usage_backed, medium confidence
+reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
+Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
+> defer
+Team:
+1. Hatterene (trick_room_setter)
+2. Sinistcha (redirection)
+3. Blastoise-Mega (standard_special_attacker)
+> suggest a grass type for slot 5
+Would you like to replace the species in slot 5 or change a build attribute like ability, item, moves, nature, or spread?
+Team:
+1. Hatterene (trick_room_setter)
+2. Sinistcha (redirection)
+3. Blastoise-Mega (standard_special_attacker)
+> is Abomasnow a grass type? just tell me yes or no with the typing
+There is no prior system claim to correct.
+Team:
+1. Hatterene (trick_room_setter)
+2. Sinistcha (redirection)
+3. Blastoise-Mega (standard_special_attacker)
+> is Abomasnow a grass type? just tell me yes or no with the typing
+There is no prior system claim to correct.
+Team:
+1. Hatterene (trick_room_setter)
+2. Sinistcha (redirection)
+3. Blastoise-Mega (standard_special_attacker)
+> :builds
+Builds:
+1. Hatterene (trick_room_setter):
+  Ability: Magic Bounce
+  Item: Focus Sash
+  Nature: Sassy
+  Moves: Dazzling Gleam, Trick Room, Protect, Psychic
+  Spread: {'hp': 32, 'atk': 0, 'def': 2, 'spa': 32, 'spd': 0, 'spe': 0}
+2. Sinistcha (redirection):
+  Ability: Hospitality
+  Item: Sitrus Berry
+  Nature: Bold
+  Moves: Matcha Gotcha, Rage Powder, Trick Room, Protect
+  Spread: {'hp': 32, 'atk': 0, 'def': 32, 'spa': 0, 'spd': 2, 'spe': 0}
+3. Blastoise-Mega (standard_special_attacker):
+  Ability: Mega Launcher
+  Item: Blastoisinite
+  Nature: Modest
+  Moves: Water Spout, Dark Pulse, Protect, Shell Smash
+  Spread: {'hp': 32, 'atk': 0, 'def': 2, 'spa': 32, 'spd': 0, 'spe': 0}
+> :q
