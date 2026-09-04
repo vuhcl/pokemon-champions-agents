@@ -41,8 +41,8 @@ calculation? Sample a set of claims, verify each by hand or via calc tool, repor
 - Check 1 — Spe formula fidelity (`effective_spe` vs calc `raw.stats.attacker.spe`, scarf=False):
   **was 8 / 15 (53.3%)** on 2026-09-03 (real bug: `effective_spe` used gen9
   `((2*base+31+EV/4)*level)/100+5` with a pseudo-EV step on already-SP inputs; Champions is
-  `floor(n*(base+SP+20))` in `@smogon/calc` `calcStatChampions`). **Fixed in this change;
-  now 15 / 15 (100%)** on the same 15-scenario build sample (2026-09-04 re-run).
+  `floor(n*(base+SP+20))` in `@smogon/calc` `calcStatChampions`). **Fixed in PR #187
+  (`bc156f1`); now 15 / 15 (100%)** on the same 15-scenario build sample (2026-09-04 re-run).
 - Check 2 — damage/KO fidelity on `compare_build_options` lines:
   - (a) template↔logged correlation: **4 / 4 (100%)**
   - (b) fresh identical recalc (headline): **4 / 4 (100%)**
