@@ -85,7 +85,7 @@ Out of scope until later phases: Showdown win-rate eval, battle-log/RL piloting.
 
 ## Tests
 
-Verified 2026-09-04 against `docs/v1-0-0-readme` (counts from this packaging pass; commit hash filled after commit):
+Verified 2026-09-04 against `docs/v1-0-0-readme` at feature commit `2b68b41`:
 
 | Suite | Command | Result |
 |-------|---------|--------|
