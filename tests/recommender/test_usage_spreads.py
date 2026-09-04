@@ -2,9 +2,38 @@ from unittest.mock import patch
 
 from recommender.usage_spreads import (
     SpreadEvidence,
+    effective_spe,
     fetch_live_spreads,
     select_usage_spread,
 )
+
+
+def test_effective_spe_champions_formula_verified_cases():
+    """Discovery-backed Spe values vs calcStatChampions (scarf=False)."""
+    assert (
+        effective_spe(
+            "Archaludon",
+            {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 3},
+            "Modest",
+        )
+        == 108
+    )
+    assert (
+        effective_spe(
+            "Pelipper",
+            {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 32},
+            "Modest",
+        )
+        == 117
+    )
+    assert (
+        effective_spe(
+            "Whimsicott",
+            {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 6},
+            "Timid",
+        )
+        == 156
+    )
 
 STATS = {
     "species": {

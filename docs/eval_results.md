@@ -34,14 +34,15 @@ Showdown simulation at all, and should be the first hard number this project pro
 *What to measure: when the agent makes a speed/damage/matchup claim, does it match an actual
 calculation? Sample a set of claims, verify each by hand or via calc tool, report agreement rate.*
 
-- Measured: 2026-09-03
+- Measured: 2026-09-03 (initial); Spe Check 1 re-measured 2026-09-04 after formula fix
 - Method: Reran Task A’s 15 scripted scenarios + 2 seeded `compare` extras under a pass-through
   `CalcClient.calculate_batch` logger and `classify_matchup` spy (`scripts/eval/run_mech_claims.py`).
   Calc `/health` was required (healthy). No live LLM.
 - Check 1 — Spe formula fidelity (`effective_spe` vs calc `raw.stats.attacker.spe`, scarf=False):
-  **8 / 15 (53.3%)**. Mismatches flagged as a real bug (Champions Spe is
-  `floor(n*(base+SP+20))` in `@smogon/calc`; `effective_spe` still uses gen9 math). Not folded
-  into noise; not fixed in this PR.
+  **was 8 / 15 (53.3%)** on 2026-09-03 (real bug: `effective_spe` used gen9
+  `((2*base+31+EV/4)*level)/100+5` with a pseudo-EV step on already-SP inputs; Champions is
+  `floor(n*(base+SP+20))` in `@smogon/calc` `calcStatChampions`). **Fixed in PR #187
+  (`bc156f1`); now 15 / 15 (100%)** on the same 15-scenario build sample (2026-09-04 re-run).
 - Check 2 — damage/KO fidelity on `compare_build_options` lines:
   - (a) template↔logged correlation: **4 / 4 (100%)**
   - (b) fresh identical recalc (headline): **4 / 4 (100%)**

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from functools import lru_cache
@@ -184,16 +185,23 @@ def effective_spe(
     level: int = 50,
     snap: dict[str, Any] | None = None,
 ) -> int:
-    """Approximate Champions Speed for deterministic breakpoint comparisons."""
+    """Champions Speed: floor(n*(base+SP+20)); scarf is a separate *1.5 item mod.
+
+    ``level`` is unused (Champions has no level term) but kept for call-site compat.
+    ``spread`` values are already Champions SP (0–32), not mainline EVs.
+    """
     snapshot = snap or load_snapshot()
     entry = (snapshot.get("species") or {}).get(to_id(species)) or {}
     base = int((entry.get("base_stats") or {}).get("spe") or 0)
-    ev_like = min(252, int(spread.get("spe", 0)) * 4)
-    speed = ((2 * base + 31 + ev_like // 4) * level) // 100 + 5
+    spe_sp = int(spread.get("spe", 0))
     if nature in _SPEED_PLUS:
-        speed = int(speed * 1.1)
+        n = 1.1
     elif nature in _SPEED_MINUS:
-        speed = int(speed * 0.9)
+        n = 0.9
+    else:
+        n = 1.0
+    # Matches @smogon/calc calcStatChampions (gen.num===0).
+    speed = math.floor(n * (base + spe_sp + 20))
     return int(speed * 1.5) if scarf else speed
 
 
