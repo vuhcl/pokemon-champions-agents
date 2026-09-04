@@ -10,9 +10,23 @@
 target regulation? This is directly testable against known regulation data without needing
 Showdown simulation at all, and should be the first hard number this project produces.*
 
-- Test set size: TBD
-- False-legal rate (recommended something actually banned/unavailable): TBD
-- Notes:
+- Measured: 2026-09-03
+- Test set size: 15 scripted graph scenarios (3 baseline intake + 12 risky-path, 2 each across
+  last-resort synthesis / role-aware synthesis / provisional completion / revise_locked_slot /
+  repick_locked_slot / team-conditioned builds ADR-056). Masked-core excluded (ADR-038 reversal).
+- Pairs checked: 28 locked `(species, item)` pairs
+- False-legal rate: **0 / 28 (0.0%)**
+- Stalls / non-complete terminals (kept in denominator; not silently dropped):
+  - `baseline_intimidate`: hit turn-cap with 0 locked pairs (bootstrap/discovery loop stall)
+  - `last_resort_incomplete`: `incomplete_build` (expected fail-closed)
+  - `provisional_abandon`: `build_abandoned` (expected)
+- Notes: Deterministic harness (`compile_graph` + `MemorySaver` + `classify_pending` patch; no
+  live LLM). Independent oracle: fresh Showdown checkout extract of `formats-data.ts` /
+  `items.ts` / `rulesets.ts` (+ base pokedex/items) via `scripts/eval/oracle_snapshot.ts` into a
+  temp snapshot; eval-only boolean rules in `scripts/eval/oracle.py` (does **not** import
+  `recommender.legality.is_species_legal` / `check_set` / `load_snapshot`). Oracle source commit
+  `2f5b273925862ac242b419086c1e7a8868b51da1`. Calc service was healthy for the run. Runner:
+  `EVAL_ORACLE_SNAPSHOT=… uv run python scripts/eval/run_legality.py`.
 
 ---
 
