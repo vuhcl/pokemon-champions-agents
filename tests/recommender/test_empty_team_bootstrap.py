@@ -19,6 +19,8 @@ from recommender.anchor_roles import (
 from recommender.bootstrap import (
     BootstrapExtraction,
     BootstrapIntakeParseError,
+    _DIRECTION_PHRASES,
+    _direction_phrase_examples,
     build_anthropic_bootstrap_intake_parser,
     build_ollama_bootstrap_intake_parser,
     discover_bootstrap_directions,
@@ -508,7 +510,13 @@ def test_unmappable_direction_reprompts_without_coarse_default():
         result = bootstrap_direction(state)
 
     assert result["pending_presentation"]["kind"] == "bootstrap_intake"
-    assert "Couldn't map direction" in result["candidate_discovery_error"].message
+    message = result["candidate_discovery_error"].message
+    assert "Couldn't map direction" in message
+    examples = _direction_phrase_examples()
+    assert examples in message
+    registry_phrases = {phrase for phrase, _ in _DIRECTION_PHRASES}
+    for phrase in examples.split(", "):
+        assert phrase in registry_phrases
     generic_fallback.assert_not_called()
     assert not result["pending_presentation"].get("options")
 
@@ -751,11 +759,57 @@ def test_existing_classification_boundaries_and_evidence_ranks_are_unchanged():
     ("text", "role"),
     [
         ("Rain offense", "rain_setter"),
+        ("Rain", "rain_setter"),
+        ("Sun", "sun_setter"),
+        ("Sand", "sand_setter"),
+        ("Snow", "snow_setter"),
+        ("Sand offense", "sand_setter"),
         ("Trick Room", "trick_room_setter"),
         ("Trick Room sweeper", "trick_room_sweeper"),
+        ("Tailwind", "tailwind_setter"),
         ("Follow Me", "redirection"),
+        ("redirection", "redirection"),
+        ("Swords Dance", "swords_dance_attacker"),
+        ("Nasty Plot", "nasty_plot_attacker"),
         ("fast offense", "fast_attacker"),
+        ("fast attacker", "fast_attacker"),
+        ("bulky attacker", "bulky_attacker"),
+        ("fast pivot", "fast_pivot"),
+        ("bulky pivot", "bulky_pivot"),
+        ("fast physical attacker", "fast_physical_attacker"),
+        ("fast special attacker", "fast_special_attacker"),
+        ("fast mixed attacker", "fast_mixed_attacker"),
+        ("bulky physical attacker", "bulky_physical_attacker"),
+        ("bulky special attacker", "bulky_special_attacker"),
+        ("bulky mixed attacker", "bulky_mixed_attacker"),
+        ("screens", "screens_support"),
+        ("screens support", "screens_support"),
+        ("speed control", "support_speed_control"),
+        ("support speed control", "support_speed_control"),
     ],
 )
-def test_reviewed_direction_phrase_mapping_is_longest_match_first(text, role):
+def test_reviewed_direction_phrase_mapping_exact_normalized(text, role):
     assert resolve_bootstrap_direction(text) == role
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Sand Force",
+        "Snow Warning",
+        "Sand Stream",
+    ],
+)
+def test_ability_shaped_weather_mentions_do_not_map_as_setters(text):
+    assert resolve_bootstrap_direction(text) is None
+
+
+def test_direction_phrase_examples_come_from_registry():
+    examples = _direction_phrase_examples()
+    registry_phrases = {phrase for phrase, _ in _DIRECTION_PHRASES}
+    asserted = examples.split(", ")
+    assert asserted
+    assert all(phrase in registry_phrases for phrase in asserted)
+    # One example per distinct role_id.
+    roles = {role for _, role in _DIRECTION_PHRASES}
+    assert len(asserted) == len(roles)
