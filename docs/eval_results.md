@@ -26,6 +26,27 @@ calculation? Sample a set of claims, verify each by hand or via calc tool, repor
 
 ---
 
+## Claude API validation (Phase 1 — ADR-013 hosted-backend check)
+*What to measure: do the prompt-tuned classifiers (turn_intent / claim_correction path /
+full_build_confirmation axis picks) agree with local/mocked fixture expectations when run
+against a real Anthropic model via `build_anthropic_turn_intent_parser`?*
+
+- Measured: blocked 2026-09-03 — `ANTHROPIC_API_KEY` unset in the measurement environment
+  (fail closed; no mock fallback). Runner and 17 scenarios are in-tree:
+  `uv run --extra anthropic python scripts/eval/run_claude_validation.py`
+  (also requires `BOOTSTRAP_ANTHROPIC_MODEL`).
+- Test set size: 17 parser-only scenarios (8 turn_intent_parser + 4 claim_correction +
+  5 full_build_confirmation). No full graph. claim_correction texts chosen so
+  `negation_matches_claim` / `_try_deterministic_claim_correction` do not fire.
+- Agreement rate (turn_intent_parser): TBD (blocked on live key)
+- Agreement rate (claim_correction): TBD (blocked on live key)
+- Agreement rate (full_build_confirmation): TBD (blocked on live key)
+- Notes: Includes one known-deferred multi-axis bare-number case (`ti_bare_number_multiaxis`,
+  ADR-031) — reported separately, not fixed here. Re-run with a live key and fill rates +
+  any `divergence_bug_candidate` triage rows.
+
+---
+
 ## Showdown-simulated win rate (Phase 2)
 *Primary quantitative eval, once built. Recommended teams played against a defined set of known
 meta teams via Pokémon Showdown's simulator/API.*
