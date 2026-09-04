@@ -1,4 +1,4 @@
-Recorded 2026-09-04 against docs/cli-session-1-0-0 (feature commit b08b627).
+Recorded 2026-09-04 against docs/cli-session-1-0-0 (feature commit 7cb3c02).
 Real `python -m recommender --new` session
 (Ollama qwen2.5:7b for bootstrap + turn-intent; local @smogon/calc service on :4173).
 Replies were scripted; CLI output is unmodified.
