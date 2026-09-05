@@ -908,7 +908,10 @@ def _edit_value(extraction: TurnIntentExtraction) -> object:
 def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
     intent = extraction.turn_intent
     if intent == "pending_response":
-        return PendingResponsePayload(message=extraction.message.strip())  # type: ignore[union-attr]
+        from recommender.system_claims import rewrite_pending_response_message
+
+        msg = extraction.message.strip()  # type: ignore[union-attr]
+        return PendingResponsePayload(message=rewrite_pending_response_message(msg))
     if intent == "edit":
         payload: dict[str, Any] = {
             "field": extraction.field,
