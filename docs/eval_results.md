@@ -192,7 +192,7 @@ Pair each with its own "after" re-run once the runtime guard merges.
 `pending_response` clarification free text vs `data/legality/champions.v1.json`.*
 
 - Measured: 2026-09-04
-- Feature commit: *(filled at commit)*
+- Feature commit: `ca28d20`
 - Model: Ollama `qwen3.5:latest` (`BOOTSTRAP_OLLAMA_MODEL`); calc `:4173` healthy
 - Code under test: **unfixed** (no `rewrite_pending_response_message`); runner abort-if-guarded
   preflight passed
