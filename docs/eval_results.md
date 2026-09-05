@@ -89,7 +89,7 @@ how often does that free text assert a parseable species type/ability fact, and 
 true against `data/legality/champions.v1.json`? Separate from mechanical-claim / calc fidelity.*
 
 - Measured: 2026-09-04
-- Feature commit: *(filled at commit time — tip of `eval/species-fact-pending-baseline`)*
+- Feature commit: `4771de9`
 - Model: Ollama `qwen2.5:7b` (`BOOTSTRAP_OLLAMA_MODEL`); calc `:4173` healthy
 - Code under test: **unfixed** `origin/main` tip at branch time (`PendingResponsePayload`
   returns raw `extraction.message`; no `rewrite_pending_response_message`). Runner aborts if
