@@ -1,14 +1,21 @@
-Recorded 2026-09-04 against docs/cli-session-1-0-0 (feature commit 7cb3c02).
-Real `python -m recommender --new` session
-(Ollama qwen2.5:7b for bootstrap + turn-intent; local @smogon/calc service on :4173).
+Recorded 2026-09-04 against docs/cli-session-1-0-0.
+Real `python -m recommender --new` sessions
+(Ollama for bootstrap + turn-intent; local @smogon/calc service on :4173).
 Replies were scripted; CLI output is unmodified.
 
-Trick Room archetype (not Rain): free-text Focus Sash edit on provisional
-Hatterene, compare on Blastoise-Mega spreads, revise_locked_slot (Quiet→Sassy),
-repick slot 2 rediscovery, defer. claim_correction elicitation attempted on
-idle; local model reached the claim_correction path without a stamped prior
-claim ("There is no prior system claim to correct") — retract-of-false not
-captured in this session.
+Session A (qwen2.5:7b, feature commit 7cb3c02): Trick Room / Hatterene —
+free-text Focus Sash edit, compare on Blastoise-Mega, revise_locked_slot
+(Quiet→Sassy), repick slot 2, defer, :builds. Idle claim_correction probes
+did not stamp a prior claim (see end of Session A).
+
+Session B / continuation (qwen3.5:latest): claim_correction on
+candidate_selection — constraint-style "I want a grass type — is Heliolisk
+a grass type option here?" produced a pending_response that asserted
+"Heliolisk is Electric/Water type"; disputing "Heliolisk isn't a Water
+type" returned the real retract:
+"You're right — I withdrew that claim. Re-running with your Grass type
+constraint." Rediscovery then surfaced Grass candidates (Scovillain-Mega,
+Roserade).
 
 What direction or anchor would you like to start with, and which Pokémon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.
 Reply with a direction, anchor, available pool, or 'you pick'.
@@ -257,5 +264,62 @@ Builds:
   Item: Blastoisinite
   Nature: Modest
   Moves: Water Spout, Dark Pulse, Protect, Shell Smash
+  Spread: {'hp': 32, 'atk': 0, 'def': 2, 'spa': 32, 'spd': 0, 'spe': 0}
+> :q
+
+----- Session B: claim_correction continuation (qwen3.5:latest) -----
+
+What direction or anchor would you like to start with, and which Pokémon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.
+Reply with a direction, anchor, available pool, or 'you pick'.
+(thread team-3bdd889f89fc491b9d7f72c6c1dd5ac9)
+> trick room with Hatterene
+Choose the recommended starting direction or one of the strategically different alternatives.
+1. Hatterene — Trick Room Setter — trick_room_setter — support — compendium_backed, high confidence
+reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
+Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
+> 1
+Proposed build for Hatterene (trick_room_setter):
+  Ability: Magic Bounce
+  Item: Life Orb
+  Nature: Quiet
+  Moves: Dazzling Gleam, Trick Room, Protect, Psychic
+  Spread: {'hp': 32, 'atk': 0, 'def': 2, 'spa': 32, 'spd': 0, 'spe': 0}
+Choose spread/nature:
+  spread_nature:default: Recommended default (default) — recommended default; Keep the refined usage recommendation
+  spread_nature:2: Quiet 32/0/0/32/2/0 — spread; Real usage spread variant
+    mech: Spe 44 (same as default)
+  spread_nature:3: Sassy 32/0/0/2/32/0 — nature Quiet→Sassy, spread; Real usage spread variant
+    mech: Spe 44 (same as default)
+  spread_nature:4: Modest 32/0/2/32/0/0 — nature Quiet→Modest; Real usage spread variant
+    mech: Spe 49 vs default 44
+Accept this build? (yes / defer / option id / free-text)
+Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.
+> yes
+1. Sinistcha — redirection — healing_cleric / redirection — compendium_backed, medium confidence
+2. Clefable — redirection — healing_cleric / redirection — compendium_backed, medium confidence
+3. Ariados — redirection — redirection — compendium_backed, medium confidence
+reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
+Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
+> I want a grass type — is Heliolisk a grass type option here?
+Heliolisk is Electric/Water type, not Grass type. Would you like me to filter for grass-type Pokémon from the candidates (Sinistcha, Clefable, Ariados), or would you prefer a different typing?
+1. Sinistcha — redirection — healing_cleric / redirection — compendium_backed, medium confidence
+2. Clefable — redirection — healing_cleric / redirection — compendium_backed, medium confidence
+3. Ariados — redirection — redirection — compendium_backed, medium confidence
+reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
+Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
+> Heliolisk isn't a Water type
+You're right — I withdrew that claim. Re-running with your Grass type constraint.
+1. Sinistcha — redirection — healing_cleric / redirection — compendium_backed, medium confidence
+2. Scovillain-Mega — redirection — redirection — compendium_backed, medium confidence
+3. Roserade — fast_special_attacker — healing_cleric — primary: sleep_status_spreader — usage_backed, medium confidence
+reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
+Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
+> :builds
+Builds:
+1. Hatterene (trick_room_setter):
+  Ability: Magic Bounce
+  Item: Life Orb
+  Nature: Quiet
+  Moves: Dazzling Gleam, Trick Room, Protect, Psychic
   Spread: {'hp': 32, 'atk': 0, 'def': 2, 'spa': 32, 'spd': 0, 'spe': 0}
 > :q
