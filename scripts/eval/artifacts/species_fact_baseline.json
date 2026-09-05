@@ -10,13 +10,13 @@
     "pending_response_total": 14,
     "llm_authored": 9,
     "canned": 5,
-    "claim_bearing_messages": 2
+    "claim_bearing_messages": 3
   },
   "claim_level": {
-    "claims_total": 6,
+    "claims_total": 7,
     "TRUE": 4,
     "FALSE": 2,
-    "unverifiable_shape": 0
+    "unverifiable_shape": 1
   },
   "per_call_site": {
     "idle": {
@@ -37,11 +37,11 @@
       "pending_response_total": 5,
       "llm_authored": 4,
       "canned": 1,
-      "claim_bearing_messages": 2,
-      "claims_total": 6,
+      "claim_bearing_messages": 3,
+      "claims_total": 7,
       "TRUE": 4,
       "FALSE": 2,
-      "unverifiable_shape": 0
+      "unverifiable_shape": 1
     },
     "completion_preference": {
       "elicitation": "seeded",
@@ -169,7 +169,15 @@
       "user_text": "is there a steel type option among these?",
       "message": "Is there a steel type option among these?",
       "authorship": "llm_authored",
-      "claims": []
+      "claims": [
+        {
+          "kind": "type",
+          "species": null,
+          "asserted_value": "Steel",
+          "verdict": "unverifiable_shape",
+          "display": "a steel type option"
+        }
+      ]
     },
     {
       "call_site": "completion_preference",

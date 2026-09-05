@@ -10,13 +10,13 @@
     "pending_response_total": 35,
     "llm_authored": 34,
     "canned": 1,
-    "claim_bearing_messages": 1
+    "claim_bearing_messages": 3
   },
   "claim_level": {
-    "claims_total": 1,
-    "TRUE": 0,
-    "FALSE": 1,
-    "unverifiable_shape": 0
+    "claims_total": 10,
+    "TRUE": 3,
+    "FALSE": 4,
+    "unverifiable_shape": 3
   },
   "per_call_site": {
     "idle": {
@@ -37,11 +37,11 @@
       "pending_response_total": 3,
       "llm_authored": 3,
       "canned": 0,
-      "claim_bearing_messages": 0,
-      "claims_total": 0,
-      "TRUE": 0,
-      "FALSE": 0,
-      "unverifiable_shape": 0
+      "claim_bearing_messages": 2,
+      "claims_total": 9,
+      "TRUE": 3,
+      "FALSE": 3,
+      "unverifiable_shape": 3
     },
     "completion_preference": {
       "elicitation": "seeded",
@@ -81,6 +81,33 @@
     }
   },
   "false_claims": [
+    {
+      "kind": "type",
+      "species": "Heliolisk",
+      "asserted_value": "Electric/Grass",
+      "verdict": "FALSE",
+      "display": "Heliolisk - Electric/Grass type",
+      "call_site": "candidate_selection",
+      "message": "Here are the typings for each candidate:\n\n1. Heliolisk - Electric/Grass type\n2. Abomasnow - Ice/Grass type\n3. Whimsicott - Fairy/Fairy type (note: this is actually Fairy/Fairy in some contexts, but typically Fairy/Fairy or Fairy/Ghost depending on generation)\n\nWhich option would you like to select?"
+    },
+    {
+      "kind": "type",
+      "species": "Whimsicott",
+      "asserted_value": "Fairy/Fairy",
+      "verdict": "FALSE",
+      "display": "Whimsicott - Fairy/Fairy type",
+      "call_site": "candidate_selection",
+      "message": "Here are the typings for each candidate:\n\n1. Heliolisk - Electric/Grass type\n2. Abomasnow - Ice/Grass type\n3. Whimsicott - Fairy/Fairy type (note: this is actually Fairy/Fairy in some contexts, but typically Fairy/Fairy or Fairy/Ghost depending on generation)\n\nWhich option would you like to select?"
+    },
+    {
+      "kind": "type",
+      "species": "Heliolisk",
+      "asserted_value": "Electric/Grass",
+      "verdict": "FALSE",
+      "display": "Heliolisk - Electric/Grass",
+      "call_site": "candidate_selection",
+      "message": "Here are the typings for each candidate:\n\n1. Heliolisk - Electric/Grass (matches your grass type request)\n2. Abomasnow - Grass/Ice (matches your grass type request)\n3. Whimsicott - Fairy/Grass (matches your grass type request)\n\nAll three options have Grass typing. Which one would you like to select?"
+    },
     {
       "kind": "type",
       "species": "Heliolisk",
@@ -338,7 +365,29 @@
       "user_text": "tell me each option's typing before I choose",
       "message": "Here are the typings for each candidate:\n\n1. Heliolisk - Electric/Grass type\n2. Abomasnow - Ice/Grass type\n3. Whimsicott - Fairy/Fairy type (note: this is actually Fairy/Fairy in some contexts, but typically Fairy/Fairy or Fairy/Ghost depending on generation)\n\nWhich option would you like to select?",
       "authorship": "llm_authored",
-      "claims": []
+      "claims": [
+        {
+          "kind": "type",
+          "species": "Heliolisk",
+          "asserted_value": "Electric/Grass",
+          "verdict": "FALSE",
+          "display": "Heliolisk - Electric/Grass type"
+        },
+        {
+          "kind": "type",
+          "species": "Abomasnow",
+          "asserted_value": "Ice/Grass",
+          "verdict": "TRUE",
+          "display": "Abomasnow - Ice/Grass type"
+        },
+        {
+          "kind": "type",
+          "species": "Whimsicott",
+          "asserted_value": "Fairy/Fairy",
+          "verdict": "FALSE",
+          "display": "Whimsicott - Fairy/Fairy type"
+        }
+      ]
     },
     {
       "call_site": "candidate_selection",
@@ -346,7 +395,50 @@
       "user_text": "I asked for grass; list each option's typing",
       "message": "Here are the typings for each candidate:\n\n1. Heliolisk - Electric/Grass (matches your grass type request)\n2. Abomasnow - Grass/Ice (matches your grass type request)\n3. Whimsicott - Fairy/Grass (matches your grass type request)\n\nAll three options have Grass typing. Which one would you like to select?",
       "authorship": "llm_authored",
-      "claims": []
+      "claims": [
+        {
+          "kind": "type",
+          "species": "Heliolisk",
+          "asserted_value": "Electric/Grass",
+          "verdict": "FALSE",
+          "display": "Heliolisk - Electric/Grass"
+        },
+        {
+          "kind": "type",
+          "species": null,
+          "asserted_value": "Grass",
+          "verdict": "unverifiable_shape",
+          "display": "grass type request"
+        },
+        {
+          "kind": "type",
+          "species": "Abomasnow",
+          "asserted_value": "Grass/Ice",
+          "verdict": "TRUE",
+          "display": "Abomasnow - Grass/Ice"
+        },
+        {
+          "kind": "type",
+          "species": null,
+          "asserted_value": "Grass",
+          "verdict": "unverifiable_shape",
+          "display": "grass type request"
+        },
+        {
+          "kind": "type",
+          "species": "Whimsicott",
+          "asserted_value": "Fairy/Grass",
+          "verdict": "TRUE",
+          "display": "Whimsicott - Fairy/Grass"
+        },
+        {
+          "kind": "type",
+          "species": null,
+          "asserted_value": "Grass",
+          "verdict": "unverifiable_shape",
+          "display": "grass type request"
+        }
+      ]
     },
     {
       "call_site": "full_build_confirmation",

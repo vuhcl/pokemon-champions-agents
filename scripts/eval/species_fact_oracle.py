@@ -4,6 +4,31 @@
 Loads data/legality/champions.v1.json directly. Does NOT import
 try_parse_verifiable_claim_from_message / claim_is_true_against_snapshot /
 rewrite_pending_response_message / load_snapshot.
+
+Coverage (scored shapes)
+------------------------
+Common *direct* species type/ability assertions and simple list/glossary forms:
+
+- ``{Species} is/has/as [a/an] {type}[-]type [Pokémon]``
+- ``{Species} is {Type}/{Type}`` (slash typing without the word ``type``)
+- Separator lists: ``{Species} -|–|—|: {type|ability}`` (optional ``type`` word)
+- Parenthetical: ``{Species} ({type|ability})``
+- Possessive typing: ``{Species}'s type/typing is {value}``
+- Inverse adjectival: ``[a/an] {type}-type {Species}``
+- Numbered/bullet prefixes on any of the above (``1. …``, ``- …``)
+- Multi-claim extraction per message; negation-span skipping
+
+Ability values in separator/paren forms use longest-match against the snapshot
+ability inventory (multi-word names like Dry Skin / Solar Power).
+
+Out of scope
+------------
+Not a general NLP fact extractor. Does **not** score entailment/inference
+chains (e.g. "since it learns Solar Beam it must not be Dark-type"), bare
+questions without an assertion, comparative-only prose, or values that are
+neither a known type phrase nor a known ability. An after-run of "zero FALSE"
+means zero FALSE among *scored shapes*, not that every possible false claim
+in free text was caught.
 """
 
 from __future__ import annotations
@@ -48,14 +73,32 @@ _SPECIES = (
 )
 # Allow trailing slash so "Bug/" is captured as incomplete (unverifiable_shape).
 _TYPE_PHRASE = r"(?P<types>[A-Za-z]+(?:/[A-Za-z]*)*)"
+_SEP = r"(?:-|–|—|:)"
+# Value after separator / inside parens (type phrase or ability words).
+_VALUE = r"(?P<value>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*)*(?:/[A-Za-z][A-Za-z0-9\-']*)*)"
 
 # Positive type assertions only (negation spans are masked first).
+# Possessive before bare "is {type}" so "Heliolisk's typing is Electric" does
+# not resolve species as "Heliolisk's typing".
 _TYPE_RES = (
+    # Possessive: "Heliolisk's typing is Electric/Normal"
     re.compile(
         _SPECIES
-        + r"\s+(?:is|has|as)\s+(?:a\s+)?"
+        + r"'s\s+(?:type|typing)\s+is\s+"
         + _TYPE_PHRASE
-        + r"(?:-|\s)?type\b",
+        + r"(?:-|\s)?type?\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        _SPECIES + r"'s\s+(?:type|typing)\s+is\s+" + _TYPE_PHRASE + r"\b",
+        re.IGNORECASE,
+    ),
+    # "Heliolisk is an Electric-type Pokémon" / "is Electric type"
+    re.compile(
+        _SPECIES
+        + r"\s+(?:is|has|as)\s+(?:an?\s+)?"
+        + _TYPE_PHRASE
+        + r"(?:-|\s)?type(?:\s+pok[eé]mon)?\b",
         re.IGNORECASE,
     ),
     # Slash typing without the word "type": "Hatterene is Psychic/Fairy"
@@ -63,29 +106,55 @@ _TYPE_RES = (
         _SPECIES + r"\s+(?:is|as)\s+" + _TYPE_PHRASE + r"\b",
         re.IGNORECASE,
     ),
+    # Inverse: "Electric-type Heliolisk" / "an Electric-type Heliolisk"
+    re.compile(
+        r"(?:(?P<a_an>an?)\s+)?"
+        + _TYPE_PHRASE
+        + r"(?:-|\s)?type\s+"
+        + _SPECIES
+        + r"\b",
+        re.IGNORECASE,
+    ),
 )
 
-_ABILITY_RES = (
+# Separator / paren forms — disambiguated to type or ability after match.
+_SEP_RES = (
     re.compile(
-        _SPECIES + r"'s\s+ability\s+is\s+(?P<ability>[A-Za-z][A-Za-z0-9\-']*)",
+        _SPECIES
+        + r"\s*"
+        + _SEP
+        + r"\s*"
+        + _VALUE
+        + r"(?:(?:-|\s)?type)?\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        _SPECIES + r"\s*\(\s*" + _VALUE + r"(?:(?:-|\s)?type)?\s*\)",
+        re.IGNORECASE,
+    ),
+)
+
+_ABILITY_PREFIX_RES = (
+    re.compile(
+        _SPECIES + r"'s\s+ability\s+is\s+(?P<ability>.+?)(?=\s*[.,;!?]|$)",
         re.IGNORECASE,
     ),
     re.compile(
         _SPECIES
-        + r"\s+has\s+(?:the\s+)?ability\s+(?P<ability>[A-Za-z][A-Za-z0-9\-']*)",
+        + r"\s+has\s+(?:the\s+)?ability\s+(?P<ability>.+?)(?=\s*[.,;!?]|$)",
         re.IGNORECASE,
     ),
     re.compile(
         _SPECIES
-        + r"\s+(?:with|using)\s+(?:the\s+)?ability\s+(?P<ability>[A-Za-z][A-Za-z0-9\-']*)",
+        + r"\s+(?:with|using)\s+(?:the\s+)?ability\s+(?P<ability>.+?)(?=\s*[.,;!?]|$)",
         re.IGNORECASE,
     ),
     re.compile(
-        _SPECIES + r"\s+has\s+(?P<ability>[A-Za-z][A-Za-z0-9\-']*)\b",
+        _SPECIES + r"\s+has\s+(?P<ability>.+?)(?=\s*[.,;!?]|$)",
         re.IGNORECASE,
     ),
     re.compile(
-        _SPECIES + r"\s+with\s+(?P<ability>[A-Za-z][A-Za-z0-9\-']*)\b",
+        _SPECIES + r"\s+with\s+(?P<ability>.+?)(?=\s*[.,;!?]|$)",
         re.IGNORECASE,
     ),
 )
@@ -137,13 +206,16 @@ def load_species_snapshot(path: Path = SNAPSHOT_PATH) -> dict[str, dict]:
 
 def resolve_species(raw: str, by_id: dict[str, dict]) -> dict | None:
     cleaned = raw.strip()
-    # Strip leading conjunctions from list prose: "and Whimsicott"
     cleaned = re.sub(
         r"^(?:and|or|plus|,)\s+",
         "",
         cleaned,
         flags=re.IGNORECASE,
     ).strip()
+    # Numbered / bullet list prefixes: "1. Heliolisk", "- Abomasnow"
+    cleaned = re.sub(r"^\d+\.\s*", "", cleaned).strip()
+    cleaned = re.sub(r"^[-*•]\s*", "", cleaned).strip()
+    cleaned = cleaned.strip(".,;:!?")
     return by_id.get(to_id(cleaned))
 
 
@@ -151,9 +223,6 @@ def normalize_types(phrase: str) -> list[str] | None:
     parts = [p.strip() for p in phrase.split("/") if p.strip()]
     if not parts:
         return None
-    # Incomplete slash e.g. "Bug/" → trailing empty already dropped; bare "Bug/"
-    # arrives as phrase "Bug/" with split giving ["Bug", ""] → filtered to ["Bug"].
-    # Detect incomplete via trailing/leading slash on the raw phrase.
     if phrase.strip().startswith("/") or phrase.strip().endswith("/"):
         return None
     out: list[str] = []
@@ -174,9 +243,26 @@ def _ability_index(by_id: dict[str, dict]) -> dict[str, str]:
     return out
 
 
-def _mask_negations(text: str) -> str:
-    chars = list(text)
+def _longest_ability_match(raw: str, ab_index: dict[str, str]) -> str | None:
+    """Longest prefix of raw that matches a known ability (multi-word OK)."""
+    text = raw.strip()
+    if not text:
+        return None
+    # Prefer exact full-string match, then longest word-prefix.
+    words = text.split()
+    best: str | None = None
+    best_len = 0
+    for n in range(len(words), 0, -1):
+        cand = " ".join(words[:n])
+        hit = ab_index.get(to_id(cand))
+        if hit is not None and len(cand) >= best_len:
+            best = hit
+            best_len = len(cand)
+            break
+    return best
 
+
+def _mask_negations(text: str) -> str:
     def _blank(m: re.Match[str]) -> str:
         return " " * (m.end() - m.start())
 
@@ -191,7 +277,6 @@ def _verdict_type(entry: dict | None, asserted: list[str]) -> Verdict:
     assert_set = {t.title() for t in asserted}
     if len(asserted) >= 2:
         return "TRUE" if assert_set == snap_set else "FALSE"
-    # Single type: membership
     return "TRUE" if assert_set and assert_set.issubset(snap_set) else "FALSE"
 
 
@@ -207,6 +292,90 @@ def _verdict_ability(entry: dict | None, asserted: str) -> Verdict:
     return "TRUE" if any(to_id(a) == want for a in abilities) else "FALSE"
 
 
+def _append_type_claim(
+    candidates: list[Claim],
+    *,
+    text: str,
+    span: tuple[int, int],
+    species_raw: str,
+    raw_types: str,
+    by_id: dict[str, dict],
+) -> None:
+    entry = resolve_species(species_raw, by_id)
+    types = normalize_types(raw_types)
+    if types is None:
+        if raw_types.startswith("/") or raw_types.endswith("/"):
+            verdict: Verdict = "unverifiable_shape"
+            asserted = raw_types
+        else:
+            return
+    else:
+        asserted = "/".join(types)
+        verdict = (
+            "unverifiable_shape" if entry is None else _verdict_type(entry, types)
+        )
+    name = str(entry["name"]) if entry else None
+    candidates.append(
+        Claim(
+            kind="type",
+            species=name,
+            asserted_value=asserted,
+            verdict=verdict,
+            span=span,
+            display=text[span[0] : span[1]],
+        )
+    )
+
+
+def _append_ability_claim(
+    candidates: list[Claim],
+    *,
+    text: str,
+    span: tuple[int, int],
+    species_raw: str,
+    ability_raw: str,
+    by_id: dict[str, dict],
+    ab_index: dict[str, str],
+) -> None:
+    species_raw = species_raw.strip()
+    ability_raw = ability_raw.strip().rstrip(".,;:!?")
+    if not species_raw or not ability_raw:
+        return
+    # Reject pure type phrases mistaken for abilities
+    if normalize_types(ability_raw) is not None:
+        return
+    canon = _longest_ability_match(ability_raw, ab_index)
+    entry = resolve_species(species_raw, by_id)
+    if canon is None:
+        if entry is None:
+            return
+        verdict: Verdict = "unverifiable_shape"
+        asserted = ability_raw
+        name = str(entry["name"])
+    else:
+        asserted = canon
+        name = str(entry["name"]) if entry else None
+        verdict = (
+            "unverifiable_shape"
+            if entry is None
+            else _verdict_ability(entry, canon)
+        )
+    candidates.append(
+        Claim(
+            kind="ability",
+            species=name,
+            asserted_value=asserted,
+            verdict=verdict,
+            span=span,
+            display=text[span[0] : span[1]],
+        )
+    )
+
+
+def _strip_trailing_type_word(value: str) -> str:
+    return re.sub(r"(?:-|\s)?types?\s*$", "", value.strip(), flags=re.IGNORECASE).strip()
+
+
 def parse_claims(message: str, by_id: dict[str, dict] | None = None) -> list[Claim]:
     """Return all non-overlapping positive type/ability claims in message."""
     text = message.strip()
@@ -220,77 +389,67 @@ def parse_claims(message: str, by_id: dict[str, dict] | None = None) -> list[Cla
 
     for pattern in _TYPE_RES:
         for match in pattern.finditer(masked):
-            # Skip if the match sits entirely in blanked (negated) region of masked
-            # vs original — blanked chars are spaces, so species/types still need content.
             if not match.group("species").strip() or not match.group("types").strip():
                 continue
-            raw_types = match.group("types").strip()
-            species_raw = match.group("species").strip()
-            entry = resolve_species(species_raw, by_id)
-            types = normalize_types(raw_types)
-            if types is None:
-                if raw_types.startswith("/") or raw_types.endswith("/"):
-                    verdict: Verdict = "unverifiable_shape"
-                    asserted = raw_types
-                else:
-                    continue
-            else:
-                asserted = "/".join(types)
-                verdict = (
-                    "unverifiable_shape"
-                    if entry is None
-                    else _verdict_type(entry, types)
-                )
-            name = str(entry["name"]) if entry else None
-            candidates.append(
-                Claim(
-                    kind="type",
-                    species=name,
-                    asserted_value=asserted,
-                    verdict=verdict,
-                    span=(match.start(), match.end()),
-                    display=text[match.start() : match.end()],
-                )
+            _append_type_claim(
+                candidates,
+                text=text,
+                span=(match.start(), match.end()),
+                species_raw=match.group("species"),
+                raw_types=match.group("types").strip(),
+                by_id=by_id,
             )
 
-    for pattern in _ABILITY_RES:
+    for pattern in _SEP_RES:
         for match in pattern.finditer(masked):
             species_raw = match.group("species").strip()
-            ability_raw = match.group("ability").strip()
-            if not species_raw or not ability_raw:
+            value = _strip_trailing_type_word(match.group("value"))
+            if not species_raw or not value:
                 continue
-            # Reject ability tokens that are pokemon types (e.g. "has Electric")
-            if ability_raw.title().lower() in _POKEMON_TYPES:
-                continue
-            canon = ab_index.get(to_id(ability_raw))
-            entry = resolve_species(species_raw, by_id)
-            if canon is None:
-                # Unknown ability name with resolved species → FALSE (asserted something
-                # that isn't an ability in the snapshot pool) only if it looks like a
-                # multi-word ability miss; single unknown → unverifiable_shape
-                if entry is None:
-                    continue
-                verdict = "unverifiable_shape"
-                asserted = ability_raw
-            else:
-                asserted = canon
-                verdict = _verdict_ability(entry, canon)
-            name = str(entry["name"]) if entry else None
-            if entry is None:
-                verdict = "unverifiable_shape"
-            candidates.append(
-                Claim(
-                    kind="ability",
-                    species=name,
-                    asserted_value=asserted,
-                    verdict=verdict,
+            types = normalize_types(value)
+            if types is not None or value.startswith("/") or value.endswith("/"):
+                _append_type_claim(
+                    candidates,
+                    text=text,
                     span=(match.start(), match.end()),
-                    display=text[match.start() : match.end()],
+                    species_raw=species_raw,
+                    raw_types=value,
+                    by_id=by_id,
                 )
+                continue
+            ability = _longest_ability_match(value, ab_index)
+            if ability is not None:
+                _append_ability_claim(
+                    candidates,
+                    text=text,
+                    span=(match.start(), match.end()),
+                    species_raw=species_raw,
+                    ability_raw=value,
+                    by_id=by_id,
+                    ab_index=ab_index,
+                )
+            # else skip (neither type nor known ability)
+
+    for pattern in _ABILITY_PREFIX_RES:
+        for match in pattern.finditer(masked):
+            _append_ability_claim(
+                candidates,
+                text=text,
+                span=(match.start(), match.end()),
+                species_raw=match.group("species"),
+                ability_raw=match.group("ability"),
+                by_id=by_id,
+                ab_index=ab_index,
             )
 
-    # Prefer longer spans; greedily keep non-overlapping
-    candidates.sort(key=lambda c: (-(c.span[1] - c.span[0]), c.span[0]))
+    # Prefer longer spans, then resolved species over unverifiable_shape.
+    candidates.sort(
+        key=lambda c: (
+            -(c.span[1] - c.span[0]),
+            0 if c.species is not None else 1,
+            c.span[0],
+        )
+    )
     kept: list[Claim] = []
     used: list[tuple[int, int]] = []
 
@@ -317,6 +476,7 @@ def _assert_self_check() -> None:
         assert len(claims) == 1, (msg, claims)
         return claims[0]
 
+    # --- existing is / slash fixtures ---
     c = one("Heliolisk is Electric type")
     assert c.verdict == "TRUE" and c.asserted_value == "Electric", c
 
@@ -359,6 +519,81 @@ def _assert_self_check() -> None:
     assert len(multi) == 3, multi
     by_sp = {c.species: c for c in multi}
     assert by_sp["Heliolisk"].verdict == "FALSE"
+    assert by_sp["Abomasnow"].verdict == "TRUE"
+    assert by_sp["Whimsicott"].verdict == "TRUE"
+
+    # --- separator family (dash / em-dash / colon) ---
+    c = one("Heliolisk - Electric type")
+    assert c.verdict == "TRUE", c
+    c = one("Heliolisk - Grass type")
+    assert c.verdict == "FALSE", c
+    c = one("Ariados - Bug/Poison")
+    assert c.verdict == "TRUE", c
+    c = one("Corviknight — Flying/Dragon")
+    assert c.verdict == "FALSE", c
+    c = one("Heliolisk: Electric/Normal")
+    assert c.verdict == "TRUE", c
+
+    # --- parenthetical ---
+    c = one("Heliolisk (Electric)")
+    assert c.verdict == "TRUE", c
+    c = one("Heliolisk (Grass)")
+    assert c.verdict == "FALSE", c
+    c = one("Ariados (Bug/Poison)")
+    assert c.verdict == "TRUE", c
+    c = one("Corviknight (Flying/Dragon)")
+    assert c.verdict == "FALSE", c
+
+    # --- possessive typing ---
+    c = one("Heliolisk's typing is Electric")
+    assert c.verdict == "TRUE", c
+    c = one("Heliolisk's type is Grass")
+    assert c.verdict == "FALSE", c
+    c = one("Ariados's typing is Bug/Poison")
+    assert c.verdict == "TRUE", c
+    c = one("Corviknight's typing is Flying/Dragon")
+    assert c.verdict == "FALSE", c
+
+    # --- inverse adjectival ---
+    c = one("Electric-type Heliolisk")
+    assert c.verdict == "TRUE" and c.species == "Heliolisk", c
+    c = one("an Electric-type Heliolisk")
+    assert c.verdict == "TRUE", c
+    c = one("Grass-type Heliolisk")
+    assert c.verdict == "FALSE", c
+    c = one("a Bug/Poison-type Ariados")
+    assert c.verdict == "TRUE", c
+    c = one("Flying/Dragon-type Corviknight")
+    assert c.verdict == "FALSE", c
+
+    # --- is a/an …-type Pokémon ---
+    c = one("Heliolisk is an Electric-type Pokémon")
+    assert c.verdict == "TRUE", c
+
+    # --- ability separator (multi-word) ---
+    c = one("Heliolisk - Dry Skin")
+    assert c.kind == "ability" and c.verdict == "TRUE", c
+    c = one("Heliolisk - Intimidate")
+    assert c.kind == "ability" and c.verdict == "FALSE", c
+    c = one("Incineroar (Intimidate)")
+    assert c.kind == "ability" and c.verdict == "TRUE", c
+    c = one("Heliolisk has the ability Dry Skin")
+    assert c.kind == "ability" and c.verdict == "TRUE", c
+
+    # skip neither-type-nor-ability separator
+    assert types_of("Heliolisk - option 1") == []
+
+    # --- numbered multi-claim dash list (#193 live shape) ---
+    numbered = types_of(
+        "Here are the typings for each candidate:\n\n"
+        "1. Heliolisk - Electric/Grass type\n"
+        "2. Abomasnow - Ice/Grass type\n"
+        "3. Whimsicott - Fairy/Grass type\n"
+    )
+    assert len(numbered) == 3, numbered
+    by_sp = {c.species: c for c in numbered}
+    assert by_sp["Heliolisk"].verdict == "FALSE"
+    assert by_sp["Heliolisk"].asserted_value == "Electric/Grass"
     assert by_sp["Abomasnow"].verdict == "TRUE"
     assert by_sp["Whimsicott"].verdict == "TRUE"
 
