@@ -513,6 +513,102 @@ def format_snapshot_value(claim: SystemClaim, snap: dict | None = None) -> str:
     return claim["asserted_value"]
 
 
+# Slash-joined type phrases for rewrite spans (parse often captures only the
+# last token of "Electric/Water type").
+_TYPE_REWRITE_SPAN_RES = (
+    re.compile(
+        r"(?P<species>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*)*?)"
+        r"\s+(?:is|has|as)\s+(?:a\s+)?"
+        r"(?P<span>(?P<phrase>[A-Za-z]+(?:/[A-Za-z]+)*)(?:-|\s)?type)",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?P<species>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*)*?)"
+        r".*?\b(?P<span>(?P<phrase>[A-Za-z]+(?:/[A-Za-z]+)*)(?:-|\s)?type)\b",
+        re.IGNORECASE,
+    ),
+)
+
+
+def _claim_from_parsed(parsed: dict[str, object]) -> SystemClaim:
+    return {
+        "turn": 0,
+        "kind": parsed["kind"],  # type: ignore[typeddict-item]
+        "subject_species": str(parsed["subject_species"]),
+        "asserted_value": str(parsed["asserted_value"]),
+        "source": "pending_response_message",
+        "display_excerpt": "",
+        "verifiable": bool(parsed["verifiable"]),
+        "originating_user_text": "",
+    }
+
+
+def _replace_type_phrase_span(message: str, claim: SystemClaim, correct: str) -> str | None:
+    """Replace the first type-phrase span whose species matches claim; else None."""
+    expected = to_id(claim["subject_species"])
+    snap = load_snapshot()
+    for pattern in _TYPE_REWRITE_SPAN_RES:
+        match = pattern.search(message)
+        if match is None:
+            continue
+        species = _resolve_species(match.group("species"), snap)
+        if species is None or to_id(species) != expected:
+            continue
+        span = match.group("span")
+        start, end = match.start("span"), match.end("span")
+        replacement = f"{correct} type"
+        return message[:start] + replacement + message[end:]
+    # Fallback: single-token asserted value + optional -type / type
+    token = re.escape(claim["asserted_value"])
+    fallback = re.compile(
+        rf"\b{token}(?:-|\s)?type\b",
+        re.IGNORECASE,
+    )
+    match = fallback.search(message)
+    if match is None:
+        return None
+    return message[: match.start()] + f"{correct} type" + message[match.end() :]
+
+
+def rewrite_pending_response_message(message: str) -> str:
+    """Rewrite false parseable type/ability claims in LLM pending_response text.
+
+    Item claims and unparseable prose are left unchanged (no canonical item in
+    snapshot; unparseable cannot be surgically fixed). First parse hit only —
+    ponytail: multi-claim messages need a loop if a live case appears.
+    """
+    text = message.strip()
+    if not text or text in NON_CLAIM_MESSAGES:
+        return message
+
+    parsed = try_parse_verifiable_claim_from_message(text)
+    if parsed is None:
+        return message
+
+    claim = _claim_from_parsed(parsed)
+    if claim_is_true_against_snapshot(claim):
+        return message
+    if claim["kind"] == "item":
+        return message
+    if claim["kind"] not in {"type", "ability"}:
+        return message
+
+    correct = format_snapshot_value(claim)
+    if not correct or correct == "unknown":
+        return message
+
+    if claim["kind"] == "type":
+        rewritten = _replace_type_phrase_span(text, claim, correct)
+        return rewritten if rewritten is not None else message
+
+    # ability: replace the asserted ability token once (case-preserving length ignore)
+    asserted = claim["asserted_value"]
+    pos = text.lower().find(asserted.lower())
+    if pos < 0:
+        return message
+    return text[:pos] + correct + text[pos + len(asserted) :]
+
+
 def negation_matches_claim(user_text: str, claim: SystemClaim) -> bool:
     if not claim.get("verifiable") or claim.get("kind") == "other":
         return False
