@@ -1,0 +1,261 @@
+{
+  "label": "BASELINE",
+  "model": "qwen2.5:7b",
+  "force_completion_preference_prompt": true,
+  "notes": [
+    "completion_preference seeded via force_completion_preference_prompt",
+    "Phase 2: targeted parse_turn_intent probes after graph conversation (same Ollama parser; not classify_pending mock)."
+  ],
+  "message_level": {
+    "pending_response_total": 14,
+    "llm_authored": 9,
+    "canned": 5,
+    "claim_bearing_messages": 2
+  },
+  "claim_level": {
+    "claims_total": 6,
+    "TRUE": 4,
+    "FALSE": 2,
+    "unverifiable_shape": 0
+  },
+  "per_call_site": {
+    "idle": {
+      "elicitation": "organic",
+      "attempts": 9,
+      "pending_response_total": 3,
+      "llm_authored": 1,
+      "canned": 2,
+      "claim_bearing_messages": 0,
+      "claims_total": 0,
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 0
+    },
+    "candidate_selection": {
+      "elicitation": "organic",
+      "attempts": 13,
+      "pending_response_total": 5,
+      "llm_authored": 4,
+      "canned": 1,
+      "claim_bearing_messages": 2,
+      "claims_total": 6,
+      "TRUE": 4,
+      "FALSE": 2,
+      "unverifiable_shape": 0
+    },
+    "completion_preference": {
+      "elicitation": "seeded",
+      "attempts": 4,
+      "pending_response_total": 3,
+      "llm_authored": 1,
+      "canned": 2,
+      "claim_bearing_messages": 0,
+      "claims_total": 0,
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 0
+    },
+    "full_build_confirmation": {
+      "elicitation": "organic",
+      "attempts": 12,
+      "pending_response_total": 3,
+      "llm_authored": 3,
+      "canned": 0,
+      "claim_bearing_messages": 0,
+      "claims_total": 0,
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 0
+    },
+    "other": {
+      "elicitation": "organic",
+      "attempts": 1,
+      "pending_response_total": 0,
+      "llm_authored": 0,
+      "canned": 0,
+      "claim_bearing_messages": 0,
+      "claims_total": 0,
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 0
+    }
+  },
+  "false_claims": [
+    {
+      "kind": "type",
+      "species": "Sinistcha",
+      "asserted_value": "Dark/Fairy",
+      "verdict": "FALSE",
+      "display": "Sinistcha is Dark/Fairy",
+      "call_site": "candidate_selection",
+      "message": "Each option's typing is as follows: Sinistcha is Dark/Fairy, Clefable is Fairy, and Ariados is Bug/Poison."
+    },
+    {
+      "kind": "type",
+      "species": "Heliolisk",
+      "asserted_value": "Grass",
+      "verdict": "FALSE",
+      "display": "Heliolisk is Grass",
+      "call_site": "candidate_selection",
+      "message": "Each option's typing is as follows: Heliolisk is Grass, Abomasnow is Ice, and Whimsicott is Fairy. Please let me know your choice."
+    }
+  ],
+  "records": [
+    {
+      "call_site": "candidate_selection",
+      "elicitation": "organic",
+      "user_text": "I want a grass type",
+      "message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+      "authorship": "canned",
+      "claims": []
+    },
+    {
+      "call_site": "full_build_confirmation",
+      "elicitation": "organic",
+      "user_text": "what type is this species again?",
+      "message": "what type is this species again?",
+      "authorship": "llm_authored",
+      "claims": []
+    },
+    {
+      "call_site": "full_build_confirmation",
+      "elicitation": "organic",
+      "user_text": "does this set use Dry Skin?",
+      "message": "Does this set use Dry Skin?",
+      "authorship": "llm_authored",
+      "claims": []
+    },
+    {
+      "call_site": "candidate_selection",
+      "elicitation": "organic",
+      "user_text": "tell me each option's typing before I choose",
+      "message": "Each option's typing is as follows: Sinistcha is Dark/Fairy, Clefable is Fairy, and Ariados is Bug/Poison.",
+      "authorship": "llm_authored",
+      "claims": [
+        {
+          "kind": "type",
+          "species": "Sinistcha",
+          "asserted_value": "Dark/Fairy",
+          "verdict": "FALSE",
+          "display": "Sinistcha is Dark/Fairy"
+        },
+        {
+          "kind": "type",
+          "species": "Clefable",
+          "asserted_value": "Fairy",
+          "verdict": "TRUE",
+          "display": "Clefable is Fairy"
+        },
+        {
+          "kind": "type",
+          "species": "Ariados",
+          "asserted_value": "Bug/Poison",
+          "verdict": "TRUE",
+          "display": "and Ariados is Bug/Poison"
+        }
+      ]
+    },
+    {
+      "call_site": "full_build_confirmation",
+      "elicitation": "organic",
+      "user_text": "make it more like a special attacker but clarify the typing",
+      "message": "Do you want to change the typing or the spread for Sinistcha?",
+      "authorship": "llm_authored",
+      "claims": []
+    },
+    {
+      "call_site": "candidate_selection",
+      "elicitation": "organic",
+      "user_text": "is there a steel type option among these?",
+      "message": "Is there a steel type option among these?",
+      "authorship": "llm_authored",
+      "claims": []
+    },
+    {
+      "call_site": "completion_preference",
+      "elicitation": "organic",
+      "user_text": "whatever covers grass types best",
+      "message": "That action isn't available here.",
+      "authorship": "canned",
+      "claims": []
+    },
+    {
+      "call_site": "completion_preference",
+      "elicitation": "organic",
+      "user_text": "I want intimidate support preference",
+      "message": "That action isn't available here.",
+      "authorship": "canned",
+      "claims": []
+    },
+    {
+      "call_site": "idle",
+      "elicitation": "organic",
+      "user_text": "suggest a grass type for the next slot",
+      "message": "Would you like to suggest a specific grass type Pok\u00e9mon for the next slot, or do you want me to choose one?",
+      "authorship": "llm_authored",
+      "claims": []
+    },
+    {
+      "call_site": "idle",
+      "elicitation": "organic",
+      "user_text": "I want a fire type next",
+      "message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+      "authorship": "canned",
+      "claims": []
+    },
+    {
+      "call_site": "candidate_selection",
+      "elicitation": "organic",
+      "user_text": "tell me each option's typing before I choose",
+      "message": "Each option's typing is as follows: Heliolisk is Grass, Abomasnow is Ice, and Whimsicott is Fairy. Please let me know your choice.",
+      "authorship": "llm_authored",
+      "claims": [
+        {
+          "kind": "type",
+          "species": "Heliolisk",
+          "asserted_value": "Grass",
+          "verdict": "FALSE",
+          "display": "Heliolisk is Grass"
+        },
+        {
+          "kind": "type",
+          "species": "Abomasnow",
+          "asserted_value": "Ice",
+          "verdict": "TRUE",
+          "display": "Abomasnow is Ice"
+        },
+        {
+          "kind": "type",
+          "species": "Whimsicott",
+          "asserted_value": "Fairy",
+          "verdict": "TRUE",
+          "display": "and Whimsicott is Fairy"
+        }
+      ]
+    },
+    {
+      "call_site": "candidate_selection",
+      "elicitation": "organic",
+      "user_text": "I asked for grass; list each option's typing",
+      "message": "I asked for grass; list each option's typing",
+      "authorship": "llm_authored",
+      "claims": []
+    },
+    {
+      "call_site": "completion_preference",
+      "elicitation": "seeded",
+      "user_text": "prefer whatever covers water types best \u2014 which typing helps?",
+      "message": "Do you want to lock Hatterene's typing or choose a new one based on coverage against Water types?",
+      "authorship": "llm_authored",
+      "claims": []
+    },
+    {
+      "call_site": "idle",
+      "elicitation": "organic",
+      "user_text": "suggest a grass type for the next slot and name its typing",
+      "message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+      "authorship": "canned",
+      "claims": []
+    }
+  ]
+}
