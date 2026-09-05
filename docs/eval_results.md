@@ -180,6 +180,86 @@ display; this baseline must stay labeled BASELINE and must not be overwritten.
 
 ---
 
+## Species-fact grounding in clarification text (baseline, pre-guard-fix, qwen3.5:latest)
+
+**BASELINE** — second model-axis baseline, paired with the qwen2.5:7b section above. Same
+**runner / scenarios / oracle** as that baseline (`scripts/eval/run_species_fact_pending.py`,
+`scenarios_species_fact.py`, `species_fact_oracle.py`); **only** `BOOTSTRAP_OLLAMA_MODEL`
+differs. Numbers are directly comparable. Do not replace or discard the qwen2.5:7b section.
+Pair each with its own "after" re-run once the runtime guard merges.
+
+*What to measure: identical to the qwen2.5:7b baseline — species type/ability facts in
+`pending_response` clarification free text vs `data/legality/champions.v1.json`.*
+
+- Measured: 2026-09-04
+- Feature commit: *(filled at commit)*
+- Model: Ollama `qwen3.5:latest` (`BOOTSTRAP_OLLAMA_MODEL`); calc `:4173` healthy
+- Code under test: **unfixed** (no `rewrite_pending_response_message`); runner abort-if-guarded
+  preflight passed
+- Runner command: `BOOTSTRAP_OLLAMA_MODEL=qwen3.5:latest uv run python scripts/eval/run_species_fact_pending.py`
+- Artifact: `scripts/eval/artifacts/species_fact_baseline_qwen35.json`
+  (qwen2.5 artifact left at `species_fact_baseline.json`)
+
+### Methodology / model behavior vs qwen2.5:7b (scenarios fixed)
+
+Same Phase 1 graph conversation + Phase 2 targeted gap-fill probes. Honest differences in
+how this model used the fixed prompts:
+
+- **Idle over-production:** after `I want a fire type next`, the model looped ~20 turns of the
+  same llm_authored clarification asking for a slot number (continue did not escape). Inflates
+  idle `pending_response` count vs qwen2.5:7b without adding claims.
+- **Claim-bearing phrasing:** Phase 2 `tell me each option's typing…` produced list lines like
+  `Heliolisk - Electric/Grass type` (dash/list shape). The shared oracle only scores
+  `Species is … type` assertions, so those lines are **unscored** here (not a scenario change).
+  One scored FALSE came from a `full_build_confirmation` probe: `Heliolisk is Electric/Grass type`.
+- **Exploratory note:** a prior ad-hoc probe on this model saw `Electric/Water`; this fixed
+  scenario run asserted `Electric/Grass` instead — same failure family, different wrong dual.
+- `completion_preference`: **seeded** via `force_completion_preference_prompt` (same mechanism
+  as the qwen2.5 run when organic llm_authored clarifications were insufficient).
+
+### Message-level counts
+
+| | count |
+|--|------:|
+| pending_response total | 35 |
+| llm_authored | 34 |
+| canned (fail-closed / deterministic) | 1 |
+| claim-bearing messages (≥1 parseable claim) | 1 |
+
+### Claim-level counts
+
+| verdict | count |
+|---------|------:|
+| total parseable claims | 1 |
+| TRUE | 0 |
+| FALSE | 1 |
+| unverifiable_shape | 0 |
+
+Claim-level true rate among parseable claims: **0 / 1 (0.0%)**. False rate: **1 / 1 (100%)**.
+
+### Per call site
+
+| call site | elicitation | llm_authored msgs | claim-bearing msgs | claims TRUE | FALSE | unverifiable |
+|-----------|-------------|-------------------:|-------------------:|------------:|------:|-------------:|
+| idle | organic | 25 | 0 | 0 | 0 | 0 |
+| candidate_selection | organic | 3 | 0 | 0 | 0 | 0 |
+| completion_preference | seeded | 1 | 0 | 0 | 0 | 0 |
+| full_build_confirmation | organic | 5 | 1 | 0 | 1 | 0 |
+
+### FALSE claims logged (evidence only — do not expand the guard-fix PR)
+
+1. **Heliolisk is Electric/Grass** (real: Electric/Normal) — Phase 2
+   `full_build_confirmation` probe. Wrong dual-type line in the same family as the v1.0.0
+   demo Electric/Water case and the qwen2.5:7b baseline's Grass assertion.
+
+### After-run expectation
+
+Re-run **this same model** (`qwen3.5:latest`) with the same runner/scenarios after the
+runtime guard merges; add a paired after section. Keep this BASELINE intact beside the
+qwen2.5:7b baseline so both before/after pairs demonstrate model-agnostic guard behavior.
+
+---
+
 ## Showdown-simulated win rate (Phase 2)
 *Primary quantitative eval, once built. Recommended teams played against a defined set of known
 meta teams via Pokémon Showdown's simulator/API.*
@@ -209,8 +289,8 @@ significant?*
 *Mirror the honesty standard set by the VinylIQ RAG-not-shipped story — if something doesn't
 work or an eval result is weak, it goes here plainly, not smoothed over.*
 
-- Species-fact clarification baseline (2026-09-04, pre-guard): on Ollama `qwen2.5:7b`, most
-  `pending_response` clarifications are questions/echoes without parseable species-fact
-  claims; claim-bearing text concentrated on `candidate_selection` when the user asks for
-  option typings. See BASELINE section above — not a post-fix number.
+- Species-fact clarification baselines (2026-09-04, pre-guard): qwen2.5:7b (2 claim-bearing /
+  6 claims, 4 TRUE / 2 FALSE) and qwen3.5:latest (1 claim-bearing / 1 FALSE —
+  Heliolisk Electric/Grass). Same runner/scenarios/oracle; model is the only variable. See
+  both BASELINE sections above — not post-fix numbers.
 -
