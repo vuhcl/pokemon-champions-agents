@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import re
-from typing import Literal
+from dataclasses import dataclass
+from typing import Iterator, Literal
 
 from recommender.constraint_enforcement import (
     MechanicalSpec,
@@ -39,17 +40,91 @@ _POKEMON_TYPES = frozenset(
     }
 )
 
-_TYPE_CLAIM_RES = (
+_SPECIES = (
+    r"(?P<species>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*)*?)"
+)
+_TYPE_PHRASE = r"(?P<types>[A-Za-z]+(?:/[A-Za-z]+)*)"
+_SEP = r"(?:\s+-\s+|\s*[–—:]\s*)"
+_VALUE = (
+    r"(?P<value>[A-Za-z][A-Za-z0-9\-']*"
+    r"(?:\s+[A-Za-z][A-Za-z0-9\-']*)*(?:/[A-Za-z][A-Za-z0-9\-']*)*)"
+)
+
+# Structured type patterns only (loose species.*?type removed — over-matched
+# parentheticals in #195 after-run). Shared by try_parse (first hit) and
+# iter_verifiable_claims_from_message (multi-claim rewrite).
+_TYPE_STRUCTURED_RES = (
+    # Possessive before bare "is …" so species is not "Heliolisk's typing".
     re.compile(
-        r"(?P<species>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*)*?)"
-        r"\s+(?:is|has|as)\s+(?:a\s+)?(?P<type>[A-Za-z]+)(?:-|\s)?type",
+        _SPECIES
+        + r"'s\s+(?:type|typing)\s+is\s+"
+        + r"(?P<span>"
+        + _TYPE_PHRASE
+        + r"(?:(?:-|\s)?type)?)",
+        re.IGNORECASE,
+    ),
+    # "Heliolisk is Electric/Water type" / "is a Grass-type Pokémon"
+    re.compile(
+        _SPECIES
+        + r"\s+(?:is|has|as)\s+(?:an?\s+)?"
+        + r"(?P<span>"
+        + _TYPE_PHRASE
+        + r"(?:-|\s)?type)"
+        + r"(?:\s+pok[eé]mon)?\b",
+        re.IGNORECASE,
+    ),
+    # Slash without the word "type": "Sinistcha is Dark/Fairy"
+    re.compile(
+        _SPECIES
+        + r"\s+(?:is|has|as)\s+(?:an?\s+)?"
+        + r"(?P<span>(?P<types>[A-Za-z]+(?:/[A-Za-z]+)+))\b",
+        re.IGNORECASE,
+    ),
+    # Bare single type without "type": "Heliolisk is Grass"
+    re.compile(
+        _SPECIES
+        + r"\s+(?:is|has|as)\s+(?:an?\s+)?"
+        + r"(?P<span>(?P<types>[A-Za-z]+))"
+        + r"(?!\s*/|(?:-|\s)?type)\b",
+        re.IGNORECASE,
+    ),
+    # Inverse: "Electric-type Heliolisk" / "an Electric-type Heliolisk"
+    re.compile(
+        r"(?:an?\s+)?"
+        + r"(?P<span>"
+        + _TYPE_PHRASE
+        + r"(?:-|\s)?type)\s+"
+        + _SPECIES
+        + r"\b",
+        re.IGNORECASE,
+    ),
+)
+
+_SEP_PAREN_RES = (
+    re.compile(
+        _SPECIES
+        + _SEP
+        + r"(?P<span>"
+        + _VALUE
+        + r"(?:(?:-|\s)?type)?)\b",
         re.IGNORECASE,
     ),
     re.compile(
-        r"(?P<species>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*)*?)"
-        r".*?\b(?P<type>[A-Za-z]+)(?:-|\s)?type\b",
+        _SPECIES + r"\s*\(\s*(?P<span>" + _VALUE + r"(?:(?:-|\s)?type)?)\s*\)",
         re.IGNORECASE,
     ),
+)
+
+# Mask before positive extraction so "is not Grass type" is not rewritten.
+_NEGATION_SPAN_RE = re.compile(
+    r"(?:is\s+not|isn't|aren't|doesn't\s+have|does\s+not\s+have|"
+    r"don't\s+have|do\s+not\s+have|not\s+(?:a\s+)?(?:the\s+)?)"
+    r".{0,40}?(?:type|ability)\b"
+    r"|"
+    r"\bnot\s+(?:a\s+)?[A-Za-z]+(?:/[A-Za-z]+)*(?:-|\s)?type\b"
+    r"|"
+    r"\bis\s+not\s+(?:an?\s+)?[A-Za-z]+(?:/[A-Za-z]+)*\b",
+    re.IGNORECASE,
 )
 
 _TYPE_CONSTRAINT_RES = (
@@ -72,6 +147,11 @@ _TYPE_NEGATION_RES = (
     ),
     re.compile(
         r"not\s+(?:a\s+)?(?P<type>[A-Za-z]+)(?:-|\s)?type",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?P<species>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*)*?)"
+        r"\s+is\s+not\s+(?:an?\s+)?(?P<type>[A-Za-z]+(?:/[A-Za-z]+)*)\b",
         re.IGNORECASE,
     ),
 )
@@ -146,6 +226,15 @@ NON_CLAIM_MESSAGES: frozenset[str] = frozenset(
 )
 
 
+@dataclass(frozen=True)
+class _ExtractedClaim:
+    kind: Literal["type", "ability"]
+    subject_species: str
+    asserted_value: str
+    value_span: tuple[int, int]
+    has_type_word: bool = False
+
+
 def _normalize_type(raw: str) -> str | None:
     cleaned = raw.strip().title()
     if cleaned.lower() in _POKEMON_TYPES:
@@ -153,8 +242,42 @@ def _normalize_type(raw: str) -> str | None:
     return None
 
 
+def _normalize_type_phrase(raw: str) -> list[str] | None:
+    parts = [p.strip() for p in raw.strip().split("/") if p.strip()]
+    if not parts:
+        return None
+    out: list[str] = []
+    for part in parts:
+        normalized = _normalize_type(part)
+        if normalized is None:
+            return None
+        out.append(normalized)
+    return out
+
+
+def _strip_trailing_type_word(value: str) -> tuple[str, bool]:
+    """Return (phrase, had_type_word)."""
+    m = re.search(r"((?:-|\s)?types?)\s*$", value, flags=re.IGNORECASE)
+    if m is None:
+        return value.strip(), False
+    return value[: m.start()].strip(), True
+
+
+def _clean_species_raw(raw: str) -> str:
+    text = raw.strip()
+    text = re.sub(r"^(?:and|or)\s+", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"^\d+\.\s*", "", text)
+    text = re.sub(r"^[-*•]\s*", "", text)
+    text = re.sub(r"[.,;:!?]+$", "", text)
+    return text.strip()
+
+
+def _mask_negations(text: str) -> str:
+    return _NEGATION_SPAN_RE.sub(lambda m: " " * (m.end() - m.start()), text)
+
+
 def _resolve_species(raw: str, snap: dict) -> str | None:
-    hit = resolve_species_label(raw.strip(), snap)
+    hit = resolve_species_label(_clean_species_raw(raw), snap)
     return hit.name if hit else None
 
 
@@ -167,12 +290,42 @@ def _ability_candidates(snap: dict) -> dict[str, str]:
     return candidates
 
 
+def _longest_ability_match(value: str, ab_index: dict[str, str]) -> str | None:
+    words = value.strip().split()
+    if not words:
+        return None
+    best: str | None = None
+    best_len = 0
+    for i in range(len(words)):
+        for j in range(i + 1, len(words) + 1):
+            phrase = " ".join(words[i:j])
+            hit = ab_index.get(to_id(phrase))
+            if hit is not None and (j - i) > best_len:
+                best = hit
+                best_len = j - i
+    return best
+
+
 def _item_candidates(snap: dict) -> dict[str, str]:
     items = snap.get("items") or {}
     return {
         str(item.get("id") or ""): str(item.get("name") or "")
         for item in items.values()
     }
+
+
+def _type_claim_is_true(species: str, asserted_phrase: str, snap: dict) -> bool:
+    from recommender.constraint_enforcement import _species_types
+
+    types = _normalize_type_phrase(asserted_phrase)
+    if types is None:
+        return False
+    actual = _species_types(snap, species)
+    if not actual:
+        return False
+    if len(types) >= 2 or "/" in asserted_phrase:
+        return {t.casefold() for t in types} == {t.casefold() for t in actual}
+    return types[0].casefold() in {t.casefold() for t in actual}
 
 
 def _claim_with_species_prefix(
@@ -276,6 +429,169 @@ def _try_parse_item_claim(text: str, snap: dict) -> dict[str, object] | None:
     }
 
 
+def _extract_type_claims(masked: str, snap: dict) -> list[_ExtractedClaim]:
+    found: list[_ExtractedClaim] = []
+    for pattern in _TYPE_STRUCTURED_RES:
+        for match in pattern.finditer(masked):
+            species = _resolve_species(match.group("species"), snap)
+            span_text = match.group("span")
+            phrase, has_type = _strip_trailing_type_word(span_text)
+            # Prefer group "types" when present; else stripped phrase.
+            raw_types = match.groupdict().get("types") or phrase
+            raw_types, has_type2 = _strip_trailing_type_word(str(raw_types))
+            has_type = has_type or has_type2
+            types = _normalize_type_phrase(raw_types)
+            if species is None or types is None:
+                continue
+            asserted = "/".join(types)
+            found.append(
+                _ExtractedClaim(
+                    kind="type",
+                    subject_species=species,
+                    asserted_value=asserted,
+                    value_span=(match.start("span"), match.end("span")),
+                    has_type_word=has_type
+                    or bool(re.search(r"(?:-|\s)?type\b", span_text, re.I)),
+                )
+            )
+    return found
+
+
+def _extract_sep_paren_claims(
+    masked: str, snap: dict, ab_index: dict[str, str]
+) -> list[_ExtractedClaim]:
+    found: list[_ExtractedClaim] = []
+    for pattern in _SEP_PAREN_RES:
+        for match in pattern.finditer(masked):
+            species = _resolve_species(match.group("species"), snap)
+            if species is None:
+                continue
+            span_text = match.group("span")
+            phrase, has_type = _strip_trailing_type_word(span_text)
+            types = _normalize_type_phrase(phrase)
+            if types is not None:
+                found.append(
+                    _ExtractedClaim(
+                        kind="type",
+                        subject_species=species,
+                        asserted_value="/".join(types),
+                        value_span=(match.start("span"), match.end("span")),
+                        has_type_word=has_type
+                        or bool(re.search(r"(?:-|\s)?type\b", span_text, re.I)),
+                    )
+                )
+                continue
+            ability = _longest_ability_match(phrase, ab_index)
+            if ability is None or to_id(phrase) != to_id(ability):
+                continue  # skip-on-neither / incomplete ability phrase
+            # Span for ability: prefer the ability text inside span_text
+            rel = span_text.lower().find(ability.lower())
+            if rel < 0:
+                start, end = match.start("span"), match.end("span")
+            else:
+                start = match.start("span") + rel
+                end = start + len(ability)
+            found.append(
+                _ExtractedClaim(
+                    kind="ability",
+                    subject_species=species,
+                    asserted_value=ability,
+                    value_span=(start, end),
+                    has_type_word=False,
+                )
+            )
+    return found
+
+
+def _extract_ability_prefix_claims(
+    masked: str, snap: dict, ab_index: dict[str, str]
+) -> list[_ExtractedClaim]:
+    from recommender.turn_intent import _find_known_value_in_text
+
+    found: list[_ExtractedClaim] = []
+    search_from = 0
+    while search_from < len(masked):
+        window = masked[search_from:]
+        ability = _find_known_value_in_text(window, ab_index)
+        if ability is None:
+            break
+        abs_pos = search_from + window.lower().find(ability.lower())
+        raw_species = _claim_with_species_prefix(
+            masked, _ABILITY_CLAIM_PREFIX_RES, ability
+        )
+        if raw_species is not None:
+            species = _resolve_species(raw_species, snap)
+            if species is not None:
+                found.append(
+                    _ExtractedClaim(
+                        kind="ability",
+                        subject_species=species,
+                        asserted_value=ability,
+                        value_span=(abs_pos, abs_pos + len(ability)),
+                    )
+                )
+        search_from = abs_pos + max(len(ability), 1)
+    return found
+
+
+def _non_overlapping(claims: list[_ExtractedClaim]) -> list[_ExtractedClaim]:
+    claims = sorted(
+        claims,
+        key=lambda c: (-(c.value_span[1] - c.value_span[0]), c.value_span[0]),
+    )
+    kept: list[_ExtractedClaim] = []
+    used: list[tuple[int, int]] = []
+
+    def overlaps(a: tuple[int, int], b: tuple[int, int]) -> bool:
+        return not (a[1] <= b[0] or b[1] <= a[0])
+
+    for claim in claims:
+        if any(overlaps(claim.value_span, u) for u in used):
+            continue
+        kept.append(claim)
+        used.append(claim.value_span)
+    kept.sort(key=lambda c: c.value_span[0])
+    return kept
+
+
+def iter_verifiable_claims_from_message(
+    message: str,
+) -> Iterator[_ExtractedClaim]:
+    """Yield all non-overlapping type/ability claims (negation spans skipped)."""
+    text = message.strip()
+    if not text or text in NON_CLAIM_MESSAGES:
+        return
+    snap = load_snapshot()
+    masked = _mask_negations(text)
+    ab_index = _ability_candidates(snap)
+    candidates = (
+        _extract_type_claims(masked, snap)
+        + _extract_sep_paren_claims(masked, snap, ab_index)
+        + _extract_ability_prefix_claims(masked, snap, ab_index)
+    )
+    yield from _non_overlapping(candidates)
+
+
+def try_parse_verifiable_claim_from_message(
+    message: str,
+) -> dict[str, object] | None:
+    """Return first parseable claim (stamp / claim_correction). Fail-closed."""
+    text = message.strip()
+    if not text or text in NON_CLAIM_MESSAGES:
+        return None
+
+    for claim in iter_verifiable_claims_from_message(text):
+        return {
+            "kind": claim.kind,
+            "subject_species": claim.subject_species,
+            "asserted_value": claim.asserted_value,
+            "verifiable": True,
+        }
+
+    snap = load_snapshot()
+    return _try_parse_item_claim(text, snap)
+
+
 def _negation_matches_ability_claim(
     text: str,
     claim: SystemClaim,
@@ -335,51 +651,6 @@ def _mechanical_payload_from_spec(
     else:
         payload["mechanical_kind"] = "no_duplicate_items"
     return payload
-
-
-def try_parse_verifiable_claim_from_message(
-    message: str,
-) -> dict[str, object] | None:
-    """Return partial SystemClaim fields or None (fail-closed)."""
-    text = message.strip()
-    if not text or text in NON_CLAIM_MESSAGES:
-        return None
-
-    snap = load_snapshot()
-    for pattern in _TYPE_CLAIM_RES:
-        match = pattern.search(text)
-        if match is None:
-            continue
-        species = _resolve_species(match.group("species"), snap)
-        normalized = _normalize_type(match.group("type"))
-        if species is None or normalized is None:
-            continue
-        draft = Constraint(
-            type="hard",
-            predicate=f"type:{normalized.lower()}",
-            source_turn=0,
-            scope="per_slot",
-            groundedness="mechanically-checkable",
-        )
-        spec = resolve_mechanical(
-            draft,
-            mechanical_kind="type",
-            mechanical_value=normalized,
-        )
-        if spec is None:
-            continue
-        return {
-            "kind": "type",
-            "subject_species": species,
-            "asserted_value": normalized,
-            "verifiable": True,
-        }
-
-    parsed = _try_parse_ability_claim(text, snap)
-    if parsed is not None:
-        return parsed
-
-    return _try_parse_item_claim(text, snap)
 
 
 def try_extract_reattempt_constraint(user_text: str) -> ConstraintPayload | None:
@@ -485,6 +756,12 @@ def mechanical_spec_from_claim(claim: SystemClaim) -> MechanicalSpec:
 def claim_is_true_against_snapshot(claim: SystemClaim) -> bool:
     if not claim.get("verifiable") or claim.get("kind") == "other":
         return False
+    if claim["kind"] == "type" and "/" in str(claim["asserted_value"]):
+        return _type_claim_is_true(
+            claim["subject_species"],
+            str(claim["asserted_value"]),
+            load_snapshot(),
+        )
     spec = mechanical_spec_from_claim(claim)
     return matches_species(
         claim["subject_species"],
@@ -513,100 +790,67 @@ def format_snapshot_value(claim: SystemClaim, snap: dict | None = None) -> str:
     return claim["asserted_value"]
 
 
-# Slash-joined type phrases for rewrite spans (parse often captures only the
-# last token of "Electric/Water type").
-_TYPE_REWRITE_SPAN_RES = (
-    re.compile(
-        r"(?P<species>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*)*?)"
-        r"\s+(?:is|has|as)\s+(?:a\s+)?"
-        r"(?P<span>(?P<phrase>[A-Za-z]+(?:/[A-Za-z]+)*)(?:-|\s)?type)",
-        re.IGNORECASE,
-    ),
-    re.compile(
-        r"(?P<species>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*)*?)"
-        r".*?\b(?P<span>(?P<phrase>[A-Za-z]+(?:/[A-Za-z]+)*)(?:-|\s)?type)\b",
-        re.IGNORECASE,
-    ),
-)
-
-
-def _claim_from_parsed(parsed: dict[str, object]) -> SystemClaim:
+def _claim_from_extracted(claim: _ExtractedClaim) -> SystemClaim:
     return {
         "turn": 0,
-        "kind": parsed["kind"],  # type: ignore[typeddict-item]
-        "subject_species": str(parsed["subject_species"]),
-        "asserted_value": str(parsed["asserted_value"]),
+        "kind": claim.kind,
+        "subject_species": claim.subject_species,
+        "asserted_value": claim.asserted_value,
         "source": "pending_response_message",
         "display_excerpt": "",
-        "verifiable": bool(parsed["verifiable"]),
+        "verifiable": True,
         "originating_user_text": "",
     }
 
 
-def _replace_type_phrase_span(message: str, claim: SystemClaim, correct: str) -> str | None:
-    """Replace the first type-phrase span whose species matches claim; else None."""
-    expected = to_id(claim["subject_species"])
-    snap = load_snapshot()
-    for pattern in _TYPE_REWRITE_SPAN_RES:
-        match = pattern.search(message)
-        if match is None:
-            continue
-        species = _resolve_species(match.group("species"), snap)
-        if species is None or to_id(species) != expected:
-            continue
-        span = match.group("span")
-        start, end = match.start("span"), match.end("span")
-        replacement = f"{correct} type"
-        return message[:start] + replacement + message[end:]
-    # Fallback: single-token asserted value + optional -type / type
-    token = re.escape(claim["asserted_value"])
-    fallback = re.compile(
-        rf"\b{token}(?:-|\s)?type\b",
-        re.IGNORECASE,
-    )
-    match = fallback.search(message)
-    if match is None:
-        return None
-    return message[: match.start()] + f"{correct} type" + message[match.end() :]
+def _replacement_for_claim(claim: _ExtractedClaim, correct: str) -> str:
+    if claim.kind == "ability":
+        return correct
+    if claim.has_type_word:
+        return f"{correct} type"
+    return correct
 
 
 def rewrite_pending_response_message(message: str) -> str:
-    """Rewrite false parseable type/ability claims in LLM pending_response text.
+    """Rewrite all false parseable type/ability claims in pending_response text.
 
-    Item claims and unparseable prose are left unchanged (no canonical item in
-    snapshot; unparseable cannot be surgically fixed). First parse hit only —
-    ponytail: multi-claim messages need a loop if a live case appears.
+    Item claims and unparseable prose are left unchanged. True claims preserved.
+    Multi-claim: replaces each false value span right-to-left (offset-safe).
     """
     text = message.strip()
     if not text or text in NON_CLAIM_MESSAGES:
         return message
 
-    parsed = try_parse_verifiable_claim_from_message(text)
-    if parsed is None:
+    snap = load_snapshot()
+    replacements: list[tuple[int, int, str]] = []
+    for extracted in iter_verifiable_claims_from_message(text):
+        if extracted.kind == "type":
+            if _type_claim_is_true(
+                extracted.subject_species, extracted.asserted_value, snap
+            ):
+                continue
+        else:
+            claim = _claim_from_extracted(extracted)
+            if claim_is_true_against_snapshot(claim):
+                continue
+        correct = format_snapshot_value(_claim_from_extracted(extracted), snap)
+        if not correct or correct == "unknown":
+            continue
+        replacements.append(
+            (
+                extracted.value_span[0],
+                extracted.value_span[1],
+                _replacement_for_claim(extracted, correct),
+            )
+        )
+
+    if not replacements:
         return message
 
-    claim = _claim_from_parsed(parsed)
-    if claim_is_true_against_snapshot(claim):
-        return message
-    if claim["kind"] == "item":
-        return message
-    if claim["kind"] not in {"type", "ability"}:
-        return message
-
-    correct = format_snapshot_value(claim)
-    if not correct or correct == "unknown":
-        return message
-
-    if claim["kind"] == "type":
-        rewritten = _replace_type_phrase_span(text, claim, correct)
-        return rewritten if rewritten is not None else message
-
-    # ability: replace the asserted ability token once (case-preserving length ignore)
-    asserted = claim["asserted_value"]
-    pos = text.lower().find(asserted.lower())
-    if pos < 0:
-        return message
-    return text[:pos] + correct + text[pos + len(asserted) :]
+    out = text
+    for start, end, repl in sorted(replacements, key=lambda r: r[0], reverse=True):
+        out = out[:start] + repl + out[end:]
+    return out
 
 
 def negation_matches_claim(user_text: str, claim: SystemClaim) -> bool:
