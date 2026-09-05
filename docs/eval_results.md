@@ -78,6 +78,108 @@ against a real Anthropic model via `build_anthropic_turn_intent_parser`?*
 
 ---
 
+## Species-fact grounding in clarification text (baseline, pre-guard-fix)
+
+**BASELINE** — pair with an "after" re-run once the runtime pending_response fact-guard
+(`rewrite_pending_response_message`) merges. Do not treat this section as post-fix.
+
+*What to measure: when `TurnIntentExtraction.message` is shown as a `pending_response`
+clarification (idle / candidate_selection / completion_preference / full_build_confirmation),
+how often does that free text assert a parseable species type/ability fact, and is the fact
+true against `data/legality/champions.v1.json`? Separate from mechanical-claim / calc fidelity.*
+
+- Measured: 2026-09-04
+- Feature commit: `4771de9`
+- Model: Ollama `qwen2.5:7b` (`BOOTSTRAP_OLLAMA_MODEL`); calc `:4173` healthy
+- Code under test: **unfixed** `origin/main` tip at branch time (`PendingResponsePayload`
+  returns raw `extraction.message`; no `rewrite_pending_response_message`). Runner aborts if
+  the rewrite guard is present.
+- Runner: `BOOTSTRAP_OLLAMA_MODEL=qwen2.5:7b uv run python scripts/eval/run_species_fact_pending.py`
+- Oracle: `scripts/eval/species_fact_oracle.py` — loads `champions.v1.json` directly; does
+  **not** import `try_parse_verifiable_claim_from_message` / `claim_is_true_against_snapshot`.
+  Hybrid type verdict: slash forms = set-equality; single type = membership. Multi-claim per
+  message; negation spans skipped. Artifact:
+  `scripts/eval/artifacts/species_fact_baseline.json`.
+
+### Methodology (elicitation honesty)
+
+1. **Phase 1 — graph conversation (~32 turns):** live `compile_cli_graph` + `handle_line` +
+   Ollama turn_intent_parser. Trick Room / Hatterene setup; elicit at each call site; affirm
+   builds to progress; `force_completion_preference_prompt` if completion_preference never
+   yields llm_authored clarifications.
+2. **Phase 2 — targeted gap-fill probes:** same live `parse_turn_intent` (not the
+   `classify_pending` mock harness) with rich pending_context after the graph pass — needed
+   because graph-only turns rarely produced assertional typing lines on this local model.
+
+**What worked**
+
+- Asking `tell me each option's typing before I choose` during `candidate_selection` (graph +
+  probe) produced multi-species assertional lines the independent oracle could score.
+- `full_build_confirmation` and `idle` reliably produced llm_authored clarifications, but
+  usually questions / re-prompts without parseable species-fact assertions.
+- Organic `completion_preference` visits mostly hit canned
+  `That action isn't available here.`; llm_authored completion_preference text came from the
+  seeded force-prompt path + Phase 2 probe.
+
+**What did not**
+
+- Bare `I want a grass type` often → structured-parse fail (`CLASSIFY_FAIL_USER_MSG`) or
+  misroute to `claim_correction` / rejection — not a usable clarification message.
+- Phrases that name species+type in a dispute shape frequently classify as `claim_correction`
+  (no `pending_response.message`).
+- Model often echoes the user question as `message` (no asserted fact).
+- `full_build_confirmation` / `idle` / `completion_preference` produced **0** claim-bearing
+  messages in this run (attempts recorded; not fabricated).
+
+### Message-level counts
+
+| | count |
+|--|------:|
+| pending_response total | 14 |
+| llm_authored | 9 |
+| canned (fail-closed / deterministic) | 5 |
+| claim-bearing messages (≥1 parseable claim) | 2 |
+
+### Claim-level counts
+
+| verdict | count |
+|---------|------:|
+| total parseable claims | 6 |
+| TRUE | 4 |
+| FALSE | 2 |
+| unverifiable_shape | 0 |
+
+Claim-level true rate among parseable claims: **4 / 6 (66.7%)**. False rate: **2 / 6 (33.3%)**.
+
+### Per call site
+
+| call site | elicitation | llm_authored msgs | claim-bearing msgs | claims TRUE | FALSE | unverifiable |
+|-----------|-------------|-------------------:|-------------------:|------------:|------:|-------------:|
+| idle | organic | 1 | 0 | 0 | 0 | 0 |
+| candidate_selection | organic | 4 | 2 | 4 | 2 | 0 |
+| completion_preference | seeded | 1 | 0 | 0 | 0 | 0 |
+| full_build_confirmation | organic | 3 | 0 | 0 | 0 | 0 |
+
+### FALSE claims logged (evidence only — do not expand the guard-fix PR)
+
+1. **Sinistcha is Dark/Fairy** (real snapshot: Grass/Ghost) — graph `candidate_selection`,
+   user `tell me each option's typing before I choose`. Beyond the known Heliolisk case.
+2. **Heliolisk is Grass** (real: Electric/Normal) — Phase 2 probe `candidate_selection` with
+   Heliolisk/Abomasnow/Whimsicott context. Same failure family as the v1.0.0 demo / ADR-050
+   motivation (demo also saw Electric/Water; this run asserted Grass).
+
+TRUE companions in the same messages: Clefable Fairy; Ariados Bug/Poison; Abomasnow Ice;
+Whimsicott Fairy (membership / slash rules as documented in the oracle).
+
+### After-run expectation
+
+Re-run the same runner + scenarios on a tree that includes the runtime rewrite guard; add a
+paired **"after, post-guard-fix"** section (or amend this one with an after block). Expect
+FALSE assertional type/ability lines in `pending_response.message` to be rewritten before
+display; this baseline must stay labeled BASELINE and must not be overwritten.
+
+---
+
 ## Showdown-simulated win rate (Phase 2)
 *Primary quantitative eval, once built. Recommended teams played against a defined set of known
 meta teams via Pokémon Showdown's simulator/API.*
@@ -107,4 +209,8 @@ significant?*
 *Mirror the honesty standard set by the VinylIQ RAG-not-shipped story — if something doesn't
 work or an eval result is weak, it goes here plainly, not smoothed over.*
 
+- Species-fact clarification baseline (2026-09-04, pre-guard): on Ollama `qwen2.5:7b`, most
+  `pending_response` clarifications are questions/echoes without parseable species-fact
+  claims; claim-bearing text concentrated on `candidate_selection` when the user asks for
+  option typings. See BASELINE section above — not a post-fix number.
 -
