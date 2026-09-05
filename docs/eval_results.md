@@ -179,10 +179,49 @@ Whimsicott Fairy (membership / slash rules as documented in the oracle).
 
 ### After-run expectation
 
-Re-run the same runner + scenarios on a tree that includes the runtime rewrite guard; add a
-paired **"after, post-guard-fix"** section (or amend this one with an after block). Expect
-FALSE assertional type/ability lines in `pending_response.message` to be rewritten before
-display; this baseline must stay labeled BASELINE and must not be overwritten.
+Paired AFTER section follows immediately below (measured 2026-09-04 with guard live).
+
+### AFTER, post-guard-fix (qwen2.5:7b)
+
+**AFTER** — same scenarios / expanded oracle as the BASELINE above; code under test is
+**fixed** main (`rewrite_pending_response_message` wired in `_payload_for`). Runner:
+`BOOTSTRAP_OLLAMA_MODEL=qwen2.5:7b uv run python scripts/eval/run_species_fact_pending.py --mode after`
+(baseline mode still aborts on this tree). Artifact:
+`scripts/eval/artifacts/species_fact_after.json`.
+
+#### Before / after comparison
+
+| metric | BASELINE (#194) | AFTER (this run) |
+|--------|----------------:|-----------------:|
+| claim-bearing messages | 3 | 3 |
+| claims total | 7 | 7 |
+| TRUE | 4 | 4 |
+| FALSE | 2 | 2 |
+| unverifiable_shape | 1 | 1 |
+
+Headline counts did **not** drop: both surviving FALSEs are shapes the guard parser does not
+recognize (not rewrite bugs). Live transcript is not bit-identical to baseline; same FALSE
+family reappeared.
+
+#### Message-level / claim-level / per call site
+
+Same shape as baseline for this run: pending 14 (9 llm / 5 canned); claim-bearing 3; claims
+7 → 4 TRUE / 2 FALSE / 1 unverifiable. All claim-bearing activity still on
+`candidate_selection` (organic).
+
+#### Surviving FALSE claims (classified)
+
+| claim | family | category | notes |
+|-------|--------|----------|-------|
+| Sinistcha is Dark/Fairy | is_type | **(b) coverage gap** | Slash typing **without** the word `type`. Guard `_TYPE_CLAIM_RES` requires `… type`. |
+| Heliolisk is Grass | is_type | **(b) coverage gap** | Single type **without** the word `type`. Guard does not parse; rewrite no-op. |
+
+No **(a)** rewrite failures and no **(c)** item-kind claims in this run.
+
+**Follow-up (out of scope here):** expand `try_parse_verifiable_claim_from_message` to cover
+oracle shapes the guard still misses — at least `Species is {Type}` / `Species is {A}/{B}`
+without requiring the literal word `type`, plus separator/paren/possessive/inverse list forms
+from #194. Do not treat these AFTER FALSEs as evidence the rewrite logic is broken.
 
 ---
 
@@ -266,9 +305,50 @@ Grass assertion; dash-list forms are now scored evidence rather than silent miss
 
 ### After-run expectation
 
-Re-run **this same model** (`qwen3.5:latest`) with the same runner/scenarios after the
-runtime guard merges; add a paired after section. Keep this BASELINE intact beside the
-qwen2.5:7b baseline so both before/after pairs demonstrate model-agnostic guard behavior.
+Paired AFTER section follows immediately below (measured 2026-09-04 with guard live).
+
+### AFTER, post-guard-fix (qwen3.5:latest)
+
+**AFTER** — same scenarios / expanded oracle as the BASELINE above; fixed main with rewrite
+guard live. Runner:
+`BOOTSTRAP_OLLAMA_MODEL=qwen3.5:latest uv run python scripts/eval/run_species_fact_pending.py --mode after`.
+Artifact: `scripts/eval/artifacts/species_fact_after_qwen35.json`.
+
+#### Before / after comparison
+
+| metric | BASELINE (#194) | AFTER (this run) |
+|--------|----------------:|-----------------:|
+| claim-bearing messages | 3 | 3 |
+| claims total | 10 | 10 |
+| TRUE | 3 | 5 |
+| FALSE | 4 | 2 |
+| unverifiable_shape | 3 | 3 |
+
+FALSE dropped 4 → 2. Notable guard **wins** on scored `is … type` shapes: Phase 2
+`full_build_confirmation` showed `Heliolisk is Electric/Normal type` (TRUE; baseline had
+FALSE Electric/Grass), and a dash list line was rewritten to `Heliolisk - Electric/Normal type`
+(TRUE). Remaining FALSEs are coverage / parse-disagreement, not silent ignore of
+`Species is … type` with the word `type`.
+
+#### Message-level / claim-level / per call site
+
+pending 35 (34 llm / 1 canned); claim-bearing 3; claims 10 → 5 TRUE / 2 FALSE / 3
+unverifiable. Per site: idle 25 llm / 0 claims; candidate_selection 3 llm / 2 claim-bearing /
+4 TRUE / 2 FALSE / 3 unverifiable; completion_preference seeded 1 llm / 0 claims;
+full_build_confirmation 5 llm / 1 claim-bearing / 1 TRUE / 0 FALSE.
+
+#### Surviving FALSE claims (classified)
+
+| claim | family | category | notes |
+|-------|--------|----------|-------|
+| Whimsicott - Fairy/Fairy type | separator | **(b) coverage gap** | Dash/list sibling. Guard first-hit saw already-true Heliolisk `… type` span and left Whimsicott unchanged; separator shape not independently rewritten. |
+| Heliolisk - Electric/Grass | separator | **(a)** `oracle_guard_verdict_disagreement` | Oracle scores the dash assertion FALSE. Guard loose parse latched onto parenthetical `Electric/Normal type` for Heliolisk, treated the message as already true, did not rewrite the `Electric/Grass` dash value. Not an item-kind case; not a clean “parser never saw the species” (b). |
+
+No **(c)** item-kind claims.
+
+**Follow-up (out of scope here):** expand guard phrasing coverage toward the #194 oracle
+(separator lists, multi-claim loop, slash/`is Type` without requiring `type`) so (b) and this
+disagreement subtype shrink. Report only — no production change in this measurement PR.
 
 ---
 
@@ -303,8 +383,11 @@ work or an eval result is weak, it goes here plainly, not smoothed over.*
 
 - Species-fact clarification baselines (2026-09-04 remeasure, pre-guard, expanded oracle):
   qwen2.5:7b (3 claim-bearing / 7 claims, 4 TRUE / 2 FALSE / 1 unverifiable) and
-  qwen3.5:latest (3 claim-bearing / 10 claims, 3 TRUE / 4 FALSE / 3 unverifiable — includes
-  previously unscored dash/list Heliolisk Electric/Grass). Same runner/scenarios; model is the
-  only variable between the two sections. Supersedes #192/#193 oracle-version counts — not
-  post-fix numbers.
+  qwen3.5:latest (3 claim-bearing / 10 claims, 3 TRUE / 4 FALSE / 3 unverifiable).
+  AFTER (post-guard, same scenarios/oracle): qwen2.5:7b still 2 FALSE — both **(b)** coverage
+  gaps (`is Type` / slash **without** the word `type`); qwen3.5:latest 4→2 FALSE (guard fixed
+  some `is … type` / dash+`type` hits; remaining = separator **(b)** + one **(a)**
+  oracle/guard disagreement on parenthetical vs dash value). Follow-up: expand
+  `try_parse_verifiable_claim_from_message` toward oracle #194 shapes — not done in the AFTER
+  measurement PR.
 -

@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
-"""Live Ollama baseline: species-fact claims in pending_response clarification text.
+"""Live Ollama species-fact claims in pending_response clarification text.
 
-Requires unfixed code (no rewrite_pending_response_message). Fail-closed otherwise.
+Modes
+-----
+baseline (default): requires *unfixed* code — aborts if
+``rewrite_pending_response_message`` exists or is wired into ``_payload_for``.
+after: requires the guard — aborts unless rewrite exists *and* is called from
+``_payload_for``. Writes ``species_fact_after.json`` (not baseline artifacts).
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
+import re
 import sys
 import tempfile
 from collections import defaultdict
@@ -23,9 +30,13 @@ from recommender.cli import handle_line  # noqa: E402
 from recommender.graph import compile_cli_graph  # noqa: E402
 from recommender.llm_provider import resolve_llm_parsers  # noqa: E402
 from recommender.session import mint_thread_id, thread_config  # noqa: E402
+from recommender.system_claims import (  # noqa: E402
+    claim_is_true_against_snapshot,
+    try_parse_verifiable_claim_from_message,
+)
 from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG, parse_turn_intent  # noqa: E402
 from scripts.eval import scenarios_species_fact as scen  # noqa: E402
-from scripts.eval.species_fact_oracle import Claim, parse_claims  # noqa: E402
+from scripts.eval.species_fact_oracle import Claim, parse_claims, to_id  # noqa: E402
 from scripts.eval.species_fact_oracle import _assert_self_check  # noqa: E402
 
 VGC = "[Gen 9 Champions] VGC 2026 Reg M-B"
@@ -51,6 +62,9 @@ CANNED_MESSAGES: frozenset[str] = frozenset(
 )
 
 Elicitation = Literal["organic", "seeded"]
+EvalMode = Literal["baseline", "after"]
+_COVERAGE_GAP_FAMILIES = frozenset({"separator", "paren", "possessive", "inverse"})
+_GUARD_SHAPED_FAMILIES = frozenset({"is_type", "ability_prefix"})
 
 
 @dataclass
@@ -77,6 +91,26 @@ def _abort_if_guarded() -> None:
         sys.exit(2)
     if "rewrite_pending_response_message" in inspect.getsource(ti._payload_for):
         print("ABORT: _payload_for references rewrite guard.", file=sys.stderr)
+        sys.exit(2)
+
+
+def _abort_if_unguarded() -> None:
+    import inspect
+
+    import recommender.system_claims as sc
+    import recommender.turn_intent as ti
+
+    if not hasattr(sc, "rewrite_pending_response_message"):
+        print(
+            "ABORT: rewrite_pending_response_message missing — not AFTER tree.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    if "rewrite_pending_response_message" not in inspect.getsource(ti._payload_for):
+        print(
+            "ABORT: _payload_for does not call rewrite guard — not AFTER tree.",
+            file=sys.stderr,
+        )
         sys.exit(2)
 
 
@@ -112,8 +146,122 @@ def _claims_payload(claims: list[Claim]) -> list[dict[str, Any]]:
     ]
 
 
+def _phrasing_family(display: str) -> str:
+    d = display.strip()
+    if re.search(r"['']s\s+(?:type|typing)\s+is\b", d, re.IGNORECASE):
+        return "possessive"
+    # Includes slash-without-"type" and single "is Grass" (guard often requires "type").
+    if re.search(
+        r"\b(?:is|has|as)\s+(?:an?\s+)?[A-Za-z]+(?:/[A-Za-z]+)*(?:(?:-|\s)?type)?\b",
+        d,
+        re.IGNORECASE,
+    ):
+        return "is_type"
+    if re.search(
+        r"\b(?:ability\s+is|has\s+(?:the\s+)?ability|with\s+(?:the\s+)?ability|"
+        r"has\s+[A-Za-z]|with\s+[A-Za-z])",
+        d,
+        re.IGNORECASE,
+    ) and not re.search(r"(?:-|\s)?type\b", d, re.IGNORECASE):
+        return "ability_prefix"
+    if re.search(r"\([^)]+\)", d):
+        return "paren"
+    if re.search(
+        r"(?:-|\s)?type\s+[A-Za-z]",
+        d,
+        re.IGNORECASE,
+    ) and not re.search(r"\b(?:is|has|as)\b", d, re.IGNORECASE):
+        return "inverse"
+    if re.search(r"\s*[-–—:]\s*", d):
+        return "separator"
+    return "other"
+
+
+def _system_claim_from_parsed(parsed: dict[str, object]) -> dict[str, Any]:
+    return {
+        "turn": 0,
+        "kind": parsed["kind"],
+        "subject_species": str(parsed["subject_species"]),
+        "asserted_value": str(parsed["asserted_value"]),
+        "source": "pending_response_message",
+        "display_excerpt": "",
+        "verifiable": bool(parsed["verifiable"]),
+        "originating_user_text": "",
+    }
+
+
+def _classify_false_claim(message: str, claim: dict[str, Any]) -> dict[str, Any]:
+    """Classify one oracle FALSE on already-displayed (post-guard) text."""
+    family = _phrasing_family(str(claim.get("display") or ""))
+    parsed = try_parse_verifiable_claim_from_message(message)
+    out: dict[str, Any] = {
+        **claim,
+        "family": family,
+        "category": "b",
+    }
+
+    if parsed is not None and parsed.get("kind") == "item" and claim.get("kind") == "item":
+        out["category"] = "c"
+        return out
+
+    claim_sid = to_id(str(claim["species"])) if claim.get("species") else None
+    parsed_sid = (
+        to_id(str(parsed["subject_species"]))
+        if parsed is not None and parsed.get("subject_species")
+        else None
+    )
+    guard_targets_c = (
+        parsed is not None
+        and parsed.get("kind") in {"type", "ability"}
+        and claim_sid is not None
+        and parsed_sid == claim_sid
+    )
+
+    if family in _COVERAGE_GAP_FAMILIES and not guard_targets_c:
+        out["category"] = "b"
+        return out
+
+    if parsed is None:
+        out["category"] = "b"
+        return out
+
+    if guard_targets_c:
+        sc_claim = _system_claim_from_parsed(parsed)  # type: ignore[arg-type]
+        if not claim_is_true_against_snapshot(sc_claim):  # type: ignore[arg-type]
+            out["category"] = "a"
+            return out
+        out["category"] = "a"
+        out["subtype"] = "oracle_guard_verdict_disagreement"
+        return out
+
+    # parsed targets a different species (first-hit elsewhere)
+    if family in _COVERAGE_GAP_FAMILIES:
+        out["category"] = "b"
+        return out
+    if family in _GUARD_SHAPED_FAMILIES:
+        out["category"] = "a"
+        out["subtype"] = "multi_claim_first_hit_only"
+        return out
+
+    out["category"] = "b"
+    return out
+
+
 def main() -> int:
-    _abort_if_guarded()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--mode",
+        choices=("baseline", "after"),
+        default="baseline",
+        help="baseline: abort if guard present; after: abort if guard missing/unwired",
+    )
+    args = parser.parse_args()
+    mode: EvalMode = args.mode  # type: ignore[assignment]
+
+    if mode == "baseline":
+        _abort_if_guarded()
+    else:
+        _abort_if_unguarded()
     _assert_self_check()
 
     os.environ.setdefault("BOOTSTRAP_OLLAMA_MODEL", "qwen2.5:7b")
@@ -343,8 +491,28 @@ def main() -> int:
             "unverifiable_shape": v["unverifiable_shape"],
         }
 
-    summary = {
-        "label": "BASELINE",
+    false_claims = [
+        {
+            **c,
+            "call_site": r.call_site,
+            "message": r.message,
+        }
+        for r in llm
+        for c in r.claims
+        if c["verdict"] == "FALSE"
+    ]
+    false_claim_classifications: list[dict[str, Any]] = []
+    if mode == "after":
+        for fc in false_claims:
+            classified = _classify_false_claim(fc["message"], fc)
+            classified["call_site"] = fc["call_site"]
+            classified["message"] = fc["message"]
+            false_claim_classifications.append(classified)
+
+    label = "AFTER" if mode == "after" else "BASELINE"
+    summary: dict[str, Any] = {
+        "label": label,
+        "mode": mode,
         "model": model,
         "force_completion_preference_prompt": force_pref_used,
         "notes": notes,
@@ -361,19 +529,16 @@ def main() -> int:
             "unverifiable_shape": by_verdict["unverifiable_shape"],
         },
         "per_call_site": per_site,
-        "false_claims": [
-            {
-                **c,
-                "call_site": r.call_site,
-                "message": r.message,
-            }
-            for r in llm
-            for c in r.claims
-            if c["verdict"] == "FALSE"
-        ],
+        "false_claims": false_claims,
         "records": [asdict(r) for r in records],
     }
-    out_path = ROOT / "scripts" / "eval" / "artifacts" / "species_fact_baseline.json"
+    if mode == "after":
+        summary["false_claim_classifications"] = false_claim_classifications
+
+    out_name = (
+        "species_fact_after.json" if mode == "after" else "species_fact_baseline.json"
+    )
+    out_path = ROOT / "scripts" / "eval" / "artifacts" / out_name
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: summary[k] for k in summary if k != "records"}, indent=2))
