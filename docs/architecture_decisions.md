@@ -10206,3 +10206,74 @@ which remains the operative instruction).
 and fill in `eval_results.md`'s Claude API validation section the moment
 `ANTHROPIC_API_KEY` is funded — this is a re-run of existing work, not a
 new task.
+
+---
+
+## ADR-059: Bootstrap direction-vocabulary matching — exact-normalized-phrase, not subsequence
+
+**Decision:** `resolve_bootstrap_direction` matches on exact equality between the
+normalized user text and a registry phrase, not substring/subsequence containment.
+`standard_physical_attacker`/`standard_special_attacker`/`standard_mixed_attacker`
+are deliberately excluded from the phrase table. Unmapped-direction failures now
+list working examples generated from the same phrase registry (`_direction_phrase_examples()`),
+not a hand-maintained parallel string.
+
+**Why:** The prior subsequence matcher had a real, general bug, not a case specific
+to any one phrase: any single-token phrase (`sand`, `snow`, `rain`, `tailwind`,
+`redirection`) matched whenever that token appeared anywhere in a longer phrase,
+regardless of meaning — confirmed live via "Sand Force" and "Snow Warning" (ability
+mentions) silently resolving to weather-setter directions. This surfaced during
+investigation of the `baseline_intimidate` eval stall (2026-09-03), and a systematic
+taxonomy cross-reference (not just patching the two phrases that happened to come up)
+found the same latent risk in every existing single-token phrase.
+
+`standard_*` role IDs are deliberately not user-invocable: per ADR-027, they represent
+`infer_role`'s residual classification when no fast/bulky signal was detected — a
+fallback outcome, not something a person names as their intended direction. Adding
+phrases for them would misrepresent what the direction vocabulary is for.
+
+The failure-message fix follows the same principle as `:help`'s registry-driven
+design (ADR-010 Amendment 2026-09-03a): a single source of truth that can't drift
+out of sync with what's actually matched, rather than a maintained-by-hand example
+string.
+
+**Explicitly deferred, tracked separately (Tier 2):** new `TargetRoleId`/
+`contingent_value` destinations for categories the Role Compendium already
+recognizes but that have no landing zone today (Calm Mind, Bulk Up, Dragon Dance,
+Iron Defense/Body Press, sleep-status-spreader, terrain setters, ability-driven
+archetypes like Intimidate-core). This ADR covers only phrase coverage for
+already-existing `TargetRoleId` destinations plus the matcher/failure-message fix.
+
+**Status:** Shipped, `fix/bootstrap-direction-vocab-tier1` (#188).
+
+---
+
+## ADR-060: Verification evals require an oracle independent of the code under test
+
+**Decision:** Any eval that measures whether the recommender's output is factually
+correct (legality, species-fact grounding, mechanical claims) must check against an
+oracle that does not import or call the same functions being verified. Reusing the
+production verification function as its own eval's ground truth produces a
+tautological result — it can only confirm the function agrees with itself, not that
+it's correct.
+
+**Why:** Applied consistently but never previously written down. The legality-
+grounding eval's oracle re-parses Showdown source independently rather than
+reading `data/legality/champions.v1.json` (the same artifact the production gate
+uses) or calling `recommender.legality.is_species_legal`/`check_set` directly. The
+species-fact grounding eval's oracle (`scripts/eval/species_fact_oracle.py`) reads
+`champions.v1.json` directly and implements its own claim-parsing logic, deliberately
+not importing `try_parse_verifiable_claim_from_message`/`claim_is_true_against_snapshot`
+— the same functions the runtime guard (ADR-051 Amendment 2026-09-05a) uses
+internally. This mattered concretely: reusing the guard's own parser as the eval's
+oracle would have made the "after" measurement (PR #197) circular — it would show
+the guard agreeing with itself, not confirming the guard is right.
+
+A secondary consequence, also worth stating: when an oracle's own coverage changes
+(e.g. the species-fact oracle's phrasing expansion, PR #194), prior baseline numbers
+measured under the older oracle must be explicitly marked as superseded and
+re-measured under the new oracle before being compared to anything — an oracle
+capability change is a methodology change, not a free improvement to old numbers.
+
+**Status:** Standing methodology requirement. Applies to any future verification-
+style eval, not limited to legality or species-fact grounding.

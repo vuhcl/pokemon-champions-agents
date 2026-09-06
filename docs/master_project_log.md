@@ -5452,6 +5452,121 @@ delta with this fix live — not yet run.
 
 Merged: fix/guard-multi-claim-coverage (#196).
 
+### 2026-09-04 — Tier 1 bootstrap direction-vocabulary fix shipped (#188)
+
+Closes the vocabulary-coverage half of the `baseline_intimidate` eval stall
+(2026-09-03 root-cause entry) — not the whole thing; ability-driven archetypes
+("Intimidate core") and pace labels ("Hyper offense") remain deliberately
+unmapped, tracked as Tier 2 pending a real `TargetRoleId`/Compendium expansion
+(prioritizing terrain setters given Reg M-C's 2026-09-08 start).
+
+Found via systematic taxonomy cross-reference (`ability_classification.py`,
+`role_taxonomy.py`, `condition_types.py`, `primary_function_types.py`,
+Role Compendium shipped files) against `_DIRECTION_PHRASES`, not by extending
+the two phrases that happened to surface the original bug — consistent with
+this project's standing completeness discipline. See ADR-059 for the matcher
+fix and phrase additions.
+
+Verified independently: exact-match matcher confirmed correct (token-
+subsequence false positives on "Sand Force"/"Snow Warning" eliminated,
+existing phrases unaffected); `standard_*` confirmed absent from the phrase
+table; failure-message example list confirmed genuinely registry-derived by
+direct inspection, not just by the test's own assertion. Full suite clean,
+no regressions.
+
+Merged: `fix/bootstrap-direction-vocab-tier1` (#188).
+
+### 2026-09-03 to 2026-09-06 — Species-fact grounding eval: baseline through fix, real numbers
+
+Full arc, in order:
+
+1. **Discovered live** (2026-09-04): the v1.0.0 demo recording caught a real
+   hallucination — a `pending_response` clarification stated "Heliolisk is
+   Electric/Water type" (real: Electric/Normal, confirmed against
+   `champions.v1.json`). Traced to `TurnIntentExtraction.message` — free text
+   the LLM authors for clarifications across four call sites (idle,
+   `candidate_selection`, `completion_preference`, `full_build_confirmation`)
+   — being displayed with zero verification. This was a known, previously-
+   unfixed gap first flagged 2026-08-29 and left open by ADR-050/051.
+
+2. **Baseline measured pre-fix** (#192, #193, #194 — qwen2.5:7b and
+   qwen3.5:latest, independent non-circular oracle per ADR-060): qwen2.5:7b
+   3 claim-bearing messages / 7 claims (4 TRUE / 2 FALSE / 1 unverifiable);
+   qwen3.5:latest 3 claim-bearing / 10 claims (3 TRUE / 4 FALSE / 3
+   unverifiable). Oracle phrasing coverage expanded mid-arc (#194) to catch
+   dash/list-style assertions found live in qwen3.5's output; both baselines
+   remeasured under the expanded oracle rather than left on stale numbers.
+
+3. **Runtime guard shipped** (#191): rewrites false type/ability claims to
+   snapshot truth before display/stamp. First "after" run (#195, since
+   closed without merging — see #196) found the guard's own coverage was
+   narrower than the eval oracle: literal-word-"type" requirement missed
+   even the pre-#194 baseline phrasing shape (why qwen2.5:7b's FALSE count
+   was unchanged, 2->2, not improved), and a single-claim architecture could
+   let a false claim through a multi-fact message if a true claim matched
+   first.
+
+4. **Guard fixed** (#196): shared multi-claim extraction backend
+   (`iter_verifiable_claims_from_message`) with production-owned phrasing
+   patterns (separator, parenthetical, possessive, inverse-adjectival, bare
+   slash-typing) informed by but not imported from the eval oracle per
+   ADR-060. `rewrite_pending_response_message` now scans and rewrites all
+   false claims in a message, right-to-left by span offset. `stamp_system_claim`
+   (claim_correction) deliberately stays single-claim — different job,
+   recording one disputable claim per turn, not display-time correction.
+   Known residual, logged rather than chased further: species-capture
+   greediness can silently drop a claim preceded by substantial prose on
+   the same line rather than a clean list/sentence boundary (fails toward
+   under- not over-matching — the safer direction for a function that
+   rewrites displayed text). See ADR-051 Amendment 2026-09-05a.
+
+5. **Confirmed fixed** (#197, first real after-numbers to land — #195 never
+   merged): qwen2.5:7b 3 claim-bearing / 7 claims -> 6 TRUE / 0 FALSE / 1
+   unverifiable; qwen3.5:latest 3 claim-bearing / 10 claims -> 7 TRUE / 0
+   FALSE / 3 unverifiable. Both #195-motivating cases (Sinistcha Dark/Fairy,
+   Heliolisk-is-Grass, qwen3.5's parenthetical+dash multi-claim message)
+   directly confirmed rewritten correctly in live captured output, not just
+   passing unit tests. No surviving FALSE this run — the known mid-sentence
+   residual (above) wasn't observed, though it remains a logged, un-fixed
+   limitation rather than a confirmed non-issue.
+
+Verified independently at every stage in this conversation: oracle non-
+circularity confirmed by reading imports directly (no production-verification
+functions imported); artifact JSONs checked against reported summaries; the
+two headline real-world cases reproduced and confirmed rewritten by direct
+function calls, not just trusted from test output; full suite clean at every
+step (same 3 pre-existing calc-unavailable sandbox failures throughout, no
+regressions introduced anywhere in this arc).
+
+Merged: #191, #192, #193, #194, #196, #197. Closed without merging: #195
+(superseded by #196's fix before landing).
+
+### 2026-09-06 — v1.0.0 packaging finalized (#189, #190)
+
+Closes the last open item from the v1.0.0 polish pass: version bumps
+(package.json/pyproject.toml → 1.0.0), README rewritten to reflect the
+shipped reasoning loop (steering surface, real eval numbers referenced,
+"roadmap toward 1.0" restructured into "what shipped" + honest "known
+gaps" sections), and a real recorded v1.0.0 CLI demo transcript
+(`docs/demo/cli-session-1.0.0.txt`) covering Trick Room/Hatterene steering
+(free-text edit, `compare`, `revise_locked_slot`, `repick`, `defer`) plus
+a genuine `claim_correction` moment.
+
+The `claim_correction` moment in the demo was re-recorded once, live,
+after the species-fact guard fix (#196) landed — the original recording's
+elicitation (disputing a hallucinated Heliolisk claim) could no longer
+reproduce once the guard started correcting that exact class of claim
+before display. The final recording instead captures a disputed-but-true
+claim: the system holds its ground against incorrect pushback rather than
+retracting ("Snapshot data confirms Heliolisk has Electric/Normal —
+consistent with my earlier claim... I haven't changed your team or
+constraints") — verified as an exact match to `handle_claim_correction`'s
+real response template, not paraphrased. Arguably a better demonstration
+than the original plan: it shows the correction pathway verifying rather
+than reflexively agreeing when challenged.
+
+Merged: `docs/v1-0-0-readme` (#189), `docs/cli-session-1-0-0` (#190).
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
