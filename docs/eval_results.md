@@ -177,12 +177,69 @@ Claim-level true rate among parseable claims: **4 / 7 (57.1%)**. False rate: **2
 TRUE companions in the same messages: Clefable Fairy; Ariados Bug/Poison; Abomasnow Ice;
 Whimsicott Fairy (membership / slash rules as documented in the oracle).
 
-### After-run expectation
+### AFTER, post-guard (#196) — qwen2.5:7b
 
-Re-run the same runner + scenarios on a tree that includes the runtime rewrite guard; add a
-paired **"after, post-guard-fix"** section (or amend this one with an after block). Expect
-FALSE assertional type/ability lines in `pending_response.message` to be rewritten before
-display; this baseline must stay labeled BASELINE and must not be overwritten.
+**First after-numbers on main.** Closed #195 never merged, so there were no prior AFTER
+figures on `main`. This run measures with the rewrite guard through #196
+(`rewrite_pending_response_message` + `iter_verifiable_claims_from_message`). Scenarios and
+oracle unchanged; production code unchanged on this branch (harness `--mode after` only).
+Live transcripts are **not** bit-identical to #194 (model nondeterminism).
+
+- Measured: 2026-09-06
+- Model: Ollama `qwen2.5:7b`; calc `:4173` healthy
+- Code under test: **guarded** (`PendingResponsePayload` rewrites via
+  `rewrite_pending_response_message`). Runner aborts if rewrite /
+  `_payload_for` wiring / `iter_verifiable_claims_from_message` is missing.
+- Runner: `BOOTSTRAP_OLLAMA_MODEL=qwen2.5:7b uv run python scripts/eval/run_species_fact_pending.py --mode after`
+- Artifact: `scripts/eval/artifacts/species_fact_after.json` (baselines left untouched)
+
+#### Message-level counts
+
+| | count |
+|--|------:|
+| pending_response total | 13 |
+| llm_authored | 8 |
+| canned (fail-closed / deterministic) | 5 |
+| claim-bearing messages (≥1 parseable claim) | 3 |
+
+#### Claim-level counts
+
+| verdict | count |
+|---------|------:|
+| total parseable claims | 7 |
+| TRUE | 6 |
+| FALSE | 0 |
+| unverifiable_shape | 1 |
+
+Claim-level true rate among parseable claims: **6 / 7 (85.7%)**. False rate: **0 / 7 (0.0%)**.
+
+#### Per call site
+
+| call site | elicitation | llm_authored msgs | claim-bearing msgs | claims TRUE | FALSE | unverifiable |
+|-----------|-------------|-------------------:|-------------------:|------------:|------:|-------------:|
+| idle | organic | 1 | 0 | 0 | 0 | 0 |
+| candidate_selection | organic | 4 | 3 | 6 | 0 | 1 |
+| completion_preference | seeded | 1 | 0 | 0 | 0 | 0 |
+| full_build_confirmation | organic | 2 | 0 | 0 | 0 | 0 |
+
+#### Before / after vs #194 baseline (same model)
+
+| | claim-bearing | claims | TRUE | FALSE | unverifiable |
+|--|--------------:|-------:|-----:|------:|-------------:|
+| BEFORE (#194) | 3 | 7 | 4 | 2 | 1 |
+| AFTER (#196) | 3 | 7 | 6 | 0 | 1 |
+
+#### Targeted-case confirmation (locked protocol)
+
+- **Sinistcha / Heliolisk type assertions:** Re-elicited. Corrected spans present
+  (`Sinistcha is Grass/Ghost`, `Heliolisk is Electric/Normal`) as TRUE; baseline false forms
+  (`Dark/Fairy`, bare `is Grass`) absent as FALSE → **live rewrite confirmed**.
+- **Surviving FALSE residual check:** No FALSE displays this run → ADR-051 Amendment
+  2026-09-05a mid-sentence prose-prefix shape **not observed** (nothing to classify).
+
+#### FALSE claims logged
+
+None.
 
 ---
 
@@ -264,11 +321,70 @@ Claim-level true rate among parseable claims: **3 / 10 (30.0%)**. False rate: **
 Same failure family as the v1.0.0 demo Electric/Water case and the qwen2.5:7b baseline's
 Grass assertion; dash-list forms are now scored evidence rather than silent misses.
 
-### After-run expectation
+### AFTER, post-guard (#196) — qwen3.5:latest
 
-Re-run **this same model** (`qwen3.5:latest`) with the same runner/scenarios after the
-runtime guard merges; add a paired after section. Keep this BASELINE intact beside the
-qwen2.5:7b baseline so both before/after pairs demonstrate model-agnostic guard behavior.
+**First after-numbers on main** for this model-axis (same caveat as the qwen2.5 AFTER:
+#195 closed unmerged). Guard through #196; scenarios/oracle unchanged; harness `--mode after`
+only. Live transcripts are **not** bit-identical to #194.
+
+- Measured: 2026-09-06
+- Model: Ollama `qwen3.5:latest`; calc `:4173` healthy
+- Code under test: **guarded** (same abort-if-unguarded preflight as the qwen2.5 AFTER)
+- Runner: `BOOTSTRAP_OLLAMA_MODEL=qwen3.5:latest uv run python scripts/eval/run_species_fact_pending.py --mode after`
+- Artifact: `scripts/eval/artifacts/species_fact_after_qwen35.json`
+  (qwen2.5 after left at `species_fact_after.json`; baselines untouched)
+
+#### Message-level counts
+
+| | count |
+|--|------:|
+| pending_response total | 35 |
+| llm_authored | 34 |
+| canned (fail-closed / deterministic) | 1 |
+| claim-bearing messages (≥1 parseable claim) | 3 |
+
+#### Claim-level counts
+
+| verdict | count |
+|---------|------:|
+| total parseable claims | 10 |
+| TRUE | 7 |
+| FALSE | 0 |
+| unverifiable_shape | 3 |
+
+Claim-level true rate among parseable claims: **7 / 10 (70.0%)**. False rate: **0 / 10 (0.0%)**.
+
+#### Per call site
+
+| call site | elicitation | llm_authored msgs | claim-bearing msgs | claims TRUE | FALSE | unverifiable |
+|-----------|-------------|-------------------:|-------------------:|------------:|------:|-------------:|
+| idle | organic | 25 | 0 | 0 | 0 | 0 |
+| candidate_selection | organic | 3 | 2 | 6 | 0 | 3 |
+| completion_preference | seeded | 1 | 0 | 0 | 0 | 0 |
+| full_build_confirmation | organic | 5 | 1 | 1 | 0 | 0 |
+
+#### Before / after vs #194 baseline (same model)
+
+| | claim-bearing | claims | TRUE | FALSE | unverifiable |
+|--|--------------:|-------:|-----:|------:|-------------:|
+| BEFORE (#194) | 3 | 10 | 3 | 4 | 3 |
+| AFTER (#196) | 3 | 10 | 7 | 0 | 3 |
+
+#### Targeted-case confirmation (locked protocol)
+
+- **Dash/list + parenthetical typing lists:** Re-elicited. Numbered dash forms scored
+  (`Heliolisk - Electric/Normal type`, `Abomasnow - Ice/Grass type`,
+  `Whimsicott - Grass/Fairy type`, plus a second list with `Grass/Ice` / `Fairy/Grass`
+  orderings) as TRUE after rewrite; baseline FALSE duals (`Electric/Grass`,
+  `Fairy/Fairy`) absent as FALSE. Parenthetical aside on Whimsicott in one message was not
+  scored as a separate FALSE claim this run. → **live multi-claim rewrite confirmed**.
+- **Surviving FALSE residual check:** No FALSE displays this run → ADR-051 Amendment
+  2026-09-05a mid-sentence prose-prefix shape **not observed**.
+
+#### FALSE claims logged
+
+None. Unverifiable companions were generic `grass type request` spans (not species+type
+assertions).
 
 ---
 
@@ -305,6 +421,12 @@ work or an eval result is weak, it goes here plainly, not smoothed over.*
   qwen2.5:7b (3 claim-bearing / 7 claims, 4 TRUE / 2 FALSE / 1 unverifiable) and
   qwen3.5:latest (3 claim-bearing / 10 claims, 3 TRUE / 4 FALSE / 3 unverifiable — includes
   previously unscored dash/list Heliolisk Electric/Grass). Same runner/scenarios; model is the
-  only variable between the two sections. Supersedes #192/#193 oracle-version counts — not
-  post-fix numbers.
+  only variable between the two sections. Supersedes #192/#193 oracle-version counts.
+- Species-fact AFTER, post-guard #196 (2026-09-06, first after-numbers on main; #195 closed
+  unmerged): qwen2.5:7b 3 claim-bearing / 7 claims → 6 TRUE / 0 FALSE / 1 unverifiable;
+  qwen3.5:latest 3 claim-bearing / 10 claims → 7 TRUE / 0 FALSE / 3 unverifiable. Targeted
+  #195 shapes re-elicited and scored TRUE (live rewrite confirmed on both models). No
+  surviving FALSE this run — ADR-051 Amendment 2026-09-05a mid-sentence prose-prefix residual
+  not observed (still a known under-match, not disproven). Unverifiable spans remain
+  (generic type-option / “grass type request” phrasing).
 -
