@@ -9679,6 +9679,38 @@ suite green.
 
 ---
 
+### ADR-051 Amendment 2026-09-05a — Guard multi-claim rewrite; known
+species-capture boundary limitation
+
+recommender/system_claims.py's separator/parenthetical claim extraction
+(_extract_sep_paren_claims) requires the species-name capture to
+resolve against the legality snapshot to accept a claim. Its capture
+group is permissive enough to include preceding prose on the same line
+(e.g. "the candidates are Heliolisk - Electric/Grass type" captures
+"the candidates are Heliolisk" as the species group), which then fails
+species resolution and silently drops that claim — even though a real,
+parseable false claim exists there. Confirmed via direct adversarial
+testing, not observed in any real eval run to date.
+
+This is a known, deliberately-unfixed residual limitation, not a
+regression: it fails toward under-matching (silently skipping a claim)
+rather than over-matching (misrewriting unrelated text), which is the
+safer failure direction for a function that actively rewrites displayed
+text. All real cases found via live eval runs (#192-195) — including
+the qwen3.5 case combining a true parenthetical claim with a false
+dash-form claim in one message — are correctly handled today, because
+those cases place the species name at a clean list/line boundary rather
+than mid-sentence after substantial prose.
+
+Scope boundary, stated explicitly per this project's standing practice
+(don't let a partial fix silently pass as complete): the guard reliably
+catches list-structured and line-initial claim assertions. It is not
+guaranteed to catch a false claim whose species name is preceded by
+several words of ordinary prose within the same sentence. Revisit if a
+live eval run surfaces a real (not synthetic) case of this shape.
+
+---
+
 ## ADR-052: Default build synthesis now prefers real in-game data over
 Showdown, scoped to build synthesis specifically
 

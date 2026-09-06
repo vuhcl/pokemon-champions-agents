@@ -78,6 +78,316 @@ against a real Anthropic model via `build_anthropic_turn_intent_parser`?*
 
 ---
 
+## Species-fact grounding in clarification text (baseline, pre-guard-fix)
+
+**BASELINE** — pair with an "after" re-run once the runtime pending_response fact-guard
+(`rewrite_pending_response_message`) merges. Do not treat this section as post-fix.
+
+**Supersedes** the #192 oracle-version numbers for this model: same scenarios/runner and still
+pre-guard, but remeasured after expanding `species_fact_oracle.py` phrasing coverage
+(separator/paren/possessive/inverse/`a/an …-type Pokémon`, multi-word abilities). Live
+transcripts are **not** bit-identical to #192 (model nondeterminism); attribute count changes
+to oracle coverage + a fresh run, not to scenario or production-code edits.
+
+*What to measure: when `TurnIntentExtraction.message` is shown as a `pending_response`
+clarification (idle / candidate_selection / completion_preference / full_build_confirmation),
+how often does that free text assert a parseable species type/ability fact, and is the fact
+true against `data/legality/champions.v1.json`? Separate from mechanical-claim / calc fidelity.*
+
+- Measured: 2026-09-04 (remeasure after oracle expand)
+- Model: Ollama `qwen2.5:7b` (`BOOTSTRAP_OLLAMA_MODEL`); calc `:4173` healthy
+- Code under test: **unfixed** (`PendingResponsePayload` returns raw `extraction.message`; no
+  `rewrite_pending_response_message`). Runner aborts if the rewrite guard is present.
+- Runner: `BOOTSTRAP_OLLAMA_MODEL=qwen2.5:7b uv run python scripts/eval/run_species_fact_pending.py`
+  (scenarios unchanged)
+- Oracle: `scripts/eval/species_fact_oracle.py` — loads `champions.v1.json` directly; does
+  **not** import `try_parse_verifiable_claim_from_message` / `claim_is_true_against_snapshot`.
+  Hybrid type verdict: slash forms = set-equality; single type = membership. Multi-claim per
+  message; negation spans skipped. Scores common direct assertions + simple list/glossary
+  shapes (not general NLP). Artifact:
+  `scripts/eval/artifacts/species_fact_baseline.json`.
+
+### Methodology (elicitation honesty)
+
+1. **Phase 1 — graph conversation (~32 turns):** live `compile_cli_graph` + `handle_line` +
+   Ollama turn_intent_parser. Trick Room / Hatterene setup; elicit at each call site; affirm
+   builds to progress; `force_completion_preference_prompt` if completion_preference never
+   yields llm_authored clarifications.
+2. **Phase 2 — targeted gap-fill probes:** same live `parse_turn_intent` (not the
+   `classify_pending` mock harness) with rich pending_context after the graph pass — needed
+   because graph-only turns rarely produced assertional typing lines on this local model.
+
+**What worked**
+
+- Asking `tell me each option's typing before I choose` during `candidate_selection` (graph +
+  probe) produced multi-species assertional lines the independent oracle could score.
+- `full_build_confirmation` and `idle` reliably produced llm_authored clarifications, but
+  usually questions / re-prompts without parseable species-fact assertions.
+- Organic `completion_preference` visits mostly hit canned
+  `That action isn't available here.`; llm_authored completion_preference text came from the
+  seeded force-prompt path + Phase 2 probe.
+
+**What did not**
+
+- Bare `I want a grass type` often → structured-parse fail (`CLASSIFY_FAIL_USER_MSG`) or
+  misroute to `claim_correction` / rejection — not a usable clarification message.
+- Phrases that name species+type in a dispute shape frequently classify as `claim_correction`
+  (no `pending_response.message`).
+- Model often echoes the user question as `message` (no asserted fact).
+- `full_build_confirmation` / `idle` / `completion_preference` produced **0** claim-bearing
+  messages in this run (attempts recorded; not fabricated).
+
+### Message-level counts
+
+| | count |
+|--|------:|
+| pending_response total | 14 |
+| llm_authored | 9 |
+| canned (fail-closed / deterministic) | 5 |
+| claim-bearing messages (≥1 parseable claim) | 3 |
+
+### Claim-level counts
+
+| verdict | count |
+|---------|------:|
+| total parseable claims | 7 |
+| TRUE | 4 |
+| FALSE | 2 |
+| unverifiable_shape | 1 |
+
+Claim-level true rate among parseable claims: **4 / 7 (57.1%)**. False rate: **2 / 7 (28.6%)**.
+
+### Per call site
+
+| call site | elicitation | llm_authored msgs | claim-bearing msgs | claims TRUE | FALSE | unverifiable |
+|-----------|-------------|-------------------:|-------------------:|------------:|------:|-------------:|
+| idle | organic | 1 | 0 | 0 | 0 | 0 |
+| candidate_selection | organic | 4 | 3 | 4 | 2 | 1 |
+| completion_preference | seeded | 1 | 0 | 0 | 0 | 0 |
+| full_build_confirmation | organic | 3 | 0 | 0 | 0 | 0 |
+
+### FALSE claims logged (evidence only — do not expand the guard-fix PR)
+
+1. **Sinistcha is Dark/Fairy** (real snapshot: Grass/Ghost) — graph `candidate_selection`,
+   user `tell me each option's typing before I choose`. Beyond the known Heliolisk case.
+2. **Heliolisk is Grass** (real: Electric/Normal) — Phase 2 probe `candidate_selection` with
+   Heliolisk/Abomasnow/Whimsicott context. Same failure family as the v1.0.0 demo / ADR-050
+   motivation (demo also saw Electric/Water; this run asserted Grass).
+
+TRUE companions in the same messages: Clefable Fairy; Ariados Bug/Poison; Abomasnow Ice;
+Whimsicott Fairy (membership / slash rules as documented in the oracle).
+
+### AFTER, post-guard (#196) — qwen2.5:7b
+
+**First after-numbers on main.** Closed #195 never merged, so there were no prior AFTER
+figures on `main`. This run measures with the rewrite guard through #196
+(`rewrite_pending_response_message` + `iter_verifiable_claims_from_message`). Scenarios and
+oracle unchanged; production code unchanged on this branch (harness `--mode after` only).
+Live transcripts are **not** bit-identical to #194 (model nondeterminism).
+
+- Measured: 2026-09-06
+- Model: Ollama `qwen2.5:7b`; calc `:4173` healthy
+- Code under test: **guarded** (`PendingResponsePayload` rewrites via
+  `rewrite_pending_response_message`). Runner aborts if rewrite /
+  `_payload_for` wiring / `iter_verifiable_claims_from_message` is missing.
+- Runner: `BOOTSTRAP_OLLAMA_MODEL=qwen2.5:7b uv run python scripts/eval/run_species_fact_pending.py --mode after`
+- Artifact: `scripts/eval/artifacts/species_fact_after.json` (baselines left untouched)
+
+#### Message-level counts
+
+| | count |
+|--|------:|
+| pending_response total | 13 |
+| llm_authored | 8 |
+| canned (fail-closed / deterministic) | 5 |
+| claim-bearing messages (≥1 parseable claim) | 3 |
+
+#### Claim-level counts
+
+| verdict | count |
+|---------|------:|
+| total parseable claims | 7 |
+| TRUE | 6 |
+| FALSE | 0 |
+| unverifiable_shape | 1 |
+
+Claim-level true rate among parseable claims: **6 / 7 (85.7%)**. False rate: **0 / 7 (0.0%)**.
+
+#### Per call site
+
+| call site | elicitation | llm_authored msgs | claim-bearing msgs | claims TRUE | FALSE | unverifiable |
+|-----------|-------------|-------------------:|-------------------:|------------:|------:|-------------:|
+| idle | organic | 1 | 0 | 0 | 0 | 0 |
+| candidate_selection | organic | 4 | 3 | 6 | 0 | 1 |
+| completion_preference | seeded | 1 | 0 | 0 | 0 | 0 |
+| full_build_confirmation | organic | 2 | 0 | 0 | 0 | 0 |
+
+#### Before / after vs #194 baseline (same model)
+
+| | claim-bearing | claims | TRUE | FALSE | unverifiable |
+|--|--------------:|-------:|-----:|------:|-------------:|
+| BEFORE (#194) | 3 | 7 | 4 | 2 | 1 |
+| AFTER (#196) | 3 | 7 | 6 | 0 | 1 |
+
+#### Targeted-case confirmation (locked protocol)
+
+- **Sinistcha / Heliolisk type assertions:** Re-elicited. Corrected spans present
+  (`Sinistcha is Grass/Ghost`, `Heliolisk is Electric/Normal`) as TRUE; baseline false forms
+  (`Dark/Fairy`, bare `is Grass`) absent as FALSE → **live rewrite confirmed**.
+- **Surviving FALSE residual check:** No FALSE displays this run → ADR-051 Amendment
+  2026-09-05a mid-sentence prose-prefix shape **not observed** (nothing to classify).
+
+#### FALSE claims logged
+
+None.
+
+---
+
+## Species-fact grounding in clarification text (baseline, pre-guard-fix, qwen3.5:latest)
+
+**BASELINE** — second model-axis baseline, paired with the qwen2.5:7b section above. Same
+**runner / scenarios** (`scripts/eval/run_species_fact_pending.py`, `scenarios_species_fact.py`);
+shared expanded oracle; **only** `BOOTSTRAP_OLLAMA_MODEL` differs. Do not replace or discard
+the qwen2.5:7b section. Pair each with its own "after" re-run once the runtime guard merges.
+
+**Supersedes** the #193 oracle-version numbers for this model: scenarios/runner unchanged and
+still pre-guard; remeasured with expanded oracle phrasing (dash/list forms now scored). Live
+transcripts are **not** bit-identical to #193; the jump in scored claims is expected because
+shapes like `1. Heliolisk - Electric/Grass type` were previously unscored.
+
+*What to measure: identical to the qwen2.5:7b baseline — species type/ability facts in
+`pending_response` clarification free text vs `data/legality/champions.v1.json`.*
+
+- Measured: 2026-09-04 (remeasure after oracle expand)
+- Model: Ollama `qwen3.5:latest` (`BOOTSTRAP_OLLAMA_MODEL`); calc `:4173` healthy
+- Code under test: **unfixed** (no `rewrite_pending_response_message`); runner abort-if-guarded
+  preflight passed
+- Runner command: `BOOTSTRAP_OLLAMA_MODEL=qwen3.5:latest uv run python scripts/eval/run_species_fact_pending.py`
+- Artifact: `scripts/eval/artifacts/species_fact_baseline_qwen35.json`
+  (qwen2.5 artifact left at `species_fact_baseline.json`)
+
+### Methodology / model behavior vs qwen2.5:7b (scenarios fixed)
+
+Same Phase 1 graph conversation + Phase 2 targeted gap-fill probes. Honest differences in
+how this model used the fixed prompts:
+
+- **Idle over-production:** after `I want a fire type next`, the model looped many turns of the
+  same llm_authored clarification asking for a slot number (continue did not escape). Inflates
+  idle `pending_response` count vs qwen2.5:7b without adding claims.
+- **Claim-bearing phrasing:** Phase 2 `tell me each option's typing…` produced numbered
+  dash/list lines (`Heliolisk - Electric/Grass type`, etc.). Expanded oracle now scores those
+  shapes (type-first, else ability longest-match, else skip).
+- **Exploratory note:** a prior ad-hoc probe on this model saw `Electric/Water`; this fixed
+  scenario run asserted `Electric/Grass` instead — same failure family, different wrong dual.
+- `completion_preference`: **seeded** via `force_completion_preference_prompt` (same mechanism
+  as the qwen2.5 run when organic llm_authored clarifications were insufficient).
+
+### Message-level counts
+
+| | count |
+|--|------:|
+| pending_response total | 35 |
+| llm_authored | 34 |
+| canned (fail-closed / deterministic) | 1 |
+| claim-bearing messages (≥1 parseable claim) | 3 |
+
+### Claim-level counts
+
+| verdict | count |
+|---------|------:|
+| total parseable claims | 10 |
+| TRUE | 3 |
+| FALSE | 4 |
+| unverifiable_shape | 3 |
+
+Claim-level true rate among parseable claims: **3 / 10 (30.0%)**. False rate: **4 / 10 (40.0%)**.
+
+### Per call site
+
+| call site | elicitation | llm_authored msgs | claim-bearing msgs | claims TRUE | FALSE | unverifiable |
+|-----------|-------------|-------------------:|-------------------:|------------:|------:|-------------:|
+| idle | organic | 25 | 0 | 0 | 0 | 0 |
+| candidate_selection | organic | 3 | 2 | 3 | 3 | 3 |
+| completion_preference | seeded | 1 | 0 | 0 | 0 | 0 |
+| full_build_confirmation | organic | 5 | 1 | 0 | 1 | 0 |
+
+### FALSE claims logged (evidence only — do not expand the guard-fix PR)
+
+1. **Heliolisk - Electric/Grass** (real: Electric/Normal) — Phase 2 `candidate_selection`
+   numbered list (also Whimsicott Fairy/Fairy FALSE in the same message).
+2. **Heliolisk - Electric/Grass** — second Phase 2 `candidate_selection` typing list.
+3. **Heliolisk is Electric/Grass type** — Phase 2 `full_build_confirmation` probe.
+
+Same failure family as the v1.0.0 demo Electric/Water case and the qwen2.5:7b baseline's
+Grass assertion; dash-list forms are now scored evidence rather than silent misses.
+
+### AFTER, post-guard (#196) — qwen3.5:latest
+
+**First after-numbers on main** for this model-axis (same caveat as the qwen2.5 AFTER:
+#195 closed unmerged). Guard through #196; scenarios/oracle unchanged; harness `--mode after`
+only. Live transcripts are **not** bit-identical to #194.
+
+- Measured: 2026-09-06
+- Model: Ollama `qwen3.5:latest`; calc `:4173` healthy
+- Code under test: **guarded** (same abort-if-unguarded preflight as the qwen2.5 AFTER)
+- Runner: `BOOTSTRAP_OLLAMA_MODEL=qwen3.5:latest uv run python scripts/eval/run_species_fact_pending.py --mode after`
+- Artifact: `scripts/eval/artifacts/species_fact_after_qwen35.json`
+  (qwen2.5 after left at `species_fact_after.json`; baselines untouched)
+
+#### Message-level counts
+
+| | count |
+|--|------:|
+| pending_response total | 35 |
+| llm_authored | 34 |
+| canned (fail-closed / deterministic) | 1 |
+| claim-bearing messages (≥1 parseable claim) | 3 |
+
+#### Claim-level counts
+
+| verdict | count |
+|---------|------:|
+| total parseable claims | 10 |
+| TRUE | 7 |
+| FALSE | 0 |
+| unverifiable_shape | 3 |
+
+Claim-level true rate among parseable claims: **7 / 10 (70.0%)**. False rate: **0 / 10 (0.0%)**.
+
+#### Per call site
+
+| call site | elicitation | llm_authored msgs | claim-bearing msgs | claims TRUE | FALSE | unverifiable |
+|-----------|-------------|-------------------:|-------------------:|------------:|------:|-------------:|
+| idle | organic | 25 | 0 | 0 | 0 | 0 |
+| candidate_selection | organic | 3 | 2 | 6 | 0 | 3 |
+| completion_preference | seeded | 1 | 0 | 0 | 0 | 0 |
+| full_build_confirmation | organic | 5 | 1 | 1 | 0 | 0 |
+
+#### Before / after vs #194 baseline (same model)
+
+| | claim-bearing | claims | TRUE | FALSE | unverifiable |
+|--|--------------:|-------:|-----:|------:|-------------:|
+| BEFORE (#194) | 3 | 10 | 3 | 4 | 3 |
+| AFTER (#196) | 3 | 10 | 7 | 0 | 3 |
+
+#### Targeted-case confirmation (locked protocol)
+
+- **Dash/list + parenthetical typing lists:** Re-elicited. Numbered dash forms scored
+  (`Heliolisk - Electric/Normal type`, `Abomasnow - Ice/Grass type`,
+  `Whimsicott - Grass/Fairy type`, plus a second list with `Grass/Ice` / `Fairy/Grass`
+  orderings) as TRUE after rewrite; baseline FALSE duals (`Electric/Grass`,
+  `Fairy/Fairy`) absent as FALSE. Parenthetical aside on Whimsicott in one message was not
+  scored as a separate FALSE claim this run. → **live multi-claim rewrite confirmed**.
+- **Surviving FALSE residual check:** No FALSE displays this run → ADR-051 Amendment
+  2026-09-05a mid-sentence prose-prefix shape **not observed**.
+
+#### FALSE claims logged
+
+None. Unverifiable companions were generic `grass type request` spans (not species+type
+assertions).
+
+---
+
 ## Showdown-simulated win rate (Phase 2)
 *Primary quantitative eval, once built. Recommended teams played against a defined set of known
 meta teams via Pokémon Showdown's simulator/API.*
@@ -107,4 +417,16 @@ significant?*
 *Mirror the honesty standard set by the VinylIQ RAG-not-shipped story — if something doesn't
 work or an eval result is weak, it goes here plainly, not smoothed over.*
 
+- Species-fact clarification baselines (2026-09-04 remeasure, pre-guard, expanded oracle):
+  qwen2.5:7b (3 claim-bearing / 7 claims, 4 TRUE / 2 FALSE / 1 unverifiable) and
+  qwen3.5:latest (3 claim-bearing / 10 claims, 3 TRUE / 4 FALSE / 3 unverifiable — includes
+  previously unscored dash/list Heliolisk Electric/Grass). Same runner/scenarios; model is the
+  only variable between the two sections. Supersedes #192/#193 oracle-version counts.
+- Species-fact AFTER, post-guard #196 (2026-09-06, first after-numbers on main; #195 closed
+  unmerged): qwen2.5:7b 3 claim-bearing / 7 claims → 6 TRUE / 0 FALSE / 1 unverifiable;
+  qwen3.5:latest 3 claim-bearing / 10 claims → 7 TRUE / 0 FALSE / 3 unverifiable. Targeted
+  #195 shapes re-elicited and scored TRUE (live rewrite confirmed on both models). No
+  surviving FALSE this run — ADR-051 Amendment 2026-09-05a mid-sentence prose-prefix residual
+  not observed (still a known under-match, not disproven). Unverifiable spans remain
+  (generic type-option / “grass type request” phrasing).
 -

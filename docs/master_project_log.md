@@ -5403,6 +5403,55 @@ v1.0.0: reasoning-loop/free-text-steering functionality plus both
 measured Phase-1 eval numbers. Next milestone work begins from the
 deferred list above, prioritized by whoever picks it up next.
 
+### 2026-09-05 — Guard multi-claim + phrasing expansion shipped (PR #196);
+known species-capture boundary limitation logged
+
+Closes the two gaps PR #195's "after" run found in the runtime guard
+(#191): (1) phrasing coverage narrower than the eval oracle — the
+guard's type patterns required the literal word "type," missing even
+the pre-existing "is {Type}/{Type}" shape, which is why qwen2.5:7b's
+before/after FALSE count was identical (2->2) rather than improved; (2)
+single-claim architecture — the guard checked only the first regex
+match in a message and stopped, so a message asserting both a true and
+a false claim could let the false one through untouched.
+
+Fix: recommender/system_claims.py now has a shared multi-claim
+extraction backend (iter_verifiable_claims_from_message) with
+production-owned phrasing patterns (separator, parenthetical,
+possessive, inverse-adjectival, bare "is {Type}/{Type}") informed by
+but not imported from the eval oracle (scripts/eval/species_fact_oracle.py)
+per the standing production/eval separation. rewrite_pending_response_message
+now scans a message for all parseable claims and rewrites only the
+false ones, right-to-left by span offset (order-safe). try_parse_verifiable_claim_from_message
+and stamp_system_claim (claim_correction's stamping) share the same
+backend but intentionally remain single-claim, consistent with their
+job of recording one disputable claim per turn rather than
+display-time correction.
+
+Verified independently, not just taken on the PR's own test claims:
+reproduced both #195 surviving qwen2.5:7b cases (Sinistcha is
+Dark/Fairy; Heliolisk is Grass) directly and confirmed both are now
+correctly caught and rewritten with all adjacent true claims in the
+same message left untouched. Also found, via adversarial testing beyond
+what the PR's own tests cover, a real residual limitation: the
+separator pattern's species-capture group can silently drop a claim
+when the species name is preceded by substantial prose on the same
+line rather than sitting at a clean list/sentence boundary (fails
+toward under-matching, the safer direction, not over-matching/
+misrewriting). Logged as a known, deliberately-deferred scope boundary
+(see ADR-051 Amendment 2026-09-05a) rather than fixed now, since no
+real eval run has surfaced this shape and the fix already closes every
+case observed in live data.
+
+Full suite: 1636 passed, same 3 pre-existing calc-unavailable failures
+as every prior verification in this arc, no regressions.
+
+Next: "after v2" species-fact eval run (--mode after, both models,
+same runner/scenarios from #192-195) to measure the real before/after
+delta with this fix live — not yet run.
+
+Merged: fix/guard-multi-claim-coverage (#196).
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
