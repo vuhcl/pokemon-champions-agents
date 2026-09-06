@@ -1,4 +1,4 @@
-Recorded 2026-09-04 against docs/cli-session-1-0-0.
+Recorded 2026-09-06 against docs/cli-session-1-0-0 (feature commit 4350dd3).
 Real `python -m recommender --new` sessions
 (Ollama for bootstrap + turn-intent; local @smogon/calc service on :4173).
 Replies were scripted; CLI output is unmodified.
@@ -8,14 +8,15 @@ free-text Focus Sash edit, compare on Blastoise-Mega, revise_locked_slot
 (Quiet→Sassy), repick slot 2, defer, :builds. Idle claim_correction probes
 did not stamp a prior claim (see end of Session A).
 
-Session B / continuation (qwen3.5:latest): claim_correction on
-candidate_selection — constraint-style "I want a grass type — is Heliolisk
-a grass type option here?" produced a pending_response that asserted
-"Heliolisk is Electric/Water type"; disputing "Heliolisk isn't a Water
-type" returned the real retract:
-"You're right — I withdrew that claim. Re-running with your Grass type
-constraint." Rediscovery then surfaced Grass candidates (Scovillain-Mega,
-Roserade).
+Session B / continuation (qwen3.5:latest, post-#196 guard tip 4350dd3):
+claim_correction on candidate_selection — constraint-style "I want a grass
+type — is Heliolisk a grass type option here?" produced a stamped TRUE claim
+"Heliolisk is Electric/Normal type" (verified against champions.v1.json).
+Disputing with free-text "that's not right" returned the confirmed-true path:
+"Snapshot data confirms Heliolisk has Electric/Normal — consistent with my
+earlier claim (Electric/Normal). I haven't changed your team or constraints."
+Candidates unchanged (no retract / Grass rediscovery) — the system holds its
+ground against incorrect pushback on a true stamped claim.
 
 What direction or anchor would you like to start with, and which Pokémon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.
 Reply with a direction, anchor, available pool, or 'you pick'.
@@ -271,7 +272,7 @@ Builds:
 
 What direction or anchor would you like to start with, and which Pokémon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.
 Reply with a direction, anchor, available pool, or 'you pick'.
-(thread team-3bdd889f89fc491b9d7f72c6c1dd5ac9)
+(thread team-9047f0ebc0de4e68adf4af4e998f5a6c)
 > trick room with Hatterene
 Choose the recommended starting direction or one of the strategically different alternatives.
 1. Hatterene — Trick Room Setter — trick_room_setter — support — compendium_backed, high confidence
@@ -301,17 +302,17 @@ Reply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-tex
 reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
 Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
 > I want a grass type — is Heliolisk a grass type option here?
-Heliolisk is Electric/Water type, not Grass type. Would you like me to filter for grass-type Pokémon from the candidates (Sinistcha, Clefable, Ariados), or would you prefer a different typing?
+Heliolisk is Electric/Normal type, not Grass type. Would you like me to filter for grass-type Pokémon from the candidates (Sinistcha, Clefable, Ariados), or would you prefer a different typing?
 1. Sinistcha — redirection — healing_cleric / redirection — compendium_backed, medium confidence
 2. Clefable — redirection — healing_cleric / redirection — compendium_backed, medium confidence
 3. Ariados — redirection — redirection — compendium_backed, medium confidence
 reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
 Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
-> Heliolisk isn't a Water type
-You're right — I withdrew that claim. Re-running with your Grass type constraint.
+> that's not right
+Snapshot data confirms Heliolisk has Electric/Normal — consistent with my earlier claim (Electric/Normal). I haven't changed your team or constraints.
 1. Sinistcha — redirection — healing_cleric / redirection — compendium_backed, medium confidence
-2. Scovillain-Mega — redirection — redirection — compendium_backed, medium confidence
-3. Roserade — fast_special_attacker — healing_cleric — primary: sleep_status_spreader — usage_backed, medium confidence
+2. Clefable — redirection — healing_cleric / redirection — compendium_backed, medium confidence
+3. Ariados — redirection — redirection — compendium_backed, medium confidence
 reject N drops only that species. To also skip Trick Room–shaped picks: reject N, no TR or no more trick room.
 Reply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.
 > :builds
