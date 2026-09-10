@@ -28,6 +28,7 @@ TERRAIN_SETTERS = {
     "grassysurge": "terrain_setter",
     "mistysurge": "terrain_setter",
     "hadronengine": "terrain_setter",
+    "seedsower": "terrain_setter",
 }
 REDIRECT_MOVES = {"followme", "ragepowder"}
 

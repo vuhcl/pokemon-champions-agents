@@ -7,7 +7,17 @@ from typing import Literal
 
 ConditionClass = Literal["essential", "preferred", "optional"]
 ConditionGap = Literal["none", "missing_provider", "single_provider_spof"]
-TRACKED_CONDITIONS = ("Rain", "Sun", "Sand", "Snow", "Trick Room", "Tailwind")
+TRACKED_CONDITIONS = (
+    "Rain",
+    "Sun",
+    "Sand",
+    "Snow",
+    "Electric",
+    "Grassy",
+    "Psychic",
+    "Trick Room",
+    "Tailwind",
+)
 
 # Calibratable: wanted×2 → essential
 MIN_WANTED_DEPENDENTS_FOR_ESSENTIAL = 2

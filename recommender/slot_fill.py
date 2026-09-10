@@ -915,11 +915,18 @@ def _compendium_roles_for_need(need: SupportNeed) -> list[tuple[str, str]]:
         return [("redirection", "")]
     if need.category == "condition_setter" and need.trigger:
         weather = {"rain": "Rain", "sun": "Sun", "sand": "Sand", "snow": "Snow"}
-        return [
-            ("weather_setter", weather[label])
-            for label in field_labels_from_trigger(need.trigger)
-            if label in weather
-        ]
+        terrain = {
+            "electric": "Electric",
+            "grassy": "Grassy",
+            "psychic": "Psychic",
+        }
+        out: list[tuple[str, str]] = []
+        for label in field_labels_from_trigger(need.trigger):
+            if label in weather:
+                out.append(("weather_setter", weather[label]))
+            elif label in terrain:
+                out.append(("terrain_setter", terrain[label]))
+        return out
     return []
 
 

@@ -47,6 +47,10 @@ def _construct_weather_setter(
     reference_compendium: dict[str, Any] | RoleConstructionDraft | None,
 ) -> RoleConstructionDraft:
     ability_ids, move_id, priority_abilities, _condition = _criteria_sets(sub_criteria)
+    # Optional: reactive / non-switch-in setters (e.g. Seed Sower) → Good, not Excellent.
+    ability_ids_good = frozenset(
+        to_id(a) for a in (sub_criteria.get("ability_ids_good") or ())
+    )
     pool = _pool_index(legal_pool, snap)
     pool_ids = set(pool)
     prior = _ref_members(reference_compendium)
@@ -56,17 +60,25 @@ def _construct_weather_setter(
     notes: list[str] = []
     cond = _condition_label(sub_criteria)
 
-    # Ability holders in pool.
+    # Ability holders in pool (Excellent set preferred over Good when both match).
     ability_holders: dict[str, str] = {}
     holder_aid: dict[str, str] = {}
+    holder_mech_tier: dict[str, str] = {}
     for sid, name in pool.items():
         abs_map = _species_abilities(snap, sid)
-        hit = ability_ids & set(abs_map)
-        if not hit:
+        hit_ex = ability_ids & set(abs_map)
+        hit_good = ability_ids_good & set(abs_map)
+        if hit_ex:
+            aid = next(iter(sorted(hit_ex)))
+            mech_tier = "Excellent"
+        elif hit_good:
+            aid = next(iter(sorted(hit_good)))
+            mech_tier = "Good"
+        else:
             continue
-        aid = next(iter(sorted(hit)))
         ability_holders[sid] = name
         holder_aid[sid] = aid
+        holder_mech_tier[sid] = mech_tier
 
     # Showdown mega-pair attribution among ability holders.
     skip_ability: set[str] = set()  # discounted base → reject, do not Excellent
@@ -127,6 +139,7 @@ def _construct_weather_setter(
 
     for sid, name in sorted(ability_holders.items(), key=lambda x: x[1]):
         aid = holder_aid[sid]
+        mech_tier = holder_mech_tier[sid]
         abs_map = _species_abilities(snap, sid)
         mechanism = abs_map[aid]
         entry = uctx.entry_for(name)
@@ -140,6 +153,7 @@ def _construct_weather_setter(
         excellent_secondary = _excellent_secondary(
             has_friend_guard=has_fg, secondary_move_ids=secondary_move_ids
         )
+        reactive = mech_tier == "Good"
         traits = [
             ClaimedTrait(
                 name=mechanism,
@@ -149,7 +163,11 @@ def _construct_weather_setter(
             ClaimedTrait(
                 name=mechanism,
                 criterion="execution",
-                purpose_claimed="automatic on switch-in; no turn cost",
+                purpose_claimed=(
+                    "reactive on being hit; no turn cost"
+                    if reactive
+                    else "automatic on switch-in; no turn cost"
+                ),
             ),
         ]
         if has_fg:
@@ -172,27 +190,39 @@ def _construct_weather_setter(
         attr = pair_attr.get(sid, "none")
         discounted = sid in skip_ability
         if discounted:
-            # Ability mech is Excellent; discount → Acceptable (not reject).
-            demoted = _discount_outcome("Excellent")
-            assert demoted == "Acceptable"
+            demoted = _discount_outcome(mech_tier)
+            if demoted is None:
+                rejected.append(
+                    RejectedCandidate(
+                        species=name,
+                        species_id=sid,
+                        reason=(
+                            f"{mechanism} usage discounted vs Mega; "
+                            f"mech {mech_tier} has no Acceptable floor"
+                        ),
+                        change_reason=(
+                            f"usage discount reject / mech {mech_tier} ({attr})"
+                        ),
+                    )
+                )
+                continue
             prev = prior.get(sid)
             change_reason = (
-                f"usage discount demote / mech Excellent → Acceptable "
-                f"({attr})"
+                f"usage discount demote / mech {mech_tier} → {demoted} ({attr})"
             )
-            if prev == "Excellent":
+            if prev == mech_tier:
                 change_reason = (
-                    f"usage discount demote / tier Excellent → Acceptable ({attr})"
+                    f"usage discount demote / tier {mech_tier} → {demoted} ({attr})"
                 )
-            elif prev and prev != "Acceptable":
+            elif prev and prev != demoted:
                 change_reason = (
-                    f"usage discount / tier {prev!r} → Acceptable ({attr})"
+                    f"usage discount / tier {prev!r} → {demoted} ({attr})"
                 )
             members.append(
                 CandidateEval(
                     species=name,
                     species_id=sid,
-                    tier="Acceptable",
+                    tier=demoted,
                     delivery_class="ability",
                     mechanism=mechanism,
                     criteria_notes={
@@ -208,13 +238,45 @@ def _construct_weather_setter(
                     },
                     claimed_traits=traits,
                     reasoning=(
-                        f"{mechanism} clears Acceptable "
-                        f"(mech Excellent, Showdown usage discounted; "
+                        f"{mechanism} clears {demoted} "
+                        f"(mech {mech_tier}, Showdown usage discounted; "
                         f"excellent_secondary={excellent_secondary})."
                     ),
                     change_reason=change_reason,
                     reinforce_class="",
                     excellence_basis="usage_discounted",
+                )
+            )
+            admitted_ids.add(sid)
+            continue
+
+        if reactive:
+            members.append(
+                CandidateEval(
+                    species=name,
+                    species_id=sid,
+                    tier="Good",
+                    delivery_class="ability",
+                    mechanism=mechanism,
+                    criteria_notes={
+                        "delivery": "ability-guaranteed (reactive; less reliable than surge)",
+                        "execution": "triggers when hit; no moveslot / priority risk",
+                        "secondary_role": secondary_note,
+                        "verified_secondary": str(verified_secondary),
+                        "excellent_secondary": str(excellent_secondary),
+                        "attribution": attr,
+                        "usage_proven": "True",
+                    },
+                    claimed_traits=traits,
+                    reasoning=(
+                        f"{mechanism} reactive ability delivery clears Good "
+                        f"(below switch-in surge setters); secondary: {secondary_note}."
+                    ),
+                    change_reason=None,
+                    reinforce_class="",
+                    # Distinct from surge ability_delivery so critique tied_cluster
+                    # does not equate Good Seed Sower with Excellent surge holders.
+                    excellence_basis="reactive_ability",
                 )
             )
             admitted_ids.add(sid)

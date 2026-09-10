@@ -48,6 +48,7 @@ ABILITY_TO_FIELD: dict[str, FieldSpec] = {
     "psychicsurge": {"terrain": "Psychic", "gameType": "Doubles"},
     "mistysurge": {"terrain": "Misty", "gameType": "Doubles"},
     "hadronengine": {"terrain": "Electric", "gameType": "Doubles"},
+    "seedsower": {"terrain": "Grassy", "gameType": "Doubles"},
 }
 
 _NEUTRAL_COVER = frozenset({"clean_kill", "intentional_non_ko_answer"})

@@ -202,6 +202,12 @@ _DIRECTION_PHRASES: tuple[tuple[str, TargetRoleId], ...] = (
     ("sun offense", "sun_setter"),
     ("sand offense", "sand_setter"),
     ("snow offense", "snow_setter"),
+    ("electric offense", "electric_terrain_setter"),
+    ("grassy offense", "grassy_terrain_setter"),
+    ("psychic offense", "psychic_terrain_setter"),
+    ("electric terrain", "electric_terrain_setter"),
+    ("grassy terrain", "grassy_terrain_setter"),
+    ("psychic terrain", "psychic_terrain_setter"),
     ("follow me", "redirection"),
     ("rage powder", "redirection"),
     ("redirection", "redirection"),
@@ -228,6 +234,9 @@ _DIRECTION_PHRASES: tuple[tuple[str, TargetRoleId], ...] = (
     ("sun", "sun_setter"),
     ("sand", "sand_setter"),
     ("snow", "snow_setter"),
+    ("electric", "electric_terrain_setter"),
+    ("grassy", "grassy_terrain_setter"),
+    ("psychic", "psychic_terrain_setter"),
 )
 _TARGET_ROLE_IDS = frozenset(get_args(TargetRoleId))
 _SPEED_CONTROL_ROLES = frozenset({"tailwind_setter", "trick_room_setter"})
