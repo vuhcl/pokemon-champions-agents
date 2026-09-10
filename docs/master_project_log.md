@@ -5625,6 +5625,52 @@ direction-vocab expansion itself, deliberately last since it depends on
 
 Merged: `feat/reg-mc-legality-identity`.
 
+### 2026-09-10 — Writeup-derived ability + terrain setter support shipped
+
+Two related arcs, both closing out real gaps surfaced by the Reg M-C
+migration rather than pre-planned work.
+
+**Writeup-derived ability** (ADR-061): closed a genuine last-resort
+synthesis dead-end affecting ~239 Champions-legal species (29 of the 35
+M-C unbans) with ambiguous ability and no usage data. Live extraction
+honestly found real coverage for 6 of the 29 (Arboliva, Baxcalibur,
+Indeedee, Indeedee-F, Pawmot, Rillaboom) — the other 23 simply have no
+VGC/BSS writeup on Smogon today, reported plainly rather than padded.
+First-listed-ability policy, cross-checked directly against real
+extracted data, correctly avoided the dex-slot-order trap that would
+have picked the wrong ability for exactly the interesting cases
+(Rillaboom's real ability is its Hidden one, not slot 0). One real
+regression (a stale test fixture colliding with newly-extracted Garchomp
+data) found and fixed properly, not papered over.
+
+**Terrain setters** (ADR-062): a parallel real-evidence investigation
+(not the original speculative Tier 2 direction-vocab wishlist) found
+terrain is the only newly-relevant archetype M-C's unbans actually
+justify — population went from 1 thin species to 5, with 3
+writeup-confirmed. Wired as a precise mirror of weather's architecture
+end-to-end (TargetRoleId, bootstrap, mechanisms, TRACKED_CONDITIONS,
+Compendium), with one deliberate mechanical deviation (Seed Sower's
+reactive trigger correctly downgraded to Good tier rather than the
+ability-default Excellent) and one stub-only condition (Misty, zero
+current legal holders). Calm Mind, Bulk Up, Dragon Dance, Iron
+Defense/Body Press, and Intimidate-core were all checked against real
+writeup evidence and correctly NOT built — thin on real attested
+strategy despite surviving the original taxonomy cross-reference. This
+closes the Tier 2 direction-vocab backlog as "one real thing built,
+several correctly deferred with evidence," not left open pending more
+speculative work.
+
+Verified independently at every stage: real extracted data spot-checked
+directly (not trusted from PR descriptions), Meowstic's terrain
+admission confirmed as a genuine discovery through the real usage-gated
+path rather than a named target, full end-to-end terrain pipeline
+re-verified with a live calc service producing a real damage result
+under a genuinely forced field condition. Full suite clean throughout,
+same 3 pre-existing calc-unavailable sandbox failures seen across every
+verification in this project, no regressions introduced.
+
+Merged: #199, #200, `feat/terrain-setter-identity`.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

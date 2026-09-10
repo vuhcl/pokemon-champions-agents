@@ -10331,3 +10331,157 @@ capability change is a methodology change, not a free improvement to old numbers
 
 **Status:** Standing methodology requirement. Applies to any future verification-
 style eval, not limited to legality or species-fact grounding.
+
+---
+
+## ADR-061: Writeup-derived ability as authoritative last-resort synthesis
+signal, sourced from VGC/BSS analogs only
+
+**Decision:** When Champions usage data is absent and a species has ambiguous
+(multi-)ability status, last-resort synthesis (ADR-015 Amendment 2026-08-09a)
+now consults a real, sourced signal before falling through to
+`UnresolvedSlotRefinement`: the first-listed ability from a Smogon strategy
+dex writeup, restricted to VGC (doubles) and BSS (Battle Stadium Singles)
+formats only — never mainline 6v6 OU/UU, which is a genuine format mismatch
+(team size, held-item assumptions, speed-tier meta) for a doubles-targeted
+project, not merely a weaker signal. Champions-native writeups always
+outrank SV-analog writeups when both exist for a species; within each tier,
+VGC outranks BSS (doubles-relevant dynamics — spread damage, Follow Me/Rage
+Powder, Intimidate hitting both opponents — transfer better across game
+versions within a mode than across modes within a version).
+
+This is authoritative for mechanism claims (weather/terrain evidence, etc.),
+same tier as `usage_derived` — the underlying ability is still tool-verified
+against species data via `species_can_have_ability` regardless of source;
+what the writeup provides is *which* real ability competitive players
+prefer, the same kind of signal Champions usage data provides when
+authoritative. Provenance is disclosed on the main proposed build
+("Ability: X — SV VGC writeup analog") as informational context, not a
+confidence caveat, consistent with how VGCPastes/team-conditioned builds
+already disclose source without implying reduced confidence.
+
+**Why:** ~239 Champions-legal species (29 of the 35 Reg M-C unbans) have
+ambiguous ability and zero usage data, causing last-resort synthesis to
+silently drop the species from candidate discovery rather than complete a
+build — confirmed a real UX gap, not an acceptable "ask and wait": the
+failure path is a bare error + rediscovery bounce to other candidates, with
+`unresolved_fields` never surfaced to the user. The tempting alternative
+fix — defaulting to dex ability-slot order — was explicitly rejected: it
+would be actively wrong for exactly the cases that matter most (Rillaboom's
+competitive ability is Hidden, not slot 0; same shape for Cinderace,
+Pincurchin, Indeedee), and would assert a specific ability as fact with no
+real grounding, violating this project's core rule against unverified
+assertions.
+
+**Explicitly out of scope, deliberately:** conditional ability guidance
+parsed from writeup rationale prose (e.g. "if bulky spread use X, if
+offensive use Y") — first-listed-ability is a simpler, safer policy;
+whether conditional parsing is worth building depends on how common and
+consistently-phrased that pattern turns out to be across real writeups,
+which isn't known yet. Widening extraction beyond the 29 M-C-relevant
+species toward the full ~239 project-wide gap. A move-based terrain/ability
+admission path looser than what an equivalent gate would require.
+
+**Verified independently:** live extraction confirmed real coverage of 6/29
+species (Arboliva, Baxcalibur, Indeedee, Indeedee-F, Pawmot, Rillaboom) —
+honestly reported, not padded; the other 23 have no VGC/BSS writeup on
+Smogon today. Rillaboom and Indeedee's extracted abilities (Grassy Surge,
+Psychic Surge) independently confirmed as their real Hidden Abilities, not
+dex-slot defaults — directly validating the first-listed policy avoids the
+trap dex-order would have fallen into. Mechanism authority confirmed
+end-to-end via a real test (mocked writeup ability -> `resolve_anchor_build`
+-> `classify_anchor_role`'s mechanism list). One real regression was found
+and fixed during verification: a new writeup-extracted Garchomp row
+happened to exactly match an existing unit test's fixture moves/item,
+causing a real cache-key collision in `recommend_build`'s tier-0 lookup
+(ADR-016) — not a design flaw, a stale test fixture; fixed by mocking the
+cache lookup directly rather than relocating the collision to a different
+moveset.
+
+**Status:** Shipped, `feat/writeup-ability-extract` (#199),
+`feat/writeup-ability-consume` (#200).
+
+---
+
+## ADR-062: Terrain setters mirror weather's full wiring — electric/grassy/
+psychic live, misty as an unpopulated stub
+
+**Decision:** Electric, Grassy, and Psychic terrain setters are wired
+end-to-end as a precise mirror of weather's existing architecture: four
+separate `TargetRoleId`s (not one generic `terrain_setter`), per-condition
+bootstrap phrases, mechanism emission via `ABILITY_TO_FIELD`'s terrain keys,
+`TRACKED_CONDITIONS`/`team_field_states` integration (so a locked terrain
+setter now genuinely forces that field in real calc requests, not just in
+recommendation reasoning), needs mapping, and Role Compendium files
+mirroring `role_compendium_weather.py`'s ability-admit-without-usage
+pattern. Misty ships as an enum/`REVIEWED_STRATEGIC_TARGET_ROLES` stub
+only — no bootstrap phrase, no Compendium file, no `TRACKED_CONDITIONS`
+entry, no mechanism emission — since zero legal species currently hold a
+Misty-setting ability.
+
+Ability-tier assignment deliberately deviates from a flat "any ability =
+Excellent" rule where mechanics warrant it: Grassy Surge, Psychic Surge,
+and Electric Surge admit at Excellent (guaranteed proactive trigger on
+switch-in, the ability-delivery default). Seed Sower (Arboliva) admits at
+Good — an explicit downgrade, because it's reactive (only triggers when hit
+by a damaging move) rather than guaranteed, genuinely less reliable than a
+switch-in surge despite being an ability. The move-based admission path
+mirrors weather's exactly: a species with only a terrain-setting move and
+no qualifying ability is admitted solely via a Prankster-equivalent
+priority bypass with usage evidence still required — no looser rule was
+created for terrain. Condition strings use `@smogon/calc`'s `FieldSpec`
+short names (`Electric`/`Grassy`/`Psychic`), matching weather's actual
+precedent (`"Rain"`/`"Sun"`, not `"Rain Weather"`) rather than a
+longer-form label that would have been a real inconsistency if shipped.
+
+**Why:** Confirmed via real, evidence-based investigation (2026-09-10) —
+not the original speculative Tier 2 wishlist — that terrain is the only
+newly-relevant archetype category the Reg M-C migration actually
+justifies building. Population went from 1 (only Raichu-Mega-X, previously
+deferred as too thin) to 5 legal surge/reactive holders, with 3
+writeup-confirmed as real competitive strategies (Rillaboom, Indeedee,
+Arboliva via the writeup-ability pipeline, ADR-061) plus real beneficiary
+sets (Expanding Force, Grassy Glide). The same investigation confirmed
+Calm Mind, Bulk Up, Dragon Dance, Iron Defense/Body Press, and
+Intimidate-core archetypes remain thin on real writeup-attested evidence
+despite surviving the original taxonomy cross-reference — correctly not
+built now, since a species merely knowing a move is not evidence of a real
+archetype, the same standard already applied to mechanical-claim
+verification elsewhere in this project.
+
+`contingent_value.TERRAIN_SETTERS`, `ABILITY_TO_FIELD`'s terrain keys, and
+`@smogon/calc`'s terrain `FieldSpec` support already existed correctly but
+were completely disconnected from every recommendation-facing system
+(confirmed via the `contingent_value.py` module's own docstring:
+"regulation-change mechanism only — no live trigger wired here") — this
+work is genuinely a wiring task connecting already-correct pieces plus
+building the genuinely missing mirror (TargetRoleId, mechanism emission,
+TRACKED_CONDITIONS, Compendium files), not inventing terrain support from
+scratch.
+
+**Explicitly deferred:** `needed_terrains` on `RoleShapeContext` (existing
+ability-dependent taxonomy — Surge Surfer, Grass Pelt, Quark Drive,
+Mimicry — already resolves through `_CONDITION_DEPENDENT_ABILITIES`
+without it). Misty live wiring, pending a legal Misty-setting species
+existing. Weather-style exclusivity/core-slot demotion for a second
+terrain setter (`candidate_wastes_core_slot`'s weather-only `_WEATHERS`
+set is untouched) — consistent with carrying multiple setters being fine
+in team-building (see the ADR-038 reversal's own conclusion).
+
+**Verified independently:** real Compendium JSON data confirmed the
+Excellent/Good tier distinction is genuine (not cosmetic) with real
+per-species reasoning text. Meowstic's admission (Psychic Terrain,
+Prankster, `usage_proven: true`) was independently confirmed as a real
+discovery through the correctly-implemented usage-gated move path — not
+named in advance by anyone, found by the gate logic working as designed.
+Condition-string naming was caught and corrected during plan review before
+implementation (an earlier task draft incorrectly specified
+`"Electric Terrain"`-style long-form strings; verified against weather's
+actual short-form precedent first). Full end-to-end path re-verified with
+a live calc service: Rillaboom's ability -> mechanism emission ->
+`team_field_states` -> a real forced-`Grassy`-terrain calc call ->
+real `damageRange` result. Full suite clean throughout, same 3
+pre-existing calc-unavailable sandbox failures seen across every
+verification in this project, no regressions.
+
+**Status:** Shipped, `feat/terrain-setter-identity`.
