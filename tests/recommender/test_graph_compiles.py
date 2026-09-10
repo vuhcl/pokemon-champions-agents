@@ -8,7 +8,7 @@ def test_graph_compiles_and_initializes():
     graph = build_graph().compile()
     result = graph.invoke({"format_id": VGC_MB})
     assert result["game_type"] == "doubles"
-    assert result["regulation_mod"] == "champions"
+    assert result["regulation_mod"] == "championsregmb"
     assert result["picked_team_size"] == 4
     assert len(result["team_draft"]) == 6
     assert all(isinstance(s, Slot) for s in result["team_draft"])

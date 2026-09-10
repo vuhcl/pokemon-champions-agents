@@ -5,14 +5,17 @@ from __future__ import annotations
 import re
 
 _MOD_TO_TAG = {
-    "champions": "champions-reg-mb",
+    "champions": "champions-reg-mc",
+    "championsregmb": "champions-reg-mb",
     "championsregma": "champions-reg-ma",
+    "champions-reg-mc": "champions-reg-mc",
     "champions-reg-mb": "champions-reg-mb",
     "champions-reg-ma": "champions-reg-ma",
 }
 
 # Newest first. Extend when a regulation is archived (do not infer from filenames).
 REGULATION_ARCHIVE_ORDER: tuple[str, ...] = (
+    "champions-reg-mc",
     "champions-reg-mb",
     "champions-reg-ma",
 )

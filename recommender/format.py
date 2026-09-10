@@ -20,7 +20,12 @@ def resolve_format(format_id: str) -> FormatResolved:
     else:
         raise ValueError(f"Champions format must be VGC or BSS: {format_id!r}")
 
-    regulation_mod = "championsregma" if "Reg M-A" in format_id else "champions"
+    if "Reg M-A" in format_id:
+        regulation_mod = "championsregma"
+    elif "Reg M-B" in format_id:
+        regulation_mod = "championsregmb"
+    else:
+        regulation_mod = "champions"
     return {
         "game_type": game_type,
         "regulation_mod": regulation_mod,

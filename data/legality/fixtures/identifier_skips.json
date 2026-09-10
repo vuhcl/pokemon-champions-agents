@@ -1,7 +1,7 @@
 {
   "meta": {
-    "extracted_at": "2026-08-15T18:09:30.200Z",
-    "source_commit": "9d8e5c22a8741473d63fe328c1b4962f1a052ce9",
+    "extracted_at": "2026-09-10T18:46:28.059Z",
+    "source_commit": "d849b220082e113d8a17303509fb44d420c543d5",
     "note": "Identifier initializers during AST extract: 'nulled' = undefined→null stored; 'skipped' = other Identifier omitted"
   },
   "counts": {
