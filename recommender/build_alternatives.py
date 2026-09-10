@@ -131,6 +131,11 @@ def _provisional_from_draft(
         spread=tuple((stat, spread[stat]) for stat in _STAT_KEYS),
         base_slot_fingerprint=provisional.base_slot_fingerprint,
         fingerprint=fp,
+        ability_source_label=(
+            provisional.ability_source_label
+            if to_id(ability) == to_id(provisional.ability)
+            else None
+        ),
     )
 
 

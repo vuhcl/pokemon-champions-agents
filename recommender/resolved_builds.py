@@ -43,10 +43,87 @@ class ResolvedBuild(TypedDict):
     # entirely (an opposing Pokemon's set, or a different alternative
     # spread) — do not infer this field from loose proximity matching;
     # verify the tie is real and specific to this exact spread first.
+    ability: NotRequired[str]
+    ability_candidates: NotRequired[list[str]]
+    ability_pick_index: NotRequired[int]
+    ability_pick_policy: NotRequired[str]
+
+
+class WriteupAbilityHit(TypedDict):
+    ability: str
+    source_tier: str
+    source_format: str
+    ability_candidates: list[str]
+    ability_pick_index: int
+    ability_pick_policy: str
 
 
 def _key(species: str, moves: list[str], item: str) -> tuple[str, tuple[str, ...], str]:
     return (to_id(species), tuple(sorted(to_id(m) for m in moves)), to_id(item))
+
+
+def _writeup_ability_rank(source_format: str) -> int:
+    """Lower is better. Any VGC before any BSS; Champions-native before SV within family."""
+    sf = source_format or ""
+    if sf.startswith("champions/") and sf.removeprefix("champions/").startswith("vgc"):
+        return 0
+    if sf == "sv/vgc":
+        return 1
+    if sf.startswith("sv/") and sf.removeprefix("sv/").startswith("vgc"):
+        return 2
+    if sf == "champions/battle-stadium-singles":
+        return 3
+    if sf == "sv/battle-stadium-singles":
+        return 4
+    return 5
+
+
+def get_writeup_ability(
+    species: str,
+    regulation: str,
+    *,
+    root: Path = DEFAULT_DIR,
+) -> WriteupAbilityHit | None:
+    """Species-scoped writeup ability lookup (ignores moves/item key).
+
+    Ranking (lower better): champions/vgc* → sv/vgc → other sv/vgc* →
+    champions/battle-stadium-singles → sv/battle-stadium-singles → other.
+    Tie-break: prefer non-thin rationale if present, else first seen.
+    """
+    want = to_id(species)
+    best: WriteupAbilityHit | None = None
+    best_rank = 99
+    best_thin = True
+    for tag in regulation_lookup_chain(regulation):
+        for row in _load(root / f"{tag}.jsonl"):
+            if to_id(row.get("species") or "") != want:
+                continue
+            ability = row.get("ability")
+            if not ability:
+                continue
+            sf = str(row.get("source_format") or "")
+            rank = _writeup_ability_rank(sf)
+            thin = len(str(row.get("rationale") or "").strip()) < 80
+            if best is None or rank < best_rank or (
+                rank == best_rank and best_thin and not thin
+            ):
+                best_rank = rank
+                best_thin = thin
+                cands = list(row.get("ability_candidates") or [ability])
+                pick_i = int(row.get("ability_pick_index") or 0)
+                best = {
+                    "ability": str(ability),
+                    "source_tier": str(row.get("source_tier") or ""),
+                    "source_format": sf,
+                    "ability_candidates": [str(c) for c in cands],
+                    "ability_pick_index": pick_i,
+                    "ability_pick_policy": str(
+                        row.get("ability_pick_policy") or "first_listed"
+                    ),
+                }
+            if rank == 0 and not thin:
+                return best
+    return best
 
 
 def _path(regulation: str, *, root: Path = DEFAULT_DIR) -> Path:
@@ -110,6 +187,10 @@ def put_resolved_build(
     carried_forward_from: str | None = None,
     rationale: str | None = None,
     source_format: str | None = None,
+    ability: str | None = None,
+    ability_candidates: list[str] | None = None,
+    ability_pick_index: int | None = None,
+    ability_pick_policy: str | None = None,
 ) -> bool:
     """Write or replace an unverified row. Returns False if existing verified=True (skip)."""
     path = _path(regulation, root=root)
@@ -133,6 +214,14 @@ def put_resolved_build(
         entry["rationale"] = rationale
     if source_format is not None:
         entry["source_format"] = source_format
+    if ability is not None:
+        entry["ability"] = ability
+    if ability_candidates is not None:
+        entry["ability_candidates"] = ability_candidates
+    if ability_pick_index is not None:
+        entry["ability_pick_index"] = ability_pick_index
+    if ability_pick_policy is not None:
+        entry["ability_pick_policy"] = ability_pick_policy
 
     want = _key(species, moves, item)
     rows = _load(path)

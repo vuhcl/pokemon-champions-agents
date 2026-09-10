@@ -282,8 +282,14 @@ def _refine_defaults(
 ) -> tuple[Slot, bool]:
     # Calc verify stays optional post-complete elsewhere; never required to emit ProvisionalSlot.
     from recommender.anchor_roles import _ability_for_target_role, _unique_legal_ability
-    from recommender.legality import pick_synthesized_default_item, team_item_ids
+    from recommender.legality import (
+        load_snapshot,
+        pick_synthesized_default_item,
+        species_can_have_ability,
+        team_item_ids,
+    )
     from recommender.move_narrowing import assemble_moveset_fallback
+    from recommender.resolved_builds import get_writeup_ability
     from recommender.usage_data import pick_team_aware_usage_item
 
     species = slot.species.value
@@ -409,6 +415,19 @@ def _refine_defaults(
                             kind="tier2_heuristic", ref="tier3_role_ability"
                         ),
                     )
+                else:
+                    hit = get_writeup_ability(species, regulation)
+                    if hit and species_can_have_ability(
+                        load_snapshot(), species, hit["ability"]
+                    ):
+                        updates["ability"] = Attr(
+                            value=hit["ability"],
+                            locked=False,
+                            reason=ReasonRef(
+                                kind="tier2_heuristic",
+                                ref=f"{hit['source_tier']}:{hit['source_format']}",
+                            ),
+                        )
         # 2. Item defaults
         if need_item and item is None:
             item = _synthesize_item(slot, state)

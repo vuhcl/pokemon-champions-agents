@@ -1,7 +1,11 @@
 from pathlib import Path
 
 from recommender.ids import regulation_file_tag, regulation_lookup_chain, to_id
-from recommender.resolved_builds import get_resolved_build, put_resolved_build
+from recommender.resolved_builds import (
+    get_resolved_build,
+    get_writeup_ability,
+    put_resolved_build,
+)
 
 
 def test_to_id_and_regulation_tag():
@@ -181,3 +185,157 @@ def test_chain_lookup_from_archived_ma(tmp_path: Path):
         )
         is None
     )
+
+
+def test_ability_fields_roundtrip(tmp_path: Path):
+    moves = ["Flash Cannon", "Dragon Pulse", "Body Press", "Protect"]
+    put_resolved_build(
+        "Archaludon",
+        moves,
+        "Assault Vest",
+        "champions-reg-mb",
+        {"hp": 20, "atk": 0, "def": 4, "spa": 28, "spd": 4, "spe": 10},
+        "analogous_format_writeup",
+        False,
+        {},
+        root=tmp_path,
+        source_format="sv/vgc",
+        ability="Stamina",
+        ability_candidates=["Stamina", "Sturdy"],
+        ability_pick_index=0,
+        ability_pick_policy="first_listed",
+    )
+    hit = get_resolved_build(
+        "Archaludon", moves, "Assault Vest", "champions-reg-mb", root=tmp_path
+    )
+    assert hit is not None
+    assert hit["ability"] == "Stamina"
+    assert hit["ability_candidates"] == ["Stamina", "Sturdy"]
+    assert hit["ability_pick_index"] == 0
+    assert hit["ability_pick_policy"] == "first_listed"
+
+    w = get_writeup_ability("Archaludon", "champions-reg-mb", root=tmp_path)
+    assert w is not None
+    assert w["ability"] == "Stamina"
+    assert w["source_format"] == "sv/vgc"
+    assert w["ability_pick_policy"] == "first_listed"
+
+
+def test_writeup_ability_ranking(tmp_path: Path):
+    moves = ["Protect", "Surf", "Hurricane", "U-turn"]
+    put_resolved_build(
+        "Pelipper",
+        moves,
+        "Damp Rock",
+        "champions-reg-mb",
+        {"hp": 4, "atk": 0, "def": 0, "spa": 28, "spd": 0, "spe": 34},
+        "analogous_format_writeup",
+        False,
+        {},
+        root=tmp_path,
+        source_format="sv/battle-stadium-singles",
+        ability="Keen Eye",
+        ability_candidates=["Keen Eye"],
+        ability_pick_index=0,
+        ability_pick_policy="first_listed",
+        rationale="bss " + ("x" * 100),
+    )
+    put_resolved_build(
+        "Pelipper",
+        moves,
+        "Focus Sash",
+        "champions-reg-mb",
+        {"hp": 4, "atk": 0, "def": 0, "spa": 28, "spd": 0, "spe": 34},
+        "champions_native_writeup",
+        False,
+        {},
+        root=tmp_path,
+        source_format="champions/battle-stadium-singles",
+        ability="Drizzle",
+        ability_candidates=["Drizzle"],
+        ability_pick_index=0,
+        ability_pick_policy="first_listed",
+        rationale="champ bss " + ("x" * 100),
+    )
+    put_resolved_build(
+        "Pelipper",
+        moves,
+        "Life Orb",
+        "champions-reg-mb",
+        {"hp": 4, "atk": 0, "def": 0, "spa": 28, "spd": 0, "spe": 34},
+        "analogous_format_writeup",
+        False,
+        {},
+        root=tmp_path,
+        source_format="sv/vgc",
+        ability="Drizzle",
+        ability_candidates=["Drizzle", "Keen Eye"],
+        ability_pick_index=0,
+        ability_pick_policy="first_listed",
+        rationale="sv vgc " + ("x" * 100),
+    )
+    w = get_writeup_ability("Pelipper", "champions-reg-mb", root=tmp_path)
+    assert w is not None
+    assert w["source_format"] == "sv/vgc"
+    assert w["ability"] == "Drizzle"
+
+    put_resolved_build(
+        "Pelipper",
+        moves,
+        "Sitrus Berry",
+        "champions-reg-mb",
+        {"hp": 4, "atk": 0, "def": 0, "spa": 28, "spd": 0, "spe": 34},
+        "champions_native_writeup",
+        False,
+        {},
+        root=tmp_path,
+        source_format="champions/vgc-2026-regulation-m-b",
+        ability="Drizzle",
+        ability_candidates=["Drizzle"],
+        ability_pick_index=0,
+        ability_pick_policy="first_listed",
+        rationale="champ vgc " + ("x" * 100),
+    )
+    w2 = get_writeup_ability("Pelipper", "champions-reg-mb", root=tmp_path)
+    assert w2 is not None
+    assert w2["source_format"] == "champions/vgc-2026-regulation-m-b"
+    assert w2["source_tier"] == "champions_native_writeup"
+
+
+def test_writeup_ability_first_listed(tmp_path: Path):
+    put_resolved_build(
+        "Archaludon",
+        ["Flash Cannon", "Protect", "Body Press", "Snarl"],
+        "Leftovers",
+        "champions-reg-mb",
+        {"hp": 32, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "analogous_format_writeup",
+        False,
+        {},
+        root=tmp_path,
+        source_format="sv/vgc",
+        ability="Stamina",
+        ability_candidates=["Stamina", "Sturdy"],
+        ability_pick_index=0,
+        ability_pick_policy="first_listed",
+    )
+    w = get_writeup_ability("Archaludon", "champions", root=tmp_path)
+    assert w is not None
+    assert w["ability"] == "Stamina"
+    assert w["ability_candidates"] == ["Stamina", "Sturdy"]
+
+
+def test_writeup_ability_miss_without_ability_field(tmp_path: Path):
+    put_resolved_build(
+        "Gogoat",
+        ["Horn Leech", "Bulk Up", "Milk Drink", "Protect"],
+        "Leftovers",
+        "champions-reg-mb",
+        {"hp": 32, "atk": 20, "def": 0, "spa": 0, "spd": 0, "spe": 14},
+        "analogous_format_writeup",
+        False,
+        {},
+        root=tmp_path,
+        source_format="sv/vgc",
+    )
+    assert get_writeup_ability("Gogoat", "champions-reg-mb", root=tmp_path) is None

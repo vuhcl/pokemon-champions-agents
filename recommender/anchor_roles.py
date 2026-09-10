@@ -10,11 +10,11 @@ from typing import Any, Literal
 from recommender.contingent_value import REDIRECT_MOVES
 from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
-from recommender.legality import load_snapshot
+from recommender.legality import load_snapshot, species_can_have_ability
 from recommender.matchup import CHARGE_INSTANT_WEATHER
 from recommender.move_narrowing import WEATHER_SETTING_MOVES
 from recommender.recommend import infer_role, is_valid_spread
-from recommender.resolved_builds import get_resolved_build
+from recommender.resolved_builds import get_resolved_build, get_writeup_ability
 from recommender.role_compendium_read import (
     CompendiumRoleEvidence,
     ReverseCompendiumEvidence,
@@ -32,10 +32,18 @@ FieldSource = Literal[
     "cached",
     "synthesized",
     "legality_only",
+    "champions_native_writeup",
+    "analogous_format_writeup",
     "unknown",
 ]
 _AUTHORITATIVE_ABILITY_SOURCES = frozenset(
-    {"user_confirmed", "usage_derived", "legality_only"}
+    {
+        "user_confirmed",
+        "usage_derived",
+        "legality_only",
+        "champions_native_writeup",
+        "analogous_format_writeup",
+    }
 )
 MechanismImportance = Literal["needed", "wanted", "secondary"]
 PrimaryFunction = Literal["offense", "support", "unknown"]
@@ -210,6 +218,12 @@ def _ability_source_from_slot_attr(attr: Attr[Any]) -> FieldSource:
         return "legality_only"
     if ref in {"tier3_role_ability", "synthesized"}:
         return "synthesized"
+    if isinstance(ref, str):
+        tier = ref.split(":", 1)[0]
+        if tier == "champions_native_writeup":
+            return "champions_native_writeup"
+        if tier == "analogous_format_writeup":
+            return "analogous_format_writeup"
     return "provisional"
 
 
@@ -426,6 +440,19 @@ def resolve_anchor_build(
         if ability:
             values["ability"] = ability
             provenance["ability"] = FieldProvenance("ability", "legality_only")
+        else:
+            hit = get_writeup_ability(species, regulation)
+            if hit and species_can_have_ability(
+                load_snapshot(), species, hit["ability"]
+            ):
+                tier = hit["source_tier"]
+                source: FieldSource = (
+                    "champions_native_writeup"
+                    if tier == "champions_native_writeup"
+                    else "analogous_format_writeup"
+                )
+                values["ability"] = hit["ability"]
+                provenance["ability"] = FieldProvenance("ability", source)
 
     normalized = {
         **values,

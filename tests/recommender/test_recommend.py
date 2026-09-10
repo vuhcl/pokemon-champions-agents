@@ -111,13 +111,14 @@ def test_sp_search_calls_batch():
             {"damageRange": [50, 60], "koChance": "0% 4HKO"},
         ]
     )
-    out = recommend_build(
-        "Garchomp",
-        ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
-        "Life Orb",
-        calculate_batch=batch,
-        write_cache=False,
-    )
+    with patch("recommender.recommend.get_resolved_build", return_value=None):
+        out = recommend_build(
+            "Garchomp",
+            ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
+            "Life Orb",
+            calculate_batch=batch,
+            write_cache=False,
+        )
     assert out["ok"]
     assert batch.called
 

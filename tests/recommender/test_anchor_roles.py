@@ -137,6 +137,9 @@ def test_unknown_ability_makes_no_ability_claim(monkeypatch):
         "recommender.anchor_roles.featured_or_common_set", lambda *args, **kwargs: None
     )
     monkeypatch.setattr("recommender.anchor_roles._unique_legal_ability", lambda _s: None)
+    monkeypatch.setattr(
+        "recommender.anchor_roles.get_writeup_ability", lambda *a, **k: None
+    )
     build = resolve_anchor_build("Pelipper")
     decision = classify_anchor_role(build)
     assert build.ability is None
@@ -541,3 +544,74 @@ def test_compendium_edge_roles_primary_function():
 def test_deprecated_aliases_normalize_before_primary_function(alias: str, canonical: str):
     assert normalize_role_id(alias) == canonical
     assert primary_function_for_role_id(alias) == "offense"
+
+
+def test_writeup_drizzle_is_authoritative_rain_mechanism(monkeypatch):
+    _mock_no_usage(monkeypatch)
+    monkeypatch.setattr(
+        "recommender.anchor_roles.get_writeup_ability",
+        lambda *a, **k: {
+            "ability": "Drizzle",
+            "source_tier": "champions_native_writeup",
+            "source_format": "champions/vgc-2026-regulation-m-b",
+            "ability_candidates": ["Drizzle"],
+            "ability_pick_index": 0,
+            "ability_pick_policy": "first_listed",
+        },
+    )
+    monkeypatch.setattr(
+        "recommender.anchor_roles.species_can_have_ability", lambda *a, **k: True
+    )
+    build = resolve_anchor_build("Pelipper", regulation="champions-reg-mb")
+    assert build.ability == "Drizzle"
+    assert build.source_for("ability") == "champions_native_writeup"
+    decision = classify_anchor_role(build, compendium=_empty_compendium())
+    auto = [
+        m
+        for m in decision.mechanisms
+        if m.kind == "automatic_condition_setting" and m.present
+    ]
+    assert auto
+    assert auto[0].source == "champions_native_writeup"
+    assert auto[0].confidence == "medium"
+
+
+def test_analogous_writeup_field_source(monkeypatch):
+    _mock_no_usage(monkeypatch)
+    monkeypatch.setattr(
+        "recommender.anchor_roles.get_writeup_ability",
+        lambda *a, **k: {
+            "ability": "Drizzle",
+            "source_tier": "analogous_format_writeup",
+            "source_format": "sv/vgc",
+            "ability_candidates": ["Drizzle"],
+            "ability_pick_index": 0,
+            "ability_pick_policy": "first_listed",
+        },
+    )
+    monkeypatch.setattr(
+        "recommender.anchor_roles.species_can_have_ability", lambda *a, **k: True
+    )
+    build = resolve_anchor_build("Pelipper", regulation="champions-reg-mb")
+    assert build.source_for("ability") == "analogous_format_writeup"
+    decision = classify_anchor_role(build, compendium=_empty_compendium())
+    auto = next(m for m in decision.mechanisms if m.kind == "automatic_condition_setting")
+    assert auto.present is True
+    assert auto.source == "analogous_format_writeup"
+
+
+def test_slot_writeup_reason_maps_to_field_provenance():
+    slot = Slot(
+        species=Attr("Pelipper", locked=True),
+        ability=Attr(
+            "Drizzle",
+            locked=False,
+            reason=ReasonRef(
+                kind="tier2_heuristic",
+                ref="champions_native_writeup:champions/vgc-2026-regulation-m-b",
+            ),
+        ),
+    )
+    with patch("recommender.anchor_roles.featured_or_common_set", return_value=None):
+        build = resolve_anchor_build(slot)
+    assert build.source_for("ability") == "champions_native_writeup"

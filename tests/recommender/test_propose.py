@@ -234,9 +234,9 @@ def test_nodes_wrapper_delegates():
     m.assert_called_once()
 
 
-def test_no_usage_hatterene_fills_kit_but_leaves_ability_unresolved():
+def test_no_usage_hatterene_fills_via_writeup_ability():
     from recommender.slot_fill import build_provisional_slot
-    from recommender.state import PendingSlotIntent, UnresolvedSlotRefinement
+    from recommender.state import PendingSlotIntent, ProvisionalSlot
 
     intent = PendingSlotIntent(
         schema_version=1,
@@ -256,9 +256,12 @@ def test_no_usage_hatterene_fills_kit_but_leaves_ability_unresolved():
     state = _base_state(archetype=Attr(value=["TrickRoom"], locked=True))
     with patch("recommender.propose.featured_or_common_set", return_value=None):
         result = build_provisional_slot(intent, state)
-    assert isinstance(result, UnresolvedSlotRefinement)
-    assert result.reason == "incomplete_build"
-    assert result.unresolved_fields == ("ability",)
+    assert isinstance(result, ProvisionalSlot)
+    assert result.ability == "Magic Bounce"
+    assert result.ability_source_label == "SV VGC writeup analog"
+    assert "trickroom" in {m.lower().replace(" ", "") for m in result.moves} or any(
+        "trick" in m.lower() for m in result.moves
+    )
 
 
 def test_no_usage_mimikyu_refines_to_provisional_slot():
@@ -338,13 +341,14 @@ def test_no_usage_mimikyu_swords_dance_attacker_fills():
     assert len(result.moves) == 4
 
 
-def test_no_usage_incineroar_bulky_pivot_moves_fill_ability_unresolved():
-    from recommender.state import UnresolvedSlotRefinement
+def test_no_usage_incineroar_bulky_pivot_fills_via_writeup_ability():
+    from recommender.state import ProvisionalSlot
 
     result = _no_usage_provisional("Incineroar", "bulky_pivot")
-    assert isinstance(result, UnresolvedSlotRefinement)
-    assert result.reason == "incomplete_build"
-    assert result.unresolved_fields == ("ability",)
+    assert isinstance(result, ProvisionalSlot)
+    assert result.ability
+    assert result.ability_source_label == "Champions VGC writeup"
+    assert len(result.moves) == 4
 
 
 def test_no_usage_sinistcha_redirection_leaves_moves_short():
@@ -427,9 +431,93 @@ def test_multi_ability_without_role_match_leaves_ability_unresolved():
     )
     filler = Slot(role=Attr(value="bulky_attacker"))
     state = _base_state(team_draft=[slot, filler, *[empty_slot() for _ in range(4)]])
-    with patch("recommender.propose.featured_or_common_set", return_value=None):
+    with (
+        patch("recommender.propose.featured_or_common_set", return_value=None),
+        patch("recommender.resolved_builds.get_writeup_ability", return_value=None),
+    ):
         out = fill_team_draft(state)
     assert out["team_draft"][0].ability.value is None
+
+
+def test_writeup_ability_fills_on_usage_miss(monkeypatch):
+    from recommender.propose import _refine_defaults
+
+    slot = Slot(
+        species=Attr(value="Rillaboom", locked=True),
+        role=Attr(value="fast_attacker"),
+    )
+    state = _base_state(team_draft=[slot, *[empty_slot() for _ in range(5)]])
+    hit = {
+        "ability": "Grassy Surge",
+        "source_tier": "analogous_format_writeup",
+        "source_format": "sv/vgc",
+        "ability_candidates": ["Grassy Surge"],
+        "ability_pick_index": 0,
+        "ability_pick_policy": "first_listed",
+    }
+    with (
+        patch("recommender.propose.featured_or_common_set", return_value=None),
+        patch("recommender.resolved_builds.get_writeup_ability", return_value=hit),
+        patch("recommender.legality.species_can_have_ability", return_value=True),
+    ):
+        refined, _ = _refine_defaults(slot, state, regulation="champions-reg-mb")
+    assert refined.ability.value == "Grassy Surge"
+    assert refined.ability.reason is not None
+    assert refined.ability.reason.ref == "analogous_format_writeup:sv/vgc"
+
+
+def test_writeup_ability_skipped_when_illegal(monkeypatch):
+    from recommender.propose import _refine_defaults
+
+    slot = Slot(
+        species=Attr(value="Rillaboom", locked=True),
+        role=Attr(value="fast_attacker"),
+    )
+    state = _base_state(team_draft=[slot, *[empty_slot() for _ in range(5)]])
+    hit = {
+        "ability": "Drizzle",
+        "source_tier": "analogous_format_writeup",
+        "source_format": "sv/vgc",
+        "ability_candidates": ["Drizzle"],
+        "ability_pick_index": 0,
+        "ability_pick_policy": "first_listed",
+    }
+    with (
+        patch("recommender.propose.featured_or_common_set", return_value=None),
+        patch("recommender.resolved_builds.get_writeup_ability", return_value=hit),
+        patch("recommender.legality.species_can_have_ability", return_value=False),
+    ):
+        refined, _ = _refine_defaults(slot, state, regulation="champions-reg-mb")
+    assert refined.ability.value is None
+
+
+def test_role_ability_wins_over_writeup():
+    from recommender.propose import _refine_defaults
+
+    slot = Slot(
+        species=Attr(value="Pelipper", locked=True),
+        role=Attr(value="rain_setter"),
+    )
+    state = _base_state(team_draft=[slot, *[empty_slot() for _ in range(5)]])
+    hit = {
+        "ability": "Keen Eye",
+        "source_tier": "analogous_format_writeup",
+        "source_format": "sv/vgc",
+        "ability_candidates": ["Keen Eye"],
+        "ability_pick_index": 0,
+        "ability_pick_policy": "first_listed",
+    }
+    with (
+        patch("recommender.propose.featured_or_common_set", return_value=None),
+        patch(
+            "recommender.resolved_builds.get_writeup_ability", return_value=hit
+        ) as writeup,
+    ):
+        refined, _ = _refine_defaults(slot, state, regulation="champions-reg-mb")
+    assert refined.ability.value == "Drizzle"
+    assert refined.ability.reason is not None
+    assert refined.ability.reason.ref == "tier3_role_ability"
+    writeup.assert_not_called()
 
 
 def test_role_constraint_ability_is_synthesized_and_not_present_mechanism():
@@ -546,10 +634,7 @@ def test_cache_without_nature_field_falls_back_to_usage_nature():
 
 
 def test_real_archaludon_data_file_produces_correct_nature_end_to_end():
-    """No mocks — the real data/resolved-builds/*.jsonl file, confirming the
-    fix actually landed in the real, committed data, not just in a mocked
-    unit test. This is the exact live-session scenario that surfaced the bug.
-    """
+    """No mocks — real data/resolved-builds/*.jsonl (Champions M-B writeup row)."""
     from recommender.slot_fill import build_provisional_slot
     from recommender.state import PendingSlotIntent
 
@@ -566,10 +651,17 @@ def test_real_archaludon_data_file_produces_correct_nature_end_to_end():
         base_slot_fingerprint="x",
     )
     result = build_provisional_slot(intent, _base_state())
-    assert result.nature == "Modest"
+    assert result.ability == "Stamina"
     assert dict(result.spread) == {
-        "hp": 32, "atk": 0, "def": 1, "spa": 5, "spd": 25, "spe": 3,
+        "hp": 27,
+        "atk": 0,
+        "def": 5,
+        "spa": 5,
+        "spd": 26,
+        "spe": 3,
     }
+    # Writeup row has no nature field; Spe-invested special set → Timid.
+    assert result.nature == "Timid"
 
 
 def test_explicit_empty_item_attempts_cache_lookup():

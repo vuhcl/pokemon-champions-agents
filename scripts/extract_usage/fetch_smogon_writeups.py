@@ -44,6 +44,52 @@ SEED = [
     "Archaludon",
 ]
 
+# Ambiguous-ability M-C unbans (display names). Unique-ability six omitted.
+TRACK_F_MC29 = [
+    "Arboliva",
+    "Baxcalibur",
+    "Baxcalibur-Mega",
+    "Cinderace",
+    "Farfetch'd",
+    "Gogoat",
+    "Grapploct",
+    "Indeedee",
+    "Indeedee-F",
+    "Inteleon",
+    "Mabosstiff",
+    "Mr. Mime",
+    "Pawmot",
+    "Perrserker",
+    "Persian",
+    "Persian-Alola",
+    "Pincurchin",
+    "Rillaboom",
+    "Salamence",
+    "Sirfetch'd",
+    "Squawkabilly",
+    "Squawkabilly-Blue",
+    "Squawkabilly-White",
+    "Squawkabilly-Yellow",
+    "Swalot",
+    "Thievul",
+    "Toxtricity",
+    "Toxtricity-Low-Key",
+    "Wigglytuff",
+]
+
+
+def track_f_species() -> list[str]:
+    """SEED ∪ TRACK_F_MC29, deduped by to_id, SEED order first."""
+    out: list[str] = []
+    seen: set[str] = set()
+    for name in SEED + TRACK_F_MC29:
+        sid = to_id(name)
+        if sid in seen:
+            continue
+        seen.add(sid)
+        out.append(name)
+    return out
+
 MEGA_STONE = {
     "charizarditey": "charizardmegay",
     "charizarditex": "charizardmegax",
@@ -106,7 +152,14 @@ def dump_basics(gen: str) -> dict[str, Any]:
 
 def dump_format(gen: str, alias: str) -> dict[str, Any] | None:
     out = rpc("dump-format", {"alias": alias, "gen": gen, "language": "en"})
-    return out if isinstance(out, dict) else None
+    if not isinstance(out, dict):
+        return None
+    # Smogon may return {"status":"redirect","alias":"..."} for renamed format pages.
+    if out.get("status") == "redirect" and out.get("alias"):
+        out = rpc("dump-format", {"alias": out["alias"], "gen": gen, "language": "en"})
+        if not isinstance(out, dict) or out.get("status") == "redirect":
+            return None
+    return out
 
 
 def dump_pokemon(gen: str, alias: str) -> dict[str, Any] | None:
@@ -257,6 +310,7 @@ def put_writeup(
     rationale: str,
     variants: list[dict[str, int]] | None,
     analog_tier: str | None = None,
+    abilities: list[str] | None = None,
 ) -> bool:
     """Respect verified skip + never replace primary analogous with secondary."""
     existing = get_resolved_build(species, moves, item, regulation, chain=False)
@@ -273,6 +327,14 @@ def put_writeup(
     notes = {}
     if analog_tier:
         notes = {"notes": f"analog:{analog_tier}"}
+    ability_kw: dict[str, Any] = {}
+    if abilities:
+        ability_kw = {
+            "ability": abilities[0],
+            "ability_candidates": list(abilities),
+            "ability_pick_index": 0,
+            "ability_pick_policy": "first_listed",
+        }
     ok = put_resolved_build(
         species,
         moves,
@@ -285,6 +347,7 @@ def put_writeup(
         variants=variants,
         rationale=rationale,
         source_format=source_format,
+        **ability_kw,
     )
     return ok
 
@@ -330,6 +393,7 @@ def iter_movesets(
                         "variants": variants,
                         "rationale": rat,
                         "format": fmt,
+                        "abilities": abilities,
                     }
                 )
     return results
@@ -377,7 +441,9 @@ def track_e() -> dict[str, Any]:
         poke = dump_pokemon("champions", format_alias(name))
         if not poke:
             continue
-        for row in iter_movesets(poke, {"VGC 2026 Regulation M-B"}, name):
+        for row in iter_movesets(
+            poke, {"VGC 2026 Regulation M-B", "VGC26 Regulation M-B"}, name
+        ):
             if put_writeup(
                 species=row["species"],
                 moves=row["moves"],
@@ -388,6 +454,7 @@ def track_e() -> dict[str, Any]:
                 source_format="champions/vgc-2026-regulation-m-b",
                 rationale=row["rationale"],
                 variants=row["variants"],
+                abilities=row.get("abilities"),
             ):
                 stats["mb_written"] += 1
 
@@ -411,7 +478,10 @@ def track_e() -> dict[str, Any]:
         for seed in seeds:
             only = wanted_mega_id(seed)
             for row in iter_movesets(
-                poke, {"VGC 2026 Regulation M-A"}, display, only_species=only
+                poke,
+                {"VGC 2026 Regulation M-A", "VGC26 Regulation M-A"},
+                display,
+                only_species=only,
             ):
                 if put_writeup(
                     species=row["species"],
@@ -423,6 +493,7 @@ def track_e() -> dict[str, Any]:
                     source_format="champions/vgc-2026-regulation-m-a",
                     rationale=row["rationale"],
                     variants=row["variants"],
+                    abilities=row.get("abilities"),
                 ):
                     stats["ma_written"] += 1
                     if row["species"] == "charizardmegay":
@@ -452,6 +523,7 @@ def track_e() -> dict[str, Any]:
                     source_format="champions/battle-stadium-singles",
                     rationale=row["rationale"],
                     variants=row["variants"],
+                    abilities=row.get("abilities"),
                 ):
                     stats["bss_written"] += 1
                     if row["species"] == "charizardmegay":
@@ -479,7 +551,7 @@ def track_f(sv_formats: list[dict[str, Any]]) -> dict[str, Any]:
     )
     name_to_meta = {f["name"]: f for f in sv_formats}
 
-    for seed in SEED:
+    for seed in track_f_species():
         sid = to_id(seed)
         if species_has_mb_native_nonthin(sid):
             print(f"F skip {seed}: has M-B native", file=sys.stderr)
@@ -532,6 +604,7 @@ def track_f(sv_formats: list[dict[str, Any]]) -> dict[str, Any]:
                     rationale=row["rationale"],
                     variants=row["variants"],
                     analog_tier=meta["tier"],
+                    abilities=row.get("abilities"),
                 ):
                     stats["written"] += 1
                     stats["by_format"][sf] = stats["by_format"].get(sf, 0) + 1

@@ -473,6 +473,62 @@ def test_full_build_confirmation_from_provisional_slot():
     assert "yes" in text.lower()
 
 
+def test_full_build_shows_writeup_ability_source_label():
+    provisional = ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=TargetRoleDecision(
+            role_id="rain_setter", source="user_choice"
+        ),
+        species="Pelipper",
+        ability="Drizzle",
+        item="Damp Rock",
+        moves=("Hurricane", "U-turn", "Weather Ball", "Protect"),
+        nature="Modest",
+        spread=(("hp", 4), ("spa", 252), ("spe", 252)),
+        ability_source_label="SV VGC writeup analog",
+    )
+    text = format_turn(
+        {
+            "provisional_slot": provisional,
+            "pending_presentation": {
+                "kind": "full_build_confirmation",
+                "slot_index": 0,
+                "provisional_fingerprint": "fp",
+            },
+        }
+    )
+    assert "Ability: Drizzle — SV VGC writeup analog" in text
+
+
+def test_writeup_ability_source_label_helpers():
+    from recommender.slot_fill import writeup_ability_source_label
+
+    assert (
+        writeup_ability_source_label(
+            "champions_native_writeup:champions/vgc-2026-regulation-m-b"
+        )
+        == "Champions VGC writeup"
+    )
+    assert (
+        writeup_ability_source_label(
+            "champions_native_writeup:champions/battle-stadium-singles"
+        )
+        == "Champions BSS writeup"
+    )
+    assert (
+        writeup_ability_source_label("analogous_format_writeup:sv/vgc")
+        == "SV VGC writeup analog"
+    )
+    assert (
+        writeup_ability_source_label(
+            "analogous_format_writeup:sv/battle-stadium-singles"
+        )
+        == "SV BSS writeup analog"
+    )
+    assert writeup_ability_source_label("usage") is None
+
+
 def test_full_build_confirmation_renders_review_flags():
     provisional = ProvisionalSlot(
         schema_version=1,
