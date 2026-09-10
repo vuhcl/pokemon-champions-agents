@@ -881,6 +881,10 @@ _NEW_TARGET_ROLES = {
     "sun_setter",
     "sand_setter",
     "snow_setter",
+    "electric_terrain_setter",
+    "grassy_terrain_setter",
+    "psychic_terrain_setter",
+    "misty_terrain_setter",
     "redirection",
     "swords_dance_attacker",
     "nasty_plot_attacker",
@@ -915,7 +919,7 @@ def test_reviewed_strategic_roles_cover_shipped_compendium_and_preserve_legacy()
     assert vocabulary == (
         _LEGACY_TARGET_ROLES | _NEW_TARGET_ROLES | _ARCHETYPE_TARGET_ROLES
     )
-    assert len(vocabulary) == 25
+    assert len(vocabulary) == 29
     assert set(REVIEWED_STRATEGIC_TARGET_ROLES.values()) == _NEW_TARGET_ROLES | {
         "trick_room_setter",
         "tailwind_setter",

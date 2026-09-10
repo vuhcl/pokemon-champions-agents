@@ -12,7 +12,7 @@ from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
 from recommender.legality import load_snapshot, species_can_have_ability
 from recommender.matchup import CHARGE_INSTANT_WEATHER
-from recommender.move_narrowing import WEATHER_SETTING_MOVES
+from recommender.move_narrowing import TERRAIN_SETTING_MOVES, WEATHER_SETTING_MOVES
 from recommender.recommend import infer_role, is_valid_spread
 from recommender.resolved_builds import get_resolved_build, get_writeup_ability
 from recommender.role_compendium_read import (
@@ -167,12 +167,12 @@ def _ability_for_target_role(species: str, role_id: str | None) -> str | None:
     """Return the sole legal ability that uniquely satisfies a setter role, else None."""
     if not role_id or not species:
         return None
-    wanted_weathers = {
-        weather
-        for weather, setter in _SETTER_ROLE.items()
+    wanted_conditions = {
+        condition
+        for condition, setter in _SETTER_ROLE.items()
         if setter == role_id
     }
-    if not wanted_weathers:
+    if not wanted_conditions:
         return None
     entry = (load_snapshot().get("species") or {}).get(to_id(species)) or {}
     matches: list[str] = []
@@ -184,10 +184,12 @@ def _ability_for_target_role(species: str, role_id: str | None) -> str | None:
         if not field:
             continue
         weather = field.get("weather")
-        if not weather:
-            continue
-        canonical = _canonical_weather(str(weather))
-        if canonical in wanted_weathers and to_id(name) != "deltastream":
+        terrain = field.get("terrain")
+        if weather:
+            canonical = _canonical_weather(str(weather))
+            if canonical in wanted_conditions and to_id(name) != "deltastream":
+                matches.append(name)
+        elif terrain and str(terrain) in wanted_conditions:
             matches.append(name)
     # Deduplicate by id while preserving first display name.
     by_id: dict[str, str] = {}
@@ -537,11 +539,15 @@ _WEATHER_CANONICAL = {
     "Snow": "Snow",
 }
 _SHAPE_WEATHERS = frozenset({"Rain", "Sun", "Sand", "Snow"})
+_SHAPE_TERRAINS = frozenset({"Electric", "Grassy", "Psychic"})
 _SETTER_ROLE = {
     "Rain": "rain_setter",
     "Sun": "sun_setter",
     "Sand": "sand_setter",
     "Snow": "snow_setter",
+    "Electric": "electric_terrain_setter",
+    "Grassy": "grassy_terrain_setter",
+    "Psychic": "psychic_terrain_setter",
 }
 
 
@@ -597,6 +603,7 @@ def _mechanisms(build: ResolvedAnchorBuild) -> list[MechanismEvidence]:
 
     field = ABILITY_TO_FIELD.get(ability)
     weather = field.get("weather") if field else None
+    terrain = field.get("terrain") if field else None
     if weather and ability != "deltastream" and ability_confidence is not None:
         canonical = _canonical_weather(str(weather))
         if canonical:
@@ -617,6 +624,30 @@ def _mechanisms(build: ResolvedAnchorBuild) -> list[MechanismEvidence]:
                     ability_confidence,
                 )
             )
+    elif (
+        terrain
+        and str(terrain) in _SHAPE_TERRAINS
+        and ability_confidence is not None
+    ):
+        # Misty / other non-live terrains stay out of _SHAPE_TERRAINS.
+        label = str(terrain)
+        out.append(
+            MechanismEvidence(
+                _display_name(ability_name or ability),
+                "automatic_condition_setting",
+                "provides",
+                "needed",
+                _SETTER_ROLE[label],
+                True,
+                False,
+                "automatic",
+                False,
+                ability_source,
+                "self_supplied",
+                (f"condition:{label}", f"ability:{ability}"),
+                ability_confidence,
+            )
+        )
 
     if ability == "stamina" and ability_confidence is not None:
         out.append(
@@ -668,6 +699,30 @@ def _mechanisms(build: ResolvedAnchorBuild) -> list[MechanismEvidence]:
                 build.source_for("moves"),
                 "self_supplied",
                 (f"condition:{canonical}", f"move:{move_id}"),
+                "high",
+            )
+        )
+
+    for move_id, terrain_label in TERRAIN_SETTING_MOVES.items():
+        if move_id not in move_ids:
+            continue
+        if terrain_label not in _SHAPE_TERRAINS:
+            continue
+        name = move_ids[move_id]
+        out.append(
+            MechanismEvidence(
+                name,
+                "manual_condition_setting",
+                "provides",
+                "wanted",
+                _SETTER_ROLE[terrain_label],
+                True,
+                False,
+                "move",
+                True,
+                build.source_for("moves"),
+                "self_supplied",
+                (f"condition:{terrain_label}", f"move:{move_id}"),
                 "high",
             )
         )

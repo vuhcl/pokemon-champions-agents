@@ -162,6 +162,31 @@ SNOW_SETTER_CRITERIA: dict[str, Any] = {
     "priority_abilities": frozenset({"prankster"}),
 }
 
+ELECTRIC_TERRAIN_SETTER_CRITERIA: dict[str, Any] = {
+    "kind": "terrain_setter",
+    "condition": "Electric",
+    "ability_ids": frozenset({"electricsurge", "hadronengine"}),
+    "move_id": "electricterrain",
+    "priority_abilities": frozenset({"prankster"}),
+}
+
+GRASSY_TERRAIN_SETTER_CRITERIA: dict[str, Any] = {
+    "kind": "terrain_setter",
+    "condition": "Grassy",
+    "ability_ids": frozenset({"grassysurge"}),
+    "ability_ids_good": frozenset({"seedsower"}),
+    "move_id": "grassyterrain",
+    "priority_abilities": frozenset({"prankster"}),
+}
+
+PSYCHIC_TERRAIN_SETTER_CRITERIA: dict[str, Any] = {
+    "kind": "terrain_setter",
+    "condition": "Psychic",
+    "ability_ids": frozenset({"psychicsurge"}),
+    "move_id": "psychicterrain",
+    "priority_abilities": frozenset({"prankster"}),
+}
+
 REDIRECTION_CRITERIA: dict[str, Any] = {
     "kind": "redirection",
     "condition": "",
@@ -836,6 +861,8 @@ def construct_role_category(
             reference_compendium=reference_compendium,
             calculate_batch=calculate_batch or _default_calculate_batch,
         )
+    if kind not in {"weather_setter", "terrain_setter"}:
+        raise ValueError(f"unknown role construction kind: {kind!r}")
     from recommender.role_compendium_weather import _construct_weather_setter
 
     return _construct_weather_setter(
@@ -1125,15 +1152,15 @@ def _function_fit_flags(
     criterion = trait.criterion
 
     field = ABILITY_TO_FIELD.get(tid)
-    if field and "weather" in field:
-        weather = str(field.get("weather") or "")
-        if criterion == "delivery" and condition and weather != condition:
+    if field:
+        sets = str(field.get("weather") or field.get("terrain") or "")
+        if criterion == "delivery" and condition and sets and sets != condition:
             out.append(
                 CritiqueFlag(
                     principle="function_fit",
                     candidates=(cand.species,),
                     detail=(
-                        f"{trait.name} sets {weather!r}, not condition {condition!r}"
+                        f"{trait.name} sets {sets!r}, not condition {condition!r}"
                     ),
                 )
             )

@@ -50,6 +50,13 @@ _WEATHER_MANUAL: dict[str, str] = {
     "chillyreception": "Snow",
 }
 WEATHER_SETTING_MOVES = _WEATHER_MANUAL
+_TERRAIN_MANUAL: dict[str, str] = {
+    "electricterrain": "Electric",
+    "grassyterrain": "Grassy",
+    "psychicterrain": "Psychic",
+    # Misty Terrain intentionally omitted — misty_terrain_setter is stub-only.
+}
+TERRAIN_SETTING_MOVES = _TERRAIN_MANUAL
 _HARD_REQUIRE_WEATHER: dict[str, str] = {
     "auroraveil": "Snow",
 }
@@ -115,6 +122,10 @@ _ROLE_PREF_MOVES: dict[str, list[str]] = {
     "sun_setter": ["sunnyday"],
     "sand_setter": ["sandstorm"],
     "snow_setter": ["snowscape", "chillyreception"],
+    "electric_terrain_setter": ["electricterrain"],
+    "grassy_terrain_setter": ["grassyterrain"],
+    "psychic_terrain_setter": ["psychicterrain"],
+    "misty_terrain_setter": ["mistyterrain"],
 }
 _ARCHETYPE_PREF_MOVES: dict[str, list[str]] = {
     "Rain": ["raindance"],

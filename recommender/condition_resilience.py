@@ -38,6 +38,9 @@ _SETTER_ROLE_FOR_CONDITION = {
     "Sun": "sun_setter",
     "Sand": "sand_setter",
     "Snow": "snow_setter",
+    "Electric": "electric_terrain_setter",
+    "Grassy": "grassy_terrain_setter",
+    "Psychic": "psychic_terrain_setter",
     "Trick Room": "trick_room_setter",
     "Tailwind": "tailwind_setter",
 }
@@ -46,6 +49,11 @@ _WEATHER_LABEL = {
     "Sun": "sun",
     "Sand": "sand",
     "Snow": "snow",
+}
+_TERRAIN_LABEL = {
+    "Electric": "electric",
+    "Grassy": "grassy",
+    "Psychic": "psychic",
 }
 
 __all__ = [
@@ -556,6 +564,8 @@ def team_field_states(
             seen.add(condition)
             if condition in _WEATHER_LABEL:
                 out.append({"weather": condition, "gameType": "Doubles"})  # type: ignore[typeddict-item]
+            elif condition in _TERRAIN_LABEL:
+                out.append({"terrain": condition, "gameType": "Doubles"})  # type: ignore[typeddict-item]
             elif condition == "Trick Room":
                 out.append({"isTrickRoom": True, "gameType": "Doubles"})  # type: ignore[typeddict-item]
             elif condition == "Tailwind":
@@ -760,6 +770,10 @@ def _condition_already_covered(
             labels = field_labels_from_trigger(need.trigger or "")
             if _WEATHER_LABEL[condition] in labels:
                 return True
+        if condition in _TERRAIN_LABEL and need.category == "condition_setter":
+            labels = field_labels_from_trigger(need.trigger or "")
+            if _TERRAIN_LABEL[condition] in labels:
+                return True
     return False
 
 
@@ -791,6 +805,20 @@ def gap_support_needs(
             continue
         if row.condition in _WEATHER_LABEL:
             label = _WEATHER_LABEL[row.condition]
+            out.append(
+                SupportNeed(
+                    category="condition_setter",
+                    name=f"{row.condition} setter",
+                    description=(
+                        f"Team {row.classification} {row.condition} plan has "
+                        f"provider gap ({row.gap})."
+                    ),
+                    trigger=f"field_condition:any:{label}",
+                    notes=f"condition_resilience:{row.gap}",
+                )
+            )
+        elif row.condition in _TERRAIN_LABEL:
+            label = _TERRAIN_LABEL[row.condition]
             out.append(
                 SupportNeed(
                     category="condition_setter",

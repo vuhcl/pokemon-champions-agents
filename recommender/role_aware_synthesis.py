@@ -9,6 +9,7 @@ from recommender.anchor_roles import FieldProvenance, ResolvedAnchorBuild, class
 from recommender.ids import to_id
 from recommender.legality import load_snapshot, resolve_learnset
 from recommender.move_narrowing import (
+    TERRAIN_SETTING_MOVES,
     WEATHER_SETTING_MOVES,
     _commitment_pct,
     validate_moveset_redundancy,
@@ -25,7 +26,16 @@ from recommender.usage_data import (
 )
 
 _SETTER_ROLES = frozenset(
-    {"rain_setter", "sun_setter", "sand_setter", "snow_setter"}
+    {
+        "rain_setter",
+        "sun_setter",
+        "sand_setter",
+        "snow_setter",
+        "electric_terrain_setter",
+        "grassy_terrain_setter",
+        "psychic_terrain_setter",
+        "misty_terrain_setter",
+    }
 )
 
 
@@ -118,7 +128,7 @@ def _assemble_moves_from_ranked(
     if role_id not in _SETTER_ROLES:
         fillers.sort(
             key=lambda m: (
-                to_id(m) in WEATHER_SETTING_MOVES,
+                to_id(m) in WEATHER_SETTING_MOVES or to_id(m) in TERRAIN_SETTING_MOVES,
                 *_sort_key(m)[1:],
             )
         )

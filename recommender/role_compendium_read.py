@@ -59,6 +59,8 @@ def load_prior_compendium(path: Path) -> dict[str, Any] | None:
 def _strategic_role_id(category: str, condition: str) -> str:
     if category == "weather_setter" and condition:
         return f"{to_id(condition)}_setter"
+    if category == "terrain_setter" and condition:
+        return f"{to_id(condition)}_terrain_setter"
     return category.strip().lower().replace("-", "_").replace(" ", "_")
 
 
