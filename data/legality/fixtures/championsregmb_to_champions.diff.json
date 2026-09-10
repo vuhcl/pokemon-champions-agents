@@ -1,0 +1,613 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "extracted_at": "2026-09-10T18:46:28.059Z",
+    "source_commit": "d849b220082e113d8a17303509fb44d420c543d5",
+    "from_mod": "championsregmb",
+    "to_mod": "champions"
+  },
+  "species": [
+    {
+      "id": "absolmegaz",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "arboliva",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "baxcalibur",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "baxcaliburmega",
+      "from": {
+        "is_nonstandard": "Future",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "cinderace",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "farfetchd",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "garchompmegaz",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "gogoat",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "golisopod",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "golisopodmega",
+      "from": {
+        "is_nonstandard": "Future",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "grapploct",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "indeedee",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "indeedeef",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "inteleon",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "lucariomegaz",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "mabosstiff",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "mrmime",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "pawmot",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "perrserker",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "persian",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "persianalola",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "pincurchin",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "rillaboom",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "salamence",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "salamencemega",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "sirfetchd",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "squawkabilly",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "squawkabillyblue",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": null
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "squawkabillywhite",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": null
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "squawkabillyyellow",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": null
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "swalot",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "thievul",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "toxtricity",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "toxtricitylowkey",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": null
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "wigglytuff",
+      "from": {
+        "is_nonstandard": "Past",
+        "tier": "Illegal"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "change": "became_legal"
+    }
+  ],
+  "items": [
+    {
+      "id": "absolitez",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "airballoon",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "baxcalibrite",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "bindingband",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "ejectbutton",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "electricseed",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "garchompitez",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "golisopite",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "grassyseed",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "leek",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "lucarionitez",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "mistyseed",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "normalgem",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "psychicseed",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "redcard",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "rockyhelmet",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "salamencite",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    },
+    {
+      "id": "terrainextender",
+      "from": {
+        "is_nonstandard": "Past"
+      },
+      "to": {
+        "is_nonstandard": null
+      },
+      "change": "became_legal"
+    }
+  ]
+}

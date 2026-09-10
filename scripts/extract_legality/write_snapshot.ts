@@ -33,7 +33,7 @@ const OUT_DIFF = path.join(
   "data",
   "legality",
   "fixtures",
-  "championsregma_to_champions.diff.json",
+  "championsregmb_to_champions.diff.json",
 );
 const OUT_IDENTIFIER_SKIPS = path.join(
   ROOT,
@@ -136,14 +136,14 @@ function main(): void {
     "data/mods/champions/items.ts",
     "Items",
   );
-  const regmaFormats = extractDataTable(
-    read(repo, "data/mods/championsregma/formats-data.ts"),
-    "data/mods/championsregma/formats-data.ts",
+  const regmbFormats = extractDataTable(
+    read(repo, "data/mods/championsregmb/formats-data.ts"),
+    "data/mods/championsregmb/formats-data.ts",
     "FormatsData",
   );
-  const regmaItems = extractDataTable(
-    read(repo, "data/mods/championsregma/items.ts"),
-    "data/mods/championsregma/items.ts",
+  const regmbItems = extractDataTable(
+    read(repo, "data/mods/championsregmb/items.ts"),
+    "data/mods/championsregmb/items.ts",
     "Items",
   );
   const flat_rules = extractFlatRules(
@@ -166,7 +166,7 @@ function main(): void {
 
   const species = joinSpecies(championsFormats, pokedex);
   const items = mergeItems(baseItems, [championsItems]);
-  const itemsRegma = mergeItems(baseItems, [championsItems, regmaItems]);
+  const itemsRegmb = mergeItems(baseItems, [championsItems, regmbItems]);
   const moves = mergeMoves(baseMoves, [championsMoves]);
   const learnsets = extractLearnsets(championsLearnsets);
   const aliases = extractDataTable(
@@ -195,14 +195,14 @@ function main(): void {
     species_aliases,
   };
 
-  const speciesDiff = diffSpeciesTables(regmaFormats, championsFormats);
-  const itemDiff = diffItemMaps(itemsRegma, items);
+  const speciesDiff = diffSpeciesTables(regmbFormats, championsFormats);
+  const itemDiff = diffItemMaps(itemsRegmb, items);
   const diff = {
     meta: {
       schema_version: 1 as const,
       extracted_at,
       source_commit: commit,
-      from_mod: "championsregma",
+      from_mod: "championsregmb",
       to_mod: "champions",
     },
     species: speciesDiff,
@@ -210,7 +210,7 @@ function main(): void {
   };
 
   if (speciesDiff.length < 1) {
-    throw new Error("expected non-empty species diff (championsregma → champions)");
+    throw new Error("expected non-empty species diff (championsregmb → champions)");
   }
 
   fs.mkdirSync(path.dirname(OUT_SNAPSHOT), { recursive: true });

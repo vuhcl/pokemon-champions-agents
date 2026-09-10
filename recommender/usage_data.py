@@ -11,7 +11,7 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any, Literal, NotRequired, TypedDict
 
-from recommender.ids import regulation_file_tag, to_id
+from recommender.ids import regulation_file_tag, regulation_lookup_chain, to_id
 from recommender.legality import load_snapshot as load_legality_snapshot
 from recommender.usage_ingame_sanity import ingame_monotonic_tail_corrupt
 from recommender.species_forms import ingame_excluded_species_ids, item_mega_forme
@@ -50,11 +50,19 @@ class SetMatchEntry(TypedDict):
 SetMatchResult = list[SetMatchEntry]
 
 
+def _archived_data_path(regulation: str, filename: str, *, root: Path) -> Path | None:
+    """First existing {tag}-styled file along regulation_lookup_chain (newest → older)."""
+    for tag in regulation_lookup_chain(regulation):
+        path = root / filename.format(tag=tag)
+        if path.exists():
+            return path
+    return None
+
+
 @lru_cache(maxsize=4)
 def load_usage(regulation: str = "champions-reg-mb") -> dict[str, Any]:
-    tag = regulation_file_tag(regulation)
-    path = USAGE_DIR / f"{tag}.v1.json"
-    if not path.exists():
+    path = _archived_data_path(regulation, "{tag}.v1.json", root=USAGE_DIR)
+    if path is None:
         return {"meta": {}, "species": {}, "ingame_doubles": {"species": {}}, "showdown_vgc_mb": {"species": {}}}
     return json.loads(path.read_text())
 
@@ -696,9 +704,10 @@ def find_set_matching(
 
 @lru_cache(maxsize=4)
 def load_vgcpastes_builds(regulation: str = "champions-reg-mb") -> dict[str, Any]:
-    tag = regulation_file_tag(regulation)
-    path = TEAM_COMP_DIR / f"{tag}.vgcpastes-builds.v1.json"
-    if not path.exists():
+    path = _archived_data_path(
+        regulation, "{tag}.vgcpastes-builds.v1.json", root=TEAM_COMP_DIR
+    )
+    if path is None:
         return {"meta": {}, "teams": [], "cores": []}
     return json.loads(path.read_text())
 

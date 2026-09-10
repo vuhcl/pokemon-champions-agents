@@ -9,7 +9,7 @@ from uuid import uuid4
 from recommender.nodes import team_phase
 from recommender.state import all_locked
 
-DEFAULT_FORMAT_ID = "[Gen 9 Champions] VGC 2026 Reg M-B"
+DEFAULT_FORMAT_ID = "[Gen 9 Champions] VGC 2026 Reg M-C"
 
 
 def mint_thread_id() -> str:

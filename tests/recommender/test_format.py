@@ -2,23 +2,41 @@ import pytest
 
 from recommender.format import resolve_format
 
+VGC_MC = "[Gen 9 Champions] VGC 2026 Reg M-C"
+BSS_MC = "[Gen 9 Champions] BSS Reg M-C"
 VGC_MB = "[Gen 9 Champions] VGC 2026 Reg M-B"
 BSS_MB = "[Gen 9 Champions] BSS Reg M-B"
 VGC_MA = "[Gen 9 Champions] VGC 2026 Reg M-A"
 
 
-def test_vgc_mb():
-    assert resolve_format(VGC_MB) == {
+def test_vgc_mc_current():
+    assert resolve_format(VGC_MC) == {
         "game_type": "doubles",
         "regulation_mod": "champions",
         "picked_team_size": 4,
     }
 
 
-def test_bss_mb():
-    assert resolve_format(BSS_MB) == {
+def test_bss_mc_current():
+    assert resolve_format(BSS_MC) == {
         "game_type": "singles",
         "regulation_mod": "champions",
+        "picked_team_size": 3,
+    }
+
+
+def test_vgc_mb_archived():
+    assert resolve_format(VGC_MB) == {
+        "game_type": "doubles",
+        "regulation_mod": "championsregmb",
+        "picked_team_size": 4,
+    }
+
+
+def test_bss_mb_archived():
+    assert resolve_format(BSS_MB) == {
+        "game_type": "singles",
+        "regulation_mod": "championsregmb",
         "picked_team_size": 3,
     }
 
@@ -29,6 +47,7 @@ def test_vgc_ma_prior_mod():
 
 def test_short_champions_prefix():
     assert resolve_format("[Champions] VGC 2026 Reg M-B")["picked_team_size"] == 4
+    assert resolve_format("[Champions] VGC 2026 Reg M-B")["regulation_mod"] == "championsregmb"
 
 
 def test_non_champions_raises():

@@ -17,6 +17,13 @@ const DIFF = path.join(
   "data",
   "legality",
   "fixtures",
+  "championsregmb_to_champions.diff.json",
+);
+const DIFF_HISTORICAL_MA = path.join(
+  ROOT,
+  "data",
+  "legality",
+  "fixtures",
   "championsregma_to_champions.diff.json",
 );
 
@@ -57,9 +64,70 @@ type Snapshot = {
 
 type DiffFixture = {
   meta: { schema_version: number; from_mod: string; to_mod: string };
-  species: { id: string }[];
-  items: { id: string }[];
+  species: { id: string; change?: string }[];
+  items: { id: string; change?: string }[];
 };
+
+/** Discovery 2026-09-10: M-B → M-C species unbans (became_legal). */
+const MC_SPECIES_BECAME_LEGAL = new Set([
+  "absolmegaz",
+  "arboliva",
+  "baxcalibur",
+  "baxcaliburmega",
+  "cinderace",
+  "farfetchd",
+  "garchompmegaz",
+  "gogoat",
+  "golisopod",
+  "golisopodmega",
+  "grapploct",
+  "indeedee",
+  "indeedeef",
+  "inteleon",
+  "lucariomegaz",
+  "mabosstiff",
+  "mrmime",
+  "pawmot",
+  "perrserker",
+  "persian",
+  "persianalola",
+  "pincurchin",
+  "rillaboom",
+  "salamence",
+  "salamencemega",
+  "sirfetchd",
+  "squawkabilly",
+  "squawkabillyblue",
+  "squawkabillywhite",
+  "squawkabillyyellow",
+  "swalot",
+  "thievul",
+  "toxtricity",
+  "toxtricitylowkey",
+  "wigglytuff",
+]);
+
+/** Discovery 2026-09-10: 7 explicit null + 11 deleted→base-legal item unbans. */
+const MC_ITEMS_BECAME_LEGAL = new Set([
+  "absolitez",
+  "baxcalibrite",
+  "garchompitez",
+  "golisopite",
+  "leek",
+  "lucarionitez",
+  "salamencite",
+  "airballoon",
+  "bindingband",
+  "ejectbutton",
+  "electricseed",
+  "grassyseed",
+  "mistyseed",
+  "psychicseed",
+  "normalgem",
+  "redcard",
+  "rockyhelmet",
+  "terrainextender",
+]);
 
 describe("toId / effective_tags / merge", () => {
   it("toId strips non-alphanumeric", () => {
@@ -266,22 +334,38 @@ describe("committed champions.v1.json", () => {
     assert.equal("swampertmega" in (snap.learnsets || {}), false);
     assert.ok(
       snap.learnsets!.swampert?.includes("wavecrash"),
-      "Swampert (base) must learn Wave Crash (Reg M-B)",
+      "Swampert (base) must learn Wave Crash",
     );
   });
 });
 
-describe("committed championsregma→champions diff fixture", () => {
-  it("is non-empty and ids exist in snapshot", () => {
+describe("committed championsregmb→champions diff fixture", () => {
+  it("matches discovery M-B→M-C became_legal counts and ids exist in snapshot", () => {
     assert.ok(fs.existsSync(DIFF), `missing ${DIFF}`);
     const snap = JSON.parse(fs.readFileSync(SNAPSHOT, "utf8")) as Snapshot;
     const diff = JSON.parse(fs.readFileSync(DIFF, "utf8")) as DiffFixture;
 
     assert.equal(diff.meta.schema_version, 1);
-    assert.equal(diff.meta.from_mod, "championsregma");
+    assert.equal(diff.meta.from_mod, "championsregmb");
     assert.equal(diff.meta.to_mod, "champions");
-    assert.ok(diff.species.length >= 1);
-    assert.ok(Array.isArray(diff.items));
+
+    const speciesLegal = diff.species.filter((e) => e.change === "became_legal");
+    const itemLegal = diff.items.filter((e) => e.change === "became_legal");
+    assert.equal(
+      speciesLegal.length,
+      35,
+      `species became_legal=${speciesLegal.length} ids=${speciesLegal.map((e) => e.id).join(",")}`,
+    );
+    assert.equal(
+      itemLegal.length,
+      MC_ITEMS_BECAME_LEGAL.size,
+      `items became_legal=${itemLegal.length} ids=${itemLegal.map((e) => e.id).join(",")}`,
+    );
+    assert.deepEqual(
+      new Set(speciesLegal.map((e) => e.id)),
+      MC_SPECIES_BECAME_LEGAL,
+    );
+    assert.deepEqual(new Set(itemLegal.map((e) => e.id)), MC_ITEMS_BECAME_LEGAL);
 
     for (const e of diff.species) {
       assert.ok(e.id in snap.species, `diff species id missing from snapshot: ${e.id}`);
@@ -289,5 +373,17 @@ describe("committed championsregma→champions diff fixture", () => {
     for (const e of diff.items) {
       assert.ok(e.id in snap.items, `diff item id missing from snapshot: ${e.id}`);
     }
+  });
+});
+
+describe("historical championsregma→champions diff fixture", () => {
+  it("is preserved static (not regenerated from live Showdown)", () => {
+    assert.ok(fs.existsSync(DIFF_HISTORICAL_MA), `missing ${DIFF_HISTORICAL_MA}`);
+    const diff = JSON.parse(fs.readFileSync(DIFF_HISTORICAL_MA, "utf8")) as DiffFixture;
+    assert.equal(diff.meta.schema_version, 1);
+    assert.equal(diff.meta.from_mod, "championsregma");
+    assert.equal(diff.meta.to_mod, "champions");
+    assert.ok(diff.species.length >= 1);
+    assert.ok(Array.isArray(diff.items));
   });
 });

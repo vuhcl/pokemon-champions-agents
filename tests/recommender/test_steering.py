@@ -166,7 +166,7 @@ def test_completion_preference_schema_v2_updates_state_key():
 def test_first_turn_initializes():
     result = _seed_first_turn(_graph(), "first")
     assert result["game_type"] == "doubles"
-    assert result["regulation_mod"] == "champions"
+    assert result["regulation_mod"] == "championsregmb"
     assert result["picked_team_size"] == 4
     assert len(result["team_draft"]) == 6
     assert all(isinstance(s, Slot) for s in result["team_draft"])
