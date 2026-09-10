@@ -2653,6 +2653,60 @@ the design conclusion stands, the gap it describes no longer exists in the codeb
 
 ---
 
+## ADR-016 Amendment 2026-09-10a — Archive-chain fallback extended to
+load_usage, load_vgcpastes_builds, and live MunchStats lookup
+
+**Decision:** `regulation_lookup_chain`'s "walk newest-to-oldest until a
+match exists" pattern, previously used only by resolved-build caching,
+now also backs `load_usage`, `load_vgcpastes_builds` (recommender/usage_data.py),
+and live MunchStats resolution (`recommender/usage_live.py`). Each falls
+back to the newest archived regulation with real data when the current
+regulation's tagged file/entry doesn't exist yet.
+
+**Why:** Reg M-C went live in Showdown (2026-09-10, confirmed against
+commit `d849b22`) with a real banlist delta (35 species unbans, 18 item
+unbans — confirmed independently against live Showdown source, not just
+asserted). Legality and format identity needed to honestly say M-C
+immediately (a stale label + updated legal pool is an inconsistent,
+unsafe state — see the safety gate below), but usage data (Showdown
+chaos/CBD/pikalytics snapshots) necessarily lags real play and cannot be
+manufactured. Without this fallback, retargeting `_MOD_TO_TAG["champions"]`
+to `"champions-reg-mc"` would have made every usage-driven consumer
+silently return empty data the moment identity flipped, degrading the
+recommender broadly rather than narrowly (newly-legal species simply
+having thin discoverability, which is expected and self-correcting once
+real usage data lands).
+
+**Safety gate enforced:** legality re-extraction and identity retargeting
+(`DEFAULT_FORMAT_ID`, `format.py`, `ids.py`) landed together in one PR,
+never split — an updated legal pool with stale M-B identity labels was
+identified as actively unsafe, not just incomplete, since the two would
+contradict each other about what regulation is actually current.
+
+**Explicitly preserved, not touched:** the existing usage-data bridges
+(`slot_fill.py`/`move_narrowing.py`'s champions→mb alias,
+`role_compendium_setup_constants.py`'s pikalytics path, `by_usage.py`'s
+module-level regulation, `recommend.py`'s usage-snapshot hardcode) and
+all mb-tagged data files. `scripts/eval/harness.py`'s `VGC_MB` constant
+stays pinned to M-B, since it exists for reproducibility of already-
+verified eval baselines (the species-fact-grounding arc, ADR-060),
+independent of what regulation is currently live.
+
+**Verified independently:** re-extracted legality data spot-checked
+directly against four of the confirmed species deltas (Baxcalibur,
+Cinderace, Salamence, Mr. Mime — all `is_nonstandard: None, tier: OU`
+post-migration); diff fixture confirmed as real content (35 species / 18
+items matching the pre-migration discovery exactly, not just matching
+counts); the M-A historical fixture confirmed preserved as a static,
+non-regenerating artifact; a dedicated test asserts `load_usage`/
+`load_vgcpastes_builds` under `"champions-reg-mc"` return byte-identical
+data sizes to `"champions-reg-mb"` via the fallback — the actual,
+checkable form of "partial migration is safe," not an assumption.
+
+**Status:** Shipped, `feat/reg-mc-legality-identity`.
+
+---
+
 ## ADR-017: RecommenderState extensions — team theme/core, granular locking, constraint scope
 
 **Team theme/core.** `RecommenderState` gains two related concepts, populated by a detection

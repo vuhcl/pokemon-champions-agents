@@ -5567,6 +5567,64 @@ than reflexively agreeing when challenged.
 
 Merged: `docs/v1-0-0-readme` (#189), `docs/cli-session-1-0-0` (#190).
 
+### 2026-09-10 — Reg M-C legality migration: discovery through shipped fix
+
+Confirmed live (direct check against `smogon/pokemon-showdown` @ `d849b22`,
+not just the fact of a regulation change): `mod: 'champions'` now maps to
+"[Gen 9 Champions] VGC 2026 Reg M-C"; the old M-B ruleset archived under a
+new `championsregmb` mod (`searchShow: false`); `championsregma` (the M-A
+archive) removed from Showdown entirely. Real banlist delta: 35 species
+unbans (0 bans), ~18 item unbans, an Archaludon learnset change, and a
+Strength Sap/Wish PP difference — not new banlist logic, the same
+`isNonstandard`/tier mechanism already handled, just against a new prior
+mod. Extraction was confirmed actively broken (not just stale) — it
+hardcoded the now-nonexistent `championsregma` path.
+
+Migrated in one PR (extraction + identity retargeted together, per the
+explicit safety gate: an updated legal pool with stale M-B identity labels
+would be an actively inconsistent state, not merely incomplete). Usage
+data deliberately kept on M-B tags — the archive-chain fallback pattern
+already established for resolved-build caching (ADR-016) was extended to
+`load_usage`, `load_vgcpastes_builds`, and live MunchStats lookup (see
+ADR-016 Amendment 2026-09-10a) so identity honestly says M-C while usage
+gracefully falls back to the most recent real data.
+
+A parallel investigation (candidate-enumeration discovery) found this
+project's discovery model is full-legal-pool-then-usage-ranked, not
+usage-driven enumeration — meaning the 35 newly-legal species are
+technically present in discovery pools immediately, but practically
+invisible in ordinary top-N discovery until real usage data exists (soft
+exclusion via rank, not a hard gate). Confirmed separately: a genuine,
+pre-existing gap in ADR-015 Amendment 2026-08-09a's tier-3 last-resort
+synthesis — roughly ~210 of ~314 currently-legal species have ambiguous
+(multi-)ability status, and a zero-usage species with ambiguous ability
+does not auto-complete even when explicitly locked by name (resolves to
+`UnresolvedSlotRefinement` instead). This predates M-C and isn't new
+fallout from this migration — M-C's unbans just make it newly relevant
+for a fresh batch of species. Tracked as its own item, not folded into
+this migration.
+
+Verified independently, not just taken on the PR's own claims: four
+species deltas spot-checked directly in the re-extracted snapshot; the
+diff fixture's actual content (not just counts) confirmed against
+discovery's findings; the M-A historical fixture confirmed genuinely
+static; the partial-migration safety claim confirmed via a real test
+asserting data-size equality through the fallback path, not assumed.
+Full suite clean both sides (Python: same 3 pre-existing calc-unavailable
+sandbox failures seen throughout every verification in this project;
+npm: 53/53 clean).
+
+Sequenced next: (1) close the ambiguous-ability synthesis discovery
+already in flight — independent of M-C, a project-wide gap; (2) Role
+Compendium refresh against the new M-C legal pool, combined with
+evaluating whether any of the 35 newly-legal species justify a genuinely
+new archetype/`TargetRoleId` (informing Tier 2 direction-vocab with real
+candidates rather than the original speculative list); (3) Tier 2
+direction-vocab expansion itself, deliberately last since it depends on
+(2)'s findings.
+
+Merged: `feat/reg-mc-legality-identity`.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
