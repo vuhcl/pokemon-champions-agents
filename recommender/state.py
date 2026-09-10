@@ -469,6 +469,7 @@ class ProvisionalSlot:
     spread: tuple[tuple[str, int], ...]
     base_slot_fingerprint: str = ""
     fingerprint: str = ""
+    ability_source_label: str | None = None
 
     @property
     def role(self) -> TargetRoleId:

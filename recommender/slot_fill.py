@@ -1860,6 +1860,25 @@ def run_slot_fill_terminal(
     )
 
 
+def writeup_ability_source_label(reason_ref: str | None) -> str | None:
+    """Human label for main-build disclosure from ability ReasonRef.ref."""
+    if not reason_ref or ":" not in reason_ref:
+        return None
+    tier, _, fmt = reason_ref.partition(":")
+    if tier not in ("champions_native_writeup", "analogous_format_writeup"):
+        return None
+    rest = fmt.split("/", 1)[-1] if fmt else ""
+    if rest.startswith("vgc"):
+        family = "VGC"
+    elif rest == "battle-stadium-singles" or rest.startswith("battle-stadium-singles"):
+        family = "BSS"
+    else:
+        return None
+    if tier == "champions_native_writeup":
+        return f"Champions {family} writeup"
+    return f"SV {family} writeup analog"
+
+
 def _provisional_from_refined(
     *,
     intent: PendingSlotIntent,
@@ -1904,6 +1923,7 @@ def _provisional_from_refined(
     fingerprint = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
+    ab_ref = refined.ability.reason.ref if refined.ability.reason else None
     return ProvisionalSlot(
         schema_version=1,
         slot_index=intent.slot_index,
@@ -1919,6 +1939,9 @@ def _provisional_from_refined(
         ),
         base_slot_fingerprint=intent.base_slot_fingerprint,
         fingerprint=fingerprint,
+        ability_source_label=writeup_ability_source_label(
+            ab_ref if isinstance(ab_ref, str) else None
+        ),
     )
 
 

@@ -125,9 +125,13 @@ def _format_build_fields(
     nature: object,
     moves: Sequence[object],
     spread: object,
+    ability_source_label: str | None = None,
 ) -> list[str]:
+    ability_line = f"  Ability: {ability}"
+    if ability_source_label:
+        ability_line = f"{ability_line} — {ability_source_label}"
     return [
-        f"  Ability: {ability}",
+        ability_line,
         f"  Item: {item}",
         f"  Nature: {nature}",
         f"  Moves: {', '.join(str(m) for m in moves)}",
@@ -602,6 +606,7 @@ def _format_full_build(state: Mapping[str, Any]) -> list[str]:
         nature = provisional.nature
         moves = provisional.moves
         spread = provisional.spread_dict()
+        ability_source_label = provisional.ability_source_label
     else:
         species = provisional.get("species")
         decision = provisional.get("target_role_decision") or {}
@@ -613,6 +618,7 @@ def _format_full_build(state: Mapping[str, Any]) -> list[str]:
         nature = provisional.get("nature")
         moves = provisional.get("moves") or ()
         spread = dict(provisional.get("spread") or ())
+        ability_source_label = provisional.get("ability_source_label")
     lines.append(f"Proposed build for {species} ({role}):")
     lines.extend(
         _format_build_fields(
@@ -621,6 +627,9 @@ def _format_full_build(state: Mapping[str, Any]) -> list[str]:
             nature=nature,
             moves=moves,
             spread=spread,
+            ability_source_label=ability_source_label
+            if isinstance(ability_source_label, str)
+            else None,
         )
     )
     for flag in pending.get("review_flags") or ():
