@@ -844,3 +844,46 @@ def test_direction_phrase_examples_come_from_registry():
     # One example per distinct role_id.
     roles = {role for _, role in _DIRECTION_PHRASES}
     assert len(asserted) == len(roles)
+
+
+@pytest.mark.parametrize(
+    "species,role_id",
+    [
+        ("Baxcalibur", "standard_physical_attacker"),
+        ("Pawmot", "fast_physical_attacker"),
+        ("Baxcalibur-Mega", "standard_physical_attacker"),
+    ],
+)
+def test_writeup_kit_bootstrap_resolves_zero_usage_anchors(species, role_id):
+    from recommender.ids import to_id
+    from recommender.slot_fill import build_provisional_slot
+    from recommender.state import PendingSlotIntent, UnresolvedSlotRefinement, slot_fingerprint
+
+    state = _record(
+        _state(),
+        _payload(anchor=species, pool=(), delegated=False),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.clarification is None
+    assert discovery.candidates[0].species == species
+    assert discovery.candidates[0].strategic_role_id == role_id
+    provisional = build_provisional_slot(
+        PendingSlotIntent(
+            schema_version=1,
+            slot_index=0,
+            species=species,
+            target_role_decision=discovery.candidates[0].target_role_decision,
+            source="bootstrap",
+            evidence=discovery.candidates[0].evidence,
+            base_slot_fingerprint=slot_fingerprint(state["team_draft"][0]),
+        ),
+        state,
+    )
+    assert not isinstance(provisional, UnresolvedSlotRefinement)
+    assert to_id(provisional.item) != "loadeddice"
+    assert len(provisional.moves) == 4
+    assert provisional.ability_source_label
+    if species == "Baxcalibur-Mega":
+        assert "base Baxcalibur" in provisional.ability_source_label
+    else:
+        assert "writeup" in provisional.ability_source_label.lower()

@@ -522,6 +522,12 @@ def test_writeup_ability_source_label_helpers():
     )
     assert (
         writeup_ability_source_label(
+            "analogous_format_writeup:sv/vgc|proxy:Baxcalibur"
+        )
+        == "SV VGC writeup analog (base Baxcalibur)"
+    )
+    assert (
+        writeup_ability_source_label(
             "analogous_format_writeup:sv/battle-stadium-singles"
         )
         == "SV BSS writeup analog"

@@ -10,11 +10,15 @@ from typing import Any, Literal
 from recommender.contingent_value import REDIRECT_MOVES
 from recommender.coverage import ABILITY_TO_FIELD
 from recommender.ids import to_id
-from recommender.legality import load_snapshot, species_can_have_ability
+from recommender.legality import is_item_legal, load_snapshot, species_can_have_ability
 from recommender.matchup import CHARGE_INSTANT_WEATHER
 from recommender.move_narrowing import TERRAIN_SETTING_MOVES, WEATHER_SETTING_MOVES
 from recommender.recommend import infer_role, is_valid_spread
-from recommender.resolved_builds import get_resolved_build, get_writeup_ability
+from recommender.resolved_builds import (
+    get_resolved_build,
+    get_writeup_ability,
+    get_writeup_kit,
+)
 from recommender.role_compendium_read import (
     CompendiumRoleEvidence,
     ReverseCompendiumEvidence,
@@ -442,19 +446,56 @@ def resolve_anchor_build(
         if ability:
             values["ability"] = ability
             provenance["ability"] = FieldProvenance("ability", "legality_only")
-        else:
-            hit = get_writeup_ability(species, regulation)
-            if hit and species_can_have_ability(
-                load_snapshot(), species, hit["ability"]
+
+    if species and (
+        not values["moves"]
+        or values["ability"] is None
+        or values["item"] is None
+        or values["evs"] is None
+    ):
+        kit = get_writeup_kit(species, regulation)
+        if kit:
+            snap = load_snapshot()
+            tier = kit["source_tier"]
+            source: FieldSource = (
+                "champions_native_writeup"
+                if tier == "champions_native_writeup"
+                else "analogous_format_writeup"
+            )
+            if not values["moves"] and kit["moves"]:
+                moves_map = snap.get("moves") or {}
+                values["moves"] = [
+                    str((moves_map.get(to_id(m)) or {}).get("name") or m)
+                    for m in kit["moves"]
+                ]
+                provenance["moves"] = FieldProvenance("moves", source)
+            if values["ability"] is None and kit.get("ability"):
+                if species_can_have_ability(snap, species, kit["ability"]):
+                    values["ability"] = kit["ability"]
+                    provenance["ability"] = FieldProvenance("ability", source)
+            if values["item"] is None and kit.get("item"):
+                if is_item_legal(snap, kit["item"]):
+                    values["item"] = kit["item"]
+                    provenance["item"] = FieldProvenance("item", source)
+            if values["evs"] is None and kit.get("spread") and is_valid_spread(
+                kit["spread"]
             ):
-                tier = hit["source_tier"]
-                source: FieldSource = (
-                    "champions_native_writeup"
-                    if tier == "champions_native_writeup"
-                    else "analogous_format_writeup"
-                )
-                values["ability"] = hit["ability"]
-                provenance["ability"] = FieldProvenance("ability", source)
+                values["evs"] = dict(kit["spread"])
+                provenance["evs"] = FieldProvenance("evs", source)
+
+    if species and values["ability"] is None:
+        hit = get_writeup_ability(species, regulation)
+        if hit and species_can_have_ability(
+            load_snapshot(), species, hit["ability"]
+        ):
+            tier = hit["source_tier"]
+            source = (
+                "champions_native_writeup"
+                if tier == "champions_native_writeup"
+                else "analogous_format_writeup"
+            )
+            values["ability"] = hit["ability"]
+            provenance["ability"] = FieldProvenance("ability", source)
 
     normalized = {
         **values,

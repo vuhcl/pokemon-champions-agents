@@ -58,6 +58,27 @@ class WriteupAbilityHit(TypedDict):
     ability_pick_policy: str
 
 
+class WriteupKitHit(TypedDict):
+    moves: list[str]
+    ability: str | None
+    item: str | None
+    spread: dict[str, int] | None
+    nature: str | None
+    source_tier: str
+    source_format: str
+    ability_candidates: list[str]
+    ability_pick_index: int
+    ability_pick_policy: str
+    proxy_from: str | None
+
+
+# Hard-coded only: Mega kit rows absent; base Bax writeup is a sound physical kit.
+# Do not generalize — Garchomp-Mega-Z ← Garchomp is unsound (SpA>Atk, Levitate-only).
+_WRITEUP_KIT_SPECIES_PROXY: dict[str, str] = {
+    "baxcaliburmega": "Baxcalibur",
+}
+
+
 def _key(species: str, moves: list[str], item: str) -> tuple[str, tuple[str, ...], str]:
     return (to_id(species), tuple(sorted(to_id(m) for m in moves)), to_id(item))
 
@@ -78,6 +99,90 @@ def _writeup_ability_rank(source_format: str) -> int:
     return 5
 
 
+def _select_writeup_row(
+    species: str,
+    regulation: str,
+    *,
+    root: Path = DEFAULT_DIR,
+    require_ability: bool = False,
+    require_moves: bool = False,
+) -> dict[str, Any] | None:
+    """Rank writeup cache rows for a species (shared by ability + kit lookups)."""
+    want = to_id(species)
+    best: dict[str, Any] | None = None
+    best_rank = 99
+    best_thin = True
+    for tag in regulation_lookup_chain(regulation):
+        for row in _load(root / f"{tag}.jsonl"):
+            if to_id(row.get("species") or "") != want:
+                continue
+            ability = row.get("ability")
+            moves = [str(m) for m in (row.get("moves") or []) if m]
+            if require_ability and not ability:
+                continue
+            if require_moves and not moves:
+                continue
+            sf = str(row.get("source_format") or "")
+            rank = _writeup_ability_rank(sf)
+            thin = len(str(row.get("rationale") or "").strip()) < 80
+            if best is None or rank < best_rank or (
+                rank == best_rank and best_thin and not thin
+            ):
+                best_rank = rank
+                best_thin = thin
+                best = row
+            if rank == 0 and not thin:
+                return best
+    return best
+
+
+def _kit_from_row(row: dict[str, Any], *, proxy_from: str | None) -> WriteupKitHit:
+    ability = row.get("ability")
+    item = row.get("item")
+    nature = row.get("nature")
+    raw_spread = row.get("spread")
+    spread = (
+        {str(k): int(v) for k, v in raw_spread.items()}
+        if isinstance(raw_spread, dict)
+        else None
+    )
+    cands = list(row.get("ability_candidates") or ([ability] if ability else []))
+    return {
+        "moves": [str(m) for m in (row.get("moves") or []) if m],
+        "ability": str(ability) if ability else None,
+        "item": str(item) if item else None,
+        "spread": spread,
+        "nature": str(nature) if nature else None,
+        "source_tier": str(row.get("source_tier") or ""),
+        "source_format": str(row.get("source_format") or ""),
+        "ability_candidates": [str(c) for c in cands],
+        "ability_pick_index": int(row.get("ability_pick_index") or 0),
+        "ability_pick_policy": str(row.get("ability_pick_policy") or "first_listed"),
+        "proxy_from": proxy_from,
+    }
+
+
+def get_writeup_kit(
+    species: str,
+    regulation: str,
+    *,
+    root: Path = DEFAULT_DIR,
+) -> WriteupKitHit | None:
+    """Species-scoped writeup kit (moves required). Optional Baxcalibur-Mega→base proxy."""
+    row = _select_writeup_row(
+        species, regulation, root=root, require_moves=True
+    )
+    if row is not None:
+        return _kit_from_row(row, proxy_from=None)
+    proxy = _WRITEUP_KIT_SPECIES_PROXY.get(to_id(species))
+    if not proxy:
+        return None
+    base = _select_writeup_row(proxy, regulation, root=root, require_moves=True)
+    if base is None:
+        return None
+    return _kit_from_row(base, proxy_from=proxy)
+
+
 def get_writeup_ability(
     species: str,
     regulation: str,
@@ -90,40 +195,34 @@ def get_writeup_ability(
     champions/battle-stadium-singles → sv/battle-stadium-singles → other.
     Tie-break: prefer non-thin rationale if present, else first seen.
     """
-    want = to_id(species)
-    best: WriteupAbilityHit | None = None
-    best_rank = 99
-    best_thin = True
-    for tag in regulation_lookup_chain(regulation):
-        for row in _load(root / f"{tag}.jsonl"):
-            if to_id(row.get("species") or "") != want:
-                continue
-            ability = row.get("ability")
-            if not ability:
-                continue
-            sf = str(row.get("source_format") or "")
-            rank = _writeup_ability_rank(sf)
-            thin = len(str(row.get("rationale") or "").strip()) < 80
-            if best is None or rank < best_rank or (
-                rank == best_rank and best_thin and not thin
-            ):
-                best_rank = rank
-                best_thin = thin
-                cands = list(row.get("ability_candidates") or [ability])
-                pick_i = int(row.get("ability_pick_index") or 0)
-                best = {
-                    "ability": str(ability),
-                    "source_tier": str(row.get("source_tier") or ""),
-                    "source_format": sf,
-                    "ability_candidates": [str(c) for c in cands],
-                    "ability_pick_index": pick_i,
-                    "ability_pick_policy": str(
-                        row.get("ability_pick_policy") or "first_listed"
-                    ),
-                }
-            if rank == 0 and not thin:
-                return best
-    return best
+    row = _select_writeup_row(
+        species, regulation, root=root, require_ability=True
+    )
+    if row is None:
+        return None
+    ability = row.get("ability")
+    if not ability:
+        return None
+    cands = list(row.get("ability_candidates") or [ability])
+    return {
+        "ability": str(ability),
+        "source_tier": str(row.get("source_tier") or ""),
+        "source_format": str(row.get("source_format") or ""),
+        "ability_candidates": [str(c) for c in cands],
+        "ability_pick_index": int(row.get("ability_pick_index") or 0),
+        "ability_pick_policy": str(
+            row.get("ability_pick_policy") or "first_listed"
+        ),
+    }
+
+
+def writeup_reason_ref(kit: WriteupKitHit | WriteupAbilityHit) -> str:
+    """ReasonRef.ref for writeup-sourced fields; optional |proxy:Species suffix."""
+    ref = f"{kit['source_tier']}:{kit['source_format']}"
+    proxy = kit.get("proxy_from") if isinstance(kit, dict) else None
+    if proxy:
+        return f"{ref}|proxy:{proxy}"
+    return ref
 
 
 def _path(regulation: str, *, root: Path = DEFAULT_DIR) -> Path:
