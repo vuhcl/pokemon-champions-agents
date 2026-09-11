@@ -521,6 +521,37 @@ def test_unmappable_direction_reprompts_without_coarse_default():
     assert not result["pending_presentation"].get("options")
 
 
+def test_starting_role_fail_closed_message_includes_direction_phrases():
+    state = _record(
+        _state(),
+        _payload(anchor="Gogoat", pool=(), delegated=False),
+    )
+    result = bootstrap_direction(state)
+    assert result["candidate_discovery_error"].kind == "no_candidates"
+    assert result["pending_presentation"]["kind"] == "bootstrap_intake"
+    message = result["candidate_discovery_error"].message
+    assert "Couldn't resolve a starting role for Gogoat" in message
+    assert "Name a direction" in message
+    examples = _direction_phrase_examples()
+    assert examples in message
+    assert "standard_" not in message
+    registry_phrases = {phrase for phrase, _ in _DIRECTION_PHRASES}
+    for phrase in examples.split(", "):
+        assert phrase in registry_phrases
+
+
+def test_starting_role_fail_closed_accepts_mapped_direction_next():
+    """After role-resolution failure, a mapped direction can still proceed."""
+    state = _record(
+        _state(),
+        _payload(direction="Rain", pool=(), delegated=True),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.clarification is None
+    assert discovery.candidates
+    assert any(row.strategic_role_id == "rain_setter" for row in discovery.candidates)
+
+
 def test_track1_strategic_evidence_precedes_real_anchor_coarse_kit_role():
     anchor_role = classify_anchor_role(resolve_anchor_build("Tyranitar"))
     assert anchor_role.kit_role in get_args(RoleArchetype)
