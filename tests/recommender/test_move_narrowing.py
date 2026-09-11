@@ -328,8 +328,14 @@ def test_pick_default_and_alternatives_never_leaves_a_slot_empty():
 
 
 def test_propose_usage_miss_lands_moveset_and_default_item():
+    # Species must have no writeup kit in the resolved-builds cache — otherwise
+    # Tier 1 writeup item wins before tier3_item_default (Whimsicott collision).
+    from recommender.resolved_builds import get_writeup_kit
+
+    species = "Klefki"
+    assert get_writeup_kit(species, "champions-reg-mb") is None
     slot = Slot(
-        species=Attr(value="Whimsicott", locked=True),
+        species=Attr(value=species, locked=True),
         role=Attr(value="support_speed_control", locked=True),
     )
     filler = Slot(role=Attr(value="bulky_attacker"))
