@@ -6884,6 +6884,51 @@ matches), but it was deliberately not absorbed into this narrower, evidence-boun
 
 ---
 
+## ADR-030 Amendment 2026-09-11a — Mega-stone dominance threshold (80%)
+not re-validated for MunchStats-shaped data
+
+The 80% mega-stone dominance threshold (ADR-019/030 Amendment
+2026-08-15d) was empirically derived against CBD in-game stone-share
+data, with a real, measured gap (65.9-81.0%) separating mixed-pick
+species from dominant-Mega species, and Raichu-Mega-Y (81.0%) as the
+named floor case. Checked directly against MunchStats' in-game data
+(2026-09-11): that separating gap does not hold on this differently-
+shaped distribution — the former empty band (65.9-80%) is now populated
+(Staraptor 79.8%, Raichu-Mega-Y 79.3%, Sceptile 76.0%, Dragonite 74.3%),
+and Raichu-Mega-Y specifically sits on the opposite side of 80% from its
+own CBD figure (79.3% MS vs. 85.7% CBD, same species, same week).
+
+This is not evidence 80% was wrong for what it was built for — CBD-
+shaped clear dominants (Charizard-Mega-Y, Swampert-Mega, Gardevoir-Mega,
+Mawile-Mega, Metagross-Mega) land in comparable ranges on both sources.
+It's evidence that reusing a threshold calibrated on one data source's
+distribution shape against a structurally different source, without
+re-deriving the gap, is not safe to do silently. Any future consumer of
+MunchStats-shaped data through this heuristic should treat borderline
+cases (roughly 65-85%) as requiring a fresh cluster/gap analysis on
+MunchStats' own distribution (per ADR-030's original discipline) rather
+than assuming CBD's 80% transfers unchanged.
+
+No threshold change made. Raichu-Mega-Y's dominance status is left an
+open question, not resolved — doesn't affect the Electric Terrain
+finding either way (ADR-062 Amendment 2026-09-11a), since a dominant
+Mega-Y pick on an otherwise low-usage species wouldn't establish
+Electric Terrain as a real archetype regardless of which side of 80% it
+lands on.
+
+Separately confirmed, convergent across both CBD and MunchStats:
+Raichu-Mega-X is not a current real pick (16.5% MS / 8.1% CBD item
+share; 97% Lightning Rod, no Electric Surge on the bare Raichu ability
+row) — supports ADR-062's Electric-terrain thin-evidence framing
+independently of the Mega-Y threshold question.
+
+**Status:** Open methodological note. No implementation follow-up
+required unless MunchStats data becomes a real dependency elsewhere, at
+which point this threshold should get its own real gap analysis rather
+than inheriting CBD's.
+
+---
+
 ## ADR-031: full_build_confirmation redesign — anticipatory build-edit options with
 axis-composed alternatives and non-mutating compare
 
@@ -10485,3 +10530,194 @@ pre-existing calc-unavailable sandbox failures seen across every
 verification in this project, no regressions.
 
 **Status:** Shipped, `feat/terrain-setter-identity`.
+
+---
+
+## ADR-062 Amendment 2026-09-11a — Electric Terrain's thinness is a real
+meta signal, not just a data-maturity gap
+
+Confirmed via direct comparison, not assumption: real M-C in-game usage
+data (MunchStats, cross-checked as a real, actively-updating source
+during a separate investigation) shows Rillaboom and Indeedee-F — the
+Grassy and Psychic setters — as genuine top-10 usage picks. Raichu-Mega-X
+and Pincurchin, Electric's setters, show no comparable signal: Raichu's
+data (checked via both an ability-frequency lens and the existing
+mega-stone item-dominance heuristic, counters.py's
+_looks_like_mega_stone_for) shows no meaningful Electric Surge presence,
+and Pincurchin has no usage/writeup coverage at all.
+
+This is the same data source, same maturity window, same time since M-C
+launch, for all three terrains — so Electric's absence isn't "hasn't
+caught up yet," it's a real signal that Electric Terrain currently lacks
+a strong payoff in this specific meta, unlike SV mainline where the
+Paradox line's Quark Drive gives Electric a clear, mechanically-grounded
+beneficiary. Champions' current legal pool doesn't have an equivalent
+payoff shape for Electric specifically.
+
+This confirms rather than contradicts ADR-062's original framing —
+Electric was already correctly flagged as writeup-unattested and the
+whole terrain category was already scoped as "a small metagame niche,"
+not built as if broadly popular. This amendment exists so a future
+re-evaluation (once more M-C usage data accumulates generally) has the
+right question in hand: don't re-check "is there more Electric data
+now," check "has anything entered the legal pool that gives Electric
+Terrain a real payoff" — the gap is architectural (no strong
+beneficiary), not a maturity artifact that more time alone will close.
+
+Misty remains excluded for the separate, simpler reason already stated
+(zero legal setters exist at all).
+
+---
+
+## ADR-063: Bootstrap starting-role resolution — tiered fallback for
+zero-usage anchors (writeup kit → gated NN transfer → fail-closed message)
+
+**Decision:** When bootstrap discovery can't resolve a starting role for
+an explicitly-named anchor via any existing signal (usage, writeup
+ability, ability-driven mechanism, exact Compendium hit, kit-based
+`infer_role`), three additional fallback tiers apply in strict priority
+order before giving up:
+
+1. **Writeup kit** — if a real Smogon VGC/BSS writeup exists for the
+   species (ADR-061's resolved-builds cache), consume its full kit
+   (moves, ability, item, spread), not just ability. Item/ability
+   still gated through `is_item_legal`/`species_can_have_ability`.
+   Baxcalibur-Mega uses base Baxcalibur's writeup as a hard-coded,
+   single-species proxy (Mega stat redistribution doesn't change its
+   offensive shape) — explicitly NOT generalized to other Mega forms
+   (Garchomp-Mega-Z was confirmed unsound: SpA > Atk, ability-only
+   Levitate, doesn't match a physical base-form writeup).
+2. **Gated movepool-family nearest-neighbor transfer** — raw stat-vector
+   nearest-neighbor was confirmed unsafe (noise: a sand-setter ranked
+   near a physical-Mega anchor purely on stat shape). Instead: gate a
+   species' learnset into a role family first (SD/DD/NP/CM/BU, pivot,
+   screens, redirection, Tailwind, Trick Room — explicitly NOT
+   weather/terrain moves, which made nearly every species multi-family
+   and useless as a gate), then compute stat-distance only within that
+   family's confirmed-classified reference members. Two hard safety
+   guards, neither negotiable: a family with fewer than 5 confident
+   reference members never auto-transfers (thin-reference); 2+
+   unrelated families with no Atk/SpA signal to disambiguate never
+   auto-transfers (hard-multi) — both route to tier 3 instead. Real
+   coverage: roughly 8 of 31 tested zero-signal M-C-unban failures
+   transfer cleanly; the majority (18/31) are hard-multi and correctly
+   don't transfer.
+3. **Actionable fail-closed message** — for everything tiers 1-2 don't
+   resolve, replace the bare "Couldn't resolve a starting role for
+   {species}" dead-end with an invitation to name a role directly,
+   using registry-derived examples from `_DIRECTION_PHRASES` (same
+   pattern as `:help` and the direction-vocab failure message) — never
+   a raw `TargetRoleId` enum dump, and never including `standard_*`
+   (ADR-059: residual, not user-invocable).
+
+A transferred role from tier 2 is genuinely new information the user
+should be able to see is different from a usage-backed classification —
+`role_id` is shown directly on the candidate-selection line
+(`present_text`), not internal-only, so tier 2 additionally required a
+disclosure surface `present_text` didn't previously have for
+similarity-based classification.
+
+**Why:** Confirmed live (2026-09-10/11) — Reg M-C had been live in
+Showdown for roughly a day at investigation time, and 31 of 35 newly-
+unbanned species hit this exact dead-end as explicit anchors. This
+matters specifically because of the timing: every one of these species
+is, by definition, in a zero-usage state on day one of a new regulation,
+and will stay that way for days-to-weeks. Confirmed directly (live CBD
+and MunchStats queries) that no live-data shortcut existed at
+investigation time to make this unnecessary. Real in-game usage
+(MunchStats) was later found to have genuine M-C coverage, but that's a
+separate, deliberately-deferred integration (pending an identity-
+verification safeguard — see the MunchStats vetting discovery) and
+doesn't replace the permanent need for these tiers, since a real
+zero-data gap will always exist for the newest/rarest species regardless
+of how mature any given regulation's usage data becomes.
+
+**Explicitly rejected approaches, with reasons:** raw stat-distance
+nearest-neighbor (noise); using weather/terrain moves as a family gate
+(made almost everything multi-family); a blanket Mega→base-form writeup
+proxy (unsound for stat-redistributed Megas); auto-picking among
+disagreeing signals rather than routing to tier 3 (would present a
+guess with the same visual confidence as a real classification).
+
+**Verified independently, not just taken on report:** the exact Baxcalibur
+writeup case reproduced and confirmed hitting the real, hand-verified
+largest-remainder tie-break (see ADR-064); a genuine merge-conflict
+composition check confirmed tier 2's NN attempt runs before tier 3's
+message fires, not instead of it; two real regressions found during
+review (a stale test fixture colliding with new writeup data, a
+completeness-check test missing newly-added `TargetRoleId` literals)
+were root-caused and fixed correctly, not papered over. Full suite clean
+at every stage, same 3 pre-existing calc-unavailable sandbox failures
+seen throughout this project, no regressions introduced.
+
+**Status:** Shipped across three independently-revertable PRs (per this
+project's standing practice of not bundling independently-risky work):
+`feat/bootstrap-writeup-moves` (#204), `feat/bootstrap-starting-role-message`
+(#205), `feat/bootstrap-nn-role-transfer` (#206).
+
+---
+
+## ADR-064: EV→SP conversion completes max-invested mainline spreads to
+full Champions budget
+
+**Decision:** `evs_to_sp` (ADR-003/ADR-015 lineage) now has two steps
+instead of one. Faithful integerization (`min(32, round(ev/8))` per
+stat) is unchanged and still applies first. But if the source mainline
+spread's raw total EV investment is >= 508 (the real mechanical maximum
+achievable investment in Pokémon's EV system — 510 total minus at least
+2 unconvertible due to 4-EV-per-point granularity — not an empirically-
+tuned threshold, the same category of fact as a base stat) and the
+integerized SP total lands under Champions' `SP_BUDGET` (66), the
+shortfall is distributed via largest-remainder: prefer stats that had
+positive raw investment and lost the most to independent per-stat
+rounding, tie-broken by stat order. Spreads with raw investment below
+508 are never padded — they honestly produce a sub-66 SP total,
+reflecting genuine partial investment rather than inventing precision
+that wasn't in the source.
+
+**Why:** Independent per-stat rounding of a maximally-invested mainline
+spread structurally can't reliably sum back to 66 even when the source
+was a real, fully-optimized competitive build — confirmed this was
+systemic, not a one-off: all 16 SV-analog writeup spreads in the
+resolved-builds cache failed `is_valid_spread`'s exact-66 check after
+conversion, while all 66 Champions-native spreads (already authored
+directly in SP) passed cleanly. The failure mode was silent and
+misleading: a rejected spread fell back to a generic role-default
+spread while the disclosure label still claimed full writeup-analog
+status for the whole kit — verified directly for Baxcalibur-Mega during
+review, where the presented spread bore no resemblance to the real
+writeup data despite an unqualified "SV VGC writeup analog" label.
+
+**Verified independently by hand, not just taken on report:** traced
+Baxcalibur's real spread (HP 20/Atk 252/Def 4/SpA 0/SpD 28/Spe 204,
+raw ΣEV 508) through the algorithm manually — faithful integerization
+gives `{hp:2, atk:32, def:0, spa:0, spd:4, spe:26}` (sum 64); HP and Def
+are a genuine tied largest-remainder pair (each 0.5 fractional loss),
+correctly broken by stat order to `{hp:3, atk:32, def:1, spa:0, spd:4,
+spe:26}` (sum 66) — confirmed this exact result programmatically against
+the real implementation. Also independently traced the classic 252/4/252
+case by hand (SpD is the sole candidate stat with headroom, correctly
+absorbing both completion points) and the 504 dual-32 case (correctly
+stays unpadded, since it's genuinely one EV short of the 508 mechanical
+threshold, not a rounding artifact).
+
+**Scope:** the shared `evs_to_sp` function itself, plus a one-time
+surgical cache refresh (`scripts/extract_usage/refresh_sv_writeup_spreads.py`)
+for the 16 already-cached SV rows, since fixing the converter alone
+doesn't retroactively repair already-converted cached data, and a naive
+extraction re-run would skip 9 of those 16 (the extraction pipeline's
+own "prefer Champions-native over SV-analog" logic treats those species
+as already covered). The refresh script fails loudly (non-zero exit,
+explicit per-species messages) if any targeted row remains under 66
+after re-conversion, rather than silently leaving stale data.
+`normalize_member_evs` (VGCPastes path) and the offline writeup
+extractor both consume the same shared function — no separate fix
+needed, confirmed by re-checking both call sites directly rather than
+assumed.
+
+**Explicitly rejected:** softening the 508 threshold to something looser
+(e.g. 504) — 508 is a real mechanical fact, not a number worth
+relitigating with a data-driven cluster search the way the DD/SD speed
+question or the mega-stone dominance threshold needed one.
+
+**Status:** Shipped, `fix/evs-to-sp-max-investment-budget`.

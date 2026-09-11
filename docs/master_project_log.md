@@ -5671,6 +5671,101 @@ verification in this project, no regressions introduced.
 
 Merged: #199, #200, `feat/terrain-setter-identity`.
 
+### 2026-09-11 — Bootstrap starting-role dead-end closed: writeup kit,
+gated NN transfer, fail-closed message (ADR-063)
+
+Closed the "Couldn't resolve a starting role for {species}" dead-end
+discovered live during a real session (anchor "mega baxcalibur"),
+roughly a day after Reg M-C went live in Showdown — 31 of the 35
+M-C unbans hit this exact failure as explicit anchors.
+
+Root-caused precisely before building anything: this is a genuinely
+different, earlier-stage failure than the ambiguous-ability last-resort
+synthesis gap (ADR-015/061) — that one fires after a role is already
+picked; this one fires because no role could be picked at all. Traced
+through several rejected approaches before landing on the shipped
+design: raw stat-vector nearest-neighbor produced real noise (a sand
+setter ranking near an unrelated physical attacker purely on stat
+shape); using weather/terrain moves as a family gate made nearly every
+species multi-family and useless; a general Mega-to-base-form writeup
+proxy was confirmed unsound for stat-redistributed Megas (validated
+against Garchomp-Mega-Z specifically) and scoped to a single, explicit,
+documented exception (Baxcalibur-Mega only).
+
+Real coverage, measured honestly rather than assumed: writeup-kit
+coverage across the 31 failures was 2 (Baxcalibur, Pawmot) plus the
+one hard-coded Mega proxy; gated NN transfer cleanly covers roughly 8
+more, with two hard safety guards (thin-reference, hard-multi) — both
+confirmed necessary, since 18 of the 31 are genuinely hard-multi and
+would have needed an arbitrary pick without them; the remaining
+majority get the new actionable fail-closed message instead of a dead
+end.
+
+Along the way, investigated and deliberately declined two adjacent
+opportunities after real vetting: MunchStats' in-game usage API has
+genuine, populated M-C data (confirmed live), but also demonstrated
+real hazards (a species miss silently returns a different species'
+data under HTTP 200, root-caused to the site never 404ing and always
+fuzzy-falling-back) — tracked as a real, deferred integration candidate
+pending an identity-verification gate, not pursued further this arc.
+Separately, the same investigation produced a real, useful side-finding:
+Electric Terrain's thinness (ADR-062 Amendment 2026-09-11a) is
+confirmed as a genuine meta signal (direct comparison against Grassy/
+Psychic's real top-10 usage, same data source, same maturity window),
+not a data-availability artifact — and surfaced an open methodological
+note (ADR-030 Amendment 2026-09-11a) that a threshold calibrated on one
+data source's distribution shape doesn't automatically transfer to a
+structurally different one.
+
+Delivered as three independently-revertable PRs after an initial
+instruction-priority conflict caused all three to land in one commit —
+caught before merge and split back into the originally-planned
+structure (writeup kit, message, NN transfer), each independently
+verified against its own isolated test suite before combining. One
+real merge-conflict composition risk (NN attempt must run before the
+fail-closed message, not be bypassed by it) was flagged explicitly and
+confirmed correct in the final merged code before signing off.
+
+Verified independently throughout: real Baxcalibur/Baxcalibur-Mega/
+Pawmot resolution traced end-to-end against actual code, not trusted
+from PR descriptions; two real regressions found during review (a
+stale Whimsicott test fixture colliding with new writeup data, a
+`TargetRoleId` completeness-check test missing new literals) root-caused
+and fixed correctly rather than glossed over; full suite clean at every
+stage, same 3 pre-existing calc-unavailable sandbox failures seen
+throughout this project.
+
+Merged: #204, #205, #206.
+
+### 2026-09-11 — EV→SP conversion completed for max-invested mainline
+spreads (ADR-064)
+
+Follow-on from the bootstrap work above: verifying Baxcalibur-Mega's
+disclosure accuracy surfaced that its writeup-derived spread was being
+silently dropped and replaced with a generic role-default, while the
+label still claimed full writeup-analog status. Root cause confirmed
+systemic, not a one-off: all 16 SV-analog writeup spreads in the
+resolved-builds cache failed the exact-66 SP budget check after
+`evs_to_sp` conversion; all 66 Champions-native spreads (already
+authored in SP) passed. Fixed with an explicit, honest two-step
+conversion — faithful per-stat rounding, then largest-remainder
+completion to 66 only for spreads whose raw investment hit the real
+508 mechanical maximum — verified by hand against three cases
+(Baxcalibur's genuine largest-remainder tie, the classic 252/4/252
+single-stat absorption, the 504 dual-max case correctly staying
+unpadded) before trusting the implementation. Required a one-time
+surgical cache refresh alongside the converter fix, since fixing the
+function alone doesn't retroactively repair already-cached data, and
+the extraction pipeline's own native-writeup-preference logic would
+have silently skipped 9 of the 16 affected rows on a naive re-run.
+
+Verified end-to-end: Baxcalibur-Mega's bootstrap resolution now shows
+the real, complete writeup spread (sum 66) with an accurate label, not
+the fallback observed during the bootstrap-tiers review. Full suite
+clean, same known trio, no regressions.
+
+Merged: `fix/evs-to-sp-max-investment-budget`.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
