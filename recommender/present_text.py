@@ -424,6 +424,16 @@ def _format_option_role_bit(role: object) -> str | None:
     if role_id is None and isinstance(role, Mapping):
         role_id = role.get("role_id")
     if role_id:
+        evidence = getattr(role, "evidence", None)
+        if evidence is None and isinstance(role, Mapping):
+            evidence = role.get("evidence")
+        for token in evidence or ():
+            if isinstance(token, str) and token.startswith("nn_similar:"):
+                parts = token.split(":")
+                if len(parts) >= 2 and parts[1]:
+                    return (
+                        f"{role_id} — similar to {parts[1]} (movepool family)"
+                    )
         return str(role_id)
     ambiguity = getattr(role, "ambiguity", None)
     if ambiguity is None and isinstance(role, Mapping):

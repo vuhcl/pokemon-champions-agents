@@ -52,6 +52,7 @@ from recommender.state import (
     PendingSlotIntent,
     PresentationSource,
     ProvisionalSlot,
+    ReasonRef,
     RecommenderState,
     Slot,
     TargetRoleDecision,
@@ -1964,7 +1965,11 @@ def _provisional_from_refined(
 
 
 def build_provisional_slot(
-    intent: PendingSlotIntent, state: RecommenderState
+    intent: PendingSlotIntent,
+    state: RecommenderState,
+    *,
+    seed_ability: str | None = None,
+    seed_moves: list[str] | None = None,
 ) -> ProvisionalSlot | UnresolvedSlotRefinement:
     """Refine a selected candidate without mutating the persisted team draft."""
     decision = intent.target_role_decision
@@ -1982,6 +1987,24 @@ def build_provisional_slot(
         role=Attr(value=decision.role_id),
         species=Attr(value=intent.species),
     )
+    if seed_ability:
+        seed = replace(
+            seed,
+            ability=Attr(
+                value=seed_ability,
+                locked=False,
+                reason=ReasonRef(kind="tier2_heuristic", ref="species_ability_default"),
+            ),
+        )
+    if seed_moves and len(seed_moves) == 4:
+        seed = replace(
+            seed,
+            moveset=Attr(
+                value=list(seed_moves),
+                locked=False,
+                reason=ReasonRef(kind="tier2_heuristic", ref="nn_role_moves"),
+            ),
+        )
     refined, _ = _propagate_and_refine(
         seed,
         state,

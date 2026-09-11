@@ -901,6 +901,9 @@ _ARCHETYPE_TARGET_ROLES = {
     "bulky_mixed_attacker",
     "support_speed_control",
     "screens_support",
+    "dragon_dance_attacker",
+    "bulk_up_attacker",
+    "setup_attacker",
 }
 
 
@@ -919,7 +922,7 @@ def test_reviewed_strategic_roles_cover_shipped_compendium_and_preserve_legacy()
     assert vocabulary == (
         _LEGACY_TARGET_ROLES | _NEW_TARGET_ROLES | _ARCHETYPE_TARGET_ROLES
     )
-    assert len(vocabulary) == 29
+    assert len(vocabulary) == 32
     assert set(REVIEWED_STRATEGIC_TARGET_ROLES.values()) == _NEW_TARGET_ROLES | {
         "trick_room_setter",
         "tailwind_setter",

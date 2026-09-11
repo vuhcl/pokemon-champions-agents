@@ -550,6 +550,67 @@ def test_starting_role_fail_closed_accepts_mapped_direction_next():
     assert discovery.clarification is None
     assert discovery.candidates
     assert any(row.strategic_role_id == "rain_setter" for row in discovery.candidates)
+@pytest.mark.parametrize(
+    "species,role_id,neighbor",
+    [
+        ("Sirfetch’d", "swords_dance_attacker", "Scizor"),
+        ("Toxtricity", "bulky_pivot", "Simipour"),
+        ("Swalot", "swords_dance_attacker", "Scizor"),
+    ],
+)
+def test_nn_role_transfer_clean_bootstrap(species, role_id, neighbor):
+    state = _record(
+        _state(),
+        _payload(anchor=species, pool=(), delegated=False),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.clarification is None
+    assert discovery.candidates[0].species == species
+    assert discovery.candidates[0].strategic_role_id == role_id
+    decision = discovery.candidates[0].target_role_decision
+    assert isinstance(decision, TargetRoleDecision)
+    assert decision.producer_name == "bootstrap_movepool_family_nn"
+    assert any(
+        isinstance(tok, str) and tok.startswith(f"nn_similar:{neighbor}:")
+        for tok in decision.evidence
+    )
+
+
+@pytest.mark.parametrize("species", ["Gogoat", "Grapploct"])
+def test_nn_role_transfer_thin_fails_closed(species):
+    state = _record(
+        _state(),
+        _payload(anchor=species, pool=(), delegated=False),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.candidates == ()
+    assert discovery.clarification
+    assert "Couldn't resolve a starting role" in discovery.clarification
+
+
+@pytest.mark.parametrize("species", ["Cinderace", "Salamence"])
+def test_nn_role_transfer_hard_multi_fails_closed(species):
+    state = _record(
+        _state(),
+        _payload(anchor=species, pool=(), delegated=False),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.candidates == ()
+    assert discovery.clarification
+    assert "Couldn't resolve a starting role" in discovery.clarification
+
+
+def test_tier1_writeup_wins_before_nn():
+    state = _record(
+        _state(),
+        _payload(anchor="Baxcalibur", pool=(), delegated=False),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.clarification is None
+    decision = discovery.candidates[0].target_role_decision
+    assert isinstance(decision, TargetRoleDecision)
+    assert decision.producer_name == "bootstrap_kit_role_policy"
+    assert decision.producer_name != "bootstrap_movepool_family_nn"
 
 
 def test_track1_strategic_evidence_precedes_real_anchor_coarse_kit_role():
