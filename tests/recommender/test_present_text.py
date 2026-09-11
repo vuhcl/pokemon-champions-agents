@@ -535,6 +535,21 @@ def test_writeup_ability_source_label_helpers():
     assert writeup_ability_source_label("usage") is None
 
 
+def test_format_option_role_bit_shows_nn_similarity():
+    from recommender.present_text import _format_option_role_bit
+
+    decision = TargetRoleDecision(
+        role_id="swords_dance_attacker",
+        source="other",
+        evidence=("nn_similar:Scizor:swords_dance", "nn_family:swords_dance"),
+        producer_name="bootstrap_movepool_family_nn",
+    )
+    assert (
+        _format_option_role_bit(decision)
+        == "swords_dance_attacker — similar to Scizor (movepool family)"
+    )
+
+
 def test_full_build_confirmation_renders_review_flags():
     provisional = ProvisionalSlot(
         schema_version=1,

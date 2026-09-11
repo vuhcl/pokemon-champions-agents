@@ -307,7 +307,10 @@ TargetRoleId = Literal[
     "misty_terrain_setter",
     "redirection",
     "swords_dance_attacker",
+    "dragon_dance_attacker",
     "nasty_plot_attacker",
+    "bulk_up_attacker",
+    "setup_attacker",
 ]
 TargetRoleConfidence = Literal["high", "medium", "low"]
 TargetRoleSource = Literal["_pick_role", "support_need", "user_choice", "other"]
