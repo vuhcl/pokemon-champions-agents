@@ -140,6 +140,9 @@ def test_unknown_ability_makes_no_ability_claim(monkeypatch):
     monkeypatch.setattr(
         "recommender.anchor_roles.get_writeup_ability", lambda *a, **k: None
     )
+    monkeypatch.setattr(
+        "recommender.anchor_roles.get_writeup_kit", lambda *a, **k: None
+    )
     build = resolve_anchor_build("Pelipper")
     decision = classify_anchor_role(build)
     assert build.ability is None
@@ -171,6 +174,9 @@ def _mock_no_usage(monkeypatch):
     )
     monkeypatch.setattr(
         "recommender.anchor_roles._unique_legal_ability", lambda _s: None
+    )
+    monkeypatch.setattr(
+        "recommender.anchor_roles.get_writeup_kit", lambda *a, **k: None
     )
 
 
@@ -615,3 +621,36 @@ def test_slot_writeup_reason_maps_to_field_provenance():
     with patch("recommender.anchor_roles.featured_or_common_set", return_value=None):
         build = resolve_anchor_build(slot)
     assert build.source_for("ability") == "champions_native_writeup"
+
+
+@pytest.mark.parametrize(
+    "species,role_id",
+    [
+        ("Baxcalibur", "standard_physical_attacker"),
+        ("Pawmot", "fast_physical_attacker"),
+        ("Baxcalibur-Mega", "standard_physical_attacker"),
+    ],
+)
+def test_writeup_kit_classifies_zero_usage_anchors(species: str, role_id: str):
+    build = resolve_anchor_build(species)
+    assert build.moves
+    assert to_id(build.item or "") != "loadeddice"
+    decision = classify_anchor_role(build)
+    assert decision.role_id == role_id
+    if species == "Baxcalibur-Mega":
+        assert build.source_for("moves") in (
+            "analogous_format_writeup",
+            "champions_native_writeup",
+        )
+
+
+@pytest.mark.parametrize(
+    "species,role_id",
+    [
+        ("Rillaboom", "grassy_terrain_setter"),
+        ("Indeedee", "psychic_terrain_setter"),
+        ("Arboliva", "grassy_terrain_setter"),
+    ],
+)
+def test_writeup_kit_does_not_change_mechanism_roles(species: str, role_id: str):
+    assert classify_anchor_role(resolve_anchor_build(species)).role_id == role_id

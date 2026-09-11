@@ -518,7 +518,101 @@ def test_unmappable_direction_reprompts_without_coarse_default():
     for phrase in examples.split(", "):
         assert phrase in registry_phrases
     generic_fallback.assert_not_called()
-    assert not result["pending_presentation"].get("options")
+
+
+def test_starting_role_fail_closed_message_includes_direction_phrases():
+    state = _record(
+        _state(),
+        _payload(anchor="Gogoat", pool=(), delegated=False),
+    )
+    result = bootstrap_direction(state)
+    assert result["candidate_discovery_error"].kind == "no_candidates"
+    assert result["pending_presentation"]["kind"] == "bootstrap_intake"
+    message = result["candidate_discovery_error"].message
+    assert "Couldn't resolve a starting role for Gogoat" in message
+    assert "Name a direction" in message
+    examples = _direction_phrase_examples()
+    assert examples in message
+    assert "standard_" not in message
+    registry_phrases = {phrase for phrase, _ in _DIRECTION_PHRASES}
+    for phrase in examples.split(", "):
+        assert phrase in registry_phrases
+
+
+def test_starting_role_fail_closed_accepts_mapped_direction_next():
+    """After role-resolution failure, a mapped direction can still proceed."""
+    state = _record(
+        _state(),
+        _payload(direction="Rain", pool=(), delegated=True),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.clarification is None
+    assert discovery.candidates
+    assert any(row.strategic_role_id == "rain_setter" for row in discovery.candidates)
+
+
+@pytest.mark.parametrize(
+    "species,role_id,neighbor",
+    [
+        ("Sirfetch’d", "swords_dance_attacker", "Scizor"),
+        ("Toxtricity", "bulky_pivot", "Simipour"),
+        ("Swalot", "swords_dance_attacker", "Scizor"),
+    ],
+)
+def test_nn_role_transfer_clean_bootstrap(species, role_id, neighbor):
+    state = _record(
+        _state(),
+        _payload(anchor=species, pool=(), delegated=False),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.clarification is None
+    assert discovery.candidates[0].species == species
+    assert discovery.candidates[0].strategic_role_id == role_id
+    decision = discovery.candidates[0].target_role_decision
+    assert isinstance(decision, TargetRoleDecision)
+    assert decision.producer_name == "bootstrap_movepool_family_nn"
+    assert any(
+        isinstance(tok, str) and tok.startswith(f"nn_similar:{neighbor}:")
+        for tok in decision.evidence
+    )
+
+
+@pytest.mark.parametrize("species", ["Gogoat", "Grapploct"])
+def test_nn_role_transfer_thin_fails_closed(species):
+    state = _record(
+        _state(),
+        _payload(anchor=species, pool=(), delegated=False),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.candidates == ()
+    assert discovery.clarification
+    assert "Couldn't resolve a starting role" in discovery.clarification
+    assert "Name a direction" in discovery.clarification
+
+
+@pytest.mark.parametrize("species", ["Cinderace", "Salamence"])
+def test_nn_role_transfer_hard_multi_fails_closed(species):
+    state = _record(
+        _state(),
+        _payload(anchor=species, pool=(), delegated=False),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.candidates == ()
+    assert discovery.clarification
+    assert "Couldn't resolve a starting role" in discovery.clarification
+
+
+def test_tier1_writeup_wins_before_nn():
+    state = _record(
+        _state(),
+        _payload(anchor="Baxcalibur", pool=(), delegated=False),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.clarification is None
+    decision = discovery.candidates[0].target_role_decision
+    assert isinstance(decision, TargetRoleDecision)
+    assert decision.producer_name == "bootstrap_kit_role_policy"
+    assert decision.producer_name != "bootstrap_movepool_family_nn"
 
 
 def test_track1_strategic_evidence_precedes_real_anchor_coarse_kit_role():
@@ -813,3 +907,46 @@ def test_direction_phrase_examples_come_from_registry():
     # One example per distinct role_id.
     roles = {role for _, role in _DIRECTION_PHRASES}
     assert len(asserted) == len(roles)
+
+
+@pytest.mark.parametrize(
+    "species,role_id",
+    [
+        ("Baxcalibur", "standard_physical_attacker"),
+        ("Pawmot", "fast_physical_attacker"),
+        ("Baxcalibur-Mega", "standard_physical_attacker"),
+    ],
+)
+def test_writeup_kit_bootstrap_resolves_zero_usage_anchors(species, role_id):
+    from recommender.ids import to_id
+    from recommender.slot_fill import build_provisional_slot
+    from recommender.state import PendingSlotIntent, UnresolvedSlotRefinement, slot_fingerprint
+
+    state = _record(
+        _state(),
+        _payload(anchor=species, pool=(), delegated=False),
+    )
+    discovery = discover_bootstrap_directions(state)
+    assert discovery.clarification is None
+    assert discovery.candidates[0].species == species
+    assert discovery.candidates[0].strategic_role_id == role_id
+    provisional = build_provisional_slot(
+        PendingSlotIntent(
+            schema_version=1,
+            slot_index=0,
+            species=species,
+            target_role_decision=discovery.candidates[0].target_role_decision,
+            source="bootstrap",
+            evidence=discovery.candidates[0].evidence,
+            base_slot_fingerprint=slot_fingerprint(state["team_draft"][0]),
+        ),
+        state,
+    )
+    assert not isinstance(provisional, UnresolvedSlotRefinement)
+    assert to_id(provisional.item) != "loadeddice"
+    assert len(provisional.moves) == 4
+    assert provisional.ability_source_label
+    if species == "Baxcalibur-Mega":
+        assert "base Baxcalibur" in provisional.ability_source_label
+    else:
+        assert "writeup" in provisional.ability_source_label.lower()

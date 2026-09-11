@@ -351,13 +351,13 @@ def test_no_usage_incineroar_bulky_pivot_fills_via_writeup_ability():
     assert len(result.moves) == 4
 
 
-def test_no_usage_sinistcha_redirection_leaves_moves_short():
-    from recommender.state import UnresolvedSlotRefinement
+def test_no_usage_sinistcha_redirection_fills_via_writeup_kit():
+    from recommender.state import ProvisionalSlot
 
     result = _no_usage_provisional("Sinistcha", "redirection")
-    assert isinstance(result, UnresolvedSlotRefinement)
-    assert result.reason == "incomplete_build"
-    assert "moves" in result.unresolved_fields
+    assert isinstance(result, ProvisionalSlot)
+    assert len(result.moves) == 4
+    assert result.ability_source_label and "writeup" in result.ability_source_label.lower()
 
 
 def test_no_usage_klefki_screens_support_moves_fill_ability_unresolved():
@@ -369,13 +369,14 @@ def test_no_usage_klefki_screens_support_moves_fill_ability_unresolved():
     assert result.unresolved_fields == ("ability",)
 
 
-def test_no_usage_pelipper_rain_setter_leaves_moves_short():
-    from recommender.state import UnresolvedSlotRefinement
+def test_no_usage_pelipper_rain_setter_fills_via_writeup_kit():
+    from recommender.state import ProvisionalSlot
 
     result = _no_usage_provisional("Pelipper", "rain_setter")
-    assert isinstance(result, UnresolvedSlotRefinement)
-    assert result.reason == "incomplete_build"
-    assert "moves" in result.unresolved_fields
+    assert isinstance(result, ProvisionalSlot)
+    assert result.ability == "Drizzle"
+    assert len(result.moves) == 4
+    assert result.ability_source_label
 
 
 def test_usage_hit_sinistcha_keeps_usage_provenance():
@@ -434,6 +435,7 @@ def test_multi_ability_without_role_match_leaves_ability_unresolved():
     with (
         patch("recommender.propose.featured_or_common_set", return_value=None),
         patch("recommender.resolved_builds.get_writeup_ability", return_value=None),
+        patch("recommender.resolved_builds.get_writeup_kit", return_value=None),
     ):
         out = fill_team_draft(state)
     assert out["team_draft"][0].ability.value is None
@@ -512,6 +514,7 @@ def test_role_ability_wins_over_writeup():
         patch(
             "recommender.resolved_builds.get_writeup_ability", return_value=hit
         ) as writeup,
+        patch("recommender.resolved_builds.get_writeup_kit", return_value=None),
     ):
         refined, _ = _refine_defaults(slot, state, regulation="champions-reg-mb")
     assert refined.ability.value == "Drizzle"
@@ -535,6 +538,7 @@ def test_role_constraint_ability_is_synthesized_and_not_present_mechanism():
         patch("recommender.propose.get_resolved_build", return_value=None),
         patch("recommender.propose.select_usage_spread", return_value=None),
         patch("recommender.propose.get_relevant_threats", return_value=[]),
+        patch("recommender.resolved_builds.get_writeup_kit", return_value=None),
     ):
         out = fill_team_draft(state)
     ability = out["team_draft"][0].ability

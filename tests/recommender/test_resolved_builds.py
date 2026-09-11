@@ -339,3 +339,70 @@ def test_writeup_ability_miss_without_ability_field(tmp_path: Path):
         source_format="sv/vgc",
     )
     assert get_writeup_ability("Gogoat", "champions-reg-mb", root=tmp_path) is None
+
+
+def test_get_writeup_kit_returns_moves_and_ranks_like_ability(tmp_path: Path):
+    from recommender.resolved_builds import get_writeup_kit, writeup_reason_ref
+
+    moves = ["Protect", "Surf", "Hurricane", "U-turn"]
+    put_resolved_build(
+        "Pelipper",
+        moves,
+        "Damp Rock",
+        "champions-reg-mb",
+        {"hp": 4, "atk": 0, "def": 0, "spa": 28, "spd": 0, "spe": 34},
+        "analogous_format_writeup",
+        False,
+        {},
+        root=tmp_path,
+        source_format="sv/battle-stadium-singles",
+        ability="Keen Eye",
+        rationale="bss " + ("x" * 100),
+    )
+    put_resolved_build(
+        "Pelipper",
+        moves,
+        "Life Orb",
+        "champions-reg-mb",
+        {"hp": 4, "atk": 0, "def": 0, "spa": 28, "spd": 0, "spe": 34},
+        "analogous_format_writeup",
+        False,
+        {},
+        root=tmp_path,
+        source_format="sv/vgc",
+        ability="Drizzle",
+        rationale="sv vgc " + ("x" * 100),
+    )
+    kit = get_writeup_kit("Pelipper", "champions-reg-mb", root=tmp_path)
+    assert kit is not None
+    assert kit["source_format"] == "sv/vgc"
+    assert kit["ability"] == "Drizzle"
+    assert kit["moves"]
+    assert kit["proxy_from"] is None
+    assert writeup_reason_ref(kit) == "analogous_format_writeup:sv/vgc"
+
+
+def test_get_writeup_kit_bax_mega_proxy(tmp_path: Path):
+    from recommender.resolved_builds import get_writeup_kit
+
+    put_resolved_build(
+        "Baxcalibur",
+        ["Ice Shard", "Icicle Spear", "Protect", "Scale Shot"],
+        "Loaded Dice",
+        "champions-reg-mb",
+        {"hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 4, "spe": 26},
+        "analogous_format_writeup",
+        False,
+        {},
+        root=tmp_path,
+        source_format="sv/vgc",
+        ability="Thermal Exchange",
+        rationale="bax " + ("x" * 100),
+    )
+    kit = get_writeup_kit("Baxcalibur-Mega", "champions-reg-mb", root=tmp_path)
+    assert kit is not None
+    assert kit["proxy_from"] == "Baxcalibur"
+    assert kit["ability"] == "Thermal Exchange"
+    assert "iceshard" in {m.lower().replace(" ", "") for m in kit["moves"]} or any(
+        "ice" in m.lower() for m in kit["moves"]
+    )

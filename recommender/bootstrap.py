@@ -11,6 +11,11 @@ from langchain_core.runnables import Runnable
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+from recommender.bootstrap_role_nn import (
+    first_listed_ability,
+    pad_role_moves,
+    transfer_bootstrap_role,
+)
 from recommender.by_usage import query_by_usage
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
@@ -482,8 +487,21 @@ def discover_bootstrap_directions(
         build = resolve_anchor_build(species, regulation="champions-reg-mb")
         anchor_role = classify_anchor_role(build)
         decision = _target_role(anchor_role)
+        nn_hit = None
         if decision is None:
-            continue
+            nn_hit = transfer_bootstrap_role(species, regulation="champions-reg-mb")
+            if nn_hit is not None and nn_hit.role_id in _TARGET_ROLE_IDS:
+                decision = TargetRoleDecision(
+                    role_id=nn_hit.role_id,  # type: ignore[arg-type]
+                    source="other",
+                    evidence=nn_hit.evidence,
+                    needed_constraints=(f"role:{nn_hit.role_id}",),
+                    confidence="low",
+                    provenance=("bootstrap_role_nn",),
+                    producer_name="bootstrap_movepool_family_nn",
+                )
+            else:
+                continue
         if isinstance(decision, UnresolvedTargetRoleDecision):
             if explicit_anchor is not None and to_id(species) == to_id(explicit_anchor):
                 return BootstrapDirectionDiscovery(
@@ -510,15 +528,27 @@ def discover_bootstrap_directions(
                 and mechanism.importance in ("needed", "wanted")
             )
         )
+        evidence = _candidate_evidence(
+            species, usage_row.usage_rank, anchor_role, owned
+        )
+        if decision.producer_name == "bootstrap_movepool_family_nn":
+            evidence = (
+                *evidence,
+                CandidateEvidence(
+                    basis="synthesized",
+                    confidence="low",
+                    producer_name="bootstrap_movepool_family_nn",
+                    evidence=decision.evidence,
+                    subject_id=to_id(species),
+                ),
+            )
         candidate = AnnotatedCandidate(
             species=species,
             matching_needs=(),
             source="bootstrap",
             target_role_decision=decision,
             spec=dict(usage_row.spec),
-            evidence=_candidate_evidence(
-                species, usage_row.usage_rank, anchor_role, owned
-            ),
+            evidence=evidence,
             direction_label=_direction_label(decision.role_id),
             strategic_role_id=decision.role_id,
             species_primary_role=species_primary_role_for_candidate(
@@ -527,6 +557,24 @@ def discover_bootstrap_directions(
             primary_function=anchor_role.primary_function,
             mechanism_ids=mechanisms,
         )
+        seed_ability = None
+        seed_moves = None
+        if nn_hit is not None:
+            from recommender.move_narrowing import assemble_moveset_fallback
+            from recommender.state import Attr, Slot
+
+            seed_ability = first_listed_ability(species)
+            assembled = assemble_moveset_fallback(
+                species,
+                Slot(
+                    role=Attr(value=decision.role_id),
+                    species=Attr(value=species),
+                ),
+                state,
+            )
+            padded = pad_role_moves(species, assembled or [])
+            if len(padded) == 4:
+                seed_moves = padded
         refinement = build_provisional_slot(
             PendingSlotIntent(
                 schema_version=1,
@@ -538,6 +586,8 @@ def discover_bootstrap_directions(
                 base_slot_fingerprint=slot_fingerprint(state["team_draft"][0]),
             ),
             state,
+            seed_ability=seed_ability,
+            seed_moves=seed_moves,
         )
         if isinstance(refinement, UnresolvedSlotRefinement):
             continue
@@ -548,7 +598,8 @@ def discover_bootstrap_directions(
     ):
         return BootstrapDirectionDiscovery(
             (),
-            f"Couldn't resolve a starting role for {explicit_anchor}.",
+            f"Couldn't resolve a starting role for {explicit_anchor}. "
+            f"Name a direction to build around — try e.g.: {_direction_phrase_examples()}.",
         )
 
     selected: list[AnnotatedCandidate] = []
