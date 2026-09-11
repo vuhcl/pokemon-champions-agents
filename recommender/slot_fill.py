@@ -1868,10 +1868,11 @@ def run_slot_fill_terminal(
 
 
 def writeup_ability_source_label(reason_ref: str | None) -> str | None:
-    """Human label for main-build disclosure from ability ReasonRef.ref."""
+    """Human label for main-build disclosure from ability/moveset ReasonRef.ref."""
     if not reason_ref or ":" not in reason_ref:
         return None
-    tier, _, fmt = reason_ref.partition(":")
+    core, _, proxy = reason_ref.partition("|proxy:")
+    tier, _, fmt = core.partition(":")
     if tier not in ("champions_native_writeup", "analogous_format_writeup"):
         return None
     rest = fmt.split("/", 1)[-1] if fmt else ""
@@ -1882,8 +1883,12 @@ def writeup_ability_source_label(reason_ref: str | None) -> str | None:
     else:
         return None
     if tier == "champions_native_writeup":
-        return f"Champions {family} writeup"
-    return f"SV {family} writeup analog"
+        label = f"Champions {family} writeup"
+    else:
+        label = f"SV {family} writeup analog"
+    if proxy:
+        return f"{label} (base {proxy})"
+    return label
 
 
 def _provisional_from_refined(
@@ -1931,6 +1936,14 @@ def _provisional_from_refined(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
     ab_ref = refined.ability.reason.ref if refined.ability.reason else None
+    move_ref = refined.moveset.reason.ref if refined.moveset.reason else None
+    item_ref = refined.item.reason.ref if refined.item.reason else None
+    source_label = None
+    for ref in (ab_ref, move_ref, item_ref):
+        if isinstance(ref, str):
+            source_label = writeup_ability_source_label(ref)
+            if source_label:
+                break
     return ProvisionalSlot(
         schema_version=1,
         slot_index=intent.slot_index,
@@ -1946,9 +1959,7 @@ def _provisional_from_refined(
         ),
         base_slot_fingerprint=intent.base_slot_fingerprint,
         fingerprint=fingerprint,
-        ability_source_label=writeup_ability_source_label(
-            ab_ref if isinstance(ab_ref, str) else None
-        ),
+        ability_source_label=source_label,
     )
 
 

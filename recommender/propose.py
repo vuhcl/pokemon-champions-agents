@@ -283,13 +283,14 @@ def _refine_defaults(
     # Calc verify stays optional post-complete elsewhere; never required to emit ProvisionalSlot.
     from recommender.anchor_roles import _ability_for_target_role, _unique_legal_ability
     from recommender.legality import (
+        is_item_legal,
         load_snapshot,
         pick_synthesized_default_item,
         species_can_have_ability,
         team_item_ids,
     )
     from recommender.move_narrowing import assemble_moveset_fallback
-    from recommender.resolved_builds import get_writeup_ability
+    from recommender.resolved_builds import get_writeup_ability, get_writeup_kit, writeup_reason_ref
     from recommender.usage_data import pick_team_aware_usage_item
 
     species = slot.species.value
@@ -335,6 +336,10 @@ def _refine_defaults(
     updates: dict[str, Attr[Any]] = {}
     spread = dict(slot.spread.value) if slot.spread.value else None
     item_from_synth = False
+    writeup_moves = False
+    writeup_item = False
+    kit_reason: str | None = None
+    reason = ReasonRef(kind="tier2_heuristic", ref=species)
 
     if usage:
         role_selection = None
@@ -396,7 +401,11 @@ def _refine_defaults(
                 item_from_synth = True
     else:
         usage_missed = bool(need_moves or need_item or need_ability)
-        # 1. Ability (unique legality_only, else role-constraint synthesized)
+        snap = load_snapshot()
+        kit = get_writeup_kit(species, regulation)
+        if kit:
+            kit_reason = writeup_reason_ref(kit)
+        # 1. Ability: unique → role constraint → writeup kit → writeup ability
         if need_ability:
             unique = _unique_legal_ability(species)
             if unique:
@@ -415,23 +424,51 @@ def _refine_defaults(
                             kind="tier2_heuristic", ref="tier3_role_ability"
                         ),
                     )
+                elif kit and kit.get("ability") and species_can_have_ability(
+                    snap, species, kit["ability"]
+                ):
+                    updates["ability"] = Attr(
+                        value=kit["ability"],
+                        locked=False,
+                        reason=ReasonRef(kind="tier2_heuristic", ref=kit_reason),
+                    )
                 else:
                     hit = get_writeup_ability(species, regulation)
                     if hit and species_can_have_ability(
-                        load_snapshot(), species, hit["ability"]
+                        snap, species, hit["ability"]
                     ):
                         updates["ability"] = Attr(
                             value=hit["ability"],
                             locked=False,
                             reason=ReasonRef(
                                 kind="tier2_heuristic",
-                                ref=f"{hit['source_tier']}:{hit['source_format']}",
+                                ref=writeup_reason_ref(hit),
                             ),
                         )
-        # 2. Item defaults
+        # 2. Item: legal writeup kit item, else synthesize
+        if need_item and item is None and kit and kit.get("item"):
+            if is_item_legal(snap, kit["item"]):
+                item = kit["item"]
+                writeup_item = True
         if need_item and item is None:
             item = _synthesize_item(slot, state)
-        # 3. Moves via extended prefs
+        # 3. Moves: writeup kit, else assemble fallback
+        if need_moves and moves is None and kit and kit["moves"]:
+            moves_map = snap.get("moves") or {}
+            moves = [
+                str((moves_map.get(to_id(m)) or {}).get("name") or m)
+                for m in kit["moves"]
+            ]
+            writeup_moves = True
+            if (
+                need_spread
+                and spread is None
+                and kit.get("spread")
+                and is_valid_spread(kit["spread"])
+            ):
+                # Keep writeup spread even when item was illegal and substituted.
+                spread = dict(kit["spread"])
+                reason = ReasonRef(kind="tier2_heuristic", ref=kit_reason)
         if need_moves and moves is None:
             assembled = assemble_moveset_fallback(species, slot, state)
             moves = assembled or None
@@ -443,21 +480,26 @@ def _refine_defaults(
 
     if need_moves and moves and (usage_missed or not usage):
         if usage_missed:
+            move_ref = kit_reason if writeup_moves and kit_reason else "move_narrowing"
             updates["moveset"] = Attr(
                 value=moves,
                 locked=False,
-                reason=ReasonRef(kind="tier2_heuristic", ref="move_narrowing"),
+                reason=ReasonRef(kind="tier2_heuristic", ref=move_ref),
             )
 
     if need_item and item and usage_missed:
+        item_ref = (
+            kit_reason
+            if writeup_item and kit_reason
+            else "tier3_item_default"
+        )
         updates["item"] = Attr(
             value=item,
             locked=False,
-            reason=ReasonRef(kind="tier2_heuristic", ref="tier3_item_default"),
+            reason=ReasonRef(kind="tier2_heuristic", ref=item_ref),
         )
 
     # 4. Spread once moves+item exist
-    reason = ReasonRef(kind="tier2_heuristic", ref=species)
     if (need_moves or need_item or need_spread) and moves and item is not None:
         cached = get_resolved_build(species, moves, item, regulation)
         scarf_tr_skip = (
