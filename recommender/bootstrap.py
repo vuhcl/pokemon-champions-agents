@@ -548,7 +548,8 @@ def discover_bootstrap_directions(
     ):
         return BootstrapDirectionDiscovery(
             (),
-            f"Couldn't resolve a starting role for {explicit_anchor}.",
+            f"Couldn't resolve a starting role for {explicit_anchor}. "
+            f"Name a direction to build around — try e.g.: {_direction_phrase_examples()}.",
         )
 
     selected: list[AnnotatedCandidate] = []
