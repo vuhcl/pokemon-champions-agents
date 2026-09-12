@@ -12,25 +12,26 @@ import { extractLearnsets } from "../../scripts/extract_legality/learnsets.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const SNAPSHOT = path.join(ROOT, "data", "legality", "champions.v1.json");
-const DIFF = path.join(
-  ROOT,
-  "data",
-  "legality",
-  "fixtures",
-  "championsregmb_to_champions.diff.json",
-);
-const DIFF_HISTORICAL_MA = path.join(
-  ROOT,
-  "data",
-  "legality",
-  "fixtures",
-  "championsregma_to_champions.diff.json",
-);
+const FIXTURES = path.join(ROOT, "data", "legality", "fixtures");
+const DIFF_HISTORICAL_MB = path.join(FIXTURES, "championsregmb_to_champions.diff.json");
+const DIFF_HISTORICAL_MA = path.join(FIXTURES, "championsregma_to_champions.diff.json");
+
+function liveDiffPath(snap: Snapshot): string {
+  const vgc = (snap.meta as { formats?: { vgc?: string } }).formats?.vgc;
+  assert.ok(vgc, "snapshot meta.formats.vgc missing");
+  const m = /\bReg M-([A-Z])\b/i.exec(vgc);
+  assert.ok(m, `could not parse Reg letter from ${vgc}`);
+  const letter = m[1]!.toUpperCase();
+  assert.notEqual(letter, "A", "no prior mod for Reg M-A");
+  const prev = String.fromCharCode(letter.charCodeAt(0) - 1).toLowerCase();
+  return path.join(FIXTURES, `championsregm${prev}_to_champions.diff.json`);
+}
 
 type Snapshot = {
   meta: {
     schema_version: number;
     source: { commit: string; mod: string };
+    formats?: { vgc?: string; bss?: string };
   };
   flat_rules: { banlist: string[] };
   species: Record<
@@ -339,11 +340,36 @@ describe("committed champions.v1.json", () => {
   });
 });
 
-describe("committed championsregmb→champions diff fixture", () => {
-  it("matches discovery M-B→M-C became_legal counts and ids exist in snapshot", () => {
-    assert.ok(fs.existsSync(DIFF), `missing ${DIFF}`);
+describe("live prior→champions diff fixture", () => {
+  it("matches snapshot letter prior mod, is non-empty, and ids exist in snapshot", () => {
     const snap = JSON.parse(fs.readFileSync(SNAPSHOT, "utf8")) as Snapshot;
-    const diff = JSON.parse(fs.readFileSync(DIFF, "utf8")) as DiffFixture;
+    const livePath = liveDiffPath(snap);
+    assert.ok(fs.existsSync(livePath), `missing live diff ${livePath}`);
+    const diff = JSON.parse(fs.readFileSync(livePath, "utf8")) as DiffFixture;
+
+    assert.equal(diff.meta.schema_version, 1);
+    assert.equal(diff.meta.to_mod, "champions");
+    const vgc = (snap.meta as { formats?: { vgc?: string } }).formats!.vgc!;
+    const m = /\bReg M-([A-Z])\b/i.exec(vgc)!;
+    const prev = String.fromCharCode(m[1]!.toUpperCase().charCodeAt(0) - 1).toLowerCase();
+    assert.equal(diff.meta.from_mod, `championsregm${prev}`);
+    assert.ok(diff.species.length >= 1, "live species diff must be non-empty");
+    assert.ok(Array.isArray(diff.items));
+
+    for (const e of diff.species) {
+      assert.ok(e.id in snap.species, `diff species id missing from snapshot: ${e.id}`);
+    }
+    for (const e of diff.items) {
+      assert.ok(e.id in snap.items, `diff item id missing from snapshot: ${e.id}`);
+    }
+  });
+});
+
+describe("historical championsregmb→champions diff fixture (M-B→M-C lock)", () => {
+  it("matches discovery M-B→M-C became_legal counts and ids exist in snapshot", () => {
+    assert.ok(fs.existsSync(DIFF_HISTORICAL_MB), `missing ${DIFF_HISTORICAL_MB}`);
+    const snap = JSON.parse(fs.readFileSync(SNAPSHOT, "utf8")) as Snapshot;
+    const diff = JSON.parse(fs.readFileSync(DIFF_HISTORICAL_MB, "utf8")) as DiffFixture;
 
     assert.equal(diff.meta.schema_version, 1);
     assert.equal(diff.meta.from_mod, "championsregmb");

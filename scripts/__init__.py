@@ -1,1 +1,1 @@
-# Makes `scripts.eval` importable under `uv run python`.
+# CI helper package for import paths under scripts.ci.*

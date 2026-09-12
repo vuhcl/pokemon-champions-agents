@@ -28,20 +28,22 @@ import {
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const DEFAULT_CACHE = path.join(ROOT, ".cache", "pokemon-showdown");
 const OUT_SNAPSHOT = path.join(ROOT, "data", "legality", "champions.v1.json");
-const OUT_DIFF = path.join(
-  ROOT,
-  "data",
-  "legality",
-  "fixtures",
-  "championsregmb_to_champions.diff.json",
-);
-const OUT_IDENTIFIER_SKIPS = path.join(
-  ROOT,
-  "data",
-  "legality",
-  "fixtures",
-  "identifier_skips.json",
-);
+const FIXTURES_DIR = path.join(ROOT, "data", "legality", "fixtures");
+const OUT_IDENTIFIER_SKIPS = path.join(FIXTURES_DIR, "identifier_skips.json");
+
+/** Current champions VGC name → archived prior mod id (e.g. Reg M-C → championsregmb). */
+export function priorModFromVgcName(vgcName: string): string {
+  const m = /\bReg M-([A-Z])\b/i.exec(vgcName);
+  if (!m) {
+    throw new Error(`could not parse Reg M-* letter from VGC format name: ${JSON.stringify(vgcName)}`);
+  }
+  const letter = m[1]!.toUpperCase();
+  if (letter === "A") {
+    throw new Error(`no prior championsreg* mod for ${vgcName}`);
+  }
+  const prev = String.fromCharCode(letter.charCodeAt(0) - 1).toLowerCase();
+  return `championsregm${prev}`;
+}
 
 function parseArgs(argv: string[]): { showdownPath?: string } {
   let showdownPath: string | undefined;
@@ -136,21 +138,26 @@ function main(): void {
     "data/mods/champions/items.ts",
     "Items",
   );
-  const regmbFormats = extractDataTable(
-    read(repo, "data/mods/championsregmb/formats-data.ts"),
-    "data/mods/championsregmb/formats-data.ts",
+  const formats = extractFormatNames(read(repo, "config/formats.ts"), "config/formats.ts");
+  const fromMod = priorModFromVgcName(formats.vgc);
+  const priorFormatsPath = `data/mods/${fromMod}/formats-data.ts`;
+  const priorItemsPath = `data/mods/${fromMod}/items.ts`;
+  if (!fs.existsSync(path.join(repo, priorFormatsPath))) {
+    throw new Error(`missing prior mod formats-data: ${priorFormatsPath}`);
+  }
+  if (!fs.existsSync(path.join(repo, priorItemsPath))) {
+    throw new Error(`missing prior mod items: ${priorItemsPath}`);
+  }
+  const priorFormats = extractDataTable(
+    read(repo, priorFormatsPath),
+    priorFormatsPath,
     "FormatsData",
   );
-  const regmbItems = extractDataTable(
-    read(repo, "data/mods/championsregmb/items.ts"),
-    "data/mods/championsregmb/items.ts",
-    "Items",
-  );
+  const priorItems = extractDataTable(read(repo, priorItemsPath), priorItemsPath, "Items");
   const flat_rules = extractFlatRules(
     read(repo, "data/mods/champions/rulesets.ts"),
     "data/mods/champions/rulesets.ts",
   );
-  const formats = extractFormatNames(read(repo, "config/formats.ts"), "config/formats.ts");
 
   const baseMoves = extractDataTable(read(repo, "data/moves.ts"), "data/moves.ts", "Moves");
   const championsMoves = extractDataTable(
@@ -166,7 +173,7 @@ function main(): void {
 
   const species = joinSpecies(championsFormats, pokedex);
   const items = mergeItems(baseItems, [championsItems]);
-  const itemsRegmb = mergeItems(baseItems, [championsItems, regmbItems]);
+  const itemsPrior = mergeItems(baseItems, [championsItems, priorItems]);
   const moves = mergeMoves(baseMoves, [championsMoves]);
   const learnsets = extractLearnsets(championsLearnsets);
   const aliases = extractDataTable(
@@ -195,14 +202,15 @@ function main(): void {
     species_aliases,
   };
 
-  const speciesDiff = diffSpeciesTables(regmbFormats, championsFormats);
-  const itemDiff = diffItemMaps(itemsRegmb, items);
+  const speciesDiff = diffSpeciesTables(priorFormats, championsFormats);
+  const itemDiff = diffItemMaps(itemsPrior, items);
+  const outDiff = path.join(FIXTURES_DIR, `${fromMod}_to_champions.diff.json`);
   const diff = {
     meta: {
       schema_version: 1 as const,
       extracted_at,
       source_commit: commit,
-      from_mod: "championsregmb",
+      from_mod: fromMod,
       to_mod: "champions",
     },
     species: speciesDiff,
@@ -210,13 +218,13 @@ function main(): void {
   };
 
   if (speciesDiff.length < 1) {
-    throw new Error("expected non-empty species diff (championsregmb → champions)");
+    throw new Error(`expected non-empty species diff (${fromMod} → champions)`);
   }
 
   fs.mkdirSync(path.dirname(OUT_SNAPSHOT), { recursive: true });
-  fs.mkdirSync(path.dirname(OUT_DIFF), { recursive: true });
+  fs.mkdirSync(FIXTURES_DIR, { recursive: true });
   fs.writeFileSync(OUT_SNAPSHOT, `${JSON.stringify(snapshot, null, 2)}\n`);
-  fs.writeFileSync(OUT_DIFF, `${JSON.stringify(diff, null, 2)}\n`);
+  fs.writeFileSync(outDiff, `${JSON.stringify(diff, null, 2)}\n`);
 
   const skips = [...getIdentifierSkips()];
   const skipReport = {
@@ -239,7 +247,7 @@ function main(): void {
     `Wrote ${OUT_SNAPSHOT} (${Object.keys(species).length} species, ${Object.keys(items).length} items, ${Object.keys(moves).length} moves, ${Object.keys(learnsets).length} learnsets, ${Object.keys(species_aliases).length} species_aliases)`,
   );
   console.error(
-    `Wrote ${OUT_DIFF} (${speciesDiff.length} species flips, ${itemDiff.length} item flips)`,
+    `Wrote ${outDiff} (${speciesDiff.length} species flips, ${itemDiff.length} item flips)`,
   );
   console.error(
     `Identifier rule hits: ${skipReport.counts.nulled} nulled, ${skipReport.counts.skipped} skipped → ${OUT_IDENTIFIER_SKIPS}`,

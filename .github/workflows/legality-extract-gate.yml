@@ -1,0 +1,99 @@
+name: legality-extract-gate
+
+on:
+  schedule:
+    # Daily; gate is event-driven via checks. Schedules only run on the default branch.
+    - cron: "17 14 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: legality-extract-gate
+  cancel-in-progress: false
+
+jobs:
+  gate-and-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: uv sync --extra dev --frozen
+      - run: npm ci
+
+      - name: Regulation gate (official start + Showdown)
+        id: gate
+        run: |
+          set -euo pipefail
+          uv run python scripts/ci/regulation_extract_gate.py \
+            --out "$RUNNER_TEMP/gate.json" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Re-extract + retarget identity
+        if: steps.gate.outputs.decision == 'extract'
+        run: |
+          set -euo pipefail
+          cleanup() {
+            git checkout -- \
+              data/legality data/abilities data/moves \
+              recommender/session.py recommender/ids.py recommender/format.py \
+              tests/recommender/test_resolved_builds.py \
+              || true
+          }
+          trap cleanup ERR
+          npm run extract:legality
+          npx tsx scripts/extract_abilities/extract.ts
+          uv run python scripts/extract_abilities/apply_phase_b.py
+          uv run python scripts/ci/assert_ability_phase_b_clear.py
+          uv run python scripts/extract_abilities/retarget_ally_opponent.py
+          npm run extract:move-accuracy
+          npm run extract:move-stat-boosts
+          npm run extract:move-flags
+          uv run python scripts/ci/retarget_regulation_identity.py \
+            --gate "$RUNNER_TEMP/gate.json"
+          uv run python scripts/ci/bump_regulation_news_bookmark.py \
+            --gate "$RUNNER_TEMP/gate.json"
+          npx tsx --test tests/extract_legality/*.test.ts
+          uv run pytest \
+            tests/ci/test_regulation_extract_gate.py \
+            tests/recommender/test_resolved_builds.py \
+            tests/recommender/test_format.py \
+            -q
+          trap - ERR
+
+      - name: Build PR body
+        if: steps.gate.outputs.decision == 'extract'
+        run: uv run python scripts/ci/build_legality_extract_pr_body.py \
+          --gate "$RUNNER_TEMP/gate.json" \
+          --out "$RUNNER_TEMP/pr_body.md"
+
+      - name: Open or update PR
+        if: steps.gate.outputs.decision == 'extract'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/legality-extract-gate
+          title: "chore: refresh legality extract for new Champions regulation"
+          body-path: ${{ runner.temp }}/pr_body.md
+          commit-message: "chore: refresh legality extract and retarget regulation identity"
+          add-paths: |
+            data/legality
+            data/abilities
+            data/moves
+            recommender/session.py
+            recommender/ids.py
+            recommender/format.py
+            tests/recommender/test_resolved_builds.py
+            tests/extract_legality
+            data/legality/schema.v1.md
+          delete-branch: false
