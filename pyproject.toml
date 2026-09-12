@@ -26,5 +26,5 @@ build-backend = "setuptools.build_meta"
 include = ["recommender*"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests/recommender"]
-pythonpath = ["tests/recommender"]
+testpaths = ["tests/recommender", "tests/ci"]
+pythonpath = [".", "tests/recommender"]
