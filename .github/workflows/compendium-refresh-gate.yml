@@ -1,0 +1,125 @@
+name: compendium-refresh-gate
+
+on:
+  schedule:
+    # Daily; event+spacing decided in the gate (ADR-019 Amendment 2026-09-13a).
+    - cron: "37 16 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Skip usage-event + spacing checks (still offline rebuild + critic)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: compendium-refresh-gate
+  cancel-in-progress: false
+
+jobs:
+  gate-and-pr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: uv sync --extra dev --frozen
+
+      - name: Install and start calc service
+        run: |
+          set -euo pipefail
+          npm ci
+          npm start &
+          calc_pid=$!
+          echo "calc_pid=$calc_pid" >> "$GITHUB_ENV"
+          ready=0
+          for i in $(seq 1 60); do
+            if ! kill -0 "$calc_pid" 2>/dev/null; then
+              echo "calc service exited before becoming healthy (pid=$calc_pid)" >&2
+              wait "$calc_pid" || true
+              exit 1
+            fi
+            if curl -sf http://127.0.0.1:4173/health | grep -q '"status":"ok"'; then
+              echo "calc service healthy on http://127.0.0.1:4173 (attempt $i)"
+              ready=1
+              break
+            fi
+            sleep 0.5
+          done
+          if [ "$ready" != "1" ]; then
+            echo "calc service did not become healthy within 30s" >&2
+            kill "$calc_pid" 2>/dev/null || true
+            exit 1
+          fi
+
+      - name: Compendium gate (offline rebuild)
+        id: gate
+        run: |
+          set -euo pipefail
+          FORCE_FLAG=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force }}" = "true" ]; then
+            FORCE_FLAG="--force"
+          fi
+          uv run python -m scripts.ci.compendium_refresh_gate \
+            --github-output "$GITHUB_OUTPUT" \
+            --report-out "$RUNNER_TEMP/compendium_report.json" \
+            $FORCE_FLAG
+
+      - name: Commit marker to main
+        if: steps.gate.outputs.bump_marker == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/roles/fixtures/compendium_refresh_marker.json
+          if git diff --cached --quiet; then
+            echo "marker unchanged"
+            exit 0
+          fi
+          git commit -m "chore: bump compendium refresh marker"
+          git push origin HEAD:main
+
+      - name: Build PR body
+        if: steps.gate.outputs.decision == 'pr'
+        run: uv run python -m scripts.ci.build_compendium_refresh_pr_body \
+          --report "$RUNNER_TEMP/compendium_report.json" \
+          --out "$RUNNER_TEMP/pr_body.md"
+
+      - name: Open or update PR
+        if: steps.gate.outputs.decision == 'pr'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/compendium-refresh
+          title: "chore: refresh Role Compendium from current usage"
+          body-path: ${{ runner.temp }}/pr_body.md
+          commit-message: "chore: refresh Role Compendium categories from usage"
+          add-paths: |
+            data/roles/*.v1.json
+          delete-branch: false
+
+      - name: Fail loudly on critic flags
+        if: steps.gate.outputs.decision == 'fail'
+        run: |
+          echo "Compendium critic flags > 0 — no roles PR opened." >&2
+          echo "Fix construct/criteria and re-run with workflow_dispatch force." >&2
+          exit 1
+
+      - name: Stop calc service
+        if: always()
+        run: |
+          if [ -n "${calc_pid:-}" ]; then
+            kill "$calc_pid" 2>/dev/null || true
+            wait "$calc_pid" 2>/dev/null || true
+          fi

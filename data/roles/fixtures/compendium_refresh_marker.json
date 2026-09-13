@@ -1,0 +1,7 @@
+{
+  "last_check_at": null,
+  "usage_munchstats_generated_at": null,
+  "usage_path": "data/usage/champions-reg-mc.v1.json",
+  "last_outcome": null,
+  "note": "Bootstrap epoch — first eligible run may fire. Bumped by compendium-refresh-gate."
+}

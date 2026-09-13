@@ -1,0 +1,83 @@
+name: vgcpastes-refresh-mc
+
+on:
+  schedule:
+    - cron: "47 16 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Skip 14-day spacing (still validates floors)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: vgcpastes-refresh-mc
+  cancel-in-progress: false
+
+jobs:
+  gate-and-pr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+
+      - run: uv sync --extra dev --frozen
+
+      - name: VGCPastes gate (extract + validate)
+        id: gate
+        run: |
+          set -euo pipefail
+          FORCE_FLAG=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force }}" = "true" ]; then
+            FORCE_FLAG="--force"
+          fi
+          uv run python -m scripts.ci.vgcpastes_refresh_gate \
+            --github-output "$GITHUB_OUTPUT" \
+            --out-json "$RUNNER_TEMP/vgcpastes_gate.json" \
+            $FORCE_FLAG
+
+      - name: Commit marker to main
+        if: steps.gate.outputs.bump_marker == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/team-composition/fixtures/vgcpastes_refresh_marker.json
+          if git diff --cached --quiet; then
+            echo "marker unchanged"
+            exit 0
+          fi
+          git commit -m "chore: bump vgcpastes refresh marker"
+          git push origin HEAD:main
+
+      - name: Build PR body
+        if: steps.gate.outputs.decision == 'pr'
+        run: uv run python -m scripts.ci.build_vgcpastes_refresh_pr_body \
+          --gate "$RUNNER_TEMP/vgcpastes_gate.json" \
+          --out "$RUNNER_TEMP/pr_body.md"
+
+      - name: Open or update PR
+        if: steps.gate.outputs.decision == 'pr'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/vgcpastes-refresh-mc
+          title: "chore: refresh Champions M-C VGCPastes builds"
+          body-path: ${{ runner.temp }}/pr_body.md
+          commit-message: "chore: refresh champions-reg-mc VGCPastes builds"
+          add-paths: |
+            data/team-composition/champions-reg-mc.vgcpastes-builds.v1.json
+          delete-branch: false
+
+      - name: Fail loudly on validate
+        if: steps.gate.outputs.decision == 'fail'
+        run: |
+          echo "VGCPastes validate failed: ${{ steps.gate.outputs.reason }}" >&2
+          exit 1
