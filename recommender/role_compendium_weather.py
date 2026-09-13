@@ -92,8 +92,18 @@ def _construct_weather_setter(
         seen_pairs.add(pair)
         base_sid, mega_sid = pair
         base_name, mega_name = ability_holders[base_sid], ability_holders[mega_sid]
-        base_sd = _showdown_entry(base_name, cache=sd_cache, showdown_fetch=showdown_fetch)
-        mega_sd = _showdown_entry(mega_name, cache=sd_cache, showdown_fetch=showdown_fetch)
+        base_sd = _showdown_entry(
+            base_name,
+            cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+            regulation=uctx.regulation,
+        )
+        mega_sd = _showdown_entry(
+            mega_name,
+            cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+            regulation=uctx.regulation,
+        )
 
         if mega_sd is not None:
             mega_pct = float(mega_sd.get("usage_pct") or 0.0)

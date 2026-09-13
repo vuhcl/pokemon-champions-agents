@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Fetch Pikalytics Champions team-usage into a Pokemon-Zone-comparable schema.
 
-Population note (verified 2026-08-12 against live API + embedded team records):
-  GET /api/team-usage/championstournaments  → formatLabel "… Tournament"
-  GET /api/team-usage/battledataregmbs3     → formatLabel "… Ranked Battle Data"
-  Both return identical groups; every team record has source="limitless".
-  This page is tournament team composition, not ladder usage.
+Population note (verified 2026-09-12 against live API + embedded team records):
+  GET /api/team-usage/championstournaments → formatLabel "… Tournament"
+  Same URL rolled forward to Reg M-C tournament results (no separate M-C slug;
+  battledataregmbs3 / battledataregmcs3 → 404). Every team record has
+  source="limitless". Tournament team composition, not ladder usage.
 
-Not merged into champions-reg-mb.v1.json (same Limitless-family population, but
-different grain / extract path — keep sources separate).
+M-B archive remains at champions-reg-mb.pikalytics-team-usage.v1.json.
+Not merged into pokemon-zone champions-reg-*.v1.json.
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "data" / "team-composition" / "champions-reg-mb.pikalytics-team-usage.v1.json"
+OUT = ROOT / "data" / "team-composition" / "champions-reg-mc.pikalytics-team-usage.v1.json"
 API = "https://www.pikalytics.com/api/team-usage/championstournaments"
 UA = "pokemon-champions-agents/0.1"
 
@@ -95,18 +95,18 @@ def main() -> int:
                 "format_label": raw.get("formatLabel"),
                 "team_record_sources": sources,
                 "note": (
-                    "battledataregmbs3 format slug returns identical groups; "
-                    "all team records are Limitless tournament entries."
+                    "Same championstournaments endpoint; rolled forward to M-C "
+                    "tournament labels. All team records are Limitless entries."
                 ),
             },
-            "regulation": "champions-reg-mb",
+            "regulation": "champions-reg-mc",
             "format": raw.get("format"),
             "generated_at_source": raw.get("generatedAt"),
             "total_teams": int(raw.get("totalTeams") or sum(c["uses"] for c in cores)),
             "extracted_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "note": (
                 "Species-level 6-mon team groups + uses-weighted pairs. "
-                "Not merged with pokemon-zone champions-reg-mb.v1.json."
+                "Not merged with pokemon-zone champions-reg-mc.v1.json."
             ),
         },
         "cores": cores,
@@ -119,7 +119,10 @@ def main() -> int:
         f"count>=3 / {len(pair_list)} total)",
         file=sys.stderr,
     )
-    assert any(c["uses"] >= 100 for c in cores), "expected a high-use group"
+    assert len(cores) >= 100, "expected a substantial resolvable set"
+    assert max((c["uses"] for c in cores), default=0) >= 10, (
+        "expected at least one group with uses>=10 (early-reg floor)"
+    )
     assert sources.get("limitless", 0) > 0, "expected Limitless team records"
     return 0
 

@@ -16,6 +16,7 @@ def _snow_draft(pool: list[str] | None = None, showdown_fetch=None):
         snap=snap,
         live_fetch=None,
         showdown_fetch=showdown_fetch,
+        regulation="champions-reg-mb",
     )
 
 
@@ -56,7 +57,7 @@ def test_snow_critique_approves():
 
 def test_snow_abomasnow_discounted_acceptable(monkeypatch):
     monkeypatch.setattr(
-        "recommender.role_compendium.showdown_species_map", lambda: {}
+        "recommender.role_compendium.showdown_species_map", lambda *a, **k: {}
     )
 
     def sd_fetch(name: str):

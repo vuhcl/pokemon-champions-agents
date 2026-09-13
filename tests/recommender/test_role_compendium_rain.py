@@ -20,6 +20,7 @@ def _rain_draft(pool: list[str] | None = None) -> RoleConstructionDraft:
         pool if pool is not None else legal_species_pool(snap),
         snap=snap,
         live_fetch=None,  # unit tests: offline snapshot only
+        regulation="champions-reg-mb",
     )
 
 
@@ -67,7 +68,12 @@ def test_legal_pool_bounds_construction():
     snap = load_snapshot()
     pool = [n for n in legal_species_pool(snap) if to_id(n) != "pelipper"]
     draft = construct_role_category(
-        "weather_setter", RAIN_SETTER_CRITERIA, pool, snap=snap, live_fetch=None
+        "weather_setter",
+        RAIN_SETTER_CRITERIA,
+        pool,
+        snap=snap,
+        live_fetch=None,
+        regulation="champions-reg-mb",
     )
     assert "Pelipper" not in _member_names(draft, "Excellent")
     assert "Politoed" in _member_names(draft, "Excellent")
@@ -203,13 +209,21 @@ def test_critique_function_fit_magic_guard_ally():
 
 def test_rebuild_approve_and_history(tmp_path: Path):
     r1 = rebuild_role_category(
-        "weather_setter", RAIN_SETTER_CRITERIA, roles_dir=tmp_path, live_fetch=None
+        "weather_setter",
+        RAIN_SETTER_CRITERIA,
+        roles_dir=tmp_path,
+        live_fetch=None,
+        regulation="champions-reg-mb",
     )
     assert r1.status == "approved", r1.critique.flags
     assert r1.path is not None
     assert Path(r1.path).exists()
     r2 = rebuild_role_category(
-        "weather_setter", RAIN_SETTER_CRITERIA, roles_dir=tmp_path, live_fetch=None
+        "weather_setter",
+        RAIN_SETTER_CRITERIA,
+        roles_dir=tmp_path,
+        live_fetch=None,
+        regulation="champions-reg-mb",
     )
     assert r2.status == "approved", r2.critique.flags
     hist = list((tmp_path / "history").glob("weather_setter_rain.*.json"))
@@ -232,6 +246,7 @@ def test_rebuild_human_gate_on_flags(tmp_path: Path):
         RAIN_SETTER_CRITERIA,
         roles_dir=tmp_path,
         live_fetch=None,
+        regulation="champions-reg-mb",
     )
     assert result.status == "needs_revision"
     assert result.path is None

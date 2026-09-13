@@ -82,6 +82,7 @@ def _tr_draft(
         live_fetch=live_fetch,
         showdown_fetch=showdown_fetch,
         reference_compendium=reference_compendium,
+        regulation="champions-reg-mb",
     )
 
 
@@ -271,7 +272,7 @@ def test_champions_row_without_trick_room_does_not_suppress_showdown(monkeypatch
         "recommender.role_compendium.ingame_species_map", lambda _reg="champions-reg-mb": {}
     )
     monkeypatch.setattr("recommender.role_compendium.ingame_excluded_ids", lambda: frozenset())
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
     cbd = {
         "name": "Chimecho",
         "id": "chimecho",
@@ -386,8 +387,8 @@ def _sd_pair(*, mega_has_move: bool) -> Any:
 
 
 def _attribution(monkeypatch, *, mega_has_move: bool) -> tuple[dict[str, bool], dict[str, str]]:
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
-    monkeypatch.setattr("recommender.role_compendium_usage.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
+    monkeypatch.setattr("recommender.role_compendium_usage.showdown_species_map", lambda *a, **k: {})
     notes: list[str] = []
     pair_usage, pair_notes, _stone = _mega_usage_attribution(
         {"gallade": "Gallade", "gallademega": "Gallade-Mega"},
@@ -560,6 +561,7 @@ def test_rebuild_writes_expected_filename(tmp_path: Path):
         roles_dir=tmp_path,
         live_fetch=None,
         showdown_fetch=None,
+        regulation="champions-reg-mb",
     )
     assert result.status == "approved", result.critique.flags
     assert result.path is not None

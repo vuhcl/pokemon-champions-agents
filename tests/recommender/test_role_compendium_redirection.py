@@ -40,6 +40,7 @@ def _redir_draft(
         "snap": snap,
         "showdown_fetch": showdown_fetch,
         "reference_compendium": reference_compendium,
+        "regulation": "champions-reg-mb",
     }
     if live_fetch is ...:
         kwargs["live_fetch"] = _mock_clefable_follow_me
@@ -200,6 +201,7 @@ def test_legal_pool_bounds():
         snap=snap,
         live_fetch=_mock_clefable_follow_me,
         showdown_fetch=None,
+        regulation="champions-reg-mb",
     )
     assert "Maushold" not in {c.species for c in draft.candidates if c.tier}
 
@@ -298,6 +300,7 @@ def test_rebuild_approve_tmp(tmp_path: Path):
         roles_dir=tmp_path,
         live_fetch=_mock_clefable_follow_me,
         showdown_fetch=None,
+        regulation="champions-reg-mb",
     )
     assert r.status == "approved", r.critique.flags
     assert r.path is not None
@@ -322,6 +325,7 @@ def test_rebuild_human_gate(tmp_path: Path):
         roles_dir=tmp_path,
         live_fetch=_mock_clefable_follow_me,
         showdown_fetch=None,
+        regulation="champions-reg-mb",
     )
     assert result.status == "needs_revision"
     assert any(f.principle == "self_consistency" for f in result.critique.flags)
@@ -500,5 +504,6 @@ def test_rain_snapshot_hit_skips_live():
         legal_species_pool(snap),
         snap=snap,
         live_fetch=tracking,
+        regulation="champions-reg-mb",
     )
     assert not any(to_id(n) in {"pelipper", "politoed", "sableye"} for n in calls)

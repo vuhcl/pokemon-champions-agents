@@ -48,6 +48,7 @@ def _screens_draft(
         snap=snap,
         live_fetch=live_fetch,
         showdown_fetch=showdown_fetch,
+        regulation="champions-reg-mb",
     )
 
 
@@ -167,6 +168,7 @@ def test_rebuild_tmp(tmp_path: Path):
         if to_id(n) == "grimmsnarl"
         else None,
         showdown_fetch=lambda _n: None,
+        regulation="champions-reg-mb",
     )
     assert r.status == "approved", r.critique.flags
     assert Path(r.path or "").exists()

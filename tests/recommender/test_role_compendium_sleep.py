@@ -15,6 +15,7 @@ def test_sleep_construct_runs_offline_and_emits_candidates():
         snap=snap,
         live_fetch=None,
         showdown_fetch=None,
+        regulation="champions-reg-mb",
     )
     assert draft.category == "sleep_status_spreader"
     assert draft.candidates or draft.considered_rejected

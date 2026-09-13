@@ -48,9 +48,10 @@ _SETUP_THREAT_ENCOUNTER_GAMES = 15
 _SETUP_THREAT_USAGE_PCT_FLOOR = 100.0 * (
     1.0 - 0.5 ** (1.0 / _SETUP_THREAT_ENCOUNTER_GAMES)
 )
-# Pikalytics tournament team-usage pairs (Reg M-B). Not merged with Pokemon-Zone.
+# Pikalytics tournament team-usage pairs (current: Reg M-C).
+# M-B archive: champions-reg-mb.pikalytics-team-usage.v1.json
 _PIKALYTICS_PAIRS_PATH = (
-    ROOT / "data" / "team-composition" / "champions-reg-mb.pikalytics-team-usage.v1.json"
+    ROOT / "data" / "team-composition" / "champions-reg-mc.pikalytics-team-usage.v1.json"
 )
 # Damaging moves whose Champions calc target is allAdjacent / allAdjacentFoes.
 # Expanding Force omitted: spread only under Psychic Terrain (not modeled here).

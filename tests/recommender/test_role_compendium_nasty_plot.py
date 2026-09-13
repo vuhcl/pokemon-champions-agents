@@ -81,6 +81,7 @@ def _np_draft():
         live_fetch=_usage,
         showdown_fetch=lambda _n: None,
         calculate_batch=_mock_calc,
+        regulation="champions-reg-mb",
     )
 
 
@@ -119,6 +120,7 @@ def test_rebuild_tmp(tmp_path: Path):
         else None,
         showdown_fetch=lambda _n: None,
         calculate_batch=_mock_calc,
+        regulation="champions-reg-mb",
     )
     assert r.status == "approved", r.critique.flags
     assert Path(r.path or "").exists()

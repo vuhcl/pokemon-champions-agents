@@ -27,10 +27,15 @@ def _best_move_set_pct(
 ) -> float:
     """Max of CBD pct and Showdown set% for one move. Does not live-fetch."""
     sid = to_id(name)
-    ch = ingame_species_map().get(sid)
+    ch = ingame_species_map(uctx.regulation).get(sid)
     if not isinstance(ch, dict):
         ch = uctx.cache.get(sid)  # already-fetched live CBD only
-    sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)
+    sd = _showdown_entry(
+        name,
+        cache=sd_cache,
+        showdown_fetch=showdown_fetch,
+        regulation=uctx.regulation,
+    )
     return max(_move_pct(ch if isinstance(ch, dict) else None, move_id), _move_pct(sd, move_id))
 
 
@@ -97,11 +102,12 @@ def _showdown_entry(
     *,
     cache: dict[str, dict[str, Any] | None],
     showdown_fetch: LiveFetch | None,
+    regulation: str = "champions",
 ) -> dict[str, Any] | None:
     sid = to_id(species)
     if sid in cache:
         return cache[sid]
-    offline = showdown_species_map().get(sid)
+    offline = showdown_species_map(regulation).get(sid)
     if isinstance(offline, dict):
         cache[sid] = offline
         return offline
@@ -207,8 +213,18 @@ def _mega_usage_attribution(
         seen_pairs.add(pair)
         base_sid, mega_sid = pair
         base_name, mega_name = eligible[base_sid], eligible[mega_sid]
-        base_sd = _showdown_entry(base_name, cache=sd_cache, showdown_fetch=showdown_fetch)
-        mega_sd = _showdown_entry(mega_name, cache=sd_cache, showdown_fetch=showdown_fetch)
+        base_sd = _showdown_entry(
+            base_name,
+            cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+            regulation=uctx.regulation,
+        )
+        mega_sd = _showdown_entry(
+            mega_name,
+            cache=sd_cache,
+            showdown_fetch=showdown_fetch,
+            regulation=uctx.regulation,
+        )
 
         if mega_sd is not None:
             mega_pct = float(mega_sd.get("usage_pct") or 0.0)
@@ -282,7 +298,12 @@ def _delivery_usage_hits(
     """Moves on CBD and/or Showdown at or above set_pct_floor. CBD does not suppress SD."""
     mids = {to_id(m) for m in move_ids}
     champ = uctx.champions_entry(name)
-    sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)
+    sd = _showdown_entry(
+        name,
+        cache=sd_cache,
+        showdown_fetch=showdown_fetch,
+        regulation=uctx.regulation,
+    )
     cbd_hits = {mid for mid in mids if _entry_has_move(champ, mid)}
     sd_hits = {mid for mid in mids if _entry_has_move(sd, mid)}
     hits = cbd_hits | sd_hits
@@ -317,7 +338,12 @@ def _usage_has_item(
 ) -> bool:
     if _entry_has_item(uctx.champions_entry(name), item_id):
         return True
-    sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)
+    sd = _showdown_entry(
+        name,
+        cache=sd_cache,
+        showdown_fetch=showdown_fetch,
+        regulation=uctx.regulation,
+    )
     return _entry_has_item(sd, item_id)
 
 
@@ -334,5 +360,10 @@ def _same_row_both_moves(
     ch = uctx.champions_entry(name)
     if _entry_has_move(ch, move_a) and _entry_has_move(ch, move_b):
         return True
-    sd = _showdown_entry(name, cache=sd_cache, showdown_fetch=showdown_fetch)
+    sd = _showdown_entry(
+        name,
+        cache=sd_cache,
+        showdown_fetch=showdown_fetch,
+        regulation=uctx.regulation,
+    )
     return bool(sd) and _entry_has_move(sd, move_a) and _entry_has_move(sd, move_b)

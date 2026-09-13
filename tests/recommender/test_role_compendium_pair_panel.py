@@ -2,22 +2,43 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
+
+import pytest
 
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
 from recommender.role_compendium_setup import (
     _is_spread_damage_mid,
     _pair_entry_label,
+    _pikalytics_panel_pair_counts,
     _setup_kit_matrix_score,
     _setup_payoff_notes,
     _setup_threat_defenders,
 )
+from recommender.role_compendium_setup_constants import ROOT
 from recommender.team_candidates import (
     _FLOETTE_ETERNAL_SID,
     _FLOETTE_MEGA_SID,
     pair_lookup_species_id,
 )
+
+_MB_PIKA = (
+    ROOT / "data" / "team-composition" / "champions-reg-mb.pikalytics-team-usage.v1.json"
+)
+
+
+@pytest.fixture(autouse=True)
+def _pin_pikalytics_pairs_mb(monkeypatch):
+    """Goldens assert M-B partner counts; keep archive path for this module."""
+    monkeypatch.setattr(
+        "recommender.role_compendium_setup._PIKALYTICS_PAIRS_PATH",
+        _MB_PIKA,
+    )
+    _pikalytics_panel_pair_counts.cache_clear()
+    yield
+    _pikalytics_panel_pair_counts.cache_clear()
 
 
 def _hit(

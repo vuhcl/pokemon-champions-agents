@@ -28,6 +28,7 @@ def _draft(criteria: dict, pool: list[str] | None = None):
         pool if pool is not None else legal_species_pool(snap),
         snap=snap,
         live_fetch=None,
+        regulation="champions",
     )
 
 
