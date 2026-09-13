@@ -1,4 +1,4 @@
-"""Parse champions-news.pokemon-home.com Regulation Set Duration pages."""
+"""Parse Champions / HOME news Duration pages (regulation + ranked seasons)."""
 
 from __future__ import annotations
 
@@ -13,6 +13,8 @@ from urllib.request import Request, urlopen
 UA = "pokemon-champions-agents/0.1 (legality-extract-gate)"
 NEWS_HOST = "https://champions-news.pokemon-home.com"
 PAGE_TMPL = NEWS_HOST + "/en/page/{id}.html"
+SEASON_NEWS_HOST = "https://news.pokemon-home.com"
+SEASON_PAGE_TMPL = SEASON_NEWS_HOST + "/en/page/{id}.html"
 
 _DURATION_START = re.compile(
     r"([A-Za-z]+day),\s+([A-Za-z]+)\s+(\d{1,2}),\s+(\d{4}),\s+at\s+(\d{1,2}):(\d{2})\s+UTC"
@@ -20,6 +22,7 @@ _DURATION_START = re.compile(
     re.I | re.S,
 )
 _TITLE_SET = re.compile(r"Regulation Set M-([A-Z])\b", re.I)
+_TITLE_SEASON = re.compile(r"Ranked Battles Season M-(\d+)\b", re.I)
 _MONTHS = {
     "january": 1,
     "february": 2,
@@ -39,6 +42,16 @@ _MONTHS = {
 @dataclass(frozen=True)
 class RegulationNewsPage:
     letter: str
+    url: str
+    page_id: int | None
+    start_utc: datetime
+    end_utc: datetime
+    title: str
+
+
+@dataclass(frozen=True)
+class SeasonNewsPage:
+    season_number: int
     url: str
     page_id: int | None
     start_utc: datetime
@@ -95,22 +108,40 @@ def fetch_html(url: str, *, timeout: float = 30.0) -> str:
         return resp.read().decode("utf-8", errors="replace")
 
 
-def parse_regulation_news_html(
-    html: str, *, url: str = "", page_id: int | None = None
-) -> RegulationNewsPage:
+def page_url(page_id: int) -> str:
+    return PAGE_TMPL.format(id=page_id)
+
+
+def season_page_url(page_id: int) -> str:
+    return SEASON_PAGE_TMPL.format(id=page_id)
+
+
+def _extract_text_and_title(html: str) -> tuple[str, str]:
     parser = _TextExtractor()
     parser.feed(html)
     text = " ".join("".join(parser.parts).split())
     title = " ".join("".join(parser.title_parts).split()) or text[:120]
-    tm = _TITLE_SET.search(title) or _TITLE_SET.search(text)
-    if not tm:
-        raise ValueError(f"no Regulation Set M-* title in {url or 'html'}")
-    letter = tm.group(1).upper()
+    return text, title
+
+
+def _duration_from_text(text: str, *, url: str = "") -> tuple[datetime, datetime]:
     dm = _DURATION_START.search(text)
     if not dm:
         raise ValueError(f"no Duration UTC window in {url or 'html'}")
     start = _parse_dt(dm.group(2), dm.group(3), dm.group(4), dm.group(5), dm.group(6))
     end = _parse_dt(dm.group(8), dm.group(9), dm.group(10), dm.group(11), dm.group(12))
+    return start, end
+
+
+def parse_regulation_news_html(
+    html: str, *, url: str = "", page_id: int | None = None
+) -> RegulationNewsPage:
+    text, title = _extract_text_and_title(html)
+    tm = _TITLE_SET.search(title) or _TITLE_SET.search(text)
+    if not tm:
+        raise ValueError(f"no Regulation Set M-* title in {url or 'html'}")
+    letter = tm.group(1).upper()
+    start, end = _duration_from_text(text, url=url)
     return RegulationNewsPage(
         letter=letter,
         url=url,
@@ -121,8 +152,23 @@ def parse_regulation_news_html(
     )
 
 
-def page_url(page_id: int) -> str:
-    return PAGE_TMPL.format(id=page_id)
+def parse_season_news_html(
+    html: str, *, url: str = "", page_id: int | None = None
+) -> SeasonNewsPage:
+    text, title = _extract_text_and_title(html)
+    tm = _TITLE_SEASON.search(title) or _TITLE_SEASON.search(text)
+    if not tm:
+        raise ValueError(f"no Ranked Battles Season M-* title in {url or 'html'}")
+    season_number = int(tm.group(1))
+    start, end = _duration_from_text(text, url=url)
+    return SeasonNewsPage(
+        season_number=season_number,
+        url=url,
+        page_id=page_id,
+        start_utc=start,
+        end_utc=end,
+        title=title,
+    )
 
 
 def scan_for_letter(
@@ -155,6 +201,48 @@ def scan_for_letter(
         if page.letter == want:
             return page
     msg = f"no champions-news page for Regulation Set M-{want} in ids {start_page_id}..{start_page_id + window}"
+    if last_err:
+        raise LookupError(f"{msg} (last error: {last_err})") from last_err
+    raise LookupError(msg)
+
+
+def scan_for_current_season(
+    *,
+    start_page_id: int,
+    window: int = 80,
+    now: datetime | None = None,
+    fetch=fetch_html,
+) -> SeasonNewsPage:
+    """Scan season news pages; return the season whose UTC window contains now."""
+    now = now or datetime.now(timezone.utc)
+    last_err: Exception | None = None
+    found: list[SeasonNewsPage] = []
+    for page_id in range(start_page_id, start_page_id + window + 1):
+        url = season_page_url(page_id)
+        try:
+            html = fetch(url)
+        except HTTPError as e:
+            if e.code == 404:
+                continue
+            last_err = e
+            continue
+        except (URLError, TimeoutError, OSError) as e:
+            last_err = e
+            continue
+        try:
+            page = parse_season_news_html(html, url=url, page_id=page_id)
+        except ValueError as e:
+            last_err = e
+            continue
+        found.append(page)
+        if page.start_utc <= now < page.end_utc:
+            return page
+    msg = (
+        f"no current Ranked Battles Season page containing {now.isoformat()} "
+        f"in ids {start_page_id}..{start_page_id + window}"
+    )
+    if found:
+        msg += f" (parsed seasons: {[p.season_number for p in found]})"
     if last_err:
         raise LookupError(f"{msg} (last error: {last_err})") from last_err
     raise LookupError(msg)

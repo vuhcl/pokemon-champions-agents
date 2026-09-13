@@ -5,12 +5,23 @@ ranks plus Showdown chaos @ 1500 per-form builds.
 
 | Path | Role |
 |------|------|
-| `champions-reg-mb.v1.json` | Full in-game doubles ladder (minus mega-capable lineages) + Showdown@1500 formes/builds and exact-form teammate co-occurrence (schema v3) |
+| `champions-reg-mc.v1.json` | Reg M-C in-game doubles from MunchStats `champions-data` (raw GitHub). Showdown chaos half empty until an M-C source exists. |
+| `champions-reg-mb.v1.json` | Reg M-B: CBD doubles + Showdown@1500 formes/builds (schema v3). Kept as archive. |
 
-## Rebuild (regulation-change / monthly refresh)
+## Rebuild Reg M-C (MunchStats champions-data)
+
+Scheduled by `.github/workflows/usage-refresh-mc.yml` (daily cron; gate decides early-window vs biweekly). Manual:
+
+```bash
+uv run python -m scripts.extract_usage.fetch_usage_mc_munchstats
+# or via cadence gate (writes only when validation passes):
+uv run python -m scripts.ci.usage_refresh_mc_gate --force
+```
+
+## Rebuild Reg M-B (CBD + Showdown chaos)
 
 Parameterized. Do not hardcode a month into callers — pass the new Smogon
-stats month and format id.
+stats month and format id. **Leave unscheduled until those sources catch up to M-C.**
 
 ```bash
 # Default: reuse existing CBD slice, full Smogon chaos, no move/item cap,

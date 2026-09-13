@@ -1,0 +1,57 @@
+name: usage-refresh-mc
+
+on:
+  schedule:
+    # Daily; cadence phase (early 7-day vs biweekly) is decided in the gate script.
+    - cron: "27 15 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Skip cadence window check (still validates freshness/floors)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: usage-refresh-mc
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+
+      - run: uv sync --extra dev --frozen
+
+      - name: Cadence gate + extract
+        id: gate
+        run: |
+          set -euo pipefail
+          FORCE_FLAG=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force }}" = "true" ]; then
+            FORCE_FLAG="--force"
+          fi
+          uv run python -m scripts.ci.usage_refresh_mc_gate \
+            --github-output "$GITHUB_OUTPUT" \
+            $FORCE_FLAG
+
+      - name: Commit snapshot to main
+        if: steps.gate.outputs.decision == 'commit'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/usage/champions-reg-mc.v1.json
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+            exit 0
+          fi
+          git commit -m "chore: refresh champions-reg-mc usage from MunchStats champions-data"
+          git push origin HEAD:main
