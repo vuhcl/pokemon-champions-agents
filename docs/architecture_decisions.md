@@ -4392,6 +4392,42 @@ end-pairs
 
 ---
 
+## ADR-019 Amendment 2026-09-13a — Phase 2 usage-driven maintenance
+trigger operationalized for automated usage refresh
+
+ADR-019's existing maintenance cycle already specifies a usage-based
+mismatch-detection phase ("once enough real usage accumulates
+post-regulation") as a genuine event trigger, distinct from the
+regulation-change trigger. This phase was designed assuming usage data
+arrives rarely and manually — it did not anticipate an automated usage
+pipeline that refreshes daily during a regulation's first week, then
+biweekly per season (ADR-016 Amendment 2026-09-12a).
+
+Clarification, not an override of the "no standing periodic re-run"
+principle: Phase 2's trigger now fires when BOTH conditions hold —
+(1) usage data has genuinely changed since the last Compendium
+mismatch check (an event: a new committed usage snapshot, not a clock),
+AND (2) a minimum spacing interval has passed since the last Compendium
+check ran, regardless of how many usage refreshes occurred in between.
+This keeps the trigger honestly event-driven — it never fires when
+nothing has changed — while preventing usage's own frequent early-
+regulation cadence (daily for 7 days) from forcing a Compendium
+mismatch check, and the human review it requires, on the same daily
+schedule. The minimum-spacing interval is a review-load bound, not a
+recurrence schedule: a season with no real usage-data change during
+that window produces zero Compendium checks, not a check that finds
+nothing.
+
+This does not change phase 1 (regulation-change trigger, immediate,
+mechanical) or the constructor/critic/persist pipeline itself. Every
+resulting mismatch check still requires human review and merge — no
+change to that discipline.
+
+Status: Established for implementation alongside the automated
+Compendium/VGCPastes PR-gated refresh workflows.
+
+---
+
 ## ADR-020: Theme/archetype reconciliation — mechanism for re-evaluating locked values when
 team-level commitments or sibling attributes change
 
