@@ -36,7 +36,7 @@ jobs:
         id: gate
         run: |
           set -euo pipefail
-          uv run python scripts/ci/regulation_extract_gate.py \
+          uv run python -m scripts.ci.regulation_extract_gate \
             --out "$RUNNER_TEMP/gate.json" \
             --github-output "$GITHUB_OUTPUT"
 
@@ -60,7 +60,7 @@ jobs:
           npm run extract:move-accuracy
           npm run extract:move-stat-boosts
           npm run extract:move-flags
-          uv run python scripts/ci/retarget_regulation_identity.py \
+          uv run python -m scripts.ci.retarget_regulation_identity \
             --gate "$RUNNER_TEMP/gate.json"
           uv run python scripts/ci/bump_regulation_news_bookmark.py \
             --gate "$RUNNER_TEMP/gate.json"

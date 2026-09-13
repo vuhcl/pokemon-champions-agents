@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -244,7 +245,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--showdown-path", type=Path, default=None)
     args = p.parse_args(argv)
 
-    news_url = (sys.environ.get("REGULATION_NEWS_URL") or "").strip() or None
+    news_url = (os.environ.get("REGULATION_NEWS_URL") or "").strip() or None
     result = run_gate(showdown_repo=args.showdown_path, news_url=news_url)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
