@@ -5766,6 +5766,59 @@ clean, same known trio, no regressions.
 
 Merged: `fix/evs-to-sp-max-investment-budget`.
 
+### 2026-09-12 to 2026-09-13 — Full automation trilogy shipped: legality,
+usage, and Compendium/VGCPastes refresh, each risk-tiered to its actual
+consequence
+
+Closes out the manual-re-extraction toil that motivated the whole M-C
+migration's own careful, manual safety-gate process — three real,
+independently-verified automated pipelines, each given a genuinely
+different mechanism matched to its actual risk, not a single uniform
+"automate everything the same way" design:
+
+- **Legality/abilities/moves** (ADR-065): event-driven (real official
+  start + confirmed Showdown data, never a calendar), PR-gated, never
+  auto-merged. A real production bug (CLI cross-module imports
+  incompatible with direct-path invocation, masked by pytest's own
+  import mechanism during pre-merge review) was found on the very first
+  live scheduled run and fixed within hours — the lesson (use `-m`
+  module invocation for any script with sibling imports) was correctly
+  applied to every subsequent script in this arc without needing to be
+  told twice.
+- **Usage data** (ADR-016 Amendment 2026-09-12a): event+time-driven,
+  validated auto-commit — the first real M-C in-game usage data this
+  project has ever had, sourced from MunchStats' raw publishing branch
+  after directly reading their own server source to confirm the live
+  website API's fuzzy-fallback hazard and choosing a genuinely safer
+  path instead of building defenses around a riskier one. Surfaced (not
+  caused) a systemic 29-test isolation gap across the suite, fixed by
+  pinning to the historically-intended M-B fixture rather than chasing
+  a moving M-C target.
+- **Compendium + VGCPastes** (ADR-066): PR-gated, event+spacing-gated,
+  atomic (all-or-nothing) offline rebuild with a real semantic-diff
+  layer distinguishing genuine membership/tier changes from cosmetic
+  `built_at` churn. Uncovered and fixed a real, independent pre-existing
+  bug along the way — Compendium construction was silently reading
+  stale M-B usage data with no regulation awareness at all, a bug that
+  automation would have made systematically worse, not better, if
+  shipped uncorrected.
+
+Verified independently at every stage in this arc, not taken on report:
+real end-to-end CLI invocations run against live data where the
+sandbox's network access allowed it (Showdown clones, the actual
+MunchStats raw branch, real Pikalytics API queries); atomic-rebuild and
+semantic-diff control flow read line-by-line to confirm structural
+guarantees, not just tested behavior; every real regression found
+during review (test fixture collisions with new real data, bare-lambda
+mocks incompatible with newly-threaded parameters, the CLI-invocation
+bug itself) was root-caused precisely and fixed correctly rather than
+patched around. Full suite clean at every step, same 3 pre-existing
+calc-unavailable sandbox failures seen throughout this entire project,
+no regressions introduced anywhere in this arc.
+
+Merged: #209, #210, #211, `fix/compendium-usage-regulation-retarget`,
+#213.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

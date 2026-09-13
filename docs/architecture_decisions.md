@@ -2707,6 +2707,81 @@ checkable form of "partial migration is safe," not an assumption.
 
 ---
 
+## ADR-016 Amendment 2026-09-12a — M-C usage snapshot sourced from
+MunchStats' raw champions-data branch, not its live API
+
+**Decision:** `data/usage/champions-reg-mc.v1.json` is populated by an
+automated job reading MunchStats' `champions-data` git branch directly
+via `raw.githubusercontent.com` — the same trust tier and access
+pattern this project already uses for MunchStats' main-branch stats
+files (`usage_live.py`) — rather than the live `munchstats.com` website
+API originally investigated. This supersedes that earlier design
+entirely, not just refines it.
+
+**Why the live API was rejected:** confirmed directly from MunchStats'
+own published server source (`app.py`'s `fuzzy_match`,
+`difflib.get_close_matches` at a 0.6 cutoff) that a species-name miss
+on the live API never 404s — it silently falls back to a fuzzy match or
+an arbitrary rank-#1 default, always returning `HTTP 200`. The raw
+`champions-data` branch has no such hazard: a genuinely absent species
+returns a real, standard 404 on both `index.json` and per-species
+detail files (confirmed on a nonsense name and on Mega-form slugs
+specifically). The index itself already resolves the species-
+normalization questions the live-API design needed a client-side
+`fuzzy_match` replica for — `showdownId` matches this project's own
+`to_id()` convention exactly, and regional/gender forme distinctions
+(Raichu-Alola, Indeedee-F) are already correctly separate entries,
+eliminating essentially the entire identity-verification design built
+around the live API's fuzzy-fallback behavior. The only real
+normalization still needed is Mega-form species, which have no entry
+in the index at all (a clean miss) and must be looked up by their real
+base species ID from the start.
+
+**A real bug was caught mid-build, not after**: the first extract
+implementation applied a species' `base_species_id` unconditionally to
+resolve the join key, which happens to be set on regional/gender forme
+entries too (for their own forme-relationship reasons, not mega
+status) — silently collapsing Raichu-Alola and Indeedee-F onto their
+base species. Fixed to gate `base_species_id` consultation strictly
+behind a genuine Mega-suffix check on the species ID itself; the fix is
+locked in by a regression test asserting both the correct mega
+collapse and the explicit non-collapse of regional/gender formes in
+the same test.
+
+**Cadence:** daily for the first 7 days after a regulation's official
+start (the confirmed real milestone: ranked-tier population changes at
++7 days), then twice per season (~biweekly) afterward, reusing
+`champions_news.py`'s season-boundary lookup (also built for this job).
+Validated auto-commit directly to `main` — not PR-gated, unlike
+legality — since usage is classified "suboptimal if wrong" rather than
+dangerous, and daily-cadence PR review during the early window would be
+real friction without commensurate safety benefit. Validation gates:
+schema conformance, an absolute species-count floor, a ladder-relative
+floor, a drop-vs-previous-snapshot check, a >=95% per-species detail-
+fetch success ratio, and `generatedAt` freshness (same/older data is a
+clean no-op, never an error).
+
+**Explicitly out of scope, left untouched:** `fetch_usage_mb.py` (CBD +
+Showdown chaos) — has nothing new to contribute until those sources
+independently catch up to M-C.
+
+**This is the first thing in this project's history to populate real
+M-C usage data**, which surfaced (not caused) a systemic test-isolation
+gap: 29 tests across the suite called usage-consuming functions with
+the bare default `regulation="champions"` while asserting specific
+values that were only ever true because of this ADR's own archive-
+fallback silently serving frozen M-B content. Fixed by explicitly
+pinning each affected test to `regulation="champions-reg-mb"` — not by
+updating expected values to match current M-C data, since this job's
+own automated refresh would make any such assertion fragile again on
+its very next run.
+
+**Status:** Shipped, `feat/munchstats-mc-usage-refresh` (#211), CLI-
+invocation and mega-normalization fixes in the same PR, test-isolation
+fix in a same-branch follow-up commit.
+
+---
+
 ## ADR-017: RecommenderState extensions — team theme/core, granular locking, constraint scope
 
 **Team theme/core.** `RecommenderState` gains two related concepts, populated by a detection
@@ -10757,3 +10832,123 @@ relitigating with a data-driven cluster search the way the DD/SD speed
 question or the mega-stone dominance threshold needed one.
 
 **Status:** Shipped, `fix/evs-to-sp-max-investment-budget`.
+
+---
+
+## ADR-065: Event-driven legality/abilities/moves extraction gate —
+official start + confirmed Showdown mod, never a calendar
+
+**Decision:** A scheduled GitHub Actions job (daily cron + manual
+dispatch) polls two real, checkable preconditions before ever
+re-extracting legality/abilities/move data — never a calendar date
+alone: (1) the NEXT regulation's official UTC start time, scraped from
+champions-news.pokemon-home.com's published pages (a real bookmark-
+based page-ID scan, since the site has no clean catalog/API — verified
+against real M-B/M-C page IDs 776/816), has actually passed; and (2) a
+corresponding Showdown mod commit for that regulation genuinely exists
+(confirmed empirically: the two are not simultaneous — ~5.5 hours apart
+for the M-C launch, official-announcement-to-Showdown-data can be
+weeks). Both conditions fail closed on any ambiguity (unparseable
+duration text, non-adjacent regulation letter, missing prior-mod
+archive directory) rather than guessing. On a real "extract" decision,
+legality, abilities, and move (accuracy/flags/stat-boost) data extract
+together, followed by identity retargeting (`DEFAULT_FORMAT_ID`,
+`format.py`, `ids.py`) in the SAME PR — never split, per the safety
+gate established during the M-C migration itself (a legal pool update
+with stale identity labels is an actively inconsistent state, not
+merely incomplete). Output is always a PR, never an auto-merge.
+
+**Why:** Closes the gap the M-C migration surfaced manually — legality
+extraction was previously hardcoded to a specific prior-mod pair
+(`championsregma` -> `champions`) and would have broken outright on the
+very next regulation change. Generalizing the prior-mod derivation
+(`priorModFromVgcName`) and building a real, checkable trigger removes
+the dependency on someone remembering to manually re-run extraction and
+retarget identity together.
+
+**A real production bug was found and fixed on this job's first live
+scheduled run** (2026-09-12): both new CI scripts
+(`regulation_extract_gate.py`, `retarget_regulation_identity.py`) used
+cross-module imports (`from scripts.ci.X import ...`) while the
+workflow invoked them by direct file path — which never puts the repo
+root on `sys.path`, unlike `-m` module invocation. This failed
+deterministically, every time, in any environment; it wasn't caught
+during pre-merge review because the pytest suite's own import mechanism
+(which adds the repo root to `sys.path` automatically) masked the bug
+entirely, so the actual CLI entry point was never exercised before
+merge. A second, independent bug (`sys.environ` instead of `os.environ`
+— `os` was never imported) was found in the same fix pass, only
+reachable once the first bug was corrected. **Lesson applied going
+forward:** every subsequent CI script in this project (the MunchStats
+usage-refresh, the Compendium/VGCPastes refresh) was built with `-m`
+invocation from the start, and this class of bug did not recur.
+
+**Status:** Shipped, `feat/legality-extract-gate` (#209), CLI-invocation
+fix `fix/legality-gate-cli-invoke` (#210).
+
+---
+
+## ADR-066: PR-gated Compendium and VGCPastes refresh — event+spacing
+trigger, atomic offline rebuild, semantic diff
+
+**Decision:** Two refresh jobs, both PR-gated (never auto-commit
+content, only a small marker file), operationalizing ADR-019 Amendment
+2026-09-13a's usage-driven maintenance trigger for the automated-usage-
+refresh era:
+
+Compendium fires when BOTH hold: usage data has genuinely changed since
+the last check (`munchstats_generated_at` on the committed M-C usage
+snapshot is strictly newer than what a persisted marker recorded) AND
+at least 14 days have passed since the last check ran — an explicit
+minimum-spacing guard preventing usage's own frequent early-regulation
+cadence (daily for 7 days) from forcing a Compendium review, and the
+human attention it requires, on the same daily schedule. This stays
+genuinely event-driven (never fires on nothing having changed) while
+bounding reviewer load to roughly one check per usage settlement cycle.
+All 18 role categories construct and critique fully, offline-only
+(`live_fetch=None`), before any file is persisted — critic flags on any
+single category abort the entire batch with zero role-file writes, not
+a partial rebuild. A semantic diff (admitted/dropped membership, tier
+moves — explicitly ignoring `built_at`, which every persist rewrites
+regardless of real content change) determines whether a PR is even
+worth opening; a critic-clear run with no real semantic change is a
+clean no-op, not an empty PR. The marker itself (clock/fingerprint
+state, not membership judgment) auto-commits to `main` on every
+completed check regardless of outcome — kept deliberately separate from
+role-file content, which only ever lands via a human-merged PR.
+
+VGCPastes refreshes independently (no shared usage-event gate — a
+Google Sheet of community pastes has no comparable "data just changed"
+event structure), on a 14-day spacing-only cadence, now retargeted to
+the confirmed real M-C sheet tab, with real validation floors (absolute
+team count, drop-ratio vs. previous snapshot, resolve-quality ratio,
+EV-completeness ratio) replacing the previous bare `len(teams) >= 100`
+check.
+
+**Why PR-gated, not auto-commit like usage:** confirmed directly from
+the Stage 4 critic precedent (2026-08-14) — even a zero-flag critic
+pass produced large real diffs (one category: 16 tier changes, 29 newly
+admitted members) that required explicit human sign-off before persist.
+"Critic clear" answers "does this draft violate the checklist," not
+"are these membership/tier choices what we want to ship" — a
+categorically different question than usage's schema/floor validation.
+
+**A real, independent bug was found and fixed as a direct prerequisite**
+(not part of this ADR's own automation work): Compendium's construct
+pipeline read usage data via a hardcoded M-B path with no regulation
+threading at all — meaning a rebuild run today, automated or manual,
+would have silently constructed against stale M-B usage while legality
+was already M-C, with nothing flagging the mismatch. Fixed by threading
+`regulation="champions"` through the full `_UsageCtx`/`_offline_usage_row`/
+`champions_entry`/`_showdown_entry` chain, using the same
+`regulation_lookup_chain` archive-fallback pattern already proven
+correct elsewhere. Separately, live-checked (not assumed) that
+Pikalytics' tournament team-usage endpoint had itself already rolled
+forward to real M-C data (generatedAt 2026-09-11, 1327 M-C-labeled
+records) — the committed M-B file was from 2026-07-28, predating the
+regulation entirely — and extracted a real M-C file rather than
+shipping the originally-planned "stays M-B, comment-only" placeholder,
+which would have been stale before it even merged.
+
+**Status:** Shipped, `fix/compendium-usage-regulation-retarget`,
+`chore/compendium-vgcpastes-refresh-automation` (#213).
