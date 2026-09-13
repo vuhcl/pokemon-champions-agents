@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""Fetch VGCPastes Champions M-B sheet + resolve Pokepaste URLs to full builds.
+"""Fetch VGCPastes Champions sheet + resolve Pokepaste URLs to full builds.
 
-Source sheet (not the Pikalytics /team-usage API):
+Default target is Reg M-C (same workbook as M-B; Champions M-C tab):
   https://docs.google.com/spreadsheets/d/1axlwmzPA49rYkqXh7zHvAtSP-TKbM0ijGYBPRflLSWw
-  gid=1458357160  title row: "VGCPastes Repository (Champions M-B)"
+  gid=736919171
+
+M-B archive remains at champions-reg-mb.vgcpastes-builds.v1.json (gid=1458357160).
 
 Population is whatever the sheet itself claims (mixed Twitter/community +
 tournament placers) — do not treat as Limitless-only like the species-level
 pikalytics-team-usage extract.
-
-Output sits alongside species-only team-composition files but carries real
-spread/item/moveset per member. Discovery extract — not wired into Tier 1.
 """
 
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 import re
@@ -25,21 +25,26 @@ import urllib.request
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "data" / "team-composition" / "champions-reg-mb.vgcpastes-builds.v1.json"
+DEFAULT_OUT = (
+    ROOT / "data" / "team-composition" / "champions-reg-mc.vgcpastes-builds.v1.json"
+)
 CACHE = ROOT / "artifacts" / "pikalytics-pokepaste" / "pokepaste-cache"
 SHEET_CSV = ROOT / "artifacts" / "pikalytics-pokepaste" / "sheet.csv"
 SHEET_ID = "1axlwmzPA49rYkqXh7zHvAtSP-TKbM0ijGYBPRflLSWw"
-SHEET_GID = "1458357160"
-SHEET_EXPORT = (
-    f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export"
-    f"?format=csv&gid={SHEET_GID}"
-)
-SHEET_URL = (
-    f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={SHEET_GID}"
-)
-UA = "pokemon-champions-agents/0.1 (vgcpastes-builds discovery)"
+DEFAULT_SHEET_GID = "736919171"
+DEFAULT_REGULATION = "champions-reg-mc"
+UA = "pokemon-champions-agents/0.1 (vgcpastes-builds)"
+
+# Validation floors (usage-refresh discipline).
+ABS_FLOOR = 100
+DROP_RATIO = 0.90
+DROP_ABS = 50
+RESOLVE_OK_RATIO = 0.90
+EV_MEMBER_RATIO = 0.50
+
 STAT_KEYS = ("hp", "atk", "def", "spa", "spd", "spe")
 STAT_ALIASES = {
     "hp": "hp",
@@ -61,11 +66,68 @@ def fetch_bytes(url: str, *, timeout: float = 60) -> bytes:
         return resp.read()
 
 
-def ensure_sheet_csv() -> Path:
+def sheet_urls(sheet_id: str, gid: str) -> tuple[str, str]:
+    export = (
+        f"https://docs.google.com/spreadsheets/d/{sheet_id}/export"
+        f"?format=csv&gid={gid}"
+    )
+    edit = f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit?gid={gid}"
+    return export, edit
+
+
+def ensure_sheet_csv(*, sheet_id: str = SHEET_ID, gid: str = DEFAULT_SHEET_GID) -> Path:
+    export, _ = sheet_urls(sheet_id, gid)
     SHEET_CSV.parent.mkdir(parents=True, exist_ok=True)
-    print(f"fetch sheet {SHEET_EXPORT}", file=sys.stderr)
-    SHEET_CSV.write_bytes(fetch_bytes(SHEET_EXPORT, timeout=120))
+    print(f"fetch sheet {export}", file=sys.stderr)
+    SHEET_CSV.write_bytes(fetch_bytes(export, timeout=120))
     return SHEET_CSV
+
+
+def validate_vgcpastes_snapshot(
+    snap: dict[str, Any],
+    *,
+    previous: dict[str, Any] | None = None,
+) -> tuple[str, str]:
+    """Return (ok|fail|noop, reason)."""
+    meta = snap.get("meta") or {}
+    if meta.get("schema_version") != 1:
+        return "fail", "schema_version_not_1"
+    teams = snap.get("teams") or []
+    n = len(teams)
+    if n < ABS_FLOOR:
+        return "fail", f"abs_floor_{n}_lt_{ABS_FLOOR}"
+    sheet_rows = int(meta.get("sheet_rows") or 0)
+    resolve = meta.get("resolve_counts") or {}
+    ok_6 = int(resolve.get("ok_6") or 0)
+    if sheet_rows > 0 and ok_6 / sheet_rows < RESOLVE_OK_RATIO:
+        return "fail", f"resolve_ok_ratio_{ok_6}_of_{sheet_rows}"
+    ev = meta.get("ev_completeness") or {}
+    members_total = int(ev.get("members_total") or 0)
+    with_ev = int(ev.get("members_with_nonzero_evs") or 0)
+    if members_total <= 0 or with_ev / members_total < EV_MEMBER_RATIO:
+        return "fail", f"ev_member_ratio_{with_ev}_of_{members_total}"
+
+    if previous is not None:
+        prev_n = int((previous.get("meta") or {}).get("teams_resolved") or 0)
+        if prev_n > 0:
+            if n < prev_n * DROP_RATIO:
+                return "fail", f"drop_ratio_{n}_lt_{prev_n}*{DROP_RATIO}"
+            if (prev_n - n) > DROP_ABS:
+                return "fail", f"drop_abs_{prev_n - n}_gt_{DROP_ABS}"
+        prev_ids = {
+            str(t.get("team_id"))
+            for t in (previous.get("teams") or [])
+            if t.get("team_id") is not None
+        }
+        new_ids = {
+            str(t.get("team_id"))
+            for t in teams
+            if t.get("team_id") is not None
+        }
+        if prev_n == n and prev_ids == new_ids:
+            return "noop", "teams_unchanged"
+
+    return "ok", f"validated_n_{n}"
 
 
 def load_sheet_rows(path: Path) -> tuple[dict[str, str], list[dict[str, str]], list[str]]:
@@ -270,8 +332,15 @@ def classify_population(rows: list[dict[str, str]], title_meta: dict) -> dict:
     }
 
 
-def main() -> int:
-    ensure_sheet_csv()
+def extract(
+    *,
+    sheet_id: str = SHEET_ID,
+    gid: str = DEFAULT_SHEET_GID,
+    regulation: str = DEFAULT_REGULATION,
+    out_path: Path = DEFAULT_OUT,
+) -> dict[str, Any]:
+    _, sheet_url = sheet_urls(sheet_id, gid)
+    ensure_sheet_csv(sheet_id=sheet_id, gid=gid)
     title_meta, rows, _cols = load_sheet_rows(SHEET_CSV)
     pop = classify_population(rows, title_meta)
 
@@ -331,7 +400,6 @@ def main() -> int:
         if (i + 1) % 50 == 0:
             print(f"  … {i + 1}/{len(rows)} rows", file=sys.stderr)
 
-    # Species-level cores for side-by-side with existing files (uses=1 per paste team).
     core_counts: Counter[tuple[str, ...]] = Counter()
     for t in teams:
         key = tuple(sorted(set(t["species"])))
@@ -342,17 +410,18 @@ def main() -> int:
         for sp, n in sorted(core_counts.items(), key=lambda x: (-x[1], x[0]))
     ]
 
-    snap = {
+    snap: dict[str, Any] = {
         "meta": {
             "schema_version": 1,
             "source": "vgcpastes",
             "source_detail": (
-                f"Google Sheet gid={SHEET_GID} + pokepast.es/{{id}}/json resolution"
+                f"Google Sheet gid={gid} + pokepast.es/{{id}}/json resolution"
             ),
-            "source_url": SHEET_URL,
+            "source_url": sheet_url,
+            "sheet_gid": str(gid),
             "population": pop["population"],
             "population_evidence": pop["population_evidence"],
-            "regulation": "champions-reg-mb",
+            "regulation": regulation,
             "sheet_claimed_total_teams": None,
             "sheet_rows": len(rows),
             "teams_resolved": len(teams),
@@ -370,7 +439,6 @@ def main() -> int:
         "teams": teams,
         "cores": cores,
     }
-    # Pull claimed totals from title row if present.
     raw0 = SHEET_CSV.read_text(encoding="utf-8").splitlines()[0]
     m_tc = re.search(r"Total Team Count:\D+(\d+)", raw0)
     m_cc = re.search(r"Total Creator Count:\D+(\d+)", raw0)
@@ -404,18 +472,49 @@ def main() -> int:
             "zero-EV teams are still valid for item/moveset variation."
         ),
     }
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(snap, indent=2) + "\n", encoding="utf-8")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(snap, indent=2) + "\n", encoding="utf-8")
     print(
-        f"Wrote {OUT} ({len(teams)} teams, {len(cores)} unique species-sets, "
+        f"Wrote {out_path} ({len(teams)} teams, {len(cores)} unique species-sets, "
         f"resolve={dict(resolve)})",
         file=sys.stderr,
     )
-    assert len(teams) >= 100, "expected a substantial resolvable set"
-    assert any(
-        any(m.get("evs") and sum(m["evs"].values()) > 0 for m in t["members"])
-        for t in teams[:20]
-    ), "expected real EV spreads in resolved pastes"
+    return snap
+
+
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--sheet-id", default=SHEET_ID)
+    p.add_argument("--gid", default=DEFAULT_SHEET_GID)
+    p.add_argument("--regulation", default=DEFAULT_REGULATION)
+    p.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    p.add_argument(
+        "--skip-validate",
+        action="store_true",
+        help="Write extract without floor checks (manual/debug only)",
+    )
+    args = p.parse_args(argv)
+
+    previous = None
+    if args.out.exists():
+        try:
+            previous = json.loads(args.out.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            previous = None
+
+    snap = extract(
+        sheet_id=args.sheet_id,
+        gid=args.gid,
+        regulation=args.regulation,
+        out_path=args.out,
+    )
+    if args.skip_validate:
+        return 0
+    decision, reason = validate_vgcpastes_snapshot(snap, previous=previous)
+    if decision == "fail":
+        print(f"validate fail: {reason}", file=sys.stderr)
+        return 1
+    print(f"validate {decision}: {reason}", file=sys.stderr)
     return 0
 
 
