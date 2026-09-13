@@ -64,7 +64,7 @@ def test_admission_keys_only_on_sd_cm_bu():
 def test_setup_threat_panel_uses_15_game_usage_floor():
     assert _SETUP_THREAT_ENCOUNTER_GAMES == 15
     assert abs(_SETUP_THREAT_USAGE_PCT_FLOOR - 100.0 * (1.0 - 0.5 ** (1.0 / 15))) < 1e-9
-    panel = _setup_threat_defenders()
+    panel = _setup_threat_defenders(regulation="champions-reg-mb")
     names = {d["species"] for d in panel}
     assert "Whimsicott" in names
     assert "Garchomp" in names

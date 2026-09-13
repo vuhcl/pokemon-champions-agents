@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
 from recommender.role_compendium import (
@@ -15,6 +17,20 @@ from recommender.role_compendium import (
     legal_species_pool,
     rebuild_role_category,
 )
+
+
+@pytest.fixture(autouse=True)
+def _pin_setup_threat_panel_mb(monkeypatch):
+    from recommender.role_compendium_setup import _setup_threat_defenders as _real
+
+    def _pinned(**kw):
+        kw.setdefault("regulation", "champions-reg-mb")
+        return _real(**kw)
+
+    monkeypatch.setattr(
+        "recommender.role_compendium._setup_threat_defenders",
+        _pinned,
+    )
 
 
 def _mock_calc(requests: list[dict[str, Any]]) -> list[dict[str, Any]]:

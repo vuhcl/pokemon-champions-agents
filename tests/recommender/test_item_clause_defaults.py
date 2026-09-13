@@ -27,7 +27,7 @@ def _base_state(**overrides) -> RecommenderState:
     state: RecommenderState = {
         "format_id": "[Gen 9 Champions] VGC 2026 Reg M-B",
         "game_type": "doubles",
-        "regulation_mod": "champions",
+        "regulation_mod": "champions-reg-mb",
         "picked_team_size": 4,
         "available_pool": [],
         "team_draft": [empty_slot() for _ in range(6)],
@@ -160,11 +160,11 @@ def test_resolve_anchor_build_opt_in_avoids_collision_default_off_unchanged():
         item=Attr(value="Sitrus Berry", locked=True),
     )
     draft = [sinistcha, empty_slot(), *[empty_slot() for _ in range(4)]]
-    blind = resolve_anchor_build("Ariados", regulation="champions")
-    assert blind.item == featured_or_common_set("Ariados", regulation="champions")["item"]
+    blind = resolve_anchor_build("Ariados", regulation="champions-reg-mb")
+    assert blind.item == featured_or_common_set("Ariados", regulation="champions-reg-mb")["item"]
     aware = resolve_anchor_build(
         "Ariados",
-        regulation="champions",
+        regulation="champions-reg-mb",
         team_draft=draft,
         exclude_slot=1,
     )

@@ -45,8 +45,8 @@ def _result(
 
 
 def test_exact_form_offline_queries_keep_distinct_percentages():
-    base = query_teammates("Swampert")
-    mega = query_teammates("Swampert-Mega")
+    base = query_teammates("Swampert", regulation="champions-reg-mb")
+    mega = query_teammates("Swampert-Mega", regulation="champions-reg-mb")
 
     assert base.status == mega.status == "available"
     assert base.source == mega.source == "showdown-offline"
@@ -225,12 +225,16 @@ def _no_live(_species: str, _regulation: str):
 
 
 def _cbd_only(species: str) -> TeammateQueryResult:
-    return query_teammates(species, live_showdown_fetch=_no_live)
+    return query_teammates(
+        species, regulation="champions-reg-mb", live_showdown_fetch=_no_live
+    )
 
 
 def _force_cbd(species: str) -> TeammateQueryResult:
     with patch("recommender.teammates.showdown_species_map", return_value={}):
-        return query_teammates(species, live_showdown_fetch=_no_live)
+        return query_teammates(
+            species, regulation="champions-reg-mb", live_showdown_fetch=_no_live
+        )
 
 
 def _row_named(result: TeammateQueryResult, species_id: str) -> TeammateEvidence:
@@ -272,6 +276,7 @@ def test_cbd_garchomp_stays_ambiguous():
 def test_cbd_mawile_shared_query_stays_ambiguous():
     result = query_shared_teammates(
         ["vivillonfancy"],
+        regulation="champions-reg-mb",
         query=lambda species, regulation: query_teammates(
             species, regulation, live_showdown_fetch=_no_live
         ),
