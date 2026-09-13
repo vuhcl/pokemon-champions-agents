@@ -50,7 +50,7 @@ def test_pair_lookup_floette_bridge_only():
 
 
 def test_threat_panel_top1_partners_coverage():
-    panel = _setup_threat_defenders()
+    panel = _setup_threat_defenders(regulation="champions-reg-mb")
     assert len(panel) == 37
     assert all(isinstance(d.get("partner"), dict) for d in panel)
     assert all(d["partner"].get("species") for d in panel)
@@ -67,7 +67,7 @@ def test_threat_panel_top1_partners_coverage():
 
 
 def test_floette_mega_pair_bridge_keeps_mega_calc_identity():
-    panel = _setup_threat_defenders()
+    panel = _setup_threat_defenders(regulation="champions-reg-mb")
     floette = next(d for d in panel if d["species"] == "Floette-Mega")
     assert floette["partner"]["species"] == "Kingambit"
     assert floette["partner_count"] == 1082

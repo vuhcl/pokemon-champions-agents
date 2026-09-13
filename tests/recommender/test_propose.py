@@ -24,7 +24,7 @@ def _base_state(**overrides) -> RecommenderState:
     state: RecommenderState = {
         "format_id": "[Gen 9 Champions] VGC 2026 Reg M-B",
         "game_type": "doubles",
-        "regulation_mod": "champions",
+        "regulation_mod": "champions-reg-mb",
         "picked_team_size": 4,
         "available_pool": [],
         "team_draft": [empty_slot() for _ in range(6)],
@@ -680,7 +680,7 @@ def test_explicit_empty_item_attempts_cache_lookup():
     )
     state = _base_state(team_draft=[slot, *[empty_slot() for _ in range(5)]])
     with patch("recommender.propose.get_resolved_build", return_value=None) as cached:
-        _refine_defaults(slot, state, regulation="champions")
+        _refine_defaults(slot, state, regulation="champions-reg-mb")
     cached.assert_called_once()
     assert cached.call_args.args[2] == ""
 

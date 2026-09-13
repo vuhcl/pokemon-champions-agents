@@ -86,7 +86,7 @@ def test_mega_capable_bases_in_threat_ladder_with_showdown_builds():
 
 
 def test_ranked_by_ingame_usage_rank():
-    cands = get_relevant_threats({"regulation_mod": "champions"}, n=5)  # type: ignore[arg-type]
+    cands = get_relevant_threats({"regulation_mod": "champions-reg-mb"}, n=5)  # type: ignore[arg-type]
     ranks = [c.usage_rank for c in cands if c.usage_rank is not None]
     # Ladder order preserved across expand (same rank may repeat for formes)
     assert ranks == sorted(ranks)
@@ -95,7 +95,7 @@ def test_ranked_by_ingame_usage_rank():
 
 
 def test_team_default_n_is_50_ladder_species():
-    cands = get_relevant_threats({"regulation_mod": "champions"})  # type: ignore[arg-type]
+    cands = get_relevant_threats({"regulation_mod": "champions-reg-mb"})  # type: ignore[arg-type]
     ladder = {c.ladder_species for c in cands}
     assert len(ladder) == TEAM_THREAT_N
     assert len(cands) >= TEAM_THREAT_N  # expand may grow
@@ -103,7 +103,7 @@ def test_team_default_n_is_50_ladder_species():
 
 def test_slot_filter_default_n_is_10():
     cands = get_relevant_threats(
-        {"regulation_mod": "champions"},  # type: ignore[arg-type]
+        {"regulation_mod": "champions-reg-mb"},  # type: ignore[arg-type]
         relevance_filter=lambda _s: True,
     )
     ladder = {c.ladder_species for c in cands}
@@ -112,7 +112,7 @@ def test_slot_filter_default_n_is_10():
 
 def test_relevance_filter_drops_non_matching():
     cands = get_relevant_threats(
-        {"regulation_mod": "champions"},  # type: ignore[arg-type]
+        {"regulation_mod": "champions-reg-mb"},  # type: ignore[arg-type]
         n=20,
         relevance_filter=lambda s: "kingambit" in s["species"].lower().replace("-", ""),
     )
@@ -121,7 +121,7 @@ def test_relevance_filter_drops_non_matching():
 
 
 def test_multi_form_never_ingame_build_source():
-    cands = get_relevant_threats({"regulation_mod": "champions"}, n=10)  # type: ignore[arg-type]
+    cands = get_relevant_threats({"regulation_mod": "champions-reg-mb"}, n=10)  # type: ignore[arg-type]
     by_ladder: dict[str, list[ThreatCandidate]] = {}
     for c in cands:
         by_ladder.setdefault(c.ladder_species, []).append(c)
@@ -132,7 +132,7 @@ def test_multi_form_never_ingame_build_source():
 
 
 def test_no_inferred_mega_fields():
-    cands = get_relevant_threats({"regulation_mod": "champions"}, n=5)  # type: ignore[arg-type]
+    cands = get_relevant_threats({"regulation_mod": "champions-reg-mb"}, n=5)  # type: ignore[arg-type]
     for c in cands:
         assert not hasattr(c, "inferred_mega_form")
         assert not hasattr(c, "inferred_mega_share")
@@ -245,7 +245,7 @@ def test_spof_style_hit_rate_under_real_cap():
     client = MockCalcClient()
 
     with patch("recommender.coverage._slot_to_spec") as slot_spec:
-        slot_spec.side_effect = lambda slot, *, regulation="champions": {
+        slot_spec.side_effect = lambda slot, *, regulation="champions-reg-mb": {
             "species": slot.species.value,
             "item": slot.item.value,
             "moves": list(slot.moveset.value or []),
@@ -287,7 +287,7 @@ def test_eviction_pressure_lowers_hit_rate():
         patch.object(m, "MATCHUP_MEMO_MAX_ENTRIES", 32),
         patch("recommender.coverage._slot_to_spec") as slot_spec,
     ):
-        slot_spec.side_effect = lambda slot, *, regulation="champions": {
+        slot_spec.side_effect = lambda slot, *, regulation="champions-reg-mb": {
             "species": slot.species.value,
             "item": slot.item.value,
             "moves": list(slot.moveset.value or []),

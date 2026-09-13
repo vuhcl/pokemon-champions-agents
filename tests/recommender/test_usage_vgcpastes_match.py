@@ -15,13 +15,13 @@ _GARCHOMP_FEATURED_ITEM = "Life Orb"
 
 def test_vgcpastes_wins_over_featured_same_key():
     """Garchomp featured combo has real paste coverage — vgcpastes must win."""
-    fs = (species_usage("Garchomp", regulation="champions") or {}).get("featured_sets") or []
+    fs = (species_usage("Garchomp", regulation="champions-reg-mb") or {}).get("featured_sets") or []
     assert fs, "expected chaos featured_sets for Garchomp"
     matches = find_set_matching(
         "Garchomp",
         _GARCHOMP_FEATURED_MOVES,
         _GARCHOMP_FEATURED_ITEM,
-        regulation="champions",
+        regulation="champions-reg-mb",
     )
     assert matches
     assert matches[0]["source"] == "vgcpastes"
@@ -55,7 +55,7 @@ def test_featured_fallback_when_no_vgcpastes():
                 "Garchomp",
                 ["Dragon Claw", "Earthquake", "Rock Slide", "Protect"],
                 "Aguav Berry",
-                regulation="champions",
+                regulation="champions-reg-mb",
             )
     assert len(matches) == 1
     assert matches[0]["source"] == "featured"
@@ -114,7 +114,7 @@ def test_multi_spread_ranking_and_alternatives():
             "Garchomp",
             ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
             "Life Orb",
-            regulation="champions",
+            regulation="champions-reg-mb",
         )
     assert len(matches) == 2
     assert matches[0]["set"]["nature"] == "Jolly"
@@ -149,7 +149,7 @@ def test_zero_ev_match_keeps_moves_item_tier2_spread():
             "Garchomp",
             ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
             "Life Orb",
-            regulation="champions",
+            regulation="champions-reg-mb",
         )
     assert matches
     assert "evs" not in matches[0]["set"]
@@ -198,7 +198,7 @@ def test_itemless_corpus_member_matches_explicit_empty_item():
             "Talonflame",
             ["Brave Bird", "Flare Blitz", "Tailwind", "Protect"],
             "",
-            regulation="champions",
+            regulation="champions-reg-mb",
         )
     assert matches
     assert matches[0]["source"] == "vgcpastes"
@@ -211,7 +211,7 @@ def test_unspecified_item_returns_empty_list():
             "Garchomp",
             _GARCHOMP_FEATURED_MOVES,
             None,
-            regulation="champions",
+            regulation="champions-reg-mb",
         )
         == []
     )
@@ -241,7 +241,7 @@ def test_mega_form_label_matches_base_paste_member():
             "Charizard-Mega-Y",
             ["Heat Wave", "Weather Ball", "Helping Hand", "Protect"],
             "Charizardite Y",
-            regulation="champions",
+            regulation="champions-reg-mb",
         )
     assert matches
     assert to_id(matches[0]["set"]["species"]) in {"charizard", "charizardmegay"}
@@ -275,7 +275,7 @@ def test_base_species_with_mega_stone_matches_paste_member():
             "Charizard",
             _CHARIZARD_MEGA_Y_MOVES,
             "Charizardite Y",
-            regulation="champions",
+            regulation="champions-reg-mb",
         )
     assert matches
     assert matches[0]["source"] == "vgcpastes"
@@ -321,7 +321,7 @@ def test_equal_count_buckets_tie_break_by_earliest_date():
             "Garchomp",
             ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
             "Life Orb",
-            regulation="champions",
+            regulation="champions-reg-mb",
         )
     assert len(matches) == 2
     assert matches[0]["set"]["nature"] == "Adamant"
@@ -369,7 +369,7 @@ def test_unparseable_date_loses_tiebreak_priority():
             "Garchomp",
             ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"],
             "Life Orb",
-            regulation="champions",
+            regulation="champions-reg-mb",
         )
     assert len(matches) == 2
     assert matches[0]["set"]["nature"] == "Adamant"

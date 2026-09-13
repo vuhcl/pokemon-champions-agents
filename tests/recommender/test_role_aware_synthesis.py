@@ -18,7 +18,7 @@ def _base_state(**overrides) -> RecommenderState:
     state: RecommenderState = {
         "format_id": "[Gen 9 Champions] VGC 2026 Reg M-B",
         "game_type": "doubles",
-        "regulation_mod": "champions",
+        "regulation_mod": "champions-reg-mb",
         "picked_team_size": 4,
         "available_pool": [],
         "team_draft": [empty_slot() for _ in range(6)],
