@@ -2225,7 +2225,7 @@ def _construct_setup_attacker(
     notes: list[str] = [
         f"delivery move locked by self +{stages} {boost_stat}-only Status rule → {move_id}"
     ]
-    panel = _rc("_setup_threat_defenders")()
+    panel = _rc("_setup_threat_defenders")(regulation=uctx.regulation)
     notes.append(
         f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
         f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} pair=top1-partner "
@@ -2311,11 +2311,17 @@ def _construct_setup_attacker(
                     or mega_sid
                 )
                 mega_sd = _showdown_entry(
-                    mega_name, cache=sd_cache, showdown_fetch=showdown_fetch
+                    mega_name,
+                    cache=sd_cache,
+                    showdown_fetch=showdown_fetch,
+                    regulation=uctx.regulation,
                 )
                 if _cbd_base_move_implausible_vs_mega(entry, mega_sd, move_id):
                     base_sd = _showdown_entry(
-                        name, cache=sd_cache, showdown_fetch=showdown_fetch
+                        name,
+                        cache=sd_cache,
+                        showdown_fetch=showdown_fetch,
+                        regulation=uctx.regulation,
                     )
                     usage_proven = _entry_has_move(base_sd, move_id)
                     notes.append(
@@ -2654,7 +2660,7 @@ def _construct_offense_stage_setup(
     ]
     if kind == "offense_speed_setup":
         notes.append("Spe stage is setup-turn self-solve — rank on +1 Atk payoff only")
-    panel = _rc("_setup_threat_defenders")()
+    panel = _rc("_setup_threat_defenders")(regulation=uctx.regulation)
     notes.append(
         f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
         f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} pair=top1-partner "
@@ -3010,7 +3016,7 @@ def _construct_def_payoff_setup(
         "ID+BP dual-purpose split: high-offense members ≠ high-bulk-crossing "
         "members; sort-only, no promote/demote threshold",
     ]
-    panel = _rc("_setup_threat_defenders")()
+    panel = _rc("_setup_threat_defenders")(regulation=uctx.regulation)
     notes.append(
         f"threat_panel=showdown>={_SETUP_THREAT_USAGE_PCT_FLOOR:.2f}%"
         f"/{_SETUP_THREAT_ENCOUNTER_GAMES}game n={len(panel)} pair=top1-partner "

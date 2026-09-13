@@ -364,13 +364,13 @@ def test_present_usage_payoff_ids_stage_and_idbp_coverage(monkeypatch):
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage",
-        lambda: {
+        lambda *a, **k: {
             "ingame_doubles": {"species": {}},
             "showdown_vgc_mb": {"species": {}},
             "species": {},
         },
     )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
 
     uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
 
@@ -458,13 +458,13 @@ def test_dd_setup_presence_floor_excludes_thin_keeps_cluster(monkeypatch):
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage",
-        lambda: {
+        lambda *a, **k: {
             "ingame_doubles": {"species": {}},
             "showdown_vgc_mb": {"species": {}},
             "species": {},
         },
     )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
 
     thin = {
         "name": "Dragonite-Mega",
@@ -513,13 +513,13 @@ def test_cm_bu_presence_floor_unaffected_by_dd_override(monkeypatch):
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage",
-        lambda: {
+        lambda *a, **k: {
             "ingame_doubles": {"species": {}},
             "showdown_vgc_mb": {"species": {}},
             "species": {},
         },
     )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
     uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
 
     # Same numeric band as DD thin cluster (0.390) — CM/BU must stay admitted at 0.1%.

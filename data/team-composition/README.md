@@ -7,15 +7,17 @@ as one population without checking `meta.population`.
 | Path | Role | Population |
 |------|------|------------|
 | `champions-reg-mb.v1.json` | Reg M-B 4-cores + pairs from Pokemon-Zone `/champions/team-cores/` (Limitless) | **tournament** |
-| `champions-reg-mb.pikalytics-team-usage.v1.json` | Reg M-B 6-mon team groups + uses-weighted pairs from Pikalytics `/team-usage` | **tournament** (Limitless; verified 2026-08-12) |
+| `champions-reg-mc.pikalytics-team-usage.v1.json` | Reg M-C 6-mon team groups + uses-weighted pairs from Pikalytics `/team-usage` (**current**) | **tournament** (Limitless; verified 2026-09-12) |
+| `champions-reg-mb.pikalytics-team-usage.v1.json` | Reg M-B archive of the same Pikalytics extract | **tournament** (Limitless; extracted 2026-08-12) |
 | `champions-reg-mb.vgcpastes-builds.v1.json` | Reg M-B full teams (item/ability/nature/EVs/moves per member) from VGCPastes sheet → pokepast.es | **mixed** (Twitter/community + tournament placers; see file `meta.population_evidence`) |
 
 Slug note: Pokemon-Zone uses `/champions/` + UI label `Regulation M-B` — distinct from Smogon
-`vgc-2026-regulation-m-b` and Pikalytics usage slug `battledataregmbs3`.
+`vgc-2026-regulation-m-b`.
 
-Pikalytics note: the team-usage page kicker is "Tournament Team Usage". API formats
-`championstournaments` and `battledataregmbs3` return identical groups; every embedded team
-record has `source: "limitless"`. This is **not** the same as Pikalytics' ladder-derived
+Pikalytics note: the team-usage page kicker is "Tournament Team Usage".
+`GET /api/team-usage/championstournaments` is the single product URL (rolled forward
+to M-C tournament labels as of 2026-09-11); every embedded team record has
+`source: "limitless"`. This is **not** the same as Pikalytics' ladder-derived
 per-species usage pages.
 
 VGCPastes note: the Google Sheet title is "VGCPastes Repository (Champions M-B)" (not the

@@ -225,6 +225,7 @@ def test_cbd_inflated_vs_mega_rejects_without_showdown_base_delivery():
         ),
         showdown_fetch=sd_fetch,
         calculate_batch=_mock_calc,
+        regulation="champions-reg-mb",
     )
     rej = {r.species: r.reason for r in draft.considered_rejected}
     admitted = {c.species for c in draft.candidates if c.tier}
@@ -302,6 +303,7 @@ def test_discounted_base_in_acceptable_band_is_rejected():
         ),
         showdown_fetch=sd_fetch,
         calculate_batch=calc,
+        regulation="champions-reg-mb",
     )
     scizor = next((c for c in draft.candidates if c.species == "Scizor"), None)
     if scizor is not None and scizor.excellence_basis == "usage_discounted":
@@ -351,6 +353,7 @@ def test_setup_does_not_discount_when_mega_lacks_setup_move():
         ),
         showdown_fetch=sd_fetch,
         calculate_batch=_mock_calc,
+        regulation="champions-reg-mb",
     )
     rej = {r.species: r.reason for r in draft.considered_rejected}
     # Must not be rejected solely for Showdown usage discount.
@@ -687,6 +690,7 @@ def test_rebuild_tmp(tmp_path: Path):
         else None,
         showdown_fetch=lambda _n: None,
         calculate_batch=_mock_calc,
+        regulation="champions-reg-mb",
     )
     assert r.status == "approved", r.critique.flags
     assert Path(r.path or "").exists()
@@ -734,7 +738,7 @@ def test_sd_construct_structured_payoff_mawile_shaped(monkeypatch):
 
     monkeypatch.setattr(
         "recommender.role_compendium._setup_threat_defenders",
-        lambda: panel,
+        lambda **_kw: panel,
     )
 
     def kit(name, sid, snap_, learnset, *, boost_stat, entry):
@@ -768,6 +772,7 @@ def test_sd_construct_structured_payoff_mawile_shaped(monkeypatch):
         live_fetch=usage,
         showdown_fetch=lambda _n: None,
         calculate_batch=calc,
+        regulation="champions-reg-mb",
     )
     maw = next(c for c in draft.candidates if c.species_id == "mawilemega" and c.tier)
     notes = maw.criteria_notes

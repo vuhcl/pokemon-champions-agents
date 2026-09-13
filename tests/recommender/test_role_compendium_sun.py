@@ -16,6 +16,7 @@ def _sun_draft(pool: list[str] | None = None, showdown_fetch=None):
         snap=snap,
         live_fetch=None,
         showdown_fetch=showdown_fetch,
+        regulation="champions-reg-mb",
     )
 
 

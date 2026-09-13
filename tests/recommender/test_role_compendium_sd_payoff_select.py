@@ -274,9 +274,9 @@ def test_present_usage_payoff_ids_drops_sub_floor_leftovers(monkeypatch):
     from recommender.role_compendium import _SETUP_PRESENCE_SET_PCT_FLOOR, _UsageCtx
 
     monkeypatch.setattr(
-        "recommender.role_compendium.load_usage", lambda: _empty_usage_maps()
+        "recommender.role_compendium.load_usage", lambda *a, **k: _empty_usage_maps()
     )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
 
     leftovers = [
         ("Medicham-Mega", "psyshock", 0.0, "psychic", 2.093),
@@ -315,9 +315,9 @@ def test_present_usage_payoff_ids_keeps_high_pct_regression(monkeypatch):
     from recommender.role_compendium import _UsageCtx, _present_usage_payoff_ids
 
     monkeypatch.setattr(
-        "recommender.role_compendium.load_usage", lambda: _empty_usage_maps()
+        "recommender.role_compendium.load_usage", lambda *a, **k: _empty_usage_maps()
     )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
     entry = {
         "name": "Kingambit",
         "id": "kingambit",
@@ -344,9 +344,9 @@ def test_present_usage_empty_bag_select_returns_none(monkeypatch):
     from recommender.role_compendium import _UsageCtx
 
     monkeypatch.setattr(
-        "recommender.role_compendium.load_usage", lambda: _empty_usage_maps()
+        "recommender.role_compendium.load_usage", lambda *a, **k: _empty_usage_maps()
     )
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
     entry = {
         "name": "Audino",
         "id": "audino",

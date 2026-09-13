@@ -122,6 +122,7 @@ def _sd_draft(*, pool: list[str] | None = None, live_fetch=None):
         live_fetch=live_fetch if live_fetch is not None else _usage,
         showdown_fetch=lambda _n: None,
         calculate_batch=_mock_calc,
+        regulation="champions-reg-mb",
     )
 
 def _members(draft, tier: str) -> set[str]:

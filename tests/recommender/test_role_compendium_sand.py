@@ -15,6 +15,7 @@ def _sand_draft(pool: list[str] | None = None, showdown_fetch=...):
         "legal_pool": pool if pool is not None else legal_species_pool(snap),
         "snap": snap,
         "live_fetch": None,
+        "regulation": "champions-reg-mb",
     }
     if showdown_fetch is not ...:
         kwargs["showdown_fetch"] = showdown_fetch
@@ -56,8 +57,8 @@ def test_sand_excellent_includes_tyranitar_pair_and_hippowdon():
 
 
 def test_sand_discount_artifact_base(monkeypatch):
-    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda: {})
-    monkeypatch.setattr("recommender.role_compendium_usage.showdown_species_map", lambda: {})
+    monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
+    monkeypatch.setattr("recommender.role_compendium_usage.showdown_species_map", lambda *a, **k: {})
 
     def sd_fetch(name: str):
         sid = to_id(name)

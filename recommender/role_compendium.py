@@ -512,13 +512,14 @@ class _UsageCtx:
     live_fetch: LiveFetch | None
     showdown_fetch: LiveFetch | None = None
     mega_showdown_fallback: bool = False
+    regulation: str = "champions"
     cache: dict[str, dict[str, Any] | None] = field(default_factory=dict)
     sd_cache: dict[str, dict[str, Any] | None] = field(default_factory=dict)
 
     def entry_for(self, species: str) -> dict[str, Any] | None:
         """Forme-aware offline row, else CBD live fetch; optional Mega→Showdown."""
         sid = to_id(species)
-        offline = _offline_usage_row(sid)
+        offline = _offline_usage_row(sid, regulation=self.regulation)
         if offline is not None:
             return offline
         if self.live_fetch is not None:
@@ -550,7 +551,7 @@ class _UsageCtx:
         sid = to_id(species)
         if sid in ingame_excluded_ids():
             return None
-        row = ingame_species_map().get(sid)
+        row = ingame_species_map(self.regulation).get(sid)
         if isinstance(row, dict):
             return row
         if self.live_fetch is None:
@@ -564,12 +565,14 @@ def _species_id_is_mega(sid: str) -> bool:
     return sid.endswith("mega") or sid.endswith("megax") or sid.endswith("megay")
 
 
-def _offline_usage_row(sid: str) -> dict[str, Any] | None:
+def _offline_usage_row(
+    sid: str, *, regulation: str = "champions"
+) -> dict[str, Any] | None:
     """Any usage map entry whose key == sid or startswith(sid)."""
-    usage = load_usage()
+    usage = load_usage(regulation)
     maps: list[dict[str, Any]] = [usage.get("species") or {}]
-    maps.append(ingame_species_map())
-    maps.append((usage.get("showdown_vgc_mb") or {}).get("species") or {})
+    maps.append(ingame_species_map(regulation))
+    maps.append(showdown_species_map(regulation))
     for smap in maps:
         if sid in smap and isinstance(smap[sid], dict):
             return smap[sid]
@@ -745,6 +748,7 @@ def construct_role_category(
     live_fetch: LiveFetch | None = fetch_ingame_doubles_species,
     showdown_fetch: LiveFetch | None = fetch_showdown_vgc_species,
     calculate_batch: CalculateBatch | None = _default_calculate_batch,
+    regulation: str = "champions",
 ) -> RoleConstructionDraft:
     """Build a draft ranking from the legal pool forward — never legality-after-search."""
     snap = snap or load_snapshot()
@@ -761,6 +765,7 @@ def construct_role_category(
                 "def_payoff_setup",
             }
         ),
+        regulation=regulation,
     )
     if kind == "redirection":
         from recommender.role_compendium_support import _construct_redirection
@@ -1262,6 +1267,7 @@ def rebuild_role_category(
     live_fetch: LiveFetch | None = fetch_ingame_doubles_species,
     showdown_fetch: LiveFetch | None = fetch_showdown_vgc_species,
     calculate_batch: CalculateBatch | None = _default_calculate_batch,
+    regulation: str = "champions",
 ) -> RebuildResult:
     """Construct + critique; persist only on approval. Flags → human gate (no auto-revise)."""
     roles_dir = roles_dir or DEFAULT_ROLES_DIR
@@ -1278,6 +1284,7 @@ def rebuild_role_category(
         live_fetch=live_fetch,
         showdown_fetch=showdown_fetch,
         calculate_batch=calculate_batch,
+        regulation=regulation,
     )
     critique = critique_role_ranking(draft, reference_compendium=prior)
     if not critique.approved:
