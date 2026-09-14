@@ -18,6 +18,7 @@ from recommender.state import (
 )
 
 VGC_MB = "[Gen 9 Champions] VGC 2026 Reg M-B"
+VGC_MC = "[Gen 9 Champions] VGC 2026 Reg M-C"
 TURN_CAP = 40
 
 # Task B calc/matchup logger tags turns via these.
@@ -36,7 +37,12 @@ class ScenarioResult:
     compare_analysis: str | None = None
 
 
-def start_graph(*, thread_id: str, calc_degraded: bool = False):
+def start_graph(
+    *,
+    thread_id: str,
+    calc_degraded: bool = False,
+    format_id: str = VGC_MB,
+):
     graph = compile_graph(checkpointer=MemorySaver())
     config = {"configurable": {"thread_id": thread_id}}
     review_patch = None
@@ -48,7 +54,7 @@ def start_graph(*, thread_id: str, calc_degraded: bool = False):
             ),
         )
         review_patch.start()
-    state = graph.invoke({"format_id": VGC_MB}, config=config)
+    state = graph.invoke({"format_id": format_id}, config=config)
     return graph, config, state, review_patch
 
 
@@ -161,17 +167,69 @@ def accept_recommended_until_terminal(
     return state, "stalled_turn_cap"
 
 
+def bootstrap_once_and_stop(
+    graph,
+    config,
+    state: dict[str, Any],
+    payload: dict[str, Any],
+) -> tuple[dict[str, Any], str]:
+    """One bootstrap_response only — never re-loop on fail-closed re-prompts."""
+    pending = state.get("pending_presentation")
+    if pending is None or pending.get("kind") != "bootstrap_intake":
+        return state, "stalled_no_bootstrap"
+
+    state = turn(
+        graph,
+        config,
+        {
+            "turn_intent": "bootstrap_response",
+            "turn_payload": payload,
+            "pending_presentation": None,
+        },
+    )
+    pending = state.get("pending_presentation")
+    err = state.get("candidate_discovery_error")
+    if pending and pending.get("kind") == "candidate_selection" and (
+        pending.get("options") or []
+    ):
+        return state, "candidates_ready"
+
+    def _msg_blob() -> str:
+        parts: list[str] = []
+        if err is not None:
+            parts.append(str(getattr(err, "message", None) or ""))
+            if isinstance(err, dict):
+                parts.append(str(err.get("message") or ""))
+        if pending:
+            for notice in pending.get("notices") or ():
+                parts.append(str(notice))
+            prompt = pending.get("prompt_text")
+            if prompt:
+                parts.append(str(prompt))
+        return " ".join(parts)
+
+    blob = _msg_blob()
+    if "Couldn't identify" in blob:
+        return state, "identity_error"
+    if err is not None or (pending and pending.get("kind") == "bootstrap_intake"):
+        return state, "fail_closed"
+    return state, terminal_reason(state) or "stalled_after_bootstrap"
+
+
 def run_scenario(
     scenario_id: str,
     path: str,
     runner: Callable[..., ScenarioResult],
     *,
     calc_degraded: bool = False,
+    format_id: str = VGC_MB,
 ) -> ScenarioResult:
     tok_sc = eval_scenario_id.set(scenario_id)
     tok_turn = eval_turn_index.set(0)
     graph, config, state, review_patch = start_graph(
-        thread_id=f"eval-{scenario_id}", calc_degraded=calc_degraded
+        thread_id=f"eval-{scenario_id}",
+        calc_degraded=calc_degraded,
+        format_id=format_id,
     )
     try:
         return runner(graph, config, state)

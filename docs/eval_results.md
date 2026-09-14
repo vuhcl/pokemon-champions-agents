@@ -28,6 +28,15 @@ Showdown simulation at all, and should be the first hard number this project pro
   `2f5b273925862ac242b419086c1e7a8868b51da1`. Calc service was healthy for the run. Runner:
   `EVAL_ORACLE_SNAPSHOT=… uv run python scripts/eval/run_legality.py`.
 
+### Re-measured 2026-09-13
+
+- Repo HEAD: `ba92b4609376c6d5a5f43f07b31efd73881cafb2`
+- Oracle Showdown commit: `aa6d5f0856d24679be8f5df167d1b528c2dcbd71`
+- Same 15 scenarios; pairs checked: 28; false-legal: **0 / 28 (0.0%)**
+- Stalls: `baseline_intimidate` (`stalled_turn_cap`, 0 pairs) — unchanged pattern
+- Calc healthy; artifact `.cache/eval/last_legality_run.json` (suite `existing` at measurement time)
+- Runner: `uv run python scripts/eval/run_legality.py` (default `--suite existing`)
+
 ---
 
 ## Mechanical-claim verification accuracy (Phase 1)
@@ -54,6 +63,16 @@ calculation? Sample a set of claims, verify each by hand or via calc tool, repor
 - Notes: Runner `uv run python scripts/eval/run_mech_claims.py`. Choice Scarf Spe display uses
   `effective_spe(scarf=True)` and is not part of Check 1’s equality rate (calc `raw.stats` omit
   scarf).
+
+### Re-measured 2026-09-13
+
+- Repo HEAD: `ba92b4609376c6d5a5f43f07b31efd73881cafb2`
+- Calc `:4173` healthy
+- Check 1 Spe: **15 / 15 (100%)**
+- Check 2 damage/KO: correlation **4 / 4**; fresh **4 / 4**
+- Check 3 matchup memo: **10062 / 10062 (100%)** (key count differs from 2026-09-03’s 10109 — live capture size, not a fidelity miss)
+- Check 4 turn-economy: `charge_delayed` + `recharge_vulnerable_lost` populated
+- Artifact: `.cache/eval/last_mech_claims_run.json`
 
 ---
 
@@ -241,6 +260,17 @@ Claim-level true rate among parseable claims: **6 / 7 (85.7%)**. False rate: **0
 
 None.
 
+### Re-measured 2026-09-13 — qwen2.5:7b AFTER
+
+- Repo HEAD: `ba92b4609376c6d5a5f43f07b31efd73881cafb2`
+- Model: Ollama `qwen2.5:7b`; calc `:4173` healthy
+- Runner: `BOOTSTRAP_OLLAMA_MODEL=qwen2.5:7b uv run python scripts/eval/run_species_fact_pending.py --mode after`
+- Artifact: `scripts/eval/artifacts/species_fact_after.json`
+- Message-level: pending 13 / llm_authored 8 / canned 5 / claim-bearing 3
+- Claim-level: **6 TRUE / 0 FALSE / 1 unverifiable** of 7 parseable (true **6/7**; false **0/7**)
+- Per call site (llm_authored / claim-bearing / TRUE / FALSE / unverifiable): idle 1/0/0/0/0; candidate_selection 4/3/6/0/1; completion_preference 1/0/0/0/0; full_build_confirmation 2/0/0/0/0
+- Prior 2026-09-06 numbers retained above; this re-measure matches them within model nondeterminism (same headline rates).
+
 ---
 
 ## Species-fact grounding in clarification text (baseline, pre-guard-fix, qwen3.5:latest)
@@ -385,6 +415,76 @@ Claim-level true rate among parseable claims: **7 / 10 (70.0%)**. False rate: **
 
 None. Unverifiable companions were generic `grass type request` spans (not species+type
 assertions).
+
+### Re-measured 2026-09-13 — qwen3.5:latest AFTER
+
+- Repo HEAD: `ba92b4609376c6d5a5f43f07b31efd73881cafb2`
+- Model: Ollama `qwen3.5:latest`; calc `:4173` healthy
+- Runner: `BOOTSTRAP_OLLAMA_MODEL=qwen3.5:latest uv run python scripts/eval/run_species_fact_pending.py --mode after`
+- Artifact: `scripts/eval/artifacts/species_fact_after_qwen35.json` (runner overwrite renamed)
+- Message-level: pending 35 / llm_authored 34 / canned 1 / claim-bearing 3
+- Claim-level: **7 TRUE / 0 FALSE / 3 unverifiable** of 10 parseable (true **7/10**; false **0/10**)
+- Per call site (llm_authored / claim-bearing / TRUE / FALSE / unverifiable): idle 25/0/0/0/0; candidate_selection 3/2/6/0/3; completion_preference 1/0/0/0/0; full_build_confirmation 5/1/1/0/0
+- Prior 2026-09-06 numbers retained above; this re-measure matches headline rates.
+
+---
+
+## M-C legality sample (Part 2B — Reg M-C unban anchors)
+
+*Empty-direction + named-anchor bootstrap under `VGC_MC`; scored with independent Showdown
+oracle `pair_legal` (same oracle as Part 1).*
+
+- Measured: 2026-09-13
+- Repo HEAD: `ba92b4609376c6d5a5f43f07b31efd73881cafb2`
+- Oracle Showdown commit: `aa6d5f0856d24679be8f5df167d1b528c2dcbd71`
+- Runner: `uv run python scripts/eval/run_legality.py --suite mc`
+- Scenarios: 6 (`mc_baseline_{rillaboom,indeedee,baxcalibur,sirfetchd,cinderace,pawmot}`)
+- Pairs checked: 8 locked `(species, item)` pairs
+- False-legal rate: **0 / 8 (0.0%)**
+- Terminals / stalls (honest):
+  - `mc_baseline_cinderace`: `fail_closed` (expected; 0 pairs)
+  - `mc_baseline_sirfetchd`: `incomplete_build` (0 pairs)
+  - `mc_baseline_{rillaboom,indeedee,baxcalibur,pawmot}`: `discovery:calc_incomplete` after 2 locked pairs each (calc `/health` was ok; mid-build discovery error — not false-legal)
+- Artifact: `.cache/eval/last_legality_run_mc.json` (copy of suite=`mc` summary)
+
+---
+
+## Bootstrap tiered fallback (Part 2C — Layer 1 census + Layer 2 named)
+
+*Layer 1: 35 `became_legal` ids via `discover_bootstrap_directions` (shipped hardcode
+`regulation=champions-reg-mb` unchanged). Layer 2: named harness under `VGC_MC` via
+`bootstrap_once_and_stop`.*
+
+- Measured: 2026-09-13
+- Repo HEAD: `ba92b4609376c6d5a5f43f07b31efd73881cafb2`
+- Runner: `uv run python scripts/eval/run_bootstrap_tiers.py`
+- Layer 1: **N=31** (35 − 4 pre_tier) → **tier1=3/31**, **tier2=6/31**, **tier3=22/31**
+  - pre_tier (4): Arboliva, Indeedee, Indeedee-F, Rillaboom (`target_role_from_strategic_evidence`)
+  - tier1 (3): Baxcalibur, Baxcalibur-Mega, Pawmot (`bootstrap_kit_role_policy`)
+  - tier2 (6): Absol-Mega-Z, Persian, Sirfetch’d, Swalot, Toxtricity, Toxtricity-Low-Key (`bootstrap_movepool_family_nn`; Persian/Toxtricity forms → `fast_pivot` post-#214)
+- Layer 2 named: **13 / 13 PASS**
+  - Writeup: Baxcalibur, Pawmot, Baxcalibur-Mega
+  - NN CLEAN: Sirfetch’d / Swalot → `swords_dance_attacker`; Toxtricity / Toxtricity-Low-Key / Persian → `fast_pivot`
+  - THIN_REF: Gogoat, Grapploct → `fail_closed`
+  - HARD_MULTI: Cinderace, Salamence → `fail_closed`
+  - Fail-closed msg: Mabosstiff includes `_direction_phrase_examples`; no `standard_`
+- Artifact: `.cache/eval/last_bootstrap_tiers_run.json`
+
+---
+
+## Terrain mechanism (Part 2D)
+
+*Discovery strategic setter roles + post-lock `automatic_condition_setting`; seeded locked
+Rillaboom field spy.*
+
+- Measured: 2026-09-13
+- Repo HEAD: `ba92b4609376c6d5a5f43f07b31efd73881cafb2`
+- Calc `:4173` healthy (required)
+- Runner: `uv run python scripts/eval/run_terrain.py`
+- Results: **4 / 4 PASS**
+  - Discovery: Rillaboom → `grassy_terrain_setter`; Indeedee → `psychic_terrain_setter`; Arboliva → `grassy_terrain_setter` (mechanism `automatic_condition_setting` present)
+  - Seeded Rillaboom: `team_field_states` includes `terrain=Grassy`; matchup spy also saw Grassy (`matchup_spy_n=12`)
+- Artifact: `.cache/eval/last_terrain_run.json`
 
 ---
 

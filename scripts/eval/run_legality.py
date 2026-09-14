@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Run 15 scripted scenarios against an independent Showdown legality oracle."""
+"""Run scripted legality scenarios against an independent Showdown legality oracle."""
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import subprocess
@@ -16,9 +17,10 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.eval.harness import run_scenario  # noqa: E402
+from scripts.eval.harness import VGC_MB, run_scenario  # noqa: E402
 from scripts.eval.oracle import load_oracle_snapshot, pair_legal  # noqa: E402
 from scripts.eval.scenarios import SCENARIOS  # noqa: E402
+from scripts.eval.scenarios_mc import SCENARIOS_MC  # noqa: E402
 
 
 def calc_healthy(timeout: float = 1.0) -> bool:
@@ -46,7 +48,27 @@ def build_oracle_snapshot() -> Path:
     return out
 
 
+def _select_scenarios(suite: str):
+    if suite == "existing":
+        return list(SCENARIOS)
+    if suite == "mc":
+        return list(SCENARIOS_MC)
+    if suite == "all":
+        return [*SCENARIOS, *SCENARIOS_MC]
+    raise SystemExit(f"unknown --suite {suite!r} (existing|mc|all)")
+
+
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--suite",
+        choices=("existing", "mc", "all"),
+        default="existing",
+        help="Scenario suite (default: existing Task A set)",
+    )
+    args = parser.parse_args()
+    scenarios = _select_scenarios(args.suite)
+
     snap_path = build_oracle_snapshot()
     snap = load_oracle_snapshot(snap_path)
     commit = ((snap.get("meta") or {}).get("source") or {}).get("commit", "?")
@@ -60,10 +82,15 @@ def main() -> int:
         print("calc healthy", flush=True)
 
     results = []
-    for sc in SCENARIOS:
+    for sc in scenarios:
         print(f"… {sc.scenario_id}", flush=True)
+        format_id = getattr(sc, "format_id", VGC_MB)
         result = run_scenario(
-            sc.scenario_id, sc.path, sc.run, calc_degraded=degraded
+            sc.scenario_id,
+            sc.path,
+            sc.run,
+            calc_degraded=degraded,
+            format_id=format_id,
         )
         results.append(result)
 
@@ -92,6 +119,9 @@ def main() -> int:
             "build_abandoned",
             "incomplete_build",
             "unresolved_target_role",
+            "fail_closed",
+            "identity_error",
+            "candidates_ready",
         }
         if not clean_terminal and not r.pairs:
             stalls.append(f"{r.scenario_id} ({r.terminal})")
@@ -104,6 +134,7 @@ def main() -> int:
 
     rate = (false_legal / pairs_checked) if pairs_checked else 0.0
     summary = {
+        "suite": args.suite,
         "scenarios": len(results),
         "pairs_checked": pairs_checked,
         "false_legal": false_legal,
