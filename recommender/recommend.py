@@ -129,7 +129,13 @@ def infer_role(
     if "tailwind" in mids:
         return "support_speed_control"
     if has_pivot:
+        if iid in _BULKY_ITEMS:
+            return "bulky_pivot"
         if iid == "choicescarf" or technician_fast:
+            return "fast_pivot"
+        if (
+            iid in _FAST_ITEMS or iid == "focussash" or weather_fast
+        ) and bias != "status_only":
             return "fast_pivot"
         return "bulky_pivot"
     if iid in _BULKY_ITEMS:
