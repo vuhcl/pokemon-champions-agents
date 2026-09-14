@@ -1983,6 +1983,17 @@ def build_provisional_slot(
             reason="unresolved_target_role",
         )
 
+    if (
+        decision.producer_name == "bootstrap_movepool_family_nn"
+        and seed_ability is None
+        and seed_moves is None
+    ):
+        from recommender.bootstrap_role_nn import derive_nn_transfer_seeds
+
+        seed_ability, seed_moves = derive_nn_transfer_seeds(
+            intent.species, decision.role_id, state
+        )
+
     seed = Slot(
         role=Attr(value=decision.role_id),
         species=Attr(value=intent.species),

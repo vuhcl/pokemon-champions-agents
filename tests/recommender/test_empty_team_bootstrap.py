@@ -44,6 +44,7 @@ from recommender.role_compendium import ReverseCompendiumEvidence
 from recommender.state import (
     BootstrapResponsePayload,
     TargetRoleDecision,
+    UnresolvedSlotRefinement,
     UnresolvedTargetRoleDecision,
 )
 from recommender.team_candidates import _BASIS_RANK
@@ -553,9 +554,12 @@ def test_starting_role_fail_closed_accepts_mapped_direction_next():
 @pytest.mark.parametrize(
     "species,role_id,neighbor",
     [
+        ("Absol-Mega-Z", "swords_dance_attacker", "Scolipede"),
+        ("Persian", "fast_pivot", "Morpeko"),
         ("Sirfetch’d", "swords_dance_attacker", "Scizor"),
-        ("Toxtricity", "fast_pivot", "Simipour"),
         ("Swalot", "swords_dance_attacker", "Scizor"),
+        ("Toxtricity", "fast_pivot", "Simipour"),
+        ("Toxtricity-Low-Key", "fast_pivot", "Simipour"),
     ],
 )
 def test_nn_role_transfer_clean_bootstrap(species, role_id, neighbor):
@@ -574,6 +578,61 @@ def test_nn_role_transfer_clean_bootstrap(species, role_id, neighbor):
         isinstance(tok, str) and tok.startswith(f"nn_similar:{neighbor}:")
         for tok in decision.evidence
     )
+
+
+@pytest.mark.parametrize(
+    "species,role_id,neighbor",
+    [
+        ("Absol-Mega-Z", "swords_dance_attacker", "Scolipede"),
+        ("Persian", "fast_pivot", "Morpeko"),
+        ("Sirfetch’d", "swords_dance_attacker", "Scizor"),
+        ("Swalot", "swords_dance_attacker", "Scizor"),
+        ("Toxtricity", "fast_pivot", "Simipour"),
+        ("Toxtricity-Low-Key", "fast_pivot", "Simipour"),
+    ],
+)
+def test_nn_transfer_select_refine_and_lock(species, role_id, neighbor):
+    """Tier 2 must complete discover → select → refine → lock (not discovery only)."""
+    from recommender.present_text import format_turn
+
+    state = _record(
+        _state(),
+        _payload(anchor=species, pool=(), delegated=False),
+    )
+    presented = bootstrap_direction(state)
+    pending = presented["pending_presentation"]
+    assert pending["kind"] == "candidate_selection"
+    assert pending["options"][0]["species"] == species
+
+    selected = classify_input(
+        {**state, **presented, "pending_input": "1"}
+    )
+    selected_state = {**state, **presented, **selected}
+    refined = refine_provisional_slot(selected_state)
+
+    assert refined.get("provisional_refinement") is None or not isinstance(
+        refined.get("provisional_refinement"), UnresolvedSlotRefinement
+    )
+    provisional = refined["provisional_slot"]
+    assert provisional is not None
+    assert not isinstance(provisional, UnresolvedSlotRefinement)
+    assert refined["pending_presentation"]["kind"] == "full_build_confirmation"
+    assert provisional.target_role_decision.role_id == role_id
+    assert provisional.target_role_decision.producer_name == (
+        "bootstrap_movepool_family_nn"
+    )
+    assert provisional.ability
+    assert len(provisional.moves) == 4
+    text = format_turn({**selected_state, **refined})
+    assert "similar to" in text
+    assert neighbor in text
+
+    committed = commit_full_slot({**selected_state, **refined})
+    slot = committed["team_draft"][0]
+    assert slot.species.value == species
+    assert slot.role.value == role_id
+    assert len(slot.moveset.value) == 4
+    assert slot.ability.value
 
 
 @pytest.mark.parametrize("species", ["Gogoat", "Grapploct"])
@@ -611,6 +670,34 @@ def test_tier1_writeup_wins_before_nn():
     assert isinstance(decision, TargetRoleDecision)
     assert decision.producer_name == "bootstrap_kit_role_policy"
     assert decision.producer_name != "bootstrap_movepool_family_nn"
+
+
+def test_tier1_writeup_select_refine_without_nn_seeds():
+    """Writeup-kit path must still refine/lock without NN auto-seed reasons."""
+    state = _record(
+        _state(),
+        _payload(anchor="Baxcalibur", pool=(), delegated=False),
+    )
+    presented = bootstrap_direction(state)
+    selected = classify_input(
+        {**state, **presented, "pending_input": "1"}
+    )
+    selected_state = {**state, **presented, **selected}
+    refined = refine_provisional_slot(selected_state)
+    provisional = refined["provisional_slot"]
+    assert provisional is not None
+    assert not isinstance(provisional, UnresolvedSlotRefinement)
+    assert provisional.target_role_decision.producer_name == (
+        "bootstrap_kit_role_policy"
+    )
+    committed = commit_full_slot({**selected_state, **refined})
+    slot = committed["team_draft"][0]
+    assert slot.species.value == "Baxcalibur"
+    assert slot.ability.value
+    assert len(slot.moveset.value) == 4
+    # Ability/moves come from writeup kit, not NN seed refs.
+    assert slot.ability.reason.ref != "species_ability_default"
+    assert slot.moveset.reason.ref != "nn_role_moves"
 
 
 def test_track1_strategic_evidence_precedes_real_anchor_coarse_kit_role():
