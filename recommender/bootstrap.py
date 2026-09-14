@@ -11,11 +11,7 @@ from langchain_core.runnables import Runnable
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
-from recommender.bootstrap_role_nn import (
-    first_listed_ability,
-    pad_role_moves,
-    transfer_bootstrap_role,
-)
+from recommender.bootstrap_role_nn import transfer_bootstrap_role
 from recommender.by_usage import query_by_usage
 from recommender.ids import to_id
 from recommender.legality import load_snapshot
@@ -557,24 +553,6 @@ def discover_bootstrap_directions(
             primary_function=anchor_role.primary_function,
             mechanism_ids=mechanisms,
         )
-        seed_ability = None
-        seed_moves = None
-        if nn_hit is not None:
-            from recommender.move_narrowing import assemble_moveset_fallback
-            from recommender.state import Attr, Slot
-
-            seed_ability = first_listed_ability(species)
-            assembled = assemble_moveset_fallback(
-                species,
-                Slot(
-                    role=Attr(value=decision.role_id),
-                    species=Attr(value=species),
-                ),
-                state,
-            )
-            padded = pad_role_moves(species, assembled or [])
-            if len(padded) == 4:
-                seed_moves = padded
         refinement = build_provisional_slot(
             PendingSlotIntent(
                 schema_version=1,
@@ -586,8 +564,6 @@ def discover_bootstrap_directions(
                 base_slot_fingerprint=slot_fingerprint(state["team_draft"][0]),
             ),
             state,
-            seed_ability=seed_ability,
-            seed_moves=seed_moves,
         )
         if isinstance(refinement, UnresolvedSlotRefinement):
             continue

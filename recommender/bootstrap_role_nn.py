@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Mapping
 
 from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
 from recommender.contingent_value import REDIRECT_MOVES
@@ -214,6 +214,33 @@ def pad_role_moves(
         out.append(str(entry.get("name") or mid))
         have.add(tid)
     return out[:4]
+
+
+def derive_nn_transfer_seeds(
+    species: str,
+    role_id: str,
+    state: Mapping[str, Any],
+) -> tuple[str | None, list[str] | None]:
+    """Ability + 4-move seeds for NN-transfer bootstrap builds.
+
+    Shared by discovery's buildability probe and selection-time refine so both
+    paths stay in lockstep. Returns moves only when padding yields exactly 4.
+    """
+    from recommender.move_narrowing import assemble_moveset_fallback
+    from recommender.state import Attr, Slot
+
+    seed_ability = first_listed_ability(species)
+    assembled = assemble_moveset_fallback(
+        species,
+        Slot(
+            role=Attr(value=role_id),
+            species=Attr(value=species),
+        ),
+        state,  # type: ignore[arg-type]
+    )
+    padded = pad_role_moves(species, assembled or [])
+    seed_moves = padded if len(padded) == 4 else None
+    return seed_ability, seed_moves
 
 
 def transfer_bootstrap_role(

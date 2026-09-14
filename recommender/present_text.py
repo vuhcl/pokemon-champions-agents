@@ -610,7 +610,7 @@ def _format_full_build(state: Mapping[str, Any]) -> list[str]:
         return lines
     if isinstance(provisional, ProvisionalSlot):
         species = provisional.species
-        role = provisional.role
+        decision = provisional.target_role_decision
         ability = provisional.ability
         item = provisional.item
         nature = provisional.nature
@@ -620,16 +620,24 @@ def _format_full_build(state: Mapping[str, Any]) -> list[str]:
     else:
         species = provisional.get("species")
         decision = provisional.get("target_role_decision") or {}
-        role = getattr(decision, "role_id", None) or (
-            decision.get("role_id") if isinstance(decision, Mapping) else None
-        )
         ability = provisional.get("ability")
         item = provisional.get("item")
         nature = provisional.get("nature")
         moves = provisional.get("moves") or ()
         spread = dict(provisional.get("spread") or ())
         ability_source_label = provisional.get("ability_source_label")
-    lines.append(f"Proposed build for {species} ({role}):")
+    role_bit = _format_option_role_bit(decision)
+    if not role_bit:
+        role_bit = (
+            str(provisional.role)
+            if isinstance(provisional, ProvisionalSlot)
+            else str(
+                getattr(decision, "role_id", None)
+                or (decision.get("role_id") if isinstance(decision, Mapping) else None)
+                or "?"
+            )
+        )
+    lines.append(f"Proposed build for {species} ({role_bit}):")
     lines.extend(
         _format_build_fields(
             ability=ability,

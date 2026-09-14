@@ -388,6 +388,30 @@ assertions).
 
 ---
 
+## Bootstrap tiered fallback (Part 2C — Layer 1 census + Layer 2 named)
+
+*Layer 1: 35 `became_legal` ids via `discover_bootstrap_directions` (shipped hardcode
+`regulation=champions-reg-mb` unchanged). Layer 2: named harness under `VGC_MC` via
+`bootstrap_once_and_stop`, extended through select → `full_slot_confirmed` for NN CLEAN.*
+
+- Measured: 2026-09-14
+- Repo HEAD: `f6a7ee0a9b5d6cfd2e012d5a125575c6f9e88aeb`
+- Runner: `uv run python scripts/eval/run_bootstrap_tiers.py`
+- Layer 1: **N=31** (35 − 4 pre_tier) → **tier1=3/31**, **tier2=6/31**, **tier3=22/31**
+  - pre_tier (4): Arboliva, Indeedee, Indeedee-F, Rillaboom (`target_role_from_strategic_evidence`)
+  - tier1 (3): Baxcalibur, Baxcalibur-Mega, Pawmot (`bootstrap_kit_role_policy`)
+  - tier2 (6): Absol-Mega-Z, Persian, Sirfetch’d, Swalot, Toxtricity, Toxtricity-Low-Key (`bootstrap_movepool_family_nn`)
+- Layer 2 named: **14 / 14 PASS** (selectability through lock, not presentation-only)
+  - Writeup: Baxcalibur, Pawmot, Baxcalibur-Mega (accept → provisional disclosure)
+  - NN CLEAN (6): Absol-Mega-Z / Sirfetch’d / Swalot → `swords_dance_attacker`; Persian / Toxtricity / Toxtricity-Low-Key → `fast_pivot` — each **discover → select → refine → lock**; confirmation shows `similar to` provenance
+  - THIN_REF: Gogoat, Grapploct → `fail_closed`
+  - HARD_MULTI: Cinderace, Salamence → `fail_closed`
+  - Fail-closed msg: Mabosstiff includes `_direction_phrase_examples`; no `standard_`
+- Claim upgrade vs prior 13/13: earlier PASS only verified role presentation at `candidates_ready`. This run hard-fails if any NN CLEAN candidate cannot lock.
+- Artifact: `.cache/eval/last_bootstrap_tiers_run.json`
+
+---
+
 ## Showdown-simulated win rate (Phase 2)
 *Primary quantitative eval, once built. Recommended teams played against a defined set of known
 meta teams via Pokémon Showdown's simulator/API.*
