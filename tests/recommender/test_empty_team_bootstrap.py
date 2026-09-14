@@ -554,7 +554,7 @@ def test_starting_role_fail_closed_accepts_mapped_direction_next():
     "species,role_id,neighbor",
     [
         ("Sirfetch’d", "swords_dance_attacker", "Scizor"),
-        ("Toxtricity", "bulky_pivot", "Simipour"),
+        ("Toxtricity", "fast_pivot", "Simipour"),
         ("Swalot", "swords_dance_attacker", "Scizor"),
     ],
 )

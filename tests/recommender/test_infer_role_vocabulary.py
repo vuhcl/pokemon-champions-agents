@@ -143,6 +143,57 @@ def test_scarf_plus_uturn_is_fast_pivot():
     )
 
 
+@pytest.mark.parametrize(
+    "moves,item,ability",
+    [
+        (
+            ["Aura Wheel", "Fake Out", "Protect", "Parting Shot"],
+            "Focus Sash",
+            "Hunger Switch",
+        ),
+        (
+            ["Protect", "Snarl", "Flamethrower", "Volt Switch"],
+            "Focus Sash",
+            None,
+        ),
+        (
+            ["Fake Out", "Volt Switch", "Thunderbolt", "Encore"],
+            "Focus Sash",
+            None,
+        ),
+        (
+            ["Fake Out", "Scald", "Protect", "Flip Turn"],
+            "Focus Sash",
+            None,
+        ),
+        (
+            ["Sucker Punch", "U-turn", "Shadow Ball", "Draco Meteor"],
+            "Life Orb",
+            None,
+        ),
+        (
+            ["Thunderbolt", "Protect", "Shadow Ball", "Volt Switch"],
+            "Life Orb",
+            None,
+        ),
+    ],
+)
+def test_live_fast_item_pivot_kits_are_fast_pivot(moves, item, ability):
+    """Morpeko/Manectric/Raichu/Simipour/Dragapult/Jolteon featured kits."""
+    assert infer_role(moves, item, ability) == "fast_pivot"
+
+
+@pytest.mark.parametrize("item", ["Focus Sash", "Life Orb", "Choice Band"])
+def test_pivot_plus_convention_fast_item_is_fast_pivot(item: str):
+    assert (
+        infer_role(
+            ["U-turn", "Earthquake", "Iron Head", "Protect"],
+            item,
+        )
+        == "fast_pivot"
+    )
+
+
 def test_sand_rush_excadrill_fast_physical():
     assert (
         infer_role(
