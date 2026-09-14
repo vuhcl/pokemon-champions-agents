@@ -635,6 +635,37 @@ def test_nn_transfer_select_refine_and_lock(species, role_id, neighbor):
     assert slot.ability.value
 
 
+def test_nn_transfer_incomplete_seeds_fail_closed():
+    """Incomplete NN auto-seeds must fail closed at refine (no partial provisional)."""
+    species = "Sirfetch’d"
+    state = _record(
+        _state(),
+        _payload(anchor=species, pool=(), delegated=False),
+    )
+    presented = bootstrap_direction(state)
+    selected = classify_input(
+        {**state, **presented, "pending_input": "1"}
+    )
+    selected_state = {**state, **presented, **selected}
+    intent = selected_state["pending_slot_intent"]
+    assert intent.target_role_decision.producer_name == (
+        "bootstrap_movepool_family_nn"
+    )
+
+    with patch(
+        "recommender.bootstrap_role_nn.derive_nn_transfer_seeds",
+        return_value=("Steadfast", None),
+    ):
+        refined = refine_provisional_slot(selected_state)
+
+    refinement = refined["provisional_refinement"]
+    assert isinstance(refinement, UnresolvedSlotRefinement)
+    assert refinement.reason == "incomplete_build"
+    assert refinement.unresolved_fields == ("moves",)
+    assert refined["provisional_slot"] is None
+    assert refined.get("slot_commit_error")
+
+
 @pytest.mark.parametrize("species", ["Gogoat", "Grapploct"])
 def test_nn_role_transfer_thin_fails_closed(species):
     state = _record(
