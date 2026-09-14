@@ -395,7 +395,7 @@ assertions).
 `bootstrap_once_and_stop`, extended through select → `full_slot_confirmed` for NN CLEAN.*
 
 - Measured: 2026-09-14
-- Repo HEAD: `b8ceebe34a367759902c1ea88572b455d4e4c9ba`
+- Repo HEAD: `f6a7ee0a9b5d6cfd2e012d5a125575c6f9e88aeb`
 - Runner: `uv run python scripts/eval/run_bootstrap_tiers.py`
 - Layer 1: **N=31** (35 − 4 pre_tier) → **tier1=3/31**, **tier2=6/31**, **tier3=22/31**
   - pre_tier (4): Arboliva, Indeedee, Indeedee-F, Rillaboom (`target_role_from_strategic_evidence`)
