@@ -62,8 +62,10 @@ export declare namespace State {
         isLightScreen?: boolean;
         isProtected?: boolean;
         isSeeded?: boolean;
+        isNightmared?: boolean;
         isSaltCured?: boolean;
         isForesight?: boolean;
+        isCharge?: boolean;
         isTailwind?: boolean;
         isHelpingHand?: boolean;
         isFlowerGift?: boolean;

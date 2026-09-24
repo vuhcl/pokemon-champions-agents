@@ -789,6 +789,21 @@ describe('calc', function () {
                 });
             });
         });
+        describe('Charge', function () {
+            (0, helper_1.inGens)([0, [3, 9]], function (_a) {
+                var gen = _a.gen, calculate = _a.calculate, Pokemon = _a.Pokemon, Move = _a.Move, Field = _a.Field;
+                test('Charge should double the Base Power of Electric-type moves', function () {
+                    var attacker = Pokemon('Pikachu');
+                    var defender = Pokemon('Pikachu');
+                    var move = Move('Thunderbolt');
+                    var field = Field({ attackerSide: { isCharge: true } });
+                    var noCharge = calculate(attacker, defender, move);
+                    var charge = calculate(attacker, defender, move, field);
+                    expect(charge.range()[0]).toBeGreaterThan(noCharge.range()[0]);
+                    expect(charge.range()[1]).toBeGreaterThan(noCharge.range()[1]);
+                });
+            });
+        });
     });
     describe('Gen 1', function () {
         (0, helper_1.inGen)(1, function (_a) {
@@ -1588,6 +1603,15 @@ describe('calc', function () {
                     expect(snowResult.range()[0]).toEqual(noSnowResult.range()[0]);
                     expect(snowResult.range()[1]).toEqual(noSnowResult.range()[1]);
                 });
+            });
+            test('items absent from the format should not crash the calc', function () {
+                var attacker = Pokemon('Kingambit', { nature: 'Adamant' });
+                var holder = Pokemon('Incineroar', { nature: 'Impish', item: 'Black Sludge' });
+                var result = calculate(attacker, holder, Move('Iron Head'));
+                expect(result.range()[1]).toBeGreaterThan(0);
+                var vsHolder = calculate(attacker, holder, Move('Knock Off'));
+                var vsItemless = calculate(attacker, Pokemon('Incineroar', { nature: 'Impish' }), Move('Knock Off'));
+                expect(vsHolder.range()[1]).toBeGreaterThan(vsItemless.range()[1]);
             });
         });
     });

@@ -150,7 +150,7 @@ function calculateADV(gen, attacker, defender, move, field) {
         var origDefBoost = desc.defenseBoost;
         var origAtkBoost = desc.attackBoost;
         var numAttacks = 1;
-        if (move.dropsStats && move.timesUsed > 1) {
+        if (move.timesUsed > 1) {
             desc.moveTurns = "over ".concat(move.timesUsed, " turns");
             numAttacks = move.timesUsed;
         }
@@ -361,6 +361,10 @@ function calculateFinalModsADV(baseDamage, attacker, move, field, desc, isCritic
     if (move.named('Weather Ball') && field.weather) {
         baseDamage *= 2;
         desc.moveBP = move.bp * 2;
+    }
+    if (field.attackerSide.isCharge && move.hasType('Electric')) {
+        baseDamage *= 2;
+        desc.isCharge = true;
     }
     if (field.attackerSide.isHelpingHand) {
         baseDamage = Math.floor(baseDamage * 1.5);
