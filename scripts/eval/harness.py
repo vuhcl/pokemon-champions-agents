@@ -41,7 +41,7 @@ def start_graph(
     *,
     thread_id: str,
     calc_degraded: bool = False,
-    format_id: str = VGC_MB,
+    format_id: str = VGC_MC,
 ):
     graph = compile_graph(checkpointer=MemorySaver())
     config = {"configurable": {"thread_id": thread_id}}
@@ -222,7 +222,7 @@ def run_scenario(
     runner: Callable[..., ScenarioResult],
     *,
     calc_degraded: bool = False,
-    format_id: str = VGC_MB,
+    format_id: str = VGC_MC,
 ) -> ScenarioResult:
     tok_sc = eval_scenario_id.set(scenario_id)
     tok_turn = eval_turn_index.set(0)

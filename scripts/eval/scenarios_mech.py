@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Callable
 
 from recommender.matchup import MatchupResult, clear_matchup_memo, classify_matchup
 from recommender.state import (
@@ -25,6 +25,15 @@ SPREAD = (
     ("spe", 30),
 )
 
+CINDERACE_SPREAD = (
+    ("hp", 4),
+    ("atk", 32),
+    ("def", 0),
+    ("spa", 0),
+    ("spd", 0),
+    ("spe", 30),
+)
+
 
 def _provisional_gholdengo(*, item: str = "Life Orb") -> ProvisionalSlot:
     return ProvisionalSlot(
@@ -41,6 +50,25 @@ def _provisional_gholdengo(*, item: str = "Life Orb") -> ProvisionalSlot:
         spread=SPREAD,
         fingerprint="eval-compare-fp",
         base_slot_fingerprint="eval-base-fp",
+    )
+
+
+def _provisional_cinderace(*, item: str = "Life Orb") -> ProvisionalSlot:
+    """M-C unban — calc must resolve this species (regression for #218)."""
+    return ProvisionalSlot(
+        schema_version=1,
+        slot_index=0,
+        target_role_decision=TargetRoleDecision(
+            role_id="fast_physical_attacker", source="other"
+        ),
+        species="Cinderace",
+        ability="Libero",
+        item=item,
+        moves=("Pyro Ball", "U-turn", "High Jump Kick", "Protect"),
+        nature="Jolly",
+        spread=CINDERACE_SPREAD,
+        fingerprint="eval-compare-cinderace-fp",
+        base_slot_fingerprint="eval-base-cinderace-fp",
     )
 
 
@@ -99,6 +127,61 @@ def _groups() -> tuple[BuildOptionGroup, ...]:
     )
 
 
+def _cinderace_groups() -> tuple[BuildOptionGroup, ...]:
+    opts = (
+        BuildConfirmationOption(
+            option_id="spread_nature:default",
+            label="Default",
+            axis="spread_nature",
+            provenance="featured",
+            overrides={},
+            diff_summary="recommended default",
+            tradeoff="keep",
+        ),
+        BuildConfirmationOption(
+            option_id="spread_nature:1",
+            label="Bulk",
+            axis="spread_nature",
+            provenance="usage_spread",
+            overrides={
+                "nature": "Adamant",
+                "spread": {
+                    "hp": 32,
+                    "atk": 32,
+                    "def": 0,
+                    "spa": 0,
+                    "spd": 2,
+                    "spe": 0,
+                },
+            },
+            diff_summary="spread",
+            tradeoff="more HP",
+        ),
+        BuildConfirmationOption(
+            option_id="item:1",
+            label="Life Orb",
+            axis="item",
+            provenance="featured",
+            overrides={"item": "Life Orb"},
+            diff_summary="item",
+            tradeoff="more damage",
+        ),
+        BuildConfirmationOption(
+            option_id="item:2",
+            label="Choice Scarf",
+            axis="item",
+            provenance="featured",
+            overrides={"item": "Choice Scarf"},
+            diff_summary="item",
+            tradeoff="more Spe",
+        ),
+    )
+    return (
+        BuildOptionGroup(axis="spread_nature", prompt="spread", options=opts[:2]),
+        BuildOptionGroup(axis="item", prompt="item", options=opts[2:]),
+    )
+
+
 def _coverage_row(species: str, moves: list[str]) -> ThreatCoverageResult:
     return ThreatCoverageResult(
         threat={"species": species, "moves": moves},
@@ -112,10 +195,13 @@ def _coverage_row(species: str, moves: list[str]) -> ThreatCoverageResult:
 def _run_compare(
     scenario_id: str,
     option_ids: tuple[str, ...],
+    *,
+    provisional_factory: Callable[..., ProvisionalSlot] = _provisional_gholdengo,
+    groups_factory: Callable[[], tuple[BuildOptionGroup, ...]] = _groups,
 ) -> Any:
     def run(graph, config, state) -> ScenarioResult:
-        provisional = _provisional_gholdengo()
-        groups = _groups()
+        provisional = provisional_factory()
+        groups = groups_factory()
         intent = PendingSlotIntent(
             schema_version=1,
             slot_index=0,
@@ -214,7 +300,32 @@ def run_charge_recharge_structural() -> dict[str, Any]:
     return notes
 
 
-COMPARE_SCENARIOS = [
+COMPARE_SCENARIOS_MB = [
     ("compare_spread", ("spread_nature:default", "spread_nature:1")),
     ("compare_item_scarf", ("item:1", "item:2")),
 ]
+
+COMPARE_SCENARIOS_MC = [
+    (
+        "compare_cinderace_spread",
+        ("spread_nature:default", "spread_nature:1"),
+    ),
+    (
+        "compare_cinderace_item_scarf",
+        ("item:1", "item:2"),
+    ),
+]
+
+# Back-compat alias (historical M-B / default import sites).
+COMPARE_SCENARIOS = COMPARE_SCENARIOS_MB
+
+
+def compare_runner(scenario_id: str, option_ids: tuple[str, ...], *, suite: str):
+    if suite == "mc":
+        return _run_compare(
+            scenario_id,
+            option_ids,
+            provisional_factory=_provisional_cinderace,
+            groups_factory=_cinderace_groups,
+        )
+    return _run_compare(scenario_id, option_ids)

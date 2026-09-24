@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Run 15 scripted scenarios against an independent Showdown legality oracle."""
+"""Run scripted scenarios against an independent Showdown legality oracle.
+
+Default suite is current regulation (M-C). Historical M-B: --suite mb.
+"""
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import subprocess
@@ -16,9 +20,22 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.eval.harness import run_scenario  # noqa: E402
+from scripts.eval.harness import VGC_MB, VGC_MC, run_scenario  # noqa: E402
 from scripts.eval.oracle import load_oracle_snapshot, pair_legal  # noqa: E402
-from scripts.eval.scenarios import SCENARIOS  # noqa: E402
+from scripts.eval.scenarios import SCENARIOS_MB, SCENARIOS_MC  # noqa: E402
+
+SUITE_CFG = {
+    "mc": {
+        "scenarios": SCENARIOS_MC,
+        "format_id": VGC_MC,
+        "oracle_mod": "champions",
+    },
+    "mb": {
+        "scenarios": SCENARIOS_MB,
+        "format_id": VGC_MB,
+        "oracle_mod": "championsregmb",
+    },
+}
 
 
 def calc_healthy(timeout: float = 1.0) -> bool:
@@ -32,7 +49,7 @@ def calc_healthy(timeout: float = 1.0) -> bool:
         return False
 
 
-def build_oracle_snapshot() -> Path:
+def build_oracle_snapshot(*, mod: str) -> Path:
     env_path = os.environ.get("EVAL_ORACLE_SNAPSHOT")
     if env_path:
         p = Path(env_path)
@@ -40,16 +57,38 @@ def build_oracle_snapshot() -> Path:
             raise SystemExit(f"EVAL_ORACLE_SNAPSHOT not found: {p}")
         return p
     out = Path(tempfile.mkdtemp(prefix="eval-oracle-")) / "oracle.json"
-    cmd = ["npx", "tsx", "scripts/eval/oracle_snapshot.ts", "--out", str(out)]
+    cmd = [
+        "npx",
+        "tsx",
+        "scripts/eval/oracle_snapshot.ts",
+        "--out",
+        str(out),
+        "--mod",
+        mod,
+    ]
     print(f"$ {' '.join(cmd)}", flush=True)
     subprocess.run(cmd, cwd=ROOT, check=True)
     return out
 
 
 def main() -> int:
-    snap_path = build_oracle_snapshot()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--suite",
+        choices=("mc", "mb"),
+        default="mc",
+        help="mc = current regulation (default); mb = historical M-B regression",
+    )
+    args = parser.parse_args()
+    cfg = SUITE_CFG[args.suite]
+    format_id = cfg["format_id"]
+    scenarios = cfg["scenarios"]
+    oracle_mod = cfg["oracle_mod"]
+
+    snap_path = build_oracle_snapshot(mod=oracle_mod)
     snap = load_oracle_snapshot(snap_path)
     commit = ((snap.get("meta") or {}).get("source") or {}).get("commit", "?")
+    snap_mod = ((snap.get("meta") or {}).get("source") or {}).get("mod", "?")
     degraded = not calc_healthy()
     if degraded:
         print(
@@ -59,11 +98,17 @@ def main() -> int:
     else:
         print("calc healthy", flush=True)
 
+    print(f"suite={args.suite} format_id={format_id} oracle_mod={snap_mod}", flush=True)
+
     results = []
-    for sc in SCENARIOS:
+    for sc in scenarios:
         print(f"… {sc.scenario_id}", flush=True)
         result = run_scenario(
-            sc.scenario_id, sc.path, sc.run, calc_degraded=degraded
+            sc.scenario_id,
+            sc.path,
+            sc.run,
+            calc_degraded=degraded,
+            format_id=format_id,
         )
         results.append(result)
 
@@ -104,6 +149,9 @@ def main() -> int:
 
     rate = (false_legal / pairs_checked) if pairs_checked else 0.0
     summary = {
+        "suite": args.suite,
+        "format_id": format_id,
+        "oracle_mod": snap_mod,
         "scenarios": len(results),
         "pairs_checked": pairs_checked,
         "false_legal": false_legal,

@@ -1,4 +1,8 @@
-"""Fifteen scripted legality-eval scenarios (Task A)."""
+"""Scripted legality-eval scenarios (Task A).
+
+SCENARIOS / SCENARIOS_MC — current regulation (M-C) default.
+SCENARIOS_MB — historical M-B regression fixture (--suite mb).
+"""
 
 from __future__ import annotations
 
@@ -89,6 +93,18 @@ def _locked_incineroar() -> Slot:
         moves=["Fake Out", "Knock Off", "Flare Blitz", "Parting Shot"],
         nature="Careful",
         spread={"hp": 32, "atk": 4, "def": 0, "spa": 0, "spd": 28, "spe": 2},
+    )
+
+
+def _locked_rillaboom() -> Slot:
+    return _locked(
+        "Rillaboom",
+        role="grassy_terrain_setter",
+        ability="Grassy Surge",
+        item="Miracle Seed",
+        moves=["Grassy Glide", "Wood Hammer", "U-turn", "Fake Out"],
+        nature="Adamant",
+        spread={"hp": 4, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 30},
     )
 
 
@@ -363,7 +379,7 @@ def _run_repick(
     return run
 
 
-SCENARIOS: list[Scenario] = [
+SCENARIOS_MB: list[Scenario] = [
     Scenario(
         "baseline_rain",
         "baseline",
@@ -519,5 +535,164 @@ SCENARIOS: list[Scenario] = [
     ),
 ]
 
+# Default = current regulation (M-C). Historical M-B kept as SCENARIOS_MB.
+SCENARIOS_MC: list[Scenario] = [
+    Scenario(
+        "baseline_grassy",
+        "baseline",
+        "M-C unban locked-anchor: Grassy Terrain / Rillaboom.",
+        _run_baseline(
+            "baseline_grassy", "baseline", "Grassy Terrain", "Rillaboom"
+        ),
+    ),
+    Scenario(
+        "baseline_trick_room",
+        "baseline",
+        "Ordinary intake: Trick Room / Farigiraf.",
+        _run_baseline(
+            "baseline_trick_room", "baseline", "Trick Room", "Farigiraf"
+        ),
+    ),
+    Scenario(
+        "baseline_rain",
+        "baseline",
+        "Ordinary intake: Rain / Pelipper bootstrap through accept-recommended.",
+        _run_baseline("baseline_rain", "baseline", "Rain", "Pelipper"),
+    ),
+    Scenario(
+        "candidate_pawmot",
+        "last_resort",
+        "M-C unban candidate select: Pawmot (fast_physical_attacker).",
+        _run_select_confirm(
+            "candidate_pawmot",
+            "last_resort",
+            "Pawmot",
+            role_id="fast_physical_attacker",
+        ),
+    ),
+    Scenario(
+        "last_resort_incomplete",
+        "last_resort",
+        "ADR-015 Amendment 2026-08-09a: usage miss expected incomplete_build.",
+        _run_select_confirm(
+            "last_resort_incomplete",
+            "last_resort",
+            "Ditto",
+            role_id="screens_support",
+            usage_miss=True,
+        ),
+    ),
+    Scenario(
+        "role_aware_sableye_screens",
+        "role_aware",
+        "ADR-053: Sableye for screens_support via role-aware synthesis.",
+        _run_select_confirm(
+            "role_aware_sableye_screens",
+            "role_aware",
+            "Sableye",
+            role_id="screens_support",
+        ),
+    ),
+    Scenario(
+        "role_aware_ninetales_screens",
+        "role_aware",
+        "ADR-053: Ninetales-Alola for screens_support.",
+        _run_select_confirm(
+            "role_aware_ninetales_screens",
+            "role_aware",
+            "Ninetales-Alola",
+            role_id="screens_support",
+        ),
+    ),
+    Scenario(
+        "provisional_baxcalibur",
+        "provisional",
+        "M-C unban sample: Baxcalibur provisional → full_slot_confirmed.",
+        _run_select_confirm(
+            "provisional_baxcalibur",
+            "provisional",
+            "Baxcalibur",
+            role_id="standard_physical_attacker",
+        ),
+    ),
+    Scenario(
+        "provisional_abandon",
+        "provisional",
+        "Reach full_build_confirmation then build_abandoned.",
+        _run_select_confirm(
+            "provisional_abandon",
+            "provisional",
+            "Gholdengo",
+            role_id="fast_special_attacker",
+            abandon=True,
+        ),
+    ),
+    Scenario(
+        "revise_item",
+        "revise_locked_slot",
+        "revise_locked_slot item edit on locked Gholdengo.",
+        _run_revise("revise_item", "revise_locked_slot", field="item", value="Focus Sash"),
+    ),
+    Scenario(
+        "revise_nature",
+        "revise_locked_slot",
+        "revise_locked_slot nature edit on locked Gholdengo.",
+        _run_revise(
+            "revise_nature", "revise_locked_slot", field="nature", value="Modest"
+        ),
+    ),
+    Scenario(
+        "repick_indeedee",
+        "repick_locked_slot",
+        "M-C unban sample: repick → Indeedee-F redirection.",
+        _run_repick(
+            "repick_indeedee",
+            "repick_locked_slot",
+            "Indeedee-F",
+            role_id="redirection",
+        ),
+    ),
+    Scenario(
+        "repick_sinistcha",
+        "repick_locked_slot",
+        "repick_locked_slot → replace with Sinistcha.",
+        _run_repick(
+            "repick_sinistcha",
+            "repick_locked_slot",
+            "Sinistcha",
+            role_id="redirection",
+        ),
+    ),
+    Scenario(
+        "team_conditioned_indeedee",
+        "team_conditioned",
+        "Locked Rillaboom (M-C unban anchor) → Indeedee-F team-conditioned.",
+        _run_select_confirm(
+            "team_conditioned_indeedee",
+            "team_conditioned",
+            "Indeedee-F",
+            role_id="redirection",
+            draft=[_locked_rillaboom()],
+            slot_index=1,
+        ),
+    ),
+    Scenario(
+        "team_conditioned_sableye",
+        "team_conditioned",
+        "ADR-056: locked Pelipper → Sableye team-conditioned build.",
+        _run_select_confirm(
+            "team_conditioned_sableye",
+            "team_conditioned",
+            "Sableye",
+            role_id="screens_support",
+            draft=[_locked_pelipper()],
+            slot_index=1,
+        ),
+    ),
+]
 
+SCENARIOS = SCENARIOS_MC
+
+assert len(SCENARIOS_MB) == 15
+assert len(SCENARIOS_MC) == 15
 assert len(SCENARIOS) == 15
