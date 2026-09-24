@@ -5819,6 +5819,27 @@ no regressions introduced anywhere in this arc.
 Merged: #209, #210, #211, `fix/compendium-usage-regulation-retarget`,
 #213.
 
+### 2026-09-24 — Re-vendor @smogon/calc for Reg M-C
+
+**Symptom:** calc service rejected M-C unban species (`unknown Champions species`) despite
+legality already on M-C.
+
+**Root cause:** stale vendor pin (`fc49580`) vs. a separate calc Champions species table —
+distinct allowlist from this project's own legality data, and it doesn't move when legality
+data moves.
+
+**Fix:** re-vendored from `damage-calc` master `5d5bf43` (ancestor confirmed for
+`06cc6117`, the upstream M-C support commit). PR #218, merged 2026-09-24.
+
+**Smoke:** Baxcalibur/Cinderace/Arboliva EQ return real damage ranges (not the error
+string); Garchomp still `[150,176]`.
+
+**Tests:** `npm test` 54/54; `uv run pytest tests/recommender -q` 1760 passed / 10 skipped;
+`CALC_LIVE=1` 26 passed.
+
+**Left alone:** `data/legality/*`, `eval_results.md` (re-measure queued as a separate,
+follow-up item now that this is unblocked).
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

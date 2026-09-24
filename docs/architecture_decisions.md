@@ -226,6 +226,38 @@ work starts.
 
 ---
 
+### ADR-003 — Amendment 2026-09-24a
+
+**Vendored calc pin refreshed for Reg M-C; calc species table is a separate allowlist from
+legality data.**
+
+**What was stale:** `vendor/smogon-calc` remained pinned at `smogon/damage-calc@fc49580`
+(`0.11.0-champions.fc49580`), predating upstream `06cc6117` ("Champions: Support Regulation
+M-C", 2026-09-10).
+
+**Why it broke:** Legality snapshots (PR #198) already treated the 35 M-B→M-C unbans as
+legal, but `@smogon/calc`'s Champions species table is an independent baked allowlist. Those
+species were absent from the vendored dex, so `handlers.ts` returned `unknown Champions
+species` and coverage/matchup calc could not run for any of them — a real ADR-003 gap
+(mechanical claims must go through calc, never generated text).
+
+**Resolution:** Re-vendored `calc/` from `damage-calc` master HEAD
+`5d5bf4323990a32d2099ebd7fb50fec06ad2b501` (includes `06cc6117`+). Version
+`0.11.0-champions.5d5bf43`. Verified Baxcalibur / Cinderace / Arboliva return real
+`damageRange`; Garchomp EQ golden `[150,176]` unchanged; `npm test`, full
+`tests/recommender`, and `CALC_LIVE=1` suite passed. Landed via PR #218.
+
+**Tracking item (unchanged):** drop the vendored copy when npm `@smogon/calc` ships
+Champions parity.
+
+**Non-goals this change:** no legality data edits; eval re-measure deferred.
+
+**Status:** Resolves the M-C calc-species-table gap. Champions species-table coverage for
+the 35 M-C unbans is confirmed via targeted species smoke test, not an exhaustive per-species
+sweep — worth noting if a species-specific gap surfaces later.
+
+---
+
 ## ADR-014: Minimize live web search as a runtime agent tool
 **Decision:** The agent's runtime tool set should not include general web search as a live, per-conversation tool call. Anything that would otherwise require a live search (e.g., supplementary legality data beyond what Showdown's data files cover, per ADR-007) should be gathered **once, offline, during data preparation**, and baked into the static legality dataset — not fetched live by the agent mid-conversation.
 **Alternatives considered:** Give the agent a general web-search tool for anything not covered by bundled data.
