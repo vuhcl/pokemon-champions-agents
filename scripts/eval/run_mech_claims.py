@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Mechanical-claim fidelity checks (Task B). Requires healthy calc service."""
+"""Mechanical-claim fidelity checks (Task B). Requires healthy calc service.
+
+Default suite is current regulation (M-C). Historical M-B: --suite mb.
+"""
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import sys
@@ -22,13 +26,28 @@ from recommender.matchup import clear_matchup_memo, classify_matchup  # noqa: E4
 from recommender.state import all_locked  # noqa: E402
 from recommender.usage_spreads import effective_spe  # noqa: E402
 from scripts.eval.calc_log import EvalSpies  # noqa: E402
-from scripts.eval.harness import run_scenario  # noqa: E402
-from scripts.eval.scenarios import SCENARIOS  # noqa: E402
+from scripts.eval.harness import VGC_MB, VGC_MC, run_scenario  # noqa: E402
+from scripts.eval.scenarios import SCENARIOS_MB, SCENARIOS_MC  # noqa: E402
 from scripts.eval.scenarios_mech import (  # noqa: E402
-    COMPARE_SCENARIOS,
-    _run_compare,
+    COMPARE_SCENARIOS_MB,
+    COMPARE_SCENARIOS_MC,
+    compare_runner,
     run_charge_recharge_structural,
 )
+
+SUITE_CFG = {
+    "mc": {
+        "scenarios": SCENARIOS_MC,
+        "compares": COMPARE_SCENARIOS_MC,
+        "format_id": VGC_MC,
+    },
+    "mb": {
+        "scenarios": SCENARIOS_MB,
+        "compares": COMPARE_SCENARIOS_MB,
+        "format_id": VGC_MB,
+    },
+}
+
 
 _DMG_LINE = re.compile(
     r"^\s+(\S+): (.+) dmg=(\[[^\]]+\]|\S+) ko=(.*?)(?: \((guaranteed )?(\d+)HKO\))?$"
@@ -287,9 +306,24 @@ def check_matchup_memo(captures: list[Any]) -> dict[str, Any]:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--suite",
+        choices=("mc", "mb"),
+        default="mc",
+        help="mc = current regulation (default); mb = historical M-B regression",
+    )
+    args = parser.parse_args()
+    cfg = SUITE_CFG[args.suite]
+    format_id = cfg["format_id"]
+    scenarios = cfg["scenarios"]
+    compares = cfg["compares"]
+
     if not calc_healthy():
         print("FATAL: calc /health failed — aborting mech-claim measurement", flush=True)
         return 2
+
+    print(f"suite={args.suite} format_id={format_id}", flush=True)
 
     spies = EvalSpies()
     spies.install()
@@ -298,23 +332,28 @@ def main() -> int:
 
     try:
         print("=== Task A scenarios (with calc/matchup spies) ===", flush=True)
-        for sc in SCENARIOS:
+        for sc in scenarios:
             print(f"… {sc.scenario_id}", flush=True)
             clear_matchup_memo()
-            result = run_scenario(sc.scenario_id, sc.path, sc.run, calc_degraded=False)
+            result = run_scenario(
+                sc.scenario_id,
+                sc.path,
+                sc.run,
+                calc_degraded=False,
+                format_id=format_id,
+            )
             all_builds.extend(_builds_from_state(result.state))
 
         print("=== compare extras ===", flush=True)
-        from scripts.eval.harness import eval_turn_index
-
-        for sid, oids in COMPARE_SCENARIOS:
+        for sid, oids in compares:
             print(f"… {sid}", flush=True)
             clear_matchup_memo()
-            before = eval_turn_index.get()
-            result = run_scenario(sid, "compare", _run_compare(sid, oids))
-            # turn() increments; compare is one turn
-            turn_idx = eval_turn_index.get()  # already reset after run_scenario
-            # Recover turn index from last calc log entry for this scenario
+            result = run_scenario(
+                sid,
+                "compare",
+                compare_runner(sid, oids, suite=args.suite),
+                format_id=format_id,
+            )
             turns = [e.turn_index for e in spies.calc_log if e.scenario_id == sid]
             turn_idx = turns[-1] if turns else 1
             if result.compare_analysis:
@@ -336,6 +375,8 @@ def main() -> int:
     check3 = check_matchup_memo(spies.matchups)
 
     summary = {
+        "suite": args.suite,
+        "format_id": format_id,
         "check1_spe": check1,
         "check2_damage_ko": check2,
         "check3_matchup_memo": check3,
