@@ -437,6 +437,27 @@ significant?*
 
 ---
 
+## Bare-LLM baseline (no tools) — comparison axis
+*What to measure: same open-ended VGC 2026 Reg M-C doubles team-building task given to a
+bare LLM with no LangGraph / no tool access, scored against the same oracles Phase 1 grounded
+evals use (legality `oracle.py` + fresh Showdown snapshot; species-fact oracle incl. move
+learnability; `@smogon/calc` for mechanical claims), plus structural EV-vs-SP and Item Clause
+counts. Sits beside grounded rates — not folded into them. Interview framing: measured
+evidence for ADR-002/ADR-003 (“why grounding matters”).*
+
+- Measured: TBD (runner shipped; local Ollama measurement pending)
+- Models: `qwen2.5:7b`, `qwen3.5:latest` (Claude out of scope — ADR-058)
+- Runs per model: 5 (temperature 0.7); soft mech nudge at most once if ≥4 slots and zero
+  organic speed/damage claims
+- Runner: `BOOTSTRAP_OLLAMA_MODEL=… uv run python scripts/eval/run_bare_llm_baseline.py`
+- Artifacts (expected): `scripts/eval/artifacts/bare_llm_baseline_qwen25.json`,
+  `scripts/eval/artifacts/bare_llm_baseline_qwen35.json`
+- Notes: Same oracles, different elicitation than the scripted LangGraph harness. Fill
+  per-model TRUE/FALSE/unverifiable + false-legal/false-illegal + EV/SP + Item Clause after
+  Phase B measurement. ADR/log draft held until numbers land.
+
+---
+
 ## Known limitations / honest gaps (update as discovered)
 *Mirror the honesty standard set by the VinylIQ RAG-not-shipped story — if something doesn't
 work or an eval result is weak, it goes here plainly, not smoothed over.*
