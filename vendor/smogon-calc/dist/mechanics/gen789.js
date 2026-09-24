@@ -74,8 +74,10 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
         move.category = 'Physical';
         move.flags.contact = 1;
     }
-    var breaksProtect = move.breaksProtect || move.isZ || attacker.isDynamaxed ||
-        (attacker.hasAbility('Unseen Fist', 'Piercing Drill') && move.flags.contact);
+    var breaksProtect = !defender.isDynamaxed &&
+        (move.breaksProtect || move.isZ || attacker.isDynamaxed ||
+            (attacker.hasAbility('Unseen Fist', 'Piercing Drill') && move.flags.contact)) ||
+        move.name === 'G-Max One Blow' || move.name === 'G-Max Rapid Flow';
     if (field.defenderSide.isProtected && !breaksProtect) {
         desc.isProtected = true;
         return result;
@@ -232,6 +234,9 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
         field.defenderSide.isLightScreen = false;
         field.defenderSide.isAuroraVeil = false;
     }
+    if (attacker.hasAbility('Electromorphosis') && attacker.abilityOn) {
+        field.attackerSide.isCharge = true;
+    }
     var hasAteAbilityTypeChange = false;
     var isAerilate = false;
     var isPixilate = false;
@@ -261,7 +266,7 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
         else if ((isNormalize = attacker.hasAbility('Normalize'))) {
             type = 'Normal';
         }
-        else if ((isDragonize = attacker.hasAbility('Dragonize')) && normal) {
+        else if ((isDragonize = attacker.hasAbility('Dragonize') && normal)) {
             type = 'Dragon';
         }
         if (isGalvanize || isPixilate || isRefrigerate || isAerilate || isNormalize || isDragonize) {
@@ -439,12 +444,14 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
     desc.isBurned = applyBurn;
     var finalMods = calculateFinalModsSMSSSV(gen, attacker, defender, move, field, desc, isCritical, typeEffectiveness);
     var protect = false;
-    if (field.defenderSide.isProtected &&
-        (attacker.isDynamaxed ||
-            attacker.hasAbility('Unseen Fist', 'Piercing Drill') ||
-            (move.isZ && attacker.item && attacker.item.includes(' Z')))) {
-        protect = true;
-        desc.isProtected = true;
+    if (field.defenderSide.isProtected) {
+        if (attacker.isDynamaxed &&
+            !(move.name === 'G-Max One Blow' || move.name === 'G-Max Rapid Flow') ||
+            !attacker.isDynamaxed && (attacker.hasAbility('Unseen Fist', 'Piercing Drill') ||
+                (move.isZ && attacker.item && attacker.item.includes(' Z')))) {
+            protect = true;
+            desc.isProtected = true;
+        }
     }
     var finalMod = (0, util_2.chainMods)(finalMods, 41, 131072);
     var isSpread = field.gameType !== 'Singles' &&
@@ -750,7 +757,7 @@ function calculateBPModsSMSSSV(gen, attacker, defender, move, field, desc, baseP
         (defender.named('Venomicon-Epilogue') && defenderItem === 'Vile Vial');
     if (!resistedKnockOffDamage && defenderItem) {
         var item = gen.items.get((0, util_1.toID)(defenderItem));
-        resistedKnockOffDamage = !!(item.megaStone &&
+        resistedKnockOffDamage = !!((item === null || item === void 0 ? void 0 : item.megaStone) &&
             (item.megaStone[defender.name] || Object.values(item.megaStone).includes(defender.name)));
     }
     if (!resistedKnockOffDamage && hit > 1 && !defender.hasAbility('Sticky Hold')) {
@@ -824,6 +831,10 @@ function calculateBPModsSMSSSV(gen, attacker, defender, move, field, desc, baseP
         (attacker.hasAbility('Sharpness') && move.flags.slicing)) {
         bpMods.push(6144);
         desc.attackerAbility = attacker.ability;
+    }
+    if (field.attackerSide.isCharge && move.hasType('Electric')) {
+        bpMods.push(8192);
+        desc.isCharge = true;
     }
     var aura = "".concat(move.type, " Aura");
     var isAttackerAura = attacker.hasAbility(aura);
@@ -1284,7 +1295,8 @@ function calculateFinalModsSMSSSV(gen, attacker, defender, move, field, desc, is
         finalMods.push(2048);
         desc.defenderAbility = defender.ability;
     }
-    if (defender.hasAbility('Fluffy') && move.flags.contact && !attacker.hasAbility('Long Reach')) {
+    var halveContactMoveDmg = defender.hasAbility('Fluffy') || defender.hasAbility('Aura Guard');
+    if (halveContactMoveDmg && move.flags.contact && !attacker.hasAbility('Long Reach')) {
         finalMods.push(2048);
         desc.defenderAbility = defender.ability;
     }

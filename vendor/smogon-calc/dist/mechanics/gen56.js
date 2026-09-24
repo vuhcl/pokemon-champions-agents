@@ -424,7 +424,7 @@ function calculateBPModsBWXY(gen, attacker, defender, move, field, desc, basePow
         (defender.named('Kyogre', 'Kyogre-Primal') && defenderItem === 'Blue Orb');
     if (!resistedKnockOffDamage && defenderItem) {
         var item = gen.items.get((0, util_1.toID)(defenderItem));
-        resistedKnockOffDamage = !!(item.megaStone &&
+        resistedKnockOffDamage = !!((item === null || item === void 0 ? void 0 : item.megaStone) &&
             (item.megaStone[defender.name] || Object.values(item.megaStone).includes(defender.name)));
     }
     if (!resistedKnockOffDamage && hit > 1 && !defender.hasAbility('Sticky Hold')) {
@@ -453,6 +453,10 @@ function calculateBPModsBWXY(gen, attacker, defender, move, field, desc, basePow
         (attacker.hasAbility('Iron Fist') && move.flags.punch)) {
         bpMods.push(4915);
         desc.attackerAbility = attacker.ability;
+    }
+    if (field.attackerSide.isCharge && move.hasType('Electric')) {
+        bpMods.push(8192);
+        desc.isCharge = true;
     }
     if (defender.hasAbility('Heatproof') && move.hasType('Fire')) {
         bpMods.push(2048);

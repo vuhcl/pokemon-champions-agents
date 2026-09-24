@@ -358,7 +358,7 @@ function getHazards(gen, defender, defenderSide) {
             ? rockType.effectiveness[defender.teraType]
             : rockType.effectiveness[defender.types[0]] *
                 (defender.types[1] ? rockType.effectiveness[defender.types[1]] : 1);
-        damage += Math.floor((effectiveness * defender.maxHP()) / 8);
+        damage += Math.max(Math.floor((effectiveness * defender.maxHP()) / 8), 1);
         texts.push('Stealth Rock');
     }
     if (defenderSide.steelsurge && !defender.hasAbility('Magic Guard', 'Mountaineer')) {
@@ -367,7 +367,7 @@ function getHazards(gen, defender, defenderSide) {
             ? steelType.effectiveness[defender.teraType]
             : steelType.effectiveness[defender.types[0]] *
                 (defender.types[1] ? steelType.effectiveness[defender.types[1]] : 1);
-        damage += Math.floor((effectiveness * defender.maxHP()) / 8);
+        damage += Math.max(Math.floor((effectiveness * defender.maxHP()) / 8), 1);
         texts.push('Steelsurge');
     }
     if (!defender.hasType('Flying') &&
@@ -468,6 +468,12 @@ function getEndOfTurn(gen, attacker, defender, move, field) {
             texts.push('Leech Seed damage');
         }
     }
+    if (field.defenderSide.isNightmared) {
+        if (!defender.hasAbility('Magic Guard')) {
+            damage -= Math.floor(defender.maxHP() / 4);
+            texts.push('Nightmare damage');
+        }
+    }
     if (field.attackerSide.isSeeded && !attacker.hasAbility('Magic Guard')) {
         var recovery = Math.floor(attacker.maxHP() / (gen.num === 0 || gen.num >= 2 ? 8 : 16));
         if (defender.hasItem('Big Root'))
@@ -529,11 +535,13 @@ function getEndOfTurn(gen, attacker, defender, move, field) {
     if (!defender.hasAbility('Magic Guard') && TRAPPING.includes(move.name) &&
         (gen.num === 0 || gen.num > 1)) {
         if (attacker.hasItem('Binding Band')) {
-            damage -= gen.num > 5 ? Math.floor(defender.maxHP() / 6) : Math.floor(defender.maxHP() / 8);
+            damage -= gen.num === 0 || gen.num > 5
+                ? Math.floor(defender.maxHP() / 6) : Math.floor(defender.maxHP() / 8);
             texts.push('trapping damage');
         }
         else {
-            damage -= gen.num > 5 ? Math.floor(defender.maxHP() / 8) : Math.floor(defender.maxHP() / 16);
+            damage -= gen.num === 0 || gen.num > 5
+                ? Math.floor(defender.maxHP() / 8) : Math.floor(defender.maxHP() / 16);
             texts.push('trapping damage');
         }
     }
@@ -797,6 +805,9 @@ function buildDescription(description, attacker, defender) {
     }
     if (description.isSwitching) {
         output += 'switching boosted ';
+    }
+    if (description.isCharge) {
+        output += 'Charge boosted ';
     }
     output += description.moveName + ' ';
     if (description.moveBP && description.moveType) {

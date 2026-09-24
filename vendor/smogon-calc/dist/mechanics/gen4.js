@@ -241,7 +241,7 @@ function calculateDPP(gen, attacker, defender, move, field) {
         var origDefBoost = desc.defenseBoost;
         var origAtkBoost = desc.attackBoost;
         var numAttacks = 1;
-        if (move.dropsStats && move.timesUsed > 1) {
+        if (move.timesUsed > 1) {
             desc.moveTurns = "over ".concat(move.timesUsed, " turns");
             numAttacks = move.timesUsed;
         }
@@ -379,6 +379,10 @@ function calculateBPModsDPP(attacker, defender, move, field, desc, basePower) {
     if (field.attackerSide.isHelpingHand) {
         basePower = Math.floor(basePower * 1.5);
         desc.isHelpingHand = true;
+    }
+    if (field.attackerSide.isCharge && move.hasType('Electric')) {
+        basePower = Math.floor(basePower * 2);
+        desc.isCharge = true;
     }
     if (attacker.hasAbility('Technician') && basePower <= 60) {
         basePower = Math.floor(basePower * 1.5);
