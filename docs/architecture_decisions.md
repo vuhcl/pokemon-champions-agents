@@ -2814,6 +2814,55 @@ fix in a same-branch follow-up commit.
 
 ---
 
+### ADR-016 — Amendment 2026-09-24a
+
+**Part 1 legality/mech eval defaults now track the live regulation (M-C); M-B kept
+as an explicit historical fixture.**
+
+**Decision:** `run_legality.py` and `run_mech_claims.py` default to Reg M-C
+(`VGC_MC`, oracle mod `champions`), with 15 new M-C scenarios exercising the 35
+M-B→M-C unban species directly (Rillaboom anchor, Pawmot candidate, Baxcalibur
+provisional, Indeedee-F repick/team-conditioned, Cinderace compare/calc). Prior
+regulation M-B remains runnable via `--suite mb` — same scenario content as before,
+byte-for-byte, not a redrafted fixture — with oracle mod `championsregmb` (falls
+back to `champions/rulesets.ts` since `championsregmb` inherits without its own
+copy). Supersedes the ADR-016 Amendment 2026-09-10a sentence pinning `harness.py`'s
+default to `VGC_MB` for Part 1 reproducibility.
+
+**Why:** After #218 (calc-dex re-vendor), M-C-unban species had to be in Part 1
+scenario scope or a calc regression on exactly those species stays invisible —
+which is precisely what had already happened silently (see below). Production
+identity already lives on M-C (PR #198); the eval default should match it rather
+than measuring a regulation nothing ships against anymore. Historical M-B stays
+runnable as a named fixture rather than being discarded — same pattern already used
+for legality data (M-A diff kept historical-only) and usage-data archive-chain
+fallback: regulations are additive and non-reversible here, so "current" moves
+forward and "prior" becomes an explicit, retained fixture, not a deleted one.
+
+**Real finding surfaced by the regression check, not just a clean re-run:** the
+M-B mechanical-claim compare fixture has always seeded two threats —
+Incineroar and Rillaboom — in `scenarios_mech.py`. Before #218, calc rejected
+Rillaboom (`unknown Champions species`), so Check 2's `dmg=…/ko=…` line-matching
+silently dropped every Rillaboom row from the sample — the eval was reporting
+Check 2 as 4/4 (100%) while actually only exercising half its intended threat
+panel, with the other half invisibly absent rather than counted as a failure.
+Re-running the *unchanged* M-B suite after #218 now correctly counts both threats
+(8/8, still 100%) — this is the #218 gap becoming visible in the denominator, not
+new scenario content. Check 3's unique-matchup-key count moved by a small amount
+(10109 → 10062, rate still 100%) for a separate, already-known reason: #216's
+NN-transfer auto-seed fix changes a few discovery-path candidate evaluations within
+the same 15 Task A scenarios, which shifts the exact set of `classify_matchup`
+calls issued without changing agreement.
+
+**Status:** Resolves the M-C scenario-coverage gap and, in the process, surfaces
+and explains a real accuracy blind spot the M-B suite had been silently carrying
+since before #218 — worth noting on its own: a 100%-agreement eval result was
+quietly under-sampling one of its two seeded threats the whole time, and nothing
+in the reported number would have shown that without checking the drop against the
+actual fixture content.
+
+---
+
 ## ADR-017: RecommenderState extensions — team theme/core, granular locking, constraint scope
 
 **Team theme/core.** `RecommenderState` gains two related concepts, populated by a detection

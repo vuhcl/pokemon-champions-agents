@@ -5840,6 +5840,33 @@ string); Garchomp still `[150,176]`.
 **Left alone:** `data/legality/*`, `eval_results.md` (re-measure queued as a separate,
 follow-up item now that this is unblocked).
 
+### 2026-09-24 — Part 1 (legality/mech) evals retargeted to M-C; M-B kept as fixture
+
+Retargeted Part 1 legality/mech eval defaults to Reg M-C (PR #219), with `--suite
+mb` preserving the historical M-B suite unchanged.
+
+M-C (new default): legality 0/33 false-legal; Spe 15/15; Check 2 8/8 / 8/8; Check 3
+9143/9143; Check 4 populated. 15 scenarios cover 5 of the 35 M-B→M-C unban species
+directly (Rillaboom, Pawmot, Baxcalibur, Indeedee-F, Cinderace).
+
+M-B (unchanged suite, re-run post-#218): legality 0/28 (unchanged); Spe 15/15
+(unchanged); Check 2 4/4 → 8/8; Check 3 10109 → 10062 (both still 100% agreement).
+
+Real finding, not just fresh numbers: Check 2's jump is #218 becoming visible, not
+scenario drift. The M-B compare fixture has always seeded Incineroar and Rillaboom
+as its two threats; before #218, Rillaboom silently failed calc resolution and its
+rows were dropped from the sample rather than counted as a miss — so the eval had
+been reporting 100% while actually only checking half its intended threat panel.
+Worth remembering: a clean-looking 100% number isn't the same as full sample
+coverage: check what a fixture is *supposed* to exercise, not just what its
+current line-matching regex happened to pick up.
+
+Check 3's smaller shift (10109 → 10062) traces to #216's NN-transfer auto-seed fix
+changing a few discovery-path candidate evaluations in the same 15 scenarios —
+agreement unaffected, key count moves.
+
+pytest: 1760 passed, 10 skipped.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
