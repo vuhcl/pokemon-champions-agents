@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Independent species-fact oracle for pending_response clarification eval.
 
-Loads data/legality/champions.v1.json directly. Does NOT import
-try_parse_verifiable_claim_from_message / claim_is_true_against_snapshot /
-rewrite_pending_response_message / load_snapshot.
+Loads data/legality/champions.v1.json directly for type/ability scoring.
+Does NOT import try_parse_verifiable_claim_from_message /
+claim_is_true_against_snapshot / rewrite_pending_response_message.
+Move learnability verdicts call resolve_learnset(load_snapshot(), …).
 
 Coverage (scored shapes)
 ------------------------
-Common *direct* species type/ability assertions and simple list/glossary forms:
+Common *direct* species type/ability/move assertions and simple list/glossary forms:
 
 - ``{Species} is/has/as [a/an] {type}[-]type [Pokémon]``
 - ``{Species} is {Type}/{Type}`` (slash typing without the word ``type``)
@@ -15,18 +16,22 @@ Common *direct* species type/ability assertions and simple list/glossary forms:
 - Parenthetical: ``{Species} ({type|ability})``
 - Possessive typing: ``{Species}'s type/typing is {value}``
 - Inverse adjectival: ``[a/an] {type}-type {Species}``
+- Move learnability: ``{Species} (can )?learn(s)? / has access to / gets {Move}``
 - Numbered/bullet prefixes on any of the above (``1. …``, ``- …``)
 - Multi-claim extraction per message; negation-span skipping
 
-Ability values in separator/paren forms use longest-match against the snapshot
-ability inventory (multi-word names like Dry Skin / Solar Power).
+Ability/move values use longest-match against the snapshot inventories
+(multi-word names like Dry Skin / Close Combat).
+
+Move verdicts use ``resolve_learnset`` from the legality snapshot (same accessor
+as ``bootstrap_role_nn.pad_role_moves``).
 
 Out of scope
 ------------
 Not a general NLP fact extractor. Does **not** score entailment/inference
-chains (e.g. "since it learns Solar Beam it must not be Dark-type"), bare
-questions without an assertion, comparative-only prose, or values that are
-neither a known type phrase nor a known ability. An after-run of "zero FALSE"
+chains (e.g. "since it learns Solar Beam it must not be Dark-type" as a *type*
+claim), bare questions without an assertion, comparative-only prose, or values
+that are neither a known type/ability/move. An after-run of "zero FALSE"
 means zero FALSE among *scored shapes*, not that every possible false claim
 in free text was caught.
 """
@@ -38,12 +43,18 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from recommender.legality import load_snapshot, resolve_learnset  # noqa: E402
+
 SNAPSHOT_PATH = ROOT / "data" / "legality" / "champions.v1.json"
 
 Verdict = Literal["TRUE", "FALSE", "unverifiable_shape"]
-ClaimKind = Literal["type", "ability"]
+ClaimKind = Literal["type", "ability", "move"]
 
 _POKEMON_TYPES = frozenset(
     {
@@ -150,11 +161,42 @@ _ABILITY_PREFIX_RES = (
         re.IGNORECASE,
     ),
     re.compile(
-        _SPECIES + r"\s+has\s+(?P<ability>.+?)(?=\s*[.,;!?]|$)",
+        _SPECIES
+        + r"\s+has\s+(?!access\s+to\b)(?P<ability>.+?)(?=\s*[.,;!?]|$)",
         re.IGNORECASE,
     ),
     re.compile(
-        _SPECIES + r"\s+with\s+(?P<ability>.+?)(?=\s*[.,;!?]|$)",
+        _SPECIES
+        + r"\s+with\s+(?!access\s+to\b)(?P<ability>.+?)(?=\s*[.,;!?]|$)",
+        re.IGNORECASE,
+    ),
+)
+
+# Move learnability (positive only; negations masked).
+_MOVE_NAME = (
+    r"(?P<move>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*){0,4})"
+)
+_MOVE_RES = (
+    re.compile(
+        _SPECIES
+        + r"\s+can\s+learn\s+"
+        + _MOVE_NAME
+        + r"(?=\s*[.,;!?]|$)",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        _SPECIES + r"\s+learns\s+" + _MOVE_NAME + r"(?=\s*[.,;!?]|$)",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        _SPECIES
+        + r"\s+has\s+access\s+to\s+"
+        + _MOVE_NAME
+        + r"(?=\s*[.,;!?]|$)",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        _SPECIES + r"\s+gets\s+" + _MOVE_NAME + r"(?=\s*[.,;!?]|$)",
         re.IGNORECASE,
     ),
 )
@@ -162,8 +204,10 @@ _ABILITY_PREFIX_RES = (
 # Mask these spans so "not Grass type" is not extracted as a claim.
 _NEGATION_SPAN_RE = re.compile(
     r"(?:is\s+not|isn't|aren't|doesn't\s+have|does\s+not\s+have|"
-    r"don't\s+have|do\s+not\s+have|not\s+(?:a\s+)?(?:the\s+)?)"
-    r".{0,40}?(?:type|ability)\b"
+    r"don't\s+have|do\s+not\s+have|not\s+(?:a\s+)?(?:the\s+)?|"
+    r"cannot\s+learn|can't\s+learn|does\s+not\s+learn|doesn't\s+learn|"
+    r"never\s+learns?)"
+    r".{0,40}?(?:type|ability|move)\b"
     r"|"
     r"\bnot\s+(?:a\s+)?[A-Za-z]+(?:/[A-Za-z]+)*(?:-|\s)?type\b",
     re.IGNORECASE,
@@ -262,6 +306,35 @@ def _longest_ability_match(raw: str, ab_index: dict[str, str]) -> str | None:
     return best
 
 
+def _move_index() -> dict[str, str]:
+    """move_id / display-name id → canonical display name."""
+    snap = load_snapshot()
+    out: dict[str, str] = {}
+    for key, entry in (snap.get("moves") or {}).items():
+        if isinstance(entry, dict):
+            mid = str(entry.get("id") or key)
+            name = str(entry.get("name") or mid)
+        else:
+            mid = str(key)
+            name = str(entry) if entry else mid
+        out[to_id(mid)] = name
+        out[to_id(name)] = name
+    return out
+
+
+def _longest_move_match(raw: str, mv_index: dict[str, str]) -> str | None:
+    text = raw.strip().rstrip(".,;:!?")
+    if not text:
+        return None
+    words = text.split()
+    for n in range(len(words), 0, -1):
+        cand = " ".join(words[:n])
+        hit = mv_index.get(to_id(cand))
+        if hit is not None:
+            return hit
+    return None
+
+
 def _mask_negations(text: str) -> str:
     def _blank(m: re.Match[str]) -> str:
         return " " * (m.end() - m.start())
@@ -290,6 +363,15 @@ def _verdict_ability(entry: dict | None, asserted: str) -> Verdict:
     ]
     want = to_id(asserted)
     return "TRUE" if any(to_id(a) == want for a in abilities) else "FALSE"
+
+
+def _verdict_move(species_name: str | None, move_name: str) -> Verdict:
+    if not species_name:
+        return "unverifiable_shape"
+    learnset = resolve_learnset(load_snapshot(), species_name)
+    if learnset is None:
+        return "unverifiable_shape"
+    return "TRUE" if to_id(move_name) in {to_id(m) for m in learnset} else "FALSE"
 
 
 def _append_type_claim(
@@ -372,17 +454,56 @@ def _append_ability_claim(
     )
 
 
+def _append_move_claim(
+    candidates: list[Claim],
+    *,
+    text: str,
+    span: tuple[int, int],
+    species_raw: str,
+    move_raw: str,
+    by_id: dict[str, dict],
+    mv_index: dict[str, str],
+) -> None:
+    species_raw = species_raw.strip()
+    move_raw = move_raw.strip().rstrip(".,;:!?")
+    if not species_raw or not move_raw:
+        return
+    canon = _longest_move_match(move_raw, mv_index)
+    entry = resolve_species(species_raw, by_id)
+    if canon is None:
+        if entry is None:
+            return
+        verdict: Verdict = "unverifiable_shape"
+        asserted = move_raw
+        name = str(entry["name"])
+    else:
+        asserted = canon
+        name = str(entry["name"]) if entry else None
+        verdict = _verdict_move(name, canon)
+    candidates.append(
+        Claim(
+            kind="move",
+            species=name,
+            asserted_value=asserted,
+            verdict=verdict,
+            span=span,
+            display=text[span[0] : span[1]],
+        )
+    )
+
+
 def _strip_trailing_type_word(value: str) -> str:
     return re.sub(r"(?:-|\s)?types?\s*$", "", value.strip(), flags=re.IGNORECASE).strip()
 
 
 def parse_claims(message: str, by_id: dict[str, dict] | None = None) -> list[Claim]:
-    """Return all non-overlapping positive type/ability claims in message."""
+    """Return all non-overlapping positive type/ability/move claims in message."""
     text = message.strip()
     if not text:
         return []
     by_id = by_id or load_species_snapshot()
     ab_index = _ability_index(by_id)
+    mv_index = _move_index()
     masked = _mask_negations(text)
 
     candidates: list[Claim] = []
@@ -440,6 +561,18 @@ def parse_claims(message: str, by_id: dict[str, dict] | None = None) -> list[Cla
                 ability_raw=match.group("ability"),
                 by_id=by_id,
                 ab_index=ab_index,
+            )
+
+    for pattern in _MOVE_RES:
+        for match in pattern.finditer(masked):
+            _append_move_claim(
+                candidates,
+                text=text,
+                span=(match.start(), match.end()),
+                species_raw=match.group("species"),
+                move_raw=match.group("move"),
+                by_id=by_id,
+                mv_index=mv_index,
             )
 
     # Prefer longer spans, then resolved species over unverifiable_shape.
@@ -596,6 +729,15 @@ def _assert_self_check() -> None:
     assert by_sp["Heliolisk"].asserted_value == "Electric/Grass"
     assert by_sp["Abomasnow"].verdict == "TRUE"
     assert by_sp["Whimsicott"].verdict == "TRUE"
+
+    # --- move learnability ---
+    c = one("Heliolisk can learn Thunderbolt")
+    assert c.kind == "move" and c.verdict == "TRUE", c
+    c = one("Heliolisk learns Close Combat")
+    assert c.kind == "move" and c.verdict == "FALSE", c
+    c = one("Heliolisk has access to Surf")
+    assert c.kind == "move" and c.verdict == "TRUE", c
+    assert types_of("Heliolisk cannot learn Thunderbolt") == []
 
     print("species_fact_oracle self-check OK")
 

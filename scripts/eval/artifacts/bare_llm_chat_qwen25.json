@@ -1,0 +1,483 @@
+{
+  "label": "Bare-LLM \u2014 ungrounded chat baseline",
+  "condition_id": "chat",
+  "condition_label": "ungrounded chat baseline",
+  "measured": "2026-09-25",
+  "model": "qwen2.5:7b",
+  "temperature": 0.7,
+  "runs": 5,
+  "turn_cap": 16,
+  "prompt": "I'm building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions. Can you put together a full 6-Pok\u00e9mon team with items, abilities, moves, and spreads, and explain why the picks work together?",
+  "oracle_snapshot": "/var/folders/77/zyk5tmbd30d8p7jw_rxvl4cc0000gn/T/eval-oracle-5tyjfsb9/oracle.json",
+  "calc_ok": true,
+  "aggregate": {
+    "pairs_checked": 3,
+    "false_legal": 1,
+    "false_illegal": 0,
+    "species_facts": {
+      "TRUE": 1,
+      "FALSE": 3,
+      "unverifiable_shape": 8,
+      "total": 12
+    },
+    "mechanical": {
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 0,
+      "total": 0
+    },
+    "spreads_ev_shaped": 1,
+    "spreads_sp_shaped": 0,
+    "spreads_parsed_denom": 1,
+    "completed_teams": 0,
+    "item_clause_violations": 0,
+    "incomplete_runs": 5,
+    "false_claim_quotes": [
+      "Gardevoir set: Hidden Power Ice",
+      "Rotom-Wash set ability: Prankster",
+      "Garchomp set ability: Intimidate"
+    ]
+  },
+  "runs_detail": [
+    {
+      "run": 1,
+      "mech_nudge_used": false,
+      "transcript_truncated": "USER: I'm building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions. Can you put together a full 6-Pok\u00e9mon team with items, abilities, moves, and spreads, and explain why the picks work together?\n\nASSISTANT: Certainly! For a VGC 2026 Regulation M-C doubles team in Pok\u00e9mon Champions, we'll need to carefully consider the metagame, your team's role, and the types of Pok\u00e9mon that can work well together. Below is a balanced team that focuses on a mix of offense, utility, and defensive capabilities. Each Pok\u00e9mon has a unique role, and the team is designed to work synergistically.\n\n### Team Composition\n\n1. **Gardevoir @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Hidden Power (Ice)*\n     - *Psychic*\n     - *Double Team*\n     - *Shadow Ball*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n2. **Gengar @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Shadow Ball*\n     - *Dark Pulse*\n     - *Will-O-Wisp*\n     - *Trick*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n3. **Glaceon @ Leftovers**\n   - **Ability:** Snow Cloak\n  \n\nUSER: Please still put together a concrete full 6-Pok\u00e9mon Champions VGC doubles team with items, abilities, moves, and spreads \u2014 best effort is fine.\n\nASSISTANT: Certainly! Let's build a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions with a balanced mix of offensive and defensive capabilities, ensuring the team works well together. Here\u2019s the team:\n\n### Team Composition\n\n1. **Gardevoir @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Psychic*\n     - *Double Team*\n     - *Shadow Ball*\n     - *Hidden Power (Ice)*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n2. **Gengar @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Dark Pulse*\n     - *Will-O-Wisp*\n     - *Shadow Ball*\n     - *Trick*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n3. **Glaceon @ Leftovers**\n   - **Ability:** Snow Cloak\n   - **Moves:**\n     - *Ice Beam*\n     - *Double Team*\n     - *Nasty Plot*\n     - *Hidden Power (Fire)*\n   - **EVs:** \n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Let's complete the full 6-Pok\u00e9mon team with detailed sets, including items, abilities, moves, and EV spreads. Here\u2019s the full team:\n\n### Team Composition\n\n1. **Gardevoir @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Psychic*\n     - *Double Team*\n     - *Shadow Ball*\n     - *Hidden Power (Ice)*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n2. **Gengar @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Dark Pulse*\n     - *Will-O-Wisp*\n     - *Shadow Ball*\n     - *Trick*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n3. **Glaceon @ Leftovers**\n   - **Ability:** Snow Cloak\n   - **Moves:**\n     - *Ice Beam*\n     - *Double Team*\n     - *Nasty Plot*\n     - *Hidden Power (Fire)*\n   - **EVs:** 224 HP / 252\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team with detailed sets, including items, abilities, moves, and EV spreads:\n\n### Team Composition\n\n1. **Gardevoir @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Psychic*\n     - *Double Team*\n     - *Shadow Ball*\n     - *Hidden Power (Ice)*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n2. **Gengar @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Dark Pulse*\n     - *Will-O-Wisp*\n     - *Shadow Ball*\n     - *Trick*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n3. **Glaceon @ Leftovers**\n   - **Ability:** Snow Cloak\n   - **Moves:**\n     - *Ice Beam*\n     - *Double Team*\n     - *Nasty Plot*\n     - *Hidden Power (Fire)*\n   - **EVs:** 224 HP / 252 SpA / 24 Def\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team with detailed sets, including items, abilities, moves, and EV spreads:\n\n### Team Composition\n\n1. **Gardevoir @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Psychic*\n     - *Double Team*\n     - *Shadow Ball*\n     - *Hidden Power (Ice)*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n2. **Gengar @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Dark Pulse*\n     - *Will-O-Wisp*\n     - *Shadow Ball*\n     - *Trick*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n3. **Glaceon @ Leftovers**\n   - **Ability:** Snow Cloak\n   - **Moves:**\n     - *Ice Beam*\n     - *Double Team*\n     - *Nasty Plot*\n     - *Hidden Power (Fire)*\n   - **EVs:** 224 HP / 252 SpA / 24 Def",
+      "transcript_chars": 4518,
+      "transcript_full": "USER: I'm building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions. Can you put together a full 6-Pok\u00e9mon team with items, abilities, moves, and spreads, and explain why the picks work together?\n\nASSISTANT: Certainly! For a VGC 2026 Regulation M-C doubles team in Pok\u00e9mon Champions, we'll need to carefully consider the metagame, your team's role, and the types of Pok\u00e9mon that can work well together. Below is a balanced team that focuses on a mix of offense, utility, and defensive capabilities. Each Pok\u00e9mon has a unique role, and the team is designed to work synergistically.\n\n### Team Composition\n\n1. **Gardevoir @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Hidden Power (Ice)*\n     - *Psychic*\n     - *Double Team*\n     - *Shadow Ball*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n2. **Gengar @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Shadow Ball*\n     - *Dark Pulse*\n     - *Will-O-Wisp*\n     - *Trick*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n3. **Glaceon @ Leftovers**\n   - **Ability:** Snow Cloak\n  \n\nUSER: Please still put together a concrete full 6-Pok\u00e9mon Champions VGC doubles team with items, abilities, moves, and spreads \u2014 best effort is fine.\n\nASSISTANT: Certainly! Let's build a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions with a balanced mix of offensive and defensive capabilities, ensuring the team works well together. Here\u2019s the team:\n\n### Team Composition\n\n1. **Gardevoir @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Psychic*\n     - *Double Team*\n     - *Shadow Ball*\n     - *Hidden Power (Ice)*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n2. **Gengar @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Dark Pulse*\n     - *Will-O-Wisp*\n     - *Shadow Ball*\n     - *Trick*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n3. **Glaceon @ Leftovers**\n   - **Ability:** Snow Cloak\n   - **Moves:**\n     - *Ice Beam*\n     - *Double Team*\n     - *Nasty Plot*\n     - *Hidden Power (Fire)*\n   - **EVs:** \n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Let's complete the full 6-Pok\u00e9mon team with detailed sets, including items, abilities, moves, and EV spreads. Here\u2019s the full team:\n\n### Team Composition\n\n1. **Gardevoir @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Psychic*\n     - *Double Team*\n     - *Shadow Ball*\n     - *Hidden Power (Ice)*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n2. **Gengar @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Dark Pulse*\n     - *Will-O-Wisp*\n     - *Shadow Ball*\n     - *Trick*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n3. **Glaceon @ Leftovers**\n   - **Ability:** Snow Cloak\n   - **Moves:**\n     - *Ice Beam*\n     - *Double Team*\n     - *Nasty Plot*\n     - *Hidden Power (Fire)*\n   - **EVs:** 224 HP / 252\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team with detailed sets, including items, abilities, moves, and EV spreads:\n\n### Team Composition\n\n1. **Gardevoir @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Psychic*\n     - *Double Team*\n     - *Shadow Ball*\n     - *Hidden Power (Ice)*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n2. **Gengar @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Dark Pulse*\n     - *Will-O-Wisp*\n     - *Shadow Ball*\n     - *Trick*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n3. **Glaceon @ Leftovers**\n   - **Ability:** Snow Cloak\n   - **Moves:**\n     - *Ice Beam*\n     - *Double Team*\n     - *Nasty Plot*\n     - *Hidden Power (Fire)*\n   - **EVs:** 224 HP / 252 SpA / 24 Def\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team with detailed sets, including items, abilities, moves, and EV spreads:\n\n### Team Composition\n\n1. **Gardevoir @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Psychic*\n     - *Double Team*\n     - *Shadow Ball*\n     - *Hidden Power (Ice)*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n2. **Gengar @ Choice Scarf**\n   - **Ability:** Levitate\n   - **Moves:**\n     - *Dark Pulse*\n     - *Will-O-Wisp*\n     - *Shadow Ball*\n     - *Trick*\n   - **EVs:** 252 SpA / 252 Spe / 4 Def\n\n3. **Glaceon @ Leftovers**\n   - **Ability:** Snow Cloak\n   - **Moves:**\n     - *Ice Beam*\n     - *Double Team*\n     - *Nasty Plot*\n     - *Hidden Power (Fire)*\n   - **EVs:** 224 HP / 252 SpA / 24 Def",
+      "score": {
+        "team": {
+          "extractor": "showdown",
+          "incomplete": true,
+          "completed": false,
+          "slots": []
+        },
+        "legality": {
+          "pairs_checked": 0,
+          "false_legal": 0,
+          "pairs": [],
+          "false_illegal": 0,
+          "false_illegal_examples": []
+        },
+        "species_facts": {
+          "claims": [
+            {
+              "kind": "type",
+              "species": null,
+              "asserted_value": "Ice",
+              "verdict": "unverifiable_shape",
+              "display": "Hidden Power (Ice)",
+              "source": "prose"
+            },
+            {
+              "kind": "type",
+              "species": null,
+              "asserted_value": "Fire",
+              "verdict": "unverifiable_shape",
+              "display": "Hidden Power (Fire)",
+              "source": "prose"
+            }
+          ],
+          "tally": {
+            "TRUE": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 2,
+            "total": 2
+          },
+          "prose_n": 9,
+          "build_n": 0
+        },
+        "mechanical": {
+          "claims": [],
+          "tally": {
+            "TRUE": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 0,
+            "total": 0
+          },
+          "calc_ok": false
+        },
+        "structural": {
+          "spreads_ev_shaped": 0,
+          "spreads_sp_shaped": 0,
+          "spreads_unparsed": 0,
+          "spreads_parsed_denom": 0,
+          "item_clause_violation": null
+        }
+      }
+    },
+    {
+      "run": 2,
+      "mech_nudge_used": false,
+      "transcript_truncated": "USER: I'm building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions. Can you put together a full 6-Pok\u00e9mon team with items, abilities, moves, and spreads, and explain why the picks work together?\n\nASSISTANT: Certainly! For VGC 2026 Regulation M-C doubles, your team should be balanced, versatile, and capable of handling a wide range of threats. Here\u2019s a detailed team for Pok\u00e9mon Champions:\n\n### Team Composition:\n1. **Gardevoir**\n2. **Lunala**\n3. **Pheromosa**\n4. **Xurkitree**\n5. **Alakazam**\n6. **Gigalith**\n\n### Team Analysis:\n- **Gardevoir**: A versatile Psychic-type with good Special Attack and Speed. It has good STAB in Psychic and a reliable recovery move.\n- **Lunala**: A powerful Dark/Steel-type with high Special Attack and defensive stats. It can set up Stealth Rock and check many common threats.\n- **Pheromosa**: A strong Bug/Fairy-type with excellent Special Attack and a versatile movepool.\n- **Xurkitree**: A fast Electric-type with great Special Attack and a strong entry hazard setter.\n- **Alakazam**: A balanced Psychic-type with excellent Special Attack and a reliable recovery move.\n- **Gigalith**: A defensive Ground-type with good bulk and a strong entry hazard setter.\n\n### Individual Pok\u00e9mon Details:\n\n#### 1. Garde\n\nUSER: Please still put together a concrete full 6-Pok\u00e9mon Champions VGC doubles team with items, abilities, moves, and spreads \u2014 best effort is fine.\n\nASSISTANT: Certainly! Here\u2019s a concrete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, complete with items, abilities, moves, and spreads:\n\n### Team Composition:\n1. **Gardevoir**\n2. **Lunala**\n3. **Pheromosa**\n4. **Xurkitree**\n5. **Alakazam**\n6. **Gigalith**\n\n### Team Analysis:\n- **Gardevoir**: Versatile Psychic-type with high Special Attack and Speed.\n- **Lunala**: Powerful Dark/Steel-type with good Special Attack and defensive stats.\n- **Pheromosa**: Strong Bug/Fairy-type with excellent Special Attack and a versatile movepool.\n- **Xurkitree**: Fast Electric-type with great Special Attack and a strong entry hazard setter.\n- **Alakazam**: Balanced Psychic-type with excellent Special Attack and a reliable recovery move.\n- **Gigalith**: Defensive Ground-type with good bulk and a strong entry hazard setter.\n\n### Individual Pok\u00e9mon Details:\n\n#### 1. Gardevoir\n- **Ability**: Telepathy\n- **Item**: Leftovers\n- **Moves**: \n  - **Hidden Power (Ice)**\n  -\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, including sets, items, abilities, moves, and spreads:\n\n### Team Composition:\n1. **Gardevoir**\n2. **Lunala**\n3. **Pheromosa**\n4. **Xurkitree**\n5. **Alakazam**\n6. **Gigalith**\n\n### Team Analysis:\n- **Gardevoir**: Versatile Psychic-type with high Special Attack and Speed.\n- **Lunala**: Powerful Dark/Steel-type with good Special Attack and defensive stats.\n- **Pheromosa**: Strong Bug/Fairy-type with excellent Special Attack and a versatile movepool.\n- **Xurkitree**: Fast Electric-type with great Special Attack and a strong entry hazard setter.\n- **Alakazam**: Balanced Psychic-type with excellent Special Attack and a reliable recovery move.\n- **Gigalith**: Defensive Ground-type with good bulk and a strong entry hazard setter.\n\n### Individual Pok\u00e9mon Details:\n\n#### 1. Gardevoir\n- **Ability**: Telepathy\n- **Item**: Leftovers\n- **EVs**: 252 Special Attack / 25\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, including sets, items, abilities, moves, and spreads:\n\n### Team Composition:\n1. **Gardevoir**\n2. **Lunala**\n3. **Pheromosa**\n4. **Xurkitree**\n5. **Alakazam**\n6. **Gigalith**\n\n### Team Analysis:\n- **Gardevoir**: Versatile Psychic-type with high Special Attack and Speed.\n- **Lunala**: Powerful Dark/Steel-type with good Special Attack and defensive stats.\n- **Pheromosa**: Strong Bug/Fairy-type with excellent Special Attack and a versatile movepool.\n- **Xurkitree**: Fast Electric-type with great Special Attack and a strong entry hazard setter.\n- **Alakazam**: Balanced Psychic-type with excellent Special Attack and a reliable recovery move.\n- **Gigalith**: Defensive Ground-type with good bulk and a strong entry hazard setter.\n\n### Individual Pok\u00e9mon Details:\n\n#### 1. Gardevoir\n- **Ability**: Telepathy\n- **Item**: Leftovers\n- **EVs**: 252 Special Attack / 80\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, including sets, items, abilities, moves, and spreads:\n\n### Team Composition:\n1. **Gardevoir**\n2. **Lunala**\n3. **Pheromosa**\n4. **Xurkitree**\n5. **Alakazam**\n6. **Gigalith**\n\n### Team Analysis:\n- **Gardevoir**: Versatile Psychic-type with high Special Attack and Speed.\n- **Lunala**: Powerful Dark/Steel-type with good Special Attack and defensive stats.\n- **Pheromosa**: Strong Bug/Fairy-type with excellent Special Attack and a versatile movepool.\n- **Xurkitree**: Fast Electric-type with great Special Attack and a strong entry hazard setter.\n- **Alakazam**: Balanced Psychic-type with excellent Special Attack and a reliable recovery move.\n- **Gigalith**: Defensive Ground-type with good bulk and a strong entry hazard setter.\n\n### Individual Pok\u00e9mon Details:\n\n#### 1. Gardevoir\n- **Ability**: Telepathy\n- **Item**: Leftovers\n- **EVs**: 252 Special Attack / 80",
+      "transcript_chars": 5586,
+      "transcript_full": "USER: I'm building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions. Can you put together a full 6-Pok\u00e9mon team with items, abilities, moves, and spreads, and explain why the picks work together?\n\nASSISTANT: Certainly! For VGC 2026 Regulation M-C doubles, your team should be balanced, versatile, and capable of handling a wide range of threats. Here\u2019s a detailed team for Pok\u00e9mon Champions:\n\n### Team Composition:\n1. **Gardevoir**\n2. **Lunala**\n3. **Pheromosa**\n4. **Xurkitree**\n5. **Alakazam**\n6. **Gigalith**\n\n### Team Analysis:\n- **Gardevoir**: A versatile Psychic-type with good Special Attack and Speed. It has good STAB in Psychic and a reliable recovery move.\n- **Lunala**: A powerful Dark/Steel-type with high Special Attack and defensive stats. It can set up Stealth Rock and check many common threats.\n- **Pheromosa**: A strong Bug/Fairy-type with excellent Special Attack and a versatile movepool.\n- **Xurkitree**: A fast Electric-type with great Special Attack and a strong entry hazard setter.\n- **Alakazam**: A balanced Psychic-type with excellent Special Attack and a reliable recovery move.\n- **Gigalith**: A defensive Ground-type with good bulk and a strong entry hazard setter.\n\n### Individual Pok\u00e9mon Details:\n\n#### 1. Garde\n\nUSER: Please still put together a concrete full 6-Pok\u00e9mon Champions VGC doubles team with items, abilities, moves, and spreads \u2014 best effort is fine.\n\nASSISTANT: Certainly! Here\u2019s a concrete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, complete with items, abilities, moves, and spreads:\n\n### Team Composition:\n1. **Gardevoir**\n2. **Lunala**\n3. **Pheromosa**\n4. **Xurkitree**\n5. **Alakazam**\n6. **Gigalith**\n\n### Team Analysis:\n- **Gardevoir**: Versatile Psychic-type with high Special Attack and Speed.\n- **Lunala**: Powerful Dark/Steel-type with good Special Attack and defensive stats.\n- **Pheromosa**: Strong Bug/Fairy-type with excellent Special Attack and a versatile movepool.\n- **Xurkitree**: Fast Electric-type with great Special Attack and a strong entry hazard setter.\n- **Alakazam**: Balanced Psychic-type with excellent Special Attack and a reliable recovery move.\n- **Gigalith**: Defensive Ground-type with good bulk and a strong entry hazard setter.\n\n### Individual Pok\u00e9mon Details:\n\n#### 1. Gardevoir\n- **Ability**: Telepathy\n- **Item**: Leftovers\n- **Moves**: \n  - **Hidden Power (Ice)**\n  -\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, including sets, items, abilities, moves, and spreads:\n\n### Team Composition:\n1. **Gardevoir**\n2. **Lunala**\n3. **Pheromosa**\n4. **Xurkitree**\n5. **Alakazam**\n6. **Gigalith**\n\n### Team Analysis:\n- **Gardevoir**: Versatile Psychic-type with high Special Attack and Speed.\n- **Lunala**: Powerful Dark/Steel-type with good Special Attack and defensive stats.\n- **Pheromosa**: Strong Bug/Fairy-type with excellent Special Attack and a versatile movepool.\n- **Xurkitree**: Fast Electric-type with great Special Attack and a strong entry hazard setter.\n- **Alakazam**: Balanced Psychic-type with excellent Special Attack and a reliable recovery move.\n- **Gigalith**: Defensive Ground-type with good bulk and a strong entry hazard setter.\n\n### Individual Pok\u00e9mon Details:\n\n#### 1. Gardevoir\n- **Ability**: Telepathy\n- **Item**: Leftovers\n- **EVs**: 252 Special Attack / 25\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, including sets, items, abilities, moves, and spreads:\n\n### Team Composition:\n1. **Gardevoir**\n2. **Lunala**\n3. **Pheromosa**\n4. **Xurkitree**\n5. **Alakazam**\n6. **Gigalith**\n\n### Team Analysis:\n- **Gardevoir**: Versatile Psychic-type with high Special Attack and Speed.\n- **Lunala**: Powerful Dark/Steel-type with good Special Attack and defensive stats.\n- **Pheromosa**: Strong Bug/Fairy-type with excellent Special Attack and a versatile movepool.\n- **Xurkitree**: Fast Electric-type with great Special Attack and a strong entry hazard setter.\n- **Alakazam**: Balanced Psychic-type with excellent Special Attack and a reliable recovery move.\n- **Gigalith**: Defensive Ground-type with good bulk and a strong entry hazard setter.\n\n### Individual Pok\u00e9mon Details:\n\n#### 1. Gardevoir\n- **Ability**: Telepathy\n- **Item**: Leftovers\n- **EVs**: 252 Special Attack / 80\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, including sets, items, abilities, moves, and spreads:\n\n### Team Composition:\n1. **Gardevoir**\n2. **Lunala**\n3. **Pheromosa**\n4. **Xurkitree**\n5. **Alakazam**\n6. **Gigalith**\n\n### Team Analysis:\n- **Gardevoir**: Versatile Psychic-type with high Special Attack and Speed.\n- **Lunala**: Powerful Dark/Steel-type with good Special Attack and defensive stats.\n- **Pheromosa**: Strong Bug/Fairy-type with excellent Special Attack and a versatile movepool.\n- **Xurkitree**: Fast Electric-type with great Special Attack and a strong entry hazard setter.\n- **Alakazam**: Balanced Psychic-type with excellent Special Attack and a reliable recovery move.\n- **Gigalith**: Defensive Ground-type with good bulk and a strong entry hazard setter.\n\n### Individual Pok\u00e9mon Details:\n\n#### 1. Gardevoir\n- **Ability**: Telepathy\n- **Item**: Leftovers\n- **EVs**: 252 Special Attack / 80",
+      "score": {
+        "team": {
+          "extractor": "markdown_slot",
+          "incomplete": true,
+          "completed": false,
+          "slots": [
+            {
+              "species": "Gardevoir",
+              "item": "Leftovers",
+              "ability": "Telepathy",
+              "nature": "Serious",
+              "spread": null,
+              "spread_shape": "unparsed",
+              "moves": [
+                "Hidden Power (Ice)"
+              ],
+              "mega_claimed": false,
+              "mega_xy": null
+            }
+          ]
+        },
+        "legality": {
+          "pairs_checked": 1,
+          "false_legal": 0,
+          "pairs": [
+            {
+              "species": "Gardevoir",
+              "item": "Leftovers",
+              "legal": true,
+              "mega_claimed": false,
+              "mega_stone_ok": null
+            }
+          ],
+          "false_illegal": 0,
+          "false_illegal_examples": []
+        },
+        "species_facts": {
+          "claims": [
+            {
+              "kind": "type",
+              "species": null,
+              "asserted_value": "Psychic",
+              "verdict": "unverifiable_shape",
+              "display": "Psychic-type with",
+              "source": "prose"
+            },
+            {
+              "kind": "type",
+              "species": null,
+              "asserted_value": "Dark/Steel",
+              "verdict": "unverifiable_shape",
+              "display": "Dark/Steel-type with",
+              "source": "prose"
+            },
+            {
+              "kind": "type",
+              "species": null,
+              "asserted_value": "Bug/Fairy",
+              "verdict": "unverifiable_shape",
+              "display": "Bug/Fairy-type with",
+              "source": "prose"
+            },
+            {
+              "kind": "type",
+              "species": null,
+              "asserted_value": "Electric",
+              "verdict": "unverifiable_shape",
+              "display": "Electric-type with",
+              "source": "prose"
+            },
+            {
+              "kind": "type",
+              "species": null,
+              "asserted_value": "Ground",
+              "verdict": "unverifiable_shape",
+              "display": "Ground-type with",
+              "source": "prose"
+            },
+            {
+              "kind": "type",
+              "species": null,
+              "asserted_value": "Ice",
+              "verdict": "unverifiable_shape",
+              "display": "Hidden Power (Ice)",
+              "source": "prose"
+            },
+            {
+              "kind": "ability",
+              "species": "Gardevoir",
+              "asserted_value": "Telepathy",
+              "verdict": "TRUE",
+              "display": "Gardevoir set ability: Telepathy",
+              "source": "build"
+            },
+            {
+              "kind": "move",
+              "species": "Gardevoir",
+              "asserted_value": "Hidden Power Ice",
+              "verdict": "FALSE",
+              "display": "Gardevoir set: Hidden Power Ice",
+              "source": "build"
+            }
+          ],
+          "tally": {
+            "TRUE": 1,
+            "FALSE": 1,
+            "unverifiable_shape": 6,
+            "total": 8
+          },
+          "prose_n": 31,
+          "build_n": 2
+        },
+        "mechanical": {
+          "claims": [],
+          "tally": {
+            "TRUE": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 0,
+            "total": 0
+          },
+          "calc_ok": false
+        },
+        "structural": {
+          "spreads_ev_shaped": 0,
+          "spreads_sp_shaped": 0,
+          "spreads_unparsed": 1,
+          "spreads_parsed_denom": 0,
+          "item_clause_violation": null
+        }
+      }
+    },
+    {
+      "run": 3,
+      "mech_nudge_used": false,
+      "transcript_truncated": "USER: I'm building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions. Can you put together a full 6-Pok\u00e9mon team with items, abilities, moves, and spreads, and explain why the picks work together?\n\nASSISTANT: Certainly! Building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions requires careful consideration of the meta, type coverage, synergy, and strategic positioning. For this team, I'll select Pok\u00e9mon that are versatile, effective in both offensive and defensive roles, and can support each other well. Here\u2019s a suggested team:\n\n### Team Composition:\n1. **Rotom-W**\n2. **Garchomp**\n3. **Volcarona**\n4. **Gardevoir**\n5. **Gallade**\n6. **Dusclops**\n\n### Team Analysis:\n\n1. **Rotom-W (Meloetta)**\n   - **Ability:** Prankster\n   - **Moveset:**\n     - *Thunderbolt (T) / Dark Pulse (T) / Double Team (S) / Roost (S) / Hidden Power (F)*\n   - **IVs:** 252 SpA / 252 Speed / 4 SpD\n   - **EVs:** 252 SpA / 252 Speed / 4 SpD\n   - **Nature:** Hasty\n\n**Why it works:** Rotom-W is a versatile Pok\u00e9mon that can switch in on special attacks and use\n\nUSER: Please still put together a concrete full 6-Pok\u00e9mon Champions VGC doubles team with items, abilities, moves, and spreads \u2014 best effort is fine.\n\nASSISTANT: Absolutely! Here\u2019s a concrete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, with detailed items, abilities, moves, and spreads. This team is designed to be versatile, covering a wide range of types and situations.\n\n### Team Composition:\n1. **Rotom-W (Meloetta)**\n2. **Garchomp**\n3. **Volcarona**\n4. **Gardevoir**\n5. **Gallade**\n6. **Dusclops**\n\n### Detailed Team Analysis:\n\n#### 1. Rotom-W (Meloetta)\n- **Ability:** Prankster\n- **Item:** Leftovers\n- **Moveset:**\n  - *Thunderbolt (T) / Dark Pulse (T) / Double Team (S) / Roost (S) / Hidden Power (F)*\n- **IVs:** 252 SpA / 252 Speed / 4 SpD\n- **EVs:** 252 SpA / 252 Speed / 4 SpD\n- **Nature:** Hasty\n\n**Why it works:** Rotom-W is a versatile Pok\u00e9mon that can switch in on special attacks and use either Thunderbolt or\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here\u2019s the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, with detailed items, abilities, moves, and spreads.\n\n### Team Composition:\n1. **Rotom-W (Meloetta)**\n2. **Garchomp**\n3. **Volcarona**\n4. **Gardevoir**\n5. **Gallade**\n6. **Dusclops**\n\n### Detailed Team Sets:\n\n#### 1. Rotom-W (Meloetta)\n- **Ability:** Prankster\n- **Item:** Leftovers\n- **Moveset:**\n  - *Thunderbolt (T) / Dark Pulse (T) / Double Team (S) / Roost (S) / Hidden Power (F)*\n- **IVs:** 252 SpA / 252 Speed / 4 SpD\n- **EVs:** 252 SpA / 252 Speed / 4 SpD\n- **Nature:** Hasty\n\n**Why it works:** Rotom-W is a versatile Pok\u00e9mon that can switch in on special attacks and use either Thunderbolt or Dark Pulse to deal significant damage. Its Prankster ability allows it to steal the\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Of course! Here is the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, with detailed items, abilities, moves, and spreads.\n\n### Team Composition:\n1. **Rotom-W (Meloetta)**\n2. **Garchomp**\n3. **Volcarona**\n4. **Gardevoir**\n5. **Gallade**\n6. **Dusclops**\n\n### Detailed Team Sets:\n\n#### 1. Rotom-W (Meloetta)\n- **Ability:** Prankster\n- **Item:** Leftovers\n- **Moveset:**\n  - *Thunderbolt (T) / Dark Pulse (T) / Double Team (S) / Roost (S) / Hidden Power (F)*\n- **IVs:** 252 SpA / 252 Speed / 4 SpD\n- **EVs:** 252 SpA / 252 Speed / 4 SpD\n- **Nature:** Hasty\n\n**Why it works:** Rotom-W is a versatile Pok\u00e9mon that can switch in on special attacks and use either Thunderbolt or Dark Pulse to deal significant damage. Its Prankster ability allows it to steal\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, with detailed items, abilities, moves, and spreads:\n\n### 1. Rotom-W (Meloetta)\n- **Ability:** Prankster\n- **Item:** Leftovers\n- **Moveset:**\n  - *Thunderbolt (T) / Dark Pulse (T) / Double Team (S) / Roost (S) / Hidden Power (F)*\n- **IVs:** 252 SpA / 252 Speed / 4 SpD\n- **EVs:** 252 SpA / 252 Speed / 4 SpD\n- **Nature:** Hasty\n\n**Why it works:** Rotom-W is a versatile Pok\u00e9mon that can switch in on special attacks and use either Thunderbolt or Dark Pulse to deal significant damage. Its Prankster ability allows it to steal the priority from other Pok\u00e9mon, making it a valuable asset for setting up. Leftovers ensure it has a steady HP recovery.\n\n### 2. Garchomp\n- **Ability:** Intimidate\n- **Item:** Leftovers\n- **Moveset:**\n  - *",
+      "transcript_chars": 4715,
+      "transcript_full": "USER: I'm building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions. Can you put together a full 6-Pok\u00e9mon team with items, abilities, moves, and spreads, and explain why the picks work together?\n\nASSISTANT: Certainly! Building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions requires careful consideration of the meta, type coverage, synergy, and strategic positioning. For this team, I'll select Pok\u00e9mon that are versatile, effective in both offensive and defensive roles, and can support each other well. Here\u2019s a suggested team:\n\n### Team Composition:\n1. **Rotom-W**\n2. **Garchomp**\n3. **Volcarona**\n4. **Gardevoir**\n5. **Gallade**\n6. **Dusclops**\n\n### Team Analysis:\n\n1. **Rotom-W (Meloetta)**\n   - **Ability:** Prankster\n   - **Moveset:**\n     - *Thunderbolt (T) / Dark Pulse (T) / Double Team (S) / Roost (S) / Hidden Power (F)*\n   - **IVs:** 252 SpA / 252 Speed / 4 SpD\n   - **EVs:** 252 SpA / 252 Speed / 4 SpD\n   - **Nature:** Hasty\n\n**Why it works:** Rotom-W is a versatile Pok\u00e9mon that can switch in on special attacks and use\n\nUSER: Please still put together a concrete full 6-Pok\u00e9mon Champions VGC doubles team with items, abilities, moves, and spreads \u2014 best effort is fine.\n\nASSISTANT: Absolutely! Here\u2019s a concrete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, with detailed items, abilities, moves, and spreads. This team is designed to be versatile, covering a wide range of types and situations.\n\n### Team Composition:\n1. **Rotom-W (Meloetta)**\n2. **Garchomp**\n3. **Volcarona**\n4. **Gardevoir**\n5. **Gallade**\n6. **Dusclops**\n\n### Detailed Team Analysis:\n\n#### 1. Rotom-W (Meloetta)\n- **Ability:** Prankster\n- **Item:** Leftovers\n- **Moveset:**\n  - *Thunderbolt (T) / Dark Pulse (T) / Double Team (S) / Roost (S) / Hidden Power (F)*\n- **IVs:** 252 SpA / 252 Speed / 4 SpD\n- **EVs:** 252 SpA / 252 Speed / 4 SpD\n- **Nature:** Hasty\n\n**Why it works:** Rotom-W is a versatile Pok\u00e9mon that can switch in on special attacks and use either Thunderbolt or\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here\u2019s the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, with detailed items, abilities, moves, and spreads.\n\n### Team Composition:\n1. **Rotom-W (Meloetta)**\n2. **Garchomp**\n3. **Volcarona**\n4. **Gardevoir**\n5. **Gallade**\n6. **Dusclops**\n\n### Detailed Team Sets:\n\n#### 1. Rotom-W (Meloetta)\n- **Ability:** Prankster\n- **Item:** Leftovers\n- **Moveset:**\n  - *Thunderbolt (T) / Dark Pulse (T) / Double Team (S) / Roost (S) / Hidden Power (F)*\n- **IVs:** 252 SpA / 252 Speed / 4 SpD\n- **EVs:** 252 SpA / 252 Speed / 4 SpD\n- **Nature:** Hasty\n\n**Why it works:** Rotom-W is a versatile Pok\u00e9mon that can switch in on special attacks and use either Thunderbolt or Dark Pulse to deal significant damage. Its Prankster ability allows it to steal the\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Of course! Here is the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, with detailed items, abilities, moves, and spreads.\n\n### Team Composition:\n1. **Rotom-W (Meloetta)**\n2. **Garchomp**\n3. **Volcarona**\n4. **Gardevoir**\n5. **Gallade**\n6. **Dusclops**\n\n### Detailed Team Sets:\n\n#### 1. Rotom-W (Meloetta)\n- **Ability:** Prankster\n- **Item:** Leftovers\n- **Moveset:**\n  - *Thunderbolt (T) / Dark Pulse (T) / Double Team (S) / Roost (S) / Hidden Power (F)*\n- **IVs:** 252 SpA / 252 Speed / 4 SpD\n- **EVs:** 252 SpA / 252 Speed / 4 SpD\n- **Nature:** Hasty\n\n**Why it works:** Rotom-W is a versatile Pok\u00e9mon that can switch in on special attacks and use either Thunderbolt or Dark Pulse to deal significant damage. Its Prankster ability allows it to steal\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the complete 6-Pok\u00e9mon team for VGC 2026 Regulation M-C doubles in Pok\u00e9mon Champions, with detailed items, abilities, moves, and spreads:\n\n### 1. Rotom-W (Meloetta)\n- **Ability:** Prankster\n- **Item:** Leftovers\n- **Moveset:**\n  - *Thunderbolt (T) / Dark Pulse (T) / Double Team (S) / Roost (S) / Hidden Power (F)*\n- **IVs:** 252 SpA / 252 Speed / 4 SpD\n- **EVs:** 252 SpA / 252 Speed / 4 SpD\n- **Nature:** Hasty\n\n**Why it works:** Rotom-W is a versatile Pok\u00e9mon that can switch in on special attacks and use either Thunderbolt or Dark Pulse to deal significant damage. Its Prankster ability allows it to steal the priority from other Pok\u00e9mon, making it a valuable asset for setting up. Leftovers ensure it has a steady HP recovery.\n\n### 2. Garchomp\n- **Ability:** Intimidate\n- **Item:** Leftovers\n- **Moveset:**\n  - *",
+      "score": {
+        "team": {
+          "extractor": "markdown_slot",
+          "incomplete": true,
+          "completed": false,
+          "slots": [
+            {
+              "species": "Rotom-W",
+              "item": "Leftovers",
+              "ability": "Prankster",
+              "nature": "Hasty",
+              "spread": {
+                "hp": 0,
+                "atk": 0,
+                "def": 0,
+                "spa": 252,
+                "spd": 4,
+                "spe": 0
+              },
+              "spread_shape": "EV-shaped",
+              "moves": [],
+              "mega_claimed": false,
+              "mega_xy": null
+            },
+            {
+              "species": "Garchomp",
+              "item": "Leftovers",
+              "ability": "Intimidate",
+              "nature": "Serious",
+              "spread": null,
+              "spread_shape": "unparsed",
+              "moves": [],
+              "mega_claimed": false,
+              "mega_xy": null
+            }
+          ]
+        },
+        "legality": {
+          "pairs_checked": 2,
+          "false_legal": 1,
+          "pairs": [
+            {
+              "species": "Rotom-W",
+              "item": "Leftovers",
+              "legal": false,
+              "mega_claimed": false,
+              "mega_stone_ok": null
+            },
+            {
+              "species": "Garchomp",
+              "item": "Leftovers",
+              "legal": true,
+              "mega_claimed": false,
+              "mega_stone_ok": null
+            }
+          ],
+          "false_illegal": 0,
+          "false_illegal_examples": []
+        },
+        "species_facts": {
+          "claims": [
+            {
+              "kind": "ability",
+              "species": "Rotom-Wash",
+              "asserted_value": "Prankster",
+              "verdict": "FALSE",
+              "display": "Rotom-Wash set ability: Prankster",
+              "source": "build"
+            },
+            {
+              "kind": "ability",
+              "species": "Garchomp",
+              "asserted_value": "Intimidate",
+              "verdict": "FALSE",
+              "display": "Garchomp set ability: Intimidate",
+              "source": "build"
+            }
+          ],
+          "tally": {
+            "TRUE": 0,
+            "FALSE": 2,
+            "unverifiable_shape": 0,
+            "total": 2
+          },
+          "prose_n": 0,
+          "build_n": 2
+        },
+        "mechanical": {
+          "claims": [],
+          "tally": {
+            "TRUE": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 0,
+            "total": 0
+          },
+          "calc_ok": false
+        },
+        "structural": {
+          "spreads_ev_shaped": 1,
+          "spreads_sp_shaped": 0,
+          "spreads_unparsed": 1,
+          "spreads_parsed_denom": 1,
+          "item_clause_violation": null
+        }
+      }
+    },
+    {
+      "run": 4,
+      "mech_nudge_used": false,
+      "transcript_truncated": "USER: I'm building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions. Can you put together a full 6-Pok\u00e9mon team with items, abilities, moves, and spreads, and explain why the picks work together?\n\nASSISTANT: Certainly! For the VGC 2026 Regulation M-C doubles format, which focuses on Speed and Special Defense, we need to build a team that can handle a variety of threats while maintaining a strong offensive presence. Here\u2019s a balanced team for your VGC 2026 Regulation M-C doubles team in Pok\u00e9mon Champions:\n\n### Team Composition\n\n1. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cura\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n2. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cura\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 2\n\nUSER: Please still put together a concrete full 6-Pok\u00e9mon Champions VGC doubles team with items, abilities, moves, and spreads \u2014 best effort is fine.\n\nASSISTANT: Certainly! Here's a concrete full 6-Pok\u00e9mon team tailored for the VGC 2026 Regulation M-C doubles format in Pok\u00e9mon Champions. This team focuses on a balanced mix of offensive and defensive capabilities.\n\n### Team Composition\n\n1. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cura\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n2. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cura\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n3. **Porygon2\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here's the complete 6-Pok\u00e9mon team for the VGC 2026 Regulation M-C doubles format in Pok\u00e9mon Champions. Each Pok\u00e9mon is tailored to fit the team's strategy of balance between offense and defense.\n\n### Team Composition\n\n1. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n2. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n3. **Porygon2\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here's the complete 6-Pok\u00e9mon team for the VGC 2026 Regulation M-C doubles format in Pok\u00e9mon Champions, with detailed sets for each Pok\u00e9mon.\n\n### Team Composition\n\n1. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n2. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n3. **Porygon2 @ Leftovers**\n   - **Ability:** Trace\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here's the complete 6-Pok\u00e9mon team for the VGC 2026 Regulation M-C doubles format in Pok\u00e9mon Champions, with detailed sets for each Pok\u00e9mon.\n\n### Team Composition\n\n1. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n2. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n3. **Porygon2 @ Leftovers**\n   - **Ability:** Trace",
+      "transcript_chars": 4450,
+      "transcript_full": "USER: I'm building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions. Can you put together a full 6-Pok\u00e9mon team with items, abilities, moves, and spreads, and explain why the picks work together?\n\nASSISTANT: Certainly! For the VGC 2026 Regulation M-C doubles format, which focuses on Speed and Special Defense, we need to build a team that can handle a variety of threats while maintaining a strong offensive presence. Here\u2019s a balanced team for your VGC 2026 Regulation M-C doubles team in Pok\u00e9mon Champions:\n\n### Team Composition\n\n1. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cura\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n2. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cura\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 2\n\nUSER: Please still put together a concrete full 6-Pok\u00e9mon Champions VGC doubles team with items, abilities, moves, and spreads \u2014 best effort is fine.\n\nASSISTANT: Certainly! Here's a concrete full 6-Pok\u00e9mon team tailored for the VGC 2026 Regulation M-C doubles format in Pok\u00e9mon Champions. This team focuses on a balanced mix of offensive and defensive capabilities.\n\n### Team Composition\n\n1. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cura\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n2. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cura\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n3. **Porygon2\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here's the complete 6-Pok\u00e9mon team for the VGC 2026 Regulation M-C doubles format in Pok\u00e9mon Champions. Each Pok\u00e9mon is tailored to fit the team's strategy of balance between offense and defense.\n\n### Team Composition\n\n1. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n2. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n3. **Porygon2\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here's the complete 6-Pok\u00e9mon team for the VGC 2026 Regulation M-C doubles format in Pok\u00e9mon Champions, with detailed sets for each Pok\u00e9mon.\n\n### Team Composition\n\n1. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n2. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n3. **Porygon2 @ Leftovers**\n   - **Ability:** Trace\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here's the complete 6-Pok\u00e9mon team for the VGC 2026 Regulation M-C doubles format in Pok\u00e9mon Champions, with detailed sets for each Pok\u00e9mon.\n\n### Team Composition\n\n1. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n2. **Gardevoir @ Choice Specs**\n   - **Ability:** Natural Cure\n   - **Moves:**\n     - *Flash Cannon (Priority)*\n     - *Shadow Ball*\n     - *Psychic*\n     - *Trick*\n   - **IVs:** 30 Atk / 30 Def / 30 SpD / 252 SpA / 252 HP / 0 Spe\n   - **Nature:** Modest\n\n3. **Porygon2 @ Leftovers**\n   - **Ability:** Trace",
+      "score": {
+        "team": {
+          "extractor": "showdown",
+          "incomplete": true,
+          "completed": false,
+          "slots": []
+        },
+        "legality": {
+          "pairs_checked": 0,
+          "false_legal": 0,
+          "pairs": [],
+          "false_illegal": 0,
+          "false_illegal_examples": []
+        },
+        "species_facts": {
+          "claims": [],
+          "tally": {
+            "TRUE": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 0,
+            "total": 0
+          },
+          "prose_n": 0,
+          "build_n": 0
+        },
+        "mechanical": {
+          "claims": [],
+          "tally": {
+            "TRUE": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 0,
+            "total": 0
+          },
+          "calc_ok": false
+        },
+        "structural": {
+          "spreads_ev_shaped": 0,
+          "spreads_sp_shaped": 0,
+          "spreads_unparsed": 0,
+          "spreads_parsed_denom": 0,
+          "item_clause_violation": null
+        }
+      }
+    },
+    {
+      "run": 5,
+      "mech_nudge_used": false,
+      "transcript_truncated": "USER: I'm building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions. Can you put together a full 6-Pok\u00e9mon team with items, abilities, moves, and spreads, and explain why the picks work together?\n\nASSISTANT: Certainly! For a VGC 2026 Regulation M-C doubles team in Pok\u00e9mon Champions, we need to consider the current meta, team synergies, and individual Pok\u00e9mon's strengths. Since VGC 2026 hasn't officially started yet, I'll base the team on the current meta and trends from VGC 2025, which can provide a strong foundation.\n\nHere's a balanced 6-Pok\u00e9mon team with items, abilities, moves, and spreads:\n\n### 1. **Porygon-Z (Gigantamax)**\n- **Ability:** Multiscale\n- **Item:** Choice Scarf\n- **Moves:**\n  - **Focus Blast**\n  - **Fusion Flare**\n  - **Giga Impact**\n  - **Shadow Ball**\n\n- **Spreads:** 252 Atk | 252 SpA | 4 Def / 252 Spe\n\n**Explanation:** Porygon-Z (Gigantamax) is a powerful offensive Pok\u00e9mon with high Special Attack and Special Defense. It can use a Choice Scarf for faster switching and can hit hard with its STAB Fusion Flare and Giga Impact. Focus Blast and Shadow Ball provide versatile coverage, making it a\n\nUSER: Please still put together a concrete full 6-Pok\u00e9mon Champions VGC doubles team with items, abilities, moves, and spreads \u2014 best effort is fine.\n\nASSISTANT: Certainly! For a VGC 2026 Regulation M-C doubles team in Pok\u00e9mon Champions, we'll aim for a balanced team that covers a wide range of threats and can adapt to various battle situations. Here\u2019s a concrete 6-Pok\u00e9mon team with items, abilities, moves, and spreads:\n\n### 1. **Porygon-Z (Gigantamax)**\n- **Ability:** Multiscale\n- **Item:** Choice Scarf\n- **Moves:**\n  - **Focus Blast**\n  - **Fusion Flare**\n  - **Giga Impact**\n  - **Shadow Ball**\n\n- **Spreads:** 252 Atk | 252 SpA | 4 Def / 252 Spe\n\n**Explanation:** Porygon-Z (Gigantamax) is a powerful offensive Pok\u00e9mon that can switch in and hit hard with a Choice Scarf. Its high Special Attack and Special Defense make it a versatile choice for both physical and special attackers. The moveset provides both coverage and a mix of STAB (Same Type Attack Bonus) moves.\n\n### 2. **Mimikyu (Gigantamax)**\n- **Ability:** Unnerve\n- **Item:** Leftovers\n\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Of course! Here's the full 6-Pok\u00e9mon team for VGC 2026 Regulation M-C Doubles in Pok\u00e9mon Champions, including items, abilities, moves, and spreads:\n\n### 1. **Porygon-Z (Gigantamax)**\n- **Ability:** Multiscale\n- **Item:** Choice Scarf\n- **Moves:**\n  - **Focus Blast**\n  - **Fusion Flare**\n  - **Giga Impact**\n  - **Shadow Ball**\n\n- **Spreads:** 252 Atk | 252 SpA | 4 Def / 252 Spe\n\n**Explanation:** Porygon-Z (Gigantamax) is a powerful offensive Pok\u00e9mon that can switch in and hit hard with a Choice Scarf. Its high Special Attack and Special Defense make it a versatile choice for both physical and special attackers. The moveset provides both coverage and a mix of STAB (Same Type Attack Bonus) moves.\n\n### 2. **Mimikyu (Gigantamax)**\n- **Ability:** Unnerve\n- **Item:** Leftovers\n- **Moves:**\n  - **Shadow Ball**\n  - **Will-O-Wisp**\n  - **\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the full 6-Pok\u00e9mon team with all the necessary details:\n\n### 1. **Porygon-Z (Gigantamax)**\n- **Ability:** Multiscale\n- **Item:** Choice Scarf\n- **Moves:**\n  - **Focus Blast**\n  - **Fusion Flare**\n  - **Giga Impact**\n  - **Shadow Ball**\n\n- **Spreads:** 252 Atk | 252 SpA | 4 Def / 252 Spe\n\n**Explanation:** Porygon-Z (Gigantamax) is a powerful offensive Pok\u00e9mon that can switch in and hit hard with a Choice Scarf. Its high Special Attack and Special Defense make it a versatile choice for both physical and special attackers. The moveset provides both coverage and a mix of STAB (Same Type Attack Bonus) moves.\n\n### 2. **Mimikyu (Gigantamax)**\n- **Ability:** Unnerve\n- **Item:** Leftovers\n- **Moves:**\n  - **Shadow Ball**\n  - **Will-O-Wisp**\n  - **Dark Pulse**\n  - **Confuse Ray**\n\n- **Spreads:** 252 HP | \n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the full 6-Pok\u00e9mon team with all the necessary details:\n\n### 1. **Porygon-Z (Gigantamax)**\n- **Ability:** Multiscale\n- **Item:** Choice Scarf\n- **Moves:**\n  - **Focus Blast**\n  - **Fusion Flare**\n  - **Giga Impact**\n  - **Shadow Ball**\n\n- **Spreads:** 252 Atk | 252 SpA | 4 Def / 252 Spe\n\n**Explanation:** Porygon-Z (Gigantamax) is a powerful offensive Pok\u00e9mon that can switch in and hit hard with a Choice Scarf. Its high Special Attack and Special Defense make it a versatile choice for both physical and special attackers. The moveset provides both coverage and a mix of STAB (Same Type Attack Bonus) moves.\n\n### 2. **Mimikyu (Gigantamax)**\n- **Ability:** Unnerve\n- **Item:** Leftovers\n- **Moves:**\n  - **Shadow Ball**\n  - **Will-O-Wisp**\n  - **Dark Pulse**\n  - **Confuse Ray**\n\n- **Spreads:** 252 HP | ",
+      "transcript_chars": 4973,
+      "transcript_full": "USER: I'm building a VGC 2026 Regulation M-C doubles team for Pok\u00e9mon Champions. Can you put together a full 6-Pok\u00e9mon team with items, abilities, moves, and spreads, and explain why the picks work together?\n\nASSISTANT: Certainly! For a VGC 2026 Regulation M-C doubles team in Pok\u00e9mon Champions, we need to consider the current meta, team synergies, and individual Pok\u00e9mon's strengths. Since VGC 2026 hasn't officially started yet, I'll base the team on the current meta and trends from VGC 2025, which can provide a strong foundation.\n\nHere's a balanced 6-Pok\u00e9mon team with items, abilities, moves, and spreads:\n\n### 1. **Porygon-Z (Gigantamax)**\n- **Ability:** Multiscale\n- **Item:** Choice Scarf\n- **Moves:**\n  - **Focus Blast**\n  - **Fusion Flare**\n  - **Giga Impact**\n  - **Shadow Ball**\n\n- **Spreads:** 252 Atk | 252 SpA | 4 Def / 252 Spe\n\n**Explanation:** Porygon-Z (Gigantamax) is a powerful offensive Pok\u00e9mon with high Special Attack and Special Defense. It can use a Choice Scarf for faster switching and can hit hard with its STAB Fusion Flare and Giga Impact. Focus Blast and Shadow Ball provide versatile coverage, making it a\n\nUSER: Please still put together a concrete full 6-Pok\u00e9mon Champions VGC doubles team with items, abilities, moves, and spreads \u2014 best effort is fine.\n\nASSISTANT: Certainly! For a VGC 2026 Regulation M-C doubles team in Pok\u00e9mon Champions, we'll aim for a balanced team that covers a wide range of threats and can adapt to various battle situations. Here\u2019s a concrete 6-Pok\u00e9mon team with items, abilities, moves, and spreads:\n\n### 1. **Porygon-Z (Gigantamax)**\n- **Ability:** Multiscale\n- **Item:** Choice Scarf\n- **Moves:**\n  - **Focus Blast**\n  - **Fusion Flare**\n  - **Giga Impact**\n  - **Shadow Ball**\n\n- **Spreads:** 252 Atk | 252 SpA | 4 Def / 252 Spe\n\n**Explanation:** Porygon-Z (Gigantamax) is a powerful offensive Pok\u00e9mon that can switch in and hit hard with a Choice Scarf. Its high Special Attack and Special Defense make it a versatile choice for both physical and special attackers. The moveset provides both coverage and a mix of STAB (Same Type Attack Bonus) moves.\n\n### 2. **Mimikyu (Gigantamax)**\n- **Ability:** Unnerve\n- **Item:** Leftovers\n\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Of course! Here's the full 6-Pok\u00e9mon team for VGC 2026 Regulation M-C Doubles in Pok\u00e9mon Champions, including items, abilities, moves, and spreads:\n\n### 1. **Porygon-Z (Gigantamax)**\n- **Ability:** Multiscale\n- **Item:** Choice Scarf\n- **Moves:**\n  - **Focus Blast**\n  - **Fusion Flare**\n  - **Giga Impact**\n  - **Shadow Ball**\n\n- **Spreads:** 252 Atk | 252 SpA | 4 Def / 252 Spe\n\n**Explanation:** Porygon-Z (Gigantamax) is a powerful offensive Pok\u00e9mon that can switch in and hit hard with a Choice Scarf. Its high Special Attack and Special Defense make it a versatile choice for both physical and special attackers. The moveset provides both coverage and a mix of STAB (Same Type Attack Bonus) moves.\n\n### 2. **Mimikyu (Gigantamax)**\n- **Ability:** Unnerve\n- **Item:** Leftovers\n- **Moves:**\n  - **Shadow Ball**\n  - **Will-O-Wisp**\n  - **\n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the full 6-Pok\u00e9mon team with all the necessary details:\n\n### 1. **Porygon-Z (Gigantamax)**\n- **Ability:** Multiscale\n- **Item:** Choice Scarf\n- **Moves:**\n  - **Focus Blast**\n  - **Fusion Flare**\n  - **Giga Impact**\n  - **Shadow Ball**\n\n- **Spreads:** 252 Atk | 252 SpA | 4 Def / 252 Spe\n\n**Explanation:** Porygon-Z (Gigantamax) is a powerful offensive Pok\u00e9mon that can switch in and hit hard with a Choice Scarf. Its high Special Attack and Special Defense make it a versatile choice for both physical and special attackers. The moveset provides both coverage and a mix of STAB (Same Type Attack Bonus) moves.\n\n### 2. **Mimikyu (Gigantamax)**\n- **Ability:** Unnerve\n- **Item:** Leftovers\n- **Moves:**\n  - **Shadow Ball**\n  - **Will-O-Wisp**\n  - **Dark Pulse**\n  - **Confuse Ray**\n\n- **Spreads:** 252 HP | \n\nUSER: Please continue and finish the full 6-Pok\u00e9mon team with sets when you can.\n\nASSISTANT: Certainly! Here is the full 6-Pok\u00e9mon team with all the necessary details:\n\n### 1. **Porygon-Z (Gigantamax)**\n- **Ability:** Multiscale\n- **Item:** Choice Scarf\n- **Moves:**\n  - **Focus Blast**\n  - **Fusion Flare**\n  - **Giga Impact**\n  - **Shadow Ball**\n\n- **Spreads:** 252 Atk | 252 SpA | 4 Def / 252 Spe\n\n**Explanation:** Porygon-Z (Gigantamax) is a powerful offensive Pok\u00e9mon that can switch in and hit hard with a Choice Scarf. Its high Special Attack and Special Defense make it a versatile choice for both physical and special attackers. The moveset provides both coverage and a mix of STAB (Same Type Attack Bonus) moves.\n\n### 2. **Mimikyu (Gigantamax)**\n- **Ability:** Unnerve\n- **Item:** Leftovers\n- **Moves:**\n  - **Shadow Ball**\n  - **Will-O-Wisp**\n  - **Dark Pulse**\n  - **Confuse Ray**\n\n- **Spreads:** 252 HP | ",
+      "score": {
+        "team": {
+          "extractor": "showdown",
+          "incomplete": true,
+          "completed": false,
+          "slots": []
+        },
+        "legality": {
+          "pairs_checked": 0,
+          "false_legal": 0,
+          "pairs": [],
+          "false_illegal": 0,
+          "false_illegal_examples": []
+        },
+        "species_facts": {
+          "claims": [],
+          "tally": {
+            "TRUE": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 0,
+            "total": 0
+          },
+          "prose_n": 0,
+          "build_n": 0
+        },
+        "mechanical": {
+          "claims": [],
+          "tally": {
+            "TRUE": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 0,
+            "total": 0
+          },
+          "calc_ok": false
+        },
+        "structural": {
+          "spreads_ev_shaped": 0,
+          "spreads_sp_shaped": 0,
+          "spreads_unparsed": 0,
+          "spreads_parsed_denom": 0,
+          "item_clause_violation": null
+        }
+      }
+    }
+  ],
+  "notes": [
+    "No LangGraph / no tools; ChatOllama free-form only.",
+    "Condition: ungrounded chat baseline (chat).",
+    "Do not average or merge with the other bare-LLM condition.",
+    "Slot: always exhausts all SLOT_STEERING lines before stop.",
+    "Species-fact axis includes build-derived move/ability claims from sets.",
+    "Legality oracle: same build_oracle_snapshot(mod=champions) as run_legality.",
+    "Soft mech nudge at most once if \u22654 slots and zero organic mech claims."
+  ],
+  "mech_rescore": {
+    "before": {
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 0,
+      "total": 0
+    },
+    "after": {
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 0,
+      "total": 0
+    },
+    "note": "2026-09-25 mech rescore: unknown_species gate on Spe/KO entities"
+  }
+}

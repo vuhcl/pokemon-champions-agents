@@ -437,6 +437,63 @@ significant?*
 
 ---
 
+## Bare-LLM baseline (no tools) — comparison axis
+*What to measure: a bare LLM (no LangGraph / no tool access) on VGC 2026 Reg M-C doubles
+team-building, scored against the same oracles Phase 1 grounded evals use (legality
+`oracle.py` + fresh Showdown snapshot; species-fact oracle incl. move learnability;
+`@smogon/calc` for mechanical claims), plus structural EV-vs-SP and Item Clause counts.
+Sits beside grounded rates — not folded into them. Interview framing: measured evidence
+for ADR-002/ADR-003 (“why grounding matters”).*
+
+**Two conditions — report as distinct rows; never average or merge into one number.**
+
+| Condition id | Label | Elicitation |
+|--------------|-------|-------------|
+| `chat` | ungrounded chat baseline | One open-ended whole-team ask (real-user chat shape). Not a CLI mirror. |
+| `slot` | ungrounded, matched decomposition | Theme → species → full set, six slots — mirrors CLI decomposition, still no tools. |
+
+- Measured: **slot** and **chat** filled 2026-09-25 (5 runs × 2 models each).
+- Models: `qwen2.5:7b`, `qwen3.5:latest` (Claude out of scope — ADR-058)
+- Runs per model × condition: 5 (temperature 0.7); soft mech nudge at most once if ≥4 slots
+  and zero organic speed/damage claims
+- Runner:
+  `BOOTSTRAP_OLLAMA_MODEL=… uv run python scripts/eval/run_bare_llm_baseline.py --condition chat|slot|both`
+- Artifacts (expected, one file per condition × model — do not combine):
+  - `scripts/eval/artifacts/bare_llm_chat_qwen25.json` / `bare_llm_chat_qwen35.json`
+  - `scripts/eval/artifacts/bare_llm_slot_qwen25.json` / `bare_llm_slot_qwen35.json`
+- Results table (fill after measurement; one row per condition × model):
+
+| Condition | Model | false-legal | false-illegal | species TRUE/FALSE/unv | mech TRUE/FALSE/unv | EV-shaped spreads | Item Clause viol. | completed teams |
+|-----------|-------|-------------|----------------|------------------------|---------------------|-------------------|-------------------|-----------------|
+| chat (ungrounded chat baseline) | qwen2.5:7b | 1/3 | 0 | 1/3/8 | 0/0/0 | 1 | 0 | 0/5 |
+| chat (ungrounded chat baseline) | qwen3.5:latest | 2/2 | 0 | 2/0/2 | 0/0/4 | 2 | 0 | 0/5 |
+| slot (ungrounded, matched decomposition) | qwen2.5:7b | 13/22 | 0 | 33/29/64 | 0/0/5 | 12 | 3 | 4/5 |
+| slot (ungrounded, matched decomposition) | qwen3.5:latest | 12/22 | 0 | 35/16/67 | 0/0/27 | 16 | 3 | 3/5 |
+
+- Notes: Same oracles as grounded Phase 1; elicitation differs from the scripted LangGraph
+  harness. `chat` and `slot` answer different fairness questions — cite the matching row.
+  ADR/log draft can proceed from these numbers.
+  - **false-legal** cells are `false_legal / pairs_checked` (species@item pairs extracted).
+  - **Mega + non-stone = false-legal:** a paste like `Lucario (Mega Evolution) @ Leftovers`
+    is scored illegal; correct teambuilder form is `Lucario @ Lucarionite` (stone enables Mega).
+    Uses `item_mega_forme` against the legality snapshot — not an LLM check.
+  - **qwen3.5 invoke:** Ollama `think: false` so content is not empty (thinking otherwise
+    consumes `num_predict` and yields blank ASSISTANT turns). Same prompt/steering as qwen2.5.
+  - **chat completion is weak:** open-ended chat rarely yields a full extractable 6 (0/5
+    completed both models). qwen3.5 often premise-pushes (“Reg M-C doesn’t exist”); harness
+    sends one chat-shaped push for sets if the first reply has zero extractable slots, then
+    at most 4 continuers. Slot’s Showdown steering is what makes pairs_checked large.
+  - Slot Item Clause viol. counted only on completed 6-slot teams.
+  - **Mech Spe/KO gate (2026-09-25 rescore on saved transcripts):** entities that are
+    not known species ids in the legality snapshot score `unverifiable_shape` (was falling
+    through to FALSE via `effective_spe` on sentence fragments). Audit: **0** genuine
+    Spe/KO claims with both sides known species in either slot artifact (chat likewise:
+    no both-known pairs). Before→after mechanical tallies — slot qwen2.5 `0/5/0` → `0/0/5`;
+    slot qwen3.5 `2/18/7` → `0/0/27`; chat qwen2.5 unchanged `0/0/0`; chat qwen3.5
+    `0/4/0` → `0/0/4`. Artifacts record `mech_rescore` with the same delta.
+
+---
+
 ## Known limitations / honest gaps (update as discovered)
 *Mirror the honesty standard set by the VinylIQ RAG-not-shipped story — if something doesn't
 work or an eval result is weak, it goes here plainly, not smoothed over.*
