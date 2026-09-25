@@ -7,12 +7,13 @@ from typing import Any, Literal, Optional
 
 from recommender.calc_client import CalcClient, CalcRequest, FieldSpec
 from recommender.ids import to_id
-from recommender.legality import load_snapshot
+from recommender.legality import load_snapshot, species_can_have_ability
 from recommender.matchup import Severity
 from recommender.recommend import infer_role
 from recommender.species_forms import item_mega_forme as _item_mega_forme
 from recommender.state import (
     Attr,
+    Constraint,
     PendingFlag,
     RecommenderState,
     Slot,
@@ -25,7 +26,7 @@ Groundedness = Literal[
     "judgment-only",
 ]
 
-SLOT_ATTRS = ("role", "species", "item", "moveset", "spread", "nature")
+SLOT_ATTRS = ("role", "species", "ability", "item", "moveset", "spread", "nature")
 
 _CHOICE_ITEMS = frozenset({"choiceband", "choicespecs", "choicescarf"})
 _ITEM_SWAP_MOVES = frozenset({"trick", "switcheroo"})
@@ -166,6 +167,252 @@ def check_archetype_fit(
         satisfies=False,
         groundedness="judgment-only",
         detail=per_component[-1].detail,
+    )
+
+
+def check_constraint_fit(
+    slot: Slot,
+    constraint: Constraint,
+    *,
+    snap: dict[str, Any] | None = None,
+) -> FitResult:
+    """Per-slot fit for hard type/ability/item constraints (not no_duplicate_items)."""
+    snap = snap or load_snapshot()
+    spec = constraint.mechanical
+    if spec is None:
+        return FitResult(
+            satisfies=True,
+            groundedness=constraint.groundedness,
+            detail="unenforced",
+        )
+    if spec.kind == "type":
+        return _constraint_type_fit(slot, spec.value, spec.scope, snap)
+    if spec.kind == "ability":
+        return _constraint_ability_fit(slot, spec.value, snap)
+    if spec.kind == "item":
+        return _constraint_item_fit(slot, spec.value)
+    return FitResult(
+        satisfies=True,
+        groundedness="mechanically-checkable",
+        detail=f"no per-slot check for {spec.kind}",
+    )
+
+
+def reconcile_on_constraint_change(
+    state: RecommenderState,
+    constraint: Constraint,
+) -> dict:
+    """Re-evaluate locked attrs against a newly recorded hard constraint (ADR-020 #1)."""
+    if constraint.type != "hard":
+        return {}
+    spec = constraint.mechanical
+    if spec is None:
+        return {}
+    if spec.kind == "no_duplicate_items":
+        return _reconcile_no_duplicate_items(state)
+
+    draft = list(state["team_draft"])
+    superseded = list(state.get("superseded", []))
+    pending_flags = list(state.get("pending_flags", []))
+    turn = state.get("turn", 0)
+    snap = load_snapshot()
+    changed = False
+
+    for slot_index, slot in enumerate(draft):
+        fit = check_constraint_fit(slot, constraint, snap=snap)
+        if fit.satisfies or fit.ambiguous:
+            continue
+        for attr_name in SLOT_ATTRS:
+            attr: Attr[Any] = getattr(slot, attr_name)
+            if not attr.locked or attr.value is None:
+                continue
+            updates, new_sup, new_flags = _apply_mismatch(
+                slot_index,
+                attr_name,
+                attr,
+                fit,
+                turn,
+                sibling_change=False,
+            )
+            if updates:
+                slot = draft[slot_index]
+                draft[slot_index] = replace(slot, **updates)
+                slot = draft[slot_index]
+                changed = True
+            superseded.extend(new_sup)
+            pending_flags.extend(new_flags)
+
+    return _reconcile_out(state, draft, superseded, pending_flags, changed)
+
+
+def _reconcile_no_duplicate_items(state: RecommenderState) -> dict:
+    draft = list(state["team_draft"])
+    superseded = list(state.get("superseded", []))
+    pending_flags = list(state.get("pending_flags", []))
+    turn = state.get("turn", 0)
+
+    by_id: dict[str, list[int]] = {}
+    for slot_index, slot in enumerate(draft):
+        if not slot.item.locked or not slot.item.value:
+            continue
+        iid = to_id(slot.item.value)
+        by_id.setdefault(iid, []).append(slot_index)
+
+    changed = False
+    fit = FitResult(
+        satisfies=False,
+        groundedness="mechanically-checkable",
+        detail="duplicate locked item",
+    )
+    for indices in by_id.values():
+        if len(indices) < 2:
+            continue
+        for slot_index in indices:
+            slot = draft[slot_index]
+            attr = slot.item
+            updates, new_sup, new_flags = _apply_mismatch(
+                slot_index,
+                "item",
+                attr,
+                fit,
+                turn,
+                sibling_change=False,
+            )
+            if updates:
+                draft[slot_index] = replace(slot, **updates)
+                changed = True
+            superseded.extend(new_sup)
+            pending_flags.extend(new_flags)
+
+    return _reconcile_out(state, draft, superseded, pending_flags, changed)
+
+
+def _reconcile_out(
+    state: RecommenderState,
+    draft: list[Slot],
+    superseded: list[SupersededEntry],
+    pending_flags: list[PendingFlag],
+    changed: bool,
+) -> dict:
+    out: dict = {}
+    if changed:
+        out["team_draft"] = draft
+    if superseded != state.get("superseded", []):
+        out["superseded"] = superseded
+    if pending_flags != state.get("pending_flags", []):
+        out["pending_flags"] = pending_flags
+    return out
+
+
+def _constraint_type_fit(
+    slot: Slot,
+    want_type: str,
+    scope: str,
+    snap: dict[str, Any],
+) -> FitResult:
+    if not slot.species.value:
+        return FitResult(
+            satisfies=True,
+            groundedness="mechanically-checkable",
+            detail="no locked species",
+        )
+    want = want_type.strip().title()
+    formes = _reachable_formes(slot, snap)
+    type_sets = [_species_types(snap, f) for f in formes]
+    type_sets = [t for t in type_sets if t]
+    if not type_sets:
+        return FitResult(
+            satisfies=True,
+            groundedness="mechanically-checkable",
+            detail="no type data",
+        )
+    if len({tuple(sorted(t)) for t in type_sets}) > 1:
+        return FitResult(
+            satisfies=False,
+            groundedness="mechanically-checkable",
+            ambiguous=True,
+            detail=f"formes disagree on {want} typing",
+        )
+    types = type_sets[0]
+    titled = [t.title() for t in types]
+    if scope == "team_wide":
+        # Universal monotype: types ⊆ {want} (matches discovery enforcement).
+        if set(t.casefold() for t in titled) <= {want.casefold()}:
+            return FitResult(
+                satisfies=True,
+                groundedness="mechanically-checkable",
+                detail=f"monotype {want}",
+            )
+        return FitResult(
+            satisfies=False,
+            groundedness="mechanically-checkable",
+            detail=f"not monotype {want}",
+        )
+    if want in titled or want.casefold() in {t.casefold() for t in titled}:
+        return FitResult(
+            satisfies=True,
+            groundedness="mechanically-checkable",
+            detail=f"has {want} type",
+        )
+    return FitResult(
+        satisfies=False,
+        groundedness="mechanically-checkable",
+        detail=f"missing {want} type",
+    )
+
+
+def _constraint_ability_fit(
+    slot: Slot, want_ability: str, snap: dict[str, Any]
+) -> FitResult:
+    want_id = to_id(want_ability)
+    if slot.ability.locked and slot.ability.value:
+        if to_id(slot.ability.value) == want_id:
+            return FitResult(
+                satisfies=True,
+                groundedness="mechanically-checkable",
+                detail=f"ability is {want_ability}",
+            )
+        return FitResult(
+            satisfies=False,
+            groundedness="mechanically-checkable",
+            detail=f"ability is not {want_ability}",
+        )
+    if slot.species.locked and slot.species.value:
+        if species_can_have_ability(snap, slot.species.value, want_ability):
+            return FitResult(
+                satisfies=True,
+                groundedness="mechanically-checkable",
+                detail=f"species can have {want_ability}",
+            )
+        return FitResult(
+            satisfies=False,
+            groundedness="mechanically-checkable",
+            detail=f"species cannot have {want_ability}",
+        )
+    return FitResult(
+        satisfies=True,
+        groundedness="mechanically-checkable",
+        detail="no locked ability/species",
+    )
+
+
+def _constraint_item_fit(slot: Slot, want_item: str) -> FitResult:
+    if not slot.item.locked or not slot.item.value:
+        return FitResult(
+            satisfies=True,
+            groundedness="mechanically-checkable",
+            detail="no locked item",
+        )
+    if to_id(slot.item.value) == to_id(want_item):
+        return FitResult(
+            satisfies=True,
+            groundedness="mechanically-checkable",
+            detail=f"item is {want_item}",
+        )
+    return FitResult(
+        satisfies=False,
+        groundedness="mechanically-checkable",
+        detail=f"item is not {want_item}",
     )
 
 

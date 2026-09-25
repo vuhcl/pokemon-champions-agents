@@ -21,6 +21,7 @@ from recommender.present_text import BOOTSTRAP_PARSER_NOT_CONFIGURED, format_ros
 from recommender.recommend import SP_BUDGET, spread_sum
 from recommender.reconcile import (
     reconcile_on_archetype_change,
+    reconcile_on_constraint_change,
     reconcile_on_sibling_change,
     simultaneous_lock_conflicts,
 )
@@ -1052,7 +1053,9 @@ def record_constraint(state: RecommenderState) -> dict:
 
     payload: ConstraintPayload = state["turn_payload"]  # type: ignore[assignment]
     constraint = build_constraint(payload, source_turn=state.get("turn", 0))
-    return {"constraints": [*state.get("constraints", []), constraint]}
+    out: dict = {"constraints": [*state.get("constraints", []), constraint]}
+    out.update(reconcile_on_constraint_change(state, constraint))
+    return out
 
 
 def handle_claim_correction(state: RecommenderState) -> dict:
@@ -1102,6 +1105,7 @@ def handle_claim_correction(state: RecommenderState) -> dict:
 
     constraint = build_constraint(reattempt, source_turn=state.get("turn", 0))
     out["constraints"] = [*state.get("constraints", []), constraint]
+    out.update(reconcile_on_constraint_change(state, constraint))
     out["claim_correction_rerun_discovery"] = True
     out["correction_response"] = (
         f"You're right — I withdrew that claim. "

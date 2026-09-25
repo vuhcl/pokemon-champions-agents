@@ -755,7 +755,7 @@ def _run_08(graph, config, state) -> ScenarioResult:
 
 
 def _run_09(graph, config, state) -> ScenarioResult:
-    sid = "09_nonconflict_constraint"
+    sid = "09_constraint_reconcile"
     state = turn(
         graph,
         config,
@@ -775,6 +775,7 @@ def _run_09(graph, config, state) -> ScenarioResult:
         scenario_id=sid,
         team={(0, "species"): snap},
     )
+    # Non-conflict: no_duplicate_items does not touch a species-only lock.
     state = turn(
         graph,
         config,
@@ -785,6 +786,7 @@ def _run_09(graph, config, state) -> ScenarioResult:
                 "predicate": "no duplicate items",
                 "scope": "team_wide",
                 "groundedness": "mechanically-checkable",
+                "mechanical_kind": "no_duplicate_items",
             },
         },
     )
@@ -796,12 +798,32 @@ def _run_09(graph, config, state) -> ScenarioResult:
     )
     if len(state.get("constraints") or []) != 1:
         raise TurnAssertError(f"[{sid} turn 2] expected one constraint recorded")
-    return _ok(
-        sid,
-        "constraint_negative",
-        state,
-        notes="vacuous vs ADR-020: constraint turn does not reconcile locks",
+    # Conflict: hard Grass type reopens Pelipper (Water/Flying).
+    state = turn(
+        graph,
+        config,
+        {
+            "turn_intent": "constraint",
+            "turn_payload": {
+                "type": "hard",
+                "predicate": "type:grass",
+                "scope": "per_slot",
+                "groundedness": "mechanically-checkable",
+                "mechanical_kind": "type",
+                "mechanical_value": "grass",
+            },
+        },
     )
+    assert_state(
+        state,
+        turn_i=3,
+        scenario_id=sid,
+        team={(0, "species"): (None, False)},
+        superseded=[{"slot_index": 0, "attr": "species", "value": "Pelipper"}],
+    )
+    if len(state.get("constraints") or []) != 2:
+        raise TurnAssertError(f"[{sid} turn 3] expected two constraints recorded")
+    return _ok(sid, "constraint_reconcile", state)
 
 
 def _run_11(graph, config, state) -> ScenarioResult:
@@ -976,9 +998,9 @@ SCENARIOS: list[Scenario] = [
         _run_08,
     ),
     Scenario(
-        "09_nonconflict_constraint",
-        "constraint_negative",
-        "Non-conflicting constraint leaves existing lock untouched",
+        "09_constraint_reconcile",
+        "constraint_reconcile",
+        "Non-conflict no_dup then conflicting type constraint supersedes lock",
         _run_09,
     ),
     Scenario(

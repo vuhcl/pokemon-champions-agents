@@ -8,7 +8,14 @@ from recommender.reconcile import (
     check_theme_fit,
     reconcile_on_archetype_change,
 )
-from recommender.state import Attr, ReasonRef, RecommenderState, Slot, VerificationEntry
+from recommender.state import (
+    Attr,
+    Constraint,
+    ReasonRef,
+    RecommenderState,
+    Slot,
+    VerificationEntry,
+)
 
 VGC_MB = "[Gen 9 Champions] VGC 2026 Reg M-B"
 
@@ -185,3 +192,188 @@ def test_restore_reverses_auto_reopen():
     assert slot.species.reason is not None
     assert slot.species.reason.kind == "user_stated"
     assert len(restored["superseded"]) == 0
+
+
+def _hard_constraint(
+    *,
+    predicate: str,
+    kind: str,
+    value: str,
+    scope: str = "per_slot",
+    soft: bool = False,
+) -> Constraint:
+    from recommender.constraint_enforcement import MechanicalSpec
+
+    return Constraint(
+        type="soft" if soft else "hard",
+        predicate=predicate,
+        source_turn=1,
+        still_active=True,
+        scope=scope,  # type: ignore[arg-type]
+        groundedness="mechanically-checkable",
+        mechanical=MechanicalSpec(kind, value, scope, predicate),  # type: ignore[arg-type]
+    )
+
+
+def test_constraint_type_reopens_mismatched_species():
+    from recommender.reconcile import reconcile_on_constraint_change
+
+    slot = Slot(
+        species=Attr(
+            value="Pelipper",
+            locked=True,
+            reason=ReasonRef(kind="user_stated"),
+        )
+    )
+    state = _base_state(team_draft=[slot, *[Slot() for _ in range(5)]])
+    c = _hard_constraint(
+        predicate="type:grass", kind="type", value="Grass", scope="per_slot"
+    )
+    out = reconcile_on_constraint_change(state, c)
+    assert out["team_draft"][0].species.locked is False
+    assert out["team_draft"][0].species.value is None
+    assert len(out["superseded"]) == 1
+    assert out["superseded"][0]["value"] == "Pelipper"
+
+
+def test_constraint_soft_early_return_no_mutation():
+    from recommender.reconcile import reconcile_on_constraint_change
+
+    slot = Slot(
+        species=Attr(
+            value="Pelipper",
+            locked=True,
+            reason=ReasonRef(kind="user_stated"),
+        )
+    )
+    state = _base_state(team_draft=[slot, *[Slot() for _ in range(5)]])
+    c = _hard_constraint(
+        predicate="type:grass",
+        kind="type",
+        value="Grass",
+        scope="per_slot",
+        soft=True,
+    )
+    out = reconcile_on_constraint_change(state, c)
+    assert out == {}
+
+
+def test_constraint_unenforceable_hard_no_mutation():
+    from recommender.reconcile import reconcile_on_constraint_change
+
+    slot = Slot(
+        species=Attr(
+            value="Pelipper",
+            locked=True,
+            reason=ReasonRef(kind="user_stated"),
+        )
+    )
+    state = _base_state(team_draft=[slot, *[Slot() for _ in range(5)]])
+    c = Constraint(
+        type="hard",
+        predicate="must be shiny",
+        source_turn=1,
+        still_active=True,
+        scope="team_wide",
+        groundedness="mechanically-checkable",
+        mechanical=None,
+    )
+    out = reconcile_on_constraint_change(state, c)
+    assert out == {}
+
+
+def test_constraint_exempt_flags_not_reopen():
+    from recommender.reconcile import reconcile_on_constraint_change
+
+    slot = Slot(
+        species=Attr(
+            value="Pelipper",
+            locked=True,
+            exempt_from_theme=True,
+            reason=ReasonRef(kind="user_stated"),
+        )
+    )
+    state = _base_state(team_draft=[slot, *[Slot() for _ in range(5)]])
+    c = _hard_constraint(
+        predicate="type:grass", kind="type", value="Grass", scope="per_slot"
+    )
+    out = reconcile_on_constraint_change(state, c)
+    assert out.get("team_draft", state["team_draft"])[0].species.locked is True
+    assert len(out.get("superseded", [])) == 0
+    assert len(out["pending_flags"]) == 1
+    assert out["pending_flags"][0]["flag_kind"] == "flag_exempt_conflict"
+
+
+def test_constraint_team_wide_monotype_rejects_dual_type():
+    """team_wide type = monotype subset, not has-type (Ferrothorn is Grass/Steel)."""
+    from recommender.reconcile import check_constraint_fit
+
+    slot = Slot(
+        species=Attr(
+            value="Ferrothorn",
+            locked=True,
+            reason=ReasonRef(kind="user_stated"),
+        )
+    )
+    per_slot = _hard_constraint(
+        predicate="type:grass", kind="type", value="Grass", scope="per_slot"
+    )
+    team_wide = _hard_constraint(
+        predicate="grass monotype", kind="type", value="Grass", scope="team_wide"
+    )
+    assert check_constraint_fit(slot, per_slot).satisfies is True
+    assert check_constraint_fit(slot, team_wide).satisfies is False
+
+
+def test_constraint_no_duplicate_items_reopens_dup_items_only():
+    from recommender.reconcile import reconcile_on_constraint_change
+
+    draft = [
+        Slot(
+            species=Attr(value="Pelipper", locked=True),
+            item=Attr(value="Choice Scarf", locked=True),
+        ),
+        Slot(
+            species=Attr(value="Incineroar", locked=True),
+            item=Attr(value="Choice Scarf", locked=True),
+        ),
+        *[Slot() for _ in range(4)],
+    ]
+    state = _base_state(team_draft=draft)
+    from recommender.constraint_enforcement import MechanicalSpec
+
+    c = Constraint(
+        type="hard",
+        predicate="no duplicate items",
+        source_turn=1,
+        still_active=True,
+        scope="team_wide",
+        groundedness="mechanically-checkable",
+        mechanical=MechanicalSpec(
+            "no_duplicate_items", "", "team_wide", "no duplicate items"
+        ),
+    )
+    out = reconcile_on_constraint_change(state, c)
+    assert out["team_draft"][0].species.locked is True
+    assert out["team_draft"][0].item.locked is False
+    assert out["team_draft"][1].item.locked is False
+    assert len(out["superseded"]) == 2
+
+
+def test_constraint_ability_reopens_locked_ability():
+    from recommender.reconcile import reconcile_on_constraint_change
+
+    slot = Slot(
+        species=Attr(value="Pelipper", locked=True),
+        ability=Attr(value="Drizzle", locked=True),
+    )
+    state = _base_state(team_draft=[slot, *[Slot() for _ in range(5)]])
+    c = _hard_constraint(
+        predicate="ability:Intimidate",
+        kind="ability",
+        value="Intimidate",
+        scope="per_slot",
+    )
+    out = reconcile_on_constraint_change(state, c)
+    assert out["team_draft"][0].ability.locked is False
+    assert any(e["attr"] == "ability" for e in out["superseded"])
