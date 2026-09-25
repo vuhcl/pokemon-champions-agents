@@ -5867,6 +5867,51 @@ agreement unaffected, key count moves.
 
 pytest: 1760 passed, 10 skipped.
 
+## 2026-09-25 — Bare-LLM baseline eval (PR #220): measured comparison for ADR-002/003
+
+Built and measured a standalone no-tools baseline: a bare local LLM given the same VGC 2026
+Reg M-C doubles team-build task, scored against the identical oracles Phase 1's grounded
+evals use. Turns ADR-002/003's founding anecdote ("prompting alone fails reliably") into an
+actual number. Full design and results: ADR-067, `eval_results.md`.
+
+**Two conditions, `chat` (open-ended ask) and `slot` (theme→species→set×6, mirrors the CLI's
+own decomposition, still no tools) — kept strictly separate, never averaged**, same
+discipline already established for the M-B/M-C suite split. 5 runs × 2 models
+(`qwen2.5:7b`, `qwen3.5:latest`) × 2 conditions, all four rows measured.
+
+**Headline finding:** zero of ten `chat`-condition runs produced a fully extractable
+6-Pokémon team within the turn cap (`slot` reached completion 4/5 and 3/5). This is the
+strongest evidence in this eval for why the CLI's slot-by-slot steering isn't just nicer UX —
+without it, a bare LLM often doesn't even reach a deliverable that could be checked, let alone
+a correct one.
+
+**Other findings, `slot` condition (fuller sample, 22 pairs):**
+- False-legal: 13/22 (qwen2.5), 12/22 (qwen3.5).
+- Species facts (claim-level true rate among parseable claims): 53.2% (qwen2.5), 68.6%
+  (qwen3.5).
+- **Zero SP-shaped spreads across 31 total parsed spreads, either model, either condition** —
+  a bare LLM defaults completely to mainline EV conventions with no apparent awareness
+  Champions uses a different stat system.
+- Two fabricated, non-existent species appeared in transcripts ("Sylphrena," "Fairy
+  Lucario") — qualitatively worse than a wrong fact about a real Pokémon.
+- Item Clause violated in 3/4 (qwen2.5) and 3/3 (qwen3.5) of the teams that did complete.
+
+**Scoring bug found and fixed mid-eval:** the mechanical-claims (Spe/KO) scorer was scoring
+sentence-fragment extraction artifacts (e.g. `"allowing Metagross to outspeed and outdamage
+opponents"`, extracted as if `"allowing Metagross to"` and `"and outdamage opponents"` were
+species) as genuine FALSE claims, via `effective_spe` silently computing against non-species
+strings instead of failing closed. Manual audit of all 36 mechanical claims across every
+condition/model found **zero** genuine two-real-species comparisons — every one was this kind
+of artifact. Fixed with a `_known_species_name` gate before any Spe/KO comparison runs;
+ungated entities now correctly score `unverifiable_shape`. Rescored all four artifacts
+(slot: qwen2.5 `0/5/0`→`0/0/5`, qwen3.5 `2/18/7`→`0/0/27`; chat: qwen2.5 unchanged `0/0/0`,
+qwen3.5 `0/4/0`→`0/0/4`) — verified directly against the pushed commits, not taken on faith.
+The corrected null result is itself informative: a bare LLM in this task shape essentially
+never produces a mechanical claim in the checkable two-named-species shape at all — it
+produces vague hedged prose instead.
+
+PR #220 merged.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

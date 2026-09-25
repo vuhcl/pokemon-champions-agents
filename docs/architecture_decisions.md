@@ -11033,3 +11033,83 @@ which would have been stale before it even merged.
 
 **Status:** Shipped, `fix/compendium-usage-regulation-retarget`,
 `chore/compendium-vgcpastes-refresh-automation` (#213).
+
+---
+
+## ADR-067: Bare-LLM baseline (no tools) — measured comparison for ADR-002/ADR-003
+
+**Decision:** Add a standalone, no-LangGraph, no-tool-access baseline eval that gives a bare
+LLM (local Ollama, same VGC 2026 Reg M-C doubles team-build task) and scores it against the
+identical oracles Phase 1's grounded evals already use — legality (`oracle.py` + fresh
+Showdown snapshot), species facts (including move learnability), mechanical claims
+(`@smogon/calc`), plus structural EV-vs-SP and Item Clause counts. Reported beside the
+grounded Phase 1 numbers, never folded into them.
+
+**Two conditions, scored and reported separately, never averaged:**
+- `chat` — one open-ended "build me a full team" ask. Ecological: what a user gets from raw
+  ChatGPT/Claude with no steering.
+- `slot` — theme → species → full set, six slots in sequence, mirroring the CLI's own
+  decomposition shape, still with no tools, no legality data, no SP coaching.
+
+**Alternatives considered:** a single blended bare-LLM number; only the `slot` condition
+(closer to a fair like-for-like comparison against the CLI's own turn structure); only the
+`chat` condition (closer to what an actual naive user experiences).
+
+**Why not blend or pick one:** they measure genuinely different things and blending would
+launder that difference into a single misleading rate. `chat` and `slot` don't just differ in
+elicitation — they differ in whether a checkable artifact gets produced at all. Zero of ten
+`chat`-condition runs (across both models) produced a fully extractable 6-Pokémon team within
+the turn cap; `slot` reached completion in 4/5 and 3/5 runs. This is itself the headline
+finding, not a footnote: `chat`'s small legality/species-fact denominators (2–3 pairs) exist
+only because a handful of slots got far enough to name an item before the conversation
+derailed — reporting `chat` alone would understate what ungrounded prompting actually looks
+like, and reporting `slot` alone would overstate how reliably a bare LLM reaches a
+checkable deliverable in the first place. Together, they show that the CLI's slot-by-slot
+steering isn't a UX nicety — it's structurally what makes a checkable artifact reachable at
+all.
+
+**Measured 2026-09-25, `qwen2.5:7b` and `qwen3.5:latest`, 5 runs × 2 models × 2 conditions
+(Claude out of scope per ADR-058, still blocked on credits):**
+
+| Condition | Model | false-legal | species TRUE/F/unv | EV-shaped | Item Clause | completed |
+|---|---|---:|---|---:|---:|---:|
+| chat | qwen2.5:7b | 1/3 | 1/3/8 | 1 | 0 | 0/5 |
+| chat | qwen3.5:latest | 2/2 | 2/0/2 | 2 | 0 | 0/5 |
+| slot | qwen2.5:7b | 13/22 | 33/29/64 | 12 | 3 | 4/5 |
+| slot | qwen3.5:latest | 12/22 | 35/16/67 | 16 | 3 | 3/5 |
+
+Zero SP-shaped spreads across 31 total parsed spreads, either model, either condition — a
+bare LLM defaults completely to mainline EV conventions, with nothing in any transcript
+suggesting awareness that Champions uses a different stat system at all. Transcripts also
+show fabricated species that don't exist in the game ("Sylphrena," "Fairy Lucario") — a
+qualitatively different failure than getting a real Pokémon's type wrong.
+
+**Scoring correction found and fixed mid-eval, worth recording as its own lesson:**
+`score_mech_claims`'s Spe/KO regex extraction produced false positives when a model's phrasing
+didn't cleanly match "species A outspeeds/KOs species B" — e.g. `"allowing Metagross to
+outspeed and outdamage opponents"` extracted as `a="allowing Metagross to", b="and outdamage
+opponents"`, then scored FALSE via `effective_spe` silently computing against these
+non-species strings rather than failing closed. Manual audit of every mechanical claim
+across both conditions and both models (36 claims total) found **zero** genuine two-named-
+real-species comparisons — every single one was either this kind of extraction artifact or
+otherwise unscoreable. Fixed by gating both Spe and KO scoring on `_known_species_name`
+(checked against the legality snapshot) before any comparison runs; anything that doesn't
+resolve now scores `unverifiable_shape` with `note: "unknown_species"` instead of silently
+falling through to a comparison against defaulted zero-stat input. Verified via a dedicated
+self-check case (the exact Metagross example above) plus a positive control confirming real
+species pairs still score normally.
+
+**This makes the mechanical-claims null result itself the finding, not a scoring gap papered
+over:** a bare LLM in this task shape essentially never produces a checkable "X outspeeds/KOs
+Y" claim — it produces vague, hedged prose ("allows it to outspeed many new threats," "will
+likely be faster than current legends") that gestures at mechanical reasoning without
+committing to anything a calc call could verify. That's a real, if less quotable, data point
+for ADR-003's premise: grounding matters not only because ungrounded mechanical claims are
+often wrong, but because ungrounded mechanical claims are often not even claims in the
+checkable sense at all.
+
+**Status:** Decided and measured. Both conditions filled, mechanical-claims scoring gate
+fixed and verified against all four artifacts (audit + rescore documented in
+`eval_results.md`). Runner: `scripts/eval/run_bare_llm_baseline.py --condition
+{chat,slot,both}`. Scorer: `scripts/eval/bare_llm_score.py`. Artifacts:
+`scripts/eval/artifacts/bare_llm_{chat,slot}_{qwen25,qwen35}.json`.
