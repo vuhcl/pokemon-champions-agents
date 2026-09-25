@@ -92,6 +92,10 @@ def initialize(state: RecommenderState) -> dict:
         out["superseded"] = []
     if "pending_flags" not in state:
         out["pending_flags"] = []
+    if "constraints_superseded" not in state:
+        out["constraints_superseded"] = []
+    if "constraint_flags" not in state:
+        out["constraint_flags"] = []
     if "pending_presentation" not in state:
         out["pending_presentation"] = None
     if "pending_slot_intent" not in state:
@@ -1049,17 +1053,39 @@ def _apply_locks_batch(state: RecommenderState, payload: LockPayload) -> dict:
 
 
 def record_constraint(state: RecommenderState) -> dict:
-    from recommender.constraint_enforcement import build_constraint
+    from recommender.constraint_enforcement import (
+        apply_constraint_axis_supersede,
+        build_constraint,
+    )
 
     payload: ConstraintPayload = state["turn_payload"]  # type: ignore[assignment]
-    constraint = build_constraint(payload, source_turn=state.get("turn", 0))
-    out: dict = {"constraints": [*state.get("constraints", []), constraint]}
+    turn = state.get("turn", 0)
+    constraint = build_constraint(payload, source_turn=turn)
+    constraints, axis_sup, axis_flags = apply_constraint_axis_supersede(
+        list(state.get("constraints", [])),
+        constraint,
+        turn=turn,
+    )
+    out: dict = {"constraints": constraints}
+    if axis_sup:
+        out["constraints_superseded"] = [
+            *state.get("constraints_superseded", []),
+            *axis_sup,
+        ]
+    if axis_flags:
+        out["constraint_flags"] = [
+            *state.get("constraint_flags", []),
+            *axis_flags,
+        ]
     out.update(reconcile_on_constraint_change(state, constraint))
     return out
 
 
 def handle_claim_correction(state: RecommenderState) -> dict:
-    from recommender.constraint_enforcement import build_constraint
+    from recommender.constraint_enforcement import (
+        apply_constraint_axis_supersede,
+        build_constraint,
+    )
     from recommender.legality import load_snapshot
     from recommender.system_claims import (
         claim_is_true_against_snapshot,
@@ -1103,8 +1129,24 @@ def handle_claim_correction(state: RecommenderState) -> dict:
         )
         return out
 
-    constraint = build_constraint(reattempt, source_turn=state.get("turn", 0))
-    out["constraints"] = [*state.get("constraints", []), constraint]
+    turn = state.get("turn", 0)
+    constraint = build_constraint(reattempt, source_turn=turn)
+    constraints, axis_sup, axis_flags = apply_constraint_axis_supersede(
+        list(state.get("constraints", [])),
+        constraint,
+        turn=turn,
+    )
+    out["constraints"] = constraints
+    if axis_sup:
+        out["constraints_superseded"] = [
+            *state.get("constraints_superseded", []),
+            *axis_sup,
+        ]
+    if axis_flags:
+        out["constraint_flags"] = [
+            *state.get("constraint_flags", []),
+            *axis_flags,
+        ]
     out.update(reconcile_on_constraint_change(state, constraint))
     out["claim_correction_rerun_discovery"] = True
     out["correction_response"] = (
@@ -1179,12 +1221,36 @@ def restore_superseded(state: RecommenderState) -> dict:
     return {"team_draft": draft, "superseded": superseded}
 
 
+def restore_constraint(state: RecommenderState) -> dict:
+    from recommender.constraint_enforcement import restore_constraint_axis
+
+    log = list(state.get("constraints_superseded", []))
+    if not log:
+        return {}
+    entry = log.pop()
+    restored_list = restore_constraint_axis(
+        list(state.get("constraints", [])),
+        entry,
+    )
+    if restored_list is None:
+        return {}
+    restored = restored_list[entry["constraint_index"]]
+    out: dict = {
+        "constraints": restored_list,
+        "constraints_superseded": log,
+    }
+    out.update(reconcile_on_constraint_change(state, restored))
+    return out
+
+
 def reset_team(state: RecommenderState) -> dict:
     payload: ResetPayload | None = state.get("turn_payload")  # type: ignore[assignment]
     out: dict = {
         "team_draft": [empty_slot() for _ in range(6)],
         "archetype": Attr(),
         "constraints": [],
+        "constraints_superseded": [],
+        "constraint_flags": [],
         "pending_presentation": None,
         "pending_slot_intent": None,
         "provisional_slot": None,
