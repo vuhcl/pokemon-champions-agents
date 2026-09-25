@@ -438,23 +438,49 @@ significant?*
 ---
 
 ## Bare-LLM baseline (no tools) — comparison axis
-*What to measure: same open-ended VGC 2026 Reg M-C doubles team-building task given to a
-bare LLM with no LangGraph / no tool access, scored against the same oracles Phase 1 grounded
-evals use (legality `oracle.py` + fresh Showdown snapshot; species-fact oracle incl. move
-learnability; `@smogon/calc` for mechanical claims), plus structural EV-vs-SP and Item Clause
-counts. Sits beside grounded rates — not folded into them. Interview framing: measured
-evidence for ADR-002/ADR-003 (“why grounding matters”).*
+*What to measure: a bare LLM (no LangGraph / no tool access) on VGC 2026 Reg M-C doubles
+team-building, scored against the same oracles Phase 1 grounded evals use (legality
+`oracle.py` + fresh Showdown snapshot; species-fact oracle incl. move learnability;
+`@smogon/calc` for mechanical claims), plus structural EV-vs-SP and Item Clause counts.
+Sits beside grounded rates — not folded into them. Interview framing: measured evidence
+for ADR-002/ADR-003 (“why grounding matters”).*
 
-- Measured: TBD (runner shipped; local Ollama measurement pending)
+**Two conditions — report as distinct rows; never average or merge into one number.**
+
+| Condition id | Label | Elicitation |
+|--------------|-------|-------------|
+| `chat` | ungrounded chat baseline | One open-ended whole-team ask (real-user chat shape). Not a CLI mirror. |
+| `slot` | ungrounded, matched decomposition | Theme → species → full set, six slots — mirrors CLI decomposition, still no tools. |
+
+- Measured: **slot** filled 2026-09-25 (5 runs × 2 models). **chat** still TBD.
 - Models: `qwen2.5:7b`, `qwen3.5:latest` (Claude out of scope — ADR-058)
-- Runs per model: 5 (temperature 0.7); soft mech nudge at most once if ≥4 slots and zero
-  organic speed/damage claims
-- Runner: `BOOTSTRAP_OLLAMA_MODEL=… uv run python scripts/eval/run_bare_llm_baseline.py`
-- Artifacts (expected): `scripts/eval/artifacts/bare_llm_baseline_qwen25.json`,
-  `scripts/eval/artifacts/bare_llm_baseline_qwen35.json`
-- Notes: Same oracles, different elicitation than the scripted LangGraph harness. Fill
-  per-model TRUE/FALSE/unverifiable + false-legal/false-illegal + EV/SP + Item Clause after
-  Phase B measurement. ADR/log draft held until numbers land.
+- Runs per model × condition: 5 (temperature 0.7); soft mech nudge at most once if ≥4 slots
+  and zero organic speed/damage claims
+- Runner:
+  `BOOTSTRAP_OLLAMA_MODEL=… uv run python scripts/eval/run_bare_llm_baseline.py --condition chat|slot|both`
+- Artifacts (expected, one file per condition × model — do not combine):
+  - `scripts/eval/artifacts/bare_llm_chat_qwen25.json` / `bare_llm_chat_qwen35.json`
+  - `scripts/eval/artifacts/bare_llm_slot_qwen25.json` / `bare_llm_slot_qwen35.json`
+- Results table (fill after measurement; one row per condition × model):
+
+| Condition | Model | false-legal | false-illegal | species TRUE/FALSE/unv | mech TRUE/FALSE/unv | EV-shaped spreads | Item Clause viol. | completed teams |
+|-----------|-------|-------------|----------------|------------------------|---------------------|-------------------|-------------------|-----------------|
+| chat (ungrounded chat baseline) | qwen2.5:7b | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
+| chat (ungrounded chat baseline) | qwen3.5:latest | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
+| slot (ungrounded, matched decomposition) | qwen2.5:7b | 13 | 0 | 33/29/64 | 0/5/0 | 12 | 3 | 4/5 |
+| slot (ungrounded, matched decomposition) | qwen3.5:latest | 12 | 0 | 35/16/67 | 2/18/7 | 16 | 3 | 3/5 |
+
+- Notes: Same oracles as grounded Phase 1; elicitation differs from the scripted LangGraph
+  harness. `chat` and `slot` answer different fairness questions — cite the matching row.
+  ADR/log draft held until chat numbers land too.
+  - **Mega + non-stone = false-legal:** a paste like `Lucario (Mega Evolution) @ Leftovers`
+    is scored illegal; correct teambuilder form is `Lucario @ Lucarionite` (stone enables Mega).
+    Uses `item_mega_forme` against the legality snapshot — not an LLM check.
+  - **qwen3.5 invoke:** Ollama `think: false` so content is not empty (thinking otherwise
+    consumes `num_predict` and yields blank ASSISTANT turns). Same prompt/steering as qwen2.5.
+  - Slot false-legal counts include mega-stone mismatches and other illegal pairs among
+    extracted `@ Item` sets (`pairs_checked` = 22 each model). Item Clause viol. counted
+    only on completed 6-slot teams.
 
 ---
 

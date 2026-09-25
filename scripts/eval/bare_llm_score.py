@@ -8,9 +8,16 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 from recommender.calc_client import PokemonSpecOptional, calculate
+from recommender.legality import load_snapshot, resolve_learnset
+from recommender.species_forms import item_mega_forme
 from recommender.usage_spreads import effective_spe
 from scripts.eval.oracle import item_legal, pair_legal, species_legal, to_id
-from scripts.eval.species_fact_oracle import parse_claims
+from scripts.eval.species_fact_oracle import (
+    load_species_snapshot,
+    parse_claims,
+    resolve_species,
+    to_id as sf_to_id,
+)
 
 _STAT_KEYS = ("hp", "atk", "def", "spa", "spd", "spe")
 _ZERO_SP = {k: 0 for k in _STAT_KEYS}
@@ -28,6 +35,10 @@ class TeamSlot:
     spread: dict[str, int] | None = None
     moves: list[str] = field(default_factory=list)
     extractor: str = ""
+    # True when paste/prose claims Mega (e.g. "Lucario (Mega Evolution) @ Leftovers").
+    # Mega forme requires its stone — not Leftovers / Life Orb / etc.
+    mega_claimed: bool = False
+    mega_xy: str | None = None  # "x" / "y" when specified
 
 
 @dataclass
@@ -45,14 +56,20 @@ def _norm_item(raw: str) -> str:
     return re.sub(r"\s+", " ", raw.strip())
 
 
+# Species [@ Item], with optional (Nickname)/(Form)/(M|F) before @.
 _SHOWDOWN_SPECIES = re.compile(
     r"^(?P<species>[A-Za-z][A-Za-z0-9\-'.]*(?:\s+[A-Za-z][A-Za-z0-9\-'.]*)*)"
+    r"(?:\s*\((?P<paren>[^)]*)\))?"
     r"(?:\s*@\s*(?P<item>[^\n]+))?\s*$",
     re.MULTILINE,
 )
+_MEGA_TOKEN = re.compile(
+    r"\bmega(?:\s*[- ]?\s*(?P<xy>[xy]))?\b", re.IGNORECASE
+)
 _ABILITY_LINE = re.compile(r"^Ability:\s*(?P<ability>.+)$", re.MULTILINE | re.IGNORECASE)
 _NATURE_LINE = re.compile(
-    r"^(?P<nature>[A-Za-z]+)\s+Nature\b", re.MULTILINE | re.IGNORECASE
+    r"^(?:(?P<nature>[A-Za-z]+)\s+Nature\b|Nature:\s*(?P<nature2>[A-Za-z]+))",
+    re.MULTILINE | re.IGNORECASE,
 )
 _EV_LINE = re.compile(
     r"^(?:EVs|SP|SPs):\s*(?P<body>.+)$", re.MULTILINE | re.IGNORECASE
@@ -63,6 +80,28 @@ _NUMBERED = re.compile(
     r"(?P<species>[A-Za-z][A-Za-z0-9\-'.]*(?:\s+[A-Za-z][A-Za-z0-9\-'.]*)*)"
     r"(?:\s*[@–—-]\s*(?P<item>[^\n]+))?",
     re.MULTILINE,
+)
+# Markdown / prose set blocks (common bare-LLM shape):
+#   ### Slot 3: Toxel
+#   - **Item:** Leftovers
+#   - **Ability:** Poison Point
+#   - **Moves:**
+#     - Toxic
+_MD_SLOT_HEADER = re.compile(
+    r"(?:"
+    r"#{1,4}\s*Slot\s*\d+\s*[:\-–—]\s*"
+    r"|"
+    r"\*\*Slot\s*\d+\s*[:\-–—]\s*"
+    r"|"
+    r"(?:^|\n)\s*(?:Slot\s*\d+\s*[:\-–—]\s*)"
+    r")"
+    r"(?P<species>[A-Za-z][A-Za-z0-9\-'.]*(?:\s+[A-Za-z][A-Za-z0-9\-'.]*){0,3})",
+    re.IGNORECASE,
+)
+_MD_FIELD = re.compile(
+    r"^\s*[-*]?\s*\*?\*?(?P<key>Item|Ability|Nature|Spread|EVs|SP|SPs|Moves?)"
+    r"\*?\*?\s*[:\-–—]\s*(?P<val>.*)$",
+    re.IGNORECASE | re.MULTILINE,
 )
 _STAT_TOKEN = re.compile(
     r"(?P<n>\d+)\s+(?P<stat>HP|Atk|Def|SpA|SpD|Spe)\b", re.IGNORECASE
@@ -99,22 +138,95 @@ def classify_spread(spread: dict[str, int] | None) -> SpreadShape:
     return "unparsed"
 
 
+def _mega_flags(species: str, paren: str = "") -> tuple[bool, str | None]:
+    """Detect Mega claim from species name and/or (Mega …) paren."""
+    blob = f"{species} {paren}".strip()
+    m = _MEGA_TOKEN.search(blob)
+    if not m:
+        return False, None
+    xy = (m.group("xy") or "").lower() or None
+    return True, xy
+
+
+def _sid_is_mega_forme(sid: str) -> bool:
+    return bool(re.search(r"mega[xyz]?$", sid))
+
+
+def _mega_stone_legal(
+    snap: dict[str, Any],
+    species: str,
+    item: str,
+    *,
+    mega_claimed: bool,
+    mega_xy: str | None,
+) -> bool | None:
+    """None = no mega constraint; True/False = stone matches / does not."""
+    sid = to_id(species)
+    species_map = snap.get("species") or {}
+    entry = species_map.get(sid)
+    base_id: str | None = None
+    want_mega: str | None = None  # None after claim → any mega stone for base
+
+    if entry and entry.get("base_species_id") and _sid_is_mega_forme(sid):
+        base_id = str(entry["base_species_id"])
+        want_mega = sid
+    elif mega_claimed:
+        base_id = sid
+        if mega_xy == "x":
+            want_mega = f"{base_id}megax"
+        elif mega_xy == "y":
+            want_mega = f"{base_id}megay"
+        else:
+            want_mega = None  # any stone → a mega forme for this base
+    else:
+        return None
+
+    got = item_mega_forme(to_id(item), base_id, snap)
+    if not got:
+        return False
+    if want_mega is None:
+        return True
+    return got == want_mega
+
+
 def _parse_showdown_blocks(text: str) -> list[TeamSlot]:
-    blocks = re.split(r"\n\s*\n", text)
+    """Line-scan Showdown pastes (incl. inside markdown fences). Requires @ Item."""
+    lines = text.splitlines()
     slots: list[TeamSlot] = []
-    for block in blocks:
-        first = block.strip().splitlines()
-        if not first:
+    i = 0
+    while i < len(lines):
+        raw = lines[i].strip()
+        if raw in ("```", "```text", "```pokemon"):
+            i += 1
             continue
-        head = _SHOWDOWN_SPECIES.match(first[0].strip())
-        if not head:
+        head = _SHOWDOWN_SPECIES.match(raw)
+        if not head or not head.group("item"):
+            i += 1
             continue
         species = head.group("species").strip()
         if len(species.split()) > 4:
+            i += 1
             continue
         item = _norm_item(head.group("item") or "")
+        mega_claimed, mega_xy = _mega_flags(species, head.group("paren") or "")
+        # Collect body until blank, fence, or next Species @ Item header.
+        body_lines = [raw]
+        i += 1
+        while i < len(lines):
+            nxt = lines[i].strip()
+            if not nxt or nxt.startswith("```"):
+                break
+            nxt_head = _SHOWDOWN_SPECIES.match(nxt)
+            if nxt_head and nxt_head.group("item"):
+                break
+            body_lines.append(nxt)
+            i += 1
+        block = "\n".join(body_lines)
         ab = _ABILITY_LINE.search(block)
         nat = _NATURE_LINE.search(block)
+        nature = "Serious"
+        if nat:
+            nature = (nat.group("nature") or nat.group("nature2") or "Serious").strip()
         ev = _EV_LINE.search(block)
         moves = [m.group("move").strip() for m in _MOVE_LINE.finditer(block)]
         spread = parse_spread_body(ev.group("body")) if ev else None
@@ -123,10 +235,12 @@ def _parse_showdown_blocks(text: str) -> list[TeamSlot]:
                 species=species,
                 item=item,
                 ability=(ab.group("ability").strip() if ab else ""),
-                nature=(nat.group("nature").strip() if nat else "Serious"),
+                nature=nature,
                 spread=spread,
                 moves=moves[:4],
                 extractor="showdown",
+                mega_claimed=mega_claimed,
+                mega_xy=mega_xy,
             )
         )
     return slots
@@ -140,6 +254,67 @@ def _parse_numbered(text: str) -> list[TeamSlot]:
                 species=m.group("species").strip(),
                 item=_norm_item(m.group("item") or ""),
                 extractor="numbered",
+            )
+        )
+    return slots
+
+
+def _parse_markdown_slots(text: str) -> list[TeamSlot]:
+    """Extract ### Slot N: Species + bullet Item/Ability/Moves blocks."""
+    headers = list(_MD_SLOT_HEADER.finditer(text))
+    if not headers:
+        return []
+    slots: list[TeamSlot] = []
+    for i, h in enumerate(headers):
+        species = h.group("species").strip().rstrip("*").strip()
+        # Role blurbs ("Psychic Type Pokémon…") are not species names.
+        if len(species.split()) > 3 or "type" in species.casefold():
+            continue
+        mega_claimed, mega_xy = _mega_flags(species)
+        end = headers[i + 1].start() if i + 1 < len(headers) else len(text)
+        block = text[h.end() : end]
+        item = ability = nature = ""
+        spread = None
+        moves: list[str] = []
+        in_moves = False
+        for line in block.splitlines():
+            fm = _MD_FIELD.match(line)
+            if fm:
+                key = fm.group("key").casefold()
+                val = fm.group("val").strip().strip("*").strip()
+                in_moves = key.startswith("move")
+                if key == "item":
+                    item = _norm_item(val)
+                elif key == "ability":
+                    ability = val.split("(")[0].strip()
+                elif key == "nature":
+                    nature = val.split("(")[0].strip() or "Serious"
+                elif key in ("spread", "evs", "sp", "sps"):
+                    spread = parse_spread_body(val) or spread
+                elif in_moves and val:
+                    # "Moves: Toxic" single-line, or empty then bullets
+                    if not val.startswith("-"):
+                        moves.append(val)
+                continue
+            if in_moves:
+                bullet = re.match(r"^\s*[-*•]\s+(.+)$", line)
+                if bullet:
+                    moves.append(bullet.group(1).strip().strip("*").strip())
+                elif line.strip() and not line.strip().startswith("#"):
+                    # end move list on next prose heading-ish
+                    if line.strip().startswith("**") or line.strip().startswith("###"):
+                        in_moves = False
+        slots.append(
+            TeamSlot(
+                species=species,
+                item=item,
+                ability=ability,
+                nature=nature or "Serious",
+                spread=spread,
+                moves=moves[:4],
+                extractor="markdown_slot",
+                mega_claimed=mega_claimed,
+                mega_xy=mega_xy,
             )
         )
     return slots
@@ -166,15 +341,17 @@ def _parse_inline_at(text: str) -> list[TeamSlot]:
 def extract_team(transcript: str) -> ExtractedTeam:
     candidates = [
         ("showdown", _parse_showdown_blocks(transcript)),
+        ("markdown_slot", _parse_markdown_slots(transcript)),
         ("inline_at", _parse_inline_at(transcript)),
         ("numbered", _parse_numbered(transcript)),
     ]
 
     def density(slots: list[TeamSlot]) -> tuple[int, int, int]:
+        # Prefer filled sets over a longer list of bare species names.
         return (
-            len(slots),
             sum(1 for s in slots if s.item),
             sum(1 for s in slots if s.moves),
+            len(slots),
         )
 
     best_name, best_slots = max(candidates, key=lambda c: density(c[1]))
@@ -237,7 +414,24 @@ def score_pair_legality(team: ExtractedTeam, snap: dict[str, Any]) -> dict[str, 
         if not s.item.strip():
             continue
         ok = pair_legal(snap, s.species, s.item)
-        pairs.append({"species": s.species, "item": s.item, "legal": ok})
+        stone = _mega_stone_legal(
+            snap,
+            s.species,
+            s.item,
+            mega_claimed=s.mega_claimed,
+            mega_xy=s.mega_xy,
+        )
+        if stone is False:
+            ok = False
+        pairs.append(
+            {
+                "species": s.species,
+                "item": s.item,
+                "legal": ok,
+                "mega_claimed": s.mega_claimed,
+                "mega_stone_ok": stone,
+            }
+        )
         if not ok:
             false_legal += 1
     return {"pairs_checked": len(pairs), "false_legal": false_legal, "pairs": pairs}
@@ -384,9 +578,162 @@ def score_species_facts(text: str) -> list[dict[str, Any]]:
             "asserted_value": c.asserted_value,
             "verdict": c.verdict,
             "display": c.display,
+            "source": "prose",
         }
         for c in parse_claims(text)
     ]
+
+
+def _move_name_index(snap: dict[str, Any]) -> dict[str, str]:
+    """sf_to_id → canonical display name for known moves."""
+    out: dict[str, str] = {}
+    for key, entry in (snap.get("moves") or {}).items():
+        if isinstance(entry, dict):
+            mid = str(entry.get("id") or key)
+            name = str(entry.get("name") or mid)
+        else:
+            mid = str(key)
+            name = str(entry) if entry else mid
+        out[sf_to_id(mid)] = name
+        out[sf_to_id(name)] = name
+    return out
+
+
+def _longest_known_move(raw: str, mv_index: dict[str, str]) -> str | None:
+    text = raw.strip().rstrip(".,;:!?")
+    if not text:
+        return None
+    words = text.split()
+    for n in range(len(words), 0, -1):
+        cand = " ".join(words[:n])
+        hit = mv_index.get(sf_to_id(cand))
+        if hit is not None:
+            return hit
+    return None
+
+
+def score_build_derived_claims(team: ExtractedTeam) -> list[dict[str, Any]]:
+    """Implicit assertions from proposed sets (moves + ability). Item → legality."""
+    by_id = load_species_snapshot()
+    snap = load_snapshot()
+    mv_index = _move_name_index(snap)
+    out: list[dict[str, Any]] = []
+    for slot in team.slots:
+        entry = resolve_species(slot.species, by_id)
+        species_name = str(entry["name"]) if entry else slot.species
+
+        if slot.ability.strip():
+            ab = slot.ability.strip()
+            if entry is None:
+                verdict = "unverifiable_shape"
+                asserted = ab
+            else:
+                abilities = [
+                    str(v)
+                    for v in (entry.get("abilities") or {}).values()
+                    if isinstance(v, str)
+                ]
+                want = sf_to_id(ab)
+                if any(sf_to_id(a) == want for a in abilities):
+                    verdict = "TRUE"
+                    asserted = next(a for a in abilities if sf_to_id(a) == want)
+                elif want and not any(sf_to_id(a) == want for a in abilities):
+                    # Known-looking ability string not on species → FALSE if it
+                    # matches any ability in the snapshot inventory; else unverifiable.
+                    all_abs = {
+                        sf_to_id(str(v)): str(v)
+                        for e in by_id.values()
+                        for v in (e.get("abilities") or {}).values()
+                        if isinstance(v, str)
+                    }
+                    if want in all_abs:
+                        verdict = "FALSE"
+                        asserted = all_abs[want]
+                    else:
+                        verdict = "unverifiable_shape"
+                        asserted = ab
+                else:
+                    verdict = "unverifiable_shape"
+                    asserted = ab
+            out.append(
+                {
+                    "kind": "ability",
+                    "species": species_name if entry else None,
+                    "asserted_value": asserted,
+                    "verdict": verdict,
+                    "display": f"{species_name} set ability: {asserted}",
+                    "source": "build",
+                }
+            )
+
+        learnset = resolve_learnset(snap, species_name) if entry else None
+        learn_ids = {sf_to_id(m) for m in (learnset or [])}
+        for raw_move in slot.moves:
+            if not raw_move.strip():
+                continue
+            canon = _longest_known_move(raw_move, mv_index)
+            if canon is None:
+                out.append(
+                    {
+                        "kind": "move",
+                        "species": species_name if entry else None,
+                        "asserted_value": raw_move.strip(),
+                        "verdict": "unverifiable_shape",
+                        "display": f"{species_name} set: {raw_move.strip()}",
+                        "source": "build",
+                    }
+                )
+                continue
+            if entry is None or learnset is None:
+                verdict = "unverifiable_shape"
+            else:
+                verdict = "TRUE" if sf_to_id(canon) in learn_ids else "FALSE"
+            out.append(
+                {
+                    "kind": "move",
+                    "species": species_name if entry else None,
+                    "asserted_value": canon,
+                    "verdict": verdict,
+                    "display": f"{species_name} set: {canon}",
+                    "source": "build",
+                }
+            )
+    return out
+
+
+def merge_species_fact_claims(
+    prose: list[dict[str, Any]], build: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Dedupe by (species, kind, value); prefer build for display when both."""
+    by_key: dict[tuple[str, str, str], dict[str, Any]] = {}
+    order: list[tuple[str, str, str]] = []
+
+    def key_of(row: dict[str, Any]) -> tuple[str, str, str]:
+        return (
+            sf_to_id(str(row.get("species") or "")),
+            str(row.get("kind") or ""),
+            sf_to_id(str(row.get("asserted_value") or "")),
+        )
+
+    for row in prose:
+        k = key_of(row)
+        if k not in by_key:
+            order.append(k)
+        by_key[k] = dict(row)
+        by_key[k]["source"] = "prose"
+    for row in build:
+        k = key_of(row)
+        if k not in by_key:
+            order.append(k)
+            by_key[k] = dict(row)
+        else:
+            # Prefer build display / source when duplicate.
+            merged = dict(by_key[k])
+            merged["verdict"] = row.get("verdict", merged.get("verdict"))
+            merged["display"] = row.get("display", merged.get("display"))
+            merged["source"] = "build"
+            by_key[k] = merged
+    return [by_key[k] for k in order]
 
 
 def tally_verdicts(rows: list[dict[str, Any]]) -> dict[str, int]:
@@ -403,7 +750,9 @@ def score_transcript(
     transcript: str, snap: dict[str, Any], *, calc_ok: bool
 ) -> dict[str, Any]:
     team = extract_team(transcript)
-    species_claims = score_species_facts(transcript)
+    prose = score_species_facts(transcript)
+    build = score_build_derived_claims(team)
+    species_claims = merge_species_fact_claims(prose, build)
     false_illegal = extract_false_illegal(transcript, snap)
     pair = score_pair_legality(team, snap)
     mech = score_mech_claims(transcript, team, calc_ok=calc_ok)
@@ -426,6 +775,8 @@ def score_transcript(
                     "spread": s.spread,
                     "spread_shape": classify_spread(s.spread),
                     "moves": s.moves,
+                    "mega_claimed": s.mega_claimed,
+                    "mega_xy": s.mega_xy,
                 }
                 for s in team.slots
             ],
@@ -438,6 +789,8 @@ def score_transcript(
         "species_facts": {
             "claims": species_claims,
             "tally": tally_verdicts(species_claims),
+            "prose_n": len(prose),
+            "build_n": len(build),
         },
         "mechanical": {
             "claims": mech,
@@ -452,6 +805,29 @@ def score_transcript(
             "item_clause_violation": item_clause_violation(team),
         },
     }
+
+
+def _six_showdown_blocks() -> str:
+    """Six Showdown-ish sets for extraction self-check (completed team)."""
+    blocks = []
+    specs = [
+        ("Incineroar", "Safety Goggles", "Intimidate", "Fake Out", "Flare Blitz"),
+        ("Amoonguss", "Rocky Helmet", "Regenerator", "Spore", "Rage Powder"),
+        ("Flutter Mane", "Choice Specs", "Protosynthesis", "Moonblast", "Shadow Ball"),
+        ("Rillaboom", "Assault Vest", "Grassy Surge", "Wood Hammer", "U-turn"),
+        ("Landorus-Therian", "Choice Scarf", "Intimidate", "Earthquake", "U-turn"),
+        ("Heliolisk", "Life Orb", "Dry Skin", "Thunderbolt", "Close Combat"),
+    ]
+    for sp, item, ab, m1, m2 in specs:
+        blocks.append(
+            f"{sp} @ {item}\n"
+            f"Ability: {ab}\n"
+            f"Timid Nature\n"
+            f"EVs: 20 HP / 0 Atk / 4 Def / 32 SpA / 0 SpD / 10 Spe\n"
+            f"- {m1}\n"
+            f"- {m2}\n"
+        )
+    return "\n".join(blocks)
 
 
 def _assert_structural_self_check() -> None:
@@ -503,6 +879,106 @@ def _assert_structural_self_check() -> None:
         incomplete=False,
     )
     assert item_clause_violation(six2) is False
+
+    full = extract_team(_six_showdown_blocks())
+    assert full.completed, (len(full.slots), full.incomplete, full.extractor)
+    md = extract_team(
+        "### Slot 1: Heliolisk\n"
+        "- **Item:** Life Orb\n"
+        "- **Ability:** Dry Skin\n"
+        "- **Moves:**\n"
+        "  - Thunderbolt\n"
+        "  - Close Combat\n\n"
+        "### Slot 2: Incineroar\n"
+        "- **Item:** Safety Goggles\n"
+        "- **Ability:** Intimidate\n"
+        "- **Moves:**\n"
+        "  - Fake Out\n"
+        "  - Flare Blitz\n"
+    )
+    assert md.extractor == "markdown_slot" and len(md.slots) == 2, md
+    assert md.slots[0].item == "Life Orb" and "Thunderbolt" in md.slots[0].moves
+    paren = extract_team(
+        "Here is the set:\n"
+        "```\n"
+        "Lucario (Mega Evolution) @ Leftovers\n"
+        "Ability: Inner Focus\n"
+        "Nature: Bold\n"
+        "EVs: 252 HP / 252 Atk / 4 SpD\n"
+        "- Gyro Ball\n"
+        "- Psychic\n"
+        "```\n\n"
+        "Blacephalon (Mega Evolution) @ Choice Specs\n"
+        "Ability: Beast Boost\n"
+        "EVs: 4 HP / 252 SpA / 252 Spe\n"
+        "- Shadow Ball\n"
+    )
+    assert paren.extractor == "showdown", paren.extractor
+    assert len(paren.slots) == 2 and paren.slots[0].species == "Lucario"
+    assert paren.slots[0].item == "Leftovers" and paren.slots[0].nature == "Bold"
+    assert paren.slots[0].mega_claimed is True
+    assert "Gyro Ball" in paren.slots[0].moves
+    # Mega claim + non-stone item is false-legal (correct paste: Lucario @ Lucarionite).
+    from recommender.legality import load_snapshot as _load_snap
+
+    mega_legality = score_pair_legality(paren, _load_snap())
+    assert mega_legality["false_legal"] >= 1, mega_legality
+    assert any(p.get("mega_stone_ok") is False for p in mega_legality["pairs"])
+    ok_mega = extract_team(
+        "Lucario (Mega Evolution) @ Lucarionite\n"
+        "Ability: Adaptability\n"
+        "- Close Combat\n"
+    )
+    ok_score = score_pair_legality(ok_mega, _load_snap())
+    assert ok_score["false_legal"] == 0 and ok_score["pairs"][0]["mega_stone_ok"] is True
+    build_claims = score_build_derived_claims(full)
+    move_false = [
+        c
+        for c in build_claims
+        if c["kind"] == "move"
+        and c.get("species") == "Heliolisk"
+        and c.get("asserted_value") == "Close Combat"
+    ]
+    assert len(move_false) == 1 and move_false[0]["verdict"] == "FALSE", move_false
+    assert move_false[0]["source"] == "build"
+    # Unknown move → unverifiable
+    junk = ExtractedTeam(
+        slots=[
+            TeamSlot(
+                "Heliolisk",
+                item="Life Orb",
+                ability="Dry Skin",
+                moves=["NotARealMoveXYZ"],
+            )
+        ],
+        extractor="test",
+        incomplete=True,
+    )
+    junk_claims = score_build_derived_claims(junk)
+    assert any(
+        c["kind"] == "move" and c["verdict"] == "unverifiable_shape" for c in junk_claims
+    ), junk_claims
+    # Empty ability → no ability claim
+    bare = ExtractedTeam(
+        slots=[TeamSlot("Heliolisk", item="Life Orb", ability="", moves=["Thunderbolt"])],
+        extractor="test",
+        incomplete=True,
+    )
+    bare_claims = score_build_derived_claims(bare)
+    assert all(c["kind"] != "ability" for c in bare_claims), bare_claims
+    # Merge prefers build display
+    prose = [
+        {
+            "kind": "move",
+            "species": "Heliolisk",
+            "asserted_value": "Close Combat",
+            "verdict": "FALSE",
+            "display": "Heliolisk can learn Close Combat",
+            "source": "prose",
+        }
+    ]
+    merged = merge_species_fact_claims(prose, move_false)
+    assert len(merged) == 1 and merged[0]["source"] == "build"
     print("bare_llm_score structural self-check OK")
 
 
