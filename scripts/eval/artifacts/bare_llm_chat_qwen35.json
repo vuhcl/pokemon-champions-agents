@@ -22,8 +22,8 @@
     },
     "mechanical": {
       "TRUE": 0,
-      "FALSE": 4,
-      "unverifiable_shape": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 4,
       "total": 4
     },
     "spreads_ev_shaped": 2,
@@ -32,12 +32,7 @@
     "completed_teams": 0,
     "item_clause_violations": 0,
     "incomplete_runs": 5,
-    "false_claim_quotes": [
-      "mon to outspeed opponents or break",
-      "will likely be faster than current legends",
-      "will likely be faster than current legends",
-      "allows it to outspeed many new threats"
-    ]
+    "false_claim_quotes": []
   },
   "runs_detail": [
     {
@@ -76,18 +71,19 @@
             {
               "kind": "spe",
               "display": "mon to outspeed opponents or break",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "mon to",
-              "b": "opponents or break"
+              "b": "opponents or break",
+              "note": "unknown_species"
             }
           ],
           "tally": {
             "TRUE": 0,
-            "FALSE": 1,
-            "unverifiable_shape": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 1,
             "total": 1
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 0,
@@ -206,7 +202,7 @@
             "unverifiable_shape": 0,
             "total": 0
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 2,
@@ -253,32 +249,35 @@
             {
               "kind": "spe",
               "display": "will likely be faster than current legends",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "will likely be",
-              "b": "current legends"
+              "b": "current legends",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "will likely be faster than current legends",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "will likely be",
-              "b": "current legends"
+              "b": "current legends",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "allows it to outspeed many new threats",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "allows it to",
-              "b": "many new threats"
+              "b": "many new threats",
+              "note": "unknown_species"
             }
           ],
           "tally": {
             "TRUE": 0,
-            "FALSE": 3,
-            "unverifiable_shape": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 3,
             "total": 3
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 0,
@@ -345,7 +344,7 @@
             "unverifiable_shape": 0,
             "total": 0
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 0,
@@ -395,7 +394,7 @@
             "unverifiable_shape": 0,
             "total": 0
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 0,
@@ -415,5 +414,20 @@
     "Species-fact axis includes build-derived move/ability claims from sets.",
     "Legality oracle: same build_oracle_snapshot(mod=champions) as run_legality.",
     "Soft mech nudge at most once if \u22654 slots and zero organic mech claims."
-  ]
+  ],
+  "mech_rescore": {
+    "before": {
+      "TRUE": 0,
+      "FALSE": 4,
+      "unverifiable_shape": 0,
+      "total": 4
+    },
+    "after": {
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 4,
+      "total": 4
+    },
+    "note": "2026-09-25 mech rescore: unknown_species gate on Spe/KO entities"
+  }
 }

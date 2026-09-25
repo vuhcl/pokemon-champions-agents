@@ -466,7 +466,7 @@ for ADR-002/ADR-003 (“why grounding matters”).*
 | Condition | Model | false-legal | false-illegal | species TRUE/FALSE/unv | mech TRUE/FALSE/unv | EV-shaped spreads | Item Clause viol. | completed teams |
 |-----------|-------|-------------|----------------|------------------------|---------------------|-------------------|-------------------|-----------------|
 | chat (ungrounded chat baseline) | qwen2.5:7b | 1/3 | 0 | 1/3/8 | 0/0/0 | 1 | 0 | 0/5 |
-| chat (ungrounded chat baseline) | qwen3.5:latest | 2/2 | 0 | 2/0/2 | 0/4/0 | 2 | 0 | 0/5 |
+| chat (ungrounded chat baseline) | qwen3.5:latest | 2/2 | 0 | 2/0/2 | 0/0/4 | 2 | 0 | 0/5 |
 | slot (ungrounded, matched decomposition) | qwen2.5:7b | 13/22 | 0 | 33/29/64 | 0/0/5 | 12 | 3 | 4/5 |
 | slot (ungrounded, matched decomposition) | qwen3.5:latest | 12/22 | 0 | 35/16/67 | 0/0/27 | 16 | 3 | 3/5 |
 
@@ -484,12 +484,13 @@ for ADR-002/ADR-003 (“why grounding matters”).*
     sends one chat-shaped push for sets if the first reply has zero extractable slots, then
     at most 4 continuers. Slot’s Showdown steering is what makes pairs_checked large.
   - Slot Item Clause viol. counted only on completed 6-slot teams.
-  - **Mech Spe/KO gate (2026-09-25 rescore on saved slot transcripts):** entities that are
+  - **Mech Spe/KO gate (2026-09-25 rescore on saved transcripts):** entities that are
     not known species ids in the legality snapshot score `unverifiable_shape` (was falling
     through to FALSE via `effective_spe` on sentence fragments). Audit: **0** genuine
-    Spe/KO claims with both sides known species in either slot artifact. Before→after
-    mechanical tallies — qwen2.5 `0/5/0` → `0/0/5`; qwen3.5 `2/18/7` → `0/0/27`. Artifacts
-    record `mech_rescore` with the same delta.
+    Spe/KO claims with both sides known species in either slot artifact (chat likewise:
+    no both-known pairs). Before→after mechanical tallies — slot qwen2.5 `0/5/0` → `0/0/5`;
+    slot qwen3.5 `2/18/7` → `0/0/27`; chat qwen2.5 unchanged `0/0/0`; chat qwen3.5
+    `0/4/0` → `0/0/4`. Artifacts record `mech_rescore` with the same delta.
 
 ---
 

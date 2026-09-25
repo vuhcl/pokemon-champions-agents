@@ -95,7 +95,7 @@
             "unverifiable_shape": 0,
             "total": 0
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 0,
@@ -232,7 +232,7 @@
             "unverifiable_shape": 0,
             "total": 0
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 0,
@@ -344,7 +344,7 @@
             "unverifiable_shape": 0,
             "total": 0
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 1,
@@ -394,7 +394,7 @@
             "unverifiable_shape": 0,
             "total": 0
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 0,
@@ -444,7 +444,7 @@
             "unverifiable_shape": 0,
             "total": 0
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 0,
@@ -464,5 +464,20 @@
     "Species-fact axis includes build-derived move/ability claims from sets.",
     "Legality oracle: same build_oracle_snapshot(mod=champions) as run_legality.",
     "Soft mech nudge at most once if \u22654 slots and zero organic mech claims."
-  ]
+  ],
+  "mech_rescore": {
+    "before": {
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 0,
+      "total": 0
+    },
+    "after": {
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 0,
+      "total": 0
+    },
+    "note": "2026-09-25 mech rescore: unknown_species gate on Spe/KO entities"
+  }
 }
