@@ -528,6 +528,12 @@ def _slot_by_name(team: ExtractedTeam, name: str) -> TeamSlot | None:
     return None
 
 
+def _known_species_name(snap: dict[str, Any], name: str) -> bool:
+    """True when `name` collapses to a species id present in the snapshot table."""
+    sid = to_id(name)
+    return bool(sid) and sid in (snap.get("species") or {})
+
+
 def _spe_of(slot: TeamSlot | None, species: str) -> int | None:
     nature = (slot.nature if slot else "Serious") or "Serious"
     spread = dict(_ZERO_SP)
@@ -553,15 +559,33 @@ def _ko_n(text: str) -> int | None:
 
 
 def score_mech_claims(
-    text: str, team: ExtractedTeam, *, calc_ok: bool
+    text: str,
+    team: ExtractedTeam,
+    snap: dict[str, Any],
+    *,
+    calc_ok: bool,
 ) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for m in _SPE_CLAIM.finditer(text):
         a, b = m.group("a").strip(), m.group("b").strip()
         rel = m.group("rel").lower()
+        display = m.group(0).strip()
+        # Both sides must be real species ids — not sentence fragments around
+        # "outspeed" (e.g. "allowing Metagross to outspeed and outdamage…").
+        if not _known_species_name(snap, a) or not _known_species_name(snap, b):
+            out.append(
+                {
+                    "kind": "spe",
+                    "display": display,
+                    "verdict": "unverifiable_shape",
+                    "a": a,
+                    "b": b,
+                    "note": "unknown_species",
+                }
+            )
+            continue
         sa = _spe_of(_slot_by_name(team, a), a)
         sb = _spe_of(_slot_by_name(team, b), b)
-        display = m.group(0).strip()
         if sa is None or sb is None:
             verdict: MechVerdict = "unverifiable_shape"
         else:
@@ -576,14 +600,30 @@ def score_mech_claims(
         a, b = m.group("a").strip(), m.group("b").strip()
         move = (m.group("move") or "").strip()
         ko_n = _ko_n(m.group("ko"))
-        attacker = _slot_by_name(team, a)
         display = m.group(0).strip()
+        if not _known_species_name(snap, a) or not _known_species_name(snap, b):
+            out.append(
+                {
+                    "kind": "ko",
+                    "display": display,
+                    "verdict": "unverifiable_shape",
+                    "a": a,
+                    "b": b,
+                    "move": move or None,
+                    "note": "unknown_species",
+                }
+            )
+            continue
+        attacker = _slot_by_name(team, a)
         if not calc_ok:
             out.append(
                 {
                     "kind": "ko",
                     "display": display,
                     "verdict": "unverifiable_shape",
+                    "a": a,
+                    "b": b,
+                    "move": move or None,
                     "note": "calc_down",
                 }
             )
@@ -598,7 +638,14 @@ def score_mech_claims(
             or attacker.spread is None
         ):
             out.append(
-                {"kind": "ko", "display": display, "verdict": "unverifiable_shape"}
+                {
+                    "kind": "ko",
+                    "display": display,
+                    "verdict": "unverifiable_shape",
+                    "a": a,
+                    "b": b,
+                    "move": move or None,
+                }
             )
             continue
         atk: PokemonSpecOptional = {
@@ -821,7 +868,7 @@ def score_transcript(
     species_claims = merge_species_fact_claims(prose, build)
     false_illegal = extract_false_illegal(transcript, snap)
     pair = score_pair_legality(team, snap)
-    mech = score_mech_claims(transcript, team, calc_ok=calc_ok)
+    mech = score_mech_claims(transcript, team, snap, calc_ok=calc_ok)
     shapes = spread_shapes(team)
     ev_n = sum(1 for s in shapes if s == "EV-shaped")
     sp_n = sum(1 for s in shapes if s == "SP-shaped")
@@ -1065,6 +1112,39 @@ def _assert_structural_self_check() -> None:
     ]
     merged = merge_species_fact_claims(prose, move_false)
     assert len(merged) == 1 and merged[0]["source"] == "build"
+    # Garbage Spe fragments around "outspeed" must not score TRUE/FALSE.
+    from recommender.legality import load_snapshot as _load_snap_mech
+
+    mech_snap = _load_snap_mech()
+    junk_team = ExtractedTeam(
+        slots=[TeamSlot("Metagross", item="Leftovers")],
+        extractor="test",
+        incomplete=True,
+    )
+    junk_mech = score_mech_claims(
+        "allowing Metagross to outspeed and outdamage opponents",
+        junk_team,
+        mech_snap,
+        calc_ok=False,
+    )
+    assert junk_mech, junk_mech
+    assert all(c["verdict"] == "unverifiable_shape" for c in junk_mech), junk_mech
+    assert all(c.get("note") == "unknown_species" for c in junk_mech), junk_mech
+    # Real species pair still proceeds past the gate (may be unv if Spe fails).
+    real_mech = score_mech_claims(
+        "Incineroar outspeeds Amoonguss",
+        ExtractedTeam(
+            slots=[
+                TeamSlot("Incineroar", item="Safety Goggles"),
+                TeamSlot("Amoonguss", item="Rocky Helmet"),
+            ],
+            extractor="test",
+            incomplete=True,
+        ),
+        mech_snap,
+        calc_ok=False,
+    )
+    assert real_mech and real_mech[0].get("note") != "unknown_species", real_mech
     print("bare_llm_score structural self-check OK")
 
 

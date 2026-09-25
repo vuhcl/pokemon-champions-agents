@@ -22,8 +22,8 @@
     },
     "mechanical": {
       "TRUE": 0,
-      "FALSE": 5,
-      "unverifiable_shape": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 5,
       "total": 5
     },
     "spreads_ev_shaped": 12,
@@ -33,7 +33,6 @@
     "item_clause_violations": 3,
     "incomplete_runs": 1,
     "false_claim_quotes": [
-      "allowing Metagross to outspeed and outdamage opponents",
       "Alcremie is a Psychic/Steel-type Pok\u00e9mon",
       "Pheromosa is a Psychic/Fairy-type Pok\u00e9mon",
       "Alcremie set: Moonblast",
@@ -41,10 +40,11 @@
       "Pheromosa set ability: Frisk",
       "Diancie set ability: Magic Bounce",
       "Gardevoir set ability: Natural Cure",
-      "ensures it can outspeed important threats",
-      "Boosts Speed to outspeed important threats and",
       "Alcremie set ability: Gluttony",
-      "Alcremie set: Mist Ball"
+      "Alcremie set: Mist Ball",
+      "Rotom-Wash set: Toxic Spikes",
+      "Rotom-Wash set: Scald",
+      "Rotom-Wash set: Hidden Power Fighting"
     ]
   },
   "runs_detail": [
@@ -176,18 +176,19 @@
             {
               "kind": "spe",
               "display": "allowing Metagross to outspeed and outdamage opponents",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "allowing Metagross to",
-              "b": "and outdamage opponents"
+              "b": "and outdamage opponents",
+              "note": "unknown_species"
             }
           ],
           "tally": {
             "TRUE": 0,
-            "FALSE": 1,
-            "unverifiable_shape": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 1,
             "total": 1
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 0,
@@ -533,25 +534,27 @@
             {
               "kind": "spe",
               "display": "ensures it can outspeed important threats",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "ensures it can",
-              "b": "important threats"
+              "b": "important threats",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "Boosts Speed to outspeed important threats and",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "Boosts Speed to",
-              "b": "important threats and"
+              "b": "important threats and",
+              "note": "unknown_species"
             }
           ],
           "tally": {
             "TRUE": 0,
-            "FALSE": 2,
-            "unverifiable_shape": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 2,
             "total": 2
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 1,
@@ -1045,7 +1048,7 @@
             "unverifiable_shape": 0,
             "total": 0
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 5,
@@ -1339,25 +1342,27 @@
             {
               "kind": "spe",
               "display": "ensuring it can outspeed and hit hard",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "ensuring it can",
-              "b": "and hit hard"
+              "b": "and hit hard",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "ensuring it can outspeed and hit hard",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "ensuring it can",
-              "b": "and hit hard"
+              "b": "and hit hard",
+              "note": "unknown_species"
             }
           ],
           "tally": {
             "TRUE": 0,
-            "FALSE": 2,
-            "unverifiable_shape": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 2,
             "total": 2
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 0,
@@ -1974,7 +1979,7 @@
             "unverifiable_shape": 0,
             "total": 0
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 6,
@@ -1994,5 +1999,20 @@
     "Species-fact axis includes build-derived move/ability claims from sets.",
     "Legality oracle: same build_oracle_snapshot(mod=champions) as run_legality.",
     "Soft mech nudge at most once if \u22654 slots and zero organic mech claims."
-  ]
+  ],
+  "mech_rescore": {
+    "before": {
+      "TRUE": 0,
+      "FALSE": 5,
+      "unverifiable_shape": 0,
+      "total": 5
+    },
+    "after": {
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 5,
+      "total": 5
+    },
+    "note": "2026-09-25 mech rescore: unknown_species gate on Spe/KO entities"
+  }
 }

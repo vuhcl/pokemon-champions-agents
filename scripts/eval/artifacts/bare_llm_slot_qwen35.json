@@ -21,9 +21,9 @@
       "total": 118
     },
     "mechanical": {
-      "TRUE": 2,
-      "FALSE": 18,
-      "unverifiable_shape": 7,
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 27,
       "total": 27
     },
     "spreads_ev_shaped": 16,
@@ -39,12 +39,12 @@
       "Garchomp set: Sucker Punch",
       "Iron Valiant set ability: Protosynthesis",
       "Spectrier set ability: Flash Fire",
-      "allowing us to outspeed almost every non-boosted",
-      "often needs to outspeed boosted opponents or",
-      "guarantees it can outspeed almost any non-boosted",
-      "it can outspeed many threats to",
-      "boost needed to outpace opponents and secure",
-      "if they are slower than us"
+      "Uxie with Magic Guard) and a status anchor (Rotom-Fan)",
+      "Toxtricity-Low-Key set ability: Bad Dreams",
+      "Garganacl set: Ice Hammer",
+      "Baxcalibur set ability: Pure Power",
+      "Baxcalibur set: Stealth Rock",
+      "Gholdengo set ability: Prankster"
     ]
   },
   "runs_detail": [
@@ -579,63 +579,77 @@
             {
               "kind": "spe",
               "display": "allowing us to outspeed almost every non-boosted",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "allowing us to",
-              "b": "almost every non-boosted"
+              "b": "almost every non-boosted",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "often needs to outspeed boosted opponents or",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "often needs to",
-              "b": "boosted opponents or"
+              "b": "boosted opponents or",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "guarantees it can outspeed almost any non-boosted",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "guarantees it can",
-              "b": "almost any non-boosted"
+              "b": "almost any non-boosted",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "it can outspeed many threats to",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "it can",
-              "b": "many threats to"
+              "b": "many threats to",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "boost needed to outpace opponents and secure",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "boost needed to",
-              "b": "opponents and secure"
+              "b": "opponents and secure",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "if they are slower than us",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "if they are",
-              "b": "us"
+              "b": "us",
+              "note": "unknown_species"
             },
             {
               "kind": "ko",
               "display": "mon that can OHKO bulky walls before",
-              "verdict": "unverifiable_shape"
+              "verdict": "unverifiable_shape",
+              "a": "mon that can",
+              "b": "bulky walls before",
+              "move": null,
+              "note": "unknown_species"
             },
             {
               "kind": "ko",
               "display": "then OHKO them with pure",
-              "verdict": "unverifiable_shape"
+              "verdict": "unverifiable_shape",
+              "a": "then",
+              "b": "them with pure",
+              "move": null,
+              "note": "unknown_species"
             }
           ],
           "tally": {
             "TRUE": 0,
-            "FALSE": 6,
-            "unverifiable_shape": 2,
+            "FALSE": 0,
+            "unverifiable_shape": 8,
             "total": 8
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 6,
@@ -881,44 +895,52 @@
             {
               "kind": "spe",
               "display": "Maximizes Speed to outspeed common threats and",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "Maximizes Speed to",
-              "b": "common threats and"
+              "b": "common threats and",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "Maximizes Speed to outspeed opponents and Special",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "Maximizes Speed to",
-              "b": "opponents and Special"
+              "b": "opponents and Special",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "needs speed to outpace opponents and remove",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "needs speed to",
-              "b": "opponents and remove"
+              "b": "opponents and remove",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "effectively without being outspeed by fast threats",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "effectively without being",
-              "b": "by fast threats"
+              "b": "by fast threats",
+              "note": "unknown_species"
             },
             {
               "kind": "ko",
               "display": "allowing it to OHKO even bulky Steel-types",
-              "verdict": "unverifiable_shape"
+              "verdict": "unverifiable_shape",
+              "a": "allowing it to",
+              "b": "even bulky Steel-types",
+              "move": null,
+              "note": "unknown_species"
             }
           ],
           "tally": {
             "TRUE": 0,
-            "FALSE": 4,
-            "unverifiable_shape": 1,
+            "FALSE": 0,
+            "unverifiable_shape": 5,
             "total": 5
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 0,
@@ -1402,32 +1424,35 @@
             {
               "kind": "spe",
               "display": "prioritizes Speed to outspeed many common threats",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "prioritizes Speed to",
-              "b": "many common threats"
+              "b": "many common threats",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "just enough to outspeed common slower threats",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "just enough to",
-              "b": "common slower threats"
+              "b": "common slower threats",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "to outspeed fast threats that",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "to",
-              "b": "fast threats that"
+              "b": "fast threats that",
+              "note": "unknown_species"
             }
           ],
           "tally": {
             "TRUE": 0,
-            "FALSE": 3,
-            "unverifiable_shape": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 3,
             "total": 3
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 6,
@@ -1558,52 +1583,71 @@
             {
               "kind": "spe",
               "display": "Speed stat to outpace the metagame while",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "Speed stat to",
-              "b": "the metagame while"
+              "b": "the metagame while",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "prioritizes Speed to outspeed the metagame",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "prioritizes Speed to",
-              "b": "the metagame"
+              "b": "the metagame",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "mon that can outspeed anything to force",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "mon that can",
-              "b": "anything to force"
+              "b": "anything to force",
+              "note": "unknown_species"
             },
             {
               "kind": "ko",
               "display": "breaker that can OHKO standard defensive walls",
-              "verdict": "unverifiable_shape"
+              "verdict": "unverifiable_shape",
+              "a": "breaker that can",
+              "b": "standard defensive walls",
+              "move": null,
+              "note": "unknown_species"
             },
             {
               "kind": "ko",
               "display": "force switches or OHKO weak targets before",
-              "verdict": "unverifiable_shape"
+              "verdict": "unverifiable_shape",
+              "a": "force switches or",
+              "b": "weak targets before",
+              "move": null,
+              "note": "unknown_species"
             },
             {
               "kind": "ko",
               "display": "and OHKO faster opponents with",
-              "verdict": "unverifiable_shape"
+              "verdict": "unverifiable_shape",
+              "a": "and",
+              "b": "faster opponents with",
+              "move": null,
+              "note": "unknown_species"
             },
             {
               "kind": "ko",
               "display": "damage output to OHKO weak targets quickly",
-              "verdict": "unverifiable_shape"
+              "verdict": "unverifiable_shape",
+              "a": "damage output to",
+              "b": "weak targets quickly",
+              "move": null,
+              "note": "unknown_species"
             }
           ],
           "tally": {
             "TRUE": 0,
-            "FALSE": 3,
-            "unverifiable_shape": 4,
+            "FALSE": 0,
+            "unverifiable_shape": 7,
             "total": 7
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 1,
@@ -1967,39 +2011,43 @@
             {
               "kind": "spe",
               "display": "allowing it to outspeed almost every physical",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "allowing it to",
-              "b": "almost every physical"
+              "b": "almost every physical",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "Tornadus outspeeds almost the entire",
-              "verdict": "TRUE",
+              "verdict": "unverifiable_shape",
               "a": "Tornadus",
-              "b": "almost the entire"
+              "b": "almost the entire",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "sweeper that can outspeed many mid-tier threats",
-              "verdict": "FALSE",
+              "verdict": "unverifiable_shape",
               "a": "sweeper that can",
-              "b": "many mid-tier threats"
+              "b": "many mid-tier threats",
+              "note": "unknown_species"
             },
             {
               "kind": "spe",
               "display": "Garchomp outspeeds many defensive cores",
-              "verdict": "TRUE",
+              "verdict": "unverifiable_shape",
               "a": "Garchomp",
-              "b": "many defensive cores"
+              "b": "many defensive cores",
+              "note": "unknown_species"
             }
           ],
           "tally": {
-            "TRUE": 2,
-            "FALSE": 2,
-            "unverifiable_shape": 0,
+            "TRUE": 0,
+            "FALSE": 0,
+            "unverifiable_shape": 4,
             "total": 4
           },
-          "calc_ok": true
+          "calc_ok": false
         },
         "structural": {
           "spreads_ev_shaped": 3,
@@ -2019,5 +2067,20 @@
     "Species-fact axis includes build-derived move/ability claims from sets.",
     "Legality oracle: same build_oracle_snapshot(mod=champions) as run_legality.",
     "Soft mech nudge at most once if \u22654 slots and zero organic mech claims."
-  ]
+  ],
+  "mech_rescore": {
+    "before": {
+      "TRUE": 2,
+      "FALSE": 18,
+      "unverifiable_shape": 7,
+      "total": 27
+    },
+    "after": {
+      "TRUE": 0,
+      "FALSE": 0,
+      "unverifiable_shape": 27,
+      "total": 27
+    },
+    "note": "2026-09-25 mech rescore: unknown_species gate on Spe/KO entities"
+  }
 }
