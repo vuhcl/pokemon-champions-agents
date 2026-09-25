@@ -94,8 +94,21 @@ _MD_SLOT_HEADER = re.compile(
     r"\*\*Slot\s*\d+\s*[:\-–—]\s*"
     r"|"
     r"(?:^|\n)\s*(?:Slot\s*\d+\s*[:\-–—]\s*)"
+    r"|"
+    # Chat-shaped numbered set headers: ### 1. Species / 1. **Species**
+    r"#{1,4}\s*\d+\.\s*"
+    r"|"
+    r"(?:^|\n)\s*\d+\.\s*\*?\*?"
     r")"
     r"(?P<species>[A-Za-z][A-Za-z0-9\-'.]*(?:\s+[A-Za-z][A-Za-z0-9\-'.]*){0,3})",
+    re.IGNORECASE,
+)
+_MEGA_PREFIX_NAME = re.compile(
+    r"^Mega\s+(?P<base>.+?)(?:\s+(?P<xy>[XY]))?$",
+    re.IGNORECASE,
+)
+_MEGA_SUFFIX_NAME = re.compile(
+    r"^(?P<base>.+?)-Mega(?:-(?P<xy>[XY]))?$",
     re.IGNORECASE,
 )
 _MD_FIELD = re.compile(
@@ -146,6 +159,24 @@ def _mega_flags(species: str, paren: str = "") -> tuple[bool, str | None]:
         return False, None
     xy = (m.group("xy") or "").lower() or None
     return True, xy
+
+
+def _normalize_species(
+    species: str, paren: str = ""
+) -> tuple[str, bool, str | None]:
+    """Strip Mega label to base name; return (species, mega_claimed, mega_xy)."""
+    raw = species.strip().rstrip("*").strip()
+    raw = re.sub(r"\s*\([^)]*\)\s*$", "", raw).strip()
+    m = _MEGA_PREFIX_NAME.match(raw)
+    if m:
+        xy = (m.group("xy") or "").lower() or None
+        return m.group("base").strip(), True, xy
+    m = _MEGA_SUFFIX_NAME.match(raw)
+    if m:
+        xy = (m.group("xy") or "").lower() or None
+        return m.group("base").strip(), True, xy
+    mega_claimed, mega_xy = _mega_flags(raw, paren)
+    return raw, mega_claimed, mega_xy
 
 
 def _sid_is_mega_forme(sid: str) -> bool:
@@ -208,7 +239,9 @@ def _parse_showdown_blocks(text: str) -> list[TeamSlot]:
             i += 1
             continue
         item = _norm_item(head.group("item") or "")
-        mega_claimed, mega_xy = _mega_flags(species, head.group("paren") or "")
+        species, mega_claimed, mega_xy = _normalize_species(
+            species, head.group("paren") or ""
+        )
         # Collect body until blank, fence, or next Species @ Item header.
         body_lines = [raw]
         i += 1
@@ -268,9 +301,13 @@ def _parse_markdown_slots(text: str) -> list[TeamSlot]:
     for i, h in enumerate(headers):
         species = h.group("species").strip().rstrip("*").strip()
         # Role blurbs ("Psychic Type Pokémon…") are not species names.
-        if len(species.split()) > 3 or "type" in species.casefold():
+        if (
+            len(species.split()) > 3
+            or "type" in species.casefold()
+            or species.casefold() in {"mega", "pokemon", "pokémon"}
+        ):
             continue
-        mega_claimed, mega_xy = _mega_flags(species)
+        species, mega_claimed, mega_xy = _normalize_species(species)
         end = headers[i + 1].start() if i + 1 < len(headers) else len(text)
         block = text[h.end() : end]
         item = ability = nature = ""
@@ -284,7 +321,14 @@ def _parse_markdown_slots(text: str) -> list[TeamSlot]:
                 val = fm.group("val").strip().strip("*").strip()
                 in_moves = key.startswith("move")
                 if key == "item":
-                    item = _norm_item(val)
+                    # First bullet wins; drop explanatory tails
+                    # ("Leftovers to provide some HP recovery…").
+                    if not item:
+                        cleaned = re.split(
+                            r"\s+to\s+|\.|/", val, maxsplit=1, flags=re.I
+                        )[0].strip()
+                        if cleaned and len(cleaned.split()) <= 4:
+                            item = _norm_item(cleaned)
                 elif key == "ability":
                     ability = val.split("(")[0].strip()
                 elif key == "nature":
@@ -292,9 +336,10 @@ def _parse_markdown_slots(text: str) -> list[TeamSlot]:
                 elif key in ("spread", "evs", "sp", "sps"):
                     spread = parse_spread_body(val) or spread
                 elif in_moves and val:
-                    # "Moves: Toxic" single-line, or empty then bullets
+                    # "Moves: A, B, C" single-line list, or empty then bullets
                     if not val.startswith("-"):
-                        moves.append(val)
+                        parts = [p.strip() for p in re.split(r"\s*,\s*", val) if p.strip()]
+                        moves.extend(parts)
                 continue
             if in_moves:
                 bullet = re.match(r"^\s*[-*•]\s+(.+)$", line)
@@ -304,6 +349,9 @@ def _parse_markdown_slots(text: str) -> list[TeamSlot]:
                     # end move list on next prose heading-ish
                     if line.strip().startswith("**") or line.strip().startswith("###"):
                         in_moves = False
+        if not item:
+            # Composition lists / role blurbs without @ Item aren't sets.
+            continue
         slots.append(
             TeamSlot(
                 species=species,
@@ -339,8 +387,9 @@ def _parse_inline_at(text: str) -> list[TeamSlot]:
 
 
 def extract_team(transcript: str) -> ExtractedTeam:
+    showdown = _parse_showdown_blocks(transcript)
     candidates = [
-        ("showdown", _parse_showdown_blocks(transcript)),
+        ("showdown", showdown),
         ("markdown_slot", _parse_markdown_slots(transcript)),
         ("inline_at", _parse_inline_at(transcript)),
         ("numbered", _parse_numbered(transcript)),
@@ -354,16 +403,33 @@ def extract_team(transcript: str) -> ExtractedTeam:
             len(slots),
         )
 
-    best_name, best_slots = max(candidates, key=lambda c: density(c[1]))
-    seen: set[str] = set()
-    uniq: list[TeamSlot] = []
+    # Prefer Showdown paste when it has a near-complete set of @ Item lines
+    # (chat markdown can otherwise outvote it on raw header count).
+    if sum(1 for s in showdown if s.item) >= 4:
+        best_name, best_slots = "showdown", showdown
+    else:
+        best_name, best_slots = max(candidates, key=lambda c: density(c[1]))
+
+    def richness(s: TeamSlot) -> tuple[int, int, int, int]:
+        return (
+            1 if s.item else 0,
+            1 if s.ability else 0,
+            len(s.moves),
+            1 if s.spread else 0,
+        )
+
+    seen: dict[str, TeamSlot] = {}
+    order: list[str] = []
     for s in best_slots:
         sid = to_id(s.species)
-        if not sid or sid in seen:
+        if not sid:
             continue
-        seen.add(sid)
-        uniq.append(s)
-    uniq = uniq[:6]
+        if sid not in seen:
+            order.append(sid)
+            seen[sid] = s
+        elif richness(s) > richness(seen[sid]):
+            seen[sid] = s
+    uniq = [seen[sid] for sid in order][:6]
     return ExtractedTeam(
         slots=uniq, extractor=best_name, incomplete=len(uniq) < 6
     )
@@ -898,6 +964,26 @@ def _assert_structural_self_check() -> None:
     )
     assert md.extractor == "markdown_slot" and len(md.slots) == 2, md
     assert md.slots[0].item == "Life Orb" and "Thunderbolt" in md.slots[0].moves
+    chat_md = extract_team(
+        "### Team Composition\n"
+        "1. **Mega Charizard X**\n\n"
+        "#### 1. Mega Charizard X\n"
+        "- **Ability**: Blaze\n"
+        "- **Item**: Leftovers\n"
+        "- **Nature**: Adamant\n"
+        "- **EVs**: 252 Atk / 252 Spe / 4 HP\n"
+        "- **Moves**: Fire Blast, Dragon Dance, Flamethrower, Roost\n\n"
+        "#### 2. Incineroar\n"
+        "- **Ability**: Intimidate\n"
+        "- **Item**: Safety Goggles\n"
+        "- **Moves**: Fake Out, Flare Blitz\n"
+    )
+    assert chat_md.extractor == "markdown_slot", chat_md.extractor
+    assert chat_md.slots[0].species == "Charizard"
+    assert chat_md.slots[0].mega_claimed and chat_md.slots[0].mega_xy == "x"
+    assert chat_md.slots[0].item == "Leftovers"
+    assert "Fire Blast" in chat_md.slots[0].moves
+    assert chat_md.slots[1].species == "Incineroar"
     paren = extract_team(
         "Here is the set:\n"
         "```\n"

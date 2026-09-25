@@ -28,6 +28,13 @@ CHAT_CONTINUER = (
     "Please continue and finish the full 6-Pokémon team with sets when you can."
 )
 
+# Once, if the first reply produced no extractable sets (e.g. format/premise
+# pushback) — still chat-shaped, not Showdown/slot scaffolding.
+CHAT_PUSH_FOR_SETS = (
+    "Please still put together a concrete full 6-Pokémon Champions VGC doubles "
+    "team with items, abilities, moves, and spreads — best effort is fine."
+)
+
 # ---------------------------------------------------------------------------
 # slot — ungrounded, matched decomposition
 # ---------------------------------------------------------------------------

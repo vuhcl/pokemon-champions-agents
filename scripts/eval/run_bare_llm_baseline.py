@@ -39,6 +39,7 @@ from scripts.eval.oracle import load_oracle_snapshot  # noqa: E402
 from scripts.eval.run_legality import build_oracle_snapshot, calc_healthy  # noqa: E402
 from scripts.eval.scenarios_bare_llm import (  # noqa: E402
     CHAT_CONTINUER,
+    CHAT_PUSH_FOR_SETS,
     CONDITIONS,
     DEFAULT_RUNS,
     SLOT_CONTINUER,
@@ -175,6 +176,8 @@ def _run_chat_condition(chat: Any, *, turn_cap: int) -> tuple[str, bool]:
     history: list[Any] = [HumanMessage(content=cond.initial)]
     transcript_parts: list[str] = [f"USER: {cond.initial}"]
     nudge_used = False
+    continuers = 0
+    max_continuers = 4
 
     for turn in range(turn_cap):
         content = _invoke(chat, history)
@@ -197,8 +200,15 @@ def _run_chat_condition(chat: Any, *, turn_cap: int) -> tuple[str, bool]:
             )
             break
 
-        history.append(HumanMessage(content=CHAT_CONTINUER))
-        transcript_parts.append(f"USER: {CHAT_CONTINUER}")
+        if continuers >= max_continuers:
+            break
+
+        nxt = CHAT_CONTINUER
+        if continuers == 0 and len(team.slots) == 0:
+            nxt = CHAT_PUSH_FOR_SETS
+        history.append(HumanMessage(content=nxt))
+        transcript_parts.append(f"USER: {nxt}")
+        continuers += 1
         if (
             not nudge_used
             and len(team.slots) >= 4

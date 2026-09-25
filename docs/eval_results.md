@@ -452,7 +452,7 @@ for ADR-002/ADR-003 (“why grounding matters”).*
 | `chat` | ungrounded chat baseline | One open-ended whole-team ask (real-user chat shape). Not a CLI mirror. |
 | `slot` | ungrounded, matched decomposition | Theme → species → full set, six slots — mirrors CLI decomposition, still no tools. |
 
-- Measured: **slot** filled 2026-09-25 (5 runs × 2 models). **chat** still TBD.
+- Measured: **slot** and **chat** filled 2026-09-25 (5 runs × 2 models each).
 - Models: `qwen2.5:7b`, `qwen3.5:latest` (Claude out of scope — ADR-058)
 - Runs per model × condition: 5 (temperature 0.7); soft mech nudge at most once if ≥4 slots
   and zero organic speed/damage claims
@@ -465,22 +465,25 @@ for ADR-002/ADR-003 (“why grounding matters”).*
 
 | Condition | Model | false-legal | false-illegal | species TRUE/FALSE/unv | mech TRUE/FALSE/unv | EV-shaped spreads | Item Clause viol. | completed teams |
 |-----------|-------|-------------|----------------|------------------------|---------------------|-------------------|-------------------|-----------------|
-| chat (ungrounded chat baseline) | qwen2.5:7b | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
-| chat (ungrounded chat baseline) | qwen3.5:latest | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
-| slot (ungrounded, matched decomposition) | qwen2.5:7b | 13 | 0 | 33/29/64 | 0/5/0 | 12 | 3 | 4/5 |
-| slot (ungrounded, matched decomposition) | qwen3.5:latest | 12 | 0 | 35/16/67 | 2/18/7 | 16 | 3 | 3/5 |
+| chat (ungrounded chat baseline) | qwen2.5:7b | 1/3 | 0 | 1/3/8 | 0/0/0 | 1 | 0 | 0/5 |
+| chat (ungrounded chat baseline) | qwen3.5:latest | 2/2 | 0 | 2/0/2 | 0/4/0 | 2 | 0 | 0/5 |
+| slot (ungrounded, matched decomposition) | qwen2.5:7b | 13/22 | 0 | 33/29/64 | 0/5/0 | 12 | 3 | 4/5 |
+| slot (ungrounded, matched decomposition) | qwen3.5:latest | 12/22 | 0 | 35/16/67 | 2/18/7 | 16 | 3 | 3/5 |
 
 - Notes: Same oracles as grounded Phase 1; elicitation differs from the scripted LangGraph
   harness. `chat` and `slot` answer different fairness questions — cite the matching row.
-  ADR/log draft held until chat numbers land too.
+  ADR/log draft can proceed from these numbers.
+  - **false-legal** cells are `false_legal / pairs_checked` (species@item pairs extracted).
   - **Mega + non-stone = false-legal:** a paste like `Lucario (Mega Evolution) @ Leftovers`
     is scored illegal; correct teambuilder form is `Lucario @ Lucarionite` (stone enables Mega).
     Uses `item_mega_forme` against the legality snapshot — not an LLM check.
   - **qwen3.5 invoke:** Ollama `think: false` so content is not empty (thinking otherwise
     consumes `num_predict` and yields blank ASSISTANT turns). Same prompt/steering as qwen2.5.
-  - Slot false-legal counts include mega-stone mismatches and other illegal pairs among
-    extracted `@ Item` sets (`pairs_checked` = 22 each model). Item Clause viol. counted
-    only on completed 6-slot teams.
+  - **chat completion is weak:** open-ended chat rarely yields a full extractable 6 (0/5
+    completed both models). qwen3.5 often premise-pushes (“Reg M-C doesn’t exist”); harness
+    sends one chat-shaped push for sets if the first reply has zero extractable slots, then
+    at most 4 continuers. Slot’s Showdown steering is what makes pairs_checked large.
+  - Slot Item Clause viol. counted only on completed 6-slot teams.
 
 ---
 
