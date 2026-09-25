@@ -499,15 +499,16 @@ for ADR-002/ADR-003 (“why grounding matters”).*
 superseded entries / pending_flags / defer routing match the documented steering
 contracts (persistence, contradiction handling), asserted after every turn?*
 
-- Measured: 2026-09-25
+- Measured: 2026-09-25 (remeasured after constraint→lock reconcile wiring)
 - Test set size: 11 scripted scenarios (original brief #10 omitted — no documented
-  constraint-supersede contract)
+  constraint-vs-constraint supersede contract; constraint-list remains append-only)
 - Pass rate: **11 / 11**
 - Runner: `uv run python scripts/eval/run_steering.py` (real `compile_graph` +
   `MemorySaver` / SQLite for #12 + `classify_pending` monkeypatch; no live LLM)
 - Notes: State-machine correctness only — not LLM parsing, legality, or mechanical
-  fidelity. Scenario #09 passes vacuously (constraint turn does not trigger lock
-  reconciliation; ADR-020 design vs shipped).
+  fidelity. Scenario #09 now exercises non-conflict (no_dup) then a genuine lock
+  conflict (type:grass vs Pelipper) with Attr superseded — ADR-020 trigger #1
+  constraint half wired.
 
 | ID | Result | Checks |
 |----|--------|--------|
@@ -519,7 +520,7 @@ contracts (persistence, contradiction handling), asserted after every turn?*
 | `06_reset_preserves_rejected` | pass | Reset clears provisional / old pending; rejected history survives |
 | `07_restore_one_level` | pass | Second restore is a no-op (one-level undo only) |
 | `08_defer_pending_kinds` | pass | Defer → deferred (candidate/completion) / build_abandoned (full_build) |
-| `09_nonconflict_constraint` | pass | Non-conflicting constraint leaves existing lock untouched |
+| `09_constraint_reconcile` | pass | no_dup leaves species lock; conflicting type constraint supersedes it |
 | `11_idle_persist` | pass | Lock persists across continue/idle rediscovery turns |
 | `12_sqlite_mid_contradiction` | pass | SQLite close/reopen mid-supersede sequence then restore |
 
@@ -529,19 +530,16 @@ contracts (persistence, contradiction handling), asserted after every turn?*
 *Mirror the honesty standard set by the VinylIQ RAG-not-shipped story — if something doesn't
 work or an eval result is weak, it goes here plainly, not smoothed over.*
 
-- Constraint supersede/contradiction handling has no documented contract; current code is
-  append-only (`still_active` never written False; no `superseded` entries for constraints).
-  Whether this is correct-by-design or a real gap is undecided — surfaced by the multi-turn
-  steering eval (brief scenario #10 omitted rather than inventing expectations or certifying
-  append-only as a pass).
+- Constraint-vs-constraint contradiction handling has no documented contract; constraint
+  list is still append-only (`still_active` never written False; no `superseded` entries
+  for constraints themselves). ADR-020 trigger #1 constraint→**lock** reconcile is now
+  wired (#09); steering brief scenario #10 stays omitted until constraint-list supersede
+  is designed — do not treat Attr supersede under constraints as closing that gap.
 - ADR-010 Amendment 2026-08-11a text says defer on `candidate_selection`,
   `completion_preference`, and `full_build_confirmation` all emit `turn_intent="deferred"`.
   Shipped behavior (and existing tests): full_build defer emits `build_abandoned` and
   rediscovers; only the first two emit `deferred`. Steering eval #08 asserts shipped
   behavior; amendment draft for the Claude Project should note the intentional divergence.
-- Steering eval #09 (non-conflicting constraint leaves lock untouched) passes because
-  `record_constraint` never calls reconciliation — ADR-020’s “constraint change → re-evaluate
-  locks” trigger is unwired; the negative case does not prove constraint-aware reconcile.
 - Species-fact clarification baselines (2026-09-04 remeasure, pre-guard, expanded oracle):
   qwen2.5:7b (3 claim-bearing / 7 claims, 4 TRUE / 2 FALSE / 1 unverifiable) and
   qwen3.5:latest (3 claim-bearing / 10 claims, 3 TRUE / 4 FALSE / 3 unverifiable — includes
