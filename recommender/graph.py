@@ -14,6 +14,7 @@ _INTENT_ROUTES = {
     "archetype_change": "handle_archetype_change",
     "reset": "reset_team",
     "restore": "restore_superseded",
+    "restore_constraint": "restore_constraint",
     "continue": "route_team_phase",
     "build_abandoned": "route_team_phase",
     "team_review": "generate_team_review",
@@ -86,6 +87,7 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
     g.add_node("handle_archetype_change", nodes.handle_archetype_change)
     g.add_node("reset_team", nodes.reset_team)
     g.add_node("restore_superseded", nodes.restore_superseded)
+    g.add_node("restore_constraint", nodes.restore_constraint)
     g.add_node("route_team_phase", nodes.route_team_phase)
     g.add_node("bootstrap_direction", nodes.bootstrap_direction)
     g.add_node("record_bootstrap_response", nodes.record_bootstrap_response)
@@ -119,6 +121,7 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
         "handle_archetype_change",
         "reset_team",
         "restore_superseded",
+        "restore_constraint",
         "commit_full_slot",
         "unlock_locked_slot",
         "record_bootstrap_response",

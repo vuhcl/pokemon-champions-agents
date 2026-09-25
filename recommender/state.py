@@ -128,6 +128,10 @@ class RestorePayload(TypedDict):
     attr: SlotAttrName
 
 
+class RestoreConstraintPayload(TypedDict, total=False):
+    """Empty payload — restore_constraint pops the most recent constraints_superseded entry."""
+
+
 EditFieldName = Literal["ability", "item", "moves", "nature", "spread"]
 
 
@@ -259,6 +263,27 @@ class PendingFlag(TypedDict):
     attr: SlotAttrName
     value: object
     flag_kind: str
+
+
+class ConstraintSupersededEntry(TypedDict):
+    constraint_index: int
+    kind: MechanicalConstraintKind
+    scope: Literal["per_slot", "team_wide"]
+    value: str
+    predicate: str
+    source_turn: int
+    turn_removed: int
+    reason: str
+    won_by_index: int
+
+
+class ConstraintFlag(TypedDict):
+    kind: MechanicalConstraintKind
+    scope: Literal["per_slot", "team_wide"]
+    value: str
+    flag_kind: str
+    predicate: NotRequired[str]
+    won_by_predicate: NotRequired[str]
 
 
 PresentationSource = Literal[
@@ -518,6 +543,7 @@ TurnPayload = Union[
     ArchetypeChangePayload,
     ResetPayload,
     RestorePayload,
+    RestoreConstraintPayload,
     BootstrapResponsePayload,
     PendingResponsePayload,
     EditPayload,
@@ -658,6 +684,8 @@ class RecommenderState(TypedDict):
     turn: NotRequired[int]
     superseded: NotRequired[list[SupersededEntry]]
     pending_flags: NotRequired[list[PendingFlag]]
+    constraints_superseded: NotRequired[list[ConstraintSupersededEntry]]
+    constraint_flags: NotRequired[list[ConstraintFlag]]
     pending_presentation: NotRequired[Optional[PendingPresentation]]
     pending_slot_intent: NotRequired[Optional[PendingSlotIntent]]
     provisional_slot: NotRequired[Optional[ProvisionalSlot]]

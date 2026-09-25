@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Literal, TYPE_CHECKING
 
 from recommender.ids import to_id
@@ -15,7 +15,14 @@ from recommender.legality import (
     species_can_have_ability,
     team_item_ids,
 )
-from recommender.state import CandidateDiscoveryError, Constraint, Slot, all_locked
+from recommender.state import (
+    CandidateDiscoveryError,
+    Constraint,
+    ConstraintFlag,
+    ConstraintSupersededEntry,
+    Slot,
+    all_locked,
+)
 
 if TYPE_CHECKING:
     from recommender.slot_fill import AnnotatedCandidate
@@ -419,6 +426,113 @@ def build_constraint(
         groundedness=payload["groundedness"],
         mechanical=spec,
     )
+
+
+def apply_constraint_axis_supersede(
+    constraints: list[Constraint],
+    new_constraint: Constraint,
+    *,
+    turn: int,
+) -> tuple[
+    list[Constraint],
+    list[ConstraintSupersededEntry],
+    list[ConstraintFlag],
+]:
+    """Newest-wins axis replacement for hard MechanicalSpec constraints.
+
+    Same (kind, scope), both hard + still_active, different value → deactivate older.
+    Soft / unenforceable / no_duplicate_items never participate.
+    """
+    new_spec = new_constraint.mechanical
+    if (
+        new_constraint.type != "hard"
+        or new_spec is None
+        or new_spec.kind == "no_duplicate_items"
+    ):
+        return [*constraints, new_constraint], [], []
+
+    out = list(constraints)
+    superseded: list[ConstraintSupersededEntry] = []
+    flags: list[ConstraintFlag] = []
+    won_by_index = len(out)  # index after append
+
+    for i, older in enumerate(out):
+        if not older.still_active or older.type != "hard":
+            continue
+        older_spec = older.mechanical
+        if older_spec is None or older_spec.kind == "no_duplicate_items":
+            continue
+        if older_spec.kind != new_spec.kind or older_spec.scope != new_spec.scope:
+            continue
+        if older_spec.value == new_spec.value:
+            continue
+        out[i] = replace(older, still_active=False)
+        reason = (
+            f"superseded by {new_constraint.predicate!r} "
+            f"({new_spec.kind}/{new_spec.scope}={new_spec.value})"
+        )
+        superseded.append(
+            ConstraintSupersededEntry(
+                constraint_index=i,
+                kind=older_spec.kind,  # type: ignore[typeddict-item]
+                scope=older_spec.scope,
+                value=older_spec.value,
+                predicate=older.predicate,
+                source_turn=older.source_turn,
+                turn_removed=turn,
+                reason=reason,
+                won_by_index=won_by_index,
+            )
+        )
+        flags.append(
+            ConstraintFlag(
+                kind=older_spec.kind,  # type: ignore[typeddict-item]
+                scope=older_spec.scope,
+                value=older_spec.value,
+                flag_kind="constraint_axis_superseded",
+                predicate=older.predicate,
+                won_by_predicate=new_constraint.predicate,
+            )
+        )
+
+    out.append(new_constraint)
+    return out, superseded, flags
+
+
+def restore_constraint_axis(
+    constraints: list[Constraint],
+    entry: ConstraintSupersededEntry,
+) -> list[Constraint] | None:
+    """True-swap: reactivate entry's constraint; deactivate other actives on that axis.
+
+    Returns None if the snapshot no longer matches (caller should no-op).
+    """
+    idx = entry["constraint_index"]
+    if idx < 0 or idx >= len(constraints):
+        return None
+    target = constraints[idx]
+    spec = target.mechanical
+    if (
+        spec is None
+        or spec.kind != entry["kind"]
+        or spec.scope != entry["scope"]
+        or spec.value != entry["value"]
+        or target.predicate != entry["predicate"]
+        or target.source_turn != entry["source_turn"]
+    ):
+        return None
+
+    out = list(constraints)
+    out[idx] = replace(target, still_active=True)
+    for i, c in enumerate(out):
+        if i == idx or not c.still_active or c.type != "hard":
+            continue
+        other = c.mechanical
+        if other is None:
+            continue
+        if other.kind == entry["kind"] and other.scope == entry["scope"]:
+            out[i] = replace(c, still_active=False)
+    return out
 
 
 def _self_check() -> None:

@@ -58,6 +58,9 @@ def assert_state(
     rejected_species: set[str] | None = None,
     superseded: list[dict[str, Any]] | None = None,
     pending_flag_kinds: set[str] | None = None,
+    constraints_active: list[tuple[str, str, str]] | None = None,
+    constraints_superseded_len: int | None = None,
+    constraint_flag_kinds: set[str] | None = None,
     turn_intent: str | None = None,
     pending_is_none: bool | None = None,
     provisional_is_none: bool | None = None,
@@ -98,6 +101,36 @@ def assert_state(
         if got != pending_flag_kinds:
             diffs.append(
                 f"pending_flag kinds: expected {_fmt(pending_flag_kinds)}, got {_fmt(got)}"
+            )
+    if constraints_active is not None:
+        got_active: list[tuple[str, str, str]] = []
+        for c in state.get("constraints") or []:
+            if not getattr(c, "still_active", False):
+                continue
+            if getattr(c, "type", None) != "hard":
+                continue
+            spec = getattr(c, "mechanical", None)
+            if spec is None:
+                continue
+            got_active.append((spec.kind, spec.scope, spec.value))
+        if got_active != list(constraints_active):
+            diffs.append(
+                f"constraints_active: expected {_fmt(constraints_active)}, "
+                f"got {_fmt(got_active)}"
+            )
+    if constraints_superseded_len is not None:
+        got_len = len(state.get("constraints_superseded") or [])
+        if got_len != constraints_superseded_len:
+            diffs.append(
+                f"constraints_superseded len: expected {constraints_superseded_len}, "
+                f"got {got_len}"
+            )
+    if constraint_flag_kinds is not None:
+        got = {f.get("flag_kind") for f in (state.get("constraint_flags") or [])}
+        if got != constraint_flag_kinds:
+            diffs.append(
+                f"constraint_flag kinds: expected {_fmt(constraint_flag_kinds)}, "
+                f"got {_fmt(got)}"
             )
     if turn_intent is not None and state.get("turn_intent") != turn_intent:
         diffs.append(
@@ -826,6 +859,162 @@ def _run_09(graph, config, state) -> ScenarioResult:
     return _ok(sid, "constraint_reconcile", state)
 
 
+def _run_10(graph, config, state) -> ScenarioResult:
+    sid = "10_constraint_axis_supersede"
+    # Turn 1: hard Fire type
+    state = turn(
+        graph,
+        config,
+        {
+            "turn_intent": "constraint",
+            "turn_payload": {
+                "type": "hard",
+                "predicate": "type:fire",
+                "scope": "per_slot",
+                "groundedness": "mechanically-checkable",
+                "mechanical_kind": "type",
+                "mechanical_value": "fire",
+            },
+        },
+    )
+    assert_state(
+        state,
+        turn_i=1,
+        scenario_id=sid,
+        constraints_active=[("type", "per_slot", "Fire")],
+        constraints_superseded_len=0,
+        constraint_flag_kinds=set(),
+    )
+    # Turn 2: hard Water type — axis supersede
+    state = turn(
+        graph,
+        config,
+        {
+            "turn_intent": "constraint",
+            "turn_payload": {
+                "type": "hard",
+                "predicate": "type:water",
+                "scope": "per_slot",
+                "groundedness": "mechanically-checkable",
+                "mechanical_kind": "type",
+                "mechanical_value": "water",
+            },
+        },
+    )
+    assert_state(
+        state,
+        turn_i=2,
+        scenario_id=sid,
+        constraints_active=[("type", "per_slot", "Water")],
+        constraints_superseded_len=1,
+        constraint_flag_kinds={"constraint_axis_superseded"},
+    )
+    constraints = state.get("constraints") or []
+    if len(constraints) != 2:
+        raise TurnAssertError(f"[{sid} turn 2] expected two constraint records")
+    if constraints[0].still_active or not constraints[1].still_active:
+        raise TurnAssertError(
+            f"[{sid} turn 2] expected older inactive, newer active"
+        )
+    # Turn 3: restore_constraint — true swap
+    state = turn(
+        graph,
+        config,
+        {"turn_intent": "restore_constraint", "turn_payload": {}},
+    )
+    assert_state(
+        state,
+        turn_i=3,
+        scenario_id=sid,
+        constraints_active=[("type", "per_slot", "Fire")],
+        constraints_superseded_len=0,
+    )
+    constraints = state.get("constraints") or []
+    if not constraints[0].still_active or constraints[1].still_active:
+        raise TurnAssertError(
+            f"[{sid} turn 3] restore must reactivate older AND deactivate winner"
+        )
+    # Turn 4: soft "contradicting" hard — no axis supersede
+    before_sup = list(state.get("constraints_superseded") or [])
+    before_flags = list(state.get("constraint_flags") or [])
+    state = turn(
+        graph,
+        config,
+        {
+            "turn_intent": "constraint",
+            "turn_payload": {
+                "type": "soft",
+                "predicate": "prefer water type",
+                "scope": "per_slot",
+                "groundedness": "mechanically-checkable",
+                "mechanical_kind": "type",
+                "mechanical_value": "water",
+            },
+        },
+    )
+    assert_state(
+        state,
+        turn_i=4,
+        scenario_id=sid,
+        constraints_active=[("type", "per_slot", "Fire")],
+        constraints_superseded_len=len(before_sup),
+    )
+    if list(state.get("constraint_flags") or []) != before_flags:
+        raise TurnAssertError(f"[{sid} turn 4] soft must not add constraint_flags")
+    fire = next(
+        c
+        for c in (state.get("constraints") or [])
+        if c.mechanical and c.mechanical.value == "Fire" and c.type == "hard"
+    )
+    if not fire.still_active:
+        raise TurnAssertError(f"[{sid} turn 4] soft must not deactivate hard Fire")
+    # Turn 5: ability axis supersede
+    state = turn(
+        graph,
+        config,
+        {
+            "turn_intent": "constraint",
+            "turn_payload": {
+                "type": "hard",
+                "predicate": "ability:intimidate",
+                "scope": "per_slot",
+                "groundedness": "mechanically-checkable",
+                "mechanical_kind": "ability",
+                "mechanical_value": "intimidate",
+            },
+        },
+    )
+    state = turn(
+        graph,
+        config,
+        {
+            "turn_intent": "constraint",
+            "turn_payload": {
+                "type": "hard",
+                "predicate": "ability:guts",
+                "scope": "per_slot",
+                "groundedness": "mechanically-checkable",
+                "mechanical_kind": "ability",
+                "mechanical_value": "guts",
+            },
+        },
+    )
+    abilities = [
+        c
+        for c in (state.get("constraints") or [])
+        if c.mechanical and c.mechanical.kind == "ability"
+    ]
+    if len(abilities) != 2:
+        raise TurnAssertError(f"[{sid} turn 6] expected two ability constraints")
+    if abilities[0].still_active or not abilities[1].still_active:
+        raise TurnAssertError(
+            f"[{sid} turn 6] ability axis: older inactive, newer active"
+        )
+    if abilities[1].mechanical is None or abilities[1].mechanical.value != "Guts":
+        raise TurnAssertError(f"[{sid} turn 6] expected Guts as active ability")
+    return _ok(sid, "constraint_axis_supersede", state)
+
+
 def _run_11(graph, config, state) -> ScenarioResult:
     sid = "11_idle_persist"
     state = turn(
@@ -1002,6 +1191,12 @@ SCENARIOS: list[Scenario] = [
         "constraint_reconcile",
         "Non-conflict no_dup then conflicting type constraint supersedes lock",
         _run_09,
+    ),
+    Scenario(
+        "10_constraint_axis_supersede",
+        "constraint_axis_supersede",
+        "Hard type axis supersede + restore swap; soft no-op; ability axis",
+        _run_10,
     ),
     Scenario(
         "11_idle_persist",

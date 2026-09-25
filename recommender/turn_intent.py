@@ -25,6 +25,7 @@ from recommender.state import (
     RepickLockedSlotPayload,
     ReviseLockedSlotPayload,
     RestorePayload,
+    RestoreConstraintPayload,
     SelectBuildPayload,
     SlotAttrName,
     SystemClaimKind,
@@ -37,6 +38,7 @@ TurnIntentName = Literal[
     "archetype_change",
     "reset",
     "restore",
+    "restore_constraint",
     "continue",
     "team_review",
     "pending_response",
@@ -56,6 +58,7 @@ _ACTIONABLE_INTENTS = frozenset(
         "archetype_change",
         "reset",
         "restore",
+        "restore_constraint",
         "continue",
         "team_review",
     }
@@ -73,9 +76,9 @@ Do not decide legality, canonical names, mechanical facts, or Pokémon identity.
 Never invent species/items/moves as verified facts.
 
 Allowed turn_intent values only:
-- constraint, rejection, lock, archetype_change, reset, restore, continue, team_review,
-  pending_response, edit, select_build_option, compare, revise_locked_slot,
-  repick_locked_slot, claim_correction
+- constraint, rejection, lock, archetype_change, reset, restore, restore_constraint,
+  continue, team_review, pending_response, edit, select_build_option, compare,
+  revise_locked_slot, repick_locked_slot, claim_correction
 
 Rules:
 - When pending_kind is none and the user revises a build attribute on an already-locked
@@ -177,7 +180,10 @@ Rules:
 - lock requires slot_index plus either (attr+value) or locks. Lock uses value (object), not
   value_text / value_moves / value_spread.
 - archetype_change requires components.
-- restore requires slot_index and attr.
+- restore requires slot_index and attr — restores a superseded slot attribute (species/item/...).
+- restore_constraint restores a previously superseded hard constraint rule (newest-wins undo).
+  Use restore_constraint when the user wants the prior constraint back; use restore for a
+  slot attribute. restore_constraint carries no payload fields.
 - continue and team_review carry no payload fields."""
 
 _EXTRACTION_USER_PROMPT = """pending_kind: {pending_kind}
@@ -444,6 +450,8 @@ class TurnIntentExtraction(BaseModel):
                 raise ValueError("restore requires slot_index and attr")
             if self.attr not in _SLOT_ATTRS:
                 raise ValueError(f"invalid restore attr: {self.attr}")
+        elif intent == "restore_constraint":
+            pass  # no required payload fields
         elif intent == "reset":
             if self.constraint is not None:
                 c = self.constraint
@@ -1005,6 +1013,8 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
             slot_index=extraction.slot_index,  # type: ignore[arg-type]
             attr=extraction.attr,  # type: ignore[arg-type]
         )
+    if intent == "restore_constraint":
+        return RestoreConstraintPayload()
     return None
 
 
