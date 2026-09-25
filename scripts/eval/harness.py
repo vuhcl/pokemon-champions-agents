@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from contextvars import ContextVar
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable
 from unittest.mock import patch
 
 from langgraph.checkpoint.memory import MemorySaver
 
+from recommender.checkpointer import open_sqlite_checkpointer
 from recommender.graph import compile_graph
 from recommender.nodes import team_phase
 from recommender.state import (
@@ -56,6 +58,30 @@ def start_graph(
         review_patch.start()
     state = graph.invoke({"format_id": format_id}, config=config)
     return graph, config, state, review_patch
+
+
+def start_graph_sqlite(
+    path: Path | str,
+    *,
+    thread_id: str,
+    calc_degraded: bool = False,
+    format_id: str = VGC_MC,
+):
+    """Same seam as start_graph, but with a SQLite checkpointer (scenario 12)."""
+    saver = open_sqlite_checkpointer(path)
+    graph = compile_graph(checkpointer=saver)
+    config = {"configurable": {"thread_id": thread_id}}
+    review_patch = None
+    if calc_degraded:
+        review_patch = patch(
+            "recommender.nodes._compute_team_review",
+            return_value=TeamReviewResult(
+                threats=[], coverage=[], spofs=[], status="available"
+            ),
+        )
+        review_patch.start()
+    state = graph.invoke({"format_id": format_id}, config=config)
+    return graph, config, state, review_patch, saver
 
 
 def seed_state(graph, config, **updates: Any) -> None:
