@@ -170,6 +170,23 @@ def classify_input(
     text = state.get("pending_input")
     if not text:
         raise ValueError("pending_input is required for subsequent turns")
+    # Correlation for tool_log / LLM logs in this graph.invoke (incl. worker threads
+    # via copy_context in invoke_with_timeout). turn matches the value written below.
+    # bind_correlation also sets a threading.local fallback so later nodes still
+    # see turn/thread after LangGraph discards this node's ContextVar copy.
+    from recommender.tool_log import bind_correlation
+
+    turn_n = state.get("turn", 0) + 1
+    thread_id: str | None = None
+    try:
+        from langgraph.config import get_config
+
+        raw_tid = (get_config().get("configurable") or {}).get("thread_id")
+        if isinstance(raw_tid, str) and raw_tid:
+            thread_id = raw_tid
+    except RuntimeError:
+        pass
+    bind_correlation(turn=turn_n, thread_id=thread_id)
     result = classify_pending(
         text,
         state.get("pending_presentation"),
@@ -184,7 +201,7 @@ def classify_input(
         "turn_payload": result.get("turn_payload"),
         "pending_input": None,
         "last_user_text": text,
-        "turn": state.get("turn", 0) + 1,
+        "turn": turn_n,
         "slot_commit_error": None,
         "compare_analysis": None,
         "bootstrap_intake_error": None,
@@ -200,7 +217,7 @@ def classify_input(
             claim = stamp_system_claim(
                 message=message,
                 originating_user_text=text,
-                turn=state.get("turn", 0) + 1,
+                turn=turn_n,
             )
             if claim is not None:
                 out["last_system_claim"] = claim

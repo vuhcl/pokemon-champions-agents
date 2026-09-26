@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass, replace
 from typing import Any, get_args
@@ -104,7 +105,12 @@ def parse_bootstrap_intake(
     """Invoke an injected parser and convert its strict output to the domain payload."""
 
     try:
-        result = invoke_with_timeout(parser, {"user_text": text})
+        result = invoke_with_timeout(
+            parser,
+            {"user_text": text},
+            tool="llm.bootstrap_intake",
+            provider=os.environ.get("POKEMON_CHAMPIONS_LLM_PROVIDER") or "ollama",
+        )
         if isinstance(result, dict) and {
             "raw",
             "parsed",
