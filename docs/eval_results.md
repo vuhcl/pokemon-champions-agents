@@ -526,6 +526,60 @@ contracts (persistence, contradiction handling), asserted after every turn?*
 
 ---
 
+## Tool-call observability (Phase 1 — measured latency / retry from #224 JSONL)
+*What to measure: with structured tool-call logging on (`recommender/tool_log.py` →
+`RECOMMENDER_TOOL_LOG`), what are real per-tool call counts, mean/p95 latency, failures,
+and retries under the existing scripted eval harnesses?*
+
+- Measured: 2026-09-25
+- Schema (shipped, matches proposal): `ts`, `tool`, `args`, `latency_ms`, `ok`, `retries`;
+  optional `error` when `ok=false`
+- Runners (calc `:4173` healthy; no live LLM; from repo root):
+  - `RECOMMENDER_TOOL_LOG=scripts/eval/artifacts/tool_calls_mech_claims.jsonl uv run python scripts/eval/run_mech_claims.py`
+  - `RECOMMENDER_TOOL_LOG=scripts/eval/artifacts/tool_calls_legality.jsonl uv run python scripts/eval/run_legality.py`
+  - `RECOMMENDER_TOOL_LOG=scripts/eval/artifacts/tool_calls_steering.jsonl uv run python scripts/eval/run_steering.py`
+- Aggregator: `uv run python scripts/eval/aggregate_tool_log.py` on the three JSONL paths
+- Artifacts:
+  - `scripts/eval/artifacts/tool_calls_mech_claims.jsonl` (34962 lines)
+  - `scripts/eval/artifacts/tool_calls_legality.jsonl` (23436 lines)
+  - `scripts/eval/artifacts/tool_calls_steering.jsonl` (4 lines)
+  - `scripts/eval/artifacts/tool_calls_aggregate.json`
+- Heavier-weight complement (not from these suites): #224 Step 1 wall-clock for
+  `query_threat_counters` (ADR-022 defaults, cold matchup-memo) — Incineroar ~303ms,
+  Rillaboom ~630ms.
+- Coverage note: deterministic scripted harnesses only. **Retries observed: 0** across all
+  three suites (nothing actually retried). Live-fetch *did* fire (`fetch_json` /
+  `fetch_live_showdown_detail` via M-C→M-B `regulation_lookup_chain` into `_LIVE_FORMATS`),
+  but every live call succeeded on the first attempt (`retries=0`, `ok=true`). Steering
+  (`calc_degraded=True`) produced no `CalcClient.*` lines — only two live-fetch pairs.
+  This reflects the eval harness’s calc/live-call pattern, **not** real user-session
+  tool-call distribution or stress under flaky network.
+
+### Suite: `mech_claims` (15 Part 1 scenarios + compare extras)
+
+| tool | count | mean_ms | p95_ms | fail | fail_rate | retries |
+|------|------:|--------:|-------:|-----:|----------:|--------:|
+| `CalcClient.POST /calculate/batch` | 34930 | 0.682 | 2.151 | 0 | 0.0 | 0 |
+| `fetch_json` | 16 | 215.029 | 1615.611 | 0 | 0.0 | 0 |
+| `fetch_live_showdown_detail` | 16 | 215.438 | 1615.992 | 0 | 0.0 | 0 |
+
+### Suite: `legality` (15 Part 1 scenarios, calc healthy)
+
+| tool | count | mean_ms | p95_ms | fail | fail_rate | retries |
+|------|------:|--------:|-------:|-----:|----------:|--------:|
+| `CalcClient.POST /calculate/batch` | 23404 | 0.615 | 2.066 | 0 | 0.0 | 0 |
+| `fetch_json` | 16 | 152.632 | 647.302 | 0 | 0.0 | 0 |
+| `fetch_live_showdown_detail` | 16 | 152.905 | 647.929 | 0 | 0.0 | 0 |
+
+### Suite: `steering` (12 scenarios, `calc_degraded=True`)
+
+| tool | count | mean_ms | p95_ms | fail | fail_rate | retries |
+|------|------:|--------:|-------:|-----:|----------:|--------:|
+| `fetch_json` | 2 | 255.195 | 319.28 | 0 | 0.0 | 0 |
+| `fetch_live_showdown_detail` | 2 | 255.982 | 320.182 | 0 | 0.0 | 0 |
+
+---
+
 ## Known limitations / honest gaps (update as discovered)
 *Mirror the honesty standard set by the VinylIQ RAG-not-shipped story — if something doesn't
 work or an eval result is weak, it goes here plainly, not smoothed over.*

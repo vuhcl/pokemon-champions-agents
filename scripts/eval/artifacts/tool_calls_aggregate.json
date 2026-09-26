@@ -1,0 +1,84 @@
+{
+  "mech_claims": {
+    "path": "scripts/eval/artifacts/tool_calls_mech_claims.jsonl",
+    "tools": {
+      "CalcClient.POST /calculate/batch": {
+        "count": 34930,
+        "mean_ms": 0.682,
+        "p95_ms": 2.151,
+        "fail": 0,
+        "fail_rate": 0.0,
+        "retries": 0
+      },
+      "fetch_json": {
+        "count": 16,
+        "mean_ms": 215.029,
+        "p95_ms": 1615.611,
+        "fail": 0,
+        "fail_rate": 0.0,
+        "retries": 0
+      },
+      "fetch_live_showdown_detail": {
+        "count": 16,
+        "mean_ms": 215.438,
+        "p95_ms": 1615.992,
+        "fail": 0,
+        "fail_rate": 0.0,
+        "retries": 0
+      }
+    },
+    "total_calls": 34962
+  },
+  "legality": {
+    "path": "scripts/eval/artifacts/tool_calls_legality.jsonl",
+    "tools": {
+      "CalcClient.POST /calculate/batch": {
+        "count": 23404,
+        "mean_ms": 0.615,
+        "p95_ms": 2.066,
+        "fail": 0,
+        "fail_rate": 0.0,
+        "retries": 0
+      },
+      "fetch_json": {
+        "count": 16,
+        "mean_ms": 152.632,
+        "p95_ms": 647.302,
+        "fail": 0,
+        "fail_rate": 0.0,
+        "retries": 0
+      },
+      "fetch_live_showdown_detail": {
+        "count": 16,
+        "mean_ms": 152.905,
+        "p95_ms": 647.929,
+        "fail": 0,
+        "fail_rate": 0.0,
+        "retries": 0
+      }
+    },
+    "total_calls": 23436
+  },
+  "steering": {
+    "path": "scripts/eval/artifacts/tool_calls_steering.jsonl",
+    "tools": {
+      "fetch_json": {
+        "count": 2,
+        "mean_ms": 255.195,
+        "p95_ms": 319.28,
+        "fail": 0,
+        "fail_rate": 0.0,
+        "retries": 0
+      },
+      "fetch_live_showdown_detail": {
+        "count": 2,
+        "mean_ms": 255.982,
+        "p95_ms": 320.182,
+        "fail": 0,
+        "fail_rate": 0.0,
+        "retries": 0
+      }
+    },
+    "total_calls": 4
+  }
+}
