@@ -580,6 +580,52 @@ and retries under the existing scripted eval harnesses?*
 
 ---
 
+## LLM-call / turn-level observability
+*What to measure: with LLM invokes logged through the same `tool_log` JSONL as calc/live-fetch
+(`invoke_with_timeout` → `log_tool_call`, correlated by `(thread_id, turn)`), what are real
+per-turn LLM latency and token costs on a live-Ollama graph session?*
+
+- Measured: 2026-09-25
+- Model / provider: `qwen2.5:7b` via Ollama (`POKEMON_CHAMPIONS_LLM_PROVIDER=ollama`)
+- Runner (calc `:4173` healthy; live LLM; from repo root):
+  ```bash
+  RECOMMENDER_TOOL_LOG=scripts/eval/artifacts/tool_calls_species_fact_llm.jsonl \
+  BOOTSTRAP_OLLAMA_MODEL=qwen2.5:7b \
+  uv run python scripts/eval/run_species_fact_pending.py --mode after
+  uv run python scripts/eval/aggregate_tool_log.py \
+    scripts/eval/artifacts/tool_calls_species_fact_llm.jsonl \
+    --out-json scripts/eval/artifacts/tool_calls_species_fact_llm_aggregate.json
+  ```
+- Schema extensions (optional fields when present): `thread_id`, `turn`, and for LLM lines
+  `provider`, `prompt_tokens`, `completion_tokens` (from LangChain `usage_metadata` on
+  `include_raw` responses; null/omitted if missing)
+- Artifacts:
+  - `scripts/eval/artifacts/tool_calls_species_fact_llm.jsonl` (4718 lines)
+  - `scripts/eval/artifacts/tool_calls_species_fact_llm_aggregate.json`
+- Per-tool (same suite):
+
+| tool | count | mean_ms | p95_ms | fail | fail_rate | retries |
+|------|------:|--------:|-------:|-----:|----------:|--------:|
+| `CalcClient.POST /calculate/batch` | 4692 | 0.555 | 0.905 | 0 | 0.0 | 0 |
+| `llm.bootstrap_intake` | 1 | 1016.245 | 1016.245 | 0 | 0.0 | 0 |
+| `llm.turn_intent` | 25 | 809.212 | 1608.371 | 0 | 0.0 | 0 |
+
+- Turn rollup summary (32 correlated turns; 26 with ≥1 LLM call, 6 tool-only):
+  - LLM turns: mean total_ms **817.2**, p95 **1576.5**; mean prompt_tokens **1869.3**,
+    mean completion_tokens **32.3**; session totals prompt **48603** / completion **839**
+  - Tool-only turns: mean total_ms **434.3** (dominated by batch calc volume, not per-call cost)
+  - In this harness, **no turn had both an LLM call and calc/tool calls** — gap-fill /
+    bootstrap turns are LLM-only (`pending_response` / intake); lock/select turns are
+    tool-heavy without an LLM. Turn rollup still correctly attributes each bucket; it does
+    not prove a mixed “LLM then calc in the same user turn” path under these scenarios.
+- Coverage note: scripted species-fact probe (~32 graph turns + Phase 2 gap-fill probes on
+  the same thread), **not** a long realistic chat. Ollama `qwen2.5:7b` only for this first
+  measurement (Anthropic path not run). Phase 2 probes are parser-only (no tools in-bucket).
+  Correlation uses ContextVar + `threading.local` fallback because LangGraph may reset
+  ContextVars per node.
+
+---
+
 ## Known limitations / honest gaps (update as discovered)
 *Mirror the honesty standard set by the VinylIQ RAG-not-shipped story — if something doesn't
 work or an eval result is weak, it goes here plainly, not smoothed over.*

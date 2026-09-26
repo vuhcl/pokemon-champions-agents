@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from typing import Any, Literal, get_args
 
@@ -1056,6 +1057,8 @@ def parse_turn_intent(
     roster_summary: str = "",
     last_system_claim: str = "",
     had_pending: bool = False,
+    turn: int | None = None,
+    thread_id: str | None = None,
 ) -> dict[str, Any]:
     """Invoke an injected parser and convert output to a classify_pending result dict."""
 
@@ -1069,6 +1072,10 @@ def parse_turn_intent(
                 "roster_summary": roster_summary,
                 "last_system_claim": last_system_claim,
             },
+            tool="llm.turn_intent",
+            provider=os.environ.get("POKEMON_CHAMPIONS_LLM_PROVIDER") or "ollama",
+            turn=turn,
+            thread_id=thread_id,
         )
         if isinstance(result, dict) and {
             "raw",

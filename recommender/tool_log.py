@@ -27,6 +27,11 @@ def log_tool_call(
     ok: bool,
     retries: int = 0,
     error: str | None = None,
+    provider: str | None = None,
+    prompt_tokens: int | None = None,
+    completion_tokens: int | None = None,
+    turn: int | None = None,
+    thread_id: str | None = None,
 ) -> None:
     """Append one JSON line; never raises into the caller."""
     record: dict[str, Any] = {
@@ -37,8 +42,18 @@ def log_tool_call(
         "ok": ok,
         "retries": retries,
     }
+    if thread_id is not None:
+        record["thread_id"] = thread_id
+    if turn is not None:
+        record["turn"] = turn
     if error is not None:
         record["error"] = error
+    if provider is not None:
+        record["provider"] = provider
+    if prompt_tokens is not None:
+        record["prompt_tokens"] = prompt_tokens
+    if completion_tokens is not None:
+        record["completion_tokens"] = completion_tokens
     try:
         path = _log_path()
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -54,6 +69,8 @@ def timed_tool_call(
     fn: Callable[[], T],
     *,
     retries: int = 0,
+    turn: int | None = None,
+    thread_id: str | None = None,
 ) -> T:
     """Run fn(), log latency/ok/error, re-raise on failure."""
     t0 = time.perf_counter()
@@ -67,6 +84,8 @@ def timed_tool_call(
             ok=False,
             retries=retries,
             error=type(exc).__name__,
+            turn=turn,
+            thread_id=thread_id,
         )
         raise
     log_tool_call(
@@ -75,5 +94,7 @@ def timed_tool_call(
         latency_ms=(time.perf_counter() - t0) * 1000,
         ok=True,
         retries=retries,
+        turn=turn,
+        thread_id=thread_id,
     )
     return result

@@ -913,6 +913,8 @@ def _gap_fill(
     pending_presentation: PendingPresentation | None = None,
     team_draft: list[Slot] | None = None,
     last_system_claim: SystemClaim | None = None,
+    turn: int | None = None,
+    thread_id: str | None = None,
 ) -> dict[str, Any]:
     from recommender.turn_intent import parse_turn_intent
 
@@ -929,6 +931,8 @@ def _gap_fill(
             roster_summary=ctx.get("roster_summary") or "",
             last_system_claim=ctx.get("last_system_claim") or "",
             had_pending=had_pending,
+            turn=turn,
+            thread_id=thread_id,
         )
     if (
         result.get("turn_intent") == "select_build_option"
@@ -1437,6 +1441,8 @@ def _classify_candidate_selection_reply(
     gap_fill_context: dict[str, str] | None,
     team_draft: list[Slot] | None,
     last_system_claim: SystemClaim | None = None,
+    turn: int | None = None,
+    thread_id: str | None = None,
 ) -> dict[str, Any]:
     options = pending_presentation.get("options") or []
     signals = {
@@ -1499,6 +1505,8 @@ def _classify_candidate_selection_reply(
             pending_presentation=pending_presentation,
             team_draft=team_draft,
             last_system_claim=last_system_claim,
+            turn=turn,
+            thread_id=thread_id,
         )
 
     return {
@@ -1516,6 +1524,8 @@ def classify_pending(
     gap_fill_context: dict[str, str] | None = None,
     team_draft: list[Slot] | None = None,
     last_system_claim: SystemClaim | None = None,
+    turn: int | None = None,
+    thread_id: str | None = None,
 ) -> dict[str, Any]:
     """Resolve a reply to a pending presentation; gap-fill via injected turn_intent_parser."""
     if pending_presentation is None:
@@ -1531,6 +1541,8 @@ def classify_pending(
             pending_presentation=pending_presentation,
             team_draft=team_draft,
             last_system_claim=last_system_claim,
+            turn=turn,
+            thread_id=thread_id,
         )
 
     reply = text.strip().casefold().strip(".!?")
@@ -1554,7 +1566,12 @@ def classify_pending(
         )
 
         try:
-            payload = parse_bootstrap_intake(bootstrap_intake_parser, text)
+            payload = parse_bootstrap_intake(
+                bootstrap_intake_parser,
+                text,
+                turn=turn,
+                thread_id=thread_id,
+            )
         except BootstrapIntakeParseError as exc:
             return {
                 "turn_intent": "pending_response",
@@ -1606,6 +1623,8 @@ def classify_pending(
             pending_presentation=pending_presentation,
             team_draft=team_draft,
             last_system_claim=last_system_claim,
+            turn=turn,
+            thread_id=thread_id,
         )
     if pending_presentation.get("kind") == "confirm_abandon_build":
         if pending_presentation.get("schema_version", 1) != 1:
@@ -1779,6 +1798,8 @@ def classify_pending(
             pending_presentation=pending_presentation,
             team_draft=team_draft,
             last_system_claim=last_system_claim,
+            turn=turn,
+            thread_id=thread_id,
         )
         if result.get("turn_intent") == "edit":
             payload = result.get("turn_payload")
@@ -1837,6 +1858,8 @@ def classify_pending(
             gap_fill_context=gap_fill_context,
             team_draft=team_draft,
             last_system_claim=last_system_claim,
+            turn=turn,
+            thread_id=thread_id,
         )
 
     options = pending_presentation.get("options") or []
@@ -1876,6 +1899,8 @@ def classify_pending(
             pending_presentation=pending_presentation,
             team_draft=team_draft,
             last_system_claim=last_system_claim,
+            turn=turn,
+            thread_id=thread_id,
         )
 
     return {

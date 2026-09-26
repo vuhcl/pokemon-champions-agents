@@ -46,7 +46,12 @@ def _live_format_for(regulation: str) -> tuple[str, str, int] | None:
     return None
 
 
-def fetch_json(url: str) -> JsonValue | None:
+def fetch_json(
+    url: str,
+    *,
+    turn: int | None = None,
+    thread_id: str | None = None,
+) -> JsonValue | None:
     """Fetch JSON. HTTP 4xx → None; transient fails retry then raise LiveFetchError."""
     req = urllib.request.Request(url, headers={"User-Agent": _UA})
     last_exc: BaseException | None = None
@@ -66,6 +71,8 @@ def fetch_json(url: str) -> JsonValue | None:
                     ok=False,
                     retries=retries_used,
                     error="JSONDecodeError",
+                    turn=turn,
+                    thread_id=thread_id,
                 )
                 raise LiveFetchError(f"invalid JSON from {url}") from exc
             log_tool_call(
@@ -74,6 +81,8 @@ def fetch_json(url: str) -> JsonValue | None:
                 latency_ms=(time.perf_counter() - t0) * 1000,
                 ok=True,
                 retries=retries_used,
+                turn=turn,
+                thread_id=thread_id,
             )
             return result
         except urllib.error.HTTPError as exc:
@@ -90,6 +99,8 @@ def fetch_json(url: str) -> JsonValue | None:
                     latency_ms=(time.perf_counter() - t0) * 1000,
                     ok=True,
                     retries=retries_used,
+                    turn=turn,
+                    thread_id=thread_id,
                 )
                 return None
             last_exc = exc
@@ -106,6 +117,8 @@ def fetch_json(url: str) -> JsonValue | None:
         ok=False,
         retries=retries_used,
         error=type(last_exc).__name__ if last_exc else "LiveFetchError",
+        turn=turn,
+        thread_id=thread_id,
     )
     raise LiveFetchError(f"live fetch failed for {url}") from last_exc
 
@@ -133,7 +146,11 @@ _SHOWDOWN_CACHE: OrderedDict[Hashable, dict[str, Any] | None] = OrderedDict()
 
 
 def fetch_live_cbd_battle(
-    species: str, fetcher: JsonFetch = fetch_json
+    species: str,
+    fetcher: JsonFetch = fetch_json,
+    *,
+    turn: int | None = None,
+    thread_id: str | None = None,
 ) -> dict[str, Any] | None:
     use_cache = fetcher is fetch_json
     key: Hashable = (species,)
@@ -158,6 +175,8 @@ def fetch_live_cbd_battle(
         "fetch_live_cbd_battle",
         {"species": species},
         _run,
+        turn=turn,
+        thread_id=thread_id,
     )
 
 
@@ -172,6 +191,9 @@ def fetch_live_showdown_detail(
     species: str,
     regulation: str = "champions",
     fetcher: JsonFetch = fetch_json,
+    *,
+    turn: int | None = None,
+    thread_id: str | None = None,
 ) -> dict[str, Any] | None:
     """Fetch one exact-form MunchStats record; legitimate misses are cached."""
     use_cache = fetcher is fetch_json
@@ -222,6 +244,8 @@ def fetch_live_showdown_detail(
         "fetch_live_showdown_detail",
         {"species": species, "regulation": regulation},
         _run,
+        turn=turn,
+        thread_id=thread_id,
     )
 
 
