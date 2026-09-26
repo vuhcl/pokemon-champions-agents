@@ -10,7 +10,6 @@ requiring a manual kill) cannot block the graph forever.
 
 from __future__ import annotations
 
-import contextvars
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -57,6 +56,8 @@ def invoke_with_timeout(
     timeout: float = LLM_INVOKE_TIMEOUT_S,
     tool: str = "llm.invoke",
     provider: str | None = None,
+    turn: int | None = None,
+    thread_id: str | None = None,
 ) -> Any:
     """Invoke parser.invoke(payload) with a hard timeout.
 
@@ -70,13 +71,11 @@ def invoke_with_timeout(
     ThreadPoolExecutor(...)` idiom) would defeat the timeout entirely, since
     that blocks on exit until every submitted task finishes.
 
-    ContextVars from the parent (turn / thread_id) are copied into the worker
-    via copy_context().run so LLM log lines carry the same correlation fields
-    as in-graph tool calls. An abandoned Event suppresses a late success/error
-    log if the worker finishes after the parent already timed out.
+    turn/thread_id are closed over into the worker for log lines (explicit args,
+    not ContextVar). An abandoned Event suppresses a late success/error log if
+    the worker finishes after the parent already timed out.
     """
     abandoned = threading.Event()
-    ctx = contextvars.copy_context()
 
     def _run() -> Any:
         t0 = time.perf_counter()
@@ -91,6 +90,8 @@ def invoke_with_timeout(
                     ok=False,
                     error=type(exc).__name__,
                     provider=provider,
+                    turn=turn,
+                    thread_id=thread_id,
                 )
             raise
         if not abandoned.is_set():
@@ -103,11 +104,13 @@ def invoke_with_timeout(
                 provider=provider,
                 prompt_tokens=prompt_tokens,
                 completion_tokens=completion_tokens,
+                turn=turn,
+                thread_id=thread_id,
             )
         return result
 
     executor = ThreadPoolExecutor(max_workers=1)
-    future = executor.submit(ctx.run, _run)
+    future = executor.submit(_run)
     try:
         result = future.result(timeout=timeout)
     except FutureTimeoutError as exc:
@@ -119,6 +122,8 @@ def invoke_with_timeout(
             ok=False,
             error="LLMInvokeTimeout",
             provider=provider,
+            turn=turn,
+            thread_id=thread_id,
         )
         executor.shutdown(wait=False)
         raise LLMInvokeTimeout(

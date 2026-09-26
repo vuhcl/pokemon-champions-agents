@@ -31,20 +31,7 @@ from recommender.session import (
 
 
 def invoke_user_text(graph, config, text: str) -> Mapping[str, Any]:
-    """Stuff raw user text as pending_input. Propagates NotImplementedError.
-
-    Binds tool_log correlation before graph.invoke so turn/thread reach LLM
-    workers (ContextVar + copy_context) and later-node tool logs (threading.local
-    fallback — LangGraph may reset ContextVars per node).
-    """
-    from recommender.tool_log import bind_correlation
-
-    values = (graph.get_state(config).values or {}) if hasattr(graph, "get_state") else {}
-    thread_id = (config.get("configurable") or {}).get("thread_id")
-    bind_correlation(
-        turn=int(values.get("turn") or 0) + 1,
-        thread_id=thread_id if isinstance(thread_id, str) else None,
-    )
+    """Stuff raw user text as pending_input. Propagates NotImplementedError."""
     return graph.invoke({"pending_input": text}, config)
 
 

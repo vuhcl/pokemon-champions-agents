@@ -426,8 +426,6 @@ def main() -> int:
         "Phase 2: targeted parse_turn_intent probes after graph conversation "
         "(same Ollama parser; not classify_pending mock)."
     )
-    from recommender.tool_log import bind_correlation
-
     probe_base = int(state.get("turn") or 0)
     probe_i = 0
     for pending_kind, ctx, phrases in scen.GAP_FILL_PROBES:
@@ -435,7 +433,6 @@ def main() -> int:
         for phrase in phrases:
             attempts[site] += 1
             probe_i += 1
-            bind_correlation(turn=probe_base + probe_i, thread_id=thread_id)
             out = parse_turn_intent(
                 turn_parser,
                 user_text=phrase,
@@ -444,6 +441,8 @@ def main() -> int:
                 roster_summary="Hatterene locked",
                 last_system_claim="",
                 had_pending=pending_kind != "none",
+                turn=probe_base + probe_i,
+                thread_id=thread_id,
             )
             if out.get("turn_intent") != "pending_response":
                 print(

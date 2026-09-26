@@ -100,7 +100,11 @@ class BootstrapIntakeParseError(ValueError):
 
 
 def parse_bootstrap_intake(
-    parser: BootstrapIntakeParser, text: str
+    parser: BootstrapIntakeParser,
+    text: str,
+    *,
+    turn: int | None = None,
+    thread_id: str | None = None,
 ) -> BootstrapResponsePayload:
     """Invoke an injected parser and convert its strict output to the domain payload."""
 
@@ -110,6 +114,8 @@ def parse_bootstrap_intake(
             {"user_text": text},
             tool="llm.bootstrap_intake",
             provider=os.environ.get("POKEMON_CHAMPIONS_LLM_PROVIDER") or "ollama",
+            turn=turn,
+            thread_id=thread_id,
         )
         if isinstance(result, dict) and {
             "raw",

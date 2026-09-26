@@ -6,7 +6,7 @@ import json
 import time
 import urllib.error
 import urllib.request
-from typing import Any, Literal, NotRequired, TypedDict
+from typing import Any, Literal, Mapping, NotRequired, TypedDict
 
 from recommender.tool_log import log_tool_call
 
@@ -179,8 +179,16 @@ class ExportResponse(TypedDict):
 
 
 class CalcClient:
-    def __init__(self, base_url: str = DEFAULT_BASE_URL) -> None:
+    def __init__(
+        self,
+        base_url: str = DEFAULT_BASE_URL,
+        *,
+        turn: int | None = None,
+        thread_id: str | None = None,
+    ) -> None:
         self.base_url = base_url.rstrip("/")
+        self._obs_turn = turn
+        self._obs_thread_id = thread_id
 
     def _json_request(
         self,
@@ -218,6 +226,8 @@ class CalcClient:
                         latency_ms=(time.perf_counter() - t0) * 1000,
                         ok=False,
                         error="CalcClientError",
+                        turn=self._obs_turn,
+                        thread_id=self._obs_thread_id,
                     )
                     raise err from exc
                 status, result = resp.status, parsed
@@ -235,6 +245,8 @@ class CalcClient:
                 latency_ms=(time.perf_counter() - t0) * 1000,
                 ok=False,
                 error=type(exc).__name__,
+                turn=self._obs_turn,
+                thread_id=self._obs_thread_id,
             )
             raise CalcClientError(0, {"error": str(exc)}) from exc
         log_tool_call(
@@ -242,6 +254,8 @@ class CalcClient:
             args,
             latency_ms=(time.perf_counter() - t0) * 1000,
             ok=200 <= status < 300,
+            turn=self._obs_turn,
+            thread_id=self._obs_thread_id,
         )
         return status, result
 
@@ -314,6 +328,16 @@ class CalcClient:
 
 
 _default_client: CalcClient | None = None
+
+
+def calc_client_from_state(state: Mapping[str, Any]) -> CalcClient:
+    """Build a CalcClient stamped with explicit obs fields from graph state."""
+    turn = state.get("turn")
+    thread_id = state.get("obs_thread_id")
+    return CalcClient(
+        turn=turn if isinstance(turn, int) else None,
+        thread_id=thread_id if isinstance(thread_id, str) else None,
+    )
 
 
 def _client(base_url: str | None = None) -> CalcClient:

@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import json
+import threading
 import time
+from contextvars import ContextVar
 from pathlib import Path
+from typing import TypedDict
 
 import pytest
+from langgraph.graph import END, START, StateGraph
 
 from recommender.llm_invoke import LLMInvokeTimeout, invoke_with_timeout
-from recommender.tool_log import current_thread_id, current_turn
+from recommender.tool_log import log_tool_call
 
 
 class _FastParser:
@@ -81,25 +85,16 @@ def test_invoke_with_timeout_does_not_swallow_provider_exceptions():
         invoke_with_timeout(_RaisingParser(), {}, timeout=5.0)
 
 
-def test_copy_context_carries_turn_thread_into_worker(tool_log_path: Path):
-    """Real proof: worker sees parent ContextVars (not just 'should work')."""
-    seen: dict[str, object] = {}
-
-    class _Probe:
-        def invoke(self, payload):
-            seen["turn"] = current_turn.get()
-            seen["thread_id"] = current_thread_id.get()
-            return {"ok": True}
-
-    tok_t = current_turn.set(7)
-    tok_id = current_thread_id.set("team-abc")
-    try:
-        invoke_with_timeout(_Probe(), {"user_text": "x"}, timeout=5.0, tool="llm.probe")
-    finally:
-        current_turn.reset(tok_t)
-        current_thread_id.reset(tok_id)
-
-    assert seen == {"turn": 7, "thread_id": "team-abc"}
+def test_explicit_kwargs_logged_from_worker(tool_log_path: Path):
+    """Worker path closes over explicit turn/thread_id (not ContextVars)."""
+    invoke_with_timeout(
+        _FastParser(),
+        {"user_text": "x"},
+        timeout=5.0,
+        tool="llm.probe",
+        turn=7,
+        thread_id="team-abc",
+    )
     rows = _read_log(tool_log_path)
     assert len(rows) == 1
     assert rows[0]["turn"] == 7
@@ -150,47 +145,53 @@ def test_usage_metadata_logged_from_include_raw(tool_log_path: Path):
     assert rows[0]["provider"] == "ollama"
 
 
+def test_missing_usage_metadata_omits_token_fields(tool_log_path: Path):
+    class _NoUsage:
+        def invoke(self, payload):
+            return {
+                "raw": _RawMessage(None),
+                "parsed": {"x": 1},
+                "parsing_error": None,
+            }
+
+    invoke_with_timeout(_NoUsage(), {}, timeout=5.0, tool="llm.bootstrap_intake")
+    rows = _read_log(tool_log_path)
+    assert len(rows) == 1
+    assert "prompt_tokens" not in rows[0]
+    assert "completion_tokens" not in rows[0]
+
+
+class _CorrState(TypedDict, total=False):
+    turn: int
+    obs_thread_id: str
+
+
 def test_cross_node_llm_and_calc_share_turn_correlation(tool_log_path: Path):
-    """LLM log in node A + calc log in node B share (thread_id, turn).
+    """LLM log in node A + calc log in node B share explicit state-plumbed ids."""
 
-    This is the bug the threading.local fallback exists to fix — not a generic
-    "does threading.local store a value" check. LangGraph may start each node
-    with a fresh ContextVar context, so a ContextVar set while handling the LLM
-    call is invisible to a later node that logs a tool call. Without the
-    same-thread fallback, the calc line would lack turn/thread_id and turn
-    rollup could not join LLM + tools.
-    """
-    from typing import TypedDict
-
-    from langgraph.graph import END, START, StateGraph
-
-    from recommender.tool_log import bind_correlation, log_tool_call
-
-    class St(TypedDict, total=False):
-        ok: bool
-
-    ctx_seen_in_calc: dict[str, object] = {}
-
-    def node_llm(state: St) -> St:
-        bind_correlation(turn=9, thread_id="team-cross-node")
+    def node_llm(state: _CorrState) -> _CorrState:
         invoke_with_timeout(
-            _FastParser(), {"user_text": "x"}, timeout=5.0, tool="llm.turn_intent"
+            _FastParser(),
+            {"user_text": "x"},
+            timeout=5.0,
+            tool="llm.turn_intent",
+            turn=9,
+            thread_id="team-cross-node",
         )
-        return {"ok": True}
+        return {"turn": 9, "obs_thread_id": "team-cross-node"}
 
-    def node_calc(state: St) -> St:
-        # Capture what ContextVars alone would see in this later node.
-        ctx_seen_in_calc["turn"] = current_turn.get()
-        ctx_seen_in_calc["thread_id"] = current_thread_id.get()
+    def node_calc(state: _CorrState) -> _CorrState:
         log_tool_call(
             "CalcClient.POST /calculate/batch",
             {"n": 1},
             latency_ms=0.5,
             ok=True,
+            turn=state["turn"],
+            thread_id=state["obs_thread_id"],
         )
         return state
 
-    g = StateGraph(St)
+    g = StateGraph(_CorrState)
     g.add_node("llm", node_llm)
     g.add_node("calc", node_calc)
     g.add_edge(START, "llm")
@@ -206,22 +207,66 @@ def test_cross_node_llm_and_calc_share_turn_correlation(tool_log_path: Path):
     assert calc_rows[0]["turn"] == 9
     assert llm_rows[0]["thread_id"] == "team-cross-node"
     assert calc_rows[0]["thread_id"] == "team-cross-node"
-    # Explicit proof ContextVars alone do not bridge the node boundary.
-    assert ctx_seen_in_calc["turn"] is None
-    assert ctx_seen_in_calc["thread_id"] is None
 
 
-def test_missing_usage_metadata_omits_token_fields(tool_log_path: Path):
-    class _NoUsage:
-        def invoke(self, payload):
-            return {
-                "raw": _RawMessage(None),
-                "parsed": {"x": 1},
-                "parsing_error": None,
-            }
+def test_sequential_invokes_and_parent_contamination_do_not_leak(
+    tool_log_path: Path,
+):
+    """Two invokes with different turns, then a third after stray parent writes.
 
-    invoke_with_timeout(_NoUsage(), {}, timeout=5.0, tool="llm.bootstrap_intake")
+    The contamination step mirrors the old cli.py pre-invoke bind_correlation
+    pollution: writes on the calling thread outside any graph must not affect
+    explicitly plumbed log lines.
+    """
+
+    def _run_once(turn: int, thread_id: str) -> None:
+        def node_llm(state: _CorrState) -> _CorrState:
+            invoke_with_timeout(
+                _FastParser(),
+                {"user_text": "x"},
+                timeout=5.0,
+                tool="llm.turn_intent",
+                turn=turn,
+                thread_id=thread_id,
+            )
+            return {"turn": turn, "obs_thread_id": thread_id}
+
+        def node_calc(state: _CorrState) -> _CorrState:
+            log_tool_call(
+                "CalcClient.POST /calculate/batch",
+                {"n": 1},
+                latency_ms=0.5,
+                ok=True,
+                turn=state["turn"],
+                thread_id=state["obs_thread_id"],
+            )
+            return state
+
+        g = StateGraph(_CorrState)
+        g.add_node("llm", node_llm)
+        g.add_node("calc", node_calc)
+        g.add_edge(START, "llm")
+        g.add_edge("llm", "calc")
+        g.add_edge("calc", END)
+        g.compile().invoke({})
+
+    _run_once(9, "team-a")
+    _run_once(42, "team-b")
+
+    # Stray parent-thread writes — not part of any graph invocation.
+    stray_cv: ContextVar[int | None] = ContextVar("stray_turn", default=None)
+    stray_cv.set(1)
+    local = threading.local()
+    local.turn = 1
+
+    _run_once(42, "team-c")
+
     rows = _read_log(tool_log_path)
-    assert len(rows) == 1
-    assert "prompt_tokens" not in rows[0]
-    assert "completion_tokens" not in rows[0]
+    calc_turns = [
+        r["turn"]
+        for r in rows
+        if r["tool"] == "CalcClient.POST /calculate/batch"
+    ]
+    llm_turns = [r["turn"] for r in rows if r["tool"] == "llm.turn_intent"]
+    assert calc_turns == [9, 42, 42]
+    assert llm_turns == [9, 42, 42]

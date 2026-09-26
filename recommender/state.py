@@ -682,6 +682,7 @@ class RecommenderState(TypedDict):
     turn_intent: NotRequired[Optional[str]]
     turn_payload: NotRequired[Optional[TurnPayload]]
     turn: NotRequired[int]
+    obs_thread_id: NotRequired[str]
     superseded: NotRequired[list[SupersededEntry]]
     pending_flags: NotRequired[list[PendingFlag]]
     constraints_superseded: NotRequired[list[ConstraintSupersededEntry]]

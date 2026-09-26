@@ -6,7 +6,7 @@ from typing import Any, Literal, Optional
 
 from langgraph.types import RunnableConfig
 
-from recommender.calc_client import CalcClientError
+from recommender.calc_client import CalcClientError, calc_client_from_state
 from recommender.coverage import (
     compute_team_coverage,
     detect_spof,
@@ -163,6 +163,7 @@ def route_team_phase(_state: RecommenderState) -> dict:
 
 def classify_input(
     state: RecommenderState,
+    config: Optional[RunnableConfig] = None,
     *,
     bootstrap_intake_parser=None,
     turn_intent_parser=None,
@@ -170,23 +171,9 @@ def classify_input(
     text = state.get("pending_input")
     if not text:
         raise ValueError("pending_input is required for subsequent turns")
-    # Correlation for tool_log / LLM logs in this graph.invoke (incl. worker threads
-    # via copy_context in invoke_with_timeout). turn matches the value written below.
-    # bind_correlation also sets a threading.local fallback so later nodes still
-    # see turn/thread after LangGraph discards this node's ContextVar copy.
-    from recommender.tool_log import bind_correlation
-
     turn_n = state.get("turn", 0) + 1
-    thread_id: str | None = None
-    try:
-        from langgraph.config import get_config
-
-        raw_tid = (get_config().get("configurable") or {}).get("thread_id")
-        if isinstance(raw_tid, str) and raw_tid:
-            thread_id = raw_tid
-    except RuntimeError:
-        pass
-    bind_correlation(turn=turn_n, thread_id=thread_id)
+    raw_tid = ((config or {}).get("configurable") or {}).get("thread_id")
+    obs_thread_id = raw_tid if isinstance(raw_tid, str) and raw_tid else None
     result = classify_pending(
         text,
         state.get("pending_presentation"),
@@ -195,6 +182,8 @@ def classify_input(
         gap_fill_context=build_gap_fill_context(state),
         team_draft=state.get("team_draft"),
         last_system_claim=state.get("last_system_claim"),
+        turn=turn_n,
+        thread_id=obs_thread_id,
     )
     out = {
         "turn_intent": result["turn_intent"],
@@ -202,6 +191,7 @@ def classify_input(
         "pending_input": None,
         "last_user_text": text,
         "turn": turn_n,
+        "obs_thread_id": obs_thread_id,
         "slot_commit_error": None,
         "compare_analysis": None,
         "bootstrap_intake_error": None,
@@ -1207,7 +1197,13 @@ def handle_archetype_change(state: RecommenderState) -> dict:
             reason=ReasonRef(kind="user_stated"),
         )
     }
-    out.update(reconcile_on_archetype_change(state, new_components))
+    out.update(
+        reconcile_on_archetype_change(
+            state,
+            new_components,
+            calc_client=calc_client_from_state(state),
+        )
+    )
     return out
 
 
@@ -1612,6 +1608,7 @@ def _compute_team_review(
 
     thread_id = (config.get("configurable") or {}).get("thread_id")
     bind_matchup_memo_thread(thread_id)
+    client = calc_client_from_state(state)
     candidates = get_relevant_threats(state)
     specs = [c.spec for c in candidates]
     regulation = state.get("regulation_mod") or "champions"
@@ -1620,7 +1617,11 @@ def _compute_team_review(
     composition_gaps = _compute_composition_gaps(locked_contexts)
     try:
         coverage = compute_team_coverage(
-            draft, specs, regulation=regulation, locked_contexts=locked_contexts
+            draft,
+            specs,
+            client=client,
+            regulation=regulation,
+            locked_contexts=locked_contexts,
         )
     except (CalcClientError, MatchupEvidenceError) as exc:
         return _unavailable_team_review(
@@ -1628,7 +1629,11 @@ def _compute_team_review(
         )
     try:
         spofs = detect_spof(
-            draft, specs, regulation=regulation, locked_contexts=locked_contexts
+            draft,
+            specs,
+            client=client,
+            regulation=regulation,
+            locked_contexts=locked_contexts,
         )
     except (CalcClientError, MatchupEvidenceError) as exc:
         return _unavailable_team_review(
