@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import json
+import time
 import urllib.error
 import urllib.request
 from typing import Any, Literal, NotRequired, TypedDict
 
+from recommender.tool_log import log_tool_call
+
 DEFAULT_BASE_URL = "http://127.0.0.1:4173"
+DEFAULT_TIMEOUT_S = 5.0
 
 
 class CalcClientError(Exception):
@@ -189,29 +193,57 @@ class CalcClient:
         url = f"{self.base_url}{path}"
         data: bytes | None = None
         headers: dict[str, str] = {}
+        args: dict[str, Any] = {"path": path}
         if body is not None:
             data = json.dumps(body).encode()
             headers["Content-Type"] = "application/json"
+            if path.endswith("/batch") and isinstance(body.get("requests"), list):
+                args["n"] = len(body["requests"])
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
+        effective_timeout = DEFAULT_TIMEOUT_S if timeout is None else timeout
+        tool = f"CalcClient.{method} {path}"
+        t0 = time.perf_counter()
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
+            with urllib.request.urlopen(req, timeout=effective_timeout) as resp:
                 raw = resp.read()
                 try:
                     parsed = json.loads(raw.decode())
                 except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-                    raise CalcClientError(
+                    err = CalcClientError(
                         resp.status, {"error": f"invalid JSON response: {exc}"}
-                    ) from exc
-                return resp.status, parsed
+                    )
+                    log_tool_call(
+                        tool,
+                        args,
+                        latency_ms=(time.perf_counter() - t0) * 1000,
+                        ok=False,
+                        error="CalcClientError",
+                    )
+                    raise err from exc
+                status, result = resp.status, parsed
         except urllib.error.HTTPError as exc:
             raw = exc.read().decode()
             try:
                 parsed = json.loads(raw) if raw else {"error": exc.reason}
             except json.JSONDecodeError:
                 parsed = {"error": raw or exc.reason}
-            return exc.code, parsed
+            status, result = exc.code, parsed
         except (urllib.error.URLError, TimeoutError) as exc:
+            log_tool_call(
+                tool,
+                args,
+                latency_ms=(time.perf_counter() - t0) * 1000,
+                ok=False,
+                error=type(exc).__name__,
+            )
             raise CalcClientError(0, {"error": str(exc)}) from exc
+        log_tool_call(
+            tool,
+            args,
+            latency_ms=(time.perf_counter() - t0) * 1000,
+            ok=200 <= status < 300,
+        )
+        return status, result
 
     def health(self, *, timeout: float | None = None) -> HealthResponse:
         if timeout is None:

@@ -193,7 +193,7 @@ def test_live_fetch_falls_back_to_cbd_percentage_rows():
     assert rows[0].nature is None
 
 
-def test_live_fetch_caches_misses_and_rejects_unknown_regulation():
+def test_live_fetch_custom_fetcher_not_memoized_and_rejects_unknown_regulation():
     fetch_live_spreads.cache_clear()
     calls = []
 
@@ -201,9 +201,10 @@ def test_live_fetch_caches_misses_and_rejects_unknown_regulation():
         calls.append(url)
         return None
 
+    # Custom fetcher bypasses lower-level cache (no stale-None risk at that layer).
     assert fetch_live_spreads("MissingNo", "champions", fetch) == ()
     assert fetch_live_spreads("MissingNo", "champions", fetch) == ()
-    assert len(calls) == 2  # Showdown index, then CBD; second call is memoized.
+    assert len(calls) == 4  # Showdown index + CBD, twice.
 
     calls.clear()
     assert fetch_live_spreads("MissingNo", "champions-reg-zz", fetch) == ()

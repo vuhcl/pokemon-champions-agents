@@ -9,7 +9,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from recommender import calc_client
-from recommender.calc_client import CalcClient, CalcClientError, calc_startup_warning
+from recommender.calc_client import (
+    DEFAULT_TIMEOUT_S,
+    CalcClient,
+    CalcClientError,
+    calc_startup_warning,
+)
 from recommender.calc_service import CalcService, DEFAULT_REPO_ROOT
 
 GARCHOMP = {
@@ -328,4 +333,39 @@ def test_live_sets_roundtrip():
         assert "Garchomp" in text
         imported = client.sets_import(text)
         assert imported.get("species") == "Garchomp"
+
+
+def test_default_timeout_passed_to_urlopen():
+    client = CalcClient("http://127.0.0.1:9")
+    response = MagicMock()
+    response.status = 200
+    response.read.return_value = json.dumps(CALC_SUCCESS).encode()
+    response.__enter__ = MagicMock(return_value=response)
+    response.__exit__ = MagicMock(return_value=False)
+    with patch(
+        "recommender.calc_client.urllib.request.urlopen", return_value=response
+    ) as urlopen:
+        client.calculate(GARCHOMP, KINGAMBIT, "Earthquake")
+    assert urlopen.call_args.kwargs.get("timeout") == DEFAULT_TIMEOUT_S
+
+
+def test_default_timeout_bounds_hanging_connection():
+    """Real TCP accept-without-respond; client must fail closed within the timeout window."""
+    import socket
+    import time
+
+    sock = socket.socket()
+    sock.bind(("127.0.0.1", 0))
+    sock.listen(1)
+    port = sock.getsockname()[1]
+    client = CalcClient(f"http://127.0.0.1:{port}")
+    try:
+        with patch.object(calc_client, "DEFAULT_TIMEOUT_S", 0.15):
+            t0 = time.perf_counter()
+            with pytest.raises(CalcClientError):
+                client.calculate(GARCHOMP, KINGAMBIT, "Earthquake")
+            elapsed = time.perf_counter() - t0
+        assert elapsed < 1.0, f"hung for {elapsed:.2f}s; default timeout not applied"
+    finally:
+        sock.close()
 

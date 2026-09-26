@@ -5,7 +5,6 @@ from __future__ import annotations
 import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import Any
 
 from recommender.ids import to_id
@@ -147,13 +146,16 @@ def _cbd_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
-@lru_cache(maxsize=128)
 def fetch_live_spreads(
     species: str,
     regulation: str = "champions",
     fetch_json: JsonFetch = fetch_json,
 ) -> tuple[SpreadEvidence, ...]:
-    """Fetch one species' structured spreads; misses and failures are cached."""
+    """Fetch one species' structured spreads.
+
+    No spreads-level cache — lower ``fetch_live_*`` caches legitimate misses only
+    (transport failures are not memoized). ``cache_clear`` clears those caches.
+    """
     if not supports_live_usage(regulation):
         return ()
     detail = fetch_live_showdown_detail(species, regulation, fetch_json)
@@ -174,6 +176,14 @@ def fetch_live_spreads(
         source="cbd-live",
         weight_kind="percentage",
     )
+
+
+def _fetch_live_spreads_cache_clear() -> None:
+    fetch_live_showdown_detail.cache_clear()
+    fetch_live_cbd_battle.cache_clear()
+
+
+fetch_live_spreads.cache_clear = _fetch_live_spreads_cache_clear  # type: ignore[attr-defined]
 
 
 def effective_spe(
