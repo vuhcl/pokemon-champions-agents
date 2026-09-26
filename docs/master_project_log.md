@@ -5912,6 +5912,145 @@ produces vague hedged prose instead.
 
 PR #220 merged.
 
+### 2026-09-25 (cont.) — LLM-call observability: correlation bug found and fixed post-draft
+
+The `ContextVar` + `threading.local`-fallback design for `(turn, thread_id)` correlation
+(first draft of this entry, above) shipped with a passing test suite but was not actually
+correct. A stronger cross-node test — built specifically to close a scrutiny gap flagged
+before merge, not discovered independently — failed: `calc_rows[0]["turn"] == 1` when it
+should have been `9`. Not a missing value; a confidently wrong one, silently logged.
+
+Root cause (confirmed via direct instrumentation): `bind_correlation()` set a `ContextVar`
+with no reset lifecycle, so a one-time pre-`graph.invoke()` write in `cli.py` leaked
+forward into every later invocation on that thread for the rest of the process. A second,
+independent bug compounded it: the correlation lookup preferred the (stale) `ContextVar`
+over the (correct) `threading.local` value on the same shared thread. LangGraph's actual
+node-dispatch model (both nodes ran on one OS thread in the failing case, confirmed
+directly) was never the problem — the first hypothesis (thread-pool worker reuse) was
+wrong and correctly ruled out before attempting a fix.
+
+Fixed by removing both mechanisms entirely — see ADR-068. Correlation is now explicit
+state: `classify_input` derives `turn`/`obs_thread_id` from `config`/`state` directly and
+writes them into `RecommenderState`; every consumer (`CalcClient`, `invoke_with_timeout`,
+the `classify_pending` chain) receives them as ordinary function arguments, nothing
+implicit anywhere. New regression test reproduces the exact contamination shape that
+caused the original bug (a stray `ContextVar`/`threading.local` write on the calling
+thread, mirroring `cli.py`'s old pre-invoke pattern) and confirms it can no longer leak,
+since the mechanisms that could carry it are gone, not just guarded against.
+
+1790 passed, 10 skipped. Branch `feat/llm-call-observability`, merged.
+
+**Worth recording as a methodology point, not just a bug:** the original cross-node test
+passed and still shipped a real defect — it proved the fallback mechanism *could* produce
+a correct value in isolation, not that it survived realistic conditions (sequential
+invocations, stray state from unrelated code on the same thread). The fix came from
+writing a harder test against a specific, named failure shape, not from re-reading the
+implementation more carefully. Same standard already applied elsewhere in this project
+(e.g. the bare-LLM eval's mechanical-claims scoring gate) — a green test suite is only as
+strong as what the tests actually force to be true.
+
+## 2026-09-25 — Multi-turn steering eval, both reconciliation halves, and full
+tool-call/LLM-call observability (PRs #221–#226)
+
+Closed out three related gaps in one arc, each surfacing a real, previously-
+undetected issue along the way rather than shipping clean on the first pass.
+
+**Multi-turn steering correctness eval (PR #221).** Failure mode #5 in this
+log ("dropping user constraints over a multi-turn conversation") was flagged
+in the original entry as "worth a basic regression check once multi-turn
+steering exists" — steering landed 2026-07-29, and this check was never built
+until now. 11 scripted scenarios (deterministic harness: real `compile_graph`
++ `MemorySaver`/SQLite + `classify_pending` monkeypatch, no live LLM),
+asserting `Attr`/`superseded`/`pending_flags`/`rejected` state after every
+turn against the documented ADR-020 contract. One scenario (contradictory
+constraints supersede) was deliberately omitted rather than invented, since no
+ADR/log entry pinned that contract at the time — see below for how this was
+closed.
+
+**Constraint→lock reconciliation wired (PR #222, ADR-020 Amendment
+2026-09-25a).** ADR-020's original design named "a new team-wide constraint is
+recorded" as a reconciliation trigger on equal footing with archetype change,
+but only the archetype half was ever wired. `record_constraint` never called
+reconciliation at all. Real finding: the steering eval's scenario `#09`
+("non-conflicting constraint leaves lock untouched") had been passing
+*vacuously* — not because reconciliation correctly determined no conflict, but
+because nothing ran at all. Fixed and the scenario rewritten to exercise a
+genuine conflict.
+
+**Constraint-vs-constraint axis supersede (PR #223, ADR-020 Amendment
+2026-09-25b).** Closes the gap #222 explicitly left open: two contradictory
+hard constraints (e.g. "must be Fire type" then "must be Water type") both
+stayed `still_active=True` forever, with no supersede semantics at all.
+Newest-wins by axis replacement, restorable via a new `restore_constraint`
+intent with a genuine true-swap (confirmed via a live spot-check: restoring an
+older constraint correctly deactivates the current winner, not just
+reactivates the old one) and its own recoverable log, kept separate from Attr's
+existing `superseded`/`pending_flags` shapes rather than overloading them.
+Steering eval now 12/12.
+
+**Tool-call observability (PR #224).** No structured tracing, retry policy, or
+timeout existed on any tool-call surface. Found two real bugs while building
+this, not just adding logging: live-fetch functions permanently memoized
+transient failures as genuine misses (via `@lru_cache` around a function that
+returned the same `None` for both cases); `CalcClient` had no default
+timeout at all (genuinely unbounded `urlopen`). Fixed both; added an explicit,
+asymmetric retry policy (live-fetch retries transient failures, never
+deterministic ones; `CalcClient` never retries, relies on a measured 5s
+timeout instead) — see ADR-068. JSONL structured logging added
+(`recommender/tool_log.py`), no hosted dependency.
+
+**Measured observability report (PR #225).** Ran the existing Part 1
+(mech/legality, 15 scenarios each) and steering (12 scenarios) suites with
+logging on, aggregated real per-tool latency/failure/retry counts into
+`eval_results.md`. Retries observed: 0 across all three suites — stated
+plainly as "nothing actually retried" (a coverage gap in what these
+deterministic suites exercise), not implied as "retries are never needed."
+Complements the heavier `query_threat_counters` wall-clock already measured
+during #224 (Incineroar ~303ms, Rillaboom ~630ms cold).
+
+**LLM-call observability, a real correlation bug found and fixed (PR #226,
+ADR-069).** Extended the same logging to LLM invocations (latency, provider,
+token counts via LangChain's normalized `usage_metadata`), correlated to
+`(turn, thread_id)` via a `ContextVar` + `threading.local` fallback design.
+This shipped with a passing test suite, including a cross-node correlation
+test — but that test was later recognized as too weak, and a stronger one
+(two real graph nodes, asserting both a real LLM-node log line and a
+later-node calc log line share one `turn`) failed: `calc_rows[0]["turn"]`
+returned `1` instead of `9` — a **silently wrong value**, not a missing one.
+Root cause: `bind_correlation()` set a `ContextVar` with no reset lifecycle,
+so a one-time pre-invoke write in `cli.py` leaked into every later invocation
+on that thread for the rest of the process, and the correlation lookup
+preferred that stale value over the correct `threading.local` one. Fixed by
+removing both mechanisms entirely and passing `turn`/`thread_id` as explicit
+state/arguments everywhere — no implicit lookup of any kind. New regression
+test reproduces the exact contamination shape (a stray `ContextVar`/
+`threading.local` write on the calling thread, mirroring the old `cli.py`
+pattern) across three sequential invocations and confirms it can no longer
+leak, since the leak vector no longer exists rather than being merely guarded
+against.
+
+First real measured LLM-call numbers, from the existing species-fact live-
+Ollama harness (`qwen2.5:7b`, `--mode after`): 26 LLM turns, mean ~817ms
+latency, ~1869 prompt / ~33 completion tokens per turn. Caveat, stated
+plainly: short scripted probe, one local model only (the Anthropic token-
+extraction path was reasoned through but never live-probed, since
+`langchain-anthropic` isn't installed by default), and LLM-heavy and
+calc-heavy turns didn't happen to overlap in this harness, so a real combined
+"total cost of one turn doing both" number doesn't exist yet.
+
+**Worth recording as a standing methodology point, not just today's bug:** the
+correlation bug is a clean example of a test that passed while still shipping
+a real defect, because it only proved a mechanism *could* work in one
+isolated case, not that it survived realistic conditions. The fix came from
+someone asking for a harder test against a specific, named failure shape —
+not from re-reading the implementation more carefully. Worth holding future
+"prove X works across a boundary" tests to this same bar: does the test
+reproduce the actual adversarial condition (stale state, sequential reuse,
+contamination from unrelated code), or does it only exercise the happy path
+once, cleanly.
+
+1790 passed, 10 skipped (final, after #226's fix). PRs #221–#226 all merged.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

@@ -743,6 +743,38 @@ skipped, matching the established baseline. Read-only mirrors untouched.
 
 ---
 
+### ADR-010 — Amendment 2026-09-25a
+
+**Corrects Amendment 2026-08-11a: `full_build_confirmation`'s defer path emits
+`build_abandoned`, not `deferred` — confirmed as intentional shipped behavior,
+not a bug to fix toward the ADR's original wording.**
+
+Amendment 2026-08-11a stated that defer on `candidate_selection`,
+`completion_preference`, and `full_build_confirmation` all emit
+`turn_intent="deferred"`. That overstated shipped behavior for the third case.
+Confirmed directly against production code and existing tests:
+
+- `candidate_selection` / `completion_preference` defer → `turn_intent="deferred"`,
+  pending cleared, routes to `finish_pending_response`.
+- `full_build_confirmation` defer → `turn_intent="build_abandoned"`, provisional/
+  pending cleared, routes to `route_team_phase` (rediscovery).
+
+`pending_response` remains reserved for genuinely unmatched input in all three
+cases, unaffected by this correction. The `build_abandoned` path for full-build
+soft-exit is the correct, intentional behavior — a full-build abandonment is a
+structurally different event from a lighter-weight candidate/preference defer
+(it discards a provisional build and returns to rediscovery, rather than simply
+clearing a pending presentation), so a distinct `turn_intent` is the right
+design, not drift to be patched toward matching the other two.
+
+**Status:** Corrects Amendment 2026-08-11a's text. No code change — this
+amendment brings the ADR in line with what was already shipped and tested.
+Confirmed via the multi-turn steering eval's scenario `#08`, which asserts this
+exact split (`deferred` for the first two, `build_abandoned` for the third) as
+shipped, intentional behavior.
+
+---
+
 ## ADR-012: Team-selection-at-Team-Preview as a recommender extension
 **Decision:** In addition to building the initial 6-Pokémon team, extend the recommender to handle the "given my 6 and the opponent's revealed 6, which 4 do I bring" decision. This is a static decision problem solvable with the same legality/matchup-calc tools already in scope — it does not require the battle-log parser or the RL policy, so it's a natural extension of the recommender (phase 1/1.5), not tied to the harder piloting/RL phase (phase 3).
 **Status:** Decided as a scoped extension. Build after the core 6-Pokémon recommender loop works; don't build simultaneously with the first working version.
@@ -4806,6 +4838,113 @@ Known, deliberate scope boundaries carried from design into implementation:
 
 **Status:** Implemented. Reconciliation's tier-3 ceiling and the Compendium dependency are
 tracked in master_project_log.md's flagged-gaps section, not repeated here.
+
+---
+
+### ADR-020 — Amendment 2026-09-25a
+
+**Constraint→lock reconciliation wired (trigger #1 constraint half).**
+
+`record_constraint` and the claim-correction constraint-append path now call
+`reconcile_on_constraint_change`, reusing `_apply_mismatch` / superseded /
+`exempt_from_theme` / pending_flags exactly as archetype reconcile does.
+
+**Check shape (not `check_theme_fit`):** hard constraints are boolean; soft
+early-returns before any check; unenforceable hard (`mechanical is None`)
+skips lock mutation. Per-slot `check_constraint_fit` covers type / ability /
+item. `no_duplicate_items` uses a dedicated team-level path, since it's the one
+constraint kind that is genuinely non-decomposable to a single slot. `team_wide`
+type means universal monotype (`types ⊆ {X}`), matching discovery — confirmed
+directly against shipped code that the existential reading ("must include X
+somewhere") does not exist on hard `MechanicalSpec` today; no test/prompt path
+maps that phrasing onto a hard constraint, so per-slot decomposition for
+`team_wide` type is a naming confirmation, not a design change.
+
+**Also:** `ability` added to `reconcile.SLOT_ATTRS` (aligned with `SlotAttrName`).
+
+**Explicitly deferred:** constraint-vs-constraint supersede (`still_active=False`
+on constraints themselves) — see Amendment 2026-09-25b below, which closes this.
+Steering eval scenario `#10` was held omitted pending that design, per the
+original brief's own "don't invent expectations" rule.
+
+**Status:** Implemented (`recommender/reconcile.py`, `nodes.py`); verified via
+recommender pytest + `scripts/eval/run_steering.py` (scenario `#09` rewritten to
+exercise a genuine conflict rather than passing vacuously — the initial version
+of this scenario passed only because reconciliation was unwired, not because it
+correctly determined no conflict existed; this is itself worth recording as the
+kind of test-validity gap worth catching, not just a system defect).
+
+---
+
+### ADR-020 — Amendment 2026-09-25b
+
+**Constraint-vs-constraint axis supersede (newest wins), restorable — closes
+the gap Amendment 2026-09-25a explicitly left open.**
+
+Hard `MechanicalSpec` constraints on the same `(kind, scope)` axis with a
+different normalized `value` now deactivate the older entry
+(`still_active=False`), log to a new `constraints_superseded` list, and flag via
+a new `constraint_flags` structure (kind `constraint_axis_superseded`). Applies
+to `type`, `item`, and `ability`. Soft constraints and `no_duplicate_items` are
+excluded — soft constraints are never subject to this path at all (mirrors the
+existing hard early-return in `reconcile_on_constraint_change`), and
+`no_duplicate_items`'s value is always `""`, so it has no axis to supersede on.
+
+**Detection policy — axis replacement, not logical unsatisfiability, and this
+was a deliberate choice, not the only option considered.** Two contradictory
+constraints on the same axis (e.g. "must be Fire type" then later "must be
+Water type," both `per_slot`) are treated as a mind-change signal regardless of
+whether some candidate could theoretically satisfy both (a Fire/Water dual-type
+would, in principle) — checking genuine logical unsatisfiability was
+considered and rejected as the default rule: it's clean only for `team_wide`
+type (monotype vs. monotype is genuinely exclusive), but messy or
+underspecified for `per_slot` type, `item`, and `ability`, where a strict
+unsatisfiability test would leave most real contradictions uncaught. Ability
+was deliberately included under the same axis-replacement policy rather than
+deferred for its own multi-ability-species nuance, since the downside of an
+occasional false-positive supersede (mild, and fully restorable) is smaller
+than the cost of leaving most real ability contradictions undetected.
+
+**Log and flag structures are separate from Attr's existing shapes, not
+stretched to fit.** `SupersededEntry`/`PendingFlag` are Attr-shaped
+(`slot_index` + `SlotAttrName`) and don't represent a deactivated constraint
+without sentinel abuse — a new `constraints_superseded` log and
+`constraint_flags` structure were added instead of overloading the existing
+ones, keeping the eval's existing `pending_flag_kinds` assertions (scenarios
+`#04`/`#09`) uncontaminated by fake Attr entries.
+
+**Restore: new `restore_constraint` intent, true-swap, one-level-per-log.**
+Not an extension of the existing `restore`/`RestorePayload` shape, which is
+built around `slot_index`/`SlotAttrName` and has no way to name a constraint.
+`restore_constraint` pops the most recent `constraints_superseded` entry,
+reactivates it, and deactivates whichever constraint currently holds that
+`(kind, scope)` axis as the active winner — a genuine swap, not an append;
+leaving both active after a restore would silently reopen the original
+contradiction, confirmed via a dedicated live spot-check (real
+`compile_graph` + `MemorySaver`, `classify_pending` monkeypatched): Fire
+locked → Water supersedes Fire (logged, flagged) → `restore_constraint` →
+Fire active again, Water inactive, log emptied → a second `restore_constraint`
+is a correct no-op. One-level-of-undo per log — Attr restore and constraint
+restore don't share a stack or consume each other, since nothing in the design
+called for chaining across the two. Restoring a constraint explicitly re-runs
+`reconcile_on_constraint_change` on the reactivated rule (confirmed directly
+against the shipped code, not just asserted) — a restore isn't a passive
+reactivation, it re-triggers reconciliation against whatever locks currently
+exist.
+
+**No reverse wiring into constraint→lock reconciliation, by design.**
+Deactivating a constraint does not retroactively touch `team_draft` or Attr
+`superseded`/restore anything a prior version of that constraint had caused to
+reopen — only an explicit Attr-level restore does that. Confirmed achievable
+with zero new machinery, since `record_constraint` only ever runs
+`reconcile_on_constraint_change` on the *new* constraint, nothing walks
+backward on deactivate.
+
+**Status:** Implemented (branch `feat/constraint-axis-supersede`). Steering
+eval scenario `#10` now covers type-axis supersede, the `restore_constraint`
+true-swap, the soft-constraint no-op case, and ability-axis replacement — 12/12
+scenarios passing. `eval_results.md`'s prior Known Limitations note on this gap
+is closed.
 
 ---
 
@@ -11113,3 +11252,159 @@ fixed and verified against all four artifacts (audit + rescore documented in
 `eval_results.md`). Runner: `scripts/eval/run_bare_llm_baseline.py --condition
 {chat,slot,both}`. Scorer: `scripts/eval/bare_llm_score.py`. Artifacts:
 `scripts/eval/artifacts/bare_llm_{chat,slot}_{qwen25,qwen35}.json`.
+
+---
+
+## ADR-068: Tool-call retry and timeout policy — explicit, asymmetric by design
+
+**Decision:** Two tool-call surfaces get deliberately different retry/timeout
+policies, chosen from what each surface actually is, not a single uniform rule:
+
+- **ADR-014 live-fetch functions** (`fetch_json` and its callers,
+  `fetch_live_cbd_battle`/`fetch_live_showdown_detail`/`fetch_live_spreads`):
+  bounded retry — up to 3 attempts, exponential backoff 0.2s → 0.4s — for
+  **transient** failures only (`TimeoutError`/`URLError`/`OSError`/HTTP 5xx).
+  **Deterministic** failures (HTTP 4xx including 404, `JSONDecodeError`, "no
+  live format for this regulation," "species absent from a successfully
+  fetched index") never retry — retrying a genuine, reproducible miss (e.g. a
+  brand-new regulation with no usage data yet) wastes latency for a guaranteed
+  identical result. After retries are exhausted on a transient failure,
+  `fetch_json` raises `LiveFetchError` rather than returning `None` — the
+  distinction between "confirmed absent" and "couldn't determine after 3
+  tries" must not collapse into the same bare return value at the function
+  boundary, or the whole point of separating the two failure classes is lost
+  before it reaches any caller.
+- **`CalcClient`**: no retry at all. The calc service is local and expected to
+  be either up or down — "not started" doesn't heal with retries, and retrying
+  only delays reaching the already-correct degraded-mode message
+  (`calc_startup_warning`). Hang protection is a `DEFAULT_TIMEOUT_S = 5.0` on
+  every previously-unbounded `_json_request` call site (`calculate`,
+  `calculate_batch`, `sets_*`), not a retry mechanism — chosen against
+  observed reality, not guessed: measured `/calculate` latency is sub-1ms and
+  an 8-request batch ~0.3ms median, so 5s is roughly 500× headroom for a load
+  spike while still failing far faster than an LLM call's own timeout budget.
+
+**Alternatives considered:** a uniform retry policy across both surfaces
+(rejected — conflates "local service, binary up/down" with "external source,
+plausibly transient" into one rule that fits neither well); retrying all
+failures indiscriminately on the live-fetch path (rejected — wastes latency on
+deterministic misses, and was the originally-suspected but ultimately
+incorrect first guess before checking whether "no retry" on that path had ever
+been a deliberate decision or simply never built).
+
+**Two real bugs found and fixed alongside this decision, independent of the
+retry-policy question itself:**
+1. `fetch_live_cbd_battle`/`fetch_live_showdown_detail` (and, found in the same
+   pass, `fetch_live_spreads`) were `@lru_cache`-wrapped around `fetch_json`. A
+   transient failure returned `None`, which then got **permanently memoized as
+   a genuine miss** for the rest of the process's life — indistinguishable
+   from a real "this doesn't exist." Fixed with cache-on-success-only: a
+   deterministic `None` (confirmed 404/absent-from-index/no-live-format) is
+   still cached; a `LiveFetchError` from exhausted transient retries is never
+   cached, forcing a fresh attempt on the next call.
+2. `CalcClient`'s HTTP calls had no default timeout at all
+   (`urlopen(..., timeout=None)` — genuinely unbounded). A hung connection to
+   the calc service could block indefinitely. Fixed with the 5s default above.
+
+**Status:** Implemented (branch `feat/tool-call-observability`), verified via
+dedicated tests proving both fixes actually work — not just "looks reasonable"
+— including a transient-failure-then-success case confirming the fix doesn't
+return a stale cached `None`, a legitimate-404-stays-cached case confirming the
+fix doesn't over-correct into never caching anything, and a hanging-connection
+case confirming the timeout actually fires rather than hanging. Structured
+JSONL logging (`recommender/tool_log.py`) added alongside this — see the
+project log for measured latency numbers from real scripted-suite runs.
+
+---
+
+## ADR-069: Observability correlation must be explicit state, never thread- or context-implicit
+
+**Decision:** `tool_log.py`'s `(turn, thread_id)` correlation fields are passed
+as ordinary, explicit function arguments at every call site — sourced from
+`RecommenderState` (`state["turn"]`/`state["obs_thread_id"]`) or
+`RunnableConfig` (`thread_id`), never from a `ContextVar`, `threading.local`,
+or any other ambient/implicit mechanism.
+
+**Alternatives considered and actually shipped, then reverted:** a
+`ContextVar`-based scheme (`bind_correlation()`, set once per turn in
+`classify_input`, read implicitly wherever `log_tool_call` is called), with a
+`threading.local` fallback specifically added to survive LangGraph's per-node
+`ContextVar` reset for the LLM-invoke worker-thread case.
+
+**Why the implicit approach failed — found via a test, not by inspection.** The
+first implementation shipped with a passing suite, including a dedicated
+cross-node correlation test. That test was later recognized as too weak — it
+proved the fallback *could* produce a correct value in an isolated case, not
+that it survived realistic conditions. A stronger test (a real compiled
+`StateGraph`, `node_llm` → `node_calc`, asserting both log lines share one
+`(turn, thread_id)`) failed:
+
+    assert calc_rows[0]["turn"] == 9
+    E    assert 1 == 9
+
+This was not a missing-value failure, which would have surfaced immediately as
+a visible `None` in any real log — it was a **confidently wrong, silently
+logged value**, caught only because the test asserted the specific expected
+number rather than merely "a value was present."
+
+**Root cause, confirmed via direct instrumentation, not inferred — two
+independent, compounding bugs, not one:**
+1. `bind_correlation()` called `ContextVar.set()` with no token/reset lifecycle
+   at all — an ordinary global-variable write pattern applied to a mechanism
+   that requires scoped `token = var.set(...)` / `var.reset(token)` to behave
+   correctly. `cli.py`'s `invoke_user_text` called it once, pre-`graph.invoke()`,
+   on the calling thread — and that value then leaked forward into **every
+   subsequent graph invocation on that thread for the rest of the process's
+   life**, since nothing ever reset it.
+2. The correlation lookup preferred the (stale, leaked) `ContextVar` over the
+   (correct, freshly-written) `threading.local` value on the same shared
+   thread — so the one mechanism that was actually working correctly got
+   silently overridden by the one that was broken.
+
+Confirmed directly (not assumed) that LangGraph's synchronous
+`StateGraph.invoke()` ran both nodes on one OS thread in the failing case —
+this was never a thread-pool/worker-reuse problem, which was the first,
+reasonable-but-wrong hypothesis, checked and correctly ruled out before
+attempting a fix. The actual cause was `ContextVar` cross-node isolation
+(LangGraph's own execution model) combined with a leaked, never-reset write on
+the parent/calling thread — a bug that would have existed regardless of
+LangGraph's threading model.
+
+**Why this matters more than a typical bug:** a silently wrong correlation
+value is worse than a missing one for an observability system specifically — a
+`None` is visible in any aggregate as an obvious gap; a wrong-but-present
+`turn` value mis-attributes a real tool call to the wrong turn with nothing
+anywhere to flag it. This is exactly the failure class the observability
+effort exists to prevent, found to be possible *inside* the observability
+mechanism itself.
+
+**Fix — a redesign, not a patch.** Removed `ContextVar`, `threading.local`,
+and `bind_correlation()` entirely; no fallback chain, no implicit lookup of
+any kind. `classify_input` now takes `config: Optional[RunnableConfig]`
+directly, derives `obs_thread_id` from it explicitly, computes `turn_n`, and
+writes both into the returned state so every downstream node has them as
+ordinary state fields. `CalcClient` takes `turn`/`thread_id` at construction
+(`calc_client_from_state(state)` builds one stamped from current state);
+`invoke_with_timeout` takes them as explicit parameters, closed over into its
+worker via normal Python closure semantics — no `copy_context()` needed, since
+closures over real function parameters already cross threads correctly; only
+*ambient* state (`ContextVar`/`threading.local`) doesn't.
+
+**Verification:** the cross-node test still passes, plus a new regression
+test built specifically to reproduce the actual failure shape — two sequential
+graph invocations with different `turn` values, followed by a deliberately
+injected stray `ContextVar` **and** `threading.local` write on the calling
+thread (explicitly reproducing the exact `cli.py` pre-invoke contamination
+pattern that caused the original bug), then a third invocation — asserting
+`calc_turns == [9, 42, 42]` and `llm_turns == [9, 42, 42]`. Since neither
+`log_tool_call` nor `invoke_with_timeout` reads any `ContextVar`/
+`threading.local` at all anymore, this isn't "verified not to leak this time"
+— the leak vector was deleted, not defended against.
+
+**Status:** Implemented and verified (branch `feat/llm-call-observability`,
+merged). Stands as a concrete example of a broader project discipline worth
+naming explicitly: a test that merely proves a mechanism *can* work in
+isolation is a weaker claim than a test that proves it survives realistic
+conditions — the first cross-node test here passed and still shipped a real
+bug; the fix came from writing a harder test, not from re-reading the
+implementation more carefully.
