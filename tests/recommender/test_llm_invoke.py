@@ -150,18 +150,65 @@ def test_usage_metadata_logged_from_include_raw(tool_log_path: Path):
     assert rows[0]["provider"] == "ollama"
 
 
-def test_bind_correlation_survives_cleared_contextvars(tool_log_path: Path):
-    """threading.local fallback: later code with fresh ContextVars still correlates."""
+def test_cross_node_llm_and_calc_share_turn_correlation(tool_log_path: Path):
+    """LLM log in node A + calc log in node B share (thread_id, turn).
+
+    This is the bug the threading.local fallback exists to fix — not a generic
+    "does threading.local store a value" check. LangGraph may start each node
+    with a fresh ContextVar context, so a ContextVar set while handling the LLM
+    call is invisible to a later node that logs a tool call. Without the
+    same-thread fallback, the calc line would lack turn/thread_id and turn
+    rollup could not join LLM + tools.
+    """
+    from typing import TypedDict
+
+    from langgraph.graph import END, START, StateGraph
+
     from recommender.tool_log import bind_correlation, log_tool_call
 
-    bind_correlation(turn=3, thread_id="team-x")
-    # Simulate LangGraph starting a later node with a fresh context.
-    current_turn.set(None)
-    current_thread_id.set(None)
-    log_tool_call("CalcClient.POST /x", {"n": 1}, latency_ms=1.5, ok=True)
+    class St(TypedDict, total=False):
+        ok: bool
+
+    ctx_seen_in_calc: dict[str, object] = {}
+
+    def node_llm(state: St) -> St:
+        bind_correlation(turn=9, thread_id="team-cross-node")
+        invoke_with_timeout(
+            _FastParser(), {"user_text": "x"}, timeout=5.0, tool="llm.turn_intent"
+        )
+        return {"ok": True}
+
+    def node_calc(state: St) -> St:
+        # Capture what ContextVars alone would see in this later node.
+        ctx_seen_in_calc["turn"] = current_turn.get()
+        ctx_seen_in_calc["thread_id"] = current_thread_id.get()
+        log_tool_call(
+            "CalcClient.POST /calculate/batch",
+            {"n": 1},
+            latency_ms=0.5,
+            ok=True,
+        )
+        return state
+
+    g = StateGraph(St)
+    g.add_node("llm", node_llm)
+    g.add_node("calc", node_calc)
+    g.add_edge(START, "llm")
+    g.add_edge("llm", "calc")
+    g.add_edge("calc", END)
+    g.compile().invoke({})
+
     rows = _read_log(tool_log_path)
-    assert rows[-1]["turn"] == 3
-    assert rows[-1]["thread_id"] == "team-x"
+    llm_rows = [r for r in rows if r["tool"] == "llm.turn_intent"]
+    calc_rows = [r for r in rows if r["tool"] == "CalcClient.POST /calculate/batch"]
+    assert len(llm_rows) == 1 and len(calc_rows) == 1
+    assert llm_rows[0]["turn"] == 9
+    assert calc_rows[0]["turn"] == 9
+    assert llm_rows[0]["thread_id"] == "team-cross-node"
+    assert calc_rows[0]["thread_id"] == "team-cross-node"
+    # Explicit proof ContextVars alone do not bridge the node boundary.
+    assert ctx_seen_in_calc["turn"] is None
+    assert ctx_seen_in_calc["thread_id"] is None
 
 
 def test_missing_usage_metadata_omits_token_fields(tool_log_path: Path):
