@@ -17,6 +17,9 @@ ollama = [
 anthropic = [
     "langchain-anthropic>=0.3",
 ]
+laya = [
+    "laya>=0.3,<0.4",
+]
 
 [build-system]
 requires = ["setuptools>=68"]

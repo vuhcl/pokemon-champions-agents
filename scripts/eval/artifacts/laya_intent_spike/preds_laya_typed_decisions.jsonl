@@ -1,0 +1,63 @@
+{"id": "held_out_neg_ban_1", "gold": "rejection", "pred": "rejection", "confidence": 0.1791, "latency_ms": 101.46274999715388, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_neg_ban_2", "gold": "rejection", "pred": "lock", "confidence": 0.157, "latency_ms": 66.21912500122562, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_neg_soft_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.29, "latency_ms": 69.04724997002631, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_neg_soft_2", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.6606, "latency_ms": 69.30308399023488, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_lock_1", "gold": "lock", "pred": "lock", "confidence": 0.4522, "latency_ms": 63.02595802117139, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_lock_2", "gold": "lock", "pred": "lock", "confidence": 0.278, "latency_ms": 61.187207989860326, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_rej_vs_lock_2", "gold": "rejection", "pred": "rejection", "confidence": 0.2086, "latency_ms": 62.808083021081984, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_cc_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.2256, "latency_ms": 65.48179202945903, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_restore_1", "gold": "restore", "pred": "team_review", "confidence": 0.2192, "latency_ms": 58.958834037184715, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_restore_2", "gold": "restore", "pred": "repick_locked_slot", "confidence": 0.2862, "latency_ms": 62.2964589856565, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_reset_2", "gold": "reset", "pred": "reset", "confidence": 0.9155, "latency_ms": 62.79016600456089, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_rest_attr_1", "gold": "restore", "pred": "repick_locked_slot", "confidence": 0.5372, "latency_ms": 59.13183401571587, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_rest_con_1", "gold": "restore_constraint", "pred": "restore_constraint", "confidence": 0.3468, "latency_ms": 61.12416594987735, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_rest_con_2", "gold": "restore_constraint", "pred": "restore_constraint", "confidence": 0.3453, "latency_ms": 63.22283303597942, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_revise_1", "gold": "revise_locked_slot", "pred": "edit", "confidence": 0.2894, "latency_ms": 62.29016702855006, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_revise_2", "gold": "revise_locked_slot", "pred": "team_review", "confidence": 0.2228, "latency_ms": 69.14216699078679, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_repick_2", "gold": "repick_locked_slot", "pred": "repick_locked_slot", "confidence": 0.577, "latency_ms": 62.41916702128947, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_revise_idle_1", "gold": "revise_locked_slot", "pred": "team_review", "confidence": 0.2032, "latency_ms": 66.33187498664483, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_edit_fbc_1", "gold": "edit", "pred": "select_build_option", "confidence": 0.53, "latency_ms": 80.66125004552305, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_edit_fbc_2", "gold": "edit", "pred": "select_build_option", "confidence": 0.3061, "latency_ms": 79.54920805059373, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_edit_ok_1", "gold": "edit", "pred": "edit", "confidence": 0.3781, "latency_ms": 80.97112498944625, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_rej_fbc_1", "gold": "rejection", "pred": "repick_locked_slot", "confidence": 0.1422, "latency_ms": 83.47200002754107, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_rej_fbc_2", "gold": "rejection", "pred": "select_build_option", "confidence": 0.374, "latency_ms": 76.09649997903034, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_select_1", "gold": "select_build_option", "pred": "select_build_option", "confidence": 0.6933, "latency_ms": 80.32441599061713, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_select_2", "gold": "select_build_option", "pred": "select_build_option", "confidence": 0.7213, "latency_ms": 73.23654199717566, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_compare_2", "gold": "compare", "pred": "compare", "confidence": 0.5903, "latency_ms": 79.9364999984391, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_continue_1", "gold": "continue", "pred": "continue", "confidence": 0.7614, "latency_ms": 75.64666704274714, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_continue_2", "gold": "continue", "pred": "select_build_option", "confidence": 0.4559, "latency_ms": 75.62966697150841, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_pr_2", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.8572, "latency_ms": 80.07974998326972, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_aff_1", "gold": "continue", "pred": "continue", "confidence": 0.9534, "latency_ms": 58.160334010608494, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_aff_2", "gold": "continue", "pred": "continue", "confidence": 0.7928, "latency_ms": 61.81499996455386, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_pair_def_2", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.4085, "latency_ms": 79.78662505047396, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_1", "gold": "constraint", "pred": "select_build_option", "confidence": 0.2224, "latency_ms": 58.29908302985132, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_2", "gold": "constraint", "pred": "team_review", "confidence": 0.2018, "latency_ms": 61.41983298584819, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_4", "gold": "archetype_change", "pred": "team_review", "confidence": 0.1476, "latency_ms": 57.556332962121814, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_6", "gold": "team_review", "pred": "team_review", "confidence": 0.8716, "latency_ms": 61.976625001989305, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_8", "gold": "continue", "pred": "continue", "confidence": 0.856, "latency_ms": 61.113082978408784, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_9", "gold": "reset", "pred": "reset", "confidence": 0.5955, "latency_ms": 57.65475000953302, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_10", "gold": "constraint", "pred": "select_build_option", "confidence": 0.6556, "latency_ms": 58.88845800654963, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_11", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.3061, "latency_ms": 65.77929202467203, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_13", "gold": "constraint", "pred": "select_build_option", "confidence": 0.4176, "latency_ms": 62.22999998135492, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_15", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.4718, "latency_ms": 75.79266600077972, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_16", "gold": "select_build_option", "pred": "select_build_option", "confidence": 0.4588, "latency_ms": 76.04229100979865, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_18", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.2757, "latency_ms": 75.82929101772606, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_19", "gold": "repick_locked_slot", "pred": "repick_locked_slot", "confidence": 0.2702, "latency_ms": 64.73795796046034, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_21", "gold": "restore_constraint", "pred": "restore_constraint", "confidence": 0.3646, "latency_ms": 57.55916697671637, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_22", "gold": "reset", "pred": "select_build_option", "confidence": 0.3301, "latency_ms": 60.83320901961997, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_24", "gold": "team_review", "pred": "team_review", "confidence": 0.3712, "latency_ms": 76.80458400864154, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_25", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.3223, "latency_ms": 73.59170797280967, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_27", "gold": "constraint", "pred": "select_build_option", "confidence": 0.4571, "latency_ms": 61.4884999813512, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_28", "gold": "rejection", "pred": "select_build_option", "confidence": 0.7113, "latency_ms": 58.18470800295472, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_30", "gold": "constraint", "pred": "repick_locked_slot", "confidence": 0.1754, "latency_ms": 60.013625014107674, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_31", "gold": "edit", "pred": "select_build_option", "confidence": 0.3763, "latency_ms": 79.16545902844518, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_33", "gold": "archetype_change", "pred": "archetype_change", "confidence": 0.2151, "latency_ms": 58.25570900924504, "ok": true, "arm": "laya_typed_decisions"}
+{"id": "held_out_cov_34", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.6417, "latency_ms": 61.99962500249967, "ok": false, "arm": "laya_typed_decisions"}
+{"id": "held_out_neg_type_is_not_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.1459, "latency_ms": 66.39620801433921, "ok": true, "arm": "laya_typed_decisions", "catalog_only": true}
+{"id": "held_out_neg_type_is_not_2", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.3618, "latency_ms": 67.11016700137407, "ok": true, "arm": "laya_typed_decisions", "catalog_only": true}
+{"id": "held_out_neg_type_not_a_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.2797, "latency_ms": 65.53012499352917, "ok": true, "arm": "laya_typed_decisions", "catalog_only": true}
+{"id": "held_out_neg_type_not_a_2", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.2426, "latency_ms": 66.6202919674106, "ok": true, "arm": "laya_typed_decisions", "catalog_only": true}
+{"id": "held_out_neg_ability_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.3181, "latency_ms": 69.16162499692291, "ok": true, "arm": "laya_typed_decisions", "catalog_only": true}
+{"id": "held_out_neg_ability_2", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.2707, "latency_ms": 70.68549998803064, "ok": true, "arm": "laya_typed_decisions", "catalog_only": true}
+{"id": "held_out_neg_item_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.2761, "latency_ms": 66.5780840208754, "ok": true, "arm": "laya_typed_decisions", "catalog_only": true}
+{"id": "held_out_neg_item_2", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.4189, "latency_ms": 66.417875001207, "ok": true, "arm": "laya_typed_decisions", "catalog_only": true}

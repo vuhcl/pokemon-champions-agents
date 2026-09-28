@@ -1,0 +1,584 @@
+{
+  "spike_ceiling": "Not wholesale LLM replacement; at best skip for four payload-free intents or confidence-gated abstain into today's LLM path.",
+  "dataset": {
+    "n_total": 98,
+    "n_held_out": 69,
+    "n_held_residual": 55,
+    "n_dev": 29,
+    "authorship": "Hand-authored from ADR/TurnIntentName + classify_pending rules; never from classifier output. Seeded by Claude 17 fixtures."
+  },
+  "typed_decisions_note": "laya-typed-decisions is fine-tuned on invoice/security/customer-service/agent-trace workflows \u2014 off-domain for turn_intent labels.",
+  "majority_accuracy": 0.12727272727272726,
+  "deterministic_preempt_accuracy": 0.8947368421052632,
+  "device": "mps",
+  "cold_load_s_english": 2.479,
+  "rss_mb_after_english": 2848.9,
+  "token_probe": [
+    {
+      "id": "held_out_neg_ban_1",
+      "utt_tokens": 7,
+      "kind_tokens": 5,
+      "full_state_tokens": 65,
+      "head_max_len": 192,
+      "max_len": 512,
+      "state_budget": 320
+    },
+    {
+      "id": "held_out_neg_ban_2",
+      "utt_tokens": 4,
+      "kind_tokens": 5,
+      "full_state_tokens": 62,
+      "head_max_len": 192,
+      "max_len": 512,
+      "state_budget": 320
+    },
+    {
+      "id": "held_out_neg_soft_1",
+      "utt_tokens": 9,
+      "kind_tokens": 5,
+      "full_state_tokens": 66,
+      "head_max_len": 192,
+      "max_len": 512,
+      "state_budget": 320
+    },
+    {
+      "id": "held_out_neg_soft_2",
+      "utt_tokens": 10,
+      "kind_tokens": 5,
+      "full_state_tokens": 68,
+      "head_max_len": 192,
+      "max_len": 512,
+      "state_budget": 320
+    },
+    {
+      "id": "held_out_pair_lock_1",
+      "utt_tokens": 12,
+      "kind_tokens": 5,
+      "full_state_tokens": 49,
+      "head_max_len": 192,
+      "max_len": 512,
+      "state_budget": 320
+    },
+    {
+      "id": "held_out_pair_lock_2",
+      "utt_tokens": 11,
+      "kind_tokens": 5,
+      "full_state_tokens": 44,
+      "head_max_len": 192,
+      "max_len": 512,
+      "state_budget": 320
+    },
+    {
+      "id": "held_out_pair_rej_vs_lock_2",
+      "utt_tokens": 9,
+      "kind_tokens": 5,
+      "full_state_tokens": 40,
+      "head_max_len": 192,
+      "max_len": 512,
+      "state_budget": 320
+    },
+    {
+      "id": "held_out_pair_cc_1",
+      "utt_tokens": 8,
+      "kind_tokens": 5,
+      "full_state_tokens": 66,
+      "head_max_len": 192,
+      "max_len": 512,
+      "state_budget": 320
+    }
+  ],
+  "laya_residual_accuracy": 0.5454545454545454,
+  "laya_confusion": {
+    "rejection": {
+      "rejection": 3,
+      "constraint": 1,
+      "select_build_option": 2
+    },
+    "claim_correction": {
+      "claim_correction": 3
+    },
+    "lock": {
+      "lock": 2
+    },
+    "restore": {
+      "repick_locked_slot": 3
+    },
+    "reset": {
+      "reset": 3
+    },
+    "restore_constraint": {
+      "restore_constraint": 3
+    },
+    "revise_locked_slot": {
+      "repick_locked_slot": 1,
+      "revise_locked_slot": 1,
+      "edit": 1
+    },
+    "repick_locked_slot": {
+      "repick_locked_slot": 2
+    },
+    "edit": {
+      "select_build_option": 3,
+      "edit": 1
+    },
+    "select_build_option": {
+      "select_build_option": 3
+    },
+    "compare": {
+      "compare": 1
+    },
+    "continue": {
+      "continue": 5
+    },
+    "pending_response": {
+      "select_build_option": 6,
+      "pending_response": 1
+    },
+    "constraint": {
+      "select_build_option": 4,
+      "constraint": 1,
+      "repick_locked_slot": 1
+    },
+    "archetype_change": {
+      "pending_response": 2
+    },
+    "team_review": {
+      "team_review": 1,
+      "select_build_option": 1
+    }
+  },
+  "gate_a_laya": {
+    "pass": false,
+    "checked": 40,
+    "failures": [
+      {
+        "id": "held_out_neg_ban_2",
+        "gold": "rejection",
+        "pred": "constraint",
+        "pair_id": "pair:claim_correction<->rejection",
+        "probe_id": "neg:ban_not_claim",
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_restore_1",
+        "gold": "restore",
+        "pred": "repick_locked_slot",
+        "pair_id": "pair:restore<->reset",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_restore_2",
+        "gold": "restore",
+        "pred": "repick_locked_slot",
+        "pair_id": "pair:restore<->reset",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_rest_attr_1",
+        "gold": "restore",
+        "pred": "repick_locked_slot",
+        "pair_id": "pair:restore<->restore_constraint",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_revise_1",
+        "gold": "revise_locked_slot",
+        "pred": "repick_locked_slot",
+        "pair_id": "pair:revise_locked_slot<->repick_locked_slot",
+        "probe_id": null,
+        "dangerous": true
+      },
+      {
+        "id": "held_out_pair_revise_idle_1",
+        "gold": "revise_locked_slot",
+        "pred": "edit",
+        "pair_id": "pair:revise_locked_slot<->edit",
+        "probe_id": null,
+        "dangerous": true
+      },
+      {
+        "id": "held_out_pair_edit_fbc_1",
+        "gold": "edit",
+        "pred": "select_build_option",
+        "pair_id": "pair:revise_locked_slot<->edit",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_edit_fbc_2",
+        "gold": "edit",
+        "pred": "select_build_option",
+        "pair_id": "pair:revise_locked_slot<->edit",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_rej_fbc_1",
+        "gold": "rejection",
+        "pred": "select_build_option",
+        "pair_id": "pair:edit<->rejection",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_rej_fbc_2",
+        "gold": "rejection",
+        "pred": "select_build_option",
+        "pair_id": "pair:edit<->rejection",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_pr_2",
+        "gold": "pending_response",
+        "pred": "select_build_option",
+        "pair_id": "pair:continue<->pending_response",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_def_2",
+        "gold": "pending_response",
+        "pred": "select_build_option",
+        "pair_id": "pair:affirm<->defer",
+        "probe_id": null,
+        "dangerous": false
+      }
+    ],
+    "dangerous_count": 2
+  },
+  "cold_load_s_typed_decisions": 1.6,
+  "rss_mb_after_typed": 2848.9,
+  "laya_typed_decisions_residual_accuracy": 0.4727272727272727,
+  "laya_typed_decisions_confusion": {
+    "rejection": {
+      "rejection": 2,
+      "lock": 1,
+      "repick_locked_slot": 1,
+      "select_build_option": 2
+    },
+    "claim_correction": {
+      "claim_correction": 3
+    },
+    "lock": {
+      "lock": 2
+    },
+    "restore": {
+      "team_review": 1,
+      "repick_locked_slot": 2
+    },
+    "reset": {
+      "reset": 2,
+      "select_build_option": 1
+    },
+    "restore_constraint": {
+      "restore_constraint": 3
+    },
+    "revise_locked_slot": {
+      "edit": 1,
+      "team_review": 2
+    },
+    "repick_locked_slot": {
+      "repick_locked_slot": 2
+    },
+    "edit": {
+      "select_build_option": 3,
+      "edit": 1
+    },
+    "select_build_option": {
+      "select_build_option": 3
+    },
+    "compare": {
+      "compare": 1
+    },
+    "continue": {
+      "continue": 4,
+      "select_build_option": 1
+    },
+    "pending_response": {
+      "select_build_option": 7
+    },
+    "constraint": {
+      "select_build_option": 4,
+      "team_review": 1,
+      "repick_locked_slot": 1
+    },
+    "archetype_change": {
+      "team_review": 1,
+      "archetype_change": 1
+    },
+    "team_review": {
+      "team_review": 2
+    }
+  },
+  "gate_a_laya_typed_decisions": {
+    "pass": false,
+    "checked": 40,
+    "failures": [
+      {
+        "id": "held_out_neg_ban_2",
+        "gold": "rejection",
+        "pred": "lock",
+        "pair_id": "pair:claim_correction<->rejection",
+        "probe_id": "neg:ban_not_claim",
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_restore_1",
+        "gold": "restore",
+        "pred": "team_review",
+        "pair_id": "pair:restore<->reset",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_restore_2",
+        "gold": "restore",
+        "pred": "repick_locked_slot",
+        "pair_id": "pair:restore<->reset",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_rest_attr_1",
+        "gold": "restore",
+        "pred": "repick_locked_slot",
+        "pair_id": "pair:restore<->restore_constraint",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_revise_1",
+        "gold": "revise_locked_slot",
+        "pred": "edit",
+        "pair_id": "pair:revise_locked_slot<->repick_locked_slot",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_revise_2",
+        "gold": "revise_locked_slot",
+        "pred": "team_review",
+        "pair_id": "pair:revise_locked_slot<->repick_locked_slot",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_revise_idle_1",
+        "gold": "revise_locked_slot",
+        "pred": "team_review",
+        "pair_id": "pair:revise_locked_slot<->edit",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_edit_fbc_1",
+        "gold": "edit",
+        "pred": "select_build_option",
+        "pair_id": "pair:revise_locked_slot<->edit",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_edit_fbc_2",
+        "gold": "edit",
+        "pred": "select_build_option",
+        "pair_id": "pair:revise_locked_slot<->edit",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_rej_fbc_1",
+        "gold": "rejection",
+        "pred": "repick_locked_slot",
+        "pair_id": "pair:edit<->rejection",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_rej_fbc_2",
+        "gold": "rejection",
+        "pred": "select_build_option",
+        "pair_id": "pair:edit<->rejection",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_continue_2",
+        "gold": "continue",
+        "pred": "select_build_option",
+        "pair_id": "pair:continue<->pending_response",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_pr_2",
+        "gold": "pending_response",
+        "pred": "select_build_option",
+        "pair_id": "pair:continue<->pending_response",
+        "probe_id": null,
+        "dangerous": false
+      },
+      {
+        "id": "held_out_pair_def_2",
+        "gold": "pending_response",
+        "pred": "select_build_option",
+        "pair_id": "pair:affirm<->defer",
+        "probe_id": null,
+        "dangerous": false
+      }
+    ],
+    "dangerous_count": 0
+  },
+  "option_order_flip_rate": 0.06666666666666667,
+  "llm_accuracy_qwen25_7b": 0.7090909090909091,
+  "llm_confusion_qwen25_7b": {
+    "rejection": {
+      "rejection": 6
+    },
+    "claim_correction": {
+      "claim_correction": 3
+    },
+    "lock": {
+      "lock": 2
+    },
+    "restore": {
+      "restore": 1,
+      "repick_locked_slot": 1,
+      "rejection": 1
+    },
+    "reset": {
+      "reset": 3
+    },
+    "restore_constraint": {
+      "restore_constraint": 3
+    },
+    "revise_locked_slot": {
+      "edit": 3
+    },
+    "repick_locked_slot": {
+      "repick_locked_slot": 2
+    },
+    "edit": {
+      "edit": 4
+    },
+    "select_build_option": {
+      "edit": 3
+    },
+    "compare": {
+      "compare": 1
+    },
+    "continue": {
+      "continue": 5
+    },
+    "pending_response": {
+      "pending_response": 6,
+      "claim_correction": 1
+    },
+    "constraint": {
+      "pending_response": 5,
+      "edit": 1
+    },
+    "archetype_change": {
+      "archetype_change": 2
+    },
+    "team_review": {
+      "team_review": 1,
+      "continue": 1
+    }
+  },
+  "llm_accuracy_qwen35_latest": 0.8909090909090909,
+  "llm_confusion_qwen35_latest": {
+    "rejection": {
+      "rejection": 6
+    },
+    "claim_correction": {
+      "claim_correction": 3
+    },
+    "lock": {
+      "lock": 2
+    },
+    "restore": {
+      "restore": 2,
+      "repick_locked_slot": 1
+    },
+    "reset": {
+      "reset": 3
+    },
+    "restore_constraint": {
+      "restore_constraint": 3
+    },
+    "revise_locked_slot": {
+      "revise_locked_slot": 3
+    },
+    "repick_locked_slot": {
+      "repick_locked_slot": 2
+    },
+    "edit": {
+      "edit": 4
+    },
+    "select_build_option": {
+      "select_build_option": 3
+    },
+    "compare": {
+      "compare": 1
+    },
+    "continue": {
+      "continue": 5
+    },
+    "pending_response": {
+      "pending_response": 6,
+      "continue": 1
+    },
+    "constraint": {
+      "pending_response": 2,
+      "constraint": 2,
+      "archetype_change": 1,
+      "continue": 1
+    },
+    "archetype_change": {
+      "archetype_change": 2
+    },
+    "team_review": {
+      "team_review": 2
+    }
+  },
+  "gate_b": {
+    "laya": {
+      "pass": false,
+      "accuracy": 0.5454545454545454,
+      "better_llm": 0.8909090909090909,
+      "majority": 0.12727272727272726,
+      "within_5pp_of_llm": false,
+      "ge_10pp_above_majority": true
+    },
+    "laya_typed_decisions": {
+      "pass": false,
+      "accuracy": 0.4727272727272727,
+      "better_llm": 0.8909090909090909,
+      "majority": 0.12727272727272726,
+      "within_5pp_of_llm": false,
+      "ge_10pp_above_majority": true
+    }
+  },
+  "gate_c": {
+    "laya_warm_median_ms": 48.85377100436017,
+    "llm_warm_mean_ms": 457.4645690230682,
+    "historical_llm_mean_ms_context": 817.0,
+    "n_examples": 8,
+    "n_reps": 20,
+    "pass": true
+  },
+  "gate_d": {
+    "rss_mb_after_english": 2848.9,
+    "cold_load_s_english": 2.479,
+    "note": "soft footprint gate; document only"
+  },
+  "ece": {
+    "skipped": true,
+    "reason": "temperatures invalid/uncalibrated on load; report raw confidence only"
+  }
+}
