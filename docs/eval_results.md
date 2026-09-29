@@ -626,6 +626,73 @@ per-turn LLM latency and token costs on a live-Ollama graph session?*
 
 ---
 
+## Laya turn_intent spike (label-only first pass) — 2026-09-28
+
+*Spike ceiling (stated before the run):* Laya cannot replace `parse_turn_intent`. A positive
+result would at best buy (1) a confidence-gated **skip** of the LLM on the four payload-free
+intents (`continue`, `team_review`, `restore_constraint`, bare `reset`), or (2) a confidence
+gate that abstains into today’s LLM path. Canned `pending_response` message substitution was
+out of scope. `laya-typed-decisions` is fine-tuned on invoice/security/customer-service/
+agent-trace workflows — **off-domain** for these labels; clearing margin would still be
+off-domain zero-shot, not “already fine-tuned for turn_intent.”
+
+### Dataset
+- Authored by hand from ADR / `TurnIntentName` / `classify_pending` rules (independent oracle;
+  never from classifier output). Seeds: Claude validation 17 fixtures.
+- Paths: `scripts/eval/data/laya_turn_intent/{dev,held_out}.jsonl` (generator:
+  `_rows.py` + `write_jsonl.py`).
+- Size: **98** rows total (29 dev / 69 held_out); **55** held-out residual (excludes
+  `deterministic_preempt`). Gate-(a) catalog floors enforced (≥3 phrasings / pair & negation
+  shape, both directions, ≥2 held-out) — harness refuses to score (a) if unmet.
+- Code-derived probes include shapes conversation missed (`claim_correction`↔`rejection`,
+  `restore`↔`restore_constraint`, `revise`↔`repick`/`edit`, `edit`↔`rejection`,
+  `select`↔`compare`, plus type/ability/item/ban/soft negation shapes).
+
+### Arms (held-out residual label accuracy unless noted)
+| Arm | Accuracy |
+|---|---|
+| Majority-class (held-out residual mode) | 0.127 |
+| Deterministic preempt rows only | 0.895 |
+| Laya English (`convaiinnovations/laya`) | **0.545** |
+| Laya typed-decisions (off-domain FT checkpoint) | **0.473** |
+| LLM qwen2.5:7b | 0.709 |
+| LLM qwen3.5:latest | **0.891** (better LLM arm) |
+
+Option-order flip rate (Laya English, 5 payload-free rows × 3 shuffles): **0.067**.
+
+ECE / accuracy-at-coverage: **skipped** — checkpoint load reported invalid/out-of-range
+temperatures (clamped; confidence treated as uncalibrated). Raw confidence logged on
+predictions; no temperature fit on held-out. See `summary.json` `"ece": {"skipped": true,
+"reason": "temperatures invalid/uncalibrated on load; report raw confidence only"}`.
+
+### Gates
+| Gate | Result |
+|---|---|
+| **(a)** negation / dangerous inversions (zero-tolerance, per Laya arm) | **FAIL** both. English: 2 dangerous inversions (`revise`↔`repick`, `revise`↔`edit`) plus other catalog misses. Typed-decisions: 0 dangerous-pair flips but many other catalog misses → still FAIL. |
+| **(b)** within −5 pp of better LLM **and** ≥10 pp above majority | **FAIL** both. English +41.8 pp vs majority but −34.5 pp vs qwen3.5; typed-decisions worse. |
+| **(c)** warm Laya median ≤ 0.5× same-run LLM warm mean on payload-free only | **PASS**. Laya warm median **48.9 ms** vs LLM warm mean **457.5 ms** (8 examples × 20 reps, MPS). Historical #226 mean 817 ms cited as context only. |
+| **(d)** footprint (soft) | English cold load **2.5 s**; RSS after load **~2.85 GB** on M4 Pro 24 GB / MPS. |
+
+### Input size (ModernBERT-large tokenizer — not chars÷4)
+Representative held-out residual states: utterance ~4–12 tokens; full gap-fill state
+(pending_kind + context + roster + claim + user_text) **~40–68 tokens** vs English state
+budget **~320** (`max_len` 512 − `head_max_len` 192). Fits without compression.
+
+### Artifacts / runner
+- Runner: `scripts/eval/run_laya_intent_spike.py` (`tool="laya.turn_intent"` via `tool_log`)
+- Summary: `scripts/eval/artifacts/laya_intent_spike/summary.json`
+- Per-arm preds: `scripts/eval/artifacts/laya_intent_spike/preds_*.jsonl`
+- Optional extra: `[project.optional-dependencies] laya` in `pyproject.toml`
+
+### Verdict
+**Reject** as a production first-pass / confidence gate for turn_intent labels: fails hard
+safety (a) and held-out accuracy (b). Latency on the four payload-free intents is a real win
+on this hardware (~11× vs same-run LLM warm mean) but is not enough alone. Domain
+fine-tuning would be a separate scoped effort; this spike does **not** license “typed-decisions
+is basically fine-tuned already.” Negative result logged the same way as VinylIQ RAG-not-shipped.
+
+---
+
 ## Known limitations / honest gaps (update as discovered)
 *Mirror the honesty standard set by the VinylIQ RAG-not-shipped story — if something doesn't
 work or an eval result is weak, it goes here plainly, not smoothed over.*

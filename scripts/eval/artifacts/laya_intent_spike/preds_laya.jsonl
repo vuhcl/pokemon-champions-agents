@@ -1,0 +1,63 @@
+{"id": "held_out_neg_ban_1", "gold": "rejection", "pred": "rejection", "confidence": 0.6845, "latency_ms": 161.39374999329448, "ok": true, "arm": "laya"}
+{"id": "held_out_neg_ban_2", "gold": "rejection", "pred": "constraint", "confidence": 0.3646, "latency_ms": 58.992500009480864, "ok": false, "arm": "laya"}
+{"id": "held_out_neg_soft_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.9739, "latency_ms": 58.862917008809745, "ok": true, "arm": "laya"}
+{"id": "held_out_neg_soft_2", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.9999, "latency_ms": 60.60679099755362, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_lock_1", "gold": "lock", "pred": "lock", "confidence": 0.9983, "latency_ms": 55.111791007220745, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_lock_2", "gold": "lock", "pred": "lock", "confidence": 0.9911, "latency_ms": 55.81154202809557, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_rej_vs_lock_2", "gold": "rejection", "pred": "rejection", "confidence": 0.9994, "latency_ms": 54.891417035833, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_cc_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.9791, "latency_ms": 57.37670900998637, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_restore_1", "gold": "restore", "pred": "repick_locked_slot", "confidence": 0.9685, "latency_ms": 51.811958954203874, "ok": false, "arm": "laya"}
+{"id": "held_out_pair_restore_2", "gold": "restore", "pred": "repick_locked_slot", "confidence": 0.9999, "latency_ms": 56.31145799998194, "ok": false, "arm": "laya"}
+{"id": "held_out_pair_reset_2", "gold": "reset", "pred": "reset", "confidence": 0.9736, "latency_ms": 57.18295800033957, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_rest_attr_1", "gold": "restore", "pred": "repick_locked_slot", "confidence": 0.9998, "latency_ms": 50.5520420265384, "ok": false, "arm": "laya"}
+{"id": "held_out_pair_rest_con_1", "gold": "restore_constraint", "pred": "restore_constraint", "confidence": 1.0, "latency_ms": 51.98512499919161, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_rest_con_2", "gold": "restore_constraint", "pred": "restore_constraint", "confidence": 1.0, "latency_ms": 54.75229205330834, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_revise_1", "gold": "revise_locked_slot", "pred": "repick_locked_slot", "confidence": 0.9776, "latency_ms": 54.95112499920651, "ok": false, "arm": "laya"}
+{"id": "held_out_pair_revise_2", "gold": "revise_locked_slot", "pred": "revise_locked_slot", "confidence": 0.8146, "latency_ms": 60.46708399662748, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_repick_2", "gold": "repick_locked_slot", "pred": "repick_locked_slot", "confidence": 0.9989, "latency_ms": 55.087708053179085, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_revise_idle_1", "gold": "revise_locked_slot", "pred": "edit", "confidence": 0.577, "latency_ms": 61.910082993563265, "ok": false, "arm": "laya"}
+{"id": "held_out_pair_edit_fbc_1", "gold": "edit", "pred": "select_build_option", "confidence": 0.998, "latency_ms": 69.8373339837417, "ok": false, "arm": "laya"}
+{"id": "held_out_pair_edit_fbc_2", "gold": "edit", "pred": "select_build_option", "confidence": 0.9325, "latency_ms": 71.69470796361566, "ok": false, "arm": "laya"}
+{"id": "held_out_pair_edit_ok_1", "gold": "edit", "pred": "edit", "confidence": 0.9999, "latency_ms": 71.00758398883045, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_rej_fbc_1", "gold": "rejection", "pred": "select_build_option", "confidence": 0.7654, "latency_ms": 71.68179203290492, "ok": false, "arm": "laya"}
+{"id": "held_out_pair_rej_fbc_2", "gold": "rejection", "pred": "select_build_option", "confidence": 0.9855, "latency_ms": 66.28016696777195, "ok": false, "arm": "laya"}
+{"id": "held_out_pair_select_1", "gold": "select_build_option", "pred": "select_build_option", "confidence": 0.9999, "latency_ms": 71.9837499782443, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_select_2", "gold": "select_build_option", "pred": "select_build_option", "confidence": 1.0, "latency_ms": 69.39829100156203, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_compare_2", "gold": "compare", "pred": "compare", "confidence": 0.8601, "latency_ms": 73.35941697238013, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_continue_1", "gold": "continue", "pred": "continue", "confidence": 1.0, "latency_ms": 66.80762500036508, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_continue_2", "gold": "continue", "pred": "continue", "confidence": 0.7975, "latency_ms": 66.93654099944979, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_pr_2", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.9998, "latency_ms": 71.3419170351699, "ok": false, "arm": "laya"}
+{"id": "held_out_pair_aff_1", "gold": "continue", "pred": "continue", "confidence": 1.0, "latency_ms": 52.580750023480505, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_aff_2", "gold": "continue", "pred": "continue", "confidence": 1.0, "latency_ms": 54.95850002625957, "ok": true, "arm": "laya"}
+{"id": "held_out_pair_def_2", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.9866, "latency_ms": 71.17304200073704, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_1", "gold": "constraint", "pred": "select_build_option", "confidence": 0.5979, "latency_ms": 50.34266697475687, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_2", "gold": "constraint", "pred": "constraint", "confidence": 0.427, "latency_ms": 53.77866595517844, "ok": true, "arm": "laya"}
+{"id": "held_out_cov_4", "gold": "archetype_change", "pred": "pending_response", "confidence": 0.253, "latency_ms": 50.24808301823214, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_6", "gold": "team_review", "pred": "team_review", "confidence": 1.0, "latency_ms": 55.20075000822544, "ok": true, "arm": "laya"}
+{"id": "held_out_cov_8", "gold": "continue", "pred": "continue", "confidence": 1.0, "latency_ms": 55.937625002115965, "ok": true, "arm": "laya"}
+{"id": "held_out_cov_9", "gold": "reset", "pred": "reset", "confidence": 0.9602, "latency_ms": 50.38974998751655, "ok": true, "arm": "laya"}
+{"id": "held_out_cov_10", "gold": "constraint", "pred": "select_build_option", "confidence": 0.9672, "latency_ms": 52.135500009171665, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_11", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.6232, "latency_ms": 59.68295899219811, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_13", "gold": "constraint", "pred": "select_build_option", "confidence": 0.9692, "latency_ms": 57.701916026417166, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_15", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.9992, "latency_ms": 66.38895795913413, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_16", "gold": "select_build_option", "pred": "select_build_option", "confidence": 0.9994, "latency_ms": 67.12358398362994, "ok": true, "arm": "laya"}
+{"id": "held_out_cov_18", "gold": "pending_response", "pred": "pending_response", "confidence": 0.6798, "latency_ms": 66.96633400861174, "ok": true, "arm": "laya"}
+{"id": "held_out_cov_19", "gold": "repick_locked_slot", "pred": "repick_locked_slot", "confidence": 0.999, "latency_ms": 58.46429197117686, "ok": true, "arm": "laya"}
+{"id": "held_out_cov_21", "gold": "restore_constraint", "pred": "restore_constraint", "confidence": 0.9928, "latency_ms": 49.386208003852516, "ok": true, "arm": "laya"}
+{"id": "held_out_cov_22", "gold": "reset", "pred": "reset", "confidence": 0.9898, "latency_ms": 53.20979101816192, "ok": true, "arm": "laya"}
+{"id": "held_out_cov_24", "gold": "team_review", "pred": "select_build_option", "confidence": 0.9895, "latency_ms": 66.16029096767306, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_25", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.9997, "latency_ms": 64.98554203426465, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_27", "gold": "constraint", "pred": "select_build_option", "confidence": 0.9867, "latency_ms": 56.73804203979671, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_28", "gold": "rejection", "pred": "rejection", "confidence": 0.9943, "latency_ms": 51.02224997244775, "ok": true, "arm": "laya"}
+{"id": "held_out_cov_30", "gold": "constraint", "pred": "repick_locked_slot", "confidence": 0.9884, "latency_ms": 53.2384580001235, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_31", "gold": "edit", "pred": "select_build_option", "confidence": 0.9929, "latency_ms": 67.41516699548811, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_33", "gold": "archetype_change", "pred": "pending_response", "confidence": 0.3166, "latency_ms": 48.36991697084159, "ok": false, "arm": "laya"}
+{"id": "held_out_cov_34", "gold": "pending_response", "pred": "select_build_option", "confidence": 0.5954, "latency_ms": 59.48650004575029, "ok": false, "arm": "laya"}
+{"id": "held_out_neg_type_is_not_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.7404, "latency_ms": 57.272834004834294, "ok": true, "arm": "laya", "catalog_only": true}
+{"id": "held_out_neg_type_is_not_2", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.9872, "latency_ms": 57.54462495679036, "ok": true, "arm": "laya", "catalog_only": true}
+{"id": "held_out_neg_type_not_a_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.9647, "latency_ms": 55.34720903960988, "ok": true, "arm": "laya", "catalog_only": true}
+{"id": "held_out_neg_type_not_a_2", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.8384, "latency_ms": 59.35183301335201, "ok": true, "arm": "laya", "catalog_only": true}
+{"id": "held_out_neg_ability_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.8148, "latency_ms": 59.50549995759502, "ok": true, "arm": "laya", "catalog_only": true}
+{"id": "held_out_neg_ability_2", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.4424, "latency_ms": 59.542167000472546, "ok": true, "arm": "laya", "catalog_only": true}
+{"id": "held_out_neg_item_1", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.9876, "latency_ms": 61.66441703680903, "ok": true, "arm": "laya", "catalog_only": true}
+{"id": "held_out_neg_item_2", "gold": "claim_correction", "pred": "claim_correction", "confidence": 0.9995, "latency_ms": 57.714790978934616, "ok": true, "arm": "laya", "catalog_only": true}
