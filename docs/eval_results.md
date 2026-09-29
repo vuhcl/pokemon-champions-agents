@@ -660,6 +660,11 @@ off-domain zero-shot, not “already fine-tuned for turn_intent.”
 
 Option-order flip rate (Laya English, 5 payload-free rows × 3 shuffles): **0.067**.
 
+ECE / accuracy-at-coverage: **skipped** — checkpoint load reported invalid/out-of-range
+temperatures (clamped; confidence treated as uncalibrated). Raw confidence logged on
+predictions; no temperature fit on held-out. See `summary.json` `"ece": {"skipped": true,
+"reason": "temperatures invalid/uncalibrated on load; report raw confidence only"}`.
+
 ### Gates
 | Gate | Result |
 |---|---|
