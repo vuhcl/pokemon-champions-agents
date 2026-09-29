@@ -6051,6 +6051,33 @@ once, cleanly.
 
 1790 passed, 10 skipped (final, after #226's fix). PRs #221–#226 all merged.
 
+## 2026-09-28 — Laya turn_intent spike: rejected (PR #227)
+
+Evaluated whether Laya (a fast, non-autoregressive typed-decision model) could serve as a
+label-only first pass or confidence gate ahead of the LLM on `classify_pending`'s gap-fill
+residual. The ceiling was narrow from the outset and stayed narrow throughout: at best, a
+confidence-gated skip of the LLM for four payload-free intents, or an abstain-gate on
+everything else — never a replacement for `parse_turn_intent`, which still has to generate
+free text for every payload-bearing intent.
+
+**Result: reject.** Built a hand-authored, independent-oracle dataset (98 rows, labels from
+ADR/`TurnIntentName` definitions, never from a model's own output) and a pre-registered gate
+design before running anything. The safety-probe catalog (gate a) was swept from the repo's
+actual negation/reversal-handling code rather than assembled from what had been discussed in
+conversation — this caught real dangerous confusions (`revise_locked_slot↔edit`,
+`claim_correction↔rejection`) that neither person had named going in, which is the entire
+point of deriving a catalog from code instead of from memory of a conversation. Both Laya
+checkpoints failed the zero-tolerance safety gate and the held-out accuracy gate (0.545 and
+0.473 vs. the current LLM's 0.891); the latency win on the narrow four-intent slice (49ms vs.
+458ms warm, ~11x) was real but explicitly insufficient on its own, per the gates agreed before
+the run.
+
+Full gate-by-gate results, the dataset methodology, and the code-derived catalog are in
+`docs/eval_results.md` § "Laya turn_intent spike." See ADR-070 for the architectural decision.
+Optional `[laya]` dependency and the spike harness are merged as the artifact of a negative
+result — same honesty standard as the VinylIQ RAG-not-shipped writeup — not as anything
+wired into production. No changes to `classify_pending`/`parse_turn_intent` routing.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

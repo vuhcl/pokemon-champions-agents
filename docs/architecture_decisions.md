@@ -11408,3 +11408,63 @@ isolation is a weaker claim than a test that proves it survives realistic
 conditions — the first cross-node test here passed and still shipped a real
 bug; the fix came from writing a harder test, not from re-reading the
 implementation more carefully.
+
+---
+
+## ADR-070: Reject Laya as a non-autoregressive first-pass for turn_intent
+
+**Decision:** Do not wire Laya (a non-autoregressive, typed `choice`/`score`/`noul` decision
+engine) into `classify_pending`/`parse_turn_intent` as a label-only first pass or confidence
+gate on the LLM gap-fill residual.
+
+**Alternatives considered:** (1) Confidence-gated skip of the LLM for the four payload-free
+intents (`continue`, `team_review`, `restore_constraint`, bare `reset`) where a label alone,
+with no extracted payload, is sufficient to act. (2) A confidence gate that abstains into
+today's LLM path on everything else, using Laya only to flag likely-wrong parses rather than
+replace them. Both were the actual, scoped ceiling of a positive result from the start — this
+was never evaluated as a wholesale replacement for `parse_turn_intent`, which cannot generate
+the free text every payload-bearing intent (including every `pending_response`) still needs.
+
+**Why:** Offline spike (`scripts/eval/run_laya_intent_spike.py`), hand-authored independent-
+oracle dataset (98 rows; 55 held-out residual after excluding rows the deterministic
+`classify_pending` fast paths already resolve before reaching the LLM), scored against four
+pre-registered gates.
+
+- **Gate (a) — zero-tolerance negation/dangerous-inversion safety — failed on both Laya
+  checkpoints.** The probe catalog was derived directly from the repo's own negation and
+  reversal-handling code (`negation_matches_claim`'s resolution tables,
+  `_try_deterministic_claim_correction`, `_BLOCKED_ON_KIND`), not from pairs named in
+  conversation — this surfaced real dangerous confusions neither person had named up front
+  (`claim_correction↔rejection`, `restore↔restore_constraint`, `revise_locked_slot↔edit`).
+  The English checkpoint produced 2 genuinely dangerous flips
+  (`revise_locked_slot→repick_locked_slot`, `revise_locked_slot→edit`) plus other catalog
+  misses; `laya-typed-decisions` had 0 dangerous-pair flips but still failed the broader
+  catalog. An arm failing (a) is disqualified regardless of (b)/(c).
+- **Gate (b) — held-out residual accuracy** — failed on both. English: 0.545 (+41.8pp over
+  majority-class, but −34.6pp below the better LLM arm, qwen3.5:latest at 0.891).
+  `laya-typed-decisions`: 0.473, worse, and explicitly off-domain — it is fine-tuned on
+  invoice/security/customer-service/agent-trace workflows, not `turn_intent` labels, so
+  clearing this margin would have been reported as off-domain zero-shot success, not evidence
+  the checkpoint is already suited to this task.
+- **Gate (c) — warm latency on the four payload-free intents only** — passed. Laya warm
+  median 48.9ms vs. same-run LLM warm mean 457.5ms (8 examples × 20 reps, Apple M4 Pro/MPS)
+  — roughly an 11x win, but scoped correctly: canned `pending_response` substitution was
+  explicitly out of scope and not counted as a skip, since replacing LLM-authored
+  clarification text with static boilerplate is a separate, unevaluated behavior change.
+- **Gate (d) — footprint (soft)** — recorded, not scored: ~2.85GB RSS after one checkpoint
+  load, 2.5s cold load.
+
+A real latency win on a narrow, four-intent slice does not outweigh a hard safety-gate
+failure and a double-digit-point accuracy gap against the model already in use. The vendor's
+own documentation states the base checkpoints are "a fast base to specialise, not a zero-shot
+decision engine" — this result is consistent with that framing, not a surprise given it.
+
+**Status:** Rejected. Branch `spike/laya-turn-intent` (PR #227), merged for the record —
+optional `[laya]` dependency, hand-authored dataset, and runner all shipped as artifacts of
+this negative result, not as production code; no changes to `classify_pending`/
+`parse_turn_intent` routing. A future revisit would require domain fine-tuning (a separately
+scoped effort, not a rerun of this spike) and a fresh pass of gates (a) and (b) — a positive
+zero-shot result on `laya-typed-decisions` from a different checkpoint version would still
+need to clear (a) specifically, since that gate is about the checkpoint's actual behavior on
+this project's dangerous-inversion catalog, not something fine-tuning elsewhere would fix by
+assumption. Full detail: `docs/eval_results.md` § "Laya turn_intent spike."
