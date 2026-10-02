@@ -6078,6 +6078,16 @@ Optional `[laya]` dependency and the spike harness are merged as the artifact of
 result — same honesty standard as the VinylIQ RAG-not-shipped writeup — not as anything
 wired into production. No changes to `classify_pending`/`parse_turn_intent` routing.
 
+### 2026-10-02: Phase 2 (Showdown eval) deferred behind phase 3; unwritten sequencing assumption surfaced
+
+While reviewing the v2.0.0 kickoff brief (non-goals: no win-rate or RL work), Vu confirmed phase 2 should wait until after phase 3. The original order assumed the earlier project's trained agent could pilot the recommended teams. That assumption was never written into ADR-001, whose stated rationale was eval complexity, and it stopped holding once ADR-004 settled on retraining from scratch. The dependency stayed invisible until now. Recorded in ADR-001 Amendment 2026-10-02a; the `eval_results.md` Phase 2 section is marked blocked.
+
+Whether win rate should be measured at all is open (Vu considers it debatable), not decided.
+
+Resume framing: the working draft in PURPOSE & CONTEXT ("simulator-grounded evaluation and RL-policy-based decision review") depends on both phase 2 and phase 3, and neither exists. Do not use it until something is measured. The supportable framing currently rests on the Phase 1 evals.
+
+Open: grep the ADRs and this log for other decisions that quietly rely on reusing the old agent. Not yet done.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

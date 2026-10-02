@@ -423,6 +423,8 @@ meta teams via Pokémon Showdown's simulator/API.*
 - Comparison baseline (e.g., a naive/random-legal team, or a popular sample team): TBD
 - Notes:
 
+- **Status (2026-10-02): blocked on phase 3.** A simulated win rate needs a pilot for the recommended teams. None exists: the earlier project's agent is not reusable (ADR-004) and its replacement is phase 3. Whether win rate should be measured at all is undecided. See ADR-001 Amendment 2026-10-02a. Fields below stay TBD; no estimates until measured.
+
 ---
 
 ## RL-policy divergence (Phase 3 — stretch goal)

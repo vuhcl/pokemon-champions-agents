@@ -33,6 +33,20 @@ renumbered to "fill the gap."
 
 ---
 
+### ADR-001 Amendment 2026-10-02a — Phase 2 (Showdown eval) sequenced after phase 3; pilot dependency made explicit
+
+**Change:** Phase 2 is no longer "allowed to run in parallel with" the battle-log-parser/RL stretch goal (phase 3). It is sequenced after phase 3. A simulated win rate needs a pilot that plays the recommended teams, and no pilot exists. Whether win rate should be measured at all is open and is not decided here.
+
+**Why the original wording missed this:** ADR-001's rationale cited eval complexity (opponent team sourcing, matchup sampling, significance over a small number of games). It never stated that phase 2 needs a pilot. The original ordering rested on an unwritten assumption that the agent trained in the earlier Pokémon Battler project could be reused in that role. The retrain-from-scratch decision (ADR-004) removed that assumption, and this amendment carries the consequence back to the sequencing.
+
+**Alternatives considered:** Reusing the earlier project's agent as the pilot (the original assumption). Not viable per ADR-004: the old policy is not reusable for Champions.
+
+**Consequences:** No phase 2 numbers and no win-rate claims until phase 3 produces a pilot and the measurement question is settled. The Phase 1 evals (legality grounding, mechanical-claim verification, species-fact grounding) are the quantitative record until then. The definition of "done" for the recommender is unchanged: eval still does not block it.
+
+**Status:** Amends ADR-001. Supersedes only the clause "allowed to run in parallel with the battle-log-parser stretch goal" in the original Decision. The rest of ADR-001 (recommender first, eval never a blocker) stands.
+
+---
+
 ## ADR-002: Legality checking is a tool call, not a model assertion
 **Decision:** Species legality, item legality, and regulation-pool membership are always checked against real structured data via a tool call. The LLM/agent layer never asserts legality from its own training knowledge.
 **Alternatives considered:** Prompt-engineer the model to "remember" Champions-specific rules; fine-tune on legality data.
