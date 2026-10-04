@@ -25,7 +25,20 @@
     "showdown_pct_kind": "set",
     "showdown_move_limit": null,
     "showdown_battles": 1631943,
-    "showdown_extracted_at": "2026-09-23T19:09:09Z"
+    "showdown_extracted_at": "2026-10-04T01:55:50Z",
+    "showdown_teammates_extracted_at": "2026-10-04T01:55:50Z",
+    "showdown_teammates": {
+      "source_field": "Teammates",
+      "weight_kind": "chaos_weight",
+      "percentage_kind": "conditional_probability",
+      "denominator_rule": "max(sum(valid Abilities), sum(valid Teammates) / 6, 1)",
+      "limit": 10,
+      "caveats": [
+        "weighted ladder estimate, not independent sample count",
+        "not curated tournament data",
+        "retained top-10 rows only"
+      ]
+    }
   },
   "ingame_doubles": {
     "species": {
