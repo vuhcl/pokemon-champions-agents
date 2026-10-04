@@ -12,7 +12,11 @@ from recommender.calc_client import CalcClientError
 from recommender.ids import to_id
 from recommender.legality import check_set, load_snapshot
 from recommender.matchup import MatchupEvidenceError
-from recommender.present_text import BOOTSTRAP_PARSER_NOT_CONFIGURED, format_roster
+from recommender.present_text import (
+    BOOTSTRAP_PARSER_NOT_CONFIGURED,
+    UNMATCHED_REPLY_PREFIX,
+    format_roster,
+)
 from recommender.recommend import SP_BUDGET, spread_sum
 from recommender.reconcile import simultaneous_lock_conflicts
 from recommender.species_resolve import resolve_species_label
@@ -170,6 +174,57 @@ CONTINUE_ABANDON_MSG = "This will discard the pending build confirmation."
 KEEP_BUILD_MSG = "Keeping the current build confirmation."
 _ABANDON_AFFIRM = frozenset({"yes", "yeah", "yep"})
 _ABANDON_DECLINE = frozenset({"no", "nope"})
+
+
+def clarify_message_from_pending(
+    pending_presentation: PendingPresentation | None,
+) -> str:
+    """Deterministic unmatched clarify; never model-authored prose.
+
+    Species/option labels stay in format_turn body formatters, not here.
+    """
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
+    kind = str((pending_presentation or {}).get("kind") or "none")
+    if kind == "full_build_confirmation":
+        return CLASSIFY_FAIL_USER_MSG
+    if kind == "confirm_abandon_build":
+        # Gap-fill does not normally reach this kind; keep consistent if it does.
+        return CONTINUE_ABANDON_MSG
+    return UNMATCHED_REPLY_PREFIX
+
+
+def _is_deterministic_pending_message(message: str) -> bool:
+    from recommender.system_claims import NON_CLAIM_MESSAGES
+
+    text = message.strip()
+    if not text:
+        return False
+    if text in NON_CLAIM_MESSAGES:
+        return True
+    if text in {_MISMATCH_MSG, CONTINUE_ABANDON_MSG, KEEP_BUILD_MSG}:
+        return True
+    if text.startswith("Unknown build option id") or text.startswith(
+        "Unknown build option ids"
+    ):
+        return True
+    return False
+
+
+def _replace_llm_pending_response(
+    result: dict[str, Any],
+    pending_presentation: PendingPresentation | None,
+) -> dict[str, Any]:
+    """Discard non-allowlisted pending_response messages (Approach A)."""
+    if result.get("turn_intent") != "pending_response":
+        return result
+    payload = result.get("turn_payload")
+    if not isinstance(payload, dict):
+        return _pending_response(clarify_message_from_pending(pending_presentation))
+    message = payload.get("message")
+    if isinstance(message, str) and _is_deterministic_pending_message(message):
+        return result
+    return _pending_response(clarify_message_from_pending(pending_presentation))
 
 
 def _index_build_options(
@@ -934,6 +989,8 @@ def _gap_fill(
             turn=turn,
             thread_id=thread_id,
         )
+        # Approach A: model-authored pending_response prose never reaches display.
+        result = _replace_llm_pending_response(result, pending_presentation)
     if (
         result.get("turn_intent") == "select_build_option"
         and pending_presentation is not None

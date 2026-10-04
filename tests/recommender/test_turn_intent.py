@@ -86,6 +86,8 @@ def test_rules_win_yes_on_full_build_without_calling_parser():
 
 
 def test_gap_fill_bare_no_on_full_build_keeps_pending():
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
     parser = _clarify_parser("Which field should change?")
     result = classify_pending(
         "no",
@@ -98,7 +100,9 @@ def test_gap_fill_bare_no_on_full_build_keeps_pending():
         },
     )
     assert result["turn_intent"] == "pending_response"
-    assert result["turn_payload"]["message"] == "Which field should change?"
+    # Approach A: model clarify discarded; full_build uses CLASSIFY_FAIL_USER_MSG.
+    assert result["turn_payload"]["message"] == CLASSIFY_FAIL_USER_MSG
+    assert "Which field should change?" not in result["turn_payload"]["message"]
     assert "pending_presentation" not in result
 
 
