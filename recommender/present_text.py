@@ -5,6 +5,13 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any, Mapping
 
+from recommender.bootstrap import (
+    BOOTSTRAP_INTAKE_MISSING_PAYLOAD_MSG,
+    BOOTSTRAP_INTAKE_PARSE_FAIL_MSG,
+    BOOTSTRAP_INTAKE_PROVIDER_FAIL_MSG,
+    BOOTSTRAP_INTAKE_TIMEOUT_MSG,
+    BOOTSTRAP_INTAKE_UNSUPPORTED_SCHEMA_MSG,
+)
 from recommender.state import (
     CandidateDiscoveryError,
     CandidateEvidence,
@@ -41,6 +48,15 @@ BOOTSTRAP_PARSER_FIX_HINT = (
     "No LLM provider is configured; bootstrap free-form replies require one. "
     "Fix: --provider ollama with BOOTSTRAP_OLLAMA_MODEL set, or --provider anthropic "
     "with BOOTSTRAP_ANTHROPIC_MODEL and ANTHROPIC_API_KEY."
+)
+BOOTSTRAP_INTAKE_ERROR_ALLOWLIST: frozenset[str] = frozenset(
+    {
+        BOOTSTRAP_INTAKE_PARSE_FAIL_MSG,
+        BOOTSTRAP_INTAKE_PROVIDER_FAIL_MSG,
+        BOOTSTRAP_INTAKE_TIMEOUT_MSG,
+        BOOTSTRAP_INTAKE_UNSUPPORTED_SCHEMA_MSG,
+        BOOTSTRAP_INTAKE_MISSING_PAYLOAD_MSG,
+    }
 )
 
 _DEGRADATION_TOKENS = frozenset({"calc_unavailable", "static_type_estimate"})
@@ -687,7 +703,12 @@ def format_turn(state: Mapping[str, Any], *, unmatched: bool = False) -> str:
     if no_parser:
         blocks.append(BOOTSTRAP_PARSER_FIX_HINT)
     elif bootstrap_err:
-        blocks.append(f"Bootstrap intake error: {bootstrap_err}")
+        safe = (
+            bootstrap_err
+            if bootstrap_err in BOOTSTRAP_INTAKE_ERROR_ALLOWLIST
+            else BOOTSTRAP_INTAKE_PARSE_FAIL_MSG
+        )
+        blocks.append(f"Bootstrap intake error: {safe}")
 
     slot_err = state.get("slot_commit_error")
     if slot_err:

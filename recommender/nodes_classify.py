@@ -12,11 +12,13 @@ from recommender.calc_client import CalcClientError
 from recommender.ids import to_id
 from recommender.legality import check_set, load_snapshot
 from recommender.matchup import MatchupEvidenceError
+from recommender.bootstrap import BOOTSTRAP_INTAKE_UNSUPPORTED_SCHEMA_MSG
 from recommender.present_text import (
     BOOTSTRAP_PARSER_NOT_CONFIGURED,
     UNMATCHED_REPLY_PREFIX,
     format_roster,
 )
+from recommender.tool_log import log_tool_call
 from recommender.recommend import SP_BUDGET, spread_sum
 from recommender.reconcile import simultaneous_lock_conflicts
 from recommender.species_resolve import resolve_species_label
@@ -1603,9 +1605,7 @@ def classify_pending(
         if version != 1:
             return {
                 "turn_intent": "pending_response",
-                "bootstrap_intake_error": (
-                    f"unsupported bootstrap schema version: {version}"
-                ),
+                "bootstrap_intake_error": BOOTSTRAP_INTAKE_UNSUPPORTED_SCHEMA_MSG,
             }
         if bootstrap_intake_parser is None:
             return {
@@ -1625,6 +1625,16 @@ def classify_pending(
                 thread_id=thread_id,
             )
         except BootstrapIntakeParseError as exc:
+            cause = exc.__cause__ or exc
+            log_tool_call(
+                "llm.bootstrap_intake",
+                {"event": "intake_failed", "code": exc.code},
+                latency_ms=0.0,
+                ok=False,
+                error=f"{exc.code}:{type(cause).__name__}",
+                turn=turn,
+                thread_id=thread_id,
+            )
             return {
                 "turn_intent": "pending_response",
                 "bootstrap_intake_error": str(exc),

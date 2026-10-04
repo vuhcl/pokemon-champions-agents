@@ -859,8 +859,9 @@ def test_bootstrap_parser_timeout_becomes_actionable_error():
     def _hangs(_payload):
         raise LLMInvokeTimeout("LLM call did not return within 300s")
 
-    with pytest.raises(BootstrapIntakeParseError, match="took too long"):
+    with pytest.raises(BootstrapIntakeParseError, match="took too long") as caught:
         parse_bootstrap_intake(RunnableLambda(_hangs), "trick room with Indeedee-F")
+    assert caught.value.code == "bootstrap_timeout"
 
 
 def test_include_raw_parsing_error_is_observable():
@@ -868,8 +869,9 @@ def test_include_raw_parsing_error_is_observable():
         lambda _: {"raw": object(), "parsed": None, "parsing_error": ValueError("bad")}
     )
 
-    with pytest.raises(BootstrapIntakeParseError, match="structured extraction failed"):
+    with pytest.raises(BootstrapIntakeParseError, match="couldn't understand") as caught:
         parse_bootstrap_intake(parser, "anything")
+    assert caught.value.code == "bootstrap_parse"
 
 
 def test_strict_schema_rejects_unknown_fields():
