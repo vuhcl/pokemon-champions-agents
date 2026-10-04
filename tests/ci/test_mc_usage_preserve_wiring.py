@@ -8,6 +8,8 @@ from typing import Any
 from scripts.ci.usage_refresh_mc_gate import run_gate
 from scripts.extract_usage.fetch_usage_mc_munchstats import (
     EXPECTED_SHOWDOWN_FORMAT,
+    SHOWDOWN_BATTLES_FLOOR,
+    SHOWDOWN_SPECIES_FLOOR,
     SOURCE,
     build_snapshot,
     main as munchstats_main,
@@ -35,9 +37,11 @@ def _ingame_meeting_floor(n: int = 230) -> dict[str, dict[str, Any]]:
 def _grafted_previous(ingame: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
     ingame = ingame or _ingame_meeting_floor()
     sd = {
-        "salamence": _species_row("salamence", source="smogon-chaos"),
-        "garchomp": _species_row("garchomp", source="smogon-chaos"),
+        f"p{i}": _species_row(f"p{i}", source="smogon-chaos")
+        for i in range(SHOWDOWN_SPECIES_FLOOR)
     }
+    sd["salamence"] = _species_row("salamence", source="smogon-chaos")
+    sd["garchomp"] = _species_row("garchomp", source="smogon-chaos")
     return {
         "meta": {
             "schema_version": 3,
@@ -50,7 +54,7 @@ def _grafted_previous(ingame: dict[str, dict[str, Any]] | None = None) -> dict[s
             "showdown_month": "2026-09",
             "showdown_rating": 1500,
             "showdown_source": "smogon-chaos",
-            "showdown_battles": 1_631_943,
+            "showdown_battles": SHOWDOWN_BATTLES_FLOOR,
             "showdown_pct_kind": "set",
             "sources": [SOURCE, "smogon-chaos"],
         },
@@ -76,7 +80,7 @@ def test_build_snapshot_preserves_correct_format_showdown():
     meta = snap["meta"]
     assert meta["showdown_format"] == EXPECTED_SHOWDOWN_FORMAT
     assert meta["showdown_month"] == "2026-09"
-    assert meta["showdown_battles"] == 1_631_943
+    assert meta["showdown_battles"] == SHOWDOWN_BATTLES_FLOOR
     assert meta["munchstats_generated_at"] == index["generatedAt"]
     assert "smogon-chaos" in meta["sources"]
     assert snap["species"]["salamence"]["source"] == "smogon-chaos"
@@ -137,6 +141,47 @@ def test_run_gate_passes_previous_and_preserves_showdown(tmp_path: Path):
     assert written["meta"]["munchstats_generated_at"] == index["generatedAt"]
 
 
+def test_run_gate_fails_without_writing_when_showdown_missing(tmp_path: Path):
+    """Wiring (b): empty Showdown previous → validate fail; out_path unchanged."""
+    previous = {
+        "meta": {
+            "schema_version": 3,
+            "regulation": "champions-reg-mc",
+            "munchstats_generated_at": "2026-09-10T00:00:00+00:00",
+            "sources": [SOURCE],
+        },
+        "ingame_doubles": {"species": _ingame_meeting_floor()},
+        "showdown_vgc_mb": {"species": {}},
+        "species": {},
+    }
+    out_path = tmp_path / "champions-reg-mc.v1.json"
+    before = json.dumps(previous) + "\n"
+    out_path.write_text(before, encoding="utf-8")
+
+    index = {
+        "generatedAt": "2026-09-21T00:00:00+00:00",
+        "publishedAt": "2026-09-21T00:00:01+00:00",
+        "capturedOn": "2026-09-21",
+        "defaultSeason": "Current",
+        "count": 230,
+    }
+    stats = {
+        "join_n": 230,
+        "detail_fetch_ok_n": 230,
+        "detail_fetch_fail_n": 0,
+        "index_count": 230,
+    }
+
+    def extract_fn(*, previous=None):
+        snap = build_snapshot(_ingame_meeting_floor(), index, stats, previous=previous)
+        return snap, index, stats
+
+    result = run_gate(out_path=out_path, force=True, extract_fn=extract_fn)
+    assert result["decision"] == "fail"
+    assert "showdown" in (result.get("reason") or "")
+    assert out_path.read_text(encoding="utf-8") == before
+
+
 def test_main_loads_previous_before_extract(tmp_path: Path, monkeypatch):
     previous = _grafted_previous()
     out_path = tmp_path / "out.json"
@@ -175,4 +220,7 @@ def test_main_loads_previous_before_extract(tmp_path: Path, monkeypatch):
     assert (
         seen_previous["value"]["meta"]["showdown_format"] == EXPECTED_SHOWDOWN_FORMAT
     )
-    assert len(seen_previous["value"]["showdown_vgc_mb"]["species"]) == 2
+    assert (
+        len(seen_previous["value"]["showdown_vgc_mb"]["species"])
+        >= SHOWDOWN_SPECIES_FLOOR
+    )

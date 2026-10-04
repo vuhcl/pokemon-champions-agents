@@ -366,6 +366,34 @@ def parse_generated_at(value: Any) -> datetime | None:
     return dt
 
 
+def _validate_showdown_half(snap: dict[str, Any]) -> str | None:
+    """Return fail reason or None if Showdown half is acceptable."""
+    if "showdown_vgc_mb" not in snap:
+        return "showdown_vgc_mb missing"
+    meta = snap.get("meta") or {}
+    sd = (snap.get("showdown_vgc_mb") or {}).get("species") or {}
+    if not isinstance(sd, dict):
+        return "showdown_vgc_mb.species missing"
+    if meta.get("showdown_format") != EXPECTED_SHOWDOWN_FORMAT:
+        return (
+            f"showdown_format {meta.get('showdown_format')!r} "
+            f"!= {EXPECTED_SHOWDOWN_FORMAT!r}"
+        )
+    month = meta.get("showdown_month")
+    if not isinstance(month, str) or not month.strip():
+        return "showdown_month missing"
+    n = len(sd)
+    if n < SHOWDOWN_SPECIES_FLOOR:
+        return f"showdown species {n} < floor {SHOWDOWN_SPECIES_FLOOR}"
+    try:
+        battles = int(meta.get("showdown_battles") or 0)
+    except (TypeError, ValueError):
+        battles = 0
+    if battles < SHOWDOWN_BATTLES_FLOOR:
+        return f"showdown battles {battles} < floor {SHOWDOWN_BATTLES_FLOOR}"
+    return None
+
+
 def validate_snapshot(
     snap: dict[str, Any],
     *,
@@ -400,6 +428,10 @@ def validate_snapshot(
         ):
             if k not in row:
                 return "fail", f"species {sid} missing {k}"
+
+    sd_fail = _validate_showdown_half(snap)
+    if sd_fail is not None:
+        return "fail", sd_fail
 
     new_gen = parse_generated_at(meta.get("munchstats_generated_at") or index.get("generatedAt"))
     if new_gen is None:
