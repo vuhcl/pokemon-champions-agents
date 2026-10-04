@@ -344,6 +344,24 @@ def _merge_species_flat(ingame: dict[str, dict], showdown: dict[str, dict]) -> d
 merge_species_flat = _merge_species_flat
 
 
+def showdown_teammates_descriptor() -> dict[str, Any]:
+    """Schema descriptor for Smogon Teammates rows (shared by M-B writer + M-C graft)."""
+    return {
+        "source_field": "Teammates",
+        "weight_kind": "chaos_weight",
+        "percentage_kind": "conditional_probability",
+        "denominator_rule": (
+            "max(sum(valid Abilities), sum(valid Teammates) / 6, 1)"
+        ),
+        "limit": TEAMMATE_LIMIT,
+        "caveats": [
+            "weighted ladder estimate, not independent sample count",
+            "not curated tournament data",
+            "retained top-10 rows only",
+        ],
+    }
+
+
 def build_snapshot(
     ingame: dict[str, dict],
     showdown: dict[str, dict],
@@ -371,20 +389,7 @@ def build_snapshot(
             "showdown_move_limit": None,
             "showdown_battles": showdown_info.get("number of battles"),
             "showdown_teammates_extracted_at": now,
-            "showdown_teammates": {
-                "source_field": "Teammates",
-                "weight_kind": "chaos_weight",
-                "percentage_kind": "conditional_probability",
-                "denominator_rule": (
-                    "max(sum(valid Abilities), sum(valid Teammates) / 6, 1)"
-                ),
-                "limit": TEAMMATE_LIMIT,
-                "caveats": [
-                    "weighted ladder estimate, not independent sample count",
-                    "not curated tournament data",
-                    "retained top-10 rows only",
-                ],
-            },
+            "showdown_teammates": showdown_teammates_descriptor(),
             "attribution": (
                 "In-game doubles: championsbattledata.com. "
                 "Showdown VGC: Smogon chaos stats (set% = weight / Raw count; "

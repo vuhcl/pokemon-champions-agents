@@ -8,6 +8,7 @@ Example:
 
     uv run python -m scripts.extract_usage.graft_showdown_mc --month 2026-09
     uv run python -m scripts.extract_usage.graft_showdown_mc --month 2026-09 --dry-run
+    uv run python -m scripts.extract_usage.graft_showdown_mc --month 2026-09 --force
 """
 
 from __future__ import annotations
@@ -16,12 +17,14 @@ import argparse
 import json
 import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from scripts.extract_usage.fetch_usage_mb import (
     extract_showdown_chaos,
     merge_species_flat,
+    showdown_teammates_descriptor,
 )
 from scripts.extract_usage.fetch_usage_mc_munchstats import (
     DEFAULT_OUT,
@@ -33,6 +36,10 @@ from scripts.extract_usage.fetch_usage_mc_munchstats import (
 )
 
 _MONTH_RE = re.compile(r"^\d{4}-\d{2}$")
+
+
+def _utc_now_z() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _assert_format_allowed(format_id: str) -> None:
@@ -60,6 +67,7 @@ def graft(
     month: str,
     format_id: str,
     rating: int,
+    extracted_at: str | None = None,
 ) -> dict[str, Any]:
     battles = info.get("number of battles")
     try:
@@ -74,6 +82,7 @@ def graft(
             f"showdown battles {battles_n} < floor {SHOWDOWN_BATTLES_FLOOR}"
         )
 
+    clock = extracted_at if extracted_at is not None else _utc_now_z()
     meta = dict(base.get("meta") or {})
     meta["showdown_rating"] = rating
     meta["showdown_format"] = format_id
@@ -82,8 +91,9 @@ def graft(
     meta["showdown_pct_kind"] = "set"
     meta["showdown_move_limit"] = None
     meta["showdown_battles"] = battles_n
-    if "extracted_at" in (base.get("meta") or {}):
-        meta["showdown_extracted_at"] = (base.get("meta") or {}).get("extracted_at")
+    meta["showdown_extracted_at"] = clock
+    meta["showdown_teammates_extracted_at"] = clock
+    meta["showdown_teammates"] = showdown_teammates_descriptor()
     meta["attribution"] = (
         "In-game doubles: MunchStats champions-data branch "
         "(OCR capture via raw.githubusercontent.com). "
@@ -139,6 +149,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Print what would change; write nothing",
     )
+    p.add_argument(
+        "--force",
+        action="store_true",
+        help="Rewrite even when format/month/battles/species already match",
+    )
     args = p.parse_args(argv)
 
     if not _MONTH_RE.match(args.month):
@@ -161,12 +176,15 @@ def main(argv: list[str] | None = None) -> int:
     except (TypeError, ValueError):
         battles_n = 0
 
-    if already_grafted(
-        base,
-        month=args.month,
-        format_id=args.format_id,
-        battles=battles_n,
-        species_n=len(showdown),
+    if (
+        already_grafted(
+            base,
+            month=args.month,
+            format_id=args.format_id,
+            battles=battles_n,
+            species_n=len(showdown),
+        )
+        and not args.force
     ):
         print(
             f"idempotent: already grafted {args.format_id} {args.month} "
@@ -197,6 +215,8 @@ def main(argv: list[str] | None = None) -> int:
         "ingame_n": len(((out.get("ingame_doubles") or {}).get("species")) or {}),
         "flat_n": len(out.get("species") or {}),
         "munchstats_generated_at": (out.get("meta") or {}).get("munchstats_generated_at"),
+        "showdown_extracted_at": (out.get("meta") or {}).get("showdown_extracted_at"),
+        "forced": bool(args.force),
     }
     print(json.dumps(summary, indent=2))
     if args.dry_run:

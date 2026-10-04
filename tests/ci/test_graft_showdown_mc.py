@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 import pytest
 
+from scripts.extract_usage.fetch_usage_mb import showdown_teammates_descriptor
 from scripts.extract_usage.fetch_usage_mc_munchstats import (
     EXPECTED_SHOWDOWN_FORMAT,
     SHOWDOWN_BATTLES_FLOOR,
@@ -18,11 +19,31 @@ from scripts.extract_usage.fetch_usage_mc_munchstats import (
 from scripts.extract_usage import graft_showdown_mc as graft_mod
 
 
+def _species_row(sid: str, *, source: str = "smogon-chaos") -> dict[str, Any]:
+    return {
+        "id": sid,
+        "name": sid.title(),
+        "common_moves": [{"name": "Tackle"}],
+        "common_items": [],
+        "common_abilities": [],
+        "teammates": [],
+        "top_spreads": [],
+        "featured_sets": [],
+        "source": source,
+        "usage_pct": 1.0,
+    }
+
+
+def _floor_showdown() -> dict[str, dict[str, Any]]:
+    return {f"p{i}": _species_row(f"p{i}") for i in range(SHOWDOWN_SPECIES_FLOOR)}
+
+
 def _base(*, showdown: dict | None = None, meta_extra: dict | None = None) -> dict[str, Any]:
     meta = {
         "schema_version": 3,
         "regulation": "champions-reg-mc",
         "munchstats_generated_at": "2026-09-10T00:00:00+00:00",
+        "extracted_at": "2026-09-23T19:09:09Z",
         "sources": [SOURCE],
     }
     if meta_extra:
@@ -76,23 +97,28 @@ def test_systemexit_becomes_runtimeerror():
             graft_mod._fetch_chaos("2026-09", EXPECTED_SHOWDOWN_FORMAT, 1500)
 
 
+def test_graft_meta_uses_injected_clock_not_base_extracted_at():
+    clock = "2026-10-04T01:55:00Z"
+    base = _base()
+    showdown = _floor_showdown()
+    out = graft_mod.graft(
+        base=base,
+        showdown=showdown,
+        info={"number of battles": SHOWDOWN_BATTLES_FLOOR},
+        month="2026-09",
+        format_id=EXPECTED_SHOWDOWN_FORMAT,
+        rating=1500,
+        extracted_at=clock,
+    )
+    meta = out["meta"]
+    assert meta["showdown_extracted_at"] == clock
+    assert meta["showdown_teammates_extracted_at"] == clock
+    assert meta["showdown_extracted_at"] != base["meta"]["extracted_at"]
+    assert meta["showdown_teammates"] == showdown_teammates_descriptor()
+
+
 def test_idempotent_main_skips_write(tmp_path: Path):
-    n = SHOWDOWN_SPECIES_FLOOR
-    showdown = {
-        f"p{i}": {
-            "id": f"p{i}",
-            "name": f"P{i}",
-            "common_moves": [{"name": "Tackle"}],
-            "common_items": [],
-            "common_abilities": [],
-            "teammates": [],
-            "top_spreads": [],
-            "featured_sets": [],
-            "source": "smogon-chaos",
-            "usage_pct": 1.0,
-        }
-        for i in range(n)
-    }
+    showdown = _floor_showdown()
     battles = SHOWDOWN_BATTLES_FLOOR
     base = _base(
         showdown=showdown,
@@ -113,11 +139,42 @@ def test_idempotent_main_skips_write(tmp_path: Path):
         "extract_showdown_chaos",
         return_value=(showdown, {"number of battles": battles}),
     ):
-        rc = graft_mod.main(
-            ["--month", "2026-09", "--out", str(out)]
-        )
+        rc = graft_mod.main(["--month", "2026-09", "--out", str(out)])
     assert rc == 0
     assert out.read_text(encoding="utf-8") == before
+
+
+def test_force_rewrites_when_idempotent_key_matches(tmp_path: Path):
+    showdown = _floor_showdown()
+    battles = SHOWDOWN_BATTLES_FLOOR
+    base = _base(
+        showdown=showdown,
+        meta_extra={
+            "showdown_format": EXPECTED_SHOWDOWN_FORMAT,
+            "showdown_month": "2026-09",
+            "showdown_battles": battles,
+            "showdown_rating": 1500,
+            "showdown_source": "smogon-chaos",
+            "showdown_extracted_at": "2026-09-23T19:09:09Z",
+        },
+    )
+    out = tmp_path / "mc.json"
+    out.write_text(json.dumps(base) + "\n", encoding="utf-8")
+    before = out.read_text(encoding="utf-8")
+
+    with patch.object(
+        graft_mod,
+        "extract_showdown_chaos",
+        return_value=(showdown, {"number of battles": battles}),
+    ), patch.object(graft_mod, "_utc_now_z", return_value="2026-10-04T02:00:00Z"):
+        rc = graft_mod.main(["--month", "2026-09", "--out", str(out), "--force"])
+    assert rc == 0
+    after = out.read_text(encoding="utf-8")
+    assert after != before
+    meta = json.loads(after)["meta"]
+    assert meta["showdown_extracted_at"] == "2026-10-04T02:00:00Z"
+    assert meta["showdown_teammates_extracted_at"] == "2026-10-04T02:00:00Z"
+    assert meta["showdown_teammates"] == showdown_teammates_descriptor()
 
 
 def test_main_rejects_unlisted_via_cli(tmp_path: Path):
