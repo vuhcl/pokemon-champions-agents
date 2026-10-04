@@ -94,9 +94,28 @@ class BootstrapExtraction(BaseModel):
 
 BootstrapIntakeParser = Runnable[dict[str, str], Any]
 
+BOOTSTRAP_INTAKE_PARSE_FAIL_MSG = (
+    "I couldn't understand that bootstrap reply. Try again with a clearer "
+    "direction, anchor Pokémon, and/or available Pokémon."
+)
+BOOTSTRAP_INTAKE_PROVIDER_FAIL_MSG = (
+    "The model provider is unavailable right now. Check the LLM configuration "
+    "and try again."
+)
+BOOTSTRAP_INTAKE_TIMEOUT_MSG = (
+    "the request took too long to process — please try again, "
+    "ideally with a shorter or simpler message"
+)
+BOOTSTRAP_INTAKE_UNSUPPORTED_SCHEMA_MSG = "unsupported bootstrap schema version"
+BOOTSTRAP_INTAKE_MISSING_PAYLOAD_MSG = "missing bootstrap response payload"
+
 
 class BootstrapIntakeParseError(ValueError):
     """A model/provider result could not be validated as extraction-only output."""
+
+    def __init__(self, message: str, *, code: str) -> None:
+        super().__init__(message)
+        self.code = code
 
 
 def parse_bootstrap_intake(
@@ -108,6 +127,7 @@ def parse_bootstrap_intake(
 ) -> BootstrapResponsePayload:
     """Invoke an injected parser and convert its strict output to the domain payload."""
 
+    # Provider/timeout wrap only the LLM call; post-invoke validation is parse-only.
     try:
         result = invoke_with_timeout(
             parser,
@@ -117,6 +137,18 @@ def parse_bootstrap_intake(
             turn=turn,
             thread_id=thread_id,
         )
+    except LLMInvokeTimeout as exc:
+        raise BootstrapIntakeParseError(
+            BOOTSTRAP_INTAKE_TIMEOUT_MSG, code="bootstrap_timeout"
+        ) from exc
+    except BootstrapIntakeParseError:
+        raise
+    except Exception as exc:
+        raise BootstrapIntakeParseError(
+            BOOTSTRAP_INTAKE_PROVIDER_FAIL_MSG, code="bootstrap_provider"
+        ) from exc
+
+    try:
         if isinstance(result, dict) and {
             "raw",
             "parsed",
@@ -124,7 +156,7 @@ def parse_bootstrap_intake(
         }.issubset(result):
             if result["parsing_error"] is not None or result["parsed"] is None:
                 raise BootstrapIntakeParseError(
-                    f"structured extraction failed: {result['parsing_error']}"
+                    BOOTSTRAP_INTAKE_PARSE_FAIL_MSG, code="bootstrap_parse"
                 )
             result = result["parsed"]
         extraction = (
@@ -134,16 +166,9 @@ def parse_bootstrap_intake(
         )
     except BootstrapIntakeParseError:
         raise
-    except LLMInvokeTimeout as exc:
-        raise BootstrapIntakeParseError(
-            "the request took too long to process — please try again, "
-            "ideally with a shorter or simpler message"
-        ) from exc
     except (ValidationError, TypeError, ValueError) as exc:
-        raise BootstrapIntakeParseError(f"invalid bootstrap extraction: {exc}") from exc
-    except Exception as exc:
         raise BootstrapIntakeParseError(
-            f"bootstrap extraction provider failed: {type(exc).__name__}: {exc}"
+            BOOTSTRAP_INTAKE_PARSE_FAIL_MSG, code="bootstrap_parse"
         ) from exc
 
     return BootstrapResponsePayload(

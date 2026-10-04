@@ -17,6 +17,7 @@ from recommender.ids import to_id
 from recommender.legality import check_set, load_snapshot
 from recommender.species_resolve import resolve_species_label
 from recommender.matchup import MatchupEvidenceError
+from recommender.bootstrap import BOOTSTRAP_INTAKE_MISSING_PAYLOAD_MSG
 from recommender.present_text import BOOTSTRAP_PARSER_NOT_CONFIGURED, format_roster
 from recommender.recommend import SP_BUDGET, spread_sum
 from recommender.reconcile import (
@@ -278,7 +279,7 @@ def record_bootstrap_response(state: RecommenderState) -> dict:
     payload: BootstrapResponsePayload | None = state.get("turn_payload")  # type: ignore[assignment]
     if payload is None:
         return {
-            "bootstrap_intake_error": "missing bootstrap response payload",
+            "bootstrap_intake_error": BOOTSTRAP_INTAKE_MISSING_PAYLOAD_MSG,
             "pending_presentation": state.get("pending_presentation"),
         }
 
