@@ -32,8 +32,12 @@ SEASON_RUN_DAYS = frozenset({0, 14})
 def write_github_output(path: Path | None, fields: dict[str, str]) -> None:
     if path is None:
         return
+    from scripts.ci.github_output import sanitize_github_output_value
+
     with path.open("a", encoding="utf-8") as f:
         for k, v in fields.items():
+            if k in {"reason", "message"}:
+                v = sanitize_github_output_value(v)
             f.write(f"{k}={v}\n")
 
 

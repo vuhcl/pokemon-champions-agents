@@ -124,6 +124,32 @@ def test_run_gate_pr(tmp_path: Path):
     assert bumped["teams_resolved"] == 120
 
 
+def test_run_gate_extract_failed_reason_includes_type(tmp_path: Path):
+    out = tmp_path / "out.json"
+    marker = tmp_path / "marker.json"
+    marker.write_text(json.dumps({"last_extract_at": None}) + "\n", encoding="utf-8")
+    gh = tmp_path / "github_output.txt"
+
+    def extract_fn(**kwargs):
+        raise ValueError("Team ID header missing")
+
+    result = run_gate(
+        now=datetime(2026, 9, 20, tzinfo=timezone.utc),
+        force=True,
+        marker_path=marker,
+        out_path=out,
+        extract_fn=extract_fn,
+        github_output=gh,
+    )
+    assert result["decision"] == "fail"
+    assert result["reason"].startswith("extract_failed:ValueError:")
+    assert "Team ID header missing" in result["reason"]
+    gh_text = gh.read_text(encoding="utf-8")
+    reason_line = [ln for ln in gh_text.splitlines() if ln.startswith("reason=")][0]
+    assert "\n" not in reason_line.split("=", 1)[1]
+    assert "ValueError" in reason_line
+
+
 def test_run_gate_fail_restores_previous(tmp_path: Path):
     out = tmp_path / "out.json"
     prev = _snap(n=200)
