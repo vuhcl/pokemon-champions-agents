@@ -1,0 +1,937 @@
+{
+  "usage_dir": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+  "sp_rules": {
+    "budget": 66,
+    "cap": 32
+  },
+  "threats": [
+    "Venusaur",
+    "Venusaur-Mega",
+    "Charizard",
+    "Charizard-Mega-X",
+    "Charizard-Mega-Y",
+    "Blastoise",
+    "Blastoise-Mega",
+    "Beedrill",
+    "Beedrill-Mega",
+    "Pidgeot",
+    "Pidgeot-Mega",
+    "Arbok",
+    "Pikachu",
+    "Raichu",
+    "Raichu-Alola",
+    "Raichu-Mega-X",
+    "Raichu-Mega-Y",
+    "Clefable",
+    "Clefable-Mega",
+    "Ninetales"
+  ],
+  "C1": {
+    "error": "calc request failed (400): {'error': 'unknown Champions species: Blissey'}"
+  },
+  "C2": {
+    "error": "calc request failed (400): {'error': 'unknown Champions species: Blissey'}"
+  },
+  "C3": {
+    "atk32": {
+      "Venusaur": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              88,
+              105
+            ],
+            "koChance": "80.1% chance to 2HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              73,
+              87
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              69,
+              82
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Venusaur-Mega": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              67,
+              79
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              55,
+              66
+            ],
+            "koChance": "14.7% chance to 3HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              52,
+              63
+            ],
+            "koChance": "0.2% chance to 3HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Charizard": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              93,
+              109
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              76,
+              90
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              36,
+              42
+            ],
+            "koChance": "possible 5HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Charizard-Mega-X": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              72,
+              85
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              58,
+              70
+            ],
+            "koChance": "90.8% chance to 3HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              28,
+              33
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Charizard-Mega-Y": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              93,
+              109
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              76,
+              90
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              36,
+              42
+            ],
+            "koChance": "possible 5HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Blastoise": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              76,
+              91
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              64,
+              76
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              30,
+              36
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Blastoise-Mega": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              67,
+              81
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              57,
+              67
+            ],
+            "koChance": "43.2% chance to 3HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              27,
+              32
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Beedrill": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              135,
+              159
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              111,
+              132
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              106,
+              126
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 205
+          }
+        }
+      }
+    },
+    "atk20": {
+      "Venusaur": {
+        "spread": {
+          "hp": 32,
+          "atk": 20,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 14
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              82,
+              97
+            ],
+            "koChance": "13.3% chance to 2HKO",
+            "atk_stat": 192
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              67,
+              81
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 192
+          },
+          "Iron Head": {
+            "damageRange": [
+              66,
+              78
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 192
+          }
+        }
+      },
+      "Venusaur-Mega": {
+        "spread": {
+          "hp": 32,
+          "atk": 20,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 14
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              63,
+              75
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 192
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              51,
+              61
+            ],
+            "koChance": "guaranteed 4HKO",
+            "atk_stat": 192
+          },
+          "Iron Head": {
+            "damageRange": [
+              49,
+              58
+            ],
+            "koChance": "guaranteed 4HKO",
+            "atk_stat": 192
+          }
+        }
+      },
+      "Charizard": {
+        "spread": {
+          "hp": 32,
+          "atk": 20,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 14
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              85,
+              102
+            ],
+            "koChance": "60.5% chance to 2HKO",
+            "atk_stat": 192
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              72,
+              85
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 192
+          },
+          "Iron Head": {
+            "damageRange": [
+              33,
+              40
+            ],
+            "koChance": "possible 5HKO",
+            "atk_stat": 192
+          }
+        }
+      },
+      "Charizard-Mega-X": {
+        "spread": {
+          "hp": 32,
+          "atk": 20,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 14
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              67,
+              79
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 192
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              55,
+              66
+            ],
+            "koChance": "23.3% chance to 3HKO",
+            "atk_stat": 192
+          },
+          "Iron Head": {
+            "damageRange": [
+              26,
+              31
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 192
+          }
+        }
+      },
+      "Charizard-Mega-Y": {
+        "spread": {
+          "hp": 32,
+          "atk": 20,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 14
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              85,
+              102
+            ],
+            "koChance": "60.5% chance to 2HKO",
+            "atk_stat": 192
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              72,
+              85
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 192
+          },
+          "Iron Head": {
+            "damageRange": [
+              33,
+              40
+            ],
+            "koChance": "possible 5HKO",
+            "atk_stat": 192
+          }
+        }
+      },
+      "Blastoise": {
+        "spread": {
+          "hp": 32,
+          "atk": 20,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 14
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              72,
+              85
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 192
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              60,
+              72
+            ],
+            "koChance": "97.3% chance to 3HKO",
+            "atk_stat": 192
+          },
+          "Iron Head": {
+            "damageRange": [
+              28,
+              33
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 192
+          }
+        }
+      },
+      "Blastoise-Mega": {
+        "spread": {
+          "hp": 32,
+          "atk": 20,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 14
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              63,
+              75
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 192
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              52,
+              63
+            ],
+            "koChance": "0.3% chance to 3HKO",
+            "atk_stat": 192
+          },
+          "Iron Head": {
+            "damageRange": [
+              25,
+              30
+            ],
+            "koChance": "possible 7HKO",
+            "atk_stat": 192
+          }
+        }
+      },
+      "Beedrill": {
+        "spread": {
+          "hp": 32,
+          "atk": 20,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 14
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              126,
+              148
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 192
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              103,
+              123
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 192
+          },
+          "Iron Head": {
+            "damageRange": [
+              99,
+              117
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 192
+          }
+        }
+      }
+    },
+    "assumed_remainder": "hp first (cap 32), then spe, then spd; nature Adamant; item Black Glasses"
+  },
+  "D1_spreads": {
+    "max_def": {
+      "hp": 32,
+      "atk": 0,
+      "def": 32,
+      "spa": 2,
+      "spd": 0,
+      "spe": 0
+    },
+    "max_spd": {
+      "hp": 32,
+      "atk": 0,
+      "def": 0,
+      "spa": 2,
+      "spd": 32,
+      "spe": 0
+    },
+    "split_16_16": {
+      "hp": 32,
+      "atk": 0,
+      "def": 16,
+      "spa": 2,
+      "spd": 16,
+      "spe": 0
+    }
+  },
+  "D1_assumed": "HP then Spa then Spe for remainder; nature Bold; ability Hospitality; item Sitrus Berry",
+  "D1": {
+    "Venusaur": {
+      "max_def": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      }
+    },
+    "Venusaur-Mega": {
+      "max_def": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      }
+    },
+    "Charizard": {
+      "max_def": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      }
+    },
+    "Charizard-Mega-X": {
+      "max_def": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      }
+    },
+    "Charizard-Mega-Y": {
+      "max_def": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      }
+    },
+    "Blastoise": {
+      "max_def": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      }
+    },
+    "Blastoise-Mega": {
+      "max_def": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      }
+    },
+    "Beedrill": {
+      "max_def": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      }
+    },
+    "Beedrill-Mega": {
+      "max_def": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      }
+    },
+    "Pidgeot": {
+      "max_def": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Frustration": {
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      }
+    }
+  }
+}

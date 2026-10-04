@@ -1,0 +1,674 @@
+{
+  "calc_ok": false,
+  "note": "Baseline scored read-only. If tallies are zero despite visible false-legal/false-rules prose in transcript_preview, the v2 false-legal gate cannot see this defect class.",
+  "baseline": {
+    "label": "baseline_88df2d7",
+    "runs_dir": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/det_graph_capability_baseline_88df2d7/runs",
+    "rows": [
+      {
+        "id": "P1",
+        "model": "qwen2.5_7b",
+        "path": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/det_graph_capability_baseline_88df2d7/runs/P1__qwen2.5_7b__merged_usage_dir__r0.json",
+        "transcript_chars": 59,
+        "transcript_preview": "That action isn't available here.\nTeam: (no locked members)",
+        "tally": {
+          "false_legal": 0,
+          "false_illegal": 0,
+          "false_illegal_examples": [],
+          "species_FALSE": 0,
+          "species_TRUE": 0,
+          "species_unv": 0,
+          "mech_FALSE": 0,
+          "mech_TRUE": 0,
+          "mech_unv": 0,
+          "item_clause_violation": null,
+          "completed_team": false
+        },
+        "score": {
+          "team": {
+            "extractor": "showdown",
+            "incomplete": true,
+            "completed": false,
+            "slots": []
+          },
+          "legality": {
+            "pairs_checked": 0,
+            "false_legal": 0,
+            "pairs": [],
+            "false_illegal": 0,
+            "false_illegal_examples": []
+          },
+          "species_facts": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "prose_n": 0,
+            "build_n": 0
+          },
+          "mechanical": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "calc_ok": false
+          },
+          "structural": {
+            "spreads_ev_shaped": 0,
+            "spreads_sp_shaped": 0,
+            "spreads_unparsed": 0,
+            "spreads_parsed_denom": 0,
+            "item_clause_violation": null
+          }
+        }
+      },
+      {
+        "id": "P2",
+        "model": "qwen2.5_7b",
+        "path": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/det_graph_capability_baseline_88df2d7/runs/P2__qwen2.5_7b__merged_usage_dir__r0.json",
+        "transcript_chars": 59,
+        "transcript_preview": "That action isn't available here.\nTeam: (no locked members)",
+        "tally": {
+          "false_legal": 0,
+          "false_illegal": 0,
+          "false_illegal_examples": [],
+          "species_FALSE": 0,
+          "species_TRUE": 0,
+          "species_unv": 0,
+          "mech_FALSE": 0,
+          "mech_TRUE": 0,
+          "mech_unv": 0,
+          "item_clause_violation": null,
+          "completed_team": false
+        },
+        "score": {
+          "team": {
+            "extractor": "showdown",
+            "incomplete": true,
+            "completed": false,
+            "slots": []
+          },
+          "legality": {
+            "pairs_checked": 0,
+            "false_legal": 0,
+            "pairs": [],
+            "false_illegal": 0,
+            "false_illegal_examples": []
+          },
+          "species_facts": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "prose_n": 0,
+            "build_n": 0
+          },
+          "mechanical": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "calc_ok": false
+          },
+          "structural": {
+            "spreads_ev_shaped": 0,
+            "spreads_sp_shaped": 0,
+            "spreads_unparsed": 0,
+            "spreads_parsed_denom": 0,
+            "item_clause_violation": null
+          }
+        }
+      },
+      {
+        "id": "P3",
+        "model": "qwen2.5_7b",
+        "path": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/det_graph_capability_baseline_88df2d7/runs/P3__qwen2.5_7b__merged_usage_dir__r0.json",
+        "transcript_chars": 190,
+        "transcript_preview": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\nTeam: (no locked members)",
+        "tally": {
+          "false_legal": 0,
+          "false_illegal": 0,
+          "false_illegal_examples": [],
+          "species_FALSE": 0,
+          "species_TRUE": 0,
+          "species_unv": 0,
+          "mech_FALSE": 0,
+          "mech_TRUE": 0,
+          "mech_unv": 0,
+          "item_clause_violation": null,
+          "completed_team": false
+        },
+        "score": {
+          "team": {
+            "extractor": "showdown",
+            "incomplete": true,
+            "completed": false,
+            "slots": []
+          },
+          "legality": {
+            "pairs_checked": 0,
+            "false_legal": 0,
+            "pairs": [],
+            "false_illegal": 0,
+            "false_illegal_examples": []
+          },
+          "species_facts": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "prose_n": 0,
+            "build_n": 0
+          },
+          "mechanical": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "calc_ok": false
+          },
+          "structural": {
+            "spreads_ev_shaped": 0,
+            "spreads_sp_shaped": 0,
+            "spreads_unparsed": 0,
+            "spreads_parsed_denom": 0,
+            "item_clause_violation": null
+          }
+        }
+      },
+      {
+        "id": "S7",
+        "model": "qwen2.5_7b",
+        "path": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/det_graph_capability_baseline_88df2d7/runs/S7__qwen2.5_7b__merged_usage_dir__r0.json",
+        "transcript_chars": 190,
+        "transcript_preview": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\nTeam: (no locked members)",
+        "tally": {
+          "false_legal": 0,
+          "false_illegal": 0,
+          "false_illegal_examples": [],
+          "species_FALSE": 0,
+          "species_TRUE": 0,
+          "species_unv": 0,
+          "mech_FALSE": 0,
+          "mech_TRUE": 0,
+          "mech_unv": 0,
+          "item_clause_violation": null,
+          "completed_team": false
+        },
+        "score": {
+          "team": {
+            "extractor": "showdown",
+            "incomplete": true,
+            "completed": false,
+            "slots": []
+          },
+          "legality": {
+            "pairs_checked": 0,
+            "false_legal": 0,
+            "pairs": [],
+            "false_illegal": 0,
+            "false_illegal_examples": []
+          },
+          "species_facts": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "prose_n": 0,
+            "build_n": 0
+          },
+          "mechanical": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "calc_ok": false
+          },
+          "structural": {
+            "spreads_ev_shaped": 0,
+            "spreads_sp_shaped": 0,
+            "spreads_unparsed": 0,
+            "spreads_parsed_denom": 0,
+            "item_clause_violation": null
+          }
+        }
+      },
+      {
+        "id": "P1",
+        "model": "qwen3.5_latest",
+        "path": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/det_graph_capability_baseline_88df2d7/runs/P1__qwen3.5_latest__merged_usage_dir__r0.json",
+        "transcript_chars": 323,
+        "transcript_preview": "I can help with that! Specs Chi-Yu (Choice Specs) has strong STAB Fire moves that could potentially OHKO Kingambit depending on the specific spread and weather conditions. Would you like me to check if this works for your current team setup, or are you looking to build a team around this matchup?\nTeam: (no locked members)",
+        "tally": {
+          "false_legal": 0,
+          "false_illegal": 0,
+          "false_illegal_examples": [],
+          "species_FALSE": 0,
+          "species_TRUE": 0,
+          "species_unv": 0,
+          "mech_FALSE": 0,
+          "mech_TRUE": 0,
+          "mech_unv": 1,
+          "item_clause_violation": null,
+          "completed_team": false
+        },
+        "score": {
+          "team": {
+            "extractor": "showdown",
+            "incomplete": true,
+            "completed": false,
+            "slots": []
+          },
+          "legality": {
+            "pairs_checked": 0,
+            "false_legal": 0,
+            "pairs": [],
+            "false_illegal": 0,
+            "false_illegal_examples": []
+          },
+          "species_facts": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "prose_n": 0,
+            "build_n": 0
+          },
+          "mechanical": {
+            "claims": [
+              {
+                "kind": "ko",
+                "display": "that could potentially OHKO Kingambit depending on",
+                "verdict": "unverifiable_shape",
+                "a": "that could potentially",
+                "b": "Kingambit depending on",
+                "move": null,
+                "note": "unknown_species"
+              }
+            ],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 1,
+              "total": 1
+            },
+            "calc_ok": false
+          },
+          "structural": {
+            "spreads_ev_shaped": 0,
+            "spreads_sp_shaped": 0,
+            "spreads_unparsed": 0,
+            "spreads_parsed_denom": 0,
+            "item_clause_violation": null
+          }
+        }
+      },
+      {
+        "id": "P2",
+        "model": "qwen3.5_latest",
+        "path": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/det_graph_capability_baseline_88df2d7/runs/P2__qwen3.5_latest__merged_usage_dir__r0.json",
+        "transcript_chars": 171,
+        "transcript_preview": "Which slot would you like to use Miraidon with Scarf on? Also, are you looking to edit an existing locked slot or add a new Pok\u00e9mon to your team?\nTeam: (no locked members)",
+        "tally": {
+          "false_legal": 0,
+          "false_illegal": 0,
+          "false_illegal_examples": [],
+          "species_FALSE": 0,
+          "species_TRUE": 0,
+          "species_unv": 0,
+          "mech_FALSE": 0,
+          "mech_TRUE": 0,
+          "mech_unv": 0,
+          "item_clause_violation": null,
+          "completed_team": false
+        },
+        "score": {
+          "team": {
+            "extractor": "showdown",
+            "incomplete": true,
+            "completed": false,
+            "slots": []
+          },
+          "legality": {
+            "pairs_checked": 0,
+            "false_legal": 0,
+            "pairs": [],
+            "false_illegal": 0,
+            "false_illegal_examples": []
+          },
+          "species_facts": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "prose_n": 0,
+            "build_n": 0
+          },
+          "mechanical": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "calc_ok": false
+          },
+          "structural": {
+            "spreads_ev_shaped": 0,
+            "spreads_sp_shaped": 0,
+            "spreads_unparsed": 0,
+            "spreads_parsed_denom": 0,
+            "item_clause_violation": null
+          }
+        }
+      },
+      {
+        "id": "P3",
+        "model": "qwen3.5_latest",
+        "path": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/det_graph_capability_baseline_88df2d7/runs/P3__qwen3.5_latest__merged_usage_dir__r0.json",
+        "transcript_chars": 273,
+        "transcript_preview": "I can help with that! Are you looking to add Walking Wake to your team, or are you asking about what kind of support Pok\u00e9mon/moves would work well with it? Let me know which slot you're considering or if you'd like suggestions for a specific role.\nTeam: (no locked members)",
+        "tally": {
+          "false_legal": 0,
+          "false_illegal": 0,
+          "false_illegal_examples": [],
+          "species_FALSE": 0,
+          "species_TRUE": 0,
+          "species_unv": 0,
+          "mech_FALSE": 0,
+          "mech_TRUE": 0,
+          "mech_unv": 0,
+          "item_clause_violation": null,
+          "completed_team": false
+        },
+        "score": {
+          "team": {
+            "extractor": "showdown",
+            "incomplete": true,
+            "completed": false,
+            "slots": []
+          },
+          "legality": {
+            "pairs_checked": 0,
+            "false_legal": 0,
+            "pairs": [],
+            "false_illegal": 0,
+            "false_illegal_examples": []
+          },
+          "species_facts": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "prose_n": 0,
+            "build_n": 0
+          },
+          "mechanical": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "calc_ok": false
+          },
+          "structural": {
+            "spreads_ev_shaped": 0,
+            "spreads_sp_shaped": 0,
+            "spreads_unparsed": 0,
+            "spreads_parsed_denom": 0,
+            "item_clause_violation": null
+          }
+        }
+      },
+      {
+        "id": "S7",
+        "model": "qwen3.5_latest",
+        "path": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/det_graph_capability_baseline_88df2d7/runs/S7__qwen3.5_latest__merged_usage_dir__r0.json",
+        "transcript_chars": 268,
+        "transcript_preview": "Yes, you can run two Choice Scarf users on your team - there's no restriction against duplicate items in standard competitive formats. Would you like to proceed with that setup, or would you prefer to set a constraint against duplicate items?\nTeam: (no locked members)",
+        "tally": {
+          "false_legal": 0,
+          "false_illegal": 0,
+          "false_illegal_examples": [],
+          "species_FALSE": 0,
+          "species_TRUE": 0,
+          "species_unv": 0,
+          "mech_FALSE": 0,
+          "mech_TRUE": 0,
+          "mech_unv": 0,
+          "item_clause_violation": null,
+          "completed_team": false
+        },
+        "score": {
+          "team": {
+            "extractor": "showdown",
+            "incomplete": true,
+            "completed": false,
+            "slots": []
+          },
+          "legality": {
+            "pairs_checked": 0,
+            "false_legal": 0,
+            "pairs": [],
+            "false_illegal": 0,
+            "false_illegal_examples": []
+          },
+          "species_facts": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "prose_n": 0,
+            "build_n": 0
+          },
+          "mechanical": {
+            "claims": [],
+            "tally": {
+              "TRUE": 0,
+              "FALSE": 0,
+              "unverifiable_shape": 0,
+              "total": 0
+            },
+            "calc_ok": false
+          },
+          "structural": {
+            "spreads_ev_shaped": 0,
+            "spreads_sp_shaped": 0,
+            "spreads_unparsed": 0,
+            "spreads_parsed_denom": 0,
+            "item_clause_violation": null
+          }
+        }
+      }
+    ]
+  },
+  "after": {
+    "rows": [
+      {
+        "id": "P1",
+        "model": "qwen2.5_7b",
+        "false_legal": 0,
+        "false_illegal": 0,
+        "species_FALSE": 0,
+        "mech_FALSE": 0,
+        "item_clause": null
+      },
+      {
+        "id": "P2",
+        "model": "qwen2.5_7b",
+        "false_legal": 0,
+        "false_illegal": 0,
+        "species_FALSE": 0,
+        "mech_FALSE": 0,
+        "item_clause": null
+      },
+      {
+        "id": "P3",
+        "model": "qwen2.5_7b",
+        "false_legal": 0,
+        "false_illegal": 0,
+        "species_FALSE": 0,
+        "mech_FALSE": 0,
+        "item_clause": null
+      },
+      {
+        "id": "S7",
+        "model": "qwen2.5_7b",
+        "false_legal": 0,
+        "false_illegal": 0,
+        "species_FALSE": 0,
+        "mech_FALSE": 0,
+        "item_clause": null
+      },
+      {
+        "id": "P1",
+        "model": "qwen3.5_latest",
+        "false_legal": 0,
+        "false_illegal": 0,
+        "species_FALSE": 0,
+        "mech_FALSE": 0,
+        "item_clause": null
+      },
+      {
+        "id": "P2",
+        "model": "qwen3.5_latest",
+        "false_legal": 0,
+        "false_illegal": 0,
+        "species_FALSE": 0,
+        "mech_FALSE": 0,
+        "item_clause": null
+      },
+      {
+        "id": "P3",
+        "model": "qwen3.5_latest",
+        "false_legal": 0,
+        "false_illegal": 0,
+        "species_FALSE": 0,
+        "mech_FALSE": 0,
+        "item_clause": null
+      },
+      {
+        "id": "S7",
+        "model": "qwen3.5_latest",
+        "false_legal": 0,
+        "false_illegal": 0,
+        "species_FALSE": 0,
+        "mech_FALSE": 0,
+        "item_clause": null
+      }
+    ]
+  },
+  "control_vs_after": [
+    {
+      "id": "P1",
+      "model": "qwen2.5_7b",
+      "control_message": "That action isn't available here.",
+      "after_message": "That action isn't available here.",
+      "control_visible": "That action isn't available here.\nTeam: (no locked members)",
+      "after_visible": "That action isn't available here.\nTeam: (no locked members)",
+      "changed": false
+    },
+    {
+      "id": "P2",
+      "model": "qwen2.5_7b",
+      "control_message": "That action isn't available here.",
+      "after_message": "That action isn't available here.",
+      "control_visible": "That action isn't available here.\nTeam: (no locked members)",
+      "after_visible": "That action isn't available here.\nTeam: (no locked members)",
+      "changed": false
+    },
+    {
+      "id": "P3",
+      "model": "qwen2.5_7b",
+      "control_message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+      "after_message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+      "control_visible": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\nTeam: (no locked members)",
+      "after_visible": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\nTeam: (no locked members)",
+      "changed": false
+    },
+    {
+      "id": "S7",
+      "model": "qwen2.5_7b",
+      "control_message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+      "after_message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+      "control_visible": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\nTeam: (no locked members)",
+      "after_visible": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\nTeam: (no locked members)",
+      "changed": false
+    },
+    {
+      "id": "P1",
+      "model": "qwen3.5_latest",
+      "control_message": "I can help with that! Specs Chi-Yu (Choice Specs) has strong STAB Fire moves that could potentially OHKO Kingambit depending on the specific spread and weather conditions. Would you like me to check if this works for your current team setup, or are you looking to build a team around this matchup?",
+      "after_message": "Didn't catch that.",
+      "control_visible": "I can help with that! Specs Chi-Yu (Choice Specs) has strong STAB Fire moves that could potentially OHKO Kingambit depending on the specific spread and weather conditions. Would you like me to check if this works for your current team setup, or are you looking to build a team around this matchup?\nTeam: (no locked members)",
+      "after_visible": "Didn't catch that.\nTeam: (no locked members)",
+      "changed": true
+    },
+    {
+      "id": "P2",
+      "model": "qwen3.5_latest",
+      "control_message": "Which slot would you like to use Miraidon with Scarf on? Also, are you looking to edit an existing locked slot or add a new Pok\u00e9mon to your team?",
+      "after_message": "Didn't catch that.",
+      "control_visible": "Which slot would you like to use Miraidon with Scarf on? Also, are you looking to edit an existing locked slot or add a new Pok\u00e9mon to your team?\nTeam: (no locked members)",
+      "after_visible": "Didn't catch that.\nTeam: (no locked members)",
+      "changed": true
+    },
+    {
+      "id": "P3",
+      "model": "qwen3.5_latest",
+      "control_message": "I can help with that! Are you looking to add Walking Wake to your team, or are you asking about what kind of support Pok\u00e9mon/moves would work well with it? Let me know which slot you're considering or if you'd like suggestions for a specific role.",
+      "after_message": "Didn't catch that.",
+      "control_visible": "I can help with that! Are you looking to add Walking Wake to your team, or are you asking about what kind of support Pok\u00e9mon/moves would work well with it? Let me know which slot you're considering or if you'd like suggestions for a specific role.\nTeam: (no locked members)",
+      "after_visible": "Didn't catch that.\nTeam: (no locked members)",
+      "changed": true
+    },
+    {
+      "id": "S7",
+      "model": "qwen3.5_latest",
+      "control_message": "Yes, you can run two Choice Scarf users on your team - there's no restriction against duplicate items in standard competitive formats. Would you like to proceed with that setup, or would you prefer to set a constraint against duplicate items?",
+      "after_message": "Didn't catch that.",
+      "control_visible": "Yes, you can run two Choice Scarf users on your team - there's no restriction against duplicate items in standard competitive formats. Would you like to proceed with that setup, or would you prefer to set a constraint against duplicate items?\nTeam: (no locked members)",
+      "after_visible": "Didn't catch that.\nTeam: (no locked members)",
+      "changed": true
+    }
+  ]
+}

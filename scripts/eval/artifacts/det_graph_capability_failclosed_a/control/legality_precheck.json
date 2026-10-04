@@ -1,0 +1,120 @@
+{
+  "format_id": "[Gen 9 Champions] VGC 2026 Reg M-C",
+  "regulation_mod": "champions",
+  "regulation_tag": "champions-reg-mc",
+  "snapshot_formats": {
+    "vgc": "[Gen 9 Champions] VGC 2026 Reg M-C",
+    "bss": "[Gen 9 Champions] BSS Reg M-C"
+  },
+  "results": [
+    {
+      "name": "Kingambit",
+      "kind": "species",
+      "legal": true
+    },
+    {
+      "name": "Hatterene",
+      "kind": "species",
+      "legal": true
+    },
+    {
+      "name": "Farigiraf",
+      "kind": "species",
+      "legal": true
+    },
+    {
+      "name": "Torkoal",
+      "kind": "species",
+      "legal": true
+    },
+    {
+      "name": "Lilligant",
+      "kind": "species",
+      "legal": false
+    },
+    {
+      "name": "Tornadus",
+      "kind": "species",
+      "legal": false
+    },
+    {
+      "name": "Garchomp",
+      "kind": "species",
+      "legal": true
+    },
+    {
+      "name": "Pelipper",
+      "kind": "species",
+      "legal": true
+    },
+    {
+      "name": "Gholdengo",
+      "kind": "species",
+      "legal": true
+    },
+    {
+      "name": "Sinistcha",
+      "kind": "species",
+      "legal": true
+    },
+    {
+      "name": "Walking Wake",
+      "kind": "species",
+      "legal": false
+    },
+    {
+      "name": "Chi-Yu",
+      "kind": "species",
+      "legal": false
+    },
+    {
+      "name": "Miraidon",
+      "kind": "species",
+      "legal": false
+    },
+    {
+      "name": "Scovillain",
+      "kind": "species",
+      "legal": true
+    },
+    {
+      "name": "Whimsicott",
+      "kind": "species",
+      "legal": true
+    },
+    {
+      "name": "Lilligant-Hisui",
+      "kind": "species",
+      "legal": false
+    },
+    {
+      "name": "Tornadus-Therian",
+      "kind": "species",
+      "legal": false
+    },
+    {
+      "name": "Choice Scarf",
+      "kind": "item",
+      "legal": true
+    },
+    {
+      "name": "Choice Specs",
+      "kind": "item",
+      "legal": false
+    }
+  ],
+  "substitutions": [
+    {
+      "illegal": "Lilligant",
+      "substitute": "Scovillain",
+      "role": "Chlorophyll sun offense (seed S4; also i7 teammate name)",
+      "rationale": "Nearest legal Chlorophyll offensive Grass in snapshot; Lilligant/Lilligant-Hisui both illegal."
+    },
+    {
+      "illegal": "Tornadus",
+      "substitute": "Whimsicott",
+      "role": "Prankster Tailwind (seed S5)",
+      "rationale": "Nearest legal Prankster+Tailwind support; Tornadus/Tornadus-Therian both illegal."
+    }
+  ]
+}

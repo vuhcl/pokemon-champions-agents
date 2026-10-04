@@ -1,0 +1,271 @@
+{
+  "sampling_caveat": "All llm_authored rows in this corpus have pending_presentation kind None (idle) at message time. There is no mid-flow evidence in this corpus. Mid-flow assurance rests entirely on the passthrough-test inventory, the per-kind template table, and hostile tests over idle plus every PendingPresentation.kind.",
+  "pending_kind_counts": {
+    "None": 19
+  },
+  "all_llm_authored_rows_idle": true,
+  "bucket_schema": [
+    "echo_soft_refuse",
+    "unactionable_offer",
+    "defect_prose",
+    "unique_UX"
+  ],
+  "relabel_note": "Phase2 Step0 addendum: row-specific reasons; pending_kind column; unactionable_offer/defect_prose cite outcome+transcript filename.",
+  "snapshot_head": "88df2d7bda5e0f357e98631b7fd821aba6c328af",
+  "counts_by_model": {
+    "qwen2.5_7b": {
+      "canned": 11,
+      "llm_authored": 7,
+      "empty": 0,
+      "other_intent": 42
+    },
+    "qwen3.5_latest": {
+      "canned": 1,
+      "llm_authored": 12,
+      "empty": 0,
+      "other_intent": 72
+    }
+  },
+  "llm_authored_rows": [
+    {
+      "request_id": "S4",
+      "model": "qwen2.5_7b",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "Which of your picks do you want to swap for something that threatens Kingambit?",
+      "bucket": "unactionable_offer",
+      "reason": "Asks which locked pick to swap for a Kingambit threat; unmatched path does not execute a swap or bind to candidate_selection. Recorded outcome=FAIL-CLOSED (transcript `S4__qwen2.5_7b__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "S4__qwen2.5_7b__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "S6",
+      "model": "qwen2.5_7b",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "Why did you pick Farigiraf over Hatterene?",
+      "bucket": "echo_soft_refuse",
+      "reason": "Echoes the Farigiraf-vs-Hatterene comparison as a bare question. (transcript `S6__qwen2.5_7b__merged_usage_dir__r0.json`, outcome=FAIL-CLOSED).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "S6__qwen2.5_7b__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "S8",
+      "model": "qwen2.5_7b",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "What do you consider the best criteria for evaluating a team in Reg M-C?",
+      "bucket": "echo_soft_refuse",
+      "reason": "Echoes the 'best criteria for evaluating a team' ask without a team-review action. (transcript `S8__qwen2.5_7b__merged_usage_dir__r0.json`, outcome=FAIL-CLOSED).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "S8__qwen2.5_7b__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "i7",
+      "model": "qwen2.5_7b",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "Which Pok\u00e9mon pairs with both Torkoal and Scovillain?",
+      "bucket": "echo_soft_refuse",
+      "reason": "Echoes the Torkoal+Scovillain pairing question. (transcript `i7__qwen2.5_7b__merged_usage_dir__r0.json`, outcome=FAIL-CLOSED).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "i7__qwen2.5_7b__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "i8L",
+      "model": "qwen2.5_7b",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "What support does Hatterene need?",
+      "bucket": "echo_soft_refuse",
+      "reason": "Echoes the Hatterene support question. (transcript `i8L__qwen2.5_7b__merged_usage_dir__r0.json`, outcome=FAIL-CLOSED).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "i8L__qwen2.5_7b__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "C2",
+      "model": "qwen2.5_7b",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "Does Jolly vs Adamant change which threats your Garchomp outspeeds?",
+      "bucket": "echo_soft_refuse",
+      "reason": "Echoes Jolly-vs-Adamant outspeed question; no calc on unmatched. (transcript `C2__qwen2.5_7b__merged_usage_dir__r0.json`, outcome=FAIL-CLOSED).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "C2__qwen2.5_7b__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "C3",
+      "model": "qwen2.5_7b",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "Does max Attack on Kingambit change what it OHKOs?",
+      "bucket": "echo_soft_refuse",
+      "reason": "Echoes max-Attack Kingambit OHKO question; no calc on unmatched. (transcript `C3__qwen2.5_7b__merged_usage_dir__r0.json`, outcome=FAIL-CLOSED).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "C3__qwen2.5_7b__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "S2",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "I'd be happy to help you find a bulky Fire-type Pok\u00e9mon for slot 4! However, I don't have visibility into your current roster yet. Could you confirm if this is part of an existing team build or if we're starting fresh? Also, do you have any specific preferences for the Fire-type (e.g., offensive vs defensive focus, preferred ability, etc.)?",
+      "bucket": "unactionable_offer",
+      "reason": "Offers to find a bulky Fire-type for slot 4 and asks roster status; idle unmatched cannot open candidate discovery for that ask. Recorded outcome=FAIL-CLOSED (transcript `S2__qwen3.5_latest__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "S2__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "S4",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "I don't have visibility into your current roster state to identify which pick is weakest. Could you specify which slot number you'd like me to swap, or would you like me to analyze your team first to determine the weakest threat against Kingambit?",
+      "bucket": "unactionable_offer",
+      "reason": "Claims no roster visibility and asks which slot to swap; idle unmatched does not open a swap/candidate screen. Recorded outcome=FAIL-CLOSED (transcript `S4__qwen3.5_latest__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "S4__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "S7",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "Yes, you can run two Choice Scarf users on your team - there's no restriction against duplicate items in standard competitive formats. Would you like to proceed with that setup, or would you prefer to set a constraint against duplicate items?",
+      "bucket": "defect_prose",
+      "reason": "Asserts no restriction on duplicate Choice Scarf / Item Clause \u2014 false for Reg M-C (logged defect). Recorded outcome=FAIL-CLOSED (transcript `S7__qwen3.5_latest__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "S7__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "S8",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "I can help you find strong Reg M-C teams! Could you tell me more about what you're looking for? Are you interested in a specific archetype (like Trick Room, Sun, Rain, etc.), or do you have any particular Pok\u00e9mon you want to include? I can also share some top-tier team concepts if you'd like.",
+      "bucket": "unactionable_offer",
+      "reason": "Offers to find strong Reg M-C teams/archetypes; idle unmatched cannot run team search or archetype browse. Recorded outcome=FAIL-CLOSED (transcript `S8__qwen3.5_latest__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "S8__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "i6L",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "Could you clarify which roster slot you'd like to use Garchomp with Scarf in? Also, are there any other build details (ability, moves, nature, EV spread) you want to set for this Pok\u00e9mon?",
+      "bucket": "unactionable_offer",
+      "reason": "Offers to place Garchomp+Scarf in a slot with build details; idle unmatched does not lock that set. Recorded outcome=FAIL-CLOSED (transcript `i6L__qwen3.5_latest__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "i6L__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "i7",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "I'd be happy to help with pairing suggestions! Could you clarify what you're looking for? Are Torkoal and Scovillain already on your team, or are you considering them as options? Also, do you have a specific strategy or role in mind for these Pok\u00e9mon?",
+      "bucket": "echo_soft_refuse",
+      "reason": "Soft pairing help restating Torkoal/Scovillain ask. (transcript `i7__qwen3.5_latest__merged_usage_dir__r0.json`, outcome=FAIL-CLOSED).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "i7__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "C1",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "I can help you analyze that! To give you a useful answer, I'd need to know which opponents you're most concerned about outspeeding. Could you tell me what your main threats are (e.g., specific Pok\u00e9mon or speed ranges)? Alternatively, if you'd like me to check against common fast threats in the current meta, just let me know.",
+      "bucket": "unactionable_offer",
+      "reason": "Offers outspeed analysis if threats are named; idle unmatched does not invoke @smogon/calc. Recorded outcome=FAIL-CLOSED (transcript `C1__qwen3.5_latest__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "C1__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "C4",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "To help you decide between Modest and Timid on Pelipper, I'd need to know more about your team composition and strategy. Are you looking for a special attacker set? What other Pok\u00e9mon are on your team? This will help me give you better advice on which nature fits best.",
+      "bucket": "unactionable_offer",
+      "reason": "Offers Modest-vs-Timid Pelipper advice needing team strategy; idle unmatched has no provisional/build screen. Recorded outcome=FAIL-CLOSED (transcript `C4__qwen3.5_latest__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "C4__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "D1",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "Which spread would you prefer? Max Defense, max Special Defense, or a balanced EV distribution?",
+      "bucket": "unactionable_offer",
+      "reason": "Offers Max Def / Max SpD / balanced spread choices for Sinistcha with no pending spread or full_build screen to bind the answer to. Recorded outcome=FAIL-CLOSED (transcript `D1__qwen3.5_latest__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "D1__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "P1",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "I can help with that! Specs Chi-Yu (Choice Specs) has strong STAB Fire moves that could potentially OHKO Kingambit depending on the specific spread and weather conditions. Would you like me to check if this works for your current team setup, or are you looking to build a team around this matchup?",
+      "bucket": "defect_prose",
+      "reason": "Treats illegal Chi-Yu + Choice Specs as a usable OHKO line (logged defect). Recorded outcome=FAIL-CLOSED (transcript `P1__qwen3.5_latest__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "P1__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "P2",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "Which slot would you like to use Miraidon with Scarf on? Also, are you looking to edit an existing locked slot or add a new Pok\u00e9mon to your team?",
+      "bucket": "defect_prose",
+      "reason": "Treats illegal Miraidon as slottable with Scarf (logged defect). Recorded outcome=FAIL-CLOSED (transcript `P2__qwen3.5_latest__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "P2__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    {
+      "request_id": "P3",
+      "model": "qwen3.5_latest",
+      "turn_index": 0,
+      "pending_kind": null,
+      "message": "I can help with that! Are you looking to add Walking Wake to your team, or are you asking about what kind of support Pok\u00e9mon/moves would work well with it? Let me know which slot you're considering or if you'd like suggestions for a specific role.",
+      "bucket": "defect_prose",
+      "reason": "Offers to add illegal Walking Wake / support for it (logged defect). Recorded outcome=FAIL-CLOSED (transcript `P3__qwen3.5_latest__merged_usage_dir__r0.json`).",
+      "recorded_outcome": "FAIL-CLOSED",
+      "transcript": "P3__qwen3.5_latest__merged_usage_dir__r0.json"
+    }
+  ],
+  "unique_UX_count": 0,
+  "unique_UX_rows": [],
+  "d1_under_A_check": {
+    "pending_kind": null,
+    "user_ask": "Should I run max Def, max Sp. Def, or something in between for Sinistcha?",
+    "model_message": "Which spread would you prefer? Max Defense, max Special Defense, or a balanced EV distribution?",
+    "under_A_idle": "Unmatched line: UNMATCHED_REPLY_PREFIX ('Didn't catch that.') + format_turn idle body (empty roster / no review). Loses the model's Def/SpD/balanced clarify.",
+    "under_A_full_build_confirmation": "Unmatched line: CLASSIFY_FAIL_USER_MSG (name field/value/scope) + _format_full_build body + full_build footer (yes / option ids / compare / edit / defer). Spread-axis options in the body can absorb a Def/SpD preference ask better than idle refuse; still not the model's tailored three-way question. UX loss vs model prose: modest on full_build (footer/body carry actions); larger on idle. Log as accepted Approach A tradeoff \u2014 do not change plan.",
+    "verdict": "Acceptable under A for full_build (generic field ask + build UI); idle is a clear UX loss vs this model clarify \u2014 worth logging, not unique_UX (no pending state to rebuild from)."
+  },
+  "s2_s8_outcomes": {
+    "S2_qwen2.5_7b": {
+      "outcome": "MISROUTED",
+      "note": "Not in llm_authored table (turn0 intent was not free-text pending_response).",
+      "transcript": "S2__qwen2.5_7b__merged_usage_dir__r0.json"
+    },
+    "S2_qwen3.5_latest": {
+      "outcome": "FAIL-CLOSED",
+      "transcript": "S2__qwen3.5_latest__merged_usage_dir__r0.json"
+    },
+    "S8_qwen2.5_7b": {
+      "outcome": "FAIL-CLOSED",
+      "transcript": "S8__qwen2.5_7b__merged_usage_dir__r0.json"
+    },
+    "S8_qwen3.5_latest": {
+      "outcome": "FAIL-CLOSED",
+      "transcript": "S8__qwen3.5_latest__merged_usage_dir__r0.json"
+    }
+  },
+  "hostile_test_scope": "Idle plus EVERY PendingPresentation.kind (state.py PendingPresentation.kind). Do not narrow to gap-fill-reachable only. Kinds that do not call _gap_fill today still parametrize; prove with file:line and assert user-visible output lacks hostile prose.",
+  "stop_for_vu": false
+}

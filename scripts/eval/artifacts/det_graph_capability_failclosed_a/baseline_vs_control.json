@@ -1,0 +1,226 @@
+{
+  "baseline_head": "88df2d7bda5e0f357e98631b7fd821aba6c328af",
+  "control_head": "9621b772ee5edd26b223c2ed70546a8079fb3a87",
+  "rows": [
+    {
+      "id": "P1",
+      "model": "qwen2.5_7b",
+      "baseline_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "control_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "baseline_message": "That action isn't available here.",
+      "control_message": "That action isn't available here.",
+      "message_equal": true,
+      "baseline_visible": "That action isn't available here.\nTeam: (no locked members)",
+      "control_visible": "That action isn't available here.\nTeam: (no locked members)"
+    },
+    {
+      "id": "P2",
+      "model": "qwen2.5_7b",
+      "baseline_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "control_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "baseline_message": "That action isn't available here.",
+      "control_message": "That action isn't available here.",
+      "message_equal": true,
+      "baseline_visible": "That action isn't available here.\nTeam: (no locked members)",
+      "control_visible": "That action isn't available here.\nTeam: (no locked members)"
+    },
+    {
+      "id": "P3",
+      "model": "qwen2.5_7b",
+      "baseline_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "control_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "baseline_message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+      "control_message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+      "message_equal": true,
+      "baseline_visible": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\nTeam: (no locked members)",
+      "control_visible": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\nTeam: (no locked members)"
+    },
+    {
+      "id": "S7",
+      "model": "qwen2.5_7b",
+      "baseline_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [],
+        "intents": [
+          "pending_response"
+        ]
+      },
+      "control_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [],
+        "intents": [
+          "pending_response"
+        ]
+      },
+      "baseline_message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+      "control_message": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.",
+      "message_equal": true,
+      "baseline_visible": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\nTeam: (no locked members)",
+      "control_visible": "I couldn't parse that clearly. Name the field (ability, item, moves, nature, or spread), the new value, and whether to change only that field or regenerate the set.\nTeam: (no locked members)"
+    },
+    {
+      "id": "P1",
+      "model": "qwen3.5_latest",
+      "baseline_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "control_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "baseline_message": "I can help with that! Specs Chi-Yu (Choice Specs) has strong STAB Fire moves that could potentially OHKO Kingambit depending on the specific spread and weather conditions. Would you like me to check if this works for your current team setup, or are you looking to build a team around this matchup?",
+      "control_message": "I can help with that! Specs Chi-Yu (Choice Specs) has strong STAB Fire moves that could potentially OHKO Kingambit depending on the specific spread and weather conditions. Would you like me to check if this works for your current team setup, or are you looking to build a team around this matchup?",
+      "message_equal": true,
+      "baseline_visible": "I can help with that! Specs Chi-Yu (Choice Specs) has strong STAB Fire moves that could potentially OHKO Kingambit depending on the specific spread and weather conditions. Would you like me to check if this works for your current team setup, or are you looking to build a team around this matchup?\nTeam: (no locked members)",
+      "control_visible": "I can help with that! Specs Chi-Yu (Choice Specs) has strong STAB Fire moves that could potentially OHKO Kingambit depending on the specific spread and weather conditions. Would you like me to check if this works for your current team setup, or are you looking to build a team around this matchup?\nTeam: (no locked members)"
+    },
+    {
+      "id": "P2",
+      "model": "qwen3.5_latest",
+      "baseline_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "control_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "baseline_message": "Which slot would you like to use Miraidon with Scarf on? Also, are you looking to edit an existing locked slot or add a new Pok\u00e9mon to your team?",
+      "control_message": "Which slot would you like to use Miraidon with Scarf on? Also, are you looking to edit an existing locked slot or add a new Pok\u00e9mon to your team?",
+      "message_equal": true,
+      "baseline_visible": "Which slot would you like to use Miraidon with Scarf on? Also, are you looking to edit an existing locked slot or add a new Pok\u00e9mon to your team?\nTeam: (no locked members)",
+      "control_visible": "Which slot would you like to use Miraidon with Scarf on? Also, are you looking to edit an existing locked slot or add a new Pok\u00e9mon to your team?\nTeam: (no locked members)"
+    },
+    {
+      "id": "P3",
+      "model": "qwen3.5_latest",
+      "baseline_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "control_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [
+          "no state change; legality_mentioned=False"
+        ],
+        "intents": [
+          "pending_response"
+        ],
+        "silent_sub": false
+      },
+      "baseline_message": "I can help with that! Are you looking to add Walking Wake to your team, or are you asking about what kind of support Pok\u00e9mon/moves would work well with it? Let me know which slot you're considering or if you'd like suggestions for a specific role.",
+      "control_message": "I can help with that! Are you looking to add Walking Wake to your team, or are you asking about what kind of support Pok\u00e9mon/moves would work well with it? Let me know which slot you're considering or if you'd like suggestions for a specific role.",
+      "message_equal": true,
+      "baseline_visible": "I can help with that! Are you looking to add Walking Wake to your team, or are you asking about what kind of support Pok\u00e9mon/moves would work well with it? Let me know which slot you're considering or if you'd like suggestions for a specific role.\nTeam: (no locked members)",
+      "control_visible": "I can help with that! Are you looking to add Walking Wake to your team, or are you asking about what kind of support Pok\u00e9mon/moves would work well with it? Let me know which slot you're considering or if you'd like suggestions for a specific role.\nTeam: (no locked members)"
+    },
+    {
+      "id": "S7",
+      "model": "qwen3.5_latest",
+      "baseline_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [],
+        "intents": [
+          "pending_response"
+        ]
+      },
+      "control_outcome": {
+        "outcome": "FAIL-CLOSED",
+        "checks": [],
+        "intents": [
+          "pending_response"
+        ]
+      },
+      "baseline_message": "Yes, you can run two Choice Scarf users on your team - there's no restriction against duplicate items in standard competitive formats. Would you like to proceed with that setup, or would you prefer to set a constraint against duplicate items?",
+      "control_message": "Yes, you can run two Choice Scarf users on your team - there's no restriction against duplicate items in standard competitive formats. Would you like to proceed with that setup, or would you prefer to set a constraint against duplicate items?",
+      "message_equal": true,
+      "baseline_visible": "Yes, you can run two Choice Scarf users on your team - there's no restriction against duplicate items in standard competitive formats. Would you like to proceed with that setup, or would you prefer to set a constraint against duplicate items?\nTeam: (no locked members)",
+      "control_visible": "Yes, you can run two Choice Scarf users on your team - there's no restriction against duplicate items in standard competitive formats. Would you like to proceed with that setup, or would you prefer to set a constraint against duplicate items?\nTeam: (no locked members)"
+    }
+  ]
+}

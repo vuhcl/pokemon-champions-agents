@@ -1,0 +1,30 @@
+{
+  "head": "9621b772ee5edd26b223c2ed70546a8079fb3a87",
+  "head_subject": "9621b77 Merge pull request #229 from vuhcl/chore/vgcpastes-refresh-mc",
+  "regulation_mod": "champions",
+  "regulation_tag": "champions-reg-mc",
+  "format_id": "[Gen 9 Champions] VGC 2026 Reg M-C",
+  "models": [
+    "qwen2.5:7b",
+    "qwen3.5:latest"
+  ],
+  "merged_usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+  "shipped_usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+  "turn_cap": 6,
+  "substitutions": [
+    {
+      "illegal": "Lilligant",
+      "substitute": "Scovillain",
+      "role": "Chlorophyll sun offense (seed S4; also i7 teammate name)",
+      "rationale": "Nearest legal Chlorophyll offensive Grass in snapshot; Lilligant/Lilligant-Hisui both illegal."
+    },
+    {
+      "illegal": "Tornadus",
+      "substitute": "Whimsicott",
+      "role": "Prankster Tailwind (seed S5)",
+      "rationale": "Nearest legal Prankster+Tailwind support; Tornadus/Tornadus-Therian both illegal."
+    }
+  ],
+  "i7_user_note": "scratch had 'who pairs with both torkoal and lilligant'; capability set substituted Scovillain into user text",
+  "i4_user_note": "scratch exact: 'scrap the whole team and start over' (task short form differed)"
+}

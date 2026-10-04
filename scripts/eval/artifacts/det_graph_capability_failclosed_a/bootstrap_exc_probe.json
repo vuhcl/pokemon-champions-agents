@@ -1,0 +1,28 @@
+{
+  "paths": [
+    {
+      "path": "bootstrap.py:125-128 \u2192 nodes_classify.py:1575-1578 \u2192 present_text.py:689-690",
+      "mechanism": "str(parsing_error) embedded in BootstrapIntakeParseError, then bootstrap_intake_error=str(exc)",
+      "embeds_model_text_if_parsing_error_contains_completion": true,
+      "display_example": "Bootstrap intake error: structured extraction failed: Failed to parse BootstrapExtraction from completion {\"direction_text\": \"Specs Chi-Yu OHKO Kingambit with Choice Specs are legal in Reg M-C\"}. Got OutputParserException",
+      "contains_chi_yu": true,
+      "note": "Whether LangChain's real parsing_error includes the completion depends on the provider/version; the code path does NOT strip it."
+    },
+    {
+      "path": "bootstrap.py:142-143 \u2192 nodes_classify.py:1575-1578 \u2192 present_text.py:689-690",
+      "mechanism": "ValidationError str(exc) \u2014 typically field/type errors, may include invalid input values",
+      "display_example": "Bootstrap intake error: invalid bootstrap extraction: 1 validation error for BootstrapExtraction\ndirection_text\n  Input should be a valid string [type=string_type, input_value=123, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+      "contains_chi_yu": false,
+      "note": "Pydantic ValidationError usually embeds the invalid input value (here anchor_text string). That value is the parsed dict field, not necessarily full free-prose completion \u2014 but if the model put prose in a string field that then fails a later check, or if validation fails on a coerced structure that retained strings, those strings appear."
+    },
+    {
+      "path": "bootstrap.py:144-147 \u2192 nodes_classify.py:1575-1578 \u2192 present_text.py:689-690",
+      "mechanism": "str(exc) on arbitrary Exception",
+      "embeds_if_exception_message_has_model_text": true,
+      "display_example": "Bootstrap intake error: bootstrap extraction provider failed: RuntimeError: model said Specs Chi-Yu is fine",
+      "contains_chi_yu": true
+    }
+  ],
+  "yes_no": "yes",
+  "summary": "YES \u2014 bootstrap_intake_error is displayed verbatim (present_text.py:689-690). parse_bootstrap_intake wraps parsing_error / ValidationError / Exception via str(exc) (bootstrap.py:125-128, 142-147) with no redaction. A LangChain include_raw parsing_error that includes the completion (common) will surface model prose. Pydantic ValidationError can embed invalid field input values. Not folded into Approach A; log as separate item."
+}
