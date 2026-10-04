@@ -60,9 +60,10 @@ jobs:
 
       - name: Build PR body
         if: steps.gate.outputs.decision == 'pr'
-        run: uv run python -m scripts.ci.build_vgcpastes_refresh_pr_body \
-          --gate "$RUNNER_TEMP/vgcpastes_gate.json" \
-          --out "$RUNNER_TEMP/pr_body.md"
+        run: |
+          uv run python -m scripts.ci.build_vgcpastes_refresh_pr_body \
+            --gate "$RUNNER_TEMP/vgcpastes_gate.json" \
+            --out "$RUNNER_TEMP/pr_body.md"
 
       - name: Open or update PR
         if: steps.gate.outputs.decision == 'pr'
