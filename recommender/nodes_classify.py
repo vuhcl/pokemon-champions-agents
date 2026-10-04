@@ -195,20 +195,15 @@ def clarify_message_from_pending(
 
 
 def _is_deterministic_pending_message(message: str) -> bool:
+    """True only for exact allowlisted templates.
+
+    Gate strings (_MISMATCH_MSG, Unknown build option …) are produced after
+    this splice in _gap_fill (_apply_classify_gates / continue-abandon) and
+    must not be matched by prefix here — a model could prepend them to prose.
+    """
     from recommender.system_claims import NON_CLAIM_MESSAGES
 
-    text = message.strip()
-    if not text:
-        return False
-    if text in NON_CLAIM_MESSAGES:
-        return True
-    if text in {_MISMATCH_MSG, CONTINUE_ABANDON_MSG, KEEP_BUILD_MSG}:
-        return True
-    if text.startswith("Unknown build option id") or text.startswith(
-        "Unknown build option ids"
-    ):
-        return True
-    return False
+    return message in NON_CLAIM_MESSAGES
 
 
 def _replace_llm_pending_response(

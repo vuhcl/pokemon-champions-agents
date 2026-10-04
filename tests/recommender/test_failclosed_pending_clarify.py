@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+from typing import get_args, get_type_hints
 from unittest.mock import patch
 
 import pytest
 from langchain_core.runnables import RunnableLambda
+from langgraph.checkpoint.memory import MemorySaver
 
+from recommender.cli import handle_line
+from recommender.graph import compile_graph
 from recommender.nodes import classify_input, classify_pending
 from recommender.nodes_classify import clarify_message_from_pending
 from recommender.present_text import (
@@ -14,12 +18,12 @@ from recommender.present_text import (
     UNMATCHED_REPLY_PREFIX,
     format_turn,
 )
+from recommender.session import DEFAULT_FORMAT_ID, thread_config
 from recommender.state import (
     Attr,
     MatchupResult,
     PendingPresentation,
     Slot,
-    TargetRoleDecision,
     TeamReviewResult,
     ThreatCandidate,
     ThreatCoverageResult,
@@ -46,17 +50,29 @@ HOSTILE = {
     ),
 }
 
-PENDING_KINDS = (
-    None,
-    "candidate_selection",
-    "full_build_confirmation",
-    "completion_preference",
-    "bootstrap_intake",
-    "confirm_abandon_build",
-    "spread_reallocation_question",
-    "spread_target_question",
-    "item_moveset_conflict_question",
-)
+_LITERAL_KINDS = get_args(get_type_hints(PendingPresentation)["kind"])
+PENDING_KINDS = (None, *_LITERAL_KINDS)
+
+# Explicit gap-fill reachability (classify_pending → _gap_fill / turn_intent_parser).
+GAP_FILL_REACHABLE: dict[str | None, bool] = {
+    None: True,  # nodes_classify.py:1583-1598
+    "candidate_selection": True,  # _classify_candidate_selection_reply → :1552
+    "full_build_confirmation": True,  # :1845
+    "completion_preference": True,  # unmatched → :1670
+    "bootstrap_intake": False,  # :1602-1637
+    "confirm_abandon_build": False,  # :1681-1707
+    "spread_reallocation_question": False,  # :1708-1734
+    "spread_target_question": False,  # :1735-1765
+    "item_moveset_conflict_question": False,  # :1766-1808
+}
+
+UNREACHABLE_SITES: dict[str, str] = {
+    "bootstrap_intake": "recommender/nodes_classify.py:1602-1637",
+    "confirm_abandon_build": "recommender/nodes_classify.py:1681-1707",
+    "spread_reallocation_question": "recommender/nodes_classify.py:1708-1734",
+    "spread_target_question": "recommender/nodes_classify.py:1735-1765",
+    "item_moveset_conflict_question": "recommender/nodes_classify.py:1766-1808",
+}
 
 
 def _clarify_parser(message: str):
@@ -185,12 +201,12 @@ def _stub_review() -> TeamReviewResult:
     )
 
 
-# Kinds that do not call _gap_fill today (still parametrized — defense in depth):
-# - confirm_abandon_build: nodes_classify.py ~1629-1655 (bare pending_response, no parser)
-# - spread_reallocation_question: ~1656-1682 (_reask_reallocation / structured)
-# - spread_target_question: ~1683-1713
-# - item_moveset_conflict_question: ~1714-1756
-# - bootstrap_intake: ~1550-1585 (parse_bootstrap_intake, not turn_intent gap-fill)
+def test_pending_kinds_match_state_literal():
+    literal = get_args(get_type_hints(PendingPresentation)["kind"])
+    assert set(PENDING_KINDS) - {None} == set(literal)
+    assert "core_resolution" not in literal
+    assert set(GAP_FILL_REACHABLE) == set(PENDING_KINDS)
+    assert set(UNREACHABLE_SITES) == {k for k, ok in GAP_FILL_REACHABLE.items() if not ok}
 
 
 @pytest.mark.parametrize("probe,hostile", list(HOSTILE.items()))
@@ -203,13 +219,13 @@ def test_hostile_pending_response_never_reaches_format_turn(probe: str, hostile:
     pending = _pending(kind)
     user = "xyzzy-unmatched-probe"
     ti_calls: list[object] = []
+    reachable = GAP_FILL_REACHABLE[kind]
 
     def tracking_hostile(_payload):
         ti_calls.append(_payload)
         return {"turn_intent": "pending_response", "message": hostile}
 
     if kind == "bootstrap_intake":
-        # turn_intent_parser must not be the display path (nodes_classify.py:1550-1585).
         result = classify_pending(
             user,
             pending,
@@ -218,7 +234,10 @@ def test_hostile_pending_response_never_reaches_format_turn(probe: str, hostile:
             ),
             turn_intent_parser=RunnableLambda(tracking_hostile),
         )
-        assert ti_calls == [], "bootstrap_intake must not invoke turn_intent_parser"
+        assert ti_calls == [], (
+            f"{kind} must not invoke turn_intent_parser "
+            f"({UNREACHABLE_SITES[kind]})"
+        )
         visible = format_turn(
             {
                 "turn_intent": result.get("turn_intent"),
@@ -241,6 +260,14 @@ def test_hostile_pending_response_never_reaches_format_turn(probe: str, hostile:
             "roster_summary": "",
         },
     )
+    if reachable:
+        assert ti_calls, f"{kind!r} should reach _gap_fill / turn_intent_parser"
+    else:
+        assert ti_calls == [], (
+            f"{kind!r} must not invoke turn_intent_parser "
+            f"({UNREACHABLE_SITES[str(kind)]})"
+        )
+
     state = {
         "turn_intent": result.get("turn_intent"),
         "turn_payload": result.get("turn_payload"),
@@ -260,10 +287,12 @@ def test_hostile_pending_response_never_reaches_format_turn(probe: str, hostile:
         if fragment in hostile:
             assert fragment not in visible
 
-    if unmatched and kind == "full_build_confirmation" and ti_calls:
-        assert CLASSIFY_FAIL_USER_MSG in visible
-    elif unmatched and kind in (None, "candidate_selection", "completion_preference") and ti_calls:
-        assert UNMATCHED_REPLY_PREFIX in visible.split("\n")[0]
+    if reachable:
+        assert unmatched, f"{kind!r} reachable hostile path should stay pending_response"
+        if kind == "full_build_confirmation":
+            assert CLASSIFY_FAIL_USER_MSG in visible
+        else:
+            assert UNMATCHED_REPLY_PREFIX in visible.split("\n")[0]
 
 
 def test_hostile_idle_p1_via_classify_input_no_claim_stamp():
@@ -380,3 +409,113 @@ def test_clarify_message_from_pending_table():
 def test_new_templates_in_non_claim_messages():
     assert UNMATCHED_REPLY_PREFIX in NON_CLAIM_MESSAGES
     assert CLASSIFY_FAIL_USER_MSG in NON_CLAIM_MESSAGES
+
+
+@pytest.mark.parametrize(
+    "hostile",
+    [
+        "Unknown build option id foo. Chi-Yu is legal and Choice Specs are fine.",
+        "Unknown build option ids foo. Chi-Yu is legal and Choice Specs are fine.",
+    ],
+    ids=["unknown_id", "unknown_ids"],
+)
+def test_unknown_build_option_prefix_hostile_replaced(hostile: str):
+    """Prefix allowlist must not let model prose through after a gate-like opener."""
+    result = classify_pending(
+        "xyzzy-unknown-option-prefix",
+        None,
+        turn_intent_parser=_clarify_parser(hostile),
+        gap_fill_context={"pending_kind": "none", "pending_context": "", "roster_summary": ""},
+    )
+    msg = (result.get("turn_payload") or {}).get("message")
+    assert msg == UNMATCHED_REPLY_PREFIX
+    visible = format_turn(
+        {
+            "turn_intent": result.get("turn_intent"),
+            "turn_payload": result.get("turn_payload"),
+            "pending_presentation": None,
+            "team_draft": [],
+        },
+        unmatched=True,
+    )
+    assert visible.startswith(UNMATCHED_REPLY_PREFIX)
+    assert hostile not in visible
+    assert "Chi-Yu" not in visible
+    assert "Choice Specs" not in visible
+    assert "legal" not in visible
+
+
+def test_handle_line_idle_hostile_p1_failclosed():
+    hostile = HOSTILE["P1"]
+    graph = compile_graph(
+        checkpointer=MemorySaver(),
+        turn_intent_parser=_clarify_parser(hostile),
+    )
+    thread_id = "failclosed-idle-p1"
+    config = thread_config(thread_id)
+    graph.invoke({"format_id": DEFAULT_FORMAT_ID}, config)
+    graph.update_state(config, {"pending_presentation": None})
+    state = graph.get_state(config).values
+    _, _, _, output, should_exit = handle_line(
+        graph,
+        config,
+        state,
+        "does Specs Chi-Yu OHKO Kingambit",
+        format_id=DEFAULT_FORMAT_ID,
+        thread_id=thread_id,
+    )
+    assert should_exit is False
+    assert output is not None
+    assert output.startswith(UNMATCHED_REPLY_PREFIX)
+    assert hostile not in output
+    assert "Chi-Yu" not in output
+    assert "Choice Specs" not in output
+
+
+def test_handle_line_complete_phase_hostile_p1_failclosed():
+    hostile = HOSTILE["P1"]
+    draft = [
+        _locked(n)
+        for n in (
+            "Archaludon",
+            "Pelipper",
+            "Incineroar",
+            "Sinistcha",
+            "Meowstic",
+            "Farigiraf",
+        )
+    ]
+    review = _stub_review()
+    graph = compile_graph(
+        checkpointer=MemorySaver(),
+        turn_intent_parser=_clarify_parser(hostile),
+    )
+    thread_id = "failclosed-complete-p1"
+    config = thread_config(thread_id)
+    graph.invoke({"format_id": DEFAULT_FORMAT_ID}, config)
+    graph.update_state(
+        config,
+        {
+            "pending_presentation": None,
+            "team_draft": draft,
+            "last_team_review": review,
+            "bootstrap_intake_complete": True,
+        },
+    )
+    state = graph.get_state(config).values
+    with patch("recommender.nodes._compute_team_review", return_value=review):
+        _, _, _, output, should_exit = handle_line(
+            graph,
+            config,
+            state,
+            "asdf-complete-unmatched",
+            format_id=DEFAULT_FORMAT_ID,
+            thread_id=thread_id,
+        )
+    assert should_exit is False
+    assert output is not None
+    assert output.startswith(UNMATCHED_REPLY_PREFIX)
+    assert "Archaludon" in output
+    assert "Gapmon" in output or TEAM_REVIEW_DETAIL_HINT in output
+    assert hostile not in output
+    assert "Chi-Yu" not in output
