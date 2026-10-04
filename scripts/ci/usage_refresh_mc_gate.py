@@ -146,21 +146,21 @@ def run_gate(
     else:
         result["cadence_reason"] = "force"
 
-    try:
-        snap, index, stats = extract_fn()
-    except Exception as e:
-        result.update({"decision": "fail", "reason": "extract_failed", "message": str(e)})
-        write_github_output(
-            github_output, {"decision": "fail", "reason": "extract_failed"}
-        )
-        return result
-
     previous = None
     if out_path.exists():
         try:
             previous = load_json(out_path)
         except (OSError, json.JSONDecodeError):
             previous = None
+
+    try:
+        snap, index, stats = extract_fn(previous=previous)
+    except Exception as e:
+        result.update({"decision": "fail", "reason": "extract_failed", "message": str(e)})
+        write_github_output(
+            github_output, {"decision": "fail", "reason": "extract_failed"}
+        )
+        return result
 
     decision, reason = validate_snapshot(
         snap, index=index, stats=stats, previous=previous

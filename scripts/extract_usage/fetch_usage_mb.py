@@ -340,6 +340,10 @@ def _merge_species_flat(ingame: dict[str, dict], showdown: dict[str, dict]) -> d
     return flat
 
 
+# Public alias for M-C MunchStats writer (and graft); body unchanged.
+merge_species_flat = _merge_species_flat
+
+
 def build_snapshot(
     ingame: dict[str, dict],
     showdown: dict[str, dict],

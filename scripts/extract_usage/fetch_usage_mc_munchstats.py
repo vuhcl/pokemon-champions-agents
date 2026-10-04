@@ -22,6 +22,7 @@ from typing import Any, Callable
 from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot
 from recommender.usage_cbd import pct_rows, spreads_from_rows
+from scripts.extract_usage.fetch_usage_mb import merge_species_flat
 
 ROOT = Path(__file__).resolve().parents[2]
 USAGE_DIR = ROOT / "data" / "usage"
@@ -45,6 +46,27 @@ DROP_ABS = 25
 PARTIAL_OK_RATIO = 0.95
 MAX_WORKERS = 5
 TIMEOUT_S = 30.0
+
+# TEMPORARY: deleted when per-source files land; a new regulation's first weeks
+# have no Showdown data by design.
+# Measured 2026-09 Smogon chaos gen9championsvgc2026regmc@1500: 316 species,
+# 1_631_943 battles → floors int(n * DROP_RATIO).
+EXPECTED_SHOWDOWN_FORMAT = "gen9championsvgc2026regmc"
+SHOWDOWN_FORMAT_ALLOWLIST = frozenset({EXPECTED_SHOWDOWN_FORMAT})
+SHOWDOWN_SPECIES_FLOOR = int(316 * DROP_RATIO)  # 284
+SHOWDOWN_BATTLES_FLOOR = int(1_631_943 * DROP_RATIO)  # 1_468_748
+_SHOWDOWN_META_KEYS = (
+    "showdown_rating",
+    "showdown_format",
+    "showdown_month",
+    "showdown_source",
+    "showdown_pct_kind",
+    "showdown_move_limit",
+    "showdown_battles",
+    "showdown_teammates_extracted_at",
+    "showdown_teammates",
+    "showdown_extracted_at",
+)
 
 JsonFetch = Callable[[str], dict[str, Any] | None]
 
@@ -272,9 +294,11 @@ def build_snapshot(
     ingame: dict[str, dict[str, Any]],
     index: dict[str, Any],
     stats: dict[str, Any],
+    *,
+    previous: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    meta = {
+    meta: dict[str, Any] = {
         "schema_version": 3,
         "regulation": "champions-reg-mc",
         "extracted_at": now,
@@ -295,11 +319,37 @@ def build_snapshot(
         ),
         "sources": [SOURCE],
     }
+    prev_meta = (previous or {}).get("meta") or {}
+    prev_sd = ((previous or {}).get("showdown_vgc_mb") or {}).get("species") or {}
+    preserve = (
+        isinstance(prev_sd, dict)
+        and len(prev_sd) > 0
+        and prev_meta.get("showdown_format") == EXPECTED_SHOWDOWN_FORMAT
+    )
+    if preserve:
+        showdown_section: dict[str, Any] = {
+            "species": {sid: dict(row) for sid, row in prev_sd.items()}
+        }
+        for k in _SHOWDOWN_META_KEYS:
+            if k in prev_meta:
+                meta[k] = prev_meta[k]
+        meta["attribution"] = (
+            "In-game doubles: MunchStats champions-data branch "
+            "(OCR capture via raw.githubusercontent.com). "
+            "Showdown VGC: Smogon chaos stats (set% = weight / Raw count; "
+            "no move/item cap)."
+        )
+        sources = list(meta.get("sources") or [])
+        if "smogon-chaos" not in sources:
+            sources.append("smogon-chaos")
+        meta["sources"] = sources
+    else:
+        showdown_section = {"species": {}}
     return {
         "meta": meta,
         "ingame_doubles": {"species": ingame},
-        "showdown_vgc_mb": {"species": {}},
-        "species": {sid: dict(row) for sid, row in ingame.items()},
+        "showdown_vgc_mb": showdown_section,
+        "species": merge_species_flat(ingame, showdown_section["species"]),
     }
 
 
@@ -386,6 +436,7 @@ def extract(
     fetch: JsonFetch = fetch_json,
     legality: dict[str, Any] | None = None,
     max_workers: int = MAX_WORKERS,
+    previous: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     index = fetch(INDEX_URL)
     if not isinstance(index, dict):
@@ -393,7 +444,7 @@ def extract(
     ingame, stats = build_ingame_from_index(
         index, legality=legality, fetch=fetch, max_workers=max_workers
     )
-    snap = build_snapshot(ingame, index, stats)
+    snap = build_snapshot(ingame, index, stats, previous=previous)
     return snap, index, stats
 
 
@@ -408,18 +459,18 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--max-workers", type=int, default=MAX_WORKERS)
     args = p.parse_args(argv)
 
-    try:
-        snap, index, stats = extract(max_workers=args.max_workers)
-    except Exception as e:
-        print(f"extract failed: {e}", file=sys.stderr)
-        return 1
-
     previous = None
     if args.out.exists():
         try:
             previous = json.loads(args.out.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             previous = None
+
+    try:
+        snap, index, stats = extract(max_workers=args.max_workers, previous=previous)
+    except Exception as e:
+        print(f"extract failed: {e}", file=sys.stderr)
+        return 1
 
     decision, reason = validate_snapshot(
         snap, index=index, stats=stats, previous=previous
