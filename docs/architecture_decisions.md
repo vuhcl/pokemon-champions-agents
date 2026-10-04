@@ -2909,6 +2909,27 @@ actual fixture content.
 
 ---
 
+### ADR-016 Amendment 2026-10-04a — usage migration (Task B): required regulation, per-source files, showdown_ready, stand-ins, monthly rollover
+
+Context: the M-C fast-track (#228-#232) shipped a grafted Showdown half inside the monolithic M-C file plus TEMPORARY absolute floors and preserve-on-write. Absolute Showdown floors would fail the daily refresh during M-D's Showdown-empty weeks (M-C ends 2026-12-02T01:59Z). Consumers still hardcode or default to M-B (AST sweep at a72c2d0f: A227 / B258 / C14 / E55).
+
+Decision:
+1. Regulation resolution. Core usage loaders take a required regulation (no default). The product path stays DEFAULT_FORMAT_ID -> resolve_format -> regulation_mod. active_regulation() (data/active_regulation.json + recommender/regulation_registry.py) serves CI/data jobs. A CI test asserts the two agree whenever regulation_ready holds. Schedule: the published end minute is inclusive, so the exclusive bound is end + 1 min (a naive start <= now < end leaves a gap at 01:59:30Z). regulation_ready = legality meta letter matches; if not ready, stay on the previous regulation and warn (schedule_past_end_not_ready). Schedule validated against the ADR-065 scan_for_letter scraper.
+2. Per-source files: {tag}.ingame_doubles.v1.json and {tag}.showdown_doubles.v1.json (schema v4); in-memory keys ingame_doubles / showdown_doubles / showdown_singles (empty until BSS). Prefer split files, else legacy monolith with showdown_vgc_mb -> showdown_doubles remap (covers the M-B archive). Archive fallback only when the whole file is missing; empty sections are flagged, never silently skipped. Delivered as B3a (structural, proven by a before/after equivalence test) then B3b (data: spread unit label, pct_kind, oracle).
+3. showdown_ready(regulation): single predicate. Integrity-only checks (format id, nonempty, species count) for first fills and short-overlap months; DROP_RATIO vs prior month only for full-overlap non-first-fill. The daily in-game refresh never applies absolute Showdown floors.
+4. Stand-ins while not showdown_ready: current Showdown -> build-safe in-game -> previous-regulation Showdown (legality-checked) -> labeled synthesis. Per-field caps from the M-B->M-C overlap (285 species: ability 95.8%, >=3/4 moves 89.5%, item 74.7%, nature 73.0%; 283/285 legal): ability/moves medium, item/nature/spread/build low. CandidateEvidence = min of used fields' caps; CLI notes the stand-in. Retire when showdown_ready.
+5. Monthly rollover: owed (regulation, month) pairs derive from schedule-window overlap with the calendar month; pairs with under 48h overlap are warn-only on overdue; the final month of an ending regulation is fetched as catch-up. Manual fallback: graft_showdown_mc --month YYYY-MM --force.
+6. Live lookup: remove the M-B chain walk (exact tag only). M-C live tuple deferred: live-but-missing-offline is 0 today, since offline was grafted from the same month.
+7. AST literal scanner: warn (B1) -> shrink through B2 -> enforce after B2c.
+
+Why: per-source files remove the whole-file clobbering that forced preserve-on-write (the writers were mutually destructive); the hybrid schedule/registry keeps data (dates) separate from code (format ids, predicates); B2 (~67 edit sites, 26 files) is decoupled from the Nov-1 critical path (B1 -> B3a -> B5) because loader dual-read and writers do not depend on bridge removal.
+
+Supersedes: ADR-016 Amendment 2026-09-10a bridge-preservation clauses (slot_fill/move_narrowing champions->mb, by_usage pin, recommend.py usage_snapshot hardcode). Does not supersede legality<->identity coupling.
+
+Status: In progress. B1 shipped (#236); B3a next.
+
+---
+
 ## ADR-017: RecommenderState extensions — team theme/core, granular locking, constraint scope
 
 **Team theme/core.** `RecommenderState` gains two related concepts, populated by a detection
@@ -11524,3 +11545,22 @@ assumption. Full detail: `docs/eval_results.md` § "Laya turn_intent spike."
 **Not changed:** `bootstrap_intake_error` can still display unredacted `str(exc)` from parse failures, and a probe confirmed the path (separate item). Entity scanners, `check_set` and Item Clause prose rewriting remain out of scope.
 
 **Status:** Shipped, `fix/failclosed-unmatched-clarify` (#233).
+
+---
+
+### ADR-071 Amendment 2026-10-04a — bootstrap intake failures map to fixed messages (PR #235)
+
+Context: ADR-071 deferred the second path where exception-derived text reaches the user: parse_bootstrap_intake wrapped ValidationError / OutputParserException / provider exceptions as BootstrapIntakeParseError(f"...{exc}"), stored str(exc) in bootstrap_intake_error, and format_turn displayed it verbatim. Probe: ValidationError input_value, OutputParserException completion + OUTPUT_PARSING_FAILURE link, and provider URLs/hostnames could all reach the user and the checkpointer.
+
+Decision:
+- Failures map to fixed messages (BOOTSTRAP_INTAKE_PARSE_FAIL_MSG / PROVIDER_FAIL_MSG / TIMEOUT_MSG / UNSUPPORTED_SCHEMA_MSG / missing-payload), defined in bootstrap.py. BootstrapIntakeParseError carries a code (bootstrap_parse | bootstrap_provider | bootstrap_timeout) used for logs only. Raise sites never interpolate str(exc) or str(parsing_error).
+- format_turn displays only allowlisted values; legacy/unknown stored values render as the parse-fail message and are never echoed (legacy checkpointed raw strings are not migrated).
+- Diagnostics: one log_tool_call with stable code + exception class name; no message text, nothing new persisted.
+- Provider/timeout wrapping covers only the LLM invoke; post-invoke validation is parse-only. Other post-invoke exceptions propagate to handle_line's outer except -> CLASSIFY_FAIL_USER_MSG.
+- Claim-stamp path unchanged (bootstrap errors never produce turn_payload.message).
+
+Why: same principle as ADR-071 and ADR-002: model- or exception-authored text must not reach the user as an assertion or leak infrastructure detail. A fixed-message allowlist is checkable by test; redaction of arbitrary exception text is not.
+
+Evidence: hostile tests verified red on pre-fix code at both state and handle_line level (leak assertions, no constant imports). Suite on origin/main 1919 passed / 10 skipped, branch 1937 / 10 (--extra ollama; Ollama bootstrap smoke skips, BOOTSTRAP_OLLAMA_MODEL unset).
+
+Open: CandidateDiscoveryError(message=str(exc)) (nodes.py, threat_counters.py) can surface calc-service URL/host or raw calc error text
