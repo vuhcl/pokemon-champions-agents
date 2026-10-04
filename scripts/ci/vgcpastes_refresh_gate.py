@@ -28,8 +28,12 @@ MIN_SPACING_DAYS = 14
 def write_github_output(path: Path | None, fields: dict[str, str]) -> None:
     if path is None:
         return
+    from scripts.ci.github_output import sanitize_github_output_value
+
     with path.open("a", encoding="utf-8") as f:
         for k, v in fields.items():
+            if k in {"reason", "message"}:
+                v = sanitize_github_output_value(v)
             f.write(f"{k}={v}\n")
 
 
@@ -138,13 +142,13 @@ def run_gate(
             out_path=out_path,
         )
     except Exception as e:
-        result.update(
-            {"decision": "fail", "reason": "extract_failed", "message": str(e)}
-        )
+        msg = str(e) or "(no message)"
+        reason = f"extract_failed:{type(e).__name__}:{msg}"
+        result.update({"decision": "fail", "reason": reason, "message": msg})
         result["bump_marker"] = False
         write_github_output(
             github_output,
-            {"decision": "fail", "reason": "extract_failed", "bump_marker": "false"},
+            {"decision": "fail", "reason": reason, "bump_marker": "false"},
         )
         return result
 

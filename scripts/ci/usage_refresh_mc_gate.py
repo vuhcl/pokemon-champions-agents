@@ -32,8 +32,12 @@ SEASON_RUN_DAYS = frozenset({0, 14})
 def write_github_output(path: Path | None, fields: dict[str, str]) -> None:
     if path is None:
         return
+    from scripts.ci.github_output import sanitize_github_output_value
+
     with path.open("a", encoding="utf-8") as f:
         for k, v in fields.items():
+            if k in {"reason", "message"}:
+                v = sanitize_github_output_value(v)
             f.write(f"{k}={v}\n")
 
 
@@ -146,21 +150,21 @@ def run_gate(
     else:
         result["cadence_reason"] = "force"
 
-    try:
-        snap, index, stats = extract_fn()
-    except Exception as e:
-        result.update({"decision": "fail", "reason": "extract_failed", "message": str(e)})
-        write_github_output(
-            github_output, {"decision": "fail", "reason": "extract_failed"}
-        )
-        return result
-
     previous = None
     if out_path.exists():
         try:
             previous = load_json(out_path)
         except (OSError, json.JSONDecodeError):
             previous = None
+
+    try:
+        snap, index, stats = extract_fn(previous=previous)
+    except Exception as e:
+        result.update({"decision": "fail", "reason": "extract_failed", "message": str(e)})
+        write_github_output(
+            github_output, {"decision": "fail", "reason": "extract_failed"}
+        )
+        return result
 
     decision, reason = validate_snapshot(
         snap, index=index, stats=stats, previous=previous

@@ -78,6 +78,8 @@ jobs:
 
       - name: Fail loudly on validate
         if: steps.gate.outputs.decision == 'fail'
+        env:
+          REASON: ${{ steps.gate.outputs.reason }}
         run: |
-          echo "VGCPastes validate failed: ${{ steps.gate.outputs.reason }}" >&2
+          echo "VGCPastes validate failed: $REASON" >&2
           exit 1

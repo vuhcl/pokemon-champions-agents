@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Fetch VGCPastes Champions sheet + resolve Pokepaste URLs to full builds.
 
-Default target is Reg M-C (same workbook as M-B; Champions M-C tab):
+Default target is Reg M-C (same workbook as M-B; Champions M-C data tab):
   https://docs.google.com/spreadsheets/d/1axlwmzPA49rYkqXh7zHvAtSP-TKbM0ijGYBPRflLSWw
-  gid=736919171
+  gid=2001945654
 
+Welcome/links tab gid=736919171 has no Team ID header — do not use it.
 M-B archive remains at champions-reg-mb.vgcpastes-builds.v1.json (gid=1458357160).
 
 Population is whatever the sheet itself claims (mixed Twitter/community +
@@ -34,7 +35,7 @@ DEFAULT_OUT = (
 CACHE = ROOT / "artifacts" / "pikalytics-pokepaste" / "pokepaste-cache"
 SHEET_CSV = ROOT / "artifacts" / "pikalytics-pokepaste" / "sheet.csv"
 SHEET_ID = "1axlwmzPA49rYkqXh7zHvAtSP-TKbM0ijGYBPRflLSWw"
-DEFAULT_SHEET_GID = "736919171"
+DEFAULT_SHEET_GID = "2001945654"
 DEFAULT_REGULATION = "champions-reg-mc"
 UA = "pokemon-champions-agents/0.1 (vgcpastes-builds)"
 
@@ -134,7 +135,15 @@ def load_sheet_rows(path: Path) -> tuple[dict[str, str], list[dict[str, str]], l
     """Return (title_meta, data rows as dicts, header notes)."""
     text = path.read_text(encoding="utf-8")
     rows = list(csv.reader(text.splitlines()))
-    hdr_i = next(i for i, r in enumerate(rows) if r and r[0].strip() == "Team ID")
+    hdr_i = next(
+        (i for i, r in enumerate(rows) if r and r[0].strip() == "Team ID"),
+        None,
+    )
+    if hdr_i is None:
+        raise ValueError(
+            f"Team ID header missing in sheet CSV {path} "
+            f"(welcome tab / wrong gid? expected Champions M-C data gid={DEFAULT_SHEET_GID})"
+        )
     header = [c.strip().replace("\n", " ") for c in rows[hdr_i]]
     # Collapse duplicate empty names so DictReader-like access stays unique-ish.
     seen: dict[str, int] = {}
@@ -295,7 +304,7 @@ def sheet_species(row: dict[str, str]) -> list[str]:
             v = row[k].strip()
             if not v or v.startswith("http") or v == row.get("Team ID"):
                 continue
-            if v.startswith("MB") and v[2:].isdigit():
+            if re.fullmatch(r"[A-Z]{2}\d+", v):
                 continue
             names.append(v)
             if len(names) >= 6:
