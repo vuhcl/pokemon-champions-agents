@@ -1,4 +1,10 @@
-"""Guards against known GitHub Actions workflow YAML footguns."""
+"""Guards against known GitHub Actions workflow YAML footguns.
+
+Pin deliberate 2026-10-04: GitHub changelog 2026-09-17 says ubuntu-latest
+migrates to Ubuntu 26.04 gradually between 2026-10-19 and 2026-11-19.
+Revisit intentionally; not a permanent OS choice. When ready to move, use an
+explicit version label (for example ubuntu-26.04), never *-latest.
+"""
 
 from __future__ import annotations
 
@@ -20,6 +26,12 @@ ALLOWLIST_INTERP = (
 )
 # steps.<id> references in if: expressions.
 STEPS_REF_RE = re.compile(r"steps\.([A-Za-z_][A-Za-z0-9_-]*)")
+# Statically resolvable matrix runs-on: ${{ matrix.<key> }}.
+MATRIX_RUNS_ON_RE = re.compile(r"^\$\{\{\s*matrix\.([A-Za-z_][A-Za-z0-9_-]*)\s*\}\}$")
+_LATEST_HINT = (
+    "use an explicit version label (for example ubuntu-26.04) when ready to move; "
+    "*-latest is forbidden"
+)
 
 
 def _load(path: Path) -> dict:
@@ -30,6 +42,56 @@ def _iter_job_steps(data: dict):
     for job_name, job in (data.get("jobs") or {}).items():
         steps = job.get("steps") or []
         yield job_name, steps
+
+
+def _yamls_under_github(root: Path) -> list[Path]:
+    """All .yml/.yaml under root/.github/ (workflows, composite actions, reusable)."""
+    github = root / ".github"
+    if not github.is_dir():
+        return []
+    return sorted(
+        p for p in github.rglob("*") if p.is_file() and p.suffix in {".yml", ".yaml"}
+    )
+
+
+def _github_yamls() -> list[Path]:
+    return _yamls_under_github(ROOT)
+
+
+def _resolve_runs_on_labels(job: dict) -> list[str]:
+    """Resolve runs-on labels we can check statically; skip unresolved dynamics."""
+    runs_on = job.get("runs-on")
+    if isinstance(runs_on, str):
+        match = MATRIX_RUNS_ON_RE.match(runs_on.strip())
+        if match:
+            key = match.group(1)
+            matrix = (job.get("strategy") or {}).get("matrix") or {}
+            vals = matrix.get(key)
+            # Unresolved fromJSON(...) / non-list matrices: skip (none in repo today).
+            if isinstance(vals, list) and all(isinstance(v, str) for v in vals):
+                return list(vals)
+            return []
+        return [runs_on]
+    if isinstance(runs_on, list):
+        return [x for x in runs_on if isinstance(x, str)]
+    return []
+
+
+def _latest_runner_failures(paths: list[Path]) -> list[str]:
+    failures: list[str] = []
+    for path in paths:
+        data = _load(path)
+        if not isinstance(data, dict):
+            continue
+        for job_name, job in (data.get("jobs") or {}).items():
+            if not isinstance(job, dict):
+                continue
+            for label in _resolve_runs_on_labels(job):
+                if label.endswith("-latest"):
+                    failures.append(
+                        f"{path.name}:{job_name}: runs-on={label} ({_LATEST_HINT})"
+                    )
+    return failures
 
 
 def test_fixture_plain_scalar_folding_is_detected() -> None:
@@ -182,3 +244,87 @@ def test_vgcpastes_and_compendium_marker_after_cpr() -> None:
         assert cpr.get("id") == "cpr"
         marker = next(s for s in steps if s.get("name") == "Commit marker to main")
         assert "pull-request-number" in str(marker.get("if", ""))
+
+
+def test_fixture_string_ubuntu_latest_is_detected() -> None:
+    labels = _resolve_runs_on_labels({"runs-on": "ubuntu-latest"})
+    assert labels == ["ubuntu-latest"]
+    assert any(label.endswith("-latest") for label in labels)
+
+
+def test_fixture_list_ubuntu_latest_is_detected(tmp_path: Path) -> None:
+    path = tmp_path / "list.yml"
+    path.write_text(
+        "jobs:\n"
+        "  build:\n"
+        "    runs-on: [self-hosted, ubuntu-latest]\n"
+        "    steps: []\n",
+        encoding="utf-8",
+    )
+    failures = _latest_runner_failures([path])
+    assert len(failures) == 1
+    assert "list.yml:build: runs-on=ubuntu-latest" in failures[0]
+    assert "ubuntu-26.04" in failures[0]
+
+
+def test_fixture_yaml_suffix_ubuntu_latest_is_detected(tmp_path: Path) -> None:
+    """A .yaml workflow must not evade the guard (suffix, not only .yml)."""
+    path = tmp_path / "evil.yaml"
+    path.write_text(
+        "jobs:\n"
+        "  build:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps: []\n",
+        encoding="utf-8",
+    )
+    failures = _latest_runner_failures([path])
+    assert len(failures) == 1
+    assert "evil.yaml:build: runs-on=ubuntu-latest" in failures[0]
+    assert "ubuntu-26.04" in failures[0]
+
+
+def test_fixture_explicit_ubuntu_24_04_allowed(tmp_path: Path) -> None:
+    path = tmp_path / "pinned.yml"
+    path.write_text(
+        "jobs:\n"
+        "  build:\n"
+        "    runs-on: ubuntu-24.04\n"
+        "    steps: []\n",
+        encoding="utf-8",
+    )
+    assert _latest_runner_failures([path]) == []
+
+
+def test_fixture_matrix_ubuntu_latest_is_detected(tmp_path: Path) -> None:
+    path = tmp_path / "matrix.yml"
+    path.write_text(
+        "jobs:\n"
+        "  build:\n"
+        "    runs-on: ${{ matrix.os }}\n"
+        "    strategy:\n"
+        "      matrix:\n"
+        "        os: [ubuntu-24.04, ubuntu-latest]\n"
+        "    steps: []\n",
+        encoding="utf-8",
+    )
+    failures = _latest_runner_failures([path])
+    assert len(failures) == 1
+    assert "matrix.yml:build: runs-on=ubuntu-latest" in failures[0]
+
+
+def test_fixture_yamls_under_github_includes_yaml_suffix(tmp_path: Path) -> None:
+    github = tmp_path / ".github" / "workflows"
+    github.mkdir(parents=True)
+    (github / "a.yml").write_text("jobs: {}\n", encoding="utf-8")
+    (github / "b.yaml").write_text("jobs: {}\n", encoding="utf-8")
+    (github / "c.txt").write_text("nope\n", encoding="utf-8")
+    found = {p.name for p in _yamls_under_github(tmp_path)}
+    assert found == {"a.yml", "b.yaml"}
+
+
+def test_github_workflows_avoid_latest_runner_labels() -> None:
+    """Pin deliberate 2026-10-04: changelog 2026-09-17 — ubuntu-latest → 26.04
+    gradually 2026-10-19..2026-11-19. Explicit labels only; revisit intentionally.
+    """
+    failures = _latest_runner_failures(_github_yamls())
+    assert not failures, "forbidden *-latest runs-on:\n" + "\n".join(failures)

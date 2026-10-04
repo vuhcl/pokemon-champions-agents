@@ -7,7 +7,8 @@ on:
 
 jobs:
   pytest:
-    runs-on: ubuntu-latest
+    # Pin deliberate 2026-10-04: ubuntu-latest migrates to 26.04 (changelog 2026-09-17) gradually 2026-10-19..2026-11-19; revisit intentionally.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
