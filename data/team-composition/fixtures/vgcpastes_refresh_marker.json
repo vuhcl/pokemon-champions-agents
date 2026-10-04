@@ -1,7 +1,7 @@
 {
-  "last_extract_at": null,
-  "teams_resolved": null,
+  "last_extract_at": "2026-10-04T02:38:31Z",
+  "teams_resolved": 463,
   "sheet_gid": "2001945654",
-  "last_outcome": null,
-  "note": "Bootstrap epoch — first eligible run may fire. Bumped by vgcpastes-refresh-mc."
+  "last_outcome": "pr_opened",
+  "note": "Bootstrap epoch \u2014 first eligible run may fire. Bumped by vgcpastes-refresh-mc."
 }
