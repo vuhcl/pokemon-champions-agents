@@ -6107,6 +6107,12 @@ Closes the gap-fill part of the CLI defect logged earlier today (model-authored 
 **Frozen artifacts:** the baseline snapshot and the fail-closed work directory (Gate 0, control, after, verifier scores) are committed under `scripts/eval/artifacts/det_graph_capability_{baseline_88df2d7,failclosed_a}/`.
 
 **Deliberately deferred, tracked separately:** `bootstrap_intake_error` can display unredacted `str(exc)` (confirmed live path; fix is a fixed-message pattern like `CLASSIFY_FAIL`); idle "supported actions" pointer; the v2 false-legal verifier; entity scanning and broad claim verification stay out of scope.
+
+### 2026-10-04: CI runners pinned to ubuntu-24.04 (PR #234)
+
+Pinned all GitHub Actions `runs-on` to `ubuntu-24.04` ahead of the `ubuntu-latest` → Ubuntu 26.04 rollout (changelog 2026-09-17; gradual 2026-10-19..2026-11-19). Five sites: tests, legality-extract-gate, usage-refresh-mc, compendium-refresh-gate, vgcpastes-refresh-mc. Guard in `tests/ci/test_workflow_yaml_guards.py` rejects `*-latest` labels (`.yml`/`.yaml` under `.github/`) and points to explicit labels (e.g. `ubuntu-26.04`). Red run showed the guard failing on all five unpinned sites. Suite 1912 → 1919 passed, 10 skipped.
+
+Deliberate temporary pin: revisit intentionally, not a permanent OS choice. Cron-only workflows not yet observed on the pin; verify image = 24.04 in the "Set up job" log on the next scheduled runs (usage-refresh-mc daily 15:27 UTC, vgcpastes-refresh-mc ~Oct 18). Node 20 action-version remediation left as a separate follow-up after a real Actions annotation check.
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
