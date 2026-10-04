@@ -1,0 +1,2147 @@
+{
+  "usage_dir": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+  "sp_rules": {
+    "budget": 66,
+    "cap_per_stat": 32,
+    "source": "recommender/recommend.py SP_BUDGET/_SP_CAP; recommender/usage_spreads.py sum==66"
+  },
+  "threat_rank_source": "species_usage.usage_rank",
+  "threats": [
+    "Sneasler",
+    "Incineroar",
+    "Kingambit",
+    "Garchomp",
+    "Gholdengo",
+    "Archaludon",
+    "Pelipper",
+    "Milotic",
+    "Raichu",
+    "Farigiraf",
+    "Charizard",
+    "Sylveon",
+    "Tyranitar",
+    "Whimsicott",
+    "Staraptor",
+    "Metagross",
+    "Sinistcha",
+    "Torkoal",
+    "Excadrill",
+    "Politoed"
+  ],
+  "C1": {
+    "pelipper_timid_spe32": 128,
+    "pelipper_modest_spe32": 117,
+    "flips_vs_threat_max_spe_proxy": [
+      {
+        "threat": "Incineroar",
+        "threat_spe_max_proxy": 123,
+        "timid_pelipper": 128,
+        "modest_pelipper": 117
+      },
+      {
+        "threat": "Farigiraf",
+        "threat_spe_max_proxy": 123,
+        "timid_pelipper": 128,
+        "modest_pelipper": 117
+      },
+      {
+        "threat": "Sylveon",
+        "threat_spe_max_proxy": 123,
+        "timid_pelipper": 128,
+        "modest_pelipper": 117
+      },
+      {
+        "threat": "Tyranitar",
+        "threat_spe_max_proxy": 124,
+        "timid_pelipper": 128,
+        "modest_pelipper": 117
+      }
+    ],
+    "n_threats": 20,
+    "note": "Threat Spe = max over Timid/Jolly/Modest/Adamant at Spe SP=32 (usage set not always available)."
+  },
+  "C2": {
+    "garchomp_jolly_spe32": 169,
+    "garchomp_adamant_spe32": 154,
+    "flips": [
+      {
+        "threat": "Charizard",
+        "threat_spe_max_proxy": 167,
+        "jolly": 169,
+        "adamant": 154
+      },
+      {
+        "threat": "Staraptor",
+        "threat_spe_max_proxy": 167,
+        "jolly": 169,
+        "adamant": 154
+      },
+      {
+        "threat": "Excadrill",
+        "threat_spe_max_proxy": 154,
+        "jolly": 169,
+        "adamant": 154
+      }
+    ]
+  },
+  "C3": {
+    "targets": [
+      "Sneasler",
+      "Incineroar",
+      "Garchomp",
+      "Gholdengo",
+      "Archaludon",
+      "Pelipper",
+      "Milotic",
+      "Raichu"
+    ],
+    "atk32": {
+      "Sneasler": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              54,
+              63
+            ],
+            "koChance": "0.9% chance to 3HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              44,
+              52
+            ],
+            "koChance": "84.6% chance to 4HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              84,
+              100
+            ],
+            "koChance": "35.2% chance to 2HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Incineroar": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              42,
+              49
+            ],
+            "koChance": "guaranteed 5HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              33,
+              40
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              33,
+              39
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Garchomp": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              81,
+              96
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              67,
+              79
+            ],
+            "koChance": "68.9% chance to 3HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              63,
+              75
+            ],
+            "koChance": "9.2% chance to 3HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Gholdengo": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              162,
+              192
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              134,
+              158
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              31,
+              37
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Archaludon": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              64,
+              76
+            ],
+            "koChance": "98% chance to 3HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              52,
+              63
+            ],
+            "koChance": "guaranteed 4HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              25,
+              30
+            ],
+            "koChance": "possible 7HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Pelipper": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              76,
+              91
+            ],
+            "koChance": "53.5% chance to 2HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              64,
+              76
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              30,
+              36
+            ],
+            "koChance": "possible 5HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Milotic": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              91,
+              108
+            ],
+            "koChance": "32.8% chance to 2HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              76,
+              90
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              36,
+              42
+            ],
+            "koChance": "possible 5HKO",
+            "atk_stat": 205
+          }
+        }
+      },
+      "Raichu": {
+        "spread": {
+          "hp": 32,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 2
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              114,
+              135
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 205
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              93,
+              111
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 205
+          },
+          "Iron Head": {
+            "damageRange": [
+              45,
+              53
+            ],
+            "koChance": "guaranteed 4HKO",
+            "atk_stat": 205
+          }
+        }
+      }
+    },
+    "atk16": {
+      "Sneasler": {
+        "spread": {
+          "hp": 32,
+          "atk": 16,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 18
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              49,
+              58
+            ],
+            "koChance": "guaranteed 4HKO",
+            "atk_stat": 188
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              41,
+              48
+            ],
+            "koChance": "2.6% chance to 4HKO",
+            "atk_stat": 188
+          },
+          "Iron Head": {
+            "damageRange": [
+              78,
+              93
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 188
+          }
+        }
+      },
+      "Incineroar": {
+        "spread": {
+          "hp": 32,
+          "atk": 16,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 18
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              38,
+              45
+            ],
+            "koChance": "possible 5HKO",
+            "atk_stat": 188
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              31,
+              37
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 188
+          },
+          "Iron Head": {
+            "damageRange": [
+              30,
+              36
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 188
+          }
+        }
+      },
+      "Garchomp": {
+        "spread": {
+          "hp": 32,
+          "atk": 16,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 18
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              75,
+              88
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 188
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              60,
+              72
+            ],
+            "koChance": "0.1% chance to 3HKO",
+            "atk_stat": 188
+          },
+          "Iron Head": {
+            "damageRange": [
+              58,
+              69
+            ],
+            "koChance": "guaranteed 4HKO",
+            "atk_stat": 188
+          }
+        }
+      },
+      "Gholdengo": {
+        "spread": {
+          "hp": 32,
+          "atk": 16,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 18
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              150,
+              176
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 188
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              120,
+              144
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 188
+          },
+          "Iron Head": {
+            "damageRange": [
+              29,
+              34
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 188
+          }
+        }
+      },
+      "Archaludon": {
+        "spread": {
+          "hp": 32,
+          "atk": 16,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 18
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              58,
+              70
+            ],
+            "koChance": "27.8% chance to 3HKO",
+            "atk_stat": 188
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              49,
+              58
+            ],
+            "koChance": "99.9% chance to 4HKO",
+            "atk_stat": 188
+          },
+          "Iron Head": {
+            "damageRange": [
+              23,
+              27
+            ],
+            "koChance": "possible 8HKO",
+            "atk_stat": 188
+          }
+        }
+      },
+      "Pelipper": {
+        "spread": {
+          "hp": 32,
+          "atk": 16,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 18
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              70,
+              84
+            ],
+            "koChance": "0.4% chance to 2HKO",
+            "atk_stat": 188
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              58,
+              70
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 188
+          },
+          "Iron Head": {
+            "damageRange": [
+              27,
+              33
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 188
+          }
+        }
+      },
+      "Milotic": {
+        "spread": {
+          "hp": 32,
+          "atk": 16,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 18
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              84,
+              99
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 188
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              69,
+              82
+            ],
+            "koChance": "guaranteed 3HKO",
+            "atk_stat": 188
+          },
+          "Iron Head": {
+            "damageRange": [
+              33,
+              39
+            ],
+            "koChance": "possible 6HKO",
+            "atk_stat": 188
+          }
+        }
+      },
+      "Raichu": {
+        "spread": {
+          "hp": 32,
+          "atk": 16,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 18
+        },
+        "vs": {
+          "Kowtow Cleave": {
+            "damageRange": [
+              105,
+              124
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 188
+          },
+          "Sucker Punch": {
+            "damageRange": [
+              85,
+              102
+            ],
+            "koChance": "guaranteed 2HKO",
+            "atk_stat": 188
+          },
+          "Iron Head": {
+            "damageRange": [
+              41,
+              48
+            ],
+            "koChance": "99.5% chance to 4HKO",
+            "atk_stat": 188
+          }
+        }
+      }
+    },
+    "assumed_remainder": "hp first (cap 32), then spe, then spd; Adamant; Black Glasses"
+  },
+  "D1_spreads": {
+    "max_def_32": {
+      "hp": 32,
+      "atk": 0,
+      "def": 32,
+      "spa": 2,
+      "spd": 0,
+      "spe": 0
+    },
+    "max_spd_32": {
+      "hp": 32,
+      "atk": 0,
+      "def": 0,
+      "spa": 2,
+      "spd": 32,
+      "spe": 0
+    },
+    "split_16_16": {
+      "hp": 32,
+      "atk": 0,
+      "def": 16,
+      "spa": 2,
+      "spd": 16,
+      "spe": 0
+    }
+  },
+  "D1_assumed": "Remainder after Def/SpD: HP (cap 32), then Spa, then Spe; nature Bold; ability Hospitality; item Sitrus Berry. Attacker: Adamant Life Orb Spe32 Atk32.",
+  "D1": {
+    "Sneasler": {
+      "moves_used": [
+        "Close Combat",
+        "Dire Claw",
+        "Fake Out",
+        "Rock Slide"
+      ],
+      "max_def_32": {
+        "Close Combat": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Dire Claw": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            68,
+            82
+          ],
+          "koChance": "guaranteed 3HKO"
+        },
+        "Fake Out": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Rock Slide": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            44,
+            52
+          ],
+          "koChance": "99.5% chance to 4HKO"
+        }
+      },
+      "max_spd_32": {
+        "Close Combat": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Dire Claw": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            87,
+            103
+          ],
+          "koChance": "95.3% chance to 2HKO"
+        },
+        "Fake Out": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Rock Slide": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            53,
+            64
+          ],
+          "koChance": "34.2% chance to 3HKO"
+        }
+      },
+      "split_16_16": {
+        "Close Combat": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Dire Claw": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            75,
+            91
+          ],
+          "koChance": "5.1% chance to 2HKO"
+        },
+        "Fake Out": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Rock Slide": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            48,
+            57
+          ],
+          "koChance": "guaranteed 4HKO"
+        }
+      },
+      "class_flips": [
+        {
+          "move": "Dire Claw",
+          "classes": {
+            "max_def_32": "chip",
+            "max_spd_32": "2HKO",
+            "split_16_16": "2HKO"
+          }
+        }
+      ]
+    },
+    "Incineroar": {
+      "moves_used": [
+        "Fake Out",
+        "Parting Shot",
+        "Flare Blitz",
+        "Throat Chop"
+      ],
+      "max_def_32": {
+        "Fake Out": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Parting Shot": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Flare Blitz": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            187,
+            221
+          ],
+          "koChance": "guaranteed OHKO"
+        },
+        "Throat Chop": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            127,
+            151
+          ],
+          "koChance": "guaranteed 2HKO"
+        }
+      },
+      "max_spd_32": {
+        "Fake Out": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Parting Shot": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Flare Blitz": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            237,
+            281
+          ],
+          "koChance": "guaranteed OHKO"
+        },
+        "Throat Chop": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            156,
+            187
+          ],
+          "koChance": "31.3% chance to OHKO"
+        }
+      },
+      "split_16_16": {
+        "Fake Out": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Parting Shot": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Flare Blitz": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            205,
+            244
+          ],
+          "koChance": "guaranteed OHKO"
+        },
+        "Throat Chop": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            140,
+            166
+          ],
+          "koChance": "guaranteed 2HKO"
+        }
+      },
+      "class_flips": [
+        {
+          "move": "Throat Chop",
+          "classes": {
+            "max_def_32": "2HKO",
+            "max_spd_32": "OHKO",
+            "split_16_16": "2HKO"
+          }
+        }
+      ]
+    },
+    "Kingambit": {
+      "moves_used": [
+        "Kowtow Cleave",
+        "Sucker Punch",
+        "Iron Head",
+        "Low Kick"
+      ],
+      "max_def_32": {
+        "Kowtow Cleave": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            151,
+            179
+          ],
+          "koChance": "6.3% chance to OHKO"
+        },
+        "Sucker Punch": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            125,
+            148
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Iron Head": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            70,
+            83
+          ],
+          "koChance": "guaranteed 3HKO"
+        },
+        "Low Kick": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd_32": {
+        "Kowtow Cleave": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            187,
+            221
+          ],
+          "koChance": "guaranteed OHKO"
+        },
+        "Sucker Punch": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            151,
+            182
+          ],
+          "koChance": "18.8% chance to OHKO"
+        },
+        "Iron Head": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            87,
+            105
+          ],
+          "koChance": "98% chance to 2HKO"
+        },
+        "Low Kick": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Kowtow Cleave": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            166,
+            198
+          ],
+          "koChance": "62.5% chance to OHKO"
+        },
+        "Sucker Punch": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            135,
+            164
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Iron Head": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            78,
+            94
+          ],
+          "koChance": "16% chance to 2HKO"
+        },
+        "Low Kick": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "class_flips": [
+        {
+          "move": "Sucker Punch",
+          "classes": {
+            "max_def_32": "2HKO",
+            "max_spd_32": "OHKO",
+            "split_16_16": "2HKO"
+          }
+        },
+        {
+          "move": "Iron Head",
+          "classes": {
+            "max_def_32": "chip",
+            "max_spd_32": "2HKO",
+            "split_16_16": "2HKO"
+          }
+        }
+      ]
+    },
+    "Garchomp": {
+      "moves_used": [
+        "Dragon Claw",
+        "Rock Slide",
+        "Earthquake",
+        "Stomping Tantrum"
+      ],
+      "max_def_32": {
+        "Dragon Claw": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            68,
+            82
+          ],
+          "koChance": "guaranteed 3HKO"
+        },
+        "Rock Slide": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            44,
+            52
+          ],
+          "koChance": "99.5% chance to 4HKO"
+        },
+        "Earthquake": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            43,
+            51
+          ],
+          "koChance": "89.5% chance to 4HKO"
+        },
+        "Stomping Tantrum": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            32,
+            39
+          ],
+          "koChance": "possible 5HKO"
+        }
+      },
+      "max_spd_32": {
+        "Dragon Claw": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            87,
+            103
+          ],
+          "koChance": "95.3% chance to 2HKO"
+        },
+        "Rock Slide": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            53,
+            64
+          ],
+          "koChance": "34.2% chance to 3HKO"
+        },
+        "Earthquake": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            53,
+            62
+          ],
+          "koChance": "17.5% chance to 3HKO"
+        },
+        "Stomping Tantrum": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            39,
+            47
+          ],
+          "koChance": "20.4% chance to 4HKO"
+        }
+      },
+      "split_16_16": {
+        "Dragon Claw": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            75,
+            91
+          ],
+          "koChance": "5.1% chance to 2HKO"
+        },
+        "Rock Slide": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            48,
+            57
+          ],
+          "koChance": "guaranteed 4HKO"
+        },
+        "Earthquake": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            47,
+            56
+          ],
+          "koChance": "guaranteed 4HKO"
+        },
+        "Stomping Tantrum": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            35,
+            43
+          ],
+          "koChance": "possible 5HKO"
+        }
+      },
+      "class_flips": [
+        {
+          "move": "Dragon Claw",
+          "classes": {
+            "max_def_32": "chip",
+            "max_spd_32": "2HKO",
+            "split_16_16": "2HKO"
+          }
+        }
+      ]
+    },
+    "Gholdengo": {
+      "moves_used": [
+        "Shadow Ball",
+        "Make It Rain",
+        "Nasty Plot",
+        "Power Gem"
+      ],
+      "max_def_32": {
+        "Shadow Ball": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            164,
+            195
+          ],
+          "koChance": "56.3% chance to OHKO"
+        },
+        "Make It Rain": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            121,
+            144
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Nasty Plot": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Power Gem": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            55,
+            65
+          ],
+          "koChance": "62% chance to 3HKO"
+        }
+      },
+      "max_spd_32": {
+        "Shadow Ball": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            125,
+            148
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Make It Rain": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            91,
+            109
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Nasty Plot": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Power Gem": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            42,
+            49
+          ],
+          "koChance": "71.8% chance to 4HKO"
+        }
+      },
+      "split_16_16": {
+        "Shadow Ball": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            140,
+            166
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Make It Rain": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            105,
+            125
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Nasty Plot": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Power Gem": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            47,
+            56
+          ],
+          "koChance": "guaranteed 4HKO"
+        }
+      },
+      "class_flips": [
+        {
+          "move": "Shadow Ball",
+          "classes": {
+            "max_def_32": "OHKO",
+            "max_spd_32": "2HKO",
+            "split_16_16": "2HKO"
+          }
+        }
+      ]
+    },
+    "Archaludon": {
+      "moves_used": [
+        "Electro Shot",
+        "Dragon Pulse",
+        "Flash Cannon",
+        "Snarl"
+      ],
+      "max_def_32": {
+        "Electro Shot": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            62,
+            73
+          ],
+          "koChance": "guaranteed 3HKO"
+        },
+        "Dragon Pulse": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            82,
+            97
+          ],
+          "koChance": "55.9% chance to 2HKO"
+        },
+        "Flash Cannon": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            75,
+            91
+          ],
+          "koChance": "5.1% chance to 2HKO"
+        },
+        "Snarl": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            73,
+            86
+          ],
+          "koChance": "guaranteed 3HKO"
+        }
+      },
+      "max_spd_32": {
+        "Electro Shot": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            47,
+            56
+          ],
+          "koChance": "guaranteed 4HKO"
+        },
+        "Dragon Pulse": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            62,
+            74
+          ],
+          "koChance": "guaranteed 3HKO"
+        },
+        "Flash Cannon": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            58,
+            70
+          ],
+          "koChance": "99.2% chance to 3HKO"
+        },
+        "Snarl": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            55,
+            65
+          ],
+          "koChance": "45.3% chance to 3HKO"
+        }
+      },
+      "split_16_16": {
+        "Electro Shot": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            53,
+            64
+          ],
+          "koChance": "34.2% chance to 3HKO"
+        },
+        "Dragon Pulse": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            70,
+            83
+          ],
+          "koChance": "guaranteed 3HKO"
+        },
+        "Flash Cannon": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            66,
+            79
+          ],
+          "koChance": "guaranteed 3HKO"
+        },
+        "Snarl": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            62,
+            75
+          ],
+          "koChance": "guaranteed 3HKO"
+        }
+      },
+      "class_flips": [
+        {
+          "move": "Dragon Pulse",
+          "classes": {
+            "max_def_32": "2HKO",
+            "max_spd_32": "chip",
+            "split_16_16": "chip"
+          }
+        },
+        {
+          "move": "Flash Cannon",
+          "classes": {
+            "max_def_32": "2HKO",
+            "max_spd_32": "chip",
+            "split_16_16": "chip"
+          }
+        }
+      ]
+    },
+    "Pelipper": {
+      "moves_used": [
+        "Hurricane",
+        "Weather Ball",
+        "Tailwind",
+        "Wide Guard"
+      ],
+      "max_def_32": {
+        "Hurricane": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            166,
+            198
+          ],
+          "koChance": "62.5% chance to OHKO"
+        },
+        "Weather Ball": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Tailwind": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Wide Guard": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd_32": {
+        "Hurricane": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            127,
+            151
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Weather Ball": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Tailwind": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Wide Guard": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Hurricane": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            143,
+            172
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Weather Ball": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Tailwind": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Wide Guard": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "class_flips": [
+        {
+          "move": "Hurricane",
+          "classes": {
+            "max_def_32": "OHKO",
+            "max_spd_32": "2HKO",
+            "split_16_16": "2HKO"
+          }
+        }
+      ]
+    },
+    "Milotic": {
+      "moves_used": [
+        "Scald",
+        "Ice Beam",
+        "Icy Wind",
+        "Muddy Water"
+      ],
+      "max_def_32": {
+        "Scald": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            32,
+            39
+          ],
+          "koChance": "possible 5HKO"
+        },
+        "Ice Beam": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            96,
+            114
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Icy Wind": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            60,
+            73
+          ],
+          "koChance": "guaranteed 3HKO"
+        },
+        "Muddy Water": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            35,
+            43
+          ],
+          "koChance": "possible 5HKO"
+        }
+      },
+      "max_spd_32": {
+        "Scald": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            23,
+            29
+          ],
+          "koChance": "possible 7HKO"
+        },
+        "Ice Beam": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            73,
+            88
+          ],
+          "koChance": "guaranteed 3HKO"
+        },
+        "Icy Wind": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            44,
+            55
+          ],
+          "koChance": "99.9% chance to 4HKO"
+        },
+        "Muddy Water": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            27,
+            32
+          ],
+          "koChance": "possible 6HKO"
+        }
+      },
+      "split_16_16": {
+        "Scald": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            27,
+            32
+          ],
+          "koChance": "possible 6HKO"
+        },
+        "Ice Beam": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            83,
+            99
+          ],
+          "koChance": "62.5% chance to 2HKO"
+        },
+        "Icy Wind": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            52,
+            62
+          ],
+          "koChance": "6% chance to 3HKO"
+        },
+        "Muddy Water": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            31,
+            36
+          ],
+          "koChance": "possible 5HKO"
+        }
+      },
+      "class_flips": [
+        {
+          "move": "Ice Beam",
+          "classes": {
+            "max_def_32": "2HKO",
+            "max_spd_32": "chip",
+            "split_16_16": "2HKO"
+          }
+        }
+      ]
+    },
+    "Raichu": {
+      "moves_used": [
+        "Fake Out",
+        "Volt Switch",
+        "Nuzzle",
+        "Thunderbolt"
+      ],
+      "max_def_32": {
+        "Fake Out": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Volt Switch": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            26,
+            31
+          ],
+          "koChance": "possible 6HKO"
+        },
+        "Nuzzle": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            6,
+            8
+          ],
+          "koChance": ""
+        },
+        "Thunderbolt": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            32,
+            39
+          ],
+          "koChance": "possible 5HKO"
+        }
+      },
+      "max_spd_32": {
+        "Fake Out": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Volt Switch": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            19,
+            23
+          ],
+          "koChance": "possible 8HKO"
+        },
+        "Nuzzle": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            8,
+            10
+          ],
+          "koChance": ""
+        },
+        "Thunderbolt": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            25,
+            30
+          ],
+          "koChance": "possible 6HKO"
+        }
+      },
+      "split_16_16": {
+        "Fake Out": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Volt Switch": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            22,
+            27
+          ],
+          "koChance": "possible 7HKO"
+        },
+        "Nuzzle": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            8,
+            9
+          ],
+          "koChance": ""
+        },
+        "Thunderbolt": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            27,
+            34
+          ],
+          "koChance": "possible 6HKO"
+        }
+      },
+      "class_flips": []
+    },
+    "Farigiraf": {
+      "moves_used": [
+        "Trick Room",
+        "Psychic",
+        "Helping Hand",
+        "Thunderbolt"
+      ],
+      "max_def_32": {
+        "Trick Room": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Psychic": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            78,
+            94
+          ],
+          "koChance": "16% chance to 2HKO"
+        },
+        "Helping Hand": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Thunderbolt": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            26,
+            31
+          ],
+          "koChance": "possible 6HKO"
+        }
+      },
+      "max_spd_32": {
+        "Trick Room": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Psychic": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            60,
+            71
+          ],
+          "koChance": "guaranteed 3HKO"
+        },
+        "Helping Hand": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Thunderbolt": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            19,
+            23
+          ],
+          "koChance": "possible 8HKO"
+        }
+      },
+      "split_16_16": {
+        "Trick Room": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Psychic": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            66,
+            79
+          ],
+          "koChance": "guaranteed 3HKO"
+        },
+        "Helping Hand": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Thunderbolt": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            22,
+            26
+          ],
+          "koChance": "possible 7HKO"
+        }
+      },
+      "class_flips": [
+        {
+          "move": "Psychic",
+          "classes": {
+            "max_def_32": "2HKO",
+            "max_spd_32": "chip",
+            "split_16_16": "chip"
+          }
+        }
+      ]
+    },
+    "Charizard": {
+      "moves_used": [
+        "Heat Wave",
+        "Solar Beam",
+        "Weather Ball",
+        "Overheat"
+      ],
+      "max_def_32": {
+        "Heat Wave": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            164,
+            195
+          ],
+          "koChance": "56.3% chance to OHKO"
+        },
+        "Solar Beam": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            34,
+            40
+          ],
+          "koChance": "possible 5HKO"
+        },
+        "Weather Ball": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Overheat": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            221,
+            265
+          ],
+          "koChance": "guaranteed OHKO"
+        }
+      },
+      "max_spd_32": {
+        "Heat Wave": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            125,
+            148
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Solar Beam": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            26,
+            31
+          ],
+          "koChance": "possible 6HKO"
+        },
+        "Weather Ball": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Overheat": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            172,
+            203
+          ],
+          "koChance": "75% chance to OHKO"
+        }
+      },
+      "split_16_16": {
+        "Heat Wave": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            140,
+            166
+          ],
+          "koChance": "guaranteed 2HKO"
+        },
+        "Solar Beam": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            29,
+            35
+          ],
+          "koChance": "possible 6HKO"
+        },
+        "Weather Ball": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Overheat": {
+          "attacker_nature": "Adamant",
+          "damageRange": [
+            195,
+            229
+          ],
+          "koChance": "guaranteed OHKO"
+        }
+      },
+      "class_flips": [
+        {
+          "move": "Heat Wave",
+          "classes": {
+            "max_def_32": "OHKO",
+            "max_spd_32": "2HKO",
+            "split_16_16": "2HKO"
+          }
+        }
+      ]
+    },
+    "Sylveon": {
+      "moves_used": [
+        "Hyper Voice",
+        "Hyper Beam",
+        "Quick Attack",
+        "Detect"
+      ],
+      "max_def_32": {
+        "Hyper Voice": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Hyper Beam": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Quick Attack": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Detect": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "max_spd_32": {
+        "Hyper Voice": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Hyper Beam": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Quick Attack": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Detect": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "split_16_16": {
+        "Hyper Voice": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Hyper Beam": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Quick Attack": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        },
+        "Detect": {
+          "attacker_nature": "Modest",
+          "damageRange": [
+            0,
+            0
+          ],
+          "koChance": ""
+        }
+      },
+      "class_flips": []
+    }
+  }
+}

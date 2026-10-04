@@ -1,0 +1,704 @@
+{
+  "id": "i1",
+  "model": "qwen3.5:latest",
+  "repeat": 0,
+  "thread_id": "disc-i1-qwen3.5_latest-r0-a08e1941",
+  "user": "trick room team only please, no weather",
+  "usage": {
+    "usage_dir": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "showdown_species_n": 316,
+    "meta_sources": [
+      "munchstats-champions-data",
+      "smogon-chaos"
+    ]
+  },
+  "seed_notes": [],
+  "start": {
+    "turn_intent": null,
+    "turn_payload": null,
+    "pending_kind": "bootstrap_intake",
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": null
+  },
+  "init_ms": 9.8,
+  "turns": [
+    {
+      "turn": 0,
+      "user": "trick room team only please, no weather",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "trick room team only please, no weather",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": null,
+        "turn_payload": null,
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "trick room team only please, no weather",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: trick room team only please, no weather. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: trick room team only please, no weather. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: trick room team only please, no weather. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 163411.4,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 1,
+      "user": "Trick Room team, no weather setters",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "Trick Room team, no weather setters",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "trick room team only please, no weather",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: trick room team only please, no weather. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "Trick Room team, no weather setters",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 131845.9,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 2,
+      "user": "Trick Room team, no weather setters",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "Trick Room team, no weather setters",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "Trick Room team, no weather setters",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "Trick Room team, no weather setters",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 120763.1,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 3,
+      "user": "Trick Room team, no weather setters",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "Trick Room team, no weather setters",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "Trick Room team, no weather setters",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "Trick Room team, no weather setters",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 118365.1,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 4,
+      "user": "Trick Room team, no weather setters",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "Trick Room team, no weather setters",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "Trick Room team, no weather setters",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "Trick Room team, no weather setters",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 102288.3,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 5,
+      "user": "Trick Room team, no weather setters",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "Trick Room team, no weather setters",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "Trick Room team, no weather setters",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "Trick Room team, no weather setters",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 214959.7,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    }
+  ],
+  "llm_calls": [
+    {
+      "label": "bootstrap",
+      "latency_ms": 163386.5,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"trick room team only please, no weather\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:12:59.175924Z', 'done': True, 'done_reason': 'stop', 'total_duration': 163337535333, 'load_duration': 112430"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 131834.2,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"Trick Room team, no weather setters\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:15:11.064251Z', 'done': True, 'done_reason': 'stop', 'total_duration': 131812866875, 'load_duration': 10893333, "
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 120751.4,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"Trick Room team, no weather setters\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:17:11.817748Z', 'done': True, 'done_reason': 'stop', 'total_duration': 120730529958, 'load_duration': 6177125, '"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 118355.9,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"Trick Room team, no weather setters\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:19:10.191622Z', 'done': True, 'done_reason': 'stop', 'total_duration': 118342817041, 'load_duration': 8281916, '"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 102277.1,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"Trick Room team, no weather setters\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:20:52.51051Z', 'done': True, 'done_reason': 'stop', 'total_duration': 102261997083, 'load_duration': 3010750, 'p"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 214936.2,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"Trick Room team, no weather setters\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:24:27.470629Z', 'done': True, 'done_reason': 'stop', 'total_duration': 214920455750, 'load_duration': 3643625, '"
+    }
+  ],
+  "tool_latencies": [
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 163388.7795000337,
+      "ok": true,
+      "error": null,
+      "turn": 1
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 131834.6917500021,
+      "ok": true,
+      "error": null,
+      "turn": 2
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 120752.14379199315,
+      "ok": true,
+      "error": null,
+      "turn": 3
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 118356.35175002972,
+      "ok": true,
+      "error": null,
+      "turn": 4
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 102277.83279097639,
+      "ok": true,
+      "error": null,
+      "turn": 5
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 214936.7889999994,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    }
+  ],
+  "final": {
+    "turn_intent": "bootstrap_response",
+    "turn_payload": {
+      "direction_text": "Trick Room team, no weather setters",
+      "anchor_text": null,
+      "pool_entries": null,
+      "delegated": true,
+      "ownership_mode": null
+    },
+    "pending_kind": "bootstrap_intake",
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": {
+      "kind": "no_candidates",
+      "stage": "candidate_merge",
+      "message": "Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+      "retryable": true,
+      "exception_type": null,
+      "status_code": null
+    }
+  },
+  "final_visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: trick room team only please, no weather. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: trick room team only please, no weather. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: Trick Room team, no weather setters. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+  "claims": [],
+  "outcome": {
+    "outcome": "STALL/ERROR",
+    "checks": [],
+    "intents": [
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response"
+    ]
+  },
+  "judged_class": "c",
+  "errors": [],
+  "n_turns": 6
+}
