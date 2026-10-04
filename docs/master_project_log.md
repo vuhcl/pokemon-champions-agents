@@ -6088,6 +6088,25 @@ Resume framing: the working draft in PURPOSE & CONTEXT ("simulator-grounded eval
 
 Open: grep the ADRs and this log for other decisions that quietly rely on reusing the old agent. Not yet done.
 
+### 2026-10-04: Fail-closed unmatched clarify (ADR-071) shipped; baseline artifacts frozen; v2 verifier blind spot confirmed
+
+Closes the gap-fill part of the CLI defect logged earlier today (model-authored free-text replies stating legality and rules as fact, with no check). Direction A (fail-closed) was chosen over entity scanning (B) and broad claim verification (C); reasoning is in ADR-071. The type/ability guard stays as a backstop for the model-driven mode.
+
+**What the evidence showed.** The 25-request discovery (baseline HEAD 88df2d7) found qwen3.5:latest treating Chi-Yu, Miraidon and Walking Wake as usable and denying Item Clause on unmatched turns. qwen2.5:7b returned canned templates. After the change, qwen3.5's P1–P3 and S7 return `Didn't catch that.`. A control run at 9621b77 without the change was byte-identical to the baseline, so the delta is attributable to the change. Both runs use qwen2.5:7b and qwen3.5:latest only; behavior with the Claude API parser has not been measured.
+
+**Gate 0 (UX cost).** 19 model-authored unmatched rows: 7 echo/soft-refuse, 8 unactionable offers, 4 defect prose, 0 unique UX. Every row was idle, so the corpus has no mid-flow evidence. First-pass buckets were mislabeled (offers the graph cannot act on were called "state-rebuildable") and the per-row reasons were boilerplate; both were redone against the recorded outcomes before implementation.
+
+**Review caught real problems before merge.** The initial plan had a confounded after-run (HEAD had moved since the baseline); a control run was added. The initial code allowed any message starting with "Unknown build option id(s)" through unchanged, so a model reply opening that way would have bypassed the fix; it is now an exact allowlist, with a hostile test. Several hostile test cases were vacuous because the parser is never called for five of the nine kinds; reachability is now asserted per kind, and the kind list is derived from the state Literal. The ADR-048 text claiming `format_no_pending` has a complete-phase branch was wrong from the start (the rendering lives in `format_turn`); corrected by amendment. A test-count discrepancy was traced: the PR adds 46 tests, and the earlier 1864/12 reference differed only by installed extras.
+
+**Verified:** main@9621b77 = 1866 passed, 10 skipped; PR = 1912 passed, 10 skipped (re-run independently, same extras).
+
+**Accepted costs:** idle unmatched now shows only "Didn't catch that." (no pointer to supported actions); `full_build_confirmation` uses the generic field/value/scope ask instead of the model's tailored question.
+
+**Measured finding for v2.** `score_transcript` returned zero false-legal, false-illegal, species-false and Item-Clause hits on the baseline defect prose. The v2 false-legal gate cannot see "illegal entity treated as usable" and needs an additional verifier before it means anything. Not built here.
+
+**Frozen artifacts:** the baseline snapshot and the fail-closed work directory (Gate 0, control, after, verifier scores) are committed under `scripts/eval/artifacts/det_graph_capability_{baseline_88df2d7,failclosed_a}/`.
+
+**Deliberately deferred, tracked separately:** `bootstrap_intake_error` can display unredacted `str(exc)` (confirmed live path; fix is a fixed-message pattern like `CLASSIFY_FAIL`); idle "supported actions" pointer; the v2 false-legal verifier; entity scanning and broad claim verification stay out of scope.
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

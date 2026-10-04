@@ -9850,6 +9850,18 @@ relaxation), not just at the unit level. Full suite green.
 
 ---
 
+### ADR-048 Amendment 2026-10-04a — Correct the `format_no_pending` / `team_phase` claim
+
+**Correction:** Item 1 of ADR-048 states that `format_no_pending` gained a `team_phase == "complete"` branch showing the roster and truthful guidance. That is incorrect, and was incorrect from the start. `git log -S team_phase -- recommender/present_text.py` returns no commits. `format_no_pending` was introduced in `df8a024` with only two behaviors (discovery-error text, otherwise `NO_PENDING_MESSAGE`). The complete-team roster and `last_team_review` rendering lives in the pending-None branch of `format_turn` (added in `26c991e`).
+
+**What stands:** the behavior ADR-048 describes is real. A complete team with no pending prompt shows the roster and review guidance, not "wait for a prompt." Only the location was misattributed.
+
+**Why this matters now:** ADR-071 depends on it. Any unmatched turn on a complete team must keep composing through `format_turn(..., unmatched=True)`. Routing it through `format_no_pending` would drop the roster and review. This is covered by `test_complete_phase_unmatched_keeps_roster_and_review` and `test_handle_line_complete_phase_hostile_p1_failclosed`.
+
+**Status:** Documentation correction only. No code change. The original ADR-048 text is left in place; this amendment supersedes its item-1 claim.
+
+---
+
 ## ADR-049: revise_locked_slot — attribute-level edit on a committed
 team slot
 
@@ -11482,3 +11494,33 @@ zero-shot result on `laya-typed-decisions` from a different checkpoint version w
 need to clear (a) specifically, since that gate is about the checkpoint's actual behavior on
 this project's dangerous-inversion catalog, not something fine-tuning elsewhere would fix by
 assumption. Full detail: `docs/eval_results.md` § "Laya turn_intent spike."
+
+---
+
+## ADR-071: Fail-closed unmatched clarify — discard model-authored `pending_response.message` on the deterministic gap-fill path
+
+**Decision:** In `_gap_fill`, after `parse_turn_intent` returns, a `pending_response` whose message is not an exact member of `NON_CLAIM_MESSAGES` is discarded and replaced by a state-built template (`clarify_message_from_pending`): `full_build_confirmation` gets `CLASSIFY_FAIL_USER_MSG` (name the field, value and scope), `confirm_abandon_build` gets `CONTINUE_ABANDON_MSG`, and every other kind, including idle, gets `UNMATCHED_REPLY_PREFIX`. No species or option labels go into the unmatched message; labels stay in the pending body formatters. Structured intent extraction is unchanged. `rewrite_pending_response_message` (type/ability, ADR-051 Amendment 2026-09-05a) is kept in `_payload_for` as a backstop for the model-driven mode. Complete-phase rendering stays on `format_turn` (ADR-048 Amendment 2026-10-04a).
+
+**Why:** The 25-request deterministic-graph capability discovery (2026-10-04, baseline HEAD 88df2d7) found that with qwen3.5:latest, the free-text reply on unmatched turns treated three illegal entities as usable (Specs Chi-Yu, Miraidon, Walking Wake) and asserted "no restriction against duplicate items," which is false under Reg M-C's Item Clause. The type/ability guard extracted zero claims across the run. That contradicts ADR-002 (legality is a tool call, never an LLM assertion) on the one path where model prose reached the user with no tool-backed result. qwen2.5:7b returned canned templates for the same probes, so the model changes how often this happens but not whether anything guards it.
+
+**Alternatives considered:**
+- *Entity/rules scan (keep free text, refuse or rewrite on illegal named entities or false rules claims):* rejected. It is the same pattern as the guard that extracted zero claims. It is bounded by what we thought to scan for, and unparseable prose stays a residual risk.
+- *Broad claim verification (legality, speed, damage, usage, rules):* rejected for this path. It is the v2 model-driven arm's job (closed-set claim objects), not v1 CLI scope.
+
+**Evidence:**
+- Control (current HEAD, no change) produced byte-identical probe messages to the baseline. After the change, qwen3.5 P1–P3 and S7 return `Didn't catch that.`, and qwen2.5 is unchanged.
+- Hostile-model tests cover idle plus every `PendingPresentation.kind`, asserted on user-visible output, plus complete-phase and `handle_line` variants. Reachability is asserted per kind: only idle, `candidate_selection`, `full_build_confirmation` and `completion_preference` reach gap-fill, and the other five kinds assert the parser is not called.
+- Tests: main@9621b77 = 1866 passed, 10 skipped; this change = 1912 passed, 10 skipped (same extras: ollama + dev).
+
+**A loophole was caught in review, not by the original plan:** the first implementation also allowed any message starting with "Unknown build option id(s)" and the gate constants. A model reply beginning with that phrase would have passed unchanged. The gate strings are produced after this splice and never needed allowing here. The check is now an exact `NON_CLAIM_MESSAGES` membership test, with a hostile test for the prefix.
+
+**Costs, accepted:**
+- *Idle:* the model's useful clarifies are lost (for example the Def/SpD/balanced spread question). Idle unmatched now shows only "Didn't catch that." with no pointer to supported actions. This is the larger loss.
+- *`full_build_confirmation`:* the generic field/value/scope ask replaces the model's tailored "Which field should change?". The build body and footer still carry the actions, so this loss is modest.
+- *Corpus:* all 19 model-authored rows in the discovery corpus were idle, so there is no mid-flow evidence of UX cost. Assurance for mid-flow kinds rests on the per-kind templates and the hostile tests.
+
+**Measured limitation, not addressed here:** `score_transcript` returned zero false-legal, false-illegal, species-false and Item-Clause hits on the baseline defect prose. The v2 false-legal gate cannot see this defect class and needs an additional verifier before it is meaningful. No verifier was built in this change.
+
+**Not changed:** `bootstrap_intake_error` can still display unredacted `str(exc)` from parse failures, and a probe confirmed the path (separate item). Entity scanners, `check_set` and Item Clause prose rewriting remain out of scope.
+
+**Status:** Shipped, `fix/failclosed-unmatched-clarify` (#233).
