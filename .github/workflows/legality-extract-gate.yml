@@ -74,9 +74,11 @@ jobs:
 
       - name: Build PR body
         if: steps.gate.outputs.decision == 'extract'
-        run: uv run python scripts/ci/build_legality_extract_pr_body.py \
-          --gate "$RUNNER_TEMP/gate.json" \
-          --out "$RUNNER_TEMP/pr_body.md"
+        run: |
+          set -euo pipefail
+          uv run python scripts/ci/build_legality_extract_pr_body.py \
+            --gate "$RUNNER_TEMP/gate.json" \
+            --out "$RUNNER_TEMP/pr_body.md"
 
       - name: Open or update PR
         if: steps.gate.outputs.decision == 'extract'
