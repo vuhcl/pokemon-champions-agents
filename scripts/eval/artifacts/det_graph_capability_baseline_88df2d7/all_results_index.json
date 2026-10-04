@@ -1,0 +1,704 @@
+[
+  {
+    "id": "S1",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S2",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "MISROUTED",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "S3",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "PARTIAL",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S4",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S5",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "S6",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S7",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S8",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S9",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i1",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i2",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i3",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i4",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "PARTIAL",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i5L",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "i6L",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "i7",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "i8L",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "P1",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "P2",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "P3",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "C1",
+    "model": "qwen2.5:7b",
+    "usage": null,
+    "outcome": null,
+    "repeat": null,
+    "n_turns": null,
+    "fatal": "'NoneType' object has no attribute 'get'"
+  },
+  {
+    "id": "C1b",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "C2",
+    "model": "qwen2.5:7b",
+    "usage": null,
+    "outcome": null,
+    "repeat": null,
+    "n_turns": null,
+    "fatal": "'NoneType' object has no attribute 'get'"
+  },
+  {
+    "id": "C3",
+    "model": "qwen2.5:7b",
+    "usage": null,
+    "outcome": null,
+    "repeat": null,
+    "n_turns": null,
+    "fatal": "'NoneType' object has no attribute 'get'"
+  },
+  {
+    "id": "C4",
+    "model": "qwen2.5:7b",
+    "usage": null,
+    "outcome": null,
+    "repeat": null,
+    "n_turns": null,
+    "fatal": "'NoneType' object has no attribute 'get'"
+  },
+  {
+    "id": "D1",
+    "model": "qwen2.5:7b",
+    "usage": null,
+    "outcome": null,
+    "repeat": null,
+    "n_turns": null,
+    "fatal": "'NoneType' object has no attribute 'get'"
+  },
+  {
+    "id": "D1b",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S1",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "SERVED",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "S2",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S3",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "PARTIAL",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S4",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S5",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "S6",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "S7",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S8",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S9",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i1",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i2",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i3",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i4",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "SERVED",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i5L",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i6L",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "i7",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "i8L",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "P1",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "P2",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "P3",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "C1",
+    "model": "qwen3.5:latest",
+    "usage": null,
+    "outcome": null,
+    "repeat": null,
+    "n_turns": null,
+    "fatal": "'NoneType' object has no attribute 'get'"
+  },
+  {
+    "id": "C1b",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "PARTIAL",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "C2",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "C3",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "C4",
+    "model": "qwen3.5:latest",
+    "usage": null,
+    "outcome": null,
+    "repeat": null,
+    "n_turns": null,
+    "fatal": "'NoneType' object has no attribute 'get'"
+  },
+  {
+    "id": "D1",
+    "model": "qwen3.5:latest",
+    "usage": null,
+    "outcome": null,
+    "repeat": null,
+    "n_turns": null,
+    "fatal": "'NoneType' object has no attribute 'get'"
+  },
+  {
+    "id": "D1b",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "PARTIAL",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S3",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "PARTIAL",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S4",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S8",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "i5L",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "i7",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "i8L",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "C1b",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "PARTIAL",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "D1b",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S3",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "PARTIAL",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S4",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S8",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "i5L",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "i7",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "i8L",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "C1b",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "PARTIAL",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "C2",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "C3",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "STALL/ERROR",
+    "repeat": 0,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "D1b",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S1",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 1,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S2",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "MISROUTED",
+    "repeat": 1,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "S3",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "PARTIAL",
+    "repeat": 1,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S1",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "SERVED",
+    "repeat": 1,
+    "n_turns": 6,
+    "fatal": null
+  },
+  {
+    "id": "S2",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 1,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S3",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "PARTIAL",
+    "repeat": 1,
+    "n_turns": 1,
+    "fatal": null
+  }
+]

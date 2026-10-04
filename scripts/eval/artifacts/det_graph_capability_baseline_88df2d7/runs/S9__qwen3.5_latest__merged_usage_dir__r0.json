@@ -1,0 +1,688 @@
+{
+  "id": "S9",
+  "model": "qwen3.5:latest",
+  "repeat": 0,
+  "thread_id": "disc-S9-qwen3.5_latest-r0-aebf142b",
+  "user": "Build me something like an OU balance team.",
+  "usage": {
+    "usage_dir": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "showdown_species_n": 316,
+    "meta_sources": [
+      "munchstats-champions-data",
+      "smogon-chaos"
+    ]
+  },
+  "seed_notes": [
+    "idle: bootstrap complete, no pending"
+  ],
+  "start": {
+    "turn_intent": null,
+    "turn_payload": null,
+    "pending_kind": null,
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": null
+  },
+  "init_ms": 7.0,
+  "turns": [
+    {
+      "turn": 0,
+      "user": "Build me something like an OU balance team.",
+      "intent": "continue",
+      "payload": null,
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": null,
+        "turn_payload": null,
+        "pending_kind": null,
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "continue",
+        "turn_payload": null,
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Bootstrap intake is incomplete.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Bootstrap intake is incomplete. (retryable=True)\nBootstrap intake is incomplete.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 85366.2,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 1,
+      "user": "balance team for VGC doubles",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "balance team for VGC doubles",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "continue",
+        "turn_payload": null,
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Bootstrap intake is incomplete.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "balance team for VGC doubles",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 141752.5,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 2,
+      "user": "balance team for VGC doubles",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "balance team for VGC doubles",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "balance team for VGC doubles",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "balance team for VGC doubles",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 136278.7,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 3,
+      "user": "balance team for VGC doubles",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "balance team for VGC doubles",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "balance team for VGC doubles",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "balance team for VGC doubles",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 134670.8,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 4,
+      "user": "balance team for VGC doubles",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "balance team for VGC doubles",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "balance team for VGC doubles",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "balance team for VGC doubles",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 117404.1,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 5,
+      "user": "balance team for VGC doubles",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "balance team for VGC doubles",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "balance team for VGC doubles",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "balance team for VGC doubles",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 133398.6,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    }
+  ],
+  "llm_calls": [
+    {
+      "label": "turn_intent",
+      "latency_ms": 85356.9,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"turn_intent\": \"continue\"\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T01:59:12.025353Z', 'done': True, 'done_reason': 'stop', 'total_duration': 85324337542, 'load_duration': 2483500, 'prompt_eval_count': 2730, 'prompt_eval_duration': 3002421000, 'eval_count': 13, 'eval_duration': 373526000, 'logprobs': None, 'mo"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 141741.2,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"balance team for VGC doubles\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:01:33.771997Z', 'done': True, 'done_reason': 'stop', 'total_duration': 141723748125, 'load_duration': 2380875, 'prompt_"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 136257.6,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"balance team for VGC doubles\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:03:50.033009Z', 'done': True, 'done_reason': 'stop', 'total_duration': 136239061792, 'load_duration': 5544584, 'prompt_"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 134636.4,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"balance team for VGC doubles\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:06:04.623699Z', 'done': True, 'done_reason': 'stop', 'total_duration': 134546176292, 'load_duration': 9016833, 'prompt_"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 117371.2,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"balance team for VGC doubles\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:08:02.092393Z', 'done': True, 'done_reason': 'stop', 'total_duration': 117342495291, 'load_duration': 19264000, 'prompt"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 133357.9,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"balance team for VGC doubles\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:10:15.426869Z', 'done': True, 'done_reason': 'stop', 'total_duration': 133284170542, 'load_duration': 8365125, 'prompt_"
+    }
+  ],
+  "tool_latencies": [
+    {
+      "tool": "llm.turn_intent",
+      "latency_ms": 85357.4477090151,
+      "ok": true,
+      "error": null,
+      "turn": 1
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 141741.92304199096,
+      "ok": true,
+      "error": null,
+      "turn": 2
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 136258.83125001565,
+      "ok": true,
+      "error": null,
+      "turn": 3
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 134638.7038329849,
+      "ok": true,
+      "error": null,
+      "turn": 4
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 117391.43204200082,
+      "ok": true,
+      "error": null,
+      "turn": 5
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 133360.5997080449,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    }
+  ],
+  "final": {
+    "turn_intent": "bootstrap_response",
+    "turn_payload": {
+      "direction_text": "balance team for VGC doubles",
+      "anchor_text": null,
+      "pool_entries": null,
+      "delegated": true,
+      "ownership_mode": null
+    },
+    "pending_kind": "bootstrap_intake",
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": {
+      "kind": "no_candidates",
+      "stage": "candidate_merge",
+      "message": "Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+      "retryable": true,
+      "exception_type": null,
+      "status_code": null
+    }
+  },
+  "final_visible": "Discovery error [no_candidates] at candidate_merge: Bootstrap intake is incomplete. (retryable=True)\nBootstrap intake is incomplete.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: balance team for VGC doubles. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+  "claims": [],
+  "outcome": {
+    "outcome": "STALL/ERROR",
+    "checks": [],
+    "intents": [
+      "continue",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response"
+    ]
+  },
+  "judged_class": "d",
+  "errors": [],
+  "n_turns": 6
+}

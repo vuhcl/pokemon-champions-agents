@@ -1,0 +1,688 @@
+{
+  "id": "i5L",
+  "model": "qwen3.5:latest",
+  "repeat": 0,
+  "thread_id": "disc-i5L-qwen3.5_latest-r0-8d8d07eb",
+  "user": "does Choice Scarf Gholdengo OHKO Kingambit",
+  "usage": {
+    "usage_dir": "/Users/nowaki027/pokemon-champions-agents/data/usage",
+    "showdown_species_n": 316,
+    "meta_sources": [
+      "munchstats-champions-data",
+      "smogon-chaos"
+    ]
+  },
+  "seed_notes": [
+    "idle: bootstrap complete, no pending"
+  ],
+  "start": {
+    "turn_intent": null,
+    "turn_payload": null,
+    "pending_kind": null,
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": null
+  },
+  "init_ms": 4.9,
+  "turns": [
+    {
+      "turn": 0,
+      "user": "does Choice Scarf Gholdengo OHKO Kingambit",
+      "intent": "continue",
+      "payload": null,
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": null,
+        "turn_payload": null,
+        "pending_kind": null,
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "continue",
+        "turn_payload": null,
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Bootstrap intake is incomplete.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Bootstrap intake is incomplete. (retryable=True)\nBootstrap intake is incomplete.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 29986.9,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 1,
+      "user": "VGC doubles team, no strong preference",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "VGC doubles team, no strong preference",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "continue",
+        "turn_payload": null,
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Bootstrap intake is incomplete.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "VGC doubles team, no strong preference",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 50234.2,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 2,
+      "user": "VGC doubles team, no strong preference",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "VGC doubles team, no strong preference",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "VGC doubles team, no strong preference",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "VGC doubles team, no strong preference",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 51540.8,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 3,
+      "user": "VGC doubles team, no strong preference",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "VGC doubles team, no strong preference",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "VGC doubles team, no strong preference",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "VGC doubles team, no strong preference",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 46402.0,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 4,
+      "user": "VGC doubles team, no strong preference",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "VGC doubles team, no strong preference",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "VGC doubles team, no strong preference",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "VGC doubles team, no strong preference",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 48073.7,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 5,
+      "user": "VGC doubles team, no strong preference",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "VGC doubles team, no strong preference",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "VGC doubles team, no strong preference",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "VGC doubles team, no strong preference",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 46526.1,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    }
+  ],
+  "llm_calls": [
+    {
+      "label": "turn_intent",
+      "latency_ms": 29981.2,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"turn_intent\": \"continue\"\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T03:40:09.963125Z', 'done': True, 'done_reason': 'stop', 'total_duration': 29972770500, 'load_duration': 1558875, 'prompt_eval_count': 2514, 'prompt_eval_duration': 2554331000, 'eval_count': 13, 'eval_duration': 394270000, 'logprobs': None, 'mo"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 50228.8,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"VGC doubles team, no strong preference\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T03:41:00.195003Z', 'done': True, 'done_reason': 'stop', 'total_duration': 50221631000, 'load_duration': 1038542,"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 51534.7,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"VGC doubles team, no strong preference\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T03:41:51.735945Z', 'done': True, 'done_reason': 'stop', 'total_duration': 51528024875, 'load_duration': 2350000,"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 46395.8,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"VGC doubles team, no strong preference\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T03:42:38.136888Z', 'done': True, 'done_reason': 'stop', 'total_duration': 46388757459, 'load_duration': 1558125,"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 48068.0,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"VGC doubles team, no strong preference\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T03:43:26.212185Z', 'done': True, 'done_reason': 'stop', 'total_duration': 48061005792, 'load_duration': 2217083,"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 46518.5,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"VGC doubles team, no strong preference\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T03:44:12.732936Z', 'done': True, 'done_reason': 'stop', 'total_duration': 46508035709, 'load_duration': 2156584,"
+    }
+  ],
+  "tool_latencies": [
+    {
+      "tool": "llm.turn_intent",
+      "latency_ms": 29981.591790972743,
+      "ok": true,
+      "error": null,
+      "turn": 1
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 50229.059875011444,
+      "ok": true,
+      "error": null,
+      "turn": 2
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 51534.96575000463,
+      "ok": true,
+      "error": null,
+      "turn": 3
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 46396.114584000316,
+      "ok": true,
+      "error": null,
+      "turn": 4
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 48068.35445802426,
+      "ok": true,
+      "error": null,
+      "turn": 5
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 46518.8659169944,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    }
+  ],
+  "final": {
+    "turn_intent": "bootstrap_response",
+    "turn_payload": {
+      "direction_text": "VGC doubles team, no strong preference",
+      "anchor_text": null,
+      "pool_entries": null,
+      "delegated": true,
+      "ownership_mode": null
+    },
+    "pending_kind": "bootstrap_intake",
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": {
+      "kind": "no_candidates",
+      "stage": "candidate_merge",
+      "message": "Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+      "retryable": true,
+      "exception_type": null,
+      "status_code": null
+    }
+  },
+  "final_visible": "Discovery error [no_candidates] at candidate_merge: Bootstrap intake is incomplete. (retryable=True)\nBootstrap intake is incomplete.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: VGC doubles team, no strong preference. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+  "claims": [],
+  "outcome": {
+    "outcome": "STALL/ERROR",
+    "checks": [],
+    "intents": [
+      "continue",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response"
+    ]
+  },
+  "judged_class": "c",
+  "errors": [],
+  "n_turns": 6
+}

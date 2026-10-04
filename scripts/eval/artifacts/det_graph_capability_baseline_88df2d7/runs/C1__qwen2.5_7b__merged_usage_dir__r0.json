@@ -1,0 +1,160 @@
+{
+  "id": "C1",
+  "model": "qwen2.5:7b",
+  "repeat": 0,
+  "thread_id": "disc-C1-qwen2.5_7b-r0-9eef598f",
+  "user": "Does running Timid over Modest let Pelipper outspeed anyone important?",
+  "usage": {
+    "usage_dir": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "showdown_species_n": 316,
+    "meta_sources": [
+      "munchstats-champions-data",
+      "smogon-chaos"
+    ]
+  },
+  "seed_notes": [
+    "idle: bootstrap complete, no pending"
+  ],
+  "start": {
+    "turn_intent": null,
+    "turn_payload": null,
+    "pending_kind": null,
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": null
+  },
+  "init_ms": 8.6,
+  "turns": [
+    {
+      "turn": 0,
+      "user": "Does running Timid over Modest let Pelipper outspeed anyone important?",
+      "intent": "pending_response",
+      "payload": {
+        "message": "That action isn't available here."
+      },
+      "route_pending_kind": null,
+      "before": {
+        "turn_intent": null,
+        "turn_payload": null,
+        "pending_kind": null,
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "pending_response",
+        "turn_payload": {
+          "message": "That action isn't available here."
+        },
+        "pending_kind": null,
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "visible": "That action isn't available here.\nTeam: (no locked members)",
+      "wall_ms": 13976.9,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    }
+  ],
+  "llm_calls": [
+    {
+      "label": "turn_intent",
+      "latency_ms": 13944.4,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"turn_intent\": \"compare\",\\n  \"option_ids\": [\"Modest\", \"Timid\"]\\n}', additional_kwargs={}, response_metadata={'model': 'qwen2.5:7b', 'created_at': '2026-10-04T01:44:26.740438Z', 'done': True, 'done_reason': 'stop', 'total_duration': 13932145792, 'load_duration': 7553134167, 'prompt_eval_count': 1901, 'prompt_eval_duration': 5790195000, 'eval_count': 24, 'eval_duratio"
+    }
+  ],
+  "tool_latencies": [
+    {
+      "tool": "llm.turn_intent",
+      "latency_ms": 13944.838249997701,
+      "ok": true,
+      "error": null,
+      "turn": 1
+    }
+  ],
+  "final": {
+    "turn_intent": "pending_response",
+    "turn_payload": {
+      "message": "That action isn't available here."
+    },
+    "pending_kind": null,
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": null
+  },
+  "final_visible": "That action isn't available here.\nTeam: (no locked members)",
+  "claims": [],
+  "outcome": {
+    "outcome": "FAIL-CLOSED",
+    "checks": [],
+    "intents": [
+      "pending_response"
+    ]
+  },
+  "judged_class": null,
+  "errors": [],
+  "n_turns": 1
+}

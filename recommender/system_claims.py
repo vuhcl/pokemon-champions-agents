@@ -222,6 +222,10 @@ NON_CLAIM_MESSAGES: frozenset[str] = frozenset(
         "That sounds like two requests in one — an edit and a comparison. Which would you like first?",
         "That sounds like two requests in one — an edit and a selection. Which would you like first?",
         "That took too long to process — please try again, ideally with a shorter or simpler message.",
+        # Fail-closed unmatched clarify templates (Approach A) — no claim stamp.
+        "Didn't catch that.",
+        "This will discard the pending build confirmation.",
+        "Keeping the current build confirmation.",
     }
 )
 

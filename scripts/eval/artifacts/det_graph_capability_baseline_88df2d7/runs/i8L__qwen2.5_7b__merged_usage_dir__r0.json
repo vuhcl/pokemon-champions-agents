@@ -1,0 +1,160 @@
+{
+  "id": "i8L",
+  "model": "qwen2.5:7b",
+  "repeat": 0,
+  "thread_id": "disc-i8L-qwen2.5_7b-r0-1949c1b6",
+  "user": "what support does Hatterene need",
+  "usage": {
+    "usage_dir": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "showdown_species_n": 316,
+    "meta_sources": [
+      "munchstats-champions-data",
+      "smogon-chaos"
+    ]
+  },
+  "seed_notes": [
+    "idle: bootstrap complete, no pending"
+  ],
+  "start": {
+    "turn_intent": null,
+    "turn_payload": null,
+    "pending_kind": null,
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": null
+  },
+  "init_ms": 2.4,
+  "turns": [
+    {
+      "turn": 0,
+      "user": "what support does Hatterene need",
+      "intent": "pending_response",
+      "payload": {
+        "message": "What support does Hatterene need?"
+      },
+      "route_pending_kind": null,
+      "before": {
+        "turn_intent": null,
+        "turn_payload": null,
+        "pending_kind": null,
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "pending_response",
+        "turn_payload": {
+          "message": "What support does Hatterene need?"
+        },
+        "pending_kind": null,
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "visible": "What support does Hatterene need?\nTeam: (no locked members)",
+      "wall_ms": 681.6,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    }
+  ],
+  "llm_calls": [
+    {
+      "label": "turn_intent",
+      "latency_ms": 672.1,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"turn_intent\": \"pending_response\",\\n  \"message\": \"What support does Hatterene need?\"\\n}', additional_kwargs={}, response_metadata={'model': 'qwen2.5:7b', 'created_at': '2026-10-04T01:32:41.981087Z', 'done': True, 'done_reason': 'stop', 'total_duration': 665847000, 'load_duration': 2392334, 'prompt_eval_count': 1893, 'prompt_eval_duration': 123392000, 'eval_count': 2"
+    }
+  ],
+  "tool_latencies": [
+    {
+      "tool": "llm.turn_intent",
+      "latency_ms": 672.3565419670194,
+      "ok": true,
+      "error": null,
+      "turn": 1
+    }
+  ],
+  "final": {
+    "turn_intent": "pending_response",
+    "turn_payload": {
+      "message": "What support does Hatterene need?"
+    },
+    "pending_kind": null,
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": null
+  },
+  "final_visible": "What support does Hatterene need?\nTeam: (no locked members)",
+  "claims": [],
+  "outcome": {
+    "outcome": "FAIL-CLOSED",
+    "checks": [],
+    "intents": [
+      "pending_response"
+    ]
+  },
+  "judged_class": "b",
+  "errors": [],
+  "n_turns": 1
+}

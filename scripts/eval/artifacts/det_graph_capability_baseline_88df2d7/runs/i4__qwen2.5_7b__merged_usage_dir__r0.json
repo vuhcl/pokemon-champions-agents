@@ -1,0 +1,3038 @@
+{
+  "id": "i4",
+  "model": "qwen2.5:7b",
+  "repeat": 0,
+  "thread_id": "disc-i4-qwen2.5_7b-r0-1f4a46b5",
+  "user": "scrap the whole team and start over",
+  "usage": {
+    "usage_dir": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "showdown_species_n": 316,
+    "meta_sources": [
+      "munchstats-champions-data",
+      "smogon-chaos"
+    ]
+  },
+  "seed_notes": [
+    "seeded Pelipper slot0"
+  ],
+  "start": {
+    "turn_intent": null,
+    "turn_payload": null,
+    "pending_kind": null,
+    "draft": [
+      {
+        "i": 0,
+        "species": "Pelipper",
+        "locked": true,
+        "item": "Damp Rock",
+        "ability": "Drizzle",
+        "role": "support"
+      }
+    ],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": null
+  },
+  "init_ms": 2.3,
+  "turns": [
+    {
+      "turn": 0,
+      "user": "scrap the whole team and start over",
+      "intent": "reset",
+      "payload": null,
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": null,
+        "turn_payload": null,
+        "pending_kind": null,
+        "draft": [
+          {
+            "i": 0,
+            "species": "Pelipper",
+            "locked": true,
+            "item": "Damp Rock",
+            "ability": "Drizzle",
+            "role": "support"
+          }
+        ],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "reset",
+        "turn_payload": null,
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "visible": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 373.0,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 1,
+      "user": "VGC doubles team, no strong preference",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": null,
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "candidate_selection",
+      "before": {
+        "turn_intent": "reset",
+        "turn_payload": null,
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": null,
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "candidate_selection",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "visible": "Choose the recommended starting direction or one of the strategically different alternatives.\n1. Venusaur \u2014 Fast Special Attacker \u2014 fast_special_attacker \u2014 primary: sleep_status_spreader \u2014 support \u2014 compendium_backed, high confidence\n2. Charizard-Mega-X \u2014 Fast Physical Attacker \u2014 fast_physical_attacker \u2014 offense \u2014 compendium_backed, low confidence\n3. Charizard-Mega-Y \u2014 Sun Setter \u2014 sun_setter \u2014 support \u2014 compendium_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+      "wall_ms": 1054.4,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 2,
+      "user": "1",
+      "intent": "slot_candidate_selected",
+      "payload": null,
+      "route_pending_kind": "full_build_confirmation",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": null,
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "candidate_selection",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "slot_candidate_selected",
+        "turn_payload": null,
+        "pending_kind": "full_build_confirmation",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": "Venusaur",
+        "provisional_nature": "Modest",
+        "provisional_spread": [
+          [
+            "hp",
+            2
+          ],
+          [
+            "atk",
+            0
+          ],
+          [
+            "def",
+            0
+          ],
+          [
+            "spa",
+            32
+          ],
+          [
+            "spd",
+            0
+          ],
+          [
+            "spe",
+            32
+          ]
+        ],
+        "build_option_groups": [
+          {
+            "axis": "spread_nature",
+            "n_options": 4,
+            "option_ids": [
+              "spread_nature:default",
+              "spread_nature:2",
+              "spread_nature:3",
+              "spread_nature:4"
+            ]
+          }
+        ],
+        "candidate_discovery_error": null
+      },
+      "visible": "Proposed build for Venusaur (fast_special_attacker):\n  Ability: Chlorophyll \u2014 Champions VGC writeup\n  Item: focussash\n  Nature: Modest\n  Moves: Earth Power, Protect, Sleep Powder, Sludge Bomb\n  Spread: {'hp': 2, 'atk': 0, 'def': 0, 'spa': 32, 'spd': 0, 'spe': 32}\nChoose spread/nature:\n  spread_nature:default: Recommended default (default) \u2014 recommended default; Keep the refined usage recommendation\n  spread_nature:2: Timid 1/0/0/32/1/32 \u2014 nature Modest\u2192Timid, spread; Real usage spread variant\n    mech: Spe 145 vs default 132\n  spread_nature:3: Bold 0/0/2/32/0/32 \u2014 nature Modest\u2192Bold, spread; Real usage spread variant\n    mech: Spe 132 (same as default)\n  spread_nature:4: Calm 32/0/2/32/0/0 \u2014 nature Modest\u2192Calm, spread; Real usage spread variant\n    mech: Spe 100 vs default 132\nAccept this build? (yes / defer / option id / free-text)\nReply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.",
+      "wall_ms": 5.4,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 3,
+      "user": "yes",
+      "intent": "full_slot_confirmed",
+      "payload": null,
+      "route_pending_kind": "candidate_selection",
+      "before": {
+        "turn_intent": "slot_candidate_selected",
+        "turn_payload": null,
+        "pending_kind": "full_build_confirmation",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": "Venusaur",
+        "provisional_nature": "Modest",
+        "provisional_spread": [
+          [
+            "hp",
+            2
+          ],
+          [
+            "atk",
+            0
+          ],
+          [
+            "def",
+            0
+          ],
+          [
+            "spa",
+            32
+          ],
+          [
+            "spd",
+            0
+          ],
+          [
+            "spe",
+            32
+          ]
+        ],
+        "build_option_groups": [
+          {
+            "axis": "spread_nature",
+            "n_options": 4,
+            "option_ids": [
+              "spread_nature:default",
+              "spread_nature:2",
+              "spread_nature:3",
+              "spread_nature:4"
+            ]
+          }
+        ],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "full_slot_confirmed",
+        "turn_payload": null,
+        "pending_kind": "candidate_selection",
+        "draft": [
+          {
+            "i": 0,
+            "species": "Venusaur",
+            "locked": true,
+            "item": "focussash",
+            "ability": "Chlorophyll",
+            "role": "fast_special_attacker"
+          }
+        ],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "visible": "1. Charizard-Mega-Y \u2014 sun_setter \u2014 condition_setter \u2014 compendium_backed, medium confidence\n2. Ninetales \u2014 sun_setter \u2014 condition_setter \u2014 compendium_backed, medium confidence\n3. Torkoal \u2014 sun_setter \u2014 condition_setter \u2014 compendium_backed, medium confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.",
+      "wall_ms": 341.2,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 4,
+      "user": "1",
+      "intent": "slot_candidate_selected",
+      "payload": null,
+      "route_pending_kind": "full_build_confirmation",
+      "before": {
+        "turn_intent": "full_slot_confirmed",
+        "turn_payload": null,
+        "pending_kind": "candidate_selection",
+        "draft": [
+          {
+            "i": 0,
+            "species": "Venusaur",
+            "locked": true,
+            "item": "focussash",
+            "ability": "Chlorophyll",
+            "role": "fast_special_attacker"
+          }
+        ],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "slot_candidate_selected",
+        "turn_payload": null,
+        "pending_kind": "full_build_confirmation",
+        "draft": [
+          {
+            "i": 0,
+            "species": "Venusaur",
+            "locked": true,
+            "item": "focussash",
+            "ability": "Chlorophyll",
+            "role": "fast_special_attacker"
+          }
+        ],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": "Charizard-Mega-Y",
+        "provisional_nature": "Modest",
+        "provisional_spread": [
+          [
+            "hp",
+            16
+          ],
+          [
+            "atk",
+            0
+          ],
+          [
+            "def",
+            25
+          ],
+          [
+            "spa",
+            12
+          ],
+          [
+            "spd",
+            0
+          ],
+          [
+            "spe",
+            13
+          ]
+        ],
+        "build_option_groups": [
+          {
+            "axis": "spread_nature",
+            "n_options": 4,
+            "option_ids": [
+              "spread_nature:default",
+              "spread_nature:1",
+              "spread_nature:2",
+              "spread_nature:3"
+            ]
+          }
+        ],
+        "candidate_discovery_error": null
+      },
+      "visible": "Proposed build for Charizard-Mega-Y (sun_setter):\n  Ability: Drought \u2014 Champions VGC writeup\n  Item: charizarditey\n  Nature: Modest\n  Moves: Heat Wave, Protect, Solar Beam, Weather Ball\n  Spread: {'hp': 16, 'atk': 0, 'def': 25, 'spa': 12, 'spd': 0, 'spe': 13}\nChoose spread/nature:\n  spread_nature:default: Recommended default (default) \u2014 recommended default; Keep the refined usage recommendation\n  spread_nature:1: Timid 2/0/0/32/0/32 \u2014 nature Modest\u2192Timid, spread; Real usage spread variant\n    mech: Spe 167 vs default 133\n  spread_nature:2: Modest 2/0/0/32/0/32 \u2014 spread; Real usage spread variant\n    mech: Spe 152 vs default 133\n  spread_nature:3: Timid 12/0/14/8/0/32 \u2014 nature Modest\u2192Timid, spread; Real usage spread variant\n    mech: Spe 167 vs default 133\nAccept this build? (yes / defer / option id / free-text)\nReply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.",
+      "wall_ms": 5.8,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 5,
+      "user": "yes",
+      "intent": "full_slot_confirmed",
+      "payload": null,
+      "route_pending_kind": "completion_preference",
+      "before": {
+        "turn_intent": "slot_candidate_selected",
+        "turn_payload": null,
+        "pending_kind": "full_build_confirmation",
+        "draft": [
+          {
+            "i": 0,
+            "species": "Venusaur",
+            "locked": true,
+            "item": "focussash",
+            "ability": "Chlorophyll",
+            "role": "fast_special_attacker"
+          }
+        ],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": "Charizard-Mega-Y",
+        "provisional_nature": "Modest",
+        "provisional_spread": [
+          [
+            "hp",
+            16
+          ],
+          [
+            "atk",
+            0
+          ],
+          [
+            "def",
+            25
+          ],
+          [
+            "spa",
+            12
+          ],
+          [
+            "spd",
+            0
+          ],
+          [
+            "spe",
+            13
+          ]
+        ],
+        "build_option_groups": [
+          {
+            "axis": "spread_nature",
+            "n_options": 4,
+            "option_ids": [
+              "spread_nature:default",
+              "spread_nature:1",
+              "spread_nature:2",
+              "spread_nature:3"
+            ]
+          }
+        ],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "full_slot_confirmed",
+        "turn_payload": null,
+        "pending_kind": "completion_preference",
+        "draft": [
+          {
+            "i": 0,
+            "species": "Venusaur",
+            "locked": true,
+            "item": "focussash",
+            "ability": "Chlorophyll",
+            "role": "fast_special_attacker"
+          },
+          {
+            "i": 1,
+            "species": "Charizard-Mega-Y",
+            "locked": true,
+            "item": "charizarditey",
+            "ability": "Drought",
+            "role": "sun_setter"
+          }
+        ],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "visible": "Prefer next slot orientation:\n1. attacker\n2. support\n3. balanced\nReply with a preference name, 1/2/3, or 'defer'.",
+      "wall_ms": 1450.8,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    }
+  ],
+  "llm_calls": [
+    {
+      "label": "turn_intent",
+      "latency_ms": 370.2,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"turn_intent\": \"reset\"\\n}', additional_kwargs={}, response_metadata={'model': 'qwen2.5:7b', 'created_at': '2026-10-04T01:32:34.030933Z', 'done': True, 'done_reason': 'stop', 'total_duration': 366878959, 'load_duration': 2413334, 'prompt_eval_count': 1894, 'prompt_eval_duration': 129884999, 'eval_count': 11, 'eval_duration': 207014000, 'logprobs': None, 'model_name':"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 864.2,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": null,\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen2.5:7b', 'created_at': '2026-10-04T01:32:34.897958Z', 'done': True, 'done_reason': 'stop', 'total_duration': 861885959, 'load_duration': 600834, 'prompt_eval_count': 301, 'prompt_eval_dur"
+    }
+  ],
+  "tool_latencies": [
+    {
+      "tool": "llm.turn_intent",
+      "latency_ms": 370.3291660058312,
+      "ok": true,
+      "error": null,
+      "turn": 1
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 864.2689590342343,
+      "ok": true,
+      "error": null,
+      "turn": 2
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 1.2822090066038072,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.8372909505851567,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4283339949324727,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.5934580112807453,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.508208991959691,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4541249945759773,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.6205830140970647,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.5180410225875676,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4123749677091837,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.49062498146668077,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3796249511651695,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3779589897021651,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.49175001913681626,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.5538749974220991,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3790829796344042,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3678749781101942,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3177089965902269,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3360840491950512,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.38162502460181713,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.366666994523257,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3736250218935311,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4800829919986427,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.39216596633195877,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3804159932769835,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.5022910190746188,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.40312501369044185,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33904198789969087,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3422499867156148,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.35008403938263655,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.41737500578165054,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3789170295931399,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.36091700894758105,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3526659565977752,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3809169866144657,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3744159475900233,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.39075000677257776,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.35912502789869905,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3683749819174409,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3606250393204391,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3311249893158674,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3463340108282864,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.37212501047179103,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3382499562576413,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.36574999103322625,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34845800837501884,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3314589848741889,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3755829529836774,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3472079988569021,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.30520797008648515,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3204579697921872,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34320796839892864,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.42954098898917437,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3314170171506703,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34016696736216545,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3451249795034528,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3267080173827708,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33829198218882084,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3386250464245677,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3178749466314912,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3204580279998481,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3451670054346323,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3471249947324395,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32229203497990966,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4065000102855265,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3143330104649067,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.310166971758008,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4208749742247164,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.41500001680105925,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3417910193093121,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33424998400732875,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.28604199178516865,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3567080129869282,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2880000392906368,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.27816701913252473,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3458750434219837,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3339999821037054,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3066670033149421,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.35799999022856355,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32133300555869937,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2821669913828373,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3827089676633477,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.6284170085564256,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.39604201447218657,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.38483302341774106,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3059169976040721,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3047080244868994,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.31445897184312344,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3902500029653311,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3006669576279819,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3510829992592335,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.294625002425164,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.27966604102402925,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3207499976269901,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34329097252339125,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.31587498961016536,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4383749910630286,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33866596641018987,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3155409940518439,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.36929198540747166,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3707919968292117,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3565839724615216,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.46566600212827325,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2799160429276526,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32779097091406584,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.28129201382398605,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.28954196022823453,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3131249686703086,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3213339950889349,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29429199639707804,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.6333750206977129,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3386250464245677,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3713330370374024,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33954199170693755,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32474996987730265,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.35550002939999104,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34383300226181746,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.35037496127188206,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.39250002009794116,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3221250372007489,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3487089998088777,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3617090405896306,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3626249963417649,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3232919843867421,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3374589723534882,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3504999913275242,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.38133299676701427,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.35270798252895474,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34270796459168196,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3589170519262552,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.37116697058081627,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33266597893089056,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3854589886032045,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34899997990578413,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3552500274963677,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3774999640882015,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3560000332072377,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.27291703736409545,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.37395802792161703,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2665839856490493,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.27895800303667784,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3243749961256981,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33120799344033003,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.27075002435594797,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2795840264298022,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.44516701018437743,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.44483301462605596,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3964169882237911,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.45479199616238475,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.42337499326094985,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.40149997221305966,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2834589686244726,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34741696435958147,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.27654197765514255,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.26862503727898,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34075003350153565,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3374579828232527,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32187497708946466,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.43216696940362453,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2996249822899699,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.30087505001574755,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.38879201747477055,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.45112502994015813,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.30508299823850393,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.327250047121197,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3189580165781081,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4183329874649644,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.31466700602322817,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34383300226181746,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32699998700991273,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32766704680398107,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.31883298652246594,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.37274998612701893,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3025420010089874,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3216249751858413,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.36512501537799835,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4168340237811208,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29337499290704727,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33741601509973407,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.28237502556294203,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32949994783848524,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34433399559929967,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3254589973948896,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2684580394998193,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3119580214843154,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3358329995535314,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4379169549793005,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2917909878306091,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32958295196294785,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2795840264298022,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3387079923413694,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.35445799585431814,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.7006250089034438,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.45662501361221075,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3626249963417649,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.44404197251424193,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3714999766089022,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29437500052154064,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29024999821558595,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33591699320822954,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32279198057949543,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3307919832877815,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3109159879386425,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2976669929921627,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2615419798530638,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.36412494955584407,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3505829954519868,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33779197838157415,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3423329908400774,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3488339716568589,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.31525001395493746,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.5670410464517772,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3139160107821226,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.28199999360367656,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3439169959165156,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3046669880859554,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.36791700404137373,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.31579198548570275,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3081670147366822,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3783749998547137,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.35491702146828175,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3320419928058982,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3541669575497508,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32120797550305724,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3190000425092876,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3507499932311475,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3535420401021838,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3302920376881957,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.35375001607462764,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29666698537766933,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3113750135526061,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.27825002325698733,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29320799512788653,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29325002105906606,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3045840421691537,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.30333397444337606,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3314169589430094,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3131249686703086,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3404169692657888,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34137500915676355,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3471249947324395,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33179199090227485,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3732500481419265,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33645896473899484,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3369999467395246,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3458749852143228,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.37237495416775346,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3112500417046249,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3517919685691595,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2789159771054983,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.288125011138618,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.332291005179286,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3611250431276858,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.367750006262213,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.38404203951358795,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32683403696864843,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.36983302561566234,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32404199009761214,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3237499622628093,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3463749890215695,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4121669917367399,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34383300226181746,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3635419998317957,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3315000212751329,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33124996116384864,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3572080167941749,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3548749955371022,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3856660332530737,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33487501787021756,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.342792016454041,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.4248750046826899,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3184580127708614,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3403750015422702,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.31625002156943083,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32125000143423676,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.28899998869746923,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3380410489626229,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3590830019675195,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.44525001430884004,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3464579931460321,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3356249653734267,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3977079759351909,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.36941596772521734,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29566604644060135,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3373749786987901,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29329099925234914,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29808300314471126,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3215830074623227,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3040420124307275,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.2877499791793525,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33404200803488493,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29450003057718277,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.29041600646451116,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.334041949827224,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32824999652802944,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.26358303148299456,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3339169779792428,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.28316699899733067,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.27333403704687953,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34012499963864684,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.33774995245039463,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3447909839451313,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.38408301770687103,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32941700192168355,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.35458296770229936,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.30904205050319433,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.36033400101587176,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3012079978361726,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32175000524148345,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3441249718889594,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.37462502950802445,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3809580230154097,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3472910029813647,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.31599996145814657,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3260839730501175,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3540419857017696,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.45537500409409404,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.35983300767838955,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3513330011628568,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.37645798875018954,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3797499812208116,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3997920430265367,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.37712499033659697,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3327919985167682,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.32170902704820037,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3494159900583327,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34216599306091666,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3441250300966203,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.31879200832918286,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.39358402136713266,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.36091700894758105,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.34620799124240875,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    },
+    {
+      "tool": "CalcClient.POST /calculate/batch",
+      "latency_ms": 0.3506249631755054,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    }
+  ],
+  "final": {
+    "turn_intent": "full_slot_confirmed",
+    "turn_payload": null,
+    "pending_kind": "completion_preference",
+    "draft": [
+      {
+        "i": 0,
+        "species": "Venusaur",
+        "locked": true,
+        "item": "focussash",
+        "ability": "Chlorophyll",
+        "role": "fast_special_attacker"
+      },
+      {
+        "i": 1,
+        "species": "Charizard-Mega-Y",
+        "locked": true,
+        "item": "charizarditey",
+        "ability": "Drought",
+        "role": "sun_setter"
+      }
+    ],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": null
+  },
+  "final_visible": "What direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nChoose the recommended starting direction or one of the strategically different alternatives.\n1. Venusaur \u2014 Fast Special Attacker \u2014 fast_special_attacker \u2014 primary: sleep_status_spreader \u2014 support \u2014 compendium_backed, high confidence\n2. Charizard-Mega-X \u2014 Fast Physical Attacker \u2014 fast_physical_attacker \u2014 offense \u2014 compendium_backed, low confidence\n3. Charizard-Mega-Y \u2014 Sun Setter \u2014 sun_setter \u2014 support \u2014 compendium_backed, high confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.\n---\nProposed build for Venusaur (fast_special_attacker):\n  Ability: Chlorophyll \u2014 Champions VGC writeup\n  Item: focussash\n  Nature: Modest\n  Moves: Earth Power, Protect, Sleep Powder, Sludge Bomb\n  Spread: {'hp': 2, 'atk': 0, 'def': 0, 'spa': 32, 'spd': 0, 'spe': 32}\nChoose spread/nature:\n  spread_nature:default: Recommended default (default) \u2014 recommended default; Keep the refined usage recommendation\n  spread_nature:2: Timid 1/0/0/32/1/32 \u2014 nature Modest\u2192Timid, spread; Real usage spread variant\n    mech: Spe 145 vs default 132\n  spread_nature:3: Bold 0/0/2/32/0/32 \u2014 nature Modest\u2192Bold, spread; Real usage spread variant\n    mech: Spe 132 (same as default)\n  spread_nature:4: Calm 32/0/2/32/0/0 \u2014 nature Modest\u2192Calm, spread; Real usage spread variant\n    mech: Spe 100 vs default 132\nAccept this build? (yes / defer / option id / free-text)\nReply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.\n---\n1. Charizard-Mega-Y \u2014 sun_setter \u2014 condition_setter \u2014 compendium_backed, medium confidence\n2. Ninetales \u2014 sun_setter \u2014 condition_setter \u2014 compendium_backed, medium confidence\n3. Torkoal \u2014 sun_setter \u2014 condition_setter \u2014 compendium_backed, medium confidence\nreject N drops only that species. To also skip Trick Room\u2013shaped picks: reject N, no TR or no more trick room.\nReply with a species name, 1/2/3, 'yes' for the default, 'reject N' to skip an option, 'different focus' to change preference, or 'defer'.\n---\nProposed build for Charizard-Mega-Y (sun_setter):\n  Ability: Drought \u2014 Champions VGC writeup\n  Item: charizarditey\n  Nature: Modest\n  Moves: Heat Wave, Protect, Solar Beam, Weather Ball\n  Spread: {'hp': 16, 'atk': 0, 'def': 25, 'spa': 12, 'spd': 0, 'spe': 13}\nChoose spread/nature:\n  spread_nature:default: Recommended default (default) \u2014 recommended default; Keep the refined usage recommendation\n  spread_nature:1: Timid 2/0/0/32/0/32 \u2014 nature Modest\u2192Timid, spread; Real usage spread variant\n    mech: Spe 167 vs default 133\n  spread_nature:2: Modest 2/0/0/32/0/32 \u2014 spread; Real usage spread variant\n    mech: Spe 152 vs default 133\n  spread_nature:3: Timid 12/0/14/8/0/32 \u2014 nature Modest\u2192Timid, spread; Real usage spread variant\n    mech: Spe 167 vs default 133\nAccept this build? (yes / defer / option id / free-text)\nReply 'yes' to accept, pick option ids (compose with +), 'compare A B', free-text edit, or 'defer'.\n---\nPrefer next slot orientation:\n1. attacker\n2. support\n3. balanced\nReply with a preference name, 1/2/3, or 'defer'.",
+  "claims": [],
+  "outcome": {
+    "outcome": "PARTIAL",
+    "checks": [
+      "Pelipper gone but draft not empty"
+    ],
+    "intents": [
+      "reset",
+      "bootstrap_response",
+      "slot_candidate_selected",
+      "full_slot_confirmed",
+      "slot_candidate_selected",
+      "full_slot_confirmed"
+    ]
+  },
+  "judged_class": "a",
+  "errors": [],
+  "n_turns": 6
+}

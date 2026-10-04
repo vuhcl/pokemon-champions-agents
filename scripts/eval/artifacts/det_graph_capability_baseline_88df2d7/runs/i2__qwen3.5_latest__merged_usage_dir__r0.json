@@ -1,0 +1,704 @@
+{
+  "id": "i2",
+  "model": "qwen3.5:latest",
+  "repeat": 0,
+  "thread_id": "disc-i2-qwen3.5_latest-r0-ba1a44bc",
+  "user": "glass cannon HO, no rain/sun/sand/snow, just hit hard",
+  "usage": {
+    "usage_dir": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "showdown_species_n": 316,
+    "meta_sources": [
+      "munchstats-champions-data",
+      "smogon-chaos"
+    ]
+  },
+  "seed_notes": [],
+  "start": {
+    "turn_intent": null,
+    "turn_payload": null,
+    "pending_kind": "bootstrap_intake",
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": null
+  },
+  "init_ms": 6.0,
+  "turns": [
+    {
+      "turn": 0,
+      "user": "glass cannon HO, no rain/sun/sand/snow, just hit hard",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "glass cannon HO, no rain/sun/sand/snow, just hit hard",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": null,
+        "turn_payload": null,
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": null
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "glass cannon HO, no rain/sun/sand/snow, just hit hard",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: glass cannon HO, no rain/sun/sand/snow, just hit hard. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: glass cannon HO, no rain/sun/sand/snow, just hit hard. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: glass cannon HO, no rain/sun/sand/snow, just hit hard. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 198447.6,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 1,
+      "user": "hyper offense glass cannon, no rain sun sand or snow",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "glass cannon HO, no rain/sun/sand/snow, just hit hard",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: glass cannon HO, no rain/sun/sand/snow, just hit hard. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 73375.4,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 2,
+      "user": "hyper offense glass cannon, no rain sun sand or snow",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 77026.1,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 3,
+      "user": "hyper offense glass cannon, no rain sun sand or snow",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 80568.0,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 4,
+      "user": "hyper offense glass cannon, no rain sun sand or snow",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 77606.4,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    },
+    {
+      "turn": 5,
+      "user": "hyper offense glass cannon, no rain sun sand or snow",
+      "intent": "bootstrap_response",
+      "payload": {
+        "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+        "anchor_text": null,
+        "pool_entries": null,
+        "delegated": true,
+        "ownership_mode": null
+      },
+      "route_pending_kind": "bootstrap_intake",
+      "before": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "after": {
+        "turn_intent": "bootstrap_response",
+        "turn_payload": {
+          "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+          "anchor_text": null,
+          "pool_entries": null,
+          "delegated": true,
+          "ownership_mode": null
+        },
+        "pending_kind": "bootstrap_intake",
+        "draft": [],
+        "constraints": [],
+        "archetype": {
+          "value": null,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "exempt_from_theme": false
+        },
+        "slot_commit_error": null,
+        "bootstrap_intake_error": null,
+        "correction_response": null,
+        "compare_analysis": null,
+        "provisional_species": null,
+        "provisional_nature": null,
+        "provisional_spread": null,
+        "build_option_groups": [],
+        "candidate_discovery_error": {
+          "kind": "no_candidates",
+          "stage": "candidate_merge",
+          "message": "Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+          "retryable": true,
+          "exception_type": null,
+          "status_code": null
+        }
+      },
+      "visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+      "wall_ms": 78970.9,
+      "error": null,
+      "correction_response": null,
+      "compare_analysis": null
+    }
+  ],
+  "llm_calls": [
+    {
+      "label": "bootstrap",
+      "latency_ms": 198435.7,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"glass cannon HO, no rain/sun/sand/snow, just hit hard\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:27:46.161064Z', 'done': True, 'done_reason': 'stop', 'total_duration': 198408282709, 'load_dur"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 73365.2,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"hyper offense glass cannon, no rain sun sand or snow\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:28:59.545597Z', 'done': True, 'done_reason': 'stop', 'total_duration': 73338962041, 'load_durat"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 77017.5,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"hyper offense glass cannon, no rain sun sand or snow\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:30:16.581089Z', 'done': True, 'done_reason': 'stop', 'total_duration': 77002170375, 'load_durat"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 80562.1,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"hyper offense glass cannon, no rain sun sand or snow\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:31:37.153573Z', 'done': True, 'done_reason': 'stop', 'total_duration': 80551767542, 'load_durat"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 77600.0,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"hyper offense glass cannon, no rain sun sand or snow\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:32:54.758556Z', 'done': True, 'done_reason': 'stop', 'total_duration': 77591307791, 'load_durat"
+    },
+    {
+      "label": "bootstrap",
+      "latency_ms": 78963.0,
+      "error": null,
+      "preview": "{'raw': AIMessage(content='{\\n  \"direction_text\": \"hyper offense glass cannon, no rain sun sand or snow\",\\n  \"anchor_text\": null,\\n  \"pool_entries\": null,\\n  \"delegated\": true,\\n  \"ownership_mode\": null\\n}', additional_kwargs={}, response_metadata={'model': 'qwen3.5:latest', 'created_at': '2026-10-04T02:34:13.722754Z', 'done': True, 'done_reason': 'stop', 'total_duration': 78948474250, 'load_durat"
+    }
+  ],
+  "tool_latencies": [
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 198437.14058300247,
+      "ok": true,
+      "error": null,
+      "turn": 1
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 73366.15254101343,
+      "ok": true,
+      "error": null,
+      "turn": 2
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 77017.98920898,
+      "ok": true,
+      "error": null,
+      "turn": 3
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 80562.59099999443,
+      "ok": true,
+      "error": null,
+      "turn": 4
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 77600.39470897755,
+      "ok": true,
+      "error": null,
+      "turn": 5
+    },
+    {
+      "tool": "llm.bootstrap_intake",
+      "latency_ms": 78963.46245898167,
+      "ok": true,
+      "error": null,
+      "turn": 6
+    }
+  ],
+  "final": {
+    "turn_intent": "bootstrap_response",
+    "turn_payload": {
+      "direction_text": "hyper offense glass cannon, no rain sun sand or snow",
+      "anchor_text": null,
+      "pool_entries": null,
+      "delegated": true,
+      "ownership_mode": null
+    },
+    "pending_kind": "bootstrap_intake",
+    "draft": [],
+    "constraints": [],
+    "archetype": {
+      "value": null,
+      "locked": false,
+      "reason": null,
+      "still_active": true,
+      "exempt_from_theme": false
+    },
+    "slot_commit_error": null,
+    "bootstrap_intake_error": null,
+    "correction_response": null,
+    "compare_analysis": null,
+    "provisional_species": null,
+    "provisional_nature": null,
+    "provisional_spread": null,
+    "build_option_groups": [],
+    "candidate_discovery_error": {
+      "kind": "no_candidates",
+      "stage": "candidate_merge",
+      "message": "Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.",
+      "retryable": true,
+      "exception_type": null,
+      "status_code": null
+    }
+  },
+  "final_visible": "Discovery error [no_candidates] at candidate_merge: Couldn't map direction: glass cannon HO, no rain/sun/sand/snow, just hit hard. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: glass cannon HO, no rain/sun/sand/snow, just hit hard. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.\n---\nDiscovery error [no_candidates] at candidate_merge: Couldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper. (retryable=True)\nCouldn't map direction: hyper offense glass cannon, no rain sun sand or snow. Try e.g.: bulky attacker, bulky mixed attacker, bulky physical attacker, bulky pivot, bulky special attacker, electric offense, fast attacker, fast mixed attacker, fast physical attacker, fast pivot, fast special attacker, follow me, grassy offense, nasty plot, psychic offense, rain offense, sand offense, screens support, snow offense, sun offense, support speed control, swords dance, tailwind, trick room setter, trick room sweeper.\nWhat direction or anchor would you like to start with, and which Pok\u00e9mon are available to you? You can provide either, both, or say 'you pick.' I can still recommend outside your available pool unless you request owned-only.\nReply with a direction, anchor, available pool, or 'you pick'.",
+  "claims": [],
+  "outcome": {
+    "outcome": "STALL/ERROR",
+    "checks": [],
+    "intents": [
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response",
+      "bootstrap_response"
+    ]
+  },
+  "judged_class": "c",
+  "errors": [],
+  "n_turns": 6
+}

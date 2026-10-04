@@ -848,9 +848,11 @@ def test_unmatched_prefix():
 
 
 def test_unmatched_custom_message_replaces_prefix():
+    from recommender.turn_intent import CLASSIFY_FAIL_USER_MSG
+
     text = format_turn(
         {
-            "turn_payload": {"message": "Which field should change?"},
+            "turn_payload": {"message": CLASSIFY_FAIL_USER_MSG},
             "pending_presentation": {
                 "kind": "full_build_confirmation",
                 "slot_index": 0,
@@ -858,7 +860,7 @@ def test_unmatched_custom_message_replaces_prefix():
         },
         unmatched=True,
     )
-    assert text.startswith("Which field should change?")
+    assert text.startswith(CLASSIFY_FAIL_USER_MSG)
     assert UNMATCHED_REPLY_PREFIX not in text
 
 

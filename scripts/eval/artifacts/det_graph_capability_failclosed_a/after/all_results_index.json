@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S7",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "P1",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "P2",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "P3",
+    "model": "qwen2.5:7b",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "S7",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "P1",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "P2",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  },
+  {
+    "id": "P3",
+    "model": "qwen3.5:latest",
+    "usage": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/artifacts/_scratch_mc_showdown_fill/merged_usage_dir",
+    "outcome": "FAIL-CLOSED",
+    "repeat": 0,
+    "n_turns": 1,
+    "fatal": null
+  }
+]
