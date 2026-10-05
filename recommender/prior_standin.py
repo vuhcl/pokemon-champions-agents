@@ -95,8 +95,6 @@ def letter_for_tag(tag: str) -> str:
     for window in load_schedule():
         if window.tag == key:
             return window.letter.upper()
-    if key.startswith("champions-reg-m") and len(key) > len("champions-reg-m"):
-        return key[-1].upper()
     return "?"
 
 

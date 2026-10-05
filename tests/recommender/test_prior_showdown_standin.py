@@ -256,3 +256,138 @@ def test_real_mc_showdown_standin_under_md():
         assert PRIOR_SHOWDOWN_STANDIN in standin.reason_ref
     finally:
         REGULATIONS.pop(MD, None)
+
+
+def test_mc_propose_refine_unchanged_no_standin_refs():
+    """CHANGE 2 scenario B: M-C refine has usage refs, never prior_showdown_standin."""
+    from recommender.propose import _refine_defaults
+    from recommender.state import Attr, Slot, empty_slot
+
+    slot = Slot(species=Attr(value="Incineroar", locked=True))
+    state = {
+        "team_draft": [slot, *[empty_slot() for _ in range(5)]],
+        "regulation": MC,
+    }
+    refined, _ = _refine_defaults(slot, state, regulation=MC)
+    assert refined.ability.value == "Intimidate"
+    assert refined.ability.reason is not None
+    assert refined.ability.reason.ref == "usage"
+    assert refined.item.reason is not None
+    assert refined.item.reason.ref == "usage"
+    assert "prior_showdown_standin" not in str(refined)
+
+
+def test_mc_recommend_no_standin_token():
+    """CHANGE 2 scenario A: M-C recommend_build never emits stand-in token."""
+    from recommender.recommend import recommend_build
+
+    result = recommend_build(
+        "Incineroar",
+        ["Fake Out", "Flare Blitz", "Parting Shot", "Throat Chop"],
+        "Sitrus Berry",
+        regulation=MC,
+    )
+    assert result.get("ok") is True
+    assert "prior_showdown_standin" not in str(result)
+    assert "prior-showdown-standin" not in str(result)
+
+
+def test_standin_drizzle_present_medium_disclosed():
+    """Stand-in Drizzle → present=True, medium, disclosed; leak tests untouched."""
+    from unittest.mock import patch
+
+    from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
+    from recommender.prior_standin import PriorStandinBuild
+    from recommender.role_compendium import ReverseCompendiumEvidence
+    from recommender.slot_fill import writeup_ability_source_label
+
+    standin = PriorStandinBuild(
+        species="Pelipper",
+        prior_tag=MC,
+        prior_letter="C",
+        ability="Drizzle",
+        item="Damp Rock",
+        nature="Bold",
+        moves=("Hurricane", "Weather Ball", "Protect", "Tailwind"),
+        evs={"hp": 252, "atk": 0, "def": 252, "spa": 4, "spd": 0, "spe": 0},
+        filled_fields=frozenset({"ability", "item", "moves", "nature", "spread"}),
+        entry={"source": PRIOR_SHOWDOWN_STANDIN, "prior_regulation": MC},
+    )
+    REGULATIONS[MD] = {
+        "letter": "D",
+        "mod": "championsregmd",
+        "vgc_format_id": "[Gen 9 Champions] VGC 2026 Reg M-D",
+        "bss_format_id": "[Gen 9 Champions] BSS Reg M-D",
+        "showdown_format": "gen9championsvgc2026regmd",
+    }
+    try:
+        with (
+            patch("recommender.anchor_roles.featured_or_common_set", return_value=None),
+            patch("recommender.prior_standin.default_build_set", return_value=standin),
+            patch("recommender.anchor_roles.get_writeup_kit", return_value=None),
+            patch("recommender.anchor_roles.get_writeup_ability", return_value=None),
+        ):
+            build = resolve_anchor_build("Pelipper", regulation=MD)
+        assert build.ability == "Drizzle"
+        assert build.source_for("ability") == PRIOR_SHOWDOWN_STANDIN
+        decision = classify_anchor_role(
+            build, compendium=ReverseCompendiumEvidence()
+        )
+        rain = [
+            m
+            for m in decision.mechanisms
+            if m.kind == "automatic_condition_setting" and m.present
+        ]
+        assert rain
+        assert all(m.confidence == "medium" for m in rain)
+        assert all(m.source == PRIOR_SHOWDOWN_STANDIN for m in rain)
+        assert (
+            writeup_ability_source_label(standin.reason_ref)
+            == "prior-reg Showdown stand-in (Reg M-C)"
+        )
+    finally:
+        REGULATIONS.pop(MD, None)
+
+
+def test_propose_standin_reason_refs_under_md(tmp_path: Path, monkeypatch):
+    """Day-0 M-D propose fills from M-C showdown with stand-in ReasonRefs."""
+    import recommender.usage_data as ud
+    from recommender.propose import _refine_defaults
+    from recommender.state import Attr, Slot, empty_slot
+
+    fake = tmp_path / "usage"
+    fake.mkdir()
+    src = USAGE_DIR / f"{MC}.showdown_doubles.v1.json"
+    (fake / src.name).write_bytes(src.read_bytes())
+    monkeypatch.setattr(ud, "USAGE_DIR", fake)
+    ud.load_usage.cache_clear()
+
+    REGULATIONS[MD] = {
+        "letter": "D",
+        "mod": "championsregmd",
+        "vgc_format_id": "[Gen 9 Champions] VGC 2026 Reg M-D",
+        "bss_format_id": "[Gen 9 Champions] BSS Reg M-D",
+        "showdown_format": "gen9championsvgc2026regmd",
+    }
+    try:
+        monkeypatch.setattr(
+            "recommender.prior_standin.previous_regulation_tag",
+            lambda regulation, previous_tag=None: MC,
+        )
+        monkeypatch.setattr("recommender.prior_standin.USAGE_DIR", fake)
+        slot = Slot(species=Attr(value="Incineroar", locked=True))
+        state = {
+            "team_draft": [slot, *[empty_slot() for _ in range(5)]],
+            "regulation": MD,
+        }
+        refined, _ = _refine_defaults(slot, state, regulation=MD)
+        assert refined.ability.value == "Intimidate"
+        assert refined.ability.reason is not None
+        assert refined.ability.reason.ref == f"prior_showdown_standin:{MC}"
+        assert refined.moveset.value is not None
+        assert len(refined.moveset.value) == 4
+        assert refined.moveset.reason is not None
+        assert refined.moveset.reason.ref == f"prior_showdown_standin:{MC}"
+    finally:
+        REGULATIONS.pop(MD, None)
+        ud.load_usage.cache_clear()

@@ -533,6 +533,10 @@ def test_writeup_ability_source_label_helpers():
         == "SV BSS writeup analog"
     )
     assert writeup_ability_source_label("usage") is None
+    assert (
+        writeup_ability_source_label("prior_showdown_standin:champions-reg-mc")
+        == "prior-reg Showdown stand-in (Reg M-C)"
+    )
 
 
 def test_format_option_role_bit_shows_nn_similarity():

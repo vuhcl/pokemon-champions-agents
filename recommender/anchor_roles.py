@@ -48,6 +48,7 @@ _AUTHORITATIVE_ABILITY_SOURCES = frozenset(
         "legality_only",
         "champions_native_writeup",
         "analogous_format_writeup",
+        "prior_showdown_standin",
     }
 )
 MechanismImportance = Literal["needed", "wanted", "secondary"]
@@ -211,6 +212,9 @@ def _ability_mechanism_confidence(
     """Confidence for ability-derived mechanisms, or None to omit the mechanism."""
     if source not in _AUTHORITATIVE_ABILITY_SOURCES:
         return None
+    # Stand-in abilities are authoritative for present=True but never high.
+    if source == "prior_showdown_standin":
+        return "medium"
     return "high" if source == "user_confirmed" else "medium"
 
 
@@ -227,6 +231,8 @@ def _ability_source_from_slot_attr(attr: Attr[Any]) -> FieldSource:
         return "synthesized"
     if isinstance(ref, str):
         tier = ref.split(":", 1)[0]
+        if tier == "prior_showdown_standin":
+            return "prior_showdown_standin"
         if tier == "champions_native_writeup":
             return "champions_native_writeup"
         if tier == "analogous_format_writeup":
@@ -355,6 +361,7 @@ def resolve_anchor_build(
                 provenance["nature"] = FieldProvenance("nature", "usage_derived")
 
     representative = None
+    standin_rep = False
     if species:
         if team_draft and any(
             s.species.locked
@@ -373,7 +380,24 @@ def resolve_anchor_build(
             )
         if representative is None:
             representative = featured_or_common_set(species, regulation=regulation)
-    if role_hint and species and representative:
+        if representative is None:
+            from recommender.prior_standin import default_build_set
+
+            standin = default_build_set(species, regulation=regulation)
+            if standin:
+                standin_rep = True
+                representative = {
+                    "species": standin.species,
+                    "ability": standin.ability,
+                    "item": standin.item,
+                    "nature": standin.nature,
+                    "moves": list(standin.moves) if standin.moves else None,
+                    "evs": standin.evs,
+                }
+    rep_source: FieldSource = (
+        "prior_showdown_standin" if standin_rep else "usage_derived"
+    )
+    if role_hint and species and representative and not standin_rep:
         from recommender.role_aware_synthesis import select_role_aware_build_fields
         from recommender.usage_data import build_synthesis_usage_entry
 
@@ -411,7 +435,7 @@ def resolve_anchor_build(
             values[field] = representative[key]
             # Representative APIs combine marginal spread evidence; deliberately
             # do not claim a co-occurrence group.
-            provenance[field] = FieldProvenance(field, "usage_derived")
+            provenance[field] = FieldProvenance(field, rep_source)
 
     if values["item"] is None and species:
         if team_draft is not None:
@@ -434,7 +458,7 @@ def resolve_anchor_build(
                     provenance["item"] = FieldProvenance("item", "synthesized")
         elif representative and representative.get("item") is not None:
             values["item"] = representative["item"]
-            provenance["item"] = FieldProvenance("item", "usage_derived")
+            provenance["item"] = FieldProvenance("item", rep_source)
 
     for raw_field, value in (synthesized or {}).items():
         field = aliases.get(raw_field, raw_field)

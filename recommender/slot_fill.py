@@ -1882,6 +1882,11 @@ def run_slot_fill_terminal(
 
 def writeup_ability_source_label(reason_ref: str | None) -> str | None:
     """Human label for main-build disclosure from ability/moveset ReasonRef.ref."""
+    from recommender.prior_standin import standin_source_label
+
+    standin = standin_source_label(reason_ref)
+    if standin:
+        return standin
     if not reason_ref or ":" not in reason_ref:
         return None
     core, _, proxy = reason_ref.partition("|proxy:")
