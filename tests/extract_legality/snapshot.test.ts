@@ -242,6 +242,16 @@ describe("toId / effective_tags / merge", () => {
     const ls = extractLearnsets(table);
     assert.deepEqual(ls.garchomp, ["dragonclaw", "earthquake"]);
   });
+
+  it("extractLearnsets omits keys when learnset is undefined", () => {
+    const table = {
+      gourgeist: { learnset: { trickroom: ["9M"], protect: ["9M"] } },
+      gourgeistsuper: { /* no learnset field — cosmetic size forme */ },
+    };
+    const ls = extractLearnsets(table);
+    assert.deepEqual(ls.gourgeist, ["protect", "trickroom"]);
+    assert.equal("gourgeistsuper" in ls, false);
+  });
 });
 
 describe("committed champions.v1.json", () => {
