@@ -94,7 +94,7 @@ def _construct_redirection(
 
     move_ids = frozenset(to_id(m) for m in sub_criteria["move_ids"])
     ally_ids = frozenset(to_id(a) for a in sub_criteria.get("ally_reinforce_abilities") or [])
-    pool = _pool_index(legal_pool, snap)
+    pool = _pool_index(legal_pool, snap, regulation=uctx.regulation)
     pool_ids = set(pool)
     prior = _ref_members(reference_compendium)
     members: list[CandidateEval] = []
@@ -457,7 +457,7 @@ def _construct_trick_room_setter(
     )
 
     move_ids = frozenset(to_id(m) for m in sub_criteria["move_ids"])
-    pool = _pool_index(legal_pool, snap)
+    pool = _pool_index(legal_pool, snap, regulation=uctx.regulation)
     pool_ids = set(pool)
     prior = _ref_members(reference_compendium)
     members: list[CandidateEval] = []
@@ -745,7 +745,7 @@ def _construct_tailwind_setter(
     )
 
     move_ids = frozenset(to_id(m) for m in sub_criteria["move_ids"])
-    pool = _pool_index(legal_pool, snap)
+    pool = _pool_index(legal_pool, snap, regulation=uctx.regulation)
     pool_ids = set(pool)
     prior = _ref_members(reference_compendium)
     members: list[CandidateEval] = []
@@ -1060,7 +1060,7 @@ def _construct_screens_support(
     )
 
     move_ids = frozenset(to_id(m) for m in sub_criteria["move_ids"]) or _SCREENS_MOVE_IDS
-    pool = _pool_index(legal_pool, snap)
+    pool = _pool_index(legal_pool, snap, regulation=uctx.regulation)
     pool_ids = set(pool)
     prior = _ref_members(reference_compendium)
     members: list[CandidateEval] = []
@@ -1345,7 +1345,7 @@ def _construct_sleep_status_spreader(
     )
 
     delivery_ids = _sleep_delivery_ids(snap)
-    pool = _pool_index(legal_pool, snap)
+    pool = _pool_index(legal_pool, snap, regulation=uctx.regulation)
     pool_ids = set(pool)
     prior = _ref_members(reference_compendium)
     members: list[CandidateEval] = []

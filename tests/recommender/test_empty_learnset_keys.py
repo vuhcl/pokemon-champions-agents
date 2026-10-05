@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import subprocess
 from pathlib import Path
 
 from recommender.legality import check_set, load_snapshot, resolve_learnset
@@ -28,24 +27,18 @@ def test_snapshot_pinned_showdown_commit():
     assert snap["meta"]["source"]["commit"] == PINNED_SHOWDOWN_COMMIT
 
 
-def test_legality_learnsets_diff_only_five_omitted_keys():
-    """Regen vs origin/main: only the five empty-key formes leave learnsets."""
-    raw = subprocess.check_output(
-        ["git", "show", "origin/main:data/legality/champions.v1.json"],
-        cwd=ROOT,
-    )
-    old = json.loads(raw.decode())
-    new = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
-    old_ls = old.get("learnsets") or {}
-    new_ls = new.get("learnsets") or {}
-    removed = set(old_ls) - set(new_ls)
-    added = set(new_ls) - set(old_ls)
-    assert removed == OMITTED_EMPTY_LEARNSET_KEYS
-    assert added == set()
-    for sid in sorted(set(old_ls) & set(new_ls)):
-        assert old_ls[sid] == new_ls[sid], sid
-    assert new["meta"]["source"]["commit"] == PINNED_SHOWDOWN_COMMIT
-    assert old["meta"]["source"]["commit"] == PINNED_SHOWDOWN_COMMIT
+def test_learnsets_have_no_empty_lists_and_omitted_formes_absent():
+    """CI-safe invariants (no git show origin/main — shallow checkouts lack it).
+
+    One-time 'only these five keys changed vs pre-PR main' stays in the PR body.
+    """
+    snap = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+    learnsets = snap.get("learnsets") or {}
+    empty = sorted(sid for sid, moves in learnsets.items() if moves == [])
+    assert empty == [], empty
+    for sid in OMITTED_EMPTY_LEARNSET_KEYS:
+        assert sid not in learnsets
+    assert snap["meta"]["source"]["commit"] == PINNED_SHOWDOWN_COMMIT
 
 
 def test_omitted_formes_absent_and_resolve_to_base():

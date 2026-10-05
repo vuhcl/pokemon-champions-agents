@@ -26,7 +26,13 @@ def _best_move_set_pct(
     showdown_fetch: LiveFetch | None,
 ) -> float:
     """Max of CBD pct and Showdown set% for one move. Does not live-fetch."""
-    sid = to_id(name)
+    from recommender.forme_identity import canonical_usage_species_id
+    from recommender.legality import load_snapshot
+
+    snap = load_snapshot()
+    sid = canonical_usage_species_id(
+        snap, to_id(name), regulation=uctx.regulation
+    )
     ch = ingame_species_map(uctx.regulation).get(sid)
     if not isinstance(ch, dict):
         ch = uctx.cache.get(sid)  # already-fetched live CBD only
@@ -35,6 +41,7 @@ def _best_move_set_pct(
         cache=sd_cache,
         showdown_fetch=showdown_fetch,
         regulation=uctx.regulation,
+        snap=snap,
     )
     return max(_move_pct(ch if isinstance(ch, dict) else None, move_id), _move_pct(sd, move_id))
 
@@ -103,19 +110,51 @@ def _showdown_entry(
     cache: dict[str, dict[str, Any] | None],
     showdown_fetch: LiveFetch | None,
     regulation: str = "champions",
+    snap: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
-    sid = to_id(species)
+    from recommender.forme_identity import canonical_usage_species_id
+    from recommender.legality import load_snapshot
+
+    snap = snap or load_snapshot()
+    query_sid = to_id(species)
+    sid = canonical_usage_species_id(snap, query_sid, regulation=regulation)
     if sid in cache:
-        return cache[sid]
+        hit = cache[sid]
+        if hit is None:
+            return None
+        if query_sid == sid:
+            return hit
+        out = dict(hit)
+        out["forme_usage_collapsed_from"] = query_sid
+        out["forme_usage_canonical_id"] = sid
+        return out
     offline = showdown_species_map(regulation).get(sid)
     if isinstance(offline, dict):
         cache[sid] = offline
-        return offline
+        if query_sid == sid:
+            return offline
+        out = dict(offline)
+        out["forme_usage_collapsed_from"] = query_sid
+        out["forme_usage_canonical_id"] = sid
+        return out
     if showdown_fetch is None:
         cache[sid] = None
         return None
-    cache[sid] = showdown_fetch(species)
-    return cache[sid]
+    fetch_name = (
+        species
+        if sid == query_sid
+        else str((snap["species"].get(sid) or {}).get("name") or sid)
+    )
+    cache[sid] = showdown_fetch(fetch_name)
+    hit = cache[sid]
+    if hit is None:
+        return None
+    if query_sid == sid:
+        return hit
+    out = dict(hit)
+    out["forme_usage_collapsed_from"] = query_sid
+    out["forme_usage_canonical_id"] = sid
+    return out
 
 
 def _mega_pair_ids(sid: str, snap: dict[str, Any], pool_ids: set[str]) -> tuple[str, str] | None:
