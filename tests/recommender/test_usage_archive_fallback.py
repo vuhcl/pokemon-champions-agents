@@ -6,8 +6,13 @@ from pathlib import Path
 
 from recommender.usage_data import TEAM_COMP_DIR, USAGE_DIR, load_usage, load_vgcpastes_builds
 
-MC_PATH = USAGE_DIR / "champions-reg-mc.v1.json"
+MC_INGAME_PATH = USAGE_DIR / "champions-reg-mc.ingame_doubles.v1.json"
+MC_SHOWDOWN_PATH = USAGE_DIR / "champions-reg-mc.showdown_doubles.v1.json"
 MC_PASTES_PATH = TEAM_COMP_DIR / "champions-reg-mc.vgcpastes-builds.v1.json"
+
+
+def _mc_usage_present() -> bool:
+    return MC_INGAME_PATH.exists() or MC_SHOWDOWN_PATH.exists()
 
 
 def test_load_usage_prefers_mc_file_when_present():
@@ -17,7 +22,7 @@ def test_load_usage_prefers_mc_file_when_present():
     current_mod = load_usage("champions")
     mb_n = len(mb.get("species") or {})
     assert mb_n > 0
-    if MC_PATH.exists():
+    if _mc_usage_present():
         assert (mc_tag.get("meta") or {}).get("regulation") == "champions-reg-mc"
         assert len(mc_tag.get("species") or {}) > 0
         # Real M-C snapshot — not an archive alias of M-B.
@@ -35,7 +40,7 @@ def test_load_usage_prefers_mc_file_when_present():
 
 
 def test_load_usage_falls_back_to_mb_when_mc_missing(tmp_path: Path, monkeypatch):
-    """With MC file absent from the usage dir, MC tags archive-fall to MB."""
+    """With MC files absent from the usage dir, MC tags archive-fall to MB."""
     import recommender.usage_data as ud
 
     mb_src = USAGE_DIR / "champions-reg-mb.v1.json"
@@ -43,7 +48,7 @@ def test_load_usage_falls_back_to_mb_when_mc_missing(tmp_path: Path, monkeypatch
     fake = tmp_path / "usage"
     fake.mkdir()
     (fake / "champions-reg-mb.v1.json").write_bytes(mb_src.read_bytes())
-    # Intentionally no champions-reg-mc.v1.json
+    # Intentionally no champions-reg-mc per-source or monolith files
     monkeypatch.setattr(ud, "USAGE_DIR", fake)
     ud.load_usage.cache_clear()
     mb = ud.load_usage("champions-reg-mb")

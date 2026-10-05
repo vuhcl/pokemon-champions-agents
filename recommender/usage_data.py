@@ -13,10 +13,13 @@ from typing import Any, Literal, NotRequired, TypedDict
 
 from recommender.ids import regulation_file_tag, regulation_lookup_chain, to_id
 from recommender.legality import load_snapshot as load_legality_snapshot
+from recommender.regulation_registry import REGULATIONS
 from recommender.usage_ingame_sanity import ingame_monotonic_tail_corrupt
 from recommender.species_forms import ingame_excluded_species_ids, item_mega_forme
 from recommender.sp_convert import evs_to_sp
 from recommender.state import PokemonSet, StatsTable
+from recommender.usage_split import assemble_from_split, normalize_monolith
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 USAGE_DIR = REPO_ROOT / "data" / "usage"
@@ -59,12 +62,69 @@ def _archived_data_path(regulation: str, filename: str, *, root: Path) -> Path |
     return None
 
 
+def _empty_usage() -> dict[str, Any]:
+    return {
+        "meta": {},
+        "species": {},
+        "ingame_doubles": {"species": {}},
+        "showdown_doubles": {"species": {}},
+        "showdown_singles": {"species": {}},
+    }
+
+
+def _showdown_section(snap: dict[str, Any]) -> dict[str, Any]:
+    """Prefer showdown_doubles; accept legacy showdown_vgc_mb on raw snaps."""
+    return snap.get("showdown_doubles") or snap.get("showdown_vgc_mb") or {"species": {}}
+
+
+def _load_usage_uncached(regulation: str, *, usage_dir: Path) -> dict[str, Any]:
+    for tag in regulation_lookup_chain(regulation):
+        ingame_p = usage_dir / f"{tag}.ingame_doubles.v1.json"
+        showdown_p = usage_dir / f"{tag}.showdown_doubles.v1.json"
+        mono_p = usage_dir / f"{tag}.v1.json"
+        if ingame_p.exists() or showdown_p.exists():
+            ingame_file = (
+                json.loads(ingame_p.read_text(encoding="utf-8"))
+                if ingame_p.exists()
+                else None
+            )
+            showdown_file = (
+                json.loads(showdown_p.read_text(encoding="utf-8"))
+                if showdown_p.exists()
+                else None
+            )
+            return assemble_from_split(ingame_file, showdown_file)
+        if mono_p.exists():
+            return normalize_monolith(json.loads(mono_p.read_text(encoding="utf-8")))
+    return _empty_usage()
+
+
 @lru_cache(maxsize=4)
 def load_usage(regulation: str = "champions-reg-mb") -> dict[str, Any]:
-    path = _archived_data_path(regulation, "{tag}.v1.json", root=USAGE_DIR)
-    if path is None:
-        return {"meta": {}, "species": {}, "ingame_doubles": {"species": {}}, "showdown_vgc_mb": {"species": {}}}
-    return json.loads(path.read_text())
+    return _load_usage_uncached(regulation, usage_dir=USAGE_DIR)
+
+
+def showdown_ready(regulation: str) -> bool:
+    """Showdown integrity predicate (distinct from regulation_ready).
+
+    Integrity-only: format id match, nonempty month, nonempty species.
+    Battles/DROP_RATIO vs prior month is for full-overlap months (B5).
+    """
+    tag = regulation_file_tag(regulation)
+    expected = (REGULATIONS.get(tag) or {}).get("showdown_format")
+    if not expected:
+        return False
+    snap = load_usage(regulation)
+    meta = snap.get("meta") or {}
+    species = (_showdown_section(snap).get("species")) or {}
+    month = meta.get("showdown_month")
+    return (
+        isinstance(species, dict)
+        and len(species) >= 1
+        and meta.get("showdown_format") == expected
+        and isinstance(month, str)
+        and bool(month.strip())
+    )
 
 
 def species_usage(species: str, *, regulation: str = "champions-reg-mb") -> dict[str, Any] | None:
@@ -80,7 +140,7 @@ def build_synthesis_usage_entry(
     ing = ingame_species_map(regulation).get(sid)
     if ing:
         snap = load_usage(regulation)
-        sd = ((snap.get("showdown_vgc_mb") or {}).get("species") or {}).get(sid)
+        sd = (_showdown_section(snap).get("species") or {}).get(sid)
         if sd and ingame_monotonic_tail_corrupt(ing, sd):
             return species_usage(species, regulation=regulation)
         return ing
@@ -112,7 +172,7 @@ def ingame_species_map(regulation: str = "champions-reg-mb") -> dict[str, Any]:
 
 def showdown_species_map(regulation: str = "champions-reg-mb") -> dict[str, Any]:
     snap = load_usage(regulation)
-    return (snap.get("showdown_vgc_mb") or {}).get("species") or {}
+    return (_showdown_section(snap).get("species")) or {}
 
 
 def _spread_from_usage(entry: dict[str, Any]) -> StatsTable | None:

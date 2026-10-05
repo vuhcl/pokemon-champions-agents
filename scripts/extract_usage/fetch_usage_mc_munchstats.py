@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Build champions-reg-mc.v1.json from MunchStats champions-data (raw GitHub).
+"""Build champions-reg-mc.ingame_doubles.v1.json from MunchStats champions-data.
+
+Showdown half is a separate per-source file (graft / monthly rollover). This
+writer never touches Showdown data.
 
     uv run python -m scripts.extract_usage.fetch_usage_mc_munchstats
-    uv run python -m scripts.extract_usage.fetch_usage_mc_munchstats --out /tmp/mc.json --dry-validate
+    uv run python -m scripts.extract_usage.fetch_usage_mc_munchstats --out /tmp/mc.ingame.json --dry-validate
 """
 
 from __future__ import annotations
@@ -21,12 +24,15 @@ from typing import Any, Callable
 
 from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot
+from recommender.regulation_registry import REGULATIONS
 from recommender.usage_cbd import pct_rows, spreads_from_rows
-from scripts.extract_usage.fetch_usage_mb import merge_species_flat
+from recommender.usage_split import SCHEMA_VERSION
+
 
 ROOT = Path(__file__).resolve().parents[2]
 USAGE_DIR = ROOT / "data" / "usage"
-DEFAULT_OUT = USAGE_DIR / "champions-reg-mc.v1.json"
+DEFAULT_OUT = USAGE_DIR / "champions-reg-mc.ingame_doubles.v1.json"
+REGULATION_TAG = "champions-reg-mc"
 
 INDEX_URL = (
     "https://raw.githubusercontent.com/PizzaTimeJoshua/munchstats/"
@@ -47,26 +53,8 @@ PARTIAL_OK_RATIO = 0.95
 MAX_WORKERS = 5
 TIMEOUT_S = 30.0
 
-# TEMPORARY: deleted when per-source files land; a new regulation's first weeks
-# have no Showdown data by design.
-# Measured 2026-09 Smogon chaos gen9championsvgc2026regmc@1500: 316 species,
-# 1_631_943 battles → floors int(n * DROP_RATIO).
-EXPECTED_SHOWDOWN_FORMAT = "gen9championsvgc2026regmc"
-SHOWDOWN_FORMAT_ALLOWLIST = frozenset({EXPECTED_SHOWDOWN_FORMAT})
-SHOWDOWN_SPECIES_FLOOR = int(316 * DROP_RATIO)  # 284
-SHOWDOWN_BATTLES_FLOOR = int(1_631_943 * DROP_RATIO)  # 1_468_748
-_SHOWDOWN_META_KEYS = (
-    "showdown_rating",
-    "showdown_format",
-    "showdown_month",
-    "showdown_source",
-    "showdown_pct_kind",
-    "showdown_move_limit",
-    "showdown_battles",
-    "showdown_teammates_extracted_at",
-    "showdown_teammates",
-    "showdown_extracted_at",
-)
+# Exact Bo1 VGC chaos format id from the regulation registry (rejects bo3, OU, …).
+EXPECTED_SHOWDOWN_FORMAT = REGULATIONS[REGULATION_TAG]["showdown_format"]
 
 JsonFetch = Callable[[str], dict[str, Any] | None]
 
@@ -297,10 +285,13 @@ def build_snapshot(
     *,
     previous: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    """Ingame-only per-source file (schema v4). ``previous`` unused for Showdown."""
+    del previous  # Showdown lives in a separate file; no preserve-on-write.
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     meta: dict[str, Any] = {
-        "schema_version": 3,
-        "regulation": "champions-reg-mc",
+        "schema_version": SCHEMA_VERSION,
+        "regulation": REGULATION_TAG,
+        "section": "ingame_doubles",
         "extracted_at": now,
         "ingame_doubles_extracted_at": now,
         "ingame_ladder_n": len(ingame),
@@ -315,41 +306,13 @@ def build_snapshot(
         "attribution": (
             "In-game doubles: MunchStats champions-data branch "
             "(OCR capture via raw.githubusercontent.com). "
-            "Showdown chaos half empty until an M-C source exists."
+            "Showdown VGC: separate *.showdown_doubles.v1.json (Smogon chaos)."
         ),
         "sources": [SOURCE],
     }
-    prev_meta = (previous or {}).get("meta") or {}
-    prev_sd = ((previous or {}).get("showdown_vgc_mb") or {}).get("species") or {}
-    preserve = (
-        isinstance(prev_sd, dict)
-        and len(prev_sd) > 0
-        and prev_meta.get("showdown_format") == EXPECTED_SHOWDOWN_FORMAT
-    )
-    if preserve:
-        showdown_section: dict[str, Any] = {
-            "species": {sid: dict(row) for sid, row in prev_sd.items()}
-        }
-        for k in _SHOWDOWN_META_KEYS:
-            if k in prev_meta:
-                meta[k] = prev_meta[k]
-        meta["attribution"] = (
-            "In-game doubles: MunchStats champions-data branch "
-            "(OCR capture via raw.githubusercontent.com). "
-            "Showdown VGC: Smogon chaos stats (set% = weight / Raw count; "
-            "no move/item cap)."
-        )
-        sources = list(meta.get("sources") or [])
-        if "smogon-chaos" not in sources:
-            sources.append("smogon-chaos")
-        meta["sources"] = sources
-    else:
-        showdown_section = {"species": {}}
     return {
         "meta": meta,
         "ingame_doubles": {"species": ingame},
-        "showdown_vgc_mb": showdown_section,
-        "species": merge_species_flat(ingame, showdown_section["species"]),
     }
 
 
@@ -366,34 +329,6 @@ def parse_generated_at(value: Any) -> datetime | None:
     return dt
 
 
-def _validate_showdown_half(snap: dict[str, Any]) -> str | None:
-    """Return fail reason or None if Showdown half is acceptable."""
-    if "showdown_vgc_mb" not in snap:
-        return "showdown_vgc_mb missing"
-    meta = snap.get("meta") or {}
-    sd = (snap.get("showdown_vgc_mb") or {}).get("species") or {}
-    if not isinstance(sd, dict):
-        return "showdown_vgc_mb.species missing"
-    if meta.get("showdown_format") != EXPECTED_SHOWDOWN_FORMAT:
-        return (
-            f"showdown_format {meta.get('showdown_format')!r} "
-            f"!= {EXPECTED_SHOWDOWN_FORMAT!r}"
-        )
-    month = meta.get("showdown_month")
-    if not isinstance(month, str) or not month.strip():
-        return "showdown_month missing"
-    n = len(sd)
-    if n < SHOWDOWN_SPECIES_FLOOR:
-        return f"showdown species {n} < floor {SHOWDOWN_SPECIES_FLOOR}"
-    try:
-        battles = int(meta.get("showdown_battles") or 0)
-    except (TypeError, ValueError):
-        battles = 0
-    if battles < SHOWDOWN_BATTLES_FLOOR:
-        return f"showdown battles {battles} < floor {SHOWDOWN_BATTLES_FLOOR}"
-    return None
-
-
 def validate_snapshot(
     snap: dict[str, Any],
     *,
@@ -401,16 +336,19 @@ def validate_snapshot(
     stats: dict[str, Any],
     previous: dict[str, Any] | None = None,
 ) -> tuple[str, str]:
-    """Return (decision, reason). decision in {ok, noop, fail}."""
+    """Return (decision, reason). decision in {ok, noop, fail}.
+
+    Validates the ingame per-source file only. Empty/missing Showdown is not
+    a failure here (see ``showdown_ready`` / graft / monthly rollover).
+    """
     meta = snap.get("meta") or {}
     species = (snap.get("ingame_doubles") or {}).get("species") or {}
     if not isinstance(species, dict):
         return "fail", "ingame_doubles.species missing"
-    required_top = {"meta", "ingame_doubles", "showdown_vgc_mb", "species"}
-    if not required_top.issubset(snap):
+    if not {"meta", "ingame_doubles"}.issubset(snap):
         return "fail", "schema top-level keys missing"
-    if meta.get("schema_version") != 3:
-        return "fail", "schema_version != 3"
+    if meta.get("schema_version") != SCHEMA_VERSION:
+        return "fail", f"schema_version != {SCHEMA_VERSION}"
 
     for sid, row in species.items():
         if not isinstance(row, dict):
@@ -428,10 +366,6 @@ def validate_snapshot(
         ):
             if k not in row:
                 return "fail", f"species {sid} missing {k}"
-
-    sd_fail = _validate_showdown_half(snap)
-    if sd_fail is not None:
-        return "fail", sd_fail
 
     new_gen = parse_generated_at(meta.get("munchstats_generated_at") or index.get("generatedAt"))
     if new_gen is None:

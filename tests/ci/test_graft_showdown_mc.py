@@ -1,4 +1,4 @@
-"""Unit tests for M-C Showdown graft (allowlist + idempotence; no network)."""
+"""Unit tests for M-C Showdown graft (registry Bo1 guard + idempotence; no network)."""
 
 from __future__ import annotations
 
@@ -12,8 +12,6 @@ import pytest
 from scripts.extract_usage.fetch_usage_mb import showdown_teammates_descriptor
 from scripts.extract_usage.fetch_usage_mc_munchstats import (
     EXPECTED_SHOWDOWN_FORMAT,
-    SHOWDOWN_BATTLES_FLOOR,
-    SHOWDOWN_SPECIES_FLOOR,
     SOURCE,
 )
 from scripts.extract_usage import graft_showdown_mc as graft_mod
@@ -34,39 +32,22 @@ def _species_row(sid: str, *, source: str = "smogon-chaos") -> dict[str, Any]:
     }
 
 
-def _floor_showdown() -> dict[str, dict[str, Any]]:
-    return {f"p{i}": _species_row(f"p{i}") for i in range(SHOWDOWN_SPECIES_FLOOR)}
+def _showdown(n: int = 3) -> dict[str, dict[str, Any]]:
+    return {f"p{i}": _species_row(f"p{i}") for i in range(n)}
 
 
 def _base(*, showdown: dict | None = None, meta_extra: dict | None = None) -> dict[str, Any]:
     meta = {
-        "schema_version": 3,
+        "schema_version": 4,
         "regulation": "champions-reg-mc",
-        "munchstats_generated_at": "2026-09-10T00:00:00+00:00",
-        "extracted_at": "2026-09-23T19:09:09Z",
-        "sources": [SOURCE],
+        "section": "showdown_doubles",
+        "sources": ["smogon-chaos"],
     }
     if meta_extra:
         meta.update(meta_extra)
     return {
         "meta": meta,
-        "ingame_doubles": {
-            "species": {
-                "rillaboom": {
-                    "id": "rillaboom",
-                    "name": "Rillaboom",
-                    "common_moves": [],
-                    "common_items": [],
-                    "common_abilities": [],
-                    "teammates": [],
-                    "top_spreads": [],
-                    "featured_sets": [],
-                    "source": SOURCE,
-                }
-            }
-        },
-        "showdown_vgc_mb": {"species": showdown or {}},
-        "species": {},
+        "showdown_doubles": {"species": showdown or {}},
     }
 
 
@@ -77,10 +58,11 @@ def _base(*, showdown: dict | None = None, meta_extra: dict | None = None) -> di
         "gen9championsou",
         "gen9championsuu",
         "gen9championsbssregmc",
+        "gen9championsvgc2026regmb",
     ],
 )
-def test_graft_rejects_unlisted_format_ids(format_id: str):
-    with pytest.raises(ValueError, match="not in SHOWDOWN_FORMAT_ALLOWLIST"):
+def test_graft_rejects_non_registry_bo1_format_ids(format_id: str):
+    with pytest.raises(ValueError, match="registry Bo1 VGC|bo3"):
         graft_mod._assert_format_allowed(format_id)
 
 
@@ -97,14 +79,23 @@ def test_systemexit_becomes_runtimeerror():
             graft_mod._fetch_chaos("2026-09", EXPECTED_SHOWDOWN_FORMAT, 1500)
 
 
-def test_graft_meta_uses_injected_clock_not_base_extracted_at():
+def test_graft_rejects_empty_showdown():
+    with pytest.raises(ValueError, match="empty"):
+        graft_mod.graft(
+            showdown={},
+            info={"number of battles": 1},
+            month="2026-09",
+            format_id=EXPECTED_SHOWDOWN_FORMAT,
+            rating=1500,
+        )
+
+
+def test_graft_meta_uses_injected_clock():
     clock = "2026-10-04T01:55:00Z"
-    base = _base()
-    showdown = _floor_showdown()
+    showdown = _showdown()
     out = graft_mod.graft(
-        base=base,
         showdown=showdown,
-        info={"number of battles": SHOWDOWN_BATTLES_FLOOR},
+        info={"number of battles": 100},
         month="2026-09",
         format_id=EXPECTED_SHOWDOWN_FORMAT,
         rating=1500,
@@ -113,13 +104,14 @@ def test_graft_meta_uses_injected_clock_not_base_extracted_at():
     meta = out["meta"]
     assert meta["showdown_extracted_at"] == clock
     assert meta["showdown_teammates_extracted_at"] == clock
-    assert meta["showdown_extracted_at"] != base["meta"]["extracted_at"]
     assert meta["showdown_teammates"] == showdown_teammates_descriptor()
+    assert meta["schema_version"] == 4
+    assert set(out) == {"meta", "showdown_doubles"}
 
 
 def test_idempotent_main_skips_write(tmp_path: Path):
-    showdown = _floor_showdown()
-    battles = SHOWDOWN_BATTLES_FLOOR
+    showdown = _showdown()
+    battles = 42
     base = _base(
         showdown=showdown,
         meta_extra={
@@ -130,7 +122,7 @@ def test_idempotent_main_skips_write(tmp_path: Path):
             "showdown_source": "smogon-chaos",
         },
     )
-    out = tmp_path / "mc.json"
+    out = tmp_path / "mc.showdown_doubles.v1.json"
     out.write_text(json.dumps(base) + "\n", encoding="utf-8")
     before = out.read_text(encoding="utf-8")
 
@@ -145,8 +137,8 @@ def test_idempotent_main_skips_write(tmp_path: Path):
 
 
 def test_force_rewrites_when_idempotent_key_matches(tmp_path: Path):
-    showdown = _floor_showdown()
-    battles = SHOWDOWN_BATTLES_FLOOR
+    showdown = _showdown()
+    battles = 42
     base = _base(
         showdown=showdown,
         meta_extra={
@@ -158,7 +150,7 @@ def test_force_rewrites_when_idempotent_key_matches(tmp_path: Path):
             "showdown_extracted_at": "2026-09-23T19:09:09Z",
         },
     )
-    out = tmp_path / "mc.json"
+    out = tmp_path / "mc.showdown_doubles.v1.json"
     out.write_text(json.dumps(base) + "\n", encoding="utf-8")
     before = out.read_text(encoding="utf-8")
 
@@ -173,8 +165,25 @@ def test_force_rewrites_when_idempotent_key_matches(tmp_path: Path):
     assert after != before
     meta = json.loads(after)["meta"]
     assert meta["showdown_extracted_at"] == "2026-10-04T02:00:00Z"
-    assert meta["showdown_teammates_extracted_at"] == "2026-10-04T02:00:00Z"
-    assert meta["showdown_teammates"] == showdown_teammates_descriptor()
+
+
+def test_nov1_manual_command_2026_10_force(tmp_path: Path):
+    """Exact Nov-1 runbook: --month 2026-10 --force (tmp fixtures, no network)."""
+    showdown = _showdown(5)
+    out = tmp_path / "champions-reg-mc.showdown_doubles.v1.json"
+    with patch.object(
+        graft_mod,
+        "extract_showdown_chaos",
+        return_value=(showdown, {"number of battles": 999}),
+    ), patch.object(graft_mod, "_utc_now_z", return_value="2026-11-01T12:00:00Z"):
+        rc = graft_mod.main(
+            ["--month", "2026-10", "--force", "--out", str(out)]
+        )
+    assert rc == 0
+    written = json.loads(out.read_text(encoding="utf-8"))
+    assert written["meta"]["showdown_month"] == "2026-10"
+    assert written["meta"]["showdown_format"] == EXPECTED_SHOWDOWN_FORMAT
+    assert len(written["showdown_doubles"]["species"]) == 5
 
 
 def test_main_rejects_unlisted_via_cli(tmp_path: Path):
@@ -182,5 +191,21 @@ def test_main_rejects_unlisted_via_cli(tmp_path: Path):
     out.write_text(json.dumps(_base()) + "\n", encoding="utf-8")
     rc = graft_mod.main(
         ["--month", "2026-09", "--format", "gen9championsou", "--out", str(out)]
+    )
+    assert rc == 2
+
+
+def test_main_rejects_bo3_via_cli(tmp_path: Path):
+    out = tmp_path / "mc.json"
+    out.write_text(json.dumps(_base()) + "\n", encoding="utf-8")
+    rc = graft_mod.main(
+        [
+            "--month",
+            "2026-09",
+            "--format",
+            "gen9championsvgc2026regmcbo3",
+            "--out",
+            str(out),
+        ]
     )
     assert rc == 2
