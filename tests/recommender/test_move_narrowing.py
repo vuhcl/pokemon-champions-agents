@@ -296,7 +296,7 @@ def test_redundancy_pelipper_rain_dance_fails():
 
 
 def test_pick_default_and_alternatives():
-    pick = pick_default_and_alternatives(["A", "B", "C", "D"])
+    pick = pick_default_and_alternatives(["A", "B", "C", "D"], regulation="champions")
     assert pick["default"] == "A"
     assert pick["alternatives"] == ["B", "C"]
 
@@ -312,6 +312,7 @@ def test_pick_default_and_alternatives_prefers_non_redundant_tier():
     pick = pick_default_and_alternatives(
         ["Staraptor", "Altaria", "Garchomp"],
         redundancy_tier={"Staraptor": 2, "Altaria": 2, "Garchomp": 0},
+        regulation="champions",
     )
     assert pick["default"] == "Staraptor"  # unchanged -- strongest overall pick
     assert pick["alternatives"] == ["Garchomp", "Altaria"]  # reordered, not dropped
@@ -322,8 +323,8 @@ def test_pick_default_and_alternatives_never_leaves_a_slot_empty():
     slots still get filled rather than left empty -- redundancy is a
     preference, not an exclusion."""
     pick = pick_default_and_alternatives(
-        ["A", "B", "C"], redundancy_tier={"B": 2, "C": 2}
-    )
+        ["A", "B", "C"], redundancy_tier={"B": 2, "C": 2},
+    regulation="champions")
     assert pick["alternatives"] == ["B", "C"]
 
 

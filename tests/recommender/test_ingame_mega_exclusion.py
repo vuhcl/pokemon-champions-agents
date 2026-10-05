@@ -67,11 +67,11 @@ def test_ingame_species_map_keeps_non_mega_species():
 
 
 def test_set_from_ingame_none_for_mega_capable():
-    assert set_from_ingame("Charizard") is None
+    assert set_from_ingame("Charizard", regulation="champions") is None
 
 
 def test_set_from_showdown_works_for_mega_forme():
-    assert set_from_showdown("Charizard-Mega-Y") is not None
+    assert set_from_showdown("Charizard-Mega-Y", regulation="champions") is not None
 
 
 def test_commitment_pct_none_for_excluded_species():

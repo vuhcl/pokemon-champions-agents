@@ -99,8 +99,8 @@ def test_sableye_pelipper_keeps_rain_dance_with_provider():
         return_value=_inline_pastes(),
     ):
         hit = find_team_conditioned_build(
-            "Sableye", frozenset({"pelipper"}), min_occurrences=3
-        )
+            "Sableye", frozenset({"pelipper"}), min_occurrences=3,
+        regulation="champions")
     assert hit is not None
     assert "Rain Dance" in hit["moves"]
 
@@ -130,8 +130,8 @@ def test_whimsicott_staraptor_conditioned_includes_charm():
         return_value=_whims_staraptor_pastes(),
     ):
         hit = find_team_conditioned_build(
-            "Whimsicott", frozenset({"staraptor"}), min_occurrences=3
-        )
+            "Whimsicott", frozenset({"staraptor"}), min_occurrences=3,
+        regulation="champions")
     assert hit is not None
     assert "Charm" in hit["moves"]
 
@@ -166,7 +166,7 @@ def test_transcript_five_lock_quartet_matches_basculegion():
     draft = [_slot(sp, moves=mv) for sp, mv in rows]
     draft.append(empty_slot())
     locked = locked_teammate_ids_for_pastes(draft, exclude_species="Basculegion")
-    hit = find_team_conditioned_build("Basculegion", locked, min_occurrences=3)
+    hit = find_team_conditioned_build("Basculegion", locked, min_occurrences=3, regulation="champions")
     assert hit is not None
     assert hit["occurrence_count"] >= 3
     assert hit["match_tier"] in ("triple", "pair")
@@ -176,10 +176,10 @@ def test_pair_tier_relaxation_when_triple_thin():
     _clear_pastes_cache()
     locked = frozenset({"pelipper", "sinistcha", "swampert"})
     thin = find_team_conditioned_build(
-        "Basculegion", locked, min_occurrences=100
-    )
+        "Basculegion", locked, min_occurrences=100,
+    regulation="champions")
     assert thin is None
     pair = find_team_conditioned_build(
-        "Basculegion", frozenset({"pelipper"}), min_occurrences=1
-    )
+        "Basculegion", frozenset({"pelipper"}), min_occurrences=1,
+    regulation="champions")
     assert pair is not None

@@ -29,10 +29,11 @@ def test_confirmed_fields_win_and_fingerprint_tracks_confirmation():
         ability=Attr("Keen Eye", locked=True),
         item=Attr("Leftovers", locked=True),
     )
-    confirmed = resolve_anchor_build(slot)
+    confirmed = resolve_anchor_build(slot, regulation="champions")
     provisional = resolve_anchor_build(
         Slot(species=Attr("Pelipper")),
         provisional={"ability": "Keen Eye", "item": "Leftovers"},
+        regulation="champions",
     )
     assert confirmed.ability == "Keen Eye"
     assert confirmed.source_for("ability") == "user_confirmed"
@@ -40,13 +41,13 @@ def test_confirmed_fields_win_and_fingerprint_tracks_confirmation():
 
 
 def test_representative_fields_do_not_claim_cooccurrence():
-    build = resolve_anchor_build("Kingambit")
+    build = resolve_anchor_build("Kingambit", regulation="champions")
     assert build.source_for("moves") == "usage_derived"
     assert all(p.cooccurrence_group is None for p in build.provenance)
 
 
 def test_kingambit_trick_room_sweeper_still_teammate_expected_dependent():
-    build = resolve_anchor_build("Kingambit")
+    build = resolve_anchor_build("Kingambit", regulation="champions")
     decision = classify_anchor_role(build, user_role="trick_room_sweeper")
     assert decision.role_id == "trick_room_sweeper"
     assert decision.kit_role == "standard_physical_attacker"
@@ -58,7 +59,7 @@ def test_kingambit_trick_room_sweeper_still_teammate_expected_dependent():
     assert trick.supply == "teammate_expected"
     assert trick.present is False
     assert "condition:Trick Room" in trick.evidence
-    categories = {need.category for need in query_support_needs(build.as_pokemon(), shape)}
+    categories = {need.category for need in query_support_needs(build.as_pokemon(), shape, regulation="champions")}
     assert "fake_out_protection" not in categories
     assert "taunt_disruption" not in categories
     # Offense/setup shapes may emit redirection; Kingambit TR sweeper is setup-shaped.
@@ -66,7 +67,7 @@ def test_kingambit_trick_room_sweeper_still_teammate_expected_dependent():
 
 def test_archaludon_electro_shot_emits_needed_rain_benefit():
     decision = classify_anchor_role(
-        resolve_anchor_build("Archaludon"), user_role="bulky_rain_attacker"
+        resolve_anchor_build("Archaludon", regulation="champions"), user_role="bulky_rain_attacker"
     )
     assert decision.role_id == "bulky_rain_attacker"
     assert decision.match_quality == "clean"
@@ -87,7 +88,7 @@ def test_archaludon_electro_shot_emits_needed_rain_benefit():
 
 
 def test_pelipper_primary_rain_secondary_tailwind_without_setup():
-    decision = classify_anchor_role(resolve_anchor_build("Pelipper"))
+    decision = classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))
     drizzle = next(m for m in decision.mechanisms if m.mechanic == "Drizzle")
     tailwind = next(m for m in decision.mechanisms if m.mechanic == "Tailwind")
     roles = {decision.role_id, *decision.secondary_role_ids}
@@ -104,16 +105,16 @@ def test_pelipper_primary_rain_secondary_tailwind_without_setup():
 
 def test_provided_weather_conditions_ignore_tailwind_and_trick_room():
     assert provided_weather_conditions(
-        classify_anchor_role(resolve_anchor_build("Whimsicott"))
+        classify_anchor_role(resolve_anchor_build("Whimsicott", regulation="champions"))
     ) == ()
     assert provided_weather_conditions(
-        classify_anchor_role(resolve_anchor_build("Torkoal"))
+        classify_anchor_role(resolve_anchor_build("Torkoal", regulation="champions"))
     ) == ("Sun",)
     assert provided_weather_conditions(
-        classify_anchor_role(resolve_anchor_build("Tyranitar"))
+        classify_anchor_role(resolve_anchor_build("Tyranitar", regulation="champions"))
     ) == ("Sand",)
     assert provided_weather_conditions(
-        classify_anchor_role(resolve_anchor_build("Ninetales-Alola"))
+        classify_anchor_role(resolve_anchor_build("Ninetales-Alola", regulation="champions"))
     ) == ("Snow",)
 
 
@@ -143,14 +144,14 @@ def test_unknown_ability_makes_no_ability_claim(monkeypatch):
     monkeypatch.setattr(
         "recommender.anchor_roles.get_writeup_kit", lambda *a, **k: None
     )
-    build = resolve_anchor_build("Pelipper")
+    build = resolve_anchor_build("Pelipper", regulation="champions")
     decision = classify_anchor_role(build)
     assert build.ability is None
     assert not any(m.kind in {"automatic_condition_setting", "reactive_durability"} for m in decision.mechanisms)
 
 
 def test_role_shape_context_is_only_the_projection():
-    assert {f.name for f in fields(derive_role_shape_context(classify_anchor_role(resolve_anchor_build("Pelipper"))))} == {
+    assert {f.name for f in fields(derive_role_shape_context(classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))))} == {
         "primary_function",
         "tankiness",
         "requires_setup_turn",
@@ -188,7 +189,7 @@ def _empty_compendium():
 
 def test_synthesized_drizzle_does_not_claim_present_rain(monkeypatch):
     _mock_no_usage(monkeypatch)
-    build = resolve_anchor_build("Pelipper", synthesized={"ability": "Drizzle"})
+    build = resolve_anchor_build("Pelipper", synthesized={"ability": "Drizzle"}, regulation="champions")
     assert build.source_for("ability") == "synthesized"
     decision = classify_anchor_role(build, compendium=_empty_compendium())
     assert not any(
@@ -202,7 +203,7 @@ def test_synthesized_drizzle_does_not_claim_present_rain(monkeypatch):
 
 def test_provisional_drizzle_does_not_claim_present_rain(monkeypatch):
     _mock_no_usage(monkeypatch)
-    build = resolve_anchor_build("Pelipper", provisional={"ability": "Drizzle"})
+    build = resolve_anchor_build("Pelipper", provisional={"ability": "Drizzle"}, regulation="champions")
     assert build.source_for("ability") == "provisional"
     decision = classify_anchor_role(build, compendium=_empty_compendium())
     assert not any(
@@ -215,7 +216,7 @@ def test_provisional_drizzle_does_not_claim_present_rain(monkeypatch):
 def test_mimikyu_unique_ability_is_legality_only():
     """Unique legal ability is legality_only when usage does not supply one."""
     with patch("recommender.anchor_roles.featured_or_common_set", return_value=None):
-        build = resolve_anchor_build("Mimikyu")
+        build = resolve_anchor_build("Mimikyu", regulation="champions")
     assert build.ability == "Disguise"
     assert build.source_for("ability") == "legality_only"
 
@@ -230,7 +231,7 @@ def test_slot_legality_only_reason_maps_to_field_provenance():
         ),
     )
     with patch("recommender.anchor_roles.featured_or_common_set", return_value=None):
-        build = resolve_anchor_build(slot)
+        build = resolve_anchor_build(slot, regulation="champions")
     assert build.source_for("ability") == "legality_only"
 
 
@@ -244,7 +245,7 @@ def test_slot_usage_reason_maps_to_usage_derived():
         ),
     )
     with patch("recommender.anchor_roles.featured_or_common_set", return_value=None):
-        build = resolve_anchor_build(slot)
+        build = resolve_anchor_build(slot, regulation="champions")
     assert build.source_for("ability") == "usage_derived"
     assert build.confirmed("ability") is False
 
@@ -264,7 +265,7 @@ def _locked_decision(
         slot_kw["item"] = Attr(item, locked=True)
     if ability is not None:
         slot_kw["ability"] = Attr(ability, locked=True)
-    return classify_anchor_role(resolve_anchor_build(Slot(**slot_kw)))
+    return classify_anchor_role(resolve_anchor_build(Slot(**slot_kw), regulation="champions"))
 
 
 def _screens_row(decision):
@@ -355,7 +356,7 @@ def test_incidental_light_screen_attacker_is_not_screens_primary():
 
 
 def test_pelipper_rain_tailwind_unchanged_with_screens_emission():
-    decision = classify_anchor_role(resolve_anchor_build("Pelipper"))
+    decision = classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))
     roles = {decision.role_id, *decision.secondary_role_ids}
     assert roles >= {"rain_setter", "tailwind_setter"}
     assert not any(m.kind == "screens" for m in decision.mechanisms)
@@ -372,14 +373,14 @@ def _tr_benefits(decision):
 
 def test_hindering_natures_emit_wanted_trick_room():
     assert not (_SPEED_PLUS & _SPEED_MINUS)
-    adamant = classify_anchor_role(resolve_anchor_build("Kingambit"))
+    adamant = classify_anchor_role(resolve_anchor_build("Kingambit", regulation="champions"))
     assert _tr_benefits(adamant) == []
     none_nature = classify_anchor_role(
-        replace(resolve_anchor_build("Kingambit"), nature=None)
+        replace(resolve_anchor_build("Kingambit", regulation="champions"), nature=None)
     )
     assert _tr_benefits(none_nature) == []
     for nature in ("Brave", "Quiet", "Relaxed", "Sassy"):
-        build = replace(resolve_anchor_build("Kingambit"), nature=nature)
+        build = replace(resolve_anchor_build("Kingambit", regulation="champions"), nature=nature)
         rows = _tr_benefits(classify_anchor_role(build))
         assert len(rows) == 1
         assert rows[0].importance == "wanted"
@@ -388,14 +389,14 @@ def test_hindering_natures_emit_wanted_trick_room():
 
 
 def test_hindering_plus_declared_sweeper_dedups_to_one_tr_benefit():
-    build = replace(resolve_anchor_build("Kingambit"), nature="Brave")
+    build = replace(resolve_anchor_build("Kingambit", regulation="champions"), nature="Brave")
     rows = _tr_benefits(classify_anchor_role(build, user_role="trick_room_sweeper"))
     assert len(rows) == 1
     assert "strategy:trick_room_sweeper" in rows[0].evidence
 
 
 def test_hatterene_quiet_skips_hindering_tr_benefit():
-    build = replace(resolve_anchor_build("Hatterene"), nature="Quiet")
+    build = replace(resolve_anchor_build("Hatterene", regulation="champions"), nature="Quiet")
     decision = classify_anchor_role(build)
     assert _tr_benefits(decision) == []
     assert any(
@@ -414,7 +415,7 @@ def test_explicit_empty_item_reaches_find_set_matching():
     with patch(
         "recommender.anchor_roles.find_set_matching", return_value=[]
     ) as mocked:
-        resolve_anchor_build(slot)
+        resolve_anchor_build(slot, regulation="champions")
     mocked.assert_called_once()
     args, kwargs = mocked.call_args
     assert args[0] == "Talonflame"
@@ -432,7 +433,7 @@ def test_unspecified_item_skips_find_set_matching():
     with patch(
         "recommender.anchor_roles.find_set_matching", return_value=[]
     ) as mocked:
-        resolve_anchor_build(slot)
+        resolve_anchor_build(slot, regulation="champions")
     mocked.assert_not_called()
 
 
@@ -521,7 +522,7 @@ def test_compendium_role_ids_map_to_known_primary_function():
 
 @pytest.mark.parametrize("species", ["Dragapult"])
 def test_declared_physical_sweeper_projects_offense_primary(species: str):
-    build = resolve_anchor_build(species)
+    build = resolve_anchor_build(species, regulation="champions")
     decision = classify_anchor_role(build, explicit_role="physical_sweeper")
     assert decision.role_id == "physical_sweeper"
     assert decision.primary_function == "offense"
@@ -529,7 +530,7 @@ def test_declared_physical_sweeper_projects_offense_primary(species: str):
 
 @pytest.mark.parametrize("species", ["Incineroar", "Klefki"])
 def test_declared_coarse_support_projects_support_primary(species: str):
-    build = resolve_anchor_build(species)
+    build = resolve_anchor_build(species, regulation="champions")
     decision = classify_anchor_role(build, explicit_role="support")
     assert decision.role_id == "support"
     assert decision.primary_function == "support"
@@ -619,7 +620,7 @@ def test_slot_writeup_reason_maps_to_field_provenance():
         ),
     )
     with patch("recommender.anchor_roles.featured_or_common_set", return_value=None):
-        build = resolve_anchor_build(slot)
+        build = resolve_anchor_build(slot, regulation="champions")
     assert build.source_for("ability") == "champions_native_writeup"
 
 
@@ -632,7 +633,8 @@ def test_slot_writeup_reason_maps_to_field_provenance():
     ],
 )
 def test_writeup_kit_classifies_zero_usage_anchors(species: str, role_id: str):
-    build = resolve_anchor_build(species)
+    # Pin M-B: under M-C these species have usage and leave the writeup path.
+    build = resolve_anchor_build(species, regulation="champions-reg-mb")
     assert build.moves
     assert to_id(build.item or "") != "loadeddice"
     decision = classify_anchor_role(build)
@@ -653,4 +655,4 @@ def test_writeup_kit_classifies_zero_usage_anchors(species: str, role_id: str):
     ],
 )
 def test_writeup_kit_does_not_change_mechanism_roles(species: str, role_id: str):
-    assert classify_anchor_role(resolve_anchor_build(species)).role_id == role_id
+    assert classify_anchor_role(resolve_anchor_build(species, regulation="champions")).role_id == role_id

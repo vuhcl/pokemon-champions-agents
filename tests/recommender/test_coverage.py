@@ -543,7 +543,7 @@ def _dummy_locked_context(slot_index: int, alias: str) -> "LockedAnchorContext":
     from recommender.slot_fill import LockedAnchorContext
     from recommender.support_needs import RoleShapeContext
 
-    build = _replace(resolve_anchor_build("Garchomp"), species=alias)
+    build = _replace(resolve_anchor_build("Garchomp", regulation="champions"), species=alias)
     decision = classify_anchor_role(build)
     return LockedAnchorContext(
         slot_index=slot_index,

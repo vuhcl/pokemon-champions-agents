@@ -44,6 +44,7 @@ def test_clean_classification_does_not_suppress_raw_analysis():
             tankiness="tanky",
             setup_dependent=True,
         ),
+        regulation="champions",
     )
     assert out
 
@@ -56,6 +57,7 @@ def test_archaludon_offense_tank_coverage_and_healing():
             primary_function="offense",
             tankiness="tanky",
         ),
+        regulation="champions",
     )
     cov = _by_cat(out, "defensive_coverage")
     assert len(cov) == 1
@@ -80,6 +82,7 @@ def test_attacker_universal_screens_and_healing():
             primary_function="offense",
             tankiness="glass",
         ),
+        regulation="champions",
     )
     assert "screens" in _cats(out)
     heal = _by_cat(out, "healing_cleric")
@@ -95,6 +98,7 @@ def test_tailwind_support_no_screens_or_healing():
             primary_function="support",
             tankiness="unknown",
         ),
+        regulation="champions",
     )
     assert "screens" not in _cats(out)
     assert "healing_cleric" not in _cats(out)
@@ -108,6 +112,7 @@ def test_support_tank_asymmetry_no_screens():
             primary_function="support",
             tankiness="tanky",
         ),
+        regulation="champions",
     )
     cov = _by_cat(out, "defensive_coverage")
     assert len(cov) == 1
@@ -126,6 +131,7 @@ def test_glass_gate_no_defensive_coverage():
             primary_function="offense",
             tankiness="glass",
         ),
+        regulation="champions",
     )
     assert "defensive_coverage" not in _cats(out)
     assert "screens" in _cats(out)
@@ -140,6 +146,7 @@ def test_setup_dependent_redirection():
             primary_function="support",
             setup_dependent=True,
         ),
+        regulation="champions",
     )
     redir = _by_cat(out, "redirection")
     assert len(redir) == 1
@@ -159,6 +166,7 @@ def test_setup_offense_kingambit_redirection():
             tankiness="tanky",
             setup_dependent=True,
         ),
+        regulation="champions",
     )
     redir = _by_cat(out, "redirection")
     assert len(redir) == 1
@@ -176,6 +184,7 @@ def test_offense_redirection_not_setup():
             tankiness="glass",
             setup_dependent=False,
         ),
+        regulation="champions",
     )
     redir = _by_cat(out, "redirection")
     assert len(redir) == 1
@@ -195,6 +204,7 @@ def test_tanky_offense_gets_redirection_without_setup():
             tankiness="tanky",
             setup_dependent=False,
         ),
+        regulation="champions",
     )
     assert "redirection" in _cats(out)
     assert "fake_out_protection" not in _cats(out)
@@ -210,6 +220,7 @@ def test_support_no_setup_no_redirection():
             tankiness="tanky",
             setup_dependent=False,
         ),
+        regulation="champions",
     )
     assert "redirection" not in _cats(out)
 
@@ -232,6 +243,7 @@ def test_offense_close_combat_hard_redirection():
             tankiness="tanky",
             setup_dependent=False,
         ),
+        regulation="champions",
     )
     redir = _by_cat(out, "redirection")
     assert len(redir) == 1
@@ -248,6 +260,7 @@ def test_support_weak_armor_hard_redirection():
             tankiness="tanky",
             setup_dependent=False,
         ),
+        regulation="champions",
     )
     redir = _by_cat(out, "redirection")
     assert len(redir) == 1
@@ -260,6 +273,7 @@ def test_contrary_no_stat_lowering_partner():
     out = query_support_needs(
         {"species": "Staraptor-Mega"},
         RoleShapeContext(match_status="partial", primary_function="offense"),
+        regulation="champions",
     )
     assert "stat_lowering_partner" not in _cats(out)
     assert "redirection" in _cats(out)  # offense-primary
@@ -270,6 +284,7 @@ def test_inconclusive_no_attacker_universals():
     out = query_support_needs(
         {"species": "Archaludon"},
         RoleShapeContext(match_status="partial", primary_function="unknown"),
+        regulation="champions",
     )
     assert "screens" not in _cats(out)
     assert "healing_cleric" not in _cats(out)
@@ -287,6 +302,7 @@ def test_speed_boost_layer1_no_speed_needs():
             primary_function="offense",
             tankiness="glass",
         ),
+        regulation="champions",
     )
     assert "trick_room" not in _cats(out)
     assert "tailwind" not in _cats(out)
@@ -305,6 +321,7 @@ def test_unburden_layer1_no_speed_needs():
             primary_function="offense",
             tankiness="glass",
         ),
+        regulation="champions",
     )
     assert "trick_room" not in _cats(out)
     assert "tailwind" not in _cats(out)
@@ -323,6 +340,7 @@ def test_quick_feet_layer1_no_speed_needs():
             primary_function="offense",
             tankiness="glass",
         ),
+        regulation="champions",
     )
     assert "trick_room" not in _cats(out)
     assert "tailwind" not in _cats(out)
@@ -342,6 +360,7 @@ def test_swift_swim_no_rain_needs_condition_setter():
             tankiness="glass",
         ),
         team_draft=None,
+        regulation="champions",
     )
     cond = _by_cat(out, "condition_setter")
     assert len(cond) == 1
@@ -364,6 +383,7 @@ def test_swift_swim_rain_locked_no_speed_need():
             tankiness="glass",
         ),
         team_draft=[pelipper],
+        regulation="champions",
     )
     assert "condition_setter" not in _cats(out)
     assert "trick_room" not in _cats(out)
@@ -401,6 +421,7 @@ def test_chlorophyll_desolate_land_clears_condition_setter():
                 tankiness="glass",
             ),
             team_draft=[primal],
+                regulation="champions",
         )
     assert "condition_setter" not in _cats(out)
 
@@ -425,6 +446,7 @@ def test_swift_swim_primordial_sea_clears_condition_setter():
                 tankiness="glass",
             ),
             team_draft=[primal],
+                regulation="champions",
         )
     assert "condition_setter" not in _cats(out)
 
@@ -442,6 +464,7 @@ def test_sand_force_needs_condition_setter():
             tankiness="glass",
         ),
         team_draft=None,
+        regulation="champions",
     )
     cond = _by_cat(out, "condition_setter")
     assert len(cond) == 1
@@ -463,6 +486,7 @@ def test_sand_force_sand_locked_clears_condition_setter():
             tankiness="glass",
         ),
         team_draft=[ttar],
+        regulation="champions",
     )
     assert "condition_setter" not in _cats(out)
 
@@ -480,6 +504,7 @@ def test_dry_skin_needs_rain_only():
             tankiness="glass",
         ),
         team_draft=None,
+        regulation="champions",
     )
     cond = _by_cat(out, "condition_setter")
     assert len(cond) == 1
@@ -501,6 +526,7 @@ def test_forecast_multi_condition_and_any_secures():
             tankiness="glass",
         ),
         team_draft=None,
+        regulation="champions",
     )
     cond = _by_cat(out, "condition_setter")
     assert len(cond) == 1
@@ -520,6 +546,7 @@ def test_forecast_multi_condition_and_any_secures():
             tankiness="glass",
         ),
         team_draft=[pelipper],
+        regulation="champions",
     )
     assert "condition_setter" not in _cats(secured)
 
@@ -539,6 +566,7 @@ def test_mimicry_multi_terrain_emit_and_secure():
             tankiness="glass",
         ),
         team_draft=None,
+        regulation="champions",
     )
     cond = _by_cat(out, "condition_setter")
     assert len(cond) == 1
@@ -561,6 +589,7 @@ def test_mimicry_multi_terrain_emit_and_secure():
                 tankiness="glass",
             ),
             team_draft=[koko],
+                regulation="champions",
         )
     assert "condition_setter" not in _cats(secured)
 
@@ -578,6 +607,7 @@ def test_protosynthesis_needs_sun_setter():
             tankiness="glass",
         ),
         team_draft=None,
+        regulation="champions",
     )
     cond = _by_cat(out, "condition_setter")
     assert len(cond) == 1
@@ -640,6 +670,7 @@ def test_tank_with_only_life_dew_still_wants_healing_cleric():
             primary_function="offense",
             tankiness="tanky",
         ),
+        regulation="champions",
     )
     heal = _by_cat(out, "healing_cleric")
     assert len(heal) == 1
@@ -659,6 +690,7 @@ def test_layer3_smoke_slow_attacker_emits_speed_control():
             primary_function="offense",
             tankiness="tanky",
         ),
+        regulation="champions",
     )
     assert "trick_room" in _cats(out) or "tailwind" in _cats(out)
 
@@ -677,6 +709,7 @@ def test_no_ranking_or_resolution_fields():
             primary_function="offense",
             tankiness="tanky",
         ),
+        regulation="champions",
     )
     for n in out:
         assert not hasattr(n, "score")
@@ -716,6 +749,7 @@ def test_speed_analysis_uses_anchor_evs_and_nature(monkeypatch):
             "nature": "Timid",
         },
         RoleShapeContext(primary_function="offense"),
+        regulation="champions",
     )
     assert seen[0] == ({"spe": 32}, "Timid")
 
@@ -727,9 +761,9 @@ def test_query_support_needs_pelipper_does_not_emit_condition_beneficiary():
         resolve_anchor_build,
     )
 
-    build = resolve_anchor_build("Pelipper")
+    build = resolve_anchor_build("Pelipper", regulation="champions")
     shape = derive_role_shape_context(classify_anchor_role(build))
-    out = query_support_needs(build.as_pokemon(), shape)
+    out = query_support_needs(build.as_pokemon(), shape, regulation="champions")
     assert "condition_beneficiary" not in _cats(out)
 
 
@@ -740,11 +774,11 @@ def test_archaludon_electro_shot_surfaces_rain_condition_setter():
         resolve_anchor_build,
     )
 
-    build = resolve_anchor_build("Archaludon")
+    build = resolve_anchor_build("Archaludon", regulation="champions")
     decision = classify_anchor_role(build)
     shape = derive_role_shape_context(decision)
     assert "Rain" in shape.needed_weathers
-    out = query_support_needs(build.as_pokemon(), shape)
+    out = query_support_needs(build.as_pokemon(), shape, regulation="champions")
     cond = _by_cat(out, "condition_setter")
     assert any(n.trigger == "field_condition:any:rain" for n in cond)
 
@@ -770,11 +804,11 @@ def test_solar_beam_surfaces_sun_condition_setter_move_derived_not_chlorophyll()
             locked=True,
         ),
     )
-    build = resolve_anchor_build(slot)
+    build = resolve_anchor_build(slot, regulation="champions")
     decision = classify_anchor_role(build)
     shape = derive_role_shape_context(decision)
     assert "Sun" in shape.needed_weathers
-    out = query_support_needs(build.as_pokemon(), shape)
+    out = query_support_needs(build.as_pokemon(), shape, regulation="champions")
     cond = _by_cat(out, "condition_setter")
     assert any(n.trigger == "field_condition:any:sun" for n in cond)
 
@@ -786,11 +820,11 @@ def test_kingambit_declared_sweeper_keeps_single_layer3_trick_room():
         resolve_anchor_build,
     )
 
-    build = resolve_anchor_build("Kingambit")
+    build = resolve_anchor_build("Kingambit", regulation="champions")
     decision = classify_anchor_role(build, user_role="trick_room_sweeper")
     shape = derive_role_shape_context(decision)
     assert shape.needed_trick_room is True
-    needs = query_support_needs(build.as_pokemon(), shape)
+    needs = query_support_needs(build.as_pokemon(), shape, regulation="champions")
     tr = [n for n in needs if n.category == "trick_room"]
     assert len(tr) == 1
     assert tr[0].trigger is not None and tr[0].trigger.startswith("speed_tier:")
@@ -804,11 +838,11 @@ def test_dragapult_declared_sweeper_emits_strategy_trick_room():
         resolve_anchor_build,
     )
 
-    build = resolve_anchor_build("Dragapult")
+    build = resolve_anchor_build("Dragapult", regulation="champions")
     decision = classify_anchor_role(build, user_role="trick_room_sweeper")
     shape = derive_role_shape_context(decision)
     assert shape.needed_trick_room is True
-    needs = query_support_needs(build.as_pokemon(), shape)
+    needs = query_support_needs(build.as_pokemon(), shape, regulation="champions")
     tr = [n for n in needs if n.category == "trick_room"]
     assert len(tr) == 1
     assert tr[0].trigger == "strategy:trick_room_sweeper"
@@ -824,13 +858,15 @@ def test_kingambit_declared_sweeper_matching_needs_not_inflated():
     from recommender.legality import load_snapshot
     from recommender.slot_fill import _matching_needs_for
 
-    build = resolve_anchor_build("Kingambit")
+    build = resolve_anchor_build("Kingambit", regulation="champions")
     decision = classify_anchor_role(build, user_role="trick_room_sweeper")
     shape = derive_role_shape_context(decision)
-    needs = query_support_needs(build.as_pokemon(), shape)
+    needs = query_support_needs(build.as_pokemon(), shape, regulation="champions")
     tr = [n for n in needs if n.category == "trick_room"]
     assert len(tr) == 1
-    matched = _matching_needs_for("Farigiraf", needs, snap=load_snapshot())
+    matched = _matching_needs_for(
+        "Farigiraf", needs, snap=load_snapshot(), regulation="champions"
+    )
     assert len([n for n in matched if n.category == "trick_room"]) == 1
 
 
@@ -841,11 +877,11 @@ def test_kingambit_without_sweeper_role_has_no_needed_trick_room():
         resolve_anchor_build,
     )
 
-    build = resolve_anchor_build("Kingambit")
+    build = resolve_anchor_build("Kingambit", regulation="champions")
     decision = classify_anchor_role(build)
     shape = derive_role_shape_context(decision)
     assert shape.needed_trick_room is False
-    needs = query_support_needs(build.as_pokemon(), shape)
+    needs = query_support_needs(build.as_pokemon(), shape, regulation="champions")
     tr = [n for n in needs if n.category == "trick_room"]
     assert tr
     assert all(
@@ -860,11 +896,11 @@ def test_physical_sweeper_emits_offense_universal_needs():
         resolve_anchor_build,
     )
 
-    build = resolve_anchor_build("Dragapult")
+    build = resolve_anchor_build("Dragapult", regulation="champions")
     decision = classify_anchor_role(build, explicit_role="physical_sweeper")
     shape = derive_role_shape_context(decision)
     assert shape.primary_function == "offense"
-    needs = query_support_needs(build.as_pokemon(), shape)
+    needs = query_support_needs(build.as_pokemon(), shape, regulation="champions")
     cats = {n.category for n in needs}
     assert "screens" in cats
     assert "healing_cleric" in cats

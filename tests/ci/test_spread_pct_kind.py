@@ -78,8 +78,12 @@ def test_showdown_source_params_reads_new_kind(monkeypatch):
     monkeypatch.setattr(
         uc,
         "load_usage",
-        lambda _r="champions-reg-mb": {
-            "meta": {"showdown_pct_kind": "set", "showdown_month": "2026-07"}
+        lambda _r: {
+            "meta": {
+                "showdown_pct_kind": "set",
+                "showdown_month": "2026-07",
+                "showdown_format": "gen9championsvgc2026regmb",
+            }
         },
     )
     assert showdown_source_params("champions-reg-mb")["pct_kind"] == (

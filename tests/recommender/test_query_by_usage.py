@@ -10,14 +10,14 @@ from recommender.usage_data import ingame_species_map
 
 
 def test_default_pool_usage_ranking():
-    out = query_by_usage(n=20)
+    out = query_by_usage(n=20, regulation="champions")
     assert len(out) <= 20
     assert out
 
     ranks = [c.usage_rank for c in out if c.usage_rank is not None]
     assert ranks == sorted(ranks)
     # First ranked result should be the lowest usage_rank in the ingame map.
-    ig = ingame_species_map("champions-reg-mb")
+    ig = ingame_species_map("champions")
     best = min(
         int(e["usage_rank"])
         for e in ig.values()
@@ -37,7 +37,7 @@ def test_narrowed_fairy_pool():
             fairy.append({"species": str(entry.get("name") or sid)})
 
     assert fairy, "expected at least one legal Fairy species"
-    out = query_by_usage(pool=fairy, n=10)
+    out = query_by_usage(pool=fairy, n=10, regulation="champions")
     assert out
     pool_ids = {to_id(s["species"]) for s in fairy}
     for c in out:
@@ -49,10 +49,10 @@ def test_narrowed_fairy_pool():
 
 
 def test_composes_into_query_counters():
-    top = query_by_usage(n=5)
+    top = query_by_usage(n=5, regulation="champions")
     assert top
     anchor = top[0].spec
-    counters = query_counters(anchor, n=10)
+    counters = query_counters(anchor, n=10, regulation="champions")
     assert counters  # end-to-end composition works
 
 
@@ -66,6 +66,7 @@ def test_usage_admission_honors_ownership_before_cut():
             n=2,
             available_species=[owned],
             ownership_mode="owned_first",
+                regulation="champions",
         )
     ][0] == owned
     assert [
@@ -75,6 +76,7 @@ def test_usage_admission_honors_ownership_before_cut():
             n=2,
             available_species=[owned],
             ownership_mode="owned_last",
+                regulation="champions",
         )
     ][0] == pool[0]["species"]
     assert [
@@ -84,5 +86,6 @@ def test_usage_admission_honors_ownership_before_cut():
             n=2,
             available_species=[owned],
             ownership_mode="owned_only",
+                regulation="champions",
         )
     ] == [owned]

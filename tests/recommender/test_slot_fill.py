@@ -148,6 +148,7 @@ def test_farigiraf_multi_branch_annotates_and_is_default():
             _tc("Farigiraf", usage_rank=20, verified_score=1.0),
         ],
         support_needs=[need],
+        regulation="champions",
     )
     rows = annotate_overlap(ctx)
     by_name = {r.species: r for r in rows}
@@ -168,6 +169,7 @@ def test_single_branch_no_false_positive_overlap():
         role_shape_context=_shape(),
         threat_counter_results=[_tc("Incineroar", usage_rank=1, verified_score=5.0)],
         support_needs=[need],
+        regulation="champions",
     )
     rows = annotate_overlap(ctx)
     assert len(rows) == 1
@@ -192,6 +194,7 @@ def test_merge_need_resolved_surfaces_need_only_species():
             NeedResolvedCandidate("Farigiraf", (need,), (mechanical,)),
             NeedResolvedCandidate("Incineroar", (need,), (mechanical,)),
         ],
+        regulation="champions",
     )
     rows = merge_need_resolved(ctx)
     by_name = {r.species: r for r in rows}
@@ -276,6 +279,7 @@ def test_condition_beneficiary_need_only_is_presented_default_over_high_score_th
         need_resolved_candidates=[
             NeedResolvedCandidate("Swampert-Mega", (need,), (evidence,)),
         ],
+        regulation="champions",
     )
     merge_need_resolved(ctx)
     presentation = present_candidates(ctx, slot_index=1)
@@ -301,6 +305,7 @@ def test_unmapped_need_only_swampert_mega_uses_kit_fallback_and_refines():
         need_resolved_candidates=[
             NeedResolvedCandidate("Swampert-Mega", (need,), (evidence,)),
         ],
+        regulation="champions",
     )
     rows = merge_need_resolved(ctx)
     swampert = next(r for r in rows if r.species == "Swampert-Mega")
@@ -344,6 +349,7 @@ def test_need_only_without_kit_role_still_unresolved_on_refine():
         need_resolved_candidates=[
             NeedResolvedCandidate("Qwilfish", (need,), (evidence,)),
         ],
+        regulation="champions",
     )
     with (
         patch(
@@ -371,13 +377,14 @@ def test_need_only_without_kit_role_still_unresolved_on_refine():
 
 
 def _resolve_beneficiaries(species: str) -> list[NeedResolvedCandidate]:
-    decision = classify_anchor_role(resolve_anchor_build(species))
+    decision = classify_anchor_role(resolve_anchor_build(species, regulation="champions"))
     ctx = SlotFillContext(
         anchor={"species": species},
         role_shape_context=_shape(primary_function="support"),
         threat_counter_results=[],
         support_needs=[],
         need_resolved_candidates=[],
+        regulation="champions",
     )
     return resolve_condition_beneficiaries(
         ctx, decision, _base_state(), locked_species=[species]
@@ -395,6 +402,7 @@ def test_resolve_condition_beneficiaries_dummy_decision_is_noop():
         threat_counter_results=[],
         support_needs=[],
         need_resolved_candidates=[],
+        regulation="champions",
     )
     out = resolve_condition_beneficiaries(
         ctx, object(), _base_state(), locked_species=["Kingambit"]  # type: ignore[arg-type]
@@ -630,6 +638,7 @@ def test_terminal_e2e_pending_intent_then_pure_refinement():
             _tc("Incineroar", usage_rank=1, verified_score=1.0),
         ],
         support_needs=[need],
+        regulation="champions",
     )
     annotate_overlap(ctx)
     state = _base_state(
@@ -705,6 +714,7 @@ def test_deferral_discardable_reenterable():
         role_shape_context=_shape(),
         threat_counter_results=[_tc("Farigiraf")],
         support_needs=[need],
+        regulation="champions",
     )
     annotate_overlap(ctx)
     state = _base_state()
@@ -730,6 +740,7 @@ def test_deferral_discardable_reenterable():
         role_shape_context=_shape(),
         threat_counter_results=[_tc("Farigiraf")],
         support_needs=[need],
+        regulation="champions",
     )
     annotate_overlap(ctx2)
     assert ctx2.annotated_candidates is not None
@@ -745,6 +756,7 @@ def test_present_only_persists_ordered_options_with_sources():
             _tc("Farigiraf", usage_rank=20, verified_score=1.0),
         ],
         support_needs=[need],
+        regulation="champions",
     )
     annotate_overlap(ctx)
 
@@ -775,7 +787,7 @@ def test_annotate_composition_impact_sets_species_primary_role():
     out = annotate_composition_impact([cand], _base_state())
     assert out[0].species_primary_role == "redirection"
     assert (
-        classify_anchor_role(resolve_anchor_build("Ariados")).role_id
+        classify_anchor_role(resolve_anchor_build("Ariados", regulation="champions")).role_id
         == "redirection"
     )
 
@@ -802,6 +814,7 @@ def test_pending_presentation_wires_species_primary_role():
         role_shape_context=_shape(),
         threat_counter_results=[_tc("Ariados")],
         support_needs=[need],
+        regulation="champions",
     )
     annotate_overlap(ctx)
     ctx.annotated_candidates = annotate_composition_impact(
@@ -826,6 +839,7 @@ def test_threat_only_choice_gets_kit_fallback_not_open_slot_role():
         role_shape_context=_shape(),
         threat_counter_results=[_tc("Farigiraf"), _tc("Incineroar")],
         support_needs=[_trick_room_need()],
+        regulation="champions",
     )
     annotate_overlap(ctx)
 
@@ -857,6 +871,7 @@ def test_ambiguous_speed_control_is_structured_and_unresolved():
         anchor={"species": "Kingambit"},
         role_shape_context=_shape(),
         support_needs=[_trick_room_need(), tailwind],
+        regulation="champions",
     )
 
     decision = derive_target_role(ctx)
@@ -908,7 +923,7 @@ _ARCHETYPE_TARGET_ROLES = {
 
 
 def _strategic_decision(species: str, role_id: str) -> TargetRoleDecision | None:
-    anchor = classify_anchor_role(resolve_anchor_build(species))
+    anchor = classify_anchor_role(resolve_anchor_build(species, regulation="champions"))
     return target_role_from_strategic_evidence(
         role_id,
         anchor_role=anchor,
@@ -957,7 +972,7 @@ def test_every_reviewed_compendium_role_produces_target_intent(role_id):
 
 
 def test_strategic_role_requires_exact_compendium_or_active_mechanism():
-    garchomp = classify_anchor_role(resolve_anchor_build("Garchomp"))
+    garchomp = classify_anchor_role(resolve_anchor_build("Garchomp", regulation="champions"))
     assert {row.role_id for row in garchomp.compendium.species} >= {
         "swords_dance_attacker"
     }
@@ -970,7 +985,7 @@ def test_strategic_role_requires_exact_compendium_or_active_mechanism():
         is None
     )
 
-    gholdengo = classify_anchor_role(resolve_anchor_build("Gholdengo"))
+    gholdengo = classify_anchor_role(resolve_anchor_build("Gholdengo", regulation="champions"))
     assert {row.role_id for row in gholdengo.compendium.rejected} >= {
         "nasty_plot_attacker"
     }
@@ -997,7 +1012,7 @@ def test_strategic_role_requires_exact_compendium_or_active_mechanism():
 
 
 def test_strategic_role_preserves_both_matching_exact_sources():
-    pelipper = classify_anchor_role(resolve_anchor_build("Pelipper"))
+    pelipper = classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))
     decision = target_role_from_strategic_evidence(
         "rain_setter",
         anchor_role=pelipper,
@@ -1075,6 +1090,7 @@ def test_every_target_role_round_trips_selection_refinement_and_commit(role_id):
             )
         ],
         candidates_pre_ranked=True,
+        regulation="champions",
     )
     state = _base_state()
     terminal = run_slot_fill_terminal(
@@ -1215,6 +1231,7 @@ def test_present_only_empty_pool_returns_teachable_pending():
         role_shape_context=_shape(),
         threat_counter_results=[],
         support_needs=[_trick_room_need()],
+        regulation="champions",
     )
     annotate_overlap(ctx)
 
@@ -1231,6 +1248,7 @@ def test_accept_with_empty_pool_raises():
         role_shape_context=_shape(),
         threat_counter_results=[],
         support_needs=[_trick_room_need()],
+        regulation="champions",
     )
     annotate_overlap(ctx)
     try:
@@ -1257,8 +1275,8 @@ def test_redirection_need_matches_rage_powder():
     assert _NEED_SATISFIERS["redirection"].moves == frozenset({"followme", "ragepowder"})
     snap = load_snapshot()
     # Champions learnset: Sinistcha has Rage Powder; Incineroar does not redirect.
-    assert _candidate_satisfies_need("Sinistcha", need, snap=snap)
-    assert not _candidate_satisfies_need("Incineroar", need, snap=snap)
+    assert _candidate_satisfies_need("Sinistcha", need, snap=snap, regulation="champions")
+    assert not _candidate_satisfies_need("Incineroar", need, snap=snap, regulation="champions")
 
 
 def test_redirection_has_compendium_mapping():
@@ -1521,6 +1539,7 @@ def test_resolve_all_and_merge_without_chosen_need():
         threat_counter_results=[_tc("Incineroar")],
         support_needs=[tr, redir],
         chosen_need=None,
+        regulation="champions",
     )
     resolved = resolve_all_support_needs(ctx, _base_state())
     assert resolved
@@ -1679,7 +1698,7 @@ def test_compendium_priority_beats_all_existing_sort_pressure():
     )
     trick_room = _trick_room_need()
     extra = SupportNeed("screens", "Screens", "Wants screens", None)
-    ctx = SlotFillContext(anchor={"species": "Kingambit"}, role_shape_context=_shape())
+    ctx = SlotFillContext(anchor={"species": "Kingambit"}, role_shape_context=_shape(), regulation="champions")
     ctx.annotated_candidates = [
         AnnotatedCandidate(
             "Verified Setter",
@@ -1708,7 +1727,7 @@ def test_existing_sort_keys_still_apply_within_compendium_tier():
     )
     need = _trick_room_need()
     extra = SupportNeed("screens", "Screens", "Wants screens", None)
-    ctx = SlotFillContext(anchor={"species": "Kingambit"}, role_shape_context=_shape())
+    ctx = SlotFillContext(anchor={"species": "Kingambit"}, role_shape_context=_shape(), regulation="champions")
     ctx.annotated_candidates = [
         AnnotatedCandidate("One Need", (need,), "need", evidence=(evidence,)),
         AnnotatedCandidate(
@@ -1723,7 +1742,7 @@ def test_compendium_priority_requires_an_active_matching_need():
     evidence = CandidateEvidence(
         "compendium_backed", "medium", "role_category_evidence"
     )
-    ctx = SlotFillContext(anchor={"species": "Kingambit"}, role_shape_context=_shape())
+    ctx = SlotFillContext(anchor={"species": "Kingambit"}, role_shape_context=_shape(), regulation="champions")
     ctx.annotated_candidates = [
         AnnotatedCandidate("Unrelated Member", (), "need", evidence=(evidence,))
     ]
@@ -1752,6 +1771,7 @@ def test_concrete_matching_build_promotes_compendium_confidence():
         need_resolved_candidates=[
             NeedResolvedCandidate("Farigiraf", (need,), (evidence,))
         ],
+        regulation="champions",
     )
 
     row = merge_need_resolved(ctx)[0]
@@ -2023,6 +2043,7 @@ def test_present_candidates_routes_through_select_diverse_candidates_when_locked
         annotated_candidates=rows,
         candidates_pre_ranked=True,
         locked_contexts=(object(),),  # non-empty is all the branch checks
+        regulation="champions",
     )
     with patch(
         "recommender.team_candidates.select_diverse_candidates",
@@ -2052,6 +2073,7 @@ def test_present_candidates_uses_old_path_when_locked_contexts_empty():
         role_shape_context=None,
         annotated_candidates=rows,
         candidates_pre_ranked=True,
+        regulation="champions",
     )
     with patch(
         "recommender.team_candidates.select_diverse_candidates"
@@ -2079,6 +2101,7 @@ def test_resolve_all_support_needs_downgrades_confidence_for_untriggered_needs()
         anchor={"species": "Garchomp"},
         role_shape_context=_shape(),
         support_needs=[screens_need, tr_need],
+        regulation="champions",
     )
     resolved = resolve_all_support_needs(ctx, _base_state())
 
@@ -2313,8 +2336,8 @@ def test_farigiraf_does_not_satisfy_healing_cleric_need():
         trigger="tank_no_self_heal",
     )
     assert not _candidate_satisfies_need(
-        "Farigiraf", need, snap=load_snapshot()
-    )
+        "Farigiraf", need, snap=load_snapshot(),
+    regulation="champions")
 
 
 def test_grimmsnarl_still_satisfies_screens_via_showdown_usage():
@@ -2326,4 +2349,4 @@ def test_grimmsnarl_still_satisfies_screens_via_showdown_usage():
         description="x",
         trigger="offense:screens",
     )
-    assert _candidate_satisfies_need("Grimmsnarl", need, snap=load_snapshot())
+    assert _candidate_satisfies_need("Grimmsnarl", need, snap=load_snapshot(), regulation="champions")

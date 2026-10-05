@@ -545,7 +545,7 @@ def test_role_constraint_ability_is_synthesized_and_not_present_mechanism():
     assert ability.value == "Drizzle"
     assert ability.reason == ReasonRef(kind="tier2_heuristic", ref="tier3_role_ability")
 
-    resolved = resolve_anchor_build(out["team_draft"][0])
+    resolved = resolve_anchor_build(out["team_draft"][0], regulation="champions")
     assert resolved.source_for("ability") == "synthesized"
     decision = classify_anchor_role(
         resolved, compendium=ReverseCompendiumEvidence()

@@ -107,6 +107,7 @@ def test_single_locked_runs_existing_helpers_in_required_order():
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
         support_needs=_OBVIOUS_NEED,
+        regulation="champions",
     )
     order: list[str] = []
 
@@ -191,6 +192,7 @@ def test_single_locked_routes_to_multi_locked_when_anchor_has_no_obvious_need():
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
         support_needs=[],  # Nothing obvious -- the generic fallback only.
+        regulation="champions",
     )
     calls: list[str] = []
 
@@ -234,6 +236,7 @@ def test_single_locked_does_not_route_when_anchor_has_obvious_need():
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
         support_needs=_OBVIOUS_NEED,
+        regulation="champions",
     )
 
     with (
@@ -263,6 +266,7 @@ def test_single_locked_passes_ownership_mode_and_expanded_owned_ids():
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
         support_needs=_OBVIOUS_NEED,
+        regulation="champions",
     )
     captured: dict = {}
     captured_ben: dict = {}
@@ -442,6 +446,7 @@ def test_single_locked_empty_candidate_set_uses_legacy_fallback():
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
         support_needs=_OBVIOUS_NEED,
+        regulation="champions",
     )
     with (
         patch(
@@ -486,6 +491,7 @@ def test_single_locked_degraded_empty_does_not_call_fill_team_draft():
         support_needs=_OBVIOUS_NEED,
         threat_discovery_status="degraded",
         threat_discovery_error=error,
+        regulation="champions",
     )
     with (
         patch(
@@ -542,6 +548,7 @@ def test_single_locked_degraded_with_candidates_presents_without_fill_team_draft
         support_needs=_OBVIOUS_NEED,
         threat_discovery_status="degraded",
         threat_discovery_error=error,
+        regulation="champions",
     )
 
     def fake_merge(ctx: SlotFillContext) -> list:
@@ -644,6 +651,7 @@ def test_single_locked_degraded_evidence_tokens():
         need_resolved_candidates=[],
         threat_discovery_status="degraded",
         threat_discovery_error=error,
+        regulation="champions",
     )
     from recommender.slot_fill import annotate_overlap, merge_need_resolved
 

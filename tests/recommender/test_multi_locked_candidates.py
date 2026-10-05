@@ -236,8 +236,8 @@ def test_locked_slot_order_does_not_change_multi_rank():
         ownership_mode="off",
         owned_species=frozenset(),
     )
-    assert [row.species for row in rank_multi_locked_candidates([first, beta], **kwargs)] == [
-        row.species for row in rank_multi_locked_candidates([permuted, beta], **kwargs)
+    assert [row.species for row in rank_multi_locked_candidates([first, beta], **kwargs, regulation="champions")] == [
+        row.species for row in rank_multi_locked_candidates([permuted, beta], **kwargs, regulation="champions")
     ]
 
 
@@ -290,6 +290,7 @@ def test_duplicate_need_rows_do_not_inflate_anchor_breadth():
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
     assert ranked[0].species == "Beta"
 
@@ -336,6 +337,7 @@ def test_spof_improvement_rewards_second_verified_answer():
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
     assert objective[0].kinds == frozenset({"spof"})
     assert ranked[0].species == "Answer"
@@ -362,7 +364,7 @@ def test_candidate_local_provenance_survives_merge_and_selection():
             ownership_mode="off",
             owned_species=frozenset(),
         )
-    ctx = SlotFillContext(None, None, annotated_candidates=rows, candidates_pre_ranked=True)
+    ctx = SlotFillContext(None, None, annotated_candidates=rows, candidates_pre_ranked=True, regulation="champions")
     terminal = run_slot_fill_terminal(
         ctx, _state(), slot_index=0, response=SlotFillResponse("choose", "Farigiraf")
     )
@@ -490,6 +492,7 @@ def test_shared_only_candidate_cannot_win_without_team_fit():
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
     assert ranked[0].species == "Fit"
 
@@ -540,6 +543,7 @@ def test_basculegion_regression_does_not_rank_redundant_rain_attacker_first():
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
     assert ranked[0].species == "Grimmsnarl"
     basculegion = next(row for row in ranked if row.species == "Basculegion")
@@ -565,6 +569,7 @@ def test_completion_preference_only_prompts_when_rank_would_change():
             objective=(),
             ownership_mode="off",
             owned_species=frozenset(),
+                regulation="champions",
         ) == ("attacker", "support", "balanced")
     result = classify_pending(
         "support",
@@ -595,6 +600,7 @@ def test_multi_selection_reuses_existing_atomic_commit_lifecycle():
         None,
         annotated_candidates=[candidate, compendium],
         candidates_pre_ranked=True,
+        regulation="champions",
     )
     terminal = run_slot_fill_terminal(ctx, _state(), slot_index=0)
     assert terminal.presentation.default == "Farigiraf"
@@ -723,6 +729,7 @@ def test_severe_composition_repair_outranks_minor_threat_gain():
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
     assert ranked[0].species == "Repair"
 
@@ -737,6 +744,7 @@ def test_equal_impact_band_prefers_verified_threat_gain():
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
     assert ranked[0].species == "Answer"
 
@@ -771,6 +779,7 @@ def test_essential_gap_fill_outranks_high_volume_threat_coverage():
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
     assert ranked[0].species == "RainSetter"
 
@@ -792,6 +801,7 @@ def test_essential_gap_fill_does_not_help_when_absent():
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
     assert ranked[0].species == "Answer"
 
@@ -810,6 +820,7 @@ def test_decisive_or_costly_uncovered_closure_precedes_composition():
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
     assert ranked[0].species == "Answer"
 
@@ -838,6 +849,7 @@ def test_clean_kill_and_intentional_non_ko_answer_share_severity_precedence(
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
     assert [row.species for row in ranked] == ["Alpha", "Beta"]
 
@@ -873,6 +885,7 @@ def test_multi_threat_portfolio_counts_unconditional_answer_types_equally():
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
     assert [row.species for row in ranked] == ["Alpha", "Beta"]
 
@@ -909,6 +922,7 @@ def test_usage_does_not_break_equal_candidate_ties():
             preference=None,
             ownership_mode="off",
             owned_species=frozenset(),
+                regulation="champions",
         )
     ] == ["Alpha", "Beta"]
 
@@ -922,6 +936,7 @@ def test_empty_team_threat_objective_allows_support_and_shared_ranking():
         preference=None,
         ownership_mode="off",
         owned_species=frozenset(),
+        regulation="champions",
     )
 
 
@@ -1014,7 +1029,7 @@ def test_candidate_kit_ability_keeps_present_rain_provider_for_composition_gap()
     spec = {"species": "Politoed", "ability": "Drizzle", "moves": ["Protect"]}
 
     # Contrast: provisional-only resolve still omits (Task A unchanged).
-    provisional_build = resolve_anchor_build("Politoed", provisional=spec)
+    provisional_build = resolve_anchor_build("Politoed", provisional=spec, regulation="champions")
     assert provisional_build.source_for("ability") == "provisional"
     provisional_decision = classify_anchor_role(provisional_build)
     assert not any(
@@ -1546,7 +1561,7 @@ def test_candidate_wastes_core_slot_weather_conflict():
     state = _state(draft)
     contexts = collect_locked_anchor_contexts(state)
 
-    build = resolve_anchor_build("Swampert-Mega")
+    build = resolve_anchor_build("Swampert-Mega", regulation="champions")
     decision = classify_anchor_role(build)
     assert (
         candidate_wastes_core_slot(decision, build, contexts, is_core_slot=True)
@@ -1582,7 +1597,7 @@ def test_candidate_wastes_core_slot_second_mega():
     state = _state(draft)
     contexts = collect_locked_anchor_contexts(state)
 
-    build = resolve_anchor_build("Metagross-Mega")
+    build = resolve_anchor_build("Metagross-Mega", regulation="champions")
     decision = classify_anchor_role(build)
     assert (
         candidate_wastes_core_slot(decision, build, contexts, is_core_slot=True)
@@ -1616,7 +1631,7 @@ def test_candidate_wastes_core_slot_no_conflict():
     state = _state(draft)
     contexts = collect_locked_anchor_contexts(state)
 
-    build = resolve_anchor_build("Garchomp")
+    build = resolve_anchor_build("Garchomp", regulation="champions")
     decision = classify_anchor_role(build)
     assert (
         candidate_wastes_core_slot(decision, build, contexts, is_core_slot=True)
@@ -1639,7 +1654,7 @@ def test_candidate_core_slot_conflicts_weather_names_charizard_slot():
         *[empty_slot() for _ in range(5)],
     ]
     contexts = collect_locked_anchor_contexts(_state(draft))
-    build = resolve_anchor_build("Swampert-Mega")
+    build = resolve_anchor_build("Swampert-Mega", regulation="champions")
     decision = classify_anchor_role(build)
     conflicts = candidate_core_slot_conflicts(
         decision, build, contexts, is_core_slot=True
@@ -1668,7 +1683,7 @@ def test_candidate_core_slot_conflicts_mega_names_locked_mega():
         *[empty_slot() for _ in range(5)],
     ]
     contexts = collect_locked_anchor_contexts(_state(draft))
-    build = resolve_anchor_build("Metagross-Mega")
+    build = resolve_anchor_build("Metagross-Mega", regulation="champions")
     decision = classify_anchor_role(build)
     conflicts = candidate_core_slot_conflicts(
         decision, build, contexts, is_core_slot=True
@@ -1693,7 +1708,7 @@ def test_candidate_core_slot_conflicts_swampert_vs_charizard_is_one_slot():
         *[empty_slot() for _ in range(5)],
     ]
     contexts = collect_locked_anchor_contexts(_state(draft))
-    build = resolve_anchor_build("Swampert-Mega")
+    build = resolve_anchor_build("Swampert-Mega", regulation="champions")
     decision = classify_anchor_role(build)
     conflicts = candidate_core_slot_conflicts(
         decision, build, contexts, is_core_slot=True
@@ -1725,7 +1740,7 @@ def test_candidate_core_slot_conflicts_two_sun_providers_both_listed():
         *[empty_slot() for _ in range(4)],
     ]
     contexts = collect_locked_anchor_contexts(_state(draft))
-    build = resolve_anchor_build("Swampert-Mega")
+    build = resolve_anchor_build("Swampert-Mega", regulation="champions")
     decision = classify_anchor_role(build)
     conflicts = candidate_core_slot_conflicts(
         decision, build, contexts, is_core_slot=True
@@ -1849,7 +1864,7 @@ def test_annotate_composition_impact_does_not_evaluate_dependent_candidate():
             kinds=frozenset({"uncovered"}),
         )
     ]
-    swampert_build = resolve_anchor_build("Swampert-Mega")
+    swampert_build = resolve_anchor_build("Swampert-Mega", regulation="champions")
     candidates = [
         _candidate(
             "Swampert-Mega",
@@ -4205,6 +4220,7 @@ def _run_sequential_annotation_pipeline(state: dict[str, Any]):
         ownership_mode="off",
         excluded_species=excluded,
         locked_contexts=contexts,
+        regulation="champions",
     )
     assert threat_discovery.status == "available", threat_discovery.error
     merged = merge_multi_locked_candidates(

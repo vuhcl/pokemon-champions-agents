@@ -122,7 +122,7 @@ def test_ko_binary_at_threshold():
 
     # Real: Orthworm (Steel) vs a strong Fighting coverage user should KO-match.
     # Use Blaziken as candidate against Orthworm as anchor via full query.
-    out = query_counters({"species": "Orthworm"}, n=50)
+    out = query_counters({"species": "Orthworm"}, n=50, regulation="champions")
     assert any("ko_threshold" in c.threat_kinds for c in out)
     # Below-threshold: a known non-threat typing with weak moves is hard to guarantee
     # on real data; assert score semantics on returned KO matches instead.
@@ -138,17 +138,18 @@ def test_vacuous_wall_status_only_falls_back_to_stab():
     out = query_counters(
         {"species": "Blaziken-Mega", "moves": ["Protect", "Will-O-Wisp", "Roost"]},
         n=20,
+        regulation="champions",
     )
     assert len(out) >= 1
     # Compare to empty-moves (explicit STAB) — same attack types → same result set
-    out_stab = query_counters({"species": "Blaziken-Mega"}, n=20)
+    out_stab = query_counters({"species": "Blaziken-Mega"}, n=20, regulation="champions")
     assert {c.form for c in out} == {c.form for c in out_stab}
 
 
 def test_blaziken_mega_ceruledge_wall():
     # Usage-primary within-tier key admits wall-only Ceruledge near the default cut.
     # n=40: wall-only Ceruledge sits past the old n=20/25 boundary after acc-aware KO scores.
-    out = query_counters({"species": "Blaziken-Mega"}, n=40)
+    out = query_counters({"species": "Blaziken-Mega"}, n=40, regulation="champions")
     cer = next(c for c in out if to_id(c.form) == "ceruledge")
     assert "wall" in cer.threat_kinds
     # Fire/Ghost typing does not SE into Fire/Fighting — wall-only, not KO.
@@ -158,7 +159,7 @@ def test_blaziken_mega_ceruledge_wall():
 def test_ko_non_stab_identifiable():
     """Non-STAB best move still tags ko_threshold with ko_best_was_stab False."""
     # Orthworm is pure Steel — Fighting coverage from non-Fighting typings is non-STAB.
-    out = query_counters({"species": "Orthworm"}, n=80)
+    out = query_counters({"species": "Orthworm"}, n=80, regulation="champions")
     nonstab = [
         c
         for c in out
@@ -192,7 +193,7 @@ def test_multi_axis_tier_precedes_single():
     )
     assert threat_tier(both.threat_kinds) < threat_tier(one.threat_kinds)
 
-    out = query_counters({"species": "Blaziken-Mega"}, n=20)
+    out = query_counters({"species": "Blaziken-Mega"}, n=20, regulation="champions")
     # All dual-axis results must appear before any single-axis in the list.
     saw_single = False
     for c in out:
@@ -203,8 +204,8 @@ def test_multi_axis_tier_precedes_single():
 
 
 def test_usage_within_tier_ordinal():
-    ig = ingame_species_map()
-    out = query_counters({"species": "Blaziken-Mega"}, n=20)
+    ig = ingame_species_map("champions")
+    out = query_counters({"species": "Blaziken-Mega"}, n=20, regulation="champions")
     # Within the single-axis (tier 1) block, usage_rank should be ascending among known ranks.
     tier1 = [c for c in out if threat_tier(c.threat_kinds) == 1 and c.usage_rank is not None]
     ranks = [c.usage_rank for c in tier1]
@@ -219,14 +220,14 @@ def test_usage_within_tier_ordinal():
 def test_no_featured_set_skips_ko_wall_still_possible():
     # Force featured_or_common_set → None; legality ability still allows walls.
     with patch("recommender.counters.featured_or_common_set", return_value=None):
-        out = query_counters({"species": "Blaziken-Mega"}, n=50)
+        out = query_counters({"species": "Blaziken-Mega"}, n=50, regulation="champions")
     assert out
     assert all("ko_threshold" not in c.threat_kinds for c in out)
     assert any("wall" in c.threat_kinds for c in out)
 
 
 def test_empty_unknown_species():
-    assert query_counters({"species": "DefinitelyNotRealMon"}, n=20) == []
+    assert query_counters({"species": "DefinitelyNotRealMon"}, n=20, regulation="champions") == []
 
 
 def test_type_effectiveness_basics():
@@ -284,23 +285,23 @@ def test_multiplicative_slack_bonus_keep_and_skip():
 
 def test_candidate_pool_restricts_results():
     # Full scan for comparison — pick a small restrictive subset of returned forms.
-    full = query_counters({"species": "Blaziken-Mega"}, n=20)
+    full = query_counters({"species": "Blaziken-Mega"}, n=20, regulation="champions")
     assert len(full) >= 2
     allowed_forms = [full[0].form, full[1].form]
     pool = [{"species": f} for f in allowed_forms]
-    out = query_counters({"species": "Blaziken-Mega"}, n=20, candidate_pool=pool)
+    out = query_counters({"species": "Blaziken-Mega"}, n=20, candidate_pool=pool, regulation="champions")
     assert out
     assert {c.form for c in out} <= set(allowed_forms)
 
 
 def test_candidate_pool_empty_returns_empty():
     assert (
-        query_counters({"species": "Blaziken-Mega"}, n=20, candidate_pool=[]) == []
+        query_counters({"species": "Blaziken-Mega"}, n=20, candidate_pool=[], regulation="champions") == []
     )
 
 
 def test_ownership_off_and_owned_first_with_duplicate_box_entries():
-    full = query_counters({"species": "Blaziken-Mega"}, n=1000)
+    full = query_counters({"species": "Blaziken-Mega"}, n=1000, regulation="champions")
     by_tier: dict[int, list[ThreatCandidate]] = {}
     for candidate in full:
         by_tier.setdefault(threat_tier(candidate.threat_kinds), []).append(candidate)
@@ -309,14 +310,15 @@ def test_ownership_off_and_owned_first_with_duplicate_box_entries():
     owned = same_tier[-1].form
 
     baseline = query_counters(
-        {"species": "Blaziken-Mega"}, n=20, candidate_pool=candidate_pool
-    )
+        {"species": "Blaziken-Mega"}, n=20, candidate_pool=candidate_pool,
+    regulation="champions")
     off = query_counters(
         {"species": "Blaziken-Mega"},
         n=20,
         candidate_pool=candidate_pool,
         available_pool=[owned],
         ownership_mode="off",
+        regulation="champions",
     )
     once = query_counters(
         {"species": "Blaziken-Mega"},
@@ -324,6 +326,7 @@ def test_ownership_off_and_owned_first_with_duplicate_box_entries():
         candidate_pool=candidate_pool,
         available_pool=[owned],
         ownership_mode="owned_first",
+        regulation="champions",
     )
     duplicates = query_counters(
         {"species": "Blaziken-Mega"},
@@ -331,6 +334,7 @@ def test_ownership_off_and_owned_first_with_duplicate_box_entries():
         candidate_pool=candidate_pool,
         available_pool=[owned, owned, owned],
         ownership_mode="owned_first",
+        regulation="champions",
     )
 
     assert off == baseline
@@ -353,7 +357,7 @@ def test_owned_last_only_breaks_a_complete_query_key_tie():
     real data happening to coincide, which the _key fix specifically
     made much less likely.
     """
-    full = query_counters({"species": "Blaziken-Mega"}, n=1000)
+    full = query_counters({"species": "Blaziken-Mega"}, n=1000, regulation="champions")
     groups: dict[tuple, list[ThreatCandidate]] = {}
     for candidate in full:
         if candidate.usage_rank is not None:
@@ -363,7 +367,7 @@ def test_owned_last_only_breaks_a_complete_query_key_tie():
     pair = next(group for group in groups.values() if len(group) >= 2)[:2]
     a_id, b_id = to_id(pair[0].form), to_id(pair[1].form)
 
-    real_sd = showdown_species_map("champions-reg-mb")
+    real_sd = showdown_species_map("champions")
     forced_pct = real_sd.get(a_id, {}).get("usage_pct", 1.0)
     patched_sd = dict(real_sd)
 
@@ -390,6 +394,7 @@ def test_owned_last_only_breaks_a_complete_query_key_tie():
             candidate_pool=candidate_pool,
             available_pool=[owned],
             ownership_mode="owned_last",
+                regulation="champions",
         )
     assert to_id(out[0].form) == to_id(owned)
     assert {to_id(c.form) for c in out} == {
@@ -398,7 +403,7 @@ def test_owned_last_only_breaks_a_complete_query_key_tie():
 
 
 def test_owned_only_intersects_candidate_pool_and_handles_empty():
-    full = query_counters({"species": "Blaziken-Mega"}, n=20)
+    full = query_counters({"species": "Blaziken-Mega"}, n=20, regulation="champions")
     assert len(full) >= 3
     narrowed = [{"species": c.form} for c in full[:3]]
     owned = full[1].form
@@ -409,6 +414,7 @@ def test_owned_only_intersects_candidate_pool_and_handles_empty():
         candidate_pool=narrowed,
         available_pool=[owned, owned, "NotInNarrowedPool"],
         ownership_mode="owned_only",
+        regulation="champions",
     )
     empty = query_counters(
         {"species": "Blaziken-Mega"},
@@ -416,6 +422,7 @@ def test_owned_only_intersects_candidate_pool_and_handles_empty():
         candidate_pool=narrowed,
         available_pool=[],
         ownership_mode="owned_only",
+        regulation="champions",
     )
 
     assert [to_id(c.form) for c in one] == [to_id(owned)]
@@ -717,7 +724,7 @@ def test_query_counters_showdown_only_candidates_ranked_by_real_popularity():
     at float("-inf") and ownership_mode/pool order would have decided
     it, not real popularity.
     """
-    full = query_counters({"species": "Blaziken-Mega"}, n=1000)
+    full = query_counters({"species": "Blaziken-Mega"}, n=1000, regulation="champions")
     groups: dict[tuple, list[ThreatCandidate]] = {}
     for candidate in full:
         if candidate.usage_rank is not None:
@@ -727,7 +734,7 @@ def test_query_counters_showdown_only_candidates_ranked_by_real_popularity():
     pair = next(group for group in groups.values() if len(group) >= 2)[:2]
     a_id, b_id = to_id(pair[0].form), to_id(pair[1].form)
 
-    real_sd = showdown_species_map("champions-reg-mb")
+    real_sd = showdown_species_map("champions")
     patched_sd = dict(real_sd)
     # Assign the LOWER percentage to whichever of the two comes first in
     # the raw snapshot's own species dict ordering, and the HIGHER
@@ -753,8 +760,8 @@ def test_query_counters_showdown_only_candidates_ranked_by_real_popularity():
         "recommender.counters.showdown_species_map", return_value=patched_sd
     ):
         out = query_counters(
-            {"species": "Blaziken-Mega"}, n=20, candidate_pool=candidate_pool
-        )
+            {"species": "Blaziken-Mega"}, n=20, candidate_pool=candidate_pool,
+        regulation="champions")
     assert to_id(out[0].form) == second_id
     assert to_id(out[1].form) == first_id
 
@@ -764,6 +771,7 @@ def test_query_counters_reports_mega_form_directly_not_base():
     counters = query_counters(
         {"species": "Archaludon"},
         candidate_pool=[{"species": "Swampert"}],
+        regulation="champions",
     )
     swampert_related = [c for c in counters if "swampert" in c.ladder_species.lower()]
     assert len(swampert_related) == 1
@@ -782,6 +790,6 @@ def test_query_counters_candidate_pool_matches_retargeted_mega_name():
     isn't literally in the allowed set.
     """
     result = query_counters(
-        {"species": "Archaludon"}, candidate_pool=[{"species": "Swampert-Mega"}]
-    )
+        {"species": "Archaludon"}, candidate_pool=[{"species": "Swampert-Mega"}],
+    regulation="champions")
     assert any(c.ladder_species == "Swampert-Mega" for c in result)

@@ -113,7 +113,8 @@ def test_resolved_builds_sv_spreads_valid_champions_unchanged():
 
 
 def test_bax_resolve_and_provisional_use_writeup_sum66_not_role_default():
-    build = resolve_anchor_build("Baxcalibur")
+    # Pin M-B: under M-C Baxcalibur has usage-derived spreads, not writeup Sum66.
+    build = resolve_anchor_build("Baxcalibur", regulation="champions-reg-mb")
     assert build.spread == BAX_SP
     assert sum(build.spread.values()) == 66
     assert build.spread != ROLE_DEFAULT_BAX

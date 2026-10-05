@@ -82,7 +82,7 @@ def test_mega_capable_bases_in_threat_ladder_with_showdown_builds():
     charizard = [c for c in cands if c.ladder_species == "Charizard"]
     assert charizard
     assert all(c.build_source.startswith("showdown") for c in charizard)
-    assert set_from_ingame("Charizard") is None
+    assert set_from_ingame("Charizard", regulation="champions") is None
 
 
 def test_ranked_by_ingame_usage_rank():
