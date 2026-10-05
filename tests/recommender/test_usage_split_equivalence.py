@@ -140,15 +140,23 @@ def test_tiny_monolith_split_load_equivalence(tmp_path: Path, monkeypatch: pytes
 
 @pytest.mark.skipif(not MONOLITH_FIXTURE.exists(), reason="pre-B3a monolith scratch fixture absent")
 def test_real_mc_monolith_vs_split_files():
+    """Local-only: species/flat vs pre-B3a scratch. Meta labels may differ after B3b."""
     mono = json.loads(MONOLITH_FIXTURE.read_text(encoding="utf-8"))
-    before = normalize_monolith(mono)
     # Flat equality vs merge (committed monolith must already satisfy this).
     assert mono["species"] == merge_species_flat(
         mono["ingame_doubles"]["species"], mono["showdown_vgc_mb"]["species"]
     )
     load_usage.cache_clear()
     after = load_usage("champions-reg-mc")
-    _assert_deep_equal(before, after)
+    assert after["ingame_doubles"]["species"] == mono["ingame_doubles"]["species"]
+    # Spread rows may gain pct_kind labels post-B3b; pct values must match.
+    before_sd = mono["showdown_vgc_mb"]["species"]
+    after_sd = after["showdown_doubles"]["species"]
+    assert set(after_sd) == set(before_sd)
+    for sid, brow in before_sd.items():
+        arow = after_sd[sid]
+        for i, bs in enumerate(brow.get("top_spreads") or []):
+            assert arow["top_spreads"][i]["pct"] == bs["pct"]
     assert showdown_ready("champions-reg-mc")
     assert after["meta"]["schema_version"] == 4
     assert len(after["species"]) == 343
@@ -165,3 +173,111 @@ def test_committed_split_flat_equals_merge():
     assert (USAGE_DIR / "champions-reg-mc.ingame_doubles.v1.json").exists()
     assert (USAGE_DIR / "champions-reg-mc.showdown_doubles.v1.json").exists()
     assert not (USAGE_DIR / "champions-reg-mc.v1.json").exists()
+
+
+def _independent_split_disk_asserts(mono: dict, usage_dir: Path, tag: str) -> None:
+    """Expected side does NOT use split_monolith/assemble/normalize."""
+    ingame_p = usage_dir / f"{tag}.ingame_doubles.v1.json"
+    showdown_p = usage_dir / f"{tag}.showdown_doubles.v1.json"
+    ingame_file = json.loads(ingame_p.read_text(encoding="utf-8"))
+    showdown_file = json.loads(showdown_p.read_text(encoding="utf-8"))
+    union_meta = set(ingame_file["meta"]) | set(showdown_file["meta"])
+    # section is disk-only; every other raw monolith meta key must appear.
+    for key in mono["meta"]:
+        assert key in union_meta or key == "section", f"meta key dropped: {key}"
+    sd_key = "showdown_doubles" if "showdown_doubles" in mono else "showdown_vgc_mb"
+    assert ingame_file["ingame_doubles"]["species"] == mono["ingame_doubles"]["species"]
+    assert showdown_file["showdown_doubles"]["species"] == mono[sd_key]["species"]
+
+
+def test_split_disk_independent_of_assemble(tmp_path: Path):
+    mono = {
+        "meta": {
+            "schema_version": 3,
+            "regulation": "champions-reg-mc",
+            "munchstats_generated_at": "2026-09-10T00:00:00Z",
+            "ingame_ladder_n": 1,
+            "showdown_format": "gen9championsvgc2026regmc",
+            "showdown_month": "2026-09",
+            "showdown_battles": 10,
+            "sources": ["munchstats-champions-data", "smogon-chaos"],
+            "attribution": "both",
+        },
+        "ingame_doubles": {
+            "species": {
+                "a": {"id": "a", "name": "A", "common_moves": [], "source": "ingame"}
+            }
+        },
+        "showdown_vgc_mb": {
+            "species": {
+                "b": {"id": "b", "name": "B", "common_moves": [], "source": "smogon-chaos"}
+            }
+        },
+        "species": {},
+    }
+    write_split(mono, usage_dir=tmp_path, tag="champions-reg-mc")
+    _independent_split_disk_asserts(mono, tmp_path, "champions-reg-mc")
+
+
+def test_independent_asserts_catch_dropped_meta_and_species(tmp_path: Path, monkeypatch):
+    """Red-first record: broken split fails independent asserts; fixed split passes."""
+    mono = {
+        "meta": {
+            "schema_version": 3,
+            "regulation": "champions-reg-mc",
+            "munchstats_generated_at": "2026-09-10T00:00:00Z",
+            "showdown_format": "gen9championsvgc2026regmc",
+            "showdown_month": "2026-09",
+            "sources": ["munchstats-champions-data", "smogon-chaos"],
+        },
+        "ingame_doubles": {
+            "species": {"a": {"id": "a", "name": "A", "common_moves": [], "source": "i"}}
+        },
+        "showdown_vgc_mb": {
+            "species": {"b": {"id": "b", "name": "B", "common_moves": [], "source": "s"}}
+        },
+        "species": {},
+    }
+
+    def broken_split(monolith):
+        ingame_f, sd_f = split_monolith(monolith)
+        ingame_f["meta"].pop("munchstats_generated_at", None)
+        sd_f["showdown_doubles"]["species"] = {}
+        return ingame_f, sd_f
+
+    monkeypatch.setattr(
+        "scripts.extract_usage.split_usage_monolith.split_monolith", broken_split
+    )
+    write_split(mono, usage_dir=tmp_path, tag="champions-reg-mc")
+    with pytest.raises(AssertionError):
+        _independent_split_disk_asserts(mono, tmp_path, "champions-reg-mc")
+
+    monkeypatch.undo()
+    # Fresh dir for green path
+    green = tmp_path / "green"
+    green.mkdir()
+    write_split(mono, usage_dir=green, tag="champions-reg-mc")
+    _independent_split_disk_asserts(mono, green, "champions-reg-mc")
+
+
+def test_assemble_showdown_meta_overwrites_sources():
+    ingame = {
+        "meta": {
+            "regulation": "champions-reg-mc",
+            "sources": ["munchstats-champions-data", "smogon-chaos"],
+            "attribution": "ingame text",
+        },
+        "ingame_doubles": {"species": {}},
+    }
+    showdown = {
+        "meta": {
+            "regulation": "champions-reg-mc",
+            "sources": ["smogon-chaos"],
+            "attribution": "showdown text",
+            "showdown_month": "2026-09",
+        },
+        "showdown_doubles": {"species": {}},
+    }
+    snap = assemble_from_split(ingame, showdown)
+    assert snap["meta"]["sources"] == ["smogon-chaos"]
+    assert snap["meta"]["attribution"] == "showdown text"

@@ -54,8 +54,6 @@ def _assert_format_allowed(format_id: str) -> None:
             f"format_id {format_id!r} != registry Bo1 VGC {expected!r} "
             f"(bo3/OU/BSS/other formats rejected)"
         )
-    if "bo3" in format_id.lower():
-        raise ValueError(f"format_id {format_id!r} looks like bo3; rejected")
 
 
 def _fetch_chaos(
@@ -75,10 +73,8 @@ def graft(
     format_id: str,
     rating: int,
     extracted_at: str | None = None,
-    previous: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build showdown per-source file. Integrity: nonempty + format match."""
-    del previous  # no cross-file preserve; this file is Showdown-only
     _assert_format_allowed(format_id)
     n = len(showdown)
     if n < 1:
@@ -98,14 +94,16 @@ def graft(
         "showdown_format": format_id,
         "showdown_month": month,
         "showdown_source": "smogon-chaos",
-        "showdown_pct_kind": "set",
+        "showdown_pct_kind": "weight_over_raw_count",
         "showdown_move_limit": None,
         "showdown_battles": battles_n,
         "showdown_extracted_at": clock,
         "showdown_teammates_extracted_at": clock,
         "showdown_teammates": showdown_teammates_descriptor(),
         "attribution": (
-            "Showdown VGC: Smogon chaos stats (set% = weight / Raw count; "
+            "Showdown VGC: Smogon chaos stats "
+            "(common_* pct = weight / Raw count; "
+            "top_spreads[].pct = raw chaos Spreads weight; "
             "no move/item cap)."
         ),
         "sources": ["smogon-chaos"],
@@ -203,7 +201,6 @@ def main(argv: list[str] | None = None) -> int:
             month=args.month,
             format_id=args.format_id,
             rating=args.rating,
-            previous=previous,
         )
     except ValueError as e:
         print(str(e), file=sys.stderr)

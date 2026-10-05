@@ -58,7 +58,18 @@ uv run python scripts/extract_usage/fetch_usage_mb.py \
 
 Meta records `showdown_month`, `showdown_format`, `showdown_rating`,
 `showdown_source` (`smogon-chaos` | `munchstats-showdown`), `showdown_pct_kind`
-(`set`), and `showdown_move_limit` (`null` = no cap).
+(`weight_over_raw_count` = common_moves/items/abilities use **weight / Raw count**;
+legacy `"set"` is an alias), and `showdown_move_limit` (`null` = no cap).
+
+`top_spreads[].pct` is the **raw chaos Spreads weight** (not a percentage, not
+divided by Raw). Rows stamp `pct_kind: chaos_weight`. Missing `pct_kind` means
+legacy raw weight (M-B archives). Smogon's published % uses sum(Abilities) as
+denominator instead of Raw count — that renormalization is deferred until before
+the B6 persist PR.
+
+When `load_usage` assembles per-source files, showdown meta keys overwrite
+ingame on clash (so in-memory `meta.sources` is often showdown-only). Section
+maps stay separate; this is documented overwrite, not a merge of source lists.
 
 Showdown teammate rows retain the top 10 exact-form chaos weights and expose
 `conditional_pct = 100 * teammate_weight / max(sum(Abilities), sum(Teammates) / 6, 1)`.

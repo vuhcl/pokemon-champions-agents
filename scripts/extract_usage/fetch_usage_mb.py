@@ -151,7 +151,9 @@ def _munch_spreads(d: dict) -> list[dict]:
             {
                 "nature": nature,
                 "evs": {"hp": hp, "atk": atk, "def": df, "spa": spa, "spd": spd, "spe": spe},
+                # Raw chaos Spreads weight (not 100*w/Raw). Missing pct_kind ⇒ legacy.
                 "pct": float(w),
+                "pct_kind": "chaos_weight",
             }
         )
     return out
@@ -385,20 +387,24 @@ def build_snapshot(
             "showdown_format": format_id,
             "showdown_month": month,
             "showdown_source": source,
-            "showdown_pct_kind": "set",
+            "showdown_pct_kind": "weight_over_raw_count",
             "showdown_move_limit": None,
             "showdown_battles": showdown_info.get("number of battles"),
             "showdown_teammates_extracted_at": now,
             "showdown_teammates": showdown_teammates_descriptor(),
             "attribution": (
                 "In-game doubles: championsbattledata.com. "
-                "Showdown VGC: Smogon chaos stats (set% = weight / Raw count; "
+                "Showdown VGC: Smogon chaos stats "
+                "(common_* pct = weight / Raw count; "
+                "top_spreads[].pct = raw chaos Spreads weight; "
                 "no move/item cap)."
                 if source == "smogon-chaos"
                 else (
                     "In-game doubles: championsbattledata.com. "
                     "Showdown VGC: MunchStats mirror of Smogon chaos stats "
-                    "(set% when Raw count present; no move/item cap)."
+                    "(common_* pct = weight / Raw count when present; "
+                    "top_spreads[].pct = raw chaos Spreads weight; "
+                    "no move/item cap)."
                 )
             ),
             "sources": [
