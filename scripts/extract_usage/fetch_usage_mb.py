@@ -10,8 +10,9 @@ ADR-014 offline prep. Callable on regulation change — do not hardcode a month.
         --regulation champions-reg-mb
 
 Defaults reuse the existing CBD slice and pull full Smogon chaos (no move/item
-cap, pct = set% = weight / Raw count). Pass --refresh-cbd to re-fetch in-game.
---source munchstats is the legacy per-species mirror (also untruncated).
+cap, pct = published set% = weight / sum(Abilities)). Pass --refresh-cbd to
+re-fetch in-game. --source munchstats is the legacy per-species mirror (also
+uncapped).
 """
 
 from __future__ import annotations
@@ -41,10 +42,10 @@ from recommender.usage_chaos import (
     DEFAULT_FORMAT,
     DEFAULT_MONTH,
     DEFAULT_RATING,
+    SHOWDOWN_PCT_KIND_PUBLISHED,
     chaos_species_row,
     chaos_url,
-    chaos_weights_to_common,
-    detail_raw_count,
+    common_sets_from_detail,
 )
 
 # Archive CLI pin (historical M-B extract); not a product silent default.
@@ -187,15 +188,11 @@ def _row_from_detail(
         if usage:
             row["usage_pct"] = usage * 100.0 if usage <= 1.0 else usage
         return row
-    raw_count = detail_raw_count(detail)
-    moves = chaos_weights_to_common(
-        detail.get("Moves"), raw_count=raw_count, resolve=resolve_move
-    )
-    items = chaos_weights_to_common(
-        detail.get("Items"), raw_count=raw_count, resolve=resolve_item
-    )
-    abilities = chaos_weights_to_common(
-        detail.get("Abilities"), raw_count=raw_count, resolve=resolve_ability
+    moves, items, abilities, flags = common_sets_from_detail(
+        detail,
+        resolve_move=resolve_move,
+        resolve_item=resolve_item,
+        resolve_ability=resolve_ability,
     )
     featured = []
     if moves and items:
@@ -208,7 +205,7 @@ def _row_from_detail(
         if spreads and spreads[0].get("nature"):
             fs["nature"] = spreads[0]["nature"]
         featured.append(fs)
-    return {
+    row = {
         "name": name,
         "id": to_id(name),
         "usage_pct": usage * 100.0 if usage <= 1.0 else usage,
@@ -221,6 +218,13 @@ def _row_from_detail(
         "teammates_meta": teammates.snapshot_meta(),
         "source": source,
     }
+    if flags["items_bucket"]:
+        row["showdown_pct_fallback_items_bucket"] = True
+    if flags["moves_via_items"]:
+        row["showdown_pct_fallback_moves_via_items"] = True
+    if flags["moves_unscaled"]:
+        row["showdown_moves_pct_unscaled"] = True
+    return row
 
 
 def _fetch_chaos_json(url: str) -> dict | None:
@@ -389,7 +393,7 @@ def build_snapshot(
             "showdown_format": format_id,
             "showdown_month": month,
             "showdown_source": source,
-            "showdown_pct_kind": "weight_over_raw_count",
+            "showdown_pct_kind": SHOWDOWN_PCT_KIND_PUBLISHED,
             "showdown_move_limit": None,
             "showdown_battles": showdown_info.get("number of battles"),
             "showdown_teammates_extracted_at": now,
@@ -397,14 +401,14 @@ def build_snapshot(
             "attribution": (
                 "In-game doubles: championsbattledata.com. "
                 "Showdown VGC: Smogon chaos stats "
-                "(common_* pct = weight / Raw count; "
+                "(common_* pct = weight / sum(Abilities); "
                 "top_spreads[].pct = raw chaos Spreads weight; "
                 "no move/item cap)."
                 if source == "smogon-chaos"
                 else (
                     "In-game doubles: championsbattledata.com. "
                     "Showdown VGC: MunchStats mirror of Smogon chaos stats "
-                    "(common_* pct = weight / Raw count when present; "
+                    "(common_* pct = weight / sum(Abilities) when present; "
                     "top_spreads[].pct = raw chaos Spreads weight; "
                     "no move/item cap)."
                 )
