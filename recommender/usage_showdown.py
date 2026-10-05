@@ -12,8 +12,7 @@ from typing import Any
 from recommender.ids import to_id
 from recommender.usage_cbd import fetch_json
 from recommender.usage_chaos import (
-    chaos_weights_to_common,
-    detail_raw_count,
+    common_sets_from_detail,
     showdown_source_params,
     usage_pct_from_chaos,
 )
@@ -21,15 +20,13 @@ from recommender.usage_data import showdown_species_map
 
 
 def _munch_moves(detail: dict[str, Any]) -> list[dict[str, Any]]:
-    return chaos_weights_to_common(
-        detail.get("Moves"), raw_count=detail_raw_count(detail)
-    )
+    moves, _items, _abilities, _flags = common_sets_from_detail(detail)
+    return moves
 
 
 def _munch_items(detail: dict[str, Any]) -> list[dict[str, Any]]:
-    return chaos_weights_to_common(
-        detail.get("Items"), raw_count=detail_raw_count(detail)
-    )
+    _moves, items, _abilities, _flags = common_sets_from_detail(detail)
+    return items
 
 
 def fetch_showdown_vgc_species(

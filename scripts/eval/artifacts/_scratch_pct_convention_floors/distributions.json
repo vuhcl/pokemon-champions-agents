@@ -1,0 +1,2122 @@
+{
+  "old_floors": {
+    "usage_set_2.3": 2.3,
+    "trick_room_22.5": 22.5,
+    "setup_presence_0.1": 0.1,
+    "dd_presence_1.0": 1.0
+  },
+  "distributions": {
+    "usage_set_2.3": {
+      "n_eligible": 204,
+      "n_clear_old_floor": 111,
+      "top40": [
+        {
+          "pct": 98.27,
+          "sid": "indeedeef",
+          "move": "followme",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 98.0,
+          "sid": "vivillon",
+          "move": "sleeppowder",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 97.734,
+          "sid": "whimsicott",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 97.575,
+          "sid": "talonflame",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 97.299,
+          "sid": "scovillainmega",
+          "move": "ragepowder",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 94.643,
+          "sid": "maushold",
+          "move": "followme",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 94.211,
+          "sid": "sinistcha",
+          "move": "ragepowder",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 93.805,
+          "sid": "grimmsnarl",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 93.622,
+          "sid": "aerodactyl",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 92.395,
+          "sid": "noivern",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 92.214,
+          "sid": "clefable",
+          "move": "followme",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 90.486,
+          "sid": "ariados",
+          "move": "ragepowder",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 88.929,
+          "sid": "aerodactylmega",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 85.842,
+          "sid": "altaria",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 84.961,
+          "sid": "pidgeotmega",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 79.075,
+          "sid": "venusaur",
+          "move": "sleeppowder",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 78.043,
+          "sid": "pelipper",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 76.711,
+          "sid": "vileplume",
+          "move": "sleeppowder",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 72.121,
+          "sid": "victreebel",
+          "move": "sleeppowder",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 71.112,
+          "sid": "klefki",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 69.596,
+          "sid": "salamence",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 68.894,
+          "sid": "clefablemega",
+          "move": "followme",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 65.498,
+          "sid": "decidueye",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 63.883,
+          "sid": "salamencemega",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 63.02,
+          "sid": "scovillain",
+          "move": "ragepowder",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 59.135,
+          "sid": "sableye",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 59.0,
+          "sid": "hippowdon",
+          "move": "yawn",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 56.886,
+          "sid": "gliscor",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 56.581,
+          "sid": "staraptormega",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 54.687,
+          "sid": "skarmory",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 53.27,
+          "sid": "volcarona",
+          "move": "ragepowder",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 51.102,
+          "sid": "stunfiskgalar",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 45.935,
+          "sid": "dragonitemega",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 42.273,
+          "sid": "swampert",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 41.046,
+          "sid": "altariamega",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 40.137,
+          "sid": "stunfisk",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 39.179,
+          "sid": "audinomega",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 38.387,
+          "sid": "roserade",
+          "move": "sleeppowder",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 37.5,
+          "sid": "squawkabilly",
+          "move": "tailwind",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 37.381,
+          "sid": "umbreon",
+          "move": "yawn",
+          "max_source": "showdown"
+        }
+      ],
+      "near_old_floor_band": [
+        {
+          "pct": 9.025,
+          "sid": "gengar",
+          "move": "hypnosis",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 8.961,
+          "sid": "wyrdeer",
+          "move": "hypnosis",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 8.7,
+          "sid": "oranguru",
+          "move": "yawn",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 8.6,
+          "sid": "leafeon",
+          "move": "yawn",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 8.324,
+          "sid": "florges",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 7.852,
+          "sid": "jolteon",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 7.813,
+          "sid": "froslass",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 7.8,
+          "sid": "politoed",
+          "move": "hypnosis",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 7.664,
+          "sid": "serperior",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 7.62,
+          "sid": "raichumegax",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 7.305,
+          "sid": "luxray",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 7.198,
+          "sid": "sableyemega",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 6.94,
+          "sid": "flareon",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 6.694,
+          "sid": "rotomheat",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 6.424,
+          "sid": "forretress",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 6.286,
+          "sid": "alakazam",
+          "move": "reflect",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 5.917,
+          "sid": "alcremie",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 5.485,
+          "sid": "torkoal",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 5.413,
+          "sid": "slowkinggalar",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 5.116,
+          "sid": "appletun",
+          "move": "reflect",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 4.862,
+          "sid": "arboliva",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 4.635,
+          "sid": "bellibolt",
+          "move": "reflect",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 4.582,
+          "sid": "medicham",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 4.511,
+          "sid": "ampharos",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 4.18,
+          "sid": "aromatisse",
+          "move": "hypnosis",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.696,
+          "sid": "camerupt",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.484,
+          "sid": "espeon",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.4,
+          "sid": "espathra",
+          "move": "hypnosis",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 3.345,
+          "sid": "persian",
+          "move": "hypnosis",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.273,
+          "sid": "mrrime",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.269,
+          "sid": "mimikyu",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.227,
+          "sid": "rotomfrost",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 2.947,
+          "sid": "manectric",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 2.92,
+          "sid": "rotommow",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 2.897,
+          "sid": "scizormega",
+          "move": "tailwind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 2.871,
+          "sid": "houndstone",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 2.864,
+          "sid": "dedenne",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 2.344,
+          "sid": "ninetales",
+          "move": "hypnosis",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 2.084,
+          "sid": "araquanid",
+          "move": "reflect",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 2.048,
+          "sid": "gardevoir",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.873,
+          "sid": "delphoxmega",
+          "move": "hypnosis",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.655,
+          "sid": "slowbromega",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.591,
+          "sid": "malamar",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.503,
+          "sid": "spiritomb",
+          "move": "hypnosis",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.478,
+          "sid": "reuniclus",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.417,
+          "sid": "manectricmega",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.275,
+          "sid": "emolga",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.265,
+          "sid": "persianalola",
+          "move": "hypnosis",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.246,
+          "sid": "pyroarmega",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.234,
+          "sid": "farigiraf",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.217,
+          "sid": "raichu",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.192,
+          "sid": "chimechomega",
+          "move": "hypnosis",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.118,
+          "sid": "azumarill",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.116,
+          "sid": "beartic",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.052,
+          "sid": "gengarmega",
+          "move": "hypnosis",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.021,
+          "sid": "heliolisk",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.017,
+          "sid": "emboar",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.975,
+          "sid": "floetteeternal",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.972,
+          "sid": "swampertmega",
+          "move": "yawn",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.909,
+          "sid": "toxapex",
+          "move": "lightscreen",
+          "max_source": "showdown"
+        }
+      ],
+      "gaps": []
+    },
+    "trick_room_22.5": {
+      "n_eligible": 60,
+      "n_clear_old_floor": 39,
+      "top40": [
+        {
+          "pct": 96.377,
+          "sid": "farigiraf",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 95.391,
+          "sid": "aromatisse",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 94.711,
+          "sid": "spiritomb",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 94.004,
+          "sid": "oranguru",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 92.436,
+          "sid": "hatterene",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 91.081,
+          "sid": "cofagrigus",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 89.865,
+          "sid": "audino",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 84.584,
+          "sid": "runerigus",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 81.714,
+          "sid": "indeedeef",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 79.6,
+          "sid": "musharna",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 78.418,
+          "sid": "slowbro",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 77.834,
+          "sid": "reuniclus",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 76.9,
+          "sid": "wyrdeer",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 74.666,
+          "sid": "slowking",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 74.6,
+          "sid": "slowkinggalar",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 66.321,
+          "sid": "mimikyu",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 65.954,
+          "sid": "sinistcha",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 65.79,
+          "sid": "trevenant",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 64.733,
+          "sid": "audinomega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 54.153,
+          "sid": "gallade",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 49.889,
+          "sid": "slowbromega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 49.585,
+          "sid": "armarouge",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 46.427,
+          "sid": "chandelure",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 41.431,
+          "sid": "malamar",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 41.324,
+          "sid": "chimechomega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 38.508,
+          "sid": "mrrime",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 37.751,
+          "sid": "malamarmega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 37.289,
+          "sid": "gardevoirmega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 36.792,
+          "sid": "gengar",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 36.5,
+          "sid": "indeedee",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 36.4,
+          "sid": "gourgeistlarge",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 34.492,
+          "sid": "chandeluremega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 31.733,
+          "sid": "banettemega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 30.367,
+          "sid": "espeon",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 29.6,
+          "sid": "gourgeist",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 27.279,
+          "sid": "medicham",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 26.791,
+          "sid": "slowbrogalar",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 26.2,
+          "sid": "klefki",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 24.305,
+          "sid": "gardevoir",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 21.641,
+          "sid": "alakazam",
+          "move": "trickroom",
+          "max_source": "showdown"
+        }
+      ],
+      "near_old_floor_band": [
+        {
+          "pct": 89.865,
+          "sid": "audino",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 84.584,
+          "sid": "runerigus",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 81.714,
+          "sid": "indeedeef",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 79.6,
+          "sid": "musharna",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 78.418,
+          "sid": "slowbro",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 77.834,
+          "sid": "reuniclus",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 76.9,
+          "sid": "wyrdeer",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 74.666,
+          "sid": "slowking",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 74.6,
+          "sid": "slowkinggalar",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 66.321,
+          "sid": "mimikyu",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 65.954,
+          "sid": "sinistcha",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 65.79,
+          "sid": "trevenant",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 64.733,
+          "sid": "audinomega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 54.153,
+          "sid": "gallade",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 49.889,
+          "sid": "slowbromega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 49.585,
+          "sid": "armarouge",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 46.427,
+          "sid": "chandelure",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 41.431,
+          "sid": "malamar",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 41.324,
+          "sid": "chimechomega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 38.508,
+          "sid": "mrrime",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 37.751,
+          "sid": "malamarmega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 37.289,
+          "sid": "gardevoirmega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 36.792,
+          "sid": "gengar",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 36.5,
+          "sid": "indeedee",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 36.4,
+          "sid": "gourgeistlarge",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 34.492,
+          "sid": "chandeluremega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 31.733,
+          "sid": "banettemega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 30.367,
+          "sid": "espeon",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 29.6,
+          "sid": "gourgeist",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 27.279,
+          "sid": "medicham",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 26.791,
+          "sid": "slowbrogalar",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 26.2,
+          "sid": "klefki",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 24.305,
+          "sid": "gardevoir",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 21.641,
+          "sid": "alakazam",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 21.436,
+          "sid": "mrmime",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 18.8,
+          "sid": "polteageist",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 18.771,
+          "sid": "meowstic",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 15.2,
+          "sid": "gourgeistsmall",
+          "move": "trickroom",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 11.251,
+          "sid": "gallademega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 5.374,
+          "sid": "meowsticmmega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 4.14,
+          "sid": "delphox",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.974,
+          "sid": "medichammega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.405,
+          "sid": "starmie",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.271,
+          "sid": "meowscarada",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 2.914,
+          "sid": "whimsicott",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.26,
+          "sid": "alakazammega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.809,
+          "sid": "delphoxmega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.775,
+          "sid": "starmiemega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.574,
+          "sid": "meowsticfmega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.382,
+          "sid": "espathra",
+          "move": "trickroom",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.328,
+          "sid": "gengarmega",
+          "move": "trickroom",
+          "max_source": "showdown"
+        }
+      ],
+      "gaps": [
+        {
+          "above": 74.6,
+          "below": 66.321,
+          "gap": 8.279
+        },
+        {
+          "above": 65.79,
+          "below": 64.733,
+          "gap": 1.057
+        },
+        {
+          "above": 64.733,
+          "below": 54.153,
+          "gap": 10.58
+        },
+        {
+          "above": 54.153,
+          "below": 49.889,
+          "gap": 4.264
+        },
+        {
+          "above": 49.585,
+          "below": 46.427,
+          "gap": 3.158
+        },
+        {
+          "above": 46.427,
+          "below": 41.431,
+          "gap": 4.996
+        },
+        {
+          "above": 41.324,
+          "below": 38.508,
+          "gap": 2.816
+        },
+        {
+          "above": 36.4,
+          "below": 34.492,
+          "gap": 1.908
+        },
+        {
+          "above": 34.492,
+          "below": 31.733,
+          "gap": 2.759
+        },
+        {
+          "above": 31.733,
+          "below": 30.367,
+          "gap": 1.366
+        },
+        {
+          "above": 29.6,
+          "below": 27.279,
+          "gap": 2.321
+        },
+        {
+          "above": 26.2,
+          "below": 24.305,
+          "gap": 1.895
+        },
+        {
+          "above": 24.305,
+          "below": 21.641,
+          "gap": 2.664
+        },
+        {
+          "above": 21.436,
+          "below": 18.8,
+          "gap": 2.636
+        },
+        {
+          "above": 18.771,
+          "below": 15.2,
+          "gap": 3.571
+        },
+        {
+          "above": 15.2,
+          "below": 11.251,
+          "gap": 3.949
+        },
+        {
+          "above": 11.251,
+          "below": 5.374,
+          "gap": 5.877
+        },
+        {
+          "above": 5.374,
+          "below": 4.14,
+          "gap": 1.234
+        },
+        {
+          "above": 2.914,
+          "below": 1.26,
+          "gap": 1.654
+        }
+      ]
+    },
+    "setup_presence_0.1": {
+      "n_eligible": 286,
+      "n_clear_old_floor": 241,
+      "top40": [
+        {
+          "pct": 88.129,
+          "sid": "espathra",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 86.014,
+          "sid": "gyaradosmega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 85.309,
+          "sid": "aggronmega",
+          "move": "irondefense",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 84.427,
+          "sid": "gholdengo",
+          "move": "nastyplot",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 70.45,
+          "sid": "scolipedemega",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 67.772,
+          "sid": "corviknight",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 66.682,
+          "sid": "scizormega",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 61.049,
+          "sid": "delphoxmega",
+          "move": "nastyplot",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 59.208,
+          "sid": "charizardmegax",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 48.789,
+          "sid": "florges",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 48.726,
+          "sid": "feraligatrmega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 47.163,
+          "sid": "glaceon",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 46.965,
+          "sid": "scolipede",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 46.9,
+          "sid": "vaporeon",
+          "move": "calmmind",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 46.194,
+          "sid": "feraligatr",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 44.4,
+          "sid": "orthworm",
+          "move": "irondefense",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 42.859,
+          "sid": "ceruledge",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 42.364,
+          "sid": "golisopodmega",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 42.355,
+          "sid": "skarmory",
+          "move": "irondefense",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 41.36,
+          "sid": "sandaconda",
+          "move": "irondefense",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 40.637,
+          "sid": "bastiodon",
+          "move": "irondefense",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 40.409,
+          "sid": "primarina",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 38.109,
+          "sid": "scizor",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 36.381,
+          "sid": "annihilape",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 36.043,
+          "sid": "gogoat",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 35.305,
+          "sid": "hawlucha",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 33.497,
+          "sid": "lucariomegaz",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 32.7,
+          "sid": "mimikyu",
+          "move": "swordsdance",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 29.796,
+          "sid": "chimechomega",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 29.6,
+          "sid": "overqwil",
+          "move": "swordsdance",
+          "max_source": "ingame"
+        },
+        {
+          "pct": 28.981,
+          "sid": "gyarados",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 28.764,
+          "sid": "skarmorymega",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 28.091,
+          "sid": "dragonite",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 27.807,
+          "sid": "houndoommega",
+          "move": "nastyplot",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 27.196,
+          "sid": "excadrillmega",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 26.688,
+          "sid": "alakazammega",
+          "move": "nastyplot",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 26.1,
+          "sid": "cofagrigus",
+          "move": "irondefense",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 25.703,
+          "sid": "emboarmega",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 25.337,
+          "sid": "slowbromega",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 24.76,
+          "sid": "tyranitarmega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        }
+      ],
+      "near_old_floor_band": [
+        {
+          "pct": 0.372,
+          "sid": "sceptilemega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.35,
+          "sid": "medicham",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.348,
+          "sid": "raichu",
+          "move": "nastyplot",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.305,
+          "sid": "torkoal",
+          "move": "irondefense",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.292,
+          "sid": "serperior",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.29,
+          "sid": "gallade",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.289,
+          "sid": "aerodactyl",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.287,
+          "sid": "indeedee",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.277,
+          "sid": "greninjamega",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.269,
+          "sid": "charizard",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.252,
+          "sid": "oranguru",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.232,
+          "sid": "toxapex",
+          "move": "irondefense",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.227,
+          "sid": "rillaboom",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.218,
+          "sid": "golurkmega",
+          "move": "irondefense",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.214,
+          "sid": "indeedeef",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.164,
+          "sid": "morpeko",
+          "move": "nastyplot",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.156,
+          "sid": "malamarmega",
+          "move": "nastyplot",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.144,
+          "sid": "grimmsnarl",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.131,
+          "sid": "malamar",
+          "move": "nastyplot",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.118,
+          "sid": "incineroar",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.108,
+          "sid": "starmie",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.093,
+          "sid": "archaludon",
+          "move": "irondefense",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.091,
+          "sid": "noivern",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.09,
+          "sid": "pawmot",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.074,
+          "sid": "staraptormega",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.063,
+          "sid": "vivillon",
+          "move": "irondefense",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.06,
+          "sid": "volcarona",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.056,
+          "sid": "staraptor",
+          "move": "bulkup",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.055,
+          "sid": "abomasnow",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.053,
+          "sid": "charizardmegay",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.052,
+          "sid": "meowscarada",
+          "move": "nastyplot",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.047,
+          "sid": "persian",
+          "move": "nastyplot",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.045,
+          "sid": "greninja",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.038,
+          "sid": "sableye",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.038,
+          "sid": "audino",
+          "move": "calmmind",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.029,
+          "sid": "venusaurmega",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.02,
+          "sid": "inteleon",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.014,
+          "sid": "venusaur",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.012,
+          "sid": "meganiummega",
+          "move": "swordsdance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.012,
+          "sid": "blastoisemega",
+          "move": "irondefense",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.006,
+          "sid": "milotic",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.003,
+          "sid": "glimmoramega",
+          "move": "irondefense",
+          "max_source": "showdown"
+        }
+      ],
+      "gaps": []
+    },
+    "dd_presence_1.0": {
+      "n_eligible": 35,
+      "n_clear_old_floor": 19,
+      "top40": [
+        {
+          "pct": 86.014,
+          "sid": "gyaradosmega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 59.208,
+          "sid": "charizardmegax",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 48.726,
+          "sid": "feraligatrmega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 46.194,
+          "sid": "feraligatr",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 28.981,
+          "sid": "gyarados",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 28.091,
+          "sid": "dragonite",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 24.76,
+          "sid": "tyranitarmega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 21.597,
+          "sid": "baxcalibur",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 20.453,
+          "sid": "baxcaliburmega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 19.042,
+          "sid": "flapple",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 11.463,
+          "sid": "tyranitar",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 9.407,
+          "sid": "altariamega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 5.61,
+          "sid": "tyrantrum",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 5.379,
+          "sid": "salamence",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.915,
+          "sid": "salamencemega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.696,
+          "sid": "scraftymega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 2.812,
+          "sid": "dragapult",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.454,
+          "sid": "aerodactylmega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.061,
+          "sid": "scrafty",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.899,
+          "sid": "steelix",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.54,
+          "sid": "dragonitemega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.464,
+          "sid": "altaria",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.372,
+          "sid": "sceptilemega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.289,
+          "sid": "aerodactyl",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.286,
+          "sid": "steelixmega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.269,
+          "sid": "charizard",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.249,
+          "sid": "sceptile",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.189,
+          "sid": "kommoo",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.107,
+          "sid": "hydreigon",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.091,
+          "sid": "noivern",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.053,
+          "sid": "charizardmegay",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.045,
+          "sid": "drampa",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.006,
+          "sid": "salazzle",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.006,
+          "sid": "milotic",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.005,
+          "sid": "drampamega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        }
+      ],
+      "near_old_floor_band": [
+        {
+          "pct": 3.915,
+          "sid": "salamencemega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 3.696,
+          "sid": "scraftymega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 2.812,
+          "sid": "dragapult",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.454,
+          "sid": "aerodactylmega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 1.061,
+          "sid": "scrafty",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.899,
+          "sid": "steelix",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.54,
+          "sid": "dragonitemega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.464,
+          "sid": "altaria",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.372,
+          "sid": "sceptilemega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.289,
+          "sid": "aerodactyl",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.286,
+          "sid": "steelixmega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.269,
+          "sid": "charizard",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.249,
+          "sid": "sceptile",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.189,
+          "sid": "kommoo",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.107,
+          "sid": "hydreigon",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.091,
+          "sid": "noivern",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.053,
+          "sid": "charizardmegay",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.045,
+          "sid": "drampa",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.006,
+          "sid": "salazzle",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.006,
+          "sid": "milotic",
+          "move": "dragondance",
+          "max_source": "showdown"
+        },
+        {
+          "pct": 0.005,
+          "sid": "drampamega",
+          "move": "dragondance",
+          "max_source": "showdown"
+        }
+      ],
+      "gaps": [
+        {
+          "above": 2.812,
+          "below": 1.454,
+          "gap": 1.358
+        }
+      ]
+    }
+  }
+}

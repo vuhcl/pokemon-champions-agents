@@ -7,6 +7,7 @@ Absolute TEMPORARY battle/species floors are gone (B3a).
 
 Example:
 
+    uv run python -m scripts.extract_usage.graft_showdown_mc --from-meta --force
     uv run python -m scripts.extract_usage.graft_showdown_mc --month 2026-09
     uv run python -m scripts.extract_usage.graft_showdown_mc --month 2026-10 --force
     uv run python -m scripts.extract_usage.graft_showdown_mc --month 2026-10 --dry-run
@@ -23,6 +24,10 @@ from pathlib import Path
 from typing import Any
 
 from recommender.regulation_registry import REGULATIONS
+from recommender.usage_chaos import (
+    SHOWDOWN_PCT_KIND_PUBLISHED,
+    fallback_counts_from_species,
+)
 from scripts.extract_usage.fetch_usage_mb import (
     extract_showdown_chaos,
     showdown_teammates_descriptor,
@@ -96,6 +101,7 @@ def graft(
         battles_n = 0
 
     clock = extracted_at if extracted_at is not None else _utc_now_z()
+    fallbacks = fallback_counts_from_species(showdown)
     meta: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "regulation": regulation,
@@ -104,15 +110,16 @@ def graft(
         "showdown_format": format_id,
         "showdown_month": month,
         "showdown_source": "smogon-chaos",
-        "showdown_pct_kind": "weight_over_raw_count",
+        "showdown_pct_kind": SHOWDOWN_PCT_KIND_PUBLISHED,
         "showdown_move_limit": None,
         "showdown_battles": battles_n,
         "showdown_extracted_at": clock,
         "showdown_teammates_extracted_at": clock,
         "showdown_teammates": showdown_teammates_descriptor(),
+        **fallbacks,
         "attribution": (
             "Showdown VGC: Smogon chaos stats "
-            "(common_* pct = weight / Raw count; "
+            "(common_* pct = weight / sum(Abilities); "
             "top_spreads[].pct = raw chaos Spreads weight; "
             "no move/item cap)."
         ),
@@ -148,14 +155,26 @@ def already_grafted(
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--month", required=True, help="YYYY-MM Smogon stats month")
+    p.add_argument(
+        "--month",
+        default=None,
+        help="YYYY-MM Smogon stats month (required unless --from-meta)",
+    )
+    p.add_argument(
+        "--from-meta",
+        action="store_true",
+        help=(
+            "Read showdown_month / showdown_format / showdown_rating from the "
+            "existing out-file meta (default M-C path)"
+        ),
+    )
     p.add_argument(
         "--regulation",
         default=REGULATION_TAG,
         help=f"Regulation file tag (default {REGULATION_TAG})",
     )
     p.add_argument("--format", default=None, dest="format_id")
-    p.add_argument("--rating", type=int, default=1500)
+    p.add_argument("--rating", type=int, default=None)
     p.add_argument("--out", type=Path, default=None)
     p.add_argument(
         "--dry-run",
@@ -175,17 +194,7 @@ def main(argv: list[str] | None = None) -> int:
     if not expected:
         print(f"unknown regulation {regulation!r}", file=sys.stderr)
         return 2
-    format_id = args.format_id or expected
     out_path = args.out or showdown_out_path(regulation)
-
-    if not _MONTH_RE.match(args.month):
-        print(f"invalid --month {args.month!r} (want YYYY-MM)", file=sys.stderr)
-        return 2
-    try:
-        _assert_format_allowed(format_id, regulation=regulation)
-    except ValueError as e:
-        print(str(e), file=sys.stderr)
-        return 2
 
     previous = None
     if out_path.exists():
@@ -194,7 +203,37 @@ def main(argv: list[str] | None = None) -> int:
         except (OSError, json.JSONDecodeError):
             previous = None
 
-    showdown, info = _fetch_chaos(args.month, format_id, args.rating)
+    month = args.month
+    format_id = args.format_id or expected
+    rating = args.rating if args.rating is not None else 1500
+    if args.from_meta:
+        meta = (previous or {}).get("meta") or {}
+        month = str(meta.get("showdown_month") or "") or month
+        format_id = str(meta.get("showdown_format") or "") or format_id
+        try:
+            rating = int(meta.get("showdown_rating") or rating)
+        except (TypeError, ValueError):
+            pass
+        if not month:
+            print(
+                f"--from-meta requires showdown_month in {out_path}",
+                file=sys.stderr,
+            )
+            return 2
+
+    if not month:
+        print("need --month YYYY-MM or --from-meta", file=sys.stderr)
+        return 2
+    if not _MONTH_RE.match(month):
+        print(f"invalid --month {month!r} (want YYYY-MM)", file=sys.stderr)
+        return 2
+    try:
+        _assert_format_allowed(format_id, regulation=regulation)
+    except ValueError as e:
+        print(str(e), file=sys.stderr)
+        return 2
+
+    showdown, info = _fetch_chaos(month, format_id, rating)
     try:
         battles_n = int(info.get("number of battles") or 0)
     except (TypeError, ValueError):
@@ -204,7 +243,7 @@ def main(argv: list[str] | None = None) -> int:
         previous is not None
         and already_grafted(
             previous,
-            month=args.month,
+            month=month,
             format_id=format_id,
             battles=battles_n,
             species_n=len(showdown),
@@ -212,7 +251,7 @@ def main(argv: list[str] | None = None) -> int:
         and not args.force
     ):
         print(
-            f"idempotent: already grafted {format_id} {args.month} "
+            f"idempotent: already grafted {format_id} {month} "
             f"battles={battles_n} species={len(showdown)}",
             file=sys.stderr,
         )
@@ -222,9 +261,9 @@ def main(argv: list[str] | None = None) -> int:
         out = graft(
             showdown=showdown,
             info=info,
-            month=args.month,
+            month=month,
             format_id=format_id,
-            rating=args.rating,
+            rating=rating,
             regulation=regulation,
         )
     except ValueError as e:
@@ -235,11 +274,13 @@ def main(argv: list[str] | None = None) -> int:
         "out": str(out_path),
         "regulation": regulation,
         "showdown_format": format_id,
-        "showdown_month": args.month,
+        "showdown_month": month,
         "showdown_battles": battles_n,
         "showdown_species_n": len(showdown),
         "showdown_extracted_at": (out.get("meta") or {}).get("showdown_extracted_at"),
+        "showdown_pct_kind": (out.get("meta") or {}).get("showdown_pct_kind"),
         "forced": bool(args.force),
+        "from_meta": bool(args.from_meta),
     }
     print(json.dumps(summary, indent=2))
     if args.dry_run:

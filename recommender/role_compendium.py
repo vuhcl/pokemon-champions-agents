@@ -77,9 +77,12 @@ CalculateBatch = Callable[[list[dict[str, Any]]], list[dict[str, Any]]]
 _COMPETING_IDENTITY_MOVES = frozenset({"quiverdance"})
 # Base Showdown usage_pct must be ≥ this fraction of Mega's to keep usage_proven.
 _SHOWDOWN_BASE_USAGE_RATIO = 0.25
-# Chaos set% floor for usage-proven (July 2026 1500 distribution).
-# Screens smear starts after Whimsicott/Espeon 2.32% (next 1.98%). Sleep's 2.3
-# vs 3.0 admit the same set (nothing in (1.66, 3.01)). TR has its own hole.
+# Chaos set% floors for usage-proven (max(ingame, showdown); Showdown units =
+# published weight/sum(Abilities) after 2026-10 pct-convention regen).
+# 2.3 / 22.5 — policy constants (no data-derived hole on M-C published scale;
+#   2026-10-05; see scripts/eval/artifacts/_scratch_pct_convention_floors/FLOOR_REVIEW.md).
+#   Local TR gap Gardevoir 24.305 → Alakazam 21.641 (2.664) is mid-pack only
+#   (rank 11/19 gaps ≥1.0) — not hole-supported evidence for 22.5.
 _USAGE_SET_PCT_FLOOR = 2.3
 _TRICK_ROOM_SET_PCT_FLOOR = 22.5
 # Setup-attacker admission: presence only (exclude 0.00x chaos-key ghosts).
