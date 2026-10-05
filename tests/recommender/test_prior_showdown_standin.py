@@ -11,6 +11,7 @@ from recommender.prior_standin import (
     PRIOR_SHOWDOWN_STANDIN,
     SPREAD_SOURCE_TOKEN,
     candidate_confidence_for_standin_fields,
+    clear_prior_showdown_cache,
     default_build_set,
     previous_regulation_tag,
     standin_present_label,
@@ -391,3 +392,191 @@ def test_propose_standin_reason_refs_under_md(tmp_path: Path, monkeypatch):
     finally:
         REGULATIONS.pop(MD, None)
         ud.load_usage.cache_clear()
+
+
+def test_prior_showdown_file_cached_by_mtime(tmp_path: Path, monkeypatch):
+    """Two species in one run read the prior file once; mtime change reloads."""
+    import recommender.prior_standin as ps
+
+    fake = tmp_path / "usage"
+    fake.mkdir()
+    src = USAGE_DIR / f"{MC}.showdown_doubles.v1.json"
+    dest = fake / src.name
+    dest.write_bytes(src.read_bytes())
+
+    reads = {"n": 0}
+    real_read_text = Path.read_text
+
+    def counting_read_text(self, *args, **kwargs):
+        if self.name.endswith(".showdown_doubles.v1.json"):
+            reads["n"] += 1
+        return real_read_text(self, *args, **kwargs)
+
+    clear_prior_showdown_cache()
+    monkeypatch.setattr(Path, "read_text", counting_read_text)
+    a = default_build_set(
+        "Incineroar", regulation=MD, previous_tag=MC, usage_dir=fake
+    )
+    b = default_build_set(
+        "Rillaboom", regulation=MD, previous_tag=MC, usage_dir=fake
+    )
+    assert a is not None and b is not None
+    assert reads["n"] == 1
+
+    # Touch mtime so cache key invalidates.
+    import os
+    import time
+
+    time.sleep(0.01)
+    os.utime(dest, None)
+    c = default_build_set(
+        "Incineroar", regulation=MD, previous_tag=MC, usage_dir=fake
+    )
+    assert c is not None
+    assert reads["n"] == 2
+    clear_prior_showdown_cache()
+
+
+def test_unknown_tag_returns_none_no_silent_standin():
+    """Typo / unknown tags must not fall back to newest archive stand-in."""
+    assert previous_regulation_tag("champions-reg-mx") is None
+    assert previous_regulation_tag("not-a-regulation") is None
+    assert (
+        default_build_set("Incineroar", regulation="champions-reg-mx") is None
+    )
+    # Soft M-D not on schedule/archive: None unless previous_tag= override.
+    REGULATIONS[MD] = {
+        "letter": "D",
+        "mod": "championsregmd",
+        "vgc_format_id": "[Gen 9 Champions] VGC 2026 Reg M-D",
+        "bss_format_id": "[Gen 9 Champions] BSS Reg M-D",
+        "showdown_format": "gen9championsvgc2026regmd",
+    }
+    try:
+        assert previous_regulation_tag(MD) is None
+        assert previous_regulation_tag(MD, previous_tag=MC) == MC
+    finally:
+        REGULATIONS.pop(MD, None)
+
+
+def test_unique_legal_ability_beats_standin_label(tmp_path: Path, monkeypatch):
+    """Mimikyu unique Disguise → legality_only, not prior_showdown_standin."""
+    import recommender.usage_data as ud
+    from recommender.propose import _refine_defaults
+    from recommender.state import Attr, Slot, empty_slot
+
+    fake = tmp_path / "usage"
+    fake.mkdir()
+    # Minimal prior row with a fake ability — unique-legal must still win.
+    row = {
+        "name": "Mimikyu",
+        "id": "mimikyu",
+        "source": "smogon-chaos",
+        "common_abilities": [{"name": "Disguise", "pct": 99.0}],
+        "common_items": [{"name": "Life Orb", "pct": 50.0}],
+        "common_moves": [
+            {"name": "Play Rough", "pct": 50.0},
+            {"name": "Shadow Sneak", "pct": 50.0},
+            {"name": "Shadow Claw", "pct": 50.0},
+            {"name": "Protect", "pct": 40.0},
+        ],
+        "featured_sets": [
+            {
+                "item": "Life Orb",
+                "moves": ["Play Rough", "Shadow Sneak", "Shadow Claw", "Protect"],
+                "ability": "Disguise",
+                "nature": "Adamant",
+            }
+        ],
+        "top_spreads": [],
+    }
+    (fake / f"{MC}.showdown_doubles.v1.json").write_text(
+        json.dumps(_tiny_showdown_doc({"mimikyu": row})),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(ud, "USAGE_DIR", fake)
+    ud.load_usage.cache_clear()
+    monkeypatch.setattr(
+        "recommender.prior_standin.previous_regulation_tag",
+        lambda regulation, previous_tag=None: MC,
+    )
+    monkeypatch.setattr("recommender.prior_standin.USAGE_DIR", fake)
+    clear_prior_showdown_cache()
+
+    REGULATIONS[MD] = {
+        "letter": "D",
+        "mod": "championsregmd",
+        "vgc_format_id": "[Gen 9 Champions] VGC 2026 Reg M-D",
+        "bss_format_id": "[Gen 9 Champions] BSS Reg M-D",
+        "showdown_format": "gen9championsvgc2026regmd",
+    }
+    try:
+        slot = Slot(species=Attr(value="Mimikyu", locked=True))
+        state = {
+            "team_draft": [slot, *[empty_slot() for _ in range(5)]],
+            "regulation": MD,
+        }
+        refined, _ = _refine_defaults(slot, state, regulation=MD)
+        assert refined.ability.value == "Disguise"
+        assert refined.ability.reason is not None
+        assert refined.ability.reason.ref == "legality_only"
+        assert "prior_showdown_standin" not in (
+            refined.ability.reason.ref or ""
+        )
+    finally:
+        REGULATIONS.pop(MD, None)
+        ud.load_usage.cache_clear()
+        clear_prior_showdown_cache()
+
+
+def test_anchor_field_level_standin_fills_ability_gap(tmp_path: Path, monkeypatch):
+    """Partial current representative still gets stand-in ability (field-level)."""
+    from unittest.mock import patch
+
+    from recommender.anchor_roles import resolve_anchor_build
+    from recommender.prior_standin import PriorStandinBuild
+
+    standin = PriorStandinBuild(
+        species="Incineroar",
+        prior_tag=MC,
+        prior_letter="C",
+        ability="Intimidate",
+        item=None,
+        nature=None,
+        moves=(),
+        evs=None,
+        filled_fields=frozenset({"ability"}),
+        entry={"source": PRIOR_SHOWDOWN_STANDIN, "prior_regulation": MC},
+    )
+    # Current representative has moves/item but no ability.
+    partial = {
+        "species": "Incineroar",
+        "item": "Sitrus Berry",
+        "moves": ["Fake Out", "Flare Blitz", "Parting Shot", "Throat Chop"],
+    }
+    REGULATIONS[MD] = {
+        "letter": "D",
+        "mod": "championsregmd",
+        "vgc_format_id": "[Gen 9 Champions] VGC 2026 Reg M-D",
+        "bss_format_id": "[Gen 9 Champions] BSS Reg M-D",
+        "showdown_format": "gen9championsvgc2026regmd",
+    }
+    try:
+        with (
+            patch(
+                "recommender.anchor_roles.featured_or_common_set",
+                return_value=partial,
+            ),
+            patch(
+                "recommender.prior_standin.default_build_set",
+                return_value=standin,
+            ),
+            patch("recommender.anchor_roles.get_writeup_kit", return_value=None),
+        ):
+            build = resolve_anchor_build("Incineroar", regulation=MD)
+        assert build.ability == "Intimidate"
+        assert build.source_for("ability") == PRIOR_SHOWDOWN_STANDIN
+        assert build.item == "Sitrus Berry"
+        assert build.source_for("item") == "usage_derived"
+    finally:
+        REGULATIONS.pop(MD, None)

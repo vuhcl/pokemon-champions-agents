@@ -402,6 +402,17 @@ def _refine_defaults(
     else:
         usage_missed = bool(need_moves or need_item or need_ability)
 
+    # Unique legal ability beats stand-in: legality_only is more accurate than
+    # prior_showdown_standin (medium) when the species has exactly one ability.
+    if need_ability and "ability" not in updates:
+        unique = _unique_legal_ability(species)
+        if unique:
+            updates["ability"] = Attr(
+                value=unique,
+                locked=False,
+                reason=ReasonRef(kind="tier2_heuristic", ref="legality_only"),
+            )
+
     # B4: prior Showdown stand-in for gaps before writeup / tier-3.
     standin_ref: str | None = None
     standin_entry: dict[str, Any] | None = None
@@ -453,46 +464,39 @@ def _refine_defaults(
         kit = get_writeup_kit(species, regulation)
         if kit:
             kit_reason = writeup_reason_ref(kit)
-        # 1. Ability: unique → role constraint → writeup kit → writeup ability
+        # 1. Ability: role constraint → writeup kit → writeup ability
+        # (unique-legal already applied above, before stand-in)
         if need_ability and "ability" not in updates:
-            unique = _unique_legal_ability(species)
-            if unique:
+            role_ability = _ability_for_target_role(species, slot.role.value)
+            if role_ability:
                 updates["ability"] = Attr(
-                    value=unique,
+                    value=role_ability,
                     locked=False,
-                    reason=ReasonRef(kind="tier2_heuristic", ref="legality_only"),
+                    reason=ReasonRef(
+                        kind="tier2_heuristic", ref="tier3_role_ability"
+                    ),
+                )
+            elif kit and kit.get("ability") and species_can_have_ability(
+                snap, species, kit["ability"]
+            ):
+                updates["ability"] = Attr(
+                    value=kit["ability"],
+                    locked=False,
+                    reason=ReasonRef(kind="tier2_heuristic", ref=kit_reason),
                 )
             else:
-                role_ability = _ability_for_target_role(species, slot.role.value)
-                if role_ability:
-                    updates["ability"] = Attr(
-                        value=role_ability,
-                        locked=False,
-                        reason=ReasonRef(
-                            kind="tier2_heuristic", ref="tier3_role_ability"
-                        ),
-                    )
-                elif kit and kit.get("ability") and species_can_have_ability(
-                    snap, species, kit["ability"]
+                hit = get_writeup_ability(species, regulation)
+                if hit and species_can_have_ability(
+                    snap, species, hit["ability"]
                 ):
                     updates["ability"] = Attr(
-                        value=kit["ability"],
+                        value=hit["ability"],
                         locked=False,
-                        reason=ReasonRef(kind="tier2_heuristic", ref=kit_reason),
+                        reason=ReasonRef(
+                            kind="tier2_heuristic",
+                            ref=writeup_reason_ref(hit),
+                        ),
                     )
-                else:
-                    hit = get_writeup_ability(species, regulation)
-                    if hit and species_can_have_ability(
-                        snap, species, hit["ability"]
-                    ):
-                        updates["ability"] = Attr(
-                            value=hit["ability"],
-                            locked=False,
-                            reason=ReasonRef(
-                                kind="tier2_heuristic",
-                                ref=writeup_reason_ref(hit),
-                            ),
-                        )
         # 2. Item: legal writeup kit item, else synthesize
         if need_item and item is None and kit and kit.get("item"):
             if is_item_legal(snap, kit["item"]):

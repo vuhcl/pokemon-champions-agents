@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any, Iterable, Literal, Mapping
 
 from recommender.ids import (
-    REGULATION_ARCHIVE_ORDER,
     regulation_file_tag,
     regulation_lookup_chain,
     to_id,
@@ -43,6 +42,9 @@ _FIELD_CONFIDENCE: dict[str, FieldConfidence] = {
 }
 _CONF_RANK = {"low": 0, "medium": 1}
 
+# path → (mtime_ns, species_map | None). Cleared via clear_prior_showdown_cache.
+_PRIOR_SHOWDOWN_CACHE: dict[str, tuple[int, dict[str, Any] | None]] = {}
+
 
 @dataclass(frozen=True)
 class PriorStandinBuild:
@@ -66,6 +68,11 @@ class PriorStandinBuild:
     @property
     def present_label(self) -> str:
         return standin_present_label(self.prior_letter)
+
+
+def clear_prior_showdown_cache() -> None:
+    """Drop cached prior Showdown species maps (tests / file rewrite)."""
+    _PRIOR_SHOWDOWN_CACHE.clear()
 
 
 def standin_reason_ref(prior_tag: str) -> str:
@@ -121,10 +128,22 @@ def previous_regulation_tag(
     *,
     previous_tag: str | None = None,
 ) -> str | None:
-    """Prior file tag: explicit override, else schedule previous, else archive[1]."""
+    """Prior file tag: explicit override, else schedule previous, else archive[1].
+
+    Unknown / typo'd tags return None — never silently fall back to the newest
+    archive (that would invent a stand-in for a misspelled regulation). Forward
+    letters not yet on the schedule (e.g. M-D pre-landing) must pass
+    ``previous_tag=`` in tests, or land on the schedule / archive order.
+    """
     if previous_tag is not None:
-        return regulation_file_tag(previous_tag)
-    tag = regulation_file_tag(regulation)
+        try:
+            return regulation_file_tag(previous_tag)
+        except ValueError:
+            return None
+    try:
+        tag = regulation_file_tag(regulation)
+    except ValueError:
+        return None
     windows = load_schedule()
     current = next((w for w in windows if w.tag == tag), None)
     if current is not None:
@@ -134,25 +153,31 @@ def previous_regulation_tag(
     chain = regulation_lookup_chain(tag)
     if len(chain) >= 2:
         return chain[1]
-    # Soft tag not on archive: try newest archive as prior of a forward letter.
-    if tag not in REGULATION_ARCHIVE_ORDER and REGULATION_ARCHIVE_ORDER:
-        return REGULATION_ARCHIVE_ORDER[0]
     return None
 
 
 def _prior_showdown_species_map(
     prior_tag: str, *, usage_dir: Path
 ) -> dict[str, Any] | None:
-    """Load ``{prior}.showdown_doubles.v1.json`` only — never monolith."""
+    """Load ``{prior}.showdown_doubles.v1.json`` only — never monolith.
+
+    Cached by resolved path + ``st_mtime_ns`` so propose/recommend/anchor loops
+    do not re-parse the ~316-species file per species.
+    """
     path = usage_dir / f"{prior_tag}.showdown_doubles.v1.json"
     if not path.exists():
         return None
+    key = str(path.resolve())
+    mtime_ns = path.stat().st_mtime_ns
+    hit = _PRIOR_SHOWDOWN_CACHE.get(key)
+    if hit is not None and hit[0] == mtime_ns:
+        return hit[1]
     data = json.loads(path.read_text(encoding="utf-8"))
     section = data.get("showdown_doubles") or {}
     species = section.get("species")
-    if isinstance(species, dict):
-        return species
-    return None
+    result: dict[str, Any] | None = species if isinstance(species, dict) else None
+    _PRIOR_SHOWDOWN_CACHE[key] = (mtime_ns, result)
+    return result
 
 
 def _move_legal_for_species(

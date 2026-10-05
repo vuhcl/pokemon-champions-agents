@@ -361,7 +361,6 @@ def resolve_anchor_build(
                 provenance["nature"] = FieldProvenance("nature", "usage_derived")
 
     representative = None
-    standin_rep = False
     if species:
         if team_draft and any(
             s.species.locked
@@ -380,24 +379,7 @@ def resolve_anchor_build(
             )
         if representative is None:
             representative = featured_or_common_set(species, regulation=regulation)
-        if representative is None:
-            from recommender.prior_standin import default_build_set
-
-            standin = default_build_set(species, regulation=regulation)
-            if standin:
-                standin_rep = True
-                representative = {
-                    "species": standin.species,
-                    "ability": standin.ability,
-                    "item": standin.item,
-                    "nature": standin.nature,
-                    "moves": list(standin.moves) if standin.moves else None,
-                    "evs": standin.evs,
-                }
-    rep_source: FieldSource = (
-        "prior_showdown_standin" if standin_rep else "usage_derived"
-    )
-    if role_hint and species and representative and not standin_rep:
+    if role_hint and species and representative:
         from recommender.role_aware_synthesis import select_role_aware_build_fields
         from recommender.usage_data import build_synthesis_usage_entry
 
@@ -435,7 +417,7 @@ def resolve_anchor_build(
             values[field] = representative[key]
             # Representative APIs combine marginal spread evidence; deliberately
             # do not claim a co-occurrence group.
-            provenance[field] = FieldProvenance(field, rep_source)
+            provenance[field] = FieldProvenance(field, "usage_derived")
 
     if values["item"] is None and species:
         if team_draft is not None:
@@ -458,19 +440,59 @@ def resolve_anchor_build(
                     provenance["item"] = FieldProvenance("item", "synthesized")
         elif representative and representative.get("item") is not None:
             values["item"] = representative["item"]
-            provenance["item"] = FieldProvenance("item", rep_source)
+            provenance["item"] = FieldProvenance("item", "usage_derived")
+
+    # Unique legal ability beats stand-in (same order as propose).
+    if species and values["ability"] is None:
+        ability = _unique_legal_ability(species)
+        if ability:
+            values["ability"] = ability
+            provenance["ability"] = FieldProvenance("ability", "legality_only")
+
+    # B4: field-level prior Showdown stand-in for remaining gaps (matches propose).
+    # Partial current representative still gets stand-in ability/moves/item/etc.
+    if species and (
+        values["ability"] is None
+        or not values["moves"]
+        or values["item"] is None
+        or values["nature"] is None
+        or values["evs"] is None
+    ):
+        from recommender.prior_standin import default_build_set
+
+        standin = default_build_set(species, regulation=regulation)
+        if standin:
+            if values["ability"] is None and standin.ability:
+                values["ability"] = standin.ability
+                provenance["ability"] = FieldProvenance(
+                    "ability", "prior_showdown_standin"
+                )
+            if not values["moves"] and standin.moves:
+                values["moves"] = list(standin.moves)
+                provenance["moves"] = FieldProvenance(
+                    "moves", "prior_showdown_standin"
+                )
+            if values["item"] is None and standin.item:
+                values["item"] = standin.item
+                provenance["item"] = FieldProvenance(
+                    "item", "prior_showdown_standin"
+                )
+            if values["nature"] is None and standin.nature:
+                values["nature"] = standin.nature
+                provenance["nature"] = FieldProvenance(
+                    "nature", "prior_showdown_standin"
+                )
+            if values["evs"] is None and standin.evs:
+                values["evs"] = dict(standin.evs)
+                provenance["evs"] = FieldProvenance(
+                    "evs", "prior_showdown_standin"
+                )
 
     for raw_field, value in (synthesized or {}).items():
         field = aliases.get(raw_field, raw_field)
         if field in values and values[field] is None and value is not None:
             values[field] = value
             provenance[field] = FieldProvenance(field, "synthesized")
-
-    if species and values["ability"] is None:
-        ability = _unique_legal_ability(species)
-        if ability:
-            values["ability"] = ability
-            provenance["ability"] = FieldProvenance("ability", "legality_only")
 
     if species and (
         not values["moves"]
