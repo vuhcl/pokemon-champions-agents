@@ -156,18 +156,21 @@ def test_flinch_denial_lands_excellent():
 
 
 def test_taunt_denial_lands_good_not_excellent():
+    """Oblivious is 8% on M-B (<10% policy floor) → no taunt credit; Acceptable."""
     draft = _tr_draft(live_fetch=_mock_champions_trick_room)
-    assert "Slowbro" in _members(draft, "Good")
+    assert "Slowbro" in _members(draft, "Acceptable")
+    assert "Slowbro" not in _members(draft, "Good")
     assert "Slowbro" not in _members(draft, "Excellent")
     slow = _find(draft, "slowbro")
-    assert slow.excellence_basis == "taunt_denial"
-    assert slow.reinforce_class == "self_protection"
+    assert slow.excellence_basis == "unprotected"
+    assert slow.reinforce_class == "none"
 
 
 def test_taunt_denial_with_snapshot_usage_stays_good():
-    """July chaos lists Trick Room on Slowbro; taunt denial lands Good, not Excellent."""
+    """M-B Oblivious 8% < 10% ability floor → TR stays Acceptable unprotected."""
     draft = _tr_draft()
-    assert "Slowbro" in _members(draft, "Good")
+    assert "Slowbro" in _members(draft, "Acceptable")
+    assert "Slowbro" not in _members(draft, "Good")
     assert "Slowbro" not in _members(draft, "Excellent")
 
 

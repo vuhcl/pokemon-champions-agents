@@ -85,6 +85,10 @@ _SHOWDOWN_BASE_USAGE_RATIO = 0.25
 #   (rank 11/19 gaps ≥1.0) — not hole-supported evidence for 22.5.
 _USAGE_SET_PCT_FLOOR = 2.3
 _TRICK_ROOM_SET_PCT_FLOOR = 22.5
+# Policy constant (2026-10-05): ability share floor for Compendium membership
+# admission. Not hole-supported from a published distribution gap — provisional
+# calibration (same class as TR 22.5 policy floor).
+_ABILITY_MEMBERSHIP_PCT_FLOOR = 10.0
 # Setup-attacker admission: presence only (exclude 0.00x chaos-key ghosts).
 # Calc Excellent/Good/Acceptable floors do the real filter. Support stays at 2.3.
 # Fallback only when Mega has no Showdown entry: mega-stone item share on base CBD page.
@@ -153,6 +157,7 @@ SAND_SETTER_CRITERIA: dict[str, Any] = {
     "kind": "weather_setter",
     "condition": "Sand",
     "ability_ids": frozenset({"sandstream"}),
+    "ability_ids_good": frozenset({"sandspit"}),
     "move_id": "sandstorm",
     "priority_abilities": frozenset({"prankster"}),
 }
@@ -701,6 +706,125 @@ def _species_abilities(snap: dict[str, Any], sid: str) -> dict[str, str]:
         if isinstance(name, str):
             out[to_id(name)] = name
     return out
+
+
+def _ability_share_pcts(
+    snap: dict[str, Any],
+    sid: str,
+    *,
+    regulation: str,
+) -> dict[str, float]:
+    """Legal-slot ability → max(ingame, showdown) pct via forme-collapsed usage id."""
+    from recommender.forme_identity import canonical_usage_species_id
+    from recommender.usage_data import ingame_species_map, showdown_species_map
+
+    legal = _species_abilities(snap, sid)
+    if not legal:
+        return {}
+    canon = canonical_usage_species_id(snap, sid, regulation=regulation)
+    shares: dict[str, float] = {aid: 0.0 for aid in legal}
+
+    def _ingest(entry: dict[str, Any] | None) -> None:
+        if not isinstance(entry, dict):
+            return
+        for row in entry.get("common_abilities") or []:
+            aid = to_id(row.get("name") or "")
+            if aid not in legal:
+                continue
+            try:
+                pct = float(row.get("pct") or 0.0)
+            except (TypeError, ValueError):
+                pct = 0.0
+            if pct > shares[aid]:
+                shares[aid] = pct
+
+    _ingest(ingame_species_map(regulation).get(canon))
+    _ingest(showdown_species_map(regulation).get(canon))
+    return shares
+
+
+def _modal_ability_map(
+    snap: dict[str, Any],
+    sid: str,
+    *,
+    regulation: str,
+) -> dict[str, str]:
+    """Single highest-share legal ability (ties → id ascending). Empty usage → all slots."""
+    legal = _species_abilities(snap, sid)
+    shares = _ability_share_pcts(snap, sid, regulation=regulation)
+    if not legal:
+        return {}
+    if not any(shares.values()):
+        return legal
+    best = max(shares.values())
+    winners = sorted(aid for aid, pct in shares.items() if pct == best)
+    aid = winners[0]
+    return {aid: legal[aid]}
+
+
+def _usage_ability_map(
+    snap: dict[str, Any],
+    sid: str,
+    *,
+    regulation: str,
+    floor: float | None = None,
+) -> dict[str, str]:
+    """Abilities with share ≥ floor; else modal-only; no usage rows → all legal slots."""
+    legal = _species_abilities(snap, sid)
+    if not legal:
+        return {}
+    shares = _ability_share_pcts(snap, sid, regulation=regulation)
+    if not any(v > 0 for v in shares.values()):
+        return legal
+    thresh = _ABILITY_MEMBERSHIP_PCT_FLOOR if floor is None else float(floor)
+    hits = {aid: legal[aid] for aid, pct in shares.items() if pct >= thresh}
+    if hits:
+        return hits
+    return _modal_ability_map(snap, sid, regulation=regulation)
+
+
+def _effective_ability_for_predicate(
+    snap: dict[str, Any],
+    sid: str,
+    *,
+    regulation: str,
+    predicate_ids: frozenset[str] | set[str],
+) -> tuple[dict[str, str], str | None]:
+    """Membership via usage map; tier ability = modal if it qualifies else granting.
+
+    Returns (abs_map_for_tier, granting_aid_if_non_modal).
+    """
+    legal = _species_abilities(snap, sid)
+    usage = _usage_ability_map(snap, sid, regulation=regulation)
+    modal = _modal_ability_map(snap, sid, regulation=regulation)
+    qualifying = sorted(aid for aid in usage if aid in predicate_ids)
+    if not qualifying:
+        return {}, None
+    modal_id = next(iter(modal), None)
+    if modal_id is not None and modal_id in qualifying:
+        return {modal_id: legal[modal_id]}, None
+    # Non-modal membership grant: highest share among qualifying (ties id asc).
+    shares = _ability_share_pcts(snap, sid, regulation=regulation)
+    best = max(shares.get(aid, 0.0) for aid in qualifying)
+    grant = sorted(
+        (aid for aid in qualifying if shares.get(aid, 0.0) == best),
+    )[0]
+    return {grant: legal[grant]}, grant
+
+
+def _species_grounded_for_terrain(
+    snap: dict[str, Any],
+    sid: str,
+    *,
+    ability_id: str | None,
+) -> bool:
+    """Grounded from types + ability only — items (Air Balloon etc.) ignored."""
+    types = {str(t).lower() for t in ((snap.get("species") or {}).get(sid) or {}).get("types") or []}
+    if "flying" in types:
+        return False
+    if ability_id and to_id(ability_id) in {"levitate"}:
+        return False
+    return True
 
 
 def _base_stats(snap: dict[str, Any], sid: str) -> dict[str, int]:

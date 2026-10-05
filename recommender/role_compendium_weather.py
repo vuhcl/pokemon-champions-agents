@@ -27,6 +27,7 @@ from recommender.role_compendium import (
     _ref_members,
     _secondary_support_notes,
     _species_abilities,
+    _usage_ability_map,
 )
 from recommender.role_compendium_usage import (
     _hits_clear_set_pct_floor,
@@ -65,7 +66,7 @@ def _construct_weather_setter(
     holder_aid: dict[str, str] = {}
     holder_mech_tier: dict[str, str] = {}
     for sid, name in pool.items():
-        abs_map = _species_abilities(snap, sid)
+        abs_map = _usage_ability_map(snap, sid, regulation=uctx.regulation)
         hit_ex = ability_ids & set(abs_map)
         hit_good = ability_ids_good & set(abs_map)
         if hit_ex:
@@ -150,14 +151,15 @@ def _construct_weather_setter(
     for sid, name in sorted(ability_holders.items(), key=lambda x: x[1]):
         aid = holder_aid[sid]
         mech_tier = holder_mech_tier[sid]
+        usage_abs = _usage_ability_map(snap, sid, regulation=uctx.regulation)
         abs_map = _species_abilities(snap, sid)
         mechanism = abs_map[aid]
         entry = uctx.entry_for(name)
         secondary_note, secondary_traits = _secondary_support_notes(
             entry, move_ids=_REDIRECTION_SECONDARY_MOVES
         )
-        has_fg = bool({"friendguard"} & set(abs_map))
-        has_hospitality = "hospitality" in abs_map
+        has_fg = bool({"friendguard"} & set(usage_abs))
+        has_hospitality = "hospitality" in usage_abs
         secondary_move_ids = {to_id(t.name) for t in secondary_traits}
         verified_secondary = has_fg or has_hospitality or bool(secondary_traits)
         excellent_secondary = _excellent_secondary(
@@ -183,7 +185,7 @@ def _construct_weather_setter(
         if has_fg:
             traits.append(
                 ClaimedTrait(
-                    name=abs_map["friendguard"],
+                    name=usage_abs["friendguard"],
                     criterion="secondary_role",
                     purpose_claimed="ally damage mitigation",
                 )
@@ -191,7 +193,7 @@ def _construct_weather_setter(
         if has_hospitality:
             traits.append(
                 ClaimedTrait(
-                    name=abs_map["hospitality"],
+                    name=usage_abs["hospitality"],
                     criterion="secondary_role",
                     purpose_claimed="ally heal on switch-in",
                 )
@@ -324,8 +326,9 @@ def _construct_weather_setter(
     for sid, name in sorted(pool.items(), key=lambda x: x[1]):
         if sid in admitted_ids:
             continue
+        usage_abs = _usage_ability_map(snap, sid, regulation=uctx.regulation)
         abs_map = _species_abilities(snap, sid)
-        prio = priority_abilities & set(abs_map)
+        prio = priority_abilities & set(usage_abs)
         if not prio:
             continue
         ls = set(resolve_learnset(snap, sid) or [])
@@ -360,8 +363,8 @@ def _construct_weather_setter(
         secondary_note, secondary_traits = _secondary_support_notes(
             entry, move_ids=_REDIRECTION_SECONDARY_MOVES
         )
-        has_fg = bool({"friendguard"} & set(abs_map))
-        has_hospitality = "hospitality" in abs_map
+        has_fg = bool({"friendguard"} & set(usage_abs))
+        has_hospitality = "hospitality" in usage_abs
         secondary_move_ids = {to_id(t.name) for t in secondary_traits}
         verified_secondary = has_fg or has_hospitality or bool(secondary_traits)
         excellent_secondary = _excellent_secondary(

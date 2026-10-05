@@ -103,6 +103,9 @@ from recommender.role_compendium import (
     _serialize_criteria,
     _species_abilities,
     _species_id_is_mega,
+    _usage_ability_map,
+    _modal_ability_map,
+    _effective_ability_for_predicate,
     exact_self_boost_move,
     exclusive_self_boost_move,
     load_stat_boosts,
@@ -2273,7 +2276,26 @@ def _construct_setup_attacker(
     provisional: list[dict[str, Any]] = []
     for sid, name in sorted(eligible.items(), key=lambda kv: kv[1]):
         learnset = set(resolve_learnset(snap, sid) or [])
-        abs_map = _species_abilities(snap, sid)
+        usage_abs = _usage_ability_map(snap, sid, regulation=uctx.regulation)
+        modal_abs = _modal_ability_map(snap, sid, regulation=uctx.regulation)
+        speed_map, _ = _effective_ability_for_predicate(
+            snap,
+            sid,
+            regulation=uctx.regulation,
+            predicate_ids=_SETUP_SPEED_ABILITIES,
+        )
+        sec_map, _ = _effective_ability_for_predicate(
+            snap,
+            sid,
+            regulation=uctx.regulation,
+            predicate_ids=_SETUP_EXCELLENT_SECONDARY_ABILITIES,
+        )
+        abs_map = dict(modal_abs)
+        abs_map.update(speed_map)
+        abs_map.update(sec_map)
+        for aid in usage_abs:
+            if aid in _SETUP_SURVIVE_ABILITIES:
+                abs_map[aid] = usage_abs[aid]
         stats = _base_stats(snap, sid)
         entry = uctx.entry_for(name)
         branches = _setup_branches(
@@ -2722,7 +2744,26 @@ def _construct_offense_stage_setup(
     provisional: list[dict[str, Any]] = []
     for sid, name in sorted(eligible.items(), key=lambda kv: kv[1]):
         learnset = set(resolve_learnset(snap, sid) or [])
-        abs_map = _species_abilities(snap, sid)
+        usage_abs = _usage_ability_map(snap, sid, regulation=uctx.regulation)
+        modal_abs = _modal_ability_map(snap, sid, regulation=uctx.regulation)
+        speed_map, _ = _effective_ability_for_predicate(
+            snap,
+            sid,
+            regulation=uctx.regulation,
+            predicate_ids=_SETUP_SPEED_ABILITIES,
+        )
+        sec_map, _ = _effective_ability_for_predicate(
+            snap,
+            sid,
+            regulation=uctx.regulation,
+            predicate_ids=_SETUP_EXCELLENT_SECONDARY_ABILITIES,
+        )
+        abs_map = dict(modal_abs)
+        abs_map.update(speed_map)
+        abs_map.update(sec_map)
+        for aid in usage_abs:
+            if aid in _SETUP_SURVIVE_ABILITIES:
+                abs_map[aid] = usage_abs[aid]
         stats = _base_stats(snap, sid)
         entry = uctx.entry_for(name)
         if not uctx.delivers(name, move_id) or not _hits_clear_set_pct_floor(
