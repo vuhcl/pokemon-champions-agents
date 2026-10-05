@@ -1,6 +1,6 @@
 # Floor re-validation report (commit 2 — constants unchanged)
 
-**Status (2026-10-05):** Vu keep decision — **all four constants unchanged** (`2.3` / `22.5` / `0.1` / `1.0`). No edits to the numeric values. This file + code comments document provenance; membership effect of the Showdown rescale is in [`rescale_deltas.json`](rescale_deltas.json).
+**Status (2026-10-05):** Vu keep decision — **all four constants unchanged** (`2.3` / `22.5` / `0.1` / `1.0`), all labeled **policy** (22.5 demoted from hole-supported: gap rank 11/19 mid-pack). No numeric edits. Membership effect of the Showdown rescale is in [`rescale_deltas.json`](rescale_deltas.json).
 
 **Method (pre-registered):** for each floor, observe `max(ingame_set%, showdown_set%)` on published-style Showdown after commit 1 regen; find smear/hole; do not tune to old roster.
 
@@ -22,22 +22,22 @@ Source artifacts: [`distributions.json`](distributions.json), [`rescale_deltas.j
 
 ---
 
-## `_TRICK_ROOM_SET_PCT_FLOOR` = **22.5** — hole-supported
+## `_TRICK_ROOM_SET_PCT_FLOOR` = **22.5** — policy constant (not hole-supported)
 
 | | |
 | --- | --- |
-| Decision | **keep 22.5** (2026-10-05) |
-| Basis | Local hole Gardevoir → Alakazam |
+| Decision | **keep 22.5** (2026-10-05) as **policy** |
+| Basis | Mid-pack local gap only — not hole-supported |
 | Eligible | 60 |
 | Clear 22.5 | 39 |
 
-**Local hole at cut:**
+**Local gap at cut (observational, not evidence for the constant):**
 
-| Keep (above) | Drop (below) | Gap |
+| Above | Below | Gap |
 | --- | --- | --- |
 | `gardevoir` 24.305 (showdown) | `alakazam` 21.641 (showdown) | **2.664** |
 
-**Gap rank among TR mid-ladder gaps (≥1.0):** **11th of 19** (1 = largest). Larger gaps sit higher on the ladder (e.g. 64.733→54.153 = 10.580; 74.6→66.321 = 8.279; …). The Gardevoir→Alakazam gap is a mid-pack local hole, not the distribution’s largest cliff — still the cut that matches the original “just below keep cluster ending at Gardevoir” rule. Alternative 23.0 stays in the same empty gap (no extra admits/drops vs 22.5 among listed species).
+**Gap rank among TR mid-ladder gaps (≥1.0):** **11th of 19** (1 = largest). Larger gaps sit higher on the ladder (e.g. 64.733→54.153 = 10.580; 74.6→66.321 = 8.279; …). Mid-pack rank disqualifies this as a hole-supported breakpoint — same class as 2.3 / 0.1 / 1.0: **policy constant, value unchanged.**
 
 ---
 
