@@ -339,7 +339,9 @@ def process_pair(
     try:
         showdown, info = fetch_chaos(pair.month, pair.format_id, DEFAULT_RATING)
     except (RuntimeError, SystemExit, OSError) as e:
-        return PairResult(pair, "quiet_skip_unpublished", str(e) or "fetch failed")
+        # Type + message so day-8 overdue logs diagnose outage vs proxy vs missing month.
+        detail = f"{type(e).__name__}: {e}" if str(e) else type(e).__name__
+        return PairResult(pair, "quiet_skip_unpublished", detail)
 
     if not isinstance(showdown, dict) or len(showdown) < 1:
         # Empty after a "successful" transport — integrity hard-fail.

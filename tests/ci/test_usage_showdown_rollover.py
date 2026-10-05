@@ -222,6 +222,173 @@ def test_short_overlap_allowed_on_first_fill(tmp_path: Path):
     assert (tmp_path / f"{MC}.showdown_doubles.v1.json").is_file()
 
 
+# --- overdue boundaries + quiet skip ----------------------------------------
+
+
+def _oct_full_pair() -> rollover.OwedPair:
+    return rollover.OwedPair(
+        tag=MC,
+        month="2026-10",
+        overlap_class="full",
+        overlap_days=31.0,
+        format_id=MC_FMT,
+    )
+
+
+def _dec_short_pair() -> rollover.OwedPair:
+    return rollover.OwedPair(
+        tag=MC,
+        month="2026-12",
+        overlap_class="short",
+        overlap_days=1.1,
+        format_id=MC_FMT,
+    )
+
+
+def test_overdue_status_day7_no_alarm():
+    pair = _oct_full_pair()
+    assert (
+        rollover.overdue_status(pair, now=_dt("2026-11-07T13:07:00Z"), satisfied=False)
+        is None
+    )
+
+
+def test_overdue_status_day8_loud():
+    pair = _oct_full_pair()
+    assert (
+        rollover.overdue_status(pair, now=_dt("2026-11-08T13:07:00Z"), satisfied=False)
+        == "loud"
+    )
+
+
+def test_overdue_status_day37_still_loud():
+    pair = _oct_full_pair()
+    assert (
+        rollover.overdue_status(pair, now=_dt("2026-12-07T13:07:00Z"), satisfied=False)
+        == "loud"
+    )
+
+
+def test_overdue_status_day38_capped_warn():
+    pair = _oct_full_pair()
+    assert (
+        rollover.overdue_status(pair, now=_dt("2026-12-08T13:07:00Z"), satisfied=False)
+        == "warn"
+    )
+
+
+def test_overdue_status_short_never_loud():
+    pair = _dec_short_pair()
+    for now in (
+        _dt("2027-01-01T13:07:00Z"),
+        _dt("2027-01-08T13:07:00Z"),
+        _dt("2027-02-15T13:07:00Z"),
+    ):
+        assert rollover.overdue_status(pair, now=now, satisfied=False) is None
+
+
+def test_run_rollover_overdue_loud_exits_1(tmp_path: Path):
+    _write_doc(tmp_path / f"{MC}.showdown_doubles.v1.json", _doc(month="2026-09"))
+    code, _ = rollover.run_rollover(
+        now=_dt("2026-11-09T13:07:00Z"),
+        schedule=SCHEDULE_MC,
+        usage_dir=tmp_path,
+        fetch_chaos=_fetch_unpublished,
+        write=True,
+    )
+    assert code == 1
+
+
+def test_run_rollover_overdue_capped_exits_0(tmp_path: Path):
+    """Nov unsatisfied at day 38 → warn only; Oct already on disk (supersedes)."""
+    _write_doc(tmp_path / f"{MC}.showdown_doubles.v1.json", _doc(month="2026-10"))
+    logs: list[str] = []
+    code, _ = rollover.run_rollover(
+        now=_dt("2027-01-07T13:07:00Z"),  # day 38 after Nov
+        schedule=SCHEDULE_MC,
+        usage_dir=tmp_path,
+        fetch_chaos=_fetch_unpublished,
+        write=True,
+        log=logs.append,
+    )
+    assert any("overdue(capped)" in m and "2026-11" in m for m in logs)
+    assert code == 0
+
+
+def test_quiet_skip_unpublished_day1_exit_0_file_unchanged(tmp_path: Path):
+    path = tmp_path / f"{MC}.showdown_doubles.v1.json"
+    before = _doc(month="2026-09")
+    _write_doc(path, before)
+    code, results = rollover.run_rollover(
+        now=_dt("2026-11-01T13:07:00Z"),
+        schedule=SCHEDULE_MC,
+        usage_dir=tmp_path,
+        fetch_chaos=_fetch_unpublished,
+        write=True,
+    )
+    oct_r = next(r for r in results if r.pair.month == "2026-10")
+    assert oct_r.action == "quiet_skip_unpublished"
+    assert "RuntimeError:" in oct_r.detail
+    assert "Smogon chaos fetch failed" in oct_r.detail
+    assert code == 0
+    assert json.loads(path.read_text())["meta"]["showdown_month"] == "2026-09"
+
+
+def test_quiet_skip_unpublished_day9_still_exits_1(tmp_path: Path):
+    _write_doc(tmp_path / f"{MC}.showdown_doubles.v1.json", _doc(month="2026-09"))
+    code, results = rollover.run_rollover(
+        now=_dt("2026-11-09T13:07:00Z"),
+        schedule=SCHEDULE_MC,
+        usage_dir=tmp_path,
+        fetch_chaos=_fetch_unpublished,
+        write=True,
+    )
+    assert any(
+        r.action == "quiet_skip_unpublished" and r.pair.month == "2026-10"
+        for r in results
+    )
+    assert code == 1
+
+
+def test_quiet_skip_systemexit_and_oserror_include_type(tmp_path: Path):
+    path = tmp_path / f"{MC}.showdown_doubles.v1.json"
+    _write_doc(path, _doc(month="2026-09"))
+    now = _dt("2026-11-01T13:07:00Z")
+    pair = _oct_full_pair()
+
+    def boom_exit(month: str, format_id: str, rating: int):
+        raise SystemExit(f"Smogon chaos fetch failed: {month}/{format_id}")
+
+    def boom_os(month: str, format_id: str, rating: int):
+        raise OSError("proxy reset")
+
+    r_exit = rollover.process_pair(
+        pair,
+        now=now,
+        force=False,
+        schedule=SCHEDULE_MC,
+        usage_dir=tmp_path,
+        fetch_chaos=boom_exit,
+        dry_run=False,
+        write=True,
+    )
+    r_os = rollover.process_pair(
+        pair,
+        now=now,
+        force=False,
+        schedule=SCHEDULE_MC,
+        usage_dir=tmp_path,
+        fetch_chaos=boom_os,
+        dry_run=False,
+        write=True,
+    )
+    assert r_exit.action == "quiet_skip_unpublished"
+    assert r_exit.detail.startswith("SystemExit:")
+    assert r_os.action == "quiet_skip_unpublished"
+    assert r_os.detail.startswith("OSError:")
+    assert "proxy reset" in r_os.detail
+
+
 def test_drop_ratio_raw_fail_per_day_pass():
     """Shorter calendar month: raw battles ratio < 0.90 but per-day >= 0.90."""
     prior_days = rollover.overlap_days(MC_WINDOW, "2026-10")
