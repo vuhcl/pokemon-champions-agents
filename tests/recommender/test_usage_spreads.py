@@ -152,7 +152,8 @@ def test_live_showdown_spreads_keep_nature_and_chaos_weight():
             return {"pokemon": {"Farigiraf": {"usage": 1.0}}}
         return {"Spreads": {"Quiet:32/0/2/32/0/0": 5432.1}}
 
-    rows = fetch_live_spreads("Farigiraf", "champions", fetch)
+    # Live tuple is M-B-only; M-C product ids no longer chain-walk.
+    rows = fetch_live_spreads("Farigiraf", "champions-reg-mb", fetch)
     assert rows == (
         SpreadEvidence(
             spread={"hp": 32, "atk": 0, "def": 2, "spa": 32, "spd": 0, "spe": 0},
@@ -186,7 +187,7 @@ def test_live_fetch_falls_back_to_cbd_percentage_rows():
             ]
         }
 
-    rows = fetch_live_spreads("Incineroar", "champions", fetch)
+    rows = fetch_live_spreads("Incineroar", "champions-reg-mb", fetch)
     assert rows[0].source == "cbd-live"
     assert rows[0].weight == 12.5
     assert rows[0].weight_kind == "percentage"
@@ -201,13 +202,31 @@ def test_live_fetch_custom_fetcher_not_memoized_and_rejects_unknown_regulation()
         calls.append(url)
         return None
 
-    # Custom fetcher bypasses lower-level cache (no stale-None risk at that layer).
+    # M-C: exact-tag → no live → no network.
     assert fetch_live_spreads("MissingNo", "champions", fetch) == ()
     assert fetch_live_spreads("MissingNo", "champions", fetch) == ()
+    assert calls == []
+
+    # M-B: live supported; custom fetcher bypasses lower-level cache.
+    assert fetch_live_spreads("MissingNo", "champions-reg-mb", fetch) == ()
+    assert fetch_live_spreads("MissingNo", "champions-reg-mb", fetch) == ()
     assert len(calls) == 4  # Showdown index + CBD, twice.
 
     calls.clear()
     assert fetch_live_spreads("MissingNo", "champions-reg-zz", fetch) == ()
+    assert calls == []
+
+
+def test_mc_live_spreads_empty_without_chain_walk():
+    fetch_live_spreads.cache_clear()
+    calls: list[str] = []
+
+    def fetch(url):
+        calls.append(url)
+        return {"pokemon": {"X": {}}}
+
+    assert fetch_live_spreads("Farigiraf", "champions", fetch) == ()
+    assert fetch_live_spreads("Farigiraf", "champions-reg-mc", fetch) == ()
     assert calls == []
 
 
