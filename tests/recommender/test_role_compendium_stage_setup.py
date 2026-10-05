@@ -359,7 +359,10 @@ def test_bulk_up_aquajet_priority_finisher_combined_ko():
 def test_present_usage_payoff_ids_stage_and_idbp_coverage(monkeypatch):
     """CM/BU bag and ID+BP coverage fallbacks drop sub-floor leftovers."""
     from recommender.legality import load_snapshot
-    from recommender.role_compendium_setup import _present_usage_payoff_ids, _ranked_payoff_moves
+    from recommender.role_compendium_setup import (
+        _present_usage_payoff_ids,
+        _ranked_payoff_moves,
+    )
     from recommender.role_compendium import _UsageCtx
 
     monkeypatch.setattr(
@@ -371,6 +374,9 @@ def test_present_usage_payoff_ids_stage_and_idbp_coverage(monkeypatch):
         },
     )
     monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
+    monkeypatch.setattr(
+        "recommender.role_compendium_usage.ingame_species_map", lambda *a, **k: {}
+    )
 
     uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
 
@@ -378,9 +384,9 @@ def test_present_usage_payoff_ids_stage_and_idbp_coverage(monkeypatch):
         "name": "Medicham-Mega",
         "id": "medichammega",
         "common_moves": [
-            {"name": "Psyshock", "pct": 0.0},
-            {"name": "Psychic", "pct": 2.093},
-            {"name": "Calm Mind", "pct": 0.129},
+            {"name": "Psyshock", "pct": 0.0, "weight": 0.0},
+            {"name": "Psychic", "pct": 2.093, "weight": 40.0},
+            {"name": "Calm Mind", "pct": 0.129, "weight": 25.0},
         ],
     }
     cm_ids = _present_usage_payoff_ids(
@@ -398,9 +404,9 @@ def test_present_usage_payoff_ids_stage_and_idbp_coverage(monkeypatch):
         "name": "Beartic",
         "id": "beartic",
         "common_moves": [
-            {"name": "Double-Edge", "pct": 0.0},
-            {"name": "Close Combat", "pct": 17.453},
-            {"name": "Bulk Up", "pct": 0.219},
+            {"name": "Double-Edge", "pct": 0.0, "weight": 0.0},
+            {"name": "Close Combat", "pct": 17.453, "weight": 70.0},
+            {"name": "Bulk Up", "pct": 0.219, "weight": 30.0},
         ],
     }
     bu_ids = _present_usage_payoff_ids(
@@ -418,10 +424,10 @@ def test_present_usage_payoff_ids_stage_and_idbp_coverage(monkeypatch):
         "name": "Aggron-Mega",
         "id": "aggronmega",
         "common_moves": [
-            {"name": "Body Press", "pct": 40.0},
-            {"name": "Iron Defense", "pct": 30.0},
-            {"name": "Shadow Ball", "pct": 0.0},
-            {"name": "Heavy Slam", "pct": 15.0},
+            {"name": "Body Press", "pct": 40.0, "weight": 80.0},
+            {"name": "Iron Defense", "pct": 30.0, "weight": 60.0},
+            {"name": "Shadow Ball", "pct": 0.0, "weight": 0.0},
+            {"name": "Heavy Slam", "pct": 15.0, "weight": 50.0},
         ],
     }
     cov = _present_usage_payoff_ids(

@@ -167,18 +167,18 @@ def test_acceptable_floor_note_emitted():
 def test_cbd_move_implausible_vs_mega_helper():
     from recommender.role_compendium import _cbd_base_move_implausible_vs_mega
 
-    base= {"common_moves": [{"name": "Swords Dance", "pct": 19.5}]}
-    mega = {"common_moves": [{"name": "Swords Dance", "pct": 9.2}]}
+    base= {"common_moves": [{"name": "Swords Dance", "pct": 19.5, "weight": 100.0}]}
+    mega = {"common_moves": [{"name": "Swords Dance", "pct": 9.2, "weight": 100.0}]}
     assert _cbd_base_move_implausible_vs_mega(base, mega, "swordsdance")
     assert not _cbd_base_move_implausible_vs_mega(
-        {"common_moves": [{"name": "Swords Dance", "pct": 5.0}]},
+        {"common_moves": [{"name": "Swords Dance", "pct": 5.0, "weight": 100.0}]},
         mega,
         "swordsdance",
     )
     # Mega does not run the move → not this check.
     assert not _cbd_base_move_implausible_vs_mega(
         base,
-        {"common_moves": [{"name": "Brave Bird", "pct": 40.0}]},
+        {"common_moves": [{"name": "Brave Bird", "pct": 40.0, "weight": 100.0}]},
         "swordsdance",
     )
 
@@ -191,13 +191,13 @@ def test_cbd_inflated_vs_mega_rejects_without_showdown_base_delivery():
             return {
                 "name": name,
                 "usage_pct": 0.3,
-                "common_moves": [{"name": "Swords Dance", "pct": 9.2}],
+                "common_moves": [{"name": "Swords Dance", "pct": 9.2, "weight": 100.0}],
             }
         if sid == "skarmory":
             return {
                 "name": name,
                 "usage_pct": 0.04,
-                "common_moves": [{"name": "Brave Bird", "pct": 40.0}],
+                "common_moves": [{"name": "Brave Bird", "pct": 40.0, "weight": 100.0}],
             }
         return None
 
@@ -211,21 +211,21 @@ def test_cbd_inflated_vs_mega_rejects_without_showdown_base_delivery():
             {
                 "name": n,
                 "id": to_id(n),
-                "common_moves": [{"name": "Swords Dance", "pct": 19.5}],
-                "common_items": [{"name": "Skarmorite", "pct": 79.0}],
+                "common_moves": [{"name": "Swords Dance", "pct": 19.5, "weight": 100.0}],
+                "common_items": [{"name": "Skarmorite", "pct": 79.0, "weight": 100.0}],
             }
             if to_id(n) == "skarmory"
             else {
                 "name": n,
                 "id": to_id(n),
-                "common_moves": [{"name": "Swords Dance", "pct": 40.0}],
+                "common_moves": [{"name": "Swords Dance", "pct": 40.0, "weight": 100.0}],
             }
             if to_id(n) == "skarmorymega"
             else None
         ),
         showdown_fetch=sd_fetch,
         calculate_batch=_mock_calc,
-        regulation="champions-reg-mb",
+        regulation="champions-reg-mc",
     )
     rej = {r.species: r.reason for r in draft.considered_rejected}
     admitted = {c.species for c in draft.candidates if c.tier}
@@ -251,13 +251,13 @@ def test_discounted_base_in_acceptable_band_is_rejected():
             return {
                 "name": name,
                 "usage_pct": 5.0,
-                "common_moves": [{"name": "Swords Dance", "pct": 20.0}],
+                "common_moves": [{"name": "Swords Dance", "pct": 20.0, "weight": 100.0}],
             }
         if sid == "scizor":
             return {
                 "name": name,
                 "usage_pct": 0.01,
-                "common_moves": [{"name": "Swords Dance", "pct": 15.0}],
+                "common_moves": [{"name": "Swords Dance", "pct": 15.0, "weight": 100.0}],
             }
         return None
 
@@ -295,15 +295,15 @@ def test_discounted_base_in_acceptable_band_is_rejected():
             {
                 "name": n,
                 "id": to_id(n),
-                "common_moves": [{"name": "Swords Dance", "pct": 40.0}],
-                "common_items": [{"name": "Life Orb", "pct": 20.0}],
+                "common_moves": [{"name": "Swords Dance", "pct": 40.0, "weight": 100.0}],
+                "common_items": [{"name": "Life Orb", "pct": 20.0, "weight": 100.0}],
             }
             if to_id(n) in {"scizor", "scizormega"}
             else None
         ),
         showdown_fetch=sd_fetch,
         calculate_batch=calc,
-        regulation="champions-reg-mb",
+        regulation="champions-reg-mc",
     )
     scizor = next((c for c in draft.candidates if c.species == "Scizor"), None)
     if scizor is not None and scizor.excellence_basis == "usage_discounted":
@@ -325,13 +325,13 @@ def test_setup_does_not_discount_when_mega_lacks_setup_move():
             return {
                 "name": name,
                 "usage_pct": 5.0,
-                "common_moves": [{"name": "Bullet Punch", "pct": 40.0}],
+                "common_moves": [{"name": "Bullet Punch", "pct": 40.0, "weight": 100.0}],
             }
         if sid == "scizor":
             return {
                 "name": name,
                 "usage_pct": 0.01,
-                "common_moves": [{"name": "Swords Dance", "pct": 15.0}],
+                "common_moves": [{"name": "Swords Dance", "pct": 15.0, "weight": 100.0}],
             }
         return None
 
@@ -345,15 +345,15 @@ def test_setup_does_not_discount_when_mega_lacks_setup_move():
             {
                 "name": n,
                 "id": to_id(n),
-                "common_moves": [{"name": "Swords Dance", "pct": 40.0}],
-                "common_items": [{"name": "Life Orb", "pct": 20.0}],
+                "common_moves": [{"name": "Swords Dance", "pct": 40.0, "weight": 100.0}],
+                "common_items": [{"name": "Life Orb", "pct": 20.0, "weight": 100.0}],
             }
             if to_id(n) in {"scizor", "scizormega"}
             else None
         ),
         showdown_fetch=sd_fetch,
         calculate_batch=_mock_calc,
-        regulation="champions-reg-mb",
+        regulation="champions-reg-mc",
     )
     rej = {r.species: r.reason for r in draft.considered_rejected}
     # Must not be rejected solely for Showdown usage discount.
@@ -676,7 +676,7 @@ def test_rebuild_tmp(tmp_path: Path):
         live_fetch=lambda n: {
             "name": n,
             "id": to_id(n),
-            "common_moves": [{"name": "Swords Dance", "pct": 50}],
+            "common_moves": [{"name": "Swords Dance", "pct": 50, "weight": 100.0}],
         }
         if to_id(n)
         in {
@@ -688,9 +688,25 @@ def test_rebuild_tmp(tmp_path: Path):
             "blaziken",
         }
         else None,
-        showdown_fetch=lambda _n: None,
+        showdown_fetch=lambda n: (
+            {
+                "name": n,
+                "id": to_id(n),
+                "common_moves": [{"name": "Swords Dance", "pct": 50, "weight": 100.0}],
+            }
+            if to_id(n)
+            in {
+                "blazikenmega",
+                "kingambit",
+                "scizormega",
+                "scizor",
+                "mawilemega",
+                "blaziken",
+            }
+            else None
+        ),
         calculate_batch=_mock_calc,
-        regulation="champions-reg-mb",
+        regulation="champions-reg-mc",
     )
     assert r.status == "approved", r.critique.flags
     assert Path(r.path or "").exists()
@@ -761,7 +777,7 @@ def test_sd_construct_structured_payoff_mawile_shaped(monkeypatch):
         return {
             "name": name,
             "id": "mawilemega",
-            "common_moves": [{"name": "Swords Dance", "pct": 40.0}],
+            "common_moves": [{"name": "Swords Dance", "pct": 40.0, "weight": 100.0}],
         }
 
     draft = construct_role_category(
@@ -770,9 +786,9 @@ def test_sd_construct_structured_payoff_mawile_shaped(monkeypatch):
         ["Mawile-Mega"],
         snap=snap,
         live_fetch=usage,
-        showdown_fetch=lambda _n: None,
+        showdown_fetch=usage,
         calculate_batch=calc,
-        regulation="champions-reg-mb",
+        regulation="champions-reg-mc",
     )
     maw = next(c for c in draft.candidates if c.species_id == "mawilemega" and c.tier)
     notes = maw.criteria_notes

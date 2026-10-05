@@ -23,8 +23,9 @@ def test_set_pct_uses_ability_denom_not_raw():
     raw = {"auroraveil": 40.17, "protect": 40.0, "shadowball": 19.83}
     # With denom 200 (ability-weight sum), veil set% is 20.085 — not share-of-moves.
     out = chaos_weights_to_common(raw, denom=200.0)
-    by_name = {row["name"]: row["pct"] for row in out}
-    assert by_name["auroraveil"] == 20.085
+    by_name = {row["name"]: row for row in out}
+    assert by_name["auroraveil"]["pct"] == 20.085
+    assert by_name["auroraveil"]["weight"] == 40.17
     assert len(out) == 3
 
 
