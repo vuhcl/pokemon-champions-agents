@@ -11,7 +11,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Hashable
 from typing import Any
 
-from recommender.ids import regulation_lookup_chain, to_id
+from recommender.ids import regulation_file_tag, to_id
 from recommender.tool_log import log_tool_call, timed_tool_call
 
 _UA = "pokemon-champions-agents/0.1"
@@ -35,15 +35,11 @@ class LiveFetchError(Exception):
 
 
 def _live_format_for(regulation: str) -> tuple[str, str, int] | None:
-    """Newest→older walk until a tag has a live MunchStats tuple (usage lag)."""
+    """Exact tag only — no archive walk (M-C must not resolve to M-B live)."""
     try:
-        for tag in regulation_lookup_chain(regulation):
-            hit = _LIVE_FORMATS.get(tag)
-            if hit is not None:
-                return hit
+        return _LIVE_FORMATS.get(regulation_file_tag(regulation))
     except ValueError:
         return None
-    return None
 
 
 def fetch_json(
