@@ -12,9 +12,14 @@ from recommender.regulation_registry import (
     iter_regulation_literal_hits,
     iter_regulation_parameter_default_hits,
     iter_required_regulation_default_hits,
+    missing_required_regulation_functions,
 )
 
 # Product + CI paths allowed to carry concrete regulation literals.
+# ``test_no_tag_literals_outside_allowlist`` scans ``recommender/`` only — the
+# ~316 B2c test pins (``regulation="champions"``) are not enforced here;
+# deferred until deterministic M-C baseline re-freeze (extend scan to tests/
+# with M-A/M-B fixture allowlists, or rely on explicit pin retarget review).
 _ALLOW_PREFIXES = (
     "recommender/regulation_registry.py",
     "recommender/ids.py",
@@ -45,7 +50,7 @@ _ALLOW_PREFIXES = (
     "tests/recommender/test_usage_archive_fallback.py",
     "tests/recommender/test_usage_live_mc.py",
     "tests/recommender/test_usage_split.py",
-    "tests/recommender/test_query_counters.py",
+    # Eval harnesses pin explicit regulations; allowlisted until M-C baseline re-freeze.
     "scripts/eval/",
 )
 
@@ -85,6 +90,10 @@ def test_no_regulation_tag_parameter_defaults():
 
 
 def test_required_regulation_apis_have_no_default():
+    missing = missing_required_regulation_functions()
+    assert not missing, "REQUIRED_REGULATION_FUNCTIONS entries not found:\n" + "\n".join(
+        f"{p}:{fn}" for p, fn in missing
+    )
     hits = iter_required_regulation_default_hits()
     assert not hits, "required regulation APIs still have defaults:\n" + "\n".join(
         f"{p}:{ln}: {fn}" for p, ln, fn, _ in hits

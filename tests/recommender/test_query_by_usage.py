@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 from recommender.by_usage import query_by_usage
 from recommender.counters import query_counters
 from recommender.ids import to_id
@@ -46,6 +48,25 @@ def test_narrowed_fairy_pool():
         assert "Fairy" in (entry.get("types") or [])
     ranks = [c.usage_rank for c in out if c.usage_rank is not None]
     assert ranks == sorted(ranks)
+
+
+def test_narrowed_pool_uses_legality_snapshot_name_fallback():
+    """Pool branch: ig name missing → fall back to snap species name (main behavior)."""
+    snap = load_snapshot()
+    sid = next(
+        s
+        for s, entry in snap["species"].items()
+        if is_species_legal(snap, s) and entry.get("name")
+    )
+    canonical = str(snap["species"][sid]["name"])
+    with (
+        patch("recommender.by_usage.ingame_species_map", return_value={}),
+        patch("recommender.by_usage.ingame_ladder_species_map", return_value={}),
+    ):
+        out = query_by_usage(pool=[{"species": sid}], n=1, regulation="champions")
+    assert out
+    assert out[0].form == canonical
+    assert out[0].spec["species"] == sid
 
 
 def test_composes_into_query_counters():

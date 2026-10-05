@@ -427,6 +427,33 @@ def iter_regulation_parameter_default_hits(
     return hits
 
 
+def missing_required_regulation_functions() -> list[tuple[str, str]]:
+    """Registry entries with no matching function in the file (rename/delete guard)."""
+    import ast
+
+    by_file: dict[str, set[str]] = {}
+    for path, fn in REQUIRED_REGULATION_FUNCTIONS:
+        by_file.setdefault(path, set()).add(fn)
+
+    found: dict[str, set[str]] = {rel: set() for rel in by_file}
+    for rel, names in by_file.items():
+        path = ROOT / rel
+        if not path.exists():
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            if node.name in names:
+                found[rel].add(node.name)
+
+    missing: list[tuple[str, str]] = []
+    for path, fn in sorted(REQUIRED_REGULATION_FUNCTIONS):
+        if fn not in found.get(path, set()):
+            missing.append((path, fn))
+    return missing
+
+
 def iter_required_regulation_default_hits() -> list[tuple[str, int, str, str]]:
     """Core APIs that must not default ``regulation`` (required-arg scan)."""
     import ast

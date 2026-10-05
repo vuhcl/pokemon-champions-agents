@@ -77,13 +77,14 @@ def query_by_usage(
             if ownership_mode == "owned_only" and sid not in owned:
                 continue
             seen.add(sid)
+            entry = snap["species"].get(sid) or {}
             ladder_entry = ladder.get(sid) or {}
             ig_entry = ig.get(sid) or {}
             rank = ladder_entry.get("usage_rank")
             if rank is None:
                 rank = ig_entry.get("usage_rank")
             rank_i = int(rank) if rank is not None else None
-            name = str(ig_entry.get("name") or species)
+            name = str(ig_entry.get("name") or entry.get("name") or species)
             cands.append(
                 ThreatCandidate(
                     ladder_species=name,
@@ -91,7 +92,7 @@ def query_by_usage(
                     form=name,
                     showdown_usage_pct=None,
                     showdown_formes=(),
-                    spec=dict(spec),
+                    spec=spec,
                     build_source="ingame",
                 )
             )

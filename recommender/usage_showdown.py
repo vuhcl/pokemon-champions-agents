@@ -42,7 +42,11 @@ def fetch_showdown_vgc_species(
     offline = showdown_species_map(regulation).get(sid)
     if isinstance(offline, dict):
         return offline
-    params = showdown_source_params(regulation)
+    try:
+        params = showdown_source_params(regulation)
+    except ValueError:
+        # B4: regulation with no Showdown graft yet — no live probe.
+        return None
     base = (
         "https://raw.githubusercontent.com/PizzaTimeJoshua/munchstats/main/"
         f"stats/{params['month']}/{params['format_id']}/{params['rating']}"
