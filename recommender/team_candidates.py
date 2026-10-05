@@ -484,7 +484,13 @@ def merge_multi_locked_candidates(
         for need in anchored_needs
         if provider_need_category_open(need.need.category, anchor_contexts)
     )
-    support_context = SlotFillContext(anchor=None, role_shape_context=None)
+    from recommender.slot_fill import _regulation as _slot_regulation
+
+    support_context = SlotFillContext(
+        anchor=None,
+        role_shape_context=None,
+        regulation=_slot_regulation(state),
+    )
     locked_weather = next(
         (
             field["weather"]

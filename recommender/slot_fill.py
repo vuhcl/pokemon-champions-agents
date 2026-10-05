@@ -21,7 +21,7 @@ from recommender.calc_client import PokemonSpecOptional
 from recommender.condition_types import ConditionResilienceReport
 from recommender.contingent_value import REDIRECT_MOVES
 from recommender.coverage import ABILITY_TO_FIELD
-from recommender.ids import to_id
+from recommender.ids import regulation_file_tag, to_id
 from recommender.matchup import CHARGE_INSTANT_WEATHER
 from recommender.legality import is_species_legal, load_snapshot, resolve_learnset
 from recommender.move_narrowing import (
@@ -244,6 +244,8 @@ class SlotFillContext:
     soft_mechanical: tuple = field(default_factory=tuple)
     constraint_slot_index: int | None = None
     constraint_team_draft: list | None = None
+    # Per-invocation scratch (not in checkpointer allowlist). Product default = M-C tag.
+    regulation: str = "champions-reg-mc"
 
 
 @dataclass(frozen=True)
@@ -314,6 +316,7 @@ def build_anchored_slot_fill_context(
             support_needs=needs,
             threat_discovery_status=discovery_status,
             threat_discovery_error=discovery_error,
+            regulation=regulation,
         ),
         resolved,
         decision,
@@ -377,8 +380,9 @@ from recommender.slot_fill_target_role import (  # noqa: E402
 
 
 def _regulation(state: RecommenderState | None = None) -> str:
-    reg = (state or {}).get("regulation_mod") or "champions-reg-mb"
-    return "champions-reg-mb" if reg == "champions" else str(reg)
+    """File tag for usage/legality maps. No champions→mb bridge."""
+    reg = (state or {}).get("regulation_mod") or "champions"
+    return regulation_file_tag(str(reg))
 
 
 def _legality_abilities(snap: dict[str, Any], species: str) -> set[str]:
@@ -417,7 +421,7 @@ def _candidate_satisfies_need(
     need: SupportNeed,
     *,
     snap: dict[str, Any],
-    regulation: str = "champions-reg-mb",
+    regulation: str = "champions-reg-mc",
 ) -> bool:
     sat = _NEED_SATISFIERS.get(need.category)
     if sat is None:
@@ -449,7 +453,7 @@ def _matching_needs_for(
     needs: list[SupportNeed],
     *,
     snap: dict[str, Any],
-    regulation: str = "champions-reg-mb",
+    regulation: str = "champions-reg-mc",
 ) -> tuple[SupportNeed, ...]:
     return tuple(
         n
@@ -571,7 +575,7 @@ def annotate_overlap(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
         )
     derive_target_role(ctx)
     snap = load_snapshot()
-    regulation = "champions-reg-mb"
+    regulation = ctx.regulation
     degradation_kind = _degradation_kind(ctx)
     out: list[AnnotatedCandidate] = []
     for row in ctx.threat_counter_results:
@@ -612,7 +616,7 @@ def merge_need_resolved(ctx: SlotFillContext) -> list[AnnotatedCandidate]:
     if ctx.chosen_need is not None and ctx.chosen_need not in needs:
         needs = [*needs, ctx.chosen_need]
     snap = load_snapshot()
-    regulation = "champions-reg-mb"
+    regulation = ctx.regulation
     degradation_kind = _degradation_kind(ctx)
 
     by_id: dict[str, AnnotatedCandidate] = {}
