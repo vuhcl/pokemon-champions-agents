@@ -610,7 +610,7 @@ def _admit_candidates(
 def pick_default_and_alternatives(
     candidates: list[str],
     *,
-    regulation: str = "champions-reg-mc",
+    regulation: str,
     redundancy_tier: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     """default is always candidates[0] (unchanged) -- the single strongest

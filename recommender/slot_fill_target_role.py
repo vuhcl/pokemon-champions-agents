@@ -216,7 +216,7 @@ def _kit_fallback_target_role(species: str) -> TargetRoleDecision | None:
     """
 
     vocabulary = frozenset(get_args(TargetRoleId))
-    build = resolve_anchor_build(species, regulation="champions-reg-mb")
+    build = resolve_anchor_build(species, regulation="champions")
     anchor = classify_anchor_role(build)
     for raw in (anchor.kit_role, anchor.role_id):
         if not raw or raw not in vocabulary:

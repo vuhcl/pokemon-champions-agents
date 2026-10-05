@@ -259,7 +259,7 @@ def resolve_anchor_build(
     provisional: dict[str, Any] | None = None,
     synthesized: dict[str, Any] | None = None,
     role_hint: str | None = None,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
     team_draft: list[Slot] | None = None,
     exclude_slot: int | None = None,
 ) -> ResolvedAnchorBuild:

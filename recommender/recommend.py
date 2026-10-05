@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Literal, NotRequired, TypedDict
 
 from recommender.matchup import _MULTI_HIT_MOVES
-from recommender.ids import to_id
+from recommender.ids import regulation_file_tag, to_id
 from recommender.legality import (
     LegalityResult,
     check_set,
@@ -551,7 +551,7 @@ def recommend_build(
                 True,
                 {
                     "threat_set": [o.get("species", "") for o in opponents],
-                    "usage_snapshot": "champions-reg-mb.v1",
+                    "usage_snapshot": f"{regulation_file_tag(regulation)}.v1",
                 },
             )
             verification.append("wrote cache after tier3")

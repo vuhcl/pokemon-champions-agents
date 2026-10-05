@@ -178,7 +178,7 @@ def pick_synthesized_default_item(
     role_id: str | None,
     team_draft: list[Slot] | None,
     *,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
 ) -> str | None:
     """Tier-3 universal item fallback, skipping items already on team_draft."""
     del regulation  # ponytail: regulation-aware item bans not in snapshot yet

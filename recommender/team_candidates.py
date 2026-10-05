@@ -343,7 +343,7 @@ def owned_species_ids(state: RecommenderState) -> frozenset[str]:
 def collect_locked_anchor_contexts(
     state: RecommenderState,
 ) -> tuple[LockedAnchorContext, ...]:
-    regulation = state.get("regulation_mod") or "champions-reg-mb"
+    regulation = state.get("regulation_mod") or "champions"
     contexts: list[LockedAnchorContext] = []
     for slot_index, slot in enumerate(state["team_draft"]):
         if not all_locked(slot) or not slot.species.value:
@@ -768,7 +768,7 @@ def annotate_composition_impact(
     condition_resilience: ConditionResilienceReport | None = None,
     objective: Sequence[TeamThreatObjectiveRow] = (),
 ) -> list[AnnotatedCandidate]:
-    regulation = state.get("regulation_mod") or "champions-reg-mb"
+    regulation = state.get("regulation_mod") or "champions"
     locked = (
         tuple(locked_anchors)
         if locked_anchors is not None
@@ -1984,7 +1984,7 @@ def rank_multi_locked_candidates(
     ownership_mode: OwnershipMode,
     owned_species: frozenset[str],
     n: int = 10,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
 ) -> list[AnnotatedCandidate]:
     rows = sorted(candidates, key=lambda candidate: to_id(candidate.species))
     if ownership_mode == "owned_only":
@@ -2008,7 +2008,7 @@ def material_completion_preferences(
     objective: Sequence[TeamThreatObjectiveRow],
     ownership_mode: OwnershipMode,
     owned_species: frozenset[str],
-    regulation: str = "champions-reg-mb",
+    regulation: str,
 ) -> tuple[TeamCompletionPreference, ...]:
     preferences: tuple[TeamCompletionPreference, ...] = (
         "attacker",

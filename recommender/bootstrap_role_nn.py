@@ -246,7 +246,7 @@ def derive_nn_transfer_seeds(
 def transfer_bootstrap_role(
     species: str,
     *,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
 ) -> NnRoleTransfer | None:
     """Return a transferred role when gate + NN + shape checks succeed."""
     snap = load_snapshot()

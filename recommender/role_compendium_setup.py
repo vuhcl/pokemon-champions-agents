@@ -1312,7 +1312,9 @@ def _attacker_kit(
 ) -> tuple[str, str | None, str | None, list[str]]:
     """Return (calc_species, item, ability, moves_display)."""
     calc_name = _calc_species_name(sid, name, snap)
-    built = featured_or_common_set(name) or featured_or_common_set(calc_name)
+    built = featured_or_common_set(
+        name, regulation="champions"
+    ) or featured_or_common_set(calc_name, regulation="champions")
     if built:
         moves = list(built.get("moves") or [])
         item = _drop_setup_choice_item(built.get("item"))
@@ -1446,7 +1448,9 @@ def _move_override_extra(mid: str) -> dict[str, Any]:
 def _candidate_defender_spec(
     name: str, calc_name: str, *, species: str | None = None
 ) -> dict[str, Any]:
-    built = featured_or_common_set(name) or featured_or_common_set(calc_name)
+    built = featured_or_common_set(
+        name, regulation="champions"
+    ) or featured_or_common_set(calc_name, regulation="champions")
     spec: dict[str, Any] = {"species": species or _setup_defender_species(calc_name)}
     if not built:
         return spec

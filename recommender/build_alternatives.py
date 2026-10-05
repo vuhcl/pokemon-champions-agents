@@ -455,7 +455,7 @@ def _generate_build_option_groups(
     provisional: ProvisionalSlot,
     state: RecommenderState,
 ) -> tuple[tuple[BuildOptionGroup, ...], tuple[str, ...]]:
-    regulation = state.get("regulation_mod") or "champions-reg-mb"
+    regulation = state.get("regulation_mod") or "champions"
     draft = state.get("team_draft") or []
     refine = False
     if 0 <= provisional.slot_index < len(draft):

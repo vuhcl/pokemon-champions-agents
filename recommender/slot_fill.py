@@ -225,6 +225,8 @@ class NeedResolvedCandidate:
 class SlotFillContext:
     anchor: PokemonSpecOptional | None
     role_shape_context: RoleShapeContext | None
+    # Per-invocation scratch (not in checkpointer allowlist). Required; set from state.
+    regulation: str
     target_role_decision: TargetRoleResult | None = None
     threat_counter_results: list[ThreatCounterCandidate] | None = None
     support_needs: list[SupportNeed] | None = None
@@ -244,8 +246,6 @@ class SlotFillContext:
     soft_mechanical: tuple = field(default_factory=tuple)
     constraint_slot_index: int | None = None
     constraint_team_draft: list | None = None
-    # Per-invocation scratch (not in checkpointer allowlist). Product default = M-C tag.
-    regulation: str = "champions-reg-mc"
 
 
 @dataclass(frozen=True)
@@ -303,7 +303,9 @@ def build_anchored_slot_fill_context(
         discovery_error: CandidateDiscoveryError | None = None
     else:
         locked = collect_locked_anchor_contexts(state)
-        discovery = query_threat_counters(pokemon, locked_contexts=locked)
+        discovery = query_threat_counters(
+            pokemon, regulation=regulation, locked_contexts=locked
+        )
         threats = list(discovery.candidates)
         discovery_status = discovery.status
         discovery_error = discovery.error
@@ -421,7 +423,7 @@ def _candidate_satisfies_need(
     need: SupportNeed,
     *,
     snap: dict[str, Any],
-    regulation: str = "champions-reg-mc",
+    regulation: str,
 ) -> bool:
     sat = _NEED_SATISFIERS.get(need.category)
     if sat is None:
@@ -453,7 +455,7 @@ def _matching_needs_for(
     needs: list[SupportNeed],
     *,
     snap: dict[str, Any],
-    regulation: str = "champions-reg-mc",
+    regulation: str,
 ) -> tuple[SupportNeed, ...]:
     return tuple(
         n
@@ -844,12 +846,14 @@ def _rank_by_usage(
     n: int = 20,
     available_species: frozenset[str],
     ownership_mode: OwnershipMode,
+    regulation: str,
 ) -> list[str]:
     if not names:
         return []
     ranked = query_by_usage(
         [{"species": name} for name in names],
         n=n,
+        regulation=regulation,
         available_species=available_species,
         ownership_mode=ownership_mode,
     )
@@ -906,6 +910,7 @@ def _resolve_condition_setter(
         names,
         available_species=available_species,
         ownership_mode=ownership_mode,
+        regulation=regulation,
     )
 
 
@@ -1402,6 +1407,7 @@ def resolve_condition_beneficiaries(
             n=20,
             available_species=available_species,
             ownership_mode=ownership_mode,
+            regulation=regulation,
         )
         ladder_map = ingame_ladder_species_map(regulation)
         showdown_map = showdown_species_map(regulation)
@@ -1696,7 +1702,9 @@ def present_candidates(
         )
     else:
         tier_for = _redundancy_tier_for_candidates(rows, ctx.condition_resilience)
-        picked = pick_default_and_alternatives(names, redundancy_tier=tier_for)
+        picked = pick_default_and_alternatives(
+            names, regulation=ctx.regulation, redundancy_tier=tier_for
+        )
     default = picked.get("default")
     alts = list(picked.get("alternatives") or [])
     tracks: dict[str, str] = picked.get("tracks") or {}

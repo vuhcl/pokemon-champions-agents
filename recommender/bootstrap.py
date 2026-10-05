@@ -496,14 +496,18 @@ def discover_bootstrap_directions(
         )
 
     owned = owned_species_ids(state)
+    regulation = state.get("regulation_mod") or "champions"
     usage = query_by_usage(
         pool=None,
         n=20,
+        regulation=regulation,
         available_species=sorted(owned),
         ownership_mode=state.get("ownership_mode", "off"),
     )
     if explicit_anchor is not None:
-        anchor_rows = query_by_usage(pool=[{"species": explicit_anchor}], n=1)
+        anchor_rows = query_by_usage(
+            pool=[{"species": explicit_anchor}], n=1, regulation=regulation
+        )
         usage = [
             *anchor_rows,
             *(
@@ -517,12 +521,12 @@ def discover_bootstrap_directions(
     candidates: list[AnnotatedCandidate] = []
     for usage_row in usage:
         species = str(usage_row.spec.get("species") or usage_row.form)
-        build = resolve_anchor_build(species, regulation="champions-reg-mb")
+        build = resolve_anchor_build(species, regulation=regulation)
         anchor_role = classify_anchor_role(build)
         decision = _target_role(anchor_role)
         nn_hit = None
         if decision is None:
-            nn_hit = transfer_bootstrap_role(species, regulation="champions-reg-mb")
+            nn_hit = transfer_bootstrap_role(species, regulation=regulation)
             if nn_hit is not None and nn_hit.role_id in _TARGET_ROLE_IDS:
                 decision = TargetRoleDecision(
                     role_id=nn_hit.role_id,  # type: ignore[arg-type]
@@ -585,7 +589,7 @@ def discover_bootstrap_directions(
             direction_label=_direction_label(decision.role_id),
             strategic_role_id=decision.role_id,
             species_primary_role=species_primary_role_for_candidate(
-                species, dict(usage_row.spec), "champions-reg-mb"
+                species, dict(usage_row.spec), regulation
             ),
             primary_function=anchor_role.primary_function,
             mechanism_ids=mechanisms,

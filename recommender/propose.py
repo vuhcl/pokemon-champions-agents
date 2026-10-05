@@ -666,7 +666,7 @@ def _bias_choice_moveset(
     moves: list[str],
     *,
     species: str,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
 ) -> list[str]:
     from recommender.usage_data import backfill_moves_from_usage
 
