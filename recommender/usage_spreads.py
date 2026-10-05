@@ -81,6 +81,54 @@ def _evidence_from_rows(
     return tuple(out)
 
 
+def _offline_row_provenance(
+    entry: dict[str, Any], row: dict[str, Any], rows: Sequence[dict[str, Any]]
+) -> tuple[str, str]:
+    """Evidence (source, weight_kind) from row pct_kind, else entry source/section.
+
+    Do not use usage_chaos._normalize_pct_kind here: that helper defaults missing
+    to weight_over_raw_count (meta abilities denom), not spread-row semantics.
+    """
+    if row.get("pct_kind") == "chaos_weight":
+        return "showdown-offline", "chaos_weight"
+    entry_source = str(entry.get("source") or "")
+    if entry_source == "munchstats-champions-data":
+        return "cbd-offline", "percentage"
+    if entry_source == "smogon-chaos":
+        return "showdown-offline", "chaos_weight"
+    if any(
+        isinstance(r, dict) and r.get("pct_kind") == "chaos_weight" for r in rows
+    ):
+        return "showdown-offline", "chaos_weight"
+    return "cbd-offline", "percentage"
+
+
+def _evidence_from_offline_entry(entry: dict[str, Any]) -> tuple[SpreadEvidence, ...]:
+    rows = entry.get("top_spreads") or []
+    if not isinstance(rows, list):
+        return ()
+    out: list[SpreadEvidence] = []
+    for rank, row in enumerate(rows):
+        if not isinstance(row, dict):
+            continue
+        spread = _normalize_spread(row.get("evs"))
+        if spread is None:
+            continue
+        source, weight_kind = _offline_row_provenance(entry, row, rows)
+        nature = row.get("nature")
+        out.append(
+            SpreadEvidence(
+                spread=spread,
+                nature=str(nature) if nature else None,
+                source=source,
+                weight=_weight(row.get("pct")),
+                weight_kind=weight_kind,
+                rank=rank,
+            )
+        )
+    return tuple(out)
+
+
 def _showdown_rows(detail: dict[str, Any]) -> list[dict[str, Any]]:
     raw = detail.get("Spreads") or {}
     if not isinstance(raw, dict):
@@ -345,10 +393,7 @@ def select_usage_spread(
         candidates = fetch(species, regulation)
         source_tier = "tier2_usage_live"
     else:
-        rows = entry.get("top_spreads") or []
-        source = "showdown-offline" if any(row.get("nature") for row in rows) else "cbd-offline"
-        weight_kind = "chaos_weight" if source.startswith("showdown") else "percentage"
-        candidates = _evidence_from_rows(rows, source=source, weight_kind=weight_kind)
+        candidates = _evidence_from_offline_entry(entry)
         source_tier = "tier2_usage_offline"
     if not candidates:
         return None

@@ -259,3 +259,59 @@ def test_nature_for_spread_exact_ev_and_moveset_join():
         regulation="champions-reg-mb",
     )
     assert joined in {"Bold", "Relaxed"}
+
+
+def test_offline_cbd_with_nature_labels_cbd_not_showdown():
+    """Finding (b): CBD rows carry natures; do not treat nature as Showdown."""
+    rows = [
+        {**_row(hp=2, atk=32, spe=32), "nature": "Adamant", "pct": 17.1},
+        {**_row(hp=0, atk=32, spe=32, spd=2), "nature": "Jolly", "pct": 6.9},
+    ]
+    with patch(
+        "recommender.usage_spreads.build_synthesis_usage_entry",
+        return_value={"source": "munchstats-champions-data", "top_spreads": rows},
+    ):
+        choice = select_usage_spread(
+            "Arbok",
+            "fast_attacker",
+            ["Protect"],
+            snap=STATS,
+        )
+    assert choice is not None
+    assert "cbd-offline" in choice.rationale
+    assert "showdown-offline" not in choice.rationale
+
+
+def test_offline_showdown_pct_kind_labels_chaos_weight():
+    rows = [
+        {
+            **_row(hp=2, spa=32, spe=32),
+            "nature": "Timid",
+            "pct": 1000.0,
+            "pct_kind": "chaos_weight",
+        }
+    ]
+    with patch(
+        "recommender.usage_spreads.build_synthesis_usage_entry",
+        return_value={"source": "smogon-chaos", "top_spreads": rows},
+    ):
+        choice = select_usage_spread(
+            "Salamence-Mega",
+            "fast_attacker",
+            ["Protect"],
+            snap=STATS,
+        )
+    assert choice is not None
+    assert "showdown-offline" in choice.rationale
+
+
+def test_salamence_mega_committed_stays_showdown_offline():
+    """Showdown-only mega: pct_kind/source keep showdown-offline after finding (b)."""
+    choice = select_usage_spread(
+        "Salamence-Mega",
+        "fast_attacker",
+        ["Protect"],
+        regulation="champions",
+    )
+    assert choice is not None
+    assert "showdown-offline" in choice.rationale
