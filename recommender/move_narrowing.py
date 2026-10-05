@@ -9,7 +9,7 @@ from typing import Any, Literal
 from recommender.calc_client import CalcClient, PokemonSpecOptional
 from recommender.contingent_value import REDIRECT_MOVES, WEATHER_SETTERS
 from recommender.coverage import ABILITY_TO_FIELD, get_relevant_threats
-from recommender.ids import to_id
+from recommender.ids import regulation_file_tag, to_id
 from recommender.legality import (
     is_species_legal,
     load_snapshot,
@@ -453,10 +453,7 @@ def narrow_candidates_for_move(
     ownership_mode: OwnershipMode = "off",
 ) -> NarrowResult:
     snap = snap or load_snapshot()
-    regulation = state.get("regulation_mod") or "champions-reg-mb"
-    # usage files keyed champions-reg-mb; map short form
-    if regulation == "champions":
-        regulation = "champions-reg-mb"
+    regulation = regulation_file_tag(state.get("regulation_mod") or "champions")
 
     owned = {sid for species in available_species if (sid := to_id(species))}
     pool = learners_of(move, snap=snap)
@@ -613,7 +610,7 @@ def _admit_candidates(
 def pick_default_and_alternatives(
     candidates: list[str],
     *,
-    regulation: str = "champions-reg-mb",
+    regulation: str = "champions-reg-mc",
     redundancy_tier: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     """default is always candidates[0] (unchanged) -- the single strongest
@@ -678,9 +675,7 @@ def assemble_moveset_fallback(
     snap: dict[str, Any] | None = None,
 ) -> list[str]:
     snap = snap or load_snapshot()
-    regulation = state.get("regulation_mod") or "champions-reg-mb"
-    if regulation == "champions":
-        regulation = "champions-reg-mb"
+    regulation = regulation_file_tag(state.get("regulation_mod") or "champions")
     ls = set(resolve_learnset(snap, species) or [])
     arch = state.get("archetype")
     components = list(getattr(arch, "value", None) or [])

@@ -1361,7 +1361,7 @@ def bootstrap_direction(state: RecommenderState) -> dict:
         }
 
     from recommender.bootstrap import discover_bootstrap_directions
-    from recommender.slot_fill import SlotFillContext, run_slot_fill_terminal
+    from recommender.slot_fill import SlotFillContext, _regulation, run_slot_fill_terminal
 
     discovery = discover_bootstrap_directions(state)
     if not discovery.candidates:
@@ -1386,6 +1386,7 @@ def bootstrap_direction(state: RecommenderState) -> dict:
             role_shape_context=None,
             annotated_candidates=list(discovery.candidates),
             candidates_pre_ranked=True,
+            regulation=_regulation(state),
         ),
         state,
         slot_index=0,
@@ -1704,7 +1705,7 @@ def discover_multi_locked(
     """Collect all locked-member evidence and present the next blank slot."""
     from recommender.condition_resilience import assess_condition_resilience
     from recommender.propose import fill_team_draft
-    from recommender.slot_fill import SlotFillContext, run_slot_fill_terminal
+    from recommender.slot_fill import SlotFillContext, _regulation, run_slot_fill_terminal
     from recommender.team_candidates import (
         annotate_composition_impact,
         banned_profiles_from_rejected,
@@ -1889,6 +1890,7 @@ def discover_multi_locked(
             soft_mechanical=soft_mechanical,
             constraint_slot_index=slot_index,
             constraint_team_draft=state["team_draft"],
+            regulation=_regulation(state),
         ),
         state,
         slot_index=slot_index,
