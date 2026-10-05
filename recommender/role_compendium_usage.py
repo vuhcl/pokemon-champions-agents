@@ -73,6 +73,83 @@ def _hits_clear_set_pct_floor(
     return max(pcts, default=0.0) >= floor
 
 
+def _move_weight(entry: dict[str, Any] | None, move_id: str) -> float | None:
+    """Raw chaos weight on a Showdown common_moves row; None if missing."""
+    if not entry:
+        return None
+    mid = to_id(move_id)
+    for m in entry.get("common_moves") or []:
+        if to_id(m.get("name") or "") != mid:
+            continue
+        if "weight" not in m:
+            return None
+        try:
+            return float(m.get("weight"))
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
+def _hits_clear_setup_presence(
+    name: str,
+    mids: set[str] | frozenset[str],
+    *,
+    uctx: _UsageCtx,
+    sd_cache: dict[str, dict[str, Any] | None],
+    showdown_fetch: LiveFetch | None,
+    require_all: bool = False,
+    ingame_pct_floor: float | None = None,
+    showdown_weight_floor: float | None = None,
+) -> bool:
+    """Setup presence: ingame_pct >= floor OR showdown_weight >= floor (per move).
+
+    Missing ``weight`` ⇒ Showdown side false. Does not overload percent floors
+    (DD / support / TR stay on ``_hits_clear_set_pct_floor``).
+    """
+    from recommender.forme_identity import canonical_usage_species_id
+    from recommender.legality import load_snapshot
+    from recommender.role_compendium_setup_constants import (
+        _SETUP_PRESENCE_INGAME_PCT_FLOOR,
+        _SETUP_PRESENCE_SHOWDOWN_WEIGHT_FLOOR,
+    )
+
+    if not mids:
+        return False
+    ig_floor = (
+        _SETUP_PRESENCE_INGAME_PCT_FLOOR
+        if ingame_pct_floor is None
+        else float(ingame_pct_floor)
+    )
+    wt_floor = (
+        _SETUP_PRESENCE_SHOWDOWN_WEIGHT_FLOOR
+        if showdown_weight_floor is None
+        else float(showdown_weight_floor)
+    )
+    snap = load_snapshot()
+    sid = canonical_usage_species_id(
+        snap, to_id(name), regulation=uctx.regulation
+    )
+    ch = ingame_species_map(uctx.regulation).get(sid)
+    if not isinstance(ch, dict):
+        ch = uctx.cache.get(sid)
+    sd = _showdown_entry(
+        name,
+        cache=sd_cache,
+        showdown_fetch=showdown_fetch,
+        regulation=uctx.regulation,
+        snap=snap,
+    )
+
+    def _clears(mid: str) -> bool:
+        ig = _move_pct(ch if isinstance(ch, dict) else None, mid)
+        wt = _move_weight(sd, mid)
+        return ig >= ig_floor or (wt is not None and wt >= wt_floor)
+
+    if require_all:
+        return all(_clears(mid) for mid in mids)
+    return any(_clears(mid) for mid in mids)
+
+
 def _move_pct(entry: dict[str, Any] | None, move_id: str) -> float:
     if not entry:
         return 0.0

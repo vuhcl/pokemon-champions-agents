@@ -270,29 +270,32 @@ def _empty_usage_maps():
 
 def test_present_usage_payoff_ids_drops_sub_floor_leftovers(monkeypatch):
     """Problem A: ~0% common_moves leftovers leave the bag; real alts stay."""
-    from recommender.role_compendium_setup import _present_usage_payoff_ids, _select_setup_payoff, _usage_payoff_move_ids
-    from recommender.role_compendium import _SETUP_PRESENCE_SET_PCT_FLOOR, _UsageCtx
+    from recommender.role_compendium_setup import _present_usage_payoff_ids, _usage_payoff_move_ids
+    from recommender.role_compendium import _UsageCtx
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage", lambda *a, **k: _empty_usage_maps()
     )
     monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
+    monkeypatch.setattr(
+        "recommender.role_compendium_usage.ingame_species_map", lambda *a, **k: {}
+    )
 
     leftovers = [
-        ("Medicham-Mega", "psyshock", 0.0, "psychic", 2.093),
-        ("Audino", "thunderbolt", 0.058, "dazzlinggleam", 1.0),
-        ("Mawile-Mega", "doubleedge", 0.007, "playrough", 40.0),
-        ("Salazzle", "belch", 0.01, "sludgebomb", 20.0),
-        ("Beartic", "doubleedge", 0.0, "closecombat", 17.453),  # BU leftover vs SD CC
+        ("Medicham-Mega", "psyshock", 0.0, 0.0, "psychic", 2.093, 50.0),
+        ("Audino", "thunderbolt", 0.058, 1.0, "dazzlinggleam", 1.0, 40.0),
+        ("Mawile-Mega", "doubleedge", 0.007, 0.5, "playrough", 40.0, 80.0),
+        ("Salazzle", "belch", 0.01, 1.0, "sludgebomb", 20.0, 60.0),
+        ("Beartic", "doubleedge", 0.0, 0.0, "closecombat", 17.453, 70.0),
     ]
-    for name, bad, bad_pct, good, good_pct in leftovers:
+    for name, bad, bad_pct, bad_w, good, good_pct, good_w in leftovers:
         entry = {
             "name": name,
             "id": to_id(name),
             "common_moves": [
-                {"name": bad, "pct": bad_pct},
-                {"name": good, "pct": good_pct},
-                {"name": "Protect", "pct": 10.0},
+                {"name": bad, "pct": bad_pct, "weight": bad_w},
+                {"name": good, "pct": good_pct, "weight": good_w},
+                {"name": "Protect", "pct": 10.0, "weight": 30.0},
             ],
         }
         sd_cache = {to_id(name): entry}
@@ -306,25 +309,28 @@ def test_present_usage_payoff_ids_drops_sub_floor_leftovers(monkeypatch):
             uctx=uctx,
             sd_cache=sd_cache,
             showdown_fetch=None,
-            floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
         )
         assert to_id(bad) not in filtered
         assert to_id(good) in filtered
 
 def test_present_usage_payoff_ids_keeps_high_pct_regression(monkeypatch):
-    from recommender.role_compendium import _UsageCtx, _present_usage_payoff_ids
+    from recommender.role_compendium import _UsageCtx
+    from recommender.role_compendium_setup import _present_usage_payoff_ids
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage", lambda *a, **k: _empty_usage_maps()
     )
     monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
+    monkeypatch.setattr(
+        "recommender.role_compendium_usage.ingame_species_map", lambda *a, **k: {}
+    )
     entry = {
         "name": "Kingambit",
         "id": "kingambit",
         "common_moves": [
-            {"name": "Kowtow Cleave", "pct": 57.87},
-            {"name": "Sucker Punch", "pct": 40.0},
-            {"name": "Swords Dance", "pct": 12.78},
+            {"name": "Kowtow Cleave", "pct": 57.87, "weight": 100.0},
+            {"name": "Sucker Punch", "pct": 40.0, "weight": 80.0},
+            {"name": "Swords Dance", "pct": 12.78, "weight": 50.0},
         ],
     }
     uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
@@ -347,10 +353,13 @@ def test_present_usage_empty_bag_select_returns_none(monkeypatch):
         "recommender.role_compendium.load_usage", lambda *a, **k: _empty_usage_maps()
     )
     monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
+    monkeypatch.setattr(
+        "recommender.role_compendium_usage.ingame_species_map", lambda *a, **k: {}
+    )
     entry = {
         "name": "Audino",
         "id": "audino",
-        "common_moves": [{"name": "Thunderbolt", "pct": 0.058}],
+        "common_moves": [{"name": "Thunderbolt", "pct": 0.058, "weight": 1.0}],
     }
     uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
     filtered = _present_usage_payoff_ids(

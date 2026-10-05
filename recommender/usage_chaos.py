@@ -116,7 +116,11 @@ def chaos_weights_to_common(
     else:
         d = sum(w for _, w in items) or 1.0
     return [
-        {"name": resolve(name), "pct": round(100.0 * w / d, 3)}
+        {
+            "name": resolve(name),
+            "pct": round(100.0 * w / d, 3),
+            "weight": w,
+        }
         for name, w in items
     ]
 

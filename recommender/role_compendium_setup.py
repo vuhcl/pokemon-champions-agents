@@ -23,6 +23,7 @@ from recommender.role_compendium_usage import (
     _best_move_set_pct,
     _cbd_base_move_implausible_vs_mega,
     _hits_clear_set_pct_floor,
+    _hits_clear_setup_presence,
     _mega_pair_ids,
     _mega_stone_on_entry,
     _mega_usage_attribution,
@@ -57,7 +58,9 @@ from recommender.role_compendium_setup_constants import (
     _SETUP_FLOOR_SECOND_MULT,
     _SETUP_LOCKIN_MOVES,
     _SETUP_NARROW_CONDITIONAL_PRIORITY,
+    _SETUP_PRESENCE_INGAME_PCT_FLOOR,
     _SETUP_PRESENCE_SET_PCT_FLOOR,
+    _SETUP_PRESENCE_SHOWDOWN_WEIGHT_FLOOR,
     _SETUP_PRIORITY_FINISHER_MOVES,
     _SETUP_PULSE_MOVES,
     _SETUP_PUNCH_MOVES,
@@ -332,16 +335,18 @@ def _present_usage_payoff_ids(
     uctx: _UsageCtx,
     sd_cache: dict[str, dict[str, Any] | None],
     showdown_fetch: LiveFetch | None,
-    floor: float = _SETUP_PRESENCE_SET_PCT_FLOOR,
 ) -> set[str]:
-    """Usage-bag payoffs that clear the presence floor (drops ~0% leftovers)."""
+    """Usage-bag payoffs that clear setup presence (IG pct OR SD weight)."""
     return {
         mid
         for mid in _usage_payoff_move_ids(entry, kit_moves)
-        if _best_move_set_pct(
-            name, mid, uctx=uctx, sd_cache=sd_cache, showdown_fetch=showdown_fetch
+        if _hits_clear_setup_presence(
+            name,
+            {mid},
+            uctx=uctx,
+            sd_cache=sd_cache,
+            showdown_fetch=showdown_fetch,
         )
-        >= floor
     }
 
 
@@ -2356,10 +2361,9 @@ def _construct_setup_attacker(
                         f"Mega Showdown {_move_pct(mega_sd, move_id):.1f}%; "
                         f"usage_proven={'Showdown base' if usage_proven else 'rejected'}"
                     )
-        if usage_proven and not _hits_clear_set_pct_floor(
+        if usage_proven and not _hits_clear_setup_presence(
             name,
             {move_id},
-            floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
             uctx=uctx,
             sd_cache=sd_cache,
             showdown_fetch=showdown_fetch,
@@ -2734,13 +2738,7 @@ def _construct_offense_stage_setup(
     skip_discount = {sid for sid, note in pair_notes.items() if "discounted" in note}
     pair_attr = {sid: pair_notes[sid] for sid in skip_discount}
 
-    # DD has its own derived presence hole; CM/BU stay on the shared 0.1% ghost floor.
-    presence_floor = (
-        _DD_SETUP_PRESENCE_FLOOR
-        if move_id == "dragondance"
-        else _SETUP_PRESENCE_SET_PCT_FLOOR
-    )
-
+    # DD keeps its percent presence hole; CM/BU/SD/NP use IG% OR SD weight.
     provisional: list[dict[str, Any]] = []
     for sid, name in sorted(eligible.items(), key=lambda kv: kv[1]):
         learnset = set(resolve_learnset(snap, sid) or [])
@@ -2766,14 +2764,24 @@ def _construct_offense_stage_setup(
                 abs_map[aid] = usage_abs[aid]
         stats = _base_stats(snap, sid)
         entry = uctx.entry_for(name)
-        if not uctx.delivers(name, move_id) or not _hits_clear_set_pct_floor(
-            name,
-            {move_id},
-            floor=presence_floor,
-            uctx=uctx,
-            sd_cache=sd_cache,
-            showdown_fetch=showdown_fetch,
-        ):
+        if move_id == "dragondance":
+            presence_ok = _hits_clear_set_pct_floor(
+                name,
+                {move_id},
+                floor=_DD_SETUP_PRESENCE_FLOOR,
+                uctx=uctx,
+                sd_cache=sd_cache,
+                showdown_fetch=showdown_fetch,
+            )
+        else:
+            presence_ok = _hits_clear_setup_presence(
+                name,
+                {move_id},
+                uctx=uctx,
+                sd_cache=sd_cache,
+                showdown_fetch=showdown_fetch,
+            )
+        if not uctx.delivers(name, move_id) or not presence_ok:
             rejected.append(
                 RejectedCandidate(
                     species=name,
@@ -3113,10 +3121,9 @@ def _construct_def_payoff_setup(
             uctx=uctx,
             sd_cache=sd_cache,
             showdown_fetch=showdown_fetch,
-        ) or not _hits_clear_set_pct_floor(
+        ) or not _hits_clear_setup_presence(
             name,
             {setup_id, payoff_id},
-            floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
             uctx=uctx,
             sd_cache=sd_cache,
             showdown_fetch=showdown_fetch,
