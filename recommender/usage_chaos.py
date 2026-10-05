@@ -1,7 +1,9 @@
-"""Smogon chaos stats → usage rows (no move/item cap; pct is set%).
+"""Smogon chaos stats → usage rows (no move/item cap).
 
-set% = chaos weight / Raw count * 100. Share% (weight / sum(weights)) is the
-old MunchStats snapshot metric and understates real set frequency.
+common_* pct = chaos weight / Raw count * 100 (meta showdown_pct_kind =
+weight_over_raw_count). top_spreads[].pct is raw chaos Spreads weight
+(pct_kind=chaos_weight), not divided by Raw. Smogon published % uses
+sum(Abilities) as denom — deferred (pre-B6).
 """
 
 from __future__ import annotations
@@ -38,8 +40,16 @@ def showdown_source_params(
         "format_id": format_id,
         "rating": rating,
         "source": source,
-        "pct_kind": str(meta.get("showdown_pct_kind") or "set"),
+        # ponytail: alias "set" until M-B archive rebuild stamps the new name
+        "pct_kind": _normalize_pct_kind(meta.get("showdown_pct_kind")),
     }
+
+
+def _normalize_pct_kind(raw: Any) -> str:
+    kind = str(raw or "weight_over_raw_count")
+    if kind == "set":
+        return "weight_over_raw_count"
+    return kind
 
 
 def chaos_weights_to_common(

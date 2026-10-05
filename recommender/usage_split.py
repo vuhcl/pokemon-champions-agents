@@ -118,7 +118,11 @@ def assemble_from_split(
     ingame_file: dict[str, Any] | None,
     showdown_file: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    """In-memory snapshot: showdown_doubles + flat via merge_species_flat."""
+    """In-memory snapshot: showdown_doubles + flat via merge_species_flat.
+
+    Meta merge: showdown keys overwrite ingame on clash (sources/attribution
+    often become showdown-only). Section species maps stay separate.
+    """
     ingame_file = ingame_file or {}
     showdown_file = showdown_file or {}
     ingame_species = ((ingame_file.get("ingame_doubles") or {}).get("species")) or {}

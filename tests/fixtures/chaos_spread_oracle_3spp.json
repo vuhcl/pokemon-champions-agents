@@ -1,0 +1,26 @@
+{
+  "species": {
+    "rillaboom": {
+      "Raw count": 100000,
+      "Abilities": {"Grassy Surge": 59510},
+      "Spreads": {
+        "Jolly:0/32/0/0/0/32": 51646.85905341065,
+        "Adamant:0/32/0/0/0/32": 1000.0
+      }
+    },
+    "incineroar": {
+      "Raw count": 80000,
+      "Abilities": {"Intimidate": 70000},
+      "Spreads": {
+        "Adamant:32/32/0/0/0/0": 34935.824273533
+      }
+    },
+    "farigiraf": {
+      "Raw count": 50000,
+      "Abilities": {"Armor Tail": 40000},
+      "Spreads": {
+        "Bold:32/0/32/0/0/0": 17307.64652257607
+      }
+    }
+  }
+}
