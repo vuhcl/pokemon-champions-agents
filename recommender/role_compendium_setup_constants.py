@@ -9,9 +9,15 @@ from recommender.support_needs import _OFFENSIVE_PRIORITY_MOVES, _SELF_HEAL_MOVE
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# 0.1 — policy constant (no data-derived hole on M-C published scale;
-#   2026-10-05; see scripts/eval/artifacts/_scratch_pct_convention_floors/FLOOR_REVIEW.md).
-_SETUP_PRESENCE_SET_PCT_FLOOR = 0.1
+# In-game (CBD) presence: percent floor only — IG rows have no set counts.
+# Policy constant (2026-10-05); see FLOOR_REVIEW.md.
+_SETUP_PRESENCE_INGAME_PCT_FLOOR = 0.1
+# Showdown presence: weighted sets on the limiting move (chaos Moves[m] weight).
+# Policy constant (2026-10-05). Weighted ≠ player counts; avg weight ~0.27–0.58
+# ⇒ 20 weighted ≈ 35–75 raw sets. See FLOOR_REVIEW.md / ghost audit.
+_SETUP_PRESENCE_SHOWDOWN_WEIGHT_FLOOR = 20
+# Back-compat alias for call sites / tests still naming the old constant.
+_SETUP_PRESENCE_SET_PCT_FLOOR = _SETUP_PRESENCE_INGAME_PCT_FLOOR
 # 1.0 — policy constant (kept 2026-10-05). Only ≥1 gap in the DD distribution is
 # Dragapult 2.812 → Aerodactyl-Mega 1.454; the keep cluster sits *above* that cliff,
 # so ~1.4 is not “just below the keep edge.” See FLOOR_REVIEW.md.

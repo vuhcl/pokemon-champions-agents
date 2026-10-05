@@ -109,20 +109,25 @@ def _sd_draft(*, pool: list[str] | None = None, live_fetch=None):
         return {
             "name": name,
             "id": sid,
-            "common_moves": [{"name": "Swords Dance", "pct": 40.0}],
+            # weight stamped so setup presence (IG% OR SD weight) clears in mocks
+            "common_moves": [
+                {"name": "Swords Dance", "pct": 40.0, "weight": 100.0}
+            ],
             "common_items": [{"name": "Life Orb", "pct": 20.0}],
         }
 
     default_pool = [n for n in legal_species_pool(snap) if to_id(n) in proven]
+    usage = live_fetch if live_fetch is not None else _usage
     return construct_role_category(
         "swords_dance_attacker",
         _sd_criteria_for_mock(),
         pool if pool is not None else default_pool,
         snap=snap,
-        live_fetch=live_fetch if live_fetch is not None else _usage,
-        showdown_fetch=lambda _n: None,
+        live_fetch=usage,
+        # Same rows for Showdown so presence weight path works when IG map differs.
+        showdown_fetch=usage,
         calculate_batch=_mock_calc,
-        regulation="champions-reg-mb",
+        regulation="champions-reg-mc",
     )
 
 def _members(draft, tier: str) -> set[str]:
