@@ -73,11 +73,9 @@ def test_usage_canonicalize_four_inherits_maushold_follow_me():
     snap = load_snapshot()
     assert canonical_usage_species_id(snap, "mausholdfour", regulation=REG) == "maushold"
     row = _offline_usage_row("mausholdfour", regulation=REG, snap=snap)
-    # M-C may lack maushold offline — still stamp collapse when base resolves.
-    if row is not None:
-        assert row.get("forme_usage_canonical_id") == "maushold"
-        assert row.get("forme_usage_collapsed_from") == "mausholdfour"
-    # Showdown path likewise collapses.
+    assert row is not None, "M-C must have a Maushold usage row for collapse to stamp"
+    assert row.get("forme_usage_canonical_id") == "maushold"
+    assert row.get("forme_usage_collapsed_from") == "mausholdfour"
     cache: dict = {}
     sd = _showdown_entry(
         "Maushold-Four",
@@ -86,8 +84,39 @@ def test_usage_canonicalize_four_inherits_maushold_follow_me():
         regulation=REG,
         snap=snap,
     )
-    if sd is not None:
-        assert sd.get("forme_usage_canonical_id") == "maushold"
+    assert sd is not None, "M-C Showdown must have Maushold for collapse to stamp"
+    assert sd.get("forme_usage_canonical_id") == "maushold"
+    assert sd.get("forme_usage_collapsed_from") == "mausholdfour"
+
+
+def test_empty_usage_corpus_fail_closed_mechanical(monkeypatch):
+    """Day-0 empty maps must not treat unused size formes as battle_transform."""
+    snap = load_snapshot()
+    monkeypatch.setattr(
+        "recommender.forme_identity.ingame_species_map",
+        lambda regulation="champions": {},
+    )
+    monkeypatch.setattr(
+        "recommender.forme_identity.showdown_species_map",
+        lambda regulation="champions": {},
+    )
+    # Cosmetics still collapse on axes alone (no usage gate).
+    assert classify_forme(snap, "vivillonpokeball", regulation=REG) == "cosmetic"
+    # Gourgeist sizes: same abilities/learnset, different stats — without a corpus
+    # would look 'unused' and wrongly become battle_transform.
+    assert (
+        classify_forme(snap, "gourgeistlarge", regulation=REG)
+        == "mechanical_selectable"
+    )
+    assert (
+        classify_forme(snap, "gourgeistsuper", regulation=REG)
+        == "mechanical_selectable"
+    )
+    # Blade also stays mechanical when corpus is empty (fail closed).
+    assert (
+        classify_forme(snap, "aegislashblade", regulation=REG)
+        == "mechanical_selectable"
+    )
 
 
 def test_gourgeist_sizes_do_not_cross_borrow():

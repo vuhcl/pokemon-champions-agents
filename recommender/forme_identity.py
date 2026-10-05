@@ -44,6 +44,17 @@ def _learnset_ids(snap: dict[str, Any], sid: str) -> frozenset[str]:
     return frozenset(to_id(m) for m in ls)
 
 
+def _usage_corpus_empty(*, regulation: str) -> bool:
+    """True when both in-game and Showdown maps have zero species for this regulation.
+
+    Absence of a per-species row is only evidence when a corpus exists. An empty
+    corpus (e.g. next-letter day 0) must not be treated as 'every forme unused'.
+    """
+    return (not ingame_species_map(regulation)) and (
+        not showdown_species_map(regulation)
+    )
+
+
 def _has_independent_usage_row(sid: str, *, regulation: str) -> bool:
     """True when sid appears in ingame OR showdown (player-selectable export)."""
     return sid in ingame_species_map(regulation) or sid in showdown_species_map(
@@ -75,6 +86,10 @@ def classify_forme(
 
     if same_stats and same_types and same_abilities and same_learnset:
         return "cosmetic"
+    # Fail closed: with no usage corpus, missing rows prove nothing — do not
+    # collapse mechanical size/formes (Gourgeist) or battle transforms into base.
+    if _usage_corpus_empty(regulation=regulation):
+        return "mechanical_selectable"
     if (
         same_abilities
         and same_learnset
