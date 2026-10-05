@@ -102,11 +102,11 @@ def test_compatibility_flat_shape_strips_showdown_teammates():
     assert "teammates_meta" not in stripped
 
 
-def test_schema_v3_snapshot_has_exact_form_rows_only_in_showdown_slice():
-    snapshot = load_usage()
-    showdown = snapshot["showdown_vgc_mb"]["species"]
+def test_schema_v4_snapshot_has_exact_form_rows_only_in_showdown_slice():
+    snapshot = load_usage("champions-reg-mc")
+    showdown = snapshot["showdown_doubles"]["species"]
 
-    assert snapshot["meta"]["schema_version"] == 3
+    assert snapshot["meta"]["schema_version"] == 4
     battles = snapshot["meta"]["showdown_battles"]
     assert isinstance(battles, int) and battles > 0
     assert showdown

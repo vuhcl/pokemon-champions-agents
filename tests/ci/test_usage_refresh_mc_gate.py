@@ -7,9 +7,6 @@ from pathlib import Path
 
 from scripts.ci.usage_refresh_mc_gate import should_run_cadence
 from scripts.extract_usage.fetch_usage_mc_munchstats import (
-    EXPECTED_SHOWDOWN_FORMAT,
-    SHOWDOWN_BATTLES_FLOOR,
-    SHOWDOWN_SPECIES_FLOOR,
     build_snapshot,
     entry_from_champions_detail,
     lookup_id_for_species,
@@ -138,35 +135,21 @@ def test_entry_nature_by_rank():
     assert entry["usage_rank"] == 2
 
 
-def _valid_showdown_species(n: int | None = None) -> dict:
-    n = SHOWDOWN_SPECIES_FLOOR if n is None else n
+def _ingame_species(n: int = 230) -> dict:
     return {
-        f"p{i}": {
-            "id": f"p{i}",
-            "name": f"P{i}",
+        f"s{i}": {
+            "id": f"s{i}",
+            "name": f"S{i}",
             "common_moves": [],
             "common_items": [],
             "common_abilities": [],
             "teammates": [],
             "top_spreads": [],
             "featured_sets": [],
-            "source": "smogon-chaos",
+            "source": "munchstats-champions-data",
         }
         for i in range(n)
     }
-
-
-def _attach_valid_showdown(snap: dict) -> dict:
-    snap = dict(snap)
-    meta = dict(snap.get("meta") or {})
-    meta["showdown_format"] = EXPECTED_SHOWDOWN_FORMAT
-    meta["showdown_month"] = "2026-09"
-    meta["showdown_battles"] = SHOWDOWN_BATTLES_FLOOR
-    meta["showdown_rating"] = 1500
-    meta["showdown_source"] = "smogon-chaos"
-    snap["meta"] = meta
-    snap["showdown_vgc_mb"] = {"species": _valid_showdown_species()}
-    return snap
 
 
 def test_validate_noop_when_generated_at_unchanged():
@@ -176,30 +159,14 @@ def test_validate_noop_when_generated_at_unchanged():
         "defaultSeason": "Current",
         "pokemon": [],
     }
-    species = {
-        f"s{i}": {
-            "id": f"s{i}",
-            "name": f"S{i}",
-            "common_moves": [],
-            "common_items": [],
-            "common_abilities": [],
-            "teammates": [],
-            "top_spreads": [],
-            "featured_sets": [],
-            "source": "munchstats-champions-data",
-        }
-        for i in range(230)
-    }
+    species = _ingame_species(230)
     stats = {"join_n": 230, "detail_fetch_ok_n": 230, "detail_fetch_fail_n": 0, "index_count": 260}
     previous = {
         "meta": {
+            "schema_version": 4,
             "munchstats_generated_at": "2026-09-12T11:50:47.100047+00:00",
-            "showdown_format": EXPECTED_SHOWDOWN_FORMAT,
-            "showdown_month": "2026-09",
-            "showdown_battles": SHOWDOWN_BATTLES_FLOOR,
         },
         "ingame_doubles": {"species": species},
-        "showdown_vgc_mb": {"species": _valid_showdown_species()},
     }
     snap = build_snapshot(species, index, stats, previous=previous)
     decision, reason = validate_snapshot(
@@ -209,75 +176,27 @@ def test_validate_noop_when_generated_at_unchanged():
     assert "not newer" in reason
 
 
-def test_validate_fails_empty_showdown():
+def test_validate_ok_without_showdown():
+    """B3a: empty/missing Showdown must not fail the ingame refresh."""
     index = {
         "generatedAt": "2026-09-12T12:00:00+00:00",
         "count": 260,
         "pokemon": [],
     }
-    species = {
-        f"s{i}": {
-            "id": f"s{i}",
-            "name": f"S{i}",
-            "common_moves": [],
-            "common_items": [],
-            "common_abilities": [],
-            "teammates": [],
-            "top_spreads": [],
-            "featured_sets": [],
-            "source": "munchstats-champions-data",
-        }
-        for i in range(230)
-    }
+    species = _ingame_species(230)
     stats = {"join_n": 230, "detail_fetch_ok_n": 230, "detail_fetch_fail_n": 0, "index_count": 260}
     snap = build_snapshot(species, index, stats, previous=None)
     decision, reason = validate_snapshot(snap, index=index, stats=stats, previous=None)
-    assert decision == "fail"
-    assert "showdown" in reason
+    assert decision == "ok"
+    assert reason == "validated"
+    assert "showdown" not in snap
 
 
-def test_validate_fails_wrong_showdown_format():
+def test_validate_ok_ingame_floors():
     index = {"generatedAt": "2026-09-12T12:00:00+00:00", "count": 260, "pokemon": []}
-    species = {
-        f"s{i}": {
-            "id": f"s{i}",
-            "name": f"S{i}",
-            "common_moves": [],
-            "common_items": [],
-            "common_abilities": [],
-            "teammates": [],
-            "top_spreads": [],
-            "featured_sets": [],
-            "source": "munchstats-champions-data",
-        }
-        for i in range(230)
-    }
+    species = _ingame_species(230)
     stats = {"join_n": 230, "detail_fetch_ok_n": 230, "detail_fetch_fail_n": 0, "index_count": 260}
-    snap = _attach_valid_showdown(build_snapshot(species, index, stats))
-    snap["meta"]["showdown_format"] = "gen9championsvgc2026regmb"
-    decision, reason = validate_snapshot(snap, index=index, stats=stats, previous=None)
-    assert decision == "fail"
-    assert "showdown_format" in reason
-
-
-def test_validate_ok_with_showdown_floors():
-    index = {"generatedAt": "2026-09-12T12:00:00+00:00", "count": 260, "pokemon": []}
-    species = {
-        f"s{i}": {
-            "id": f"s{i}",
-            "name": f"S{i}",
-            "common_moves": [],
-            "common_items": [],
-            "common_abilities": [],
-            "teammates": [],
-            "top_spreads": [],
-            "featured_sets": [],
-            "source": "munchstats-champions-data",
-        }
-        for i in range(230)
-    }
-    stats = {"join_n": 230, "detail_fetch_ok_n": 230, "detail_fetch_fail_n": 0, "index_count": 260}
-    snap = _attach_valid_showdown(build_snapshot(species, index, stats))
+    snap = build_snapshot(species, index, stats)
     decision, reason = validate_snapshot(snap, index=index, stats=stats, previous=None)
     assert decision == "ok"
     assert reason == "validated"

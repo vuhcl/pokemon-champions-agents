@@ -242,7 +242,7 @@ def test_run_gate_pr_advances_fingerprint(tmp_path: Path):
 
 def test_pr_body_lists_tier_moves():
     report = {
-        "usage_path": "data/usage/champions-reg-mc.v1.json",
+        "usage_path": "data/usage/champions-reg-mc.ingame_doubles.v1.json",
         "usage_munchstats_generated_at": "2026-09-12T11:50:47+00:00",
         "checked_at_utc": "2026-09-20T00:00:00Z",
         "status": "approved",

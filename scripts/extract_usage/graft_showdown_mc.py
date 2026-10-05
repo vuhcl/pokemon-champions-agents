@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Graft Smogon chaos Showdown half into champions-reg-mc.v1.json (bridge).
+"""Graft Smogon chaos Showdown into champions-reg-mc.showdown_doubles.v1.json.
 
-Preserves MunchStats ingame + munchstats_* meta. Format id must be in the
-TEMPORARY allowlist in fetch_usage_mc_munchstats (exact Bo1 VGC only).
+Format id must equal the registry Bo1 VGC chaos id for champions-reg-mc
+(rejects bo3 / OU / BSS / …). Integrity: nonempty species + format match.
+Absolute TEMPORARY battle/species floors are gone (B3a).
 
 Example:
 
     uv run python -m scripts.extract_usage.graft_showdown_mc --month 2026-09
-    uv run python -m scripts.extract_usage.graft_showdown_mc --month 2026-09 --dry-run
-    uv run python -m scripts.extract_usage.graft_showdown_mc --month 2026-09 --force
+    uv run python -m scripts.extract_usage.graft_showdown_mc --month 2026-10 --force
+    uv run python -m scripts.extract_usage.graft_showdown_mc --month 2026-10 --dry-run
 """
 
 from __future__ import annotations
@@ -21,18 +22,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from recommender.regulation_registry import REGULATIONS
 from scripts.extract_usage.fetch_usage_mb import (
     extract_showdown_chaos,
-    merge_species_flat,
     showdown_teammates_descriptor,
 )
 from scripts.extract_usage.fetch_usage_mc_munchstats import (
-    DEFAULT_OUT,
     EXPECTED_SHOWDOWN_FORMAT,
-    SHOWDOWN_BATTLES_FLOOR,
-    SHOWDOWN_FORMAT_ALLOWLIST,
-    SHOWDOWN_SPECIES_FLOOR,
+    REGULATION_TAG,
     SOURCE,
+)
+from recommender.usage_split import SCHEMA_VERSION
+
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_OUT = (
+    ROOT / "data" / "usage" / f"{REGULATION_TAG}.showdown_doubles.v1.json"
 )
 
 _MONTH_RE = re.compile(r"^\d{4}-\d{2}$")
@@ -43,11 +47,15 @@ def _utc_now_z() -> str:
 
 
 def _assert_format_allowed(format_id: str) -> None:
-    if format_id not in SHOWDOWN_FORMAT_ALLOWLIST:
+    """Exact Bo1 VGC format from the registry; reject bo3 and any other id."""
+    expected = REGULATIONS[REGULATION_TAG]["showdown_format"]
+    if format_id != expected:
         raise ValueError(
-            f"format_id {format_id!r} not in SHOWDOWN_FORMAT_ALLOWLIST "
-            f"{sorted(SHOWDOWN_FORMAT_ALLOWLIST)}"
+            f"format_id {format_id!r} != registry Bo1 VGC {expected!r} "
+            f"(bo3/OU/BSS/other formats rejected)"
         )
+    if "bo3" in format_id.lower():
+        raise ValueError(f"format_id {format_id!r} looks like bo3; rejected")
 
 
 def _fetch_chaos(
@@ -61,58 +69,50 @@ def _fetch_chaos(
 
 def graft(
     *,
-    base: dict[str, Any],
     showdown: dict[str, dict],
     info: dict[str, Any],
     month: str,
     format_id: str,
     rating: int,
     extracted_at: str | None = None,
+    previous: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    """Build showdown per-source file. Integrity: nonempty + format match."""
+    del previous  # no cross-file preserve; this file is Showdown-only
+    _assert_format_allowed(format_id)
+    n = len(showdown)
+    if n < 1:
+        raise ValueError("showdown species empty")
     battles = info.get("number of battles")
     try:
         battles_n = int(battles) if battles is not None else 0
     except (TypeError, ValueError):
         battles_n = 0
-    n = len(showdown)
-    if n < SHOWDOWN_SPECIES_FLOOR:
-        raise ValueError(f"showdown species {n} < floor {SHOWDOWN_SPECIES_FLOOR}")
-    if battles_n < SHOWDOWN_BATTLES_FLOOR:
-        raise ValueError(
-            f"showdown battles {battles_n} < floor {SHOWDOWN_BATTLES_FLOOR}"
-        )
 
     clock = extracted_at if extracted_at is not None else _utc_now_z()
-    meta = dict(base.get("meta") or {})
-    meta["showdown_rating"] = rating
-    meta["showdown_format"] = format_id
-    meta["showdown_month"] = month
-    meta["showdown_source"] = "smogon-chaos"
-    meta["showdown_pct_kind"] = "set"
-    meta["showdown_move_limit"] = None
-    meta["showdown_battles"] = battles_n
-    meta["showdown_extracted_at"] = clock
-    meta["showdown_teammates_extracted_at"] = clock
-    meta["showdown_teammates"] = showdown_teammates_descriptor()
-    meta["attribution"] = (
-        "In-game doubles: MunchStats champions-data branch "
-        "(OCR capture via raw.githubusercontent.com). "
-        "Showdown VGC: Smogon chaos stats (set% = weight / Raw count; "
-        "no move/item cap)."
-    )
-    sources = list(meta.get("sources") or [])
-    if SOURCE not in sources:
-        sources.insert(0, SOURCE)
-    if "smogon-chaos" not in sources:
-        sources.append("smogon-chaos")
-    meta["sources"] = sources
-
-    ingame = ((base.get("ingame_doubles") or {}).get("species")) or {}
+    meta: dict[str, Any] = {
+        "schema_version": SCHEMA_VERSION,
+        "regulation": REGULATION_TAG,
+        "section": "showdown_doubles",
+        "showdown_rating": rating,
+        "showdown_format": format_id,
+        "showdown_month": month,
+        "showdown_source": "smogon-chaos",
+        "showdown_pct_kind": "set",
+        "showdown_move_limit": None,
+        "showdown_battles": battles_n,
+        "showdown_extracted_at": clock,
+        "showdown_teammates_extracted_at": clock,
+        "showdown_teammates": showdown_teammates_descriptor(),
+        "attribution": (
+            "Showdown VGC: Smogon chaos stats (set% = weight / Raw count; "
+            "no move/item cap)."
+        ),
+        "sources": ["smogon-chaos"],
+    }
     return {
         "meta": meta,
-        "ingame_doubles": base.get("ingame_doubles") or {"species": {}},
-        "showdown_vgc_mb": {"species": showdown},
-        "species": merge_species_flat(ingame, showdown),
+        "showdown_doubles": {"species": showdown},
     }
 
 
@@ -125,7 +125,7 @@ def already_grafted(
     species_n: int,
 ) -> bool:
     meta = base.get("meta") or {}
-    sd_n = len(((base.get("showdown_vgc_mb") or {}).get("species")) or {})
+    sd_n = len(((base.get("showdown_doubles") or {}).get("species")) or {})
     try:
         base_battles = int(meta.get("showdown_battles") or 0)
     except (TypeError, ValueError):
@@ -165,10 +165,12 @@ def main(argv: list[str] | None = None) -> int:
         print(str(e), file=sys.stderr)
         return 2
 
-    if not args.out.exists():
-        print(f"missing base file: {args.out}", file=sys.stderr)
-        return 1
-    base = json.loads(args.out.read_text(encoding="utf-8"))
+    previous = None
+    if args.out.exists():
+        try:
+            previous = json.loads(args.out.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            previous = None
 
     showdown, info = _fetch_chaos(args.month, args.format_id, args.rating)
     try:
@@ -177,8 +179,9 @@ def main(argv: list[str] | None = None) -> int:
         battles_n = 0
 
     if (
-        already_grafted(
-            base,
+        previous is not None
+        and already_grafted(
+            previous,
             month=args.month,
             format_id=args.format_id,
             battles=battles_n,
@@ -195,12 +198,12 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         out = graft(
-            base=base,
             showdown=showdown,
             info=info,
             month=args.month,
             format_id=args.format_id,
             rating=args.rating,
+            previous=previous,
         )
     except ValueError as e:
         print(str(e), file=sys.stderr)
@@ -212,9 +215,6 @@ def main(argv: list[str] | None = None) -> int:
         "showdown_month": args.month,
         "showdown_battles": battles_n,
         "showdown_species_n": len(showdown),
-        "ingame_n": len(((out.get("ingame_doubles") or {}).get("species")) or {}),
-        "flat_n": len(out.get("species") or {}),
-        "munchstats_generated_at": (out.get("meta") or {}).get("munchstats_generated_at"),
         "showdown_extracted_at": (out.get("meta") or {}).get("showdown_extracted_at"),
         "forced": bool(args.force),
     }
@@ -223,8 +223,18 @@ def main(argv: list[str] | None = None) -> int:
         print("dry-run: not writing", file=sys.stderr)
         return 0
 
-    args.out.write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(
+        json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
     print(f"Wrote {args.out}", file=sys.stderr)
+    # Invalidate usage loader cache if imported in-process.
+    try:
+        from recommender.usage_data import load_usage
+
+        load_usage.cache_clear()
+    except Exception:
+        pass
     return 0
 
 

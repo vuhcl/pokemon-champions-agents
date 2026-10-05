@@ -43,7 +43,7 @@ from recommender.role_compendium_read import (
 )
 
 ROOT = Path(__file__).resolve().parents[2]
-USAGE_PATH = ROOT / "data" / "usage" / "champions-reg-mc.v1.json"
+USAGE_PATH = ROOT / "data" / "usage" / "champions-reg-mc.ingame_doubles.v1.json"
 MARKER_PATH = ROOT / "data" / "roles" / "fixtures" / "compendium_refresh_marker.json"
 MIN_SPACING_DAYS = 14
 
