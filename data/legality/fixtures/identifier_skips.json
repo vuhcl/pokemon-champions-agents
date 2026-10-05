@@ -1,18 +1,30 @@
 {
   "meta": {
-    "extracted_at": "2026-09-10T18:46:28.059Z",
-    "source_commit": "d849b220082e113d8a17303509fb44d420c543d5",
+    "extracted_at": "2026-10-05T04:58:45.430Z",
+    "source_commit": "9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e",
     "note": "Identifier initializers during AST extract: 'nulled' = undefined→null stored; 'skipped' = other Identifier omitted"
   },
   "counts": {
-    "nulled": 3,
+    "nulled": 5,
     "skipped": 0,
-    "total": 3
+    "total": 5
   },
   "entries": [
     {
       "file": "data/mods/champions/moves.ts",
       "path": "Moves.belch.onDisableMove",
+      "identifier": "undefined",
+      "action": "nulled"
+    },
+    {
+      "file": "data/mods/champions/moves.ts",
+      "path": "Moves.curse.volatileStatus",
+      "identifier": "undefined",
+      "action": "nulled"
+    },
+    {
+      "file": "data/mods/champions/moves.ts",
+      "path": "Moves.encore.condition.onOverrideAction",
       "identifier": "undefined",
       "action": "nulled"
     },

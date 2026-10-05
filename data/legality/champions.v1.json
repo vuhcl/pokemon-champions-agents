@@ -1,10 +1,10 @@
 {
   "meta": {
     "schema_version": 3,
-    "extracted_at": "2026-09-10T18:46:28.059Z",
+    "extracted_at": "2026-10-05T04:58:45.430Z",
     "source": {
       "repo": "smogon/pokemon-showdown",
-      "commit": "d849b220082e113d8a17303509fb44d420c543d5",
+      "commit": "9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e",
       "mod": "champions"
     },
     "formats": {
@@ -107,7 +107,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "venusaurmega": {
       "id": "venusaurmega",
@@ -385,7 +385,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "blastoisemega": {
       "id": "blastoisemega",
@@ -2036,7 +2036,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "igglybuff": {
       "id": "igglybuff",
@@ -2117,7 +2117,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "zubat": {
       "id": "zubat",
@@ -2642,7 +2642,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "persianalola": {
       "id": "persianalola",
@@ -2668,7 +2668,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "perrserker": {
       "id": "perrserker",
@@ -2694,7 +2694,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "psyduck": {
       "id": "psyduck",
@@ -3111,7 +3111,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UUBL"
+      "tier": "Uber"
     },
     "machop": {
       "id": "machop",
@@ -3318,7 +3318,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "tentacool": {
       "id": "tentacool",
@@ -3933,7 +3933,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "farfetchdgalar": {
       "id": "farfetchdgalar",
@@ -3983,7 +3983,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "doduo": {
       "id": "doduo",
@@ -5187,7 +5187,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "happiny": {
       "id": "happiny",
@@ -5630,7 +5630,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "mrmimegalar": {
       "id": "mrmimegalar",
@@ -5738,7 +5738,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "scizormega": {
       "id": "scizormega",
@@ -5763,7 +5763,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "(OU)"
+      "tier": "UU"
     },
     "kleavor": {
       "id": "kleavor",
@@ -6045,7 +6045,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "tauros": {
       "id": "tauros",
@@ -6202,7 +6202,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "gyaradosmega": {
       "id": "gyaradosmega",
@@ -6409,7 +6409,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "jolteon": {
       "id": "jolteon",
@@ -6584,7 +6584,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "porygon": {
       "id": "porygon",
@@ -7382,7 +7382,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "cyndaquil": {
       "id": "cyndaquil",
@@ -7583,7 +7583,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "sentret": {
       "id": "sentret",
@@ -9084,7 +9084,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "shuckle": {
       "id": "shuckle",
@@ -9508,7 +9508,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "corsola": {
       "id": "corsola",
@@ -10561,7 +10561,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "swampertmega": {
       "id": "swampertmega",
@@ -10586,7 +10586,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "poochyena": {
       "id": "poochyena",
@@ -11244,7 +11244,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "gardevoirmega": {
       "id": "gardevoirmega",
@@ -11296,7 +11296,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "gallademega": {
       "id": "gallademega",
@@ -11321,7 +11321,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "surskit": {
       "id": "surskit",
@@ -11859,7 +11859,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "mawile": {
       "id": "mawile",
@@ -11911,7 +11911,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "aron": {
       "id": "aron",
@@ -12352,7 +12352,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "gulpin": {
       "id": "gulpin",
@@ -12404,7 +12404,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "carvanha": {
       "id": "carvanha",
@@ -12481,7 +12481,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "wailmer": {
       "id": "wailmer",
@@ -12638,7 +12638,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "spoink": {
       "id": "spoink",
@@ -12895,7 +12895,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "altariamega": {
       "id": "altariamega",
@@ -12920,7 +12920,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "zangoose": {
       "id": "zangoose",
@@ -13333,7 +13333,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "castform": {
       "id": "castform",
@@ -13705,7 +13705,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "absol": {
       "id": "absol",
@@ -14191,7 +14191,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "salamencemega": {
       "id": "salamencemega",
@@ -14216,7 +14216,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "Uber"
     },
     "beldum": {
       "id": "beldum",
@@ -14319,7 +14319,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "regirock": {
       "id": "regirock",
@@ -14971,7 +14971,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "piplup": {
       "id": "piplup",
@@ -15150,7 +15150,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "bidoof": {
       "id": "bidoof",
@@ -15946,7 +15946,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "glameow": {
       "id": "glameow",
@@ -16389,7 +16389,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "Uber"
     },
     "hippopotas": {
       "id": "hippopotas",
@@ -16750,7 +16750,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "rotomwash": {
       "id": "rotomwash",
@@ -17964,7 +17964,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "tepig": {
       "id": "tepig",
@@ -19580,7 +19580,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "basculegionf": {
       "id": "basculegionf",
@@ -19607,7 +19607,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "sandile": {
       "id": "sandile",
@@ -19688,7 +19688,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "darumaka": {
       "id": "darumaka",
@@ -20097,7 +20097,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "runerigus": {
       "id": "runerigus",
@@ -20122,7 +20122,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "tirtouga": {
       "id": "tirtouga",
@@ -20402,7 +20402,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "minccino": {
       "id": "minccino",
@@ -20610,7 +20610,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "RU"
+      "tier": "UU"
     },
     "ducklett": {
       "id": "ducklett",
@@ -23075,7 +23075,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "froakie": {
       "id": "froakie",
@@ -23280,7 +23280,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "fletchling": {
       "id": "fletchling",
@@ -23358,7 +23358,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "scatterbug": {
       "id": "scatterbug",
@@ -23590,7 +23590,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "floettemega": {
       "id": "floettemega",
@@ -23614,7 +23614,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "florges": {
       "id": "florges",
@@ -23689,7 +23689,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "pancham": {
       "id": "pancham",
@@ -23742,7 +23742,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "furfrou": {
       "id": "furfrou",
@@ -24066,7 +24066,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "inkay": {
       "id": "inkay",
@@ -24303,7 +24303,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "clauncher": {
       "id": "clauncher",
@@ -24405,7 +24405,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "tyrunt": {
       "id": "tyrunt",
@@ -24509,7 +24509,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "hawlucha": {
       "id": "hawlucha",
@@ -25175,7 +25175,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "xerneas": {
       "id": "xerneas",
@@ -25615,7 +25615,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "litten": {
       "id": "litten",
@@ -26109,7 +26109,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "oricorio": {
       "id": "oricorio",
@@ -26573,7 +26573,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "dewpider": {
       "id": "dewpider",
@@ -27127,7 +27127,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "golisopodmega": {
       "id": "golisopodmega",
@@ -29361,7 +29361,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "inteleongmax": {
       "id": "inteleongmax",
@@ -29701,7 +29701,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "gossifleur": {
       "id": "gossifleur",
@@ -30411,7 +30411,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "toxtricitylowkey": {
       "id": "toxtricitylowkey",
@@ -30623,7 +30623,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "sinistea": {
       "id": "sinistea",
@@ -30885,7 +30885,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "grimmsnarlgmax": {
       "id": "grimmsnarlgmax",
@@ -31061,7 +31061,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "snom": {
       "id": "snom",
@@ -31188,7 +31188,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "indeedeef": {
       "id": "indeedeef",
@@ -31215,7 +31215,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "morpeko": {
       "id": "morpeko",
@@ -32963,7 +32963,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "capsakid": {
       "id": "capsakid",
@@ -33093,7 +33093,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "varoom": {
       "id": "varoom",
@@ -33352,7 +33352,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "Uber"
     },
     "baxcaliburmega": {
       "id": "baxcaliburmega",
@@ -33372,13 +33372,12 @@
       },
       "base_species_id": "baxcalibur",
       "abilities": {
-        "0": "Thermal Exchange",
-        "H": "Ice Body"
+        "0": "Thermal Exchange"
       },
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "Uber"
     },
     "tatsugiri": {
       "id": "tatsugiri",
@@ -33748,7 +33747,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "squawkabillyblue": {
       "id": "squawkabillyblue",
@@ -34193,7 +34192,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "OU"
+      "tier": "UU"
     },
     "bramblin": {
       "id": "bramblin",
@@ -35576,7 +35575,7 @@
       "tags": [],
       "effective_tags": [],
       "is_nonstandard": null,
-      "tier": "UU"
+      "tier": "RU"
     },
     "gougingfire": {
       "id": "gougingfire",
@@ -43099,7 +43098,7 @@
       "type": "Fighting",
       "category": "Physical",
       "basePower": 170,
-      "is_nonstandard": "Past"
+      "is_nonstandard": null
     },
     "meteorbeam": {
       "id": "meteorbeam",
@@ -60379,6 +60378,7 @@
       "irondefense",
       "knockoff",
       "leafblade",
+      "meteorassault",
       "nightslash",
       "poisonjab",
       "protect",
