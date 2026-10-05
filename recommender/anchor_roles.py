@@ -38,6 +38,7 @@ FieldSource = Literal[
     "legality_only",
     "champions_native_writeup",
     "analogous_format_writeup",
+    "prior_showdown_standin",
     "unknown",
 ]
 _AUTHORITATIVE_ABILITY_SOURCES = frozenset(
