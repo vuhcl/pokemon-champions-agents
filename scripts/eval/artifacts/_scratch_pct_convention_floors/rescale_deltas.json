@@ -1,0 +1,3567 @@
+{
+  "regulation": "champions-reg-mc",
+  "old_ref": "origin/main",
+  "floors_unchanged": {
+    "_USAGE_SET_PCT_FLOOR": 2.3,
+    "_TRICK_ROOM_SET_PCT_FLOOR": 22.5,
+    "_SETUP_PRESENCE_SET_PCT_FLOOR": 0.1,
+    "_DD_SETUP_PRESENCE_FLOOR": 1.0
+  },
+  "per_category": {
+    "weather_setter:Rain": {
+      "old_n": 7,
+      "new_n": 7,
+      "admitted": [],
+      "dropped": [],
+      "flips": []
+    },
+    "weather_setter:Sun": {
+      "old_n": 8,
+      "new_n": 8,
+      "admitted": [],
+      "dropped": [],
+      "flips": []
+    },
+    "weather_setter:Sand": {
+      "old_n": 4,
+      "new_n": 4,
+      "admitted": [],
+      "dropped": [],
+      "flips": []
+    },
+    "weather_setter:Snow": {
+      "old_n": 6,
+      "new_n": 6,
+      "admitted": [],
+      "dropped": [],
+      "flips": []
+    },
+    "terrain_setter:Electric": {
+      "old_n": 2,
+      "new_n": 2,
+      "admitted": [],
+      "dropped": [],
+      "flips": []
+    },
+    "terrain_setter:Grassy": {
+      "old_n": 2,
+      "new_n": 2,
+      "admitted": [],
+      "dropped": [],
+      "flips": []
+    },
+    "terrain_setter:Psychic": {
+      "old_n": 3,
+      "new_n": 3,
+      "admitted": [],
+      "dropped": [],
+      "flips": []
+    },
+    "redirection:followme+ragepowder": {
+      "old_n": 10,
+      "new_n": 10,
+      "admitted": [],
+      "dropped": [],
+      "flips": []
+    },
+    "trick_room_setter:trickroom": {
+      "old_n": 26,
+      "new_n": 36,
+      "admitted": [
+        "banettemega",
+        "chandelure",
+        "chandeluremega",
+        "chimechomega",
+        "espeon",
+        "gardevoirmega",
+        "malamar",
+        "malamarmega",
+        "medicham",
+        "slowbrogalar"
+      ],
+      "dropped": [],
+      "flips": [
+        {
+          "species_id": "banettemega",
+          "direction": "admitted",
+          "old": {
+            "move": "trickroom",
+            "max_pct": 8.859,
+            "ingame_pct": 0.0,
+            "showdown_pct": 8.859,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "trickroom",
+            "max_pct": 31.733,
+            "ingame_pct": 0.0,
+            "showdown_pct": 31.733,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "chandelure",
+          "direction": "admitted",
+          "old": {
+            "move": "trickroom",
+            "max_pct": 22.35,
+            "ingame_pct": 0.0,
+            "showdown_pct": 22.35,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "trickroom",
+            "max_pct": 46.427,
+            "ingame_pct": 0.0,
+            "showdown_pct": 46.427,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "chandeluremega",
+          "direction": "admitted",
+          "old": {
+            "move": "trickroom",
+            "max_pct": 12.492,
+            "ingame_pct": 0.0,
+            "showdown_pct": 12.492,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "trickroom",
+            "max_pct": 34.492,
+            "ingame_pct": 0.0,
+            "showdown_pct": 34.492,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "chimechomega",
+          "direction": "admitted",
+          "old": {
+            "move": "trickroom",
+            "max_pct": 13.992,
+            "ingame_pct": 0.0,
+            "showdown_pct": 13.992,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "trickroom",
+            "max_pct": 41.324,
+            "ingame_pct": 0.0,
+            "showdown_pct": 41.324,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "espeon",
+          "direction": "admitted",
+          "old": {
+            "move": "trickroom",
+            "max_pct": 18.4,
+            "ingame_pct": 18.4,
+            "showdown_pct": 11.109,
+            "max_source": "ingame",
+            "showdown_only_clear": false
+          },
+          "new": {
+            "move": "trickroom",
+            "max_pct": 30.367,
+            "ingame_pct": 18.4,
+            "showdown_pct": 30.367,
+            "max_source": "showdown",
+            "showdown_only_clear": false
+          }
+        },
+        {
+          "species_id": "gardevoirmega",
+          "direction": "admitted",
+          "old": {
+            "move": "trickroom",
+            "max_pct": 21.214,
+            "ingame_pct": 0.0,
+            "showdown_pct": 21.214,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "trickroom",
+            "max_pct": 37.289,
+            "ingame_pct": 0.0,
+            "showdown_pct": 37.289,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "malamar",
+          "direction": "admitted",
+          "old": {
+            "move": "trickroom",
+            "max_pct": 12.71,
+            "ingame_pct": 0.0,
+            "showdown_pct": 12.71,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "trickroom",
+            "max_pct": 41.431,
+            "ingame_pct": 0.0,
+            "showdown_pct": 41.431,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "malamarmega",
+          "direction": "admitted",
+          "old": {
+            "move": "trickroom",
+            "max_pct": 13.876,
+            "ingame_pct": 0.0,
+            "showdown_pct": 13.876,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "trickroom",
+            "max_pct": 37.751,
+            "ingame_pct": 0.0,
+            "showdown_pct": 37.751,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "medicham",
+          "direction": "admitted",
+          "old": {
+            "move": "trickroom",
+            "max_pct": 7.346,
+            "ingame_pct": 0.0,
+            "showdown_pct": 7.346,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "trickroom",
+            "max_pct": 27.279,
+            "ingame_pct": 0.0,
+            "showdown_pct": 27.279,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "slowbrogalar",
+          "direction": "admitted",
+          "old": {
+            "move": "trickroom",
+            "max_pct": 9.368,
+            "ingame_pct": 0.0,
+            "showdown_pct": 9.368,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "trickroom",
+            "max_pct": 26.791,
+            "ingame_pct": 0.0,
+            "showdown_pct": 26.791,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        }
+      ]
+    },
+    "tailwind_setter:tailwind": {
+      "old_n": 25,
+      "new_n": 26,
+      "admitted": [
+        "scizormega"
+      ],
+      "dropped": [],
+      "flips": [
+        {
+          "species_id": "scizormega",
+          "direction": "admitted",
+          "old": {
+            "move": "tailwind",
+            "max_pct": 1.117,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.117,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "tailwind",
+            "max_pct": 2.897,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.897,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        }
+      ]
+    },
+    "sleep_status_spreader:hypnosis+sleeppowder+yawn": {
+      "old_n": 13,
+      "new_n": 17,
+      "admitted": [
+        "altariamega",
+        "aromatisse",
+        "ninetales",
+        "persian"
+      ],
+      "dropped": [],
+      "flips": [
+        {
+          "species_id": "altariamega",
+          "direction": "admitted",
+          "old": {
+            "move": "sing",
+            "max_pct": 1.682,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.682,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "sing",
+            "max_pct": 4.331,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.331,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "aromatisse",
+          "direction": "admitted",
+          "old": {
+            "move": "hypnosis",
+            "max_pct": 1.643,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.643,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "hypnosis",
+            "max_pct": 4.18,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.18,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "ninetales",
+          "direction": "admitted",
+          "old": {
+            "move": "hypnosis",
+            "max_pct": 0.9,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.9,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "hypnosis",
+            "max_pct": 2.344,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.344,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "persian",
+          "direction": "admitted",
+          "old": {
+            "move": "hypnosis",
+            "max_pct": 0.801,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.801,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "hypnosis",
+            "max_pct": 3.345,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.345,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        }
+      ]
+    },
+    "screens_support:auroraveil+lightscreen+reflect": {
+      "old_n": 14,
+      "new_n": 30,
+      "admitted": [
+        "alakazam",
+        "ampharos",
+        "appletun",
+        "arboliva",
+        "bellibolt",
+        "clefable",
+        "dragapult",
+        "espeon",
+        "forretress",
+        "froslass",
+        "mrrime",
+        "musharna",
+        "sableyemega",
+        "serperior",
+        "umbreon",
+        "wyrdeer"
+      ],
+      "dropped": [],
+      "flips": [
+        {
+          "species_id": "alakazam",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 1.742,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.742,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 1.742,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.742,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 1.921,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.921,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 5.699,
+            "ingame_pct": 0.0,
+            "showdown_pct": 5.699,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 5.699,
+                "ingame_pct": 0.0,
+                "showdown_pct": 5.699,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 6.286,
+                "ingame_pct": 0.0,
+                "showdown_pct": 6.286,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "ampharos",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 0.791,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.791,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 0.956,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.956,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 0.791,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.791,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 3.731,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.731,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 4.511,
+                "ingame_pct": 0.0,
+                "showdown_pct": 4.511,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 3.731,
+                "ingame_pct": 0.0,
+                "showdown_pct": 3.731,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "appletun",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 1.344,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.344,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 1.344,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.344,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 1.396,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.396,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 4.925,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.925,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 4.925,
+                "ingame_pct": 0.0,
+                "showdown_pct": 4.925,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 5.116,
+                "ingame_pct": 0.0,
+                "showdown_pct": 5.116,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "arboliva",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 0.779,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.779,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 1.52,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.52,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 0.779,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.779,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 2.493,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.493,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 4.862,
+                "ingame_pct": 0.0,
+                "showdown_pct": 4.862,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 2.493,
+                "ingame_pct": 0.0,
+                "showdown_pct": 2.493,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "bellibolt",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 1.395,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.395,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 1.395,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.395,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 1.739,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.739,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 3.718,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.718,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 3.718,
+                "ingame_pct": 0.0,
+                "showdown_pct": 3.718,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 4.635,
+                "ingame_pct": 0.0,
+                "showdown_pct": 4.635,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "clefable",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 1.003,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.003,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 1.461,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.461,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 1.003,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.003,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 3.129,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.129,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 4.556,
+                "ingame_pct": 0.0,
+                "showdown_pct": 4.556,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 3.129,
+                "ingame_pct": 0.0,
+                "showdown_pct": 3.129,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "dragapult",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 2.044,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.044,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 5.041,
+                "ingame_pct": 0.0,
+                "showdown_pct": 5.041,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 2.044,
+                "ingame_pct": 0.0,
+                "showdown_pct": 2.044,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 4.044,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.044,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 9.971,
+                "ingame_pct": 0.0,
+                "showdown_pct": 9.971,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 4.044,
+                "ingame_pct": 0.0,
+                "showdown_pct": 4.044,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "espeon",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 0.989,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.989,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 1.113,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.113,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 0.989,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.989,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 2.705,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.705,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 3.043,
+                "ingame_pct": 0.0,
+                "showdown_pct": 3.043,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 2.705,
+                "ingame_pct": 0.0,
+                "showdown_pct": 2.705,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "forretress",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 0.55,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.55,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 0.931,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.931,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 0.55,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.55,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 3.795,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.795,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 6.424,
+                "ingame_pct": 0.0,
+                "showdown_pct": 6.424,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 3.795,
+                "ingame_pct": 0.0,
+                "showdown_pct": 3.795,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "froslass",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 1.467,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.467,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 1.873,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.873,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 1.467,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.467,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 6.119,
+            "ingame_pct": 0.0,
+            "showdown_pct": 6.119,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 7.813,
+                "ingame_pct": 0.0,
+                "showdown_pct": 7.813,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 6.119,
+                "ingame_pct": 0.0,
+                "showdown_pct": 6.119,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "mrrime",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 0.664,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.664,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 0.913,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.913,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 0.664,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.664,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 2.381,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.381,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 3.273,
+                "ingame_pct": 0.0,
+                "showdown_pct": 3.273,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 2.381,
+                "ingame_pct": 0.0,
+                "showdown_pct": 2.381,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "musharna",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 0.866,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.866,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 0.866,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.866,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 0.917,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.917,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 2.646,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.646,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 2.646,
+                "ingame_pct": 0.0,
+                "showdown_pct": 2.646,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 2.799,
+                "ingame_pct": 0.0,
+                "showdown_pct": 2.799,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "sableyemega",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 1.528,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.528,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 2.605,
+                "ingame_pct": 0.0,
+                "showdown_pct": 2.605,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 1.528,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.528,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 4.222,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.222,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 7.198,
+                "ingame_pct": 0.0,
+                "showdown_pct": 7.198,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 4.222,
+                "ingame_pct": 0.0,
+                "showdown_pct": 4.222,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "serperior",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 1.983,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.983,
+            "max_source": "mixed:ingame+showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 5.4,
+                "ingame_pct": 5.4,
+                "showdown_pct": 1.994,
+                "max_source": "ingame"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 1.983,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.983,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": false
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 7.623,
+            "ingame_pct": 0.0,
+            "showdown_pct": 7.623,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 7.664,
+                "ingame_pct": 5.4,
+                "showdown_pct": 7.664,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 7.623,
+                "ingame_pct": 0.0,
+                "showdown_pct": 7.623,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": false
+          }
+        },
+        {
+          "species_id": "umbreon",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 1.974,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.974,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 1.974,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.974,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 2.391,
+                "ingame_pct": 0.0,
+                "showdown_pct": 2.391,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 5.27,
+            "ingame_pct": 0.0,
+            "showdown_pct": 5.27,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 5.27,
+                "ingame_pct": 0.0,
+                "showdown_pct": 5.27,
+                "max_source": "showdown"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 6.381,
+                "ingame_pct": 0.0,
+                "showdown_pct": 6.381,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "wyrdeer",
+          "direction": "admitted",
+          "old": {
+            "move": "lightscreen+reflect",
+            "max_pct": 1.217,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.217,
+            "max_source": "mixed:ingame+showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 8.3,
+                "ingame_pct": 8.3,
+                "showdown_pct": 1.347,
+                "max_source": "ingame"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 1.217,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.217,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": false
+          },
+          "new": {
+            "move": "lightscreen+reflect",
+            "max_pct": 3.52,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.52,
+            "max_source": "mixed:ingame+showdown",
+            "per_move": [
+              {
+                "move": "lightscreen",
+                "max_pct": 8.3,
+                "ingame_pct": 8.3,
+                "showdown_pct": 3.896,
+                "max_source": "ingame"
+              },
+              {
+                "move": "reflect",
+                "max_pct": 3.52,
+                "ingame_pct": 0.0,
+                "showdown_pct": 3.52,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": false
+          }
+        }
+      ]
+    },
+    "swords_dance_attacker:swordsdance": {
+      "old_n": 38,
+      "new_n": 38,
+      "admitted": [],
+      "dropped": [],
+      "flips": []
+    },
+    "nasty_plot_attacker:nastyplot": {
+      "old_n": 23,
+      "new_n": 23,
+      "admitted": [],
+      "dropped": [],
+      "flips": []
+    },
+    "calm_mind_attacker:calmmind": {
+      "old_n": 36,
+      "new_n": 36,
+      "admitted": [],
+      "dropped": [],
+      "flips": []
+    },
+    "bulk_up_attacker:bulkup": {
+      "old_n": 39,
+      "new_n": 43,
+      "admitted": [
+        "incineroar",
+        "infernape",
+        "lycanrocdusk",
+        "medicham"
+      ],
+      "dropped": [],
+      "flips": [
+        {
+          "species_id": "incineroar",
+          "direction": "admitted",
+          "old": {
+            "move": "bulkup",
+            "max_pct": 0.066,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.066,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "bulkup",
+            "max_pct": 0.118,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.118,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "infernape",
+          "direction": "admitted",
+          "old": {
+            "move": "bulkup",
+            "max_pct": 0.071,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.071,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "bulkup",
+            "max_pct": 0.24,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.24,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "lycanrocdusk",
+          "direction": "admitted",
+          "old": {
+            "move": "bulkup",
+            "max_pct": 0.05,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.05,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "bulkup",
+            "max_pct": 0.101,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.101,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "medicham",
+          "direction": "admitted",
+          "old": {
+            "move": "bulkup",
+            "max_pct": 0.094,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.094,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "bulkup",
+            "max_pct": 0.35,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.35,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        }
+      ]
+    },
+    "dragon_dance_attacker:dragondance": {
+      "old_n": 13,
+      "new_n": 15,
+      "admitted": [
+        "aerodactylmega",
+        "scrafty"
+      ],
+      "dropped": [],
+      "flips": [
+        {
+          "species_id": "aerodactylmega",
+          "direction": "admitted",
+          "old": {
+            "move": "dragondance",
+            "max_pct": 0.806,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.806,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "dragondance",
+            "max_pct": 1.454,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.454,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "scrafty",
+          "direction": "admitted",
+          "old": {
+            "move": "dragondance",
+            "max_pct": 0.429,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.429,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "dragondance",
+            "max_pct": 1.061,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.061,
+            "max_source": "showdown",
+            "showdown_only_clear": true
+          }
+        }
+      ]
+    },
+    "iron_defense_body_press": {
+      "old_n": 26,
+      "new_n": 28,
+      "admitted": [
+        "golurkmega",
+        "tyranitar"
+      ],
+      "dropped": [],
+      "flips": [
+        {
+          "species_id": "golurkmega",
+          "direction": "admitted",
+          "old": {
+            "move": "bodypress+irondefense",
+            "max_pct": 0.076,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.076,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "bodypress",
+                "max_pct": 0.388,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.388,
+                "max_source": "showdown"
+              },
+              {
+                "move": "irondefense",
+                "max_pct": 0.076,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.076,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "bodypress+irondefense",
+            "max_pct": 0.218,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.218,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "bodypress",
+                "max_pct": 1.116,
+                "ingame_pct": 0.0,
+                "showdown_pct": 1.116,
+                "max_source": "showdown"
+              },
+              {
+                "move": "irondefense",
+                "max_pct": 0.218,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.218,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        },
+        {
+          "species_id": "tyranitar",
+          "direction": "admitted",
+          "old": {
+            "move": "bodypress+irondefense",
+            "max_pct": 0.058,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.058,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "bodypress",
+                "max_pct": 0.23,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.23,
+                "max_source": "showdown"
+              },
+              {
+                "move": "irondefense",
+                "max_pct": 0.058,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.058,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          },
+          "new": {
+            "move": "bodypress+irondefense",
+            "max_pct": 0.11,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.11,
+            "max_source": "showdown",
+            "per_move": [
+              {
+                "move": "bodypress",
+                "max_pct": 0.437,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.437,
+                "max_source": "showdown"
+              },
+              {
+                "move": "irondefense",
+                "max_pct": 0.11,
+                "ingame_pct": 0.0,
+                "showdown_pct": 0.11,
+                "max_source": "showdown"
+              }
+            ],
+            "showdown_only_clear": true
+          }
+        }
+      ]
+    }
+  },
+  "all_flips": [
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "banettemega",
+      "direction": "admitted",
+      "old": {
+        "move": "trickroom",
+        "max_pct": 8.859,
+        "ingame_pct": 0.0,
+        "showdown_pct": 8.859,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "trickroom",
+        "max_pct": 31.733,
+        "ingame_pct": 0.0,
+        "showdown_pct": 31.733,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "chandelure",
+      "direction": "admitted",
+      "old": {
+        "move": "trickroom",
+        "max_pct": 22.35,
+        "ingame_pct": 0.0,
+        "showdown_pct": 22.35,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "trickroom",
+        "max_pct": 46.427,
+        "ingame_pct": 0.0,
+        "showdown_pct": 46.427,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "chandeluremega",
+      "direction": "admitted",
+      "old": {
+        "move": "trickroom",
+        "max_pct": 12.492,
+        "ingame_pct": 0.0,
+        "showdown_pct": 12.492,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "trickroom",
+        "max_pct": 34.492,
+        "ingame_pct": 0.0,
+        "showdown_pct": 34.492,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "chimechomega",
+      "direction": "admitted",
+      "old": {
+        "move": "trickroom",
+        "max_pct": 13.992,
+        "ingame_pct": 0.0,
+        "showdown_pct": 13.992,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "trickroom",
+        "max_pct": 41.324,
+        "ingame_pct": 0.0,
+        "showdown_pct": 41.324,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "espeon",
+      "direction": "admitted",
+      "old": {
+        "move": "trickroom",
+        "max_pct": 18.4,
+        "ingame_pct": 18.4,
+        "showdown_pct": 11.109,
+        "max_source": "ingame",
+        "showdown_only_clear": false
+      },
+      "new": {
+        "move": "trickroom",
+        "max_pct": 30.367,
+        "ingame_pct": 18.4,
+        "showdown_pct": 30.367,
+        "max_source": "showdown",
+        "showdown_only_clear": false
+      }
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "gardevoirmega",
+      "direction": "admitted",
+      "old": {
+        "move": "trickroom",
+        "max_pct": 21.214,
+        "ingame_pct": 0.0,
+        "showdown_pct": 21.214,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "trickroom",
+        "max_pct": 37.289,
+        "ingame_pct": 0.0,
+        "showdown_pct": 37.289,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "malamar",
+      "direction": "admitted",
+      "old": {
+        "move": "trickroom",
+        "max_pct": 12.71,
+        "ingame_pct": 0.0,
+        "showdown_pct": 12.71,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "trickroom",
+        "max_pct": 41.431,
+        "ingame_pct": 0.0,
+        "showdown_pct": 41.431,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "malamarmega",
+      "direction": "admitted",
+      "old": {
+        "move": "trickroom",
+        "max_pct": 13.876,
+        "ingame_pct": 0.0,
+        "showdown_pct": 13.876,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "trickroom",
+        "max_pct": 37.751,
+        "ingame_pct": 0.0,
+        "showdown_pct": 37.751,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "medicham",
+      "direction": "admitted",
+      "old": {
+        "move": "trickroom",
+        "max_pct": 7.346,
+        "ingame_pct": 0.0,
+        "showdown_pct": 7.346,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "trickroom",
+        "max_pct": 27.279,
+        "ingame_pct": 0.0,
+        "showdown_pct": 27.279,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "slowbrogalar",
+      "direction": "admitted",
+      "old": {
+        "move": "trickroom",
+        "max_pct": 9.368,
+        "ingame_pct": 0.0,
+        "showdown_pct": 9.368,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "trickroom",
+        "max_pct": 26.791,
+        "ingame_pct": 0.0,
+        "showdown_pct": 26.791,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "tailwind_setter:tailwind",
+      "species_id": "scizormega",
+      "direction": "admitted",
+      "old": {
+        "move": "tailwind",
+        "max_pct": 1.117,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.117,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "tailwind",
+        "max_pct": 2.897,
+        "ingame_pct": 0.0,
+        "showdown_pct": 2.897,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "sleep_status_spreader:hypnosis+sleeppowder+yawn",
+      "species_id": "altariamega",
+      "direction": "admitted",
+      "old": {
+        "move": "sing",
+        "max_pct": 1.682,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.682,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "sing",
+        "max_pct": 4.331,
+        "ingame_pct": 0.0,
+        "showdown_pct": 4.331,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "sleep_status_spreader:hypnosis+sleeppowder+yawn",
+      "species_id": "aromatisse",
+      "direction": "admitted",
+      "old": {
+        "move": "hypnosis",
+        "max_pct": 1.643,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.643,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "hypnosis",
+        "max_pct": 4.18,
+        "ingame_pct": 0.0,
+        "showdown_pct": 4.18,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "sleep_status_spreader:hypnosis+sleeppowder+yawn",
+      "species_id": "ninetales",
+      "direction": "admitted",
+      "old": {
+        "move": "hypnosis",
+        "max_pct": 0.9,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.9,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "hypnosis",
+        "max_pct": 2.344,
+        "ingame_pct": 0.0,
+        "showdown_pct": 2.344,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "sleep_status_spreader:hypnosis+sleeppowder+yawn",
+      "species_id": "persian",
+      "direction": "admitted",
+      "old": {
+        "move": "hypnosis",
+        "max_pct": 0.801,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.801,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "hypnosis",
+        "max_pct": 3.345,
+        "ingame_pct": 0.0,
+        "showdown_pct": 3.345,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "alakazam",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 1.742,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.742,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 1.742,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.742,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 1.921,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.921,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 5.699,
+        "ingame_pct": 0.0,
+        "showdown_pct": 5.699,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 5.699,
+            "ingame_pct": 0.0,
+            "showdown_pct": 5.699,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 6.286,
+            "ingame_pct": 0.0,
+            "showdown_pct": 6.286,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "ampharos",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 0.791,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.791,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 0.956,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.956,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 0.791,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.791,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 3.731,
+        "ingame_pct": 0.0,
+        "showdown_pct": 3.731,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 4.511,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.511,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 3.731,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.731,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "appletun",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 1.344,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.344,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 1.344,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.344,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 1.396,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.396,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 4.925,
+        "ingame_pct": 0.0,
+        "showdown_pct": 4.925,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 4.925,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.925,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 5.116,
+            "ingame_pct": 0.0,
+            "showdown_pct": 5.116,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "arboliva",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 0.779,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.779,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 1.52,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.52,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 0.779,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.779,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 2.493,
+        "ingame_pct": 0.0,
+        "showdown_pct": 2.493,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 4.862,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.862,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 2.493,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.493,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "bellibolt",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 1.395,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.395,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 1.395,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.395,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 1.739,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.739,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 3.718,
+        "ingame_pct": 0.0,
+        "showdown_pct": 3.718,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 3.718,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.718,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 4.635,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.635,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "clefable",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 1.003,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.003,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 1.461,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.461,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 1.003,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.003,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 3.129,
+        "ingame_pct": 0.0,
+        "showdown_pct": 3.129,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 4.556,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.556,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 3.129,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.129,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "dragapult",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 2.044,
+        "ingame_pct": 0.0,
+        "showdown_pct": 2.044,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 5.041,
+            "ingame_pct": 0.0,
+            "showdown_pct": 5.041,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 2.044,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.044,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 4.044,
+        "ingame_pct": 0.0,
+        "showdown_pct": 4.044,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 9.971,
+            "ingame_pct": 0.0,
+            "showdown_pct": 9.971,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 4.044,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.044,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "espeon",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 0.989,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.989,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 1.113,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.113,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 0.989,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.989,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 2.705,
+        "ingame_pct": 0.0,
+        "showdown_pct": 2.705,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 3.043,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.043,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 2.705,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.705,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "forretress",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 0.55,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.55,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 0.931,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.931,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 0.55,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.55,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 3.795,
+        "ingame_pct": 0.0,
+        "showdown_pct": 3.795,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 6.424,
+            "ingame_pct": 0.0,
+            "showdown_pct": 6.424,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 3.795,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.795,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "froslass",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 1.467,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.467,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 1.873,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.873,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 1.467,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.467,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 6.119,
+        "ingame_pct": 0.0,
+        "showdown_pct": 6.119,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 7.813,
+            "ingame_pct": 0.0,
+            "showdown_pct": 7.813,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 6.119,
+            "ingame_pct": 0.0,
+            "showdown_pct": 6.119,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "mrrime",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 0.664,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.664,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 0.913,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.913,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 0.664,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.664,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 2.381,
+        "ingame_pct": 0.0,
+        "showdown_pct": 2.381,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 3.273,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.273,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 2.381,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.381,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "musharna",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 0.866,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.866,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 0.866,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.866,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 0.917,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.917,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 2.646,
+        "ingame_pct": 0.0,
+        "showdown_pct": 2.646,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 2.646,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.646,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 2.799,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.799,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "sableyemega",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 1.528,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.528,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 2.605,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.605,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 1.528,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.528,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 4.222,
+        "ingame_pct": 0.0,
+        "showdown_pct": 4.222,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 7.198,
+            "ingame_pct": 0.0,
+            "showdown_pct": 7.198,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 4.222,
+            "ingame_pct": 0.0,
+            "showdown_pct": 4.222,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "serperior",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 1.983,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.983,
+        "max_source": "mixed:ingame+showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 5.4,
+            "ingame_pct": 5.4,
+            "showdown_pct": 1.994,
+            "max_source": "ingame"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 1.983,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.983,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": false
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 7.623,
+        "ingame_pct": 0.0,
+        "showdown_pct": 7.623,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 7.664,
+            "ingame_pct": 5.4,
+            "showdown_pct": 7.664,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 7.623,
+            "ingame_pct": 0.0,
+            "showdown_pct": 7.623,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": false
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "umbreon",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 1.974,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.974,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 1.974,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.974,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 2.391,
+            "ingame_pct": 0.0,
+            "showdown_pct": 2.391,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 5.27,
+        "ingame_pct": 0.0,
+        "showdown_pct": 5.27,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 5.27,
+            "ingame_pct": 0.0,
+            "showdown_pct": 5.27,
+            "max_source": "showdown"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 6.381,
+            "ingame_pct": 0.0,
+            "showdown_pct": 6.381,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "wyrdeer",
+      "direction": "admitted",
+      "old": {
+        "move": "lightscreen+reflect",
+        "max_pct": 1.217,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.217,
+        "max_source": "mixed:ingame+showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 8.3,
+            "ingame_pct": 8.3,
+            "showdown_pct": 1.347,
+            "max_source": "ingame"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 1.217,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.217,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": false
+      },
+      "new": {
+        "move": "lightscreen+reflect",
+        "max_pct": 3.52,
+        "ingame_pct": 0.0,
+        "showdown_pct": 3.52,
+        "max_source": "mixed:ingame+showdown",
+        "per_move": [
+          {
+            "move": "lightscreen",
+            "max_pct": 8.3,
+            "ingame_pct": 8.3,
+            "showdown_pct": 3.896,
+            "max_source": "ingame"
+          },
+          {
+            "move": "reflect",
+            "max_pct": 3.52,
+            "ingame_pct": 0.0,
+            "showdown_pct": 3.52,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": false
+      }
+    },
+    {
+      "category": "bulk_up_attacker:bulkup",
+      "species_id": "incineroar",
+      "direction": "admitted",
+      "old": {
+        "move": "bulkup",
+        "max_pct": 0.066,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.066,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "bulkup",
+        "max_pct": 0.118,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.118,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "bulk_up_attacker:bulkup",
+      "species_id": "infernape",
+      "direction": "admitted",
+      "old": {
+        "move": "bulkup",
+        "max_pct": 0.071,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.071,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "bulkup",
+        "max_pct": 0.24,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.24,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "bulk_up_attacker:bulkup",
+      "species_id": "lycanrocdusk",
+      "direction": "admitted",
+      "old": {
+        "move": "bulkup",
+        "max_pct": 0.05,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.05,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "bulkup",
+        "max_pct": 0.101,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.101,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "bulk_up_attacker:bulkup",
+      "species_id": "medicham",
+      "direction": "admitted",
+      "old": {
+        "move": "bulkup",
+        "max_pct": 0.094,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.094,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "bulkup",
+        "max_pct": 0.35,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.35,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "dragon_dance_attacker:dragondance",
+      "species_id": "aerodactylmega",
+      "direction": "admitted",
+      "old": {
+        "move": "dragondance",
+        "max_pct": 0.806,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.806,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "dragondance",
+        "max_pct": 1.454,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.454,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "dragon_dance_attacker:dragondance",
+      "species_id": "scrafty",
+      "direction": "admitted",
+      "old": {
+        "move": "dragondance",
+        "max_pct": 0.429,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.429,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "dragondance",
+        "max_pct": 1.061,
+        "ingame_pct": 0.0,
+        "showdown_pct": 1.061,
+        "max_source": "showdown",
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "iron_defense_body_press",
+      "species_id": "golurkmega",
+      "direction": "admitted",
+      "old": {
+        "move": "bodypress+irondefense",
+        "max_pct": 0.076,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.076,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "bodypress",
+            "max_pct": 0.388,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.388,
+            "max_source": "showdown"
+          },
+          {
+            "move": "irondefense",
+            "max_pct": 0.076,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.076,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "bodypress+irondefense",
+        "max_pct": 0.218,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.218,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "bodypress",
+            "max_pct": 1.116,
+            "ingame_pct": 0.0,
+            "showdown_pct": 1.116,
+            "max_source": "showdown"
+          },
+          {
+            "move": "irondefense",
+            "max_pct": 0.218,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.218,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    },
+    {
+      "category": "iron_defense_body_press",
+      "species_id": "tyranitar",
+      "direction": "admitted",
+      "old": {
+        "move": "bodypress+irondefense",
+        "max_pct": 0.058,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.058,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "bodypress",
+            "max_pct": 0.23,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.23,
+            "max_source": "showdown"
+          },
+          {
+            "move": "irondefense",
+            "max_pct": 0.058,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.058,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      },
+      "new": {
+        "move": "bodypress+irondefense",
+        "max_pct": 0.11,
+        "ingame_pct": 0.0,
+        "showdown_pct": 0.11,
+        "max_source": "showdown",
+        "per_move": [
+          {
+            "move": "bodypress",
+            "max_pct": 0.437,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.437,
+            "max_source": "showdown"
+          },
+          {
+            "move": "irondefense",
+            "max_pct": 0.11,
+            "ingame_pct": 0.0,
+            "showdown_pct": 0.11,
+            "max_source": "showdown"
+          }
+        ],
+        "showdown_only_clear": true
+      }
+    }
+  ],
+  "showdown_only_clears_among_admits": [
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "banettemega",
+      "move": "trickroom",
+      "max_pct": 31.733,
+      "ingame_pct": 0.0,
+      "showdown_pct": 31.733,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "chandelure",
+      "move": "trickroom",
+      "max_pct": 46.427,
+      "ingame_pct": 0.0,
+      "showdown_pct": 46.427,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "chandeluremega",
+      "move": "trickroom",
+      "max_pct": 34.492,
+      "ingame_pct": 0.0,
+      "showdown_pct": 34.492,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "chimechomega",
+      "move": "trickroom",
+      "max_pct": 41.324,
+      "ingame_pct": 0.0,
+      "showdown_pct": 41.324,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "gardevoirmega",
+      "move": "trickroom",
+      "max_pct": 37.289,
+      "ingame_pct": 0.0,
+      "showdown_pct": 37.289,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "malamar",
+      "move": "trickroom",
+      "max_pct": 41.431,
+      "ingame_pct": 0.0,
+      "showdown_pct": 41.431,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "malamarmega",
+      "move": "trickroom",
+      "max_pct": 37.751,
+      "ingame_pct": 0.0,
+      "showdown_pct": 37.751,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "medicham",
+      "move": "trickroom",
+      "max_pct": 27.279,
+      "ingame_pct": 0.0,
+      "showdown_pct": 27.279,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "trick_room_setter:trickroom",
+      "species_id": "slowbrogalar",
+      "move": "trickroom",
+      "max_pct": 26.791,
+      "ingame_pct": 0.0,
+      "showdown_pct": 26.791,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "tailwind_setter:tailwind",
+      "species_id": "scizormega",
+      "move": "tailwind",
+      "max_pct": 2.897,
+      "ingame_pct": 0.0,
+      "showdown_pct": 2.897,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "sleep_status_spreader:hypnosis+sleeppowder+yawn",
+      "species_id": "altariamega",
+      "move": "sing",
+      "max_pct": 4.331,
+      "ingame_pct": 0.0,
+      "showdown_pct": 4.331,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "sleep_status_spreader:hypnosis+sleeppowder+yawn",
+      "species_id": "aromatisse",
+      "move": "hypnosis",
+      "max_pct": 4.18,
+      "ingame_pct": 0.0,
+      "showdown_pct": 4.18,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "sleep_status_spreader:hypnosis+sleeppowder+yawn",
+      "species_id": "ninetales",
+      "move": "hypnosis",
+      "max_pct": 2.344,
+      "ingame_pct": 0.0,
+      "showdown_pct": 2.344,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "sleep_status_spreader:hypnosis+sleeppowder+yawn",
+      "species_id": "persian",
+      "move": "hypnosis",
+      "max_pct": 3.345,
+      "ingame_pct": 0.0,
+      "showdown_pct": 3.345,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "alakazam",
+      "move": "lightscreen+reflect",
+      "max_pct": 5.699,
+      "ingame_pct": 0.0,
+      "showdown_pct": 5.699,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 5.699,
+          "ingame_pct": 0.0,
+          "showdown_pct": 5.699,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 6.286,
+          "ingame_pct": 0.0,
+          "showdown_pct": 6.286,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "ampharos",
+      "move": "lightscreen+reflect",
+      "max_pct": 3.731,
+      "ingame_pct": 0.0,
+      "showdown_pct": 3.731,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 4.511,
+          "ingame_pct": 0.0,
+          "showdown_pct": 4.511,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 3.731,
+          "ingame_pct": 0.0,
+          "showdown_pct": 3.731,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "appletun",
+      "move": "lightscreen+reflect",
+      "max_pct": 4.925,
+      "ingame_pct": 0.0,
+      "showdown_pct": 4.925,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 4.925,
+          "ingame_pct": 0.0,
+          "showdown_pct": 4.925,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 5.116,
+          "ingame_pct": 0.0,
+          "showdown_pct": 5.116,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "arboliva",
+      "move": "lightscreen+reflect",
+      "max_pct": 2.493,
+      "ingame_pct": 0.0,
+      "showdown_pct": 2.493,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 4.862,
+          "ingame_pct": 0.0,
+          "showdown_pct": 4.862,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 2.493,
+          "ingame_pct": 0.0,
+          "showdown_pct": 2.493,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "bellibolt",
+      "move": "lightscreen+reflect",
+      "max_pct": 3.718,
+      "ingame_pct": 0.0,
+      "showdown_pct": 3.718,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 3.718,
+          "ingame_pct": 0.0,
+          "showdown_pct": 3.718,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 4.635,
+          "ingame_pct": 0.0,
+          "showdown_pct": 4.635,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "clefable",
+      "move": "lightscreen+reflect",
+      "max_pct": 3.129,
+      "ingame_pct": 0.0,
+      "showdown_pct": 3.129,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 4.556,
+          "ingame_pct": 0.0,
+          "showdown_pct": 4.556,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 3.129,
+          "ingame_pct": 0.0,
+          "showdown_pct": 3.129,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "dragapult",
+      "move": "lightscreen+reflect",
+      "max_pct": 4.044,
+      "ingame_pct": 0.0,
+      "showdown_pct": 4.044,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 9.971,
+          "ingame_pct": 0.0,
+          "showdown_pct": 9.971,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 4.044,
+          "ingame_pct": 0.0,
+          "showdown_pct": 4.044,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "espeon",
+      "move": "lightscreen+reflect",
+      "max_pct": 2.705,
+      "ingame_pct": 0.0,
+      "showdown_pct": 2.705,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 3.043,
+          "ingame_pct": 0.0,
+          "showdown_pct": 3.043,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 2.705,
+          "ingame_pct": 0.0,
+          "showdown_pct": 2.705,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "forretress",
+      "move": "lightscreen+reflect",
+      "max_pct": 3.795,
+      "ingame_pct": 0.0,
+      "showdown_pct": 3.795,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 6.424,
+          "ingame_pct": 0.0,
+          "showdown_pct": 6.424,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 3.795,
+          "ingame_pct": 0.0,
+          "showdown_pct": 3.795,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "froslass",
+      "move": "lightscreen+reflect",
+      "max_pct": 6.119,
+      "ingame_pct": 0.0,
+      "showdown_pct": 6.119,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 7.813,
+          "ingame_pct": 0.0,
+          "showdown_pct": 7.813,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 6.119,
+          "ingame_pct": 0.0,
+          "showdown_pct": 6.119,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "mrrime",
+      "move": "lightscreen+reflect",
+      "max_pct": 2.381,
+      "ingame_pct": 0.0,
+      "showdown_pct": 2.381,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 3.273,
+          "ingame_pct": 0.0,
+          "showdown_pct": 3.273,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 2.381,
+          "ingame_pct": 0.0,
+          "showdown_pct": 2.381,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "musharna",
+      "move": "lightscreen+reflect",
+      "max_pct": 2.646,
+      "ingame_pct": 0.0,
+      "showdown_pct": 2.646,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 2.646,
+          "ingame_pct": 0.0,
+          "showdown_pct": 2.646,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 2.799,
+          "ingame_pct": 0.0,
+          "showdown_pct": 2.799,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "sableyemega",
+      "move": "lightscreen+reflect",
+      "max_pct": 4.222,
+      "ingame_pct": 0.0,
+      "showdown_pct": 4.222,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 7.198,
+          "ingame_pct": 0.0,
+          "showdown_pct": 7.198,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 4.222,
+          "ingame_pct": 0.0,
+          "showdown_pct": 4.222,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "screens_support:auroraveil+lightscreen+reflect",
+      "species_id": "umbreon",
+      "move": "lightscreen+reflect",
+      "max_pct": 5.27,
+      "ingame_pct": 0.0,
+      "showdown_pct": 5.27,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "lightscreen",
+          "max_pct": 5.27,
+          "ingame_pct": 0.0,
+          "showdown_pct": 5.27,
+          "max_source": "showdown"
+        },
+        {
+          "move": "reflect",
+          "max_pct": 6.381,
+          "ingame_pct": 0.0,
+          "showdown_pct": 6.381,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "bulk_up_attacker:bulkup",
+      "species_id": "incineroar",
+      "move": "bulkup",
+      "max_pct": 0.118,
+      "ingame_pct": 0.0,
+      "showdown_pct": 0.118,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "bulk_up_attacker:bulkup",
+      "species_id": "infernape",
+      "move": "bulkup",
+      "max_pct": 0.24,
+      "ingame_pct": 0.0,
+      "showdown_pct": 0.24,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "bulk_up_attacker:bulkup",
+      "species_id": "lycanrocdusk",
+      "move": "bulkup",
+      "max_pct": 0.101,
+      "ingame_pct": 0.0,
+      "showdown_pct": 0.101,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "bulk_up_attacker:bulkup",
+      "species_id": "medicham",
+      "move": "bulkup",
+      "max_pct": 0.35,
+      "ingame_pct": 0.0,
+      "showdown_pct": 0.35,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "dragon_dance_attacker:dragondance",
+      "species_id": "aerodactylmega",
+      "move": "dragondance",
+      "max_pct": 1.454,
+      "ingame_pct": 0.0,
+      "showdown_pct": 1.454,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "dragon_dance_attacker:dragondance",
+      "species_id": "scrafty",
+      "move": "dragondance",
+      "max_pct": 1.061,
+      "ingame_pct": 0.0,
+      "showdown_pct": 1.061,
+      "max_source": "showdown",
+      "showdown_only_clear": true
+    },
+    {
+      "category": "iron_defense_body_press",
+      "species_id": "golurkmega",
+      "move": "bodypress+irondefense",
+      "max_pct": 0.218,
+      "ingame_pct": 0.0,
+      "showdown_pct": 0.218,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "bodypress",
+          "max_pct": 1.116,
+          "ingame_pct": 0.0,
+          "showdown_pct": 1.116,
+          "max_source": "showdown"
+        },
+        {
+          "move": "irondefense",
+          "max_pct": 0.218,
+          "ingame_pct": 0.0,
+          "showdown_pct": 0.218,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    },
+    {
+      "category": "iron_defense_body_press",
+      "species_id": "tyranitar",
+      "move": "bodypress+irondefense",
+      "max_pct": 0.11,
+      "ingame_pct": 0.0,
+      "showdown_pct": 0.11,
+      "max_source": "showdown",
+      "per_move": [
+        {
+          "move": "bodypress",
+          "max_pct": 0.437,
+          "ingame_pct": 0.0,
+          "showdown_pct": 0.437,
+          "max_source": "showdown"
+        },
+        {
+          "move": "irondefense",
+          "max_pct": 0.11,
+          "ingame_pct": 0.0,
+          "showdown_pct": 0.11,
+          "max_source": "showdown"
+        }
+      ],
+      "showdown_only_clear": true
+    }
+  ],
+  "summary": {
+    "categories_with_flips": 7,
+    "total_admit_events": 39,
+    "total_drop_events": 0
+  }
+}

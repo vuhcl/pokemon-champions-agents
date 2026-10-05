@@ -9,8 +9,12 @@ from recommender.support_needs import _OFFENSIVE_PRIORITY_MOVES, _SELF_HEAL_MOVE
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# 0.1 — policy constant (no data-derived hole on M-C published scale;
+#   2026-10-05; see scripts/eval/artifacts/_scratch_pct_convention_floors/FLOOR_REVIEW.md).
 _SETUP_PRESENCE_SET_PCT_FLOOR = 0.1
-# DD-only: real hole (0.390, 1.363]; 0.5% and 1.0% admit the same set (Sleep pattern).
+# 1.0 — policy constant (kept 2026-10-05). Only ≥1 gap in the DD distribution is
+# Dragapult 2.812 → Aerodactyl-Mega 1.454; the keep cluster sits *above* that cliff,
+# so ~1.4 is not “just below the keep edge.” See FLOOR_REVIEW.md.
 _DD_SETUP_PRESENCE_FLOOR = 1.0
 
 # Setup attacker membership / ranking (ADR-015 deferred-payoff).
