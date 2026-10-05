@@ -960,6 +960,7 @@ def test_existing_classification_boundaries_and_evidence_ranks_are_unchanged():
     assert _BASIS_RANK == {
         "synthesized": 0,
         "ownership_backed": 0,
+        "prior_showdown_standin": 1,
         "teammate_backed": 1,
         "mechanical_only": 2,
         "usage_backed": 3,

@@ -401,50 +401,102 @@ def _refine_defaults(
                 item_from_synth = True
     else:
         usage_missed = bool(need_moves or need_item or need_ability)
+
+    # Unique legal ability beats stand-in: legality_only is more accurate than
+    # prior_showdown_standin (medium) when the species has exactly one ability.
+    if need_ability and "ability" not in updates:
+        unique = _unique_legal_ability(species)
+        if unique:
+            updates["ability"] = Attr(
+                value=unique,
+                locked=False,
+                reason=ReasonRef(kind="tier2_heuristic", ref="legality_only"),
+            )
+
+    # B4: prior Showdown stand-in for gaps before writeup / tier-3.
+    standin_ref: str | None = None
+    standin_entry: dict[str, Any] | None = None
+    moves_from_standin = False
+    item_from_standin = False
+    if (
+        (need_ability and "ability" not in updates)
+        or (need_moves and moves is None)
+        or (need_item and item is None)
+    ):
+        from recommender.prior_standin import default_build_set
+
+        standin = default_build_set(species, regulation=regulation)
+        if standin:
+            standin_ref = standin.reason_ref
+            if not usage:
+                standin_entry = dict(standin.entry)
+            if need_ability and "ability" not in updates and standin.ability:
+                updates["ability"] = Attr(
+                    value=standin.ability,
+                    locked=False,
+                    reason=ReasonRef(kind="tier2_heuristic", ref=standin_ref),
+                )
+            if need_moves and moves is None and standin.moves:
+                moves = list(standin.moves)
+                moves_from_standin = True
+            if need_item and item is None and standin.item:
+                item = standin.item
+                item_from_standin = True
+            if need_nature and "nature" not in updates and standin.nature:
+                updates["nature"] = Attr(
+                    value=standin.nature,
+                    locked=False,
+                    reason=ReasonRef(kind="tier2_heuristic", ref=standin_ref),
+                )
+            if need_spread and spread is None and standin.evs and not usage:
+                spread = dict(standin.evs)
+                reason = ReasonRef(kind="tier2_heuristic", ref=standin_ref)
+
+    # Writeup / tier-3 for fields still empty after usage + stand-in.
+    # Do not flip usage_missed here: that flag means "no current usage set",
+    # not "any remaining field gap" (ability-only gaps must keep cache reasons).
+    if (
+        (need_ability and "ability" not in updates)
+        or (need_moves and moves is None)
+        or (need_item and item is None)
+    ):
         snap = load_snapshot()
         kit = get_writeup_kit(species, regulation)
         if kit:
             kit_reason = writeup_reason_ref(kit)
-        # 1. Ability: unique → role constraint → writeup kit → writeup ability
-        if need_ability:
-            unique = _unique_legal_ability(species)
-            if unique:
+        # 1. Ability: role constraint → writeup kit → writeup ability
+        # (unique-legal already applied above, before stand-in)
+        if need_ability and "ability" not in updates:
+            role_ability = _ability_for_target_role(species, slot.role.value)
+            if role_ability:
                 updates["ability"] = Attr(
-                    value=unique,
+                    value=role_ability,
                     locked=False,
-                    reason=ReasonRef(kind="tier2_heuristic", ref="legality_only"),
+                    reason=ReasonRef(
+                        kind="tier2_heuristic", ref="tier3_role_ability"
+                    ),
+                )
+            elif kit and kit.get("ability") and species_can_have_ability(
+                snap, species, kit["ability"]
+            ):
+                updates["ability"] = Attr(
+                    value=kit["ability"],
+                    locked=False,
+                    reason=ReasonRef(kind="tier2_heuristic", ref=kit_reason),
                 )
             else:
-                role_ability = _ability_for_target_role(species, slot.role.value)
-                if role_ability:
-                    updates["ability"] = Attr(
-                        value=role_ability,
-                        locked=False,
-                        reason=ReasonRef(
-                            kind="tier2_heuristic", ref="tier3_role_ability"
-                        ),
-                    )
-                elif kit and kit.get("ability") and species_can_have_ability(
-                    snap, species, kit["ability"]
+                hit = get_writeup_ability(species, regulation)
+                if hit and species_can_have_ability(
+                    snap, species, hit["ability"]
                 ):
                     updates["ability"] = Attr(
-                        value=kit["ability"],
+                        value=hit["ability"],
                         locked=False,
-                        reason=ReasonRef(kind="tier2_heuristic", ref=kit_reason),
+                        reason=ReasonRef(
+                            kind="tier2_heuristic",
+                            ref=writeup_reason_ref(hit),
+                        ),
                     )
-                else:
-                    hit = get_writeup_ability(species, regulation)
-                    if hit and species_can_have_ability(
-                        snap, species, hit["ability"]
-                    ):
-                        updates["ability"] = Attr(
-                            value=hit["ability"],
-                            locked=False,
-                            reason=ReasonRef(
-                                kind="tier2_heuristic",
-                                ref=writeup_reason_ref(hit),
-                            ),
-                        )
         # 2. Item: legal writeup kit item, else synthesize
         if need_item and item is None and kit and kit.get("item"):
             if is_item_legal(snap, kit["item"]):
@@ -479,20 +531,26 @@ def _refine_defaults(
         moves = _bias_choice_moveset(moves, species=species, regulation=regulation)
 
     if need_moves and moves and (usage_missed or not usage):
-        if usage_missed:
-            move_ref = kit_reason if writeup_moves and kit_reason else "move_narrowing"
+        if usage_missed or moves_from_standin:
+            if moves_from_standin and standin_ref:
+                move_ref = standin_ref
+            elif writeup_moves and kit_reason:
+                move_ref = kit_reason
+            else:
+                move_ref = "move_narrowing"
             updates["moveset"] = Attr(
                 value=moves,
                 locked=False,
                 reason=ReasonRef(kind="tier2_heuristic", ref=move_ref),
             )
 
-    if need_item and item and usage_missed:
-        item_ref = (
-            kit_reason
-            if writeup_item and kit_reason
-            else "tier3_item_default"
-        )
+    if need_item and item and (usage_missed or item_from_standin):
+        if item_from_standin and standin_ref:
+            item_ref = standin_ref
+        elif writeup_item and kit_reason:
+            item_ref = kit_reason
+        else:
+            item_ref = "tier3_item_default"
         updates["item"] = Attr(
             value=item,
             locked=False,
@@ -541,6 +599,7 @@ def _refine_defaults(
                     moves,
                     regulation=regulation,
                     threats=get_relevant_threats(state, n=SLOT_THREAT_N),
+                    entry=standin_entry,
                 )
                 if choice:
                     spread = dict(choice.spread)
@@ -576,6 +635,7 @@ def _refine_defaults(
                         moves,
                         regulation=regulation,
                         threats=get_relevant_threats(state, n=SLOT_THREAT_N),
+                        entry=standin_entry,
                     )
                     if choice:
                         spread = dict(choice.spread)
@@ -594,11 +654,13 @@ def _refine_defaults(
                             kind="tier2_heuristic", ref="tier3_role"
                         )
 
-        if need_moves and not usage_missed:
+        if need_moves and not usage_missed and "moveset" not in updates:
             updates["moveset"] = Attr(value=moves, locked=False, reason=reason)
-        if need_item and not usage_missed and item is not None:
+        if need_item and not usage_missed and item is not None and "item" not in updates:
             if item_from_synth:
                 item_reason = ReasonRef(kind="tier2_heuristic", ref="tier3_item_default")
+            elif item_from_standin and standin_ref:
+                item_reason = ReasonRef(kind="tier2_heuristic", ref=standin_ref)
             else:
                 item_reason = ReasonRef(kind="tier2_heuristic", ref="usage")
             updates["item"] = Attr(value=item, locked=False, reason=item_reason)

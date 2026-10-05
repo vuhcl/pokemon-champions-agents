@@ -400,6 +400,7 @@ def recommend_build(
     primary = matches[0] if matches else None
     built: PokemonSet | None = dict(primary["set"]) if primary else None
     match_alternatives: tuple[SetMatchEntry, ...] = ()
+    standin_entry: dict[str, Any] | None = None
     if primary and primary["source"] == "featured":
         # Synthetic featured row attaches species-level marginal spreads — strip.
         assert built is not None
@@ -431,10 +432,24 @@ def recommend_build(
                 abs_ = entry.get("common_abilities") or []
                 if abs_:
                     ability = abs_[0]["name"]
+            if ability is None:
+                from recommender.prior_standin import default_build_set
+
+                standin = default_build_set(species, regulation=regulation)
+                if standin:
+                    if standin.ability:
+                        ability = standin.ability
+                    if not entry:
+                        standin_entry = dict(standin.entry)
             built = {"species": species, "moves": moves, "item": item}
             if ability:
                 built["ability"] = ability
             rationale = "assembled from user moves/item (no exact featured match)"
+            if standin_entry and not entry:
+                rationale = (
+                    f"{rationale}; prior_showdown_standin:"
+                    f"{standin_entry.get('prior_regulation')}"
+                )
             source = "champions-native"
 
     assert built is not None
@@ -490,6 +505,7 @@ def recommend_build(
     if used >= SP_BUDGET:
         source_tier_out = source
     elif not evs or used == 0:
+        spread_entry = standin_entry
         choice = select_usage_spread(
             species,
             role,
@@ -497,6 +513,7 @@ def recommend_build(
             regulation=regulation,
             threats=opponents,
             snap=snap,
+            entry=spread_entry,
         )
         if choice:
             built["evs"] = choice.spread

@@ -78,24 +78,31 @@ def _showdown_section(snap: dict[str, Any]) -> dict[str, Any]:
 
 
 def _load_usage_uncached(regulation: str, *, usage_dir: Path) -> dict[str, Any]:
-    for tag in regulation_lookup_chain(regulation):
-        ingame_p = usage_dir / f"{tag}.ingame_doubles.v1.json"
-        showdown_p = usage_dir / f"{tag}.showdown_doubles.v1.json"
-        mono_p = usage_dir / f"{tag}.v1.json"
-        if ingame_p.exists() or showdown_p.exists():
-            ingame_file = (
-                json.loads(ingame_p.read_text(encoding="utf-8"))
-                if ingame_p.exists()
-                else None
-            )
-            showdown_file = (
-                json.loads(showdown_p.read_text(encoding="utf-8"))
-                if showdown_p.exists()
-                else None
-            )
-            return assemble_from_split(ingame_file, showdown_file)
-        if mono_p.exists():
-            return normalize_monolith(json.loads(mono_p.read_text(encoding="utf-8")))
+    """Load usage for the requested file tag only — no older-tag walk.
+
+    Archive fallthrough for pastes/writeups stays on ``_archived_data_path`` /
+    ``resolved_builds``. Silent whole-file aliasing of a prior Showdown snapshot
+    as "current" is forbidden (B4); missing tag → empty usage so callers use the
+    labeled prior-showdown stand-in helper instead.
+    """
+    tag = regulation_file_tag(regulation)
+    ingame_p = usage_dir / f"{tag}.ingame_doubles.v1.json"
+    showdown_p = usage_dir / f"{tag}.showdown_doubles.v1.json"
+    mono_p = usage_dir / f"{tag}.v1.json"
+    if ingame_p.exists() or showdown_p.exists():
+        ingame_file = (
+            json.loads(ingame_p.read_text(encoding="utf-8"))
+            if ingame_p.exists()
+            else None
+        )
+        showdown_file = (
+            json.loads(showdown_p.read_text(encoding="utf-8"))
+            if showdown_p.exists()
+            else None
+        )
+        return assemble_from_split(ingame_file, showdown_file)
+    if mono_p.exists():
+        return normalize_monolith(json.loads(mono_p.read_text(encoding="utf-8")))
     return _empty_usage()
 
 

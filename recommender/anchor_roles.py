@@ -38,6 +38,7 @@ FieldSource = Literal[
     "legality_only",
     "champions_native_writeup",
     "analogous_format_writeup",
+    "prior_showdown_standin",
     "unknown",
 ]
 _AUTHORITATIVE_ABILITY_SOURCES = frozenset(
@@ -47,6 +48,7 @@ _AUTHORITATIVE_ABILITY_SOURCES = frozenset(
         "legality_only",
         "champions_native_writeup",
         "analogous_format_writeup",
+        "prior_showdown_standin",
     }
 )
 MechanismImportance = Literal["needed", "wanted", "secondary"]
@@ -210,6 +212,9 @@ def _ability_mechanism_confidence(
     """Confidence for ability-derived mechanisms, or None to omit the mechanism."""
     if source not in _AUTHORITATIVE_ABILITY_SOURCES:
         return None
+    # Stand-in abilities are authoritative for present=True but never high.
+    if source == "prior_showdown_standin":
+        return "medium"
     return "high" if source == "user_confirmed" else "medium"
 
 
@@ -226,6 +231,8 @@ def _ability_source_from_slot_attr(attr: Attr[Any]) -> FieldSource:
         return "synthesized"
     if isinstance(ref, str):
         tier = ref.split(":", 1)[0]
+        if tier == "prior_showdown_standin":
+            return "prior_showdown_standin"
         if tier == "champions_native_writeup":
             return "champions_native_writeup"
         if tier == "analogous_format_writeup":
@@ -435,17 +442,57 @@ def resolve_anchor_build(
             values["item"] = representative["item"]
             provenance["item"] = FieldProvenance("item", "usage_derived")
 
-    for raw_field, value in (synthesized or {}).items():
-        field = aliases.get(raw_field, raw_field)
-        if field in values and values[field] is None and value is not None:
-            values[field] = value
-            provenance[field] = FieldProvenance(field, "synthesized")
-
+    # Unique legal ability beats stand-in (same order as propose).
     if species and values["ability"] is None:
         ability = _unique_legal_ability(species)
         if ability:
             values["ability"] = ability
             provenance["ability"] = FieldProvenance("ability", "legality_only")
+
+    # B4: field-level prior Showdown stand-in for remaining gaps (matches propose).
+    # Partial current representative still gets stand-in ability/moves/item/etc.
+    if species and (
+        values["ability"] is None
+        or not values["moves"]
+        or values["item"] is None
+        or values["nature"] is None
+        or values["evs"] is None
+    ):
+        from recommender.prior_standin import default_build_set
+
+        standin = default_build_set(species, regulation=regulation)
+        if standin:
+            if values["ability"] is None and standin.ability:
+                values["ability"] = standin.ability
+                provenance["ability"] = FieldProvenance(
+                    "ability", "prior_showdown_standin"
+                )
+            if not values["moves"] and standin.moves:
+                values["moves"] = list(standin.moves)
+                provenance["moves"] = FieldProvenance(
+                    "moves", "prior_showdown_standin"
+                )
+            if values["item"] is None and standin.item:
+                values["item"] = standin.item
+                provenance["item"] = FieldProvenance(
+                    "item", "prior_showdown_standin"
+                )
+            if values["nature"] is None and standin.nature:
+                values["nature"] = standin.nature
+                provenance["nature"] = FieldProvenance(
+                    "nature", "prior_showdown_standin"
+                )
+            if values["evs"] is None and standin.evs:
+                values["evs"] = dict(standin.evs)
+                provenance["evs"] = FieldProvenance(
+                    "evs", "prior_showdown_standin"
+                )
+
+    for raw_field, value in (synthesized or {}).items():
+        field = aliases.get(raw_field, raw_field)
+        if field in values and values[field] is None and value is not None:
+            values[field] = value
+            provenance[field] = FieldProvenance(field, "synthesized")
 
     if species and (
         not values["moves"]

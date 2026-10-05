@@ -296,6 +296,7 @@ CandidateEvidenceBasis = Literal[
     "synthesized",
     "teammate_backed",
     "ownership_backed",
+    "prior_showdown_standin",
 ]
 CandidateConfidence = Literal["high", "medium", "low"]
 CandidateBranch = Literal["threat", "need", "teammate"]

@@ -92,6 +92,8 @@ def _offline_row_provenance(
     if row.get("pct_kind") == "chaos_weight":
         return "showdown-offline", "chaos_weight"
     entry_source = str(entry.get("source") or "")
+    if entry_source == "prior_showdown_standin":
+        return "prior-showdown-standin", "chaos_weight"
     if entry_source == "munchstats-champions-data":
         return "cbd-offline", "percentage"
     if entry_source == "smogon-chaos":
