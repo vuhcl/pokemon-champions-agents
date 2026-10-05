@@ -15,8 +15,9 @@ export function extractLearnsets(
   for (const [id, raw] of Object.entries(learnsetsTable)) {
     const entry = asRecord(raw, `learnsets.${id}`);
     const learnset = entry.learnset;
+    // Omit when Showdown has no learnset object (same as megas missing a row):
+    // an empty [] key would block resolve_learnset's base_species_id walk.
     if (learnset === undefined) {
-      out[id] = [];
       continue;
     }
     const ls = asRecord(learnset, `learnsets.${id}.learnset`);

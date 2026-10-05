@@ -521,16 +521,31 @@ class _UsageCtx:
 
     def entry_for(self, species: str) -> dict[str, Any] | None:
         """Forme-aware offline row, else CBD live fetch; optional Mega→Showdown."""
-        sid = to_id(species)
-        offline = _offline_usage_row(sid, regulation=self.regulation)
+        from recommender.forme_identity import canonical_usage_species_id
+        from recommender.legality import load_snapshot
+
+        snap = load_snapshot()
+        query_sid = to_id(species)
+        sid = canonical_usage_species_id(
+            snap, query_sid, regulation=self.regulation
+        )
+        offline = _offline_usage_row(
+            sid, regulation=self.regulation, snap=snap, query_sid=query_sid
+        )
         if offline is not None:
             return offline
         if self.live_fetch is not None:
             if sid not in self.cache:
-                self.cache[sid] = self.live_fetch(species)
+                # Fetch under canonical name when collapsed.
+                fetch_name = (
+                    species
+                    if sid == query_sid
+                    else str((snap["species"].get(sid) or {}).get("name") or sid)
+                )
+                self.cache[sid] = self.live_fetch(fetch_name)
             live = self.cache[sid]
             if live is not None:
-                return live
+                return _stamp_usage_collapse(live, query_sid=query_sid, canon=sid)
         if (
             self.mega_showdown_fallback
             and self.showdown_fetch is not None
@@ -538,7 +553,8 @@ class _UsageCtx:
         ):
             if sid not in self.sd_cache:
                 self.sd_cache[sid] = self.showdown_fetch(species)
-            return self.sd_cache[sid]
+            sd = self.sd_cache[sid]
+            return _stamp_usage_collapse(sd, query_sid=query_sid, canon=sid) if sd else None
         return None
 
     def delivers(self, species: str, move_id: str) -> bool:
@@ -551,38 +567,84 @@ class _UsageCtx:
         Showdown per-move when this row lacks the move. Shares entry_for's
         live-fetch cache.
         """
-        sid = to_id(species)
+        from recommender.forme_identity import canonical_usage_species_id
+        from recommender.legality import load_snapshot
+
+        snap = load_snapshot()
+        query_sid = to_id(species)
+        sid = canonical_usage_species_id(
+            snap, query_sid, regulation=self.regulation
+        )
         if sid in ingame_excluded_ids():
             return None
         row = ingame_species_map(self.regulation).get(sid)
         if isinstance(row, dict):
-            return row
+            return _stamp_usage_collapse(row, query_sid=query_sid, canon=sid)
         if self.live_fetch is None:
             return None
         if sid not in self.cache:
-            self.cache[sid] = self.live_fetch(species)
-        return self.cache[sid]
+            fetch_name = (
+                species
+                if sid == query_sid
+                else str((snap["species"].get(sid) or {}).get("name") or sid)
+            )
+            self.cache[sid] = self.live_fetch(fetch_name)
+        live = self.cache[sid]
+        return _stamp_usage_collapse(live, query_sid=query_sid, canon=sid) if live else None
 
 
 def _species_id_is_mega(sid: str) -> bool:
     return sid.endswith("mega") or sid.endswith("megax") or sid.endswith("megay")
 
 
-def _offline_usage_row(
-    sid: str, *, regulation: str = "champions"
+def _stamp_usage_collapse(
+    entry: dict[str, Any] | None,
+    *,
+    query_sid: str,
+    canon: str,
 ) -> dict[str, Any] | None:
-    """Any usage map entry whose key == sid or startswith(sid)."""
+    if entry is None or query_sid == canon:
+        return entry
+    out = dict(entry)
+    out["forme_usage_collapsed_from"] = query_sid
+    out["forme_usage_canonical_id"] = canon
+    return out
+
+
+def _offline_usage_row(
+    sid: str,
+    *,
+    regulation: str = "champions",
+    snap: dict[str, Any] | None = None,
+    query_sid: str | None = None,
+) -> dict[str, Any] | None:
+    """Any usage map entry whose key == sid or startswith(sid).
+
+    When ``snap`` is provided, cosmetic / battle_transform ids canonicalize to base
+    before lookup. ``query_sid`` is the pre-canonical id for provenance stamping.
+    """
+    from recommender.forme_identity import canonical_usage_species_id
+    from recommender.legality import load_snapshot
+
+    snap = snap or load_snapshot()
+    original = to_id(query_sid or sid)
+    sid = canonical_usage_species_id(snap, original, regulation=regulation)
     usage = load_usage(regulation)
     maps: list[dict[str, Any]] = [usage.get("species") or {}]
     maps.append(ingame_species_map(regulation))
     maps.append(showdown_species_map(regulation))
+    found: dict[str, Any] | None = None
     for smap in maps:
         if sid in smap and isinstance(smap[sid], dict):
-            return smap[sid]
+            found = smap[sid]
+            break
         for key, ent in smap.items():
             if isinstance(key, str) and key.startswith(sid) and isinstance(ent, dict):
-                return ent
-    return None
+                found = ent
+                break
+        if found is not None:
+            break
+    return _stamp_usage_collapse(found, query_sid=original, canon=sid)
 
 
 def _entry_has_move(entry: dict[str, Any] | None, move_id: str) -> bool:
@@ -647,7 +709,15 @@ def _base_stats(snap: dict[str, Any], sid: str) -> dict[str, int]:
     return {k: int(v) for k, v in raw.items()} if isinstance(raw, dict) else {}
 
 
-def _pool_index(legal_pool: list[str], snap: dict[str, Any]) -> dict[str, str]:
+def _pool_index(
+    legal_pool: list[str],
+    snap: dict[str, Any],
+    *,
+    regulation: str,
+) -> dict[str, str]:
+    """Legal pool index; collapses cosmetic / battle_transform when base is legal."""
+    from recommender.forme_identity import should_skip_pool_member
+
     allowed = {to_id(s) for s in legal_pool}
     out: dict[str, str] = {}
     for sid in allowed:
@@ -656,6 +726,10 @@ def _pool_index(legal_pool: list[str], snap: dict[str, Any]) -> dict[str, str]:
             out[sid] = next((s for s in legal_pool if to_id(s) == sid), sid)
             continue
         if not is_species_legal(snap, sid):
+            continue
+        if should_skip_pool_member(
+            snap, sid, regulation=regulation, pool_ids=allowed
+        ):
             continue
         out[sid] = str(entry.get("name") or sid)
     return out

@@ -2222,7 +2222,7 @@ def _construct_setup_attacker(
     if exclusive != move_id:
         raise ValueError(f"criteria move_id {move_id} != exclusive {exclusive}")
 
-    pool = _pool_index(legal_pool, snap)
+    pool = _pool_index(legal_pool, snap, regulation=uctx.regulation)
     prior = _ref_members(reference_compendium)
     members: list[CandidateEval] = []
     rejected: list[RejectedCandidate] = []
@@ -2655,7 +2655,7 @@ def _construct_offense_stage_setup(
         raise ValueError(f"criteria move_id {move_id} != exact boost {exclusive}")
 
     kind = str(sub_criteria.get("kind") or "")
-    pool = _pool_index(legal_pool, snap)
+    pool = _pool_index(legal_pool, snap, regulation=uctx.regulation)
     prior = _ref_members(reference_compendium)
     members: list[CandidateEval] = []
     rejected: list[RejectedCandidate] = []
@@ -3008,7 +3008,7 @@ def _construct_def_payoff_setup(
     payoff_id = to_id(sub_criteria["payoff_move_id"])
     boost_stat = str(sub_criteria.get("boost_stat") or "def")
     stages = int(sub_criteria.get("boost_stages") or 2)
-    pool = _pool_index(legal_pool, snap)
+    pool = _pool_index(legal_pool, snap, regulation=uctx.regulation)
     prior = _ref_members(reference_compendium)
     members: list[CandidateEval] = []
     rejected: list[RejectedCandidate] = []

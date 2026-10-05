@@ -51,7 +51,7 @@ def _construct_weather_setter(
     ability_ids_good = frozenset(
         to_id(a) for a in (sub_criteria.get("ability_ids_good") or ())
     )
-    pool = _pool_index(legal_pool, snap)
+    pool = _pool_index(legal_pool, snap, regulation=uctx.regulation)
     pool_ids = set(pool)
     prior = _ref_members(reference_compendium)
     members: list[CandidateEval] = []

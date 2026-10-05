@@ -56,14 +56,18 @@ def _species_entry(snap: dict[str, Any], species: str) -> dict[str, Any] | None:
 
 
 def resolve_learnset(snap: dict[str, Any], species: str) -> list[str] | None:
-    """Species learnset, walking base_species_id for megas."""
+    """Species learnset, walking base_species_id for megas / empty-key formes."""
     learnsets: dict[str, list[str]] = snap.get("learnsets") or {}
     sid = to_id(species)
     seen: set[str] = set()
     while sid and sid not in seen:
         seen.add(sid)
         if sid in learnsets:
-            return learnsets[sid]
+            moves = learnsets[sid]
+            # Present empty list is not authoritative — same as a missing key
+            # (extract used to write [] when Showdown learnset was undefined).
+            if moves:
+                return moves
         entry = snap["species"].get(sid)
         if not entry:
             break
