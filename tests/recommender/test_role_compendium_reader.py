@@ -107,7 +107,7 @@ def test_reverse_reader_separates_exact_species_and_rejected():
 def test_reverse_exact_matches_prefer_higher_tier_over_alphabetical_file():
     from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
 
-    build = resolve_anchor_build("Pelipper")
+    build = resolve_anchor_build("Pelipper", regulation="champions")
     evidence = reverse_compendium_evidence(
         build.species or "", moves=build.moves, ability=build.ability
     )

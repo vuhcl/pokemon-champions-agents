@@ -128,6 +128,7 @@ def run_support_preference_pipeline(state: dict[str, Any]):
         ownership_mode="off",
         excluded_species=excluded,
         locked_contexts=contexts,
+        regulation="champions",
     )
     assert threat_discovery.status == "available", threat_discovery.error
     merged = merge_multi_locked_candidates(
@@ -160,6 +161,7 @@ def run_support_preference_pipeline(state: dict[str, Any]):
         condition_resilience=resilience,
         locked_contexts=contexts,
         team_completion_preference="support",
+        regulation="champions",
     )
     presentation = present_candidates(ctx, slot_index=3)
     return {
@@ -285,6 +287,7 @@ def test_support_preference_banned_tr_profile_blocks_reject_cycle():
             locked_contexts=tuple(result["contexts"]),
             team_completion_preference="support",
             banned_profiles=frozenset({frozenset({"trick_room"})}),
+                regulation="champions",
         ),
         slot_index=3,
     )

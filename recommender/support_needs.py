@@ -524,7 +524,7 @@ def query_support_needs(
     *,
     team_draft: list[Slot] | None = None,
     state: RecommenderState | None = None,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
 ) -> list[SupportNeed]:
     """Named support-need categories for an anchor; no ranking or candidate search."""
     species = pokemon.get("species") or ""

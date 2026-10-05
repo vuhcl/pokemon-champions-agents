@@ -42,8 +42,6 @@ KO_THRESHOLD_BP = 200
 # wall-only admit at n=20 is via usage-primary within-tier key, not this slack.
 QUERY_COUNTERS_SLACK = 1.5
 
-DEFAULT_REGULATION = "champions-reg-mb"
-
 # Assumption A — fainted-teammate scaling (Supreme Overlord, Last Respects only).
 # Average of the nonzero states {1,2,3} (=2), not {0,1,2,3} (=1.5): a rational
 # player uses these specifically once the boost is worth using.
@@ -700,6 +698,7 @@ def query_counters(
     n: int = 20,
     candidate_pool: list[PokemonSpecOptional] | None = None,
     *,
+    regulation: str,
     available_pool: list[str] | None = None,
     ownership_mode: OwnershipMode = "off",
 ) -> list[ThreatCandidate]:
@@ -733,9 +732,9 @@ def query_counters(
         allowed = owned if allowed is None else allowed & owned
 
     attack_types = _anchor_attack_types(snap, pokemon, anchor_types)
-    ig = ingame_species_map(DEFAULT_REGULATION)
-    ladder = ingame_ladder_species_map(DEFAULT_REGULATION)
-    sd = showdown_species_map(DEFAULT_REGULATION)
+    ig = ingame_species_map(regulation)
+    ladder = ingame_ladder_species_map(regulation)
+    sd = showdown_species_map(regulation)
     mega_forms_by_base = _mega_forms_by_base(snap)
     mega_capable = mega_capable_base_ids(snap)
     # Precompute dominant mega forms once, before the main loop -- avoids
@@ -799,7 +798,7 @@ def query_counters(
         if not cand_types:
             continue
 
-        usage_set = featured_or_common_set(eval_sid, regulation=DEFAULT_REGULATION)
+        usage_set = featured_or_common_set(eval_sid, regulation=regulation)
         ability = None
         if usage_set and usage_set.get("ability"):
             ability = str(usage_set["ability"])

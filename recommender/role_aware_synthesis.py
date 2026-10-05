@@ -190,7 +190,7 @@ def select_role_aware_build_fields(
     role_id: str | None,
     entry: dict[str, Any],
     *,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
     usage: PokemonSet | None = None,
     item: str | None = None,
     state: RecommenderState | None = None,

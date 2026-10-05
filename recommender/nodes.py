@@ -1771,6 +1771,7 @@ def discover_multi_locked(
     }
     threat_discovery = query_candidates_for_threats(
         objective,
+        regulation=state.get("regulation_mod") or "champions",
         available_pool=sorted(owned),
         ownership_mode=ownership_mode,
         excluded_species=excluded,
@@ -1832,7 +1833,7 @@ def discover_multi_locked(
             objective=objective,
             ownership_mode=ownership_mode,
             owned_species=owned,
-            regulation=state.get("regulation_mod") or "champions-reg-mb",
+            regulation=state.get("regulation_mod") or "champions",
         )
         prompt_choices = choices or (
             ("attacker", "support", "balanced") if force_prompt else ()

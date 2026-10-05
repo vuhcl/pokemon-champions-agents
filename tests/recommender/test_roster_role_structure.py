@@ -22,7 +22,7 @@ def _context(
     *,
     user_role: str | None = None,
 ) -> LockedAnchorContext:
-    build = resolve_anchor_build(slot)
+    build = resolve_anchor_build(slot, regulation="champions")
     decision = classify_anchor_role(build, user_role=user_role)
     species = build.species or "unknown"
     return LockedAnchorContext(

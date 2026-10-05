@@ -46,7 +46,6 @@ _SEVERITY_POINTS: dict[str, float] = {
     "toss-up": 0.25,
 }
 
-_DEFAULT_REGULATION = "champions-reg-mb"
 
 
 @dataclass
@@ -118,7 +117,7 @@ def _set_to_spec(s: dict[str, Any], species: str) -> PokemonSpecOptional:
 
 
 def _most_common_verify_spec(
-    species: str, *, regulation: str = _DEFAULT_REGULATION
+    species: str, *, regulation: str
 ) -> PokemonSpecOptional:
     """Single most-common build for classify_matchup (ADR-023a gap 6).
 
@@ -142,6 +141,7 @@ def _most_common_verify_spec(
 def _collect_candidates(
     threats: Sequence[ThreatCandidate],
     *,
+    regulation: str,
     candidate_pool: list[PokemonSpecOptional] | None,
     available_pool: list[str] | None,
     ownership_mode: OwnershipMode,
@@ -155,7 +155,7 @@ def _collect_candidates(
         if not tid:
             continue
         threats_by_id.setdefault(tid, threat)
-        kwargs: dict[str, Any] = {}
+        kwargs: dict[str, Any] = {"regulation": regulation}
         if candidate_pool is not None:
             kwargs["candidate_pool"] = candidate_pool
         if ownership_mode != "off":
@@ -210,6 +210,7 @@ def _static_threat_rows(static: list[_Merged]) -> tuple[ThreatCounterCandidate, 
 def query_threat_counters(
     anchor: PokemonSpecOptional,
     *,
+    regulation: str,
     n: int = 10,
     verify_threats_n: int = 5,
     client: CalcClient | None = None,
@@ -236,13 +237,14 @@ def query_threat_counters(
         return TeamThreatDiscovery(status="available", candidates=())
 
     # --- 1. Full threat list (query_counters default n) — never pass candidate_pool ---
-    threats = query_counters(anchor)
+    threats = query_counters(anchor, regulation=regulation)
     if not threats:
         return TeamThreatDiscovery(status="available", candidates=())
 
     # --- 2–3. Depth-one expand + merge (pool restricts candidates only) ---
     merged, threats_by_id = _collect_candidates(
         threats,
+        regulation=regulation,
         candidate_pool=candidate_pool,
         available_pool=available_pool,
         ownership_mode=ownership_mode,
@@ -284,7 +286,9 @@ def query_threat_counters(
                 or m.candidate.form
                 or m.candidate.ladder_species
             )
-            cand_spec = _most_common_verify_spec(cand_species)
+            cand_spec = _most_common_verify_spec(
+                cand_species, regulation=regulation
+            )
             for tid in sorted(m.threat_ids):
                 if tid not in verify_ids:
                     continue
@@ -294,7 +298,9 @@ def query_threat_counters(
                 threat_species = (
                     threat.spec.get("species") or threat.form or threat.ladder_species
                 )
-                threat_spec = _most_common_verify_spec(threat_species)
+                threat_spec = _most_common_verify_spec(
+                    threat_species, regulation=regulation
+                )
                 result = _best_matchup_with_forced_fields(
                     cand_spec, threat_spec, forced_fields, client=client
                 )
@@ -404,6 +410,7 @@ def _best_matchup_with_forced_fields(
 def query_candidates_for_threats(
     objective: Sequence[TeamThreatObjectiveRow],
     *,
+    regulation: str,
     n: int = 20,
     client: CalcClient | None = None,
     candidate_pool: list[PokemonSpecOptional] | None = None,
@@ -420,6 +427,7 @@ def query_candidates_for_threats(
     threats = tuple(row.threat for row in objective)
     merged, threats_by_id = _collect_candidates(
         threats,
+        regulation=regulation,
         candidate_pool=candidate_pool,
         available_pool=available_pool,
         ownership_mode=ownership_mode,
@@ -448,7 +456,9 @@ def query_candidates_for_threats(
                 or merged_row.candidate.form
                 or merged_row.candidate.ladder_species
             )
-            candidate_spec = _most_common_verify_spec(species)
+            candidate_spec = _most_common_verify_spec(
+                species, regulation=regulation
+            )
             verified: list[tuple[str, MatchupResult]] = []
             for threat_id in objective_ids:
                 threat = threats_by_id[threat_id]
@@ -462,7 +472,9 @@ def query_candidates_for_threats(
                         threat_id,
                         _best_matchup_with_forced_fields(
                             candidate_spec,
-                            _most_common_verify_spec(threat_species),
+                            _most_common_verify_spec(
+                                threat_species, regulation=regulation
+                            ),
                             forced_fields,
                             client=client,
                         ),

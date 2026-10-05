@@ -32,15 +32,21 @@ def _munch_items(detail: dict[str, Any]) -> list[dict[str, Any]]:
     )
 
 
-def fetch_showdown_vgc_species(display_name: str) -> dict[str, Any] | None:
-    """Offline showdown_vgc_mb exact id, else MunchStats live. None on miss/error."""
+def fetch_showdown_vgc_species(
+    display_name: str, *, regulation: str
+) -> dict[str, Any] | None:
+    """Offline showdown_doubles exact id, else MunchStats live. None on miss/error."""
     if not display_name or not str(display_name).strip():
         return None
     sid = to_id(display_name)
-    offline = showdown_species_map().get(sid)
+    offline = showdown_species_map(regulation).get(sid)
     if isinstance(offline, dict):
         return offline
-    params = showdown_source_params()
+    try:
+        params = showdown_source_params(regulation)
+    except ValueError:
+        # B4: regulation with no Showdown graft yet — no live probe.
+        return None
     base = (
         "https://raw.githubusercontent.com/PizzaTimeJoshua/munchstats/main/"
         f"stats/{params['month']}/{params['format_id']}/{params['rating']}"

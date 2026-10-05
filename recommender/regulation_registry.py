@@ -220,23 +220,16 @@ def active_regulation(
     ).tag
 
 
-def iter_regulation_literal_hits(
-    roots: Iterable[Path] | None = None,
-) -> list[tuple[str, int, str]]:
-    """AST scan for regulation-ish string literals. Returns (path, lineno, value)."""
-    import ast
+_TAG_LITERAL = re.compile(
+    r"^(?:champions-reg-m[a-z0-9-]*|championsregm[a-z0-9]*|"
+    r"gen9championsvgc2026regm[a-z0-9]*|showdown_vgc_mb|VGC_M[A-Z])$",
+    re.I,
+)
+_REG_M_LITERAL = re.compile(r"Reg M-[A-Z]|\[Gen 9 Champions\].*Reg M-")
+_PRODUCT_MOD_LITERAL = re.compile(r"^champions$")
 
-    patterns = (
-        re.compile(r"^champions-reg-m[a-z0-9-]*$", re.I),
-        re.compile(r"^championsregm[a-z0-9]*$", re.I),
-        re.compile(r"^gen9championsvgc2026regm[a-z0-9]*$", re.I),
-        re.compile(r"^showdown_vgc_mb$"),
-        re.compile(r"^VGC_M[A-Z]$"),
-        re.compile(r"Reg M-[A-Z]"),
-        re.compile(r"^champions$"),
-        re.compile(r"\[Gen 9 Champions\].*Reg M-"),
-    )
-    skip_parts = {
+_AST_SKIP_PARTS = frozenset(
+    {
         "artifacts",
         "_scratch",
         ".cache",
@@ -245,34 +238,252 @@ def iter_regulation_literal_hits(
         "venv",
         "__pycache__",
     }
-    default_roots = [
-        ROOT / "recommender",
-        ROOT / "scripts" / "ci",
-        ROOT / "scripts" / "extract_usage",
-        ROOT / "scripts" / "eval",
-        ROOT / "tests" / "ci",
-        ROOT / "tests" / "recommender",
-    ]
-    hits: list[tuple[str, int, str]] = []
-    for root in roots or default_roots:
+)
+_DEFAULT_AST_ROOTS = (
+    ROOT / "recommender",
+    ROOT / "scripts" / "ci",
+    ROOT / "scripts" / "extract_usage",
+    ROOT / "scripts" / "eval",
+    ROOT / "tests" / "ci",
+    ROOT / "tests" / "recommender",
+)
+
+# Core loaders/query helpers: regulation must be required (no default).
+REQUIRED_REGULATION_FUNCTIONS: frozenset[tuple[str, str]] = frozenset(
+    {
+        ("recommender/usage_data.py", "load_usage"),
+        ("recommender/usage_data.py", "species_usage"),
+        ("recommender/usage_data.py", "build_synthesis_usage_entry"),
+        ("recommender/usage_data.py", "ingame_ladder_species_map"),
+        ("recommender/usage_data.py", "ingame_species_map"),
+        ("recommender/usage_data.py", "showdown_species_map"),
+        ("recommender/usage_data.py", "featured_or_common_set"),
+        ("recommender/usage_data.py", "set_from_showdown"),
+        ("recommender/usage_data.py", "set_from_ingame"),
+        ("recommender/usage_data.py", "load_vgcpastes_builds"),
+        ("recommender/usage_chaos.py", "showdown_source_params"),
+        ("recommender/by_usage.py", "query_by_usage"),
+        ("recommender/counters.py", "query_counters"),
+        ("recommender/threat_counters.py", "query_threat_counters"),
+        ("recommender/threat_counters.py", "query_candidates_for_threats"),
+        ("recommender/slot_fill.py", "_candidate_satisfies_need"),
+        ("recommender/slot_fill.py", "_matching_needs_for"),
+        ("recommender/move_narrowing.py", "pick_default_and_alternatives"),
+    }
+)
+
+# Product-mod param default ``regulation: str = "champions"`` only — by file:function.
+CHAMPIONS_MOD_DEFAULT_ALLOWLIST: frozenset[tuple[str, str]] = frozenset(
+    {
+        ("recommender/coverage.py", "_slot_to_spec"),
+        ("recommender/coverage.py", "compute_team_coverage"),
+        ("recommender/coverage.py", "detect_spof"),
+        ("recommender/coverage.py", "subset_gap_counts"),
+        ("recommender/coverage.py", "best_achievable_gap_counts"),
+        ("recommender/coverage.py", "candidate_improves_best_bring"),
+        ("recommender/teammates.py", "query_teammates"),
+        ("recommender/teammates.py", "query_shared_teammates"),
+        ("recommender/quick_pick.py", "quick_pick"),
+        ("recommender/usage_spreads.py", "fetch_live_spreads"),
+        ("recommender/usage_spreads.py", "select_usage_spread"),
+        ("recommender/usage_live.py", "fetch_live_showdown_detail"),
+        ("recommender/recommend.py", "select_opponent_builds"),
+        ("recommender/recommend.py", "recommend_build"),
+        ("recommender/role_compendium.py", "_UsageCtx"),
+        ("recommender/role_compendium.py", "_offline_usage_row"),
+        ("recommender/role_compendium.py", "construct_role_category"),
+        ("recommender/role_compendium.py", "rebuild_role_category"),
+        ("recommender/role_compendium_usage.py", "_showdown_entry"),
+        ("recommender/role_compendium_setup.py", "_setup_threat_defenders"),
+    }
+)
+
+
+def _iter_py_files(roots: Iterable[Path] | None) -> Iterable[Path]:
+    for root in roots or _DEFAULT_AST_ROOTS:
         if not root.exists():
             continue
         for path in root.rglob("*.py"):
-            if any(part in skip_parts for part in path.parts):
+            if any(part in _AST_SKIP_PARTS for part in path.parts):
                 continue
-            try:
-                src = path.read_text(encoding="utf-8")
-            except OSError:
+            yield path
+
+
+def iter_regulation_literal_hits(
+    roots: Iterable[Path] | None = None,
+) -> list[tuple[str, int, str]]:
+    """AST scan for regulation-ish string literals. Returns (path, lineno, value)."""
+    import ast
+
+    patterns = (
+        _TAG_LITERAL,
+        _REG_M_LITERAL,
+        _PRODUCT_MOD_LITERAL,
+    )
+    hits: list[tuple[str, int, str]] = []
+    for path in _iter_py_files(roots):
+        try:
+            src = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        try:
+            tree = ast.parse(src, filename=str(path))
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Constant) or not isinstance(node.value, str):
                 continue
-            try:
-                tree = ast.parse(src, filename=str(path))
-            except SyntaxError:
+            value = node.value
+            if any(p.search(value) for p in patterns):
+                rel = str(path.relative_to(ROOT))
+                hits.append((rel, int(getattr(node, "lineno", 0) or 0), value))
+    return hits
+
+
+def iter_regulation_parameter_default_hits(
+    roots: Iterable[Path] | None = None,
+) -> list[tuple[str, int, str, str]]:
+    """AST: regulation-ish string used as a function/class parameter default.
+
+    Returns (path, lineno, function_name, value).
+    """
+    import ast
+
+    hits: list[tuple[str, int, str, str]] = []
+    for path in _iter_py_files(roots):
+        try:
+            src = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        try:
+            tree = ast.parse(src, filename=str(path))
+        except SyntaxError:
+            continue
+        rel = str(path.relative_to(ROOT))
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                fn = node.name
+                args = node.args
+                defaults = list(args.defaults)
+                # Align positional-or-keyword defaults with args (rightmost).
+                pos = list(args.posonlyargs) + list(args.args)
+                for arg, default in zip(pos[-len(defaults) :], defaults):
+                    if (
+                        isinstance(default, ast.Constant)
+                        and isinstance(default.value, str)
+                        and (
+                            _TAG_LITERAL.search(default.value)
+                            or _PRODUCT_MOD_LITERAL.search(default.value)
+                        )
+                    ):
+                        hits.append(
+                            (
+                                rel,
+                                int(getattr(default, "lineno", 0) or 0),
+                                fn,
+                                default.value,
+                            )
+                        )
+                for arg, default in zip(args.kwonlyargs, args.kw_defaults):
+                    if default is None:
+                        continue
+                    if (
+                        isinstance(default, ast.Constant)
+                        and isinstance(default.value, str)
+                        and (
+                            _TAG_LITERAL.search(default.value)
+                            or _PRODUCT_MOD_LITERAL.search(default.value)
+                        )
+                    ):
+                        hits.append(
+                            (
+                                rel,
+                                int(getattr(default, "lineno", 0) or 0),
+                                fn,
+                                default.value,
+                            )
+                        )
+            elif isinstance(node, ast.ClassDef):
+                # Dataclass field defaults: AnnAssign with Constant.
+                for stmt in node.body:
+                    if not isinstance(stmt, ast.AnnAssign) or stmt.value is None:
+                        continue
+                    if (
+                        isinstance(stmt.value, ast.Constant)
+                        and isinstance(stmt.value.value, str)
+                        and (
+                            _TAG_LITERAL.search(stmt.value.value)
+                            or _PRODUCT_MOD_LITERAL.search(stmt.value.value)
+                        )
+                    ):
+                        hits.append(
+                            (
+                                rel,
+                                int(getattr(stmt.value, "lineno", 0) or 0),
+                                node.name,
+                                stmt.value.value,
+                            )
+                        )
+    return hits
+
+
+def missing_required_regulation_functions() -> list[tuple[str, str]]:
+    """Registry entries with no matching function in the file (rename/delete guard)."""
+    import ast
+
+    by_file: dict[str, set[str]] = {}
+    for path, fn in REQUIRED_REGULATION_FUNCTIONS:
+        by_file.setdefault(path, set()).add(fn)
+
+    found: dict[str, set[str]] = {rel: set() for rel in by_file}
+    for rel, names in by_file.items():
+        path = ROOT / rel
+        if not path.exists():
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
-            for node in ast.walk(tree):
-                if not isinstance(node, ast.Constant) or not isinstance(node.value, str):
-                    continue
-                value = node.value
-                if any(p.search(value) for p in patterns):
-                    rel = str(path.relative_to(ROOT))
-                    hits.append((rel, int(getattr(node, "lineno", 0) or 0), value))
+            if node.name in names:
+                found[rel].add(node.name)
+
+    missing: list[tuple[str, str]] = []
+    for path, fn in sorted(REQUIRED_REGULATION_FUNCTIONS):
+        if fn not in found.get(path, set()):
+            missing.append((path, fn))
+    return missing
+
+
+def iter_required_regulation_default_hits() -> list[tuple[str, int, str, str]]:
+    """Core APIs that must not default ``regulation`` (required-arg scan)."""
+    import ast
+
+    by_file: dict[str, set[str]] = {}
+    for path, fn in REQUIRED_REGULATION_FUNCTIONS:
+        by_file.setdefault(path, set()).add(fn)
+
+    hits: list[tuple[str, int, str, str]] = []
+    for rel, names in by_file.items():
+        path = ROOT / rel
+        if not path.exists():
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            if node.name not in names:
+                continue
+            args = node.args
+            pos = list(args.posonlyargs) + list(args.args)
+            defaults = list(args.defaults)
+            for arg, default in zip(pos[-len(defaults) :], defaults):
+                if arg.arg == "regulation":
+                    hits.append(
+                        (rel, int(getattr(default, "lineno", 0) or 0), node.name, "default")
+                    )
+            for arg, default in zip(args.kwonlyargs, args.kw_defaults):
+                if arg.arg == "regulation" and default is not None:
+                    hits.append(
+                        (rel, int(getattr(default, "lineno", 0) or 0), node.name, "default")
+                    )
     return hits

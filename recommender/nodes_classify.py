@@ -769,7 +769,7 @@ def _handle_item_moveset_conflict(
     status_moves = _disallowed_status_move_names(result, snap)
     if not status_moves:
         return None
-    regulation = state.get("regulation_mod") or "champions-reg-mb"
+    regulation = state.get("regulation_mod") or "champions"
     alternatives = _find_damaging_move_alternatives(result, regulation=regulation)
     current_pending = state.get("pending_presentation")
     held = current_pending if isinstance(current_pending, dict) else None

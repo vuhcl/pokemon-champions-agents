@@ -100,7 +100,7 @@ def _load_usage_uncached(regulation: str, *, usage_dir: Path) -> dict[str, Any]:
 
 
 @lru_cache(maxsize=4)
-def load_usage(regulation: str = "champions-reg-mb") -> dict[str, Any]:
+def load_usage(regulation: str) -> dict[str, Any]:
     return _load_usage_uncached(regulation, usage_dir=USAGE_DIR)
 
 
@@ -127,13 +127,13 @@ def showdown_ready(regulation: str) -> bool:
     )
 
 
-def species_usage(species: str, *, regulation: str = "champions-reg-mb") -> dict[str, Any] | None:
+def species_usage(species: str, *, regulation: str) -> dict[str, Any] | None:
     snap = load_usage(regulation)
     return snap.get("species", {}).get(to_id(species))
 
 
 def build_synthesis_usage_entry(
-    species: str, *, regulation: str = "champions-reg-mb"
+    species: str, *, regulation: str
 ) -> dict[str, Any] | None:
     """Usage row for default build synthesis: ingame when present (ADR-046 filtered), else flat merge."""
     sid = to_id(species)
@@ -152,7 +152,7 @@ def ingame_excluded_ids() -> frozenset[str]:
     return ingame_excluded_species_ids(load_legality_snapshot())
 
 
-def ingame_ladder_species_map(regulation: str = "champions-reg-mb") -> dict[str, Any]:
+def ingame_ladder_species_map(regulation: str) -> dict[str, Any]:
     """Raw in-game doubles ladder rows (rank/membership only — not build-safe).
 
     Includes mega-capable bases for popularity rank and threat-ladder membership.
@@ -162,7 +162,7 @@ def ingame_ladder_species_map(regulation: str = "champions-reg-mb") -> dict[str,
     return (load_usage(regulation).get("ingame_doubles") or {}).get("species") or {}
 
 
-def ingame_species_map(regulation: str = "champions-reg-mb") -> dict[str, Any]:
+def ingame_species_map(regulation: str) -> dict[str, Any]:
     raw = ingame_ladder_species_map(regulation)
     excluded = ingame_excluded_ids()
     if not excluded:
@@ -170,7 +170,7 @@ def ingame_species_map(regulation: str = "champions-reg-mb") -> dict[str, Any]:
     return {sid: row for sid, row in raw.items() if sid not in excluded}
 
 
-def showdown_species_map(regulation: str = "champions-reg-mb") -> dict[str, Any]:
+def showdown_species_map(regulation: str) -> dict[str, Any]:
     snap = load_usage(regulation)
     return (_showdown_section(snap).get("species")) or {}
 
@@ -306,7 +306,7 @@ def backfill_moves_from_usage(
     species: str,
     chosen: list[str],
     *,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
     exclude_status: bool = True,
 ) -> list[str]:
     """Fill moveset to 4 from usage-ranked candidates; legality-only backfill."""
@@ -483,7 +483,7 @@ def find_team_conditioned_build(
     species: str,
     locked_teammate_ids: frozenset[str],
     *,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
     min_occurrences: int = 3,
 ) -> TeamConditionedBuild | None:
     # ponytail: paste teams are 6-mon rosters, not bring lists; subset match on
@@ -579,7 +579,7 @@ def _team_conditioned_to_pokemon_set(
 def build_team_aware_default_set(
     species: str,
     *,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
     role_id: str | None = None,
     team_draft: list[Any] | None = None,
     state: Any | None = None,
@@ -660,7 +660,7 @@ def _iter_usage_ranked_abilities(entry: dict[str, Any]):
 def pick_team_aware_usage_item(
     species: str,
     *,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
     used: set[str],
     entry: dict[str, Any] | None = None,
     snap: dict[str, Any] | None = None,
@@ -684,7 +684,7 @@ def pick_team_aware_usage_item(
     return None
 
 
-def featured_or_common_set(species: str, *, regulation: str = "champions-reg-mb") -> PokemonSet | None:
+def featured_or_common_set(species: str, *, regulation: str) -> PokemonSet | None:
     """Most representative set: ingame CBD when present, else flat merge (Showdown-backed)."""
     entry = build_synthesis_usage_entry(species, regulation=regulation)
     if entry:
@@ -697,14 +697,14 @@ def featured_or_common_set(species: str, *, regulation: str = "champions-reg-mb"
     return _set_from_entry(fallback, species)
 
 
-def set_from_showdown(species: str, *, regulation: str = "champions-reg-mb") -> PokemonSet | None:
+def set_from_showdown(species: str, *, regulation: str) -> PokemonSet | None:
     entry = showdown_species_map(regulation).get(to_id(species))
     if not entry:
         return None
     return _set_from_entry(entry, species)
 
 
-def set_from_ingame(species: str, *, regulation: str = "champions-reg-mb") -> PokemonSet | None:
+def set_from_ingame(species: str, *, regulation: str) -> PokemonSet | None:
     entry = ingame_species_map(regulation).get(to_id(species))
     if not entry:
         return None
@@ -716,7 +716,7 @@ def find_set_matching(
     moves: list[str],
     item: str | None,
     *,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
 ) -> SetMatchResult:
     """Exact moves+item match: VGCPastes first, then synthetic featured_sets.
 
@@ -763,7 +763,7 @@ def find_set_matching(
 
 
 @lru_cache(maxsize=4)
-def load_vgcpastes_builds(regulation: str = "champions-reg-mb") -> dict[str, Any]:
+def load_vgcpastes_builds(regulation: str) -> dict[str, Any]:
     path = _archived_data_path(
         regulation, "{tag}.vgcpastes-builds.v1.json", root=TEAM_COMP_DIR
     )
@@ -791,7 +791,7 @@ def nature_for_spread(
     species: str,
     spread: StatsTable,
     *,
-    regulation: str = "champions-reg-mb",
+    regulation: str,
     moves: Sequence[str] = (),
 ) -> str | None:
     """Join a real nature to a CBD/Showdown EV spread (or matching 4-move set).

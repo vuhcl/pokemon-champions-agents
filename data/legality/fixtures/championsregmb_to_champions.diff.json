@@ -1,8 +1,8 @@
 {
   "meta": {
     "schema_version": 1,
-    "extracted_at": "2026-09-10T18:46:28.059Z",
-    "source_commit": "d849b220082e113d8a17303509fb44d420c543d5",
+    "extracted_at": "2026-10-05T04:58:45.430Z",
+    "source_commit": "9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e",
     "from_mod": "championsregmb",
     "to_mod": "champions"
   },
@@ -20,6 +20,42 @@
       "change": "became_legal"
     },
     {
+      "id": "alakazammega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UUBL"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "Uber"
+      },
+      "change": "other"
+    },
+    {
+      "id": "altaria",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "altariamega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
       "id": "arboliva",
       "from": {
         "is_nonstandard": "Past",
@@ -27,9 +63,45 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "aurorus",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "basculegion",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "basculegionf",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "baxcalibur",
@@ -39,7 +111,7 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "Uber"
       },
       "change": "became_legal"
     },
@@ -51,9 +123,45 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "Uber"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "bellibolt",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "blastoise",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "chimechomega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "cinderace",
@@ -68,6 +176,78 @@
       "change": "became_legal"
     },
     {
+      "id": "cofagrigus",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "crabominablemega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "decidueyehisui",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "delphoxmega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "diggersby",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "dragalgemega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
       "id": "farfetchd",
       "from": {
         "is_nonstandard": "Past",
@@ -75,9 +255,69 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "feraligatrmega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "floetteeternal",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "floettemega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "gallade",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "gallademega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "garchompmegaz",
@@ -92,6 +332,18 @@
       "change": "became_legal"
     },
     {
+      "id": "gardevoir",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
       "id": "gogoat",
       "from": {
         "is_nonstandard": "Past",
@@ -99,7 +351,7 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
     },
@@ -111,7 +363,7 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
     },
@@ -135,9 +387,57 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "grimmsnarl",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "gyarados",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "heliolisk",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "hydrapple",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "indeedee",
@@ -147,7 +447,7 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
     },
@@ -159,9 +459,21 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "infernape",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "inteleon",
@@ -171,9 +483,33 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "krookodile",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "lopunnymega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
     },
     {
       "id": "lucariomegaz",
@@ -183,7 +519,7 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "Uber"
       },
       "change": "became_legal"
     },
@@ -195,9 +531,69 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "mamoswine",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "mawilemega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "meganiummega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "metagrossmega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "milotic",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "mrmime",
@@ -207,9 +603,69 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "mudsdale",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "ninetalesalola",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "noivern",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "overqwil",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "pangoro",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "pawmot",
@@ -231,7 +687,7 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
     },
@@ -243,7 +699,7 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
     },
@@ -255,7 +711,7 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
     },
@@ -267,9 +723,45 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "pinsirmega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "reuniclus",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "rhyperior",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "rillaboom",
@@ -284,6 +776,54 @@
       "change": "became_legal"
     },
     {
+      "id": "roserade",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "rotomheat",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "runerigus",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "sableyemega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
       "id": "salamence",
       "from": {
         "is_nonstandard": "Past",
@@ -291,7 +831,7 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
     },
@@ -303,9 +843,57 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "Uber"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "scizor",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "scizormega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "(OU)"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "serperior",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "sharpedomega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "sirfetchd",
@@ -315,9 +903,21 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "slurpuff",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "squawkabilly",
@@ -327,7 +927,7 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
     },
@@ -368,6 +968,18 @@
       "change": "became_legal"
     },
     {
+      "id": "staraptormega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
       "id": "swalot",
       "from": {
         "is_nonstandard": "Past",
@@ -375,9 +987,57 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "swampert",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "swampertmega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "OU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "sylveon",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "talonflame",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "thievul",
@@ -387,9 +1047,21 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "torkoal",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     },
     {
       "id": "toxtricity",
@@ -399,7 +1071,7 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
     },
@@ -416,6 +1088,42 @@
       "change": "became_legal"
     },
     {
+      "id": "vaporeon",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "venusaur",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
+      "id": "victreebelmega",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
+    },
+    {
       "id": "wigglytuff",
       "from": {
         "is_nonstandard": "Past",
@@ -423,9 +1131,21 @@
       },
       "to": {
         "is_nonstandard": null,
-        "tier": "OU"
+        "tier": "UU"
       },
       "change": "became_legal"
+    },
+    {
+      "id": "zoroarkhisui",
+      "from": {
+        "is_nonstandard": null,
+        "tier": "UU"
+      },
+      "to": {
+        "is_nonstandard": null,
+        "tier": "RU"
+      },
+      "change": "other"
     }
   ],
   "items": [

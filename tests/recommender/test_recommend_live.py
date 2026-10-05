@@ -40,11 +40,11 @@ def test_live_select_opponent_builds_from_pikalytics_snapshot():
         assert s.get("moves")
         assert s.get("item")
         # Must come from real usage data, not invented
-        assert species_usage(s["species"]) is not None
+        assert species_usage(s["species"], regulation="champions") is not None
 
 
 def test_live_recommend_build_garchomp(live_client: CalcClient, tmp_path):
-    usage = featured_or_common_set("Garchomp")
+    usage = featured_or_common_set("Garchomp", regulation="champions")
     assert usage is not None
     moves = list(usage["moves"])
     item = usage["item"]
@@ -66,7 +66,7 @@ def test_live_recommend_build_garchomp(live_client: CalcClient, tmp_path):
     assert len(built.get("moves") or []) >= 1
 
     # Known matchup sanity: Garchomp EQ vs Kingambit should KO / strong damage
-    king = featured_or_common_set("Kingambit") or {
+    king = featured_or_common_set("Kingambit", regulation="champions") or {
         "species": "Kingambit",
         "evs": {"hp": 32, "atk": 32, "def": 0, "spa": 0, "spd": 2, "spe": 0},
     }
@@ -93,7 +93,7 @@ def test_live_recommend_build_garchomp(live_client: CalcClient, tmp_path):
 
 def test_live_quick_pick(live_client: CalcClient):
     def set_of(name: str) -> dict:
-        s = featured_or_common_set(name)
+        s = featured_or_common_set(name, regulation="champions")
         assert s is not None, f"missing usage for {name}"
         if not s.get("evs"):
             s = {

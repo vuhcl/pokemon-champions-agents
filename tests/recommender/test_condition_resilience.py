@@ -39,7 +39,7 @@ def _context_from_decision(
     support_needs: tuple[AnchoredSupportNeed, ...] = (),
     resolved_build=None,
 ) -> LockedAnchorContext:
-    build = resolved_build or resolve_anchor_build(species)
+    build = resolved_build or resolve_anchor_build(species, regulation="champions")
     return LockedAnchorContext(
         slot_index=slot_index,
         anchor_id=species.lower().replace("-", ""),
@@ -96,9 +96,9 @@ def _provide(condition: str, mechanic: str, role_id: str) -> MechanismEvidence:
 
 
 def test_essential_via_needed_dependent():
-    rain_setter = classify_anchor_role(resolve_anchor_build("Pelipper"))
+    rain_setter = classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))
     swimmer = replace(
-        classify_anchor_role(resolve_anchor_build("Kingambit")),
+        classify_anchor_role(resolve_anchor_build("Kingambit", regulation="champions")),
         mechanisms=(_benefit("Rain", importance="needed", mechanic="Swift Swim"),),
         primary_function="offense",
         role_id="bulky_attacker",
@@ -119,13 +119,13 @@ def test_essential_via_wanted_times_two_still_emits_gap_need():
     """Aggregate essentiality with no per-anchor condition ask still generates a gap need."""
     assert MIN_WANTED_DEPENDENTS_FOR_ESSENTIAL == 2
     first = replace(
-        classify_anchor_role(resolve_anchor_build("Kingambit")),
+        classify_anchor_role(resolve_anchor_build("Kingambit", regulation="champions")),
         mechanisms=(_benefit("Rain", importance="wanted"),),
         primary_function="offense",
         role_id="bulky_attacker",
     )
     second = replace(
-        classify_anchor_role(resolve_anchor_build("Archaludon")),
+        classify_anchor_role(resolve_anchor_build("Archaludon", regulation="champions")),
         mechanisms=(_benefit("Rain", importance="wanted", mechanic="Dry Skin"),),
         primary_function="offense",
         role_id="bulky_attacker",
@@ -150,12 +150,12 @@ def test_essential_via_wanted_times_two_still_emits_gap_need():
 
 def test_preferred_via_single_wanted_dependent():
     dependent = replace(
-        classify_anchor_role(resolve_anchor_build("Kingambit")),
+        classify_anchor_role(resolve_anchor_build("Kingambit", regulation="champions")),
         mechanisms=(_benefit("Rain", importance="wanted"),),
         primary_function="offense",
         role_id="bulky_attacker",
     )
-    provider = classify_anchor_role(resolve_anchor_build("Pelipper"))
+    provider = classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))
     report = assess_condition_resilience(
         (
             _context_from_decision(0, "Pelipper", provider),
@@ -170,9 +170,9 @@ def test_preferred_via_single_wanted_dependent():
 
 
 def test_preferred_via_setter_direction_policy():
-    setter = classify_anchor_role(resolve_anchor_build("Pelipper"))
+    setter = classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))
     offense = replace(
-        classify_anchor_role(resolve_anchor_build("Kingambit")),
+        classify_anchor_role(resolve_anchor_build("Kingambit", regulation="champions")),
         mechanisms=(),
         primary_function="offense",
         role_id="bulky_attacker",
@@ -191,7 +191,7 @@ def test_preferred_via_setter_direction_policy():
 
 def test_provider_count_zero_one_two():
     dependent = replace(
-        classify_anchor_role(resolve_anchor_build("Kingambit")),
+        classify_anchor_role(resolve_anchor_build("Kingambit", regulation="champions")),
         mechanisms=(_benefit("Rain", importance="needed", mechanic="Swift Swim"),),
         primary_function="offense",
         role_id="bulky_attacker",
@@ -203,7 +203,7 @@ def test_provider_count_zero_one_two():
 
     one = assess_condition_resilience(
         (
-            _context_from_decision(0, "Pelipper", classify_anchor_role(resolve_anchor_build("Pelipper"))),
+            _context_from_decision(0, "Pelipper", classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))),
             _context_from_decision(1, "Kingambit", dependent),
         )
     )
@@ -211,15 +211,15 @@ def test_provider_count_zero_one_two():
 
 
 def test_two_automatic_rain_setters_count_as_two():
-    pelipper = classify_anchor_role(resolve_anchor_build("Pelipper"))
+    pelipper = classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))
     politoed = replace(
-        classify_anchor_role(resolve_anchor_build("Politoed")),
+        classify_anchor_role(resolve_anchor_build("Politoed", regulation="champions")),
         mechanisms=(_provide("Rain", "Drizzle", "rain_setter"),),
         role_id="rain_setter",
         primary_function="support",
     )
     dependent = replace(
-        classify_anchor_role(resolve_anchor_build("Kingambit")),
+        classify_anchor_role(resolve_anchor_build("Kingambit", regulation="champions")),
         mechanisms=(_benefit("Rain", importance="needed", mechanic="Swift Swim"),),
         primary_function="offense",
         role_id="bulky_attacker",
@@ -240,13 +240,13 @@ def test_gap_single_provider_spof_when_essential():
     report = assess_condition_resilience(
         (
             _context_from_decision(
-                0, "Pelipper", classify_anchor_role(resolve_anchor_build("Pelipper"))
+                0, "Pelipper", classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))
             ),
             _context_from_decision(
                 1,
                 "Archaludon",
                 classify_anchor_role(
-                    resolve_anchor_build("Archaludon"), user_role="bulky_rain_attacker"
+                    resolve_anchor_build("Archaludon", regulation="champions"), user_role="bulky_rain_attacker"
                 ),
             ),
         )
@@ -261,7 +261,7 @@ def test_optional_provider_only_omits_irrelevant():
     report = assess_condition_resilience(
         (
             _context_from_decision(
-                0, "Pelipper", classify_anchor_role(resolve_anchor_build("Pelipper"))
+                0, "Pelipper", classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))
             ),
         )
     )
@@ -277,7 +277,7 @@ def test_optional_provider_only_omits_irrelevant():
 
 def test_kingambit_present_false_counts_as_dependent_in_assess():
     decision = classify_anchor_role(
-        resolve_anchor_build("Kingambit"), user_role="trick_room_sweeper"
+        resolve_anchor_build("Kingambit", regulation="champions"), user_role="trick_room_sweeper"
     )
     report = assess_condition_resilience(
         (_context_from_decision(0, "Kingambit", decision),)
@@ -290,7 +290,7 @@ def test_kingambit_present_false_counts_as_dependent_in_assess():
 
 def test_gap_support_needs_dedupes_anchored_trick_room():
     decision = classify_anchor_role(
-        resolve_anchor_build("Kingambit"), user_role="trick_room_sweeper"
+        resolve_anchor_build("Kingambit", regulation="champions"), user_role="trick_room_sweeper"
     )
     shape = RoleShapeContext(
         primary_function="offense", tankiness="tanky", requires_setup_turn=False
@@ -298,7 +298,9 @@ def test_gap_support_needs_dedupes_anchored_trick_room():
     needs = tuple(
         AnchoredSupportNeed(0, "kingambit", need)
         for need in query_support_needs(
-            resolve_anchor_build("Kingambit").as_pokemon(), shape
+            resolve_anchor_build("Kingambit", regulation="champions").as_pokemon(),
+            shape,
+            regulation="champions",
         )
     )
     report = ConditionResilienceReport(
@@ -396,12 +398,12 @@ def test_anchor_has_obvious_need_archaludon_real_external_dependency():
     from recommender.condition_resilience import anchor_has_obvious_need
     from recommender.support_needs import RoleShapeContext, query_support_needs
 
-    build = resolve_anchor_build("Archaludon")
+    build = resolve_anchor_build("Archaludon", regulation="champions")
     decision = classify_anchor_role(build)
     shape = RoleShapeContext(
         primary_function="offense", tankiness="tanky", requires_setup_turn=False
     )
-    needs = query_support_needs(build.as_pokemon(), shape)
+    needs = query_support_needs(build.as_pokemon(), shape, regulation="champions")
     assert anchor_has_obvious_need(decision, needs) is True
 
 
@@ -419,12 +421,12 @@ def test_anchor_has_obvious_need_charizard_mega_y_self_sufficient():
     from recommender.condition_resilience import anchor_has_obvious_need
     from recommender.support_needs import RoleShapeContext, query_support_needs
 
-    build = resolve_anchor_build("Charizard-Mega-Y")
+    build = resolve_anchor_build("Charizard-Mega-Y", regulation="champions")
     decision = classify_anchor_role(build)
     shape = RoleShapeContext(
         primary_function="offense", tankiness="frail", requires_setup_turn=False
     )
-    needs = query_support_needs(build.as_pokemon(), shape)
+    needs = query_support_needs(build.as_pokemon(), shape, regulation="champions")
     assert anchor_has_obvious_need(decision, needs) is False
 
 
@@ -575,7 +577,7 @@ def test_candidate_dependency_reliability_mawile_mega_real_data():
     from recommender.state import empty_slot
     from recommender.team_candidates import collect_locked_anchor_contexts
 
-    build = resolve_anchor_build("Mawile-Mega")
+    build = resolve_anchor_build("Mawile-Mega", regulation="champions")
     decision = classify_anchor_role(build)
 
     sinistcha_state = {
@@ -629,7 +631,7 @@ def test_candidate_dependency_reliability_no_dependency_is_full():
     from recommender.state import empty_slot
     from recommender.team_candidates import collect_locked_anchor_contexts
 
-    build = resolve_anchor_build("Garchomp")
+    build = resolve_anchor_build("Garchomp", regulation="champions")
     decision = classify_anchor_role(build)
     state = {
         "team_draft": [
@@ -654,7 +656,7 @@ def test_candidate_dependency_reliability_no_dependency_is_full():
 
 def _kingambit_tr():
     return classify_anchor_role(
-        resolve_anchor_build("Kingambit"), user_role="trick_room_sweeper"
+        resolve_anchor_build("Kingambit", regulation="champions"), user_role="trick_room_sweeper"
     )
 
 
@@ -667,7 +669,7 @@ def _secondary_kinds(decision) -> list[tuple[str, tuple[str, ...]]]:
 
 
 def test_gengar_emits_icy_wind_secondary_speed_control():
-    build = resolve_anchor_build("Gengar")
+    build = resolve_anchor_build("Gengar", regulation="champions")
     assert build.ability == "Cursed Body"
     assert tuple(build.moves) == (
         "Shadow Ball",
@@ -682,13 +684,13 @@ def test_gengar_emits_icy_wind_secondary_speed_control():
 
 def test_milotic_and_rotom_wash_do_not_emit_secondary_speed_control():
     milotic = replace(
-        resolve_anchor_build("Milotic"),
+        resolve_anchor_build("Milotic", regulation="champions"),
         moves=("Protect", "Scald", "Muddy Water", "Coil"),
     )
     assert milotic.ability == "Competitive"
     assert _secondary_kinds(classify_anchor_role(milotic)) == []
 
-    rotom = resolve_anchor_build("Rotom-Wash")
+    rotom = resolve_anchor_build("Rotom-Wash", regulation="champions")
     assert rotom.ability == "Levitate"
     assert {to_id(m) for m in rotom.moves} == {
         "hydropump",
@@ -706,7 +708,7 @@ def test_icy_wind_softens_tr_without_changing_classification_or_gap():
         (_context_from_decision(0, "Kingambit", king),)
     )
     base_tr = next(r for r in baseline.conditions if r.condition == "Trick Room")
-    gengar = classify_anchor_role(resolve_anchor_build("Gengar"))
+    gengar = classify_anchor_role(resolve_anchor_build("Gengar", regulation="champions"))
     report = assess_condition_resilience(
         (
             _context_from_decision(0, "Kingambit", king),
@@ -721,9 +723,9 @@ def test_icy_wind_softens_tr_without_changing_classification_or_gap():
 
 
 def test_whimsicott_tailwind_icy_wind_is_adjacent_not_a_second_provider():
-    whims = classify_anchor_role(resolve_anchor_build("Whimsicott"))
-    gengar = classify_anchor_role(resolve_anchor_build("Gengar"))
-    build = resolve_anchor_build("Whimsicott")
+    whims = classify_anchor_role(resolve_anchor_build("Whimsicott", regulation="champions"))
+    gengar = classify_anchor_role(resolve_anchor_build("Gengar", regulation="champions"))
+    build = resolve_anchor_build("Whimsicott", regulation="champions")
     assert "tailwind" in {to_id(m) for m in build.moves}
     report = assess_condition_resilience(
         (
@@ -734,7 +736,7 @@ def test_whimsicott_tailwind_icy_wind_is_adjacent_not_a_second_provider():
     tw = next(r for r in report.conditions if r.condition == "Tailwind")
     assert tw.provider_count == 1
     assert [p.species for p in tw.providers] == [
-        resolve_anchor_build("Whimsicott").species or "Whimsicott"
+        resolve_anchor_build("Whimsicott", regulation="champions").species or "Whimsicott"
     ]
     assert "Icy Wind" in [m.mechanic for m in tw.secondary_speed_control]
     assert not any(p.mechanic == "Icy Wind" for p in tw.providers)
@@ -744,7 +746,7 @@ def test_milotic_usage_icy_wind_not_on_kit_does_not_soften():
     king = _kingambit_tr()
     milotic = classify_anchor_role(
         replace(
-            resolve_anchor_build("Milotic"),
+            resolve_anchor_build("Milotic", regulation="champions"),
             moves=("Protect", "Scald", "Muddy Water", "Coil"),
         )
     )
@@ -760,7 +762,7 @@ def test_milotic_usage_icy_wind_not_on_kit_does_not_soften():
 
 def test_rotom_wash_thunderbolt_does_not_soften():
     king = _kingambit_tr()
-    rotom = classify_anchor_role(resolve_anchor_build("Rotom-Wash"))
+    rotom = classify_anchor_role(resolve_anchor_build("Rotom-Wash", regulation="champions"))
     report = assess_condition_resilience(
         (
             _context_from_decision(0, "Kingambit", king),
@@ -772,7 +774,8 @@ def test_rotom_wash_thunderbolt_does_not_soften():
 
 
 def test_goodra_sap_sipper_and_thunderbolt_do_not_soften():
-    build = resolve_anchor_build("Goodra")
+    # Pin M-B writeup kit: M-C usage replaces Draco Meteor with Flamethrower.
+    build = resolve_anchor_build("Goodra", regulation="champions-reg-mb")
     assert build.ability == "Sap Sipper"
     assert {to_id(m) for m in build.moves} == {
         "protect",
@@ -793,7 +796,8 @@ def test_goodra_sap_sipper_and_thunderbolt_do_not_soften():
 
 
 def test_ampharos_static_softens_tr():
-    build = resolve_anchor_build("Ampharos")
+    # Pin M-B writeup kit: M-C usage replaces Dragon Pulse with Thunderbolt.
+    build = resolve_anchor_build("Ampharos", regulation="champions-reg-mb")
     assert build.ability == "Static"
     assert tuple(build.moves) == (
         "Protect",
@@ -838,13 +842,13 @@ def test_weather_rows_never_populate_secondary_speed_control():
     report = assess_condition_resilience(
         (
             _context_from_decision(
-                0, "Pelipper", classify_anchor_role(resolve_anchor_build("Pelipper"))
+                0, "Pelipper", classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions"))
             ),
             _context_from_decision(
                 1,
                 "Archaludon",
                 classify_anchor_role(
-                    resolve_anchor_build("Archaludon"), user_role="bulky_rain_attacker"
+                    resolve_anchor_build("Archaludon", regulation="champions"), user_role="bulky_rain_attacker"
                 ),
             ),
         )
@@ -901,7 +905,7 @@ def test_live_tr_spe_discount_floor_is_138():
 
 
 def test_kingambit_declared_sweeper_counts_as_wanted_tr():
-    build = replace(resolve_anchor_build("Kingambit"), nature="Adamant")
+    build = replace(resolve_anchor_build("Kingambit", regulation="champions"), nature="Adamant")
     assert build.spread.get("spe", 0) == 0
     assert to_id(build.item or "") != "choicescarf"
     ctx = _context_from_decision(0, "Kingambit", _declared_tr(build), resolved_build=build)
@@ -909,7 +913,7 @@ def test_kingambit_declared_sweeper_counts_as_wanted_tr():
 
 
 def test_garchomp_mega_default_is_discounted():
-    build = resolve_anchor_build("Garchomp-Mega")
+    build = resolve_anchor_build("Garchomp-Mega", regulation="champions")
     ctx = _context_from_decision(
         0, "Garchomp-Mega", _declared_tr(build), resolved_build=build
     )
@@ -918,7 +922,7 @@ def test_garchomp_mega_default_is_discounted():
 
 
 def test_basculegion_scarf_stripped_is_discounted():
-    build = replace(resolve_anchor_build("Basculegion"), item=None)
+    build = replace(resolve_anchor_build("Basculegion", regulation="champions"), item=None)
     decision = _declared_tr(build)
     assert _has_tr_benefit(decision)
     ctx = _context_from_decision(0, "Basculegion", decision, resolved_build=build)
@@ -926,7 +930,7 @@ def test_basculegion_scarf_stripped_is_discounted():
 
 
 def test_kangaskhan_mega_brave_counts_without_declared_sweeper():
-    build = resolve_anchor_build("Kangaskhan-Mega")
+    build = resolve_anchor_build("Kangaskhan-Mega", regulation="champions")
     assert build.nature == "Brave"
     decision = classify_anchor_role(build)
     assert decision.role_id != "trick_room_sweeper"
@@ -944,7 +948,7 @@ def test_kangaskhan_mega_brave_counts_without_declared_sweeper():
 
 def test_spe_floor_only_discounts_dragapult_zero_hardy():
     # Max Champions Spe SP (0–32), not mainline 252 EVs.
-    build = _with_spe(resolve_anchor_build("Dragapult"), 32, nature="Timid", item=None)
+    build = _with_spe(resolve_anchor_build("Dragapult", regulation="champions"), 32, nature="Timid", item=None)
     assert build.nature in _SPEED_PLUS
     floor = _tr_spe_discount_floor(_threat_speeds(None, "champions-reg-mb"))
     assert floor is not None
@@ -957,7 +961,7 @@ def test_spe_floor_only_discounts_dragapult_zero_hardy():
 
 def test_spe_ev_only_discounts_kingambit():
     build = _with_spe(
-        replace(resolve_anchor_build("Kingambit"), nature="Adamant"), 1
+        replace(resolve_anchor_build("Kingambit", regulation="champions"), nature="Adamant"), 1
     )
     assert to_id(build.item or "") != "choicescarf"
     ctx = _context_from_decision(
@@ -968,7 +972,7 @@ def test_spe_ev_only_discounts_kingambit():
 
 def test_scarf_only_discounts_kingambit():
     build = replace(
-        replace(resolve_anchor_build("Kingambit"), nature="Adamant"),
+        replace(resolve_anchor_build("Kingambit", regulation="champions"), nature="Adamant"),
         item="Choice Scarf",
     )
     ctx = _context_from_decision(
@@ -978,7 +982,7 @@ def test_scarf_only_discounts_kingambit():
 
 
 def test_plus_nature_only_discounts_kingambit_and_does_not_emit():
-    build = replace(resolve_anchor_build("Kingambit"), nature="Jolly")
+    build = replace(resolve_anchor_build("Kingambit", regulation="champions"), nature="Jolly")
     assert build.spread.get("spe", 0) == 0
     assert to_id(build.item or "") != "choicescarf"
     assert not _has_tr_benefit(classify_anchor_role(build))
@@ -989,7 +993,7 @@ def test_plus_nature_only_discounts_kingambit_and_does_not_emit():
 
 
 def test_adamant_kingambit_without_sweeper_is_not_a_tr_dependent():
-    build = replace(resolve_anchor_build("Kingambit"), nature="Adamant")
+    build = replace(resolve_anchor_build("Kingambit", regulation="champions"), nature="Adamant")
     decision = classify_anchor_role(build)
     assert not _has_tr_benefit(decision)
     ctx = _context_from_decision(0, "Kingambit", decision, resolved_build=build)
@@ -997,8 +1001,8 @@ def test_adamant_kingambit_without_sweeper_is_not_a_tr_dependent():
 
 
 def test_two_hindering_natures_without_declared_sweeper_make_tr_essential():
-    king = replace(resolve_anchor_build("Kingambit"), nature="Brave")
-    goodra = replace(resolve_anchor_build("Goodra"), nature="Quiet")
+    king = replace(resolve_anchor_build("Kingambit", regulation="champions"), nature="Brave")
+    goodra = replace(resolve_anchor_build("Goodra", regulation="champions"), nature="Quiet")
     k_dec = classify_anchor_role(king)
     g_dec = classify_anchor_role(goodra)
     assert k_dec.role_id != "trick_room_sweeper"
@@ -1012,8 +1016,8 @@ def test_two_hindering_natures_without_declared_sweeper_make_tr_essential():
     tr = next(r for r in report.conditions if r.condition == "Trick Room")
     assert tr.classification == "essential"
     assert sum(1 for d in tr.dependents if d.importance == "wanted") == 2
-    live_kanga = resolve_anchor_build("Kangaskhan-Mega")
-    live_torkoal = resolve_anchor_build("Torkoal")
+    live_kanga = resolve_anchor_build("Kangaskhan-Mega", regulation="champions")
+    live_torkoal = resolve_anchor_build("Torkoal", regulation="champions")
     if live_kanga.nature == "Brave" and live_torkoal.nature == "Quiet":
         live = assess_condition_resilience(
             (
@@ -1036,7 +1040,7 @@ def test_two_hindering_natures_without_declared_sweeper_make_tr_essential():
 
 
 def test_hatterene_quiet_is_not_a_tr_dependent():
-    build = replace(resolve_anchor_build("Hatterene"), nature="Quiet")
+    build = replace(resolve_anchor_build("Hatterene", regulation="champions"), nature="Quiet")
     decision = classify_anchor_role(build)
     assert not _has_tr_benefit(decision)
     ctx = _context_from_decision(0, "Hatterene", decision, resolved_build=build)
@@ -1045,7 +1049,7 @@ def test_hatterene_quiet_is_not_a_tr_dependent():
 
 
 def test_brave_with_spe_ev_emits_but_does_not_vote():
-    build = _with_spe(resolve_anchor_build("Kingambit"), 1, nature="Brave")
+    build = _with_spe(resolve_anchor_build("Kingambit", regulation="champions"), 1, nature="Brave")
     decision = classify_anchor_role(build)
     assert _has_tr_benefit(decision)
     ctx = _context_from_decision(0, "Kingambit", decision, resolved_build=build)
@@ -1054,9 +1058,9 @@ def test_brave_with_spe_ev_emits_but_does_not_vote():
 
 def test_garchomp_three_build_and_scarf_kingambit_are_discounted():
     cases = (
-        resolve_anchor_build("Garchomp"),
-        resolve_anchor_build("Garchomp", role_hint="trick_room_sweeper"),
-        replace(resolve_anchor_build("Kingambit"), item="Choice Scarf"),
+        resolve_anchor_build("Garchomp", regulation="champions"),
+        resolve_anchor_build("Garchomp", role_hint="trick_room_sweeper", regulation="champions"),
+        replace(resolve_anchor_build("Kingambit", regulation="champions"), item="Choice Scarf"),
     )
     for build in cases:
         decision = _declared_tr(build)
@@ -1068,8 +1072,8 @@ def test_garchomp_three_build_and_scarf_kingambit_are_discounted():
 
 
 def test_declared_garchomp_mega_plus_kingambit_is_preferred_not_essential():
-    garchomp = resolve_anchor_build("Garchomp-Mega")
-    king = resolve_anchor_build("Kingambit")
+    garchomp = resolve_anchor_build("Garchomp-Mega", regulation="champions")
+    king = resolve_anchor_build("Kingambit", regulation="champions")
     report = assess_condition_resilience(
         (
             _context_from_decision(
@@ -1087,8 +1091,8 @@ def test_declared_garchomp_mega_plus_kingambit_is_preferred_not_essential():
 
 
 def test_declared_kingambit_plus_kangaskhan_mega_is_essential():
-    king = resolve_anchor_build("Kingambit")
-    kanga = resolve_anchor_build("Kangaskhan-Mega")
+    king = resolve_anchor_build("Kingambit", regulation="champions")
+    kanga = resolve_anchor_build("Kangaskhan-Mega", regulation="champions")
     report = assess_condition_resilience(
         (
             _context_from_decision(0, "Kingambit", _declared_tr(king), resolved_build=king),
@@ -1103,7 +1107,7 @@ def test_declared_kingambit_plus_kangaskhan_mega_is_essential():
 
 
 def test_needed_tr_is_never_discounted():
-    build = _with_spe(resolve_anchor_build("Dragapult"), 0, nature="Hardy", item=None)
+    build = _with_spe(resolve_anchor_build("Dragapult", regulation="champions"), 0, nature="Hardy", item=None)
     decision = replace(
         classify_anchor_role(build),
         mechanisms=(_benefit("Trick Room", importance="needed", present=False),),
@@ -1117,12 +1121,12 @@ def test_needed_tr_is_never_discounted():
 
 def test_two_fast_tailwind_wants_still_essential():
     first = replace(
-        classify_anchor_role(resolve_anchor_build("Dragapult")),
+        classify_anchor_role(resolve_anchor_build("Dragapult", regulation="champions")),
         mechanisms=(_benefit("Tailwind"),),
         primary_function="offense",
     )
     second = replace(
-        classify_anchor_role(resolve_anchor_build("Gengar")),
+        classify_anchor_role(resolve_anchor_build("Gengar", regulation="champions")),
         mechanisms=(_benefit("Tailwind"),),
         primary_function="offense",
     )
@@ -1137,8 +1141,8 @@ def test_two_fast_tailwind_wants_still_essential():
 
 
 def test_hatterene_plus_discounted_mega_garchomp_is_preferred_via_setter_direction():
-    hatterene = resolve_anchor_build("Hatterene")
-    garchomp = resolve_anchor_build("Garchomp-Mega")
+    hatterene = resolve_anchor_build("Hatterene", regulation="champions")
+    garchomp = resolve_anchor_build("Garchomp-Mega", regulation="champions")
     report = assess_condition_resilience(
         (
             _context_from_decision(

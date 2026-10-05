@@ -41,12 +41,14 @@ from recommender.usage_chaos import (
     DEFAULT_FORMAT,
     DEFAULT_MONTH,
     DEFAULT_RATING,
-    DEFAULT_REGULATION,
     chaos_species_row,
     chaos_url,
     chaos_weights_to_common,
     detail_raw_count,
 )
+
+# Archive CLI pin (historical M-B extract); not a product silent default.
+DEFAULT_REGULATION = "champions-reg-mb"
 
 ROOT = Path(__file__).resolve().parents[2]
 USAGE_DIR = ROOT / "data" / "usage"

@@ -38,8 +38,8 @@ def test_nonempty_moves_skips_late_blank_like_mega_staraptor_mawile():
 
 def test_kangaskhan_stamps_four_real_moves():
     for built in (
-        set_from_showdown("kangaskhan"),
-        featured_or_common_set("kangaskhan"),
+        set_from_showdown("kangaskhan", regulation="champions"),
+        featured_or_common_set("kangaskhan", regulation="champions"),
     ):
         assert built is not None
         assert "" not in built["moves"]
@@ -49,14 +49,14 @@ def test_kangaskhan_stamps_four_real_moves():
 
 def test_showdown_species_with_late_blanks_stamp_four_real_moves():
     for sid in ("kangaskhanmega", "staraptor", "mawilemega"):
-        built = set_from_showdown(sid)
+        built = set_from_showdown(sid, regulation="champions")
         assert built is not None, sid
         assert "" not in built["moves"], sid
         assert len(built["moves"]) == 4, sid
 
 
 def test_kangaskhan_mega_showdown_build_has_no_blank_move():
-    built = set_from_showdown("kangaskhanmega")
+    built = set_from_showdown("kangaskhanmega", regulation="champions")
     assert built is not None
     assert "" not in built["moves"]
     assert len(built["moves"]) == 4

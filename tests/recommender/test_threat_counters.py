@@ -51,13 +51,13 @@ def test_pair_score_and_aggregate():
 
 
 def test_empty_anchor():
-    empty = query_threat_counters({})
+    empty = query_threat_counters({}, regulation="champions")
     assert empty.status == "available"
     assert empty.candidates == ()
     with patch(
         "recommender.threat_counters.query_counters", return_value=[]
     ) as qc:
-        empty2 = query_threat_counters({"species": "Blaziken-Mega"})
+        empty2 = query_threat_counters({"species": "Blaziken-Mega"}, regulation="champions")
         assert empty2.status == "available"
         assert empty2.candidates == ()
         assert qc.call_count == 1
@@ -79,7 +79,7 @@ def test_explicit_team_objective_verifies_every_admitted_candidate_against_all_r
             return_value=MatchupResult("clean_kill", "costly"),
         ),
     ):
-        result = query_candidates_for_threats(objective)
+        result = query_candidates_for_threats(objective, regulation="champions")
 
     assert result.status == "available"
     assert [threat_id for threat_id, _ in result.candidates[0].verified_vs] == [
@@ -97,7 +97,7 @@ def test_explicit_team_objective_reports_incomplete_calc_evidence():
             side_effect=MatchupEvidenceError("bad row"),
         ),
     ):
-        result = query_candidates_for_threats(objective)
+        result = query_candidates_for_threats(objective, regulation="champions")
     assert result.status == "unavailable"
     assert result.error is not None
     assert result.error.kind == "calc_incomplete"
@@ -114,7 +114,7 @@ def test_full_steps_1_and_2_call_count():
     }
     calls: list[str] = []
 
-    def fake_qc(pokemon, n=20):
+    def fake_qc(pokemon, n=20, **_kwargs):
         sp = pokemon.get("species") or ""
         calls.append(sp)
         if sp == "Anchor":
@@ -128,7 +128,7 @@ def test_full_steps_1_and_2_call_count():
             return_value=MatchupResult(outcome="clean_kill", severity="decisive"),
         ),
     ):
-        query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5, regulation="champions")
 
     assert calls[0] == "Anchor"
     assert calls[1:] == [f"Threat{i}" for i in range(4)]
@@ -138,7 +138,7 @@ def test_full_steps_1_and_2_call_count():
 def test_merge_count_across_threats():
     threats = [_tc("T1", usage_rank=1), _tc("T2", usage_rank=2), _tc("T3", usage_rank=3)]
 
-    def fake_qc(pokemon, n=20):
+    def fake_qc(pokemon, n=20, **_kwargs):
         sp = pokemon.get("species") or ""
         if sp == "Anchor":
             return list(threats)
@@ -152,7 +152,7 @@ def test_merge_count_across_threats():
             return_value=MatchupResult(outcome="clean_kill", severity="decisive"),
         ),
     ):
-        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5, regulation="champions")
         out = result.candidates
 
     assert len(out) == 1
@@ -163,7 +163,7 @@ def test_merge_count_across_threats():
 def test_stage4_cuts_to_n_by_count():
     threats = [_tc("T1", usage_rank=1)]
 
-    def fake_qc(pokemon, n=20):
+    def fake_qc(pokemon, n=20, **_kwargs):
         sp = pokemon.get("species") or ""
         if sp == "Anchor":
             return list(threats)
@@ -177,7 +177,7 @@ def test_stage4_cuts_to_n_by_count():
             return_value=MatchupResult(outcome="no_answer", severity="toss-up"),
         ),
     ):
-        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5, regulation="champions")
         out = result.candidates
 
     assert len(out) == 10
@@ -195,7 +195,7 @@ def test_stage5_usage_order_differs_from_counters_order():
     ]
     counters_order = [t.form for t in threats]
 
-    def fake_qc(pokemon, n=20):
+    def fake_qc(pokemon, n=20, **_kwargs):
         sp = pokemon.get("species") or ""
         if sp == "Anchor":
             return list(threats)
@@ -218,7 +218,7 @@ def test_stage5_usage_order_differs_from_counters_order():
         with patch(
             "recommender.threat_counters.classify_matchup", side_effect=fake_classify
         ):
-            query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=3)
+            query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=3, regulation="champions")
 
     # Usage-only top-3: Popular / AlsoPopular / Third — not RareDanger / MidDanger.
     assert set(classified) == {"Popular", "AlsoPopular", "Third"}
@@ -233,7 +233,7 @@ def test_verify_as_rank_strong_beats_high_static_count():
         _tc("T3", usage_rank=3),
     ]
 
-    def fake_qc(pokemon, n=20):
+    def fake_qc(pokemon, n=20, **_kwargs):
         sp = pokemon.get("species") or ""
         if sp == "Anchor":
             return list(threats)
@@ -258,7 +258,7 @@ def test_verify_as_rank_strong_beats_high_static_count():
             "recommender.threat_counters.classify_matchup", side_effect=fake_classify
         ),
     ):
-        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5, regulation="champions")
         out = result.candidates
 
     names = [c.candidate.form for c in out]
@@ -278,7 +278,7 @@ def test_credit_outside_verify_set_is_neutral():
         _tc("Obscure", usage_rank=99),
     ]
 
-    def fake_qc(pokemon, n=20):
+    def fake_qc(pokemon, n=20, **_kwargs):
         sp = pokemon.get("species") or ""
         if sp == "Anchor":
             return list(threats)
@@ -301,7 +301,7 @@ def test_credit_outside_verify_set_is_neutral():
             "recommender.threat_counters.classify_matchup", side_effect=fake_classify
         ),
     ):
-        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=1)
+        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=1, regulation="champions")
         out = result.candidates
 
     assert "Obscure" not in classified_vs
@@ -316,7 +316,7 @@ def test_credit_outside_verify_set_is_neutral():
 def test_excludes_anchor_species_from_merge():
     threats = [_tc("T1", usage_rank=1)]
 
-    def fake_qc(pokemon, n=20):
+    def fake_qc(pokemon, n=20, **_kwargs):
         sp = pokemon.get("species") or ""
         if sp == "Anchor":
             return list(threats)
@@ -329,7 +329,7 @@ def test_excludes_anchor_species_from_merge():
             return_value=MatchupResult(outcome="clean_kill", severity="decisive"),
         ),
     ):
-        result = query_threat_counters({"species": "Anchor"}, n=10)
+        result = query_threat_counters({"species": "Anchor"}, n=10, regulation="champions")
         out = result.candidates
 
     assert all(c.candidate.form != "Anchor" for c in out)
@@ -346,7 +346,7 @@ def test_candidate_pool_asymmetry_threat_id_unrestricted():
     restrictive = [{"species": "CandA"}, {"species": "CandB"}]
     calls: list[tuple[str, object]] = []
 
-    def fake_qc(pokemon, n=20, candidate_pool=None):
+    def fake_qc(pokemon, n=20, candidate_pool=None, **_kwargs):
         sp = pokemon.get("species") or ""
         calls.append((sp, candidate_pool))
         if sp == "Anchor":
@@ -373,6 +373,7 @@ def test_candidate_pool_asymmetry_threat_id_unrestricted():
             n=10,
             verify_threats_n=5,
             candidate_pool=restrictive,
+                regulation="champions",
         )
         out = result.candidates
 
@@ -421,13 +422,15 @@ def test_owned_first_reaches_candidate_stages_but_not_threat_stages():
             n=1,
             available_pool=["RareOwned", "RareOwned"],
             ownership_mode="owned_first",
+                regulation="champions",
         )
         out = result.candidates
 
     assert [c.candidate.form for c in out] == ["RareOwned"]
-    assert calls[0] == ("Anchor", {})
+    assert calls[0] == ("Anchor", {"regulation": "champions"})
     assert all(
         kwargs == {
+            "regulation": "champions",
             "available_pool": ["RareOwned", "RareOwned"],
             "ownership_mode": "owned_first",
         }
@@ -456,6 +459,7 @@ def test_owned_last_breaks_final_candidate_tie():
             n=2,
             available_pool=["Owned"],
             ownership_mode="owned_last",
+                regulation="champions",
         )
         out = result.candidates
 
@@ -480,12 +484,17 @@ def test_owned_only_empty_pool_returns_empty_without_verification():
             {"species": "Anchor"},
             available_pool=[],
             ownership_mode="owned_only",
+                regulation="champions",
         )
         out = result.candidates
 
     assert out == ()
     assert candidate_calls == [
-        {"available_pool": [], "ownership_mode": "owned_only"}
+        {
+            "regulation": "champions",
+            "available_pool": [],
+            "ownership_mode": "owned_only",
+        }
     ]
     classify.assert_not_called()
 
@@ -512,7 +521,7 @@ def test_most_common_verify_spec_cache_hit_and_usage_fallback():
             return_value={"spread": cached_spread, "verified": True},
         ),
     ):
-        hit = _most_common_verify_spec("Garchomp")
+        hit = _most_common_verify_spec("Garchomp", regulation="champions")
     assert hit["evs"] == cached_spread
     assert hit["moves"] == usage["moves"]
     assert hit["item"] == "Life Orb"
@@ -524,13 +533,13 @@ def test_most_common_verify_spec_cache_hit_and_usage_fallback():
         ),
         patch("recommender.threat_counters.get_resolved_build", return_value=None),
     ):
-        miss = _most_common_verify_spec("Garchomp")
+        miss = _most_common_verify_spec("Garchomp", regulation="champions")
     assert miss["evs"] == usage["evs"]  # usage-sourced, not cache
 
     with patch(
         "recommender.threat_counters.featured_or_common_set", return_value=None
     ):
-        bare = _most_common_verify_spec("UnknownMon")
+        bare = _most_common_verify_spec("UnknownMon", regulation="champions")
     assert bare == {"species": "UnknownMon"}
 
 
@@ -539,7 +548,7 @@ def test_classify_matchup_receives_most_common_verify_specs():
     threats = [_tc("Threat0", usage_rank=1)]
     seen: list[tuple[object, object]] = []
 
-    def fake_qc(pokemon, n=20, candidate_pool=None):
+    def fake_qc(pokemon, n=20, candidate_pool=None, **_kwargs):
         sp = pokemon.get("species") or ""
         if sp == "Anchor":
             return list(threats)
@@ -563,7 +572,7 @@ def test_classify_matchup_receives_most_common_verify_specs():
             },
         ),
     ):
-        query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5, regulation="champions")
 
     assert seen
     a, b = seen[0]
@@ -590,7 +599,7 @@ def test_query_threat_counters_degraded_on_calc_failure():
             side_effect=CalcClientError(503, {"error": "down"}),
         ),
     ):
-        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5)
+        result = query_threat_counters({"species": "Anchor"}, n=10, verify_threats_n=5, regulation="champions")
 
     assert result.status == "degraded"
     assert result.error is not None
@@ -682,8 +691,8 @@ def test_query_candidates_for_threats_credits_field_dependent_answer():
         ),
     ):
         result = query_candidates_for_threats(
-            objective, locked_contexts=(), exclude_slot=None
-        )
+            objective, locked_contexts=(), exclude_slot=None,
+        regulation="champions")
     # With no locked_contexts (no team-provided field), the candidate
     # correctly does NOT get credited -- confirms the baseline behavior
     # (no forced fields available) is unchanged before testing the fix.
@@ -713,8 +722,8 @@ def test_query_candidates_for_threats_credits_field_dependent_answer():
         ),
     ):
         result_with_rain = query_candidates_for_threats(
-            objective, locked_contexts=(_FakeContext(),)
-        )
+            objective, locked_contexts=(_FakeContext(),),
+        regulation="champions")
     assert result_with_rain.candidates[0].verified_score > 0.0
 
 
@@ -744,8 +753,8 @@ def test_query_threat_counters_credits_field_dependent_answer():
         ),
     ):
         baseline = query_threat_counters(
-            {"species": "Anchor"}, locked_contexts=(), verify_threats_n=5
-        )
+            {"species": "Anchor"}, locked_contexts=(), verify_threats_n=5,
+        regulation="champions")
     assert baseline.candidates[0].verified_score == 0.0
 
     class _FakeMechanism:
@@ -772,6 +781,7 @@ def test_query_threat_counters_credits_field_dependent_answer():
             {"species": "Anchor"},
             locked_contexts=(_FakeContext(),),
             verify_threats_n=5,
+                regulation="champions",
         )
     assert with_rain.candidates[0].verified_score > 0.0
 
@@ -907,7 +917,7 @@ def test_query_counters_populates_showdown_fallback_for_real_mega_counters():
     """
     from recommender.counters import query_counters
 
-    counters = query_counters({"species": "Kingambit"})
+    counters = query_counters({"species": "Kingambit"}, regulation="champions")
     mega_counters = [c for c in counters if "mega" in c.ladder_species.lower()]
     assert mega_counters
     for c in mega_counters:

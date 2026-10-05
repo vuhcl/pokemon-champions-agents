@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 from recommender.by_usage import query_by_usage
 from recommender.counters import query_counters
 from recommender.ids import to_id
@@ -10,14 +12,14 @@ from recommender.usage_data import ingame_species_map
 
 
 def test_default_pool_usage_ranking():
-    out = query_by_usage(n=20)
+    out = query_by_usage(n=20, regulation="champions")
     assert len(out) <= 20
     assert out
 
     ranks = [c.usage_rank for c in out if c.usage_rank is not None]
     assert ranks == sorted(ranks)
     # First ranked result should be the lowest usage_rank in the ingame map.
-    ig = ingame_species_map("champions-reg-mb")
+    ig = ingame_species_map("champions")
     best = min(
         int(e["usage_rank"])
         for e in ig.values()
@@ -37,7 +39,7 @@ def test_narrowed_fairy_pool():
             fairy.append({"species": str(entry.get("name") or sid)})
 
     assert fairy, "expected at least one legal Fairy species"
-    out = query_by_usage(pool=fairy, n=10)
+    out = query_by_usage(pool=fairy, n=10, regulation="champions")
     assert out
     pool_ids = {to_id(s["species"]) for s in fairy}
     for c in out:
@@ -48,11 +50,30 @@ def test_narrowed_fairy_pool():
     assert ranks == sorted(ranks)
 
 
+def test_narrowed_pool_uses_legality_snapshot_name_fallback():
+    """Pool branch: ig name missing → fall back to snap species name (main behavior)."""
+    snap = load_snapshot()
+    sid = next(
+        s
+        for s, entry in snap["species"].items()
+        if is_species_legal(snap, s) and entry.get("name")
+    )
+    canonical = str(snap["species"][sid]["name"])
+    with (
+        patch("recommender.by_usage.ingame_species_map", return_value={}),
+        patch("recommender.by_usage.ingame_ladder_species_map", return_value={}),
+    ):
+        out = query_by_usage(pool=[{"species": sid}], n=1, regulation="champions")
+    assert out
+    assert out[0].form == canonical
+    assert out[0].spec["species"] == sid
+
+
 def test_composes_into_query_counters():
-    top = query_by_usage(n=5)
+    top = query_by_usage(n=5, regulation="champions")
     assert top
     anchor = top[0].spec
-    counters = query_counters(anchor, n=10)
+    counters = query_counters(anchor, n=10, regulation="champions")
     assert counters  # end-to-end composition works
 
 
@@ -66,6 +87,7 @@ def test_usage_admission_honors_ownership_before_cut():
             n=2,
             available_species=[owned],
             ownership_mode="owned_first",
+                regulation="champions",
         )
     ][0] == owned
     assert [
@@ -75,6 +97,7 @@ def test_usage_admission_honors_ownership_before_cut():
             n=2,
             available_species=[owned],
             ownership_mode="owned_last",
+                regulation="champions",
         )
     ][0] == pool[0]["species"]
     assert [
@@ -84,5 +107,6 @@ def test_usage_admission_honors_ownership_before_cut():
             n=2,
             available_species=[owned],
             ownership_mode="owned_only",
+                regulation="champions",
         )
     ] == [owned]

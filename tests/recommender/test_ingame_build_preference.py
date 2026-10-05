@@ -53,7 +53,7 @@ def test_pelipper_moves_unchanged_when_sources_agree():
 
 
 def test_mega_capable_charizard_still_showdown_sourced():
-    assert set_from_ingame("Charizard") is None
+    assert set_from_ingame("Charizard", regulation="champions") is None
     built = featured_or_common_set("Charizard", regulation="champions-reg-mb")
     sd = set_from_showdown("Charizard", regulation="champions-reg-mb")
     assert built is not None and sd is not None

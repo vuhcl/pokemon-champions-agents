@@ -15,9 +15,6 @@ from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.state import ThreatCandidate
 from recommender.usage_data import ingame_ladder_species_map, ingame_species_map
 
-# Same regulation tag as counters.DEFAULT_REGULATION (duplicated to avoid coupling).
-_REGULATION = "champions-reg-mb"
-
 
 def _usage_key(c: ThreatCandidate) -> tuple:
     """Ordinal usage_rank: lower rank number = more popular; None last."""
@@ -28,6 +25,7 @@ def query_by_usage(
     pool: list[PokemonSpecOptional] | None = None,
     n: int = 20,
     *,
+    regulation: str,
     available_species: Collection[str] = (),
     ownership_mode: OwnershipMode = "off",
 ) -> list[ThreatCandidate]:
@@ -38,8 +36,8 @@ def query_by_usage(
     Caller-provided specs are preserved; default-pool specs are bare ``{species}``.
     """
     snap = load_snapshot()
-    ladder = ingame_ladder_species_map(_REGULATION)
-    ig = ingame_species_map(_REGULATION)
+    ladder = ingame_ladder_species_map(regulation)
+    ig = ingame_species_map(regulation)
     owned = {sid for species in available_species if (sid := to_id(species))}
     cands: list[ThreatCandidate] = []
 

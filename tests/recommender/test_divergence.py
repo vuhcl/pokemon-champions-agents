@@ -18,7 +18,7 @@ def _decide(species: str, ability: str, moves: list[str], *, role: str | None = 
         role=Attr(role, locked=True) if role else Attr(),
         moveset=Attr(moves, locked=True),
     )
-    build = resolve_anchor_build(slot)
+    build = resolve_anchor_build(slot, regulation="champions")
     return build, classify_anchor_role(build, explicit_role=role)
 
 

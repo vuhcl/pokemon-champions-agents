@@ -13,31 +13,37 @@ from typing import Any
 from recommender.ids import to_id
 from recommender.usage_data import load_usage
 
+# Archive-tool / URL helpers may still name historical M-B chaos ids explicitly.
 DEFAULT_MONTH = "2026-07"
 DEFAULT_FORMAT = "gen9championsvgc2026regmb"
 DEFAULT_RATING = 1500
-DEFAULT_REGULATION = "champions-reg-mb"
 
 
 def chaos_url(month: str, format_id: str, rating: int) -> str:
     return f"https://www.smogon.com/stats/{month}/chaos/{format_id}-{rating}.json"
 
 
-def showdown_source_params(
-    regulation: str = DEFAULT_REGULATION,
-) -> dict[str, Any]:
-    """Month/format/rating/source from the offline snapshot meta, else defaults."""
+def showdown_source_params(regulation: str) -> dict[str, Any]:
+    """Month/format/rating/source from the offline snapshot meta for ``regulation``.
+
+    No silent M-B fallbacks: missing month/format raises.
+    """
     meta = load_usage(regulation).get("meta") or {}
-    month = str(meta.get("showdown_month") or DEFAULT_MONTH)
-    format_id = str(meta.get("showdown_format") or DEFAULT_FORMAT)
+    month = meta.get("showdown_month")
+    format_id = meta.get("showdown_format")
+    if not month or not format_id:
+        raise ValueError(
+            f"showdown meta incomplete for {regulation!r}: "
+            f"need showdown_month and showdown_format"
+        )
     try:
         rating = int(meta.get("showdown_rating") or DEFAULT_RATING)
     except (TypeError, ValueError):
         rating = DEFAULT_RATING
     source = str(meta.get("showdown_source") or "smogon-chaos")
     return {
-        "month": month,
-        "format_id": format_id,
+        "month": str(month),
+        "format_id": str(format_id),
         "rating": rating,
         "source": source,
         # ponytail: alias "set" until M-B archive rebuild stamps the new name

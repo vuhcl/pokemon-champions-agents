@@ -260,7 +260,7 @@ def _speed_mech(role_id: str, mechanic: str) -> MechanismEvidence:
 
 
 def test_standard_special_attacker_promotes_by_identity():
-    base = classify_anchor_role(resolve_anchor_build("Archaludon"))
+    base = classify_anchor_role(resolve_anchor_build("Archaludon", regulation="champions"))
     anchor = replace(
         base,
         kit_role="standard_special_attacker",
@@ -275,7 +275,7 @@ def test_standard_special_attacker_promotes_by_identity():
 
 
 def test_support_speed_control_without_tw_tr_stays_identity():
-    base = classify_anchor_role(resolve_anchor_build("Whimsicott"))
+    base = classify_anchor_role(resolve_anchor_build("Whimsicott", regulation="champions"))
     anchor = replace(
         base,
         kit_role="support_speed_control",
@@ -290,7 +290,7 @@ def test_support_speed_control_without_tw_tr_stays_identity():
 
 
 def test_whimsicott_resolves_tailwind_via_strategic_evidence():
-    decision = _target_role(classify_anchor_role(resolve_anchor_build("Whimsicott")))
+    decision = _target_role(classify_anchor_role(resolve_anchor_build("Whimsicott", regulation="champions")))
     assert isinstance(decision, TargetRoleDecision)
     assert decision.role_id == "tailwind_setter"
     assert decision.producer_name == "target_role_from_strategic_evidence"
@@ -299,13 +299,13 @@ def test_whimsicott_resolves_tailwind_via_strategic_evidence():
 
 def test_pelipper_prefers_rain_over_incidental_tailwind():
     """Drizzle identity must win before a single TW mechanism short-circuits."""
-    decision = _target_role(classify_anchor_role(resolve_anchor_build("Pelipper")))
+    decision = _target_role(classify_anchor_role(resolve_anchor_build("Pelipper", regulation="champions")))
     assert isinstance(decision, TargetRoleDecision)
     assert decision.role_id == "rain_setter"
 
 
 def test_tw_and_tr_mechanisms_yield_unresolved_speed_control():
-    base = classify_anchor_role(resolve_anchor_build("Whimsicott"))
+    base = classify_anchor_role(resolve_anchor_build("Whimsicott", regulation="champions"))
     anchor = replace(
         base,
         mechanisms=(
@@ -732,7 +732,7 @@ def test_tier1_writeup_select_refine_without_nn_seeds():
 
 
 def test_track1_strategic_evidence_precedes_real_anchor_coarse_kit_role():
-    anchor_role = classify_anchor_role(resolve_anchor_build("Tyranitar"))
+    anchor_role = classify_anchor_role(resolve_anchor_build("Tyranitar", regulation="champions"))
     assert anchor_role.kit_role in get_args(RoleArchetype)
     assert anchor_role.kit_role != "sand_setter"
     state = _record(

@@ -650,7 +650,7 @@ def assess_condition_resilience(
     if locked:
         regulation = next(
             (c.resolved_build.regulation for c in locked),
-            "champions-reg-mb",
+            "champions",
         )
         tr_floor = _tr_spe_discount_floor(_threat_speeds(None, regulation))
     for condition in TRACKED_CONDITIONS:

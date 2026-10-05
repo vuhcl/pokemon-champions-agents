@@ -194,6 +194,7 @@ def test_present_candidates_and_terminal_copy_notices():
         annotated_candidates=[AnnotatedCandidate("Farigiraf", (), "need")],
         candidates_pre_ranked=True,
         notices=(notice,),
+        regulation="champions",
     )
     presentation = present_candidates(ctx, slot_index=1)
     assert presentation.notices == (notice,)
@@ -211,6 +212,7 @@ def test_discover_single_locked_sets_notice_on_first_mega_lock():
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
         support_needs=_OBVIOUS_NEED,
+        regulation="champions",
     )
     captured: dict = {}
 

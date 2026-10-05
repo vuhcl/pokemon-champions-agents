@@ -280,6 +280,7 @@ def test_discover_single_locked_applies_constraint_filter_before_terminal():
         role_shape_context=RoleShapeContext(),
         threat_counter_results=[],
         support_needs=_OBVIOUS_NEED,
+        regulation="champions",
     )
 
     def merge(ctx):
