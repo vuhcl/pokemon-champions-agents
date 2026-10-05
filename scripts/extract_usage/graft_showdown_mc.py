@@ -46,14 +46,23 @@ def _utc_now_z() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _assert_format_allowed(format_id: str) -> None:
+def _assert_format_allowed(
+    format_id: str, *, regulation: str = REGULATION_TAG
+) -> None:
     """Exact Bo1 VGC format from the registry; reject bo3 and any other id."""
-    expected = REGULATIONS[REGULATION_TAG]["showdown_format"]
+    reg = REGULATIONS.get(regulation) or {}
+    expected = reg.get("showdown_format")
+    if not expected:
+        raise ValueError(f"unknown regulation {regulation!r} (no showdown_format)")
     if format_id != expected:
         raise ValueError(
             f"format_id {format_id!r} != registry Bo1 VGC {expected!r} "
             f"(bo3/OU/BSS/other formats rejected)"
         )
+
+
+def showdown_out_path(regulation: str = REGULATION_TAG) -> Path:
+    return ROOT / "data" / "usage" / f"{regulation}.showdown_doubles.v1.json"
 
 
 def _fetch_chaos(
@@ -73,9 +82,10 @@ def graft(
     format_id: str,
     rating: int,
     extracted_at: str | None = None,
+    regulation: str = REGULATION_TAG,
 ) -> dict[str, Any]:
     """Build showdown per-source file. Integrity: nonempty + format match."""
-    _assert_format_allowed(format_id)
+    _assert_format_allowed(format_id, regulation=regulation)
     n = len(showdown)
     if n < 1:
         raise ValueError("showdown species empty")
@@ -88,7 +98,7 @@ def graft(
     clock = extracted_at if extracted_at is not None else _utc_now_z()
     meta: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
-        "regulation": REGULATION_TAG,
+        "regulation": regulation,
         "section": "showdown_doubles",
         "showdown_rating": rating,
         "showdown_format": format_id,
@@ -139,9 +149,14 @@ def already_grafted(
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--month", required=True, help="YYYY-MM Smogon stats month")
-    p.add_argument("--format", default=EXPECTED_SHOWDOWN_FORMAT, dest="format_id")
+    p.add_argument(
+        "--regulation",
+        default=REGULATION_TAG,
+        help=f"Regulation file tag (default {REGULATION_TAG})",
+    )
+    p.add_argument("--format", default=None, dest="format_id")
     p.add_argument("--rating", type=int, default=1500)
-    p.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    p.add_argument("--out", type=Path, default=None)
     p.add_argument(
         "--dry-run",
         action="store_true",
@@ -154,23 +169,32 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = p.parse_args(argv)
 
+    regulation = str(args.regulation)
+    reg = REGULATIONS.get(regulation) or {}
+    expected = reg.get("showdown_format")
+    if not expected:
+        print(f"unknown regulation {regulation!r}", file=sys.stderr)
+        return 2
+    format_id = args.format_id or expected
+    out_path = args.out or showdown_out_path(regulation)
+
     if not _MONTH_RE.match(args.month):
         print(f"invalid --month {args.month!r} (want YYYY-MM)", file=sys.stderr)
         return 2
     try:
-        _assert_format_allowed(args.format_id)
+        _assert_format_allowed(format_id, regulation=regulation)
     except ValueError as e:
         print(str(e), file=sys.stderr)
         return 2
 
     previous = None
-    if args.out.exists():
+    if out_path.exists():
         try:
-            previous = json.loads(args.out.read_text(encoding="utf-8"))
+            previous = json.loads(out_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             previous = None
 
-    showdown, info = _fetch_chaos(args.month, args.format_id, args.rating)
+    showdown, info = _fetch_chaos(args.month, format_id, args.rating)
     try:
         battles_n = int(info.get("number of battles") or 0)
     except (TypeError, ValueError):
@@ -181,14 +205,14 @@ def main(argv: list[str] | None = None) -> int:
         and already_grafted(
             previous,
             month=args.month,
-            format_id=args.format_id,
+            format_id=format_id,
             battles=battles_n,
             species_n=len(showdown),
         )
         and not args.force
     ):
         print(
-            f"idempotent: already grafted {args.format_id} {args.month} "
+            f"idempotent: already grafted {format_id} {args.month} "
             f"battles={battles_n} species={len(showdown)}",
             file=sys.stderr,
         )
@@ -199,16 +223,18 @@ def main(argv: list[str] | None = None) -> int:
             showdown=showdown,
             info=info,
             month=args.month,
-            format_id=args.format_id,
+            format_id=format_id,
             rating=args.rating,
+            regulation=regulation,
         )
     except ValueError as e:
         print(str(e), file=sys.stderr)
         return 1
 
     summary = {
-        "out": str(args.out),
-        "showdown_format": args.format_id,
+        "out": str(out_path),
+        "regulation": regulation,
+        "showdown_format": format_id,
         "showdown_month": args.month,
         "showdown_battles": battles_n,
         "showdown_species_n": len(showdown),
@@ -220,11 +246,11 @@ def main(argv: list[str] | None = None) -> int:
         print("dry-run: not writing", file=sys.stderr)
         return 0
 
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(
         json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
-    print(f"Wrote {args.out}", file=sys.stderr)
+    print(f"Wrote {out_path}", file=sys.stderr)
     # Invalidate usage loader cache if imported in-process.
     try:
         from recommender.usage_data import load_usage
