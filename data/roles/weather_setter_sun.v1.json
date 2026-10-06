@@ -1,7 +1,7 @@
 {
   "category": "weather_setter",
   "condition": "Sun",
-  "built_at": "2026-08-06T17:41:55.013061+00:00",
+  "built_at": "2026-10-06T05:34:06.837527+00:00",
   "sub_criteria": {
     "kind": "weather_setter",
     "condition": "Sun",
@@ -21,6 +21,7 @@
       "Torkoal"
     ],
     "Good": [
+      "Klefki",
       "Liepard",
       "Meowstic",
       "Sableye",
@@ -76,7 +77,7 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "Helping Hand, Encore",
+        "secondary_role": "Encore, Helping Hand",
         "verified_secondary": "True",
         "excellent_secondary": "False",
         "attribution": "none",
@@ -94,17 +95,17 @@
           "purpose_claimed": "automatic on switch-in; no turn cost"
         },
         {
-          "name": "Helping Hand",
+          "name": "Encore",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
         },
         {
-          "name": "Encore",
+          "name": "Helping Hand",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Drought ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Helping Hand, Encore; excellent_secondary=False).",
+      "reasoning": "Drought ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Encore, Helping Hand; excellent_secondary=False).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"
@@ -145,6 +146,53 @@
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"
+    },
+    {
+      "species": "Klefki",
+      "species_id": "klefki",
+      "tier": "Good",
+      "delivery_class": "move_priority",
+      "mechanism": "Sunny Day",
+      "criteria_notes": {
+        "delivery": "move-based (less reliable than ability)",
+        "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
+        "secondary_role": "Light Screen, Reflect, Trick Room",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sunny Day",
+          "criterion": "delivery",
+          "purpose_claimed": "set Sun via move"
+        },
+        {
+          "name": "Prankster",
+          "criterion": "execution",
+          "purpose_claimed": "priority on status setup move"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Prankster Sunny Day clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Reflect, Trick Room.",
+      "change_reason": "pre-Task-B drift admit (Good, basis=move_priority)",
+      "reinforce_class": "",
+      "excellence_basis": "move_priority"
     },
     {
       "species": "Liepard",
@@ -192,7 +240,7 @@
       "criteria_notes": {
         "delivery": "move-based (less reliable than ability)",
         "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
-        "secondary_role": "Light Screen, Reflect, Trick Room",
+        "secondary_role": "Light Screen, Reflect, Trick Room, Helping Hand",
         "verified_secondary": "True",
         "excellent_secondary": "True",
         "attribution": "none",
@@ -223,9 +271,14 @@
           "name": "Trick Room",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Prankster Sunny Day clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Reflect, Trick Room.",
+      "reasoning": "Prankster Sunny Day clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Reflect, Trick Room, Helping Hand.",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "move_priority"
@@ -239,7 +292,7 @@
       "criteria_notes": {
         "delivery": "move-based (less reliable than ability)",
         "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
-        "secondary_role": "Light Screen, Encore, Reflect",
+        "secondary_role": "Light Screen, Reflect, Encore, Helping Hand",
         "verified_secondary": "True",
         "excellent_secondary": "True",
         "attribution": "none",
@@ -262,17 +315,22 @@
           "purpose_claimed": "other-directed support stacking"
         },
         {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
           "name": "Encore",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
         },
         {
-          "name": "Reflect",
+          "name": "Helping Hand",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Prankster Sunny Day clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Encore, Reflect.",
+      "reasoning": "Prankster Sunny Day clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Reflect, Encore, Helping Hand.",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "move_priority"
@@ -286,7 +344,7 @@
       "criteria_notes": {
         "delivery": "move-based (less reliable than ability)",
         "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
-        "secondary_role": "Tailwind, Encore",
+        "secondary_role": "Tailwind, Encore, Helping Hand, Light Screen, Trick Room",
         "verified_secondary": "True",
         "excellent_secondary": "True",
         "attribution": "none",
@@ -312,9 +370,24 @@
           "name": "Encore",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Prankster Sunny Day clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Tailwind, Encore.",
+      "reasoning": "Prankster Sunny Day clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Tailwind, Encore, Helping Hand, Light Screen, Trick Room.",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "move_priority"
@@ -324,12 +397,6 @@
     {
       "species": "Banette-Mega",
       "species_id": "banettemega",
-      "reason": "Prankster+Sunny Day learnset but no usage evidence of Sunny Day delivery",
-      "change_reason": null
-    },
-    {
-      "species": "Klefki",
-      "species_id": "klefki",
       "reason": "Prankster+Sunny Day learnset but no usage evidence of Sunny Day delivery",
       "change_reason": null
     }

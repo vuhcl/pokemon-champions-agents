@@ -1,12 +1,15 @@
 {
   "category": "weather_setter",
   "condition": "Sand",
-  "built_at": "2026-08-06T17:41:55.288756+00:00",
+  "built_at": "2026-10-06T05:34:06.838682+00:00",
   "sub_criteria": {
     "kind": "weather_setter",
     "condition": "Sand",
     "ability_ids": [
       "sandstream"
+    ],
+    "ability_ids_good": [
+      "sandspit"
     ],
     "move_id": "sandstorm",
     "priority_abilities": [
@@ -19,11 +22,14 @@
       "Tyranitar",
       "Tyranitar-Mega"
     ],
-    "Good": [],
+    "Good": [
+      "Sandaconda",
+      "Klefki"
+    ],
     "Acceptable": []
   },
   "notes": [
-    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=3.602 base=1.759; both kept (independent usage)"
+    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=6.729 base=2.244; both kept (independent usage)"
   ],
   "candidates": [
     {
@@ -35,8 +41,8 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "none observed in usage common_moves",
-        "verified_secondary": "False",
+        "secondary_role": "Helping Hand",
+        "verified_secondary": "True",
         "excellent_secondary": "False",
         "attribution": "none",
         "usage_proven": "True"
@@ -51,12 +57,49 @@
           "name": "Sand Stream",
           "criterion": "execution",
           "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Sand Stream ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (none observed in usage common_moves; excellent_secondary=False).",
+      "reasoning": "Sand Stream ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Helping Hand; excellent_secondary=False).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"
+    },
+    {
+      "species": "Sandaconda",
+      "species_id": "sandaconda",
+      "tier": "Good",
+      "delivery_class": "ability",
+      "mechanism": "Sand Spit",
+      "criteria_notes": {
+        "delivery": "ability-guaranteed (reactive; less reliable than surge)",
+        "execution": "triggers when hit; no moveslot / priority risk",
+        "secondary_role": "none observed in usage common_moves",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sand Spit",
+          "criterion": "delivery",
+          "purpose_claimed": "set Sand via ability"
+        },
+        {
+          "name": "Sand Spit",
+          "criterion": "execution",
+          "purpose_claimed": "reactive on being hit; no turn cost"
+        }
+      ],
+      "reasoning": "Sand Spit reactive ability delivery clears Good (below switch-in surge setters); secondary: none observed in usage common_moves.",
+      "change_reason": "ability-usage tier or Psychic Terrain credit: admit Good (basis=reactive_ability)",
+      "reinforce_class": "",
+      "excellence_basis": "reactive_ability"
     },
     {
       "species": "Tyranitar",
@@ -67,8 +110,8 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "none observed in usage common_moves",
-        "verified_secondary": "False",
+        "secondary_role": "Helping Hand",
+        "verified_secondary": "True",
         "excellent_secondary": "False",
         "attribution": "showdown form-separated usage",
         "usage_proven": "True"
@@ -83,9 +126,14 @@
           "name": "Sand Stream",
           "criterion": "execution",
           "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Sand Stream ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (none observed in usage common_moves; excellent_secondary=False).",
+      "reasoning": "Sand Stream ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Helping Hand; excellent_secondary=False).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"
@@ -99,8 +147,8 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "none observed in usage common_moves",
-        "verified_secondary": "False",
+        "secondary_role": "Helping Hand",
+        "verified_secondary": "True",
         "excellent_secondary": "False",
         "attribution": "showdown form-separated usage",
         "usage_proven": "True"
@@ -115,20 +163,65 @@
           "name": "Sand Stream",
           "criterion": "execution",
           "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Sand Stream ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (none observed in usage common_moves; excellent_secondary=False).",
+      "reasoning": "Sand Stream ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Helping Hand; excellent_secondary=False).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"
-    }
-  ],
-  "considered_rejected": [
+    },
     {
       "species": "Klefki",
       "species_id": "klefki",
-      "reason": "Prankster+Sandstorm learnset but no usage evidence of Sandstorm delivery",
-      "change_reason": null
+      "tier": "Good",
+      "delivery_class": "move_priority",
+      "mechanism": "Sandstorm",
+      "criteria_notes": {
+        "delivery": "move-based (less reliable than ability)",
+        "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
+        "secondary_role": "Light Screen, Reflect, Trick Room",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Sandstorm",
+          "criterion": "delivery",
+          "purpose_claimed": "set Sand via move"
+        },
+        {
+          "name": "Prankster",
+          "criterion": "execution",
+          "purpose_claimed": "priority on status setup move"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Prankster Sandstorm clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Reflect, Trick Room.",
+      "change_reason": "pre-Task-B drift admit (Good, basis=move_priority)",
+      "reinforce_class": "",
+      "excellence_basis": "move_priority"
     }
-  ]
+  ],
+  "considered_rejected": []
 }

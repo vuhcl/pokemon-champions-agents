@@ -1,7 +1,7 @@
 {
   "category": "iron_defense_body_press",
   "condition": "",
-  "built_at": "2026-08-15T05:23:14.389384+00:00",
+  "built_at": "2026-10-06T05:34:06.861851+00:00",
   "sub_criteria": {
     "kind": "def_payoff_setup",
     "condition": "",
@@ -12,98 +12,64 @@
   },
   "tiers": {
     "Excellent": [
-      "Kommo-o",
       "Chesnaught-Mega"
     ],
     "Good": [
-      "Skarmory-Mega",
       "Metagross-Mega",
-      "Torterra",
-      "Corviknight",
-      "Falinks-Mega",
-      "Avalugg-Hisui",
-      "Rhyperior",
-      "Garganacl",
+      "Skarmory-Mega",
       "Sandaconda",
+      "Kommo-o",
+      "Torterra",
+      "Avalugg-Hisui",
+      "Falinks-Mega",
+      "Torkoal",
+      "Forretress",
+      "Chesnaught",
+      "Tyranitar-Mega",
+      "Rhyperior",
+      "Cofagrigus",
+      "Garganacl",
       "Avalugg",
       "Bastiodon",
-      "Cofagrigus",
       "Orthworm",
       "Steelix-Mega",
-      "Runerigus",
-      "Forretress",
       "Slowbro-Mega",
-      "Aggron-Mega"
+      "Aggron-Mega",
+      "Runerigus"
     ],
     "Acceptable": [
+      "Tyranitar",
+      "Slowbro-Galar",
+      "Corviknight",
       "Mudsdale",
-      "Steelix",
-      "Appletun",
-      "Slowbro"
+      "Steelix"
     ]
   },
   "notes": [
     "learnset conjunction irondefense \u2229 bodypress; admit iff the same usage row lists both (Champions row if present, else Showdown)",
     "Champions offline does not confirm ID+BP co-listing; Showdown-admitted field may be demoted at critic",
     "ID+BP dual-purpose split: high-offense members \u2260 high-bulk-crossing members; sort-only, no promote/demote threshold",
-    "threat_panel=showdown>=4.52%/15game n=37 pair=top1-partner (Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Incineroar/Sitrus Berry+Sinistcha/Kasib Berry, Sinistcha/Kasib Berry+Incineroar/Sitrus Berry, Kingambit/Black Glasses+Garchomp/Life Orb, Basculegion/Choice Scarf+Kingambit/Black Glasses, Whimsicott/Focus Sash+Garchomp/Life Orb, Farigiraf/Sitrus Berry+Sylveon/Fairy Feather, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Sneasler/White Herb+Kingambit/Black Glasses, Sylveon/Fairy Feather+Garchomp/Life Orb, Pelipper/Sitrus Berry+Archaludon/Leftovers, Archaludon/Leftovers+Pelipper/Sitrus Berry, Staraptor-Mega/Staraptite+Sinistcha/Kasib Berry, Grimmsnarl/Light Clay+Pelipper/Sitrus Berry, Gholdengo/Life Orb+Sinistcha/Kasib Berry, Floette-Mega/Floettite+Kingambit/Black Glasses, Milotic/Leftovers+Sinistcha/Kasib Berry, Raichu-Mega-Y/Raichunite Y+Incineroar/Sitrus Berry, Torkoal/Charcoal+Farigiraf/Sitrus Berry, Swampert-Mega/Swampertite+Archaludon/Leftovers, Metagross-Mega/Metagrossite+Garchomp/Life Orb, Maushold/Wide Lens+Sinistcha/Kasib Berry, Delphox-Mega/Delphoxite+Sinistcha/Kasib Berry, Mawile-Mega/Mawilite+Farigiraf/Sitrus Berry, Ninetales-Alola/Never-Melt Ice+Kingambit/Black Glasses, Aerodactyl-Mega/Aerodactylite+Kingambit/Black Glasses, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Blastoise-Mega/Blastoisinite+Sinistcha/Kasib Berry, Talonflame/Sharp Beak+Garchomp/Life Orb, Sableye/Light Clay+Archaludon/Leftovers, Rotom-Wash/Sitrus Berry+Garchomp/Life Orb, Ceruledge/Colbur Berry+Sinistcha/Kasib Berry, Venusaur/Life Orb+Charizard-Mega-Y/Charizardite Y, Hydreigon/Choice Scarf+Charizard-Mega-Y/Charizardite Y, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Annihilape/Focus Sash+Incineroar/Sitrus Berry)",
+    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Grassy Seed+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
     "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
     "payoff_fallback=per-defender on type immunity (usage then learnset, STAB-then-corrected-BP); skip only if all candidate moves zero",
     "bulk_crossings=incoming Physical after candidate Def+2; KO bins from damageRange[-1]/HP; OHKO\u2192not-OHKO and 2HKO\u21923HKO+; immunity excluded from n_relevant",
     "within-tier sort by bulk_crossings; no promotion threshold (gap does not map onto any single candidate)",
-    "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.434 base=0.047; stone-heuristic fallback unused",
-    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.312 base=0.017; stone-heuristic fallback unused",
-    "Showdown attribution (Metagross/Metagross-Mega): mega usage_pct=7.923 base=0.432; stone-heuristic fallback unused",
-    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=6.022 base=3.038; stone-heuristic fallback unused",
-    "Showdown attribution (Steelix/Steelix-Mega): mega usage_pct=0.353 base=0.053; stone-heuristic fallback unused",
-    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.286 base=0.099; stone-heuristic fallback unused",
-    "Showdown attribution (Blastoise/Blastoise-Mega): mega usage_pct=6.020 base=0.254; stone-heuristic fallback unused",
-    "Showdown attribution (Aggron/Aggron-Mega): mega usage_pct=0.489 base=0.020; stone-heuristic fallback unused",
-    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.481 base=0.075; stone-heuristic fallback unused",
-    "Showdown attribution (Golurk/Golurk-Mega): mega usage_pct=0.527 base=0.105; stone-heuristic fallback unused",
-    "Showdown attribution (Crabominable/Crabominable-Mega): mega usage_pct=0.563 base=0.044; stone-heuristic fallback unused",
-    "Excellent damage floor = 2nd-highest post-ID \u00d7 0.95 \u2192 0.875 (top: Chesnaught-Mega=0.927, Kommo-o=0.921)",
-    "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.612",
+    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
+    "Showdown attribution (Blastoise/Blastoise-Mega): mega usage_pct=2.737 base=0.107; stone-heuristic fallback unused",
+    "Showdown attribution (Metagross/Metagross-Mega): mega usage_pct=6.135 base=0.294; stone-heuristic fallback unused",
+    "Showdown attribution (Steelix/Steelix-Mega): mega usage_pct=0.251 base=0.051; stone-heuristic fallback unused",
+    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=6.729 base=2.244; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
+    "Showdown attribution (Crabominable/Crabominable-Mega): mega usage_pct=0.506 base=0.021; stone-heuristic fallback unused",
+    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.073 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Golurk/Golurk-Mega): mega usage_pct=0.270 base=0.038; stone-heuristic fallback unused",
+    "Showdown attribution (Aggron/Aggron-Mega): mega usage_pct=0.354 base=0.010; stone-heuristic fallback unused",
+    "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.406 base=0.030; stone-heuristic fallback unused",
+    "Excellent damage floor = 2nd-highest post-ID \u00d7 0.95 \u2192 0.843 (top: Chesnaught-Mega=0.913, Steelix=0.887)",
+    "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.590",
     "sweep_ohko + sweep_2hko vs panel (ID+BP OHKO clumps; 2HKO+ is the spreading axis); survive_hp n_surv=0 \u2192 n/a; display only \u2014 sort stays bulk_crossings"
   ],
   "candidates": [
-    {
-      "species": "Kommo-o",
-      "species_id": "kommoo",
-      "tier": "Excellent",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.921 unboosted=0.581 delta=0.340 floor=0.875 bulk_crossings=8/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Dragon Claw\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Kommo-o",
-        "damage_score": "0.921",
-        "bulk_crossings": "8/25",
-        "sweep_ohko": "17/37",
-        "sweep_2hko": "33/37",
-        "survive_n": "12",
-        "survive_hp_mean": "0.78",
-        "survive_hp_min": "0.64"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.921 (delta 0.340); Body Press\u00d730; Dragon Claw\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=8/25"
-        }
-      ],
-      "reasoning": "Excellent: post-ID 0.921 delta=0.340 (floor 0.875); bulk_crossings=8/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "calc_body_press"
-    },
     {
       "species": "Chesnaught-Mega",
       "species_id": "chesnaughtmega",
@@ -112,17 +78,17 @@
       "mechanism": "Iron Defense+Body Press",
       "criteria_notes": {
         "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.927 unboosted=0.630 delta=0.297 floor=0.875 bulk_crossings=4/25",
+        "execution": "post_id=0.913 unboosted=0.598 delta=0.315 floor=0.843 bulk_crossings=3/24",
         "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Wood Hammer\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
+        "payoff_coverage": "Body Press\u00d731; Wood Hammer\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
         "calc_species": "Chesnaught-Mega",
-        "damage_score": "0.927",
-        "bulk_crossings": "4/25",
-        "sweep_ohko": "18/37",
-        "sweep_2hko": "33/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.82",
-        "survive_hp_min": "0.50"
+        "damage_score": "0.913",
+        "bulk_crossings": "3/24",
+        "sweep_ohko": "16/36",
+        "sweep_2hko": "31/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.78",
+        "survive_hp_min": "0.20"
       },
       "claimed_traits": [
         {
@@ -133,50 +99,13 @@
         {
           "name": "Body Press + coverage",
           "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.927 (delta 0.297); Body Press\u00d730; Wood Hammer\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=4/25"
+          "purpose_claimed": "Body Press post-ID 0.913 (delta 0.315); Body Press\u00d731; Wood Hammer\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=3/24"
         }
       ],
-      "reasoning": "Excellent: post-ID 0.927 delta=0.297 (floor 0.875); bulk_crossings=4/25",
+      "reasoning": "Excellent: post-ID 0.913 delta=0.315 (floor 0.843); bulk_crossings=3/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_body_press"
-    },
-    {
-      "species": "Skarmory-Mega",
-      "species_id": "skarmorymega",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.665 unboosted=0.407 delta=0.258 floor=0.875 bulk_crossings=15/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Brave Bird\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Skarmory-Mega",
-        "damage_score": "0.665",
-        "bulk_crossings": "15/25",
-        "sweep_ohko": "8/37",
-        "sweep_2hko": "23/37",
-        "survive_n": "5",
-        "survive_hp_mean": "0.59",
-        "survive_hp_min": "0.39"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.665 (delta 0.258); Body Press\u00d730; Brave Bird\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=15/25"
-        }
-      ],
-      "reasoning": "Good: post-ID 0.665 delta=0.258 (floor 0.875); bulk_crossings=15/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_body_press"
     },
     {
       "species": "Metagross-Mega",
@@ -186,17 +115,17 @@
       "mechanism": "Iron Defense+Body Press",
       "criteria_notes": {
         "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.793 unboosted=0.510 delta=0.283 floor=0.875 bulk_crossings=13/25",
+        "execution": "post_id=0.796 unboosted=0.489 delta=0.307 floor=0.843 bulk_crossings=11/24",
         "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Meteor Mash\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
+        "payoff_coverage": "Body Press\u00d731; Meteor Mash\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
         "calc_species": "Metagross-Mega",
-        "damage_score": "0.793",
-        "bulk_crossings": "13/25",
-        "sweep_ohko": "11/37",
-        "sweep_2hko": "33/37",
-        "survive_n": "5",
-        "survive_hp_mean": "0.83",
-        "survive_hp_min": "0.58"
+        "damage_score": "0.796",
+        "bulk_crossings": "11/24",
+        "sweep_ohko": "10/36",
+        "sweep_2hko": "28/36",
+        "survive_n": "13",
+        "survive_hp_mean": "0.79",
+        "survive_hp_min": "0.54"
       },
       "claimed_traits": [
         {
@@ -207,32 +136,32 @@
         {
           "name": "Body Press + coverage",
           "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.793 (delta 0.283); Body Press\u00d730; Meteor Mash\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=13/25"
+          "purpose_claimed": "Body Press post-ID 0.796 (delta 0.307); Body Press\u00d731; Meteor Mash\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=11/24"
         }
       ],
-      "reasoning": "Good: post-ID 0.793 delta=0.283 (floor 0.875); bulk_crossings=13/25",
+      "reasoning": "Good: post-ID 0.796 delta=0.307 (floor 0.843); bulk_crossings=11/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
     },
     {
-      "species": "Torterra",
-      "species_id": "torterra",
+      "species": "Skarmory-Mega",
+      "species_id": "skarmorymega",
       "tier": "Good",
       "delivery_class": "move_setup",
       "mechanism": "Iron Defense+Body Press",
       "criteria_notes": {
         "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.651 unboosted=0.392 delta=0.259 floor=0.875 bulk_crossings=13/25",
+        "execution": "post_id=0.618 unboosted=0.356 delta=0.262 floor=0.843 bulk_crossings=10/24",
         "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Headlong Rush\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Torterra",
-        "damage_score": "0.651",
-        "bulk_crossings": "13/25",
-        "sweep_ohko": "9/37",
-        "sweep_2hko": "20/37",
-        "survive_n": "17",
-        "survive_hp_mean": "0.74",
+        "payoff_coverage": "Body Press\u00d731; Brave Bird\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Skarmory-Mega",
+        "damage_score": "0.618",
+        "bulk_crossings": "10/24",
+        "sweep_ohko": "5/36",
+        "sweep_2hko": "19/36",
+        "survive_n": "13",
+        "survive_hp_mean": "0.70",
         "survive_hp_min": "0.48"
       },
       "claimed_traits": [
@@ -244,195 +173,10 @@
         {
           "name": "Body Press + coverage",
           "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.651 (delta 0.259); Body Press\u00d730; Headlong Rush\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=13/25"
+          "purpose_claimed": "Body Press post-ID 0.618 (delta 0.262); Body Press\u00d731; Brave Bird\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=10/24"
         }
       ],
-      "reasoning": "Good: post-ID 0.651 delta=0.259 (floor 0.875); bulk_crossings=13/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_body_press"
-    },
-    {
-      "species": "Corviknight",
-      "species_id": "corviknight",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.613 unboosted=0.365 delta=0.248 floor=0.875 bulk_crossings=10/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Brave Bird\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Corviknight",
-        "damage_score": "0.613",
-        "bulk_crossings": "10/25",
-        "sweep_ohko": "6/37",
-        "sweep_2hko": "19/37",
-        "survive_n": "16",
-        "survive_hp_mean": "0.74",
-        "survive_hp_min": "0.41"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.613 (delta 0.248); Body Press\u00d730; Brave Bird\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=10/25"
-        }
-      ],
-      "reasoning": "Good: post-ID 0.613 delta=0.248 (floor 0.875); bulk_crossings=10/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_body_press"
-    },
-    {
-      "species": "Falinks-Mega",
-      "species_id": "falinksmega",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.765 unboosted=0.444 delta=0.321 floor=0.875 bulk_crossings=9/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Megahorn\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Falinks-Mega",
-        "damage_score": "0.765",
-        "bulk_crossings": "9/25",
-        "sweep_ohko": "10/37",
-        "sweep_2hko": "30/37",
-        "survive_n": "8",
-        "survive_hp_mean": "0.73",
-        "survive_hp_min": "0.64"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.765 (delta 0.321); Body Press\u00d730; Megahorn\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=9/25"
-        }
-      ],
-      "reasoning": "Good: post-ID 0.765 delta=0.321 (floor 0.875); bulk_crossings=9/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_body_press"
-    },
-    {
-      "species": "Avalugg-Hisui",
-      "species_id": "avalugghisui",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.746 unboosted=0.332 delta=0.414 floor=0.875 bulk_crossings=9/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Mountain Gale\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Avalugg-Hisui",
-        "damage_score": "0.746",
-        "bulk_crossings": "9/25",
-        "sweep_ohko": "11/37",
-        "sweep_2hko": "31/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.68",
-        "survive_hp_min": "0.21"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.746 (delta 0.414); Body Press\u00d730; Mountain Gale\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=9/25"
-        }
-      ],
-      "reasoning": "Good: post-ID 0.746 delta=0.414 (floor 0.875); bulk_crossings=9/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_body_press"
-    },
-    {
-      "species": "Rhyperior",
-      "species_id": "rhyperior",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.812 unboosted=0.482 delta=0.330 floor=0.875 bulk_crossings=8/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Earthquake\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Rhyperior",
-        "damage_score": "0.812",
-        "bulk_crossings": "8/25",
-        "sweep_ohko": "13/37",
-        "sweep_2hko": "33/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.78",
-        "survive_hp_min": "0.26"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.812 (delta 0.330); Body Press\u00d730; Earthquake\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=8/25"
-        }
-      ],
-      "reasoning": "Good: post-ID 0.812 delta=0.330 (floor 0.875); bulk_crossings=8/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_body_press"
-    },
-    {
-      "species": "Garganacl",
-      "species_id": "garganacl",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.627 unboosted=0.374 delta=0.253 floor=0.875 bulk_crossings=8/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Stone Edge\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Garganacl",
-        "damage_score": "0.627",
-        "bulk_crossings": "8/25",
-        "sweep_ohko": "6/37",
-        "sweep_2hko": "21/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.75",
-        "survive_hp_min": "0.47"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.627 (delta 0.253); Body Press\u00d730; Stone Edge\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=8/25"
-        }
-      ],
-      "reasoning": "Good: post-ID 0.627 delta=0.253 (floor 0.875); bulk_crossings=8/25",
+      "reasoning": "Good: post-ID 0.618 delta=0.262 (floor 0.843); bulk_crossings=10/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
@@ -445,17 +189,350 @@
       "mechanism": "Iron Defense+Body Press",
       "criteria_notes": {
         "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.641 unboosted=0.390 delta=0.252 floor=0.875 bulk_crossings=7/25",
+        "execution": "post_id=0.617 unboosted=0.320 delta=0.297 floor=0.843 bulk_crossings=10/24",
         "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Earthquake\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
+        "payoff_coverage": "Body Press\u00d731; Earthquake\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
         "calc_species": "Sandaconda",
-        "damage_score": "0.641",
-        "bulk_crossings": "7/25",
-        "sweep_ohko": "6/37",
-        "sweep_2hko": "20/37",
+        "damage_score": "0.617",
+        "bulk_crossings": "10/24",
+        "sweep_ohko": "6/36",
+        "sweep_2hko": "17/36",
+        "survive_n": "17",
+        "survive_hp_mean": "0.75",
+        "survive_hp_min": "0.44"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.617 (delta 0.297); Body Press\u00d731; Earthquake\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=10/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.617 delta=0.297 (floor 0.843); bulk_crossings=10/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Kommo-o",
+      "species_id": "kommoo",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.768 unboosted=0.432 delta=0.337 floor=0.843 bulk_crossings=9/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Dragon Claw\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Kommo-o",
+        "damage_score": "0.768",
+        "bulk_crossings": "9/24",
+        "sweep_ohko": "9/36",
+        "sweep_2hko": "28/36",
         "survive_n": "15",
+        "survive_hp_mean": "0.71",
+        "survive_hp_min": "0.33"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.768 (delta 0.337); Body Press\u00d731; Dragon Claw\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=9/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.768 delta=0.337 (floor 0.843); bulk_crossings=9/24",
+      "change_reason": "pre-Task-B drift: Excellent \u2192 Good (basis=good_calc_body_press)",
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Torterra",
+      "species_id": "torterra",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.731 unboosted=0.429 delta=0.301 floor=0.843 bulk_crossings=9/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Headlong Rush\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Torterra",
+        "damage_score": "0.731",
+        "bulk_crossings": "9/24",
+        "sweep_ohko": "11/36",
+        "sweep_2hko": "25/36",
+        "survive_n": "18",
+        "survive_hp_mean": "0.80",
+        "survive_hp_min": "0.49"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.731 (delta 0.301); Body Press\u00d731; Headlong Rush\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=9/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.731 delta=0.301 (floor 0.843); bulk_crossings=9/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Avalugg-Hisui",
+      "species_id": "avalugghisui",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.710 unboosted=0.259 delta=0.451 floor=0.843 bulk_crossings=9/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Mountain Gale\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Avalugg-Hisui",
+        "damage_score": "0.710",
+        "bulk_crossings": "9/24",
+        "sweep_ohko": "9/36",
+        "sweep_2hko": "26/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.69",
+        "survive_hp_min": "0.16"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.710 (delta 0.451); Body Press\u00d731; Mountain Gale\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=9/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.710 delta=0.451 (floor 0.843); bulk_crossings=9/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Falinks-Mega",
+      "species_id": "falinksmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.765 unboosted=0.413 delta=0.352 floor=0.843 bulk_crossings=8/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Megahorn\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Falinks-Mega",
+        "damage_score": "0.765",
+        "bulk_crossings": "8/24",
+        "sweep_ohko": "11/36",
+        "sweep_2hko": "27/36",
+        "survive_n": "14",
+        "survive_hp_mean": "0.73",
+        "survive_hp_min": "0.32"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.765 (delta 0.352); Body Press\u00d731; Megahorn\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=8/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.765 delta=0.352 (floor 0.843); bulk_crossings=8/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Torkoal",
+      "species_id": "torkoal",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.692 unboosted=0.411 delta=0.281 floor=0.843 bulk_crossings=8/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Flare Blitz\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Torkoal",
+        "damage_score": "0.692",
+        "bulk_crossings": "8/24",
+        "sweep_ohko": "9/36",
+        "sweep_2hko": "23/36",
+        "survive_n": "22",
+        "survive_hp_mean": "0.75",
+        "survive_hp_min": "0.39"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.692 (delta 0.281); Body Press\u00d731; Flare Blitz\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=8/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.692 delta=0.281 (floor 0.843); bulk_crossings=8/24",
+      "change_reason": "pre-Task-B drift admit (Good, basis=good_calc_body_press)",
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Forretress",
+      "species_id": "forretress",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.630 unboosted=0.335 delta=0.296 floor=0.843 bulk_crossings=8/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Iron Head\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Forretress",
+        "damage_score": "0.630",
+        "bulk_crossings": "8/24",
+        "sweep_ohko": "7/36",
+        "sweep_2hko": "20/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.76",
+        "survive_hp_min": "0.21"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.630 (delta 0.296); Body Press\u00d731; Iron Head\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=8/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.630 delta=0.296 (floor 0.843); bulk_crossings=8/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Chesnaught",
+      "species_id": "chesnaught",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.778 unboosted=0.440 delta=0.339 floor=0.843 bulk_crossings=7/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Wood Hammer\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Chesnaught",
+        "damage_score": "0.778",
+        "bulk_crossings": "7/24",
+        "sweep_ohko": "10/36",
+        "sweep_2hko": "28/36",
+        "survive_n": "17",
+        "survive_hp_mean": "0.77",
+        "survive_hp_min": "0.17"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.778 (delta 0.339); Body Press\u00d731; Wood Hammer\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=7/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.778 delta=0.339 (floor 0.843); bulk_crossings=7/24",
+      "change_reason": "pre-Task-B drift admit (Good, basis=good_calc_body_press)",
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Tyranitar-Mega",
+      "species_id": "tyranitarmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.653 unboosted=0.376 delta=0.277 floor=0.843 bulk_crossings=7/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Stone Edge\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Tyranitar-Mega",
+        "damage_score": "0.653",
+        "bulk_crossings": "7/24",
+        "sweep_ohko": "8/36",
+        "sweep_2hko": "23/36",
+        "survive_n": "15",
+        "survive_hp_mean": "0.76",
+        "survive_hp_min": "0.32"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.653 (delta 0.277); Body Press\u00d731; Stone Edge\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=7/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.653 delta=0.277 (floor 0.843); bulk_crossings=7/24",
+      "change_reason": "pct-convention rescale: admit Good (basis=good_calc_body_press)",
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Rhyperior",
+      "species_id": "rhyperior",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.778 unboosted=0.441 delta=0.337 floor=0.843 bulk_crossings=6/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Earthquake\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Rhyperior",
+        "damage_score": "0.778",
+        "bulk_crossings": "6/24",
+        "sweep_ohko": "11/36",
+        "sweep_2hko": "28/36",
+        "survive_n": "19",
         "survive_hp_mean": "0.79",
-        "survive_hp_min": "0.61"
+        "survive_hp_min": "0.15"
       },
       "claimed_traits": [
         {
@@ -466,84 +543,10 @@
         {
           "name": "Body Press + coverage",
           "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.641 (delta 0.252); Body Press\u00d730; Earthquake\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=7/25"
+          "purpose_claimed": "Body Press post-ID 0.778 (delta 0.337); Body Press\u00d731; Earthquake\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=6/24"
         }
       ],
-      "reasoning": "Good: post-ID 0.641 delta=0.252 (floor 0.875); bulk_crossings=7/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_body_press"
-    },
-    {
-      "species": "Avalugg",
-      "species_id": "avalugg",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.687 unboosted=0.437 delta=0.251 floor=0.875 bulk_crossings=6/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Icicle Crash\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Avalugg",
-        "damage_score": "0.687",
-        "bulk_crossings": "6/25",
-        "sweep_ohko": "10/37",
-        "sweep_2hko": "29/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.81",
-        "survive_hp_min": "0.66"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.687 (delta 0.251); Body Press\u00d730; Icicle Crash\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=6/25"
-        }
-      ],
-      "reasoning": "Good: post-ID 0.687 delta=0.251 (floor 0.875); bulk_crossings=6/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_body_press"
-    },
-    {
-      "species": "Bastiodon",
-      "species_id": "bastiodon",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.673 unboosted=0.395 delta=0.278 floor=0.875 bulk_crossings=6/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Stone Edge\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Bastiodon",
-        "damage_score": "0.673",
-        "bulk_crossings": "6/25",
-        "sweep_ohko": "9/37",
-        "sweep_2hko": "24/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.66",
-        "survive_hp_min": "0.04"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.673 (delta 0.278); Body Press\u00d730; Stone Edge\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=6/25"
-        }
-      ],
-      "reasoning": "Good: post-ID 0.673 delta=0.278 (floor 0.875); bulk_crossings=6/25",
+      "reasoning": "Good: post-ID 0.778 delta=0.337 (floor 0.843); bulk_crossings=6/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
@@ -556,17 +559,17 @@
       "mechanism": "Iron Defense+Body Press",
       "criteria_notes": {
         "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.673 unboosted=0.425 delta=0.249 floor=0.875 bulk_crossings=6/25",
+        "execution": "post_id=0.666 unboosted=0.386 delta=0.280 floor=0.843 bulk_crossings=6/24",
         "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Poltergeist\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
+        "payoff_coverage": "Body Press\u00d731; Poltergeist\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
         "calc_species": "Cofagrigus",
-        "damage_score": "0.673",
-        "bulk_crossings": "6/25",
-        "sweep_ohko": "6/37",
-        "sweep_2hko": "25/37",
-        "survive_n": "18",
+        "damage_score": "0.666",
+        "bulk_crossings": "6/24",
+        "sweep_ohko": "7/36",
+        "sweep_2hko": "23/36",
+        "survive_n": "19",
         "survive_hp_mean": "0.79",
-        "survive_hp_min": "0.53"
+        "survive_hp_min": "0.18"
       },
       "claimed_traits": [
         {
@@ -577,10 +580,121 @@
         {
           "name": "Body Press + coverage",
           "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.673 (delta 0.249); Body Press\u00d730; Poltergeist\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=6/25"
+          "purpose_claimed": "Body Press post-ID 0.666 (delta 0.280); Body Press\u00d731; Poltergeist\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=6/24"
         }
       ],
-      "reasoning": "Good: post-ID 0.673 delta=0.249 (floor 0.875); bulk_crossings=6/25",
+      "reasoning": "Good: post-ID 0.666 delta=0.280 (floor 0.843); bulk_crossings=6/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Garganacl",
+      "species_id": "garganacl",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.619 unboosted=0.354 delta=0.265 floor=0.843 bulk_crossings=6/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Stone Edge\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Garganacl",
+        "damage_score": "0.619",
+        "bulk_crossings": "6/24",
+        "sweep_ohko": "7/36",
+        "sweep_2hko": "18/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.75",
+        "survive_hp_min": "0.39"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.619 (delta 0.265); Body Press\u00d731; Stone Edge\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=6/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.619 delta=0.265 (floor 0.843); bulk_crossings=6/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Avalugg",
+      "species_id": "avalugg",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.669 unboosted=0.328 delta=0.341 floor=0.843 bulk_crossings=5/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Icicle Crash\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Avalugg",
+        "damage_score": "0.669",
+        "bulk_crossings": "5/24",
+        "sweep_ohko": "9/36",
+        "sweep_2hko": "26/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.83",
+        "survive_hp_min": "0.66"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.669 (delta 0.341); Body Press\u00d731; Icicle Crash\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=5/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.669 delta=0.341 (floor 0.843); bulk_crossings=5/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Bastiodon",
+      "species_id": "bastiodon",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.668 unboosted=0.362 delta=0.306 floor=0.843 bulk_crossings=5/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Iron Tail\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Bastiodon",
+        "damage_score": "0.668",
+        "bulk_crossings": "5/24",
+        "sweep_ohko": "9/36",
+        "sweep_2hko": "23/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.75",
+        "survive_hp_min": "0.19"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.668 (delta 0.306); Body Press\u00d731; Iron Tail\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=5/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.668 delta=0.306 (floor 0.843); bulk_crossings=5/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
@@ -593,17 +707,17 @@
       "mechanism": "Iron Defense+Body Press",
       "criteria_notes": {
         "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.626 unboosted=0.341 delta=0.285 floor=0.875 bulk_crossings=6/25",
+        "execution": "post_id=0.629 unboosted=0.327 delta=0.302 floor=0.843 bulk_crossings=5/24",
         "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Iron Tail\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
+        "payoff_coverage": "Body Press\u00d731; Iron Tail\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
         "calc_species": "Orthworm",
-        "damage_score": "0.626",
-        "bulk_crossings": "6/25",
-        "sweep_ohko": "6/37",
-        "sweep_2hko": "21/37",
-        "survive_n": "16",
-        "survive_hp_mean": "0.83",
-        "survive_hp_min": "0.59"
+        "damage_score": "0.629",
+        "bulk_crossings": "5/24",
+        "sweep_ohko": "8/36",
+        "sweep_2hko": "21/36",
+        "survive_n": "17",
+        "survive_hp_mean": "0.84",
+        "survive_hp_min": "0.56"
       },
       "claimed_traits": [
         {
@@ -614,10 +728,10 @@
         {
           "name": "Body Press + coverage",
           "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.626 (delta 0.285); Body Press\u00d730; Iron Tail\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=6/25"
+          "purpose_claimed": "Body Press post-ID 0.629 (delta 0.302); Body Press\u00d731; Iron Tail\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=5/24"
         }
       ],
-      "reasoning": "Good: post-ID 0.626 delta=0.285 (floor 0.875); bulk_crossings=6/25",
+      "reasoning": "Good: post-ID 0.629 delta=0.302 (floor 0.843); bulk_crossings=5/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
@@ -630,16 +744,16 @@
       "mechanism": "Iron Defense+Body Press",
       "criteria_notes": {
         "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.847 unboosted=0.563 delta=0.284 floor=0.875 bulk_crossings=5/25",
+        "execution": "post_id=0.822 unboosted=0.516 delta=0.307 floor=0.843 bulk_crossings=4/24",
         "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Earthquake\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
+        "payoff_coverage": "Body Press\u00d731; Earthquake\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
         "calc_species": "Steelix-Mega",
-        "damage_score": "0.847",
-        "bulk_crossings": "5/25",
-        "sweep_ohko": "11/37",
-        "sweep_2hko": "32/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.84",
+        "damage_score": "0.822",
+        "bulk_crossings": "4/24",
+        "sweep_ohko": "12/36",
+        "sweep_2hko": "30/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.85",
         "survive_hp_min": "0.63"
       },
       "claimed_traits": [
@@ -651,84 +765,10 @@
         {
           "name": "Body Press + coverage",
           "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.847 (delta 0.284); Body Press\u00d730; Earthquake\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=5/25"
+          "purpose_claimed": "Body Press post-ID 0.822 (delta 0.307); Body Press\u00d731; Earthquake\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=4/24"
         }
       ],
-      "reasoning": "Good: post-ID 0.847 delta=0.284 (floor 0.875); bulk_crossings=5/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_body_press"
-    },
-    {
-      "species": "Runerigus",
-      "species_id": "runerigus",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.728 unboosted=0.440 delta=0.288 floor=0.875 bulk_crossings=4/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Poltergeist\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Runerigus",
-        "damage_score": "0.728",
-        "bulk_crossings": "4/25",
-        "sweep_ohko": "8/37",
-        "sweep_2hko": "26/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.82",
-        "survive_hp_min": "0.49"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.728 (delta 0.288); Body Press\u00d730; Poltergeist\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=4/25"
-        }
-      ],
-      "reasoning": "Good: post-ID 0.728 delta=0.288 (floor 0.875); bulk_crossings=4/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_body_press"
-    },
-    {
-      "species": "Forretress",
-      "species_id": "forretress",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.627 unboosted=0.340 delta=0.288 floor=0.875 bulk_crossings=3/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Iron Head\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Forretress",
-        "damage_score": "0.627",
-        "bulk_crossings": "3/25",
-        "sweep_ohko": "6/37",
-        "sweep_2hko": "20/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.81",
-        "survive_hp_min": "0.38"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.627 (delta 0.288); Body Press\u00d730; Iron Head\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=3/25"
-        }
-      ],
-      "reasoning": "Good: post-ID 0.627 delta=0.288 (floor 0.875); bulk_crossings=3/25",
+      "reasoning": "Good: post-ID 0.822 delta=0.307 (floor 0.843); bulk_crossings=4/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
@@ -741,17 +781,17 @@
       "mechanism": "Iron Defense+Body Press",
       "criteria_notes": {
         "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.713 unboosted=0.433 delta=0.279 floor=0.875 bulk_crossings=2/25",
+        "execution": "post_id=0.696 unboosted=0.364 delta=0.332 floor=0.843 bulk_crossings=4/24",
         "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Liquidation\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
+        "payoff_coverage": "Body Press\u00d731; Liquidation\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
         "calc_species": "Slowbro-Mega",
-        "damage_score": "0.713",
-        "bulk_crossings": "2/25",
-        "sweep_ohko": "10/37",
-        "sweep_2hko": "28/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.86",
-        "survive_hp_min": "0.67"
+        "damage_score": "0.696",
+        "bulk_crossings": "4/24",
+        "sweep_ohko": "9/36",
+        "sweep_2hko": "24/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.83",
+        "survive_hp_min": "0.39"
       },
       "claimed_traits": [
         {
@@ -762,10 +802,10 @@
         {
           "name": "Body Press + coverage",
           "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.713 (delta 0.279); Body Press\u00d730; Liquidation\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=2/25"
+          "purpose_claimed": "Body Press post-ID 0.696 (delta 0.332); Body Press\u00d731; Liquidation\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=4/24"
         }
       ],
-      "reasoning": "Good: post-ID 0.713 delta=0.279 (floor 0.875); bulk_crossings=2/25",
+      "reasoning": "Good: post-ID 0.696 delta=0.332 (floor 0.843); bulk_crossings=4/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
@@ -778,17 +818,17 @@
       "mechanism": "Iron Defense+Body Press",
       "criteria_notes": {
         "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.807 unboosted=0.536 delta=0.271 floor=0.875 bulk_crossings=1/25",
+        "execution": "post_id=0.803 unboosted=0.518 delta=0.285 floor=0.843 bulk_crossings=3/24",
         "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Iron Tail\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
+        "payoff_coverage": "Body Press\u00d731; Iron Tail\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
         "calc_species": "Aggron-Mega",
-        "damage_score": "0.807",
-        "bulk_crossings": "1/25",
-        "sweep_ohko": "10/37",
-        "sweep_2hko": "32/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.86",
-        "survive_hp_min": "0.74"
+        "damage_score": "0.803",
+        "bulk_crossings": "3/24",
+        "sweep_ohko": "12/36",
+        "sweep_2hko": "29/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.87",
+        "survive_hp_min": "0.71"
       },
       "claimed_traits": [
         {
@@ -799,13 +839,161 @@
         {
           "name": "Body Press + coverage",
           "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.807 (delta 0.271); Body Press\u00d730; Iron Tail\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=1/25"
+          "purpose_claimed": "Body Press post-ID 0.803 (delta 0.285); Body Press\u00d731; Iron Tail\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=3/24"
         }
       ],
-      "reasoning": "Good: post-ID 0.807 delta=0.271 (floor 0.875); bulk_crossings=1/25",
+      "reasoning": "Good: post-ID 0.803 delta=0.285 (floor 0.843); bulk_crossings=3/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Runerigus",
+      "species_id": "runerigus",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.714 unboosted=0.362 delta=0.352 floor=0.843 bulk_crossings=3/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Poltergeist\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Runerigus",
+        "damage_score": "0.714",
+        "bulk_crossings": "3/24",
+        "sweep_ohko": "10/36",
+        "sweep_2hko": "24/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.82",
+        "survive_hp_min": "0.30"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.714 (delta 0.352); Body Press\u00d731; Poltergeist\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=3/24"
+        }
+      ],
+      "reasoning": "Good: post-ID 0.714 delta=0.352 (floor 0.843); bulk_crossings=3/24",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_body_press"
+    },
+    {
+      "species": "Tyranitar",
+      "species_id": "tyranitar",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.581 unboosted=0.303 delta=0.278 floor=0.843 bulk_crossings=12/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Stone Edge\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Tyranitar",
+        "damage_score": "0.581",
+        "bulk_crossings": "12/24",
+        "sweep_ohko": "6/36",
+        "sweep_2hko": "18/36",
+        "survive_n": "18",
+        "survive_hp_mean": "0.68",
+        "survive_hp_min": "0.29"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.581 (delta 0.278); Body Press\u00d731; Stone Edge\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=12/24"
+        }
+      ],
+      "reasoning": "Acceptable: post-ID 0.581 delta=0.278 (floor 0.843); bulk_crossings=12/24",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=acceptable_calc_body_press)",
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_body_press"
+    },
+    {
+      "species": "Slowbro-Galar",
+      "species_id": "slowbrogalar",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.494 unboosted=0.263 delta=0.231 floor=0.843 bulk_crossings=10/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Gunk Shot\u00d74 (Basculegion, Sinistcha, Gengar-Mega, Froslass-Mega); Zen Headbutt\u00d71 (Gholdengo)",
+        "calc_species": "Slowbro-Galar",
+        "damage_score": "0.494",
+        "bulk_crossings": "10/24",
+        "sweep_ohko": "5/36",
+        "sweep_2hko": "12/36",
+        "survive_n": "18",
+        "survive_hp_mean": "0.79",
+        "survive_hp_min": "0.49"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.494 (delta 0.231); Body Press\u00d731; Gunk Shot\u00d74 (Basculegion, Sinistcha, Gengar-Mega, Froslass-Mega); Zen Headbutt\u00d71 (Gholdengo); bulk_crossings=10/24"
+        }
+      ],
+      "reasoning": "Acceptable: post-ID 0.494 delta=0.231 (floor 0.843); bulk_crossings=10/24",
+      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_body_press)",
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_body_press"
+    },
+    {
+      "species": "Corviknight",
+      "species_id": "corviknight",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Iron Defense+Body Press",
+      "criteria_notes": {
+        "delivery": "irondefense+bodypress same-row usage",
+        "execution": "post_id=0.570 unboosted=0.300 delta=0.270 floor=0.843 bulk_crossings=8/24",
+        "payoff_move": "Body Press",
+        "payoff_coverage": "Body Press\u00d731; Brave Bird\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
+        "calc_species": "Corviknight",
+        "damage_score": "0.570",
+        "bulk_crossings": "8/24",
+        "sweep_ohko": "5/36",
+        "sweep_2hko": "17/36",
+        "survive_n": "17",
+        "survive_hp_mean": "0.76",
+        "survive_hp_min": "0.34"
+      },
+      "claimed_traits": [
+        {
+          "name": "Iron Defense",
+          "criterion": "delivery",
+          "purpose_claimed": "+2 Def via irondefense"
+        },
+        {
+          "name": "Body Press + coverage",
+          "criterion": "execution",
+          "purpose_claimed": "Body Press post-ID 0.570 (delta 0.270); Body Press\u00d731; Brave Bird\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=8/24"
+        }
+      ],
+      "reasoning": "Acceptable: post-ID 0.570 delta=0.270 (floor 0.843); bulk_crossings=8/24",
+      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_body_press)",
+      "reinforce_class": "",
+      "excellence_basis": "acceptable_calc_body_press"
     },
     {
       "species": "Mudsdale",
@@ -815,17 +1003,17 @@
       "mechanism": "Iron Defense+Body Press",
       "criteria_notes": {
         "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.600 unboosted=0.357 delta=0.243 floor=0.875 bulk_crossings=11/25",
+        "execution": "post_id=0.565 unboosted=0.334 delta=0.231 floor=0.843 bulk_crossings=7/24",
         "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Earthquake\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
+        "payoff_coverage": "Body Press\u00d731; Earthquake\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
         "calc_species": "Mudsdale",
-        "damage_score": "0.600",
-        "bulk_crossings": "11/25",
-        "sweep_ohko": "7/37",
-        "sweep_2hko": "15/37",
-        "survive_n": "18",
+        "damage_score": "0.565",
+        "bulk_crossings": "7/24",
+        "sweep_ohko": "6/36",
+        "sweep_2hko": "16/36",
+        "survive_n": "19",
         "survive_hp_mean": "0.76",
-        "survive_hp_min": "0.33"
+        "survive_hp_min": "0.24"
       },
       "claimed_traits": [
         {
@@ -836,10 +1024,10 @@
         {
           "name": "Body Press + coverage",
           "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.600 (delta 0.243); Body Press\u00d730; Earthquake\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=11/25"
+          "purpose_claimed": "Body Press post-ID 0.565 (delta 0.231); Body Press\u00d731; Earthquake\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=7/24"
         }
       ],
-      "reasoning": "Acceptable: post-ID 0.600 delta=0.243 (floor 0.875); bulk_crossings=11/25",
+      "reasoning": "Acceptable: post-ID 0.565 delta=0.231 (floor 0.843); bulk_crossings=7/24",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_body_press"
@@ -852,16 +1040,16 @@
       "mechanism": "Iron Defense+Body Press",
       "criteria_notes": {
         "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.908 unboosted=0.576 delta=0.332 floor=0.875 bulk_crossings=8/25",
+        "execution": "post_id=0.887 unboosted=0.557 delta=0.330 floor=0.843 bulk_crossings=6/24",
         "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Earthquake\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
+        "payoff_coverage": "Body Press\u00d731; Earthquake\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega)",
         "calc_species": "Steelix",
-        "damage_score": "0.908",
-        "bulk_crossings": "8/25",
-        "sweep_ohko": "18/37",
-        "sweep_2hko": "33/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.82",
+        "damage_score": "0.887",
+        "bulk_crossings": "6/24",
+        "sweep_ohko": "16/36",
+        "sweep_2hko": "32/36",
+        "survive_n": "19",
+        "survive_hp_mean": "0.84",
         "survive_hp_min": "0.57"
       },
       "claimed_traits": [
@@ -873,90 +1061,22 @@
         {
           "name": "Body Press + coverage",
           "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.908 (delta 0.332); Body Press\u00d730; Earthquake\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=8/25"
+          "purpose_claimed": "Body Press post-ID 0.887 (delta 0.330); Body Press\u00d731; Earthquake\u00d75 (Basculegion, Gholdengo, Sinistcha, Gengar-Mega, Froslass-Mega); bulk_crossings=6/24"
         }
       ],
-      "reasoning": "Acceptable: post-ID 0.908 delta=0.332 (floor 0.875); bulk_crossings=8/25",
-      "change_reason": "usage discount demote / mech Excellent \u2192 Acceptable (showdown usage discounted (base 0.053% < 0.25\u00d7 mega 0.353%))",
+      "reasoning": "Acceptable: post-ID 0.887 delta=0.330 (floor 0.843); bulk_crossings=6/24",
+      "change_reason": "usage discount demote / mech Excellent \u2192 Acceptable (showdown usage discounted (base 0.051% < 0.25\u00d7 mega 0.251%))",
       "reinforce_class": "",
       "excellence_basis": "usage_discounted"
-    },
-    {
-      "species": "Appletun",
-      "species_id": "appletun",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.497 unboosted=0.276 delta=0.221 floor=0.875 bulk_crossings=7/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Seed Bomb\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Appletun",
-        "damage_score": "0.497",
-        "bulk_crossings": "7/25",
-        "sweep_ohko": "5/37",
-        "sweep_2hko": "11/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.83",
-        "survive_hp_min": "0.69"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.497 (delta 0.221); Body Press\u00d730; Seed Bomb\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=7/25"
-        }
-      ],
-      "reasoning": "Acceptable: post-ID 0.497 delta=0.221 (floor 0.875); bulk_crossings=7/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "acceptable_calc_body_press"
-    },
-    {
-      "species": "Slowbro",
-      "species_id": "slowbro",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Iron Defense+Body Press",
-      "criteria_notes": {
-        "delivery": "irondefense+bodypress same-row usage",
-        "execution": "post_id=0.575 unboosted=0.301 delta=0.274 floor=0.875 bulk_crossings=5/25",
-        "payoff_move": "Body Press",
-        "payoff_coverage": "Body Press\u00d730; Liquidation\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape)",
-        "calc_species": "Slowbro",
-        "damage_score": "0.575",
-        "bulk_crossings": "5/25",
-        "sweep_ohko": "6/37",
-        "sweep_2hko": "18/37",
-        "survive_n": "18",
-        "survive_hp_mean": "0.84",
-        "survive_hp_min": "0.63"
-      },
-      "claimed_traits": [
-        {
-          "name": "Iron Defense",
-          "criterion": "delivery",
-          "purpose_claimed": "+2 Def via irondefense"
-        },
-        {
-          "name": "Body Press + coverage",
-          "criterion": "execution",
-          "purpose_claimed": "Body Press post-ID 0.575 (delta 0.274); Body Press\u00d730; Liquidation\u00d77 (Sinistcha, Basculegion, Gholdengo, Sableye, Ceruledge, Gengar-Mega, Annihilape); bulk_crossings=5/25"
-        }
-      ],
-      "reasoning": "Acceptable: post-ID 0.575 delta=0.274 (floor 0.875); bulk_crossings=5/25",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "acceptable_calc_body_press"
     }
   ],
   "considered_rejected": [
+    {
+      "species": "Appletun",
+      "species_id": "appletun",
+      "reason": "learnset has irondefense+bodypress but same usage row does not list both",
+      "change_reason": "presence-count change: Body Press Showdown weight 16.71 < 20 (Iron Defense clears; same-row passes; reject string overloaded)"
+    },
     {
       "species": "Blastoise-Mega",
       "species_id": "blastoisemega",
@@ -976,6 +1096,12 @@
       "change_reason": null
     },
     {
+      "species": "Falinks",
+      "species_id": "falinks",
+      "reason": "learnset has irondefense+bodypress but same usage row does not list both",
+      "change_reason": null
+    },
+    {
       "species": "Golurk",
       "species_id": "golurk",
       "reason": "learnset has irondefense+bodypress but same usage row does not list both",
@@ -988,63 +1114,33 @@
       "change_reason": null
     },
     {
-      "species": "Slowbro-Galar",
-      "species_id": "slowbrogalar",
+      "species": "Slowbro",
+      "species_id": "slowbro",
       "reason": "learnset has irondefense+bodypress but same usage row does not list both",
-      "change_reason": null
-    },
-    {
-      "species": "Torkoal",
-      "species_id": "torkoal",
-      "reason": "learnset has irondefense+bodypress but same usage row does not list both",
-      "change_reason": null
-    },
-    {
-      "species": "Tyranitar",
-      "species_id": "tyranitar",
-      "reason": "learnset has irondefense+bodypress but same usage row does not list both",
-      "change_reason": null
-    },
-    {
-      "species": "Tyranitar-Mega",
-      "species_id": "tyranitarmega",
-      "reason": "learnset has irondefense+bodypress but same usage row does not list both",
-      "change_reason": null
+      "change_reason": "ID+BP usage re-eval / tier 'Acceptable' \u2192 rejected"
     },
     {
       "species": "Aggron",
       "species_id": "aggron",
-      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.020% < 0.25\u00d7 mega 0.489%))",
+      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.010% < 0.25\u00d7 mega 0.354%))",
       "change_reason": null
     },
     {
       "species": "Blastoise",
       "species_id": "blastoise",
-      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.254% < 0.25\u00d7 mega 6.020%))",
-      "change_reason": null
-    },
-    {
-      "species": "Chesnaught",
-      "species_id": "chesnaught",
-      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.075% < 0.25\u00d7 mega 0.481%))",
-      "change_reason": null
-    },
-    {
-      "species": "Falinks",
-      "species_id": "falinks",
-      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.017% < 0.25\u00d7 mega 0.312%))",
+      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.107% < 0.25\u00d7 mega 2.737%))",
       "change_reason": null
     },
     {
       "species": "Metagross",
       "species_id": "metagross",
-      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.432% < 0.25\u00d7 mega 7.923%))",
+      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.294% < 0.25\u00d7 mega 6.135%))",
       "change_reason": null
     },
     {
       "species": "Skarmory",
       "species_id": "skarmory",
-      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.047% < 0.25\u00d7 mega 0.434%))",
+      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.030% < 0.25\u00d7 mega 0.406%))",
       "change_reason": null
     }
   ]
