@@ -1,7 +1,7 @@
 {
   "category": "terrain_setter",
   "condition": "Psychic",
-  "built_at": "2026-09-10T22:35:09.951420+00:00",
+  "built_at": "2026-10-06T05:34:06.842597+00:00",
   "sub_criteria": {
     "kind": "terrain_setter",
     "condition": "Psychic",
@@ -34,9 +34,9 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "none observed in usage common_moves",
-        "verified_secondary": "False",
-        "excellent_secondary": "False",
+        "secondary_role": "Trick Room, Helping Hand, Encore",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
         "attribution": "none",
         "usage_proven": "True"
       },
@@ -50,9 +50,24 @@
           "name": "Psychic Surge",
           "criterion": "execution",
           "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Psychic Surge ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (none observed in usage common_moves; excellent_secondary=False).",
+      "reasoning": "Psychic Surge ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Trick Room, Helping Hand, Encore; excellent_secondary=True).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"
@@ -66,9 +81,9 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "none observed in usage common_moves",
-        "verified_secondary": "False",
-        "excellent_secondary": "False",
+        "secondary_role": "Trick Room, Helping Hand, Light Screen, Reflect",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
         "attribution": "none",
         "usage_proven": "True"
       },
@@ -82,9 +97,29 @@
           "name": "Psychic Surge",
           "criterion": "execution",
           "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Psychic Surge ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (none observed in usage common_moves; excellent_secondary=False).",
+      "reasoning": "Psychic Surge ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Trick Room, Helping Hand, Light Screen, Reflect; excellent_secondary=True).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"

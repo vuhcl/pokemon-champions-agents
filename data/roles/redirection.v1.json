@@ -1,7 +1,7 @@
 {
   "category": "redirection",
   "condition": "",
-  "built_at": "2026-08-06T17:04:51.576520+00:00",
+  "built_at": "2026-10-06T05:34:06.843681+00:00",
   "sub_criteria": {
     "kind": "redirection",
     "condition": "",
@@ -17,19 +17,22 @@
   "tiers": {
     "Excellent": [
       "Ariados",
+      "Clefable",
+      "Indeedee-F",
       "Maushold",
       "Sinistcha",
-      "Vivillon"
+      "Vivillon",
+      "Volcarona"
     ],
     "Good": [
-      "Clefable",
-      "Scovillain-Mega",
-      "Volcarona"
-    ]
+      "Scovillain",
+      "Scovillain-Mega"
+    ],
+    "Acceptable": []
   },
   "notes": [
     "no ability-based redirection delivery in Champions-legal data (Follow Me / Rage Powder are move-only)",
-    "Showdown attribution (Scovillain/Scovillain-Mega): mega usage_pct=2.053 base=0.083; stone-heuristic fallback unused"
+    "Showdown attribution (Scovillain/Scovillain-Mega): mega usage_pct=1.132 base=0.042; stone-heuristic fallback unused"
   ],
   "candidates": [
     {
@@ -47,7 +50,7 @@
         "excellent_secondary": "True",
         "reinforce_class": "none",
         "qd_pct": "0.0",
-        "best_redirect_pct": "69.0",
+        "best_redirect_pct": "90.486",
         "identity_conflict": "False",
         "attribution": "none"
       },
@@ -76,19 +79,19 @@
     {
       "species": "Clefable",
       "species_id": "clefable",
-      "tier": "Good",
+      "tier": "Excellent",
       "delivery_class": "move_redirect",
       "mechanism": "Follow Me",
       "criteria_notes": {
         "delivery": "move-based Follow Me / Rage Powder (same reliability class)",
-        "execution": "Champions priority +2; bulk HP/Def/SpD=95/73/90; Cute Charm (There is a 30% chance a Pokemon making contact with this Pokemon will become infatuated if it is of the opposite gender.)",
-        "secondary_role": "Life Dew, Helping Hand",
+        "execution": "Champions priority +2; bulk HP/Def/SpD=95/73/90",
+        "secondary_role": "Helping Hand, Life Dew, Encore, Light Screen, Reflect",
         "usage_proven": "True",
         "verified_secondary": "True",
-        "excellent_secondary": "False",
+        "excellent_secondary": "True",
         "reinforce_class": "none",
         "qd_pct": "0.0",
-        "best_redirect_pct": "77.5",
+        "best_redirect_pct": "92.214",
         "identity_conflict": "False",
         "attribution": "none"
       },
@@ -104,9 +107,9 @@
           "purpose_claimed": "Champions priority +2 status redirect"
         },
         {
-          "name": "Cute Charm",
-          "criterion": "execution",
-          "purpose_claimed": "hit-triggered opponent disrupt while drawing fire \u2014 execution reinforce for redirector (not ally mitigation)"
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         },
         {
           "name": "Life Dew",
@@ -114,15 +117,81 @@
           "purpose_claimed": "other-directed support stacking"
         },
         {
-          "name": "Helping Hand",
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Follow Me clears Good (basis=usage_proven, reinforce=none, usage_proven=True, verified_secondary=True, excellent_secondary=False).",
-      "change_reason": null,
+      "reasoning": "Follow Me clears Excellent (basis=secondary_stack, reinforce=none, usage_proven=True, verified_secondary=True, excellent_secondary=True).",
+      "change_reason": "secondary_stack Excellent (Follow Me + Helping Hand/Life Dew/Encore/Light Screen/Reflect); pre-Task-B drift vs committed Good",
       "reinforce_class": "none",
-      "excellence_basis": "usage_proven"
+      "excellence_basis": "secondary_stack"
+    },
+    {
+      "species": "Indeedee-F",
+      "species_id": "indeedeef",
+      "tier": "Excellent",
+      "delivery_class": "move_redirect",
+      "mechanism": "Follow Me",
+      "criteria_notes": {
+        "delivery": "move-based Follow Me / Rage Powder (same reliability class)",
+        "execution": "Champions priority +2; bulk HP/Def/SpD=70/65/105",
+        "secondary_role": "Trick Room, Helping Hand, Light Screen, Reflect",
+        "usage_proven": "True",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "qd_pct": "0.0",
+        "best_redirect_pct": "98.27",
+        "identity_conflict": "False",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Follow Me",
+          "criterion": "delivery",
+          "purpose_claimed": "redirect attacks onto self to protect ally"
+        },
+        {
+          "name": "Follow Me",
+          "criterion": "execution",
+          "purpose_claimed": "Champions priority +2 status redirect"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Follow Me clears Excellent (basis=secondary_stack, reinforce=none, usage_proven=True, verified_secondary=True, excellent_secondary=True).",
+      "change_reason": "pre-Task-B drift admit (Excellent, basis=secondary_stack)",
+      "reinforce_class": "none",
+      "excellence_basis": "secondary_stack"
     },
     {
       "species": "Maushold",
@@ -139,7 +208,7 @@
         "excellent_secondary": "True",
         "reinforce_class": "ally_mitigation",
         "qd_pct": "0.0",
-        "best_redirect_pct": "87.1",
+        "best_redirect_pct": "94.643",
         "identity_conflict": "False",
         "attribution": "none"
       },
@@ -176,6 +245,47 @@
       "excellence_basis": "ally_mitigation"
     },
     {
+      "species": "Scovillain",
+      "species_id": "scovillain",
+      "tier": "Good",
+      "delivery_class": "move_redirect",
+      "mechanism": "Rage Powder",
+      "criteria_notes": {
+        "delivery": "move-based Follow Me / Rage Powder (same reliability class)",
+        "execution": "Champions priority +2; bulk HP/Def/SpD=65/65/65",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "False",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "qd_pct": "0.0",
+        "best_redirect_pct": "63.02",
+        "identity_conflict": "False",
+        "attribution": "showdown usage discounted (base 0.042% < 0.25\u00d7 mega 1.132%)"
+      },
+      "claimed_traits": [
+        {
+          "name": "Rage Powder",
+          "criterion": "delivery",
+          "purpose_claimed": "redirect attacks onto self to protect ally"
+        },
+        {
+          "name": "Rage Powder",
+          "criterion": "execution",
+          "purpose_claimed": "Champions priority +2 status redirect"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Rage Powder clears Good (basis=secondary_reinforce, reinforce=none, usage_proven=False, verified_secondary=True, excellent_secondary=False / showdown usage discounted (base 0.042% < 0.25\u00d7 mega 1.132%)).",
+      "change_reason": "pre-Task-B drift admit (Good, basis=secondary_reinforce)",
+      "reinforce_class": "none",
+      "excellence_basis": "secondary_reinforce"
+    },
+    {
       "species": "Scovillain-Mega",
       "species_id": "scovillainmega",
       "tier": "Good",
@@ -184,13 +294,13 @@
       "criteria_notes": {
         "delivery": "move-based Follow Me / Rage Powder (same reliability class)",
         "execution": "Champions priority +2; bulk HP/Def/SpD=65/85/85; Spicy Spray (If this Pokemon is hit by an attack, the attacker becomes burned.)",
-        "secondary_role": "none observed in usage common_moves",
+        "secondary_role": "Helping Hand",
         "usage_proven": "True",
-        "verified_secondary": "False",
+        "verified_secondary": "True",
         "excellent_secondary": "False",
         "reinforce_class": "none",
         "qd_pct": "0.0",
-        "best_redirect_pct": "0.0",
+        "best_redirect_pct": "97.299",
         "identity_conflict": "False",
         "attribution": "showdown form-separated usage"
       },
@@ -209,9 +319,14 @@
           "name": "Spicy Spray",
           "criterion": "execution",
           "purpose_claimed": "hit-triggered opponent disrupt while drawing fire \u2014 execution reinforce for redirector (not ally mitigation)"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Rage Powder clears Good (basis=usage_proven, reinforce=none, usage_proven=True, verified_secondary=False, excellent_secondary=False / showdown form-separated usage).",
+      "reasoning": "Rage Powder clears Good (basis=usage_proven, reinforce=none, usage_proven=True, verified_secondary=True, excellent_secondary=False / showdown form-separated usage).",
       "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "usage_proven"
@@ -225,13 +340,13 @@
       "criteria_notes": {
         "delivery": "move-based Follow Me / Rage Powder (same reliability class)",
         "execution": "Champions priority +2; bulk HP/Def/SpD=71/106/80",
-        "secondary_role": "Trick Room, Life Dew; Hospitality heals ally on switch-in (other-directed, not damage mitigation during redirect)",
+        "secondary_role": "Trick Room, Life Dew, Reflect; Hospitality heals ally on switch-in (other-directed, not damage mitigation during redirect)",
         "usage_proven": "True",
         "verified_secondary": "True",
         "excellent_secondary": "True",
         "reinforce_class": "none",
         "qd_pct": "0.0",
-        "best_redirect_pct": "23.738",
+        "best_redirect_pct": "94.211",
         "identity_conflict": "False",
         "attribution": "none"
       },
@@ -260,6 +375,11 @@
           "name": "Life Dew",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
       "reasoning": "Rage Powder clears Excellent (basis=secondary_stack, reinforce=none, usage_proven=True, verified_secondary=True, excellent_secondary=True).",
@@ -276,13 +396,13 @@
       "criteria_notes": {
         "delivery": "move-based Follow Me / Rage Powder (same reliability class)",
         "execution": "Champions priority +2; bulk HP/Def/SpD=80/50/50",
-        "secondary_role": "Tailwind",
+        "secondary_role": "Tailwind, Light Screen",
         "usage_proven": "True",
         "verified_secondary": "True",
         "excellent_secondary": "True",
-        "reinforce_class": "ally_mitigation",
-        "qd_pct": "3.3",
-        "best_redirect_pct": "72.4",
+        "reinforce_class": "none",
+        "qd_pct": "1.081",
+        "best_redirect_pct": "81.481",
         "identity_conflict": "False",
         "attribution": "none"
       },
@@ -298,38 +418,38 @@
           "purpose_claimed": "Champions priority +2 status redirect"
         },
         {
-          "name": "Friend Guard",
+          "name": "Tailwind",
           "criterion": "secondary_role",
-          "purpose_claimed": "ally damage mitigation while redirecting"
+          "purpose_claimed": "other-directed support stacking"
         },
         {
-          "name": "Tailwind",
+          "name": "Light Screen",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Rage Powder clears Excellent (basis=ally_mitigation, reinforce=ally_mitigation, usage_proven=True, verified_secondary=True, excellent_secondary=True).",
+      "reasoning": "Rage Powder clears Excellent (basis=secondary_stack, reinforce=none, usage_proven=True, verified_secondary=True, excellent_secondary=True).",
       "change_reason": null,
-      "reinforce_class": "ally_mitigation",
-      "excellence_basis": "ally_mitigation"
+      "reinforce_class": "none",
+      "excellence_basis": "secondary_stack"
     },
     {
       "species": "Volcarona",
       "species_id": "volcarona",
-      "tier": "Good",
+      "tier": "Excellent",
       "delivery_class": "move_redirect",
       "mechanism": "Rage Powder",
       "criteria_notes": {
         "delivery": "move-based Follow Me / Rage Powder (same reliability class)",
-        "execution": "Champions priority +2; bulk HP/Def/SpD=85/65/105; identity conflict Quiver Dance 60.8% > redirect 27.3% (Excellent capped); Flame Body (30% chance a Pokemon making contact with this Pokemon will be burned.)",
-        "secondary_role": "Tailwind",
+        "execution": "Champions priority +2; bulk HP/Def/SpD=85/65/105; Flame Body (30% chance a Pokemon making contact with this Pokemon will be burned.)",
+        "secondary_role": "Tailwind, Light Screen",
         "usage_proven": "True",
         "verified_secondary": "True",
         "excellent_secondary": "True",
         "reinforce_class": "none",
-        "qd_pct": "60.8",
-        "best_redirect_pct": "27.3",
-        "identity_conflict": "True",
+        "qd_pct": "51.883",
+        "best_redirect_pct": "53.27",
+        "identity_conflict": "False",
         "attribution": "none"
       },
       "claimed_traits": [
@@ -352,12 +472,17 @@
           "name": "Tailwind",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Rage Powder clears Good (basis=secondary_stack_conflicted, reinforce=none, usage_proven=True, verified_secondary=True, excellent_secondary=True / identity_conflict).",
-      "change_reason": null,
+      "reasoning": "Rage Powder clears Excellent (basis=secondary_stack, reinforce=none, usage_proven=True, verified_secondary=True, excellent_secondary=True).",
+      "change_reason": "secondary_stack Excellent (Rage Powder + Tailwind/Light Screen); pre-Task-B drift vs committed Good",
       "reinforce_class": "none",
-      "excellence_basis": "secondary_stack_conflicted"
+      "excellence_basis": "secondary_stack"
     }
   ],
   "considered_rejected": [
@@ -365,12 +490,6 @@
       "species": "Clefable-Mega",
       "species_id": "clefablemega",
       "reason": "Mega kit abandons redirection (Magic Bounce only); redirect learnset inherited from base",
-      "change_reason": null
-    },
-    {
-      "species": "Scovillain",
-      "species_id": "scovillain",
-      "reason": "Rage Powder learnset but no usage evidence of redirect delivery and no independent reinforce (hit-triggered opponent disrupt / Friend Guard / Hospitality / closed secondary)",
       "change_reason": null
     }
   ]

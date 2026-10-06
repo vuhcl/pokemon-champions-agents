@@ -1,7 +1,7 @@
 {
   "category": "terrain_setter",
   "condition": "Electric",
-  "built_at": "2026-09-10T22:35:09.947989+00:00",
+  "built_at": "2026-10-06T05:34:06.840512+00:00",
   "sub_criteria": {
     "kind": "terrain_setter",
     "condition": "Electric",
@@ -65,7 +65,7 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "Encore, Helping Hand, Light Screen, Reflect",
+        "secondary_role": "Encore, Light Screen, Reflect, Helping Hand",
         "verified_secondary": "True",
         "excellent_secondary": "True",
         "attribution": "none",
@@ -88,11 +88,6 @@
           "purpose_claimed": "other-directed support stacking"
         },
         {
-          "name": "Helping Hand",
-          "criterion": "secondary_role",
-          "purpose_claimed": "other-directed support stacking"
-        },
-        {
           "name": "Light Screen",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
@@ -101,9 +96,14 @@
           "name": "Reflect",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Electric Surge ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Encore, Helping Hand, Light Screen, Reflect; excellent_secondary=True).",
+      "reasoning": "Electric Surge ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Encore, Light Screen, Reflect, Helping Hand; excellent_secondary=True).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"

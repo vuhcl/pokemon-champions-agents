@@ -1,7 +1,7 @@
 {
   "category": "weather_setter",
   "condition": "Rain",
-  "built_at": "2026-08-06T17:41:54.430725+00:00",
+  "built_at": "2026-10-06T05:34:06.836169+00:00",
   "sub_criteria": {
     "kind": "weather_setter",
     "condition": "Rain",
@@ -19,6 +19,7 @@
       "Politoed"
     ],
     "Good": [
+      "Banette-Mega",
       "Klefki",
       "Liepard",
       "Meowstic",
@@ -113,6 +114,53 @@
       "excellence_basis": "ability_delivery"
     },
     {
+      "species": "Banette-Mega",
+      "species_id": "banettemega",
+      "tier": "Good",
+      "delivery_class": "move_priority",
+      "mechanism": "Rain Dance",
+      "criteria_notes": {
+        "delivery": "move-based (less reliable than ability)",
+        "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
+        "secondary_role": "Encore, Trick Room, Helping Hand",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "attribution": "none",
+        "usage_proven": "True"
+      },
+      "claimed_traits": [
+        {
+          "name": "Rain Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "set Rain via move"
+        },
+        {
+          "name": "Prankster",
+          "criterion": "execution",
+          "purpose_claimed": "priority on status setup move"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Prankster Rain Dance clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Encore, Trick Room, Helping Hand.",
+      "change_reason": "pre-Task-B drift admit (Good, basis=move_priority)",
+      "reinforce_class": "",
+      "excellence_basis": "move_priority"
+    },
+    {
       "species": "Klefki",
       "species_id": "klefki",
       "tier": "Good",
@@ -205,7 +253,7 @@
       "criteria_notes": {
         "delivery": "move-based (less reliable than ability)",
         "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
-        "secondary_role": "Light Screen, Reflect, Trick Room",
+        "secondary_role": "Light Screen, Reflect, Trick Room, Helping Hand",
         "verified_secondary": "True",
         "excellent_secondary": "True",
         "attribution": "none",
@@ -236,9 +284,14 @@
           "name": "Trick Room",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Prankster Rain Dance clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Reflect, Trick Room.",
+      "reasoning": "Prankster Rain Dance clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Reflect, Trick Room, Helping Hand.",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "move_priority"
@@ -252,7 +305,7 @@
       "criteria_notes": {
         "delivery": "move-based (less reliable than ability)",
         "execution": "Prankster-boosted status move; blocked by Dark-types / Good as Gold / some immunities",
-        "secondary_role": "Light Screen, Encore, Reflect",
+        "secondary_role": "Light Screen, Reflect, Encore, Helping Hand",
         "verified_secondary": "True",
         "excellent_secondary": "True",
         "attribution": "none",
@@ -275,28 +328,26 @@
           "purpose_claimed": "other-directed support stacking"
         },
         {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
           "name": "Encore",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
         },
         {
-          "name": "Reflect",
+          "name": "Helping Hand",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Prankster Rain Dance clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Encore, Reflect.",
+      "reasoning": "Prankster Rain Dance clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Reflect, Encore, Helping Hand.",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "move_priority"
     }
   ],
-  "considered_rejected": [
-    {
-      "species": "Banette-Mega",
-      "species_id": "banettemega",
-      "reason": "Prankster+Rain Dance learnset but no usage evidence of Rain Dance delivery",
-      "change_reason": null
-    }
-  ]
+  "considered_rejected": []
 }

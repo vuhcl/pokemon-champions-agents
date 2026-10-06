@@ -1,7 +1,7 @@
 {
   "category": "nasty_plot_attacker",
   "condition": "",
-  "built_at": "2026-08-15T05:23:14.384745+00:00",
+  "built_at": "2026-10-06T05:34:06.854452+00:00",
   "sub_criteria": {
     "kind": "setup_attacker",
     "condition": "",
@@ -11,147 +11,54 @@
   },
   "tiers": {
     "Excellent": [
+      "Raichu-Mega-Y",
       "Gengar-Mega",
-      "Raichu-Mega-Y"
+      "Delphox-Mega"
     ],
     "Good": [
       "Hydrapple",
-      "Alakazam-Mega",
-      "Delphox-Mega",
-      "Froslass-Mega",
-      "Alakazam",
-      "Slowbro-Mega",
-      "Houndoom-Mega",
       "Zoroark",
+      "Lucario-Mega-Z",
+      "Alakazam-Mega",
+      "Houndoom-Mega",
+      "Slowbro-Mega",
       "Zoroark-Hisui",
-      "Lucario-Mega",
-      "Meowstic-F-Mega",
-      "Ninetales-Alola",
-      "Simipour",
+      "Froslass-Mega",
       "Salazzle",
-      "Raichu-Alola"
+      "Simipour",
+      "Raichu-Alola",
+      "Meowstic-F-Mega",
+      "Meowstic-M-Mega",
+      "Ninetales"
     ],
     "Acceptable": [
-      "Meowstic-M-Mega",
-      "Simisear",
+      "Ninetales-Alola",
       "Lucario",
-      "Infernape",
-      "Ninetales",
-      "Raichu-Mega-X"
+      "Meowstic",
+      "Raichu-Mega-X",
+      "Persian-Alola"
     ]
   },
   "notes": [
     "delivery move locked by self +2 spa-only Status rule \u2192 nastyplot",
-    "threat_panel=showdown>=4.52%/15game n=37 pair=top1-partner (Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Incineroar/Sitrus Berry+Sinistcha/Kasib Berry, Sinistcha/Kasib Berry+Incineroar/Sitrus Berry, Kingambit/Black Glasses+Garchomp/Life Orb, Basculegion/Choice Scarf+Kingambit/Black Glasses, Whimsicott/Focus Sash+Garchomp/Life Orb, Farigiraf/Sitrus Berry+Sylveon/Fairy Feather, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Sneasler/White Herb+Kingambit/Black Glasses, Sylveon/Fairy Feather+Garchomp/Life Orb, Pelipper/Sitrus Berry+Archaludon/Leftovers, Archaludon/Leftovers+Pelipper/Sitrus Berry, Staraptor-Mega/Staraptite+Sinistcha/Kasib Berry, Grimmsnarl/Light Clay+Pelipper/Sitrus Berry, Gholdengo/Life Orb+Sinistcha/Kasib Berry, Floette-Mega/Floettite+Kingambit/Black Glasses, Milotic/Leftovers+Sinistcha/Kasib Berry, Raichu-Mega-Y/Raichunite Y+Incineroar/Sitrus Berry, Torkoal/Charcoal+Farigiraf/Sitrus Berry, Swampert-Mega/Swampertite+Archaludon/Leftovers, Metagross-Mega/Metagrossite+Garchomp/Life Orb, Maushold/Wide Lens+Sinistcha/Kasib Berry, Delphox-Mega/Delphoxite+Sinistcha/Kasib Berry, Mawile-Mega/Mawilite+Farigiraf/Sitrus Berry, Ninetales-Alola/Never-Melt Ice+Kingambit/Black Glasses, Aerodactyl-Mega/Aerodactylite+Kingambit/Black Glasses, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Blastoise-Mega/Blastoisinite+Sinistcha/Kasib Berry, Talonflame/Sharp Beak+Garchomp/Life Orb, Sableye/Light Clay+Archaludon/Leftovers, Rotom-Wash/Sitrus Berry+Garchomp/Life Orb, Ceruledge/Colbur Berry+Sinistcha/Kasib Berry, Venusaur/Life Orb+Charizard-Mega-Y/Charizardite Y, Hydreigon/Choice Scarf+Charizard-Mega-Y/Charizardite Y, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Annihilape/Focus Sash+Incineroar/Sitrus Berry)",
+    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Grassy Seed+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
     "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
     "payoff=per-defender best kit damaging move (KO-bin then weighted frac); zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; debuff_surv n=defenders whose chosen mid has self Def/SpD drops",
-    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.811 base=0.307; stone-heuristic fallback unused",
-    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.279 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.456 base=5.408; stone-heuristic fallback unused",
-    "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.273 base=0.235; stone-heuristic fallback unused",
-    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=7.073 base=0.020; stone-heuristic fallback unused",
-    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=1.280 base=0.504; stone-heuristic fallback unused",
-    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.286 base=0.099; stone-heuristic fallback unused",
-    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.692 base=0.345; stone-heuristic fallback unused",
-    "Showdown attribution (Houndoom/Houndoom-Mega): mega usage_pct=0.292 base=0.176; stone-heuristic fallback unused",
-    "Showdown attribution (Froslass/Froslass-Mega): mega usage_pct=4.307 base=0.034; stone-heuristic fallback unused",
-    "Excellent damage floor = 2nd-highest adjusted \u00d7 0.95 \u2192 1.091 (top: Raichu-Mega-Y=1.180, Gengar-Mega=1.148)",
-    "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.763",
+    "Showdown attribution (Houndoom/Houndoom-Mega): mega usage_pct=0.202 base=0.036; stone-heuristic fallback unused",
+    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
+    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.754 base=0.227; stone-heuristic fallback unused",
+    "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.987 base=0.247; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
+    "Showdown attribution (Froslass/Froslass-Mega): mega usage_pct=4.573 base=0.028; stone-heuristic fallback unused",
+    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.106 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.086 base=2.353; stone-heuristic fallback unused",
+    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.294 base=0.099; stone-heuristic fallback unused",
+    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused",
+    "Excellent damage floor = 2nd-highest adjusted \u00d7 0.95 \u2192 1.035 (top: Raichu-Mega-Y=1.228, Gengar-Mega=1.090)",
+    "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.725",
     "sweep_ohko=outgoing OHKO k/n vs panel (unscaled max-roll); survive_hp=mean/min remain on outsped-and-survive (n_surv=0 \u2192 n/a); within-tier sort by sweep_ohko then survive_hp then damage_score"
   ],
   "candidates": [
-    {
-      "species": "Gengar-Mega",
-      "species_id": "gengarmega",
-      "tier": "Excellent",
-      "delivery_class": "move_setup",
-      "mechanism": "Nasty Plot",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.148 raw=1.148 floor=1.091 excellent_exec=True",
-        "secondary_role": "excellent_secondary",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "shadowball",
-          "sludgebomb"
-        ],
-        "payoff_targets": {
-          "shadowball": [
-            "Garchomp+Charizard-Mega-Y",
-            "Kingambit+Garchomp",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Sneasler+Kingambit",
-            "Pelipper+Archaludon",
-            "Archaludon+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega",
-            "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
-          ],
-          "sludgebomb": [
-            "Incineroar+Sinistcha",
-            "Sinistcha+Incineroar",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Sylveon+Garchomp",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Maushold+Sinistcha",
-            "Tyranitar-Mega+Excadrill",
-            "Blastoise-Mega+Sinistcha",
-            "Rotom-Wash+Garchomp",
-            "Hydreigon+Charizard-Mega-Y"
-          ]
-        },
-        "calc_species": "Gengar-Mega",
-        "damage_score_raw": "1.148",
-        "damage_score": "1.148",
-        "score_boosts": "none",
-        "sweep_ohko": "34/37",
-        "sweep_2hko": "36/37",
-        "survive_n": "2",
-        "survive_hp_mean": "0.47",
-        "survive_hp_min": "0.45"
-      },
-      "claimed_traits": [
-        {
-          "name": "Nasty Plot",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via nastyplot (+2 spa)"
-        },
-        {
-          "name": "Shadow Ball",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.148 vs panel; branches=A; 23 defender(s)"
-        },
-        {
-          "name": "Sludge Bomb",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.148 vs panel; branches=A; 14 defender(s)"
-        }
-      ],
-      "reasoning": "Excellent: branches=A; calc 1.148 (floor 1.091); secondary=True",
-      "change_reason": null,
-      "reinforce_class": "excellent_secondary",
-      "excellence_basis": "calc_branch_a"
-    },
     {
       "species": "Raichu-Mega-Y",
       "species_id": "raichumegay",
@@ -160,7 +67,7 @@
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.180 raw=1.180 floor=1.091 excellent_exec=True",
+        "execution": "damage_score=1.228 raw=1.228 floor=1.035 excellent_exec=True",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -171,56 +78,55 @@
         ],
         "payoff_targets": {
           "focusblast": [
-            "Garchomp+Charizard-Mega-Y",
-            "Incineroar+Sinistcha",
-            "Kingambit+Garchomp",
+            "Rillaboom+Sneasler",
+            "Incineroar+Rillaboom",
+            "Kingambit+Sneasler",
             "Archaludon+Pelipper",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Maushold+Sinistcha",
-            "Ninetales-Alola+Kingambit",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
-            "Hydreigon+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega"
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom"
           ],
           "zapcannon": [
-            "Sinistcha+Incineroar",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Farigiraf+Sylveon",
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Milotic+Sneasler",
             "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
-            "Staraptor-Mega+Sinistcha",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
             "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Metagross-Mega+Garchomp",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Aerodactyl-Mega+Kingambit",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
             "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
+            "Froslass-Mega+Sneasler"
           ]
         },
         "calc_species": "Raichu-Mega-Y",
-        "damage_score_raw": "1.180",
-        "damage_score": "1.180",
+        "damage_score_raw": "1.228",
+        "damage_score": "1.228",
         "score_boosts": "none",
-        "sweep_ohko": "34/37",
-        "sweep_2hko": "37/37",
-        "survive_n": "2",
+        "sweep_ohko": "35/36",
+        "sweep_2hko": "36/36",
+        "survive_n": "7",
         "survive_hp_mean": "0.34",
-        "survive_hp_min": "0.31"
+        "survive_hp_min": "0.12"
       },
       "claimed_traits": [
         {
@@ -231,16 +137,198 @@
         {
           "name": "Zap Cannon",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.180 vs panel; branches=A; 25 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.228 vs panel; branches=A; 23 defender(s)"
         },
         {
           "name": "Focus Blast",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.180 vs panel; branches=A; 12 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.228 vs panel; branches=A; 13 defender(s)"
         }
       ],
-      "reasoning": "Excellent: branches=A; calc 1.180 (floor 1.091); secondary=True",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 'Excellent' (score=1.180, branches=A)",
+      "reasoning": "Excellent: branches=A; calc 1.228 (floor 1.035); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "calc_branch_a"
+    },
+    {
+      "species": "Gengar-Mega",
+      "species_id": "gengarmega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.090 raw=1.090 floor=1.035 excellent_exec=True",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "shadowball",
+          "sludgebomb"
+        ],
+        "payoff_targets": {
+          "shadowball": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Garchomp+Charizard-Mega-Y",
+            "Armarouge+Indeedee-F",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "sludgebomb": [
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Milotic+Sneasler",
+            "Charizard-Mega-Y+Garchomp",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Politoed+Golisopod-Mega",
+            "Grimmsnarl+Pelipper"
+          ]
+        },
+        "calc_species": "Gengar-Mega",
+        "damage_score_raw": "1.090",
+        "damage_score": "1.090",
+        "score_boosts": "none",
+        "sweep_ohko": "31/36",
+        "sweep_2hko": "36/36",
+        "survive_n": "5",
+        "survive_hp_mean": "0.60",
+        "survive_hp_min": "0.34"
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Shadow Ball",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.090 vs panel; branches=A; 23 defender(s)"
+        },
+        {
+          "name": "Sludge Bomb",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.090 vs panel; branches=A; 13 defender(s)"
+        }
+      ],
+      "reasoning": "Excellent: branches=A; calc 1.090 (floor 1.035); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "calc_branch_a"
+    },
+    {
+      "species": "Delphox-Mega",
+      "species_id": "delphoxmega",
+      "tier": "Excellent",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.056 raw=1.056 floor=1.035 excellent_exec=True",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "psychic",
+          "heatwave"
+        ],
+        "payoff_targets": {
+          "psychic": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Basculegion+Sneasler",
+            "Pelipper+Golisopod-Mega",
+            "Milotic+Sneasler",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
+            "Froslass-Mega+Sneasler"
+          ],
+          "heatwave": [
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Archaludon+Pelipper",
+            "Raichu-Mega-Y+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Sylveon+Rillaboom",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Grimmsnarl+Pelipper",
+            "Gengar-Mega+Incineroar"
+          ]
+        },
+        "calc_species": "Delphox-Mega",
+        "damage_score_raw": "1.056",
+        "damage_score": "1.056",
+        "score_boosts": "none",
+        "sweep_ohko": "25/36",
+        "sweep_2hko": "34/36",
+        "survive_n": "5",
+        "survive_hp_mean": "0.52",
+        "survive_hp_min": "0.23"
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Psychic",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.056 vs panel; branches=A; 20 defender(s)"
+        },
+        {
+          "name": "Heat Wave",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.056 vs panel; branches=A; 16 defender(s)"
+        }
+      ],
+      "reasoning": "Excellent: branches=A; calc 1.056 (floor 1.035); secondary=True",
+      "change_reason": "pre-Task-B drift: Good \u2192 Excellent (basis=calc_branch_a)",
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "calc_branch_a"
     },
@@ -252,70 +340,69 @@
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.090 raw=1.090 floor=1.091 excellent_exec=False",
+        "execution": "damage_score=1.034 raw=1.034 floor=1.035 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "B",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
-          "ficklebeam",
           "earthpower",
+          "ficklebeam",
           "gigadrain"
         ],
         "payoff_targets": {
           "ficklebeam": [
-            "Garchomp+Charizard-Mega-Y",
-            "Sinistcha+Incineroar",
-            "Basculegion+Kingambit",
-            "Farigiraf+Sylveon",
+            "Rillaboom+Sneasler",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Pelipper+Golisopod-Mega",
             "Charizard-Mega-Y+Garchomp",
-            "Pelipper+Archaludon",
-            "Staraptor-Mega+Sinistcha",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Aerodactyl-Mega+Kingambit",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Venusaur+Charizard-Mega-Y",
-            "Hydreigon+Charizard-Mega-Y",
-            "Annihilape+Incineroar"
+            "Sinistcha+Incineroar",
+            "Volcarona+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Staraptor-Mega+Kingambit"
           ],
           "earthpower": [
-            "Incineroar+Sinistcha",
-            "Kingambit+Garchomp",
-            "Sneasler+Kingambit",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Gholdengo+Rillaboom",
             "Archaludon+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Metagross-Mega+Garchomp",
-            "Mawile-Mega+Farigiraf",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Floette-Mega+Rillaboom",
             "Tyranitar-Mega+Excadrill",
-            "Ceruledge+Sinistcha",
+            "Armarouge+Indeedee-F",
+            "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
-            "Gengar-Mega+Incineroar"
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
           ],
           "gigadrain": [
-            "Whimsicott+Garchomp",
-            "Sylveon+Garchomp",
-            "Grimmsnarl+Pelipper",
-            "Milotic+Sinistcha",
-            "Swampert-Mega+Archaludon",
-            "Ninetales-Alola+Kingambit",
-            "Blastoise-Mega+Sinistcha",
-            "Rotom-Wash+Garchomp"
+            "Milotic+Sneasler",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sylveon+Rillaboom",
+            "Politoed+Golisopod-Mega",
+            "Grimmsnarl+Pelipper"
           ]
         },
         "calc_species": "Hydrapple",
-        "damage_score_raw": "1.090",
-        "damage_score": "1.090",
+        "damage_score_raw": "1.034",
+        "damage_score": "1.034",
         "score_boosts": "none",
-        "sweep_ohko": "33/37",
-        "sweep_2hko": "37/37",
-        "survive_n": "25",
-        "survive_hp_mean": "0.62",
-        "survive_hp_min": "0.00"
+        "sweep_ohko": "29/36",
+        "sweep_2hko": "36/36",
+        "survive_n": "21",
+        "survive_hp_mean": "0.53",
+        "survive_hp_min": "0.07"
       },
       "claimed_traits": [
         {
@@ -324,98 +411,97 @@
           "purpose_claimed": "setup via nastyplot (+2 spa)"
         },
         {
-          "name": "Fickle Beam",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.090 vs panel; branches=B; 15 defender(s)"
-        },
-        {
           "name": "Earth Power",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.090 vs panel; branches=B; 14 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.034 vs panel; branches=B; 17 defender(s)"
+        },
+        {
+          "name": "Fickle Beam",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.034 vs panel; branches=B; 13 defender(s)"
         },
         {
           "name": "Giga Drain",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.090 vs panel; branches=B; 8 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.034 vs panel; branches=B; 6 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=B; calc 1.090 (floor 1.091); secondary=True",
+      "reasoning": "Good: branches=B; calc 1.034 (floor 1.035); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "good_calc_branch_b"
     },
     {
-      "species": "Alakazam-Mega",
-      "species_id": "alakazammega",
+      "species": "Zoroark",
+      "species_id": "zoroark",
       "tier": "Good",
       "delivery_class": "move_setup",
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.071 raw=1.071 floor=1.091 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
+        "execution": "damage_score=0.823 raw=0.823 floor=1.035 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
-          "expandingforce",
-          "focusblast",
-          "dazzlinggleam"
+          "nightdaze",
+          "flamethrower",
+          "sludgebomb"
         ],
         "payoff_targets": {
-          "expandingforce": [
-            "Garchomp+Charizard-Mega-Y",
+          "flamethrower": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Gholdengo+Rillaboom",
+            "Raichu-Mega-Y+Rillaboom",
+            "Whimsicott+Basculegion",
             "Sinistcha+Incineroar",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
-            "Staraptor-Mega+Sinistcha",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Lucario-Mega-Z+Rillaboom",
+            "Froslass-Mega+Sneasler"
           ],
-          "focusblast": [
-            "Incineroar+Sinistcha",
-            "Kingambit+Garchomp",
-            "Farigiraf+Sylveon",
+          "sludgebomb": [
+            "Incineroar+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Grimmsnarl+Pelipper"
+          ],
+          "nightdaze": [
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
-            "Metagross-Mega+Garchomp",
-            "Mawile-Mega+Farigiraf",
+            "Milotic+Sneasler",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Volcarona+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
-            "Excadrill+Tyranitar-Mega"
-          ],
-          "dazzlinggleam": [
-            "Grimmsnarl+Pelipper",
-            "Sableye+Archaludon",
-            "Hydreigon+Charizard-Mega-Y"
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Torkoal+Indeedee-F",
+            "Gengar-Mega+Incineroar"
           ]
         },
-        "calc_species": "Alakazam-Mega",
-        "damage_score_raw": "1.071",
-        "damage_score": "1.071",
+        "calc_species": "Zoroark",
+        "damage_score_raw": "0.823",
+        "damage_score": "0.823",
         "score_boosts": "none",
-        "sweep_ohko": "32/37",
-        "sweep_2hko": "36/37",
-        "survive_n": "1",
-        "survive_hp_mean": "0.38",
-        "survive_hp_min": "0.38"
+        "sweep_ohko": "26/36",
+        "sweep_2hko": "34/36",
+        "survive_n": "6",
+        "survive_hp_mean": "0.34",
+        "survive_hp_min": "0.04"
       },
       "claimed_traits": [
         {
@@ -424,92 +510,91 @@
           "purpose_claimed": "setup via nastyplot (+2 spa)"
         },
         {
-          "name": "Expanding Force",
+          "name": "Night Daze",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.071 vs panel; branches=A; 26 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.823 vs panel; branches=A; 18 defender(s)"
         },
         {
-          "name": "Focus Blast",
+          "name": "Flamethrower",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.071 vs panel; branches=A; 8 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.823 vs panel; branches=A; 13 defender(s)"
         },
         {
-          "name": "Dazzling Gleam",
+          "name": "Sludge Bomb",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.071 vs panel; branches=A; 3 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.823 vs panel; branches=A; 5 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 1.071 (floor 1.091); secondary=True",
-      "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=1.071, branches=A)",
-      "reinforce_class": "excellent_secondary",
+      "reasoning": "Good: branches=A; calc 0.823 (floor 1.035); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
     },
     {
-      "species": "Delphox-Mega",
-      "species_id": "delphoxmega",
+      "species": "Lucario-Mega-Z",
+      "species_id": "lucariomegaz",
       "tier": "Good",
       "delivery_class": "move_setup",
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.048 raw=1.048 floor=1.091 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
+        "execution": "damage_score=1.035 raw=1.035 floor=1.035 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
-          "psychic",
-          "heatwave"
+          "aurasphere",
+          "flashcannon"
         ],
         "payoff_targets": {
-          "psychic": [
-            "Garchomp+Charizard-Mega-Y",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
-            "Staraptor-Mega+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
-          ],
-          "heatwave": [
-            "Incineroar+Sinistcha",
-            "Sinistcha+Incineroar",
-            "Kingambit+Garchomp",
-            "Farigiraf+Sylveon",
+          "aurasphere": [
+            "Rillaboom+Sneasler",
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Metagross-Mega+Garchomp",
-            "Mawile-Mega+Farigiraf",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Volcarona+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
-            "Sableye+Archaludon",
-            "Hydreigon+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega"
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "flashcannon": [
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Staraptor-Mega+Kingambit",
+            "Grimmsnarl+Pelipper",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
           ]
         },
-        "calc_species": "Delphox-Mega",
-        "damage_score_raw": "1.048",
-        "damage_score": "1.048",
+        "calc_species": "Lucario-Mega-Z",
+        "damage_score_raw": "1.035",
+        "damage_score": "1.035",
         "score_boosts": "none",
-        "sweep_ohko": "28/37",
-        "sweep_2hko": "35/37",
+        "sweep_ohko": "26/36",
+        "sweep_2hko": "35/36",
         "survive_n": "0",
         "survive_hp_mean": "n/a",
         "survive_hp_min": "n/a"
@@ -521,750 +606,92 @@
           "purpose_claimed": "setup via nastyplot (+2 spa)"
         },
         {
-          "name": "Psychic",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.048 vs panel; branches=A; 23 defender(s)"
-        },
-        {
-          "name": "Heat Wave",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.048 vs panel; branches=A; 14 defender(s)"
-        }
-      ],
-      "reasoning": "Good: branches=A; calc 1.048 (floor 1.091); secondary=True",
-      "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=1.048, branches=A)",
-      "reinforce_class": "excellent_secondary",
-      "excellence_basis": "good_calc_branch_a"
-    },
-    {
-      "species": "Froslass-Mega",
-      "species_id": "froslassmega",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Nasty Plot",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.928 raw=0.928 floor=1.091 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "shadowball",
-          "blizzard"
-        ],
-        "payoff_targets": {
-          "shadowball": [
-            "Garchomp+Charizard-Mega-Y",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
-            "Archaludon+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Blastoise-Mega+Sinistcha",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega",
-            "Annihilape+Incineroar"
-          ],
-          "blizzard": [
-            "Incineroar+Sinistcha",
-            "Sinistcha+Incineroar",
-            "Kingambit+Garchomp",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Raichu-Mega-Y+Incineroar",
-            "Maushold+Sinistcha",
-            "Aerodactyl-Mega+Kingambit",
-            "Tyranitar-Mega+Excadrill",
-            "Talonflame+Garchomp",
-            "Hydreigon+Charizard-Mega-Y",
-            "Gengar-Mega+Incineroar"
-          ]
-        },
-        "calc_species": "Froslass-Mega",
-        "damage_score_raw": "0.928",
-        "damage_score": "0.928",
-        "score_boosts": "none",
-        "sweep_ohko": "26/37",
-        "sweep_2hko": "35/37",
-        "survive_n": "3",
-        "survive_hp_mean": "0.35",
-        "survive_hp_min": "0.02"
-      },
-      "claimed_traits": [
-        {
-          "name": "Nasty Plot",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via nastyplot (+2 spa)"
-        },
-        {
-          "name": "Shadow Ball",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.928 vs panel; branches=A; 23 defender(s)"
-        },
-        {
-          "name": "Blizzard",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.928 vs panel; branches=A; 14 defender(s)"
-        }
-      ],
-      "reasoning": "Good: branches=A; calc 0.928 (floor 1.091); secondary=True",
-      "change_reason": null,
-      "reinforce_class": "excellent_secondary",
-      "excellence_basis": "good_calc_branch_a"
-    },
-    {
-      "species": "Alakazam",
-      "species_id": "alakazam",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Nasty Plot",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.827 raw=0.827 floor=1.091 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "psychic",
-          "focusblast"
-        ],
-        "payoff_targets": {
-          "psychic": [
-            "Garchomp+Charizard-Mega-Y",
-            "Sinistcha+Incineroar",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
-            "Staraptor-Mega+Sinistcha",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Delphox-Mega+Sinistcha",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
-          ],
-          "focusblast": [
-            "Incineroar+Sinistcha",
-            "Kingambit+Garchomp",
-            "Farigiraf+Sylveon",
-            "Archaludon+Pelipper",
-            "Grimmsnarl+Pelipper",
-            "Raichu-Mega-Y+Incineroar",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Tyranitar-Mega+Excadrill",
-            "Sableye+Archaludon",
-            "Hydreigon+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega"
-          ]
-        },
-        "calc_species": "Alakazam",
-        "damage_score_raw": "0.827",
-        "damage_score": "0.827",
-        "score_boosts": "none",
-        "sweep_ohko": "26/37",
-        "sweep_2hko": "35/37",
-        "survive_n": "2",
-        "survive_hp_mean": "0.31",
-        "survive_hp_min": "0.18"
-      },
-      "claimed_traits": [
-        {
-          "name": "Nasty Plot",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via nastyplot (+2 spa)"
-        },
-        {
-          "name": "Psychic",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.827 vs panel; branches=A; 24 defender(s)"
-        },
-        {
-          "name": "Focus Blast",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.827 vs panel; branches=A; 13 defender(s)"
-        }
-      ],
-      "reasoning": "Good: branches=A; calc 0.827 (floor 1.091); secondary=True",
-      "change_reason": null,
-      "reinforce_class": "excellent_secondary",
-      "excellence_basis": "good_calc_branch_a"
-    },
-    {
-      "species": "Slowbro-Mega",
-      "species_id": "slowbromega",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Nasty Plot",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.987 raw=0.987 floor=1.091 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
-        "branches_cleared": "B",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "scald",
-          "storedpower"
-        ],
-        "payoff_targets": {
-          "scald": [
-            "Garchomp+Charizard-Mega-Y",
-            "Incineroar+Sinistcha",
-            "Kingambit+Garchomp",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Sylveon+Garchomp",
-            "Archaludon+Pelipper",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
-            "Tyranitar-Mega+Excadrill",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Ceruledge+Sinistcha",
-            "Hydreigon+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega"
-          ],
-          "storedpower": [
-            "Sinistcha+Incineroar",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Sneasler+Kingambit",
-            "Pelipper+Archaludon",
-            "Staraptor-Mega+Sinistcha",
-            "Milotic+Sinistcha",
-            "Blastoise-Mega+Sinistcha",
-            "Rotom-Wash+Garchomp",
-            "Venusaur+Charizard-Mega-Y",
-            "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
-          ]
-        },
-        "calc_species": "Slowbro-Mega",
-        "damage_score_raw": "0.987",
-        "damage_score": "0.987",
-        "score_boosts": "none",
-        "sweep_ohko": "23/37",
-        "sweep_2hko": "36/37",
-        "survive_n": "28",
-        "survive_hp_mean": "0.70",
-        "survive_hp_min": "0.13"
-      },
-      "claimed_traits": [
-        {
-          "name": "Nasty Plot",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via nastyplot (+2 spa)"
-        },
-        {
-          "name": "Scald",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.987 vs panel; branches=B; 25 defender(s)"
-        },
-        {
-          "name": "Stored Power",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.987 vs panel; branches=B; 12 defender(s)"
-        }
-      ],
-      "reasoning": "Good: branches=B; calc 0.987 (floor 1.091); secondary=True",
-      "change_reason": null,
-      "reinforce_class": "excellent_secondary",
-      "excellence_basis": "good_calc_branch_b"
-    },
-    {
-      "species": "Houndoom-Mega",
-      "species_id": "houndoommega",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Nasty Plot",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.990 raw=0.990 floor=1.091 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "darkpulse",
-          "heatwave"
-        ],
-        "payoff_targets": {
-          "darkpulse": [
-            "Garchomp+Charizard-Mega-Y",
-            "Sinistcha+Incineroar",
-            "Basculegion+Kingambit",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Pelipper+Archaludon",
-            "Archaludon+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Milotic+Sinistcha",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Delphox-Mega+Sinistcha",
-            "Aerodactyl-Mega+Kingambit",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Hydreigon+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega",
-            "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
-          ],
-          "heatwave": [
-            "Incineroar+Sinistcha",
-            "Kingambit+Garchomp",
-            "Whimsicott+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Floette-Mega+Kingambit",
-            "Raichu-Mega-Y+Incineroar",
-            "Maushold+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Tyranitar-Mega+Excadrill",
-            "Venusaur+Charizard-Mega-Y"
-          ]
-        },
-        "calc_species": "Houndoom-Mega",
-        "damage_score_raw": "0.990",
-        "damage_score": "0.990",
-        "score_boosts": "none",
-        "sweep_ohko": "23/37",
-        "sweep_2hko": "35/37",
-        "survive_n": "5",
-        "survive_hp_mean": "0.54",
-        "survive_hp_min": "0.15"
-      },
-      "claimed_traits": [
-        {
-          "name": "Nasty Plot",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via nastyplot (+2 spa)"
-        },
-        {
-          "name": "Dark Pulse",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.990 vs panel; branches=A; 23 defender(s)"
-        },
-        {
-          "name": "Heat Wave",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.990 vs panel; branches=A; 14 defender(s)"
-        }
-      ],
-      "reasoning": "Good: branches=A; calc 0.990 (floor 1.091); secondary=False",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_branch_a"
-    },
-    {
-      "species": "Zoroark",
-      "species_id": "zoroark",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Nasty Plot",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.870 raw=0.870 floor=1.091 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "nightdaze",
-          "darkpulse",
-          "sludgebomb"
-        ],
-        "payoff_targets": {
-          "nightdaze": [
-            "Garchomp+Charizard-Mega-Y",
-            "Kingambit+Garchomp",
-            "Charizard-Mega-Y+Garchomp",
-            "Archaludon+Pelipper",
-            "Milotic+Sinistcha",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Mawile-Mega+Farigiraf",
-            "Aerodactyl-Mega+Kingambit",
-            "Tyranitar-Mega+Excadrill",
-            "Blastoise-Mega+Sinistcha",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega",
-            "Annihilape+Incineroar"
-          ],
-          "sludgebomb": [
-            "Incineroar+Sinistcha",
-            "Whimsicott+Garchomp",
-            "Sylveon+Garchomp",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Floette-Mega+Kingambit",
-            "Ninetales-Alola+Kingambit",
-            "Hydreigon+Charizard-Mega-Y"
-          ],
-          "darkpulse": [
-            "Sinistcha+Incineroar",
-            "Basculegion+Kingambit",
-            "Farigiraf+Sylveon",
-            "Sneasler+Kingambit",
-            "Pelipper+Archaludon",
-            "Gholdengo+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Gengar-Mega+Incineroar"
-          ]
-        },
-        "calc_species": "Zoroark",
-        "damage_score_raw": "0.870",
-        "damage_score": "0.870",
-        "score_boosts": "none",
-        "sweep_ohko": "23/37",
-        "sweep_2hko": "35/37",
-        "survive_n": "6",
-        "survive_hp_mean": "0.38",
-        "survive_hp_min": "0.03"
-      },
-      "claimed_traits": [
-        {
-          "name": "Nasty Plot",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via nastyplot (+2 spa)"
-        },
-        {
-          "name": "Night Daze",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.870 vs panel; branches=A; 17 defender(s)"
-        },
-        {
-          "name": "Dark Pulse",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.870 vs panel; branches=A; 12 defender(s)"
-        },
-        {
-          "name": "Sludge Bomb",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.870 vs panel; branches=A; 8 defender(s)"
-        }
-      ],
-      "reasoning": "Good: branches=A; calc 0.870 (floor 1.091); secondary=False",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_branch_a"
-    },
-    {
-      "species": "Zoroark-Hisui",
-      "species_id": "zoroarkhisui",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Nasty Plot",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.933 raw=0.933 floor=1.091 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "shadowball",
-          "bittermalice",
-          "hypervoice",
-          "icywind"
-        ],
-        "payoff_targets": {
-          "icywind": [
-            "Garchomp+Charizard-Mega-Y",
-            "Kingambit+Garchomp"
-          ],
-          "hypervoice": [
-            "Incineroar+Sinistcha",
-            "Farigiraf+Sylveon",
-            "Sylveon+Garchomp",
-            "Grimmsnarl+Pelipper",
-            "Raichu-Mega-Y+Incineroar",
-            "Maushold+Sinistcha",
-            "Tyranitar-Mega+Excadrill",
-            "Talonflame+Garchomp",
-            "Hydreigon+Charizard-Mega-Y"
-          ],
-          "shadowball": [
-            "Sinistcha+Incineroar",
-            "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Archaludon+Pelipper",
-            "Staraptor-Mega+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
-            "Blastoise-Mega+Sinistcha",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Venusaur+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega"
-          ],
-          "bittermalice": [
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Pelipper+Archaludon",
-            "Gholdengo+Sinistcha",
-            "Metagross-Mega+Garchomp",
-            "Delphox-Mega+Sinistcha",
-            "Ceruledge+Sinistcha",
-            "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
-          ]
-        },
-        "calc_species": "Zoroark-Hisui",
-        "damage_score_raw": "0.933",
-        "damage_score": "0.933",
-        "score_boosts": "none",
-        "sweep_ohko": "21/37",
-        "sweep_2hko": "35/37",
-        "survive_n": "6",
-        "survive_hp_mean": "0.62",
-        "survive_hp_min": "0.18"
-      },
-      "claimed_traits": [
-        {
-          "name": "Nasty Plot",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via nastyplot (+2 spa)"
-        },
-        {
-          "name": "Shadow Ball",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.933 vs panel; branches=A; 17 defender(s)"
-        },
-        {
-          "name": "Bitter Malice",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.933 vs panel; branches=A; 9 defender(s)"
-        },
-        {
-          "name": "Hyper Voice",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.933 vs panel; branches=A; 9 defender(s)"
-        },
-        {
-          "name": "Icy Wind",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.933 vs panel; branches=A; 2 defender(s)"
-        }
-      ],
-      "reasoning": "Good: branches=A; calc 0.933 (floor 1.091); secondary=False",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_branch_a"
-    },
-    {
-      "species": "Lucario-Mega",
-      "species_id": "lucariomega",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Nasty Plot",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.770 raw=0.770 floor=1.091 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "aurasphere"
-        ],
-        "payoff_targets": {
-          "aurasphere": [
-            "Garchomp+Charizard-Mega-Y",
-            "Incineroar+Sinistcha",
-            "Sinistcha+Incineroar",
-            "Kingambit+Garchomp",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
-            "Archaludon+Pelipper",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
-            "Tyranitar-Mega+Excadrill",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Hydreigon+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega",
-            "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
-          ]
-        },
-        "calc_species": "Lucario-Mega",
-        "damage_score_raw": "0.770",
-        "damage_score": "0.770",
-        "score_boosts": "none",
-        "sweep_ohko": "21/37",
-        "sweep_2hko": "29/37",
-        "survive_n": "4",
-        "survive_hp_mean": "0.44",
-        "survive_hp_min": "0.10"
-      },
-      "claimed_traits": [
-        {
-          "name": "Nasty Plot",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via nastyplot (+2 spa)"
-        },
-        {
           "name": "Aura Sphere",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.770 vs panel; branches=A; 37 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.035 vs panel; branches=A; 23 defender(s)"
+        },
+        {
+          "name": "Flash Cannon",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.035 vs panel; branches=A; 13 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 0.770 (floor 1.091); secondary=False",
-      "change_reason": null,
+      "reasoning": "Good: branches=A; calc 1.035 (floor 1.035); secondary=False",
+      "change_reason": "pre-Task-B drift admit (Good, basis=good_calc_branch_a)",
       "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
     },
     {
-      "species": "Meowstic-F-Mega",
-      "species_id": "meowsticfmega",
+      "species": "Alakazam-Mega",
+      "species_id": "alakazammega",
       "tier": "Good",
       "delivery_class": "move_setup",
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.899 raw=0.899 floor=1.091 excellent_exec=False",
+        "execution": "damage_score=1.018 raw=1.018 floor=1.035 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
           "expandingforce",
-          "darkpulse"
+          "focusblast",
+          "dazzlinggleam"
         ],
         "payoff_targets": {
           "expandingforce": [
-            "Garchomp+Charizard-Mega-Y",
-            "Whimsicott+Garchomp",
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
             "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
-            "Staraptor-Mega+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Maushold+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Annihilape+Incineroar"
-          ],
-          "darkpulse": [
-            "Incineroar+Sinistcha",
+            "Whimsicott+Basculegion",
             "Sinistcha+Incineroar",
-            "Kingambit+Garchomp",
-            "Basculegion+Kingambit",
-            "Farigiraf+Sylveon",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "focusblast": [
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
             "Archaludon+Pelipper",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Metagross-Mega+Garchomp",
-            "Delphox-Mega+Sinistcha",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
-            "Sableye+Archaludon",
-            "Hydreigon+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega",
-            "Gengar-Mega+Incineroar"
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "dazzlinggleam": [
+            "Salamence-Mega+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Staraptor-Mega+Kingambit",
+            "Grimmsnarl+Pelipper"
           ]
         },
-        "calc_species": "Meowstic-F-Mega",
-        "damage_score_raw": "0.899",
-        "damage_score": "0.899",
+        "calc_species": "Alakazam-Mega",
+        "damage_score_raw": "1.018",
+        "damage_score": "1.018",
         "score_boosts": "none",
-        "sweep_ohko": "21/37",
-        "sweep_2hko": "32/37",
-        "survive_n": "4",
-        "survive_hp_mean": "0.34",
-        "survive_hp_min": "0.07"
+        "sweep_ohko": "25/36",
+        "sweep_2hko": "36/36",
+        "survive_n": "2",
+        "survive_hp_mean": "0.59",
+        "survive_hp_min": "0.54"
       },
       "claimed_traits": [
         {
@@ -1275,87 +702,380 @@
         {
           "name": "Expanding Force",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.899 vs panel; branches=A; 22 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.018 vs panel; branches=A; 22 defender(s)"
         },
         {
-          "name": "Dark Pulse",
+          "name": "Focus Blast",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.899 vs panel; branches=A; 15 defender(s)"
+          "purpose_claimed": "calc damage fraction 1.018 vs panel; branches=A; 10 defender(s)"
+        },
+        {
+          "name": "Dazzling Gleam",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.018 vs panel; branches=A; 4 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 0.899 (floor 1.091); secondary=True",
-      "change_reason": "setup calc/membership re-eval / tier 'Excellent' \u2192 'Good' (score=0.899, branches=A)",
+      "reasoning": "Good: branches=A; calc 1.018 (floor 1.035); secondary=True",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "good_calc_branch_a"
     },
     {
-      "species": "Ninetales-Alola",
-      "species_id": "ninetalesalola",
+      "species": "Houndoom-Mega",
+      "species_id": "houndoommega",
       "tier": "Good",
       "delivery_class": "move_setup",
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.821 raw=0.821 floor=1.091 excellent_exec=False",
+        "execution": "damage_score=0.991 raw=0.991 floor=1.035 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "darkpulse",
+          "heatwave"
+        ],
+        "payoff_targets": {
+          "heatwave": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Raichu-Mega-Y+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Tyranitar-Mega+Excadrill",
+            "Staraptor-Mega+Kingambit",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom"
+          ],
+          "darkpulse": [
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Sinistcha+Incineroar",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Houndoom-Mega",
+        "damage_score_raw": "0.991",
+        "damage_score": "0.991",
+        "score_boosts": "none",
+        "sweep_ohko": "25/36",
+        "sweep_2hko": "34/36",
+        "survive_n": "8",
+        "survive_hp_mean": "0.49",
+        "survive_hp_min": "0.09"
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Dark Pulse",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.991 vs panel; branches=A; 21 defender(s)"
+        },
+        {
+          "name": "Heat Wave",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.991 vs panel; branches=A; 15 defender(s)"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 0.991 (floor 1.035); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Slowbro-Mega",
+      "species_id": "slowbromega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.927 raw=0.927 floor=1.035 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "B",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "expandingforce",
+          "scald"
+        ],
+        "payoff_targets": {
+          "expandingforce": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Basculegion+Sneasler",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "scald": [
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Volcarona+Rillaboom",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper"
+          ]
+        },
+        "calc_species": "Slowbro-Mega",
+        "damage_score_raw": "0.927",
+        "damage_score": "0.927",
+        "score_boosts": "none",
+        "sweep_ohko": "23/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "25",
+        "survive_hp_mean": "0.68",
+        "survive_hp_min": "0.42"
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Expanding Force",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.927 vs panel; branches=B; 19 defender(s)"
+        },
+        {
+          "name": "Scald",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.927 vs panel; branches=B; 17 defender(s)"
+        }
+      ],
+      "reasoning": "Good: branches=B; calc 0.927 (floor 1.035); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "good_calc_branch_b"
+    },
+    {
+      "species": "Zoroark-Hisui",
+      "species_id": "zoroarkhisui",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.873 raw=0.873 floor=1.035 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "bittermalice",
+          "hypervoice",
+          "flamethrower",
+          "icywind"
+        ],
+        "payoff_targets": {
+          "flamethrower": [
+            "Rillaboom+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Excadrill+Tyranitar-Mega"
+          ],
+          "bittermalice": [
+            "Sneasler+Rillaboom",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "hypervoice": [
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Grimmsnarl+Pelipper"
+          ],
+          "icywind": [
+            "Salamence-Mega+Rillaboom",
+            "Garchomp+Charizard-Mega-Y"
+          ]
+        },
+        "calc_species": "Zoroark-Hisui",
+        "damage_score_raw": "0.873",
+        "damage_score": "0.873",
+        "score_boosts": "none",
+        "sweep_ohko": "23/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "8",
+        "survive_hp_mean": "0.58",
+        "survive_hp_min": "0.05"
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Bitter Malice",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.873 vs panel; branches=A; 18 defender(s)"
+        },
+        {
+          "name": "Hyper Voice",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.873 vs panel; branches=A; 12 defender(s)"
+        },
+        {
+          "name": "Flamethrower",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.873 vs panel; branches=A; 4 defender(s)"
+        },
+        {
+          "name": "Icy Wind",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.873 vs panel; branches=A; 2 defender(s)"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 0.873 (floor 1.035); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Froslass-Mega",
+      "species_id": "froslassmega",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.931 raw=0.931 floor=1.035 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
-          "blizzard",
-          "freezedry"
+          "shadowball",
+          "blizzard"
         ],
         "payoff_targets": {
-          "freezedry": [
-            "Garchomp+Charizard-Mega-Y",
+          "shadowball": [
+            "Rillaboom+Sneasler",
+            "Salamence-Mega+Rillaboom",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Arcanine-Hisui+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
             "Sinistcha+Incineroar",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Farigiraf+Sylveon",
-            "Pelipper+Archaludon",
-            "Staraptor-Mega+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Swampert-Mega+Archaludon",
-            "Aerodactyl-Mega+Kingambit",
-            "Blastoise-Mega+Sinistcha",
-            "Rotom-Wash+Garchomp",
-            "Venusaur+Charizard-Mega-Y",
-            "Hydreigon+Charizard-Mega-Y",
-            "Annihilape+Incineroar"
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
+            "Froslass-Mega+Sneasler"
           ],
           "blizzard": [
-            "Incineroar+Sinistcha",
-            "Kingambit+Garchomp",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Raichu-Mega-Y+Rillaboom",
             "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Archaludon+Pelipper",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Ceruledge+Sinistcha",
-            "Excadrill+Tyranitar-Mega",
+            "Grimmsnarl+Pelipper",
             "Gengar-Mega+Incineroar"
           ]
         },
-        "calc_species": "Ninetales-Alola",
-        "damage_score_raw": "0.821",
-        "damage_score": "0.821",
+        "calc_species": "Froslass-Mega",
+        "damage_score_raw": "0.931",
+        "damage_score": "0.931",
         "score_boosts": "none",
-        "sweep_ohko": "20/37",
-        "sweep_2hko": "29/37",
-        "survive_n": "6",
-        "survive_hp_mean": "0.18",
+        "sweep_ohko": "23/36",
+        "sweep_2hko": "34/36",
+        "survive_n": "7",
+        "survive_hp_mean": "0.55",
         "survive_hp_min": "0.03"
       },
       "claimed_traits": [
@@ -1365,19 +1085,110 @@
           "purpose_claimed": "setup via nastyplot (+2 spa)"
         },
         {
-          "name": "Blizzard",
+          "name": "Shadow Ball",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.821 vs panel; branches=A; 21 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.931 vs panel; branches=A; 26 defender(s)"
         },
         {
-          "name": "Freeze-Dry",
+          "name": "Blizzard",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.821 vs panel; branches=A; 16 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.931 vs panel; branches=A; 10 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 0.821 (floor 1.091); secondary=True",
+      "reasoning": "Good: branches=A; calc 0.931 (floor 1.035); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Salazzle",
+      "species_id": "salazzle",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.876 raw=0.876 floor=1.035 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "sludgebomb",
+          "heatwave"
+        ],
+        "payoff_targets": {
+          "sludgebomb": [
+            "Rillaboom+Sneasler",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Basculegion+Sneasler",
+            "Pelipper+Golisopod-Mega",
+            "Milotic+Sneasler",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper"
+          ],
+          "heatwave": [
+            "Sneasler+Rillaboom",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Archaludon+Pelipper",
+            "Raichu-Mega-Y+Rillaboom",
+            "Sinistcha+Incineroar",
+            "Volcarona+Rillaboom",
+            "Tyranitar-Mega+Excadrill",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Salazzle",
+        "damage_score_raw": "0.876",
+        "damage_score": "0.876",
+        "score_boosts": "none",
+        "sweep_ohko": "22/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "6",
+        "survive_hp_mean": "0.45",
+        "survive_hp_min": "0.19"
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Sludge Bomb",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.876 vs panel; branches=A; 21 defender(s)"
+        },
+        {
+          "name": "Heat Wave",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.876 vs panel; branches=A; 15 defender(s)"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 0.876 (floor 1.035); secondary=False",
+      "change_reason": null,
+      "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
     },
     {
@@ -1388,7 +1199,7 @@
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.768 raw=0.768 floor=1.091 excellent_exec=False",
+        "execution": "damage_score=0.801 raw=0.801 floor=1.035 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -1399,55 +1210,54 @@
         ],
         "payoff_targets": {
           "icebeam": [
-            "Garchomp+Charizard-Mega-Y",
-            "Sinistcha+Incineroar",
-            "Whimsicott+Garchomp",
-            "Pelipper+Archaludon",
+            "Rillaboom+Sneasler",
+            "Salamence-Mega+Rillaboom",
+            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
-            "Staraptor-Mega+Sinistcha",
-            "Aerodactyl-Mega+Kingambit",
-            "Venusaur+Charizard-Mega-Y",
-            "Hydreigon+Charizard-Mega-Y"
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Staraptor-Mega+Kingambit"
           ],
           "scald": [
-            "Incineroar+Sinistcha",
-            "Kingambit+Garchomp",
-            "Basculegion+Kingambit",
-            "Farigiraf+Sylveon",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
             "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
+            "Gardevoir-Mega+Sneasler",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom",
             "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
+            "Froslass-Mega+Sneasler"
           ]
         },
         "calc_species": "Simipour",
-        "damage_score_raw": "0.768",
-        "damage_score": "0.768",
+        "damage_score_raw": "0.801",
+        "damage_score": "0.801",
         "score_boosts": "none",
-        "sweep_ohko": "19/37",
-        "sweep_2hko": "33/37",
-        "survive_n": "7",
-        "survive_hp_mean": "0.41",
+        "sweep_ohko": "20/36",
+        "sweep_2hko": "33/36",
+        "survive_n": "10",
+        "survive_hp_mean": "0.30",
         "survive_hp_min": "0.05"
       },
       "claimed_traits": [
@@ -1459,107 +1269,15 @@
         {
           "name": "Scald",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.768 vs panel; branches=A; 28 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.801 vs panel; branches=A; 27 defender(s)"
         },
         {
           "name": "Ice Beam",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.768 vs panel; branches=A; 9 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.801 vs panel; branches=A; 9 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 0.768 (floor 1.091); secondary=False",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "good_calc_branch_a"
-    },
-    {
-      "species": "Salazzle",
-      "species_id": "salazzle",
-      "tier": "Good",
-      "delivery_class": "move_setup",
-      "mechanism": "Nasty Plot",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.880 raw=0.880 floor=1.091 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "sludgebomb",
-          "heatwave"
-        ],
-        "payoff_targets": {
-          "sludgebomb": [
-            "Garchomp+Charizard-Mega-Y",
-            "Incineroar+Sinistcha",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Torkoal+Farigiraf",
-            "Delphox-Mega+Sinistcha",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Rotom-Wash+Garchomp",
-            "Hydreigon+Charizard-Mega-Y"
-          ],
-          "heatwave": [
-            "Sinistcha+Incineroar",
-            "Kingambit+Garchomp",
-            "Sneasler+Kingambit",
-            "Archaludon+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Tyranitar-Mega+Excadrill",
-            "Sableye+Archaludon",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega",
-            "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
-          ]
-        },
-        "calc_species": "Salazzle",
-        "damage_score_raw": "0.880",
-        "damage_score": "0.880",
-        "score_boosts": "none",
-        "sweep_ohko": "18/37",
-        "sweep_2hko": "34/37",
-        "survive_n": "3",
-        "survive_hp_mean": "0.51",
-        "survive_hp_min": "0.37"
-      },
-      "claimed_traits": [
-        {
-          "name": "Nasty Plot",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via nastyplot (+2 spa)"
-        },
-        {
-          "name": "Sludge Bomb",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.880 vs panel; branches=A; 20 defender(s)"
-        },
-        {
-          "name": "Heat Wave",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.880 vs panel; branches=A; 17 defender(s)"
-        }
-      ],
-      "reasoning": "Good: branches=A; calc 0.880 (floor 1.091); secondary=False",
+      "reasoning": "Good: branches=A; calc 0.801 (floor 1.035); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
@@ -1572,67 +1290,66 @@
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.842 raw=0.842 floor=1.091 excellent_exec=False",
+        "execution": "damage_score=0.932 raw=0.932 floor=1.035 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
-          "psychic",
-          "thunderbolt"
+          "expandingforce",
+          "risingvoltage"
         ],
         "payoff_targets": {
-          "psychic": [
-            "Garchomp+Charizard-Mega-Y",
-            "Sinistcha+Incineroar",
-            "Whimsicott+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
+          "expandingforce": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
-            "Staraptor-Mega+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Maushold+Sinistcha",
-            "Ninetales-Alola+Kingambit",
-            "Talonflame+Garchomp",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Staraptor-Mega+Kingambit",
             "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
             "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
+            "Froslass-Mega+Sneasler"
           ],
-          "thunderbolt": [
-            "Incineroar+Sinistcha",
-            "Kingambit+Garchomp",
-            "Basculegion+Kingambit",
-            "Farigiraf+Sylveon",
+          "risingvoltage": [
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Milotic+Sneasler",
             "Charizard-Mega-Y+Garchomp",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Milotic+Sinistcha",
-            "Metagross-Mega+Garchomp",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Aerodactyl-Mega+Kingambit",
+            "Gardevoir-Mega+Sneasler",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
-            "Blastoise-Mega+Sinistcha",
-            "Sableye+Archaludon",
-            "Hydreigon+Charizard-Mega-Y"
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega",
+            "Grimmsnarl+Pelipper"
           ]
         },
         "calc_species": "Raichu-Alola",
-        "damage_score_raw": "0.842",
-        "damage_score": "0.842",
+        "damage_score_raw": "0.932",
+        "damage_score": "0.932",
         "score_boosts": "none",
-        "sweep_ohko": "17/37",
-        "sweep_2hko": "35/37",
-        "survive_n": "5",
+        "sweep_ohko": "19/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "12",
         "survive_hp_mean": "0.35",
-        "survive_hp_min": "0.24"
+        "survive_hp_min": "0.17"
       },
       "claimed_traits": [
         {
@@ -1641,86 +1358,88 @@
           "purpose_claimed": "setup via nastyplot (+2 spa)"
         },
         {
-          "name": "Psychic",
+          "name": "Expanding Force",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.842 vs panel; branches=A; 21 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.932 vs panel; branches=A; 20 defender(s)"
         },
         {
-          "name": "Thunderbolt",
+          "name": "Rising Voltage",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.842 vs panel; branches=A; 16 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.932 vs panel; branches=A; 16 defender(s)"
         }
       ],
-      "reasoning": "Good: branches=A; calc 0.842 (floor 1.091); secondary=True",
+      "reasoning": "Good: branches=A; calc 0.932 (floor 1.035); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "good_calc_branch_a"
     },
     {
-      "species": "Meowstic-M-Mega",
-      "species_id": "meowsticmmega",
-      "tier": "Acceptable",
+      "species": "Meowstic-F-Mega",
+      "species_id": "meowsticfmega",
+      "tier": "Good",
       "delivery_class": "move_setup",
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.733 raw=0.733 floor=1.091 excellent_exec=False",
+        "execution": "damage_score=0.925 raw=0.925 floor=1.035 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
-          "expandingforce"
+          "expandingforce",
+          "thunderbolt"
         ],
         "payoff_targets": {
           "expandingforce": [
-            "Garchomp+Charizard-Mega-Y",
-            "Incineroar+Sinistcha",
-            "Sinistcha+Incineroar",
-            "Kingambit+Garchomp",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
-            "Tyranitar-Mega+Excadrill",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Hydreigon+Charizard-Mega-Y",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Staraptor-Mega+Kingambit",
             "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
             "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
+            "Froslass-Mega+Sneasler"
+          ],
+          "thunderbolt": [
+            "Incineroar+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Milotic+Sneasler",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega",
+            "Grimmsnarl+Pelipper"
           ]
         },
-        "calc_species": "Meowstic-M-Mega",
-        "damage_score_raw": "0.733",
-        "damage_score": "0.733",
+        "calc_species": "Meowstic-F-Mega",
+        "damage_score_raw": "0.925",
+        "damage_score": "0.925",
         "score_boosts": "none",
-        "sweep_ohko": "16/37",
-        "sweep_2hko": "27/37",
-        "survive_n": "4",
-        "survive_hp_mean": "0.34",
+        "sweep_ohko": "18/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "8",
+        "survive_hp_mean": "0.47",
         "survive_hp_min": "0.07"
       },
       "claimed_traits": [
@@ -1732,80 +1451,178 @@
         {
           "name": "Expanding Force",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.733 vs panel; branches=A; 37 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.925 vs panel; branches=A; 20 defender(s)"
+        },
+        {
+          "name": "Thunderbolt",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.925 vs panel; branches=A; 16 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 0.733 (floor 1.091); secondary=True",
+      "reasoning": "Good: branches=A; calc 0.925 (floor 1.035); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
-      "excellence_basis": "acceptable_calc_branch_a"
+      "excellence_basis": "good_calc_branch_a"
     },
     {
-      "species": "Simisear",
-      "species_id": "simisear",
-      "tier": "Acceptable",
+      "species": "Meowstic-M-Mega",
+      "species_id": "meowsticmmega",
+      "tier": "Good",
       "delivery_class": "move_setup",
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.708 raw=0.708 floor=1.091 excellent_exec=False",
+        "execution": "damage_score=0.893 raw=0.893 floor=1.035 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "expandingforce",
+          "alluringvoice"
+        ],
+        "payoff_targets": {
+          "expandingforce": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ],
+          "alluringvoice": [
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Archaludon+Pelipper",
+            "Gardevoir-Mega+Sneasler",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Grimmsnarl+Pelipper"
+          ]
+        },
+        "calc_species": "Meowstic-M-Mega",
+        "damage_score_raw": "0.893",
+        "damage_score": "0.893",
+        "score_boosts": "none",
+        "sweep_ohko": "17/36",
+        "sweep_2hko": "33/36",
+        "survive_n": "8",
+        "survive_hp_mean": "0.47",
+        "survive_hp_min": "0.07"
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Expanding Force",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.893 vs panel; branches=A; 22 defender(s)"
+        },
+        {
+          "name": "Alluring Voice",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.893 vs panel; branches=A; 14 defender(s)"
+        }
+      ],
+      "reasoning": "Good: branches=A; calc 0.893 (floor 1.035); secondary=True",
+      "change_reason": "pre-Task-B drift: Acceptable \u2192 Good (basis=good_calc_branch_a)",
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Ninetales",
+      "species_id": "ninetales",
+      "tier": "Good",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.761 raw=0.761 floor=1.035 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
-          "heatwave"
+          "heatwave",
+          "weatherball"
         ],
         "payoff_targets": {
           "heatwave": [
-            "Garchomp+Charizard-Mega-Y",
-            "Incineroar+Sinistcha",
-            "Sinistcha+Incineroar",
-            "Kingambit+Garchomp",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Hydreigon+Charizard-Mega-Y",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom",
             "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
+            "Froslass-Mega+Sneasler"
+          ],
+          "weatherball": [
+            "Armarouge+Indeedee-F"
           ]
         },
-        "calc_species": "Simisear",
-        "damage_score_raw": "0.708",
-        "damage_score": "0.708",
+        "calc_species": "Ninetales",
+        "damage_score_raw": "0.761",
+        "damage_score": "0.761",
         "score_boosts": "none",
-        "sweep_ohko": "13/37",
-        "sweep_2hko": "24/37",
-        "survive_n": "7",
-        "survive_hp_mean": "0.46",
-        "survive_hp_min": "0.01"
+        "sweep_ohko": "11/36",
+        "sweep_2hko": "23/36",
+        "survive_n": "12",
+        "survive_hp_mean": "0.47",
+        "survive_hp_min": "0.05"
       },
       "claimed_traits": [
         {
@@ -1816,12 +1633,108 @@
         {
           "name": "Heat Wave",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.708 vs panel; branches=A; 37 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.761 vs panel; branches=A; 35 defender(s)"
+        },
+        {
+          "name": "Weather Ball",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.761 vs panel; branches=A; 1 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 0.708 (floor 1.091); secondary=False",
-      "change_reason": null,
+      "reasoning": "Good: branches=A; calc 0.761 (floor 1.035); secondary=False",
+      "change_reason": "pre-Task-B drift: Acceptable \u2192 Good (basis=good_calc_branch_a)",
       "reinforce_class": "",
+      "excellence_basis": "good_calc_branch_a"
+    },
+    {
+      "species": "Ninetales-Alola",
+      "species_id": "ninetalesalola",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.710 raw=0.710 floor=1.035 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "blizzard",
+          "freezedry"
+        ],
+        "payoff_targets": {
+          "freezedry": [
+            "Rillaboom+Sneasler",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Basculegion+Sneasler",
+            "Pelipper+Golisopod-Mega",
+            "Milotic+Sneasler",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Politoed+Golisopod-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Gengar-Mega+Incineroar"
+          ],
+          "blizzard": [
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Archaludon+Pelipper",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Ninetales-Alola",
+        "damage_score_raw": "0.710",
+        "damage_score": "0.710",
+        "score_boosts": "none",
+        "sweep_ohko": "10/36",
+        "sweep_2hko": "25/36",
+        "survive_n": "10",
+        "survive_hp_mean": "0.44",
+        "survive_hp_min": "0.05"
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Blizzard",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.710 vs panel; branches=A; 20 defender(s)"
+        },
+        {
+          "name": "Freeze-Dry",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.710 vs panel; branches=A; 16 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.710 (floor 1.035); secondary=True",
+      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_branch_a)",
+      "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
     },
     {
@@ -1832,7 +1745,7 @@
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.590 raw=0.590 floor=1.091 excellent_exec=False",
+        "execution": "damage_score=0.529 raw=0.529 floor=1.035 excellent_exec=False",
         "secondary_role": "none / Good-only reinforce",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -1842,54 +1755,53 @@
         ],
         "payoff_targets": {
           "aurasphere": [
-            "Garchomp+Charizard-Mega-Y",
-            "Incineroar+Sinistcha",
-            "Sinistcha+Incineroar",
-            "Kingambit+Garchomp",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Hydreigon+Charizard-Mega-Y",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom",
             "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
+            "Froslass-Mega+Sneasler"
           ]
         },
         "calc_species": "Lucario",
-        "damage_score_raw": "0.590",
-        "damage_score": "0.590",
+        "damage_score_raw": "0.529",
+        "damage_score": "0.529",
         "score_boosts": "none",
-        "sweep_ohko": "9/37",
-        "sweep_2hko": "24/37",
+        "sweep_ohko": "10/36",
+        "sweep_2hko": "24/36",
         "survive_n": "9",
-        "survive_hp_mean": "0.50",
-        "survive_hp_min": "0.08"
+        "survive_hp_mean": "0.37",
+        "survive_hp_min": "0.10"
       },
       "claimed_traits": [
         {
@@ -1900,79 +1812,78 @@
         {
           "name": "Aura Sphere",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.590 vs panel; branches=A; 37 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.529 vs panel; branches=A; 36 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 0.590 (floor 1.091); secondary=False",
+      "reasoning": "Acceptable: branches=A; calc 0.529 (floor 1.035); secondary=False",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
     {
-      "species": "Infernape",
-      "species_id": "infernape",
+      "species": "Meowstic",
+      "species_id": "meowstic",
       "tier": "Acceptable",
       "delivery_class": "move_setup",
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.557 raw=0.557 floor=1.091 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
+        "execution": "damage_score=0.565 raw=0.565 floor=1.035 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
         "attribution": "none",
         "payoff_moves": [
-          "aurasphere"
+          "expandingforce"
         ],
         "payoff_targets": {
-          "aurasphere": [
-            "Garchomp+Charizard-Mega-Y",
-            "Incineroar+Sinistcha",
-            "Sinistcha+Incineroar",
-            "Kingambit+Garchomp",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
+          "expandingforce": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Hydreigon+Charizard-Mega-Y",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom",
             "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
+            "Froslass-Mega+Sneasler"
           ]
         },
-        "calc_species": "Infernape",
-        "damage_score_raw": "0.557",
-        "damage_score": "0.557",
+        "calc_species": "Meowstic",
+        "damage_score_raw": "0.565",
+        "damage_score": "0.565",
         "score_boosts": "none",
-        "sweep_ohko": "9/37",
-        "sweep_2hko": "24/37",
-        "survive_n": "7",
-        "survive_hp_mean": "0.44",
+        "sweep_ohko": "7/36",
+        "sweep_2hko": "20/36",
+        "survive_n": "13",
+        "survive_hp_mean": "0.46",
         "survive_hp_min": "0.07"
       },
       "claimed_traits": [
@@ -1982,98 +1893,14 @@
           "purpose_claimed": "setup via nastyplot (+2 spa)"
         },
         {
-          "name": "Aura Sphere",
+          "name": "Expanding Force",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.557 vs panel; branches=A; 37 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.565 vs panel; branches=A; 36 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 0.557 (floor 1.091); secondary=False",
-      "change_reason": null,
-      "reinforce_class": "",
-      "excellence_basis": "acceptable_calc_branch_a"
-    },
-    {
-      "species": "Ninetales",
-      "species_id": "ninetales",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Nasty Plot",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.641 raw=0.641 floor=1.091 excellent_exec=False",
-        "secondary_role": "none / Good-only reinforce",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "heatwave"
-        ],
-        "payoff_targets": {
-          "heatwave": [
-            "Garchomp+Charizard-Mega-Y",
-            "Incineroar+Sinistcha",
-            "Sinistcha+Incineroar",
-            "Kingambit+Garchomp",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
-            "Archaludon+Pelipper",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
-            "Tyranitar-Mega+Excadrill",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Hydreigon+Charizard-Mega-Y",
-            "Excadrill+Tyranitar-Mega",
-            "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
-          ]
-        },
-        "calc_species": "Ninetales",
-        "damage_score_raw": "0.641",
-        "damage_score": "0.641",
-        "score_boosts": "none",
-        "sweep_ohko": "9/37",
-        "sweep_2hko": "21/37",
-        "survive_n": "10",
-        "survive_hp_mean": "0.42",
-        "survive_hp_min": "0.03"
-      },
-      "claimed_traits": [
-        {
-          "name": "Nasty Plot",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via nastyplot (+2 spa)"
-        },
-        {
-          "name": "Heat Wave",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.641 vs panel; branches=A; 37 defender(s)"
-        }
-      ],
-      "reasoning": "Acceptable: branches=A; calc 0.641 (floor 1.091); secondary=False",
-      "change_reason": null,
-      "reinforce_class": "",
+      "reasoning": "Acceptable: branches=A; calc 0.565 (floor 1.035); secondary=True",
+      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_branch_a)",
+      "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
     },
     {
@@ -2084,7 +1911,7 @@
       "mechanism": "Nasty Plot",
       "criteria_notes": {
         "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=0.634 raw=0.634 floor=1.091 excellent_exec=False",
+        "execution": "damage_score=0.639 raw=0.639 floor=1.035 excellent_exec=False",
         "secondary_role": "excellent_secondary",
         "branches_cleared": "A",
         "usage_proven": "True",
@@ -2094,54 +1921,53 @@
         ],
         "payoff_targets": {
           "voltswitch": [
-            "Garchomp+Charizard-Mega-Y",
-            "Incineroar+Sinistcha",
-            "Sinistcha+Incineroar",
-            "Kingambit+Garchomp",
-            "Basculegion+Kingambit",
-            "Whimsicott+Garchomp",
-            "Farigiraf+Sylveon",
-            "Charizard-Mega-Y+Garchomp",
-            "Sneasler+Kingambit",
-            "Sylveon+Garchomp",
-            "Pelipper+Archaludon",
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
             "Archaludon+Pelipper",
-            "Staraptor-Mega+Sinistcha",
-            "Grimmsnarl+Pelipper",
-            "Gholdengo+Sinistcha",
-            "Floette-Mega+Kingambit",
-            "Milotic+Sinistcha",
-            "Raichu-Mega-Y+Incineroar",
-            "Torkoal+Farigiraf",
-            "Swampert-Mega+Archaludon",
-            "Metagross-Mega+Garchomp",
-            "Maushold+Sinistcha",
-            "Delphox-Mega+Sinistcha",
-            "Mawile-Mega+Farigiraf",
-            "Ninetales-Alola+Kingambit",
-            "Aerodactyl-Mega+Kingambit",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
             "Tyranitar-Mega+Excadrill",
-            "Blastoise-Mega+Sinistcha",
-            "Talonflame+Garchomp",
-            "Sableye+Archaludon",
-            "Rotom-Wash+Garchomp",
-            "Ceruledge+Sinistcha",
-            "Venusaur+Charizard-Mega-Y",
-            "Hydreigon+Charizard-Mega-Y",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
             "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom",
             "Gengar-Mega+Incineroar",
-            "Annihilape+Incineroar"
+            "Froslass-Mega+Sneasler"
           ]
         },
         "calc_species": "Raichu-Mega-X",
-        "damage_score_raw": "0.634",
-        "damage_score": "0.634",
+        "damage_score_raw": "0.639",
+        "damage_score": "0.639",
         "score_boosts": "none",
-        "sweep_ohko": "7/37",
-        "sweep_2hko": "28/37",
-        "survive_n": "7",
-        "survive_hp_mean": "0.37",
-        "survive_hp_min": "0.07"
+        "sweep_ohko": "6/36",
+        "sweep_2hko": "27/36",
+        "survive_n": "13",
+        "survive_hp_mean": "0.32",
+        "survive_hp_min": "0.01"
       },
       "claimed_traits": [
         {
@@ -2152,12 +1978,95 @@
         {
           "name": "Volt Switch",
           "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 0.634 vs panel; branches=A; 37 defender(s)"
+          "purpose_claimed": "calc damage fraction 0.639 vs panel; branches=A; 36 defender(s)"
         }
       ],
-      "reasoning": "Acceptable: branches=A; calc 0.634 (floor 1.091); secondary=True",
+      "reasoning": "Acceptable: branches=A; calc 0.639 (floor 1.035); secondary=True",
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Persian-Alola",
+      "species_id": "persianalola",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Nasty Plot",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.408 raw=0.408 floor=1.035 excellent_exec=False",
+        "secondary_role": "none / Good-only reinforce",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "snarl"
+        ],
+        "payoff_targets": {
+          "snarl": [
+            "Rillaboom+Sneasler",
+            "Sneasler+Rillaboom",
+            "Incineroar+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Raichu-Mega-Y+Rillaboom",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Sinistcha+Incineroar",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Indeedee+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Staraptor-Mega+Kingambit",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Grimmsnarl+Pelipper",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Persian-Alola",
+        "damage_score_raw": "0.408",
+        "damage_score": "0.408",
+        "score_boosts": "none",
+        "sweep_ohko": "0/36",
+        "sweep_2hko": "12/36",
+        "survive_n": "6",
+        "survive_hp_mean": "0.55",
+        "survive_hp_min": "0.30"
+      },
+      "claimed_traits": [
+        {
+          "name": "Nasty Plot",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via nastyplot (+2 spa)"
+        },
+        {
+          "name": "Snarl",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.408 vs panel; branches=A; 36 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.408 (floor 1.035); secondary=False",
+      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_branch_a)",
+      "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     }
   ],
@@ -2211,6 +2120,12 @@
       "change_reason": null
     },
     {
+      "species": "Froslass",
+      "species_id": "froslass",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
       "species": "Gholdengo",
       "species_id": "gholdengo",
       "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
@@ -2231,6 +2146,12 @@
     {
       "species": "Gourgeist-Small",
       "species_id": "gourgeistsmall",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Gourgeist-Super",
+      "species_id": "gourgeistsuper",
       "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
@@ -2259,10 +2180,22 @@
       "change_reason": null
     },
     {
+      "species": "Infernape",
+      "species_id": "infernape",
+      "reason": "no kit damaging payoff matching boosted offense (excluded recharge/charge/Focus Punch/Future Sight/Upper Hand/self-drop)",
+      "change_reason": "setup calc/membership re-eval / tier 'Acceptable' \u2192 rejected"
+    },
+    {
       "species": "Liepard",
       "species_id": "liepard",
       "reason": "no kit damaging payoff matching boosted offense (excluded recharge/charge/Focus Punch/Future Sight/Upper Hand/self-drop)",
       "change_reason": null
+    },
+    {
+      "species": "Lucario-Mega",
+      "species_id": "lucariomega",
+      "reason": "no kit damaging payoff matching boosted offense (excluded recharge/charge/Focus Punch/Future Sight/Upper Hand/self-drop)",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 rejected"
     },
     {
       "species": "Malamar",
@@ -2283,14 +2216,20 @@
       "change_reason": null
     },
     {
-      "species": "Meowstic",
-      "species_id": "meowstic",
-      "reason": "no kit damaging payoff matching boosted offense (excluded recharge/charge/Focus Punch/Future Sight/Upper Hand/self-drop)",
+      "species": "Meowstic-F",
+      "species_id": "meowsticf",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
       "change_reason": null
     },
     {
       "species": "Morpeko",
       "species_id": "morpeko",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Mr. Mime",
+      "species_id": "mrmime",
       "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
@@ -2304,6 +2243,18 @@
       "species": "Oranguru",
       "species_id": "oranguru",
       "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Perrserker",
+      "species_id": "perrserker",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
+      "species": "Persian",
+      "species_id": "persian",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
       "change_reason": null
     },
     {
@@ -2385,6 +2336,12 @@
       "change_reason": null
     },
     {
+      "species": "Simisear",
+      "species_id": "simisear",
+      "reason": "learnset has nastyplot but no usage evidence of the setup move",
+      "change_reason": "CBD/Showdown usage re-eval / tier 'Acceptable' \u2192 rejected"
+    },
+    {
       "species": "Sinistcha",
       "species_id": "sinistcha",
       "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
@@ -2427,6 +2384,12 @@
       "change_reason": null
     },
     {
+      "species": "Thievul",
+      "species_id": "thievul",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
+      "change_reason": null
+    },
+    {
       "species": "Toxicroak",
       "species_id": "toxicroak",
       "reason": "learnset has nastyplot but no usage evidence of the setup move",
@@ -2445,21 +2408,27 @@
       "change_reason": null
     },
     {
-      "species": "Delphox",
-      "species_id": "delphox",
-      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.020% < 0.25\u00d7 mega 7.073%))",
+      "species": "Wigglytuff",
+      "species_id": "wigglytuff",
+      "reason": "clears neither neutralize-first (A) nor survive-and-sustain (B)",
       "change_reason": null
     },
     {
-      "species": "Froslass",
-      "species_id": "froslass",
-      "reason": "Showdown usage discounted; mech Acceptable \u2192 reject (showdown usage discounted (base 0.034% < 0.25\u00d7 mega 4.307%))",
+      "species": "Alakazam",
+      "species_id": "alakazam",
+      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.247% < 0.25\u00d7 mega 0.987%))",
+      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 rejected (score=0.834, branches=A)"
+    },
+    {
+      "species": "Delphox",
+      "species_id": "delphox",
+      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.243% < 0.25\u00d7 mega 3.032%))",
       "change_reason": null
     },
     {
       "species": "Gengar",
       "species_id": "gengar",
-      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.345% < 0.25\u00d7 mega 4.692%))",
+      "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.227% < 0.25\u00d7 mega 4.754%))",
       "change_reason": null
     }
   ]

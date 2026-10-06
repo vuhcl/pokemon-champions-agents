@@ -1,7 +1,7 @@
 {
   "category": "weather_setter",
   "condition": "Snow",
-  "built_at": "2026-08-06T17:41:56.187449+00:00",
+  "built_at": "2026-10-06T05:34:06.839733+00:00",
   "sub_criteria": {
     "kind": "weather_setter",
     "condition": "Snow",
@@ -27,7 +27,7 @@
     ]
   },
   "notes": [
-    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.525 base=0.083; base discounted as attribution artifact"
+    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.229 base=0.032; base discounted as attribution artifact"
   ],
   "candidates": [
     {
@@ -39,10 +39,10 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; usage discounted vs Mega form",
-        "secondary_role": "Aurora Veil",
+        "secondary_role": "Aurora Veil, Helping Hand",
         "verified_secondary": "True",
         "excellent_secondary": "False",
-        "attribution": "showdown usage discounted (base 0.083% < 0.25\u00d7 mega 0.525%)",
+        "attribution": "showdown usage discounted (base 0.032% < 0.25\u00d7 mega 0.229%)",
         "usage_proven": "False"
       },
       "claimed_traits": [
@@ -60,10 +60,15 @@
           "name": "Aurora Veil",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
       "reasoning": "Snow Warning clears Acceptable (mech Excellent, Showdown usage discounted; excellent_secondary=False).",
-      "change_reason": "usage discount demote / mech Excellent \u2192 Acceptable (showdown usage discounted (base 0.083% < 0.25\u00d7 mega 0.525%))",
+      "change_reason": "usage discount demote / mech Excellent \u2192 Acceptable (showdown usage discounted (base 0.032% < 0.25\u00d7 mega 0.229%))",
       "reinforce_class": "",
       "excellence_basis": "usage_discounted"
     },
@@ -76,8 +81,8 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "none observed in usage common_moves",
-        "verified_secondary": "False",
+        "secondary_role": "Aurora Veil, Helping Hand",
+        "verified_secondary": "True",
         "excellent_secondary": "False",
         "attribution": "showdown form-separated usage",
         "usage_proven": "True"
@@ -92,9 +97,19 @@
           "name": "Snow Warning",
           "criterion": "execution",
           "purpose_claimed": "automatic on switch-in; no turn cost"
+        },
+        {
+          "name": "Aurora Veil",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (none observed in usage common_moves; excellent_secondary=False).",
+      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil, Helping Hand; excellent_secondary=False).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"
@@ -108,9 +123,9 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "Aurora Veil",
+        "secondary_role": "Aurora Veil, Encore, Light Screen, Reflect",
         "verified_secondary": "True",
-        "excellent_secondary": "False",
+        "excellent_secondary": "True",
         "attribution": "none",
         "usage_proven": "True"
       },
@@ -129,9 +144,24 @@
           "name": "Aurora Veil",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil; excellent_secondary=False).",
+      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil, Encore, Light Screen, Reflect; excellent_secondary=True).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"
@@ -145,9 +175,9 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "Aurora Veil",
+        "secondary_role": "Aurora Veil, Helping Hand, Light Screen, Reflect",
         "verified_secondary": "True",
-        "excellent_secondary": "False",
+        "excellent_secondary": "True",
         "attribution": "none",
         "usage_proven": "True"
       },
@@ -166,9 +196,24 @@
           "name": "Aurora Veil",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Reflect",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil; excellent_secondary=False).",
+      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil, Helping Hand, Light Screen, Reflect; excellent_secondary=True).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"
@@ -182,7 +227,7 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "Aurora Veil, Encore",
+        "secondary_role": "Aurora Veil, Encore, Helping Hand",
         "verified_secondary": "True",
         "excellent_secondary": "False",
         "attribution": "none",
@@ -208,9 +253,14 @@
           "name": "Encore",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil, Encore; excellent_secondary=False).",
+      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil, Encore, Helping Hand; excellent_secondary=False).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"
@@ -224,9 +274,9 @@
       "criteria_notes": {
         "delivery": "ability-guaranteed (more reliable than move)",
         "execution": "automatic on switch-in; no moveslot / priority risk",
-        "secondary_role": "Aurora Veil",
+        "secondary_role": "Aurora Veil, Light Screen",
         "verified_secondary": "True",
-        "excellent_secondary": "False",
+        "excellent_secondary": "True",
         "attribution": "none",
         "usage_proven": "True"
       },
@@ -245,9 +295,14 @@
           "name": "Aurora Veil",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Light Screen",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil; excellent_secondary=False).",
+      "reasoning": "Snow Warning ability delivery clears Excellent bar; secondary kit noted but does not force-rank within tier (Aurora Veil, Light Screen; excellent_secondary=True).",
       "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "ability_delivery"

@@ -1,7 +1,7 @@
 {
   "category": "screens_support",
   "condition": "",
-  "built_at": "2026-08-15T17:11:18.826756+00:00",
+  "built_at": "2026-10-06T05:34:06.850617+00:00",
   "sub_criteria": {
     "kind": "screens_support",
     "condition": "",
@@ -20,17 +20,34 @@
       "Sableye"
     ],
     "Good": [
+      "Alakazam",
       "Dragapult",
+      "Espeon",
+      "Froslass",
       "Froslass-Mega",
+      "Meowstic-M-Mega",
       "Ninetales-Alola",
+      "Raichu-Mega-X",
       "Serperior"
     ],
     "Acceptable": [
       "Abomasnow",
       "Abomasnow-Mega",
+      "Ampharos",
+      "Appletun",
+      "Arboliva",
       "Aurorus",
+      "Bellibolt",
+      "Clefable",
+      "Forretress",
+      "Mr. Mime",
+      "Mr. Rime",
+      "Musharna",
+      "Sableye-Mega",
+      "Umbreon",
       "Vanilluxe",
-      "Whimsicott"
+      "Whimsicott",
+      "Wyrdeer"
     ]
   },
   "notes": [
@@ -42,34 +59,34 @@
     "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
     "usage evidence prefers Champions in-game data where a row exists; Showdown is a fallback only for formes with no Champions row",
     "Prankster is blocked by Dark-types / Armor Tail / Queenly Majesty \u2014 noted in execution text, not an auto-reject",
-    "Showdown attribution (Golurk/Golurk-Mega): mega usage_pct=0.527 base=0.105; stone-heuristic fallback unused",
-    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.151 base=0.184; stone-heuristic fallback unused",
-    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=2.889 base=0.336; stone-heuristic fallback unused",
-    "Showdown attribution (Meganium/Meganium-Mega): mega usage_pct=1.681 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Clefable/Clefable-Mega): mega usage_pct=0.362 base=1.262; stone-heuristic fallback unused",
-    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.564 base=0.060; stone-heuristic fallback unused",
-    "Showdown attribution (Manectric/Manectric-Mega): mega usage_pct=0.231 base=0.060; stone-heuristic fallback unused",
-    "Showdown attribution (Froslass/Froslass-Mega): mega usage_pct=4.307 base=0.034; stone-heuristic fallback unused",
-    "Showdown attribution (Eelektross/Eelektross-Mega): mega usage_pct=1.592 base=0.041; stone-heuristic fallback unused",
-    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.449 base=2.072; stone-heuristic fallback unused",
-    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.218 base=0.464; stone-heuristic fallback unused",
-    "Showdown attribution (Drampa/Drampa-Mega): mega usage_pct=0.832 base=0.368; stone-heuristic fallback unused",
-    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.279 base=2.043; stone-heuristic fallback unused",
-    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.658 base=0.145; stone-heuristic fallback unused",
-    "Showdown attribution (Glimmora/Glimmora-Mega): mega usage_pct=1.714 base=2.633; stone-heuristic fallback unused",
-    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=4.434 base=4.900; stone-heuristic fallback unused",
-    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.236 base=0.011; stone-heuristic fallback unused",
-    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.286 base=0.099; stone-heuristic fallback unused",
-    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.481 base=0.075; stone-heuristic fallback unused",
-    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=1.188 base=0.938; stone-heuristic fallback unused",
-    "Showdown attribution (Metagross/Metagross-Mega): mega usage_pct=7.923 base=0.432; stone-heuristic fallback unused",
-    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.456 base=5.408; stone-heuristic fallback unused",
-    "Showdown attribution (Ampharos/Ampharos-Mega): mega usage_pct=0.455 base=0.032; stone-heuristic fallback unused",
-    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=1.280 base=0.504; stone-heuristic fallback unused",
-    "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.273 base=0.235; stone-heuristic fallback unused",
-    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.175 base=0.032; stone-heuristic fallback unused",
-    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=7.073 base=0.020; stone-heuristic fallback unused",
-    "Showdown attribution (Glalie/Glalie-Mega): mega usage_pct=0.122 base=0.016; stone-heuristic fallback unused"
+    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.133 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.712 base=1.031; stone-heuristic fallback unused",
+    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.508 base=0.048; stone-heuristic fallback unused",
+    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=8.968 base=0.217; stone-heuristic fallback unused",
+    "Showdown attribution (Eelektross/Eelektross-Mega): mega usage_pct=0.237 base=0.012; stone-heuristic fallback unused",
+    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
+    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
+    "Showdown attribution (Meganium/Meganium-Mega): mega usage_pct=1.112 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.107 base=0.179; stone-heuristic fallback unused",
+    "Showdown attribution (Metagross/Metagross-Mega): mega usage_pct=6.135 base=0.294; stone-heuristic fallback unused",
+    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.053 base=0.077; stone-heuristic fallback unused",
+    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
+    "Showdown attribution (Drampa/Drampa-Mega): mega usage_pct=0.385 base=0.216; stone-heuristic fallback unused",
+    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.229 base=0.032; stone-heuristic fallback unused",
+    "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.987 base=0.247; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
+    "Showdown attribution (Froslass/Froslass-Mega): mega usage_pct=4.573 base=0.028; stone-heuristic fallback unused",
+    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=0.637 base=2.208; stone-heuristic fallback unused",
+    "Showdown attribution (Glalie/Glalie-Mega): mega usage_pct=0.177 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Manectric/Manectric-Mega): mega usage_pct=0.274 base=0.031; stone-heuristic fallback unused",
+    "Showdown attribution (Golurk/Golurk-Mega): mega usage_pct=0.270 base=0.038; stone-heuristic fallback unused",
+    "Showdown attribution (Ampharos/Ampharos-Mega): mega usage_pct=0.299 base=0.020; stone-heuristic fallback unused",
+    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.086 base=2.353; stone-heuristic fallback unused",
+    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.082 base=0.013; stone-heuristic fallback unused",
+    "Showdown attribution (Clefable/Clefable-Mega): mega usage_pct=0.148 base=0.897; stone-heuristic fallback unused",
+    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused",
+    "Showdown attribution (Glimmora/Glimmora-Mega): mega usage_pct=2.292 base=1.774; stone-heuristic fallback unused",
+    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=0.337 base=0.509; stone-heuristic fallback unused"
   ],
   "candidates": [
     {
@@ -83,7 +100,7 @@
         "execution": "base Spe=60; Spe 60 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; Aurora Veil is snow-gated (Snow Warning); dual_path=veil+snowwarning",
         "secondary_role": "Helping Hand",
         "usage_proven": "True",
-        "usage_source": "champions",
+        "usage_source": "showdown (no Champions row)",
         "verified_secondary": "True",
         "excellent_secondary": "False",
         "reinforce_class": "none",
@@ -92,7 +109,7 @@
         "light_clay": "True",
         "aurora_veil": "True",
         "dual_path": "veil+snowwarning",
-        "attribution": "showdown usage discounted (base 0.060% < 0.25\u00d7 mega 0.564%)"
+        "attribution": "showdown usage discounted (base 0.032% < 0.25\u00d7 mega 0.229%)"
       },
       "claimed_traits": [
         {
@@ -106,7 +123,7 @@
           "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Aurora Veil clears Acceptable (basis=slow_manual, dual_path=veil+snowwarning, prankster=False, spe=60) / showdown usage discounted (base 0.060% < 0.25\u00d7 mega 0.564%).",
+      "reasoning": "Aurora Veil clears Acceptable (basis=slow_manual, dual_path=veil+snowwarning, prankster=False, spe=60) / showdown usage discounted (base 0.032% < 0.25\u00d7 mega 0.229%).",
       "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
@@ -151,6 +168,177 @@
       "excellence_basis": "slow_manual"
     },
     {
+      "species": "Alakazam",
+      "species_id": "alakazam",
+      "tier": "Good",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=120; natural Spe \u2265 100 floor (no Prankster); Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Trick Room, Encore",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "120",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "showdown usage discounted (base 0.247% < 0.25\u00d7 mega 0.987%)"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Spe 120",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land screens before threats"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Good (basis=natural_speed, dual_path=ls+reflect, prankster=False, spe=120) / showdown usage discounted (base 0.247% < 0.25\u00d7 mega 0.987%).",
+      "change_reason": "pct-convention rescale: admit Good (basis=natural_speed)",
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Ampharos",
+      "species_id": "ampharos",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=55; Spe 55 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "55",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "showdown usage discounted (base 0.020% < 0.25\u00d7 mega 0.299%)"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=55) / showdown usage discounted (base 0.020% < 0.25\u00d7 mega 0.299%).",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Appletun",
+      "species_id": "appletun",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=30; Spe 30 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "30",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=30).",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Arboliva",
+      "species_id": "arboliva",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=39; Spe 39 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Helping Hand, Encore",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "39",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=39).",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
       "species": "Aurorus",
       "species_id": "aurorus",
       "tier": "Acceptable",
@@ -186,6 +374,89 @@
       ],
       "reasoning": "Aurora Veil clears Acceptable (basis=slow_manual, dual_path=veil+snowwarning, prankster=False, spe=58).",
       "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Bellibolt",
+      "species_id": "bellibolt",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=45; Spe 45 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "none observed in usage common_moves",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "False",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "45",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=45).",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Clefable",
+      "species_id": "clefable",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=60; Spe 60 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Helping Hand, Life Dew, Encore",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "60",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Life Dew",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=60).",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -230,6 +501,138 @@
       ],
       "reasoning": "Light Screen / Reflect clears Good (basis=natural_speed, dual_path=ls+reflect, prankster=False, spe=142).",
       "change_reason": null,
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Espeon",
+      "species_id": "espeon",
+      "tier": "Good",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=110; natural Spe \u2265 100 floor (no Prankster); Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Trick Room, Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "110",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Spe 110",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land screens before threats"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Good (basis=natural_speed, dual_path=ls+reflect, prankster=False, spe=110).",
+      "change_reason": "pct-convention rescale: admit Good (basis=natural_speed)",
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Forretress",
+      "species_id": "forretress",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=40; Spe 40 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "40",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=40).",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Froslass",
+      "species_id": "froslass",
+      "tier": "Good",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=110; natural Spe \u2265 100 floor (no Prankster); Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "110",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "showdown usage discounted (base 0.028% < 0.25\u00d7 mega 4.573%)"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Spe 110",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land screens before threats"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Good (basis=natural_speed, dual_path=ls+reflect, prankster=False, spe=110) / showdown usage discounted (base 0.028% < 0.25\u00d7 mega 4.573%).",
+      "change_reason": "pct-convention rescale: admit Good (basis=natural_speed)",
       "reinforce_class": "none",
       "excellence_basis": "natural_speed"
     },
@@ -371,7 +774,7 @@
         "execution": "base Spe=104; Prankster +1 priority on screens \u2014 blocked by Dark-types / Armor Tail / Queenly Majesty; Light Clay extends screen duration; dual_path=ls+reflect",
         "secondary_role": "Trick Room, Helping Hand",
         "usage_proven": "True",
-        "usage_source": "champions",
+        "usage_source": "showdown (no Champions row)",
         "verified_secondary": "True",
         "excellent_secondary": "True",
         "reinforce_class": "prankster",
@@ -408,6 +811,197 @@
       "change_reason": null,
       "reinforce_class": "prankster",
       "excellence_basis": "prankster_priority"
+    },
+    {
+      "species": "Meowstic-M-Mega",
+      "species_id": "meowsticmmega",
+      "tier": "Good",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=124; natural Spe \u2265 100 floor (no Prankster); dual_path=ls+reflect",
+        "secondary_role": "Trick Room, Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "124",
+        "spe_floor_provisional": "100",
+        "light_clay": "False",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Spe 124",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land screens before threats"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Good (basis=natural_speed, dual_path=ls+reflect, prankster=False, spe=124).",
+      "change_reason": "pre-Task-B drift admit (Good, basis=natural_speed)",
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Mr. Mime",
+      "species_id": "mrmime",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=90; Spe 90 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Trick Room, Encore, Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "90",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=90).",
+      "change_reason": "pre-Task-B drift admit (Acceptable, basis=slow_manual)",
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Mr. Rime",
+      "species_id": "mrrime",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=70; Spe 70 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Trick Room, Encore, Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "70",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=70).",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
+      "species": "Musharna",
+      "species_id": "musharna",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=29; Spe 29 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Trick Room, Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "29",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=29).",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
     },
     {
       "species": "Ninetales-Alola",
@@ -459,6 +1053,55 @@
       "excellence_basis": "natural_speed"
     },
     {
+      "species": "Raichu-Mega-X",
+      "species_id": "raichumegax",
+      "tier": "Good",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=110; natural Spe \u2265 100 floor (no Prankster); dual_path=ls+reflect",
+        "secondary_role": "Encore, Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "110",
+        "spe_floor_provisional": "100",
+        "light_clay": "False",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Spe 110",
+          "criterion": "execution",
+          "purpose_claimed": "natural Speed to land screens before threats"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Good (basis=natural_speed, dual_path=ls+reflect, prankster=False, spe=110).",
+      "change_reason": "pre-Task-B drift admit (Good, basis=natural_speed)",
+      "reinforce_class": "none",
+      "excellence_basis": "natural_speed"
+    },
+    {
       "species": "Sableye",
       "species_id": "sableye",
       "tier": "Excellent",
@@ -469,7 +1112,7 @@
         "execution": "base Spe=50; Prankster +1 priority on screens \u2014 blocked by Dark-types / Armor Tail / Queenly Majesty; Light Clay extends screen duration; dual_path=ls+reflect",
         "secondary_role": "Encore, Helping Hand",
         "usage_proven": "True",
-        "usage_source": "champions",
+        "usage_source": "showdown (no Champions row)",
         "verified_secondary": "True",
         "excellent_secondary": "False",
         "reinforce_class": "prankster",
@@ -508,6 +1151,50 @@
       "excellence_basis": "prankster_priority"
     },
     {
+      "species": "Sableye-Mega",
+      "species_id": "sableyemega",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=20; Spe 20 below floor 100; lands screens only if the opposing field is slower / disrupted; dual_path=ls+reflect",
+        "secondary_role": "Encore, Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown (no Champions row)",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "20",
+        "spe_floor_provisional": "100",
+        "light_clay": "False",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "showdown form-separated usage"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Encore",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=20) / showdown form-separated usage.",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
+    },
+    {
       "species": "Serperior",
       "species_id": "serperior",
       "tier": "Good",
@@ -518,7 +1205,7 @@
         "execution": "base Spe=113; natural Spe \u2265 100 floor (no Prankster); Light Clay extends screen duration; dual_path=ls+reflect",
         "secondary_role": "Helping Hand",
         "usage_proven": "True",
-        "usage_source": "champions",
+        "usage_source": "champions+showdown",
         "verified_secondary": "True",
         "excellent_secondary": "False",
         "reinforce_class": "none",
@@ -550,6 +1237,45 @@
       "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "natural_speed"
+    },
+    {
+      "species": "Umbreon",
+      "species_id": "umbreon",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=65; Spe 65 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "False",
+        "reinforce_class": "none",
+        "spe": "65",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=65).",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
     },
     {
       "species": "Vanilluxe",
@@ -594,7 +1320,7 @@
       "criteria_notes": {
         "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
         "execution": "base Spe=116; Prankster +1 priority on screens \u2014 blocked by Dark-types / Armor Tail / Queenly Majesty; Light Clay extends screen duration; single-screen + Prankster",
-        "secondary_role": "Tailwind, Encore, Trick Room, Helping Hand",
+        "secondary_role": "Tailwind, Encore, Helping Hand, Trick Room",
         "usage_proven": "True",
         "usage_source": "showdown",
         "verified_secondary": "True",
@@ -629,6 +1355,50 @@
           "purpose_claimed": "other-directed support stacking"
         },
         {
+          "name": "Helping Hand",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        },
+        {
+          "name": "Trick Room",
+          "criterion": "secondary_role",
+          "purpose_claimed": "other-directed support stacking"
+        }
+      ],
+      "reasoning": "Light Screen clears Acceptable (basis=prankster_single_screen, dual_path=single_prankster, prankster=True, spe=116).",
+      "change_reason": null,
+      "reinforce_class": "prankster",
+      "excellence_basis": "prankster_single_screen"
+    },
+    {
+      "species": "Wyrdeer",
+      "species_id": "wyrdeer",
+      "tier": "Acceptable",
+      "delivery_class": "move_screens",
+      "mechanism": "Light Screen / Reflect",
+      "criteria_notes": {
+        "delivery": "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
+        "execution": "base Spe=65; Spe 65 below floor 100; lands screens only if the opposing field is slower / disrupted; Light Clay extends screen duration; dual_path=ls+reflect",
+        "secondary_role": "Trick Room, Helping Hand",
+        "usage_proven": "True",
+        "usage_source": "champions+showdown",
+        "verified_secondary": "True",
+        "excellent_secondary": "True",
+        "reinforce_class": "none",
+        "spe": "65",
+        "spe_floor_provisional": "100",
+        "light_clay": "True",
+        "aurora_veil": "False",
+        "dual_path": "ls+reflect",
+        "attribution": "none"
+      },
+      "claimed_traits": [
+        {
+          "name": "Light Screen / Reflect",
+          "criterion": "delivery",
+          "purpose_claimed": "ally physical/special damage reduction via screens"
+        },
+        {
           "name": "Trick Room",
           "criterion": "secondary_role",
           "purpose_claimed": "other-directed support stacking"
@@ -639,10 +1409,10 @@
           "purpose_claimed": "other-directed support stacking"
         }
       ],
-      "reasoning": "Light Screen clears Acceptable (basis=prankster_single_screen, dual_path=single_prankster, prankster=True, spe=116).",
-      "change_reason": null,
-      "reinforce_class": "prankster",
-      "excellence_basis": "prankster_single_screen"
+      "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=65).",
+      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "reinforce_class": "none",
+      "excellence_basis": "slow_manual"
     }
   ],
   "considered_rejected": [
@@ -650,18 +1420,6 @@
       "species": "Aegislash",
       "species_id": "aegislash",
       "reason": "Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
-      "change_reason": null
-    },
-    {
-      "species": "Aegislash-Blade",
-      "species_id": "aegislashblade",
-      "reason": "Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
-      "change_reason": null
-    },
-    {
-      "species": "Alakazam",
-      "species_id": "alakazam",
-      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
@@ -677,21 +1435,9 @@
       "change_reason": null
     },
     {
-      "species": "Ampharos",
-      "species_id": "ampharos",
-      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.032% < 0.25\u00d7 mega 0.455%))",
-      "change_reason": null
-    },
-    {
       "species": "Ampharos-Mega",
       "species_id": "ampharosmega",
       "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown form-separated usage)",
-      "change_reason": null
-    },
-    {
-      "species": "Appletun",
-      "species_id": "appletun",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
@@ -715,19 +1461,19 @@
     {
       "species": "Aromatisse",
       "species_id": "aromatisse",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
       "species": "Audino",
       "species_id": "audino",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
       "species": "Audino-Mega",
       "species_id": "audinomega",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown form-separated usage)",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown form-separated usage)",
       "change_reason": null
     },
     {
@@ -755,12 +1501,6 @@
       "change_reason": null
     },
     {
-      "species": "Bellibolt",
-      "species_id": "bellibolt",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
-      "change_reason": null
-    },
-    {
       "species": "Ceruledge",
       "species_id": "ceruledge",
       "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
@@ -769,7 +1509,7 @@
     {
       "species": "Chesnaught",
       "species_id": "chesnaught",
-      "reason": "Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (independent base usage kept (Mega shows no auroraveil/lightscreen/reflect usage))",
+      "reason": "Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
@@ -781,19 +1521,13 @@
     {
       "species": "Chimecho",
       "species_id": "chimecho",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.011% < 0.25\u00d7 mega 0.236%))",
+      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
       "species": "Chimecho-Mega",
       "species_id": "chimechomega",
       "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown form-separated usage)",
-      "change_reason": null
-    },
-    {
-      "species": "Clefable",
-      "species_id": "clefable",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
@@ -829,7 +1563,7 @@
     {
       "species": "Delphox",
       "species_id": "delphox",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.020% < 0.25\u00d7 mega 7.073%))",
+      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.243% < 0.25\u00d7 mega 3.032%))",
       "change_reason": null
     },
     {
@@ -865,7 +1599,7 @@
     {
       "species": "Eelektross",
       "species_id": "eelektross",
-      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.041% < 0.25\u00d7 mega 1.592%))",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.012% < 0.25\u00d7 mega 0.237%))",
       "change_reason": null
     },
     {
@@ -887,12 +1621,6 @@
       "change_reason": null
     },
     {
-      "species": "Espeon",
-      "species_id": "espeon",
-      "reason": "Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
-      "change_reason": null
-    },
-    {
       "species": "Farigiraf",
       "species_id": "farigiraf",
       "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
@@ -911,18 +1639,6 @@
       "change_reason": null
     },
     {
-      "species": "Forretress",
-      "species_id": "forretress",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
-      "change_reason": null
-    },
-    {
-      "species": "Froslass",
-      "species_id": "froslass",
-      "reason": "Aurora Veil learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.034% < 0.25\u00d7 mega 4.307%))",
-      "change_reason": null
-    },
-    {
       "species": "Gallade",
       "species_id": "gallade",
       "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
@@ -937,7 +1653,7 @@
     {
       "species": "Gardevoir",
       "species_id": "gardevoir",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.336% < 0.25\u00d7 mega 2.889%))",
+      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.217% < 0.25\u00d7 mega 8.968%))",
       "change_reason": null
     },
     {
@@ -955,7 +1671,7 @@
     {
       "species": "Glalie",
       "species_id": "glalie",
-      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.016% < 0.25\u00d7 mega 0.122%))",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
@@ -979,7 +1695,7 @@
     {
       "species": "Golurk",
       "species_id": "golurk",
-      "reason": "Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.105% < 0.25\u00d7 mega 0.527%))",
+      "reason": "Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.038% < 0.25\u00d7 mega 0.270%))",
       "change_reason": null
     },
     {
@@ -1007,6 +1723,12 @@
       "change_reason": null
     },
     {
+      "species": "Gourgeist-Super",
+      "species_id": "gourgeistsuper",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "change_reason": null
+    },
+    {
       "species": "Hatterene",
       "species_id": "hatterene",
       "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
@@ -1028,6 +1750,18 @@
       "species": "Hydreigon",
       "species_id": "hydreigon",
       "reason": "Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "change_reason": null
+    },
+    {
+      "species": "Indeedee-F",
+      "species_id": "indeedeef",
+      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "change_reason": null
+    },
+    {
+      "species": "Inteleon",
+      "species_id": "inteleon",
+      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
@@ -1075,7 +1809,7 @@
     {
       "species": "Manectric",
       "species_id": "manectric",
-      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.031% < 0.25\u00d7 mega 0.274%))",
       "change_reason": null
     },
     {
@@ -1087,7 +1821,7 @@
     {
       "species": "Medicham",
       "species_id": "medicham",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
@@ -1109,21 +1843,21 @@
       "change_reason": null
     },
     {
+      "species": "Meowstic-F",
+      "species_id": "meowsticf",
+      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "change_reason": null
+    },
+    {
       "species": "Meowstic-F-Mega",
       "species_id": "meowsticfmega",
       "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
-      "species": "Meowstic-M-Mega",
-      "species_id": "meowsticmmega",
-      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
-      "change_reason": null
-    },
-    {
       "species": "Metagross",
       "species_id": "metagross",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.432% < 0.25\u00d7 mega 7.923%))",
+      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.294% < 0.25\u00d7 mega 6.135%))",
       "change_reason": null
     },
     {
@@ -1145,21 +1879,9 @@
       "change_reason": null
     },
     {
-      "species": "Mr. Rime",
-      "species_id": "mrrime",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
-      "change_reason": null
-    },
-    {
-      "species": "Musharna",
-      "species_id": "musharna",
-      "reason": "Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
-      "change_reason": null
-    },
-    {
       "species": "Oranguru",
       "species_id": "oranguru",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
@@ -1193,12 +1915,6 @@
       "change_reason": null
     },
     {
-      "species": "Raichu-Mega-X",
-      "species_id": "raichumegax",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
-      "change_reason": null
-    },
-    {
       "species": "Raichu-Mega-Y",
       "species_id": "raichumegay",
       "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
@@ -1225,31 +1941,25 @@
     {
       "species": "Rotom-Frost",
       "species_id": "rotomfrost",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
       "species": "Rotom-Heat",
       "species_id": "rotomheat",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
       "species": "Rotom-Mow",
       "species_id": "rotommow",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
       "species": "Rotom-Wash",
       "species_id": "rotomwash",
       "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
-      "change_reason": null
-    },
-    {
-      "species": "Sableye-Mega",
-      "species_id": "sableyemega",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown form-separated usage)",
       "change_reason": null
     },
     {
@@ -1273,7 +1983,7 @@
     {
       "species": "Slowbro",
       "species_id": "slowbro",
-      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.063% < 0.25\u00d7 mega 0.381%))",
       "change_reason": null
     },
     {
@@ -1291,7 +2001,7 @@
     {
       "species": "Slowking",
       "species_id": "slowking",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
+      "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     },
     {
@@ -1309,7 +2019,7 @@
     {
       "species": "Starmie",
       "species_id": "starmie",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.145% < 0.25\u00d7 mega 0.658%))",
+      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.048% < 0.25\u00d7 mega 0.508%))",
       "change_reason": null
     },
     {
@@ -1355,12 +2065,6 @@
       "change_reason": null
     },
     {
-      "species": "Umbreon",
-      "species_id": "umbreon",
-      "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
-      "change_reason": null
-    },
-    {
       "species": "Venusaur",
       "species_id": "venusaur",
       "reason": "Light Screen learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
@@ -1375,7 +2079,7 @@
     {
       "species": "Victreebel",
       "species_id": "victreebel",
-      "reason": "Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (independent base usage kept (Mega shows no auroraveil/lightscreen/reflect usage))",
+      "reason": "Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster (showdown usage discounted (base 0.013% < 0.25\u00d7 mega 0.082%))",
       "change_reason": null
     },
     {
@@ -1409,8 +2113,8 @@
       "change_reason": null
     },
     {
-      "species": "Wyrdeer",
-      "species_id": "wyrdeer",
+      "species": "Wigglytuff",
+      "species_id": "wigglytuff",
       "reason": "Light Screen / Reflect learnset but not screens_support: need usage-proven dual LS+Reflect (same-row), Veil+Snow Warning, or single-screen + Prankster",
       "change_reason": null
     }
