@@ -77,11 +77,11 @@ def test_redirection_good_learnset_only():
     # Hit-triggered disrupt admits without redirect usage (Flame Body / Spicy Spray).
     assert "Volcarona" in good or "Volcarona" in _members(draft, "Excellent")
     assert "Scovillain-Mega" in good  # Spicy Spray execution reinforce
-    # July chaos: Ariados Sticky Web / Scovillain Rage Powder are now visible.
+    # Cute Charm is ~4% on M-B (<10% ability floor) — no reinforce path; Follow Me usage admits.
     assert "Clefable" in good or "Clefable" in _members(draft, "Excellent")
     clef = next(c for c in draft.candidates if c.species == "Clefable")
-    assert any(to_id(t.name) == "cutecharm" for t in clef.claimed_traits)
-    assert "Cute Charm" in clef.criteria_notes.get("execution", "")
+    assert not any(to_id(t.name) == "cutecharm" for t in clef.claimed_traits)
+    assert "Cute Charm" not in clef.criteria_notes.get("execution", "")
 
 
 def test_excellent_secondary_helper():
@@ -170,12 +170,12 @@ def test_mega_clefable_rejected_before_live():
     assert not any(to_id(n) == "clefablemega" for n in calls)
 
 
-def test_clefable_live_none_still_admitted_via_cute_charm():
-    """No CBD redirect usage — Cute Charm still admits as execution reinforce."""
+def test_clefable_live_none_still_admitted_without_cute_charm():
+    """Cute Charm ~4% < 10% floor — admit via snapshot Follow Me, not Cute Charm."""
     draft = _redir_draft(live_fetch=lambda _n: None)
     assert "Clefable" in _members(draft, "Good") | _members(draft, "Excellent")
     clef = next(c for c in draft.candidates if c.species == "Clefable")
-    assert any(to_id(t.name) == "cutecharm" for t in clef.claimed_traits)
+    assert not any(to_id(t.name) == "cutecharm" for t in clef.claimed_traits)
     rejected = {r.species_id for r in draft.considered_rejected}
     assert "clefable" not in rejected
 

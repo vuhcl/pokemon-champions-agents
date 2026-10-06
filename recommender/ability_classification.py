@@ -197,6 +197,24 @@ def flinch_denial_ability_ids(path: str | None = None) -> frozenset[str]:
     return _derived_ids(path, _description_denies_flinch, "flinch_denial_ability_ids")
 
 
+def _description_summons_psychic_terrain(desc: str) -> bool:
+    """True for abilities that summon Psychic Terrain (not other terrains)."""
+    d = desc.lower()
+    return "summons psychic terrain" in d
+
+
+@lru_cache(maxsize=1)
+def priority_denial_ability_ids(path: str | None = None) -> frozenset[str]:
+    """Flinch denial ∪ Psychic-Terrain summoners (data-derived descriptions).
+
+    Psychic Terrain blocks opposing priority to grounded targets — credit only
+    where Compendium already grades flinch/priority denial (Trick Room today).
+    """
+    return flinch_denial_ability_ids(path) | _derived_ids(
+        path, _description_summons_psychic_terrain, "psychic_terrain_summon_ability_ids"
+    )
+
+
 @lru_cache(maxsize=1)
 def taunt_denial_ability_ids(path: str | None = None) -> frozenset[str]:
     """Ability ids granting immunity to Taunt, re-derived from descriptions."""

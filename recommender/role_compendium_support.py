@@ -8,6 +8,7 @@ from recommender.ability_classification import (
     execution_reinforce_abilities,
     flinch_denial_ability_ids,
     get_ability,
+    priority_denial_ability_ids,
     taunt_denial_ability_ids,
 )
 from recommender.ids import to_id
@@ -55,14 +56,18 @@ from recommender.role_compendium import (
     _base_stats,
     _discount_outcome,
     _draft_with_tiers,
+    _effective_ability_for_predicate,
     _entry_has_move,
     _excellent_secondary,
     _guard_pool,
+    _modal_ability_map,
     _pool_index,
     _ref_members,
     _secondary_support_notes,
     _species_abilities,
+    _species_grounded_for_terrain,
     _species_id_is_mega,
+    _usage_ability_map,
 )
 from recommender.role_compendium_usage import (
     _delivery_usage_hits,
@@ -145,7 +150,26 @@ def _construct_redirection(
     for sid, name in sorted(eligible.items(), key=lambda x: x[1]):
         ls = set(resolve_learnset(snap, sid) or [])
         hits = sorted(move_ids & ls)
-        abs_map = _species_abilities(snap, sid)
+        abs_map_full = _species_abilities(snap, sid)
+        usage_abs = _usage_ability_map(snap, sid, regulation=uctx.regulation)
+        modal_abs = _modal_ability_map(snap, sid, regulation=uctx.regulation)
+        # FG / Hospitality membership from usage (≥10%); tier grading uses modal
+        # unless a non-modal ≥10% ability granted membership for that credit.
+        fg_map, fg_grant = _effective_ability_for_predicate(
+            snap,
+            sid,
+            regulation=uctx.regulation,
+            predicate_ids=ally_ids,
+        )
+        hosp_map, _ = _effective_ability_for_predicate(
+            snap,
+            sid,
+            regulation=uctx.regulation,
+            predicate_ids=frozenset({"hospitality"}),
+        )
+        abs_map = dict(modal_abs)
+        abs_map.update(fg_map)
+        abs_map.update(hosp_map)
         mechanisms = [_move_display(snap, mid) for mid in hits]
         mechanism = " / ".join(mechanisms)
 
@@ -171,18 +195,20 @@ def _construct_redirection(
         ):
             usage_proven = False
 
-        has_fg = bool(ally_ids & set(abs_map))
-        has_hospitality = "hospitality" in abs_map
+        has_fg = bool(ally_ids & set(usage_abs))
+        has_hospitality = "hospitality" in usage_abs
         secondary_note, secondary_traits = _secondary_support_notes(
             entry, move_ids=_REDIRECTION_SECONDARY_MOVES
         )
         secondary_move_ids = {to_id(t.name) for t in secondary_traits}
         secondary_move_hit = bool(secondary_traits)
         verified_secondary = has_fg or has_hospitality or secondary_move_hit
+        # Tier: Friend Guard excellence uses effective (modal or grant) map.
         excellent_secondary = _excellent_secondary(
-            has_friend_guard=has_fg, secondary_move_ids=secondary_move_ids
+            has_friend_guard=bool(ally_ids & set(fg_map)),
+            secondary_move_ids=secondary_move_ids,
         )
-        exec_abilities = execution_reinforce_abilities(abs_map)
+        exec_abilities = execution_reinforce_abilities(usage_abs)
         execution_ok = bool(exec_abilities)
         independent_reinforce = execution_ok or verified_secondary
 
@@ -496,19 +522,22 @@ def _construct_trick_room_setter(
     )
 
     flinch_ids = flinch_denial_ability_ids()
+    priority_ids = priority_denial_ability_ids()
     taunt_ids = taunt_denial_ability_ids()
 
     for sid, name in sorted(eligible.items(), key=lambda x: x[1]):
         hits = sorted(move_ids & set(resolve_learnset(snap, sid) or []))
-        abs_map = _species_abilities(snap, sid)
+        usage_abs = _usage_ability_map(snap, sid, regulation=uctx.regulation)
+        modal_abs = _modal_ability_map(snap, sid, regulation=uctx.regulation)
         stats = _base_stats(snap, sid)
         mechanism = " / ".join(_move_display(snap, mid) for mid in hits)
         entry = uctx.entry_for(name)
 
         # Membership floor, not a ranking axis. One-hit absorption substitutes
         # for raw bulk: it buys the same thing, a guaranteed turn to cast.
+        # Absorb uses usage (≥10%) membership map, not full legal slots.
         bulk = sum(int(stats.get(k) or 0) for k in ("hp", "def", "spd"))
-        absorb = set(abs_map) & _SETUP_SURVIVE_ABILITIES
+        absorb = set(usage_abs) & _SETUP_SURVIVE_ABILITIES
         if bulk < _TRICK_ROOM_BULK_FLOOR and not absorb:
             rejected.append(
                 RejectedCandidate(
@@ -543,8 +572,29 @@ def _construct_trick_room_setter(
             )
             usage_proven = bool(usage_hits)
 
-        flinch = set(abs_map) & flinch_ids
-        taunt = set(abs_map) & taunt_ids
+        # Tier grading uses effective ability (modal, or membership-granting override).
+        flinch_map, flinch_grant = _effective_ability_for_predicate(
+            snap,
+            sid,
+            regulation=uctx.regulation,
+            predicate_ids=priority_ids,
+        )
+        taunt_map, _taunt_grant = _effective_ability_for_predicate(
+            snap,
+            sid,
+            regulation=uctx.regulation,
+            predicate_ids=taunt_ids,
+        )
+        # Prefer display map that carries the graded ability.
+        abs_map = dict(modal_abs)
+        abs_map.update(flinch_map)
+        abs_map.update(taunt_map)
+        for aid in absorb:
+            if aid in usage_abs:
+                abs_map[aid] = usage_abs[aid]
+
+        flinch = set(flinch_map) & priority_ids
+        taunt = set(taunt_map) & taunt_ids
         ghost = _FAKE_OUT_IMMUNE_TYPE in _species_types(snap, sid)
         self_protected = bool(flinch or taunt or ghost)
 
@@ -590,12 +640,21 @@ def _construct_trick_room_setter(
         # Graded protection: denying the flinch (outright priority denial or
         # flinch immunity) removes the Fake Out lockout entirely; Taunt immunity
         # only covers the slower half of the shared exposure.
-        # Graded on how much of the shared Fake Out / Taunt exposure the
-        # candidate covers by itself. Ability-based flinch denial is broadest
-        # (all priority, or all flinch sources); Ghost typing and Taunt immunity
-        # each cover one half; no self-provided cover is the baseline.
+        # Psychic Terrain summoners count as priority denial when grounded
+        # (types + ability; items e.g. Air Balloon ignored).
+        terrain_flinch = bool(flinch - flinch_ids)
+        grounded = True
+        if terrain_flinch:
+            aid = next(iter(flinch_map), None)
+            grounded = _species_grounded_for_terrain(snap, sid, ability_id=aid)
+            if not grounded:
+                flinch = set()
+                terrain_flinch = False
         if flinch:
-            tier, basis = "Excellent", "flinch_denial"
+            if terrain_flinch and not (flinch & flinch_ids):
+                tier, basis = "Excellent", "psychic_terrain_priority_denial"
+            else:
+                tier, basis = "Excellent", "flinch_denial"
         elif ghost:
             tier, basis = "Good", "ghost_fakeout_immunity"
         elif taunt:
@@ -616,7 +675,13 @@ def _construct_trick_room_setter(
         ]
         if flinch:
             note = _protection_note(abs_map, flinch)
-            exec_note += f"; self-provided flinch denial — {note}"
+            if basis == "psychic_terrain_priority_denial":
+                exec_note += (
+                    f"; Psychic Terrain priority denial — {note} "
+                    "(grounded gate: types + ability; items e.g. Air Balloon ignored)"
+                )
+            else:
+                exec_note += f"; self-provided flinch denial — {note}"
             traits.append(
                 ClaimedTrait(
                     name=note.split(" (")[0],
@@ -624,8 +689,17 @@ def _construct_trick_room_setter(
                     purpose_claimed=(
                         "self-provided flinch denial; no teammate dependency "
                         "for the cast"
+                        if basis != "psychic_terrain_priority_denial"
+                        else (
+                            "Psychic Terrain priority denial while grounded; "
+                            "items ignored for groundedness"
+                        )
                     ),
                 )
+            )
+        if flinch_grant:
+            exec_note += (
+                f"; tier assumes non-modal membership ability {abs_map.get(flinch_grant, flinch_grant)}"
             )
         if ghost:
             exec_note += (
@@ -785,12 +859,23 @@ def _construct_tailwind_setter(
 
     for sid, name in sorted(eligible.items(), key=lambda x: x[1]):
         hits = sorted(move_ids & set(resolve_learnset(snap, sid) or []))
-        abs_map = _species_abilities(snap, sid)
+        usage_abs = _usage_ability_map(snap, sid, regulation=uctx.regulation)
+        modal_abs = _modal_ability_map(snap, sid, regulation=uctx.regulation)
+        prank_map, prank_grant = _effective_ability_for_predicate(
+            snap,
+            sid,
+            regulation=uctx.regulation,
+            predicate_ids=frozenset({"prankster"}),
+        )
+        abs_map = dict(modal_abs)
+        abs_map.update(prank_map)
         stats = _base_stats(snap, sid)
         mechanism = " / ".join(_move_display(snap, mid) for mid in hits)
         entry = uctx.entry_for(name)
         spe = int(stats.get("spe") or 0)
-        has_prankster = "prankster" in abs_map
+        # Admit via ≥10% Prankster; tier grades effective (modal or grant).
+        has_prankster_admit = "prankster" in usage_abs
+        has_prankster = "prankster" in prank_map
 
         if pair_usage.get(sid) is False:
             usage_proven = False
@@ -815,7 +900,7 @@ def _construct_tailwind_setter(
 
         # Prankster is independent execution reinforce for admission (go-first).
         if not _admit_move_delivery(
-            usage_proven=usage_proven, independent_reinforce=has_prankster
+            usage_proven=usage_proven, independent_reinforce=has_prankster_admit
         ):
             rejected.append(
                 RejectedCandidate(
@@ -900,7 +985,7 @@ def _construct_tailwind_setter(
             entry, move_ids=_TAILWIND_SECONDARY_MOVES
         )
         secondary_move_ids = {to_id(t.name) for t in secondary_traits}
-        has_fg = bool({"friendguard"} & set(abs_map))
+        has_fg = bool({"friendguard"} & set(usage_abs))
         verified_secondary = has_fg or bool(secondary_traits)
         excellent_secondary = _excellent_secondary(
             has_friend_guard=has_fg,
@@ -1104,11 +1189,24 @@ def _construct_screens_support(
     for sid, name in sorted(eligible.items(), key=lambda x: x[1]):
         ls = set(resolve_learnset(snap, sid) or [])
         hits = set(move_ids & ls)
-        abs_map = _species_abilities(snap, sid)
+        usage_abs = _usage_ability_map(snap, sid, regulation=uctx.regulation)
+        modal_abs = _modal_ability_map(snap, sid, regulation=uctx.regulation)
+        prank_map, _prank_grant = _effective_ability_for_predicate(
+            snap,
+            sid,
+            regulation=uctx.regulation,
+            predicate_ids=frozenset({"prankster"}),
+        )
+        abs_map = dict(modal_abs)
+        abs_map.update(prank_map)
+        for aid in usage_abs:
+            if aid in _SCREENS_SNOW_ABILITIES or aid == "friendguard":
+                abs_map[aid] = usage_abs[aid]
         stats = _base_stats(snap, sid)
         entry = uctx.entry_for(name)
         spe = int(stats.get("spe") or 0)
-        has_prankster = "prankster" in abs_map
+        has_prankster_admit = "prankster" in usage_abs
+        has_prankster = "prankster" in prank_map
         attr = pair_notes.get(sid, "")
         dual_path, dual_mids = _screens_dual_usage(
             name,
@@ -1134,7 +1232,7 @@ def _construct_screens_support(
         )
         single_prankster = (
             dual_path is None
-            and has_prankster
+            and has_prankster_admit
             and bool(usage_mids & hits)
         )
         qualify_mids = dual_mids if dual_path else (usage_mids & hits)
@@ -1175,7 +1273,7 @@ def _construct_screens_support(
             entry, move_ids=_SCREENS_SECONDARY_MOVES
         )
         secondary_move_ids = {to_id(t.name) for t in secondary_traits}
-        has_fg = bool({"friendguard"} & set(abs_map))
+        has_fg = bool({"friendguard"} & set(usage_abs))
         verified_secondary = has_fg or bool(secondary_traits)
         excellent_secondary = _excellent_secondary(
             has_friend_guard=has_fg,
@@ -1184,7 +1282,7 @@ def _construct_screens_support(
         )
 
         veil = "auroraveil" in (qualify_mids or hits)
-        sets_snow = "snowwarning" in abs_map
+        sets_snow = "snowwarning" in usage_abs
         exec_note = f"base Spe={spe}"
         traits: list[ClaimedTrait] = [
             ClaimedTrait(
@@ -1422,16 +1520,22 @@ def _construct_sleep_status_spreader(
     for sid, name in sorted(eligible.items(), key=lambda x: x[1]):
         ls = set(resolve_learnset(snap, sid) or [])
         delivery_hits = set(delivery_ids & ls)
-        abs_map = _species_abilities(snap, sid)
+        usage_abs = _usage_ability_map(snap, sid, regulation=uctx.regulation)
+        modal_abs = _modal_ability_map(snap, sid, regulation=uctx.regulation)
+        abs_map = dict(modal_abs)
+        for aid in usage_abs:
+            if aid in _SLEEP_ACCURACY_ABILITIES | _SLEEP_TRAP_ABILITIES | _SLEEP_SPEED_ABILITIES:
+                abs_map[aid] = usage_abs[aid]
         stats = _base_stats(snap, sid)
         entry = uctx.entry_for(name)
         spe = int(stats.get("spe") or 0)
         bulk = sum(int(stats.get(k) or 0) for k in ("hp", "def", "spd"))
 
         # Exhaustive kit sweep (ADR-019) — every candidate, not opportunistic.
-        kit_accuracy = sorted(set(abs_map) & _SLEEP_ACCURACY_ABILITIES)
-        kit_trap = sorted(set(abs_map) & _SLEEP_TRAP_ABILITIES)
-        kit_speed = sorted(set(abs_map) & _SLEEP_SPEED_ABILITIES)
+        # Ability admit gates use ≥10% usage map (policy floor).
+        kit_accuracy = sorted(set(usage_abs) & _SLEEP_ACCURACY_ABILITIES)
+        kit_trap = sorted(set(usage_abs) & _SLEEP_TRAP_ABILITIES)
+        kit_speed = sorted(set(usage_abs) & _SLEEP_SPEED_ABILITIES)
         coil_learnset = "coil" in ls
         coil_usage = bool(entry) and _entry_has_move(entry, "coil")
         accuracy_reinforce = bool(kit_accuracy) or coil_usage
@@ -1652,7 +1756,7 @@ def _construct_sleep_status_spreader(
             entry, move_ids=_SLEEP_SECONDARY_MOVES
         )
         secondary_move_ids = {to_id(t.name) for t in secondary_traits}
-        has_fg = bool({"friendguard"} & set(abs_map))
+        has_fg = bool({"friendguard"} & set(usage_abs))
         verified_secondary = has_fg or bool(secondary_traits)
         excellent_secondary = _excellent_secondary(
             has_friend_guard=has_fg,

@@ -1,0 +1,167 @@
+{
+  "dropped_union": [
+    "Absol",
+    "Absol-Mega",
+    "Ariados",
+    "Aromatisse",
+    "Beartic",
+    "Chesnaught",
+    "Crabominable",
+    "Decidueye",
+    "Diggersby",
+    "Eelektross",
+    "Emboar",
+    "Falinks-Mega",
+    "Flareon",
+    "Froslass",
+    "Greninja-Mega",
+    "Heracross",
+    "Infernape",
+    "Lucario",
+    "Lycanroc-Dusk",
+    "Lycanroc-Midnight",
+    "Malamar",
+    "Malamar-Mega",
+    "Medicham",
+    "Medicham-Mega",
+    "Morpeko",
+    "Oranguru",
+    "Perrserker",
+    "Pikachu",
+    "Pinsir-Mega",
+    "Polteageist",
+    "Raichu",
+    "Roserade",
+    "Runerigus",
+    "Sableye-Mega",
+    "Sceptile-Mega",
+    "Serperior",
+    "Slowbro",
+    "Spiritomb",
+    "Starmie",
+    "Swalot",
+    "Toxicroak",
+    "Trevenant",
+    "Victreebel",
+    "Zoroark"
+  ],
+  "expected_drop_hit": [
+    "Diggersby",
+    "Infernape",
+    "Lucario",
+    "Lycanroc-Dusk",
+    "Medicham",
+    "Pinsir-Mega",
+    "Zoroark"
+  ],
+  "expected_drop_missed": [],
+  "expected_keep": {
+    "Raichu-Mega-Y": true,
+    "Rillaboom": true,
+    "Incineroar": true
+  },
+  "unexpected_keep_missing": [],
+  "ig_only_midband_0_1_to_1": {
+    "count": 0,
+    "sample": []
+  },
+  "per_cat": {
+    "swords_dance": {
+      "dropped": [
+        "Absol",
+        "Ariados",
+        "Chesnaught",
+        "Falinks-Mega",
+        "Greninja-Mega",
+        "Heracross",
+        "Infernape",
+        "Lycanroc-Midnight",
+        "Roserade",
+        "Sceptile-Mega",
+        "Swalot",
+        "Victreebel",
+        "Zoroark"
+      ],
+      "added": [
+        "Archaludon",
+        "Hatterene",
+        "Incineroar",
+        "Lucario-Mega-Z"
+      ],
+      "before_n": 87,
+      "after_n": 78
+    },
+    "nasty_plot": {
+      "dropped": [
+        "Aromatisse",
+        "Decidueye",
+        "Froslass",
+        "Malamar",
+        "Malamar-Mega",
+        "Morpeko",
+        "Oranguru",
+        "Perrserker",
+        "Pikachu",
+        "Polteageist",
+        "Raichu",
+        "Sableye-Mega",
+        "Slowbro",
+        "Toxicroak"
+      ],
+      "added": [
+        "Grimmsnarl",
+        "Incineroar"
+      ],
+      "before_n": 62,
+      "after_n": 50
+    },
+    "calm_mind": {
+      "dropped": [
+        "Absol",
+        "Absol-Mega",
+        "Flareon",
+        "Infernape",
+        "Medicham",
+        "Medicham-Mega",
+        "Polteageist",
+        "Runerigus",
+        "Serperior",
+        "Spiritomb",
+        "Trevenant",
+        "Zoroark"
+      ],
+      "added": [
+        "Absol-Mega-Z",
+        "Volcarona"
+      ],
+      "before_n": 72,
+      "after_n": 62
+    },
+    "bulk_up": {
+      "dropped": [
+        "Beartic",
+        "Crabominable",
+        "Diggersby",
+        "Eelektross",
+        "Emboar",
+        "Falinks-Mega",
+        "Heracross",
+        "Infernape",
+        "Lucario",
+        "Lycanroc-Dusk",
+        "Medicham",
+        "Pinsir-Mega",
+        "Starmie"
+      ],
+      "added": [
+        "Kommo-o",
+        "Pawmot",
+        "Rillaboom",
+        "Sneasler",
+        "Staraptor-Mega"
+      ],
+      "before_n": 57,
+      "after_n": 49
+    }
+  }
+}
