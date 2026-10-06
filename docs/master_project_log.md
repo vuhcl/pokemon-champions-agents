@@ -6151,6 +6151,18 @@ Findings worth keeping:
 - Known limits: M-B stays on the old pct scale; the thin Screens admits (2.8–4.9%) and Incineroar Bulk Up (0.118% Showdown) are accepted.
 - Two mislabelled causes in the delta report (Appletun's presence drop, Tyranitar's `max=None`) were corrected before persist so the persisted change_reason text is accurate.
 
+### 2026-10-06: Item-holders tool shipped (#251, #252); review corrections
+
+Added "who runs <item>?" as a deterministic lookup: a read-only callable (#251) and a pre-parse gate in `classify_input` (#252). Design is in ADR-076 (ranking, sources, tiers) and ADR-077 (routing and resolution order). Delivered as two stacked PRs so routing could be reverted alone; both merged with CI green. tests/recommender 1969 passed, 11 skipped; tests/ci 137 passed.
+
+What review changed, and what I got wrong along the way:
+- **Near-miss collisions were overstated.** My first scan used all 583 snapshot item ids and reported 43 collisions, with Protect/protector and Hail/mail as examples. Vu pointed out that Protector and Mail are not legal in Champions. Re-scanned against the 166 legal items: 24 collisions (mostly species against mega stones, plus leer/leek, magneton/magnet, poisonjab/poisonbarb). The fix (exact entity match before near-miss, near-miss over legal items only, data-driven completeness test) was right either way; the count and examples were not. The first Cursor plan had also placed near-miss before the species/move check and had no source for ability ids (the snapshot has no abilities key).
+- **Mega lock was dead code in the first #251.** `query_item_holders` computed the lock and discarded it, so nothing was filtered, and the tests only checked the helper's return value. Fixed to filter all four sources, with tests on the query output.
+- **The MEGA_STONES parser dropped 3 of 93 stones** (the multi-forme ones: Magearnite, Meowsticite, Tatsugirinite). Only Meowsticite is legal, so Meowsticite had no lock. Fixed with a brace-aware parse and a test comparing against the stone keys read independently from the same file.
+- **#252 failed CI on 4 tests with `KeyError: 'regulation_mod'`.** The gate read `state["regulation_mod"]` unconditionally; those tests call `classify_input` with a state that lacks it. Cursor's first report only ran the two new item-holders test files, which is why this was not caught before CI. Fixed in code (`.get(...) or "champions"`, plus a never-raise guard), not by editing the tests.
+
+Known limits, not tuned: the condition table is curated and the output says so; the broad exception catch in the gate can hide a real bug as a fall-through; the Mega stone lock depends on the vendored calc's MEGA_STONES being current (a new stone it lacks gets observed-only output, with no invented lock).
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
