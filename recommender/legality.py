@@ -112,6 +112,29 @@ def species_can_have_ability(snap: dict[str, Any], species: str, ability: str) -
     return any(isinstance(v, str) and v.lower() == want for v in ab.values())
 
 
+# Type-locked boosters (ADR-015c). Shared with item_conditions.TYPE_BOOST_ITEMS.
+TYPE_LOCKED_ITEMS: dict[str, str] = {
+    "blackglasses": "Dark",
+    "charcoal": "Fire",
+    "mysticwater": "Water",
+    "miracleseed": "Grass",
+    "magnet": "Electric",
+    "nevermeltice": "Ice",
+    "poisonbarb": "Poison",
+    "softsand": "Ground",
+    "sharpbeak": "Flying",
+    "twistedspoon": "Psychic",
+    "silverpowder": "Bug",
+    "hardstone": "Rock",
+    "spelltag": "Ghost",
+    "dragonfang": "Dragon",
+    "blackbelt": "Fighting",
+    "metalcoat": "Steel",
+    "fairyfeather": "Fairy",
+    "silkscarf": "Normal",
+}
+
+
 def classify_item_failure(item: str, moves: list[str], snap: dict[str, Any]) -> ItemSeverity:
     """ADR-015c element-type classification (heuristic)."""
     iid = to_id(item)
@@ -129,27 +152,7 @@ def classify_item_failure(item: str, moves: list[str], snap: dict[str, Any]) -> 
     if iid in {"toxicorb", "flameorb", "stickybarb"}:
         return "severe_no_substitute"
     # Type-locked boosters (subset)
-    type_locked = {
-        "blackglasses": "Dark",
-        "charcoal": "Fire",
-        "mysticwater": "Water",
-        "miracleseed": "Grass",
-        "magnet": "Electric",
-        "nevermeltice": "Ice",
-        "poisonbarb": "Poison",
-        "softsand": "Ground",
-        "sharpbeak": "Flying",
-        "twistedspoon": "Psychic",
-        "silverpowder": "Bug",
-        "hardstone": "Rock",
-        "spelltag": "Ghost",
-        "dragonfang": "Dragon",
-        "blackbelt": "Fighting",
-        "metalcoat": "Steel",
-        "fairyfeather": "Fairy",
-        "silkscarf": "Normal",
-    }
-    if iid in type_locked:
+    if iid in TYPE_LOCKED_ITEMS:
         return "type_locked_swap"
     # Life Orb-style universal
     if iid in {"lifeorb", "choicescarf", "choiceband", "choicespecs", "assaultvest", "focussash", "sitrusberry"}:
