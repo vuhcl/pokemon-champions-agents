@@ -175,7 +175,13 @@ def classify_input(
     turn_n = state.get("turn", 0) + 1
     raw_tid = ((config or {}).get("configurable") or {}).get("thread_id")
     obs_thread_id = raw_tid if isinstance(raw_tid, str) and raw_tid else None
-    result = classify_pending(
+    from recommender.item_holders import try_route_item_holders
+
+    routed = try_route_item_holders(
+        text,
+        regulation=state["regulation_mod"],
+    )
+    result = routed or classify_pending(
         text,
         state.get("pending_presentation"),
         bootstrap_intake_parser=bootstrap_intake_parser,

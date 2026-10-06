@@ -533,7 +533,12 @@ def try_route_item_holders(
     regulation: str,
     snap: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
-    """Deterministic gate. Returns pending_response-shaped dict, or None to fall through."""
+    """Deterministic gate. Returns pending_response-shaped dict, or None to fall through.
+
+    Order: exact item id on object blob (item wins, incl. Metronome) → exact
+    species/move/ability blob → substring extract_item_name_target → near-miss
+    on legal items → fall through. Blob-first avoids magnet⊂magneton false hits.
+    """
     if not has_item_holders_phrase(text):
         return None
     if has_other_intent_words(text):
@@ -543,20 +548,37 @@ def try_route_item_holders(
     except ValueError:
         return None
     snap = snap or load_snapshot()
-    from recommender.turn_intent import extract_item_name_target
+    blob = to_id(_object_blob(text))
+    items = snap.get("items") or {}
 
-    exact = extract_item_name_target(text)
-    if exact is not None:
+    def _reply_for_item(item_name: str) -> dict[str, Any] | None:
         try:
-            result = query_item_holders(exact, regulation=regulation, snap=snap)
+            result = query_item_holders(item_name, regulation=regulation, snap=snap)
         except ValueError:
             return None
         return {
             "turn_intent": "pending_response",
             "turn_payload": {"message": format_item_holders_result(result)},
         }
-    if _exact_species_move_or_ability(text, snap):
+
+    if blob and blob in items:
+        return _reply_for_item(str((items[blob] or {}).get("name") or blob))
+    if blob and _exact_species_move_or_ability(text, snap):
         return None
+
+    from recommender.turn_intent import extract_item_name_target
+
+    exact = extract_item_name_target(text)
+    if exact is not None:
+        # Reject substring hits where the object blob is a longer non-item entity
+        # (magnet ⊂ magneton already handled above; belt-and-suspenders).
+        if blob and blob != to_id(exact) and (
+            blob in (snap.get("species") or {})
+            or blob in (snap.get("moves") or {})
+            or blob in ability_ids_from_species(snap)
+        ):
+            return None
+        return _reply_for_item(exact)
     if near_miss_legal_item(text, snap) is not None:
         return {
             "turn_intent": "pending_response",
