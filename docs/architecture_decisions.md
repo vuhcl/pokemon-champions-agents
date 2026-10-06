@@ -11564,3 +11564,70 @@ Why: same principle as ADR-071 and ADR-002: model- or exception-authored text mu
 Evidence: hostile tests verified red on pre-fix code at both state and handle_line level (leak assertions, no constant imports). Suite on origin/main 1919 passed / 10 skipped, branch 1937 / 10 (--extra ollama; Ollama bootstrap smoke skips, BOOTSTRAP_OLLAMA_MODEL unset).
 
 Open: CandidateDiscoveryError(message=str(exc)) (nodes.py, threat_counters.py) can surface calc-service URL/host or raw calc error text
+
+---
+
+## ADR-072: Showdown set% is stored published-style (100·w / sum of Abilities weights), with fail-closed fallbacks
+
+**Decision:** Showdown-derived `common_moves` / `common_items` / `common_abilities` pct is stored as `100 × weight / sum(Abilities weights)` for the species row. Items and abilities sum to about 100, moves to about 400 (four moves per set). Empty-Abilities fallback: items and abilities use their own bucket sum; moves use the Items-bucket sum; if both are empty the row emits no moves and is stamped `showdown_moves_pct_unscaled`, so the Showdown side of `max(in-game, Showdown)` is 0 and in-game usage can still admit. `sum(Moves)` is never a denominator. File meta carries `showdown_pct_kind = weight_over_abilities_sum` plus three fallback counters (`showdown_pct_fallback_items_bucket`, `showdown_pct_fallback_moves_via_items`, `showdown_pct_fallback_moves_unscaled`; all 0 on M-C), and rows carry the raw `weight`. A CI guard rejects a current-regulation Showdown file with a stale kind; M-B stays `weight_over_raw_count` until rebuilt. `graft_showdown_mc --from-meta` regenerates from the month/format/rating already in the file meta, so the monthly rollover (B5) writes the same kind.
+
+**Why:** Role admission compares in-game pct and Showdown pct through one `max()`, so both must be on one scale. The old convention divided by Raw count; sum(Abilities)/Raw ranges 0.145–0.669 across 316 species (median 0.376), so the effective scale differed per species by up to about 4.6x (2026-10-04 finding). That decision point had to land before the B6 persist, otherwise a rebuild on one scale and a later renormalization would mean two rebuilds. Check: Indeedee-F Trick Room = 81.714 after the change.
+
+**Alternatives considered:**
+- *Keep the stored scale and re-derive floors on it:* rejected. The per-species scale spread makes any cross-species floor incomparable.
+- *`sum(Moves)` as the moves denominator:* rejected. It measures share-of-moves, not share-of-sets, so it is the wrong scale.
+
+**Consequences:** Role membership changes are outputs, not targets: 39 admits predicted at unchanged floors, 0 drops from the rescale itself. Within-species ability shares are invariant under the renormalization, so the ability audit needed no regeneration. B4's prior stand-in uses within-species fields and confidence labels only, so M-B staying on the old scale does not change it.
+
+**Status:** Shipped (#245; per-move/ability/item `weight` fields added in #248).
+
+---
+
+## ADR-073: Set% floors are policy constants from a pre-registered method; setup presence is count-based
+
+**Decision:** `_USAGE_SET_PCT_FLOOR` (2.3), `_TRICK_ROOM_SET_PCT_FLOOR` (22.5) and `_DD_SETUP_PRESENCE_FLOOR` (1.0) are labelled policy constants, dated 2026-10-05. The method was fixed before looking at post-regen numbers: take max(in-game, Showdown) over the legal pool ∩ learnset of the role-defining move, sort descending, find the dense keep-cluster ending at a hole, set the floor just below its last species. It is not fitted to the prior roster. Where no hole supports a floor (Trick Room: the 22.5 gap ranks 11 of 19), it is stated as policy, not as a data-derived cut. Setup presence changed from a 0.1% set floor to: in-game pct ≥ 0.1 OR Showdown weighted sets ≥ 20 for that move (`_SETUP_PRESENCE_INGAME_PCT_FLOOR`, `_SETUP_PRESENCE_SHOWDOWN_WEIGHT_FLOOR`). A missing weight makes the Showdown arm false. Damage floors (ADR-019) are untouched.
+
+**Why:** After ADR-072 a pct floor on Showdown ignores sample size. Weights are not player counts: average weight is 0.27–0.58, so 20 weighted sets is roughly 35–75 raw sets. Vu chose the count criterion and the threshold of 20.
+
+**Alternatives considered:**
+- *A pct-only presence floor:* rejected, no sample-size information.
+- *Re-affirming 22.5 as a hole result:* rejected. It was first described as "real", which the ranking disproved (rank 11 of 19), so it was relabelled.
+- *A DD floor of about 1.4:* rejected. It moved away from the keep-cluster boundary; 1.0 kept.
+
+**Evidence:** 11 presence drops live: Pinsir-Mega, Zoroark, Diggersby, Lucario, Beartic, Emboar (was Excellent, SD weight 4.03), Falinks-Mega, Polteageist, Raichu, Absol, plus Appletun's iron_defense_body_press (Body Press weight 16.71 vs 20; Iron Defense 26.52). In-game-only mid-band (0.1–1%) admits: 0.
+
+**Costs, accepted:** Thin admits remain: Screens at 2.8–4.9% (Musharna, Mr. Rime, Espeon, Bellibolt, Arboliva) and Incineroar Bulk Up at 0.118% Showdown (clears on weighted count). The count threshold is knife-edge at the margin (Appletun's Body Press misses by 3.3).
+
+**Status:** Shipped (#245 floors, #248 presence).
+
+---
+
+## ADR-074: Forme identity is classified from data (four axes plus a usage gate); empty learnsets are treated as missing
+
+**Decision:** `recommender/forme_identity.py::classify_forme(snap, sid, *, regulation)` compares a child forme to its base on base_stats, types, abilities and the resolved learnset. `cosmetic`: all four identical. `battle_transform`: same abilities and learnset, stats or types differ, and no row in either usage map. `mechanical_selectable`: anything else. Cosmetic and battle_transform formes resolve usage to the base and are skipped at eligible-pool build when the base is legal, so they never become their own member (`forme_usage_collapsed_from` / `forme_usage_canonical_id` are stamped on ephemeral usage-entry copies only). If both usage maps are empty the classifier fails closed to `mechanical_selectable`. No name-pattern lists. Outcomes: Maushold-Four cosmetic; Aegislash-Blade and the Castform formes battle_transform; Gourgeist sizes, Toxtricity-Low-Key and Squawkabilly white/yellow mechanical_selectable. Separately, five formes had an empty-list learnset (Gourgeist-Super, Vivillon Fancy and Poké Ball, Polteageist-Antique, Sinistcha-Masterpiece): the extractor now omits the key and `resolve_learnset` treats `[]` as missing and walks to the base species. The snapshot is pinned to Showdown 9fb3a5b.
+
+**Why:** "Any axis differs means a separate identity" wrongly splits mid-battle transforms from their team-builder forme, and usage absence alone would also collapse selectable zero-usage formes such as Toxtricity-Low-Key. Gourgeist sizes share abilities and learnset with the base but differ in stats and have in-game rows, so players pick them.
+
+**Alternatives considered:** Name-pattern allowlists (size/colour/pattern): rejected, not data-derived. Reusing `_is_battle_only_transient_forme`: rejected, it is usage-absence-only.
+
+**Evidence:** A hazard found in review: with an empty usage corpus the classifier would have collapsed the Gourgeist sizes; hence the fail-closed branch (#247). A vacuous Maushold test was replaced. Gourgeist-Super now enters Trick Room (Good via ghost_fakeout_immunity; in-game 76.6, Showdown 84.769).
+
+**Known limit:** A brand-new selectable forme with the same abilities and learnset as its base, differing only in stats or types and with no ladder rows yet, would be mis-collapsed. Showdown `battleOnly` is the upgrade path.
+
+**Status:** Shipped (#246, #247).
+
+---
+
+## ADR-075: Tier grading uses the usage-modal ability; membership uses a ≥10% set; Psychic Terrain counts as priority denial
+
+**Decision:** Two ability resolvers. The modal ability (highest max(in-game, Showdown) share, ties by id ascending, no blending; every legal slot only when a species has no usage) grades tiers. A ≥10% set (`_ABILITY_MEMBERSHIP_PCT_FLOOR = 10.0`, a policy constant) gates membership paths: weather and terrain setter hits, and Friend Guard or secondary reinforcement. A species admitted through a non-modal ability is graded with the membership-granting ability. `priority_denial_ability_ids()` is flinch denial plus abilities whose description says they summon Psychic Terrain, derived from the ability data. It applies to the Trick Room Excellent branch only, behind a hard grounded gate (types and ability; Flying and Levitate are ungrounded; items such as Air Balloon are ignored). Sand gains `ability_ids_good = {sandspit}`. Ability shares load through the forme-canonical id.
+
+**Why:** The previous construct read every legal slot, so Indeedee earned Excellent from Inner Focus (0.29% usage) while 99.7% of players run Psychic Surge, and Vivillon from Friend Guard (2.7%) while 96.3% run Compound Eyes. Vu's decision: Psychic Surge counts, because its terrain blocks priority.
+
+**Alternatives considered:** Blending in-game and Showdown shares: rejected (the sources disagree on 5 modal abilities: Dragapult, Heliolisk, Infernape, Mudsdale, Salazzle; none are Trick Room members or setters, so no tie-break is needed). A per-species patch list: rejected.
+
+**Evidence:** Of 343 species, 116 have a mixed ability split; only Sandaconda (Sand Spit 41%), Mudsdale and Farfetch'd have role-relevant non-modal abilities at ≥10%. Outcomes: Indeedee and Indeedee-F Excellent via Psychic Terrain (Indeedee's tier unchanged, basis changed); Sandaconda Good in sand; Slowking stays Good (Oblivious IG 22.9 / SD 20.2); Slowbro's Oblivious (8%) no longer counts and cannot bypass the 22.5 Trick Room gate. Clefable's Cute Charm (4.1%) earns nothing. Tests edited for Cute Charm and Slowbro changed their expectations under the 10% policy, not the floor.
+
+**Not an ability effect:** Kingambit, Aegislash and Scrafty-Mega Excellent to Good: Aegislash and Scrafty-Mega have one ability; see the 2026-10-05 persist log entry (cohort-floor drift).
+
+**Status:** Shipped (#249). Suite 2075 passed, 10 skipped after merging #248.

@@ -6122,6 +6122,35 @@ Smogon's published percentages divide by sum(Abilities weights) (about Raw count
 
 ### 2026-10-04: Bootstrap intake error redaction shipped (#235)
 Closed the item ADR-071 deferred: bootstrap_intake_error no longer surfaces unredacted parse/provider exception text. Hostile tests verified red on pre-fix code at state and handle_line level. Open: CandidateDiscoveryError str(exc) path (calc URL/host); fix before M2.
+
+### 2026-10-05: B6 compendium data-correctness arc (#243–#249): pct convention, floors, formes, ability usage
+
+Closed the decision point from the 2026-10-04 pct finding before the B6 persist. Shipped, all dry-run until #250: published-style Showdown pct (ADR-072), pre-registered floors and count-based setup presence (ADR-073), data-driven forme identity plus the empty-learnset fix (ADR-074), usage-modal ability tiering and Psychic Terrain credit (ADR-075).
+
+What went wrong, kept in the record:
+- I called the 22.5 Trick Room gap "real". The ranking showed rank 11 of 19, so it was relabelled a policy constant.
+- A test asked for to assert "only five learnset keys changed" became a `git show origin/main` test that fails in shallow CI checkouts. Replaced by invariants (no empty-list keys, five formes absent, pinned commit); the one-time diff stays in the PR body.
+- The learnset fix broke the redirection tests (cosmetic formes became eligible; critic tied_cluster). Cursor had run only targeted tests, so the fix was stacked with the forme collapse and merged together, and full-suite runs became a requirement before "ready".
+- A DD floor option (about 1.4) moved the wrong way relative to the keep cluster; 1.0 kept.
+- The classifier hazard (empty usage corpus collapsing Gourgeist sizes) and a vacuous Maushold test were caught in review, fixed in #247.
+- Cursor force-rewrote a merged branch (5e52acd to 3c6dc29); 3c6dc29 is not in main, harmless, not repeated.
+- CI "failures" on cc9c6a1 and ad4b869 were jobs cancelled while queued during a GitHub hosted-runner incident, not test failures. I misread them at first. #245 was green on rerun.
+- My first explanation of the Kingambit, Aegislash and Scrafty-Mega demotions (modal-ability tier grading) was wrong. Vu pointed out the latter two have one ability; the control run showed drift (next entry).
+
+Verification: full suite 2075 passed, 10 skipped on #249 after merging main (#248); roles/marker hashes unchanged through #249.
+
+### 2026-10-05: B6 persist (#250), drift accounting, known fragilities
+
+Rather than persisting against stale committed roles, a control run at 7e06e3a (parent of #243) was diffed against both the committed roles and live, to separate Task B from pre-existing drift. Committed to control: 118 drift events (44 added, 33 dropped, 41 tier). Control to live (Task B): 55 events, 0 unexplained: pct rescale 40, presence count 11, ability/Psychic Terrain 2, forme collapse 1, Gourgeist-Super learnset fix 1. Net vs committed: 78 added, 37 dropped (for example screens_support 13 to 30, trick_room_setter 28 to 37, calm_mind 38 to 34, bulk_up 36 to 38).
+
+Persist (#250): critic 18/18 approved, 0 flags; prior roles archived to `data/roles/history/`; roles hash 9d5d0c4c…636d to d2ebd407…3cbdc8; marker bumped to today (cfc33004…7798 to d40848da…e3ce), so the compendium-refresh gate's 14-day spacing restarts and it cannot fire before about Oct 19–20.
+
+Findings worth keeping:
+- The Excellent damage floor is relative (2nd-highest adjusted score × 0.95). Baxcalibur (1.349) and Baxcalibur-Mega (1.337) entered the swords_dance cohort and set it at 1.270, demoting Kingambit (1.254), Aegislash (1.224) and Scrafty-Mega (1.247) from Excellent to Good. This is drift, not Task B, and means one new top scorer can shift every other tier. Logged as a known fragility; a more robust cutoff is a v2 candidate with its own pre-registered method, not a pre-persist tuning.
+- Several drift admits (Mega-Z formes, Klefki and Banette-Mega via Prankster plus a weather move) were already produced by the pre-Task-B construct; the committed roles were simply stale.
+- Known limits: M-B stays on the old pct scale; the thin Screens admits (2.8–4.9%) and Incineroar Bulk Up (0.118% Showdown) are accepted.
+- Two mislabelled causes in the delta report (Appletun's presence drop, Tyranitar's `max=None`) were corrected before persist so the persisted change_reason text is accurate.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
