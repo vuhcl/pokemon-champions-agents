@@ -193,6 +193,39 @@ def test_classify_input_preserves_pending_and_no_claim_stamp():
     assert "Incineroar" in rendered
 
 
+def test_try_route_bad_regulation_falls_through():
+    assert try_route_item_holders("who uses Life Orb", regulation="not-a-reg") is None
+
+
+def test_try_route_unknown_regulation_matching_phrase_does_not_raise():
+    # Must not propagate ValueError into classify_input.
+    out = try_route_item_holders(
+        "who uses Psychic Seed", regulation="totally-unknown-reg"
+    )
+    assert out is None
+
+
+def test_classify_input_missing_regulation_mod_non_matching_unchanged():
+    """State without regulation_mod + non-holders phrase: gate is a no-op."""
+    from unittest.mock import patch
+
+    state = {
+        "pending_input": "xyzzy not holders",
+        "pending_presentation": None,
+        "team_draft": [],
+        "turn": 0,
+    }
+    sentinel = {
+        "turn_intent": "pending_response",
+        "turn_payload": {"message": "Didn't catch that."},
+    }
+    with patch("recommender.nodes.classify_pending", return_value=sentinel) as cp:
+        out = classify_input(state, turn_intent_parser=object())
+    cp.assert_called_once()
+    assert out["turn_intent"] == "pending_response"
+    assert (out.get("turn_payload") or {}).get("message") == "Didn't catch that."
+
+
 def test_claim_stamp_not_set_for_type_words_in_tier2():
     """stamp_system_claim runs on pending_response; holders text must not stamp."""
     state = {

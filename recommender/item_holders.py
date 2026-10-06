@@ -538,24 +538,33 @@ def try_route_item_holders(
     Order: exact item id on object blob (item wins, incl. Metronome) → exact
     species/move/ability blob → substring extract_item_name_target → near-miss
     on legal items → fall through. Blob-first avoids magnet⊂magneton false hits.
+    Never raises into classify_input.
     """
     if not has_item_holders_phrase(text):
         return None
     if has_other_intent_words(text):
         return None
     try:
-        regulation_file_tag(regulation)
-    except ValueError:
+        return _try_route_item_holders_after_phrase(
+            text, regulation=regulation, snap=snap
+        )
+    except (ValueError, OSError, KeyError, TypeError):
         return None
+
+
+def _try_route_item_holders_after_phrase(
+    text: str,
+    *,
+    regulation: str,
+    snap: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    regulation_file_tag(regulation)  # ValueError → caller falls through
     snap = snap or load_snapshot()
     blob = to_id(_object_blob(text))
     items = snap.get("items") or {}
 
-    def _reply_for_item(item_name: str) -> dict[str, Any] | None:
-        try:
-            result = query_item_holders(item_name, regulation=regulation, snap=snap)
-        except ValueError:
-            return None
+    def _reply_for_item(item_name: str) -> dict[str, Any]:
+        result = query_item_holders(item_name, regulation=regulation, snap=snap)
         return {
             "turn_intent": "pending_response",
             "turn_payload": {"message": format_item_holders_result(result)},

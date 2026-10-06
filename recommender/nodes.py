@@ -179,7 +179,7 @@ def classify_input(
 
     routed = try_route_item_holders(
         text,
-        regulation=state["regulation_mod"],
+        regulation=state.get("regulation_mod") or "champions",
     )
     result = routed or classify_pending(
         text,
