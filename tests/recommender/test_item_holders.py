@@ -8,13 +8,20 @@ from pathlib import Path
 import pytest
 
 from recommender.ids import to_id
-from recommender.item_conditions import mega_stones_by_item_id, mega_locked_species_ids
+from recommender.item_conditions import (
+    TYPE_BOOST_ITEMS,
+    mega_locked_species_ids,
+    mega_stone_keys_from_items_js,
+    mega_stones_by_item_id,
+)
 from recommender.item_holders import (
     COMPLETE_FOOTER,
+    ObservedHolder,
     format_item_holders_result,
     query_item_holders,
+    try_route_item_holders,
 )
-from recommender.legality import load_snapshot
+from recommender.legality import TYPE_LOCKED_ITEMS, load_snapshot
 from recommender.role_compendium_setup_constants import (
     _SETUP_PRESENCE_SHOWDOWN_WEIGHT_FLOOR,
 )
@@ -123,29 +130,100 @@ def test_chilan_no_tier_two():
     assert "no species is weak to Normal" in text
 
 
-def test_venusaurite_mega_lock():
+def test_venusaurite_mega_lock_filters_non_family(monkeypatch):
     snap = load_snapshot()
     locked = mega_locked_species_ids("venusaurite", snap)
     assert locked is not None
-    assert locked  # forme present in snap
+    assert "venusaurmega" in locked or "venusaur" in locked
+
+    family = next(iter(locked))
+    fake = [
+        ObservedHolder(
+            species_id="charizard",
+            species_display="Charizard",
+            source="ingame",
+            pct=99.0,
+        ),
+        ObservedHolder(
+            species_id=family,
+            species_display="Venusaur-family",
+            source="ingame",
+            pct=50.0,
+        ),
+    ]
+
+    import recommender.item_holders as ih
+
+    monkeypatch.setattr(ih, "_observed_ingame", lambda *a, **k: list(fake))
+    monkeypatch.setattr(ih, "_observed_showdown", lambda *a, **k: [])
+    monkeypatch.setattr(ih, "_observed_vgcpastes", lambda *a, **k: [])
+    monkeypatch.setattr(ih, "_observed_writeups", lambda *a, **k: [])
     result = query_item_holders("Venusaurite", regulation=REG)
     assert result.error is None
     assert result.mechanical == ()
-    # MEGA_STONES maps Venusaurite; no additive list.
-    assert "venusaurite" in mega_stones_by_item_id()
+    assert {h.species_id for h in result.observed} == {family}
+    assert "charizard" not in {h.species_id for h in result.observed}
 
 
-def test_mega_z_absolite_z_no_crash():
-    """Mega-Z lock from MEGA_STONES only; item_mega_forme unused by this tool."""
+def test_absolite_z_mega_lock_filters_non_family(monkeypatch):
     snap = load_snapshot()
-    assert "absolitez" in mega_stones_by_item_id()
     locked = mega_locked_species_ids("absolitez", snap)
     assert locked is not None
+    family = next(iter(locked))
+    fake = [
+        ObservedHolder(
+            species_id="garchomp",
+            species_display="Garchomp",
+            source="showdown",
+            pct=80.0,
+            weight=1000.0,
+        ),
+        ObservedHolder(
+            species_id=family,
+            species_display="Absol-family",
+            source="showdown",
+            pct=40.0,
+            weight=500.0,
+        ),
+    ]
+    import recommender.item_holders as ih
+
+    monkeypatch.setattr(ih, "_observed_ingame", lambda *a, **k: [])
+    monkeypatch.setattr(ih, "_observed_showdown", lambda *a, **k: list(fake))
+    monkeypatch.setattr(ih, "_observed_vgcpastes", lambda *a, **k: [])
+    monkeypatch.setattr(ih, "_observed_writeups", lambda *a, **k: [])
     result = query_item_holders("Absolite Z", regulation=REG)
     assert result.error is None
-    assert result.mechanical == ()
-    text = format_item_holders_result(result)
-    assert COMPLETE_FOOTER in text
+    assert {h.species_id for h in result.observed} == {family}
+
+
+def test_mega_stones_parser_matches_independent_keys():
+    parsed = set(mega_stones_by_item_id())
+    independent = mega_stone_keys_from_items_js()
+    assert parsed == independent
+    assert "magearnite" in parsed
+    assert "meowsticite" in parsed
+    assert "tatsugirinite" in parsed
+
+
+def test_meowsticite_locked_set():
+    snap = load_snapshot()
+    locked = mega_locked_species_ids("meowsticite", snap)
+    assert locked is not None
+    # Bases and mega formes that exist in the snapshot.
+    for sid in ("meowstic", "meowsticf", "meowsticm", "meowsticfmega", "meowsticmmega"):
+        if sid in (snap.get("species") or {}):
+            assert sid in locked, sid
+    assert locked  # at least one forme present
+
+
+def test_type_boost_items_equals_legality_type_locked():
+    assert TYPE_BOOST_ITEMS == TYPE_LOCKED_ITEMS
+    assert TYPE_BOOST_ITEMS is TYPE_LOCKED_ITEMS
+
+
+def test_try_route_bad_regulation_falls_through():
+    assert try_route_item_holders("who uses Life Orb", regulation="not-a-reg") is None
 
 
 def test_illegal_item_fail_closed():

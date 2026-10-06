@@ -138,7 +138,7 @@ def _usage_rank_score(sid: str, *, regulation: str) -> float:
 
 
 def _observed_ingame(
-    iid: str, snap: dict[str, Any], *, regulation: str, top_n: int
+    iid: str, snap: dict[str, Any], *, regulation: str
 ) -> list[ObservedHolder]:
     rows: list[ObservedHolder] = []
     for sid, entry in ingame_species_map(regulation).items():
@@ -161,11 +161,11 @@ def _observed_ingame(
             )
             break
     rows.sort(key=lambda h: (-(h.pct or 0.0), h.species_id))
-    return rows[:top_n]
+    return rows
 
 
 def _observed_showdown(
-    iid: str, snap: dict[str, Any], *, regulation: str, top_n: int
+    iid: str, snap: dict[str, Any], *, regulation: str
 ) -> list[ObservedHolder]:
     floor = float(_SETUP_PRESENCE_SHOWDOWN_WEIGHT_FLOOR)
     rows: list[ObservedHolder] = []
@@ -198,7 +198,7 @@ def _observed_showdown(
             )
             break
     rows.sort(key=lambda h: (-(h.weight or 0.0), h.species_id))
-    return rows[:top_n]
+    return rows
 
 
 def _load_vgcpastes_exact(regulation: str) -> dict[str, Any]:
@@ -223,7 +223,7 @@ def _load_writeups_exact(regulation: str) -> list[dict[str, Any]]:
 
 
 def _observed_vgcpastes(
-    iid: str, snap: dict[str, Any], *, regulation: str, top_n: int
+    iid: str, snap: dict[str, Any], *, regulation: str
 ) -> list[ObservedHolder]:
     counts: dict[str, int] = {}
     for team in _load_vgcpastes_exact(regulation).get("teams") or []:
@@ -244,11 +244,11 @@ def _observed_vgcpastes(
         for sid, n in counts.items()
     ]
     rows.sort(key=lambda h: (-(h.count or 0), h.species_id))
-    return rows[:top_n]
+    return rows
 
 
 def _observed_writeups(
-    iid: str, snap: dict[str, Any], *, regulation: str, top_n: int
+    iid: str, snap: dict[str, Any], *, regulation: str
 ) -> list[ObservedHolder]:
     seen: set[str] = set()
     rows: list[ObservedHolder] = []
@@ -267,7 +267,24 @@ def _observed_writeups(
             )
         )
     rows.sort(key=lambda h: h.species_id)
-    return rows[:top_n]
+    return rows
+
+
+def _apply_mega_lock_and_top_n(
+    rows_by_source: list[list[ObservedHolder]],
+    *,
+    locked: frozenset[str] | None,
+    top_n: int,
+) -> list[ObservedHolder]:
+    out: list[ObservedHolder] = []
+    for rows in rows_by_source:
+        filtered = (
+            [h for h in rows if h.species_id in locked]
+            if locked is not None
+            else rows
+        )
+        out.extend(filtered[:top_n])
+    return out
 
 
 def query_item_holders(
@@ -297,11 +314,16 @@ def query_item_holders(
             error=f"{display} isn't legal in the current regulation.",
         )
 
-    observed = (
-        _observed_ingame(iid, snap, regulation=regulation, top_n=top_n)
-        + _observed_showdown(iid, snap, regulation=regulation, top_n=top_n)
-        + _observed_vgcpastes(iid, snap, regulation=regulation, top_n=top_n)
-        + _observed_writeups(iid, snap, regulation=regulation, top_n=top_n)
+    locked = mega_locked_species_ids(iid, snap)
+    observed = _apply_mega_lock_and_top_n(
+        [
+            _observed_ingame(iid, snap, regulation=regulation),
+            _observed_showdown(iid, snap, regulation=regulation),
+            _observed_vgcpastes(iid, snap, regulation=regulation),
+            _observed_writeups(iid, snap, regulation=regulation),
+        ],
+        locked=locked,
+        top_n=top_n,
     )
     observed_ids = {h.species_id for h in observed}
 
@@ -314,10 +336,6 @@ def query_item_holders(
         )
     if iid == "chilanberry":
         notes.append(chilan_note())
-
-    # Mega: observed always shown; no additive mechanical list.
-    # Still record lock so callers/tests can assert family-only via MEGA_STONES.
-    _ = mega_locked_species_ids(iid, snap)
 
     mechanical: list[MechanicalCandidate] = []
     mech_rows = iter_mechanical_species(iid, snap, exclude=observed_ids)
@@ -520,12 +538,19 @@ def try_route_item_holders(
         return None
     if has_other_intent_words(text):
         return None
+    try:
+        regulation_file_tag(regulation)
+    except ValueError:
+        return None
     snap = snap or load_snapshot()
     from recommender.turn_intent import extract_item_name_target
 
     exact = extract_item_name_target(text)
     if exact is not None:
-        result = query_item_holders(exact, regulation=regulation, snap=snap)
+        try:
+            result = query_item_holders(exact, regulation=regulation, snap=snap)
+        except ValueError:
+            return None
         return {
             "turn_intent": "pending_response",
             "turn_payload": {"message": format_item_holders_result(result)},

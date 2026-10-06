@@ -1,6 +1,6 @@
 """Hand-curated item activation conditions for query_item_holders.
 
-Keep TYPE_BOOST_ITEMS in sync with legality.classify_item_failure type_locked.
+TYPE_BOOST_ITEMS is legality.TYPE_LOCKED_ITEMS (single source).
 Mega lock uses vendored calc MEGA_STONES only (classic + Z); not item_mega_forme.
 """
 
@@ -13,32 +13,12 @@ from typing import Any
 
 from recommender.counters import _species_types, effective_move_type, type_effectiveness
 from recommender.ids import to_id
-from recommender.legality import is_species_legal, legal_moves_for
+from recommender.legality import TYPE_LOCKED_ITEMS, is_species_legal, legal_moves_for
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 _CALC_ITEMS_JS = REPO_ROOT / "vendor" / "smogon-calc" / "dist" / "data" / "items.js"
 
-# Keep in sync with legality.classify_item_failure type_locked.
-TYPE_BOOST_ITEMS: dict[str, str] = {
-    "blackglasses": "Dark",
-    "charcoal": "Fire",
-    "mysticwater": "Water",
-    "miracleseed": "Grass",
-    "magnet": "Electric",
-    "nevermeltice": "Ice",
-    "poisonbarb": "Poison",
-    "softsand": "Ground",
-    "sharpbeak": "Flying",
-    "twistedspoon": "Psychic",
-    "silverpowder": "Bug",
-    "hardstone": "Rock",
-    "spelltag": "Ghost",
-    "dragonfang": "Dragon",
-    "blackbelt": "Fighting",
-    "metalcoat": "Steel",
-    "fairyfeather": "Fairy",
-    "silkscarf": "Normal",
-}
+TYPE_BOOST_ITEMS: dict[str, str] = TYPE_LOCKED_ITEMS
 
 # Resist berries: berry id -> attacking type reduced.
 RESIST_BERRIES: dict[str, str] = {
@@ -69,9 +49,11 @@ TERRAIN_SEEDS: dict[str, str] = {
     "psychicseed": "Psychic Terrain",
 }
 
-_STONE_ENTRY_RE = re.compile(
-    r"(?:'([^']+)'|\"([^\"]+)\"|([A-Za-z][A-Za-z0-9 ]*))\s*:\s*\{\s*"
-    r"(?:'([^']+)'|\"([^\"]+)\"|([A-Za-z][A-Za-z0-9\- ]*))\s*:\s*'([^']+)'\s*\}"
+_STONE_HEAD_RE = re.compile(
+    r"(?:'([^']+)'|\"([^\"]+)\"|([A-Za-z][A-Za-z0-9 ]*))\s*:\s*\{"
+)
+_PAIR_RE = re.compile(
+    r"(?:'([^']+)'|\"([^\"]+)\"|([A-Za-z][A-Za-z0-9\- ]*))\s*:\s*'([^']+)'"
 )
 
 
@@ -85,39 +67,76 @@ def _slice_block(text: str, start_marker: str, end_marker: str) -> str:
     return text[i:j]
 
 
+def _parse_stone_block(block: str) -> dict[str, tuple[tuple[str, str], ...]]:
+    """stone to_id -> ((base_display, forme_display), ...)."""
+    out: dict[str, tuple[tuple[str, str], ...]] = {}
+    for m in _STONE_HEAD_RE.finditer(block):
+        stone = m.group(1) or m.group(2) or m.group(3)
+        if not stone:
+            continue
+        start = m.end()
+        depth = 1
+        i = start
+        while i < len(block) and depth:
+            ch = block[i]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+            i += 1
+        body = block[start : i - 1]
+        pairs: list[tuple[str, str]] = []
+        for pm in _PAIR_RE.finditer(body):
+            base = pm.group(1) or pm.group(2) or pm.group(3)
+            forme = pm.group(4)
+            if base and forme:
+                pairs.append((base.strip(), forme.strip()))
+        if pairs:
+            out[to_id(stone)] = tuple(pairs)
+    return out
+
+
+def mega_stone_keys_from_items_js(text: str | None = None) -> set[str]:
+    """Independent stone-id set from GEN_6 + ZA blocks (same file as the parser)."""
+    raw = text if text is not None else _CALC_ITEMS_JS.read_text(encoding="utf-8")
+    keys: set[str] = set()
+    for block in (
+        _slice_block(raw, "var GEN_6_MEGA_STONES", "var XY"),
+        _slice_block(raw, "var ZA_MEGA_STONES", "var SV"),
+    ):
+        for m in _STONE_HEAD_RE.finditer(block):
+            stone = m.group(1) or m.group(2) or m.group(3)
+            if stone:
+                keys.add(to_id(stone))
+    return keys
+
+
 @lru_cache(maxsize=1)
-def mega_stones_by_item_id() -> dict[str, tuple[str, str]]:
-    """item to_id -> (base species display, mega forme display) from calc MEGA_STONES."""
+def mega_stones_by_item_id() -> dict[str, tuple[tuple[str, str], ...]]:
+    """item to_id -> ((base display, mega forme display), ...) from calc MEGA_STONES."""
     text = _CALC_ITEMS_JS.read_text(encoding="utf-8")
-    blocks = (
+    out: dict[str, tuple[tuple[str, str], ...]] = {}
+    for block in (
         _slice_block(text, "var GEN_6_MEGA_STONES", "var XY"),
         _slice_block(text, "var ZA_MEGA_STONES", "var SV"),
-    )
-    out: dict[str, tuple[str, str]] = {}
-    for block in blocks:
-        for m in _STONE_ENTRY_RE.finditer(block):
-            stone = m.group(1) or m.group(2) or m.group(3)
-            base = m.group(4) or m.group(5) or m.group(6)
-            forme = m.group(7)
-            if not stone or not base or not forme:
-                continue
-            out[to_id(stone)] = (base.strip(), forme.strip())
+    ):
+        out.update(_parse_stone_block(block))
     return out
 
 
 def mega_locked_species_ids(item_id: str, snap: dict[str, Any]) -> frozenset[str] | None:
     """Species ids allowed to hold this mega stone, or None if not a mapped stone."""
-    entry = mega_stones_by_item_id().get(to_id(item_id))
-    if entry is None:
+    pairs = mega_stones_by_item_id().get(to_id(item_id))
+    if pairs is None:
         return None
-    base_display, forme_display = entry
     species = snap.get("species") or {}
     locked: set[str] = set()
-    for display in (base_display, forme_display):
-        sid = to_id(display)
-        if sid in species:
-            locked.add(sid)
-    return frozenset(locked) if locked else frozenset()
+    for base_display, forme_display in pairs:
+        for display in (base_display, forme_display):
+            sid = to_id(display)
+            if sid in species:
+                locked.add(sid)
+    return frozenset(locked)
 
 
 def seed_terrain_note(item_id: str) -> str | None:
