@@ -1,0 +1,396 @@
+{
+  "before_after_full_slots_vs_split": {
+    "bulk_up_attacker": {
+      "changed": [],
+      "n_after": 38,
+      "n_before": 38
+    },
+    "calm_mind_attacker": {
+      "changed": [],
+      "n_after": 34,
+      "n_before": 34
+    },
+    "dragon_dance_attacker": {
+      "changed": [],
+      "n_after": 15,
+      "n_before": 15
+    },
+    "iron_defense_body_press": {
+      "changed": [],
+      "n_after": 27,
+      "n_before": 27
+    },
+    "nasty_plot_attacker": {
+      "changed": [],
+      "n_after": 22,
+      "n_before": 22
+    },
+    "redirection": {
+      "changed": [
+        {
+          "after_basis": "secondary_stack",
+          "after_tier": "Excellent",
+          "before_basis": "ally_mitigation",
+          "before_tier": "Excellent",
+          "species": "Vivillon"
+        }
+      ],
+      "n_after": 9,
+      "n_before": 9
+    },
+    "screens_support": {
+      "changed": [],
+      "n_after": 30,
+      "n_before": 30
+    },
+    "sleep_status_spreader": {
+      "changed": [],
+      "n_after": 17,
+      "n_before": 17
+    },
+    "swords_dance_attacker": {
+      "changed": [],
+      "n_after": 37,
+      "n_before": 37
+    },
+    "tailwind_setter": {
+      "changed": [],
+      "n_after": 26,
+      "n_before": 26
+    },
+    "terrain_setter_electric": {
+      "changed": [],
+      "n_after": 2,
+      "n_before": 2
+    },
+    "terrain_setter_grassy": {
+      "changed": [],
+      "n_after": 2,
+      "n_before": 2
+    },
+    "terrain_setter_psychic": {
+      "changed": [],
+      "n_after": 3,
+      "n_before": 3
+    },
+    "trick_room_setter": {
+      "changed": [
+        {
+          "after_basis": "psychic_terrain_priority_denial",
+          "after_tier": "Excellent",
+          "before_basis": "flinch_denial",
+          "before_tier": "Excellent",
+          "species": "Indeedee"
+        },
+        {
+          "after_basis": "psychic_terrain_priority_denial",
+          "after_tier": "Excellent",
+          "before_basis": "unprotected",
+          "before_tier": "Acceptable",
+          "species": "Indeedee-F"
+        }
+      ],
+      "n_after": 37,
+      "n_before": 37
+    },
+    "weather_setter_rain": {
+      "changed": [],
+      "n_after": 7,
+      "n_before": 7
+    },
+    "weather_setter_sand": {
+      "changed": [],
+      "n_after": 5,
+      "n_before": 5
+    },
+    "weather_setter_snow": {
+      "changed": [],
+      "n_after": 6,
+      "n_before": 6
+    },
+    "weather_setter_sun": {
+      "changed": [],
+      "n_after": 8,
+      "n_before": 8
+    }
+  },
+  "disagreements": [
+    {
+      "ingame_modal": "infiltrator",
+      "merged_modal": "clearbody",
+      "shares": {
+        "clearbody": 51.357,
+        "cursedbody": 13.6,
+        "infiltrator": 49.0
+      },
+      "showdown_modal": "clearbody",
+      "sid": "dragapult",
+      "species": "Dragapult"
+    },
+    {
+      "ingame_modal": "dryskin",
+      "merged_modal": "dryskin",
+      "shares": {
+        "dryskin": 70.4,
+        "sandveil": 6.4,
+        "solarpower": 51.048
+      },
+      "showdown_modal": "solarpower",
+      "sid": "heliolisk",
+      "species": "Heliolisk"
+    },
+    {
+      "ingame_modal": "ironfist",
+      "merged_modal": "blaze",
+      "shares": {
+        "blaze": 66.006,
+        "ironfist": 50.3
+      },
+      "showdown_modal": "blaze",
+      "sid": "infernape",
+      "species": "Infernape"
+    },
+    {
+      "ingame_modal": "stamina",
+      "merged_modal": "stamina",
+      "shares": {
+        "innerfocus": 54.864,
+        "owntempo": 3.777,
+        "stamina": 57.4
+      },
+      "showdown_modal": "innerfocus",
+      "sid": "mudsdale",
+      "species": "Mudsdale"
+    },
+    {
+      "ingame_modal": "corrosion",
+      "merged_modal": "corrosion",
+      "shares": {
+        "corrosion": 63.2,
+        "oblivious": 57.988
+      },
+      "showdown_modal": "oblivious",
+      "sid": "salazzle",
+      "species": "Salazzle"
+    }
+  ],
+  "flinch_denial_count": 4,
+  "membership_churn_modal_vs_split": {
+    "bulk_up_attacker": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 38,
+      "split_count": 38
+    },
+    "calm_mind_attacker": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 34,
+      "split_count": 34
+    },
+    "dragon_dance_attacker": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 15,
+      "split_count": 15
+    },
+    "iron_defense_body_press": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 27,
+      "split_count": 27
+    },
+    "nasty_plot_attacker": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 22,
+      "split_count": 22
+    },
+    "redirection": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 9,
+      "split_count": 9
+    },
+    "screens_support": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 30,
+      "split_count": 30
+    },
+    "sleep_status_spreader": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 17,
+      "split_count": 17
+    },
+    "swords_dance_attacker": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 37,
+      "split_count": 37
+    },
+    "tailwind_setter": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 26,
+      "split_count": 26
+    },
+    "terrain_setter_electric": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 2,
+      "split_count": 2
+    },
+    "terrain_setter_grassy": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 2,
+      "split_count": 2
+    },
+    "terrain_setter_psychic": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 3,
+      "split_count": 3
+    },
+    "trick_room_setter": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 37,
+      "split_count": 37
+    },
+    "weather_setter_rain": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 7,
+      "split_count": 7
+    },
+    "weather_setter_sand": {
+      "added_by_split": [
+        "Sandaconda"
+      ],
+      "dropped_by_split": [],
+      "modal_only_count": 4,
+      "split_count": 5
+    },
+    "weather_setter_snow": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 6,
+      "split_count": 6
+    },
+    "weather_setter_sun": {
+      "added_by_split": [],
+      "dropped_by_split": [],
+      "modal_only_count": 8,
+      "split_count": 8
+    }
+  },
+  "n_disagreements": 5,
+  "non_modal_grants": [
+    {
+      "granting": "sandspit",
+      "modal": "sandveil",
+      "path": "sand_spit",
+      "shares": {
+        "sandspit": 40.7,
+        "sandveil": 76.573,
+        "shedskin": 10.3
+      },
+      "sid": "sandaconda",
+      "species": "Sandaconda",
+      "tier_assumed": "sandspit"
+    },
+    {
+      "granting": "innerfocus",
+      "modal": "defiant",
+      "path": "tr_priority_denial",
+      "shares": {
+        "defiant": 74.962,
+        "innerfocus": 34.8,
+        "keeneye": 6.77
+      },
+      "sid": "farfetchd",
+      "species": "Farfetch\u2019d",
+      "tier_assumed": "innerfocus"
+    },
+    {
+      "granting": "innerfocus",
+      "modal": "stamina",
+      "path": "tr_priority_denial",
+      "shares": {
+        "innerfocus": 54.864,
+        "owntempo": 3.777,
+        "stamina": 57.4
+      },
+      "sid": "mudsdale",
+      "species": "Mudsdale",
+      "tier_assumed": "innerfocus"
+    },
+    {
+      "granting": "oblivious",
+      "modal": "corrosion",
+      "path": "tr_taunt_denial",
+      "shares": {
+        "corrosion": 63.2,
+        "oblivious": 57.988
+      },
+      "sid": "salazzle",
+      "species": "Salazzle",
+      "tier_assumed": "oblivious"
+    },
+    {
+      "granting": "oblivious",
+      "modal": "regenerator",
+      "path": "tr_taunt_denial",
+      "shares": {
+        "oblivious": 31.053,
+        "owntempo": 1.557,
+        "regenerator": 67.39
+      },
+      "sid": "slowbro",
+      "species": "Slowbro",
+      "tier_assumed": "oblivious"
+    },
+    {
+      "granting": "oblivious",
+      "modal": "regenerator",
+      "path": "tr_taunt_denial",
+      "shares": {
+        "oblivious": 22.9,
+        "owntempo": 5.2,
+        "regenerator": 78.618
+      },
+      "sid": "slowking",
+      "species": "Slowking",
+      "tier_assumed": "oblivious"
+    }
+  ],
+  "priority_denial_count": 5,
+  "regulation": "champions-reg-mc",
+  "setter_disagreements": [],
+  "spotlight": {
+    "Indeedee": {
+      "basis": "psychic_terrain_priority_denial",
+      "notes": "bulk HP/Def/SpD=60/55/95; Psychic Terrain priority denial \u2014 Psychic Surge (On switch-in, this Pokemon summons Psychic Terrain.) (grounded gate: types + ability; items e.g. Air Balloon ignored)",
+      "tier": "Excellent"
+    },
+    "Indeedee-F": {
+      "basis": "psychic_terrain_priority_denial",
+      "notes": "bulk HP/Def/SpD=70/65/105; Psychic Terrain priority denial \u2014 Psychic Surge (On switch-in, this Pokemon summons Psychic Terrain.) (grounded gate: types + ability; items e.g. Air Balloon ignored)",
+      "tier": "Excellent"
+    },
+    "Kingambit": {
+      "basis": "good_calc_both_branches",
+      "notes": "damage_score=1.254 raw=1.003 floor=1.270 excellent_exec=False",
+      "tier": "Good"
+    },
+    "Vivillon": {
+      "basis": "secondary_stack",
+      "has_friend_guard_trait": false,
+      "tier": "Excellent"
+    }
+  },
+  "tr_disagreements": []
+}

@@ -457,10 +457,10 @@ def test_dd_setup_presence_floor_excludes_thin_keeps_cluster(monkeypatch):
     """DD 1.0% floor: Dragonite-Mega 0.390 out; Scrafty-Mega 1.363 in."""
     from recommender.role_compendium_setup_constants import _DD_SETUP_PRESENCE_FLOOR
     from recommender.role_compendium_usage import _hits_clear_set_pct_floor
-    from recommender.role_compendium import _SETUP_PRESENCE_SET_PCT_FLOOR, _UsageCtx
+    from recommender.role_compendium import _SETUP_PRESENCE_INGAME_PCT_FLOOR, _UsageCtx
 
     assert _DD_SETUP_PRESENCE_FLOOR == 1.0
-    assert _SETUP_PRESENCE_SET_PCT_FLOOR == 0.1
+    assert _SETUP_PRESENCE_INGAME_PCT_FLOOR == 0.1
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage",
@@ -496,7 +496,7 @@ def test_dd_setup_presence_floor_excludes_thin_keeps_cluster(monkeypatch):
     assert _hits_clear_set_pct_floor(
         "Dragonite-Mega",
         {"dragondance"},
-        floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
+        floor=_SETUP_PRESENCE_INGAME_PCT_FLOOR,
         uctx=uctx,
         sd_cache={"dragonitemega": thin},
         showdown_fetch=None,
@@ -515,7 +515,7 @@ def test_cm_bu_presence_floor_unaffected_by_dd_override(monkeypatch):
     """CM/BU at DD's excluded band still clear the shared 0.1% floor."""
     from recommender.role_compendium_setup_constants import _DD_SETUP_PRESENCE_FLOOR
     from recommender.role_compendium_usage import _hits_clear_set_pct_floor
-    from recommender.role_compendium import _SETUP_PRESENCE_SET_PCT_FLOOR, _UsageCtx
+    from recommender.role_compendium import _SETUP_PRESENCE_INGAME_PCT_FLOOR, _UsageCtx
 
     monkeypatch.setattr(
         "recommender.role_compendium.load_usage",
@@ -542,7 +542,7 @@ def test_cm_bu_presence_floor_unaffected_by_dd_override(monkeypatch):
     assert _hits_clear_set_pct_floor(
         "Cofagrigus",
         {"calmmind"},
-        floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
+        floor=_SETUP_PRESENCE_INGAME_PCT_FLOOR,
         uctx=uctx,
         sd_cache={"cofagrigus": cm_entry},
         showdown_fetch=None,
@@ -550,7 +550,7 @@ def test_cm_bu_presence_floor_unaffected_by_dd_override(monkeypatch):
     assert _hits_clear_set_pct_floor(
         "Passimian",
         {"bulkup"},
-        floor=_SETUP_PRESENCE_SET_PCT_FLOOR,
+        floor=_SETUP_PRESENCE_INGAME_PCT_FLOOR,
         uctx=uctx,
         sd_cache={"passimian": bu_entry},
         showdown_fetch=None,

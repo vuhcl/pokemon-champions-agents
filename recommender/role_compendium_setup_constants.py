@@ -16,8 +16,6 @@ _SETUP_PRESENCE_INGAME_PCT_FLOOR = 0.1
 # Policy constant (2026-10-05). Weighted ≠ player counts; avg weight ~0.27–0.58
 # ⇒ 20 weighted ≈ 35–75 raw sets. See FLOOR_REVIEW.md / ghost audit.
 _SETUP_PRESENCE_SHOWDOWN_WEIGHT_FLOOR = 20
-# Back-compat alias for call sites / tests still naming the old constant.
-_SETUP_PRESENCE_SET_PCT_FLOOR = _SETUP_PRESENCE_INGAME_PCT_FLOOR
 # 1.0 — policy constant (kept 2026-10-05). Only ≥1 gap in the DD distribution is
 # Dragapult 2.812 → Aerodactyl-Mega 1.454; the keep cluster sits *above* that cliff,
 # so ~1.4 is not “just below the keep edge.” See FLOOR_REVIEW.md.

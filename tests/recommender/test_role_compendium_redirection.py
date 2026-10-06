@@ -170,7 +170,7 @@ def test_mega_clefable_rejected_before_live():
     assert not any(to_id(n) == "clefablemega" for n in calls)
 
 
-def test_clefable_live_none_still_admitted_via_cute_charm():
+def test_clefable_live_none_still_admitted_without_cute_charm():
     """Cute Charm ~4% < 10% floor — admit via snapshot Follow Me, not Cute Charm."""
     draft = _redir_draft(live_fetch=lambda _n: None)
     assert "Clefable" in _members(draft, "Good") | _members(draft, "Excellent")
