@@ -96,7 +96,7 @@ Out of scope until later phases: Showdown win-rate eval, battle-log/RL piloting.
 
 ## Tests
 
-Verified 2026-10-08 against `docs/v1-1-0-package` at feature commit `f64b511`:
+Verified 2026-10-08 against `docs/v1-1-0-package` at feature commit `bf09b9d`:
 
 | Suite | Command | Result |
 |-------|---------|--------|
