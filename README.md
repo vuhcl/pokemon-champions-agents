@@ -87,7 +87,7 @@ From the 1.1.0 packaging pass — deliberately deferred, not forgotten:
 
 - Tier 2 direction-vocabulary residuals: terrain setters shipped ([ADR-062](docs/architecture_decisions.md#adr-062-terrain-setters-mirror-weathers-full-wiring--electricgrassy)); Calm Mind, Bulk Up, Dragon Dance, Iron Defense/Body Press, sleep-status-spreader, and ability-driven destinations were checked and correctly deferred with evidence.
 - Claude API validation — built and ready (`scripts/eval/run_claude_validation.py`); blocked only on Anthropic credits ([ADR-058](docs/architecture_decisions.md#adr-058-v100-published-with-claude-api-validation-explicitly-deferred)).
-- v2 pre-registration discipline before measuring new methods.
+- Pre-registration discipline before measuring new methods ([docs/pre_registration.md](docs/pre_registration.md)).
 - Call-site / consumer `"champions"` / M-B regulation defaults still open (B1 shipped; B2 consumer retarget open) ([ADR-016 Amendment 2026-10-04a](docs/architecture_decisions.md#adr-016-amendment-2026-10-04a--usage-migration-task-b-required-regulation-per-source-files-showdown_ready-stand-ins-monthly-rollover)).
 - Eval harnesses still pin explicit regulations and are allowlisted until the M-C baseline is re-frozen (`scripts/eval/` in [`tests/ci/test_no_regulation_literals.py`](tests/ci/test_no_regulation_literals.py)).
 - Relative Excellent-damage-floor fragility (2nd-highest × 0.95) — v2 candidate with its own pre-registered method.
