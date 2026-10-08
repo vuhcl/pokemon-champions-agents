@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from recommender.discovery_error import CALC_UNAVAILABLE_MSG
 from recommender.matchup import MatchupResult
 from recommender.present_text import (
     BOOTSTRAP_PARSER_FIX_HINT,
@@ -592,7 +593,7 @@ def test_calc_unavailable_error_only_no_fake_options():
     error = CandidateDiscoveryError(
         kind="calc_unavailable",
         stage="coverage",
-        message="calc service down",
+        message="calc request failed (0): https://calc-leak.example:8443/v1/batch",
         retryable=True,
     )
     text = format_turn(
@@ -603,7 +604,8 @@ def test_calc_unavailable_error_only_no_fake_options():
         }
     )
     assert "calc_unavailable" in text
-    assert "calc service down" in text
+    assert CALC_UNAVAILABLE_MSG in text
+    assert "calc-leak.example" not in text
     assert "1. " not in text or "Garchomp" in text
     assert "Incineroar" not in text
 
@@ -750,14 +752,15 @@ def test_format_team_review_unavailable():
     error = CandidateDiscoveryError(
         kind="calc_unavailable",
         stage="coverage",
-        message="calc down",
+        message="calc request failed (0): https://calc-leak.example:8443/v1/batch",
         retryable=True,
     )
     review = TeamReviewResult([], [], [], status="unavailable", error=error)
     with_error = format_team_review(review, include_error=True)
     without_error = format_team_review(review, include_error=False)
     assert "calc_unavailable" in with_error
-    assert "calc down" in with_error
+    assert CALC_UNAVAILABLE_MSG in with_error
+    assert "calc-leak.example" not in with_error
     assert "calc_unavailable" not in without_error
 
 
@@ -765,7 +768,7 @@ def test_format_turn_review_dedupes_error():
     error = CandidateDiscoveryError(
         kind="calc_unavailable",
         stage="coverage",
-        message="calc down",
+        message="calc request failed (0): https://calc-leak.example:8443/v1/batch",
         retryable=True,
     )
     text = format_turn(

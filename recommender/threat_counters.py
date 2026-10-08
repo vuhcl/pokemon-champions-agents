@@ -19,12 +19,12 @@ if TYPE_CHECKING:
 
 from recommender.calc_client import CalcClient, CalcClientError, PokemonSpecOptional
 from recommender.counters import query_counters
+from recommender.discovery_error import discovery_error_from_exc
 from recommender.ids import to_id
 from recommender.matchup import MatchupEvidenceError, MatchupResult, classify_matchup
 from recommender.ranking import OwnershipMode, rank_and_cut
 from recommender.resolved_builds import get_resolved_build
 from recommender.state import (
-    CandidateDiscoveryError,
     TeamThreatDiscovery,
     TeamThreatObjectiveRow,
     ThreatCandidate,
@@ -332,18 +332,7 @@ def query_threat_counters(
         return TeamThreatDiscovery(
             status="degraded",
             candidates=_static_threat_rows(static),
-            error=CandidateDiscoveryError(
-                kind=(
-                    "calc_unavailable"
-                    if isinstance(exc, CalcClientError)
-                    else "calc_incomplete"
-                ),
-                stage="candidate_verification",
-                message=str(exc),
-                retryable=True,
-                exception_type=type(exc).__name__,
-                status_code=exc.status if isinstance(exc, CalcClientError) else None,
-            ),
+            error=discovery_error_from_exc(exc, stage="candidate_verification"),
         )
 
 
@@ -497,16 +486,5 @@ def query_candidates_for_threats(
         return TeamThreatDiscovery(
             status="unavailable",
             candidates=(),
-            error=CandidateDiscoveryError(
-                kind=(
-                    "calc_unavailable"
-                    if isinstance(exc, CalcClientError)
-                    else "calc_incomplete"
-                ),
-                stage="candidate_verification",
-                message=str(exc),
-                retryable=True,
-                exception_type=type(exc).__name__,
-                status_code=exc.status if isinstance(exc, CalcClientError) else None,
-            ),
+            error=discovery_error_from_exc(exc, stage="candidate_verification"),
         )
