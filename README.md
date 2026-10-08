@@ -2,7 +2,7 @@
 
 [![tests](https://github.com/vuhcl/pokemon-champions-agents/actions/workflows/tests.yml/badge.svg)](https://github.com/vuhcl/pokemon-champions-agents/actions/workflows/tests.yml)
 
-A verified, tool-grounded recommendation engine for VGC 2026 Regulation M-B doubles team building — current release: **1.0.0**. Recommendations are deterministic and calc-backed; legality, damage calculations, and matchup verification are never LLM-generated. The LLM's role is narrowly scoped to structured intent extraction, never decision-making.
+A verified, tool-grounded recommendation engine for VGC 2026 Regulation M-C doubles team building — current release: **1.1.0**. Recommendations are deterministic and calc-backed; legality, damage calculations, and matchup verification are never LLM-generated. The LLM's role is narrowly scoped to structured intent extraction, never decision-making.
 
 This is not RAG (no embedding or vector retrieval). The agentic steering loop — free-text mid-session edits, compare/defer, claim correction, and revise/repick of locked slots — ships in 1.0.0 on the same verification boundary: the model proposes structured intent; tools decide.
 
@@ -47,7 +47,7 @@ Pulled from the ADR log — each is a real "why X, not Y," not a stack tour.
 
 ## Measured eval
 
-Phase-1 numbers are measured and reported in [`docs/eval_results.md`](docs/eval_results.md) — not estimated:
+Phase-1 numbers below are from the **1.0.0 ship, measured 2026-09-03/04 on Reg M-B** (before Reg M-C went live 2026-09-10). They are reported in [`docs/eval_results.md`](docs/eval_results.md) — not estimated — and were not re-measured into that file for M-C at packaging time:
 
 - **Legality-grounding:** 0 / 28 false-legal (0.0%) across 15 scripted graph scenarios, checked against an independent Showdown-source oracle (not a re-read of the production snapshot).
 - **Mechanical-claim verification:** Spe formula fidelity was 8 / 15 (53.3%), then 15 / 15 (100%) after the Champions `effective_spe` fix; damage/KO and matchup-cache checks were 100% on their samples.
@@ -65,34 +65,47 @@ python -m recommender --new
 
 A recorded 1.0.0 session (Trick Room / Hatterene → free-text Focus Sash edit → compare → revise_locked_slot Quiet→Sassy → repick → claim_correction confirming a disputed-but-true stamped Heliolisk typing claim against snapshot data, team/constraints unchanged → `:builds`) is in [`docs/demo/cli-session-1.0.0.txt`](docs/demo/cli-session-1.0.0.txt). The prior 0.2 transcript remains at [`docs/demo/cli-session-0.2.txt`](docs/demo/cli-session-0.2.txt) (Pelipper lock → rain-beneficiary partners including Rain Dish / Swift Swim → Blastoise confirmed). The prior 0.1 transcript remains at [`docs/demo/cli-session-0.1.txt`](docs/demo/cli-session-0.1.txt).
 
-## What shipped in 1.0
+## What shipped in 1.0 and 1.1
+
+**1.0**
 
 - Agentic reasoning / steering loop on the existing verification boundary (LLM extracts intent; tools decide).
 - Free-text edits, `compare`, `defer`, `claim_correction`, `revise_locked_slot`, and `repick_locked_slot`.
 - Both Phase-1 eval numbers measured (legality-grounding 0% false-legal; mechanical-claim Spe fidelity 100% after a real bug fix).
 
+**1.1**
+
+- Reg M-C legality/identity migration ([ADR-016 Amendment 2026-09-10a](docs/architecture_decisions.md#adr-016-amendment-2026-09-10a--archive-chain-fallback-extended-to)).
+- Per-source usage files with daily in-game refresh and Showdown rollover (B5) ([ADR-016 Amendment 2026-10-04a](docs/architecture_decisions.md#adr-016-amendment-2026-10-04a--usage-migration-task-b-required-regulation-per-source-files-showdown_ready-stand-ins-monthly-rollover)).
+- Role Compendium data-correctness: published-style Showdown pct, policy floors, forme identity, ability-usage tiering ([ADR-072](docs/architecture_decisions.md#adr-072-showdown-set-is-stored-published-style-100w-sum-of-abilities-weights-with-fail-closed-fallbacks), [ADR-073](docs/architecture_decisions.md#adr-073-set-floors-are-policy-constants-from-a-pre-registered-method-setup-presence-is-count-based), [ADR-074](docs/architecture_decisions.md#adr-074-forme-identity-is-classified-from-data-four-axes-plus-a-usage-gate-empty-learnsets-are-treated-as-missing), [ADR-075](docs/architecture_decisions.md#adr-075-tier-grading-uses-the-usage-modal-ability-membership-uses-a-10-set-psychic-terrain-counts-as-priority-denial)).
+- Item-holders lookup (“who runs <item>?”, deterministic, fail-closed) ([ADR-076](docs/architecture_decisions.md#adr-076-item-holders-lookup-ranks-observed-holders-by-item-weight-never-blends-sources-and-keeps-mechanical-candidates-as-a-separate-additive-tier), [ADR-077](docs/architecture_decisions.md#adr-077-item-holders-questions-are-routed-by-a-deterministic-pre-parse-in-classify_input-with-an-exact-entity-first-resolution-order-and-a-gate-that-never-raises)).
+- Bootstrap intake and calc discovery errors map to fixed messages ([ADR-071 Amendment 2026-10-04a](docs/architecture_decisions.md#adr-071-amendment-2026-10-04a--bootstrap-intake-failures-map-to-fixed-messages-pr-235), [ADR-071 Amendment 2026-10-08a](docs/architecture_decisions.md#adr-071-amendment-2026-10-08a--calc-discovery-errors-map-to-fixed-messages-pr-254); PRs #235, #254).
+
 ## Known gaps / what's next
 
-From the 2026-09-04 ship note — deliberately deferred, not forgotten:
+From the 1.1.0 packaging pass — deliberately deferred, not forgotten:
 
-- Tier 2 direction-vocabulary / new `TargetRoleId` destinations (Calm Mind, Bulk Up, Dragon Dance, Iron Defense/Body Press, sleep-status-spreader, terrain setters, ability-driven archetypes). Terrain setters prioritized once picked up, given Reg M-C's expected terrain relevance.
-- Reg M-C legality-data migration — blocked until Showdown publishes the M-C ruleset; blast radius already mapped.
+- Tier 2 direction-vocabulary residuals: terrain setters shipped ([ADR-062](docs/architecture_decisions.md#adr-062-terrain-setters-mirror-weathers-full-wiring--electricgrassy)); Calm Mind, Bulk Up, Dragon Dance, Iron Defense/Body Press, sleep-status-spreader, and ability-driven destinations were checked and correctly deferred with evidence.
 - Claude API validation — built and ready (`scripts/eval/run_claude_validation.py`); blocked only on Anthropic credits ([ADR-058](docs/architecture_decisions.md#adr-058-v100-published-with-claude-api-validation-explicitly-deferred)).
+- v2 pre-registration discipline before measuring new methods.
+- Call-site / consumer `"champions"` / M-B regulation defaults still open (B1 shipped; B2 consumer retarget open) ([ADR-016 Amendment 2026-10-04a](docs/architecture_decisions.md#adr-016-amendment-2026-10-04a--usage-migration-task-b-required-regulation-per-source-files-showdown_ready-stand-ins-monthly-rollover)).
+- Eval harnesses still pin explicit regulations and are allowlisted until the M-C baseline is re-frozen (`scripts/eval/` in [`tests/ci/test_no_regulation_literals.py`](tests/ci/test_no_regulation_literals.py)).
+- Relative Excellent-damage-floor fragility (2nd-highest × 0.95) — v2 candidate with its own pre-registered method.
 
 Out of scope until later phases: Showdown win-rate eval, battle-log/RL piloting.
 
 ## Tests
 
-Verified 2026-09-04 against `docs/v1-0-0-readme` at feature commit `2b68b41`:
+Verified 2026-10-08 against `docs/v1-1-0-package` at feature commit `f64b511`:
 
 | Suite | Command | Result |
 |-------|---------|--------|
-| Python recommender | `uv run pytest` | **1632 passed, 12 skipped** |
-| Node calc/extract | `npm test` | **52 passed** (not in CI) |
+| Python recommender | `uv run pytest` | **2105 passed, 11 skipped** |
+| Node calc/extract | `npm test` | **55 passed** (not in CI) |
 
-Skipped (pytest `-rs`): 8 live-calc tests that require a live calc probe / `CALC_LIVE=1`; 4 Ollama bootstrap/turn-intent smokes that require `langchain-ollama` and/or `BOOTSTRAP_OLLAMA_MODEL` in the pytest process.
+Skipped (pytest `-rs`): live-calc tests that require a live calc probe / `CALC_LIVE=1`; Ollama bootstrap/turn-intent smokes that require `langchain-ollama` and/or `BOOTSTRAP_OLLAMA_MODEL` in the pytest process.
 
-CI runs `uv run pytest` on push to `main` and on pull requests.
+CI runs `uv run pytest` on push to `main` and on pull requests. Full suite was green locally on this packaging checkout (including `tests/ci/test_push_to_main.py`).
 
 ## License
 
