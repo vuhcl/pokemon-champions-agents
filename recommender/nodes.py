@@ -12,6 +12,7 @@ from recommender.coverage import (
     detect_spof,
     get_relevant_threats,
 )
+from recommender.discovery_error import discovery_error_from_exc
 from recommender.format import resolve_format
 from recommender.ids import to_id
 from recommender.legality import check_set, load_snapshot
@@ -1666,18 +1667,7 @@ def _unavailable_team_review(
         spofs=[],
         composition_gaps=composition_gaps or [],
         status="unavailable",
-        error=CandidateDiscoveryError(
-            kind=(
-                "calc_unavailable"
-                if isinstance(exc, CalcClientError)
-                else "calc_incomplete"
-            ),
-            stage=stage,
-            message=str(exc),
-            retryable=True,
-            exception_type=type(exc).__name__,
-            status_code=exc.status if isinstance(exc, CalcClientError) else None,
-        ),
+        error=discovery_error_from_exc(exc, stage=stage),
     )
 
 

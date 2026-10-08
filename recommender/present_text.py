@@ -12,6 +12,11 @@ from recommender.bootstrap import (
     BOOTSTRAP_INTAKE_TIMEOUT_MSG,
     BOOTSTRAP_INTAKE_UNSUPPORTED_SCHEMA_MSG,
 )
+from recommender.discovery_error import (
+    CALC_INCOMPLETE_MSG,
+    CALC_UNAVAILABLE_MSG,
+    DISCOVERY_CALC_MESSAGE_ALLOWLIST,
+)
 from recommender.state import (
     CandidateDiscoveryError,
     CandidateEvidence,
@@ -426,6 +431,13 @@ def _format_discovery_error(error: CandidateDiscoveryError | Mapping[str, Any]) 
         message = error.get("message")
         retryable = error.get("retryable")
         stage = error.get("stage")
+    if kind in _CALC_DISCOVERY_KINDS:
+        if message not in DISCOVERY_CALC_MESSAGE_ALLOWLIST:
+            message = (
+                CALC_INCOMPLETE_MSG
+                if kind == "calc_incomplete"
+                else CALC_UNAVAILABLE_MSG
+            )
     return (
         f"Discovery error [{kind}] at {stage}: {message} "
         f"(retryable={retryable})"
