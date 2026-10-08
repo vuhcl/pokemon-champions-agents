@@ -11567,6 +11567,26 @@ Open: CandidateDiscoveryError(message=str(exc)) (nodes.py, threat_counters.py) c
 
 ---
 
+### ADR-071 Amendment 2026-10-08a — calc discovery errors map to fixed messages (PR #254)
+
+Context: Amendment 2026-10-04a closed the bootstrap intake path and left one exception-text path open: `CandidateDiscoveryError.message` was set from `str(exc)` at three sites (two in `threat_counters.py`, one in `nodes._unavailable_team_review`). For a `CalcClientError`, `str(exc)` is `calc request failed (<status>): <body>`, and `calc_client` wraps a `URLError` as `CalcClientError(0, {"error": str(exc)})`, so a calc URL or host could reach the user through `_format_discovery_error`. `MatchupEvidenceError` can also embed a batch `raw['error']`. The message was also persisted in checkpoints, both top-level and under `TeamReviewResult.error`.
+
+Decision:
+- A new module `recommender/discovery_error.py` holds one fixed message per kind (`CALC_UNAVAILABLE_MSG`, `CALC_INCOMPLETE_MSG`), the allowlist of those two, and `discovery_error_from_exc(exc, stage)`, which builds the `CandidateDiscoveryError` for all three sites. Kind is `calc_unavailable` for `CalcClientError` and `calc_incomplete` otherwise; `exception_type` and `status_code` stay on the type for diagnosis; the exception text and response body never enter state.
+- The message is fixed per kind, not per (kind, stage). The stage already appears in the rendered banner.
+- `_format_discovery_error` applies the allowlist for the two calc kinds: any other stored message is replaced by that kind's fixed message. This covers legacy checkpointed values and mapping-shaped errors. Stored values are not migrated and stay as written until a new discovery error overwrites them; the allowlist is what keeps them off the screen.
+- Diagnostics: one `log_tool_call` per construction (`tool="discovery.calc_error"`) with kind, stage, exception class name and status code; `error` is `"{kind}:{exception_type}"`. No exception text or body. `latency_ms` is 0.0 because this is a diagnostic event, not a timed call.
+
+Why: same principle as ADR-071, Amendment 2026-10-04a and ADR-002: exception-authored text must not reach the user or leak infrastructure detail, and a fixed-message allowlist is checkable by test where redaction of arbitrary exception text is not. The structured fields already carry what a developer needs.
+
+Not changed: `no_candidates` (bootstrap clarification text) and the constraint kinds (predicate labels) keep their messages; retry and degraded-mode behaviour is unchanged. The eval harness reads `err.message` into `_msg_blob` and was not touched, so transcripts from runs before this change may still contain leaked text, and existing checkpoints may still hold dirty values.
+
+Evidence: hostile tests plant a URL, host and path in a `CalcClientError` body and in a `MatchupEvidenceError`, and assert none appear in the error message, `dataclasses.asdict(error)`, `format_turn` output, or the `log_tool_call` arguments. An end-to-end case starts at the real entry point: a `URLError` wrapped at `calc_client` L251, through the threat-counters catch. A legacy-value test plants a URL-bearing message and asserts the display shows the fixed message. Every calc kind across the stages `candidate_verification`, `coverage` and `spof` yields a non-empty, allowlisted message. Fresh-import check shows no cycle between `discovery_error` and `present_text`. Three assertions in `test_present_text.py` that expected planted free-text calc messages were changed to expect the fixed constants. Suite on the PR branch, as reported by Cursor: 2109 passed, 11 skipped, with 4 failures in `tests/ci/test_push_to_main.py` that only occur under the agent sandbox (those cases pass in a normal checkout).
+
+Status: Shipped (#254). The open item recorded in Amendment 2026-10-04a (`CandidateDiscoveryError(message=str(exc))`) is closed.
+
+---
+
 ## ADR-072: Showdown set% is stored published-style (100·w / sum of Abilities weights), with fail-closed fallbacks
 
 **Decision:** Showdown-derived `common_moves` / `common_items` / `common_abilities` pct is stored as `100 × weight / sum(Abilities weights)` for the species row. Items and abilities sum to about 100, moves to about 400 (four moves per set). Empty-Abilities fallback: items and abilities use their own bucket sum; moves use the Items-bucket sum; if both are empty the row emits no moves and is stamped `showdown_moves_pct_unscaled`, so the Showdown side of `max(in-game, Showdown)` is 0 and in-game usage can still admit. `sum(Moves)` is never a denominator. File meta carries `showdown_pct_kind = weight_over_abilities_sum` plus three fallback counters (`showdown_pct_fallback_items_bucket`, `showdown_pct_fallback_moves_via_items`, `showdown_pct_fallback_moves_unscaled`; all 0 on M-C), and rows carry the raw `weight`. A CI guard rejects a current-regulation Showdown file with a stale kind; M-B stays `weight_over_raw_count` until rebuilt. `graft_showdown_mc --from-meta` regenerates from the month/format/rating already in the file meta, so the monthly rollover (B5) writes the same kind.

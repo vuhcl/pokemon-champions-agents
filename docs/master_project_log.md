@@ -6163,6 +6163,16 @@ What review changed, and what I got wrong along the way:
 
 Known limits, not tuned: the condition table is curated and the output says so; the broad exception catch in the gate can hide a real bug as a fall-through; the Mega stone lock depends on the vendored calc's MEGA_STONES being current (a new stone it lacks gets observed-only output, with no invented lock).
 
+### 2026-10-08: Discovery-error redaction (#254), data-brittle usage-rank test (#255), v1.0.0 tagged retroactively
+
+Redaction shipped as #254 (ADR-071 Amendment 2026-10-08a). Plan review caught two things before implementation: the leak enters one step earlier than the planned hostile test started (calc_client wraps a URLError at L251, which is how a host reaches the body), so the plan gained an end-to-end test from the real wrap; and a possible import cycle between the new module and present_text, which Cursor checked with a fresh-import run.
+
+CI on #254 went red for a reason unrelated to it. The daily in-game refresh (73c1635, Oct 7) moved usage ranks and `test_query_by_usage_ranks_mc` hardcoded them: Farigiraf 15 became 16, Beedrill 183 became 180, Absol 52 became 54. Only the first assertion showed in CI because pytest stops at the first failed assert. `main` was red until #255, which derives the expected ranks from the usage files (same resolution as `query_by_usage`) and asserts the M-C file tag, 1-based ranks and top-20 ordering. Cursor also listed other hardcoded data-derived numbers in the PR notes; none of them will break from the daily refresh. I rejected the stopgap of updating the three constants because the next refresh would break it again.
+
+Corrections along the way: I said `test_usage_split_equivalence.py` pinning 260 species would be the next refresh failure. It sits inside a local-only test that skips when the pre-B3a monolith fixture is absent, so CI never runs it; no fix was needed. Cursor's #254 report listed 4 failures in `tests/ci/test_push_to_main.py`; they pass in a normal checkout, so they were sandbox-only (git clone and hooks `Operation not permitted`). In the 1.1.0 packaging plan, Cursor substituted the ADR-066 refresh spacing for the "eval allowlist expiry" item because it could not find the phrase in the docs. That was a guess. The allowlist is the exemption for eval harnesses in `tests/ci/test_no_regulation_literals.py` ("allowlisted until M-C baseline re-freeze"), and ADR-066 spacing is a scheduled gate, not a gap.
+
+v1.0.0 had been published (version bumps, README, demo, #189 and #190) but never tagged; the repo had only v0.1.0 and v0.2.0. Tagged retroactively, annotated, at cc29947 (merge of #190, 2026-09-06), the last packaging commit, and not at main HEAD, which is about 170 commits later. Decided sequence: discovery-error redaction, then 1.1.0 packaging (version bumps, README, honest eval and test framing, no demo transcript unless it can be recorded for real), then the v2 pre-registration and the remaining v2 items.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
