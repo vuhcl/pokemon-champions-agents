@@ -49,6 +49,7 @@ Exactly:
    ```
 
    Exit code 0 means the registration commit is an ancestor of the run HEAD.
+   Exit code 1 means it is not (reject the run as pre-registered under that SHA).
 4. **Section unchanged between registration and run.** The registration's
    method section must be unchanged between `pre_registration_sha` and the run
    HEAD. Verify with a line-range history walk on this file (adjust the regex
@@ -64,6 +65,12 @@ Exactly:
    Empty log = section unchanged. Non-empty log = not the same registration;
    do not treat the run as pre-registered under that SHA (amend and re-register
    instead).
+
+   **Empty is not self-proving.** A bad heading regex or range that matches no
+   lines also prints nothing. Before trusting an empty result for a new
+   registration id, confirm the same `-L` form produces **non-empty** output on
+   a known change of that section (e.g. the commit that introduced it:
+   `<intro>^..<intro>`).
 
    Note: `git diff <A> <B> -L …` is **not** usable here — Git's `-L` walk
    accepts at most one positive revision (`git diff` two-commit form fails with
