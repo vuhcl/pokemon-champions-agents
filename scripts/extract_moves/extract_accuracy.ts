@@ -5,6 +5,7 @@
  * Preserves existing accuracy / multihit / multiaccuracy fields.
  * Usage: npm run extract:move-accuracy
  */
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,6 +16,10 @@ import { extractDataTable } from "../extract_legality/parse_ts_data.js";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const DEFAULT_CACHE = path.join(ROOT, ".cache", "pokemon-showdown");
 const OUT = path.join(ROOT, "data", "moves", "gen9_accuracy.v1.json");
+
+function cacheHead(): string {
+  return execSync("git rev-parse HEAD", { cwd: DEFAULT_CACHE, encoding: "utf8" }).trim();
+}
 
 function main(): void {
   if (!fs.existsSync(OUT)) {
@@ -31,10 +36,16 @@ function main(): void {
     throw new Error(`Missing ${champPath}`);
   }
 
-  const acc = JSON.parse(fs.readFileSync(OUT, "utf8")) as Record<
-    string,
-    Record<string, unknown>
-  >;
+  const parsed = JSON.parse(fs.readFileSync(OUT, "utf8")) as Record<string, unknown>;
+  const priorMeta =
+    typeof parsed.meta === "object" && parsed.meta !== null && !Array.isArray(parsed.meta)
+      ? (parsed.meta as Record<string, unknown>)
+      : {};
+  const acc: Record<string, Record<string, unknown>> = {};
+  for (const [id, v] of Object.entries(parsed)) {
+    if (id === "meta") continue;
+    acc[id] = v as Record<string, unknown>;
+  }
   const base = extractDataTable(fs.readFileSync(basePath, "utf8"), basePath, "Moves");
   const champions = extractDataTable(
     fs.readFileSync(champPath, "utf8"),
@@ -62,7 +73,15 @@ function main(): void {
     );
   }
 
-  fs.writeFileSync(OUT, JSON.stringify(acc) + "\n");
+  const payload: Record<string, unknown> = {
+    meta: {
+      ...priorMeta,
+      source_commit: cacheHead(),
+      mod: "champions",
+    },
+    ...acc,
+  };
+  fs.writeFileSync(OUT, JSON.stringify(payload) + "\n");
   const nonNull = Object.entries(counts)
     .filter(([k]) => k !== "null")
     .reduce((s, [, n]) => s + n, 0);

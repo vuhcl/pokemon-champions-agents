@@ -1,7 +1,9 @@
 {
   "meta": {
     "source": "pokemon-showdown/data/moves.ts ⊕ mods/champions/moves.ts",
-    "filter": "champions-legal"
+    "filter": "champions-legal",
+    "source_commit": "9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e",
+    "mod": "champions"
   },
   "moves": {
     "accelerock": {
@@ -833,6 +835,14 @@
         "failcopycat": 1
       }
     },
+    "courtchange": {
+      "name": "Court Change",
+      "category": "Status",
+      "flags": {
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
     "covet": {
       "name": "Covet",
       "category": "Physical",
@@ -904,8 +914,7 @@
       "flags": {
         "bypasssub": 1,
         "metronome": 1
-      },
-      "volatileStatus": "curse"
+      }
     },
     "darkestlariat": {
       "name": "Darkest Lariat",
@@ -1058,6 +1067,16 @@
         "metronome": 1
       }
     },
+    "doubleshock": {
+      "name": "Double Shock",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "punch": 1
+      }
+    },
     "doubleteam": {
       "name": "Double Team",
       "category": "Status",
@@ -1193,6 +1212,14 @@
         "protect": 1,
         "mirror": 1,
         "metronome": 1
+      }
+    },
+    "drumbeating": {
+      "name": "Drum Beating",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1
       }
     },
     "dualwingbeat": {
@@ -1846,6 +1873,17 @@
         "cantusetwice": 1
       }
     },
+    "glaiverush": {
+      "name": "Glaive Rush",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "glaiverush"
+    },
     "glare": {
       "name": "Glare",
       "category": "Status",
@@ -2387,6 +2425,17 @@
         "metronome": 1
       }
     },
+    "jawlock": {
+      "name": "Jaw Lock",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "bite": 1
+      }
+    },
     "jetpunch": {
       "name": "Jet Punch",
       "category": "Physical",
@@ -2723,6 +2772,17 @@
         "metronome": 1
       }
     },
+    "meteorassault": {
+      "name": "Meteor Assault",
+      "category": "Physical",
+      "flags": {
+        "recharge": 1,
+        "protect": 1,
+        "mirror": 1,
+        "failinstruct": 1
+      },
+      "volatileStatus": "mustrecharge"
+    },
     "meteorbeam": {
       "name": "Meteor Beam",
       "category": "Special",
@@ -2741,6 +2801,15 @@
         "protect": 1,
         "mirror": 1,
         "punch": 1,
+        "metronome": 1
+      }
+    },
+    "milkdrink": {
+      "name": "Milk Drink",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "heal": 1,
         "metronome": 1
       }
     },
@@ -2930,6 +2999,16 @@
         "metronome": 1
       }
     },
+    "octolock": {
+      "name": "Octolock",
+      "category": "Status",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      },
+      "volatileStatus": "octolock"
+    },
     "outrage": {
       "name": "Outrage",
       "category": "Physical",
@@ -2941,6 +3020,16 @@
         "failinstruct": 1
       },
       "volatileStatus": "lockedmove"
+    },
+    "overdrive": {
+      "name": "Overdrive",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "sound": 1,
+        "bypasssub": 1
+      }
     },
     "overheat": {
       "name": "Overheat",
@@ -3305,6 +3394,16 @@
         "metronome": 1
       }
     },
+    "pyroball": {
+      "name": "Pyro Ball",
+      "category": "Physical",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "defrost": 1,
+        "bullet": 1
+      }
+    },
     "quash": {
       "name": "Quash",
       "category": "Status",
@@ -3458,6 +3557,15 @@
         "mirror": 1,
         "metronome": 1
       }
+    },
+    "revivalblessing": {
+      "name": "Revival Blessing",
+      "category": "Status",
+      "flags": {
+        "heal": 1,
+        "nosketch": 1
+      },
+      "selfSwitch": true
     },
     "risingvoltage": {
       "name": "Rising Voltage",
@@ -3773,6 +3881,14 @@
         "metronome": 1
       }
     },
+    "shiftgear": {
+      "name": "Shift Gear",
+      "category": "Status",
+      "flags": {
+        "snatch": 1,
+        "metronome": 1
+      }
+    },
     "simplebeam": {
       "name": "Simple Beam",
       "category": "Status",
@@ -3837,6 +3953,17 @@
         "snatch": 1,
         "heal": 1,
         "metronome": 1
+      }
+    },
+    "slash": {
+      "name": "Slash",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1,
+        "slicing": 1
       }
     },
     "sleeppowder": {
@@ -3920,6 +4047,15 @@
         "mirror": 1,
         "sound": 1,
         "bypasssub": 1
+      }
+    },
+    "snipeshot": {
+      "name": "Snipe Shot",
+      "category": "Special",
+      "flags": {
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
       }
     },
     "snore": {
@@ -5006,6 +5142,16 @@
     },
     "zenheadbutt": {
       "name": "Zen Headbutt",
+      "category": "Physical",
+      "flags": {
+        "contact": 1,
+        "protect": 1,
+        "mirror": 1,
+        "metronome": 1
+      }
+    },
+    "zingzap": {
+      "name": "Zing Zap",
       "category": "Physical",
       "flags": {
         "contact": 1,

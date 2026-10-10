@@ -1,7 +1,9 @@
 {
   "meta": {
     "source": "pokemon-showdown/data/moves.ts",
-    "filter": "champions-legal"
+    "filter": "champions-legal",
+    "source_commit": "9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e",
+    "mod": "champions"
   },
   "moves": {
     "acidarmor": {
@@ -525,6 +527,20 @@
           "stats": {
             "atk": 1,
             "spe": 1
+          }
+        }
+      ]
+    },
+    "drumbeating": {
+      "name": "Drum Beating",
+      "category": "Physical",
+      "target": "normal",
+      "boosts": [
+        {
+          "to": "target",
+          "chance": 100,
+          "stats": {
+            "spe": -1
           }
         }
       ]
@@ -1331,6 +1347,21 @@
           "chance": 100,
           "stats": {
             "def": 2
+          }
+        }
+      ]
+    },
+    "shiftgear": {
+      "name": "Shift Gear",
+      "category": "Status",
+      "target": "self",
+      "boosts": [
+        {
+          "to": "self",
+          "chance": 100,
+          "stats": {
+            "spe": 2,
+            "atk": 1
           }
         }
       ]
