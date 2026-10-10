@@ -9,6 +9,7 @@
     "extract:move-accuracy": "tsx scripts/extract_moves/extract_accuracy.ts",
     "extract:move-stat-boosts": "tsx scripts/extract_moves/extract_stat_boosts.ts",
     "extract:move-flags": "tsx scripts/extract_moves/extract_flags.ts",
+    "extract:move-static": "tsx scripts/extract_moves/extract_static.ts",
     "start": "tsx services/calc/server.ts",
     "test": "tsx --test tests/extract_legality/*.test.ts tests/extract_moves/*.test.ts tests/calc/*.test.ts"
   },
