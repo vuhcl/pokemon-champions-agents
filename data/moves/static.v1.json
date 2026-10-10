@@ -1,0 +1,3618 @@
+{
+  "meta": {
+    "source": "pokemon-showdown/data/moves.ts ⊕ mods/champions/moves.ts",
+    "source_commit": "9fb3a5b99f1a0bea17f495c5cc1bfe04fdd19c3e",
+    "mod": "champions",
+    "filter": "champions-legal (legality blob is_nonstandard null)",
+    "pp_formula": "data/mods/champions/scripts.ts: init() caps raw pp>20 to 20; calculatePP() = noPPBoosts ? pp : (pp/5+1)*4",
+    "extracted_at": "2026-10-10T05:44:01.181Z",
+    "move_count": 515
+  },
+  "moves": {
+    "accelerock": {
+      "id": "accelerock",
+      "name": "Accelerock",
+      "priority": 1,
+      "target": "normal",
+      "pp": 20
+    },
+    "acidarmor": {
+      "id": "acidarmor",
+      "name": "Acid Armor",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "acidspray": {
+      "id": "acidspray",
+      "name": "Acid Spray",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "acrobatics": {
+      "id": "acrobatics",
+      "name": "Acrobatics",
+      "priority": 0,
+      "target": "any",
+      "pp": 16
+    },
+    "acupressure": {
+      "id": "acupressure",
+      "name": "Acupressure",
+      "priority": 0,
+      "target": "adjacentAllyOrSelf",
+      "pp": 20
+    },
+    "aerialace": {
+      "id": "aerialace",
+      "name": "Aerial Ace",
+      "priority": 0,
+      "target": "any",
+      "pp": 20
+    },
+    "afteryou": {
+      "id": "afteryou",
+      "name": "After You",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "agility": {
+      "id": "agility",
+      "name": "Agility",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "aircutter": {
+      "id": "aircutter",
+      "name": "Air Cutter",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 20
+    },
+    "airslash": {
+      "id": "airslash",
+      "name": "Air Slash",
+      "priority": 0,
+      "target": "any",
+      "pp": 16
+    },
+    "alluringvoice": {
+      "id": "alluringvoice",
+      "name": "Alluring Voice",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "allyswitch": {
+      "id": "allyswitch",
+      "name": "Ally Switch",
+      "priority": 2,
+      "target": "self",
+      "pp": 16
+    },
+    "amnesia": {
+      "id": "amnesia",
+      "name": "Amnesia",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "ancientpower": {
+      "id": "ancientpower",
+      "name": "Ancient Power",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "appleacid": {
+      "id": "appleacid",
+      "name": "Apple Acid",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "aquacutter": {
+      "id": "aquacutter",
+      "name": "Aqua Cutter",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "aquajet": {
+      "id": "aquajet",
+      "name": "Aqua Jet",
+      "priority": 1,
+      "target": "normal",
+      "pp": 20
+    },
+    "aquaring": {
+      "id": "aquaring",
+      "name": "Aqua Ring",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "aquastep": {
+      "id": "aquastep",
+      "name": "Aqua Step",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "aquatail": {
+      "id": "aquatail",
+      "name": "Aqua Tail",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "armorcannon": {
+      "id": "armorcannon",
+      "name": "Armor Cannon",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "aromaticmist": {
+      "id": "aromaticmist",
+      "name": "Aromatic Mist",
+      "priority": 0,
+      "target": "adjacentAlly",
+      "pp": 20
+    },
+    "assurance": {
+      "id": "assurance",
+      "name": "Assurance",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "attract": {
+      "id": "attract",
+      "name": "Attract",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "aurasphere": {
+      "id": "aurasphere",
+      "name": "Aura Sphere",
+      "priority": 0,
+      "target": "any",
+      "pp": 20
+    },
+    "aurawheel": {
+      "id": "aurawheel",
+      "name": "Aura Wheel",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "auroraveil": {
+      "id": "auroraveil",
+      "name": "Aurora Veil",
+      "priority": 0,
+      "target": "allySide",
+      "pp": 20
+    },
+    "avalanche": {
+      "id": "avalanche",
+      "name": "Avalanche",
+      "priority": -4,
+      "target": "normal",
+      "pp": 12
+    },
+    "axekick": {
+      "id": "axekick",
+      "name": "Axe Kick",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "babydolleyes": {
+      "id": "babydolleyes",
+      "name": "Baby-Doll Eyes",
+      "priority": 1,
+      "target": "normal",
+      "pp": 20
+    },
+    "banefulbunker": {
+      "id": "banefulbunker",
+      "name": "Baneful Bunker",
+      "priority": 4,
+      "target": "self",
+      "pp": 8
+    },
+    "barbbarrage": {
+      "id": "barbbarrage",
+      "name": "Barb Barrage",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "batonpass": {
+      "id": "batonpass",
+      "name": "Baton Pass",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "beakblast": {
+      "id": "beakblast",
+      "name": "Beak Blast",
+      "priority": -3,
+      "target": "normal",
+      "pp": 8
+    },
+    "beatup": {
+      "id": "beatup",
+      "name": "Beat Up",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "belch": {
+      "id": "belch",
+      "name": "Belch",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "bellydrum": {
+      "id": "bellydrum",
+      "name": "Belly Drum",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "bind": {
+      "id": "bind",
+      "name": "Bind",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "bite": {
+      "id": "bite",
+      "name": "Bite",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "bitterblade": {
+      "id": "bitterblade",
+      "name": "Bitter Blade",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "bittermalice": {
+      "id": "bittermalice",
+      "name": "Bitter Malice",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "blastburn": {
+      "id": "blastburn",
+      "name": "Blast Burn",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "blazekick": {
+      "id": "blazekick",
+      "name": "Blaze Kick",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "blizzard": {
+      "id": "blizzard",
+      "name": "Blizzard",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 8
+    },
+    "block": {
+      "id": "block",
+      "name": "Block",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "bodypress": {
+      "id": "bodypress",
+      "name": "Body Press",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "bodyslam": {
+      "id": "bodyslam",
+      "name": "Body Slam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "bonerush": {
+      "id": "bonerush",
+      "name": "Bone Rush",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "boomburst": {
+      "id": "boomburst",
+      "name": "Boomburst",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 12
+    },
+    "bounce": {
+      "id": "bounce",
+      "name": "Bounce",
+      "priority": 0,
+      "target": "any",
+      "pp": 8
+    },
+    "bravebird": {
+      "id": "bravebird",
+      "name": "Brave Bird",
+      "priority": 0,
+      "target": "any",
+      "pp": 16
+    },
+    "breakingswipe": {
+      "id": "breakingswipe",
+      "name": "Breaking Swipe",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 16
+    },
+    "brickbreak": {
+      "id": "brickbreak",
+      "name": "Brick Break",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "brutalswing": {
+      "id": "brutalswing",
+      "name": "Brutal Swing",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 20
+    },
+    "bugbite": {
+      "id": "bugbite",
+      "name": "Bug Bite",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "bugbuzz": {
+      "id": "bugbuzz",
+      "name": "Bug Buzz",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "bulkup": {
+      "id": "bulkup",
+      "name": "Bulk Up",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "bulldoze": {
+      "id": "bulldoze",
+      "name": "Bulldoze",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 20
+    },
+    "bulletpunch": {
+      "id": "bulletpunch",
+      "name": "Bullet Punch",
+      "priority": 1,
+      "target": "normal",
+      "pp": 20
+    },
+    "bulletseed": {
+      "id": "bulletseed",
+      "name": "Bullet Seed",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "burningjealousy": {
+      "id": "burningjealousy",
+      "name": "Burning Jealousy",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 8
+    },
+    "burnup": {
+      "id": "burnup",
+      "name": "Burn Up",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "calmmind": {
+      "id": "calmmind",
+      "name": "Calm Mind",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "ceaselessedge": {
+      "id": "ceaselessedge",
+      "name": "Ceaseless Edge",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "charge": {
+      "id": "charge",
+      "name": "Charge",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "chargebeam": {
+      "id": "chargebeam",
+      "name": "Charge Beam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "charm": {
+      "id": "charm",
+      "name": "Charm",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "chillingwater": {
+      "id": "chillingwater",
+      "name": "Chilling Water",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "chillyreception": {
+      "id": "chillyreception",
+      "name": "Chilly Reception",
+      "priority": 0,
+      "target": "all",
+      "pp": 12
+    },
+    "circlethrow": {
+      "id": "circlethrow",
+      "name": "Circle Throw",
+      "priority": -6,
+      "target": "normal",
+      "pp": 12
+    },
+    "clangingscales": {
+      "id": "clangingscales",
+      "name": "Clanging Scales",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 8
+    },
+    "clangoroussoul": {
+      "id": "clangoroussoul",
+      "name": "Clangorous Soul",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "clearsmog": {
+      "id": "clearsmog",
+      "name": "Clear Smog",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "closecombat": {
+      "id": "closecombat",
+      "name": "Close Combat",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "coaching": {
+      "id": "coaching",
+      "name": "Coaching",
+      "priority": 0,
+      "target": "adjacentAlly",
+      "pp": 12
+    },
+    "coil": {
+      "id": "coil",
+      "name": "Coil",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "comeuppance": {
+      "id": "comeuppance",
+      "name": "Comeuppance",
+      "priority": 0,
+      "target": "scripted",
+      "pp": 12
+    },
+    "confuseray": {
+      "id": "confuseray",
+      "name": "Confuse Ray",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "copycat": {
+      "id": "copycat",
+      "name": "Copycat",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "corrosivegas": {
+      "id": "corrosivegas",
+      "name": "Corrosive Gas",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 20
+    },
+    "cosmicpower": {
+      "id": "cosmicpower",
+      "name": "Cosmic Power",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "cottonguard": {
+      "id": "cottonguard",
+      "name": "Cotton Guard",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "cottonspore": {
+      "id": "cottonspore",
+      "name": "Cotton Spore",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 20
+    },
+    "counter": {
+      "id": "counter",
+      "name": "Counter",
+      "priority": -5,
+      "target": "scripted",
+      "pp": 20
+    },
+    "courtchange": {
+      "id": "courtchange",
+      "name": "Court Change",
+      "priority": 0,
+      "target": "all",
+      "pp": 12
+    },
+    "covet": {
+      "id": "covet",
+      "name": "Covet",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "crabhammer": {
+      "id": "crabhammer",
+      "name": "Crabhammer",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "crosschop": {
+      "id": "crosschop",
+      "name": "Cross Chop",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "crosspoison": {
+      "id": "crosspoison",
+      "name": "Cross Poison",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "crunch": {
+      "id": "crunch",
+      "name": "Crunch",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "crushclaw": {
+      "id": "crushclaw",
+      "name": "Crush Claw",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "curse": {
+      "id": "curse",
+      "name": "Curse",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "darkestlariat": {
+      "id": "darkestlariat",
+      "name": "Darkest Lariat",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "darkpulse": {
+      "id": "darkpulse",
+      "name": "Dark Pulse",
+      "priority": 0,
+      "target": "any",
+      "pp": 16
+    },
+    "dazzlinggleam": {
+      "id": "dazzlinggleam",
+      "name": "Dazzling Gleam",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 12
+    },
+    "decorate": {
+      "id": "decorate",
+      "name": "Decorate",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "defog": {
+      "id": "defog",
+      "name": "Defog",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "destinybond": {
+      "id": "destinybond",
+      "name": "Destiny Bond",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "detect": {
+      "id": "detect",
+      "name": "Detect",
+      "priority": 4,
+      "target": "self",
+      "pp": 8
+    },
+    "dig": {
+      "id": "dig",
+      "name": "Dig",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "direclaw": {
+      "id": "direclaw",
+      "name": "Dire Claw",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "disable": {
+      "id": "disable",
+      "name": "Disable",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "discharge": {
+      "id": "discharge",
+      "name": "Discharge",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 16
+    },
+    "dive": {
+      "id": "dive",
+      "name": "Dive",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "doubleedge": {
+      "id": "doubleedge",
+      "name": "Double-Edge",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "doublehit": {
+      "id": "doublehit",
+      "name": "Double Hit",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "doubleshock": {
+      "id": "doubleshock",
+      "name": "Double Shock",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "doubleteam": {
+      "id": "doubleteam",
+      "name": "Double Team",
+      "priority": 0,
+      "target": "self",
+      "pp": 16
+    },
+    "dracometeor": {
+      "id": "dracometeor",
+      "name": "Draco Meteor",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "dragoncheer": {
+      "id": "dragoncheer",
+      "name": "Dragon Cheer",
+      "priority": 0,
+      "target": "adjacentAlly",
+      "pp": 16
+    },
+    "dragonclaw": {
+      "id": "dragonclaw",
+      "name": "Dragon Claw",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "dragondance": {
+      "id": "dragondance",
+      "name": "Dragon Dance",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "dragondarts": {
+      "id": "dragondarts",
+      "name": "Dragon Darts",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "dragonpulse": {
+      "id": "dragonpulse",
+      "name": "Dragon Pulse",
+      "priority": 0,
+      "target": "any",
+      "pp": 12
+    },
+    "dragonrush": {
+      "id": "dragonrush",
+      "name": "Dragon Rush",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "dragontail": {
+      "id": "dragontail",
+      "name": "Dragon Tail",
+      "priority": -6,
+      "target": "normal",
+      "pp": 12
+    },
+    "drainingkiss": {
+      "id": "drainingkiss",
+      "name": "Draining Kiss",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "drainpunch": {
+      "id": "drainpunch",
+      "name": "Drain Punch",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "drillpeck": {
+      "id": "drillpeck",
+      "name": "Drill Peck",
+      "priority": 0,
+      "target": "any",
+      "pp": 20
+    },
+    "drillrun": {
+      "id": "drillrun",
+      "name": "Drill Run",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "drumbeating": {
+      "id": "drumbeating",
+      "name": "Drum Beating",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "dualwingbeat": {
+      "id": "dualwingbeat",
+      "name": "Dual Wingbeat",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "dynamicpunch": {
+      "id": "dynamicpunch",
+      "name": "Dynamic Punch",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "earthpower": {
+      "id": "earthpower",
+      "name": "Earth Power",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "earthquake": {
+      "id": "earthquake",
+      "name": "Earthquake",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 12
+    },
+    "eerieimpulse": {
+      "id": "eerieimpulse",
+      "name": "Eerie Impulse",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "eeriespell": {
+      "id": "eeriespell",
+      "name": "Eerie Spell",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "electricterrain": {
+      "id": "electricterrain",
+      "name": "Electric Terrain",
+      "priority": 0,
+      "target": "all",
+      "pp": 12
+    },
+    "electrify": {
+      "id": "electrify",
+      "name": "Electrify",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "electroball": {
+      "id": "electroball",
+      "name": "Electro Ball",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "electroshot": {
+      "id": "electroshot",
+      "name": "Electro Shot",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "electroweb": {
+      "id": "electroweb",
+      "name": "Electroweb",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 16
+    },
+    "encore": {
+      "id": "encore",
+      "name": "Encore",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "endeavor": {
+      "id": "endeavor",
+      "name": "Endeavor",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "endure": {
+      "id": "endure",
+      "name": "Endure",
+      "priority": 4,
+      "target": "self",
+      "pp": 12
+    },
+    "energyball": {
+      "id": "energyball",
+      "name": "Energy Ball",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "entrainment": {
+      "id": "entrainment",
+      "name": "Entrainment",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "eruption": {
+      "id": "eruption",
+      "name": "Eruption",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 8
+    },
+    "expandingforce": {
+      "id": "expandingforce",
+      "name": "Expanding Force",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "explosion": {
+      "id": "explosion",
+      "name": "Explosion",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 8
+    },
+    "extrasensory": {
+      "id": "extrasensory",
+      "name": "Extrasensory",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "extremespeed": {
+      "id": "extremespeed",
+      "name": "Extreme Speed",
+      "priority": 2,
+      "target": "normal",
+      "pp": 8
+    },
+    "facade": {
+      "id": "facade",
+      "name": "Facade",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "fairylock": {
+      "id": "fairylock",
+      "name": "Fairy Lock",
+      "priority": 0,
+      "target": "all",
+      "pp": 12
+    },
+    "fakeout": {
+      "id": "fakeout",
+      "name": "Fake Out",
+      "priority": 3,
+      "target": "normal",
+      "pp": 12
+    },
+    "faketears": {
+      "id": "faketears",
+      "name": "Fake Tears",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "featherdance": {
+      "id": "featherdance",
+      "name": "Feather Dance",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "feint": {
+      "id": "feint",
+      "name": "Feint",
+      "priority": 2,
+      "target": "normal",
+      "pp": 12
+    },
+    "fellstinger": {
+      "id": "fellstinger",
+      "name": "Fell Stinger",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "ficklebeam": {
+      "id": "ficklebeam",
+      "name": "Fickle Beam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "fierydance": {
+      "id": "fierydance",
+      "name": "Fiery Dance",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "finalgambit": {
+      "id": "finalgambit",
+      "name": "Final Gambit",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "fireblast": {
+      "id": "fireblast",
+      "name": "Fire Blast",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "firefang": {
+      "id": "firefang",
+      "name": "Fire Fang",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "firelash": {
+      "id": "firelash",
+      "name": "Fire Lash",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "firepunch": {
+      "id": "firepunch",
+      "name": "Fire Punch",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "firespin": {
+      "id": "firespin",
+      "name": "Fire Spin",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "firstimpression": {
+      "id": "firstimpression",
+      "name": "First Impression",
+      "priority": 2,
+      "target": "normal",
+      "pp": 12
+    },
+    "fissure": {
+      "id": "fissure",
+      "name": "Fissure",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "flail": {
+      "id": "flail",
+      "name": "Flail",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "flamecharge": {
+      "id": "flamecharge",
+      "name": "Flame Charge",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "flamethrower": {
+      "id": "flamethrower",
+      "name": "Flamethrower",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "flareblitz": {
+      "id": "flareblitz",
+      "name": "Flare Blitz",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "flashcannon": {
+      "id": "flashcannon",
+      "name": "Flash Cannon",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "flatter": {
+      "id": "flatter",
+      "name": "Flatter",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "fling": {
+      "id": "fling",
+      "name": "Fling",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "flipturn": {
+      "id": "flipturn",
+      "name": "Flip Turn",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "flowertrick": {
+      "id": "flowertrick",
+      "name": "Flower Trick",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "fly": {
+      "id": "fly",
+      "name": "Fly",
+      "priority": 0,
+      "target": "any",
+      "pp": 16
+    },
+    "flyingpress": {
+      "id": "flyingpress",
+      "name": "Flying Press",
+      "priority": 0,
+      "target": "any",
+      "pp": 12
+    },
+    "focusblast": {
+      "id": "focusblast",
+      "name": "Focus Blast",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "focusenergy": {
+      "id": "focusenergy",
+      "name": "Focus Energy",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "focuspunch": {
+      "id": "focuspunch",
+      "name": "Focus Punch",
+      "priority": -3,
+      "target": "normal",
+      "pp": 20
+    },
+    "followme": {
+      "id": "followme",
+      "name": "Follow Me",
+      "priority": 2,
+      "target": "self",
+      "pp": 20
+    },
+    "forestscurse": {
+      "id": "forestscurse",
+      "name": "Forest's Curse",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "foulplay": {
+      "id": "foulplay",
+      "name": "Foul Play",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "freezedry": {
+      "id": "freezedry",
+      "name": "Freeze-Dry",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "frenzyplant": {
+      "id": "frenzyplant",
+      "name": "Frenzy Plant",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "frostbreath": {
+      "id": "frostbreath",
+      "name": "Frost Breath",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "futuresight": {
+      "id": "futuresight",
+      "name": "Future Sight",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "gastroacid": {
+      "id": "gastroacid",
+      "name": "Gastro Acid",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "gigadrain": {
+      "id": "gigadrain",
+      "name": "Giga Drain",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "gigaimpact": {
+      "id": "gigaimpact",
+      "name": "Giga Impact",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "gigatonhammer": {
+      "id": "gigatonhammer",
+      "name": "Gigaton Hammer",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "glaiverush": {
+      "id": "glaiverush",
+      "name": "Glaive Rush",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "glare": {
+      "id": "glare",
+      "name": "Glare",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "grassknot": {
+      "id": "grassknot",
+      "name": "Grass Knot",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "grassyglide": {
+      "id": "grassyglide",
+      "name": "Grassy Glide",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "grassyterrain": {
+      "id": "grassyterrain",
+      "name": "Grassy Terrain",
+      "priority": 0,
+      "target": "all",
+      "pp": 12
+    },
+    "gravapple": {
+      "id": "gravapple",
+      "name": "Grav Apple",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "gravity": {
+      "id": "gravity",
+      "name": "Gravity",
+      "priority": 0,
+      "target": "all",
+      "pp": 8
+    },
+    "growth": {
+      "id": "growth",
+      "name": "Growth",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "guardsplit": {
+      "id": "guardsplit",
+      "name": "Guard Split",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "guardswap": {
+      "id": "guardswap",
+      "name": "Guard Swap",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "guillotine": {
+      "id": "guillotine",
+      "name": "Guillotine",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "gunkshot": {
+      "id": "gunkshot",
+      "name": "Gunk Shot",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "gyroball": {
+      "id": "gyroball",
+      "name": "Gyro Ball",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "hammerarm": {
+      "id": "hammerarm",
+      "name": "Hammer Arm",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "hardpress": {
+      "id": "hardpress",
+      "name": "Hard Press",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "haze": {
+      "id": "haze",
+      "name": "Haze",
+      "priority": 0,
+      "target": "all",
+      "pp": 20
+    },
+    "headlongrush": {
+      "id": "headlongrush",
+      "name": "Headlong Rush",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "headsmash": {
+      "id": "headsmash",
+      "name": "Head Smash",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "healbell": {
+      "id": "healbell",
+      "name": "Heal Bell",
+      "priority": 0,
+      "target": "allyTeam",
+      "pp": 8
+    },
+    "healingwish": {
+      "id": "healingwish",
+      "name": "Healing Wish",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "healpulse": {
+      "id": "healpulse",
+      "name": "Heal Pulse",
+      "priority": 0,
+      "target": "any",
+      "pp": 12
+    },
+    "heatcrash": {
+      "id": "heatcrash",
+      "name": "Heat Crash",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "heatwave": {
+      "id": "heatwave",
+      "name": "Heat Wave",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 12
+    },
+    "heavyslam": {
+      "id": "heavyslam",
+      "name": "Heavy Slam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "helpinghand": {
+      "id": "helpinghand",
+      "name": "Helping Hand",
+      "priority": 5,
+      "target": "adjacentAlly",
+      "pp": 20
+    },
+    "hex": {
+      "id": "hex",
+      "name": "Hex",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "highhorsepower": {
+      "id": "highhorsepower",
+      "name": "High Horsepower",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "highjumpkick": {
+      "id": "highjumpkick",
+      "name": "High Jump Kick",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "horndrill": {
+      "id": "horndrill",
+      "name": "Horn Drill",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "hornleech": {
+      "id": "hornleech",
+      "name": "Horn Leech",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "howl": {
+      "id": "howl",
+      "name": "Howl",
+      "priority": 0,
+      "target": "allies",
+      "pp": 20
+    },
+    "hurricane": {
+      "id": "hurricane",
+      "name": "Hurricane",
+      "priority": 0,
+      "target": "any",
+      "pp": 12
+    },
+    "hydrocannon": {
+      "id": "hydrocannon",
+      "name": "Hydro Cannon",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "hydropump": {
+      "id": "hydropump",
+      "name": "Hydro Pump",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "hyperbeam": {
+      "id": "hyperbeam",
+      "name": "Hyper Beam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "hypervoice": {
+      "id": "hypervoice",
+      "name": "Hyper Voice",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 12
+    },
+    "hypnosis": {
+      "id": "hypnosis",
+      "name": "Hypnosis",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "icebeam": {
+      "id": "icebeam",
+      "name": "Ice Beam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "icefang": {
+      "id": "icefang",
+      "name": "Ice Fang",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "icehammer": {
+      "id": "icehammer",
+      "name": "Ice Hammer",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "icepunch": {
+      "id": "icepunch",
+      "name": "Ice Punch",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "iceshard": {
+      "id": "iceshard",
+      "name": "Ice Shard",
+      "priority": 1,
+      "target": "normal",
+      "pp": 20
+    },
+    "icespinner": {
+      "id": "icespinner",
+      "name": "Ice Spinner",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "iciclecrash": {
+      "id": "iciclecrash",
+      "name": "Icicle Crash",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "iciclespear": {
+      "id": "iciclespear",
+      "name": "Icicle Spear",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "icywind": {
+      "id": "icywind",
+      "name": "Icy Wind",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 16
+    },
+    "imprison": {
+      "id": "imprison",
+      "name": "Imprison",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "infernalparade": {
+      "id": "infernalparade",
+      "name": "Infernal Parade",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "inferno": {
+      "id": "inferno",
+      "name": "Inferno",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "infestation": {
+      "id": "infestation",
+      "name": "Infestation",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "ingrain": {
+      "id": "ingrain",
+      "name": "Ingrain",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "instruct": {
+      "id": "instruct",
+      "name": "Instruct",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "irondefense": {
+      "id": "irondefense",
+      "name": "Iron Defense",
+      "priority": 0,
+      "target": "self",
+      "pp": 16
+    },
+    "ironhead": {
+      "id": "ironhead",
+      "name": "Iron Head",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "irontail": {
+      "id": "irontail",
+      "name": "Iron Tail",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "jawlock": {
+      "id": "jawlock",
+      "name": "Jaw Lock",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "jetpunch": {
+      "id": "jetpunch",
+      "name": "Jet Punch",
+      "priority": 1,
+      "target": "normal",
+      "pp": 16
+    },
+    "kingsshield": {
+      "id": "kingsshield",
+      "name": "King's Shield",
+      "priority": 4,
+      "target": "self",
+      "pp": 8
+    },
+    "knockoff": {
+      "id": "knockoff",
+      "name": "Knock Off",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "kowtowcleave": {
+      "id": "kowtowcleave",
+      "name": "Kowtow Cleave",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "lashout": {
+      "id": "lashout",
+      "name": "Lash Out",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "lastresort": {
+      "id": "lastresort",
+      "name": "Last Resort",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "lastrespects": {
+      "id": "lastrespects",
+      "name": "Last Respects",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "lavaplume": {
+      "id": "lavaplume",
+      "name": "Lava Plume",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 16
+    },
+    "leafblade": {
+      "id": "leafblade",
+      "name": "Leaf Blade",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "leafstorm": {
+      "id": "leafstorm",
+      "name": "Leaf Storm",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "leechlife": {
+      "id": "leechlife",
+      "name": "Leech Life",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "leechseed": {
+      "id": "leechseed",
+      "name": "Leech Seed",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "lifedew": {
+      "id": "lifedew",
+      "name": "Life Dew",
+      "priority": 0,
+      "target": "allies",
+      "pp": 12
+    },
+    "lightofruin": {
+      "id": "lightofruin",
+      "name": "Light of Ruin",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "lightscreen": {
+      "id": "lightscreen",
+      "name": "Light Screen",
+      "priority": 0,
+      "target": "allySide",
+      "pp": 20
+    },
+    "liquidation": {
+      "id": "liquidation",
+      "name": "Liquidation",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "lockon": {
+      "id": "lockon",
+      "name": "Lock-On",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "lowkick": {
+      "id": "lowkick",
+      "name": "Low Kick",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "lowsweep": {
+      "id": "lowsweep",
+      "name": "Low Sweep",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "luminacrash": {
+      "id": "luminacrash",
+      "name": "Lumina Crash",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "lunge": {
+      "id": "lunge",
+      "name": "Lunge",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "machpunch": {
+      "id": "machpunch",
+      "name": "Mach Punch",
+      "priority": 1,
+      "target": "normal",
+      "pp": 20
+    },
+    "magicpowder": {
+      "id": "magicpowder",
+      "name": "Magic Powder",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "magicroom": {
+      "id": "magicroom",
+      "name": "Magic Room",
+      "priority": 0,
+      "target": "all",
+      "pp": 12
+    },
+    "magneticflux": {
+      "id": "magneticflux",
+      "name": "Magnetic Flux",
+      "priority": 0,
+      "target": "allySide",
+      "pp": 20
+    },
+    "magnetrise": {
+      "id": "magnetrise",
+      "name": "Magnet Rise",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "makeitrain": {
+      "id": "makeitrain",
+      "name": "Make It Rain",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 8
+    },
+    "matchagotcha": {
+      "id": "matchagotcha",
+      "name": "Matcha Gotcha",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 16
+    },
+    "meanlook": {
+      "id": "meanlook",
+      "name": "Mean Look",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "megahorn": {
+      "id": "megahorn",
+      "name": "Megahorn",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "megakick": {
+      "id": "megakick",
+      "name": "Mega Kick",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "memento": {
+      "id": "memento",
+      "name": "Memento",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "metalburst": {
+      "id": "metalburst",
+      "name": "Metal Burst",
+      "priority": 0,
+      "target": "scripted",
+      "pp": 12
+    },
+    "metalsound": {
+      "id": "metalsound",
+      "name": "Metal Sound",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "meteorassault": {
+      "id": "meteorassault",
+      "name": "Meteor Assault",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "meteorbeam": {
+      "id": "meteorbeam",
+      "name": "Meteor Beam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "meteormash": {
+      "id": "meteormash",
+      "name": "Meteor Mash",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "milkdrink": {
+      "id": "milkdrink",
+      "name": "Milk Drink",
+      "priority": 0,
+      "target": "adjacentAllyOrSelf",
+      "pp": 8
+    },
+    "minimize": {
+      "id": "minimize",
+      "name": "Minimize",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "mirrorcoat": {
+      "id": "mirrorcoat",
+      "name": "Mirror Coat",
+      "priority": -5,
+      "target": "scripted",
+      "pp": 20
+    },
+    "mistyexplosion": {
+      "id": "mistyexplosion",
+      "name": "Misty Explosion",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 8
+    },
+    "mistyterrain": {
+      "id": "mistyterrain",
+      "name": "Misty Terrain",
+      "priority": 0,
+      "target": "all",
+      "pp": 12
+    },
+    "moonblast": {
+      "id": "moonblast",
+      "name": "Moonblast",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "moonlight": {
+      "id": "moonlight",
+      "name": "Moonlight",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "morningsun": {
+      "id": "morningsun",
+      "name": "Morning Sun",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "mortalspin": {
+      "id": "mortalspin",
+      "name": "Mortal Spin",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 16
+    },
+    "mountaingale": {
+      "id": "mountaingale",
+      "name": "Mountain Gale",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "muddywater": {
+      "id": "muddywater",
+      "name": "Muddy Water",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 12
+    },
+    "mudshot": {
+      "id": "mudshot",
+      "name": "Mud Shot",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "mudslap": {
+      "id": "mudslap",
+      "name": "Mud-Slap",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "mysticalfire": {
+      "id": "mysticalfire",
+      "name": "Mystical Fire",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "nastyplot": {
+      "id": "nastyplot",
+      "name": "Nasty Plot",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "nightdaze": {
+      "id": "nightdaze",
+      "name": "Night Daze",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "nightshade": {
+      "id": "nightshade",
+      "name": "Night Shade",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "nightslash": {
+      "id": "nightslash",
+      "name": "Night Slash",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "nobleroar": {
+      "id": "nobleroar",
+      "name": "Noble Roar",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "noretreat": {
+      "id": "noretreat",
+      "name": "No Retreat",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "nuzzle": {
+      "id": "nuzzle",
+      "name": "Nuzzle",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "octolock": {
+      "id": "octolock",
+      "name": "Octolock",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "outrage": {
+      "id": "outrage",
+      "name": "Outrage",
+      "priority": 0,
+      "target": "randomNormal",
+      "pp": 12
+    },
+    "overdrive": {
+      "id": "overdrive",
+      "name": "Overdrive",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 12
+    },
+    "overheat": {
+      "id": "overheat",
+      "name": "Overheat",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "painsplit": {
+      "id": "painsplit",
+      "name": "Pain Split",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "paraboliccharge": {
+      "id": "paraboliccharge",
+      "name": "Parabolic Charge",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 20
+    },
+    "partingshot": {
+      "id": "partingshot",
+      "name": "Parting Shot",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "payback": {
+      "id": "payback",
+      "name": "Payback",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "perishsong": {
+      "id": "perishsong",
+      "name": "Perish Song",
+      "priority": 0,
+      "target": "all",
+      "pp": 8
+    },
+    "petalblizzard": {
+      "id": "petalblizzard",
+      "name": "Petal Blizzard",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 16
+    },
+    "petaldance": {
+      "id": "petaldance",
+      "name": "Petal Dance",
+      "priority": 0,
+      "target": "randomNormal",
+      "pp": 12
+    },
+    "phantomforce": {
+      "id": "phantomforce",
+      "name": "Phantom Force",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "pinmissile": {
+      "id": "pinmissile",
+      "name": "Pin Missile",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "playrough": {
+      "id": "playrough",
+      "name": "Play Rough",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "pluck": {
+      "id": "pluck",
+      "name": "Pluck",
+      "priority": 0,
+      "target": "any",
+      "pp": 20
+    },
+    "poisonfang": {
+      "id": "poisonfang",
+      "name": "Poison Fang",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "poisonjab": {
+      "id": "poisonjab",
+      "name": "Poison Jab",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "poisonpowder": {
+      "id": "poisonpowder",
+      "name": "Poison Powder",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "pollenpuff": {
+      "id": "pollenpuff",
+      "name": "Pollen Puff",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "poltergeist": {
+      "id": "poltergeist",
+      "name": "Poltergeist",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "populationbomb": {
+      "id": "populationbomb",
+      "name": "Population Bomb",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "pounce": {
+      "id": "pounce",
+      "name": "Pounce",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "pound": {
+      "id": "pound",
+      "name": "Pound",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "powergem": {
+      "id": "powergem",
+      "name": "Power Gem",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "powershift": {
+      "id": "powershift",
+      "name": "Power Shift",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "powersplit": {
+      "id": "powersplit",
+      "name": "Power Split",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "powerswap": {
+      "id": "powerswap",
+      "name": "Power Swap",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "powertrick": {
+      "id": "powertrick",
+      "name": "Power Trick",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "powertrip": {
+      "id": "powertrip",
+      "name": "Power Trip",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "powerwhip": {
+      "id": "powerwhip",
+      "name": "Power Whip",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "protect": {
+      "id": "protect",
+      "name": "Protect",
+      "priority": 4,
+      "target": "self",
+      "pp": 8
+    },
+    "psychic": {
+      "id": "psychic",
+      "name": "Psychic",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "psychicfangs": {
+      "id": "psychicfangs",
+      "name": "Psychic Fangs",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "psychicnoise": {
+      "id": "psychicnoise",
+      "name": "Psychic Noise",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "psychicterrain": {
+      "id": "psychicterrain",
+      "name": "Psychic Terrain",
+      "priority": 0,
+      "target": "all",
+      "pp": 12
+    },
+    "psychocut": {
+      "id": "psychocut",
+      "name": "Psycho Cut",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "psychup": {
+      "id": "psychup",
+      "name": "Psych Up",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "psyshieldbash": {
+      "id": "psyshieldbash",
+      "name": "Psyshield Bash",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "psyshock": {
+      "id": "psyshock",
+      "name": "Psyshock",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "pyroball": {
+      "id": "pyroball",
+      "name": "Pyro Ball",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "quash": {
+      "id": "quash",
+      "name": "Quash",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "quickattack": {
+      "id": "quickattack",
+      "name": "Quick Attack",
+      "priority": 1,
+      "target": "normal",
+      "pp": 20
+    },
+    "quickguard": {
+      "id": "quickguard",
+      "name": "Quick Guard",
+      "priority": 3,
+      "target": "allySide",
+      "pp": 16
+    },
+    "quiverdance": {
+      "id": "quiverdance",
+      "name": "Quiver Dance",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "ragefist": {
+      "id": "ragefist",
+      "name": "Rage Fist",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "ragepowder": {
+      "id": "ragepowder",
+      "name": "Rage Powder",
+      "priority": 2,
+      "target": "self",
+      "pp": 20
+    },
+    "ragingbull": {
+      "id": "ragingbull",
+      "name": "Raging Bull",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "ragingfury": {
+      "id": "ragingfury",
+      "name": "Raging Fury",
+      "priority": 0,
+      "target": "randomNormal",
+      "pp": 12
+    },
+    "raindance": {
+      "id": "raindance",
+      "name": "Rain Dance",
+      "priority": 0,
+      "target": "all",
+      "pp": 8
+    },
+    "rapidspin": {
+      "id": "rapidspin",
+      "name": "Rapid Spin",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "razorshell": {
+      "id": "razorshell",
+      "name": "Razor Shell",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "recover": {
+      "id": "recover",
+      "name": "Recover",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "recycle": {
+      "id": "recycle",
+      "name": "Recycle",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "reflect": {
+      "id": "reflect",
+      "name": "Reflect",
+      "priority": 0,
+      "target": "allySide",
+      "pp": 20
+    },
+    "reflecttype": {
+      "id": "reflecttype",
+      "name": "Reflect Type",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "rest": {
+      "id": "rest",
+      "name": "Rest",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "reversal": {
+      "id": "reversal",
+      "name": "Reversal",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "revivalblessing": {
+      "id": "revivalblessing",
+      "name": "Revival Blessing",
+      "priority": 0,
+      "target": "self",
+      "pp": 1
+    },
+    "risingvoltage": {
+      "id": "risingvoltage",
+      "name": "Rising Voltage",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "roar": {
+      "id": "roar",
+      "name": "Roar",
+      "priority": -6,
+      "target": "normal",
+      "pp": 20
+    },
+    "rockblast": {
+      "id": "rockblast",
+      "name": "Rock Blast",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "rockpolish": {
+      "id": "rockpolish",
+      "name": "Rock Polish",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "rockslide": {
+      "id": "rockslide",
+      "name": "Rock Slide",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 12
+    },
+    "rocktomb": {
+      "id": "rocktomb",
+      "name": "Rock Tomb",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "rockwrecker": {
+      "id": "rockwrecker",
+      "name": "Rock Wrecker",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "roleplay": {
+      "id": "roleplay",
+      "name": "Role Play",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "roost": {
+      "id": "roost",
+      "name": "Roost",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "round": {
+      "id": "round",
+      "name": "Round",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "sacredsword": {
+      "id": "sacredsword",
+      "name": "Sacred Sword",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "safeguard": {
+      "id": "safeguard",
+      "name": "Safeguard",
+      "priority": 0,
+      "target": "allySide",
+      "pp": 20
+    },
+    "saltcure": {
+      "id": "saltcure",
+      "name": "Salt Cure",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "sandstorm": {
+      "id": "sandstorm",
+      "name": "Sandstorm",
+      "priority": 0,
+      "target": "all",
+      "pp": 8
+    },
+    "sandtomb": {
+      "id": "sandtomb",
+      "name": "Sand Tomb",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "scald": {
+      "id": "scald",
+      "name": "Scald",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "scaleshot": {
+      "id": "scaleshot",
+      "name": "Scale Shot",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "scaryface": {
+      "id": "scaryface",
+      "name": "Scary Face",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "scorchingsands": {
+      "id": "scorchingsands",
+      "name": "Scorching Sands",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "screech": {
+      "id": "screech",
+      "name": "Screech",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "seedbomb": {
+      "id": "seedbomb",
+      "name": "Seed Bomb",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "seismictoss": {
+      "id": "seismictoss",
+      "name": "Seismic Toss",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "selfdestruct": {
+      "id": "selfdestruct",
+      "name": "Self-Destruct",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 8
+    },
+    "shadowball": {
+      "id": "shadowball",
+      "name": "Shadow Ball",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "shadowclaw": {
+      "id": "shadowclaw",
+      "name": "Shadow Claw",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "shadowpunch": {
+      "id": "shadowpunch",
+      "name": "Shadow Punch",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "shadowsneak": {
+      "id": "shadowsneak",
+      "name": "Shadow Sneak",
+      "priority": 1,
+      "target": "normal",
+      "pp": 20
+    },
+    "shedtail": {
+      "id": "shedtail",
+      "name": "Shed Tail",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "sheercold": {
+      "id": "sheercold",
+      "name": "Sheer Cold",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "shellsidearm": {
+      "id": "shellsidearm",
+      "name": "Shell Side Arm",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "shellsmash": {
+      "id": "shellsmash",
+      "name": "Shell Smash",
+      "priority": 0,
+      "target": "self",
+      "pp": 16
+    },
+    "shelter": {
+      "id": "shelter",
+      "name": "Shelter",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "shiftgear": {
+      "id": "shiftgear",
+      "name": "Shift Gear",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "simplebeam": {
+      "id": "simplebeam",
+      "name": "Simple Beam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "sing": {
+      "id": "sing",
+      "name": "Sing",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "skillswap": {
+      "id": "skillswap",
+      "name": "Skill Swap",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "skittersmack": {
+      "id": "skittersmack",
+      "name": "Skitter Smack",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "skyattack": {
+      "id": "skyattack",
+      "name": "Sky Attack",
+      "priority": 0,
+      "target": "any",
+      "pp": 8
+    },
+    "slackoff": {
+      "id": "slackoff",
+      "name": "Slack Off",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "slash": {
+      "id": "slash",
+      "name": "Slash",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "sleeppowder": {
+      "id": "sleeppowder",
+      "name": "Sleep Powder",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "sleeptalk": {
+      "id": "sleeptalk",
+      "name": "Sleep Talk",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "sludgebomb": {
+      "id": "sludgebomb",
+      "name": "Sludge Bomb",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "sludgewave": {
+      "id": "sludgewave",
+      "name": "Sludge Wave",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 12
+    },
+    "smackdown": {
+      "id": "smackdown",
+      "name": "Smack Down",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "smartstrike": {
+      "id": "smartstrike",
+      "name": "Smart Strike",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "snaptrap": {
+      "id": "snaptrap",
+      "name": "Snap Trap",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "snarl": {
+      "id": "snarl",
+      "name": "Snarl",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 16
+    },
+    "snipeshot": {
+      "id": "snipeshot",
+      "name": "Snipe Shot",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "snore": {
+      "id": "snore",
+      "name": "Snore",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "snowscape": {
+      "id": "snowscape",
+      "name": "Snowscape",
+      "priority": 0,
+      "target": "all",
+      "pp": 8
+    },
+    "soak": {
+      "id": "soak",
+      "name": "Soak",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "softboiled": {
+      "id": "softboiled",
+      "name": "Soft-Boiled",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "solarbeam": {
+      "id": "solarbeam",
+      "name": "Solar Beam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "solarblade": {
+      "id": "solarblade",
+      "name": "Solar Blade",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "sparklingaria": {
+      "id": "sparklingaria",
+      "name": "Sparkling Aria",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 12
+    },
+    "speedswap": {
+      "id": "speedswap",
+      "name": "Speed Swap",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "spicyextract": {
+      "id": "spicyextract",
+      "name": "Spicy Extract",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "spikes": {
+      "id": "spikes",
+      "name": "Spikes",
+      "priority": 0,
+      "target": "foeSide",
+      "pp": 20
+    },
+    "spikyshield": {
+      "id": "spikyshield",
+      "name": "Spiky Shield",
+      "priority": 4,
+      "target": "self",
+      "pp": 8
+    },
+    "spiritbreak": {
+      "id": "spiritbreak",
+      "name": "Spirit Break",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "spiritshackle": {
+      "id": "spiritshackle",
+      "name": "Spirit Shackle",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "spite": {
+      "id": "spite",
+      "name": "Spite",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "spitup": {
+      "id": "spitup",
+      "name": "Spit Up",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "spore": {
+      "id": "spore",
+      "name": "Spore",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "stealthrock": {
+      "id": "stealthrock",
+      "name": "Stealth Rock",
+      "priority": 0,
+      "target": "foeSide",
+      "pp": 20
+    },
+    "steelbeam": {
+      "id": "steelbeam",
+      "name": "Steel Beam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "steelroller": {
+      "id": "steelroller",
+      "name": "Steel Roller",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "steelwing": {
+      "id": "steelwing",
+      "name": "Steel Wing",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "stickyweb": {
+      "id": "stickyweb",
+      "name": "Sticky Web",
+      "priority": 0,
+      "target": "foeSide",
+      "pp": 20
+    },
+    "stockpile": {
+      "id": "stockpile",
+      "name": "Stockpile",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "stompingtantrum": {
+      "id": "stompingtantrum",
+      "name": "Stomping Tantrum",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "stoneaxe": {
+      "id": "stoneaxe",
+      "name": "Stone Axe",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "stoneedge": {
+      "id": "stoneedge",
+      "name": "Stone Edge",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "storedpower": {
+      "id": "storedpower",
+      "name": "Stored Power",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "stormthrow": {
+      "id": "stormthrow",
+      "name": "Storm Throw",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "strengthsap": {
+      "id": "strengthsap",
+      "name": "Strength Sap",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "stringshot": {
+      "id": "stringshot",
+      "name": "String Shot",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 20
+    },
+    "struggle": {
+      "id": "struggle",
+      "name": "Struggle",
+      "priority": 0,
+      "target": "randomNormal",
+      "pp": 1
+    },
+    "strugglebug": {
+      "id": "strugglebug",
+      "name": "Struggle Bug",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 20
+    },
+    "stuffcheeks": {
+      "id": "stuffcheeks",
+      "name": "Stuff Cheeks",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "stunspore": {
+      "id": "stunspore",
+      "name": "Stun Spore",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "substitute": {
+      "id": "substitute",
+      "name": "Substitute",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "suckerpunch": {
+      "id": "suckerpunch",
+      "name": "Sucker Punch",
+      "priority": 1,
+      "target": "normal",
+      "pp": 8
+    },
+    "sunnyday": {
+      "id": "sunnyday",
+      "name": "Sunny Day",
+      "priority": 0,
+      "target": "all",
+      "pp": 8
+    },
+    "supercellslam": {
+      "id": "supercellslam",
+      "name": "Supercell Slam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "superfang": {
+      "id": "superfang",
+      "name": "Super Fang",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "superpower": {
+      "id": "superpower",
+      "name": "Superpower",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "surf": {
+      "id": "surf",
+      "name": "Surf",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 16
+    },
+    "swagger": {
+      "id": "swagger",
+      "name": "Swagger",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "swallow": {
+      "id": "swallow",
+      "name": "Swallow",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "sweetkiss": {
+      "id": "sweetkiss",
+      "name": "Sweet Kiss",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "sweetscent": {
+      "id": "sweetscent",
+      "name": "Sweet Scent",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 20
+    },
+    "switcheroo": {
+      "id": "switcheroo",
+      "name": "Switcheroo",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "swordsdance": {
+      "id": "swordsdance",
+      "name": "Swords Dance",
+      "priority": 0,
+      "target": "self",
+      "pp": 20
+    },
+    "synthesis": {
+      "id": "synthesis",
+      "name": "Synthesis",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "syrupbomb": {
+      "id": "syrupbomb",
+      "name": "Syrup Bomb",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "tailslap": {
+      "id": "tailslap",
+      "name": "Tail Slap",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "tailwind": {
+      "id": "tailwind",
+      "name": "Tailwind",
+      "priority": 0,
+      "target": "allySide",
+      "pp": 16
+    },
+    "taunt": {
+      "id": "taunt",
+      "name": "Taunt",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "tearfullook": {
+      "id": "tearfullook",
+      "name": "Tearful Look",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "teatime": {
+      "id": "teatime",
+      "name": "Teatime",
+      "priority": 0,
+      "target": "all",
+      "pp": 12
+    },
+    "teeterdance": {
+      "id": "teeterdance",
+      "name": "Teeter Dance",
+      "priority": 0,
+      "target": "allAdjacent",
+      "pp": 20
+    },
+    "temperflare": {
+      "id": "temperflare",
+      "name": "Temper Flare",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "terrainpulse": {
+      "id": "terrainpulse",
+      "name": "Terrain Pulse",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "thief": {
+      "id": "thief",
+      "name": "Thief",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "thrash": {
+      "id": "thrash",
+      "name": "Thrash",
+      "priority": 0,
+      "target": "randomNormal",
+      "pp": 12
+    },
+    "throatchop": {
+      "id": "throatchop",
+      "name": "Throat Chop",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "thunder": {
+      "id": "thunder",
+      "name": "Thunder",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "thunderbolt": {
+      "id": "thunderbolt",
+      "name": "Thunderbolt",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "thunderfang": {
+      "id": "thunderfang",
+      "name": "Thunder Fang",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "thunderpunch": {
+      "id": "thunderpunch",
+      "name": "Thunder Punch",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "thunderwave": {
+      "id": "thunderwave",
+      "name": "Thunder Wave",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "tickle": {
+      "id": "tickle",
+      "name": "Tickle",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "tidyup": {
+      "id": "tidyup",
+      "name": "Tidy Up",
+      "priority": 0,
+      "target": "self",
+      "pp": 12
+    },
+    "topsyturvy": {
+      "id": "topsyturvy",
+      "name": "Topsy-Turvy",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "torchsong": {
+      "id": "torchsong",
+      "name": "Torch Song",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "torment": {
+      "id": "torment",
+      "name": "Torment",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "toxic": {
+      "id": "toxic",
+      "name": "Toxic",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "toxicspikes": {
+      "id": "toxicspikes",
+      "name": "Toxic Spikes",
+      "priority": 0,
+      "target": "foeSide",
+      "pp": 20
+    },
+    "toxicthread": {
+      "id": "toxicthread",
+      "name": "Toxic Thread",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "trailblaze": {
+      "id": "trailblaze",
+      "name": "Trailblaze",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "transform": {
+      "id": "transform",
+      "name": "Transform",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "triattack": {
+      "id": "triattack",
+      "name": "Tri Attack",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "trick": {
+      "id": "trick",
+      "name": "Trick",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "trickortreat": {
+      "id": "trickortreat",
+      "name": "Trick-or-Treat",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "trickroom": {
+      "id": "trickroom",
+      "name": "Trick Room",
+      "priority": -7,
+      "target": "all",
+      "pp": 8
+    },
+    "triplearrows": {
+      "id": "triplearrows",
+      "name": "Triple Arrows",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "tripleaxel": {
+      "id": "tripleaxel",
+      "name": "Triple Axel",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "tropkick": {
+      "id": "tropkick",
+      "name": "Trop Kick",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "twinbeam": {
+      "id": "twinbeam",
+      "name": "Twin Beam",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "upperhand": {
+      "id": "upperhand",
+      "name": "Upper Hand",
+      "priority": 3,
+      "target": "normal",
+      "pp": 16
+    },
+    "uproar": {
+      "id": "uproar",
+      "name": "Uproar",
+      "priority": 0,
+      "target": "randomNormal",
+      "pp": 12
+    },
+    "uturn": {
+      "id": "uturn",
+      "name": "U-turn",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "vacuumwave": {
+      "id": "vacuumwave",
+      "name": "Vacuum Wave",
+      "priority": 1,
+      "target": "normal",
+      "pp": 20
+    },
+    "venoshock": {
+      "id": "venoshock",
+      "name": "Venoshock",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "voltswitch": {
+      "id": "voltswitch",
+      "name": "Volt Switch",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "volttackle": {
+      "id": "volttackle",
+      "name": "Volt Tackle",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "waterfall": {
+      "id": "waterfall",
+      "name": "Waterfall",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "waterpulse": {
+      "id": "waterpulse",
+      "name": "Water Pulse",
+      "priority": 0,
+      "target": "any",
+      "pp": 20
+    },
+    "watershuriken": {
+      "id": "watershuriken",
+      "name": "Water Shuriken",
+      "priority": 1,
+      "target": "normal",
+      "pp": 20
+    },
+    "waterspout": {
+      "id": "waterspout",
+      "name": "Water Spout",
+      "priority": 0,
+      "target": "allAdjacentFoes",
+      "pp": 8
+    },
+    "wavecrash": {
+      "id": "wavecrash",
+      "name": "Wave Crash",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "weatherball": {
+      "id": "weatherball",
+      "name": "Weather Ball",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "whirlpool": {
+      "id": "whirlpool",
+      "name": "Whirlpool",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "whirlwind": {
+      "id": "whirlwind",
+      "name": "Whirlwind",
+      "priority": -6,
+      "target": "normal",
+      "pp": 20
+    },
+    "wideguard": {
+      "id": "wideguard",
+      "name": "Wide Guard",
+      "priority": 3,
+      "target": "allySide",
+      "pp": 12
+    },
+    "wildcharge": {
+      "id": "wildcharge",
+      "name": "Wild Charge",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "willowisp": {
+      "id": "willowisp",
+      "name": "Will-O-Wisp",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "wish": {
+      "id": "wish",
+      "name": "Wish",
+      "priority": 0,
+      "target": "self",
+      "pp": 8
+    },
+    "wonderroom": {
+      "id": "wonderroom",
+      "name": "Wonder Room",
+      "priority": 0,
+      "target": "all",
+      "pp": 12
+    },
+    "woodhammer": {
+      "id": "woodhammer",
+      "name": "Wood Hammer",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "worryseed": {
+      "id": "worryseed",
+      "name": "Worry Seed",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "wrap": {
+      "id": "wrap",
+      "name": "Wrap",
+      "priority": 0,
+      "target": "normal",
+      "pp": 20
+    },
+    "xscissor": {
+      "id": "xscissor",
+      "name": "X-Scissor",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "yawn": {
+      "id": "yawn",
+      "name": "Yawn",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    },
+    "zapcannon": {
+      "id": "zapcannon",
+      "name": "Zap Cannon",
+      "priority": 0,
+      "target": "normal",
+      "pp": 8
+    },
+    "zenheadbutt": {
+      "id": "zenheadbutt",
+      "name": "Zen Headbutt",
+      "priority": 0,
+      "target": "normal",
+      "pp": 16
+    },
+    "zingzap": {
+      "id": "zingzap",
+      "name": "Zing Zap",
+      "priority": 0,
+      "target": "normal",
+      "pp": 12
+    }
+  }
+}
