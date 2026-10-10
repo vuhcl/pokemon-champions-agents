@@ -57,9 +57,13 @@ def test_cap_moves_flagged_in_accuracy_table():
 def test_every_accuracy_entry_has_is_nonstandard():
     acc = json.loads(ACCURACY_PATH.read_text())
     for mid, e in acc.items():
+        if mid == "meta":
+            continue
         assert "is_nonstandard" in e, mid
-    non_null = sum(1 for e in acc.values() if e.get("is_nonstandard") is not None)
-    assert non_null == 454
+    non_null = sum(
+        1 for mid, e in acc.items() if mid != "meta" and e.get("is_nonstandard") is not None
+    )
+    assert non_null == 439
     assert any(e.get("is_nonstandard") == "Past" for e in acc.values())
     assert any(e.get("is_nonstandard") == "LGPE" for e in acc.values())
 

@@ -4,6 +4,7 @@
  *
  * Usage: npm run extract:move-flags
  */
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,6 +14,10 @@ import { extractDataTable, type JsonValue } from "../extract_legality/parse_ts_d
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const DEFAULT_CACHE = path.join(ROOT, ".cache", "pokemon-showdown");
 const OUT = path.join(ROOT, "data", "moves", "flags.v1.json");
+
+function cacheHead(): string {
+  return execSync("git rev-parse HEAD", { cwd: DEFAULT_CACHE, encoding: "utf8" }).trim();
+}
 
 function asRecord(v: JsonValue | undefined): Record<string, JsonValue> | undefined {
   if (typeof v !== "object" || v === null || Array.isArray(v)) return undefined;
@@ -87,6 +92,8 @@ function main(): void {
     meta: {
       source: "pokemon-showdown/data/moves.ts ⊕ mods/champions/moves.ts",
       filter: "champions-legal",
+      source_commit: cacheHead(),
+      mod: "champions",
     },
     moves: sorted,
   };

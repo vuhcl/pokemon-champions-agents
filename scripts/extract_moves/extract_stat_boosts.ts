@@ -12,6 +12,7 @@
  *
  * Usage: npm run extract:move-stat-boosts
  */
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -21,6 +22,10 @@ import { extractDataTable, type JsonValue } from "../extract_legality/parse_ts_d
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const DEFAULT_CACHE = path.join(ROOT, ".cache", "pokemon-showdown");
 const OUT = path.join(ROOT, "data", "moves", "stat_boosts.v1.json");
+
+function cacheHead(): string {
+  return execSync("git rev-parse HEAD", { cwd: DEFAULT_CACHE, encoding: "utf8" }).trim();
+}
 
 type Boosts = Record<string, number>;
 type BoostEffect = { to: "self" | "target"; chance: number; stats: Boosts; note?: string };
@@ -141,7 +146,12 @@ function main(): void {
 
   const sorted = Object.fromEntries(Object.entries(moves).sort(([a], [b]) => a.localeCompare(b)));
   const payload = {
-    meta: { source: "pokemon-showdown/data/moves.ts", filter: "champions-legal" },
+    meta: {
+      source: "pokemon-showdown/data/moves.ts",
+      filter: "champions-legal",
+      source_commit: cacheHead(),
+      mod: "champions",
+    },
     moves: sorted,
   };
   fs.writeFileSync(OUT, JSON.stringify(payload, null, 2) + "\n");
