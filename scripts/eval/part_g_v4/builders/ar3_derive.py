@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from _lib import (
     SHOWDOWN_THREAT_USAGE_CUTOFF,
+    as_chaos_weight_joints,
     champions_hp,
     champions_spe,
     common_joint,
@@ -87,8 +88,10 @@ def _prim(row: dict, item: str) -> dict:
     }
 
 
-def min_atk_for_ohko(nature: str, move: str, prim: dict, field: dict) -> dict:
-    """Binary search min Atk SP for guaranteed OHKO at +6 Atk under Tough Claws."""
+def min_atk_for_ohko(
+    nature: str, move: str, prim: dict, field: dict, joint_i: int = 0
+) -> dict:
+    """Scan min Atk SP for guaranteed OHKO at +6 Atk under Tough Claws."""
     best = None
     best_rec = None
     for atk in range(33):
@@ -100,8 +103,8 @@ def min_atk_for_ohko(nature: str, move: str, prim: dict, field: dict) -> dict:
                 "move": move,
                 "field": field,
             },
-            f"ar3_probe_{to_id(move)}_{nature}_{atk}",
-            persist=False,
+            f"ar3_probe_{to_id(move)}_{nature}_j{joint_i}_{atk}",
+            persist=True,
         )
         resp = rec.get("response") or {}
         if "error" in resp:
@@ -232,6 +235,8 @@ def aqua_jet_survival(cx_nature: str, cx_spread: dict, prim: dict, field: dict) 
 
 
 def flare_blitz_recoil(nature: str, spread: dict, prim: dict, field: dict) -> dict:
+    from _lib import flare_blitz_recoil_basis
+
     rec = calculate(
         {
             "attacker": _cx(nature, spread, {"atk": 6}),
@@ -254,21 +259,20 @@ def flare_blitz_recoil(nature: str, spread: dict, prim: dict, field: dict) -> di
     atk_hp = (raw.get("stats") or {}).get("attacker", {}).get("hp")
     def_hp = (raw.get("stats") or {}).get("defender", {}).get("hp")
     dmg = raw.get("damage") or []
-    max_dmg = max(dmg) if dmg else 0
-    # points from % of attacker max HP; capped by damage dealt / target remaining (OHKO → def HP)
-    points_lo = points_hi = None
-    if pct_lo is not None and atk_hp:
-        points_lo = math.floor(atk_hp * pct_lo / 100)
-        points_hi = math.floor(atk_hp * pct_hi / 100)
-        # cap by target HP on OHKO
-        if def_hp:
-            points_lo = min(points_lo, def_hp, max_dmg)
-            points_hi = min(points_hi, def_hp, max_dmg)
+    basis = flare_blitz_recoil_basis(
+        def_hp=def_hp,
+        atk_hp=atk_hp,
+        damage=dmg,
+        calc_display_pct=[pct_lo, pct_hi] if pct_lo is not None else None,
+    )
+    pts = (basis.get("recoil_basis") or {}).get("value_hp")
+    if pts is None:
+        pts = basis.get("recoil_hp")
     bd_cost = atk_hp // 2 if atk_hp else None
     remaining_from_full = (atk_hp - bd_cost) if atk_hp is not None and bd_cost is not None else None
     survives_recoil_from_half = (
-        remaining_from_full - points_hi > 0
-        if remaining_from_full is not None and points_hi is not None
+        remaining_from_full - pts > 0
+        if remaining_from_full is not None and pts is not None
         else None
     )
     return {
@@ -277,13 +281,9 @@ def flare_blitz_recoil(nature: str, spread: dict, prim: dict, field: dict) -> di
         "damage_range": (rec.get("key") or {}).get("damage_range"),
         "recoil_text": recoil.get("text"),
         "recoil_pct_range": [pct_lo, pct_hi],
-        "recoil_pct_is_share_of_attacker_max_hp": True,
         "attacker_max_hp": atk_hp,
         "defender_hp": def_hp,
-        "recoil_hp_points_range": [points_lo, points_hi],
-        "points_source": (
-            f"floor(attacker_max_hp × pct/100); calc % is share of attacker max HP"
-        ),
+        "recoil_hp_points_range": basis["recoil_hp_range"],
         "belly_drum_cost": bd_cost,
         "post_belly_drum_remaining_from_full": remaining_from_full,
         "survives_recoil_from_half_hp_alone": survives_recoil_from_half,
@@ -292,6 +292,7 @@ def flare_blitz_recoil(nature: str, spread: dict, prim: dict, field: dict) -> di
             "does not cover recoil — arm must state OHKO-but-dies-to-recoil for that path"
         ),
         "ability": CX_ABILITY,
+        **basis,
     }
 
 
@@ -471,7 +472,7 @@ def main() -> None:
     for move in moves:
         for nature in natures:
             print(f"  OHKO {move} {nature}...", flush=True)
-            ohko_table.append(min_atk_for_ohko(nature, move, prim_def, field))
+            ohko_table.append(min_atk_for_ohko(nature, move, prim_def, field, joint_i=0))
 
     # Aqua Jet survival on a representative bulk-ish spread (HP-32) and on min-spread
     print("  Aqua Jet survival...", flush=True)
@@ -492,8 +493,8 @@ def main() -> None:
         field,
     )
     # Combine with AJ survival path
-    if aj.get("after_aj2") is not None and recoil.get("recoil_hp_points_range"):
-        pts = recoil["recoil_hp_points_range"][1]
+    pts = (recoil.get("recoil_basis") or {}).get("value_hp") or recoil.get("recoil_hp")
+    if aj.get("after_aj2") is not None and pts is not None:
         recoil["hp_after_aj_bd_aj"] = aj["after_aj2"]
         recoil["survives_recoil_after_aj_bd_aj"] = aj["after_aj2"] - pts > 0
         recoil["hand_disagreement"] = {
@@ -501,9 +502,9 @@ def main() -> None:
             "calc_half_alone": recoil["survives_recoil_from_half_hp_alone"],
             "calc_after_two_aj": recoil["survives_recoil_after_aj_bd_aj"],
             "note": (
-                "Recoil alone from 50% max HP does NOT kill at HP-32 (calc); "
+                f"In-game recoil value_hp={pts}; alone from 50% max HP does NOT kill at HP-32; "
                 "after two max-roll Aqua Jets on the setup path, recoil DOES kill. "
-                "Condition A uses the setup path."
+                "Condition A uses the setup path. Calc exposes % of attacker HP only."
             ),
         }
 
@@ -556,7 +557,7 @@ def main() -> None:
     ar3 = {
         "prereq_legality": legality,
         "primarina_common_item": prim_items,
-        "primarina_common_joint": joints,
+        "primarina_common_joint": as_chaos_weight_joints(joints),
         "defender_assumption": {
             "ability": "Torrent (slot 0; ASSUME-STATE)",
             "item": prim_def["item"],
@@ -590,6 +591,18 @@ def main() -> None:
 
     path = OUT
     artifacts = json.loads(path.read_text()) if path.exists() else {}
+    prev = artifacts.get("ar3") or {}
+    # Preserve fields other builders / prior patches own (derive rebuilds the core only).
+    for keep in (
+        "part1_followup",
+        "threat_source",
+        "t4_flame_charge_margin",
+        "t4_t5_joint_feasible",
+    ):
+        if keep in prev and keep not in ar3:
+            ar3[keep] = prev[keep]
+    if "threat_source" not in ar3:
+        ar3["threat_source"] = "showdown_threats_ge_452 (shared)"
     artifacts["ar3"] = ar3
     path.write_text(json.dumps(artifacts, indent=2) + "\n")
     print(f"wrote ar3 → {path}")

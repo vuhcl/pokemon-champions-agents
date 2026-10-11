@@ -9,7 +9,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from _lib import champions_hp, common_joint, load_legality, load_showdown, to_id
+from _lib import (
+    champions_hp,
+    common_joint,
+    flare_blitz_recoil_basis,
+    load_legality,
+    load_showdown,
+    to_id,
+)
 from calc_store import calculate, health
 
 OUT = Path(__file__).resolve().parents[1] / "key_artifacts" / "derived_keys.json"
@@ -123,26 +130,25 @@ def fb_recoil(nature, spread, prim, aid):
     atk_hp = (raw.get("stats") or {}).get("attacker", {}).get("hp")
     def_hp = (raw.get("stats") or {}).get("defender", {}).get("hp")
     dmg = raw.get("damage") or []
-    max_dmg = max(dmg) if dmg else 0
-    # Calc stores % of attacker max HP; points = floor(atk_hp * pct/100)
-    pts_lo = math.floor(atk_hp * pct_lo / 100) if atk_hp else None
-    pts_hi = math.floor(atk_hp * pct_hi / 100) if atk_hp else None
+    basis = flare_blitz_recoil_basis(
+        def_hp=def_hp,
+        atk_hp=atk_hp,
+        damage=dmg,
+        calc_display_pct=[pct_lo, pct_hi],
+    )
     return {
         "desc": raw.get("desc"),
         "damage_range": (rec.get("key") or {}).get("damage_range"),
         "recoil_text": recoil.get("text"),
-        "recoil_pct_range": [pct_lo, pct_hi],
-        "recoil_pct_is_share_of_attacker_max_hp": True,
         "attacker_max_hp": atk_hp,
         "attacker_hp_sp": spread.get("hp"),
         "defender_hp": def_hp,
-        "recoil_hp_points_range": [pts_lo, pts_hi],
-        "points_source": (
-            f"floor(attacker_max_hp × pct/100) = floor({atk_hp} × {pct_lo}/100) = {pts_lo}; "
-            f"not floor(defender_hp/3)={def_hp // 3 if def_hp else None} and not floor(damage/3)"
-        ),
         "calc_id": aid,
         "ability": CX_ABILITY,
+        **basis,
+        # compat aliases used by survival margins
+        "recoil_hp_points_range": basis["recoil_hp_range"],
+        "recoil_pct_range": [pct_lo, pct_hi],
     }
 
 
@@ -294,8 +300,12 @@ def main() -> None:
             | {"joint_i": i, "joint_nature": j.get("nature")}
         )
 
-    pts61 = recoil_hp32["recoil_hp_points_range"][0]
-    margin_full_bd = ch["post_belly_drum_remaining_from_full"] - pts61
+    # Survival margins use in-game value_hp only (62)
+    pts = (recoil_hp32.get("recoil_basis") or {}).get("value_hp")
+    if pts is None:
+        pts = recoil_hp32.get("recoil_hp")
+    pts_hi = pts_lo = pts
+    margin_full_bd = ch["post_belly_drum_remaining_from_full"] - pts_hi
 
     ar["t4_aqua_jet_survival"] = {
         "model": "AJ(prio)+BD then AJ(prio) before attack; AJ max = worst COMMON_JOINT × Life Orb",
@@ -337,35 +347,51 @@ def main() -> None:
     }
 
     ar["t4_flare_blitz_recoil"] = {
-        "recoil_pct_is_share_of_attacker_max_hp": True,
         "by_attacker_spread": {
             "hp_sp_32": recoil_hp32,
             "hp_sp_0_assume_state": recoil_hp0,
         },
-        # keep flat fields for the HP-32 reference used in prior keys
-        **{k: recoil_hp32[k] for k in (
-            "desc", "damage_range", "recoil_text", "recoil_pct_range",
-            "attacker_max_hp", "defender_hp", "recoil_hp_points_range", "ability",
-        )},
-        "points_source": recoil_hp32["points_source"],
+        # flat fields: HP-32 reference + corrected basis
+        **{
+            k: recoil_hp32[k]
+            for k in (
+                "desc",
+                "damage_range",
+                "recoil_text",
+                "recoil_pct_range",
+                "attacker_max_hp",
+                "defender_hp",
+                "recoil_hp_points_range",
+                "recoil_hp_range",
+                "recoil_hp",
+                "scope",
+                "recoil_basis",
+                "scoring",
+                "calc_recoil_text_is_display_pct_of_attacker_max_hp",
+                "ability",
+            )
+            if k in recoil_hp32
+        },
         "belly_drum_cost": ch["belly_drum_cost"],
         "post_belly_drum_remaining_from_full": ch["post_belly_drum_remaining_from_full"],
         "recoil_margin_from_full_bd_only": margin_full_bd,
         "hp_after_aj_bd_aj": ch["after_aj2"],
-        "survives_recoil_from_half_hp_alone": ch["post_belly_drum_remaining_from_full"] > pts61,
-        "survives_recoil_after_aj_bd_aj": ch["after_aj2"] > pts61,
+        "survives_recoil_from_half_hp_alone": ch["post_belly_drum_remaining_from_full"] > pts_hi,
+        "survives_recoil_after_aj_bd_aj": ch["after_aj2"] > pts_hi,
         "arm_must_state": (
             "Flare Blitz OHKOs Primarina at +6; under the AJ→BD→AJ setup path the remaining HP "
             "does not cover recoil — arm must state OHKO-but-dies-to-recoil for that path"
         ),
         "hand_disagreement": {
             "hand": "recoil kills Charizard after Belly Drum on the AJ→BD→AJ path",
-            "calc_half_alone": ch["post_belly_drum_remaining_from_full"] > pts61,
-            "calc_after_two_aj": ch["after_aj2"] > pts61,
+            "calc_half_alone": ch["post_belly_drum_remaining_from_full"] > pts_hi,
+            "calc_after_two_aj": ch["after_aj2"] > pts_hi,
             "note": (
-                f"At HP-32 (185): BD remaining from full={ch['post_belly_drum_remaining_from_full']}, "
-                f"recoil pts={pts61}, margin={margin_full_bd}; after AJ→BD→AJ remaining="
-                f"{ch['after_aj2']} < {pts61}. 61 = floor(185×33.3/100), not floor(187/3)=62."
+                f"At HP-32 (185): BD remaining from full={ch['post_belly_drum_remaining_from_full']}; "
+                f"in-game recoil value_hp={pts} (floor(damage/3)); "
+                f"calc exposes only % of attacker HP (33.3% here), not HP points; "
+                f"after AJ→BD→AJ remaining={ch['after_aj2']} < {pts}. "
+                f"Showdown sim Math.round(187*33/100)=62 cross-checks."
             ),
         },
     }
@@ -436,8 +462,9 @@ def main() -> None:
             "field": "flare_blitz_recoil_path",
             "hand": "recoil kills after Belly Drum on setup path",
             "calc": (
-                f"HP-32: after AJ→BD→AJ remaining {ch['after_aj2']} < recoil {pts61}; "
-                f"BD-from-full remaining {ch['post_belly_drum_remaining_from_full']} − {pts61} = {margin_full_bd} margin. "
+                f"HP-32: after AJ→BD→AJ remaining {ch['after_aj2']} < recoil value_hp {pts} "
+                f"(in-game floor(damage/3); calc exposes % of attacker HP only); "
+                f"BD-from-full remaining {ch['post_belly_drum_remaining_from_full']} − {pts} = {margin_full_bd} margin. "
                 f"Prior key used wrong HP 169 → after_aj2 35 / post_bd cost 84."
             ),
         }
@@ -482,9 +509,10 @@ def main() -> None:
             "worst_aj": worst["max_damage"],
             "min_hp_sp": min_hp_sp,
             "def_hp": 187,
-            "recoil_pts_hp32": pts61,
-            "recoil_pts_hp0": recoil_hp0["recoil_hp_points_range"],
-            "recoil_pct_hp0": recoil_hp0["recoil_pct_range"],
+            "recoil_value_hp_32": pts,
+            "recoil_value_hp_0": (recoil_hp0.get("recoil_basis") or {}).get("value_hp")
+            or recoil_hp0.get("recoil_hp"),
+            "recoil_pct_hp0": recoil_hp0.get("recoil_pct_range"),
             "atk_mins": new_atk,
             "atk_mins_unchanged": new_atk == old["atk_mins"],
             "leftover_unchanged": (ar.get("t6_leftover_hp") or {}).get("max_leftover") == old["leftover_max"],

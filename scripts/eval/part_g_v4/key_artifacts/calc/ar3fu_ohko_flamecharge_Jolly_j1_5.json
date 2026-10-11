@@ -1,0 +1,136 @@
+{
+  "id": "ar3fu_ohko_flamecharge_Jolly_j1_5",
+  "request": {
+    "attacker": {
+      "species": "Charizard-Mega-X",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Tough Claws",
+      "item": "Charizardite X",
+      "evs": {
+        "hp": 0,
+        "atk": 5,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      },
+      "boosts": {
+        "atk": 6
+      }
+    },
+    "defender": {
+      "species": "Primarina",
+      "level": 50,
+      "nature": "Modest",
+      "ability": "Torrent",
+      "item": "Life Orb",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 2,
+        "spa": 32,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Flame Charge",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      118,
+      139
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        118,
+        119,
+        120,
+        122,
+        123,
+        125,
+        126,
+        128,
+        129,
+        130,
+        132,
+        133,
+        135,
+        136,
+        138,
+        139
+      ],
+      "range": [
+        118,
+        139
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "+6 5 Atk Tough Claws Charizard-Mega-X Flame Charge vs. 32 HP / 2 Def Primarina: 118-139 (63.1 - 74.3%) -- guaranteed 2HKO",
+      "fullDesc": "+6 5 Atk Tough Claws Charizard-Mega-X Flame Charge vs. 32 HP / 2 Def Primarina: 118-139 (63.1 - 74.3%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 153,
+          "atk": 155,
+          "def": 131,
+          "spa": 135,
+          "spd": 105,
+          "spe": 132
+        },
+        "defender": {
+          "hp": 187,
+          "atk": 84,
+          "def": 96,
+          "spa": 195,
+          "spd": 136,
+          "spe": 80
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      118,
+      139
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "+6 5 Atk Tough Claws Charizard-Mega-X Flame Charge vs. 32 HP / 2 Def Primarina: 118-139 (63.1 - 74.3%) -- guaranteed 2HKO",
+    "max_damage": 139,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Tough Claws",
+    "defender_ability": "Torrent",
+    "notes": [
+      "attacker:Tough Claws:desc_echo_ok",
+      "defender:Torrent:legal_ok"
+    ]
+  }
+}

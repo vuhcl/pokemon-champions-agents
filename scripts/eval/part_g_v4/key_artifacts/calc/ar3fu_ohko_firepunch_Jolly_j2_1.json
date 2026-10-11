@@ -1,0 +1,136 @@
+{
+  "id": "ar3fu_ohko_firepunch_Jolly_j2_1",
+  "request": {
+    "attacker": {
+      "species": "Charizard-Mega-X",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Tough Claws",
+      "item": "Charizardite X",
+      "evs": {
+        "hp": 0,
+        "atk": 1,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      },
+      "boosts": {
+        "atk": 6
+      }
+    },
+    "defender": {
+      "species": "Primarina",
+      "level": 50,
+      "nature": "Quiet",
+      "ability": "Torrent",
+      "item": "Life Orb",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 2,
+        "spa": 32,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Fire Punch",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      174,
+      204
+    ],
+    "koChance": "56.3% chance to OHKO",
+    "raw": {
+      "damage": [
+        174,
+        175,
+        177,
+        180,
+        181,
+        183,
+        186,
+        188,
+        189,
+        192,
+        194,
+        196,
+        198,
+        200,
+        202,
+        204
+      ],
+      "range": [
+        174,
+        204
+      ],
+      "kochance": {
+        "chance": 0.5625,
+        "n": 1,
+        "text": "56.3% chance to OHKO"
+      },
+      "desc": "+6 1 Atk Tough Claws Charizard-Mega-X Fire Punch vs. 32 HP / 2 Def Primarina: 174-204 (93 - 109%) -- 56.3% chance to OHKO",
+      "fullDesc": "+6 1 Atk Tough Claws Charizard-Mega-X Fire Punch vs. 32 HP / 2 Def Primarina: 174-204 (93 - 109%) -- 56.3% chance to OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 153,
+          "atk": 151,
+          "def": 131,
+          "spa": 135,
+          "spd": 105,
+          "spe": 132
+        },
+        "defender": {
+          "hp": 187,
+          "atk": 94,
+          "def": 96,
+          "spa": 195,
+          "spd": 136,
+          "spe": 72
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      174,
+      204
+    ],
+    "ko_chance": "56.3% chance to OHKO",
+    "desc": "+6 1 Atk Tough Claws Charizard-Mega-X Fire Punch vs. 32 HP / 2 Def Primarina: 174-204 (93 - 109%) -- 56.3% chance to OHKO",
+    "max_damage": 204,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Tough Claws",
+    "defender_ability": "Torrent",
+    "notes": [
+      "attacker:Tough Claws:desc_echo_ok",
+      "defender:Torrent:legal_ok"
+    ]
+  }
+}

@@ -10,6 +10,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _lib import (  # noqa: E402
     SPEED_MINUS,
     SPEED_PLUS,
+    as_chaos_weight_joint,
+    as_chaos_weight_joints,
     base_stats,
     champions_hp,
     champions_spe,
@@ -68,7 +70,7 @@ def primarina_joints(sd: dict) -> dict:
             return None
         return max(rows, key=lambda r: float(r.get("pct") or 0))
 
-    tm, td = top(modest), top(timid)
+    tm, td = as_chaos_weight_joint(top(modest)), as_chaos_weight_joint(top(timid))
     out = {"modest_top": tm, "timid_top": td}
     if tm and td:
         base = None
@@ -275,12 +277,15 @@ def annihilape_gholdengo(snap: dict) -> dict:
 
 
 def sneasler_top(sd: dict) -> dict:
-    rows = common_joint(sd, "Sneasler")
+    rows = as_chaos_weight_joints(common_joint(sd, "Sneasler"))
     return {"top": rows[0] if rows else None, "rows": rows}
 
 
 def arch_joints(sd: dict) -> dict:
-    return {"rows": common_joint(sd, "Archaludon"), "items": common_item(sd, "Archaludon")}
+    return {
+        "rows": as_chaos_weight_joints(common_joint(sd, "Archaludon")),
+        "items": common_item(sd, "Archaludon"),
+    }
 
 
 def slowbro_scarf_share(sd: dict) -> dict:

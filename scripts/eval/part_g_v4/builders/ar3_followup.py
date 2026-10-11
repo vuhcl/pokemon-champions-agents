@@ -65,7 +65,7 @@ def min_spe_to_outspeed(nature: str, target: int) -> int | None:
     return None
 
 
-def ohko_min_atk(nature, move, prim, field) -> int | None:
+def ohko_min_atk(nature, move, prim, field, joint_i: int = 0) -> int | None:
     for atk in range(33):
         rec = calculate(
             {
@@ -74,8 +74,8 @@ def ohko_min_atk(nature, move, prim, field) -> int | None:
                 "move": move,
                 "field": field,
             },
-            f"ar3fu_ohko_{to_id(move)}_{nature}_{atk}",
-            persist=False,
+            f"ar3fu_ohko_{to_id(move)}_{nature}_j{joint_i}_{atk}",
+            persist=True,
         )
         raw = (rec.get("response") or {}).get("raw") or {}
         dmg = raw.get("damage") or []
@@ -175,7 +175,7 @@ def main() -> None:
             mins = []
             for i, j in enumerate(joints):
                 prim = _prim(j, "Life Orb")
-                m = ohko_min_atk(nature, move, prim, field)
+                m = ohko_min_atk(nature, move, prim, field, joint_i=i)
                 def_hp = champions_hp(80, int((j.get("evs") or {}).get("hp") or 0))
                 row["per_joint"].append(
                     {
@@ -278,8 +278,18 @@ def main() -> None:
         "min_spe_sp": cov_spe,
         "min_atk_sp": atk_need,
         "min_hp_sp": min_hp_sp,
-        "sum": (min_hp_sp or 99) + (atk_need or 99) + (cov_spe or 99),
-        "fits_budget_66": ((min_hp_sp or 99) + (atk_need or 99) + (cov_spe or 99)) <= 66,
+        # ponytail: 0 is valid SP — only None means missing (never `x or 99`)
+        "sum": (
+            (99 if min_hp_sp is None else min_hp_sp)
+            + (99 if atk_need is None else atk_need)
+            + (99 if cov_spe is None else cov_spe)
+        ),
+        "fits_budget_66": (
+            (99 if min_hp_sp is None else min_hp_sp)
+            + (99 if atk_need is None else atk_need)
+            + (99 if cov_spe is None else cov_spe)
+        )
+        <= 66,
         "assume_state_t4_spread": {
             "nature": cov_nature,
             "hp": min_hp_sp,
@@ -356,16 +366,18 @@ def main() -> None:
         atk_hp = (raw.get("stats") or {}).get("attacker", {}).get("hp")
         def_hp = (raw.get("stats") or {}).get("defender", {}).get("hp")
         dmg = raw.get("damage") or []
-        max_dmg = max(dmg) if dmg else 0
         if isinstance(pct, list):
             pct_lo, pct_hi = float(pct[0]), float(pct[1])
         else:
             pct_lo = pct_hi = float(pct or 0)
-        pts_lo = math.floor(atk_hp * pct_lo / 100) if atk_hp else None
-        pts_hi = math.floor(atk_hp * pct_hi / 100) if atk_hp else None
-        if def_hp and pts_lo is not None:
-            pts_lo = min(pts_lo, def_hp, max_dmg)
-            pts_hi = min(pts_hi, def_hp, max_dmg)
+        from _lib import flare_blitz_recoil_basis
+
+        basis = flare_blitz_recoil_basis(
+            def_hp=def_hp,
+            atk_hp=atk_hp,
+            damage=dmg,
+            calc_display_pct=[pct_lo, pct_hi],
+        )
         recoil_rows.append(
             {
                 "joint_i": i,
@@ -373,9 +385,10 @@ def main() -> None:
                 "damage_range": (rec.get("key") or {}).get("damage_range"),
                 "recoil_text": recoil.get("text"),
                 "recoil_pct": [pct_lo, pct_hi],
-                "recoil_hp_points": [pts_lo, pts_hi],
+                "recoil_hp_points": basis["recoil_hp_range"],
                 "attacker_max_hp": atk_hp,
                 "desc": raw.get("desc"),
+                **basis,
             }
         )
 

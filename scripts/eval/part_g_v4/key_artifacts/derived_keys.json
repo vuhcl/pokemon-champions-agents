@@ -29,7 +29,7 @@
         "spd": 2,
         "spe": 0
       },
-      "pct": 8876.721851952036
+      "chaos_weight": 8876.721851952036
     },
     "modest_top_joint": {
       "nature": "Modest",
@@ -800,8 +800,7 @@
         "spd": 0,
         "spe": 32
       },
-      "pct": 256306.27418746037,
-      "pct_kind": "chaos_weight"
+      "chaos_weight": 256306.27418746037
     },
     "rows": [
       {
@@ -814,8 +813,7 @@
           "spd": 0,
           "spe": 32
         },
-        "pct": 256306.27418746037,
-        "pct_kind": "chaos_weight"
+        "chaos_weight": 256306.27418746037
       },
       {
         "nature": "Jolly",
@@ -827,8 +825,7 @@
           "spd": 0,
           "spe": 32
         },
-        "pct": 154711.70357435133,
-        "pct_kind": "chaos_weight"
+        "chaos_weight": 154711.70357435133
       },
       {
         "nature": "Adamant",
@@ -840,8 +837,7 @@
           "spd": 0,
           "spe": 30
         },
-        "pct": 22900.280977461098,
-        "pct_kind": "chaos_weight"
+        "chaos_weight": 22900.280977461098
       }
     ]
   },
@@ -857,8 +853,7 @@
           "spd": 0,
           "spe": 32
         },
-        "pct": 15731.222575780594,
-        "pct_kind": "chaos_weight"
+        "chaos_weight": 15731.222575780594
       },
       {
         "nature": "Bold",
@@ -870,8 +865,7 @@
           "spd": 29,
           "spe": 3
         },
-        "pct": 8944.251894388728,
-        "pct_kind": "chaos_weight"
+        "chaos_weight": 8944.251894388728
       },
       {
         "nature": "Modest",
@@ -883,8 +877,7 @@
           "spd": 29,
           "spe": 4
         },
-        "pct": 8425.870339958168,
-        "pct_kind": "chaos_weight"
+        "chaos_weight": 8425.870339958168
       }
     ],
     "items": [
@@ -2562,22 +2555,22 @@
         "nature": "Jolly",
         "spe_sp": 32,
         "spe": 156,
-        "pct": 13607.750963984106,
-        "spe_tw": 312
+        "spe_tw": 312,
+        "chaos_weight": 13607.750963984106
       },
       {
         "nature": "Adamant",
         "spe_sp": 32,
         "spe": 142,
-        "pct": 8140.390865164758,
-        "spe_tw": 284
+        "spe_tw": 284,
+        "chaos_weight": 8140.390865164758
       },
       {
         "nature": "Adamant",
         "spe_sp": 0,
         "spe": 110,
-        "pct": 3774.0833345089777,
-        "spe_tw": 220
+        "spe_tw": 220,
+        "chaos_weight": 3774.0833345089777
       },
       {
         "kind": "scarf",
@@ -3126,7 +3119,6 @@
             "spd": 0,
             "spe": 0
           },
-          "pct": 21764.332640641533,
           "key": {
             "damage_range": [
               138,
@@ -3142,7 +3134,8 @@
               ],
               "text": "26.7 - 31.8% recoil damage"
             }
-          }
+          },
+          "chaos_weight": 21764.332640641533
         },
         {
           "nature": "Quiet",
@@ -3154,7 +3147,6 @@
             "spd": 2,
             "spe": 0
           },
-          "pct": 11742.911732149212,
           "key": {
             "damage_range": [
               142,
@@ -3170,7 +3162,8 @@
               ],
               "text": "31.8 - 31.8% recoil damage"
             }
-          }
+          },
+          "chaos_weight": 11742.911732149212
         },
         {
           "nature": "Quiet",
@@ -3182,7 +3175,6 @@
             "spd": 0,
             "spe": 0
           },
-          "pct": 6184.18133744593,
           "key": {
             "damage_range": [
               133,
@@ -3198,7 +3190,8 @@
               ],
               "text": "25.8 - 30.4% recoil damage"
             }
-          }
+          },
+          "chaos_weight": 6184.18133744593
         }
       ],
       "note": "Full numeric grid like DM1/DM3; COMMON_JOINT Hatterene cells.",
@@ -3728,7 +3721,6 @@
       "false_claims": [
         "applying -1 Atk stage",
         "presenting intimidate_off as a meaningful second case",
-        "stated attacker nature/SP/item differing from key",
         "numbers with no stated attacker conditions"
       ],
       "case": {
@@ -3774,8 +3766,10 @@
         "arm_states_attacker_nature_sp_item_matching_key": "SERVED (ASSUME-STATE)",
         "stated_attacker_differs_from_key": "not SERVED",
         "numbers_without_stated_attacker_conditions": "false claim",
-        "applying_minus1_or_second_case": "false claim"
-      }
+        "applying_minus1_or_second_case": "false claim",
+        "asserting_differing_spread_is_top_or_most_common": "FALSE (usage)"
+      },
+      "false_claims_note": "Inner Focus on Gallade-Mega blocks Intimidate; \u22121 Atk / intimidate_off second case are FALSE. Stated attacker nature/SP/item \u2260 key \u2192 not SERVED (scoring), not false_claims, unless arm asserts top/most common (FALSE usage)."
     },
     "dm7": {
       "id": "DM7",
@@ -4137,7 +4131,7 @@
       "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set."
     },
     "mt8_t4_way_out": {
-      "offers_of_either_relaxation_correct": false,
+      "offers_of_either_relaxation_correct": true,
       "jolly_sneasler": {
         "feasible": true,
         "solutions_at_minimal_spe_by_class": {
@@ -4458,8 +4452,7 @@
           "spd": 2,
           "spe": 0
         },
-        "pct": 8876.721851952036,
-        "pct_kind": "chaos_weight"
+        "chaos_weight": 8876.721851952036
       },
       {
         "nature": "Modest",
@@ -4471,8 +4464,7 @@
           "spd": 0,
           "spe": 0
         },
-        "pct": 4351.521343995666,
-        "pct_kind": "chaos_weight"
+        "chaos_weight": 4351.521343995666
       },
       {
         "nature": "Quiet",
@@ -4484,8 +4476,7 @@
           "spd": 0,
           "spe": 0
         },
-        "pct": 3756.6605051059723,
-        "pct_kind": "chaos_weight"
+        "chaos_weight": 3756.6605051059723
       }
     ],
     "defender_assumption": {
@@ -4534,8 +4525,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           },
           {
             "joint_i": 1,
@@ -4549,8 +4540,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           },
           {
             "joint_i": 2,
@@ -4564,8 +4555,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           }
         ],
         "note": "min Atk SP = max across three COMMON_JOINT Primarina spreads"
@@ -4588,8 +4579,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 10,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 10
           },
           {
             "joint_i": 1,
@@ -4603,8 +4594,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 14,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 14
           },
           {
             "joint_i": 2,
@@ -4618,8 +4609,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 14,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 14
           }
         ],
         "note": "min Atk SP = max across three COMMON_JOINT Primarina spreads"
@@ -4642,8 +4633,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           },
           {
             "joint_i": 1,
@@ -4657,8 +4648,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           },
           {
             "joint_i": 2,
@@ -4672,8 +4663,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           }
         ],
         "note": "min Atk SP = max across three COMMON_JOINT Primarina spreads"
@@ -4696,8 +4687,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 10,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 10
           },
           {
             "joint_i": 1,
@@ -4711,8 +4702,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 14,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 14
           },
           {
             "joint_i": 2,
@@ -4726,8 +4717,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 14,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 14
           }
         ],
         "note": "min Atk SP = max across three COMMON_JOINT Primarina spreads"
@@ -4750,8 +4741,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 19,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 19
           },
           {
             "joint_i": 1,
@@ -4765,8 +4756,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 22,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 22
           },
           {
             "joint_i": 2,
@@ -4780,8 +4771,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 22,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 22
           }
         ],
         "note": "min Atk SP = max across three COMMON_JOINT Primarina spreads"
@@ -4804,8 +4795,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": null,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": null
           },
           {
             "joint_i": 1,
@@ -4819,8 +4810,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": null,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": null
           },
           {
             "joint_i": 2,
@@ -4834,8 +4825,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": null,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": null
           }
         ],
         "note": "min Atk SP = max across three COMMON_JOINT Primarina spreads"
@@ -4858,8 +4849,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": null,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": null
           },
           {
             "joint_i": 1,
@@ -4873,8 +4864,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": null,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": null
           },
           {
             "joint_i": 2,
@@ -4888,8 +4879,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": null,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": null
           }
         ],
         "note": "min Atk SP = max across three COMMON_JOINT Primarina spreads"
@@ -4912,8 +4903,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": null,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": null
           },
           {
             "joint_i": 1,
@@ -4927,8 +4918,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": null,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": null
           },
           {
             "joint_i": 2,
@@ -4942,8 +4933,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": null,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": null
           }
         ],
         "note": "min Atk SP = max across three COMMON_JOINT Primarina spreads"
@@ -4966,8 +4957,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           },
           {
             "joint_i": 1,
@@ -4981,8 +4972,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           },
           {
             "joint_i": 2,
@@ -4996,8 +4987,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           }
         ],
         "note": "min Atk SP = max across three COMMON_JOINT Primarina spreads"
@@ -5020,8 +5011,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           },
           {
             "joint_i": 1,
@@ -5035,8 +5026,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           },
           {
             "joint_i": 2,
@@ -5050,8 +5041,8 @@
               "spe": 0
             },
             "def_hp": 187,
-            "min_atk_sp": 0,
-            "def_hp_source": "champions_hp = base + SP + 75"
+            "def_hp_source": "champions_hp = base + SP + 75",
+            "min_atk_sp": 0
           }
         ],
         "note": "min Atk SP = max across three COMMON_JOINT Primarina spreads"
@@ -5233,7 +5224,6 @@
       }
     },
     "t4_flare_blitz_recoil": {
-      "recoil_pct_is_share_of_attacker_max_hp": true,
       "by_attacker_spread": {
         "hp_sp_32": {
           "desc": "+6 0+ Atk Tough Claws Charizard-Mega-X Flare Blitz vs. 32 HP / 0 Def Primarina: 307-362 (164.1 - 193.5%) -- guaranteed OHKO",
@@ -5242,21 +5232,89 @@
             362
           ],
           "recoil_text": "33.3 - 33.3% recoil damage",
-          "recoil_pct_range": [
-            33.3,
-            33.3
-          ],
-          "recoil_pct_is_share_of_attacker_max_hp": true,
           "attacker_max_hp": 185,
           "attacker_hp_sp": 32,
           "defender_hp": 187,
-          "recoil_hp_points_range": [
-            61,
-            61
-          ],
-          "points_source": "floor(attacker_max_hp \u00d7 pct/100) = floor(185 \u00d7 33.3/100) = 61; not floor(defender_hp/3)=62 and not floor(damage/3)",
           "calc_id": "ar3_flareblitz_plus6_hp32",
-          "ability": "Tough Claws"
+          "ability": "Tough Claws",
+          "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
+          "recoil_basis": {
+            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "value_hp": 62,
+            "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
+            "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
+            "damage_dealt_after_defender_hp_cap_range": [
+              187,
+              187
+            ],
+            "true_share_of_attacker_hp": {
+              "hp_185": {
+                "attacker_max_hp": 185,
+                "recoil_hp": 62,
+                "share": 0.3351,
+                "approx_pct": 33.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              },
+              "hp_153": {
+                "attacker_max_hp": 153,
+                "recoil_hp": 62,
+                "share": 0.4052,
+                "approx_pct": 40.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              }
+            },
+            "calc_display": {
+              "kind": "percent_of_attacker_hp_only",
+              "exposes_hp_points": false,
+              "move_data_factor": 0.33,
+              "by_attacker_max_hp": {
+                "185": {
+                  "calc_display_pct": 33.3,
+                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
+                },
+                "153": {
+                  "calc_display_pct": 40.3,
+                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
+                }
+              },
+              "this_call": {
+                "attacker_max_hp": 185,
+                "calc_display_pct_range": [
+                  33.3,
+                  33.3
+                ],
+                "text_example": "33.3 - 33.3% recoil damage"
+              },
+              "source": "@smogon/calc 0.11.0-champions.5d5bf43 hosted /calculate raw.recoil (percent of attacker max HP from 0.33 factor); desc/fullDesc name damage only \u2014 no HP-point recoil field",
+              "note": "NOT an HP-point value. Flooring display%\u00d7atk_HP (or 0.33\u00d7damage) can yield 61; that is an arm conversion artifact, not a calc-exposed HP figure."
+            },
+            "showdown_sim_cross_check_hp": 62
+          },
+          "scoring": {
+            "hp_point_62": "TRUE",
+            "hp_point_61": "FALSE",
+            "hp_point_61_sub_label": "derived_from_calc_percent",
+            "hp_point_other": "FALSE",
+            "percent_of_attacker_hp_33_3_to_33_5_attributed_to_calc_display": "TRUE",
+            "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
+            "counts_in_gate": true,
+            "sub_label_reported_as_own_sub_line": true,
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed 33.3\u201333.5% of stated attacker HP is TRUE; unlabeled / '33% of max HP' framing is FALSE."
+          },
+          "recoil_hp": 62,
+          "recoil_hp_range": [
+            62,
+            62
+          ],
+          "calc_recoil_text_is_display_pct_of_attacker_max_hp": true,
+          "recoil_hp_points_range": [
+            62,
+            62
+          ],
+          "recoil_pct_range": [
+            33.3,
+            33.3
+          ]
         },
         "hp_sp_0_assume_state": {
           "desc": "+6 14 Atk Tough Claws Charizard-Mega-X Flare Blitz vs. 32 HP / 0 Def Primarina: 306-360 (163.6 - 192.5%) -- guaranteed OHKO",
@@ -5265,21 +5323,89 @@
             360
           ],
           "recoil_text": "40.3 - 40.3% recoil damage",
-          "recoil_pct_range": [
-            40.3,
-            40.3
-          ],
-          "recoil_pct_is_share_of_attacker_max_hp": true,
           "attacker_max_hp": 153,
           "attacker_hp_sp": 0,
           "defender_hp": 187,
-          "recoil_hp_points_range": [
-            61,
-            61
-          ],
-          "points_source": "floor(attacker_max_hp \u00d7 pct/100) = floor(153 \u00d7 40.3/100) = 61; not floor(defender_hp/3)=62 and not floor(damage/3)",
           "calc_id": "ar3_flareblitz_plus6_hp0_assume",
-          "ability": "Tough Claws"
+          "ability": "Tough Claws",
+          "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
+          "recoil_basis": {
+            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "value_hp": 62,
+            "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
+            "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
+            "damage_dealt_after_defender_hp_cap_range": [
+              187,
+              187
+            ],
+            "true_share_of_attacker_hp": {
+              "hp_185": {
+                "attacker_max_hp": 185,
+                "recoil_hp": 62,
+                "share": 0.3351,
+                "approx_pct": 33.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              },
+              "hp_153": {
+                "attacker_max_hp": 153,
+                "recoil_hp": 62,
+                "share": 0.4052,
+                "approx_pct": 40.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              }
+            },
+            "calc_display": {
+              "kind": "percent_of_attacker_hp_only",
+              "exposes_hp_points": false,
+              "move_data_factor": 0.33,
+              "by_attacker_max_hp": {
+                "185": {
+                  "calc_display_pct": 33.3,
+                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
+                },
+                "153": {
+                  "calc_display_pct": 40.3,
+                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
+                }
+              },
+              "this_call": {
+                "attacker_max_hp": 153,
+                "calc_display_pct_range": [
+                  40.3,
+                  40.3
+                ],
+                "text_example": "40.3 - 40.3% recoil damage"
+              },
+              "source": "@smogon/calc 0.11.0-champions.5d5bf43 hosted /calculate raw.recoil (percent of attacker max HP from 0.33 factor); desc/fullDesc name damage only \u2014 no HP-point recoil field",
+              "note": "NOT an HP-point value. Flooring display%\u00d7atk_HP (or 0.33\u00d7damage) can yield 61; that is an arm conversion artifact, not a calc-exposed HP figure."
+            },
+            "showdown_sim_cross_check_hp": 62
+          },
+          "scoring": {
+            "hp_point_62": "TRUE",
+            "hp_point_61": "FALSE",
+            "hp_point_61_sub_label": "derived_from_calc_percent",
+            "hp_point_other": "FALSE",
+            "percent_of_attacker_hp_33_3_to_33_5_attributed_to_calc_display": "TRUE",
+            "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
+            "counts_in_gate": true,
+            "sub_label_reported_as_own_sub_line": true,
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed 33.3\u201333.5% of stated attacker HP is TRUE; unlabeled / '33% of max HP' framing is FALSE."
+          },
+          "recoil_hp": 62,
+          "recoil_hp_range": [
+            62,
+            62
+          ],
+          "calc_recoil_text_is_display_pct_of_attacker_max_hp": true,
+          "recoil_hp_points_range": [
+            62,
+            62
+          ],
+          "recoil_pct_range": [
+            40.3,
+            40.3
+          ]
         }
       },
       "desc": "+6 0+ Atk Tough Claws Charizard-Mega-X Flare Blitz vs. 32 HP / 0 Def Primarina: 307-362 (164.1 - 193.5%) -- guaranteed OHKO",
@@ -5295,14 +5421,83 @@
       "attacker_max_hp": 185,
       "defender_hp": 187,
       "recoil_hp_points_range": [
-        61,
-        61
+        62,
+        62
       ],
+      "recoil_hp_range": [
+        62,
+        62
+      ],
+      "recoil_hp": 62,
+      "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
+      "recoil_basis": {
+        "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+        "value_hp": 62,
+        "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
+        "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
+        "damage_dealt_after_defender_hp_cap_range": [
+          187,
+          187
+        ],
+        "true_share_of_attacker_hp": {
+          "hp_185": {
+            "attacker_max_hp": 185,
+            "recoil_hp": 62,
+            "share": 0.3351,
+            "approx_pct": 33.5,
+            "note": "true share of attacker max HP (from value_hp); not the calc display"
+          },
+          "hp_153": {
+            "attacker_max_hp": 153,
+            "recoil_hp": 62,
+            "share": 0.4052,
+            "approx_pct": 40.5,
+            "note": "true share of attacker max HP (from value_hp); not the calc display"
+          }
+        },
+        "calc_display": {
+          "kind": "percent_of_attacker_hp_only",
+          "exposes_hp_points": false,
+          "move_data_factor": 0.33,
+          "by_attacker_max_hp": {
+            "185": {
+              "calc_display_pct": 33.3,
+              "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
+            },
+            "153": {
+              "calc_display_pct": 40.3,
+              "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
+            }
+          },
+          "this_call": {
+            "attacker_max_hp": 185,
+            "calc_display_pct_range": [
+              33.3,
+              33.3
+            ],
+            "text_example": "33.3 - 33.3% recoil damage"
+          },
+          "source": "@smogon/calc 0.11.0-champions.5d5bf43 hosted /calculate raw.recoil (percent of attacker max HP from 0.33 factor); desc/fullDesc name damage only \u2014 no HP-point recoil field",
+          "note": "NOT an HP-point value. Flooring display%\u00d7atk_HP (or 0.33\u00d7damage) can yield 61; that is an arm conversion artifact, not a calc-exposed HP figure."
+        },
+        "showdown_sim_cross_check_hp": 62
+      },
+      "scoring": {
+        "hp_point_62": "TRUE",
+        "hp_point_61": "FALSE",
+        "hp_point_61_sub_label": "derived_from_calc_percent",
+        "hp_point_other": "FALSE",
+        "percent_of_attacker_hp_33_3_to_33_5_attributed_to_calc_display": "TRUE",
+        "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
+        "counts_in_gate": true,
+        "sub_label_reported_as_own_sub_line": true,
+        "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed 33.3\u201333.5% of stated attacker HP is TRUE; unlabeled / '33% of max HP' framing is FALSE."
+      },
+      "calc_recoil_text_is_display_pct_of_attacker_max_hp": true,
       "ability": "Tough Claws",
-      "points_source": "floor(attacker_max_hp \u00d7 pct/100) = floor(185 \u00d7 33.3/100) = 61; not floor(defender_hp/3)=62 and not floor(damage/3)",
       "belly_drum_cost": 92,
       "post_belly_drum_remaining_from_full": 93,
-      "recoil_margin_from_full_bd_only": 32,
+      "recoil_margin_from_full_bd_only": 31,
       "hp_after_aj_bd_aj": 39,
       "survives_recoil_from_half_hp_alone": true,
       "survives_recoil_after_aj_bd_aj": false,
@@ -5311,7 +5506,7 @@
         "hand": "recoil kills Charizard after Belly Drum on the AJ\u2192BD\u2192AJ path",
         "calc_half_alone": true,
         "calc_after_two_aj": false,
-        "note": "At HP-32 (185): BD remaining from full=93, recoil pts=61, margin=32; after AJ\u2192BD\u2192AJ remaining=39 < 61. 61 = floor(185\u00d733.3/100), not floor(187/3)=62."
+        "note": "At HP-32 (185): BD remaining from full=93; in-game recoil value_hp=62 (floor(damage/3)); calc exposes only % of attacker HP (33.3% here), not HP points; after AJ\u2192BD\u2192AJ remaining=39 < 62. Showdown sim Math.round(187*33/100)=62 cross-checks."
       }
     },
     "haze_caveat": "Haze resets Belly Drum +6; OHKO lost. Known caveat; no claim required unless arm raises it.",
@@ -7961,20 +8156,14 @@
     },
     "hand_disagreements": [
       {
-        "field": "flare_blitz_recoil_kills",
-        "hand": "recoil kills Charizard after Belly Drum",
-        "calc": "33.3% = 61 HP from max 185 (Adamant HP-32 Atk-0 +6); survives from half alone (84-61>0); dies after AJ\u2192BD\u2192AJ (35-61<0). Condition A uses setup path \u2192 arm states OHKO-but-dies-to-recoil."
+        "field": "cx_max_hp / primarina_def_hp",
+        "old": "169 / 171 (half-SP formula)",
+        "new": "185 / 187 (base + SP + 75; matches calc stats)"
       },
       {
-        "field": "jolly_32_plus1",
-        "hand": 250,
-        "calc_formula": 250,
-        "agree": true
-      },
-      {
-        "field": "flame_charge_ohko_margin",
-        "hand": "cannot guarantee OHKO even Adamant 32 (thin margin)",
-        "calc": "Adamant Atk-32 +6 Flame Charge 156-183 vs Primarina HP 187 \u2014 max 183<187, guaranteed 2HKO; confirms no OHKO"
+        "field": "cx_max_hp / primarina_def_hp",
+        "old": "169 / 171 (half-SP formula)",
+        "new": "185 / 187 (base + SP + 75; matches calc stats)"
       },
       {
         "field": "cx_max_hp / primarina_def_hp",
@@ -7989,23 +8178,9 @@
       {
         "field": "flare_blitz_recoil_path",
         "hand": "recoil kills after Belly Drum on setup path",
-        "calc": "HP-32: after AJ\u2192BD\u2192AJ remaining 39 < recoil 61; BD-from-full remaining 93 \u2212 61 = 32 margin. Prior key used wrong HP 169 \u2192 after_aj2 35 / post_bd cost 84."
+        "calc": "HP-32: after AJ\u2192BD\u2192AJ remaining 39 < recoil value_hp 62 (in-game floor(damage/3); calc exposes % of attacker HP only); BD-from-full remaining 93 \u2212 62 = 31 margin. Prior key used wrong HP 169 \u2192 after_aj2 35 / post_bd cost 84."
       }
     ],
-    "t4_flame_charge_margin": {
-      "nature": "Adamant",
-      "atk_sp": 32,
-      "boost": "+6",
-      "damage_range": [
-        156,
-        183
-      ],
-      "defender_hp": 187,
-      "guaranteed_ohko": false,
-      "ko_chance": "guaranteed 2HKO",
-      "calc_id": "ar3_flamecharge_margin_adamant32"
-    },
-    "threat_source": "showdown_threats_ge_452 (shared)",
     "part1_followup": {
       "t5_cells_229_250": [
         {
@@ -8615,8 +8790,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             },
             {
               "joint_i": 1,
@@ -8630,8 +8805,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             },
             {
               "joint_i": 2,
@@ -8645,8 +8820,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             }
           ],
           "min_atk_sp_covers_all_joints": 0,
@@ -8668,8 +8843,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 10,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 10
             },
             {
               "joint_i": 1,
@@ -8683,8 +8858,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 14,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 14
             },
             {
               "joint_i": 2,
@@ -8698,8 +8873,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 14,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 14
             }
           ],
           "min_atk_sp_covers_all_joints": 14,
@@ -8721,8 +8896,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             },
             {
               "joint_i": 1,
@@ -8736,8 +8911,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             },
             {
               "joint_i": 2,
@@ -8751,8 +8926,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             }
           ],
           "min_atk_sp_covers_all_joints": 0,
@@ -8774,8 +8949,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 10,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 10
             },
             {
               "joint_i": 1,
@@ -8789,8 +8964,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 14,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 14
             },
             {
               "joint_i": 2,
@@ -8804,8 +8979,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 14,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 14
             }
           ],
           "min_atk_sp_covers_all_joints": 14,
@@ -8827,8 +9002,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 19,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 19
             },
             {
               "joint_i": 1,
@@ -8842,8 +9017,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 22,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 22
             },
             {
               "joint_i": 2,
@@ -8857,8 +9032,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 22,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 22
             }
           ],
           "min_atk_sp_covers_all_joints": 22,
@@ -8880,8 +9055,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": null,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": null
             },
             {
               "joint_i": 1,
@@ -8895,8 +9070,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": null,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": null
             },
             {
               "joint_i": 2,
@@ -8910,8 +9085,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": null,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": null
             }
           ],
           "min_atk_sp_covers_all_joints": null,
@@ -8933,8 +9108,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": null,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": null
             },
             {
               "joint_i": 1,
@@ -8948,8 +9123,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": null,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": null
             },
             {
               "joint_i": 2,
@@ -8963,8 +9138,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": null,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": null
             }
           ],
           "min_atk_sp_covers_all_joints": null,
@@ -8986,8 +9161,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": null,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": null
             },
             {
               "joint_i": 1,
@@ -9001,8 +9176,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": null,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": null
             },
             {
               "joint_i": 2,
@@ -9016,8 +9191,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": null,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": null
             }
           ],
           "min_atk_sp_covers_all_joints": null,
@@ -9039,8 +9214,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             },
             {
               "joint_i": 1,
@@ -9054,8 +9229,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             },
             {
               "joint_i": 2,
@@ -9069,8 +9244,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             }
           ],
           "min_atk_sp_covers_all_joints": 0,
@@ -9092,8 +9267,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             },
             {
               "joint_i": 1,
@@ -9107,8 +9282,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             },
             {
               "joint_i": 2,
@@ -9122,8 +9297,8 @@
                 "spe": 0
               },
               "def_hp": 187,
-              "min_atk_sp": 0,
-              "def_hp_source": "champions_hp = base + SP + 75"
+              "def_hp_source": "champions_hp = base + SP + 75",
+              "min_atk_sp": 0
             }
           ],
           "min_atk_sp_covers_all_joints": 0,
@@ -9513,21 +9688,89 @@
             362
           ],
           "recoil_text": "33.3 - 33.3% recoil damage",
+          "attacker_max_hp": 185,
+          "attacker_hp_sp": 32,
+          "defender_hp": 187,
+          "calc_id": "ar3_flareblitz_recoil_j0_hp32",
+          "ability": "Tough Claws",
+          "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
+          "recoil_basis": {
+            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "value_hp": 62,
+            "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
+            "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
+            "damage_dealt_after_defender_hp_cap_range": [
+              187,
+              187
+            ],
+            "true_share_of_attacker_hp": {
+              "hp_185": {
+                "attacker_max_hp": 185,
+                "recoil_hp": 62,
+                "share": 0.3351,
+                "approx_pct": 33.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              },
+              "hp_153": {
+                "attacker_max_hp": 153,
+                "recoil_hp": 62,
+                "share": 0.4052,
+                "approx_pct": 40.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              }
+            },
+            "calc_display": {
+              "kind": "percent_of_attacker_hp_only",
+              "exposes_hp_points": false,
+              "move_data_factor": 0.33,
+              "by_attacker_max_hp": {
+                "185": {
+                  "calc_display_pct": 33.3,
+                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
+                },
+                "153": {
+                  "calc_display_pct": 40.3,
+                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
+                }
+              },
+              "this_call": {
+                "attacker_max_hp": 185,
+                "calc_display_pct_range": [
+                  33.3,
+                  33.3
+                ],
+                "text_example": "33.3 - 33.3% recoil damage"
+              },
+              "source": "@smogon/calc 0.11.0-champions.5d5bf43 hosted /calculate raw.recoil (percent of attacker max HP from 0.33 factor); desc/fullDesc name damage only \u2014 no HP-point recoil field",
+              "note": "NOT an HP-point value. Flooring display%\u00d7atk_HP (or 0.33\u00d7damage) can yield 61; that is an arm conversion artifact, not a calc-exposed HP figure."
+            },
+            "showdown_sim_cross_check_hp": 62
+          },
+          "scoring": {
+            "hp_point_62": "TRUE",
+            "hp_point_61": "FALSE",
+            "hp_point_61_sub_label": "derived_from_calc_percent",
+            "hp_point_other": "FALSE",
+            "percent_of_attacker_hp_33_3_to_33_5_attributed_to_calc_display": "TRUE",
+            "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
+            "counts_in_gate": true,
+            "sub_label_reported_as_own_sub_line": true,
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed 33.3\u201333.5% of stated attacker HP is TRUE; unlabeled / '33% of max HP' framing is FALSE."
+          },
+          "recoil_hp": 62,
+          "recoil_hp_range": [
+            62,
+            62
+          ],
+          "calc_recoil_text_is_display_pct_of_attacker_max_hp": true,
+          "recoil_hp_points_range": [
+            62,
+            62
+          ],
           "recoil_pct_range": [
             33.3,
             33.3
           ],
-          "recoil_pct_is_share_of_attacker_max_hp": true,
-          "attacker_max_hp": 185,
-          "attacker_hp_sp": 32,
-          "defender_hp": 187,
-          "recoil_hp_points_range": [
-            61,
-            61
-          ],
-          "points_source": "floor(attacker_max_hp \u00d7 pct/100) = floor(185 \u00d7 33.3/100) = 61; not floor(defender_hp/3)=62 and not floor(damage/3)",
-          "calc_id": "ar3_flareblitz_recoil_j0_hp32",
-          "ability": "Tough Claws",
           "joint_i": 0,
           "joint_nature": "Modest"
         },
@@ -9538,21 +9781,89 @@
             354
           ],
           "recoil_text": "33.3 - 33.3% recoil damage",
+          "attacker_max_hp": 185,
+          "attacker_hp_sp": 32,
+          "defender_hp": 187,
+          "calc_id": "ar3_flareblitz_recoil_j1_hp32",
+          "ability": "Tough Claws",
+          "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
+          "recoil_basis": {
+            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "value_hp": 62,
+            "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
+            "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
+            "damage_dealt_after_defender_hp_cap_range": [
+              187,
+              187
+            ],
+            "true_share_of_attacker_hp": {
+              "hp_185": {
+                "attacker_max_hp": 185,
+                "recoil_hp": 62,
+                "share": 0.3351,
+                "approx_pct": 33.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              },
+              "hp_153": {
+                "attacker_max_hp": 153,
+                "recoil_hp": 62,
+                "share": 0.4052,
+                "approx_pct": 40.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              }
+            },
+            "calc_display": {
+              "kind": "percent_of_attacker_hp_only",
+              "exposes_hp_points": false,
+              "move_data_factor": 0.33,
+              "by_attacker_max_hp": {
+                "185": {
+                  "calc_display_pct": 33.3,
+                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
+                },
+                "153": {
+                  "calc_display_pct": 40.3,
+                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
+                }
+              },
+              "this_call": {
+                "attacker_max_hp": 185,
+                "calc_display_pct_range": [
+                  33.3,
+                  33.3
+                ],
+                "text_example": "33.3 - 33.3% recoil damage"
+              },
+              "source": "@smogon/calc 0.11.0-champions.5d5bf43 hosted /calculate raw.recoil (percent of attacker max HP from 0.33 factor); desc/fullDesc name damage only \u2014 no HP-point recoil field",
+              "note": "NOT an HP-point value. Flooring display%\u00d7atk_HP (or 0.33\u00d7damage) can yield 61; that is an arm conversion artifact, not a calc-exposed HP figure."
+            },
+            "showdown_sim_cross_check_hp": 62
+          },
+          "scoring": {
+            "hp_point_62": "TRUE",
+            "hp_point_61": "FALSE",
+            "hp_point_61_sub_label": "derived_from_calc_percent",
+            "hp_point_other": "FALSE",
+            "percent_of_attacker_hp_33_3_to_33_5_attributed_to_calc_display": "TRUE",
+            "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
+            "counts_in_gate": true,
+            "sub_label_reported_as_own_sub_line": true,
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed 33.3\u201333.5% of stated attacker HP is TRUE; unlabeled / '33% of max HP' framing is FALSE."
+          },
+          "recoil_hp": 62,
+          "recoil_hp_range": [
+            62,
+            62
+          ],
+          "calc_recoil_text_is_display_pct_of_attacker_max_hp": true,
+          "recoil_hp_points_range": [
+            62,
+            62
+          ],
           "recoil_pct_range": [
             33.3,
             33.3
           ],
-          "recoil_pct_is_share_of_attacker_max_hp": true,
-          "attacker_max_hp": 185,
-          "attacker_hp_sp": 32,
-          "defender_hp": 187,
-          "recoil_hp_points_range": [
-            61,
-            61
-          ],
-          "points_source": "floor(attacker_max_hp \u00d7 pct/100) = floor(185 \u00d7 33.3/100) = 61; not floor(defender_hp/3)=62 and not floor(damage/3)",
-          "calc_id": "ar3_flareblitz_recoil_j1_hp32",
-          "ability": "Tough Claws",
           "joint_i": 1,
           "joint_nature": "Modest"
         },
@@ -9563,59 +9874,91 @@
             354
           ],
           "recoil_text": "33.3 - 33.3% recoil damage",
+          "attacker_max_hp": 185,
+          "attacker_hp_sp": 32,
+          "defender_hp": 187,
+          "calc_id": "ar3_flareblitz_recoil_j2_hp32",
+          "ability": "Tough Claws",
+          "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
+          "recoil_basis": {
+            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "value_hp": 62,
+            "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
+            "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
+            "damage_dealt_after_defender_hp_cap_range": [
+              187,
+              187
+            ],
+            "true_share_of_attacker_hp": {
+              "hp_185": {
+                "attacker_max_hp": 185,
+                "recoil_hp": 62,
+                "share": 0.3351,
+                "approx_pct": 33.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              },
+              "hp_153": {
+                "attacker_max_hp": 153,
+                "recoil_hp": 62,
+                "share": 0.4052,
+                "approx_pct": 40.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              }
+            },
+            "calc_display": {
+              "kind": "percent_of_attacker_hp_only",
+              "exposes_hp_points": false,
+              "move_data_factor": 0.33,
+              "by_attacker_max_hp": {
+                "185": {
+                  "calc_display_pct": 33.3,
+                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
+                },
+                "153": {
+                  "calc_display_pct": 40.3,
+                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
+                }
+              },
+              "this_call": {
+                "attacker_max_hp": 185,
+                "calc_display_pct_range": [
+                  33.3,
+                  33.3
+                ],
+                "text_example": "33.3 - 33.3% recoil damage"
+              },
+              "source": "@smogon/calc 0.11.0-champions.5d5bf43 hosted /calculate raw.recoil (percent of attacker max HP from 0.33 factor); desc/fullDesc name damage only \u2014 no HP-point recoil field",
+              "note": "NOT an HP-point value. Flooring display%\u00d7atk_HP (or 0.33\u00d7damage) can yield 61; that is an arm conversion artifact, not a calc-exposed HP figure."
+            },
+            "showdown_sim_cross_check_hp": 62
+          },
+          "scoring": {
+            "hp_point_62": "TRUE",
+            "hp_point_61": "FALSE",
+            "hp_point_61_sub_label": "derived_from_calc_percent",
+            "hp_point_other": "FALSE",
+            "percent_of_attacker_hp_33_3_to_33_5_attributed_to_calc_display": "TRUE",
+            "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
+            "counts_in_gate": true,
+            "sub_label_reported_as_own_sub_line": true,
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed 33.3\u201333.5% of stated attacker HP is TRUE; unlabeled / '33% of max HP' framing is FALSE."
+          },
+          "recoil_hp": 62,
+          "recoil_hp_range": [
+            62,
+            62
+          ],
+          "calc_recoil_text_is_display_pct_of_attacker_max_hp": true,
+          "recoil_hp_points_range": [
+            62,
+            62
+          ],
           "recoil_pct_range": [
             33.3,
             33.3
           ],
-          "recoil_pct_is_share_of_attacker_max_hp": true,
-          "attacker_max_hp": 185,
-          "attacker_hp_sp": 32,
-          "defender_hp": 187,
-          "recoil_hp_points_range": [
-            61,
-            61
-          ],
-          "points_source": "floor(attacker_max_hp \u00d7 pct/100) = floor(185 \u00d7 33.3/100) = 61; not floor(defender_hp/3)=62 and not floor(damage/3)",
-          "calc_id": "ar3_flareblitz_recoil_j2_hp32",
-          "ability": "Tough Claws",
           "joint_i": 2,
           "joint_nature": "Quiet"
-        }
-      ],
-      "unreachable_scarf_computed_not_in_common_item": [
-        {
-          "threat": "Sneasler",
-          "serious_scarf_32": 258,
-          "jolly_scarf_32": 283,
-          "note": "Choice Scarf not in COMMON_ITEM (Part 0); excluded from Condition B ladder"
-        },
-        {
-          "threat": "Whimsicott",
-          "serious_scarf_32": 252,
-          "timid_scarf_32": 276,
-          "note": "Choice Scarf not in COMMON_ITEM; excluded from Condition B ladder"
-        }
-      ],
-      "hand_disagreements": [
-        {
-          "field": "jolly_spe_atk_for_max_coverage",
-          "hand": "Jolly Spe-32 + Atk-10 = leftover 24",
-          "calc": "Jolly Spe-28 (outs Spe 241 Indeedee Scarf Timid) + Atk-14 (covers all 3 Primarina joints) = leftover 24"
-        },
-        {
-          "field": "adamant_optimum",
-          "hand": "questioned leftover 34 Adamant",
-          "calc": "Adamant cannot cover reachable Scarf cells 231\u2013241; t5 selects Jolly; Adamant\u00d7Fire Punch is NOT the optimum"
-        },
-        {
-          "field": "hp_formula",
-          "old": "floor((2*base+31+SP)*50/100)+60 \u2192 cx 169 / prim 171",
-          "new": "base+SP+75 \u2192 cx 185 / prim 187"
-        },
-        {
-          "field": "aqua_jet_worst_joint",
-          "old": "Modest LO 25",
-          "new": "Quiet LO 27"
         }
       ],
       "t4_flare_blitz_recoil_by_attacker_hp": {
@@ -9626,21 +9969,89 @@
             362
           ],
           "recoil_text": "33.3 - 33.3% recoil damage",
-          "recoil_pct_range": [
-            33.3,
-            33.3
-          ],
-          "recoil_pct_is_share_of_attacker_max_hp": true,
           "attacker_max_hp": 185,
           "attacker_hp_sp": 32,
           "defender_hp": 187,
-          "recoil_hp_points_range": [
-            61,
-            61
-          ],
-          "points_source": "floor(attacker_max_hp \u00d7 pct/100) = floor(185 \u00d7 33.3/100) = 61; not floor(defender_hp/3)=62 and not floor(damage/3)",
           "calc_id": "ar3_flareblitz_plus6_hp32",
-          "ability": "Tough Claws"
+          "ability": "Tough Claws",
+          "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
+          "recoil_basis": {
+            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "value_hp": 62,
+            "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
+            "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
+            "damage_dealt_after_defender_hp_cap_range": [
+              187,
+              187
+            ],
+            "true_share_of_attacker_hp": {
+              "hp_185": {
+                "attacker_max_hp": 185,
+                "recoil_hp": 62,
+                "share": 0.3351,
+                "approx_pct": 33.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              },
+              "hp_153": {
+                "attacker_max_hp": 153,
+                "recoil_hp": 62,
+                "share": 0.4052,
+                "approx_pct": 40.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              }
+            },
+            "calc_display": {
+              "kind": "percent_of_attacker_hp_only",
+              "exposes_hp_points": false,
+              "move_data_factor": 0.33,
+              "by_attacker_max_hp": {
+                "185": {
+                  "calc_display_pct": 33.3,
+                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
+                },
+                "153": {
+                  "calc_display_pct": 40.3,
+                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
+                }
+              },
+              "this_call": {
+                "attacker_max_hp": 185,
+                "calc_display_pct_range": [
+                  33.3,
+                  33.3
+                ],
+                "text_example": "33.3 - 33.3% recoil damage"
+              },
+              "source": "@smogon/calc 0.11.0-champions.5d5bf43 hosted /calculate raw.recoil (percent of attacker max HP from 0.33 factor); desc/fullDesc name damage only \u2014 no HP-point recoil field",
+              "note": "NOT an HP-point value. Flooring display%\u00d7atk_HP (or 0.33\u00d7damage) can yield 61; that is an arm conversion artifact, not a calc-exposed HP figure."
+            },
+            "showdown_sim_cross_check_hp": 62
+          },
+          "scoring": {
+            "hp_point_62": "TRUE",
+            "hp_point_61": "FALSE",
+            "hp_point_61_sub_label": "derived_from_calc_percent",
+            "hp_point_other": "FALSE",
+            "percent_of_attacker_hp_33_3_to_33_5_attributed_to_calc_display": "TRUE",
+            "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
+            "counts_in_gate": true,
+            "sub_label_reported_as_own_sub_line": true,
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed 33.3\u201333.5% of stated attacker HP is TRUE; unlabeled / '33% of max HP' framing is FALSE."
+          },
+          "recoil_hp": 62,
+          "recoil_hp_range": [
+            62,
+            62
+          ],
+          "calc_recoil_text_is_display_pct_of_attacker_max_hp": true,
+          "recoil_hp_points_range": [
+            62,
+            62
+          ],
+          "recoil_pct_range": [
+            33.3,
+            33.3
+          ]
         },
         "hp_sp_0_assume_state": {
           "desc": "+6 14 Atk Tough Claws Charizard-Mega-X Flare Blitz vs. 32 HP / 0 Def Primarina: 306-360 (163.6 - 192.5%) -- guaranteed OHKO",
@@ -9649,23 +10060,117 @@
             360
           ],
           "recoil_text": "40.3 - 40.3% recoil damage",
-          "recoil_pct_range": [
-            40.3,
-            40.3
-          ],
-          "recoil_pct_is_share_of_attacker_max_hp": true,
           "attacker_max_hp": 153,
           "attacker_hp_sp": 0,
           "defender_hp": 187,
-          "recoil_hp_points_range": [
-            61,
-            61
-          ],
-          "points_source": "floor(attacker_max_hp \u00d7 pct/100) = floor(153 \u00d7 40.3/100) = 61; not floor(defender_hp/3)=62 and not floor(damage/3)",
           "calc_id": "ar3_flareblitz_plus6_hp0_assume",
-          "ability": "Tough Claws"
+          "ability": "Tough Claws",
+          "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
+          "recoil_basis": {
+            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "value_hp": 62,
+            "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
+            "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
+            "damage_dealt_after_defender_hp_cap_range": [
+              187,
+              187
+            ],
+            "true_share_of_attacker_hp": {
+              "hp_185": {
+                "attacker_max_hp": 185,
+                "recoil_hp": 62,
+                "share": 0.3351,
+                "approx_pct": 33.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              },
+              "hp_153": {
+                "attacker_max_hp": 153,
+                "recoil_hp": 62,
+                "share": 0.4052,
+                "approx_pct": 40.5,
+                "note": "true share of attacker max HP (from value_hp); not the calc display"
+              }
+            },
+            "calc_display": {
+              "kind": "percent_of_attacker_hp_only",
+              "exposes_hp_points": false,
+              "move_data_factor": 0.33,
+              "by_attacker_max_hp": {
+                "185": {
+                  "calc_display_pct": 33.3,
+                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
+                },
+                "153": {
+                  "calc_display_pct": 40.3,
+                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
+                }
+              },
+              "this_call": {
+                "attacker_max_hp": 153,
+                "calc_display_pct_range": [
+                  40.3,
+                  40.3
+                ],
+                "text_example": "40.3 - 40.3% recoil damage"
+              },
+              "source": "@smogon/calc 0.11.0-champions.5d5bf43 hosted /calculate raw.recoil (percent of attacker max HP from 0.33 factor); desc/fullDesc name damage only \u2014 no HP-point recoil field",
+              "note": "NOT an HP-point value. Flooring display%\u00d7atk_HP (or 0.33\u00d7damage) can yield 61; that is an arm conversion artifact, not a calc-exposed HP figure."
+            },
+            "showdown_sim_cross_check_hp": 62
+          },
+          "scoring": {
+            "hp_point_62": "TRUE",
+            "hp_point_61": "FALSE",
+            "hp_point_61_sub_label": "derived_from_calc_percent",
+            "hp_point_other": "FALSE",
+            "percent_of_attacker_hp_33_3_to_33_5_attributed_to_calc_display": "TRUE",
+            "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
+            "counts_in_gate": true,
+            "sub_label_reported_as_own_sub_line": true,
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed 33.3\u201333.5% of stated attacker HP is TRUE; unlabeled / '33% of max HP' framing is FALSE."
+          },
+          "recoil_hp": 62,
+          "recoil_hp_range": [
+            62,
+            62
+          ],
+          "calc_recoil_text_is_display_pct_of_attacker_max_hp": true,
+          "recoil_hp_points_range": [
+            62,
+            62
+          ],
+          "recoil_pct_range": [
+            40.3,
+            40.3
+          ]
         }
-      }
+      },
+      "hand_disagreements": [
+        {
+          "field": "hp_formula",
+          "old": "floor((2*base+31+SP)*50/100)+60 \u2192 cx 169 / prim 171",
+          "new": "base+SP+75 \u2192 cx 185 / prim 187"
+        },
+        {
+          "field": "aqua_jet_worst_joint",
+          "old": "Modest LO 25",
+          "new": "Quiet LO 27"
+        }
+      ]
+    },
+    "threat_source": "showdown_threats_ge_452 (shared)",
+    "t4_flame_charge_margin": {
+      "nature": "Adamant",
+      "atk_sp": 32,
+      "boost": "+6",
+      "damage_range": [
+        156,
+        183
+      ],
+      "defender_hp": 187,
+      "guaranteed_ohko": false,
+      "ko_chance": "guaranteed 2HKO",
+      "calc_id": "ar3_flamecharge_margin_adamant32"
     },
     "t4_t5_joint_feasible": {
       "t5_selects_jolly": true,
@@ -10552,6 +11057,12 @@
         "row": "IS4",
         "phrase": "Mega Alakazam",
         "resolves_to": "alakazammega",
+        "flag": null
+      },
+      {
+        "row": "DM6",
+        "phrase": "Mega Gallade",
+        "resolves_to": "gallademega",
         "flag": null
       },
       {
@@ -20397,9 +20908,80 @@
     "Spread-move 0.75 condition untested in Champions; DM3/DM4 follow calc multi-target assumption",
     "Learnsets/moves not oracle-cross-checked",
     "H18 SP rule measures investment, not behavior",
-    "H12 scores each threat's best move by max-roll damage into Sinistcha; accuracy and conditional effects are ignored. The Expanding Force case depends on the untested multi-target (0.75) assumption."
+    "H12 scores each threat's best move by max-roll damage into Sinistcha; accuracy and conditional effects are ignored. The Expanding Force case depends on the untested multi-target (0.75) assumption.",
+    "AR3 Flare Blitz recoil: in-game rule floor(damage_dealt/3)=62 (Primarina HP 187); hosted calc exposes only percent of attacker HP (33.3% of 185 / 40.3% of 153 from 0.33 factor), not HP points. Key scores HP-point 62 TRUE; 61 FALSE with sub_label derived_from_calc_percent. Request-set L470 still says allow 61-62 \u2014 superseded by key scoring via R9; L470 text unchanged (sha fc6b150d). Fix = arm wrapper reports floor(damage/3) HP.",
+    "Showdown sim applyRecoilDamage uses Math.round(damage*33/100) (62 here); matters for phase-2 Showdown eval, not the hosted calc percent display.",
+    "HEADER in gen_request_set_v4.py is an f-string so past_items/modest_note interpolate; output byte-identical to tracked request set (sha fc6b150d)."
   ],
   "tool_surface_v4": [
     "Hosted /calculate takes a single move per request; a moves list per request would cut the arm's per-threat calc count (H12)."
-  ]
+  ],
+  "unverified_descriptive": {
+    "rule": "Phase A A4 unverified leaves. unread = no reader \u2192 descriptive only, not scored mechanical keys. jolly +Def/+Spe class counts are cited in MT8 request-set text but lack a live solver recount in v4.1 \u2014 flagged, not deleted.",
+    "a4_unverified_count": 54,
+    "unread_descriptive": [
+      "ar3.hand_disagreements[0].calc",
+      "ar3.hand_disagreements[0].field",
+      "ar3.hand_disagreements[0].hand",
+      "ar3.hand_disagreements[0].new",
+      "ar3.hand_disagreements[0].old",
+      "ar3.hand_disagreements[1].agree",
+      "ar3.hand_disagreements[1].calc_formula",
+      "ar3.hand_disagreements[1].field",
+      "ar3.hand_disagreements[1].hand",
+      "ar3.hand_disagreements[1].new",
+      "ar3.hand_disagreements[1].old",
+      "ar3.hand_disagreements[2].calc",
+      "ar3.hand_disagreements[2].field",
+      "ar3.hand_disagreements[2].hand",
+      "ar3.hand_disagreements[3].field",
+      "ar3.hand_disagreements[3].new",
+      "ar3.hand_disagreements[3].old",
+      "ar3.hand_disagreements[4].field",
+      "ar3.hand_disagreements[4].new",
+      "ar3.hand_disagreements[4].old",
+      "ar3.hand_disagreements[5].calc",
+      "ar3.hand_disagreements[5].field",
+      "ar3.hand_disagreements[5].hand",
+      "ar3.part1_followup.hand_disagreements[0].calc",
+      "ar3.part1_followup.hand_disagreements[0].field",
+      "ar3.part1_followup.hand_disagreements[0].hand",
+      "ar3.part1_followup.hand_disagreements[0].new",
+      "ar3.part1_followup.hand_disagreements[0].old",
+      "ar3.part1_followup.hand_disagreements[1].calc",
+      "ar3.part1_followup.hand_disagreements[1].field",
+      "ar3.part1_followup.hand_disagreements[1].hand",
+      "ar3.part1_followup.hand_disagreements[1].new",
+      "ar3.part1_followup.hand_disagreements[1].old",
+      "ar3.part1_followup.hand_disagreements[2].field",
+      "ar3.part1_followup.hand_disagreements[2].new",
+      "ar3.part1_followup.hand_disagreements[2].old",
+      "ar3.part1_followup.hand_disagreements[3].field",
+      "ar3.part1_followup.hand_disagreements[3].new",
+      "ar3.part1_followup.hand_disagreements[3].old",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].jolly_scarf_32",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].note",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].serious_scarf_32",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].note",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].serious_scarf_32",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].timid_scarf_32",
+      "dm_outputs.dm1_note",
+      "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[0]",
+      "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[1]",
+      "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[2]"
+    ],
+    "read_by_request_set_flagged": [
+      "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Def",
+      "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Spe"
+    ],
+    "jolly_class_counts_note": "MT8 cites +SpD 294/+Def 20/+Spe 2. Frozen way_out keeps those counts; mt8_t4_make_sneasler_jolly has no solutions_at_minimal_spe_by_class field. v4.1 does not re-count; arm exact-total claims on +Def/+Spe are unverifiable here.",
+    "read_elsewhere": [
+      {
+        "path": "ar3.threat_source",
+        "readers": [
+          "builders/derive_outputs.py"
+        ]
+      }
+    ]
+  }
 }
