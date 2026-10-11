@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib
 import json
 import random
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -472,8 +473,38 @@ def main() -> int:
     staircase = {str(k): min_n(k) for k in range(0, 4)}
     design_floor = 240  # 1-failure threshold (236) + margin
     expected_scored_int = int(round(expected_scored))  # 267
-    # scored items: every item has ≥1 designed slot → same 70% answer-rate shortcut
-    expected_scored_items = int(round(CLAIM_ITEMS * answer_rate))  # 210
+    # Item scored iff ≥1 of its designed slots is answered.
+    # Independence within an item: each designed slot answered iid with p=answer_rate.
+    # → P(item scored | n_i) = 1 − (1−p)^{n_i}; E = Σ_i that probability.
+    # (300×0.70=210 is a lower bound: ignores multi-slot items.)
+    expected_scored_items_exact = sum(
+        1.0 - (1.0 - answer_rate) ** int(it["n_claims"]) for it in claim["items"]
+    )
+    expected_scored_items = int(round(expected_scored_items_exact))  # ~227
+    item_tol = max_k(expected_scored_items)
+    # Row-level secondary (request set; separate pool from battery items).
+    # n_i = claim-type tokens on the row (split on +); same within-row iid slot model.
+    request_md = (
+        Path(__file__).resolve().parent.parent / "part3_request_set_v4.md"
+    ).read_text(encoding="utf-8")
+    row_ns: list[int] = []
+    for line in request_md.splitlines():
+        if not re.match(r"^\|\s*[A-Z]{1,3}\d+[a-z]?\s*\|", line):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) < 6:
+            continue
+        ct = cells[5].strip().strip("`")
+        if not ct or ct in ("—", "-", "–"):
+            row_ns.append(1)
+        else:
+            row_ns.append(max(1, len([x for x in re.split(r"[+/]", ct) if x.strip()])))
+    n_rows = len(row_ns)
+    expected_scored_rows_exact = sum(
+        1.0 - (1.0 - answer_rate) ** n for n in row_ns
+    )
+    expected_scored_rows = int(round(expected_scored_rows_exact))
+    row_tol = max_k(expected_scored_rows)
 
     manifest = {
         "seed": SEED,
@@ -522,23 +553,102 @@ def main() -> int:
                     "max false claims that still pass drops (2→1, 1→0, then even 0 fails)."
                 ),
             },
+            "answer_rate_note": (
+                "70% is a pre-run assumption for sizing. The gate verdict uses actual "
+                "scored counts from the first run. Answer rate below ~62% (236/381) "
+                "loses the 1-failure tolerance (0-only or extend)."
+            ),
+            "cluster_secondaries": {
+                "does_not_replace_headline_gate": True,
+                "headline_unchanged": (
+                    "claim-level one-sided 95% Clopper-Pearson UCB ≤ 2% on scored claims"
+                ),
+                "item_level": {
+                    "unit": "scored_battery_item",
+                    "independence_assumption": (
+                        "within an item, each designed claim slot is answered iid with "
+                        f"p={answer_rate}; an item is scored if at least one slot is answered. "
+                        "Items are treated as independent of each other for this secondary."
+                    ),
+                    "method": (
+                        "E[scored items] = Σ_i [1 − (1−p)^{n_i}] over the 300 generated items "
+                        f"(seed 0); p={answer_rate}. 300×0.70=210 is a lower bound "
+                        "(mean n_claims≈1.27)."
+                    ),
+                    "expected_scored_items_exact": round(expected_scored_items_exact, 4),
+                    "expected_scored_items_at_70pct": expected_scored_items,
+                    "gap_to_1_failure_threshold_236": staircase["1"]
+                    - expected_scored_items,
+                    "exact_min_scored_items_for_k_false": {
+                        str(k): staircase[str(k)] for k in ("0", "1", "2")
+                    },
+                    "max_false_items_passing_at_expected_scored_items": item_tol,
+                    "plain": (
+                        f"At expected scored items ({expected_scored_items}), item-level "
+                        f"tolerance is {item_tol} false items "
+                        f"({staircase['1'] - expected_scored_items} below the 236 line for k=1)."
+                    ),
+                },
+                "row_level": {
+                    "unit": "scored_request_set_row",
+                    "relationship_to_battery_items": (
+                        "The 300 claim-battery items are a separate eval pool from the "
+                        "134 request-set rows — not one item per row, not repeated "
+                        "phrasings of rows. Multi-turn request-set cases are one row each. "
+                        "Request-set companions (AR3, IS2, build traps, H12/DM*) are "
+                        "documented beside the battery, not in the battery item pool. "
+                        "Battery items share no fixture_id with request-set rows; some "
+                        "claim types reuse species/keys conceptually. Within a request-set "
+                        "row, turns/claims share fixtures, keys, and assumptions."
+                    ),
+                    "independence_assumption": (
+                        "within a row, each claim-type token (split on +) is answered iid "
+                        f"with p={answer_rate}; a row is scored if at least one slot is "
+                        "answered. Rows are treated as independent of each other for this "
+                        "secondary."
+                    ),
+                    "method": (
+                        "E[scored rows] = Σ_j [1 − (1−p)^{n_j}] over the 134 request-set "
+                        "rows' claim-type token counts; "
+                        f"p={answer_rate}. One-opportunity lower bound = 134×0.70≈94."
+                    ),
+                    "n_request_set_rows": n_rows,
+                    "expected_scored_rows_exact": round(expected_scored_rows_exact, 4),
+                    "expected_scored_rows_at_70pct": expected_scored_rows,
+                    "one_opportunity_lower_bound": round(n_rows * answer_rate, 1),
+                    "exact_min_scored_rows_for_k_false": {
+                        str(k): staircase[str(k)] for k in ("0", "1", "2")
+                    },
+                    "max_false_rows_passing_at_expected_scored_rows": row_tol,
+                    "can_demonstrate_2pct_bound_at_row_level": row_tol >= 0
+                    and expected_scored_rows >= staircase["0"],
+                    "plain": (
+                        f"At expected scored rows (~{expected_scored_rows}), even 0 false "
+                        f"rows cannot pass the CP≤2% bound (need ≥{staircase['0']} scored "
+                        "for k=0). The request set cannot demonstrate the 2% bound at "
+                        "row level under the 70% answer-rate assumption."
+                    ),
+                },
+            },
+            # Backward-compatible alias of item-level secondary
             "cluster_aware": {
                 "unit": "scored_battery_item",
                 "method": (
-                    "70% answer-rate shortcut: every item has ≥1 designed slot, "
-                    "so expected scored items = 300 × 0.70 = 210"
+                    "E[scored items]=Σ[1−(1−p)^{n_i}] with within-item iid slot answers "
+                    f"at p={answer_rate}; expected≈{expected_scored_items} "
+                    "(210 was the 300×0.70 lower bound)"
                 ),
                 "expected_scored_items_at_70pct": expected_scored_items,
+                "expected_scored_items_exact": round(expected_scored_items_exact, 4),
+                "gap_to_236": staircase["1"] - expected_scored_items,
                 "exact_min_scored_items_for_k_false": {
                     str(k): staircase[str(k)] for k in ("0", "1", "2")
                 },
-                "max_false_items_passing_at_expected_scored_items": max_k(
-                    expected_scored_items
-                ),
+                "max_false_items_passing_at_expected_scored_items": item_tol,
                 "stricter_than_headline": True,
                 "plain": (
-                    f"At expected scored items ({expected_scored_items}), "
-                    "cluster-aware tolerance is 0 false items; "
+                    f"At expected scored items ({expected_scored_items}), item-level "
+                    f"tolerance is {item_tol} false items; "
                     f"headline at expected scored claims ({expected_scored_int}) allows 1 false claim."
                 ),
                 "does_not_replace_headline_gate": True,

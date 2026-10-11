@@ -220,22 +220,56 @@ The headline gate treats scored-claim outcomes as **independent**. That is **not
 
 **Limitation:** claims cluster by battery item (and by shared keys / fixtures — e.g. Intimidate DM rows, H12 threats). The effective independent sample is smaller than the scored-claim count, so the claim-level bound is **optimistic**.
 
-**Cluster-aware secondary (does not replace the headline gate):** same one-sided 95% CP ≤ 2% on **scored items** (items with ≥1 model-authored claim).
+**70% answer rate** is a **pre-run sizing assumption**. The gate verdict uses the arm’s **actual** scored counts from the first run. An answer rate below about **62%** (`236/381`) loses the 1-failure tolerance (0-only reading, or extend if below 149).
 
-**Method:** every designed item has ≥1 claim slot (all type rates ≥ 1.0), so “item answered” ≡ “item contributes ≥1 scored claim” under the same **70% answer-rate** assumption → expected scored items = `300 × 0.70 = 210`. (Not a separate design-rate product; the 70% shortcut is the method.)
+Headline gate is unchanged: claim-level, one-sided 95% Clopper-Pearson UCB ≤ 2% on scored claims. Two labeled secondaries sit beside it (same exact thresholds: 0→149, 1→236, 2→313, 3→386).
 
-| False items k | Exact min scored items n |
-|---|---|
-| 0 | **149** |
-| 1 | **236** |
-| 2 | **313** |
+### What is a battery item vs a request-set row?
 
-| Level | Expected n (at 70%) | Max false that still pass |
+| Pool | Count | Unit |
 |---|---|---|
-| Headline (scored claims) | ≈267 | **1** |
-| Cluster-aware (scored items) | **210** | **0** |
+| Claim battery | **300** items | One prompt item with `n_claims` designed slots (mean ≈ 1.27; seed 0 → 381 slots) |
+| Request set | **134** rows | One outcome-class row each (multi-turn cases = **one** row, not one item per turn) |
 
-**Plainly:** at the expected scored-item count (210), the cluster-aware tolerance is **stricter than the headline** — **0** false items pass, while the headline still allows **1** false claim.
+These are **separate** eval pools — not one battery item per request-set row, and not repeated phrasings of rows. Request-set companions (AR3, IS2, build traps, H12/DM*) are documented next to the battery and are **not** in the battery item pool. Battery items have no `fixture_id` linking them to request-set rows; some claim types reuse species/keys conceptually. Within a request-set row, turns/claims share fixtures, keys, and assumptions (not independent).
+
+### Secondary A — item-level (claim battery)
+
+Same CP rule on **scored items** (items with ≥1 model-authored claim).
+
+**Independence assumption (within item):** each designed claim slot is answered iid with \(p = 0.70\); an item is scored if at least one of its slots is answered. Items are treated as independent of each other for this secondary.
+
+**Method (direct):** \(\mathbb{E}[\text{scored items}] = \sum_i \bigl(1 - (1-p)^{n_i}\bigr)\) over the 300 generated items (seed 0).  
+`300 × 0.70 = 210` is a **lower bound** (it ignores multi-slot items; mean \(n_i \approx 1.27\)).
+
+| | Value |
+|---|---|
+| Expected scored items (direct) | **≈227** (`227.01` on seed-0 battery; `≈227.14` from design rates) |
+| Distance to 236 (1-failure line) | **9** below |
+| Max false items that still pass | **0** |
+
+### Secondary B — row-level (request set)
+
+Same CP rule on **scored rows** (rows with ≥1 answered claim-type slot).
+
+**Independence assumption (within row):** each claim-type token on the row (split on `+`) is answered iid with \(p = 0.70\); a row is scored if at least one slot is answered.
+
+**Method (direct):** \(\mathbb{E}[\text{scored rows}] = \sum_j \bigl(1 - (1-p)^{n_j}\bigr)\) over the 134 rows’ claim-type token counts → **≈101**. One-opportunity lower bound = `134 × 0.70 ≈ 94`.
+
+| | Value |
+|---|---|
+| Expected scored rows (direct) | **≈101** |
+| Max false rows that still pass | **none** (`max_k = −1`; even 0 false fails — need ≥149 for k=0) |
+
+**Plainly:** under the 70% answer-rate assumption, the request set **cannot demonstrate the 2% bound at row level**.
+
+### Side-by-side
+
+| Level | Expected n (at 70%) | Max false that still pass | Independence assumption |
+|---|---|---|---|
+| **Headline** (scored claims) | ≈267 | **1** | scored claims independent |
+| **Secondary A** (scored battery items) | ≈227 | **0** | slots iid within item; items independent |
+| **Secondary B** (scored request-set rows) | ≈101 | **cannot demonstrate** | claim-type tokens iid within row |
 
 ---
 
