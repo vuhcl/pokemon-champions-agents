@@ -157,7 +157,7 @@ Frozen quotes:
 
 **Mapping (as decided):** a winner named without a stated metric is **not a well-formed typed claim** → **no verdict**; the row **does not pass** (class failure under R7). A stated metric with the wrong winner → **FALSE** (`wrong_winner_for_stated_metric`).
 
-**Wording flag:** frozen text says **“unsupported — does not pass”**, not **“not SERVED”**. The mapping treats “does not pass” as class failure (same R7 bucket as not SERVED) with no claim verdict. That matches the intent of “does not pass” but is not the literal class token `not SERVED`.
+**H12 equivalence:** `"unsupported — does not pass"` is a **class fail with no verdict**, equivalent to **not SERVED** for scoring under R6/R7. The scorer matches on the key field (`scoring.unqualified_overall_winner_no_metric`), **not** the literal string `"not SERVED"`.
 
 ### R6 — mismatched assumption plus numbers
 
@@ -165,7 +165,7 @@ Frozen quotes:
 
 1. If the arm **states its conditions** and they **differ** from the key’s pin-derived top joint / item / field, the row is **not SERVED**.
 2. Numbers computed under those **stated, non-key** conditions are **not FALSE** merely because they differ from the key’s figures.
-3. Any assertion that the stated spread / item / ability **is the top or most common** one, when it is not → **FALSE** usage claim.
+3. **General rule (all ASSUME-STATE rows):** any assertion that the stated spread / item / ability **is the top or most common** one, when it is not → **FALSE** usage claim. This applies even though it is not written on every row.
 4. Numbers with **no** stated conditions remain **FALSE** (existing DM1/DM6 rule).
 
 **Cited existing assumption-matching text:**
@@ -175,14 +175,67 @@ Frozen quotes:
 - H5 answer key: `Stated Hatterene spread ≠ key (incl. Bold 0/0) → not SERVED` (`part3_request_set_v4.md` H5 row).
 - Request-set report DM6: `Stated attacker ≠ key → not SERVED; no stated attacker conditions → false claim`.
 
-**Frozen-text flag (DM6):** `dm_outputs.dm6.false_claims` **also lists** `"stated attacker nature/SP/item differing from key"`, which conflicts with `scoring.stated_attacker_differs_from_key` = `"not SERVED"`. This requirements file follows the **`scoring` field** and the DM1 / request-table pattern (mismatch → not SERVED, not FALSE). Owner should reconcile the DM6 `false_claims` list in a future key version if needed — **not** changed here (frozen).
-
-**Usage “top/most common” FALSE (clause 3):** not spelled as a single universal sentence on every ASSUME-STATE damage row; recorded here as the decided scorer rule, consistent with usage false-claim patterns elsewhere (e.g. H15 fabricated Timid joint / wrong weight labeling = false).
+(Clause 3 is consistent with usage false-claim patterns elsewhere, e.g. H15 fabricated Timid joint / wrong weight labeling = false.)
 
 ### Open items (owner)
 
 1. **Unverifiable-share flag threshold:** whether (and at what level) to flag a high unverifiable share (R8). Not decided here.
-2. **DM6 `false_claims` list vs `scoring`:** reconcile `"stated attacker nature/SP/item differing from key"` in `false_claims` with `scoring.stated_attacker_differs_from_key` = `"not SERVED"` in a future key revision.
+
+---
+
+## R9 — Frozen `false_claims` vs scoring conflicts
+
+Where a frozen key’s `false_claims` entry (or equivalent list) **conflicts** with its `scoring` / request-set row text under the R6/R7 rules, the scorer follows **`scoring` and the decided R6/R7 rules**. The conflicting `false_claims` entry is a **known defect** in the frozen key (table below). A fix is a **new key version with a new hash**, out of scope here — do not edit `derived_keys.json` in this package.
+
+### Sweep coverage (read-only; complete)
+
+| Measure | Count |
+|---|---|
+| Top-level keys in `derived_keys.json` | 58 |
+| Nodes with a `false_claims` field | **2** (`dm_outputs.dm6`, `mv3_rock_slide`) |
+| Of those, also having scoring / class-fail fields (checked for conflict) | **2** / **2** |
+| Confirmed conflicts under R6/R7 | **1** (DM6 only) |
+
+**Required-row confirmations (individually):**
+
+| Row / key | `false_claims`? | Conflict? |
+|---|---|---|
+| DM1 (`dm_outputs.dm1`) | No | None — `stated_conditions_differ_from_key` = not SERVED; no-conditions = false claim (aligned) |
+| DM2 (`dm_outputs.dm2`) | No | None |
+| DM3 (`dm_outputs.dm3`) | No | None |
+| DM4 (`dm_outputs.dm4`) | No | None |
+| DM5 (`dm_outputs.dm5`) | No | None |
+| DM6 (`dm_outputs.dm6`) | Yes | **Yes** — see table |
+| DM7 (`dm_outputs.dm7`) | No | None — `stated_attacker_differs_from_key` = not SERVED (no conflicting list). Row text “mismatch/unstated → not SERVED / false” is compressed; scoring splits mismatch vs unstated |
+| H5 (`h5`) | No | None — row: spread ≠ key → not SERVED |
+| H12 (`h12_sinistcha_calm_vs_bold`) | No | None — unsupported/wrong-winner live under `scoring`, not `false_claims` |
+| H18 (`h18_hyper_offense`) | No | None |
+| H18b (`h18b`) | No | None |
+| MU1 (`mu1_item_clause`) | No | None |
+| MU2–MU4 | No dedicated key objects in `derived_keys.json` | None (inline request-set “claims scored” only) |
+| MV3 (`mv3_rock_slide`) | Yes | **None** — list items are true FALSE claims; `targeting_without_accuracy` = not SERVED is a different condition, not listed under `false_claims` |
+| AR1–AR3 (`mt7_mt8_ar.*` / `ar3`) | No | None |
+
+**No other `false_claims`↔scoring conflict found beyond DM6.**
+
+### Structure differences (uniform reader note)
+
+| Field | Shape | Where |
+|---|---|---|
+| `false_claims` | `list[str]` | `dm_outputs.dm6`, `mv3_rock_slide` |
+| `failures` | `list[str]` (class / acceptance failures, **not** named `false_claims`) | `row_i_mega_charizard` |
+| Class-fail as sibling string | e.g. `targeting_without_accuracy: "not SERVED"` | `mv3_rock_slide` (no `scoring` object) |
+| Class-fail inside `scoring` | `scoring.<field>: "not SERVED"` / `"false claim"` / `"unsupported — does not pass"` | DM1/DM3/DM4/DM6/DM7, H12, H18, … |
+
+A scorer needs a uniform reader over `false_claims` **and** must not treat `failures` as FALSE claims without applying R6/R7 (MC1 `failures` are class/acceptance fails). Prefer `scoring` / row text when they conflict with `false_claims` (this R9).
+
+### Known defect table
+
+| Key id | `false_claims` entry (verbatim) | Conflicting scoring / row text (verbatim) | Path | R6/R7 resolution |
+|---|---|---|---|---|
+| DM6 | `stated attacker nature/SP/item differing from key` | `scoring.stated_attacker_differs_from_key` = `"not SERVED"`; request-set DM6 row: `mismatch → not SERVED` | `derived_keys.dm_outputs.dm6`; `part3_request_set_v4.md` DM6 row | **not SERVED** (class fail, no FALSE) unless the arm also asserts the assumption is the top/most common (FALSE usage). Do **not** count the list entry as FALSE. |
+
+Non-conflicting DM6 `false_claims` items (aligned with `scoring`): `applying -1 Atk stage`; `presenting intimidate_off as a meaningful second case`; `numbers with no stated attacker conditions` (= `scoring.numbers_without_stated_attacker_conditions` / `scoring.applying_minus1_or_second_case` = false claim).
 
 ---
 
