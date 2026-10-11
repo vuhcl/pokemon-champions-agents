@@ -14,25 +14,28 @@
 
 ## Gate decision rule (verbatim; Vu decided)
 
-**Gate:** upper 95% one-sided bound on the false-claim rate ≤ 2%, evaluated on **REALIZED** model-authored claims.
+**Gate:** one-sided 95% Clopper-Pearson upper bound on the false-claim rate ≤ 2%, applied to **scored claims the arm actually authors** (model-authored / extracted), **not** to designed claim slots.
 
-**Pass table:**
+**Exact pass table** (smallest scored-claim count `n` at which `k` false claims still pass; binary-search CP UCB ≤ 0.02):
 
-| Observed failures | Required realized claims n |
-|---|---|
-| 0 | n ≥ 149 |
-| 1 | n ≥ 237 |
-| 2 | n ≥ 314 |
+| Observed false claims k | Exact min scored claims n | Prior design-table n | Δ |
+|---|---|---|---|
+| 0 | **149** | 149 | 0 |
+| 1 | **236** | 237 | −1 |
+| 2 | **313** | 314 | −1 |
+| 3 | **386** | (not listed; ~387 approx) | — |
 
-**Size target:** **300** prompt items → about **267** realized claims at the stated rates (below). This exceeds the 240 floor used by the stop/extend rule.
+**Denominator:** the arm’s **scored** (model-authored) claim count after a run.
 
-**Denominator:** the arm’s realized claim count.
+**Design floor 240:** the 1-failure threshold (**236**) plus a small margin; stop/extend if scored claims &lt; 240 before reading results.
 
-**Stop/extend rule:** If realized claims are less than 240 after a run, the battery is **extended BEFORE any results are read**; no conclusions from a short run. (Plain text — no percentages beyond the gate table above, which is the Vu-decided rule.)
+**Size target:** **300** items → **381** designed claim slots → expected scored claims = `381 × 0.70 ≈ 267` under the explicit **70% answer-rate** pre-run assumption (below). At that expected scored count, headline tolerance is **1** false claim (not 2).
+
+**Stop/extend rule:** If scored claims are less than 240 after a run, the battery is **extended BEFORE any results are read**; no conclusions from a short run.
 
 **Verdict cost accepted:** a failing result is reported as a **failure**, not re-run or re-sized after the fact.
 
-**Bare-LLM:** same extractor, same items; report its realized count separately; bare-LLM rate is a **comparison, not gated**.
+**Bare-LLM:** same extractor, same items; report its scored count separately; bare-LLM rate is a **comparison, not gated**.
 
 ---
 
@@ -165,27 +168,23 @@ Oracle Showdown commit in this pass: `942cda71…` (live cache). Pinned extract 
 
 ---
 
-## What “realized” means (two different counts)
+## What “realized” / scored means (two different counts)
 
 | Term | What it counts | When |
 |---|---|---|
-| **Claim slots (battery inventory)** | Designed scorable claim entries attached to the 300 generated items (`n_claims` / `claims[]` in `claim_battery_v4.json`) | At generation / registration |
-| **Model-authored realized claims** | Claims the arm actually writes in a scored response (after extractors); declines/incomplete → 0 for that item | After a model run |
+| **Claim slots (battery inventory)** | Designed scorable claim entries on the 300 items (`n_claims` / `claims[]`) | At generation |
+| **Scored claims** | Claims the arm actually authors that enter the false-claim gate denominator | After a model run |
 
-The generated battery reports **381 claim slots**: the sum of per-item integer claim counts drawn from the design rates below (fractional rates use a seeded Bernoulli, so the total is an integer near 381.6). That is **not** a model-run count.
+**381** = designed claim slots (seed 0). **Expected scored claims** = `381 × 0.70 ≈ 267` under the explicit **70% answer-rate** pre-run assumption (30% decline/incomplete → no scored claims from that item). The gate always uses the arm’s **actual** scored count; if the answer rate is lower, tolerance shrinks (see staircase).
 
-The earlier **~267** figure was a **pre-run sizing estimate**: 381.6 designed slots × **70%** items yielding a scorable response ≈ 267 model-authored claims. It remains the stop/extend planning number for after a run; it must not be confused with the battery’s registered slot count (381).
-
-**Headline gate denominator (registration):** use the battery’s **381 claim slots** when reporting gate arithmetic on the frozen artifact. After a model run, the gate’s denominator is the arm’s **model-authored** realized count (Vu rule); if that is &lt; 240, extend before reading results.
-
-## Sizing arithmetic (300 items → 381 slots; ~267 estimated post-run)
+## Sizing arithmetic (300 items → 381 slots → ~267 expected scored)
 
 **Assumptions (explicit):**
 
 - Per-type claims/item (if answered): typing 1.0, ability 1.0, item 1.1, legality 1.0, speed 1.2, damage 1.5, usage 2.0, move static 1.3.
-- **70%** of items yield a scorable response (30% decline/incomplete → 0 model-authored claims) — used only for the post-run estimate / stop-extend planning.
+- **Answer rate 70%** (pre-run assumption): fraction of items that yield a scorable response.
 
-| Type | Items | Claims/item | Designed slots @100% | Est. model-authored @70% |
+| Type | Items | Claims/item | Designed slots @100% | Est. scored @70% |
 |---|---|---|---|---|
 | typing | 38 | 1.0 | 38.0 | 26.6 |
 | ability | 38 | 1.0 | 38.0 | 26.6 |
@@ -197,26 +196,46 @@ The earlier **~267** figure was a **pre-run sizing estimate**: 381.6 designed sl
 | move static | 30 | 1.3 | 39.0 | 27.3 |
 | **Sum** | **300** | | **381.6** | **267.2** |
 
-**Generated battery (seed 0):** **300** items → **381** claim slots (by type: typing 38, ability 38, item 40, legality 30, speed 51, damage 67, usage 76, move_static 41).  
-**Stop/extend floor:** if **model-authored** realized claims are less than 240 after a run, extend before reading results.  
-**Sizing:** 381 slots ≥ 240; estimated post-run ~267 ≥ 240 → no extend from sizing alone. Request-set multi-turn rows carry per-turn classes in `part3_request_set_v4.md`; AR3 damage claims must carry the ability they were computed under (Tough Claws for Mega-X). DM3/DM4/DM6/DM7 damage claims must carry Intimidate on/off (or immune/Defiant) cases as keyed.
+**Generated battery (seed 0):** **300** items → **381** claim slots.  
+**Expected scored:** `381 × 0.70 ≈ 267`. At that count, headline max false claims that still pass = **1**.  
+**Design floor 240** = 1-failure threshold (236) + margin; if scored &lt; 240, extend before reading results.
+
+### Answer rates at which headline tolerance drops
+
+Scored claims ≈ `381 × answer_rate`. Exact thresholds from the pass table:
+
+| If answer rate falls below… | Scored n falls below… | Max false claims that still pass |
+|---|---|---|
+| **82.2%** (`313/381`) | 313 (2-failure min n) | drops from 2 → **at most 1** |
+| **61.9%** (`236/381`) | 236 (1-failure min n) | drops from 1 → **0 only** |
+| **39.1%** (`149/381`) | 149 (0-failure min n) | even **0** false fails the gate (extend) |
+
+At the assumed **70%** rate (expected ~267 scored), tolerance is **1** false claim. If the arm’s actual answer rate is lower, tolerance shrinks accordingly.
 
 ---
 
 ## Gate independence assumption (statistical)
 
-The headline gate (one-sided 95% Clopper-Pearson UCB on the false-claim rate ≤ 2%) treats claim outcomes as **independent**. That is **not** addressed by ADR-060 (oracle independence from code under test) and was not previously limited in this design.
+The headline gate treats scored-claim outcomes as **independent**. That is **not** addressed by ADR-060 (oracle independence from code under test).
 
-**Limitation:** claims cluster by battery item (and by shared keys / fixtures across request-set rows — e.g. Intimidate DM rows, H12 threats). The effective independent sample is smaller than the claim-slot count, so the claim-level bound is **optimistic**.
+**Limitation:** claims cluster by battery item (and by shared keys / fixtures — e.g. Intimidate DM rows, H12 threats). The effective independent sample is smaller than the scored-claim count, so the claim-level bound is **optimistic**.
 
-**Cluster-aware secondary figure (does not replace the headline gate):** treat each of the **300** battery items as one cluster/row. Same one-sided 95% CP ≤ 2% criterion on the **item** false rate:
+**Cluster-aware secondary (does not replace the headline gate):** same one-sided 95% CP ≤ 2% on **scored items** (items with ≥1 model-authored claim).
 
-| Level | n | Max failures that still pass |
+**Method:** every designed item has ≥1 claim slot (all type rates ≥ 1.0), so “item answered” ≡ “item contributes ≥1 scored claim” under the same **70% answer-rate** assumption → expected scored items = `300 × 0.70 = 210`. (Not a separate design-rate product; the 70% shortcut is the method.)
+
+| False items k | Exact min scored items n |
+|---|---|
+| 0 | **149** |
+| 1 | **236** |
+| 2 | **313** |
+
+| Level | Expected n (at 70%) | Max false that still pass |
 |---|---|---|
-| Headline (claim slots) | 381 | **2** |
-| Cluster-aware (battery items) | 300 | **1** |
+| Headline (scored claims) | ≈267 | **1** |
+| Cluster-aware (scored items) | **210** | **0** |
 
-(Computed via the same binary-search Clopper-Pearson upper bound ≤ 0.02; design floor 240 still concerns model-authored claim count after a run.)
+**Plainly:** at the expected scored-item count (210), the cluster-aware tolerance is **stricter than the headline** — **0** false items pass, while the headline still allows **1** false claim.
 
 ---
 

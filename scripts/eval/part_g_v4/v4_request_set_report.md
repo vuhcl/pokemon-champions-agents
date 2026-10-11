@@ -5,7 +5,7 @@
 - Damage slice: DM1–DM7 (**7**)
 - Theme slice: H17–H22 + H18b (**7**)
 - Build traps: IC1, GT1, GS1, LZ1, TB1, TB2, MM1, MM2, MC1, RB1 (**10**)
-- Claim battery: **300** items → **381 claim slots** (designed inventory at seed 0; not a model-run count). Post-run estimate remains ~267 model-authored @70% answer rate (≥ 240 stop/extend floor) → **no extend** from sizing. See battery design: claim slots vs model-authored realized.
+- Claim battery: **300** items → **381 claim slots**; expected **scored** claims = `381 × 0.70 ≈ 267` (70% answer-rate assumption). Gate uses scored claims, not slots. At ~267 scored, headline tolerance = **1** false claim. Design floor **240** = 1-failure threshold (236) + margin → **no extend** from sizing. Exact staircase: 0→149, 1→236, 2→313, 3→386 scored claims.
 
 ## Already applied (skipped duplicates)
 - AR3 recoil/AJ chain/HP-0 text from keys

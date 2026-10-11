@@ -47,13 +47,16 @@ def main() -> int:
         "h12_probe_wb_politoed_rain",
     ]
 
-    required = set(ids_in_keys) | set(h12_expected) | set(h12_probes)
-    missing = sorted(required - set(saved))
-
-    # DM4 min_atk: require winner calc_id and full search ladder files when present in keys
+    # DM4 min_atk search: regeneration recomputes min_atk_sp by walking Atk SP 0..32
+    # (or until OHKO). All search-step artifacts are required for offline regen.
+    dm4_prefixes = [
+        "dm4_eq_inc_intim_on_spread_min",
+        "dm4_eq_inc_intim_on_singletarget_min",
+        "dm4_eq_inc_intim_off_spread_min",
+        "dm4_eq_inc_intim_off_singletarget_min",
+    ]
     dm4 = ((keys.get("dm_outputs") or {}).get("dm4") or {}).get("incineroar_defender") or {}
-    dm4_search_missing = []
-    dm4_search_files = sorted(p for p in saved if "_min_atk" in p)
+    dm4_required: set[str] = set()
     for case in (dm4.get("cases") or {}).values() if isinstance(dm4.get("cases"), dict) else []:
         if not isinstance(case, dict):
             continue
@@ -62,34 +65,35 @@ def main() -> int:
                 continue
             detail = sub.get("min_atk_sp_detail") or {}
             winner_id = detail.get("calc_id")
-            if winner_id and winner_id not in saved:
-                dm4_search_missing.append(winner_id)
-            # Every persisted search step for this prefix must exist when winner exists
+            sp = detail.get("min_atk_sp")
             if winner_id and "_min_atk" in winner_id:
                 prefix = winner_id.rsplit("_atk", 1)[0]
-                sp = detail.get("min_atk_sp")
-                if isinstance(sp, int):
-                    for i in range(0, sp + 1):
-                        aid = f"{prefix}_atk{i}"
-                        if aid not in saved:
-                            dm4_search_missing.append(aid)
+                # OHKO found: builder called 0..sp inclusive; unreachable: full 0..32
+                hi = int(sp) if isinstance(sp, int) else 32
+                for i in range(0, hi + 1):
+                    dm4_required.add(f"{prefix}_atk{i}")
+            elif detail.get("unreachable_at_32") or sp is None:
+                # Infer prefix from case calc_id + "_min"
+                base = sub.get("calc_id")
+                if base:
+                    for i in range(0, 33):
+                        dm4_required.add(f"{base}_min_atk{i}")
 
-    # Contiguous ladder 0..max_sp for each dm4_*_min prefix on disk (no gaps)
-    prefixes = {p.rsplit("_atk", 1)[0] for p in dm4_search_files if "_atk" in p}
-    for prefix in sorted(prefixes):
-        sps = []
-        for s in saved:
-            if s.startswith(prefix + "_atk"):
-                try:
-                    sps.append(int(s.rsplit("_atk", 1)[1]))
-                except ValueError:
-                    pass
-        if not sps:
+    # Also require any *_min_atk* already on disk (no silent drops)
+    dm4_on_disk = {s for s in saved if "_min_atk" in s}
+    dm4_required |= dm4_on_disk
+    # Ensure known prefixes have contiguous ladders matching what regen will call
+    for prefix in dm4_prefixes:
+        present = [int(s.rsplit("_atk", 1)[1]) for s in dm4_on_disk if s.startswith(prefix + "_atk")]
+        if not present:
+            # expect full ladder if keys say unreachable for that case — filled above
             continue
-        for i in range(0, max(sps) + 1):
-            aid = f"{prefix}_atk{i}"
-            if aid not in saved:
-                dm4_search_missing.append(aid)
+        for i in range(0, max(present) + 1):
+            dm4_required.add(f"{prefix}_atk{i}")
+
+    required = set(ids_in_keys) | set(h12_expected) | set(h12_probes) | dm4_required
+    missing = sorted(required - set(saved))
+    dm4_search_missing = sorted(dm4_required - set(saved))
 
     coverage = {
         "artifacts_saved": len(saved),
@@ -97,21 +101,25 @@ def main() -> int:
         "h12_candidate_nature_calls_expected": len(h12_expected),
         "h12_probes_expected": len(h12_probes),
         "h12_calls_plus_probes": len(h12_expected) + len(h12_probes),
-        "dm4_min_atk_search_artifacts": len(dm4_search_files),
+        "dm4_min_atk_search_required": len(dm4_required),
+        "dm4_min_atk_search_saved": len(dm4_on_disk),
         "required_for_offline_key_regen": len(required),
         "missing_required": missing,
-        "dm4_search_missing": sorted(set(dm4_search_missing)),
+        "dm4_search_missing": dm4_search_missing,
         "inventory": {
             "h12_candidate_x_nature": len(h12_expected),
             "h12_probes": len(h12_probes),
-            "dm4_min_atk_search_steps_saved": len(dm4_search_files),
-            "other_artifacts": len(saved) - len(h12_expected) - len(h12_probes) - len(dm4_search_files),
+            "dm4_min_atk_search_steps": len(dm4_required),
+            "other_in_required": len(required)
+            - len(h12_expected)
+            - len(h12_probes)
+            - len(dm4_required),
             "total_saved": len(saved),
-            "calls_without_saved_artifact": missing + sorted(set(dm4_search_missing)),
+            "calls_without_saved_artifact": missing,
         },
         "note": (
-            "H12 alone: up to 35 threats × ≤4 candidate moves × 2 natures; "
-            "actual candidate×nature matrix from keys is h12_candidate_nature_calls_expected. "
+            "Required offline set = key calc_ids + H12 candidate×nature + H12 probes "
+            "+ DM4 min_atk search ladders (regen recomputes min_atk_sp from the search). "
             "calc_store is offline-first; PART_G_V4_REQUIRE_CALC_ARTIFACT=1 fails on missing ids."
         ),
     }
@@ -137,9 +145,8 @@ def main() -> int:
     print(
         f"PASS check_calc_artifacts: saved={len(saved)} "
         f"required_offline={len(required)} "
-        f"h12_candidate×nature={len(h12_expected)} "
-        f"key_calc_ids={len(ids_in_keys)} "
-        f"missing=0"
+        f"(h12={len(h12_expected)+len(h12_probes)} dm4_search={len(dm4_required)} "
+        f"key_ids={len(ids_in_keys)}; overlaps possible) missing=0"
     )
     print(f"  wrote {REPORT.relative_to(PKG)}")
     return 0

@@ -56,8 +56,21 @@ def main() -> int:
             print(" -", e)
         return 1
     print(f"PASS check_battery_hash: claim={claim_hash} false_legal={fl_hash}")
-    print(f"  realized_claims={after['realized_claims_total']} by_type={after['realized_claim_counts_by_type']}")
-    print(f"  gate={after['gate']}")
+    slots = after.get("claim_slots_total") or after.get("realized_claims_total")
+    by_type = after.get("claim_slot_counts_by_type") or after.get(
+        "realized_claim_counts_by_type"
+    )
+    print(f"  claim_slots={slots} by_type={by_type}")
+    rd = after.get("realized_definition") or {}
+    print(
+        f"  expected_scored≈{rd.get('expected_scored_claims_rounded')} "
+        f"@ answer_rate={rd.get('answer_rate_assumption')}"
+    )
+    print(f"  gate_staircase={after['gate'].get('exact_min_scored_n_for_k_false')}")
+    print(
+        f"  expected_tolerance_false_claims="
+        f"{after['gate'].get('max_false_claims_passing_at_expected_scored')}"
+    )
     return 0
 
 

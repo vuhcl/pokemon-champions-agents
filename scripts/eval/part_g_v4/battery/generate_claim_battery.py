@@ -425,8 +425,10 @@ def main() -> int:
     claim_path.write_text(claim_text)
     fl_path.write_text(fl_text)
 
-    # Gate arithmetic on designed claim slots (n_claims_total)
-    n = claim["n_claims_total"]
+    # Gate arithmetic is on *scored* claims (post-run), not designed slots.
+    slots = claim["n_claims_total"]
+    answer_rate = 0.70  # explicit pre-run assumption
+    expected_scored = slots * answer_rate  # ≈267
 
     def binom_cdf_le(k: int, n_: int, p: float) -> float:
         from math import comb
@@ -444,7 +446,7 @@ def main() -> int:
         if k < 0:
             return 0.0
         lo, hi = 0.0, 1.0
-        for _ in range(100):
+        for _ in range(120):
             mid = (lo + hi) / 2
             if binom_cdf_le(k, n_, mid) > alpha:
                 lo = mid
@@ -467,11 +469,12 @@ def main() -> int:
             n_ += 1
         return n_
 
-    max_k_at_n = max_k(n)
-    min_n_one_fail = min_n(1)
-    design_floor = 240
+    staircase = {str(k): min_n(k) for k in range(0, 4)}
+    design_floor = 240  # 1-failure threshold (236) + margin
+    expected_scored_int = int(round(expected_scored))  # 267
+    # scored items: every item has ≥1 designed slot → same 70% answer-rate shortcut
+    expected_scored_items = int(round(CLAIM_ITEMS * answer_rate))  # 210
 
-    max_k_items = max_k(CLAIM_ITEMS)
     manifest = {
         "seed": SEED,
         "claim_battery_path": "battery/claim_battery_v4.json",
@@ -480,35 +483,67 @@ def main() -> int:
         "false_legal_battery_sha256": fl_hash,
         "canonical_serialization": "json.dumps(sort_keys=True, separators=(',', ':')) + newline",
         "n_claim_items": claim["n_items"],
-        "realized_claim_counts_by_type": claim["claim_counts_by_type"],
-        "realized_claims_total": n,
+        "claim_slot_counts_by_type": claim["claim_counts_by_type"],
+        "claim_slots_total": slots,
         "realized_definition": {
-            "battery_report_counts": "claim_slots",
-            "claim_slots": n,
-            "post_run_estimate_at_70pct": 267,
+            "claim_slots": slots,
+            "answer_rate_assumption": answer_rate,
+            "expected_scored_claims": expected_scored,
+            "expected_scored_claims_rounded": expected_scored_int,
+            "formula": "expected_scored_claims = claim_slots × answer_rate",
             "note": (
-                f"{n} = designed claim slots in generated battery; "
-                "~267 was 381.6×0.7 model-authored estimate (not the battery inventory)."
+                "Gate denominator = scored (model-authored) claims after a run, not claim slots. "
+                f"{slots} slots × {answer_rate} ≈ {expected_scored_int} expected scored."
             ),
         },
         "gate": {
-            "rule": "one-sided 95% Clopper-Pearson upper bound on false-claim rate ≤ 2%",
-            "realized_n": n,
-            "max_false_claims_passing_at_realized_n": max_k_at_n,
-            "smallest_n_where_exactly_one_false_claim_passes": min_n_one_fail,
+            "rule": (
+                "one-sided 95% Clopper-Pearson UCB on false-claim rate ≤ 2%, "
+                "on scored (model-authored) claims — not designed slots"
+            ),
+            "exact_min_scored_n_for_k_false": staircase,
+            "prior_design_table": {"0": 149, "1": 237, "2": 314},
+            "delta_vs_prior_design_table": {
+                "0": 0,
+                "1": staircase["1"] - 237,
+                "2": staircase["2"] - 314,
+                "note": "Exact binary-search CP is 1 below the prior table for k=1 and k=2",
+            },
             "design_floor": design_floor,
-            "design_floor_matches": design_floor >= min_n_one_fail,
-            "pass_table_reference": {"0": 149, "1": 237, "2": 314},
-            "computed_min_n": {"0": min_n(0), "1": min_n_one_fail, "2": min_n(2)},
-            "note": "Reference table uses 237/314; exact CP binary search yields 236/313 at bound≤0.02. Design floor 240 covers one false claim under either figure.",
+            "design_floor_meaning": "1-failure threshold (236) + margin; stop/extend if scored < 240",
+            "expected_scored_claims_at_70pct": expected_scored_int,
+            "max_false_claims_passing_at_expected_scored": max_k(expected_scored_int),
+            "answer_rate_tolerance_drops": {
+                "below_rate_for_2_false": staircase["2"] / slots,
+                "below_rate_for_1_false": staircase["1"] / slots,
+                "below_rate_for_0_false_gate_fails": staircase["0"] / slots,
+                "note": (
+                    "If answer rate falls below these fractions of slots, "
+                    "max false claims that still pass drops (2→1, 1→0, then even 0 fails)."
+                ),
+            },
             "cluster_aware": {
-                "unit": "battery_item",
-                "n_items": CLAIM_ITEMS,
-                "max_false_items_passing": max_k_items,
-                "rule": "same one-sided 95% CP UCB ≤ 2% on item-level false rate",
+                "unit": "scored_battery_item",
+                "method": (
+                    "70% answer-rate shortcut: every item has ≥1 designed slot, "
+                    "so expected scored items = 300 × 0.70 = 210"
+                ),
+                "expected_scored_items_at_70pct": expected_scored_items,
+                "exact_min_scored_items_for_k_false": {
+                    str(k): staircase[str(k)] for k in ("0", "1", "2")
+                },
+                "max_false_items_passing_at_expected_scored_items": max_k(
+                    expected_scored_items
+                ),
+                "stricter_than_headline": True,
+                "plain": (
+                    f"At expected scored items ({expected_scored_items}), "
+                    "cluster-aware tolerance is 0 false items; "
+                    f"headline at expected scored claims ({expected_scored_int}) allows 1 false claim."
+                ),
                 "does_not_replace_headline_gate": True,
                 "limitation": (
-                    "headline claim-level bound assumes independent claims; "
+                    "headline assumes independent scored claims; "
                     "clustering by item/shared keys makes it optimistic"
                 ),
             },
@@ -518,7 +553,18 @@ def main() -> int:
         "tuning_forbidden": True,
     }
     (out_dir / "battery_manifest.json").write_text(canonical_dumps(manifest))
-    print(json.dumps({"claim_sha256": claim_hash, "realized_claims": n, "by_type": claim["claim_counts_by_type"], "gate": manifest["gate"]}, indent=2))
+    print(
+        json.dumps(
+            {
+                "claim_sha256": claim_hash,
+                "claim_slots": slots,
+                "expected_scored": expected_scored_int,
+                "by_type": claim["claim_counts_by_type"],
+                "gate": manifest["gate"],
+            },
+            indent=2,
+        )
+    )
     return 0
 
 
