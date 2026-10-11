@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_golisopodmega_leechlife_bold",
+  "request": {
+    "attacker": {
+      "species": "Golisopod-Mega",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Tough Claws",
+      "evs": {
+        "hp": 32,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Golisopite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Leech Life",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      76,
+      90
+    ],
+    "koChance": "1.2% chance to 2HKO",
+    "raw": {
+      "damage": [
+        76,
+        76,
+        78,
+        78,
+        79,
+        81,
+        81,
+        82,
+        82,
+        84,
+        85,
+        85,
+        87,
+        87,
+        88,
+        90
+      ],
+      "range": [
+        76,
+        90
+      ],
+      "kochance": {
+        "chance": 0.01171875,
+        "n": 2,
+        "text": "1.2% chance to 2HKO"
+      },
+      "desc": "32+ Atk Tough Claws Golisopod-Mega Leech Life vs. 32 HP / 32+ Def Sinistcha: 76-90 (42.6 - 50.5%) -- 1.2% chance to 2HKO",
+      "fullDesc": "32+ Atk Tough Claws Golisopod-Mega Leech Life vs. 32 HP / 32+ Def Sinistcha: 76-90 (42.6 - 50.5%) -- 1.2% chance to 2HKO",
+      "recovery": {
+        "recovery": [
+          38,
+          45
+        ],
+        "text": "20.8 - 24.7% recovered"
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 182,
+          "atk": 222,
+          "def": 195,
+          "spa": 81,
+          "spd": 142,
+          "spe": 60
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      76,
+      90
+    ],
+    "ko_chance": "1.2% chance to 2HKO",
+    "desc": "32+ Atk Tough Claws Golisopod-Mega Leech Life vs. 32 HP / 32+ Def Sinistcha: 76-90 (42.6 - 50.5%) -- 1.2% chance to 2HKO",
+    "max_damage": 90,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Tough Claws",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Tough Claws:desc_echo_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

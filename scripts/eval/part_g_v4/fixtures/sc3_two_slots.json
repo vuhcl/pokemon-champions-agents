@@ -1,0 +1,19 @@
+{
+  "note": "SC3: species locked in slots 2 and 4",
+  "slots": [
+    {
+      "slot": 2,
+      "species": "Archaludon",
+      "ability": "Stamina",
+      "item": "Leftovers",
+      "locked": true
+    },
+    {
+      "slot": 4,
+      "species": "Gholdengo",
+      "ability": "Good as Gold",
+      "item": "Life Orb",
+      "locked": true
+    }
+  ]
+}

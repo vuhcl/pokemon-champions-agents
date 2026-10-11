@@ -1,0 +1,132 @@
+{
+  "id": "ar3_aquajet_joint0_lo_hp32",
+  "request": {
+    "attacker": {
+      "species": "Primarina",
+      "level": 50,
+      "nature": "Modest",
+      "ability": "Torrent",
+      "item": "Life Orb",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 2,
+        "spe": 0
+      }
+    },
+    "defender": {
+      "species": "Charizard-Mega-X",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Tough Claws",
+      "item": "Charizardite X",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Aqua Jet",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      21,
+      25
+    ],
+    "koChance": "possible 8HKO",
+    "raw": {
+      "damage": [
+        21,
+        21,
+        21,
+        21,
+        21,
+        21,
+        21,
+        21,
+        23,
+        23,
+        23,
+        23,
+        23,
+        23,
+        23,
+        25
+      ],
+      "range": [
+        21,
+        25
+      ],
+      "kochance": {
+        "n": 8,
+        "text": "possible 8HKO"
+      },
+      "desc": "0- Atk Life Orb Primarina Aqua Jet vs. 32 HP / 0 Def Charizard-Mega-X: 21-25 (11.3 - 13.5%) -- possible 8HKO",
+      "fullDesc": "0- Atk Life Orb Primarina Aqua Jet vs. 32 HP / 0 Def Charizard-Mega-X: 21-25 (11.3 - 13.5%) -- possible 8HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 187,
+          "atk": 84,
+          "def": 94,
+          "spa": 195,
+          "spd": 138,
+          "spe": 80
+        },
+        "defender": {
+          "hp": 185,
+          "atk": 165,
+          "def": 131,
+          "spa": 135,
+          "spd": 105,
+          "spe": 120
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      21,
+      25
+    ],
+    "ko_chance": "possible 8HKO",
+    "desc": "0- Atk Life Orb Primarina Aqua Jet vs. 32 HP / 0 Def Charizard-Mega-X: 21-25 (11.3 - 13.5%) -- possible 8HKO",
+    "max_damage": 25,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Torrent",
+    "defender_ability": "Tough Claws",
+    "notes": [
+      "attacker:Torrent:legal_ok",
+      "defender:Tough Claws:legal_ok"
+    ]
+  }
+}

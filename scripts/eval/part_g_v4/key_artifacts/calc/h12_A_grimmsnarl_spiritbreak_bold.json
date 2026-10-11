@@ -1,0 +1,132 @@
+{
+  "id": "h12_A_grimmsnarl_spiritbreak_bold",
+  "request": {
+    "attacker": {
+      "species": "Grimmsnarl",
+      "level": 50,
+      "nature": "Sassy",
+      "ability": "Prankster",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 19,
+        "spa": 0,
+        "spd": 15,
+        "spe": 0
+      },
+      "item": "Light Clay"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Spirit Break",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      34,
+      42
+    ],
+    "koChance": "possible 5HKO",
+    "raw": {
+      "damage": [
+        34,
+        36,
+        36,
+        36,
+        36,
+        37,
+        37,
+        37,
+        39,
+        39,
+        39,
+        39,
+        40,
+        40,
+        40,
+        42
+      ],
+      "range": [
+        34,
+        42
+      ],
+      "kochance": {
+        "n": 5,
+        "text": "possible 5HKO"
+      },
+      "desc": "0 Atk Grimmsnarl Spirit Break vs. 32 HP / 32+ Def Sinistcha: 34-42 (19.1 - 23.5%) -- possible 5HKO",
+      "fullDesc": "0 Atk Grimmsnarl Spirit Break vs. 32 HP / 32+ Def Sinistcha: 34-42 (19.1 - 23.5%) -- possible 5HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 202,
+          "atk": 140,
+          "def": 104,
+          "spa": 115,
+          "spd": 121,
+          "spe": 72
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      34,
+      42
+    ],
+    "ko_chance": "possible 5HKO",
+    "desc": "0 Atk Grimmsnarl Spirit Break vs. 32 HP / 32+ Def Sinistcha: 34-42 (19.1 - 23.5%) -- possible 5HKO",
+    "max_damage": 42,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Prankster",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Prankster:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

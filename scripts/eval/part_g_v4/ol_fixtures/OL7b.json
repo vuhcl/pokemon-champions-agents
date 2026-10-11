@@ -1,0 +1,64 @@
+{
+  "id": "OL7b",
+  "reply": "the faster one",
+  "pending_kind": "full_build_confirmation",
+  "pending": {
+    "schema_version": 1,
+    "kind": "full_build_confirmation",
+    "slot_index": 0,
+    "provisional_fingerprint": "fixture-fbc-multi-v1",
+    "build_option_groups": [
+      {
+        "axis": "spread_nature",
+        "options": [
+          {
+            "option_id": "spread_nature:1",
+            "label": "Slow bulky",
+            "axis": "spread_nature",
+            "spe": 0
+          },
+          {
+            "option_id": "spread_nature:2",
+            "label": "Fast sweeper",
+            "axis": "spread_nature",
+            "spe": 32
+          }
+        ]
+      }
+    ]
+  },
+  "team": [
+    {
+      "slot": 0,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 1,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 2,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 3,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 4,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 5,
+      "species": null,
+      "locked": false
+    }
+  ],
+  "verifiably_faster": "spread_nature:2",
+  "expected": "acceptance={bind spread_nature:2 Fast sweeper, ask}; other bind=fail"
+}

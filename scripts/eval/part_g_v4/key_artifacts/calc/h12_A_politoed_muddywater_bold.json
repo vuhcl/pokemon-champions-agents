@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_politoed_muddywater_bold",
+  "request": {
+    "attacker": {
+      "species": "Politoed",
+      "level": 50,
+      "nature": "Quiet",
+      "ability": "Drizzle",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 2,
+        "spa": 32,
+        "spd": 0,
+        "spe": 0
+      },
+      "item": "Sitrus Berry"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Muddy Water",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Rain"
+    }
+  },
+  "response": {
+    "damageRange": [
+      44,
+      52
+    ],
+    "koChance": "99.9% chance to 4HKO",
+    "raw": {
+      "damage": [
+        44,
+        45,
+        45,
+        45,
+        46,
+        47,
+        47,
+        48,
+        48,
+        48,
+        49,
+        50,
+        50,
+        51,
+        51,
+        52
+      ],
+      "range": [
+        44,
+        52
+      ],
+      "kochance": {
+        "chance": 0.9998016357421875,
+        "n": 4,
+        "text": "99.9% chance to 4HKO"
+      },
+      "desc": "32+ SpA Politoed Muddy Water vs. 32 HP / 0 SpD Sinistcha in Rain: 44-52 (24.7 - 29.2%) -- 99.9% chance to 4HKO",
+      "fullDesc": "32+ SpA Politoed Muddy Water vs. 32 HP / 0 SpD Sinistcha in Rain: 44-52 (24.7 - 29.2%) -- 99.9% chance to 4HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 197,
+          "atk": 95,
+          "def": 97,
+          "spa": 156,
+          "spd": 120,
+          "spe": 81
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      44,
+      52
+    ],
+    "ko_chance": "99.9% chance to 4HKO",
+    "desc": "32+ SpA Politoed Muddy Water vs. 32 HP / 0 SpD Sinistcha in Rain: 44-52 (24.7 - 29.2%) -- 99.9% chance to 4HKO",
+    "max_damage": 52,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Drizzle",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Drizzle:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

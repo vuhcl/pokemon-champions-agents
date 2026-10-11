@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_kingambit_ironhead_calm",
+  "request": {
+    "attacker": {
+      "species": "Kingambit",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Defiant",
+      "evs": {
+        "hp": 32,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Chople Berry"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Iron Head",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      58,
+      70
+    ],
+    "koChance": "99.7% chance to 3HKO",
+    "raw": {
+      "damage": [
+        58,
+        60,
+        60,
+        61,
+        61,
+        63,
+        63,
+        64,
+        64,
+        66,
+        66,
+        67,
+        67,
+        69,
+        69,
+        70
+      ],
+      "range": [
+        58,
+        70
+      ],
+      "kochance": {
+        "chance": 0.996826171875,
+        "n": 3,
+        "text": "99.7% chance to 3HKO"
+      },
+      "desc": "32+ Atk Kingambit Iron Head vs. 32 HP / 32 Def Sinistcha: 58-70 (32.5 - 39.3%) -- 99.7% chance to 3HKO",
+      "fullDesc": "32+ Atk Kingambit Iron Head vs. 32 HP / 32 Def Sinistcha: 58-70 (32.5 - 39.3%) -- 99.7% chance to 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 207,
+          "atk": 205,
+          "def": 140,
+          "spa": 72,
+          "spd": 107,
+          "spe": 70
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      58,
+      70
+    ],
+    "ko_chance": "99.7% chance to 3HKO",
+    "desc": "32+ Atk Kingambit Iron Head vs. 32 HP / 32 Def Sinistcha: 58-70 (32.5 - 39.3%) -- 99.7% chance to 3HKO",
+    "max_damage": 70,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Defiant",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Defiant:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

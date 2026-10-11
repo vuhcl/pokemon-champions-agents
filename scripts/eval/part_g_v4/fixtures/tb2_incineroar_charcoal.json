@@ -1,0 +1,8 @@
+{
+  "note": "TB2: Incineroar locked with Charcoal; sole damaging Fire move on set is Flare Blitz.",
+  "species": "Incineroar",
+  "item": "Charcoal",
+  "ability": "Intimidate",
+  "nature": "Adamant",
+  "moves": ["Flare Blitz", "Fake Out", "U-turn", "Parting Shot"]
+}

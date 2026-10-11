@@ -1,0 +1,133 @@
+{
+  "id": "dm6_gallade_cc_inc_atk0",
+  "request": {
+    "attacker": {
+      "species": "Gallade-Mega",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Inner Focus",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Galladite"
+    },
+    "defender": {
+      "species": "Incineroar",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Intimidate",
+      "evs": {
+        "hp": 32,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Sitrus Berry"
+    },
+    "move": "Close Combat",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      270,
+      318
+    ],
+    "koChance": "guaranteed OHKO",
+    "raw": {
+      "damage": [
+        270,
+        272,
+        276,
+        278,
+        282,
+        284,
+        288,
+        290,
+        294,
+        296,
+        300,
+        302,
+        306,
+        308,
+        312,
+        318
+      ],
+      "range": [
+        270,
+        318
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 1,
+        "text": "guaranteed OHKO"
+      },
+      "desc": "32 Atk Gallade-Mega Close Combat vs. 32 HP / 0 Def Incineroar: 270-318 (133.6 - 157.4%) -- guaranteed OHKO",
+      "fullDesc": "32 Atk Gallade-Mega Close Combat vs. 32 HP / 0 Def Incineroar: 270-318 (133.6 - 157.4%) -- guaranteed OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 145,
+          "atk": 217,
+          "def": 115,
+          "spa": 76,
+          "spd": 135,
+          "spe": 178
+        },
+        "defender": {
+          "hp": 202,
+          "atk": 183,
+          "def": 110,
+          "spa": 90,
+          "spd": 112,
+          "spe": 80
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      270,
+      318
+    ],
+    "ko_chance": "guaranteed OHKO",
+    "desc": "32 Atk Gallade-Mega Close Combat vs. 32 HP / 0 Def Incineroar: 270-318 (133.6 - 157.4%) -- guaranteed OHKO",
+    "max_damage": 318,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Inner Focus",
+    "defender_ability": "Intimidate",
+    "notes": [
+      "attacker:Inner Focus:legal_ok",
+      "defender:Intimidate:legal_ok"
+    ]
+  }
+}

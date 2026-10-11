@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_pelipper_weatherball_bold",
+  "request": {
+    "attacker": {
+      "species": "Pelipper",
+      "level": 50,
+      "nature": "Modest",
+      "ability": "Drizzle",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Focus Sash"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Weather Ball",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Rain"
+    }
+  },
+  "response": {
+    "damageRange": [
+      68,
+      81
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        68,
+        69,
+        69,
+        71,
+        72,
+        72,
+        73,
+        74,
+        75,
+        75,
+        76,
+        77,
+        78,
+        78,
+        79,
+        81
+      ],
+      "range": [
+        68,
+        81
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "32+ SpA Pelipper Weather Ball (100 BP Water) vs. 32 HP / 0 SpD Sinistcha in Rain: 68-81 (38.2 - 45.5%) -- guaranteed 3HKO",
+      "fullDesc": "32+ SpA Pelipper Weather Ball (100 BP Water) vs. 32 HP / 0 SpD Sinistcha in Rain: 68-81 (38.2 - 45.5%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 137,
+          "atk": 63,
+          "def": 120,
+          "spa": 161,
+          "spd": 90,
+          "spe": 117
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      68,
+      81
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "32+ SpA Pelipper Weather Ball (100 BP Water) vs. 32 HP / 0 SpD Sinistcha in Rain: 68-81 (38.2 - 45.5%) -- guaranteed 3HKO",
+    "max_damage": 81,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Drizzle",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Drizzle:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

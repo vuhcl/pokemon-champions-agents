@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_metagrossmega_psychicfangs_bold",
+  "request": {
+    "attacker": {
+      "species": "Metagross-Mega",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Tough Claws",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Metagrossite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Psychic Fangs",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      72,
+      85
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        72,
+        73,
+        73,
+        75,
+        75,
+        76,
+        76,
+        78,
+        79,
+        79,
+        81,
+        81,
+        82,
+        82,
+        84,
+        85
+      ],
+      "range": [
+        72,
+        85
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "32 Atk Tough Claws Metagross-Mega Psychic Fangs vs. 32 HP / 32+ Def Sinistcha: 72-85 (40.4 - 47.7%) -- guaranteed 3HKO",
+      "fullDesc": "32 Atk Tough Claws Metagross-Mega Psychic Fangs vs. 32 HP / 32+ Def Sinistcha: 72-85 (40.4 - 47.7%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 157,
+          "atk": 197,
+          "def": 170,
+          "spa": 112,
+          "spd": 130,
+          "spe": 178
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      72,
+      85
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "32 Atk Tough Claws Metagross-Mega Psychic Fangs vs. 32 HP / 32+ Def Sinistcha: 72-85 (40.4 - 47.7%) -- guaranteed 3HKO",
+    "max_damage": 85,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Tough Claws",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Tough Claws:desc_echo_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_basculegion_wavecrash_bold",
+  "request": {
+    "attacker": {
+      "species": "Basculegion",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Adaptability",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Choice Scarf"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Wave Crash",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      44,
+      52
+    ],
+    "koChance": "99.9% chance to 4HKO",
+    "raw": {
+      "damage": [
+        44,
+        44,
+        45,
+        45,
+        46,
+        46,
+        47,
+        47,
+        48,
+        48,
+        49,
+        49,
+        50,
+        50,
+        51,
+        52
+      ],
+      "range": [
+        44,
+        52
+      ],
+      "kochance": {
+        "chance": 0.998779296875,
+        "n": 4,
+        "text": "99.9% chance to 4HKO"
+      },
+      "desc": "32 Atk Adaptability Basculegion Wave Crash vs. 32 HP / 32+ Def Sinistcha: 44-52 (24.7 - 29.2%) -- 99.9% chance to 4HKO",
+      "fullDesc": "32 Atk Adaptability Basculegion Wave Crash vs. 32 HP / 32+ Def Sinistcha: 44-52 (24.7 - 29.2%) -- 99.9% chance to 4HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          7.3,
+          8.7
+        ],
+        "text": "7.3 - 8.7% recoil damage"
+      },
+      "stats": {
+        "attacker": {
+          "hp": 197,
+          "atk": 164,
+          "def": 85,
+          "spa": 90,
+          "spd": 95,
+          "spe": 143
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      44,
+      52
+    ],
+    "ko_chance": "99.9% chance to 4HKO",
+    "desc": "32 Atk Adaptability Basculegion Wave Crash vs. 32 HP / 32+ Def Sinistcha: 44-52 (24.7 - 29.2%) -- 99.9% chance to 4HKO",
+    "max_damage": 52,
+    "recoil": {
+      "recoil": [
+        7.3,
+        8.7
+      ],
+      "text": "7.3 - 8.7% recoil damage"
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Adaptability",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Adaptability:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

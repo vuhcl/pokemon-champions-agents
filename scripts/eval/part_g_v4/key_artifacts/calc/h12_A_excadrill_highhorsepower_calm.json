@@ -1,0 +1,132 @@
+{
+  "id": "h12_A_excadrill_highhorsepower_calm",
+  "request": {
+    "attacker": {
+      "species": "Excadrill",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Sand Rush",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Focus Sash"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "High Horsepower",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      35,
+      42
+    ],
+    "koChance": "possible 5HKO",
+    "raw": {
+      "damage": [
+        35,
+        36,
+        36,
+        36,
+        36,
+        37,
+        37,
+        38,
+        39,
+        39,
+        39,
+        39,
+        40,
+        40,
+        41,
+        42
+      ],
+      "range": [
+        35,
+        42
+      ],
+      "kochance": {
+        "n": 5,
+        "text": "possible 5HKO"
+      },
+      "desc": "32+ Atk Excadrill High Horsepower vs. 32 HP / 32 Def Sinistcha: 35-42 (19.6 - 23.5%) -- possible 5HKO",
+      "fullDesc": "32+ Atk Excadrill High Horsepower vs. 32 HP / 32 Def Sinistcha: 35-42 (19.6 - 23.5%) -- possible 5HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 187,
+          "atk": 205,
+          "def": 80,
+          "spa": 63,
+          "spd": 85,
+          "spe": 140
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      35,
+      42
+    ],
+    "ko_chance": "possible 5HKO",
+    "desc": "32+ Atk Excadrill High Horsepower vs. 32 HP / 32 Def Sinistcha: 35-42 (19.6 - 23.5%) -- possible 5HKO",
+    "max_damage": 42,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Sand Rush",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Sand Rush:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

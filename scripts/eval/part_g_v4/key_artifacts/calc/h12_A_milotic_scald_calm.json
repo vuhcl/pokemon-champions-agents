@@ -1,0 +1,132 @@
+{
+  "id": "h12_A_milotic_scald_calm",
+  "request": {
+    "attacker": {
+      "species": "Milotic",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Competitive",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      },
+      "item": "Leftovers"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Scald",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      25,
+      30
+    ],
+    "koChance": "possible 6HKO",
+    "raw": {
+      "damage": [
+        25,
+        26,
+        26,
+        27,
+        27,
+        27,
+        27,
+        27,
+        28,
+        28,
+        28,
+        29,
+        29,
+        30,
+        30,
+        30
+      ],
+      "range": [
+        25,
+        30
+      ],
+      "kochance": {
+        "n": 6,
+        "text": "possible 6HKO"
+      },
+      "desc": "2 SpA Milotic Scald vs. 32 HP / 0+ SpD Sinistcha: 25-30 (14 - 16.8%) -- possible 6HKO",
+      "fullDesc": "2 SpA Milotic Scald vs. 32 HP / 0+ SpD Sinistcha: 25-30 (14 - 16.8%) -- possible 6HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 202,
+          "atk": 72,
+          "def": 144,
+          "spa": 122,
+          "spd": 145,
+          "spe": 101
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      25,
+      30
+    ],
+    "ko_chance": "possible 6HKO",
+    "desc": "2 SpA Milotic Scald vs. 32 HP / 0+ SpD Sinistcha: 25-30 (14 - 16.8%) -- possible 6HKO",
+    "max_damage": 30,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Competitive",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Competitive:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

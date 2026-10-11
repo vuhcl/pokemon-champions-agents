@@ -1,0 +1,50 @@
+{
+  "id": "H27",
+  "inputs": {
+    "function": "recommender.slot_fill.present_candidates",
+    "slot_index": 2,
+    "regulation": "champions",
+    "anchor": {
+      "species": "Kingambit"
+    },
+    "role_shape_context": {
+      "primary_function": "offense",
+      "tankiness": "unknown",
+      "requires_setup_turn": false
+    },
+    "support_needs": [],
+    "threat_counter_results": [
+      {
+        "species": "Garchomp",
+        "usage_rank": 1,
+        "verified_score": 5.0
+      },
+      {
+        "species": "Incineroar",
+        "usage_rank": 2,
+        "verified_score": 4.0
+      },
+      {
+        "species": "Rillaboom",
+        "usage_rank": 3,
+        "verified_score": 3.5
+      },
+      {
+        "species": "Hippowdon",
+        "usage_rank": 9,
+        "verified_score": 0.8
+      }
+    ],
+    "note": "deterministic; no LLM; no graph invoke"
+  },
+  "pending_kind": "candidate_selection",
+  "options_species_order": [
+    "Garchomp",
+    "Incineroar",
+    "Rillaboom"
+  ],
+  "ground_types_in_options_order": [
+    "Garchomp"
+  ],
+  "top_ground": "Garchomp"
+}

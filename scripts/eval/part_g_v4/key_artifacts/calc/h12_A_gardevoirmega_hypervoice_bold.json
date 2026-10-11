@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_gardevoirmega_hypervoice_bold",
+  "request": {
+    "attacker": {
+      "species": "Gardevoir-Mega",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Pixilate",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Gardevoirite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Hyper Voice",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      100,
+      118
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        100,
+        100,
+        102,
+        103,
+        105,
+        106,
+        106,
+        108,
+        109,
+        111,
+        112,
+        112,
+        114,
+        115,
+        117,
+        118
+      ],
+      "range": [
+        100,
+        118
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32 SpA Pixilate Gardevoir-Mega Hyper Voice vs. 32 HP / 0 SpD Sinistcha: 100-118 (56.1 - 66.2%) -- guaranteed 2HKO",
+      "fullDesc": "32 SpA Pixilate Gardevoir-Mega Hyper Voice vs. 32 HP / 0 SpD Sinistcha: 100-118 (56.1 - 66.2%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 145,
+          "atk": 94,
+          "def": 85,
+          "spa": 217,
+          "spd": 155,
+          "spe": 167
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      100,
+      118
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32 SpA Pixilate Gardevoir-Mega Hyper Voice vs. 32 HP / 0 SpD Sinistcha: 100-118 (56.1 - 66.2%) -- guaranteed 2HKO",
+    "max_damage": 118,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Pixilate",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Pixilate:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

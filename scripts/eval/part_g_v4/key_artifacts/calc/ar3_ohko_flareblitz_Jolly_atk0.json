@@ -1,0 +1,137 @@
+{
+  "id": "ar3_ohko_flareblitz_Jolly_atk0",
+  "request": {
+    "attacker": {
+      "species": "Charizard-Mega-X",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Tough Claws",
+      "item": "Charizardite X",
+      "evs": {
+        "hp": 0,
+        "atk": 0,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      },
+      "boosts": {
+        "atk": 6
+      }
+    },
+    "defender": {
+      "species": "Primarina",
+      "level": 50,
+      "nature": "Modest",
+      "ability": "Torrent",
+      "item": "Life Orb",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 2,
+        "spe": 0
+      }
+    },
+    "move": "Flare Blitz",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      280,
+      330
+    ],
+    "koChance": "guaranteed OHKO",
+    "raw": {
+      "damage": [
+        280,
+        283,
+        286,
+        290,
+        293,
+        297,
+        300,
+        303,
+        306,
+        309,
+        313,
+        316,
+        319,
+        323,
+        326,
+        330
+      ],
+      "range": [
+        280,
+        330
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 1,
+        "text": "guaranteed OHKO"
+      },
+      "desc": "+6 0 Atk Tough Claws Charizard-Mega-X Flare Blitz vs. 32 HP / 0 Def Primarina: 280-330 (149.7 - 176.4%) -- guaranteed OHKO",
+      "fullDesc": "+6 0 Atk Tough Claws Charizard-Mega-X Flare Blitz vs. 32 HP / 0 Def Primarina: 280-330 (149.7 - 176.4%) -- guaranteed OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          40.3,
+          40.3
+        ],
+        "text": "40.3 - 40.3% recoil damage"
+      },
+      "stats": {
+        "attacker": {
+          "hp": 153,
+          "atk": 150,
+          "def": 131,
+          "spa": 135,
+          "spd": 105,
+          "spe": 132
+        },
+        "defender": {
+          "hp": 187,
+          "atk": 84,
+          "def": 94,
+          "spa": 195,
+          "spd": 138,
+          "spe": 80
+        }
+      }
+    }
+  },
+  "cached": true,
+  "key": {
+    "damage_range": [
+      280,
+      330
+    ],
+    "ko_chance": "guaranteed OHKO",
+    "desc": "+6 0 Atk Tough Claws Charizard-Mega-X Flare Blitz vs. 32 HP / 0 Def Primarina: 280-330 (149.7 - 176.4%) -- guaranteed OHKO",
+    "max_damage": 330,
+    "recoil": {
+      "recoil": [
+        40.3,
+        40.3
+      ],
+      "text": "40.3 - 40.3% recoil damage"
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Tough Claws",
+    "defender_ability": "Torrent",
+    "notes": [
+      "attacker:Tough Claws:desc_echo_ok",
+      "defender:Torrent:legal_ok"
+    ]
+  }
+}

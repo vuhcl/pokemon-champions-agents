@@ -1,0 +1,134 @@
+{
+  "id": "mt7_t3_ex_1",
+  "request": {
+    "attacker": {
+      "species": "Charizard-Mega-Y",
+      "level": 50,
+      "nature": "Modest",
+      "ability": "Drought",
+      "item": "",
+      "evs": {
+        "hp": 0,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "defender": {
+      "species": "Archaludon",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Stamina",
+      "item": "Leftovers",
+      "evs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 1,
+        "spa": 0,
+        "spd": 22,
+        "spe": 5
+      }
+    },
+    "move": "Flamethrower",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Sun"
+    }
+  },
+  "response": {
+    "damageRange": [
+      165,
+      195
+    ],
+    "koChance": "guaranteed 2HKO after Leftovers recovery",
+    "raw": {
+      "damage": [
+        165,
+        166,
+        169,
+        171,
+        172,
+        175,
+        177,
+        178,
+        180,
+        183,
+        184,
+        186,
+        189,
+        190,
+        192,
+        195
+      ],
+      "range": [
+        165,
+        195
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO after Leftovers recovery"
+      },
+      "desc": "32+ SpA Charizard-Mega-Y Flamethrower vs. 31 HP / 22 SpD Archaludon in Sun: 165-195 (84.1 - 99.4%) -- guaranteed 2HKO after Leftovers recovery",
+      "fullDesc": "32+ SpA Charizard-Mega-Y Flamethrower vs. 31 HP / 22 SpD Archaludon in Sun: 165-195 (84.1 - 99.4%) -- guaranteed 2HKO after Leftovers recovery",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 153,
+          "atk": 111,
+          "def": 98,
+          "spa": 232,
+          "spd": 135,
+          "spe": 120
+        },
+        "defender": {
+          "hp": 196,
+          "atk": 112,
+          "def": 166,
+          "spa": 145,
+          "spd": 107,
+          "spe": 110
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      165,
+      195
+    ],
+    "ko_chance": "guaranteed 2HKO after Leftovers recovery",
+    "desc": "32+ SpA Charizard-Mega-Y Flamethrower vs. 31 HP / 22 SpD Archaludon in Sun: 165-195 (84.1 - 99.4%) -- guaranteed 2HKO after Leftovers recovery",
+    "max_damage": 195,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Drought",
+    "defender_ability": "Stamina",
+    "notes": [
+      "attacker:Drought:legal_ok",
+      "defender:Stamina:legal_ok"
+    ]
+  }
+}

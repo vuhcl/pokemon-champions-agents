@@ -1,0 +1,132 @@
+{
+  "id": "dm3_rs_ril_intim_off",
+  "request": {
+    "attacker": {
+      "species": "Tyranitar",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Sand Stream",
+      "evs": {
+        "hp": 0,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 4,
+        "spe": 0
+      }
+    },
+    "defender": {
+      "species": "Rillaboom",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Grassy Surge",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Miracle Seed"
+    },
+    "move": "Rock Slide",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      58,
+      70
+    ],
+    "koChance": "99.8% chance to 3HKO",
+    "raw": {
+      "damage": [
+        58,
+        60,
+        60,
+        61,
+        61,
+        63,
+        63,
+        64,
+        64,
+        66,
+        66,
+        67,
+        67,
+        69,
+        69,
+        70
+      ],
+      "range": [
+        58,
+        70
+      ],
+      "kochance": {
+        "chance": 0.998291015625,
+        "n": 3,
+        "text": "99.8% chance to 3HKO"
+      },
+      "desc": "32+ Atk Tyranitar Rock Slide vs. 2 HP / 0 Def Rillaboom: 58-70 (32.7 - 39.5%) -- 99.8% chance to 3HKO",
+      "fullDesc": "32+ Atk Tyranitar Rock Slide vs. 2 HP / 0 Def Rillaboom: 58-70 (32.7 - 39.5%) -- 99.8% chance to 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 175,
+          "atk": 204,
+          "def": 130,
+          "spa": 103,
+          "spd": 124,
+          "spe": 81
+        },
+        "defender": {
+          "hp": 177,
+          "atk": 177,
+          "def": 110,
+          "spa": 72,
+          "spd": 90,
+          "spe": 150
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      58,
+      70
+    ],
+    "ko_chance": "99.8% chance to 3HKO",
+    "desc": "32+ Atk Tyranitar Rock Slide vs. 2 HP / 0 Def Rillaboom: 58-70 (32.7 - 39.5%) -- 99.8% chance to 3HKO",
+    "max_damage": 70,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Sand Stream",
+    "defender_ability": "Grassy Surge",
+    "notes": [
+      "attacker:Sand Stream:legal_ok",
+      "defender:Grassy Surge:legal_ok"
+    ]
+  }
+}

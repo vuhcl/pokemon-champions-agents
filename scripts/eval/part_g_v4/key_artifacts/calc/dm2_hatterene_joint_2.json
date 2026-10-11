@@ -1,0 +1,133 @@
+{
+  "id": "dm2_hatterene_joint_2",
+  "request": {
+    "attacker": {
+      "species": "Incineroar",
+      "level": 50,
+      "nature": "Adamant",
+      "item": "Life Orb",
+      "ability": "Intimidate",
+      "evs": {
+        "hp": 0,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 4,
+        "spe": 0
+      }
+    },
+    "defender": {
+      "species": "Hatterene",
+      "level": 50,
+      "nature": "Quiet",
+      "ability": "Magic Bounce",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 27,
+        "atk": 0,
+        "def": 7,
+        "spa": 32,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Flare Blitz",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      133,
+      157
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        133,
+        134,
+        136,
+        138,
+        140,
+        140,
+        142,
+        144,
+        146,
+        148,
+        148,
+        149,
+        152,
+        153,
+        156,
+        157
+      ],
+      "range": [
+        133,
+        157
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32+ Atk Life Orb Incineroar Flare Blitz vs. 27 HP / 7 Def Hatterene: 133-157 (83.6 - 98.7%) -- guaranteed 2HKO",
+      "fullDesc": "32+ Atk Life Orb Incineroar Flare Blitz vs. 27 HP / 7 Def Hatterene: 133-157 (83.6 - 98.7%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          25.8,
+          30.4
+        ],
+        "text": "25.8 - 30.4% recoil damage"
+      },
+      "stats": {
+        "attacker": {
+          "hp": 170,
+          "atk": 183,
+          "def": 110,
+          "spa": 90,
+          "spd": 114,
+          "spe": 80
+        },
+        "defender": {
+          "hp": 159,
+          "atk": 110,
+          "def": 122,
+          "spa": 206,
+          "spd": 123,
+          "spe": 44
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      133,
+      157
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32+ Atk Life Orb Incineroar Flare Blitz vs. 27 HP / 7 Def Hatterene: 133-157 (83.6 - 98.7%) -- guaranteed 2HKO",
+    "max_damage": 157,
+    "recoil": {
+      "recoil": [
+        25.8,
+        30.4
+      ],
+      "text": "25.8 - 30.4% recoil damage"
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Intimidate",
+    "defender_ability": "Magic Bounce",
+    "notes": [
+      "attacker:Intimidate:legal_ok",
+      "defender:Magic Bounce:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_gengarmega_shadowball_calm",
+  "request": {
+    "attacker": {
+      "species": "Gengar-Mega",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Shadow Tag",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Gengarite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Shadow Ball",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      186,
+      218
+    ],
+    "koChance": "guaranteed OHKO",
+    "raw": {
+      "damage": [
+        186,
+        186,
+        188,
+        192,
+        192,
+        194,
+        198,
+        200,
+        200,
+        204,
+        206,
+        210,
+        210,
+        212,
+        216,
+        218
+      ],
+      "range": [
+        186,
+        218
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 1,
+        "text": "guaranteed OHKO"
+      },
+      "desc": "32 SpA Gengar-Mega Shadow Ball vs. 32 HP / 0+ SpD Sinistcha: 186-218 (104.4 - 122.4%) -- guaranteed OHKO",
+      "fullDesc": "32 SpA Gengar-Mega Shadow Ball vs. 32 HP / 0+ SpD Sinistcha: 186-218 (104.4 - 122.4%) -- guaranteed OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 137,
+          "atk": 76,
+          "def": 100,
+          "spa": 222,
+          "spd": 115,
+          "spe": 200
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      186,
+      218
+    ],
+    "ko_chance": "guaranteed OHKO",
+    "desc": "32 SpA Gengar-Mega Shadow Ball vs. 32 HP / 0+ SpD Sinistcha: 186-218 (104.4 - 122.4%) -- guaranteed OHKO",
+    "max_damage": 218,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Shadow Tag",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Shadow Tag:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

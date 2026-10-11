@@ -1,0 +1,22 @@
+{
+  "id": "TS1",
+  "turns": [
+    {
+      "t": 1,
+      "user": "Give me a spread for Archaludon that avoids OHKO from Sneasler Close Combat"
+    },
+    {
+      "t": 2,
+      "user": "Actually let's talk rain partners instead"
+    },
+    {
+      "t": 3,
+      "user": "no, keep it as a draft"
+    },
+    {
+      "t": 4,
+      "user": "Back to the Archaludon spread \u2014 what did we have?"
+    }
+  ],
+  "expected": "draft intact after keep-draft; reset clears drafts"
+}

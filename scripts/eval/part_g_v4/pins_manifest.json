@@ -1,0 +1,57 @@
+{
+  "calc_artifact_count": 368,
+  "calc_artifacts_dir": "key_artifacts/calc",
+  "calc_service": {
+    "hosted_url": "http://127.0.0.1:4173",
+    "note": "Keys rebuilt from saved key_artifacts/calc/*.json; regeneration must not require live service when cache is present.",
+    "package": "@smogon/calc",
+    "repo_package_version": "1.1.0",
+    "vendor_path": "vendor/smogon-calc",
+    "version": "0.11.0-champions.5d5bf43"
+  },
+  "compendium_refresh_gate": {
+    "approx_date": "2026-10-19/20",
+    "can_land_before": true,
+    "if_refresh_changes_pin": "Re-run builders against new pins; regenerate derived_keys.json, request set, report, and any calc-backed keys; new battery hash required (new version)."
+  },
+  "eval_pin_repo_commit": "e935de9b2051da6fe968b87087b27c7b5901168b",
+  "pins": [
+    {
+      "content_sha256": "348fd02809a928c8830311a9ae5e4204ea67bf8de1ab0e21572c7c7cca030de0",
+      "git_blob_sha": "ca5bb8181448765875396ce3b02561923c3e4694",
+      "path": "data/legality/champions.v1.json"
+    },
+    {
+      "content_sha256": "cae998303f4cf39b338a5bb6c774d79393889ce9a51fd5baa60e0b41b3b75653",
+      "git_blob_sha": "65f8c51e3ce4068736a2c8aa65609f836064cbcc",
+      "path": "data/usage/champions-reg-mc.ingame_doubles.v1.json"
+    },
+    {
+      "content_sha256": "be1f6b17ec40783f36743386b042e2283c3790ee3b6bd2ddfaccd8d6e4e26d52",
+      "git_blob_sha": "63bcefe4512a202d75b62e79f2ccc5436527b46e",
+      "path": "data/usage/champions-reg-mc.showdown_doubles.v1.json"
+    },
+    {
+      "content_sha256": "26c9da118db455d6557a752048eb002b0ba2ac1a5ae2f18852df903594afbabf",
+      "git_blob_sha": "c4f2aabe8ffb420a70e77afaa50b5a4d616a1f54",
+      "path": "data/moves/static.v1.json"
+    },
+    {
+      "content_sha256": "c5562ab84970d0a5643dd57cb74729c29b3d1ceef52879b101295cc2e90fd9c1",
+      "git_blob_sha": "89a00b2c46df4c139027f81f77627a4a85fdd631",
+      "path": "data/moves/flags.v1.json"
+    },
+    {
+      "content_sha256": "efd4d4feab1b547ddfa81a3cc5b65c0811f2df2005b527ffa4e3a40e57b3214f",
+      "git_blob_sha": "4eeb96eacfdee56ccaf7e9a7b8d6a65c6fb1da20",
+      "path": "data/moves/gen9_accuracy.v1.json"
+    },
+    {
+      "content_sha256": "d6cb8ae27a313842202344713d1995ba255916b9ab824a09f12c371791b993b7",
+      "git_blob_sha": "040059884684b27f0894e484c7c987fb5aef158e",
+      "path": "data/moves/stat_boosts.v1.json"
+    }
+  ],
+  "refresh_merge": "6674b74c41810f63d1a25453d26ea8498d0b9341",
+  "schema": "part_g_v4_pins_manifest"
+}

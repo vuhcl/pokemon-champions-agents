@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_kingambit_kowtowcleave_calm",
+  "request": {
+    "attacker": {
+      "species": "Kingambit",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Defiant",
+      "evs": {
+        "hp": 32,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Chople Berry"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Kowtow Cleave",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      126,
+      150
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        126,
+        128,
+        128,
+        132,
+        132,
+        134,
+        134,
+        138,
+        138,
+        140,
+        140,
+        144,
+        144,
+        146,
+        146,
+        150
+      ],
+      "range": [
+        126,
+        150
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32+ Atk Kingambit Kowtow Cleave vs. 32 HP / 32 Def Sinistcha: 126-150 (70.7 - 84.2%) -- guaranteed 2HKO",
+      "fullDesc": "32+ Atk Kingambit Kowtow Cleave vs. 32 HP / 32 Def Sinistcha: 126-150 (70.7 - 84.2%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 207,
+          "atk": 205,
+          "def": 140,
+          "spa": 72,
+          "spd": 107,
+          "spe": 70
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      126,
+      150
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32+ Atk Kingambit Kowtow Cleave vs. 32 HP / 32 Def Sinistcha: 126-150 (70.7 - 84.2%) -- guaranteed 2HKO",
+    "max_damage": 150,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Defiant",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Defiant:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "note": "IC1 Item Clause fixture: teammates hold Psychic Seed and Rocky Helmet; both legal in pinned blob.",
+  "team": [
+    {
+      "species": "Sneasler",
+      "item": "Psychic Seed",
+      "ability": "Unburden"
+    },
+    {
+      "species": "Indeedee-F",
+      "item": "Rocky Helmet",
+      "ability": "Psychic Surge"
+    }
+  ],
+  "open_slot_for": "Corviknight"
+}

@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_sylveon_hyperbeam_calm",
+  "request": {
+    "attacker": {
+      "species": "Sylveon",
+      "level": 50,
+      "nature": "Modest",
+      "ability": "Pixilate",
+      "evs": {
+        "hp": 9,
+        "atk": 0,
+        "def": 22,
+        "spa": 20,
+        "spd": 0,
+        "spe": 15
+      },
+      "item": "Fairy Feather"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Hyper Beam",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      183,
+      216
+    ],
+    "koChance": "guaranteed OHKO",
+    "raw": {
+      "damage": [
+        183,
+        184,
+        187,
+        189,
+        192,
+        193,
+        196,
+        198,
+        199,
+        202,
+        204,
+        207,
+        208,
+        211,
+        213,
+        216
+      ],
+      "range": [
+        183,
+        216
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 1,
+        "text": "guaranteed OHKO"
+      },
+      "desc": "20+ SpA Fairy Feather Pixilate Sylveon Hyper Beam vs. 32 HP / 0+ SpD Sinistcha: 183-216 (102.8 - 121.3%) -- guaranteed OHKO",
+      "fullDesc": "20+ SpA Fairy Feather Pixilate Sylveon Hyper Beam vs. 32 HP / 0+ SpD Sinistcha: 183-216 (102.8 - 121.3%) -- guaranteed OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 179,
+          "atk": 76,
+          "def": 107,
+          "spa": 165,
+          "spd": 150,
+          "spe": 95
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      183,
+      216
+    ],
+    "ko_chance": "guaranteed OHKO",
+    "desc": "20+ SpA Fairy Feather Pixilate Sylveon Hyper Beam vs. 32 HP / 0+ SpD Sinistcha: 183-216 (102.8 - 121.3%) -- guaranteed OHKO",
+    "max_damage": 216,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Pixilate",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Pixilate:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "DM5",
+  "schema": "eval_only_working_draft_v1",
+  "species": "Incineroar",
+  "item": "Life Orb",
+  "ability": "Intimidate",
+  "nature": "Adamant",
+  "moves": [
+    "Flare Blitz",
+    "Knock Off",
+    "Fake Out",
+    "Parting Shot"
+  ],
+  "spread": {
+    "hp": 20,
+    "atk": null,
+    "def": 4,
+    "spa": 0,
+    "spd": 10,
+    "spe": 0
+  },
+  "note": "null atk = unset SP; production Slot cannot lock partial SP \u2014 eval WORKING STATE only"
+}

@@ -1,0 +1,116 @@
+{
+  "id": "h12_A_raichumegay_focusblast_calm",
+  "request": {
+    "attacker": {
+      "species": "Raichu-Mega-Y",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "No Guard",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Raichunite Y"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Focus Blast",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      0,
+      0
+    ],
+    "koChance": "",
+    "raw": {
+      "damage": 0,
+      "range": [
+        0,
+        0
+      ],
+      "kochance": {
+        "chance": 0,
+        "n": 0,
+        "text": ""
+      },
+      "desc": "",
+      "fullDesc": "",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 137,
+          "atk": 108,
+          "def": 75,
+          "spa": 212,
+          "spd": 100,
+          "spe": 200
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      0,
+      0
+    ],
+    "ko_chance": "",
+    "desc": "",
+    "max_damage": null,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "No Guard",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:No Guard:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

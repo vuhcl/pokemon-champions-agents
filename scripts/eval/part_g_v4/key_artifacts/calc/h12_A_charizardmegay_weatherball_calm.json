@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_charizardmegay_weatherball_calm",
+  "request": {
+    "attacker": {
+      "species": "Charizard-Mega-Y",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Drought",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Charizardite Y"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Weather Ball",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Sun"
+    }
+  },
+  "response": {
+    "damageRange": [
+      326,
+      386
+    ],
+    "koChance": "guaranteed OHKO",
+    "raw": {
+      "damage": [
+        326,
+        330,
+        336,
+        338,
+        342,
+        348,
+        350,
+        354,
+        356,
+        362,
+        366,
+        368,
+        374,
+        378,
+        380,
+        386
+      ],
+      "range": [
+        326,
+        386
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 1,
+        "text": "guaranteed OHKO"
+      },
+      "desc": "32 SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 32 HP / 0+ SpD Sinistcha in Sun: 326-386 (183.1 - 216.8%) -- guaranteed OHKO",
+      "fullDesc": "32 SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 32 HP / 0+ SpD Sinistcha in Sun: 326-386 (183.1 - 216.8%) -- guaranteed OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 155,
+          "atk": 111,
+          "def": 98,
+          "spa": 211,
+          "spd": 135,
+          "spe": 167
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      326,
+      386
+    ],
+    "ko_chance": "guaranteed OHKO",
+    "desc": "32 SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 32 HP / 0+ SpD Sinistcha in Sun: 326-386 (183.1 - 216.8%) -- guaranteed OHKO",
+    "max_damage": 386,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Drought",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Drought:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

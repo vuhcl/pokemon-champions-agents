@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_salamencemega_dracometeor_bold",
+  "request": {
+    "attacker": {
+      "species": "Salamence-Mega",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Aerilate",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Salamencite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Draco Meteor",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      127,
+      150
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        127,
+        129,
+        130,
+        132,
+        133,
+        135,
+        136,
+        138,
+        139,
+        141,
+        142,
+        144,
+        145,
+        147,
+        148,
+        150
+      ],
+      "range": [
+        127,
+        150
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32 SpA Salamence-Mega Draco Meteor vs. 32 HP / 0 SpD Sinistcha: 127-150 (71.3 - 84.2%) -- guaranteed 2HKO",
+      "fullDesc": "32 SpA Salamence-Mega Draco Meteor vs. 32 HP / 0 SpD Sinistcha: 127-150 (71.3 - 84.2%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 172,
+          "atk": 148,
+          "def": 150,
+          "spa": 172,
+          "spd": 110,
+          "spe": 189
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      127,
+      150
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32 SpA Salamence-Mega Draco Meteor vs. 32 HP / 0 SpD Sinistcha: 127-150 (71.3 - 84.2%) -- guaranteed 2HKO",
+    "max_damage": 150,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Aerilate",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Aerilate:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

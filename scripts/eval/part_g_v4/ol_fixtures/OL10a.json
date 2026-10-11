@@ -1,0 +1,58 @@
+{
+  "id": "OL10a",
+  "reply": "1",
+  "pending_kind": "candidate_selection",
+  "pending": {
+    "schema_version": 1,
+    "kind": "candidate_selection",
+    "slot_index": 1,
+    "options": [
+      {
+        "species": "Garchomp"
+      },
+      {
+        "species": "Incineroar"
+      },
+      {
+        "species": "Jolteon"
+      }
+    ]
+  },
+  "traced_cli": "no fingerprint gate; ordinal may still bind (defect D8)",
+  "expected": "not applied, re-ask",
+  "team": [
+    {
+      "slot": 0,
+      "species": "Rillaboom",
+      "locked": true,
+      "item": "Miracle Seed",
+      "ability": "Grassy Surge"
+    },
+    {
+      "slot": 1,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 2,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 3,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 4,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 5,
+      "species": null,
+      "locked": false
+    }
+  ],
+  "note": "staleness computed by scorer from pending fingerprint vs current team; no stale flag in fixture"
+}

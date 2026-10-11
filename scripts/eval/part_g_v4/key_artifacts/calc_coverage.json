@@ -1,0 +1,21 @@
+{
+  "artifacts_saved": 368,
+  "calc_ids_in_keys": 92,
+  "dm4_min_atk_search_required": 128,
+  "dm4_min_atk_search_saved": 128,
+  "dm4_search_missing": [],
+  "h12_calls_plus_probes": 166,
+  "h12_candidate_nature_calls_expected": 162,
+  "h12_probes_expected": 4,
+  "inventory": {
+    "calls_without_saved_artifact": [],
+    "dm4_min_atk_search_steps": 128,
+    "h12_candidate_x_nature": 162,
+    "h12_probes": 4,
+    "other_in_required": 21,
+    "total_saved": 368
+  },
+  "missing_required": [],
+  "note": "Required offline set = key calc_ids + H12 candidate\u00d7nature + H12 probes + DM4 min_atk search ladders (regen recomputes min_atk_sp from the search). calc_store is offline-first; PART_G_V4_REQUIRE_CALC_ARTIFACT=1 fails on missing ids.",
+  "required_for_offline_key_regen": 315
+}

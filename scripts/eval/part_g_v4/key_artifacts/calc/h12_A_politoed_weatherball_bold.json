@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_politoed_weatherball_bold",
+  "request": {
+    "attacker": {
+      "species": "Politoed",
+      "level": 50,
+      "nature": "Quiet",
+      "ability": "Drizzle",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 2,
+        "spa": 32,
+        "spd": 0,
+        "spe": 0
+      },
+      "item": "Sitrus Berry"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Weather Ball",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Rain"
+    }
+  },
+  "response": {
+    "damageRange": [
+      66,
+      78
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        66,
+        67,
+        68,
+        69,
+        69,
+        70,
+        71,
+        72,
+        72,
+        73,
+        74,
+        75,
+        75,
+        76,
+        77,
+        78
+      ],
+      "range": [
+        66,
+        78
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "32+ SpA Politoed Weather Ball (100 BP Water) vs. 32 HP / 0 SpD Sinistcha in Rain: 66-78 (37 - 43.8%) -- guaranteed 3HKO",
+      "fullDesc": "32+ SpA Politoed Weather Ball (100 BP Water) vs. 32 HP / 0 SpD Sinistcha in Rain: 66-78 (37 - 43.8%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 197,
+          "atk": 95,
+          "def": 97,
+          "spa": 156,
+          "spd": 120,
+          "spe": 81
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      66,
+      78
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "32+ SpA Politoed Weather Ball (100 BP Water) vs. 32 HP / 0 SpD Sinistcha in Rain: 66-78 (37 - 43.8%) -- guaranteed 3HKO",
+    "max_damage": 78,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Drizzle",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Drizzle:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_whimsicott_moonblast_calm",
+  "request": {
+    "attacker": {
+      "species": "Whimsicott",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Prankster",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Focus Sash"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Moonblast",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      64,
+      76
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        64,
+        64,
+        66,
+        66,
+        67,
+        67,
+        69,
+        69,
+        70,
+        70,
+        72,
+        72,
+        73,
+        73,
+        75,
+        76
+      ],
+      "range": [
+        64,
+        76
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "32 SpA Whimsicott Moonblast vs. 32 HP / 0+ SpD Sinistcha: 64-76 (35.9 - 42.6%) -- guaranteed 3HKO",
+      "fullDesc": "32 SpA Whimsicott Moonblast vs. 32 HP / 0+ SpD Sinistcha: 64-76 (35.9 - 42.6%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 137,
+          "atk": 78,
+          "def": 105,
+          "spa": 129,
+          "spd": 95,
+          "spe": 184
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      64,
+      76
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "32 SpA Whimsicott Moonblast vs. 32 HP / 0+ SpD Sinistcha: 64-76 (35.9 - 42.6%) -- guaranteed 3HKO",
+    "max_damage": 76,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Prankster",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Prankster:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_torkoal_earthpower_bold",
+  "request": {
+    "attacker": {
+      "species": "Torkoal",
+      "level": 50,
+      "nature": "Quiet",
+      "ability": "Drought",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Charcoal"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Earth Power",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Sun"
+    }
+  },
+  "response": {
+    "damageRange": [
+      25,
+      30
+    ],
+    "koChance": "possible 6HKO",
+    "raw": {
+      "damage": [
+        25,
+        26,
+        26,
+        26,
+        27,
+        27,
+        27,
+        28,
+        28,
+        28,
+        28,
+        29,
+        29,
+        29,
+        30,
+        30
+      ],
+      "range": [
+        25,
+        30
+      ],
+      "kochance": {
+        "n": 6,
+        "text": "possible 6HKO"
+      },
+      "desc": "32+ SpA Torkoal Earth Power vs. 32 HP / 0 SpD Sinistcha: 25-30 (14 - 16.8%) -- possible 6HKO",
+      "fullDesc": "32+ SpA Torkoal Earth Power vs. 32 HP / 0 SpD Sinistcha: 25-30 (14 - 16.8%) -- possible 6HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 177,
+          "atk": 105,
+          "def": 160,
+          "spa": 150,
+          "spd": 92,
+          "spe": 36
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      25,
+      30
+    ],
+    "ko_chance": "possible 6HKO",
+    "desc": "32+ SpA Torkoal Earth Power vs. 32 HP / 0 SpD Sinistcha: 25-30 (14 - 16.8%) -- possible 6HKO",
+    "max_damage": 30,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Drought",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Drought:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

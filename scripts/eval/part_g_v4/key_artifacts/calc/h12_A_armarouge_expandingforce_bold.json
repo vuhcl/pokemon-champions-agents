@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_armarouge_expandingforce_bold",
+  "request": {
+    "attacker": {
+      "species": "Armarouge",
+      "level": 50,
+      "nature": "Quiet",
+      "ability": "Flash Fire",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Life Orb"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Expanding Force",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      114,
+      136
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        114,
+        117,
+        117,
+        118,
+        121,
+        122,
+        122,
+        125,
+        126,
+        126,
+        129,
+        130,
+        130,
+        133,
+        134,
+        136
+      ],
+      "range": [
+        114,
+        136
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32+ SpA Life Orb Armarouge Expanding Force vs. 32 HP / 0 SpD Sinistcha: 114-136 (64 - 76.4%) -- guaranteed 2HKO",
+      "fullDesc": "32+ SpA Life Orb Armarouge Expanding Force vs. 32 HP / 0 SpD Sinistcha: 114-136 (64 - 76.4%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 192,
+          "atk": 80,
+          "def": 120,
+          "spa": 194,
+          "spd": 102,
+          "spe": 85
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      114,
+      136
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32+ SpA Life Orb Armarouge Expanding Force vs. 32 HP / 0 SpD Sinistcha: 114-136 (64 - 76.4%) -- guaranteed 2HKO",
+    "max_damage": 136,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Flash Fire",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Flash Fire:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

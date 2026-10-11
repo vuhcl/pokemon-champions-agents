@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_milotic_icebeam_bold",
+  "request": {
+    "attacker": {
+      "species": "Milotic",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Competitive",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      },
+      "item": "Leftovers"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Ice Beam",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      84,
+      100
+    ],
+    "koChance": "84% chance to 2HKO",
+    "raw": {
+      "damage": [
+        84,
+        86,
+        86,
+        88,
+        88,
+        90,
+        90,
+        92,
+        92,
+        94,
+        94,
+        96,
+        96,
+        98,
+        98,
+        100
+      ],
+      "range": [
+        84,
+        100
+      ],
+      "kochance": {
+        "chance": 0.83984375,
+        "n": 2,
+        "text": "84% chance to 2HKO"
+      },
+      "desc": "2 SpA Milotic Ice Beam vs. 32 HP / 0 SpD Sinistcha: 84-100 (47.1 - 56.1%) -- 84% chance to 2HKO",
+      "fullDesc": "2 SpA Milotic Ice Beam vs. 32 HP / 0 SpD Sinistcha: 84-100 (47.1 - 56.1%) -- 84% chance to 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 202,
+          "atk": 72,
+          "def": 144,
+          "spa": 122,
+          "spd": 145,
+          "spe": 101
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      84,
+      100
+    ],
+    "ko_chance": "84% chance to 2HKO",
+    "desc": "2 SpA Milotic Ice Beam vs. 32 HP / 0 SpD Sinistcha: 84-100 (47.1 - 56.1%) -- 84% chance to 2HKO",
+    "max_damage": 100,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Competitive",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Competitive:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

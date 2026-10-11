@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_charizardmegay_solarbeam_calm",
+  "request": {
+    "attacker": {
+      "species": "Charizard-Mega-Y",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Drought",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Charizardite Y"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Solar Beam",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Sun"
+    }
+  },
+  "response": {
+    "damageRange": [
+      43,
+      51
+    ],
+    "koChance": "99% chance to 4HKO",
+    "raw": {
+      "damage": [
+        43,
+        44,
+        44,
+        45,
+        45,
+        46,
+        46,
+        47,
+        47,
+        48,
+        48,
+        49,
+        49,
+        50,
+        50,
+        51
+      ],
+      "range": [
+        43,
+        51
+      ],
+      "kochance": {
+        "chance": 0.9896087646484375,
+        "n": 4,
+        "text": "99% chance to 4HKO"
+      },
+      "desc": "32 SpA Charizard-Mega-Y Solar Beam vs. 32 HP / 0+ SpD Sinistcha: 43-51 (24.1 - 28.6%) -- 99% chance to 4HKO",
+      "fullDesc": "32 SpA Charizard-Mega-Y Solar Beam vs. 32 HP / 0+ SpD Sinistcha: 43-51 (24.1 - 28.6%) -- 99% chance to 4HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 155,
+          "atk": 111,
+          "def": 98,
+          "spa": 211,
+          "spd": 135,
+          "spe": 167
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      43,
+      51
+    ],
+    "ko_chance": "99% chance to 4HKO",
+    "desc": "32 SpA Charizard-Mega-Y Solar Beam vs. 32 HP / 0+ SpD Sinistcha: 43-51 (24.1 - 28.6%) -- 99% chance to 4HKO",
+    "max_damage": 51,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Drought",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Drought:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

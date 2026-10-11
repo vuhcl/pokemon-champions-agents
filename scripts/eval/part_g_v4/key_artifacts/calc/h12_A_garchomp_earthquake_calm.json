@@ -1,0 +1,132 @@
+{
+  "id": "h12_A_garchomp_earthquake_calm",
+  "request": {
+    "attacker": {
+      "species": "Garchomp",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Rough Skin",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Life Orb"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Earthquake",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      31,
+      38
+    ],
+    "koChance": "possible 5HKO",
+    "raw": {
+      "damage": [
+        31,
+        31,
+        31,
+        32,
+        32,
+        34,
+        34,
+        34,
+        35,
+        35,
+        35,
+        35,
+        35,
+        36,
+        36,
+        38
+      ],
+      "range": [
+        31,
+        38
+      ],
+      "kochance": {
+        "n": 5,
+        "text": "possible 5HKO"
+      },
+      "desc": "32 Atk Life Orb Garchomp Earthquake vs. 32 HP / 32 Def Sinistcha: 31-38 (17.4 - 21.3%) -- possible 5HKO",
+      "fullDesc": "32 Atk Life Orb Garchomp Earthquake vs. 32 HP / 32 Def Sinistcha: 31-38 (17.4 - 21.3%) -- possible 5HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 185,
+          "atk": 182,
+          "def": 115,
+          "spa": 90,
+          "spd": 105,
+          "spe": 169
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      31,
+      38
+    ],
+    "ko_chance": "possible 5HKO",
+    "desc": "32 Atk Life Orb Garchomp Earthquake vs. 32 HP / 32 Def Sinistcha: 31-38 (17.4 - 21.3%) -- possible 5HKO",
+    "max_damage": 38,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Rough Skin",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Rough Skin:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

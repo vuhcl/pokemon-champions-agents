@@ -1,0 +1,13 @@
+{
+  "note": "H26: Torkoal locked; Hatterene not locked",
+  "slots": [
+    {
+      "slot": 1,
+      "species": "Torkoal",
+      "ability": "Drought",
+      "item": "Charcoal",
+      "locked": true
+    }
+  ],
+  "hatterene_locked": false
+}

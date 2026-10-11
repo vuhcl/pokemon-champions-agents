@@ -1,0 +1,135 @@
+{
+  "id": "dm4_eq_inc_intim_on_spread_min_atk22",
+  "request": {
+    "attacker": {
+      "species": "Garchomp",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Rough Skin",
+      "evs": {
+        "hp": 0,
+        "atk": 22,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      },
+      "boosts": {
+        "atk": -1
+      }
+    },
+    "defender": {
+      "species": "Incineroar",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Intimidate",
+      "evs": {
+        "hp": 32,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Sitrus Berry"
+    },
+    "move": "Earthquake",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      98,
+      116
+    ],
+    "koChance": "91.8% chance to 2HKO",
+    "raw": {
+      "damage": [
+        98,
+        98,
+        98,
+        102,
+        102,
+        104,
+        104,
+        104,
+        108,
+        108,
+        110,
+        110,
+        110,
+        114,
+        114,
+        116
+      ],
+      "range": [
+        98,
+        116
+      ],
+      "kochance": {
+        "chance": 0.91796875,
+        "n": 2,
+        "text": "91.8% chance to 2HKO"
+      },
+      "desc": "-1 22+ Atk Garchomp Earthquake vs. 32 HP / 0 Def Incineroar: 98-116 (48.5 - 57.4%) -- 91.8% chance to 2HKO",
+      "fullDesc": "-1 22+ Atk Garchomp Earthquake vs. 32 HP / 0 Def Incineroar: 98-116 (48.5 - 57.4%) -- 91.8% chance to 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 183,
+          "atk": 189,
+          "def": 115,
+          "spa": 90,
+          "spd": 105,
+          "spe": 122
+        },
+        "defender": {
+          "hp": 202,
+          "atk": 183,
+          "def": 110,
+          "spa": 90,
+          "spd": 112,
+          "spe": 80
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      98,
+      116
+    ],
+    "ko_chance": "91.8% chance to 2HKO",
+    "desc": "-1 22+ Atk Garchomp Earthquake vs. 32 HP / 0 Def Incineroar: 98-116 (48.5 - 57.4%) -- 91.8% chance to 2HKO",
+    "max_damage": 116,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Rough Skin",
+    "defender_ability": "Intimidate",
+    "notes": [
+      "attacker:Rough Skin:legal_ok",
+      "defender:Intimidate:legal_ok"
+    ]
+  }
+}

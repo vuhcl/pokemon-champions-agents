@@ -1,0 +1,132 @@
+{
+  "id": "h12_A_milotic_icywind_calm",
+  "request": {
+    "attacker": {
+      "species": "Milotic",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Competitive",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      },
+      "item": "Leftovers"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Icy Wind",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      34,
+      42
+    ],
+    "koChance": "possible 5HKO",
+    "raw": {
+      "damage": [
+        34,
+        36,
+        36,
+        36,
+        36,
+        36,
+        38,
+        38,
+        38,
+        38,
+        38,
+        40,
+        40,
+        40,
+        40,
+        42
+      ],
+      "range": [
+        34,
+        42
+      ],
+      "kochance": {
+        "n": 5,
+        "text": "possible 5HKO"
+      },
+      "desc": "2 SpA Milotic Icy Wind vs. 32 HP / 0+ SpD Sinistcha: 34-42 (19.1 - 23.5%) -- possible 5HKO",
+      "fullDesc": "2 SpA Milotic Icy Wind vs. 32 HP / 0+ SpD Sinistcha: 34-42 (19.1 - 23.5%) -- possible 5HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 202,
+          "atk": 72,
+          "def": 144,
+          "spa": 122,
+          "spd": 145,
+          "spe": 101
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      34,
+      42
+    ],
+    "ko_chance": "possible 5HKO",
+    "desc": "2 SpA Milotic Icy Wind vs. 32 HP / 0+ SpD Sinistcha: 34-42 (19.1 - 23.5%) -- possible 5HKO",
+    "max_damage": 42,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Competitive",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Competitive:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

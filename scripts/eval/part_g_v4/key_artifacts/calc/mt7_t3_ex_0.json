@@ -1,0 +1,119 @@
+{
+  "id": "mt7_t3_ex_0",
+  "request": {
+    "attacker": {
+      "species": "Sneasler",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Unburden",
+      "item": "White Herb",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      }
+    },
+    "defender": {
+      "species": "Archaludon",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Stamina",
+      "item": "Leftovers",
+      "evs": {
+        "hp": 31,
+        "atk": 0,
+        "def": 1,
+        "spa": 0,
+        "spd": 22,
+        "spe": 5
+      }
+    },
+    "move": "Close Combat",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      164,
+      194
+    ],
+    "koChance": "guaranteed 2HKO after Leftovers recovery",
+    "raw": {
+      "damage": [
+        164,
+        164,
+        168,
+        170,
+        170,
+        174,
+        176,
+        176,
+        180,
+        182,
+        182,
+        186,
+        188,
+        188,
+        192,
+        194
+      ],
+      "range": [
+        164,
+        194
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO after Leftovers recovery"
+      },
+      "desc": "32+ Atk Sneasler Close Combat vs. 31 HP / 1+ Def Archaludon: 164-194 (83.6 - 98.9%) -- guaranteed 2HKO after Leftovers recovery",
+      "fullDesc": "32+ Atk Sneasler Close Combat vs. 31 HP / 1+ Def Archaludon: 164-194 (83.6 - 98.9%) -- guaranteed 2HKO after Leftovers recovery",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 157,
+          "atk": 200,
+          "def": 80,
+          "spa": 54,
+          "spd": 100,
+          "spe": 172
+        },
+        "defender": {
+          "hp": 196,
+          "atk": 112,
+          "def": 166,
+          "spa": 145,
+          "spd": 107,
+          "spe": 110
+        }
+      }
+    }
+  },
+  "cached": true,
+  "key": {
+    "damage_range": [
+      164,
+      194
+    ],
+    "ko_chance": "guaranteed 2HKO after Leftovers recovery",
+    "desc": "32+ Atk Sneasler Close Combat vs. 31 HP / 1+ Def Archaludon: 164-194 (83.6 - 98.9%) -- guaranteed 2HKO after Leftovers recovery",
+    "max_damage": 194
+  }
+}
