@@ -71,6 +71,33 @@ def _dealt_cap(damage: list | None, def_hp: int | None) -> tuple[int | None, int
     return min(min(dmg), def_hp), min(max(dmg), def_hp)
 
 
+# AR3 OHKO into Primarina HP 187: unrounded 0.33×damage and in-game floor(damage/3)
+AR3_RECOIL_CALC_UNROUNDED_HP = 61.71  # 187 * 0.33
+AR3_RECOIL_VALUE_HP = 62  # floor(187/3)
+CX_MEGA_X_BASE_HP = 78
+
+
+def champions_cx_megax_hp(hp_sp: int) -> int:
+    """Charizard-Mega-X max HP at level 50: base + SP + 75."""
+    return CX_MEGA_X_BASE_HP + int(hp_sp) + 75
+
+
+def recoil_share_pct_range_for_attacker_hp(attacker_max_hp: int) -> list[float]:
+    """Accepted calc-attributed recoil % of attacker HP H for AR3 (damage capped at 187).
+
+    Range = [61.71/H, 62/H] as percent, to 0.1:
+    - lower (calc-display bound): floor to 0.1 — matches hosted calc one-decimal display
+      at the AR3 fixtures (33.3% @ 185, 40.3% @ 153); plain round(61.71/185*100,1)=33.4
+    - upper (true-share bound): round half to 0.1 (33.5% @ 185, 40.5% @ 153)
+    """
+    h = int(attacker_max_hp)
+    if h <= 0:
+        raise ValueError(f"attacker_max_hp must be positive, got {attacker_max_hp!r}")
+    lo = math.floor(AR3_RECOIL_CALC_UNROUNDED_HP / h * 1000) / 10
+    hi = round(AR3_RECOIL_VALUE_HP / h * 100, 1)
+    return [lo, hi]
+
+
 def flare_blitz_recoil_basis(
     *,
     def_hp: int | None,
@@ -87,29 +114,24 @@ def flare_blitz_recoil_basis(
         # non-OHKO / non-cap range — keep lo; callers for AR3 OHKO expect a single value
         pass
     sim_hp = round(dealt_lo * 33 / 100) if dealt_lo is not None else None
+    unrounded_33 = (
+        round(dealt_lo * 33 / 100, 2) if dealt_lo is not None else None
+    )
 
-    true_shares = {}
-    for label, hp in (("hp_185", 185), ("hp_153", 153)):
-        if value_hp is None:
-            continue
-        true_shares[label] = {
-            "attacker_max_hp": hp,
-            "recoil_hp": value_hp,
-            "share": round(value_hp / hp, 4),
-            "approx_pct": round(100.0 * value_hp / hp, 1),
-            "note": "true share of attacker max HP (from value_hp); not the calc display",
-        }
-    if atk_hp is not None and value_hp is not None and atk_hp not in (185, 153):
-        true_shares[f"hp_{atk_hp}"] = {
-            "attacker_max_hp": atk_hp,
-            "recoil_hp": value_hp,
-            "share": round(value_hp / atk_hp, 4),
-            "approx_pct": round(100.0 * value_hp / atk_hp, 1),
-            "note": "true share of attacker max HP (from value_hp); not the calc display",
+    # Worked examples only (fixture HP SP 32 / 0) — not the accepted set
+    worked = {}
+    for hp_sp, label in ((32, "hp_185"), (0, "hp_153")):
+        h = champions_cx_megax_hp(hp_sp)
+        band = recoil_share_pct_range_for_attacker_hp(h)
+        worked[label] = {
+            "hp_sp": hp_sp,
+            "attacker_max_hp": h,
+            "hp_formula": f"{CX_MEGA_X_BASE_HP} + {hp_sp} + 75 = {h}",
+            "accepted_share_pct_range": band,
+            "true_share_pct": round(100.0 * AR3_RECOIL_VALUE_HP / h, 1),
+            "note": "worked example from AR3 fixture; not an exclusive accepted HP",
         }
 
-    # Hosted /calculate exposes only percent-of-attacker-HP (raw.recoil), never HP points.
-    # Document both AR3 attacker HP contexts; pct from this call when present.
     pct_lo = pct_hi = None
     if calc_display_pct and len(calc_display_pct) >= 2 and calc_display_pct[0] is not None:
         pct_lo, pct_hi = float(calc_display_pct[0]), float(calc_display_pct[1])
@@ -117,16 +139,6 @@ def flare_blitz_recoil_basis(
         "kind": "percent_of_attacker_hp_only",
         "exposes_hp_points": False,
         "move_data_factor": 0.33,
-        "by_attacker_max_hp": {
-            "185": {
-                "calc_display_pct": 33.3,
-                "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%",
-            },
-            "153": {
-                "calc_display_pct": 40.3,
-                "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%",
-            },
-        },
         "this_call": {
             "attacker_max_hp": atk_hp,
             "calc_display_pct_range": [pct_lo, pct_hi] if pct_lo is not None else None,
@@ -145,6 +157,28 @@ def flare_blitz_recoil_basis(
         ),
     }
 
+    share_formula = {
+        "attacker_max_hp_from_sp": (
+            f"H = {CX_MEGA_X_BASE_HP} + HP_SP + 75 (Charizard-Mega-X Champions HP)"
+        ),
+        "numerators": {
+            "calc_unrounded_hp": AR3_RECOIL_CALC_UNROUNDED_HP,
+            "calc_unrounded_note": (
+                "187 × 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); "
+                f"this_call unrounded product={unrounded_33}"
+            ),
+            "true_value_hp": AR3_RECOIL_VALUE_HP,
+        },
+        "accepted_share_pct_range_for_H": (
+            "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  "
+            "# percent points; lo truncated to 0.1 to match calc one-decimal display "
+            "at fixtures; hi is true-share 62/H rounded to 0.1"
+        ),
+        "in_range_attributed_to_calc_display": "TRUE",
+        "out_of_range": "FALSE",
+        "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)",
+    }
+
     return {
         "scope": RECOIL_DAMAGE_FRACTION_SCOPE,
         "recoil_basis": {
@@ -160,7 +194,8 @@ def flare_blitz_recoil_basis(
                 "The user also takes 1/3 of the damage dealt by this move."
             ),
             "damage_dealt_after_defender_hp_cap_range": [dealt_lo, dealt_hi],
-            "true_share_of_attacker_hp": true_shares,
+            "percent_of_attacker_hp_range_formula": share_formula,
+            "worked_examples_attacker_hp": worked,
             "calc_display": calc_display,
             "showdown_sim_cross_check_hp": sim_hp,
         },
@@ -170,15 +205,25 @@ def flare_blitz_recoil_basis(
             "hp_point_61_sub_label": "derived_from_calc_percent",
             "hp_point_other": "FALSE",
             "percent_of_attacker_hp_attributed_to_calc_display": {
-                "attacker_hp_185": {
-                    "true_range_pct": [33.3, 33.5],
-                    "verdict": "TRUE",
-                    "note": "calc display 33.3%; true share of value_hp 62 is ~33.5%",
-                },
-                "attacker_hp_153": {
-                    "true_range_pct": [40.3, 40.5],
-                    "verdict": "TRUE",
-                    "note": "calc display 40.3%; true share of value_hp 62 is ~40.5% (CX HP-0, not Primarina)",
+                "check": (
+                    "Against the claim's stated attacker max HP H (or HP SP → "
+                    f"H = {CX_MEGA_X_BASE_HP} + SP + 75): accepted share pct range "
+                    "[floor(61.71/H*1000)/10, round(62/H*100, 1)]. "
+                    "In range + attributed to calc display → TRUE; out of range → FALSE; "
+                    "no stated attacker HP/spread → FALSE (no stated conditions)."
+                ),
+                "range_formula": share_formula,
+                "worked_examples_not_accepted_set": {
+                    "185": {
+                        "hp_sp": 32,
+                        "accepted_share_pct_range": recoil_share_pct_range_for_attacker_hp(185),
+                        "verdict_if_claim_in_range": "TRUE",
+                    },
+                    "153": {
+                        "hp_sp": 0,
+                        "accepted_share_pct_range": recoil_share_pct_range_for_attacker_hp(153),
+                        "verdict_if_claim_in_range": "TRUE",
+                    },
                 },
             },
             "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
@@ -186,10 +231,9 @@ def flare_blitz_recoil_basis(
             "sub_label_reported_as_own_sub_line": True,
             "note": (
                 "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent "
-                "(reported as its own sub-line). Calc-attributed percent of stated attacker HP: "
-                "33.3–33.5% at HP 185 and 40.3–40.5% at HP 153 are TRUE; unlabeled / "
-                "'33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not the "
-                "attacker-HP share denominator."
+                "(own sub-line). Percent-of-attacker-HP claims use the H-formula above "
+                "(worked examples 33.3–33.5% @ 185 and 40.3–40.5% @ 153). Unlabeled / "
+                "'33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not H."
             ),
         },
         # survival-margin aliases — true in-game HP only (not 61)

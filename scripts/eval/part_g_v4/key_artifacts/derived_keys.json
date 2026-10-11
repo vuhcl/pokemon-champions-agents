@@ -5247,36 +5247,46 @@
               187,
               187
             ],
-            "true_share_of_attacker_hp": {
+            "percent_of_attacker_hp_range_formula": {
+              "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+              "numerators": {
+                "calc_unrounded_hp": 61.71,
+                "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                "true_value_hp": 62
+              },
+              "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+              "in_range_attributed_to_calc_display": "TRUE",
+              "out_of_range": "FALSE",
+              "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
+            },
+            "worked_examples_attacker_hp": {
               "hp_185": {
+                "hp_sp": 32,
                 "attacker_max_hp": 185,
-                "recoil_hp": 62,
-                "share": 0.3351,
-                "approx_pct": 33.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 32 + 75 = 185",
+                "accepted_share_pct_range": [
+                  33.3,
+                  33.5
+                ],
+                "true_share_pct": 33.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               },
               "hp_153": {
+                "hp_sp": 0,
                 "attacker_max_hp": 153,
-                "recoil_hp": 62,
-                "share": 0.4052,
-                "approx_pct": 40.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 0 + 75 = 153",
+                "accepted_share_pct_range": [
+                  40.3,
+                  40.5
+                ],
+                "true_share_pct": 40.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               }
             },
             "calc_display": {
               "kind": "percent_of_attacker_hp_only",
               "exposes_hp_points": false,
               "move_data_factor": 0.33,
-              "by_attacker_max_hp": {
-                "185": {
-                  "calc_display_pct": 33.3,
-                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
-                },
-                "153": {
-                  "calc_display_pct": 40.3,
-                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
-                }
-              },
               "this_call": {
                 "attacker_max_hp": 185,
                 "calc_display_pct_range": [
@@ -5296,27 +5306,42 @@
             "hp_point_61_sub_label": "derived_from_calc_percent",
             "hp_point_other": "FALSE",
             "percent_of_attacker_hp_attributed_to_calc_display": {
-              "attacker_hp_185": {
-                "true_range_pct": [
-                  33.3,
-                  33.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 33.3%; true share of value_hp 62 is ~33.5%"
+              "check": "Against the claim's stated attacker max HP H (or HP SP \u2192 H = 78 + SP + 75): accepted share pct range [floor(61.71/H*1000)/10, round(62/H*100, 1)]. In range + attributed to calc display \u2192 TRUE; out of range \u2192 FALSE; no stated attacker HP/spread \u2192 FALSE (no stated conditions).",
+              "range_formula": {
+                "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+                "numerators": {
+                  "calc_unrounded_hp": 61.71,
+                  "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                  "true_value_hp": 62
+                },
+                "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+                "in_range_attributed_to_calc_display": "TRUE",
+                "out_of_range": "FALSE",
+                "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
               },
-              "attacker_hp_153": {
-                "true_range_pct": [
-                  40.3,
-                  40.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 40.3%; true share of value_hp 62 is ~40.5% (CX HP-0, not Primarina)"
+              "worked_examples_not_accepted_set": {
+                "185": {
+                  "hp_sp": 32,
+                  "accepted_share_pct_range": [
+                    33.3,
+                    33.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                },
+                "153": {
+                  "hp_sp": 0,
+                  "accepted_share_pct_range": [
+                    40.3,
+                    40.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                }
               }
             },
             "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
             "counts_in_gate": true,
             "sub_label_reported_as_own_sub_line": true,
-            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed percent of stated attacker HP: 33.3\u201333.5% at HP 185 and 40.3\u201340.5% at HP 153 are TRUE; unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not the attacker-HP share denominator."
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (own sub-line). Percent-of-attacker-HP claims use the H-formula above (worked examples 33.3\u201333.5% @ 185 and 40.3\u201340.5% @ 153). Unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not H."
           },
           "recoil_hp": 62,
           "recoil_hp_range": [
@@ -5355,36 +5380,46 @@
               187,
               187
             ],
-            "true_share_of_attacker_hp": {
+            "percent_of_attacker_hp_range_formula": {
+              "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+              "numerators": {
+                "calc_unrounded_hp": 61.71,
+                "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                "true_value_hp": 62
+              },
+              "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+              "in_range_attributed_to_calc_display": "TRUE",
+              "out_of_range": "FALSE",
+              "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
+            },
+            "worked_examples_attacker_hp": {
               "hp_185": {
+                "hp_sp": 32,
                 "attacker_max_hp": 185,
-                "recoil_hp": 62,
-                "share": 0.3351,
-                "approx_pct": 33.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 32 + 75 = 185",
+                "accepted_share_pct_range": [
+                  33.3,
+                  33.5
+                ],
+                "true_share_pct": 33.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               },
               "hp_153": {
+                "hp_sp": 0,
                 "attacker_max_hp": 153,
-                "recoil_hp": 62,
-                "share": 0.4052,
-                "approx_pct": 40.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 0 + 75 = 153",
+                "accepted_share_pct_range": [
+                  40.3,
+                  40.5
+                ],
+                "true_share_pct": 40.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               }
             },
             "calc_display": {
               "kind": "percent_of_attacker_hp_only",
               "exposes_hp_points": false,
               "move_data_factor": 0.33,
-              "by_attacker_max_hp": {
-                "185": {
-                  "calc_display_pct": 33.3,
-                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
-                },
-                "153": {
-                  "calc_display_pct": 40.3,
-                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
-                }
-              },
               "this_call": {
                 "attacker_max_hp": 153,
                 "calc_display_pct_range": [
@@ -5404,27 +5439,42 @@
             "hp_point_61_sub_label": "derived_from_calc_percent",
             "hp_point_other": "FALSE",
             "percent_of_attacker_hp_attributed_to_calc_display": {
-              "attacker_hp_185": {
-                "true_range_pct": [
-                  33.3,
-                  33.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 33.3%; true share of value_hp 62 is ~33.5%"
+              "check": "Against the claim's stated attacker max HP H (or HP SP \u2192 H = 78 + SP + 75): accepted share pct range [floor(61.71/H*1000)/10, round(62/H*100, 1)]. In range + attributed to calc display \u2192 TRUE; out of range \u2192 FALSE; no stated attacker HP/spread \u2192 FALSE (no stated conditions).",
+              "range_formula": {
+                "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+                "numerators": {
+                  "calc_unrounded_hp": 61.71,
+                  "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                  "true_value_hp": 62
+                },
+                "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+                "in_range_attributed_to_calc_display": "TRUE",
+                "out_of_range": "FALSE",
+                "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
               },
-              "attacker_hp_153": {
-                "true_range_pct": [
-                  40.3,
-                  40.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 40.3%; true share of value_hp 62 is ~40.5% (CX HP-0, not Primarina)"
+              "worked_examples_not_accepted_set": {
+                "185": {
+                  "hp_sp": 32,
+                  "accepted_share_pct_range": [
+                    33.3,
+                    33.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                },
+                "153": {
+                  "hp_sp": 0,
+                  "accepted_share_pct_range": [
+                    40.3,
+                    40.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                }
               }
             },
             "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
             "counts_in_gate": true,
             "sub_label_reported_as_own_sub_line": true,
-            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed percent of stated attacker HP: 33.3\u201333.5% at HP 185 and 40.3\u201340.5% at HP 153 are TRUE; unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not the attacker-HP share denominator."
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (own sub-line). Percent-of-attacker-HP claims use the H-formula above (worked examples 33.3\u201333.5% @ 185 and 40.3\u201340.5% @ 153). Unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not H."
           },
           "recoil_hp": 62,
           "recoil_hp_range": [
@@ -5473,36 +5523,46 @@
           187,
           187
         ],
-        "true_share_of_attacker_hp": {
+        "percent_of_attacker_hp_range_formula": {
+          "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+          "numerators": {
+            "calc_unrounded_hp": 61.71,
+            "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+            "true_value_hp": 62
+          },
+          "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+          "in_range_attributed_to_calc_display": "TRUE",
+          "out_of_range": "FALSE",
+          "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
+        },
+        "worked_examples_attacker_hp": {
           "hp_185": {
+            "hp_sp": 32,
             "attacker_max_hp": 185,
-            "recoil_hp": 62,
-            "share": 0.3351,
-            "approx_pct": 33.5,
-            "note": "true share of attacker max HP (from value_hp); not the calc display"
+            "hp_formula": "78 + 32 + 75 = 185",
+            "accepted_share_pct_range": [
+              33.3,
+              33.5
+            ],
+            "true_share_pct": 33.5,
+            "note": "worked example from AR3 fixture; not an exclusive accepted HP"
           },
           "hp_153": {
+            "hp_sp": 0,
             "attacker_max_hp": 153,
-            "recoil_hp": 62,
-            "share": 0.4052,
-            "approx_pct": 40.5,
-            "note": "true share of attacker max HP (from value_hp); not the calc display"
+            "hp_formula": "78 + 0 + 75 = 153",
+            "accepted_share_pct_range": [
+              40.3,
+              40.5
+            ],
+            "true_share_pct": 40.5,
+            "note": "worked example from AR3 fixture; not an exclusive accepted HP"
           }
         },
         "calc_display": {
           "kind": "percent_of_attacker_hp_only",
           "exposes_hp_points": false,
           "move_data_factor": 0.33,
-          "by_attacker_max_hp": {
-            "185": {
-              "calc_display_pct": 33.3,
-              "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
-            },
-            "153": {
-              "calc_display_pct": 40.3,
-              "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
-            }
-          },
           "this_call": {
             "attacker_max_hp": 185,
             "calc_display_pct_range": [
@@ -5522,27 +5582,42 @@
         "hp_point_61_sub_label": "derived_from_calc_percent",
         "hp_point_other": "FALSE",
         "percent_of_attacker_hp_attributed_to_calc_display": {
-          "attacker_hp_185": {
-            "true_range_pct": [
-              33.3,
-              33.5
-            ],
-            "verdict": "TRUE",
-            "note": "calc display 33.3%; true share of value_hp 62 is ~33.5%"
+          "check": "Against the claim's stated attacker max HP H (or HP SP \u2192 H = 78 + SP + 75): accepted share pct range [floor(61.71/H*1000)/10, round(62/H*100, 1)]. In range + attributed to calc display \u2192 TRUE; out of range \u2192 FALSE; no stated attacker HP/spread \u2192 FALSE (no stated conditions).",
+          "range_formula": {
+            "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+            "numerators": {
+              "calc_unrounded_hp": 61.71,
+              "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+              "true_value_hp": 62
+            },
+            "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+            "in_range_attributed_to_calc_display": "TRUE",
+            "out_of_range": "FALSE",
+            "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
           },
-          "attacker_hp_153": {
-            "true_range_pct": [
-              40.3,
-              40.5
-            ],
-            "verdict": "TRUE",
-            "note": "calc display 40.3%; true share of value_hp 62 is ~40.5% (CX HP-0, not Primarina)"
+          "worked_examples_not_accepted_set": {
+            "185": {
+              "hp_sp": 32,
+              "accepted_share_pct_range": [
+                33.3,
+                33.5
+              ],
+              "verdict_if_claim_in_range": "TRUE"
+            },
+            "153": {
+              "hp_sp": 0,
+              "accepted_share_pct_range": [
+                40.3,
+                40.5
+              ],
+              "verdict_if_claim_in_range": "TRUE"
+            }
           }
         },
         "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
         "counts_in_gate": true,
         "sub_label_reported_as_own_sub_line": true,
-        "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed percent of stated attacker HP: 33.3\u201333.5% at HP 185 and 40.3\u201340.5% at HP 153 are TRUE; unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not the attacker-HP share denominator."
+        "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (own sub-line). Percent-of-attacker-HP claims use the H-formula above (worked examples 33.3\u201333.5% @ 185 and 40.3\u201340.5% @ 153). Unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not H."
       },
       "calc_recoil_text_is_display_pct_of_attacker_max_hp": true,
       "ability": "Tough Claws",
@@ -9754,36 +9829,46 @@
               187,
               187
             ],
-            "true_share_of_attacker_hp": {
+            "percent_of_attacker_hp_range_formula": {
+              "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+              "numerators": {
+                "calc_unrounded_hp": 61.71,
+                "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                "true_value_hp": 62
+              },
+              "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+              "in_range_attributed_to_calc_display": "TRUE",
+              "out_of_range": "FALSE",
+              "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
+            },
+            "worked_examples_attacker_hp": {
               "hp_185": {
+                "hp_sp": 32,
                 "attacker_max_hp": 185,
-                "recoil_hp": 62,
-                "share": 0.3351,
-                "approx_pct": 33.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 32 + 75 = 185",
+                "accepted_share_pct_range": [
+                  33.3,
+                  33.5
+                ],
+                "true_share_pct": 33.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               },
               "hp_153": {
+                "hp_sp": 0,
                 "attacker_max_hp": 153,
-                "recoil_hp": 62,
-                "share": 0.4052,
-                "approx_pct": 40.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 0 + 75 = 153",
+                "accepted_share_pct_range": [
+                  40.3,
+                  40.5
+                ],
+                "true_share_pct": 40.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               }
             },
             "calc_display": {
               "kind": "percent_of_attacker_hp_only",
               "exposes_hp_points": false,
               "move_data_factor": 0.33,
-              "by_attacker_max_hp": {
-                "185": {
-                  "calc_display_pct": 33.3,
-                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
-                },
-                "153": {
-                  "calc_display_pct": 40.3,
-                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
-                }
-              },
               "this_call": {
                 "attacker_max_hp": 185,
                 "calc_display_pct_range": [
@@ -9803,27 +9888,42 @@
             "hp_point_61_sub_label": "derived_from_calc_percent",
             "hp_point_other": "FALSE",
             "percent_of_attacker_hp_attributed_to_calc_display": {
-              "attacker_hp_185": {
-                "true_range_pct": [
-                  33.3,
-                  33.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 33.3%; true share of value_hp 62 is ~33.5%"
+              "check": "Against the claim's stated attacker max HP H (or HP SP \u2192 H = 78 + SP + 75): accepted share pct range [floor(61.71/H*1000)/10, round(62/H*100, 1)]. In range + attributed to calc display \u2192 TRUE; out of range \u2192 FALSE; no stated attacker HP/spread \u2192 FALSE (no stated conditions).",
+              "range_formula": {
+                "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+                "numerators": {
+                  "calc_unrounded_hp": 61.71,
+                  "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                  "true_value_hp": 62
+                },
+                "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+                "in_range_attributed_to_calc_display": "TRUE",
+                "out_of_range": "FALSE",
+                "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
               },
-              "attacker_hp_153": {
-                "true_range_pct": [
-                  40.3,
-                  40.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 40.3%; true share of value_hp 62 is ~40.5% (CX HP-0, not Primarina)"
+              "worked_examples_not_accepted_set": {
+                "185": {
+                  "hp_sp": 32,
+                  "accepted_share_pct_range": [
+                    33.3,
+                    33.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                },
+                "153": {
+                  "hp_sp": 0,
+                  "accepted_share_pct_range": [
+                    40.3,
+                    40.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                }
               }
             },
             "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
             "counts_in_gate": true,
             "sub_label_reported_as_own_sub_line": true,
-            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed percent of stated attacker HP: 33.3\u201333.5% at HP 185 and 40.3\u201340.5% at HP 153 are TRUE; unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not the attacker-HP share denominator."
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (own sub-line). Percent-of-attacker-HP claims use the H-formula above (worked examples 33.3\u201333.5% @ 185 and 40.3\u201340.5% @ 153). Unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not H."
           },
           "recoil_hp": 62,
           "recoil_hp_range": [
@@ -9864,36 +9964,46 @@
               187,
               187
             ],
-            "true_share_of_attacker_hp": {
+            "percent_of_attacker_hp_range_formula": {
+              "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+              "numerators": {
+                "calc_unrounded_hp": 61.71,
+                "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                "true_value_hp": 62
+              },
+              "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+              "in_range_attributed_to_calc_display": "TRUE",
+              "out_of_range": "FALSE",
+              "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
+            },
+            "worked_examples_attacker_hp": {
               "hp_185": {
+                "hp_sp": 32,
                 "attacker_max_hp": 185,
-                "recoil_hp": 62,
-                "share": 0.3351,
-                "approx_pct": 33.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 32 + 75 = 185",
+                "accepted_share_pct_range": [
+                  33.3,
+                  33.5
+                ],
+                "true_share_pct": 33.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               },
               "hp_153": {
+                "hp_sp": 0,
                 "attacker_max_hp": 153,
-                "recoil_hp": 62,
-                "share": 0.4052,
-                "approx_pct": 40.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 0 + 75 = 153",
+                "accepted_share_pct_range": [
+                  40.3,
+                  40.5
+                ],
+                "true_share_pct": 40.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               }
             },
             "calc_display": {
               "kind": "percent_of_attacker_hp_only",
               "exposes_hp_points": false,
               "move_data_factor": 0.33,
-              "by_attacker_max_hp": {
-                "185": {
-                  "calc_display_pct": 33.3,
-                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
-                },
-                "153": {
-                  "calc_display_pct": 40.3,
-                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
-                }
-              },
               "this_call": {
                 "attacker_max_hp": 185,
                 "calc_display_pct_range": [
@@ -9913,27 +10023,42 @@
             "hp_point_61_sub_label": "derived_from_calc_percent",
             "hp_point_other": "FALSE",
             "percent_of_attacker_hp_attributed_to_calc_display": {
-              "attacker_hp_185": {
-                "true_range_pct": [
-                  33.3,
-                  33.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 33.3%; true share of value_hp 62 is ~33.5%"
+              "check": "Against the claim's stated attacker max HP H (or HP SP \u2192 H = 78 + SP + 75): accepted share pct range [floor(61.71/H*1000)/10, round(62/H*100, 1)]. In range + attributed to calc display \u2192 TRUE; out of range \u2192 FALSE; no stated attacker HP/spread \u2192 FALSE (no stated conditions).",
+              "range_formula": {
+                "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+                "numerators": {
+                  "calc_unrounded_hp": 61.71,
+                  "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                  "true_value_hp": 62
+                },
+                "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+                "in_range_attributed_to_calc_display": "TRUE",
+                "out_of_range": "FALSE",
+                "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
               },
-              "attacker_hp_153": {
-                "true_range_pct": [
-                  40.3,
-                  40.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 40.3%; true share of value_hp 62 is ~40.5% (CX HP-0, not Primarina)"
+              "worked_examples_not_accepted_set": {
+                "185": {
+                  "hp_sp": 32,
+                  "accepted_share_pct_range": [
+                    33.3,
+                    33.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                },
+                "153": {
+                  "hp_sp": 0,
+                  "accepted_share_pct_range": [
+                    40.3,
+                    40.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                }
               }
             },
             "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
             "counts_in_gate": true,
             "sub_label_reported_as_own_sub_line": true,
-            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed percent of stated attacker HP: 33.3\u201333.5% at HP 185 and 40.3\u201340.5% at HP 153 are TRUE; unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not the attacker-HP share denominator."
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (own sub-line). Percent-of-attacker-HP claims use the H-formula above (worked examples 33.3\u201333.5% @ 185 and 40.3\u201340.5% @ 153). Unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not H."
           },
           "recoil_hp": 62,
           "recoil_hp_range": [
@@ -9974,36 +10099,46 @@
               187,
               187
             ],
-            "true_share_of_attacker_hp": {
+            "percent_of_attacker_hp_range_formula": {
+              "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+              "numerators": {
+                "calc_unrounded_hp": 61.71,
+                "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                "true_value_hp": 62
+              },
+              "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+              "in_range_attributed_to_calc_display": "TRUE",
+              "out_of_range": "FALSE",
+              "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
+            },
+            "worked_examples_attacker_hp": {
               "hp_185": {
+                "hp_sp": 32,
                 "attacker_max_hp": 185,
-                "recoil_hp": 62,
-                "share": 0.3351,
-                "approx_pct": 33.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 32 + 75 = 185",
+                "accepted_share_pct_range": [
+                  33.3,
+                  33.5
+                ],
+                "true_share_pct": 33.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               },
               "hp_153": {
+                "hp_sp": 0,
                 "attacker_max_hp": 153,
-                "recoil_hp": 62,
-                "share": 0.4052,
-                "approx_pct": 40.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 0 + 75 = 153",
+                "accepted_share_pct_range": [
+                  40.3,
+                  40.5
+                ],
+                "true_share_pct": 40.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               }
             },
             "calc_display": {
               "kind": "percent_of_attacker_hp_only",
               "exposes_hp_points": false,
               "move_data_factor": 0.33,
-              "by_attacker_max_hp": {
-                "185": {
-                  "calc_display_pct": 33.3,
-                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
-                },
-                "153": {
-                  "calc_display_pct": 40.3,
-                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
-                }
-              },
               "this_call": {
                 "attacker_max_hp": 185,
                 "calc_display_pct_range": [
@@ -10023,27 +10158,42 @@
             "hp_point_61_sub_label": "derived_from_calc_percent",
             "hp_point_other": "FALSE",
             "percent_of_attacker_hp_attributed_to_calc_display": {
-              "attacker_hp_185": {
-                "true_range_pct": [
-                  33.3,
-                  33.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 33.3%; true share of value_hp 62 is ~33.5%"
+              "check": "Against the claim's stated attacker max HP H (or HP SP \u2192 H = 78 + SP + 75): accepted share pct range [floor(61.71/H*1000)/10, round(62/H*100, 1)]. In range + attributed to calc display \u2192 TRUE; out of range \u2192 FALSE; no stated attacker HP/spread \u2192 FALSE (no stated conditions).",
+              "range_formula": {
+                "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+                "numerators": {
+                  "calc_unrounded_hp": 61.71,
+                  "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                  "true_value_hp": 62
+                },
+                "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+                "in_range_attributed_to_calc_display": "TRUE",
+                "out_of_range": "FALSE",
+                "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
               },
-              "attacker_hp_153": {
-                "true_range_pct": [
-                  40.3,
-                  40.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 40.3%; true share of value_hp 62 is ~40.5% (CX HP-0, not Primarina)"
+              "worked_examples_not_accepted_set": {
+                "185": {
+                  "hp_sp": 32,
+                  "accepted_share_pct_range": [
+                    33.3,
+                    33.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                },
+                "153": {
+                  "hp_sp": 0,
+                  "accepted_share_pct_range": [
+                    40.3,
+                    40.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                }
               }
             },
             "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
             "counts_in_gate": true,
             "sub_label_reported_as_own_sub_line": true,
-            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed percent of stated attacker HP: 33.3\u201333.5% at HP 185 and 40.3\u201340.5% at HP 153 are TRUE; unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not the attacker-HP share denominator."
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (own sub-line). Percent-of-attacker-HP claims use the H-formula above (worked examples 33.3\u201333.5% @ 185 and 40.3\u201340.5% @ 153). Unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not H."
           },
           "recoil_hp": 62,
           "recoil_hp_range": [
@@ -10086,36 +10236,46 @@
               187,
               187
             ],
-            "true_share_of_attacker_hp": {
+            "percent_of_attacker_hp_range_formula": {
+              "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+              "numerators": {
+                "calc_unrounded_hp": 61.71,
+                "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                "true_value_hp": 62
+              },
+              "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+              "in_range_attributed_to_calc_display": "TRUE",
+              "out_of_range": "FALSE",
+              "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
+            },
+            "worked_examples_attacker_hp": {
               "hp_185": {
+                "hp_sp": 32,
                 "attacker_max_hp": 185,
-                "recoil_hp": 62,
-                "share": 0.3351,
-                "approx_pct": 33.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 32 + 75 = 185",
+                "accepted_share_pct_range": [
+                  33.3,
+                  33.5
+                ],
+                "true_share_pct": 33.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               },
               "hp_153": {
+                "hp_sp": 0,
                 "attacker_max_hp": 153,
-                "recoil_hp": 62,
-                "share": 0.4052,
-                "approx_pct": 40.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 0 + 75 = 153",
+                "accepted_share_pct_range": [
+                  40.3,
+                  40.5
+                ],
+                "true_share_pct": 40.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               }
             },
             "calc_display": {
               "kind": "percent_of_attacker_hp_only",
               "exposes_hp_points": false,
               "move_data_factor": 0.33,
-              "by_attacker_max_hp": {
-                "185": {
-                  "calc_display_pct": 33.3,
-                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
-                },
-                "153": {
-                  "calc_display_pct": 40.3,
-                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
-                }
-              },
               "this_call": {
                 "attacker_max_hp": 185,
                 "calc_display_pct_range": [
@@ -10135,27 +10295,42 @@
             "hp_point_61_sub_label": "derived_from_calc_percent",
             "hp_point_other": "FALSE",
             "percent_of_attacker_hp_attributed_to_calc_display": {
-              "attacker_hp_185": {
-                "true_range_pct": [
-                  33.3,
-                  33.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 33.3%; true share of value_hp 62 is ~33.5%"
+              "check": "Against the claim's stated attacker max HP H (or HP SP \u2192 H = 78 + SP + 75): accepted share pct range [floor(61.71/H*1000)/10, round(62/H*100, 1)]. In range + attributed to calc display \u2192 TRUE; out of range \u2192 FALSE; no stated attacker HP/spread \u2192 FALSE (no stated conditions).",
+              "range_formula": {
+                "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+                "numerators": {
+                  "calc_unrounded_hp": 61.71,
+                  "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                  "true_value_hp": 62
+                },
+                "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+                "in_range_attributed_to_calc_display": "TRUE",
+                "out_of_range": "FALSE",
+                "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
               },
-              "attacker_hp_153": {
-                "true_range_pct": [
-                  40.3,
-                  40.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 40.3%; true share of value_hp 62 is ~40.5% (CX HP-0, not Primarina)"
+              "worked_examples_not_accepted_set": {
+                "185": {
+                  "hp_sp": 32,
+                  "accepted_share_pct_range": [
+                    33.3,
+                    33.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                },
+                "153": {
+                  "hp_sp": 0,
+                  "accepted_share_pct_range": [
+                    40.3,
+                    40.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                }
               }
             },
             "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
             "counts_in_gate": true,
             "sub_label_reported_as_own_sub_line": true,
-            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed percent of stated attacker HP: 33.3\u201333.5% at HP 185 and 40.3\u201340.5% at HP 153 are TRUE; unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not the attacker-HP share denominator."
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (own sub-line). Percent-of-attacker-HP claims use the H-formula above (worked examples 33.3\u201333.5% @ 185 and 40.3\u201340.5% @ 153). Unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not H."
           },
           "recoil_hp": 62,
           "recoil_hp_range": [
@@ -10194,36 +10369,46 @@
               187,
               187
             ],
-            "true_share_of_attacker_hp": {
+            "percent_of_attacker_hp_range_formula": {
+              "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+              "numerators": {
+                "calc_unrounded_hp": 61.71,
+                "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                "true_value_hp": 62
+              },
+              "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+              "in_range_attributed_to_calc_display": "TRUE",
+              "out_of_range": "FALSE",
+              "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
+            },
+            "worked_examples_attacker_hp": {
               "hp_185": {
+                "hp_sp": 32,
                 "attacker_max_hp": 185,
-                "recoil_hp": 62,
-                "share": 0.3351,
-                "approx_pct": 33.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 32 + 75 = 185",
+                "accepted_share_pct_range": [
+                  33.3,
+                  33.5
+                ],
+                "true_share_pct": 33.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               },
               "hp_153": {
+                "hp_sp": 0,
                 "attacker_max_hp": 153,
-                "recoil_hp": 62,
-                "share": 0.4052,
-                "approx_pct": 40.5,
-                "note": "true share of attacker max HP (from value_hp); not the calc display"
+                "hp_formula": "78 + 0 + 75 = 153",
+                "accepted_share_pct_range": [
+                  40.3,
+                  40.5
+                ],
+                "true_share_pct": 40.5,
+                "note": "worked example from AR3 fixture; not an exclusive accepted HP"
               }
             },
             "calc_display": {
               "kind": "percent_of_attacker_hp_only",
               "exposes_hp_points": false,
               "move_data_factor": 0.33,
-              "by_attacker_max_hp": {
-                "185": {
-                  "calc_display_pct": 33.3,
-                  "note": "hosted calc raw.recoil for HP-32 CX; slightly below true share ~33.5%"
-                },
-                "153": {
-                  "calc_display_pct": 40.3,
-                  "note": "hosted calc raw.recoil for HP-0 CX; slightly below true share ~40.5%"
-                }
-              },
               "this_call": {
                 "attacker_max_hp": 153,
                 "calc_display_pct_range": [
@@ -10243,27 +10428,42 @@
             "hp_point_61_sub_label": "derived_from_calc_percent",
             "hp_point_other": "FALSE",
             "percent_of_attacker_hp_attributed_to_calc_display": {
-              "attacker_hp_185": {
-                "true_range_pct": [
-                  33.3,
-                  33.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 33.3%; true share of value_hp 62 is ~33.5%"
+              "check": "Against the claim's stated attacker max HP H (or HP SP \u2192 H = 78 + SP + 75): accepted share pct range [floor(61.71/H*1000)/10, round(62/H*100, 1)]. In range + attributed to calc display \u2192 TRUE; out of range \u2192 FALSE; no stated attacker HP/spread \u2192 FALSE (no stated conditions).",
+              "range_formula": {
+                "attacker_max_hp_from_sp": "H = 78 + HP_SP + 75 (Charizard-Mega-X Champions HP)",
+                "numerators": {
+                  "calc_unrounded_hp": 61.71,
+                  "calc_unrounded_note": "187 \u00d7 0.33 for AR3 OHKO (damage capped at Primarina remaining HP 187); this_call unrounded product=61.71",
+                  "true_value_hp": 62
+                },
+                "accepted_share_pct_range_for_H": "lo = floor((61.71/H)*1000)/10 ; hi = round((62/H)*100, 1)  # percent points; lo truncated to 0.1 to match calc one-decimal display at fixtures; hi is true-share 62/H rounded to 0.1",
+                "in_range_attributed_to_calc_display": "TRUE",
+                "out_of_range": "FALSE",
+                "no_stated_attacker_hp_or_spread": "FALSE (no stated conditions)"
               },
-              "attacker_hp_153": {
-                "true_range_pct": [
-                  40.3,
-                  40.5
-                ],
-                "verdict": "TRUE",
-                "note": "calc display 40.3%; true share of value_hp 62 is ~40.5% (CX HP-0, not Primarina)"
+              "worked_examples_not_accepted_set": {
+                "185": {
+                  "hp_sp": 32,
+                  "accepted_share_pct_range": [
+                    33.3,
+                    33.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                },
+                "153": {
+                  "hp_sp": 0,
+                  "accepted_share_pct_range": [
+                    40.3,
+                    40.5
+                  ],
+                  "verdict_if_claim_in_range": "TRUE"
+                }
               }
             },
             "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
             "counts_in_gate": true,
             "sub_label_reported_as_own_sub_line": true,
-            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (reported as its own sub-line). Calc-attributed percent of stated attacker HP: 33.3\u201333.5% at HP 185 and 40.3\u201340.5% at HP 153 are TRUE; unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not the attacker-HP share denominator."
+            "note": "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent (own sub-line). Percent-of-attacker-HP claims use the H-formula above (worked examples 33.3\u201333.5% @ 185 and 40.3\u201340.5% @ 153). Unlabeled / '33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not H."
           },
           "recoil_hp": 62,
           "recoil_hp_range": [
@@ -21047,7 +21247,8 @@
     "H12 scores each threat's best move by max-roll damage into Sinistcha; accuracy and conditional effects are ignored. The Expanding Force case depends on the untested multi-target (0.75) assumption.",
     "AR3 Flare Blitz recoil: in-game rule floor(damage_dealt/3)=62 (Primarina HP 187); hosted calc exposes only percent of attacker HP (33.3% of 185 / 40.3% of 153 from 0.33 factor), not HP points. Key scores HP-point 62 TRUE; 61 FALSE with sub_label derived_from_calc_percent. Request-set L470 still says allow 61-62 \u2014 superseded by key scoring via R9; L470 text unchanged (sha fc6b150d). Fix = arm wrapper reports floor(damage/3) HP.",
     "Showdown sim applyRecoilDamage uses Math.round(damage*33/100) (62 here); matters for phase-2 Showdown eval, not the hosted calc percent display.",
-    "HEADER in gen_request_set_v4.py is an f-string so past_items/modest_note interpolate; output byte-identical to tracked request set (sha fc6b150d)."
+    "HEADER in gen_request_set_v4.py is an f-string so past_items/modest_note interpolate; output byte-identical to tracked request set (sha fc6b150d).",
+    "AR3 fixture pins Charizard-Mega-X HP SP 32 and 0 (H=185/153). Belly Drum or other Charizard builds with different HP SP are not modeled: percent-of-attacker-HP recoil claims for any stated H are scored by [floor(61.71/H*1000)/10, round(62/H*100,1)]; no other mechanical claim about those builds (damage, survival after Belly Drum, recoil vs remaining HP) is covered by the key."
   ],
   "tool_surface_v4": [
     "Hosted /calculate takes a single move per request; a moves list per request would cut the arm's per-threat calc count (H12)."

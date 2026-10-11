@@ -219,7 +219,7 @@ A scorer needs a uniform reader over `false_claims` **and** must not treat `fail
 
 | Key id | Conflicting frozen text (verbatim / paraphrase) | Key scoring (verbatim intent) | Path | Resolution |
 |---|---|---|---|---|
-| AR3 Flare Blitz recoil | request-set L470 / `_ar3_key`: “exact claims allow 61–62 in-game rounding” | `scoring.hp_point_62` = TRUE; `hp_point_61` = FALSE with `sub_label` `derived_from_calc_percent`; other HP = FALSE | `part3_request_set_v4.md` L470 (sha `fc6b150d…` unchanged); `derived_keys.ar3.t4_flare_blitz_recoil` | **Scorer follows scoring (62 only).** L470 unchanged (hash discipline). Rationale errata: cause is fraction (1/3 vs 0.33 display), not “in-game rounding.” |
+| AR3 Flare Blitz recoil | request-set L470 / `_ar3_key`: “exact claims allow 61–62 in-game rounding” | HP-point: `62` TRUE; `61` FALSE with `sub_label` `derived_from_calc_percent`. Percent-of-attacker-HP: against stated H (or HP SP → H=78+SP+75), accepted band `[floor(61.71/H×1000)/10, round(62/H×100,1)]` attributed to calc display → TRUE; no stated H → FALSE | `part3_request_set_v4.md` L470 (sha `fc6b150d…` unchanged); `derived_keys.ar3.t4_flare_blitz_recoil` | **Scorer follows scoring.** L470 unchanged (hash discipline). Rationale errata: cause is fraction (1/3 vs 0.33 display), not “in-game rounding.” Fixture H 185/153 are worked examples only. |
 | DM6 (historical v4) | previously listed “stated attacker nature/SP/item differing from key” under `false_claims` | `scoring.stated_attacker_differs_from_key` = `"not SERVED"` | fixed in v4.1 keys | resolved — no longer a defect row |
 
 #### B — chaos-weight field rename (R10; resolved in v4.1 keys)
@@ -241,6 +241,7 @@ The scorer reads **weights** only from fields named `chaos_weight` or carrying *
 1. **Frozen H15 wording (not edited):** request-set prose still writes `chaos_weight pct≈8876.7` while also saying “label chaos_weight as **weight** (not % — presenting as percent = false)”. The `pct≈` token is misleading; scorer still treats presenting 8876.7 as a percent as FALSE. Fix = new frozen request-set version / hash — out of scope for v4.1 (sha stays `fc6b150d…`).
 2. **Arm tool surface — `top_spreads[].pct` name:** pinned Showdown data stores the chaos weight under the field name `pct` (with `pct_kind: "chaos_weight"`). Usage APIs that return the species entry pass that field name through unchanged. **Arm-side item:** relabel or withhold `pct` in arm-visible output — not an eval/scorer change.
 3. **Arm tool surface — Flare Blitz recoil HP points:** hosted `@smogon/calc` `/calculate` exposes recoil only as a rounded **percent of attacker max HP** (`raw.recoil`, e.g. `33.3%` / text `33.3 - 33.3% recoil damage`) — **not** an HP-point value. An arm that converts that percent to HP can land on 61 or 62; key scores HP-point **62** TRUE and **61** FALSE with sub_label `derived_from_calc_percent`. **Fix belongs to the arm tool surface** (wrapper reports `floor(damage_dealt/3)` in HP), not the eval.
+4. **AR3 Charizard HP SP scope:** the key fixture pins Charizard-Mega-X HP SP **32** and **0** (H=185/153). Belly Drum or other Charizard builds with different HP SP are **not modeled**. Percent-of-attacker-HP recoil claims for any stated H are scored by `[floor(61.71/H×1000)/10, round(62/H×100,1)]` (worked examples: 33.3–33.5% @ 185, 40.3–40.5% @ 153); no other mechanical claim about those builds (damage, survival after Belly Drum, recoil vs remaining HP) is covered by the key.
 
 ---
 
@@ -271,7 +272,7 @@ These are different things. Both apply to **TRUE+FALSE** scored counts (R8), not
 ## v4.1 key revision (changelog — eval package)
 
 - **Request set:** no text change; sha256 remains `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385`. `HEADER` is an f-string so interpolations evaluate; output unchanged.
-- **AR3 recoil:** in-game `floor(damage/3)` → **62**; calc exposes **percent of attacker HP only**; HP-point **61** is FALSE with sub_label `derived_from_calc_percent`. L470 “61–62” superseded by key scoring (R9).
+- **AR3 recoil:** in-game `floor(damage/3)` → **62**; calc exposes **percent of attacker HP only**; HP-point **61** is FALSE with sub_label `derived_from_calc_percent`. Percent claims scored vs stated H by `[floor(61.71/H×1000)/10, round(62/H×100,1)]` (185/153 are worked examples only). L470 “61–62” superseded by key scoring (R9).
 - **DM6:** `false_claims` aligned with scoring; differing spread → not SERVED; top/most-common assertion → FALSE (usage).
 - **Chaos weights:** 17 fields renamed `pct` → `chaos_weight` (drop `pct_kind`).
 - **Artifact ids:** joint-keyed `ar3_probe_*_j{i}_{atk}` / `ar3fu_ohko_*_j{i}_{atk}`; no content-hash `probe_*` search dumps.
