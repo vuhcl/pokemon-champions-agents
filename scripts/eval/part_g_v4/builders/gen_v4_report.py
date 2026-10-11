@@ -46,7 +46,12 @@ def main() -> None:
     a("- Damage slice: DM1–DM7 (**7**)")
     a("- Theme slice: H17–H22 + H18b (**7**)")
     a("- Build traps: IC1, GT1, GS1, LZ1, TB1, TB2, MM1, MM2, MC1, RB1 (**10**)")
-    a("- Claim battery: still **300** items → expected realized **~267 ≥ 240** → **no extend**\n")
+    a(
+        "- Claim battery: **300** items → **381 claim slots** (designed inventory at seed 0; "
+        "not a model-run count). Post-run estimate remains ~267 model-authored @70% answer rate "
+        "(≥ 240 stop/extend floor) → **no extend** from sizing. "
+        "See battery design: claim slots vs model-authored realized.\n"
+    )
 
     a("## Already applied (skipped duplicates)")
     a("- AR3 recoil/AJ chain/HP-0 text from keys")

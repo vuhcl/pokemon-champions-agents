@@ -1,5 +1,5 @@
 {
-  "calc_artifact_count": 240,
+  "calc_artifact_count": 368,
   "calc_artifacts_dir": "key_artifacts/calc",
   "calc_service": {
     "hosted_url": "http://127.0.0.1:4173",

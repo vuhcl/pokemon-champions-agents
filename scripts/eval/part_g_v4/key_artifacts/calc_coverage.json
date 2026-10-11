@@ -1,0 +1,20 @@
+{
+  "artifacts_saved": 368,
+  "calc_ids_in_keys": 92,
+  "dm4_min_atk_search_artifacts": 128,
+  "dm4_search_missing": [],
+  "h12_calls_plus_probes": 166,
+  "h12_candidate_nature_calls_expected": 162,
+  "h12_probes_expected": 4,
+  "inventory": {
+    "calls_without_saved_artifact": [],
+    "dm4_min_atk_search_steps_saved": 128,
+    "h12_candidate_x_nature": 162,
+    "h12_probes": 4,
+    "other_artifacts": 74,
+    "total_saved": 368
+  },
+  "missing_required": [],
+  "note": "H12 alone: up to 35 threats \u00d7 \u22644 candidate moves \u00d7 2 natures; actual candidate\u00d7nature matrix from keys is h12_candidate_nature_calls_expected. calc_store is offline-first; PART_G_V4_REQUIRE_CALC_ARTIFACT=1 fails on missing ids.",
+  "required_for_offline_key_regen": 188
+}

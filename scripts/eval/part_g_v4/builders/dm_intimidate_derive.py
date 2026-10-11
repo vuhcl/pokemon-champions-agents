@@ -117,6 +117,7 @@ def min_atk_sp_for_ohko(attacker_base, defender, move, field, aid_prefix, atk_bo
     """Lowest Atk SP in 0..32 with min_roll >= defender HP; None if unreachable at 32.
 
     Other SP left as in attacker_base (DM4 Garchomp baseline = all 0 except Atk).
+    Every search step is persisted under `{aid_prefix}_atk{sp}` so regen is offline.
     """
     def_hp = None
     for atk_sp in range(0, 33):
@@ -135,13 +136,14 @@ def min_atk_sp_for_ohko(attacker_base, defender, move, field, aid_prefix, atk_bo
             defender,
             move,
             field,
-            persist=False,
+            persist=True,
         )
         def_hp = case.get("defender_hp") or def_hp
         min_d = case.get("min_damage")
         if min_d is not None and def_hp and min_d >= def_hp:
             return {
                 "min_atk_sp": atk_sp,
+                "calc_id": f"{aid_prefix}_atk{atk_sp}",
                 "definition": "guaranteed OHKO = min_roll >= defender HP",
                 "search": "Atk SP 0-32; other SP fixed from attacker baseline",
                 "at_min": {

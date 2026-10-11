@@ -3655,6 +3655,7 @@
               "min_atk_sp": 28,
               "min_atk_sp_detail": {
                 "min_atk_sp": 28,
+                "calc_id": "dm4_eq_inc_intim_off_singletarget_min_atk28",
                 "definition": "guaranteed OHKO = min_roll >= defender HP",
                 "search": "Atk SP 0-32; other SP fixed from attacker baseline",
                 "at_min": {

@@ -471,6 +471,7 @@ def main() -> int:
     min_n_one_fail = min_n(1)
     design_floor = 240
 
+    max_k_items = max_k(CLAIM_ITEMS)
     manifest = {
         "seed": SEED,
         "claim_battery_path": "battery/claim_battery_v4.json",
@@ -481,6 +482,15 @@ def main() -> int:
         "n_claim_items": claim["n_items"],
         "realized_claim_counts_by_type": claim["claim_counts_by_type"],
         "realized_claims_total": n,
+        "realized_definition": {
+            "battery_report_counts": "claim_slots",
+            "claim_slots": n,
+            "post_run_estimate_at_70pct": 267,
+            "note": (
+                f"{n} = designed claim slots in generated battery; "
+                "~267 was 381.6×0.7 model-authored estimate (not the battery inventory)."
+            ),
+        },
         "gate": {
             "rule": "one-sided 95% Clopper-Pearson upper bound on false-claim rate ≤ 2%",
             "realized_n": n,
@@ -491,6 +501,17 @@ def main() -> int:
             "pass_table_reference": {"0": 149, "1": 237, "2": 314},
             "computed_min_n": {"0": min_n(0), "1": min_n_one_fail, "2": min_n(2)},
             "note": "Reference table uses 237/314; exact CP binary search yields 236/313 at bound≤0.02. Design floor 240 covers one false claim under either figure.",
+            "cluster_aware": {
+                "unit": "battery_item",
+                "n_items": CLAIM_ITEMS,
+                "max_false_items_passing": max_k_items,
+                "rule": "same one-sided 95% CP UCB ≤ 2% on item-level false rate",
+                "does_not_replace_headline_gate": True,
+                "limitation": (
+                    "headline claim-level bound assumes independent claims; "
+                    "clustering by item/shared keys makes it optimistic"
+                ),
+            },
         },
         "held_out": True,
         "frozen": True,

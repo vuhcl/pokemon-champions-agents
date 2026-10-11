@@ -11,6 +11,7 @@ CHECKS = [
     "check_request_set.py",
     "check_eval_independence.py",
     "check_pins.py",
+    "check_calc_artifacts.py",
     "check_battery_hash.py",
 ]
 

@@ -165,14 +165,27 @@ Oracle Showdown commit in this pass: `942cda71…` (live cache). Pinned extract 
 
 ---
 
-## Sizing arithmetic (300 items → ~267 realized)
+## What “realized” means (two different counts)
+
+| Term | What it counts | When |
+|---|---|---|
+| **Claim slots (battery inventory)** | Designed scorable claim entries attached to the 300 generated items (`n_claims` / `claims[]` in `claim_battery_v4.json`) | At generation / registration |
+| **Model-authored realized claims** | Claims the arm actually writes in a scored response (after extractors); declines/incomplete → 0 for that item | After a model run |
+
+The generated battery reports **381 claim slots**: the sum of per-item integer claim counts drawn from the design rates below (fractional rates use a seeded Bernoulli, so the total is an integer near 381.6). That is **not** a model-run count.
+
+The earlier **~267** figure was a **pre-run sizing estimate**: 381.6 designed slots × **70%** items yielding a scorable response ≈ 267 model-authored claims. It remains the stop/extend planning number for after a run; it must not be confused with the battery’s registered slot count (381).
+
+**Headline gate denominator (registration):** use the battery’s **381 claim slots** when reporting gate arithmetic on the frozen artifact. After a model run, the gate’s denominator is the arm’s **model-authored** realized count (Vu rule); if that is &lt; 240, extend before reading results.
+
+## Sizing arithmetic (300 items → 381 slots; ~267 estimated post-run)
 
 **Assumptions (explicit):**
 
 - Per-type claims/item (if answered): typing 1.0, ability 1.0, item 1.1, legality 1.0, speed 1.2, damage 1.5, usage 2.0, move static 1.3.
-- **70%** of items yield a scorable response (30% decline/incomplete → 0 realized claims).
+- **70%** of items yield a scorable response (30% decline/incomplete → 0 model-authored claims) — used only for the post-run estimate / stop-extend planning.
 
-| Type | Items | Claims/item | Expected claims @100% | Realized @70% |
+| Type | Items | Claims/item | Designed slots @100% | Est. model-authored @70% |
 |---|---|---|---|---|
 | typing | 38 | 1.0 | 38.0 | 26.6 |
 | ability | 38 | 1.0 | 38.0 | 26.6 |
@@ -184,9 +197,26 @@ Oracle Showdown commit in this pass: `942cda71…` (live cache). Pinned extract 
 | move static | 30 | 1.3 | 39.0 | 27.3 |
 | **Sum** | **300** | | **381.6** | **267.2** |
 
-**Check:** 300 items → 381.6 × 0.7 ≈ **267** realized.  
-**Stop/extend floor:** if realized is less than 240 after a run, extend before reading results.  
-**Re-check after v4 rows 133 (prior 131 + DM6/DM7):** claim-battery item count stays **300** → expected realized still **~267 ≥ 240**. No extend required from sizing alone. Request-set multi-turn rows carry per-turn classes in `part3_request_set_v4.md`; AR3 damage claims must carry the ability they were computed under (Tough Claws for Mega-X). DM3/DM4/DM6/DM7 damage claims must carry Intimidate on/off (or immune/Defiant) cases as keyed.
+**Generated battery (seed 0):** **300** items → **381** claim slots (by type: typing 38, ability 38, item 40, legality 30, speed 51, damage 67, usage 76, move_static 41).  
+**Stop/extend floor:** if **model-authored** realized claims are less than 240 after a run, extend before reading results.  
+**Sizing:** 381 slots ≥ 240; estimated post-run ~267 ≥ 240 → no extend from sizing alone. Request-set multi-turn rows carry per-turn classes in `part3_request_set_v4.md`; AR3 damage claims must carry the ability they were computed under (Tough Claws for Mega-X). DM3/DM4/DM6/DM7 damage claims must carry Intimidate on/off (or immune/Defiant) cases as keyed.
+
+---
+
+## Gate independence assumption (statistical)
+
+The headline gate (one-sided 95% Clopper-Pearson UCB on the false-claim rate ≤ 2%) treats claim outcomes as **independent**. That is **not** addressed by ADR-060 (oracle independence from code under test) and was not previously limited in this design.
+
+**Limitation:** claims cluster by battery item (and by shared keys / fixtures across request-set rows — e.g. Intimidate DM rows, H12 threats). The effective independent sample is smaller than the claim-slot count, so the claim-level bound is **optimistic**.
+
+**Cluster-aware secondary figure (does not replace the headline gate):** treat each of the **300** battery items as one cluster/row. Same one-sided 95% CP ≤ 2% criterion on the **item** false rate:
+
+| Level | n | Max failures that still pass |
+|---|---|---|
+| Headline (claim slots) | 381 | **2** |
+| Cluster-aware (battery items) | 300 | **1** |
+
+(Computed via the same binary-search Clopper-Pearson upper bound ≤ 0.02; design floor 240 still concerns model-authored claim count after a run.)
 
 ---
 
