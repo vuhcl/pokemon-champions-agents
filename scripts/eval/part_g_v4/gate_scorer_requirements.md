@@ -231,11 +231,46 @@ A scorer needs a uniform reader over `false_claims` **and** must not treat `fail
 
 ### Known defect table
 
-| Key id | `false_claims` entry (verbatim) | Conflicting scoring / row text (verbatim) | Path | R6/R7 resolution |
+#### A — `false_claims` vs scoring (R6/R7)
+
+| Key id | `false_claims` entry (verbatim) | Conflicting scoring / row text (verbatim) | Path | Resolution |
 |---|---|---|---|---|
 | DM6 | `stated attacker nature/SP/item differing from key` | `scoring.stated_attacker_differs_from_key` = `"not SERVED"`; request-set DM6 row: `mismatch → not SERVED` | `derived_keys.dm_outputs.dm6`; `part3_request_set_v4.md` DM6 row | **not SERVED** (class fail, no FALSE) unless the arm also asserts the assumption is the top/most common (FALSE usage). Do **not** count the list entry as FALSE. |
 
 Non-conflicting DM6 `false_claims` items (aligned with `scoring`): `applying -1 Atk stage`; `presenting intimidate_off as a meaningful second case`; `numbers with no stated attacker conditions` (= `scoring.numbers_without_stated_attacker_conditions` / `scoring.applying_minus1_or_second_case` = false claim).
+
+#### B — unlabeled / misnamed `pct` fields that are chaos weights (R10)
+
+Sweep of all numeric `pct` / `usage_pct` / `*_pct` fields in `derived_keys.json` (damage `move_pct` / `pct_of_hp_*` excluded): **665** examined; **17** are Showdown chaos weights (all values &gt; 100); **648** candidates with value ≤100.
+
+**How “0 unlabeled chaos weights with value ≤100” was established:** an initial pass used a **range heuristic** (value ≤100 ⇒ treat as usage-style percentage). That is not a pin join. A follow-up compared each of the **648** candidate field values to the set of Showdown pin `top_spreads[].pct` chaos weights by **exact float membership** in that pin weight set (not a species/joint path join against each field’s source). Result: **0** unlabeled ≤100 fields whose value equals a pin chaos weight. Of the 648, **644** match some usage-style pin `pct`; **4** match neither (aggregates: `hn3_common_item.cumulative_pct`, `dm_outputs.dm7.attacker.ability_usage_pct`, `ar3.primarina_common_item.cumulative_pct`, `showdown_threats_ge_452.cutoff_pct`). Of the 17 weights (&gt;100): **10** carry `pct_kind: "chaos_weight"`; **7** are unlabeled (prior note said 9/8 — corrected).
+
+| Key path | Value | What it is | Pinned source | Resolution |
+|---|---|---|---|---|
+| `h15_primarina.modest_top.pct` | 8876.721851952036 | chaos weight (same number as `modest_top_joint.chaos_weight`) | Showdown doubles `primarina.top_spreads[0].pct` | Scorer **ignores** unlabeled `pct`; read `modest_top_joint.chaos_weight` (+ label). Fix = new key version / hash. |
+| `hn2b_forward_grid.own_lines[0].pct` | 13607.750963984106 | chaos weight (Annihilape COMMON_SPEED / joint weight) | Showdown doubles `annihilape.top_spreads` pcts | Ignore unlabeled `pct` for share claims; use as weight for ranking only if needed. Fix = new key version / hash. |
+| `hn2b_forward_grid.own_lines[1].pct` | 8140.390865164758 | chaos weight | same | same |
+| `hn2b_forward_grid.own_lines[2].pct` | 3774.0833345089777 | chaos weight | same | same |
+| `dm_outputs.dm2.per_joint_cell[0].pct` | 21764.332640641533 | chaos weight (Hatterene COMMON_JOINT) | Showdown doubles `hatterene.top_spreads` pcts | Ignore unlabeled `pct` for share claims; cell identity / ranking only. Fix = new key version / hash. |
+| `dm_outputs.dm2.per_joint_cell[1].pct` | 11742.911732149212 | chaos weight | same | same |
+| `dm_outputs.dm2.per_joint_cell[2].pct` | 6184.18133744593 | chaos weight | same | same |
+
+Already labeled (`pct_kind: "chaos_weight"`) — not R9 defect rows: `sneasler.top.pct`, `sneasler.rows[0..2].pct`, `archaludon.rows[0..2].pct`, `ar3.primarina_common_joint[0..2].pct` (10 nodes). Scorer may read these only because `pct_kind` labels them (R10).
+
+---
+
+## R10 — Chaos weights vs percentages
+
+The scorer reads **weights** only from fields named `chaos_weight` or carrying **`pct_kind = "chaos_weight"`**, never from an **unlabeled** `pct` field.
+
+- Any arm claim that presents a chaos weight (or a rescaled weight) as a **percentage or share** is a **FALSE** usage claim.
+- A **share** claim needs a real percentage source (pinned in-game or Showdown **usage** percentage). If none exists for that joint, a share claim for that joint is **UNVERIFIABLE**, not TRUE.
+- Ranking / ordering claims that only need relative joint weight remain valid when the weight is taken from a labeled field (or, for defect rows above, from the known pin-backed weight value without calling it a percent).
+
+### Open items (owner; not eval/scorer changes)
+
+1. **Frozen H15 wording (not edited):** request-set prose (emitted from `builders/gen_request_set_v4.py` into `part3_request_set_v4.md` L203 and H15 table row L377) writes `chaos_weight pct≈8876.7` while also saying “label chaos_weight as **weight** (not % — presenting as percent = false)”. The `pct≈` token in the key text is misleading; scorer still treats presenting 8876.7 as a percent as FALSE per the row’s own rule and R10. Fix = new frozen request-set version / hash — out of scope here.
+2. **Arm tool surface — `top_spreads[].pct` name:** pinned Showdown data stores the chaos weight under the field name `pct` (with `pct_kind: "chaos_weight"`). Usage APIs that return the species entry pass that field name through unchanged (`recommender/usage_showdown.py` `fetch_showdown_vgc_species` L39–41 returns the offline row as-is; `recommender/usage_data.py` `species_usage` / `showdown_species_map` expose the same pin shape; pin writer `scripts/extract_usage/fetch_usage_mb.py` L158–159). Live row build also names the weight `pct` (`recommender/usage_spreads.py` `_showdown_rows` L165). If an arm-visible spread/usage tool returns that dict to the LLM, the model may present a weight as a percentage. **Arm-side item:** relabel or withhold `pct` in arm-visible output — not an eval/scorer change.
 
 ---
 
