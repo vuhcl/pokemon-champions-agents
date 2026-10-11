@@ -3,7 +3,6 @@
   "regenerated_sha256": "1bc64a711e8f37c6731497d35d5034cd7757b9664cabd15d307f28c7a486fbee",
   "byte_identical": false,
   "spread_solver_note": "SKIP_SPREAD_SOLVER=1; spliced committed mt7_mt8_ar. Live MT7 t2 >55min/1.1GB incomplete.",
-  "prior_af5f9b6b_note": "af5f9b6b\u2026 was HEAD before unverified_descriptive accounting patch in this follow-up",
   "count": 21,
   "class_counts": {
     "a) hand patch not in any builder": 21
@@ -308,5 +307,8 @@
     "limitations_v4[7]",
     "unverified_descriptive"
   ],
-  "ar3_only_subset_note": "Separate: ar3_followup+ar3_hp_fix under REQUIRE=1 matches OHKO mins; does not reproduce full keys sha (same hand-patch set dominates)."
+  "ar3_only_subset_note": "Separate: ar3_followup+ar3_hp_fix under REQUIRE=1 matches OHKO mins; does not reproduce full keys sha (same hand-patch set dominates).",
+  "mt7_mt8_ar_not_regenerated_live": true,
+  "incompleteness": "mt7_mt8_ar not regenerated live (solver timeout); full-chain byte-identity NOT established; 21 hand-patched leaves in the regenerated sections listed here. Diff is a lower bound for mt7_mt8_ar.",
+  "committed_sha256_final": "5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190"
 }

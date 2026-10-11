@@ -16,7 +16,9 @@
       "total": 41,
       "flame_charge_margin_hand_patch_verified": 9,
       "diagnostic_class_counts_intentionally_omitted": 31,
-      "offers_of_either_b12_fix": 1
+      "offers_of_either_b12_fix": 1,
+      "hand_patches_among_41": 10,
+      "note": "9+1=10 hand patches inside the 41; the separate full-chain diff has 21 leaves spanning A4 unread hand_disagreements, the 9 flame children (as parent), DM6/limitations/unverified metadata."
     }
   },
   "read_status_of_54": {
@@ -181,6 +183,27 @@
       "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
     },
     {
+      "path": "ar3.hand_disagreements[2].new",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified unread descriptive; hand_disagreements reshape (full-chain leaf)"
+    },
+    {
+      "path": "ar3.hand_disagreements[2].old",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified unread descriptive; hand_disagreements reshape (full-chain leaf)"
+    },
+    {
+      "path": "ar3.hand_disagreements[3]",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "parent object covering A4 unread children field/new/old; hand_disagreements reshape"
+    },
+    {
       "path": "ar3.hand_disagreements[3].field",
       "class": "builder-absent patch",
       "verified": "N",
@@ -200,6 +223,13 @@
       "verified": "N",
       "read_by": "",
       "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[4]",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "parent object covering A4 unread children field/new/old; hand_disagreements reshape"
     },
     {
       "path": "ar3.hand_disagreements[4].field",
@@ -671,67 +701,74 @@
       "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
     },
     {
+      "path": "ar3.t4_flame_charge_margin",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "parent object for 9 verified flame_charge_margin child leaves; ar3_derive keep-list"
+    },
+    {
       "path": "ar3.t4_flame_charge_margin.atk_sp",
       "class": "builder-absent patch",
       "verified": "Y",
-      "read_by": "calc ar3_flamecharge_margin_adamant32",
-      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+      "read_by": "",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec"
     },
     {
       "path": "ar3.t4_flame_charge_margin.boost",
       "class": "builder-absent patch",
       "verified": "Y",
-      "read_by": "calc ar3_flamecharge_margin_adamant32",
-      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+      "read_by": "",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec"
     },
     {
       "path": "ar3.t4_flame_charge_margin.calc_id",
       "class": "builder-absent patch",
       "verified": "Y",
-      "read_by": "calc ar3_flamecharge_margin_adamant32",
-      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+      "read_by": "",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec"
     },
     {
       "path": "ar3.t4_flame_charge_margin.damage_range[0]",
       "class": "builder-absent patch",
       "verified": "Y",
-      "read_by": "calc ar3_flamecharge_margin_adamant32",
-      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+      "read_by": "",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec"
     },
     {
       "path": "ar3.t4_flame_charge_margin.damage_range[1]",
       "class": "builder-absent patch",
       "verified": "Y",
-      "read_by": "calc ar3_flamecharge_margin_adamant32",
-      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+      "read_by": "",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec"
     },
     {
       "path": "ar3.t4_flame_charge_margin.defender_hp",
       "class": "builder-absent patch",
       "verified": "Y",
-      "read_by": "calc ar3_flamecharge_margin_adamant32",
-      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+      "read_by": "",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec"
     },
     {
       "path": "ar3.t4_flame_charge_margin.guaranteed_ohko",
       "class": "builder-absent patch",
       "verified": "Y",
-      "read_by": "calc ar3_flamecharge_margin_adamant32",
-      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+      "read_by": "",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec"
     },
     {
       "path": "ar3.t4_flame_charge_margin.ko_chance",
       "class": "builder-absent patch",
       "verified": "Y",
-      "read_by": "calc ar3_flamecharge_margin_adamant32",
-      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+      "read_by": "",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec"
     },
     {
       "path": "ar3.t4_flame_charge_margin.nature",
       "class": "builder-absent patch",
       "verified": "Y",
-      "read_by": "calc ar3_flamecharge_margin_adamant32",
-      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+      "read_by": "",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec"
     },
     {
       "path": "ar3.t4_ohko_min_atk_sp[1].min_atk_sp",
@@ -1007,6 +1044,62 @@
       "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
     },
     {
+      "path": "dm_outputs.dm6.false_claims[2]",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "request-set DM6; dm_outputs.dm6",
+      "disposition": "v4.1 B1.5 hand patch in committed keys; full-chain regen emits different false_claims list"
+    },
+    {
+      "path": "dm_outputs.dm6.false_claims[3]",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "request-set DM6; dm_outputs.dm6",
+      "disposition": "v4.1 B1.5 hand patch (extra list slot vs regen)"
+    },
+    {
+      "path": "dm_outputs.dm6.false_claims_note",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "request-set DM6; dm_outputs.dm6",
+      "disposition": "v4.1 B1.5 hand patch; not emitted by dm_intimidate_derive"
+    },
+    {
+      "path": "dm_outputs.dm6.scoring.asserting_differing_spread_is_top_or_most_common",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "request-set DM6; dm_outputs.dm6.scoring",
+      "disposition": "v4.1 B1.5 hand patch; not emitted by dm_intimidate_derive"
+    },
+    {
+      "path": "limitations_v4[4]",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "eval-package metadata hand patch (recoil bases); not emitted by v4_consolidated_keys"
+    },
+    {
+      "path": "limitations_v4[5]",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "eval-package metadata hand patch (Showdown sim recoil); not emitted by v4_consolidated_keys"
+    },
+    {
+      "path": "limitations_v4[6]",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "eval-package metadata hand patch (HEADER f-string note); not emitted by v4_consolidated_keys"
+    },
+    {
+      "path": "limitations_v4[7]",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "eval-package metadata hand patch (Charizard HP-SP scope); not emitted by v4_consolidated_keys"
+    },
+    {
       "path": "mega_naming.prompt_scan[2].phrase",
       "class": "frozen error",
       "verified": "Y",
@@ -1158,217 +1251,217 @@
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+Def",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+SpA",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+SpD",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+Spe",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.neutral",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Atk",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Def",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+SpA",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+SpD",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Spe",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.neutral",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Atk",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Def",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+SpA",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+SpD",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Spe",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.neutral",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.solutions_at_minimal_spe_by_class.+Def",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.solutions_at_minimal_spe_by_class.+SpD",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Atk",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Def",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+SpA",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+SpD",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Spe",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.neutral",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt8_t3_adamant_cc_weatherball.solutions_at_minimal_spe_by_class",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt8_t3_timid_weatherball_extra.solutions_at_minimal_spe_by_class.+Def",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt8_t3_timid_weatherball_extra.solutions_at_minimal_spe_by_class.+SpD",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt8_t4_drop_speed_gate.solutions_at_minimal_spe_by_class",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt8_t4_make_sneasler_jolly.solutions_at_minimal_spe_by_class.+SpD",
       "class": "builder-absent patch",
       "verified": "Y",
       "read_by": "",
-      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+      "disposition": "intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)"
     },
     {
       "path": "mt7_mt8_ar.mt8_t4_way_out.drop_speed_gate.class_count_note",
@@ -1453,6 +1546,27 @@
       "verified": "N",
       "read_by": "",
       "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "unverified_descriptive",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "gate_scorer_requirements.md; scorer inventory",
+      "disposition": "eval-package metadata hand patch; not emitted by any builder"
     }
-  ]
+  ],
+  "full_chain_21_vs_phase_a_41_note": "The 21 full-chain hand-patched leaves and the Phase A \"other 41\" are different inventories. 41 = Phase A builder-absent not in A4/B1.4 (9 flame children + 31 diagnostic omitted + 1 offers_of_either). 21 = committed-vs-regen leaf diff after spliced full chain (hand_disagreements reshape, flame parent, DM6/DM1 patches, limitations_v4[4..7], unverified_descriptive). mt7_mt8_ar was spliced so that section is a lower bound (not regenerated live).",
+  "flame_charge_margin": {
+    "verified_vs_pinned_calc": true,
+    "calc_id": "ar3_flamecharge_margin_adamant32",
+    "read_by_request_set_or_scorer": false,
+    "readers": [
+      "builders/ar3_derive.py keep-list only"
+    ]
+  },
+  "diagnostic_omitted_31": {
+    "absent_from_committed_keys": true,
+    "count": 31,
+    "readers_grep": "builders/spread_solver.py emits solutions_at_minimal_spe_by_class; gate_scorer_requirements.md only names the way_out jolly +Def/+Spe keys that ARE present; the 31 omitted paths have no request-set/scorer readers"
+  }
 }

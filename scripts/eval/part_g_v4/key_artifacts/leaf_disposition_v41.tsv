@@ -13,9 +13,13 @@ ar3.hand_disagreements[1].old	builder-absent patch	N		A4 unverified; unread desc
 ar3.hand_disagreements[2].calc	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
 ar3.hand_disagreements[2].field	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
 ar3.hand_disagreements[2].hand	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
+ar3.hand_disagreements[2].new	builder-absent patch	N		A4 unverified unread descriptive; hand_disagreements reshape (full-chain leaf)
+ar3.hand_disagreements[2].old	builder-absent patch	N		A4 unverified unread descriptive; hand_disagreements reshape (full-chain leaf)
+ar3.hand_disagreements[3]	builder-absent patch	N		parent object covering A4 unread children field/new/old; hand_disagreements reshape
 ar3.hand_disagreements[3].field	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
 ar3.hand_disagreements[3].new	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
 ar3.hand_disagreements[3].old	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
+ar3.hand_disagreements[4]	builder-absent patch	N		parent object covering A4 unread children field/new/old; hand_disagreements reshape
 ar3.hand_disagreements[4].field	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
 ar3.hand_disagreements[4].new	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
 ar3.hand_disagreements[4].old	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
@@ -83,15 +87,16 @@ ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].note	builder
 ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].serious_scarf_32	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
 ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].threat	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
 ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].timid_scarf_32	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
-ar3.t4_flame_charge_margin.atk_sp	builder-absent patch	Y	calc ar3_flamecharge_margin_adamant32	hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO
-ar3.t4_flame_charge_margin.boost	builder-absent patch	Y	calc ar3_flamecharge_margin_adamant32	hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO
-ar3.t4_flame_charge_margin.calc_id	builder-absent patch	Y	calc ar3_flamecharge_margin_adamant32	hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO
-ar3.t4_flame_charge_margin.damage_range[0]	builder-absent patch	Y	calc ar3_flamecharge_margin_adamant32	hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO
-ar3.t4_flame_charge_margin.damage_range[1]	builder-absent patch	Y	calc ar3_flamecharge_margin_adamant32	hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO
-ar3.t4_flame_charge_margin.defender_hp	builder-absent patch	Y	calc ar3_flamecharge_margin_adamant32	hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO
-ar3.t4_flame_charge_margin.guaranteed_ohko	builder-absent patch	Y	calc ar3_flamecharge_margin_adamant32	hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO
-ar3.t4_flame_charge_margin.ko_chance	builder-absent patch	Y	calc ar3_flamecharge_margin_adamant32	hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO
-ar3.t4_flame_charge_margin.nature	builder-absent patch	Y	calc ar3_flamecharge_margin_adamant32	hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO
+ar3.t4_flame_charge_margin	builder-absent patch	Y		parent object for 9 verified flame_charge_margin child leaves; ar3_derive keep-list
+ar3.t4_flame_charge_margin.atk_sp	builder-absent patch	Y		hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec
+ar3.t4_flame_charge_margin.boost	builder-absent patch	Y		hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec
+ar3.t4_flame_charge_margin.calc_id	builder-absent patch	Y		hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec
+ar3.t4_flame_charge_margin.damage_range[0]	builder-absent patch	Y		hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec
+ar3.t4_flame_charge_margin.damage_range[1]	builder-absent patch	Y		hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec
+ar3.t4_flame_charge_margin.defender_hp	builder-absent patch	Y		hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec
+ar3.t4_flame_charge_margin.guaranteed_ohko	builder-absent patch	Y		hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec
+ar3.t4_flame_charge_margin.ko_chance	builder-absent patch	Y		hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec
+ar3.t4_flame_charge_margin.nature	builder-absent patch	Y		hand patch not in any builder (ar3_derive keep-list); verified vs pinned calc ar3_flamecharge_margin_adamant32 (156-183 / guaranteed 2HKO); unread by request-set rows and scorer spec
 ar3.t4_ohko_min_atk_sp[1].min_atk_sp	builder bug	Y	ar3_derive/ar3_followup/check_ar3_probes	fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)
 ar3.t4_ohko_min_atk_sp[1].per_joint[1].min_atk_sp	builder bug	Y	ar3_derive/ar3_followup/check_ar3_probes	fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)
 ar3.t4_ohko_min_atk_sp[1].per_joint[2].min_atk_sp	builder bug	Y	ar3_derive/ar3_followup/check_ar3_probes	fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)
@@ -131,6 +136,14 @@ ar3.t6_leftover_hp.tied_nature_move_pairs[1].min_atk_sp	builder bug	Y	ar3_derive
 ar3.t6_leftover_hp.tied_nature_move_pairs[1].used	builder bug	Y	ar3_derive/ar3_followup/check_ar3_probes	fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)
 ar3.threat_source	builder-absent patch	Y	builders/derive_outputs.py; ar3_derive	verified label showdown_threats_ge_452 (shared); 36 threats present
 dm_outputs.dm1_note	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
+dm_outputs.dm6.false_claims[2]	builder-absent patch	Y	request-set DM6; dm_outputs.dm6	v4.1 B1.5 hand patch in committed keys; full-chain regen emits different false_claims list
+dm_outputs.dm6.false_claims[3]	builder-absent patch	Y	request-set DM6; dm_outputs.dm6	v4.1 B1.5 hand patch (extra list slot vs regen)
+dm_outputs.dm6.false_claims_note	builder-absent patch	Y	request-set DM6; dm_outputs.dm6	v4.1 B1.5 hand patch; not emitted by dm_intimidate_derive
+dm_outputs.dm6.scoring.asserting_differing_spread_is_top_or_most_common	builder-absent patch	Y	request-set DM6; dm_outputs.dm6.scoring	v4.1 B1.5 hand patch; not emitted by dm_intimidate_derive
+limitations_v4[4]	builder-absent patch	Y		eval-package metadata hand patch (recoil bases); not emitted by v4_consolidated_keys
+limitations_v4[5]	builder-absent patch	Y		eval-package metadata hand patch (Showdown sim recoil); not emitted by v4_consolidated_keys
+limitations_v4[6]	builder-absent patch	Y		eval-package metadata hand patch (HEADER f-string note); not emitted by v4_consolidated_keys
+limitations_v4[7]	builder-absent patch	Y		eval-package metadata hand patch (Charizard HP-SP scope); not emitted by v4_consolidated_keys
 mega_naming.prompt_scan[2].phrase	frozen error	Y	v4_rows_ah_derive; request-set DM6	fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)
 mega_naming.prompt_scan[2].resolves_to	frozen error	Y	v4_rows_ah_derive; request-set DM6	fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)
 mega_naming.prompt_scan[2].row	frozen error	Y	v4_rows_ah_derive; request-set DM6	fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)
@@ -152,37 +165,37 @@ mega_naming.prompt_scan[8].flag	frozen error	Y	v4_rows_ah_derive; request-set DM
 mega_naming.prompt_scan[8].phrase	frozen error	Y	v4_rows_ah_derive; request-set DM6	fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)
 mega_naming.prompt_scan[8].resolves_to	frozen error	Y	v4_rows_ah_derive; request-set DM6	fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)
 mega_naming.prompt_scan[8].row	frozen error	Y	v4_rows_ah_derive; request-set DM6	fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)
-mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+Atk	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+SpA	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+Spe	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.neutral	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Atk	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+SpA	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Spe	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.neutral	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Atk	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+SpA	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Spe	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.neutral	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Atk	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+SpA	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Spe	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.neutral	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt8_t3_adamant_cc_weatherball.solutions_at_minimal_spe_by_class	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt8_t3_timid_weatherball_extra.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt8_t3_timid_weatherball_extra.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt8_t4_drop_speed_gate.solutions_at_minimal_spe_by_class	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
-mt7_mt8_ar.mt8_t4_make_sneasler_jolly.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals
+mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+Atk	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+SpA	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+Spe	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.neutral	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Atk	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+SpA	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Spe	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.neutral	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Atk	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+SpA	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Spe	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.neutral	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Atk	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+SpA	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Spe	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.neutral	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt8_t3_adamant_cc_weatherball.solutions_at_minimal_spe_by_class	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt8_t3_timid_weatherball_extra.solutions_at_minimal_spe_by_class.+Def	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt8_t3_timid_weatherball_extra.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt8_t4_drop_speed_gate.solutions_at_minimal_spe_by_class	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
+mt7_mt8_ar.mt8_t4_make_sneasler_jolly.solutions_at_minimal_spe_by_class.+SpD	builder-absent patch	Y		intentionally omitted from committed keys (diagnostic solver class totals); absent from derived_keys; unread by request-set/scorer (emitter-only in spread_solver.py)
 mt7_mt8_ar.mt8_t4_way_out.drop_speed_gate.class_count_note	builder-absent patch	Y	spread_solver; request-set MT8	B1.4 back-port; spread_solver class_count_note
 mt7_mt8_ar.mt8_t4_way_out.drop_speed_gate.count_semantics	builder-absent patch	Y	spread_solver; request-set MT8	B1.4 back-port; spread_solver count_semantics
 mt7_mt8_ar.mt8_t4_way_out.drop_speed_gate.note	builder-absent patch	Y	spread_solver; request-set MT8	B1.4 back-port; spread_solver.drop_speed_gate.note
@@ -195,3 +208,4 @@ mt7_mt8_ar.mt8_t4_way_out.offers_of_either_relaxation_correct	builder-absent pat
 mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[0]	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
 mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[1]	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
 mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[2]	builder-absent patch	N		A4 unverified; unread descriptive (not scored mechanical)
+unverified_descriptive	builder-absent patch	Y	gate_scorer_requirements.md; scorer inventory	eval-package metadata hand patch; not emitted by any builder
