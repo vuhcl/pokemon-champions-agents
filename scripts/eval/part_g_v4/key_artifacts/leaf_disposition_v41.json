@@ -1,0 +1,1458 @@
+{
+  "total": 196,
+  "class_counts": {
+    "builder-absent patch": 101,
+    "builder bug": 74,
+    "frozen error": 21
+  },
+  "builder_absent_breakdown": {
+    "total": 101,
+    "a4_unverified": 54,
+    "a4_unread_descriptive": 51,
+    "a4_read_by_request_set_unverified": 2,
+    "a4_read_elsewhere_now_verified_label": 1,
+    "b14_verified_notes": 6,
+    "other_41": {
+      "total": 41,
+      "flame_charge_margin_hand_patch_verified": 9,
+      "diagnostic_class_counts_intentionally_omitted": 31,
+      "offers_of_either_b12_fix": 1
+    }
+  },
+  "read_status_of_54": {
+    "unread": [
+      "ar3.hand_disagreements[0].calc",
+      "ar3.hand_disagreements[0].field",
+      "ar3.hand_disagreements[0].hand",
+      "ar3.hand_disagreements[0].new",
+      "ar3.hand_disagreements[0].old",
+      "ar3.hand_disagreements[1].agree",
+      "ar3.hand_disagreements[1].calc_formula",
+      "ar3.hand_disagreements[1].field",
+      "ar3.hand_disagreements[1].hand",
+      "ar3.hand_disagreements[1].new",
+      "ar3.hand_disagreements[1].old",
+      "ar3.hand_disagreements[2].calc",
+      "ar3.hand_disagreements[2].field",
+      "ar3.hand_disagreements[2].hand",
+      "ar3.hand_disagreements[3].field",
+      "ar3.hand_disagreements[3].new",
+      "ar3.hand_disagreements[3].old",
+      "ar3.hand_disagreements[4].field",
+      "ar3.hand_disagreements[4].new",
+      "ar3.hand_disagreements[4].old",
+      "ar3.hand_disagreements[5].calc",
+      "ar3.hand_disagreements[5].field",
+      "ar3.hand_disagreements[5].hand",
+      "ar3.part1_followup.hand_disagreements[0].calc",
+      "ar3.part1_followup.hand_disagreements[0].field",
+      "ar3.part1_followup.hand_disagreements[0].hand",
+      "ar3.part1_followup.hand_disagreements[0].new",
+      "ar3.part1_followup.hand_disagreements[0].old",
+      "ar3.part1_followup.hand_disagreements[1].calc",
+      "ar3.part1_followup.hand_disagreements[1].field",
+      "ar3.part1_followup.hand_disagreements[1].hand",
+      "ar3.part1_followup.hand_disagreements[1].new",
+      "ar3.part1_followup.hand_disagreements[1].old",
+      "ar3.part1_followup.hand_disagreements[2].field",
+      "ar3.part1_followup.hand_disagreements[2].new",
+      "ar3.part1_followup.hand_disagreements[2].old",
+      "ar3.part1_followup.hand_disagreements[3].field",
+      "ar3.part1_followup.hand_disagreements[3].new",
+      "ar3.part1_followup.hand_disagreements[3].old",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].jolly_scarf_32",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].note",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].serious_scarf_32",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].threat",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].note",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].serious_scarf_32",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].threat",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].timid_scarf_32",
+      "dm_outputs.dm1_note",
+      "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[0]",
+      "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[1]",
+      "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[2]"
+    ],
+    "read_by_request_set": [
+      "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Def",
+      "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Spe"
+    ],
+    "read_elsewhere": [
+      "ar3.threat_source"
+    ]
+  },
+  "rows": [
+    {
+      "path": "ar3.hand_disagreements[0].calc",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[0].field",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[0].hand",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[0].new",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[0].old",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[1].agree",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[1].calc_formula",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[1].field",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[1].hand",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[1].new",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[1].old",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[2].calc",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[2].field",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[2].hand",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[3].field",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[3].new",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[3].old",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[4].field",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[4].new",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[4].old",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[5].calc",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[5].field",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.hand_disagreements[5].hand",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[0].calc",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[0].field",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[0].hand",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[0].new",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[0].old",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[1].calc",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[1].field",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[1].hand",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[1].new",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[1].old",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[2].field",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[2].new",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[2].old",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[3].field",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[3].new",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.hand_disagreements[3].old",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_ohko_per_joint[1].min_atk_sp_covers_all_joints",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_ohko_per_joint[1].per_joint[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_ohko_per_joint[1].per_joint[2].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_ohko_per_joint[3].min_atk_sp_covers_all_joints",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_ohko_per_joint[3].per_joint[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_ohko_per_joint[3].per_joint[2].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_ohko_per_joint[4].min_atk_sp_covers_all_joints",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_ohko_per_joint[4].per_joint[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_ohko_per_joint[4].per_joint[2].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_t5_joint_feasible.assume_state_t4_spread.atk",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_t5_joint_feasible.min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t4_t5_joint_feasible.sum",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.all_rows[0].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.all_rows[0].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.all_rows[0].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.all_rows[0].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.all_rows[1].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.all_rows[1].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.all_rows[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.all_rows[1].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.covering_rows[0].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.covering_rows[0].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.covering_rows[0].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.covering_rows[0].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.covering_rows[1].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.covering_rows[1].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.covering_rows[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.covering_rows[1].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.max_leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.tied_nature_move_pairs[0].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.tied_nature_move_pairs[0].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.tied_nature_move_pairs[0].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.tied_nature_move_pairs[0].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.tied_nature_move_pairs[1].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.tied_nature_move_pairs[1].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.tied_nature_move_pairs[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.t6_leftover_corrected.tied_nature_move_pairs[1].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].jolly_scarf_32",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].note",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].serious_scarf_32",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].threat",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].note",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].serious_scarf_32",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].threat",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].timid_scarf_32",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "ar3.t4_flame_charge_margin.atk_sp",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "calc ar3_flamecharge_margin_adamant32",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+    },
+    {
+      "path": "ar3.t4_flame_charge_margin.boost",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "calc ar3_flamecharge_margin_adamant32",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+    },
+    {
+      "path": "ar3.t4_flame_charge_margin.calc_id",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "calc ar3_flamecharge_margin_adamant32",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+    },
+    {
+      "path": "ar3.t4_flame_charge_margin.damage_range[0]",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "calc ar3_flamecharge_margin_adamant32",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+    },
+    {
+      "path": "ar3.t4_flame_charge_margin.damage_range[1]",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "calc ar3_flamecharge_margin_adamant32",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+    },
+    {
+      "path": "ar3.t4_flame_charge_margin.defender_hp",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "calc ar3_flamecharge_margin_adamant32",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+    },
+    {
+      "path": "ar3.t4_flame_charge_margin.guaranteed_ohko",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "calc ar3_flamecharge_margin_adamant32",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+    },
+    {
+      "path": "ar3.t4_flame_charge_margin.ko_chance",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "calc ar3_flamecharge_margin_adamant32",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+    },
+    {
+      "path": "ar3.t4_flame_charge_margin.nature",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "calc ar3_flamecharge_margin_adamant32",
+      "disposition": "hand patch not in any builder (ar3_derive keep-list); matches pinned calc 156-183 / guaranteed 2HKO"
+    },
+    {
+      "path": "ar3.t4_ohko_min_atk_sp[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t4_ohko_min_atk_sp[1].per_joint[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t4_ohko_min_atk_sp[1].per_joint[2].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t4_ohko_min_atk_sp[3].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t4_ohko_min_atk_sp[3].per_joint[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t4_ohko_min_atk_sp[3].per_joint[2].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t4_ohko_min_atk_sp[4].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t4_ohko_min_atk_sp[4].per_joint[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t4_ohko_min_atk_sp[4].per_joint[2].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t4_t5_joint_feasible.assume_state_t4_spread.atk",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t4_t5_joint_feasible.min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t4_t5_joint_feasible.sum",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.all_rows[0].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.all_rows[0].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.all_rows[0].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.all_rows[0].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.all_rows[1].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.all_rows[1].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.all_rows[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.all_rows[1].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.covering_rows[0].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.covering_rows[0].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.covering_rows[0].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.covering_rows[0].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.covering_rows[1].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.covering_rows[1].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.covering_rows[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.covering_rows[1].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.max_leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.tied_nature_move_pairs[0].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.tied_nature_move_pairs[0].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.tied_nature_move_pairs[0].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.tied_nature_move_pairs[0].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.tied_nature_move_pairs[1].hp_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.tied_nature_move_pairs[1].leftover",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.tied_nature_move_pairs[1].min_atk_sp",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.t6_leftover_hp.tied_nature_move_pairs[1].used",
+      "class": "builder bug",
+      "verified": "Y",
+      "read_by": "ar3_derive/ar3_followup/check_ar3_probes",
+      "disposition": "fixed in v4.1 (joint-keyed OHKO probes; Atk14 aggregate)"
+    },
+    {
+      "path": "ar3.threat_source",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "builders/derive_outputs.py; ar3_derive",
+      "disposition": "verified label showdown_threats_ge_452 (shared); 36 threats present"
+    },
+    {
+      "path": "dm_outputs.dm1_note",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[2].phrase",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[2].resolves_to",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[2].row",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[3].phrase",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[3].resolves_to",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[3].row",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[4].row",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[5].phrase",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[5].resolves_to",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[5].row",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[6].phrase",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[6].resolves_to",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[6].row",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[7].flag",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[7].phrase",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[7].resolves_to",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[7].row",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[8].flag",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[8].phrase",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[8].resolves_to",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mega_naming.prompt_scan[8].row",
+      "class": "frozen error",
+      "verified": "Y",
+      "read_by": "v4_rows_ah_derive; request-set DM6",
+      "disposition": "fixed in v4.1 mega_naming (DM6 Mega Gallade in prompt_scan)"
+    },
+    {
+      "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+Atk",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+Def",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+SpA",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+SpD",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.+Spe",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class.neutral",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Atk",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Def",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+SpA",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+SpD",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.+Spe",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class.neutral",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Atk",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Def",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+SpA",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+SpD",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.+Spe",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class.neutral",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.solutions_at_minimal_spe_by_class.+Def",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.solutions_at_minimal_spe_by_class.+SpD",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Atk",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Def",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+SpA",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+SpD",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.+Spe",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class.neutral",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t3_adamant_cc_weatherball.solutions_at_minimal_spe_by_class",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t3_timid_weatherball_extra.solutions_at_minimal_spe_by_class.+Def",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t3_timid_weatherball_extra.solutions_at_minimal_spe_by_class.+SpD",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_drop_speed_gate.solutions_at_minimal_spe_by_class",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_make_sneasler_jolly.solutions_at_minimal_spe_by_class.+SpD",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "",
+      "disposition": "intentionally omitted from keys (diagnostic solver class totals); committed ABSENT matches Phase A frozen; not key totals"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.drop_speed_gate.class_count_note",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "spread_solver; request-set MT8",
+      "disposition": "B1.4 back-port; spread_solver class_count_note"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.drop_speed_gate.count_semantics",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "spread_solver; request-set MT8",
+      "disposition": "B1.4 back-port; spread_solver count_semantics"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.drop_speed_gate.note",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "spread_solver; request-set MT8",
+      "disposition": "B1.4 back-port; spread_solver.drop_speed_gate.note"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.drop_speed_gate.prior_illegal_spd34_note",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "spread_solver; request-set MT8",
+      "disposition": "B1.4 back-port; spread_solver prior_illegal_spd34_note"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.drop_speed_gate.search_note",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "spread_solver; request-set MT8",
+      "disposition": "B1.4 back-port; spread_solver search_note"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.invalid_relaxation",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "spread_solver; request-set MT8",
+      "disposition": "B1.4 back-port; spread_solver invalid_relaxation"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Def",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "part3_request_set_v4.md MT8; gen_request_set_v4",
+      "disposition": "A4 unverified; cited in MT8 (+Def/+Spe); scorer must treat as unverified until live recount confirms"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Spe",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "part3_request_set_v4.md MT8; gen_request_set_v4",
+      "disposition": "A4 unverified; cited in MT8 (+Def/+Spe); scorer must treat as unverified until live recount confirms"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.offers_of_either_relaxation_correct",
+      "class": "builder-absent patch",
+      "verified": "Y",
+      "read_by": "spread_solver",
+      "disposition": "B1.2 builder fix: False\u2192True"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[0]",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[1]",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[2]",
+      "class": "builder-absent patch",
+      "verified": "N",
+      "read_by": "",
+      "disposition": "A4 unverified; unread descriptive (not scored mechanical)"
+    }
+  ]
+}

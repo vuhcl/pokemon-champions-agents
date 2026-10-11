@@ -21254,7 +21254,7 @@
     "Hosted /calculate takes a single move per request; a moves list per request would cut the arm's per-threat calc count (H12)."
   ],
   "unverified_descriptive": {
-    "rule": "Phase A A4 unverified leaves. unread = no reader \u2192 descriptive only, not scored mechanical keys. jolly +Def/+Spe class counts are cited in MT8 request-set text but lack a live solver recount in v4.1 \u2014 flagged, not deleted.",
+    "rule": "Phase A A4 unverified leaves. unread = no reader \u2192 descriptive only, not scored mechanical keys. jolly +Def/+Spe class counts are cited in MT8 request-set text but lack a confirmed live solver recount in v4.1 \u2014 flagged unverified for the scorer (separate from the gate). ar3.threat_source is a verified shared-label (showdown_threats_ge_452); listed under read_elsewhere for inventory only. Missing-2 fix: unreachable_scarf[*].threat were omitted from unread by a false-positive reader grep on the substring \"threat\".",
     "a4_unverified_count": 54,
     "unread_descriptive": [
       "ar3.hand_disagreements[0].calc",
@@ -21299,8 +21299,10 @@
       "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].jolly_scarf_32",
       "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].note",
       "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].serious_scarf_32",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].threat",
       "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].note",
       "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].serious_scarf_32",
+      "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].threat",
       "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].timid_scarf_32",
       "dm_outputs.dm1_note",
       "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[0]",
@@ -21311,14 +21313,33 @@
       "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Def",
       "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Spe"
     ],
-    "jolly_class_counts_note": "MT8 cites +SpD 294/+Def 20/+Spe 2. Frozen way_out keeps those counts; mt8_t4_make_sneasler_jolly has no solutions_at_minimal_spe_by_class field. v4.1 does not re-count; arm exact-total claims on +Def/+Spe are unverifiable here.",
+    "jolly_class_counts_note": "MT8 cites +SpD 294/+Def 20/+Spe 2. Frozen way_out keeps those counts. +Def/+Spe are UNVERIFIED pending live solver recount against pinned calc; scorer reports them separately from the gate. +SpD 294 retained as cited.",
     "read_elsewhere": [
       {
         "path": "ar3.threat_source",
         "readers": [
-          "builders/derive_outputs.py"
+          "builders/derive_outputs.py",
+          "builders/ar3_derive.py"
+        ],
+        "verified": true,
+        "verification": "label equals showdown_threats_ge_452 (shared); showdown_threats_ge_452.count=36 present"
+      }
+    ],
+    "read_by_request_set_details": {
+      "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Def": {
+        "value": 20,
+        "verified": false,
+        "rows_depending": [
+          "MT8"
+        ]
+      },
+      "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Spe": {
+        "value": 2,
+        "verified": false,
+        "rows_depending": [
+          "MT8"
         ]
       }
-    ]
+    }
   }
 }

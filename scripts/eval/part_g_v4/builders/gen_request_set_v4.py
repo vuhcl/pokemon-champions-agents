@@ -151,12 +151,13 @@ _dm7_key = (
 )
 
 modest_evs = modest["evs"] if modest else {}
-_modest_cw = modest.get("chaos_weight", modest.get("pct")) if modest else None
-modest_note = (
-    f"Modest top joint SP={modest_evs} chaos_weight pct≈{_modest_cw:.1f}"
-    if modest and _modest_cw is not None
-    else "Modest absent"
-)
+if modest is None:
+    modest_note = "Modest absent"
+elif "chaos_weight" not in modest:
+    raise KeyError("h15 Modest top joint missing chaos_weight (pct fallback removed)")
+else:
+    _modest_cw = modest["chaos_weight"]
+    modest_note = f"Modest top joint SP={modest_evs} chaos_weight pct≈{_modest_cw:.1f}"
 
 # Illegal / legal item lists from pinned legality blob
 past_items = sorted(
