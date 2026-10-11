@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_farigiraf_psychic_calm",
+  "request": {
+    "attacker": {
+      "species": "Farigiraf",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Armor Tail",
+      "evs": {
+        "hp": 27,
+        "atk": 0,
+        "def": 20,
+        "spa": 0,
+        "spd": 19,
+        "spe": 0
+      },
+      "item": "Sitrus Berry"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Psychic",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      60,
+      72
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        60,
+        61,
+        61,
+        63,
+        63,
+        64,
+        64,
+        66,
+        66,
+        67,
+        67,
+        69,
+        69,
+        70,
+        70,
+        72
+      ],
+      "range": [
+        60,
+        72
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "0 SpA Farigiraf Psychic vs. 32 HP / 0+ SpD Sinistcha: 60-72 (33.7 - 40.4%) -- guaranteed 3HKO",
+      "fullDesc": "0 SpA Farigiraf Psychic vs. 32 HP / 0+ SpD Sinistcha: 60-72 (33.7 - 40.4%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 222,
+          "atk": 99,
+          "def": 121,
+          "spa": 130,
+          "spd": 109,
+          "spe": 80
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      60,
+      72
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "0 SpA Farigiraf Psychic vs. 32 HP / 0+ SpD Sinistcha: 60-72 (33.7 - 40.4%) -- guaranteed 3HKO",
+    "max_damage": 72,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Armor Tail",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Armor Tail:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

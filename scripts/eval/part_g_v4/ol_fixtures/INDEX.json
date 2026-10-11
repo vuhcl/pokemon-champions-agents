@@ -1,0 +1,80 @@
+[
+  {
+    "id": "OL1",
+    "path": ".scratch/ol_fixtures/OL1.json",
+    "pending_kind": "full_build_confirmation",
+    "reply": "spread_nature:2"
+  },
+  {
+    "id": "OL2a",
+    "path": ".scratch/ol_fixtures/OL2a.json",
+    "pending_kind": "full_build_confirmation",
+    "reply": "2"
+  },
+  {
+    "id": "OL2b",
+    "path": ".scratch/ol_fixtures/OL2b.json",
+    "pending_kind": "candidate_selection",
+    "reply": "2"
+  },
+  {
+    "id": "OL3",
+    "path": ".scratch/ol_fixtures/OL3.json",
+    "pending_kind": "full_build_confirmation",
+    "reply": "Jolly 20/0/0/0/0/12"
+  },
+  {
+    "id": "OL4",
+    "path": ".scratch/ol_fixtures/OL4.json",
+    "pending_kind": "candidate_selection",
+    "reply": "the second one"
+  },
+  {
+    "id": "OL5",
+    "path": ".scratch/ol_fixtures/OL5.json",
+    "pending_kind": "candidate_selection",
+    "reply": "yes"
+  },
+  {
+    "id": "OL6",
+    "path": ".scratch/ol_fixtures/OL6.json",
+    "pending_kind": "candidate_selection",
+    "reply": "yes"
+  },
+  {
+    "id": "OL7a",
+    "path": ".scratch/ol_fixtures/OL7a.json",
+    "pending_kind": "candidate_selection",
+    "reply": "the faster one"
+  },
+  {
+    "id": "OL7b",
+    "path": ".scratch/ol_fixtures/OL7b.json",
+    "pending_kind": "full_build_confirmation",
+    "reply": "the faster one"
+  },
+  {
+    "id": "OL8",
+    "path": ".scratch/ol_fixtures/OL8.json",
+    "pending_kind": "candidate_selection",
+    "reply": "neither"
+  },
+  {
+    "id": "OL9",
+    "path": ".scratch/ol_fixtures/OL9.json",
+    "pending_kind": "candidate_selection",
+    "reply": "Garchomp and Incineroar"
+  },
+  {
+    "id": "OL10a",
+    "path": ".scratch/ol_fixtures/OL10a.json",
+    "pending_kind": "candidate_selection",
+    "reply": "1"
+  },
+  {
+    "id": "OL10b",
+    "path": ".scratch/ol_fixtures/OL10b.json",
+    "pending_kind": "full_build_confirmation",
+    "reply": "yes"
+  }
+]

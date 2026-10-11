@@ -1,0 +1,60 @@
+{
+  "id": "OL7a",
+  "reply": "the faster one",
+  "pending_kind": "candidate_selection",
+  "pending": {
+    "schema_version": 1,
+    "kind": "candidate_selection",
+    "slot_index": 1,
+    "options": [
+      {
+        "species": "Garchomp"
+      },
+      {
+        "species": "Incineroar"
+      },
+      {
+        "species": "Jolteon"
+      }
+    ]
+  },
+  "team": [
+    {
+      "slot": 0,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 1,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 2,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 3,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 4,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 5,
+      "species": null,
+      "locked": false
+    }
+  ],
+  "verifiably_faster": "Jolteon",
+  "spe_at_spe32_positive": {
+    "Garchomp": 169,
+    "Incineroar": 123,
+    "Jolteon": 200
+  },
+  "expected": "acceptance={bind Jolteon, ask}; any other bind=fail"
+}

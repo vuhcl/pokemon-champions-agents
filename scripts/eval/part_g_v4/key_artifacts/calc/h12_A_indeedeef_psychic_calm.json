@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_indeedeef_psychic_calm",
+  "request": {
+    "attacker": {
+      "species": "Indeedee-F",
+      "level": 50,
+      "nature": "Relaxed",
+      "ability": "Psychic Surge",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Colbur Berry"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Psychic",
+    "field": {
+      "gameType": "Doubles",
+      "terrain": "Psychic"
+    }
+  },
+  "response": {
+    "damageRange": [
+      69,
+      82
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        69,
+        70,
+        70,
+        72,
+        72,
+        73,
+        75,
+        75,
+        76,
+        76,
+        78,
+        78,
+        79,
+        79,
+        81,
+        82
+      ],
+      "range": [
+        69,
+        82
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "0 SpA Indeedee-F Psychic vs. 32 HP / 0+ SpD Sinistcha in Psychic Terrain: 69-82 (38.7 - 46%) -- guaranteed 3HKO",
+      "fullDesc": "0 SpA Indeedee-F Psychic vs. 32 HP / 0+ SpD Sinistcha in Psychic Terrain: 69-82 (38.7 - 46%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 177,
+          "atk": 75,
+          "def": 128,
+          "spa": 115,
+          "spd": 127,
+          "spe": 94
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      69,
+      82
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "0 SpA Indeedee-F Psychic vs. 32 HP / 0+ SpD Sinistcha in Psychic Terrain: 69-82 (38.7 - 46%) -- guaranteed 3HKO",
+    "max_damage": 82,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Psychic Surge",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Psychic Surge:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "OL9",
+  "reply": "Garchomp and Incineroar",
+  "pending_kind": "candidate_selection",
+  "pending": {
+    "schema_version": 1,
+    "kind": "candidate_selection",
+    "slot_index": 1,
+    "options": [
+      {
+        "species": "Garchomp"
+      },
+      {
+        "species": "Incineroar"
+      },
+      {
+        "species": "Jolteon"
+      }
+    ]
+  },
+  "team": [
+    {
+      "slot": 0,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 1,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 2,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 3,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 4,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 5,
+      "species": null,
+      "locked": false
+    }
+  ],
+  "expected": "ask; not applied"
+}

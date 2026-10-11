@@ -1,0 +1,132 @@
+{
+  "id": "h12_A_excadrill_rockslide_bold",
+  "request": {
+    "attacker": {
+      "species": "Excadrill",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Sand Rush",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Focus Sash"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Rock Slide",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      26,
+      31
+    ],
+    "koChance": "possible 6HKO",
+    "raw": {
+      "damage": [
+        26,
+        26,
+        26,
+        27,
+        27,
+        27,
+        28,
+        28,
+        28,
+        29,
+        29,
+        29,
+        30,
+        30,
+        30,
+        31
+      ],
+      "range": [
+        26,
+        31
+      ],
+      "kochance": {
+        "n": 6,
+        "text": "possible 6HKO"
+      },
+      "desc": "32+ Atk Excadrill Rock Slide vs. 32 HP / 32+ Def Sinistcha: 26-31 (14.6 - 17.4%) -- possible 6HKO",
+      "fullDesc": "32+ Atk Excadrill Rock Slide vs. 32 HP / 32+ Def Sinistcha: 26-31 (14.6 - 17.4%) -- possible 6HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 187,
+          "atk": 205,
+          "def": 80,
+          "spa": 63,
+          "spd": 85,
+          "spe": 140
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      26,
+      31
+    ],
+    "ko_chance": "possible 6HKO",
+    "desc": "32+ Atk Excadrill Rock Slide vs. 32 HP / 32+ Def Sinistcha: 26-31 (14.6 - 17.4%) -- possible 6HKO",
+    "max_damage": 31,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Sand Rush",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Sand Rush:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

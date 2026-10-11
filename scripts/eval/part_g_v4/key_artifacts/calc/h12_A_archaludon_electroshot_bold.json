@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_archaludon_electroshot_bold",
+  "request": {
+    "attacker": {
+      "species": "Archaludon",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Stamina",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Leftovers"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Electro Shot",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      65,
+      76
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        65,
+        65,
+        66,
+        67,
+        68,
+        68,
+        69,
+        70,
+        71,
+        71,
+        72,
+        73,
+        74,
+        74,
+        75,
+        76
+      ],
+      "range": [
+        65,
+        76
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "+1 32 SpA Archaludon Electro Shot vs. 32 HP / 0 SpD Sinistcha: 65-76 (36.5 - 42.6%) -- guaranteed 3HKO",
+      "fullDesc": "+1 32 SpA Archaludon Electro Shot vs. 32 HP / 0 SpD Sinistcha: 65-76 (36.5 - 42.6%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 167,
+          "atk": 112,
+          "def": 150,
+          "spa": 177,
+          "spd": 85,
+          "spe": 150
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      65,
+      76
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "+1 32 SpA Archaludon Electro Shot vs. 32 HP / 0 SpD Sinistcha: 65-76 (36.5 - 42.6%) -- guaranteed 3HKO",
+    "max_damage": 76,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Stamina",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Stamina:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

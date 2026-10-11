@@ -1,0 +1,117 @@
+{
+  "id": "h12_A_rillaboom_fakeout_bold",
+  "request": {
+    "attacker": {
+      "species": "Rillaboom",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Grassy Surge",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Miracle Seed"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Fake Out",
+    "field": {
+      "gameType": "Doubles",
+      "terrain": "Grassy"
+    }
+  },
+  "response": {
+    "damageRange": [
+      0,
+      0
+    ],
+    "koChance": "",
+    "raw": {
+      "damage": 0,
+      "range": [
+        0,
+        0
+      ],
+      "kochance": {
+        "chance": 0,
+        "n": 0,
+        "text": ""
+      },
+      "desc": "",
+      "fullDesc": "",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 177,
+          "atk": 177,
+          "def": 110,
+          "spa": 72,
+          "spd": 90,
+          "spe": 150
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      0,
+      0
+    ],
+    "ko_chance": "",
+    "desc": "",
+    "max_damage": null,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Grassy Surge",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Grassy Surge:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

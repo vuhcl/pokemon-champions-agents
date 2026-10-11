@@ -1,0 +1,116 @@
+{
+  "id": "h12_A_lucariomegaz_aurasphere_bold",
+  "request": {
+    "attacker": {
+      "species": "Lucario-Mega-Z",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Aura Guard",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Lucarionite Z"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Aura Sphere",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      0,
+      0
+    ],
+    "koChance": "",
+    "raw": {
+      "damage": 0,
+      "range": [
+        0,
+        0
+      ],
+      "kochance": {
+        "chance": 0,
+        "n": 0,
+        "text": ""
+      },
+      "desc": "",
+      "fullDesc": "",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 147,
+          "atk": 108,
+          "def": 90,
+          "spa": 216,
+          "spd": 90,
+          "spe": 223
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      0,
+      0
+    ],
+    "ko_chance": "",
+    "desc": "",
+    "max_damage": null,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Aura Guard",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Aura Guard:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

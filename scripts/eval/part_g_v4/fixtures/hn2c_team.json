@@ -1,0 +1,29 @@
+{
+  "id": "HN2c",
+  "team": [
+    {
+      "slot": 0,
+      "species": "Annihilape",
+      "locked": true,
+      "item": "Choice Scarf",
+      "ability": "Defiant",
+      "nature": "Jolly",
+      "spread": {
+        "hp": 0,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 32
+      },
+      "moves": [
+        "Rage Fist",
+        "Drain Punch",
+        "Bulk Up",
+        "Protect"
+      ]
+    }
+  ],
+  "spe_jolly_32": 156,
+  "note": "Own Spe fixed; opponent side varies per Part 0 grid"
+}

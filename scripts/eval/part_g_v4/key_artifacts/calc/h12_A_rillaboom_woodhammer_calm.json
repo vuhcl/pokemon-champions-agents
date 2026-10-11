@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_rillaboom_woodhammer_calm",
+  "request": {
+    "attacker": {
+      "species": "Rillaboom",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Grassy Surge",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Miracle Seed"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Wood Hammer",
+    "field": {
+      "gameType": "Doubles",
+      "terrain": "Grassy"
+    }
+  },
+  "response": {
+    "damageRange": [
+      59,
+      70
+    ],
+    "koChance": "16.3% chance to 3HKO after Grassy Terrain recovery",
+    "raw": {
+      "damage": [
+        59,
+        60,
+        60,
+        61,
+        62,
+        63,
+        63,
+        64,
+        65,
+        66,
+        66,
+        67,
+        68,
+        69,
+        69,
+        70
+      ],
+      "range": [
+        59,
+        70
+      ],
+      "kochance": {
+        "chance": 0.1630859375,
+        "n": 3,
+        "text": "16.3% chance to 3HKO after Grassy Terrain recovery"
+      },
+      "desc": "32 Atk Miracle Seed Rillaboom Wood Hammer vs. 32 HP / 32 Def Sinistcha in Grassy Terrain: 59-70 (33.1 - 39.3%) -- 16.3% chance to 3HKO after Grassy Terrain recovery",
+      "fullDesc": "32 Atk Miracle Seed Rillaboom Wood Hammer vs. 32 HP / 32 Def Sinistcha in Grassy Terrain: 59-70 (33.1 - 39.3%) -- 16.3% chance to 3HKO after Grassy Terrain recovery",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          11,
+          13
+        ],
+        "text": "11 - 13% recoil damage"
+      },
+      "stats": {
+        "attacker": {
+          "hp": 177,
+          "atk": 177,
+          "def": 110,
+          "spa": 72,
+          "spd": 90,
+          "spe": 150
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      59,
+      70
+    ],
+    "ko_chance": "16.3% chance to 3HKO after Grassy Terrain recovery",
+    "desc": "32 Atk Miracle Seed Rillaboom Wood Hammer vs. 32 HP / 32 Def Sinistcha in Grassy Terrain: 59-70 (33.1 - 39.3%) -- 16.3% chance to 3HKO after Grassy Terrain recovery",
+    "max_damage": 70,
+    "recoil": {
+      "recoil": [
+        11,
+        13
+      ],
+      "text": "11 - 13% recoil damage"
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Grassy Surge",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Grassy Surge:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

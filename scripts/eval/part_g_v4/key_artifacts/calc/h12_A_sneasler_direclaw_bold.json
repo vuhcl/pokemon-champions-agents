@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_sneasler_direclaw_bold",
+  "request": {
+    "attacker": {
+      "species": "Sneasler",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Unburden",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Psychic Seed"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Dire Claw",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      52,
+      63
+    ],
+    "koChance": "15.6% chance to 3HKO",
+    "raw": {
+      "damage": [
+        52,
+        54,
+        54,
+        54,
+        55,
+        55,
+        57,
+        57,
+        58,
+        58,
+        58,
+        60,
+        60,
+        61,
+        61,
+        63
+      ],
+      "range": [
+        52,
+        63
+      ],
+      "kochance": {
+        "chance": 0.156494140625,
+        "n": 3,
+        "text": "15.6% chance to 3HKO"
+      },
+      "desc": "32+ Atk Sneasler Dire Claw vs. 32 HP / 32+ Def Sinistcha: 52-63 (29.2 - 35.3%) -- 15.6% chance to 3HKO",
+      "fullDesc": "32+ Atk Sneasler Dire Claw vs. 32 HP / 32+ Def Sinistcha: 52-63 (29.2 - 35.3%) -- 15.6% chance to 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 157,
+          "atk": 200,
+          "def": 80,
+          "spa": 54,
+          "spd": 100,
+          "spe": 172
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      52,
+      63
+    ],
+    "ko_chance": "15.6% chance to 3HKO",
+    "desc": "32+ Atk Sneasler Dire Claw vs. 32 HP / 32+ Def Sinistcha: 52-63 (29.2 - 35.3%) -- 15.6% chance to 3HKO",
+    "max_damage": 63,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Unburden",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Unburden:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

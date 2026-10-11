@@ -1,0 +1,8 @@
+{
+  "note": "RB1/ROW J: Lucario-Mega-Z with Calm Mind; fourth slot empty. No Protect/Detect (LZ1 trap separate).",
+  "species": "Lucario-Mega-Z",
+  "form_id": "lucariomegaz",
+  "item": "Lucarionite Z",
+  "ability": "Aura Guard",
+  "moves": ["Aura Sphere", "Flash Cannon", "Calm Mind"]
+}

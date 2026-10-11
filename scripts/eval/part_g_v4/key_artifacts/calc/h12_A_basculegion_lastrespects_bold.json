@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_basculegion_lastrespects_bold",
+  "request": {
+    "attacker": {
+      "species": "Basculegion",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Adaptability",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Choice Scarf"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Last Respects",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      72,
+      88
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        72,
+        72,
+        76,
+        76,
+        76,
+        76,
+        80,
+        80,
+        80,
+        80,
+        80,
+        84,
+        84,
+        84,
+        84,
+        88
+      ],
+      "range": [
+        72,
+        88
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "32 Atk Adaptability Basculegion Last Respects vs. 32 HP / 32+ Def Sinistcha: 72-88 (40.4 - 49.4%) -- guaranteed 3HKO",
+      "fullDesc": "32 Atk Adaptability Basculegion Last Respects vs. 32 HP / 32+ Def Sinistcha: 72-88 (40.4 - 49.4%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 197,
+          "atk": 164,
+          "def": 85,
+          "spa": 90,
+          "spd": 95,
+          "spe": 143
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      72,
+      88
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "32 Atk Adaptability Basculegion Last Respects vs. 32 HP / 32+ Def Sinistcha: 72-88 (40.4 - 49.4%) -- guaranteed 3HKO",
+    "max_damage": 88,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Adaptability",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Adaptability:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

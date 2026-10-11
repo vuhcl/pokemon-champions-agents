@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_archaludon_flashcannon_calm",
+  "request": {
+    "attacker": {
+      "species": "Archaludon",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Stamina",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Leftovers"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Flash Cannon",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      73,
+      87
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        73,
+        73,
+        75,
+        76,
+        76,
+        78,
+        78,
+        79,
+        79,
+        81,
+        82,
+        82,
+        84,
+        84,
+        85,
+        87
+      ],
+      "range": [
+        73,
+        87
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "32 SpA Archaludon Flash Cannon vs. 32 HP / 0+ SpD Sinistcha: 73-87 (41 - 48.8%) -- guaranteed 3HKO",
+      "fullDesc": "32 SpA Archaludon Flash Cannon vs. 32 HP / 0+ SpD Sinistcha: 73-87 (41 - 48.8%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 167,
+          "atk": 112,
+          "def": 150,
+          "spa": 177,
+          "spd": 85,
+          "spe": 150
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      73,
+      87
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "32 SpA Archaludon Flash Cannon vs. 32 HP / 0+ SpD Sinistcha: 73-87 (41 - 48.8%) -- guaranteed 3HKO",
+    "max_damage": 87,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Stamina",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Stamina:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

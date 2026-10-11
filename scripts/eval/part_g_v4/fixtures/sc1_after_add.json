@@ -1,0 +1,39 @@
+{
+  "id": "SC1_after_add",
+  "team": [
+    {
+      "slot": 0,
+      "species": "Archaludon",
+      "locked": false,
+      "draft": true,
+      "conditions": [
+        "runs Snarl"
+      ]
+    },
+    {
+      "slot": 1,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 2,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 3,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 4,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 5,
+      "species": null,
+      "locked": false
+    }
+  ]
+}

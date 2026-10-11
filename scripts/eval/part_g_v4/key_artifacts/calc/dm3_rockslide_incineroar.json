@@ -1,0 +1,131 @@
+{
+  "id": "dm3_rockslide_incineroar",
+  "request": {
+    "attacker": {
+      "species": "Tyranitar",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Sand Stream",
+      "evs": {
+        "hp": 0,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 4,
+        "spe": 0
+      }
+    },
+    "defender": {
+      "species": "Incineroar",
+      "level": 50,
+      "nature": "Careful",
+      "ability": "Intimidate",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 0,
+        "spa": 0,
+        "spd": 4,
+        "spe": 0
+      }
+    },
+    "move": "Rock Slide",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      116,
+      140
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        116,
+        120,
+        120,
+        122,
+        122,
+        126,
+        126,
+        128,
+        128,
+        132,
+        132,
+        134,
+        134,
+        138,
+        138,
+        140
+      ],
+      "range": [
+        116,
+        140
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32+ Atk Tyranitar Rock Slide vs. 32 HP / 0 Def Incineroar: 116-140 (57.4 - 69.3%) -- guaranteed 2HKO",
+      "fullDesc": "32+ Atk Tyranitar Rock Slide vs. 32 HP / 0 Def Incineroar: 116-140 (57.4 - 69.3%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 175,
+          "atk": 204,
+          "def": 130,
+          "spa": 103,
+          "spd": 124,
+          "spe": 81
+        },
+        "defender": {
+          "hp": 202,
+          "atk": 135,
+          "def": 110,
+          "spa": 90,
+          "spd": 125,
+          "spe": 80
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      116,
+      140
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32+ Atk Tyranitar Rock Slide vs. 32 HP / 0 Def Incineroar: 116-140 (57.4 - 69.3%) -- guaranteed 2HKO",
+    "max_damage": 140,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Sand Stream",
+    "defender_ability": "Intimidate",
+    "notes": [
+      "attacker:Sand Stream:legal_ok",
+      "defender:Intimidate:legal_ok"
+    ]
+  }
+}

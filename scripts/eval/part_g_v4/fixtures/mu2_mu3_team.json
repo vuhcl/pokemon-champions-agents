@@ -1,0 +1,23 @@
+{
+  "note": "MU2/MU3: locked team + item making clause checks non-trivial; slot 2 open",
+  "slots": [
+    {
+      "slot": 1,
+      "species": "Garchomp",
+      "item": "Choice Scarf",
+      "ability": "Rough Skin",
+      "locked": true
+    },
+    {
+      "slot": 2,
+      "open": true
+    },
+    {
+      "slot": 3,
+      "species": "Incineroar",
+      "item": "Sitrus Berry",
+      "ability": "Intimidate",
+      "locked": true
+    }
+  ]
+}

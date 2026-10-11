@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_staraptormega_bravebird_bold",
+  "request": {
+    "attacker": {
+      "species": "Staraptor-Mega",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Contrary",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Staraptite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Brave Bird",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      152,
+      180
+    ],
+    "koChance": "6.3% chance to OHKO",
+    "raw": {
+      "damage": [
+        152,
+        152,
+        156,
+        156,
+        158,
+        162,
+        162,
+        164,
+        164,
+        168,
+        170,
+        170,
+        174,
+        174,
+        176,
+        180
+      ],
+      "range": [
+        152,
+        180
+      ],
+      "kochance": {
+        "chance": 0.0625,
+        "n": 1,
+        "text": "6.3% chance to OHKO"
+      },
+      "desc": "32 Atk Staraptor-Mega Brave Bird vs. 32 HP / 32+ Def Sinistcha: 152-180 (85.3 - 101.1%) -- 6.3% chance to OHKO",
+      "fullDesc": "32 Atk Staraptor-Mega Brave Bird vs. 32 HP / 32+ Def Sinistcha: 152-180 (85.3 - 101.1%) -- 6.3% chance to OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          36.2,
+          36.2
+        ],
+        "text": "36.2 - 36.2% recoil damage"
+      },
+      "stats": {
+        "attacker": {
+          "hp": 162,
+          "atk": 192,
+          "def": 120,
+          "spa": 72,
+          "spd": 110,
+          "spe": 178
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      152,
+      180
+    ],
+    "ko_chance": "6.3% chance to OHKO",
+    "desc": "32 Atk Staraptor-Mega Brave Bird vs. 32 HP / 32+ Def Sinistcha: 152-180 (85.3 - 101.1%) -- 6.3% chance to OHKO",
+    "max_damage": 180,
+    "recoil": {
+      "recoil": [
+        36.2,
+        36.2
+      ],
+      "text": "36.2 - 36.2% recoil damage"
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Contrary",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Contrary:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "id": "dm7_ape_cc_inc_defiant_on",
+  "request": {
+    "attacker": {
+      "species": "Annihilape",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Defiant",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Choice Scarf",
+      "boosts": {
+        "atk": 1
+      }
+    },
+    "defender": {
+      "species": "Incineroar",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Intimidate",
+      "evs": {
+        "hp": 32,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Sitrus Berry"
+    },
+    "move": "Close Combat",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      308,
+      366
+    ],
+    "koChance": "guaranteed OHKO",
+    "raw": {
+      "damage": [
+        308,
+        312,
+        318,
+        320,
+        324,
+        326,
+        332,
+        336,
+        338,
+        342,
+        344,
+        350,
+        354,
+        356,
+        360,
+        366
+      ],
+      "range": [
+        308,
+        366
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 1,
+        "text": "guaranteed OHKO"
+      },
+      "desc": "+1 32 Atk Annihilape Close Combat vs. 32 HP / 0 Def Incineroar: 308-366 (152.4 - 181.1%) -- guaranteed OHKO",
+      "fullDesc": "+1 32 Atk Annihilape Close Combat vs. 32 HP / 0 Def Incineroar: 308-366 (152.4 - 181.1%) -- guaranteed OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 187,
+          "atk": 167,
+          "def": 100,
+          "spa": 63,
+          "spd": 110,
+          "spe": 156
+        },
+        "defender": {
+          "hp": 202,
+          "atk": 183,
+          "def": 110,
+          "spa": 90,
+          "spd": 112,
+          "spe": 80
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      308,
+      366
+    ],
+    "ko_chance": "guaranteed OHKO",
+    "desc": "+1 32 Atk Annihilape Close Combat vs. 32 HP / 0 Def Incineroar: 308-366 (152.4 - 181.1%) -- guaranteed OHKO",
+    "max_damage": 366,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Defiant",
+    "defender_ability": "Intimidate",
+    "notes": [
+      "attacker:Defiant:legal_ok",
+      "defender:Intimidate:legal_ok"
+    ]
+  }
+}

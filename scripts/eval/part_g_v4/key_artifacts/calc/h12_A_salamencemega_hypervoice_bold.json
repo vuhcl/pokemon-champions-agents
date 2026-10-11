@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_salamencemega_hypervoice_bold",
+  "request": {
+    "attacker": {
+      "species": "Salamence-Mega",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Aerilate",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Salamencite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Hyper Voice",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      156,
+      186
+    ],
+    "koChance": "25% chance to OHKO",
+    "raw": {
+      "damage": [
+        156,
+        158,
+        158,
+        162,
+        164,
+        164,
+        168,
+        170,
+        170,
+        174,
+        174,
+        176,
+        180,
+        180,
+        182,
+        186
+      ],
+      "range": [
+        156,
+        186
+      ],
+      "kochance": {
+        "chance": 0.25,
+        "n": 1,
+        "text": "25% chance to OHKO"
+      },
+      "desc": "32 SpA Aerilate Salamence-Mega Hyper Voice vs. 32 HP / 0 SpD Sinistcha: 156-186 (87.6 - 104.4%) -- 25% chance to OHKO",
+      "fullDesc": "32 SpA Aerilate Salamence-Mega Hyper Voice vs. 32 HP / 0 SpD Sinistcha: 156-186 (87.6 - 104.4%) -- 25% chance to OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 172,
+          "atk": 148,
+          "def": 150,
+          "spa": 172,
+          "spd": 110,
+          "spe": 189
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      156,
+      186
+    ],
+    "ko_chance": "25% chance to OHKO",
+    "desc": "32 SpA Aerilate Salamence-Mega Hyper Voice vs. 32 HP / 0 SpD Sinistcha: 156-186 (87.6 - 104.4%) -- 25% chance to OHKO",
+    "max_damage": 186,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Aerilate",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Aerilate:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

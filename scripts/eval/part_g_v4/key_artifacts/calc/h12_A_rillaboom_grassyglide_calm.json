@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_rillaboom_grassyglide_calm",
+  "request": {
+    "attacker": {
+      "species": "Rillaboom",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Grassy Surge",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Miracle Seed"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Grassy Glide",
+    "field": {
+      "gameType": "Doubles",
+      "terrain": "Grassy"
+    }
+  },
+  "response": {
+    "damageRange": [
+      27,
+      33
+    ],
+    "koChance": "possible 8HKO",
+    "raw": {
+      "damage": [
+        27,
+        27,
+        28,
+        28,
+        29,
+        29,
+        30,
+        30,
+        30,
+        30,
+        30,
+        31,
+        31,
+        32,
+        32,
+        33
+      ],
+      "range": [
+        27,
+        33
+      ],
+      "kochance": {
+        "n": 8,
+        "text": "possible 8HKO"
+      },
+      "desc": "32 Atk Miracle Seed Rillaboom Grassy Glide vs. 32 HP / 32 Def Sinistcha in Grassy Terrain: 27-33 (15.1 - 18.5%) -- possible 8HKO",
+      "fullDesc": "32 Atk Miracle Seed Rillaboom Grassy Glide vs. 32 HP / 32 Def Sinistcha in Grassy Terrain: 27-33 (15.1 - 18.5%) -- possible 8HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 177,
+          "atk": 177,
+          "def": 110,
+          "spa": 72,
+          "spd": 90,
+          "spe": 150
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      27,
+      33
+    ],
+    "ko_chance": "possible 8HKO",
+    "desc": "32 Atk Miracle Seed Rillaboom Grassy Glide vs. 32 HP / 32 Def Sinistcha in Grassy Terrain: 27-33 (15.1 - 18.5%) -- possible 8HKO",
+    "max_damage": 33,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Grassy Surge",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Grassy Surge:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

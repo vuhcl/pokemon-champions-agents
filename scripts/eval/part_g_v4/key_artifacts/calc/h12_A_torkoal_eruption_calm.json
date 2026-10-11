@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_torkoal_eruption_calm",
+  "request": {
+    "attacker": {
+      "species": "Torkoal",
+      "level": 50,
+      "nature": "Quiet",
+      "ability": "Drought",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Charcoal"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Eruption",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      206,
+      246
+    ],
+    "koChance": "guaranteed OHKO",
+    "raw": {
+      "damage": [
+        206,
+        210,
+        212,
+        216,
+        216,
+        218,
+        222,
+        224,
+        228,
+        230,
+        230,
+        234,
+        236,
+        240,
+        242,
+        246
+      ],
+      "range": [
+        206,
+        246
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 1,
+        "text": "guaranteed OHKO"
+      },
+      "desc": "32+ SpA Charcoal Torkoal Eruption (150 BP) vs. 32 HP / 0+ SpD Sinistcha: 206-246 (115.7 - 138.2%) -- guaranteed OHKO",
+      "fullDesc": "32+ SpA Charcoal Torkoal Eruption (150 BP) vs. 32 HP / 0+ SpD Sinistcha: 206-246 (115.7 - 138.2%) -- guaranteed OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 177,
+          "atk": 105,
+          "def": 160,
+          "spa": 150,
+          "spd": 92,
+          "spe": 36
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      206,
+      246
+    ],
+    "ko_chance": "guaranteed OHKO",
+    "desc": "32+ SpA Charcoal Torkoal Eruption (150 BP) vs. 32 HP / 0+ SpD Sinistcha: 206-246 (115.7 - 138.2%) -- guaranteed OHKO",
+    "max_damage": 246,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Drought",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Drought:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

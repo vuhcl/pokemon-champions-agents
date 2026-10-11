@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_floettemega_moonblast_bold",
+  "request": {
+    "attacker": {
+      "species": "Floette-Mega",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Fairy Aura",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Floettite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Moonblast",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      147,
+      174
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        147,
+        148,
+        150,
+        153,
+        154,
+        156,
+        157,
+        159,
+        160,
+        163,
+        165,
+        166,
+        168,
+        169,
+        171,
+        174
+      ],
+      "range": [
+        147,
+        174
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32 SpA Fairy Aura Floette-Mega Moonblast vs. 32 HP / 0 SpD Sinistcha: 147-174 (82.5 - 97.7%) -- guaranteed 2HKO",
+      "fullDesc": "32 SpA Fairy Aura Floette-Mega Moonblast vs. 32 HP / 0 SpD Sinistcha: 147-174 (82.5 - 97.7%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 151,
+          "atk": 94,
+          "def": 107,
+          "spa": 207,
+          "spd": 168,
+          "spe": 169
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      147,
+      174
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32 SpA Fairy Aura Floette-Mega Moonblast vs. 32 HP / 0 SpD Sinistcha: 147-174 (82.5 - 97.7%) -- guaranteed 2HKO",
+    "max_damage": 174,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Fairy Aura",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Fairy Aura:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_basculegion_aquajet_bold",
+  "request": {
+    "attacker": {
+      "species": "Basculegion",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Adaptability",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Choice Scarf"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Aqua Jet",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      15,
+      18
+    ],
+    "koChance": "",
+    "raw": {
+      "damage": [
+        15,
+        15,
+        15,
+        15,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        17,
+        17,
+        17,
+        17,
+        17,
+        18
+      ],
+      "range": [
+        15,
+        18
+      ],
+      "kochance": {
+        "chance": 0,
+        "n": 0,
+        "text": ""
+      },
+      "desc": "32 Atk Adaptability Basculegion Aqua Jet vs. 32 HP / 32+ Def Sinistcha: 15-18 (8.4 - 10.1%)",
+      "fullDesc": "32 Atk Adaptability Basculegion Aqua Jet vs. 32 HP / 32+ Def Sinistcha: 15-18 (8.4 - 10.1%)",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 197,
+          "atk": 164,
+          "def": 85,
+          "spa": 90,
+          "spd": 95,
+          "spe": 143
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      15,
+      18
+    ],
+    "ko_chance": "",
+    "desc": "32 Atk Adaptability Basculegion Aqua Jet vs. 32 HP / 32+ Def Sinistcha: 15-18 (8.4 - 10.1%)",
+    "max_damage": 18,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Adaptability",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Adaptability:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

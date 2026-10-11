@@ -1,0 +1,19 @@
+{
+  "note": "MU4: Pelipper unlocked; interacting locked slot",
+  "slots": [
+    {
+      "slot": 1,
+      "species": "Torkoal",
+      "ability": "Drought",
+      "item": "Heat Rock",
+      "locked": true
+    },
+    {
+      "slot": 2,
+      "species": "Pelipper",
+      "ability": "Drizzle",
+      "item": "Damp Rock",
+      "locked": false
+    }
+  ]
+}

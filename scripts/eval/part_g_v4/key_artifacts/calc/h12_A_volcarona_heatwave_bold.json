@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_volcarona_heatwave_bold",
+  "request": {
+    "attacker": {
+      "species": "Volcarona",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Flame Body",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Grassy Seed"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Heat Wave",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      122,
+      146
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        122,
+        126,
+        126,
+        128,
+        128,
+        132,
+        132,
+        134,
+        134,
+        138,
+        138,
+        140,
+        140,
+        144,
+        144,
+        146
+      ],
+      "range": [
+        122,
+        146
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "0 SpA Volcarona Heat Wave vs. 32 HP / 0 SpD Sinistcha: 122-146 (68.5 - 82%) -- guaranteed 2HKO",
+      "fullDesc": "0 SpA Volcarona Heat Wave vs. 32 HP / 0 SpD Sinistcha: 122-146 (68.5 - 82%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 192,
+          "atk": 72,
+          "def": 128,
+          "spa": 155,
+          "spd": 127,
+          "spe": 120
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      122,
+      146
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "0 SpA Volcarona Heat Wave vs. 32 HP / 0 SpD Sinistcha: 122-146 (68.5 - 82%) -- guaranteed 2HKO",
+    "max_damage": 146,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Flame Body",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Flame Body:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "mod": "champions",
+  "pinned_formats": {
+    "vgc": "[Gen 9 Champions] VGC 2026 Reg M-C",
+    "bss": "[Gen 9 Champions] BSS Reg M-C"
+  },
+  "disagreements": {
+    "species": {
+      "only_in_pinned_count": 0,
+      "only_in_oracle_count": 0,
+      "only_in_pinned": [],
+      "only_in_oracle": [],
+      "only_in_pinned_truncated": false,
+      "only_in_oracle_truncated": false
+    },
+    "items": {
+      "only_in_pinned_count": 0,
+      "only_in_oracle_count": 0,
+      "only_in_pinned": [],
+      "only_in_oracle": [],
+      "only_in_pinned_truncated": false,
+      "only_in_oracle_truncated": false
+    },
+    "moves": {
+      "only_in_pinned_count": 515,
+      "only_in_oracle_count": 0,
+      "only_in_pinned": [
+        "accelerock",
+        "acidarmor",
+        "acidspray",
+        "acrobatics",
+        "acupressure",
+        "aerialace",
+        "afteryou",
+        "agility",
+        "aircutter",
+        "airslash",
+        "alluringvoice",
+        "allyswitch",
+        "amnesia",
+        "ancientpower",
+        "appleacid",
+        "aquacutter",
+        "aquajet",
+        "aquaring",
+        "aquastep",
+        "aquatail",
+        "armorcannon",
+        "aromaticmist",
+        "assurance",
+        "attract",
+        "aurasphere",
+        "aurawheel",
+        "auroraveil",
+        "avalanche",
+        "axekick",
+        "babydolleyes",
+        "banefulbunker",
+        "barbbarrage",
+        "batonpass",
+        "beakblast",
+        "beatup",
+        "belch",
+        "bellydrum",
+        "bind",
+        "bite",
+        "bitterblade",
+        "bittermalice",
+        "blastburn",
+        "blazekick",
+        "blizzard",
+        "block",
+        "bodypress",
+        "bodyslam",
+        "bonerush",
+        "boomburst",
+        "bounce"
+      ],
+      "only_in_oracle": [],
+      "only_in_pinned_truncated": true,
+      "only_in_oracle_truncated": false,
+      "cross_checked": false,
+      "note": "oracle_snapshot.ts writes moves: {}; learnsets also not cross-checked"
+    },
+    "types": {
+      "mismatch_count": 0,
+      "samples": [],
+      "sample_size": 355,
+      "sample_note": "full legal-species intersection; script iterates sorted(both)[:5000]"
+    },
+    "abilities": {
+      "mismatch_count": 0,
+      "samples": [],
+      "sample_size": 355,
+      "sample_note": "same intersection as types"
+    }
+  },
+  "notes": {
+    "moves_learnsets_cross_checked": false,
+    "keys_on_pinned_learnsets_moves_only": [
+      "H11",
+      "SC1",
+      "SC2",
+      "IX4",
+      "damage keys"
+    ]
+  }
+}

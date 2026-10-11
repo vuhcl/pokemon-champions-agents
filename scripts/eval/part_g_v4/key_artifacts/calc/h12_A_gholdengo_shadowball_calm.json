@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_gholdengo_shadowball_calm",
+  "request": {
+    "attacker": {
+      "species": "Gholdengo",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Good as Gold",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Life Orb"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Shadow Ball",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      198,
+      237
+    ],
+    "koChance": "guaranteed OHKO",
+    "raw": {
+      "damage": [
+        198,
+        203,
+        205,
+        205,
+        211,
+        211,
+        213,
+        218,
+        218,
+        221,
+        221,
+        226,
+        229,
+        229,
+        234,
+        237
+      ],
+      "range": [
+        198,
+        237
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 1,
+        "text": "guaranteed OHKO"
+      },
+      "desc": "32 SpA Life Orb Gholdengo Shadow Ball vs. 32 HP / 0+ SpD Sinistcha: 198-237 (111.2 - 133.1%) -- guaranteed OHKO",
+      "fullDesc": "32 SpA Life Orb Gholdengo Shadow Ball vs. 32 HP / 0+ SpD Sinistcha: 198-237 (111.2 - 133.1%) -- guaranteed OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 164,
+          "atk": 72,
+          "def": 115,
+          "spa": 185,
+          "spd": 111,
+          "spe": 149
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      198,
+      237
+    ],
+    "ko_chance": "guaranteed OHKO",
+    "desc": "32 SpA Life Orb Gholdengo Shadow Ball vs. 32 HP / 0+ SpD Sinistcha: 198-237 (111.2 - 133.1%) -- guaranteed OHKO",
+    "max_damage": 237,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Good as Gold",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Good as Gold:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

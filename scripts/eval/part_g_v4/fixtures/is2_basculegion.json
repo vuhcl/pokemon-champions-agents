@@ -1,0 +1,11 @@
+{
+  "note": "IS2 inverse-speed shortfall control: Basculegion Jolly Choice Scarf; non-Spe SP sum 42 (R=24). Spe SP free to invest.",
+  "species": "Basculegion",
+  "form_id": "basculegion",
+  "nature": "Jolly",
+  "item": "Choice Scarf",
+  "ability": "Adaptability",
+  "evs": { "hp": 10, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 0 },
+  "other_sp_sum": 42,
+  "budget_R": 24
+}

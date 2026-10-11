@@ -1,0 +1,36 @@
+{
+  "id": "SC1_start",
+  "team": [
+    {
+      "slot": 0,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 1,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 2,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 3,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 4,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 5,
+      "species": null,
+      "locked": false
+    }
+  ],
+  "user": "Archaludon runs Snarl"
+}

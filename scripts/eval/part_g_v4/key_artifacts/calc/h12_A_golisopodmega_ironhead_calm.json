@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_golisopodmega_ironhead_calm",
+  "request": {
+    "attacker": {
+      "species": "Golisopod-Mega",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Tough Claws",
+      "evs": {
+        "hp": 32,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Golisopite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Iron Head",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      84,
+      99
+    ],
+    "koChance": "72.7% chance to 2HKO",
+    "raw": {
+      "damage": [
+        84,
+        84,
+        85,
+        87,
+        87,
+        88,
+        90,
+        90,
+        91,
+        93,
+        93,
+        94,
+        96,
+        96,
+        97,
+        99
+      ],
+      "range": [
+        84,
+        99
+      ],
+      "kochance": {
+        "chance": 0.7265625,
+        "n": 2,
+        "text": "72.7% chance to 2HKO"
+      },
+      "desc": "32+ Atk Tough Claws Golisopod-Mega Iron Head vs. 32 HP / 32 Def Sinistcha: 84-99 (47.1 - 55.6%) -- 72.7% chance to 2HKO",
+      "fullDesc": "32+ Atk Tough Claws Golisopod-Mega Iron Head vs. 32 HP / 32 Def Sinistcha: 84-99 (47.1 - 55.6%) -- 72.7% chance to 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 182,
+          "atk": 222,
+          "def": 195,
+          "spa": 81,
+          "spd": 142,
+          "spe": 60
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      84,
+      99
+    ],
+    "ko_chance": "72.7% chance to 2HKO",
+    "desc": "32+ Atk Tough Claws Golisopod-Mega Iron Head vs. 32 HP / 32 Def Sinistcha: 84-99 (47.1 - 55.6%) -- 72.7% chance to 2HKO",
+    "max_damage": 99,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Tough Claws",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Tough Claws:desc_echo_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

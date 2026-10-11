@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_garchompmegaz_flamethrower_bold",
+  "request": {
+    "attacker": {
+      "species": "Garchomp-Mega-Z",
+      "level": 50,
+      "nature": "Modest",
+      "ability": "Levitate",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Garchompite Z"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Flamethrower",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      144,
+      170
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        144,
+        146,
+        146,
+        148,
+        150,
+        152,
+        154,
+        156,
+        158,
+        158,
+        160,
+        162,
+        164,
+        166,
+        168,
+        170
+      ],
+      "range": [
+        144,
+        170
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32+ SpA Garchomp-Mega-Z Flamethrower vs. 32 HP / 0 SpD Sinistcha: 144-170 (80.8 - 95.5%) -- guaranteed 2HKO",
+      "fullDesc": "32+ SpA Garchomp-Mega-Z Flamethrower vs. 32 HP / 0 SpD Sinistcha: 144-170 (80.8 - 95.5%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 185,
+          "atk": 135,
+          "def": 105,
+          "spa": 212,
+          "spd": 105,
+          "spe": 203
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      144,
+      170
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32+ SpA Garchomp-Mega-Z Flamethrower vs. 32 HP / 0 SpD Sinistcha: 144-170 (80.8 - 95.5%) -- guaranteed 2HKO",
+    "max_damage": 170,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Levitate",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Levitate:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

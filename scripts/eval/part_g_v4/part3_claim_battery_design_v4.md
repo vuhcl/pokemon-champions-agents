@@ -1,0 +1,247 @@
+# Part G v4 — claim battery + false-legal battery design (plan-only; not generated)
+
+**HEAD:** `e935de9b2051da6fe968b87087b27c7b5901168b`  
+**Companion:** `scripts/eval/part_g_v4/part3_request_set_v4.md`  
+**Generated:** claim + false-legal batteries under `scripts/eval/part_g_v4/battery/` (seed 0; see `battery_manifest.json`). Do not run items through the graph or any model in this package PR.
+
+**Location:** `scripts/eval/part_g_v4/` (eval-only), including generator, seed, pinned SHAs, generated battery + file hash.
+
+**Ground-truth framing:** the 8-type claim battery measures **fidelity to the pinned snapshot**, not independent game truth. Both the pinned legality blob and the Showdown-source oracle derive from Showdown — a cross-check catches **extraction/transform bugs**, not Showdown-vs-game differences.
+
+**Scoring context:** request-set scoring is **per slice** (see companion). Bare-LLM comparison on the battery uses the same extractor and same items; bare-LLM rate is comparison-only, not gated.
+
+---
+
+## Gate decision rule (verbatim; Vu decided)
+
+**Gate:** upper 95% one-sided bound on the false-claim rate ≤ 2%, evaluated on **REALIZED** model-authored claims.
+
+**Pass table:**
+
+| Observed failures | Required realized claims n |
+|---|---|
+| 0 | n ≥ 149 |
+| 1 | n ≥ 237 |
+| 2 | n ≥ 314 |
+
+**Size target:** **300** prompt items → about **267** realized claims at the stated rates (below). This exceeds the 240 floor used by the stop/extend rule.
+
+**Denominator:** the arm’s realized claim count.
+
+**Stop/extend rule:** If realized claims are less than 240 after a run, the battery is **extended BEFORE any results are read**; no conclusions from a short run. (Plain text — no percentages beyond the gate table above, which is the Vu-decided rule.)
+
+**Verdict cost accepted:** a failing result is reported as a **failure**, not re-run or re-sized after the fact.
+
+**Bare-LLM:** same extractor, same items; report its realized count separately; bare-LLM rate is a **comparison, not gated**.
+
+---
+
+## Pinned data (same as request set)
+
+SHAs are **git blob SHAs** (`git hash-object <file>`).
+
+| Blob | Path | Blob SHA (`git hash-object`) |
+|---|---|---|
+| Legality | `data/legality/champions.v1.json` | `ca5bb8181448765875396ce3b02561923c3e4694` |
+| In-game usage | `data/usage/champions-reg-mc.ingame_doubles.v1.json` | `65f8c51e3ce4068736a2c8aa65609f836064cbcc` |
+| Showdown usage | `data/usage/champions-reg-mc.showdown_doubles.v1.json` | `63bcefe4512a202d75b62e79f2ccc5436527b46e` |
+| Move static | `data/moves/static.v1.json` | `c4f2aabe8ffb420a70e77afaa50b5a4d616a1f54` |
+| Move flags | `data/moves/flags.v1.json` | `89a00b2c46df4c139027f81f77627a4a85fdd631` |
+| Move accuracy | `data/moves/gen9_accuracy.v1.json` | `4eeb96eacfdee56ccaf7e9a7b8d6a65c6fb1da20` |
+| Move stat boosts | `data/moves/stat_boosts.v1.json` | `040059884684b27f0894e484c7c987fb5aef158e` |
+
+Record repo commit: `e935de9b2051da6fe968b87087b27c7b5901168b`. Move static at `8cfe63a` (PR #259); flags/accuracy/boosts refresh merge `6674b74c41810f63d1a25453d26ea8498d0b9341` (PR #260); four move blob SHAs in the table.  
+**Re-pin invalidates keys.** Arm and bare-LLM harness both read the frozen copy.
+
+**Defect D7:** `query_teammates` Showdown-first vs in-game default — unchanged here. Usage tools take explicit **source** + label.
+
+**ADR-060:** answer keys / battery GT from pinned JSON, standalone Spe/HP formulas, or calc HTTP — not recommender claim verifiers.
+
+---
+
+## Oracle cross-check (one pass; this task)
+
+**Mod:** `champions` (matches pinned `meta.source.mod`; formats Reg M-C). Not `championsregmb` (would be regulation noise).
+
+**Artifact:** `scripts/eval/part_g_v4/key_artifacts/oracle_crosscheck.json` (filled by `scripts/eval/part_g_v4/builders/oracle_crosscheck.py`).
+
+**Result (one pass completed):** artifact `scripts/eval/part_g_v4/key_artifacts/oracle_crosscheck.json`.
+
+| Axis | only_in_pinned | only_in_oracle | notes |
+|---|---|---|---|
+| species legality | 0 | 0 | match |
+| item legality | 0 | 0 | match |
+| types (intersection sample) | — | — | mismatch_count 0; **sample size = 355** (full legal-species intersection; script caps at 5000) |
+| abilities (intersection sample) | — | — | mismatch_count 0; **sample size = 355** (same intersection) |
+| moves | 515 | 0 | **oracle_snapshot.ts writes `moves: {}`** (no move extract in eval oracle path) — not a roster disagreement; do not treat as extraction bug |
+
+**Moves and learnsets were NOT cross-checked** (oracle writes `moves: {}`). **H11, SC1, SC2, IX4 and the damage keys rest on pinned learnsets and pinned move data only.**
+
+Oracle Showdown commit in this pass: `942cda71…` (live cache). Pinned extract source commit: `9fb3a5b9…`. Species/item agreement still held across that commit drift for this pass. **Do not tune keys to this output.**
+
+---
+
+## Generator conventions
+
+- **Seed:** `random.seed(0)` (stdlib); record in battery header.
+- **Stratification:** legal vs illegal; usage top- vs bottom-quartile species; Spe ties; Mega/regional forms; common vs rare moves/items.
+- **Derived-stat (9th type):** **deferred (D6)**. HU1 remains request-level only. Battery = **8 types**.
+
+---
+
+## Model-authored claim (scoring definition)
+
+**Include:** text the model writes in the turn payload / free prose.  
+**Exclude:** text rendered **verbatim** by tools (tool read-backs, formatted pending footers, stamped claim templates that are byte-identical to tool output).
+
+**Counting (D5 lean — freeze at registration):**
+
+1. **Primary:** frozen **per-template answer parsers** for battery templates (deterministic).  
+2. **Audit:** fixed-seed **human** sample (size fixed at registration) to estimate missed extra claims in free prose.  
+3. **Cross-check only:** LLM judge from a **different model family** — not the gate.
+
+**Set-valued answers (same rule as request set):** named member not in key = false claim; missing member = incomplete, not false.
+
+**Must freeze before scoring:** negation policy; multi-claim dedupe; whether partial lists count as N claims; tool-verbatim exclusion rules.
+
+---
+
+## Claim forms added in v4
+
+- **Speed condition labels:** Scarf, Tailwind, Spe stage boosts, Unburden — claims must name the condition they assume.
+- **Min-SP 4-part** (inverse speed): neutral and beneficial nature, each as “N suffices and N−1 does not”. Outcomes vs budget R: fits / shortfall / unreachable. Reachability considers Scarf+Tailwind stack. Never “not recommended”.
+- **Quantified grid claims:** Spe numbers must match script cells.
+- **Crit-conditioned damage:** score from calc description string (“on a critical hit”).
+- **Chip damage:** standalone formula line (Rocky Helmet 1/6, Rough Skin/Iron Barbs 1/8, Life Orb recoil 1/10, floored, min 1) — mark hand-derived unless verified from Showdown source or calc.
+- **Ability-text quotes:** verbatim quotes from `data/abilities/all.v1.json` allowed as ability claims (string match).
+- **Usage claims:** always source-labeled (in-game vs Showdown); unlabeled → unverifiable share.
+
+---
+
+## Per-type design (8 types)
+
+### 1. Typing
+- **Templates:** “What type is {S}?” / “Is {S} a {T} type?” / “What are {S}’s types?” / “Is {S} dual-type {T1}/{T2}?” / “Does {S} have {T} typing?”
+- **GT:** pinned snapshot `species.*.types` — **fidelity to pinned snapshot**.
+- **Independence:** JSON only; no recommender verifiers.
+
+### 2. Ability
+- **Templates:** “Does {S} have {A}?” / “What abilities can {S} have?” / “Is {A} legal on {S}?”
+- **GT:** snapshot abilities + legality flags.
+- **Independence:** JSON. Verbatim ability-description quotes allowed when matching pinned text.
+
+### 3. Item
+- **Templates:** “Is {I} legal on {S}?” / “Is {I} legal?”
+- **GT:** snapshot items + rules.
+- **Independence:** JSON. (No pinned item descriptions — prose about item effects = unverifiable share.)
+
+### 4. Legality (species)
+- **Templates:** “Is {S} legal?” / “Can I use {S} in Champions VGC?”
+- **GT:** snapshot `is_nonstandard` / tier / tags (pinned fidelity).
+- **Independence:** JSON-only for keys; Showdown-source oracle used once for extraction cross-check (see above), not as live GT for items.
+
+### 5. Speed
+- **Templates:** outspeed / who-faster / scarf / TW-conditioned / min-SP.
+- **GT:** standalone `floor(n*(base+SP+20))` from snapshot base Spe; optional calc `raw.stats`.
+- **COMMON_SPEED:** top 3 distinct grouped final-Speed values (group joints by Spe, sum weights, rank).
+- **Scarf lines:** only Spe-32 at neutral and beneficial Spe+ nature (2 per side); other values without Scarf.
+- **Independence:** standalone formula or calc HTTP — not `effective_spe` as oracle.
+
+### 6. Damage
+- **Templates:** OHKO / damage range / 2HKO / crit-conditioned.
+- **GT:** `@smogon/calc` via HTTP; store requests+responses.
+- **Independence:** **invocation path**, not engine (D4).
+- **Ability:** every damage claim carries the ability it was computed under; verifier compares like with like. Mega formes use the form ability from pinned legality (Mega-X = Tough Claws — never rely on calc default Blaze).
+
+### 7. Usage (reg + date)
+- **Templates:** top partners / common items / teammates.
+- **GT:** pinned usage files by labeled source. In-game default; Showdown for Mega/form and joints. **D9:** no in-game joint nature+spread claims.
+- **Independence:** pinned JSON.
+
+### 8. Move static
+- **Templates:** category / base power / type / status BP 0 / priority / target / displayed PP.
+- **Closed property list (inventory-confirmed):** id, name, type, category, basePower, is_nonstandard, flags (`flags.v1.json` SHA `89a00b2c…`), boosts (`stat_boosts.v1.json` SHA `04005988…`), accuracy (`gen9_accuracy.v1.json` SHA `4eeb96ea…`), priority / target / displayed PP (`static.v1.json` SHA `c4f2aabe…`, 515 moves).
+- **Independence:** JSON.
+
+---
+
+## Sizing arithmetic (300 items → ~267 realized)
+
+**Assumptions (explicit):**
+
+- Per-type claims/item (if answered): typing 1.0, ability 1.0, item 1.1, legality 1.0, speed 1.2, damage 1.5, usage 2.0, move static 1.3.
+- **70%** of items yield a scorable response (30% decline/incomplete → 0 realized claims).
+
+| Type | Items | Claims/item | Expected claims @100% | Realized @70% |
+|---|---|---|---|---|
+| typing | 38 | 1.0 | 38.0 | 26.6 |
+| ability | 38 | 1.0 | 38.0 | 26.6 |
+| item | 38 | 1.1 | 41.8 | 29.3 |
+| legality | 30 | 1.0 | 30.0 | 21.0 |
+| speed | 44 | 1.2 | 52.8 | 37.0 |
+| damage | 44 | 1.5 | 66.0 | 46.2 |
+| usage | 38 | 2.0 | 76.0 | 53.2 |
+| move static | 30 | 1.3 | 39.0 | 27.3 |
+| **Sum** | **300** | | **381.6** | **267.2** |
+
+**Check:** 300 items → 381.6 × 0.7 ≈ **267** realized.  
+**Stop/extend floor:** if realized is less than 240 after a run, extend before reading results.  
+**Re-check after v4 rows 133 (prior 131 + DM6/DM7):** claim-battery item count stays **300** → expected realized still **~267 ≥ 240**. No extend required from sizing alone. Request-set multi-turn rows carry per-turn classes in `part3_request_set_v4.md`; AR3 damage claims must carry the ability they were computed under (Tough Claws for Mega-X). DM3/DM4/DM6/DM7 damage claims must carry Intimidate on/off (or immune/Defiant) cases as keyed.
+
+---
+
+## False-legal battery
+
+- **Size:** **≥ 240** illegal-entity prompts under the same gate spirit.
+- **Generator:** illegal species × illegal items × templates; stratify species-only / item-only / both.
+- **Control:** matched **legal**-entity prompts **75–100** for over-refusal (false-illegal).
+- **Score:** treats illegal as usable → fail; legal treated illegal → false-illegal (reported; not the ≤2% false-claim gate unless Vu merges metrics later).
+
+---
+
+## Bare-LLM condition
+
+- Same items, same extractor, same frozen data.
+- Report realized claim count separately.
+- Rate is **comparison only**, not gated.
+
+---
+
+## Request-set companions (not battery item pool)
+
+**AR3** — Multi-turn Mega Charizard X Belly Drum. Classes: t1 SERVED; t2 SERVED|ASK; t3 MUTATION-OK; t4 SERVED; t5 PARTIAL; t6 SERVED. Claims: learnset/item, move suggest, mutation lock, damage+recoil (Tough Claws), speed ladder +1, leftover HP. Keys: `derived_keys.ar3` + `part1_followup`.
+
+**IS2** — Basculegion Scarf R=24 vs Dragapult. Class: ASSUME-STATE+PARTIAL. Claims: speed. Key: `derived_keys.is2_min_spe`.
+
+**Build traps (IC1…MC1)** — per-turn claim types / classes:
+
+| Id | Turns / class | Claim types |
+|---|---|---|
+| IC1 | t1 SERVED, t2 MUTATION-OK | usage+legality (item; Item Clause) |
+| GT1 | SERVED | usage+legality (Trick+Scarf; Choice Past) |
+| GS1 | t1 SERVED, t2 MUTATION-OK | usage+legality+state (choice-lock status names) |
+| LZ1 | SERVED (+ ASSUME-STATE form) | usage+legality (stallingMove; mega stone) |
+| TB1 | SERVED (stated correction) | legality+learnset (type-boost no Fire) |
+| TB2 | MUTATION-OK (stated consequence) | legality+state (Charcoal after swap) |
+| MM1 | SERVED | legality (mega stone required) |
+| MM2 | MUTATION-REFUSED | legality+state |
+| MC1 | ASK or ASSUME-STATE | usage+legality+ability (form/stone/Drought) |
+| RB1 | MUTATION-OK (stated consequence) | move-static (category, boosts from stat_boosts) |
+| H12 | ASSUME-STATE (Calm vs Bold Sinistcha; variant A/B) | damage |
+| DM3/DM4 | ASSUME-STATE (dual Intimidate cases) | damage (+ ability assumption) |
+| DM6 | SERVED (immune single case) | damage+ability |
+| DM7 | ASSUME-STATE (Defiant on/off) | damage+ability |
+
+## Risks / unknowns
+
+1. Defect D7 teammate source mismatch until tool source argument ships.
+2. Damage GT shares calc engine (invocation independence only).
+3. Per-template parsers miss free-prose extras — human audit estimates residual.
+4. Realized n may fall below 240 → extend before reading results.
+5. Move-inventory refresh pins (static/flags/accuracy/boosts) must stay byte-identical to recorded SHAs; re-pin invalidates MV/IX keys.
+
+---
+
+## Status
+
+Design frozen with generated battery + hash in this package. Held-out: do not use for tuning; any change is a new version with a new hash.

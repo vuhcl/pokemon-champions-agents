@@ -1,0 +1,66 @@
+{
+  "id": "OL3",
+  "reply": "Jolly 20/0/0/0/0/12",
+  "pending_kind": "full_build_confirmation",
+  "pending": {
+    "schema_version": 1,
+    "kind": "full_build_confirmation",
+    "slot_index": 0,
+    "provisional_fingerprint": "fixture-fbc-single-v1",
+    "build_option_groups": [
+      {
+        "axis": "spread_nature",
+        "options": [
+          {
+            "option_id": "spread_nature:default",
+            "label": "Default (Adamant 32/0/0/0/0/0)",
+            "axis": "spread_nature"
+          },
+          {
+            "option_id": "spread_nature:1",
+            "label": "Jolly 20/0/0/0/0/12",
+            "axis": "spread_nature"
+          },
+          {
+            "option_id": "spread_nature:2",
+            "label": "Adamant 28/0/0/0/0/4",
+            "axis": "spread_nature"
+          }
+        ]
+      }
+    ]
+  },
+  "team": [
+    {
+      "slot": 0,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 1,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 2,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 3,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 4,
+      "species": null,
+      "locked": false
+    },
+    {
+      "slot": 5,
+      "species": null,
+      "locked": false
+    }
+  ],
+  "expected": "bound to spread_nature:1 via label"
+}

@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_indeedee_expandingforce_calm",
+  "request": {
+    "attacker": {
+      "species": "Indeedee",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Psychic Surge",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Choice Scarf"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Expanding Force",
+    "field": {
+      "gameType": "Doubles",
+      "terrain": "Psychic"
+    }
+  },
+  "response": {
+    "damageRange": [
+      93,
+      111
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        93,
+        94,
+        96,
+        97,
+        97,
+        99,
+        100,
+        102,
+        102,
+        103,
+        105,
+        106,
+        106,
+        108,
+        109,
+        111
+      ],
+      "range": [
+        93,
+        111
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32 SpA Indeedee Expanding Force (120 BP) vs. 32 HP / 0+ SpD Sinistcha in Psychic Terrain: 93-111 (52.2 - 62.3%) -- guaranteed 2HKO",
+      "fullDesc": "32 SpA Indeedee Expanding Force (120 BP) vs. 32 HP / 0+ SpD Sinistcha in Psychic Terrain: 93-111 (52.2 - 62.3%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 137,
+          "atk": 76,
+          "def": 75,
+          "spa": 157,
+          "spd": 115,
+          "spe": 161
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      93,
+      111
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32 SpA Indeedee Expanding Force (120 BP) vs. 32 HP / 0+ SpD Sinistcha in Psychic Terrain: 93-111 (52.2 - 62.3%) -- guaranteed 2HKO",
+    "max_damage": 111,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Psychic Surge",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Psychic Surge:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

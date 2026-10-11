@@ -1,0 +1,36 @@
+{
+  "id": "HN2d",
+  "team": [
+    {
+      "slot": 0,
+      "species": "Blaziken-Mega",
+      "locked": true,
+      "item": "Blazikenite",
+      "ability": "Speed Boost",
+      "nature": "Jolly",
+      "spread": {
+        "hp": 0,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 32
+      },
+      "moves": [
+        "Flare Blitz",
+        "Close Combat",
+        "Protect",
+        "Stone Edge"
+      ]
+    }
+  ],
+  "spe_jolly_32": 167,
+  "spe_jolly_32_plus1": 250,
+  "opp": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "spe_sp": 32,
+    "spe": 169
+  },
+  "note": "Speed Boost after turn ends; Scarf incompatible with stone; before: 167<169; after: 250>169"
+}

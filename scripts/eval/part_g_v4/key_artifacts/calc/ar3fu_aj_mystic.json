@@ -1,0 +1,132 @@
+{
+  "id": "ar3fu_aj_mystic",
+  "request": {
+    "attacker": {
+      "species": "Primarina",
+      "level": 50,
+      "nature": "Modest",
+      "ability": "Torrent",
+      "item": "Mystic Water",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 2,
+        "spe": 0
+      }
+    },
+    "defender": {
+      "species": "Charizard-Mega-X",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Tough Claws",
+      "item": "Charizardite X",
+      "evs": {
+        "hp": 0,
+        "atk": 0,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Aqua Jet",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      18,
+      22
+    ],
+    "koChance": "possible 7HKO",
+    "raw": {
+      "damage": [
+        18,
+        18,
+        19,
+        19,
+        19,
+        19,
+        19,
+        19,
+        19,
+        21,
+        21,
+        21,
+        21,
+        21,
+        21,
+        22
+      ],
+      "range": [
+        18,
+        22
+      ],
+      "kochance": {
+        "n": 7,
+        "text": "possible 7HKO"
+      },
+      "desc": "0- Atk Mystic Water Primarina Aqua Jet vs. 0 HP / 0 Def Charizard-Mega-X: 18-22 (11.7 - 14.3%) -- possible 7HKO",
+      "fullDesc": "0- Atk Mystic Water Primarina Aqua Jet vs. 0 HP / 0 Def Charizard-Mega-X: 18-22 (11.7 - 14.3%) -- possible 7HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 187,
+          "atk": 84,
+          "def": 94,
+          "spa": 195,
+          "spd": 138,
+          "spe": 80
+        },
+        "defender": {
+          "hp": 153,
+          "atk": 165,
+          "def": 131,
+          "spa": 135,
+          "spd": 105,
+          "spe": 120
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      18,
+      22
+    ],
+    "ko_chance": "possible 7HKO",
+    "desc": "0- Atk Mystic Water Primarina Aqua Jet vs. 0 HP / 0 Def Charizard-Mega-X: 18-22 (11.7 - 14.3%) -- possible 7HKO",
+    "max_damage": 22,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Torrent",
+    "defender_ability": "Tough Claws",
+    "notes": [
+      "attacker:Torrent:legal_ok",
+      "defender:Tough Claws:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_politoed_icebeam_calm",
+  "request": {
+    "attacker": {
+      "species": "Politoed",
+      "level": 50,
+      "nature": "Quiet",
+      "ability": "Drizzle",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 2,
+        "spa": 32,
+        "spd": 0,
+        "spe": 0
+      },
+      "item": "Sitrus Berry"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Ice Beam",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Rain"
+    }
+  },
+  "response": {
+    "damageRange": [
+      98,
+      116
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        98,
+        98,
+        100,
+        102,
+        102,
+        104,
+        104,
+        106,
+        106,
+        108,
+        110,
+        110,
+        112,
+        112,
+        114,
+        116
+      ],
+      "range": [
+        98,
+        116
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32+ SpA Politoed Ice Beam vs. 32 HP / 0+ SpD Sinistcha: 98-116 (55 - 65.1%) -- guaranteed 2HKO",
+      "fullDesc": "32+ SpA Politoed Ice Beam vs. 32 HP / 0+ SpD Sinistcha: 98-116 (55 - 65.1%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 197,
+          "atk": 95,
+          "def": 97,
+          "spa": 156,
+          "spd": 120,
+          "spe": 81
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      98,
+      116
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32+ SpA Politoed Ice Beam vs. 32 HP / 0+ SpD Sinistcha: 98-116 (55 - 65.1%) -- guaranteed 2HKO",
+    "max_damage": 116,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Drizzle",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Drizzle:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

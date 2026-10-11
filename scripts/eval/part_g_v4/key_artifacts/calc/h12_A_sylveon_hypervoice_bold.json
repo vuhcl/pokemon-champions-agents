@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_sylveon_hypervoice_bold",
+  "request": {
+    "attacker": {
+      "species": "Sylveon",
+      "level": 50,
+      "nature": "Modest",
+      "ability": "Pixilate",
+      "evs": {
+        "hp": 9,
+        "atk": 0,
+        "def": 22,
+        "spa": 20,
+        "spd": 0,
+        "spe": 15
+      },
+      "item": "Fairy Feather"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Hyper Voice",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      91,
+      108
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        91,
+        91,
+        93,
+        94,
+        96,
+        96,
+        97,
+        99,
+        99,
+        100,
+        102,
+        103,
+        103,
+        105,
+        106,
+        108
+      ],
+      "range": [
+        91,
+        108
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "20+ SpA Fairy Feather Pixilate Sylveon Hyper Voice vs. 32 HP / 0 SpD Sinistcha: 91-108 (51.1 - 60.6%) -- guaranteed 2HKO",
+      "fullDesc": "20+ SpA Fairy Feather Pixilate Sylveon Hyper Voice vs. 32 HP / 0 SpD Sinistcha: 91-108 (51.1 - 60.6%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 179,
+          "atk": 76,
+          "def": 107,
+          "spa": 165,
+          "spd": 150,
+          "spe": 95
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      91,
+      108
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "20+ SpA Fairy Feather Pixilate Sylveon Hyper Voice vs. 32 HP / 0 SpD Sinistcha: 91-108 (51.1 - 60.6%) -- guaranteed 2HKO",
+    "max_damage": 108,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Pixilate",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Pixilate:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

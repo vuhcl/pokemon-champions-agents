@@ -1,0 +1,26 @@
+{
+  "note": "H25 seeded 3-member team; weakest-swap vs Kingambit",
+  "slots": [
+    {
+      "slot": 1,
+      "species": "Pelipper",
+      "ability": "Drizzle",
+      "item": "Damp Rock",
+      "locked": true
+    },
+    {
+      "slot": 2,
+      "species": "Barraskewda",
+      "ability": "Swift Swim",
+      "item": "Life Orb",
+      "locked": true
+    },
+    {
+      "slot": 3,
+      "species": "Toxapex",
+      "ability": "Regenerator",
+      "item": "Leftovers",
+      "locked": true
+    }
+  ]
+}

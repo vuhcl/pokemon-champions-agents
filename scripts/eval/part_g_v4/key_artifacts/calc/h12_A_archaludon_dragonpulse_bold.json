@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_archaludon_dragonpulse_bold",
+  "request": {
+    "attacker": {
+      "species": "Archaludon",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Stamina",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Leftovers"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Dragon Pulse",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      85,
+      102
+    ],
+    "koChance": "90.6% chance to 2HKO",
+    "raw": {
+      "damage": [
+        85,
+        87,
+        88,
+        88,
+        90,
+        91,
+        91,
+        93,
+        94,
+        94,
+        96,
+        97,
+        97,
+        99,
+        100,
+        102
+      ],
+      "range": [
+        85,
+        102
+      ],
+      "kochance": {
+        "chance": 0.90625,
+        "n": 2,
+        "text": "90.6% chance to 2HKO"
+      },
+      "desc": "32 SpA Archaludon Dragon Pulse vs. 32 HP / 0 SpD Sinistcha: 85-102 (47.7 - 57.3%) -- 90.6% chance to 2HKO",
+      "fullDesc": "32 SpA Archaludon Dragon Pulse vs. 32 HP / 0 SpD Sinistcha: 85-102 (47.7 - 57.3%) -- 90.6% chance to 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 167,
+          "atk": 112,
+          "def": 150,
+          "spa": 177,
+          "spd": 85,
+          "spe": 150
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      85,
+      102
+    ],
+    "ko_chance": "90.6% chance to 2HKO",
+    "desc": "32 SpA Archaludon Dragon Pulse vs. 32 HP / 0 SpD Sinistcha: 85-102 (47.7 - 57.3%) -- 90.6% chance to 2HKO",
+    "max_damage": 102,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Stamina",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Stamina:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

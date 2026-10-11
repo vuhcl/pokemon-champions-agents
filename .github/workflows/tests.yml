@@ -56,6 +56,9 @@ jobs:
       # Do not set CALC_LIVE=1 — the five CALC_LIVE-gated live tests stay skipped.
       - run: uv run pytest
 
+      - name: Part G v4 held-out eval package checks
+        run: uv run python scripts/eval/part_g_v4/checks/run_all_checks.py
+
       - name: Stop calc service
         if: always()
         run: |

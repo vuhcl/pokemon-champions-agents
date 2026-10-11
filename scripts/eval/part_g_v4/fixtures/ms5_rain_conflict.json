@@ -1,0 +1,33 @@
+{
+  "note": "MS5: Charizard-Mega-Y + Solar Beam (conflict) + control slot",
+  "archetype_before": null,
+  "slots": [
+    {
+      "slot": 1,
+      "species": "Charizard-Mega-Y",
+      "item": "Charizardite Y",
+      "ability": "Drought",
+      "moves": [
+        "Heat Wave",
+        "Solar Beam",
+        "Protect",
+        "Scorching Sands"
+      ],
+      "locked": true
+    },
+    {
+      "slot": 2,
+      "species": "Pelipper",
+      "ability": "Drizzle",
+      "item": "Damp Rock",
+      "moves": [
+        "Hurricane",
+        "U-turn",
+        "Protect",
+        "Tailwind"
+      ],
+      "locked": true,
+      "control_no_conflict": true
+    }
+  ]
+}

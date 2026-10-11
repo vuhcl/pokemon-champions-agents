@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_gholdengo_makeitrain_bold",
+  "request": {
+    "attacker": {
+      "species": "Gholdengo",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Good as Gold",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Life Orb"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Make It Rain",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      121,
+      144
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        121,
+        122,
+        125,
+        126,
+        126,
+        129,
+        130,
+        133,
+        133,
+        134,
+        136,
+        138,
+        138,
+        140,
+        142,
+        144
+      ],
+      "range": [
+        121,
+        144
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32 SpA Life Orb Gholdengo Make It Rain vs. 32 HP / 0 SpD Sinistcha: 121-144 (67.9 - 80.8%) -- guaranteed 2HKO",
+      "fullDesc": "32 SpA Life Orb Gholdengo Make It Rain vs. 32 HP / 0 SpD Sinistcha: 121-144 (67.9 - 80.8%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 164,
+          "atk": 72,
+          "def": 115,
+          "spa": 185,
+          "spd": 111,
+          "spe": 149
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      121,
+      144
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32 SpA Life Orb Gholdengo Make It Rain vs. 32 HP / 0 SpD Sinistcha: 121-144 (67.9 - 80.8%) -- guaranteed 2HKO",
+    "max_damage": 144,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Good as Gold",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Good as Gold:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

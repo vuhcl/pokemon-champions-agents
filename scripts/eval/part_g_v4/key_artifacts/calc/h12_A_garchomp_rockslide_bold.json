@@ -1,0 +1,132 @@
+{
+  "id": "h12_A_garchomp_rockslide_bold",
+  "request": {
+    "attacker": {
+      "species": "Garchomp",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Rough Skin",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Life Orb"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Rock Slide",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      29,
+      35
+    ],
+    "koChance": "possible 6HKO",
+    "raw": {
+      "damage": [
+        29,
+        30,
+        30,
+        30,
+        31,
+        31,
+        31,
+        31,
+        32,
+        32,
+        32,
+        32,
+        34,
+        34,
+        34,
+        35
+      ],
+      "range": [
+        29,
+        35
+      ],
+      "kochance": {
+        "n": 6,
+        "text": "possible 6HKO"
+      },
+      "desc": "32 Atk Life Orb Garchomp Rock Slide vs. 32 HP / 32+ Def Sinistcha: 29-35 (16.2 - 19.6%) -- possible 6HKO",
+      "fullDesc": "32 Atk Life Orb Garchomp Rock Slide vs. 32 HP / 32+ Def Sinistcha: 29-35 (16.2 - 19.6%) -- possible 6HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 185,
+          "atk": 182,
+          "def": 115,
+          "spa": 90,
+          "spd": 105,
+          "spe": 169
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      29,
+      35
+    ],
+    "ko_chance": "possible 6HKO",
+    "desc": "32 Atk Life Orb Garchomp Rock Slide vs. 32 HP / 32+ Def Sinistcha: 29-35 (16.2 - 19.6%) -- possible 6HKO",
+    "max_damage": 35,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Rough Skin",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Rough Skin:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

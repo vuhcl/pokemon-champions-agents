@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_tyranitarmega_knockoff_calm",
+  "request": {
+    "attacker": {
+      "species": "Tyranitar-Mega",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Sand Stream",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Tyranitarite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Knock Off",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Sand"
+    }
+  },
+  "response": {
+    "damageRange": [
+      152,
+      180
+    ],
+    "koChance": "6.3% chance to OHKO (43.8% chance to OHKO after sandstorm damage)",
+    "raw": {
+      "damage": [
+        152,
+        152,
+        156,
+        156,
+        158,
+        162,
+        162,
+        164,
+        164,
+        168,
+        170,
+        170,
+        174,
+        174,
+        176,
+        180
+      ],
+      "range": [
+        152,
+        180
+      ],
+      "kochance": {
+        "chance": 0.4375,
+        "n": 1,
+        "text": "6.3% chance to OHKO (43.8% chance to OHKO after sandstorm damage)"
+      },
+      "desc": "32 Atk Tyranitar-Mega Knock Off (97.5 BP) vs. 32 HP / 32 Def Sinistcha: 152-180 (85.3 - 101.1%) -- 6.3% chance to OHKO (43.8% chance to OHKO after sandstorm damage)",
+      "fullDesc": "32 Atk Tyranitar-Mega Knock Off (97.5 BP) vs. 32 HP / 32 Def Sinistcha: 152-180 (85.3 - 101.1%) -- 6.3% chance to OHKO (43.8% chance to OHKO after sandstorm damage)",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 177,
+          "atk": 216,
+          "def": 170,
+          "spa": 103,
+          "spd": 140,
+          "spe": 135
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      152,
+      180
+    ],
+    "ko_chance": "6.3% chance to OHKO (43.8% chance to OHKO after sandstorm damage)",
+    "desc": "32 Atk Tyranitar-Mega Knock Off (97.5 BP) vs. 32 HP / 32 Def Sinistcha: 152-180 (85.3 - 101.1%) -- 6.3% chance to OHKO (43.8% chance to OHKO after sandstorm damage)",
+    "max_damage": 180,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Sand Stream",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Sand Stream:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

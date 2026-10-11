@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_pelipper_hurricane_bold",
+  "request": {
+    "attacker": {
+      "species": "Pelipper",
+      "level": 50,
+      "nature": "Modest",
+      "ability": "Drizzle",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Focus Sash"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Hurricane",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Rain"
+    }
+  },
+  "response": {
+    "damageRange": [
+      200,
+      236
+    ],
+    "koChance": "guaranteed OHKO",
+    "raw": {
+      "damage": [
+        200,
+        200,
+        204,
+        206,
+        210,
+        212,
+        212,
+        216,
+        218,
+        222,
+        224,
+        224,
+        228,
+        230,
+        234,
+        236
+      ],
+      "range": [
+        200,
+        236
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 1,
+        "text": "guaranteed OHKO"
+      },
+      "desc": "32+ SpA Pelipper Hurricane vs. 32 HP / 0 SpD Sinistcha: 200-236 (112.3 - 132.5%) -- guaranteed OHKO",
+      "fullDesc": "32+ SpA Pelipper Hurricane vs. 32 HP / 0 SpD Sinistcha: 200-236 (112.3 - 132.5%) -- guaranteed OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 137,
+          "atk": 63,
+          "def": 120,
+          "spa": 161,
+          "spd": 90,
+          "spe": 117
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      200,
+      236
+    ],
+    "ko_chance": "guaranteed OHKO",
+    "desc": "32+ SpA Pelipper Hurricane vs. 32 HP / 0 SpD Sinistcha: 200-236 (112.3 - 132.5%) -- guaranteed OHKO",
+    "max_damage": 236,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Drizzle",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Drizzle:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

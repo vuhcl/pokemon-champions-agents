@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_garchompmegaz_powergem_bold",
+  "request": {
+    "attacker": {
+      "species": "Garchomp-Mega-Z",
+      "level": 50,
+      "nature": "Modest",
+      "ability": "Levitate",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Garchompite Z"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Power Gem",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      64,
+      76
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        64,
+        65,
+        66,
+        66,
+        67,
+        68,
+        69,
+        69,
+        70,
+        71,
+        72,
+        72,
+        73,
+        74,
+        75,
+        76
+      ],
+      "range": [
+        64,
+        76
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "32+ SpA Garchomp-Mega-Z Power Gem vs. 32 HP / 0 SpD Sinistcha: 64-76 (35.9 - 42.6%) -- guaranteed 3HKO",
+      "fullDesc": "32+ SpA Garchomp-Mega-Z Power Gem vs. 32 HP / 0 SpD Sinistcha: 64-76 (35.9 - 42.6%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 185,
+          "atk": 135,
+          "def": 105,
+          "spa": 212,
+          "spd": 105,
+          "spe": 203
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      64,
+      76
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "32+ SpA Garchomp-Mega-Z Power Gem vs. 32 HP / 0 SpD Sinistcha: 64-76 (35.9 - 42.6%) -- guaranteed 3HKO",
+    "max_damage": 76,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Levitate",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Levitate:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

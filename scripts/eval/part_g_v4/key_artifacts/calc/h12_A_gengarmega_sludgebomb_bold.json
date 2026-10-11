@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_gengarmega_sludgebomb_bold",
+  "request": {
+    "attacker": {
+      "species": "Gengar-Mega",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Shadow Tag",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Gengarite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Sludge Bomb",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      112,
+      133
+    ],
+    "koChance": "guaranteed 2HKO",
+    "raw": {
+      "damage": [
+        112,
+        114,
+        115,
+        117,
+        118,
+        120,
+        120,
+        121,
+        123,
+        124,
+        126,
+        127,
+        129,
+        130,
+        132,
+        133
+      ],
+      "range": [
+        112,
+        133
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 2,
+        "text": "guaranteed 2HKO"
+      },
+      "desc": "32 SpA Gengar-Mega Sludge Bomb vs. 32 HP / 0 SpD Sinistcha: 112-133 (62.9 - 74.7%) -- guaranteed 2HKO",
+      "fullDesc": "32 SpA Gengar-Mega Sludge Bomb vs. 32 HP / 0 SpD Sinistcha: 112-133 (62.9 - 74.7%) -- guaranteed 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 137,
+          "atk": 76,
+          "def": 100,
+          "spa": 222,
+          "spd": 115,
+          "spe": 200
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      112,
+      133
+    ],
+    "ko_chance": "guaranteed 2HKO",
+    "desc": "32 SpA Gengar-Mega Sludge Bomb vs. 32 HP / 0 SpD Sinistcha: 112-133 (62.9 - 74.7%) -- guaranteed 2HKO",
+    "max_damage": 133,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Shadow Tag",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Shadow Tag:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

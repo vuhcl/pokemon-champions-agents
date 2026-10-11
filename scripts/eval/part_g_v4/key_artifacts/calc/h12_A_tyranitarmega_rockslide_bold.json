@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_tyranitarmega_rockslide_bold",
+  "request": {
+    "attacker": {
+      "species": "Tyranitar-Mega",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Sand Stream",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Tyranitarite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Rock Slide",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Sand"
+    }
+  },
+  "response": {
+    "damageRange": [
+      40,
+      48
+    ],
+    "koChance": "guaranteed 4HKO after sandstorm damage",
+    "raw": {
+      "damage": [
+        40,
+        40,
+        40,
+        42,
+        42,
+        42,
+        43,
+        43,
+        43,
+        45,
+        45,
+        45,
+        46,
+        46,
+        46,
+        48
+      ],
+      "range": [
+        40,
+        48
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 4,
+        "text": "guaranteed 4HKO after sandstorm damage"
+      },
+      "desc": "32 Atk Tyranitar-Mega Rock Slide vs. 32 HP / 32+ Def Sinistcha: 40-48 (22.4 - 26.9%) -- guaranteed 4HKO after sandstorm damage",
+      "fullDesc": "32 Atk Tyranitar-Mega Rock Slide vs. 32 HP / 32+ Def Sinistcha: 40-48 (22.4 - 26.9%) -- guaranteed 4HKO after sandstorm damage",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 177,
+          "atk": 216,
+          "def": 170,
+          "spa": 103,
+          "spd": 140,
+          "spe": 135
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      40,
+      48
+    ],
+    "ko_chance": "guaranteed 4HKO after sandstorm damage",
+    "desc": "32 Atk Tyranitar-Mega Rock Slide vs. 32 HP / 32+ Def Sinistcha: 40-48 (22.4 - 26.9%) -- guaranteed 4HKO after sandstorm damage",
+    "max_damage": 48,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Sand Stream",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Sand Stream:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_garchomp_dragonclaw_calm",
+  "request": {
+    "attacker": {
+      "species": "Garchomp",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Rough Skin",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Life Orb"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Dragon Claw",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      68,
+      82
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        68,
+        70,
+        70,
+        70,
+        71,
+        71,
+        74,
+        74,
+        75,
+        75,
+        75,
+        78,
+        78,
+        79,
+        79,
+        82
+      ],
+      "range": [
+        68,
+        82
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "32 Atk Life Orb Garchomp Dragon Claw vs. 32 HP / 32 Def Sinistcha: 68-82 (38.2 - 46%) -- guaranteed 3HKO",
+      "fullDesc": "32 Atk Life Orb Garchomp Dragon Claw vs. 32 HP / 32 Def Sinistcha: 68-82 (38.2 - 46%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 185,
+          "atk": 182,
+          "def": 115,
+          "spa": 90,
+          "spd": 105,
+          "spe": 169
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      68,
+      82
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "32 Atk Life Orb Garchomp Dragon Claw vs. 32 HP / 32 Def Sinistcha: 68-82 (38.2 - 46%) -- guaranteed 3HKO",
+    "max_damage": 82,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Rough Skin",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Rough Skin:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

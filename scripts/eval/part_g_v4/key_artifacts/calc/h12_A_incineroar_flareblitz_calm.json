@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_incineroar_flareblitz_calm",
+  "request": {
+    "attacker": {
+      "species": "Incineroar",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Intimidate",
+      "evs": {
+        "hp": 32,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Sitrus Berry"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Calm",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Flare Blitz",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      158,
+      188
+    ],
+    "koChance": "31.3% chance to OHKO",
+    "raw": {
+      "damage": [
+        158,
+        162,
+        162,
+        164,
+        168,
+        168,
+        170,
+        170,
+        174,
+        176,
+        176,
+        180,
+        182,
+        182,
+        186,
+        188
+      ],
+      "range": [
+        158,
+        188
+      ],
+      "kochance": {
+        "chance": 0.3125,
+        "n": 1,
+        "text": "31.3% chance to OHKO"
+      },
+      "desc": "32+ Atk Incineroar Flare Blitz vs. 32 HP / 32 Def Sinistcha: 158-188 (88.7 - 105.6%) -- 31.3% chance to OHKO",
+      "fullDesc": "32+ Atk Incineroar Flare Blitz vs. 32 HP / 32 Def Sinistcha: 158-188 (88.7 - 105.6%) -- 31.3% chance to OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          29,
+          29
+        ],
+        "text": "29 - 29% recoil damage"
+      },
+      "stats": {
+        "attacker": {
+          "hp": 202,
+          "atk": 183,
+          "def": 110,
+          "spa": 90,
+          "spd": 112,
+          "spe": 80
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 158,
+          "spa": 143,
+          "spd": 110,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      158,
+      188
+    ],
+    "ko_chance": "31.3% chance to OHKO",
+    "desc": "32+ Atk Incineroar Flare Blitz vs. 32 HP / 32 Def Sinistcha: 158-188 (88.7 - 105.6%) -- 31.3% chance to OHKO",
+    "max_damage": 188,
+    "recoil": {
+      "recoil": [
+        29,
+        29
+      ],
+      "text": "29 - 29% recoil damage"
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Intimidate",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Intimidate:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_arcaninehisui_headsmash_bold",
+  "request": {
+    "attacker": {
+      "species": "Arcanine-Hisui",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Rock Head",
+      "evs": {
+        "hp": 2,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Focus Sash"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Head Smash",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      82,
+      97
+    ],
+    "koChance": "57% chance to 2HKO",
+    "raw": {
+      "damage": [
+        82,
+        82,
+        84,
+        85,
+        85,
+        87,
+        88,
+        88,
+        90,
+        91,
+        91,
+        93,
+        94,
+        94,
+        96,
+        97
+      ],
+      "range": [
+        82,
+        97
+      ],
+      "kochance": {
+        "chance": 0.5703125,
+        "n": 2,
+        "text": "57% chance to 2HKO"
+      },
+      "desc": "32 Atk Arcanine-Hisui Head Smash vs. 32 HP / 32+ Def Sinistcha: 82-97 (46 - 54.4%) -- 57% chance to 2HKO",
+      "fullDesc": "32 Atk Arcanine-Hisui Head Smash vs. 32 HP / 32+ Def Sinistcha: 82-97 (46 - 54.4%) -- 57% chance to 2HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 172,
+          "atk": 167,
+          "def": 100,
+          "spa": 103,
+          "spd": 100,
+          "spe": 156
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      82,
+      97
+    ],
+    "ko_chance": "57% chance to 2HKO",
+    "desc": "32 Atk Arcanine-Hisui Head Smash vs. 32 HP / 32+ Def Sinistcha: 82-97 (46 - 54.4%) -- 57% chance to 2HKO",
+    "max_damage": 97,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Rock Head",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Rock Head:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

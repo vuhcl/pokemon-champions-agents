@@ -1,0 +1,134 @@
+{
+  "id": "h12_A_froslassmega_shadowball_bold",
+  "request": {
+    "attacker": {
+      "species": "Froslass-Mega",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "Snow Warning",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Froslassite"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Shadow Ball",
+    "field": {
+      "gameType": "Doubles",
+      "weather": "Snow"
+    }
+  },
+  "response": {
+    "damageRange": [
+      174,
+      206
+    ],
+    "koChance": "87.5% chance to OHKO",
+    "raw": {
+      "damage": [
+        174,
+        176,
+        180,
+        180,
+        182,
+        186,
+        186,
+        188,
+        192,
+        192,
+        194,
+        198,
+        198,
+        200,
+        204,
+        206
+      ],
+      "range": [
+        174,
+        206
+      ],
+      "kochance": {
+        "chance": 0.875,
+        "n": 1,
+        "text": "87.5% chance to OHKO"
+      },
+      "desc": "32 SpA Froslass-Mega Shadow Ball vs. 32 HP / 0 SpD Sinistcha: 174-206 (97.7 - 115.7%) -- 87.5% chance to OHKO",
+      "fullDesc": "32 SpA Froslass-Mega Shadow Ball vs. 32 HP / 0 SpD Sinistcha: 174-206 (97.7 - 115.7%) -- 87.5% chance to OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 147,
+          "atk": 90,
+          "def": 90,
+          "spa": 192,
+          "spd": 120,
+          "spe": 189
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      174,
+      206
+    ],
+    "ko_chance": "87.5% chance to OHKO",
+    "desc": "32 SpA Froslass-Mega Shadow Ball vs. 32 HP / 0 SpD Sinistcha: 174-206 (97.7 - 115.7%) -- 87.5% chance to OHKO",
+    "max_damage": 206,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Snow Warning",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Snow Warning:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

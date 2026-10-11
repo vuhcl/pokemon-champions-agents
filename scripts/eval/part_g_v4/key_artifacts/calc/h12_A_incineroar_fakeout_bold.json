@@ -1,0 +1,116 @@
+{
+  "id": "h12_A_incineroar_fakeout_bold",
+  "request": {
+    "attacker": {
+      "species": "Incineroar",
+      "level": 50,
+      "nature": "Adamant",
+      "ability": "Intimidate",
+      "evs": {
+        "hp": 32,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 0
+      },
+      "item": "Sitrus Berry"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Fake Out",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      0,
+      0
+    ],
+    "koChance": "",
+    "raw": {
+      "damage": 0,
+      "range": [
+        0,
+        0
+      ],
+      "kochance": {
+        "chance": 0,
+        "n": 0,
+        "text": ""
+      },
+      "desc": "",
+      "fullDesc": "",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 202,
+          "atk": 183,
+          "def": 110,
+          "spa": 90,
+          "spd": 112,
+          "spe": 80
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      0,
+      0
+    ],
+    "ko_chance": "",
+    "desc": "",
+    "max_damage": null,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Intimidate",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:Intimidate:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

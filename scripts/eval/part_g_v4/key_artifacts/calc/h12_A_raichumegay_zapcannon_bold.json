@@ -1,0 +1,133 @@
+{
+  "id": "h12_A_raichumegay_zapcannon_bold",
+  "request": {
+    "attacker": {
+      "species": "Raichu-Mega-Y",
+      "level": 50,
+      "nature": "Timid",
+      "ability": "No Guard",
+      "evs": {
+        "hp": 2,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 0,
+        "spe": 32
+      },
+      "item": "Raichunite Y"
+    },
+    "defender": {
+      "species": "Sinistcha",
+      "level": 50,
+      "nature": "Bold",
+      "ability": "Hospitality",
+      "item": "Sitrus Berry",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 32,
+        "spa": 2,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Zap Cannon",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      72,
+      84
+    ],
+    "koChance": "guaranteed 3HKO",
+    "raw": {
+      "damage": [
+        72,
+        72,
+        73,
+        74,
+        75,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        81,
+        82,
+        83,
+        84
+      ],
+      "range": [
+        72,
+        84
+      ],
+      "kochance": {
+        "chance": 1,
+        "n": 3,
+        "text": "guaranteed 3HKO"
+      },
+      "desc": "32 SpA Raichu-Mega-Y Zap Cannon vs. 32 HP / 0 SpD Sinistcha: 72-84 (40.4 - 47.1%) -- guaranteed 3HKO",
+      "fullDesc": "32 SpA Raichu-Mega-Y Zap Cannon vs. 32 HP / 0 SpD Sinistcha: 72-84 (40.4 - 47.1%) -- guaranteed 3HKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 137,
+          "atk": 108,
+          "def": 75,
+          "spa": 212,
+          "spd": 100,
+          "spe": 200
+        },
+        "defender": {
+          "hp": 178,
+          "atk": 72,
+          "def": 173,
+          "spa": 143,
+          "spd": 100,
+          "spe": 90
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      72,
+      84
+    ],
+    "ko_chance": "guaranteed 3HKO",
+    "desc": "32 SpA Raichu-Mega-Y Zap Cannon vs. 32 HP / 0 SpD Sinistcha: 72-84 (40.4 - 47.1%) -- guaranteed 3HKO",
+    "max_damage": 84,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "No Guard",
+    "defender_ability": "Hospitality",
+    "notes": [
+      "attacker:No Guard:legal_ok",
+      "defender:Hospitality:legal_ok"
+    ]
+  }
+}

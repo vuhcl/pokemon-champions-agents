@@ -1,0 +1,43 @@
+{
+  "note": "H18b: hyper-offense constraint recorded; legal offensive slots seeded",
+  "constraints": [
+    "hyper_offense_32_atk_or_spa",
+    "no_weather_ability"
+  ],
+  "slots": [
+    {
+      "slot": 1,
+      "species": "Garchomp",
+      "ability": "Rough Skin",
+      "item": "Choice Scarf",
+      "nature": "Jolly",
+      "evs": {
+        "hp": 0,
+        "atk": 32,
+        "def": 0,
+        "spa": 0,
+        "spd": 2,
+        "spe": 32
+      },
+      "locked": true
+    },
+    {
+      "slot": 2,
+      "species": "Dragapult",
+      "ability": "Clear Body",
+      "item": "Life Orb",
+      "nature": "Timid",
+      "evs": {
+        "hp": 0,
+        "atk": 0,
+        "def": 0,
+        "spa": 32,
+        "spd": 2,
+        "spe": 32
+      },
+      "locked": true
+    }
+  ],
+  "t2_ask_species": "Sinistcha",
+  "t2_note": "Sinistcha top joint fails HO SP rule (Relaxed 0 Atk / 2 SpA). Incineroar top joint PASSES (Adamant Atk-32) \u2014 do not use as the fail case."
+}
