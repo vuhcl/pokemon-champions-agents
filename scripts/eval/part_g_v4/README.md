@@ -11,7 +11,7 @@ Frozen held-out eval package. **Do not use for tuning.** Any change is a new ver
 | `key_artifacts/calc/` | Raw calc request/response + ids |
 | `v4_request_set_report.md` | Design report |
 | `part3_claim_battery_design_v4.md` | Battery design |
-| `gate_scorer_requirements.md` | Pre-registered requirements for the unbuilt gate scorer (R1–R8) |
+| `gate_scorer_requirements.md` | Pre-registered requirements for the unbuilt gate scorer (R1–R10) |
 | `battery/` | Generator (seed 0), batteries, manifest + sha256 |
 | `fixtures/`, `ol_fixtures/`, `h27_candidate_fixture.json` | Row fixtures |
 | `pins_manifest.json` | Pinned data content sha256 + git blob SHAs |
