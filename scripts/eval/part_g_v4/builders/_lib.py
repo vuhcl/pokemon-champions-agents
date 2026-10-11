@@ -169,14 +169,27 @@ def flare_blitz_recoil_basis(
             "hp_point_61": "FALSE",
             "hp_point_61_sub_label": "derived_from_calc_percent",
             "hp_point_other": "FALSE",
-            "percent_of_attacker_hp_33_3_to_33_5_attributed_to_calc_display": "TRUE",
+            "percent_of_attacker_hp_attributed_to_calc_display": {
+                "attacker_hp_185": {
+                    "true_range_pct": [33.3, 33.5],
+                    "verdict": "TRUE",
+                    "note": "calc display 33.3%; true share of value_hp 62 is ~33.5%",
+                },
+                "attacker_hp_153": {
+                    "true_range_pct": [40.3, 40.5],
+                    "verdict": "TRUE",
+                    "note": "calc display 40.3%; true share of value_hp 62 is ~40.5% (CX HP-0, not Primarina)",
+                },
+            },
             "unlabeled_or_33pct_of_max_hp_framing": "FALSE",
             "counts_in_gate": True,
             "sub_label_reported_as_own_sub_line": True,
             "note": (
                 "HP-point 62 only is TRUE. 61 is FALSE with sub_label derived_from_calc_percent "
-                "(reported as its own sub-line). Calc-attributed 33.3–33.5% of stated attacker HP "
-                "is TRUE; unlabeled / '33% of max HP' framing is FALSE."
+                "(reported as its own sub-line). Calc-attributed percent of stated attacker HP: "
+                "33.3–33.5% at HP 185 and 40.3–40.5% at HP 153 are TRUE; unlabeled / "
+                "'33% of max HP' framing is FALSE. Primarina HP 187 is damage dealt, not the "
+                "attacker-HP share denominator."
             ),
         },
         # survival-margin aliases — true in-game HP only (not 61)

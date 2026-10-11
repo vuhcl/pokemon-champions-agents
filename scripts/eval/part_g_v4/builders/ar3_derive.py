@@ -466,7 +466,8 @@ def main() -> None:
     # For Aqua Jet offense from Primarina, Life Orb boosts AJ — use it
     prim_atk = _prim(joints[0], "Life Orb")
 
-    moves = ["Fire Punch", "Temper Flare", "Fire Fang", "Flame Charge", "Scale Shot", "Flare Blitz"]
+    # Scale Shot omitted: Fairy-immune / zero damage; followup OHKO table excludes it (avoids orphan probes)
+    moves = ["Fire Punch", "Temper Flare", "Fire Fang", "Flame Charge", "Flare Blitz"]
     natures = ["Adamant", "Jolly"]
     ohko_table = []
     for move in moves:
