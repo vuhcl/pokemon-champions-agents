@@ -1,0 +1,18 @@
+{
+  "started_at_utc": "2026-10-11T20:15:52Z",
+  "command": "tmux new-session -d -s mt7mt8ar -- python3 -u scripts/eval/part_g_v4/key_artifacts/solver_runs/run_mt7_mt8_ar_live.py",
+  "cwd": "/Users/nowaki027/pokemon-champions-agents",
+  "pinned_calc": {
+    "package": "@smogon/calc",
+    "version": "0.11.0-champions.5d5bf43",
+    "repo_package_version": "1.1.0",
+    "hosted_url": "http://127.0.0.1:4173",
+    "vendor_path": "vendor/smogon-calc"
+  },
+  "note": "Full mt7_mt8_ar_keys() live regenerate (includes MT7 t2). Unattended; does not block PR merge.",
+  "log": "scripts/eval/part_g_v4/key_artifacts/solver_runs/mt7_mt8_ar_live.log",
+  "out_json": "scripts/eval/part_g_v4/key_artifacts/solver_runs/mt7_mt8_ar_live.json",
+  "pid": 27340,
+  "detach": "tmux session mt7mt8ar",
+  "tmux_session": "mt7mt8ar"
+}

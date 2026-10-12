@@ -1,0 +1,206 @@
+{
+  "note": "The 21 full-chain hand-patched leaves and the Phase A \"other 41\" are different inventories. 41 = Phase A builder-absent not in A4/B1.4 (9 flame children + 31 diagnostic omitted + 1 offers_of_either). 21 = committed-vs-regen leaf diff after spliced full chain (hand_disagreements reshape, flame parent, DM6/DM1 patches, limitations_v4[4..7], unverified_descriptive). mt7_mt8_ar was spliced so that section is a lower bound (not regenerated live).",
+  "full_chain_leaf_count": 21,
+  "phase_a_other_41": {
+    "total": 41,
+    "flame_charge_children": 9,
+    "diagnostic_omitted": 31,
+    "offers_of_either": 1,
+    "hand_patches_in_41": 10
+  },
+  "mapping": [
+    {
+      "full_chain_path": "ar3.hand_disagreements[1].field",
+      "disposition_paths": [
+        "ar3.hand_disagreements[1].field"
+      ],
+      "status": "mapped",
+      "note": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "full_chain_path": "ar3.hand_disagreements[1].new",
+      "disposition_paths": [
+        "ar3.hand_disagreements[1].new"
+      ],
+      "status": "mapped",
+      "note": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "full_chain_path": "ar3.hand_disagreements[1].old",
+      "disposition_paths": [
+        "ar3.hand_disagreements[1].old"
+      ],
+      "status": "mapped",
+      "note": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "full_chain_path": "ar3.hand_disagreements[2].calc",
+      "disposition_paths": [
+        "ar3.hand_disagreements[2].calc"
+      ],
+      "status": "mapped",
+      "note": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "full_chain_path": "ar3.hand_disagreements[2].field",
+      "disposition_paths": [
+        "ar3.hand_disagreements[2].field"
+      ],
+      "status": "mapped",
+      "note": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "full_chain_path": "ar3.hand_disagreements[2].hand",
+      "disposition_paths": [
+        "ar3.hand_disagreements[2].hand"
+      ],
+      "status": "mapped",
+      "note": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "full_chain_path": "ar3.hand_disagreements[2].new",
+      "disposition_paths": [
+        "ar3.hand_disagreements[2].new"
+      ],
+      "status": "mapped",
+      "note": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "full_chain_path": "ar3.hand_disagreements[2].old",
+      "disposition_paths": [
+        "ar3.hand_disagreements[2].old"
+      ],
+      "status": "mapped",
+      "note": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "full_chain_path": "ar3.hand_disagreements[3]",
+      "disposition_paths": [
+        "ar3.hand_disagreements[3]"
+      ],
+      "status": "mapped",
+      "note": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "full_chain_path": "ar3.hand_disagreements[4]",
+      "disposition_paths": [
+        "ar3.hand_disagreements[4]"
+      ],
+      "status": "mapped",
+      "note": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "full_chain_path": "ar3.t4_flame_charge_margin",
+      "disposition_paths": [
+        "ar3.t4_flame_charge_margin",
+        "ar3.t4_flame_charge_margin.atk_sp",
+        "ar3.t4_flame_charge_margin.boost",
+        "ar3.t4_flame_charge_margin.calc_id",
+        "ar3.t4_flame_charge_margin.damage_range[0]",
+        "ar3.t4_flame_charge_margin.damage_range[1]",
+        "ar3.t4_flame_charge_margin.defender_hp",
+        "ar3.t4_flame_charge_margin.guaranteed_ohko",
+        "ar3.t4_flame_charge_margin.ko_chance",
+        "ar3.t4_flame_charge_margin.nature"
+      ],
+      "status": "mapped",
+      "note": "parent + 9 child leaves; verified vs pinned calc; unread by rows/scorer"
+    },
+    {
+      "full_chain_path": "dm_outputs.dm1_note",
+      "disposition_paths": [
+        "dm_outputs.dm1_note"
+      ],
+      "status": "mapped",
+      "note": "DM6/DM1 scoring lists back-ported in v4.1 (B1.5)"
+    },
+    {
+      "full_chain_path": "dm_outputs.dm6.false_claims[2]",
+      "disposition_paths": [
+        "dm_outputs.dm6.false_claims[2]"
+      ],
+      "status": "mapped",
+      "note": "DM6/DM1 scoring lists back-ported in v4.1 (B1.5)"
+    },
+    {
+      "full_chain_path": "dm_outputs.dm6.false_claims[3]",
+      "disposition_paths": [
+        "dm_outputs.dm6.false_claims[3]"
+      ],
+      "status": "mapped",
+      "note": "DM6/DM1 scoring lists back-ported in v4.1 (B1.5)"
+    },
+    {
+      "full_chain_path": "dm_outputs.dm6.false_claims_note",
+      "disposition_paths": [
+        "dm_outputs.dm6.false_claims_note"
+      ],
+      "status": "mapped",
+      "note": "DM6/DM1 scoring lists back-ported in v4.1 (B1.5)"
+    },
+    {
+      "full_chain_path": "dm_outputs.dm6.scoring.asserting_differing_spread_is_top_or_most_common",
+      "disposition_paths": [
+        "dm_outputs.dm6.scoring.asserting_differing_spread_is_top_or_most_common"
+      ],
+      "status": "mapped",
+      "note": "DM6/DM1 scoring lists back-ported in v4.1 (B1.5)"
+    },
+    {
+      "full_chain_path": "limitations_v4[4]",
+      "disposition_paths": [
+        "limitations_v4[4]"
+      ],
+      "status": "mapped",
+      "note": "eval-package metadata not emitted by builders"
+    },
+    {
+      "full_chain_path": "limitations_v4[5]",
+      "disposition_paths": [
+        "limitations_v4[5]"
+      ],
+      "status": "mapped",
+      "note": "eval-package metadata not emitted by builders"
+    },
+    {
+      "full_chain_path": "limitations_v4[6]",
+      "disposition_paths": [
+        "limitations_v4[6]"
+      ],
+      "status": "mapped",
+      "note": "eval-package metadata not emitted by builders"
+    },
+    {
+      "full_chain_path": "limitations_v4[7]",
+      "disposition_paths": [
+        "limitations_v4[7]"
+      ],
+      "status": "mapped",
+      "note": "eval-package metadata not emitted by builders"
+    },
+    {
+      "full_chain_path": "unverified_descriptive",
+      "disposition_paths": [
+        "unverified_descriptive"
+      ],
+      "status": "mapped",
+      "note": "eval-package metadata not emitted by builders"
+    }
+  ],
+  "disposition_rows_added_for_mapping": [
+    "dm_outputs.dm6.false_claims[2]",
+    "dm_outputs.dm6.false_claims[3]",
+    "dm_outputs.dm6.false_claims_note",
+    "dm_outputs.dm6.scoring.asserting_differing_spread_is_top_or_most_common",
+    "limitations_v4[4]",
+    "limitations_v4[5]",
+    "limitations_v4[6]",
+    "limitations_v4[7]",
+    "unverified_descriptive",
+    "ar3.hand_disagreements[2].new",
+    "ar3.hand_disagreements[2].old",
+    "ar3.hand_disagreements[3]",
+    "ar3.hand_disagreements[4]",
+    "ar3.t4_flame_charge_margin"
+  ]
+}

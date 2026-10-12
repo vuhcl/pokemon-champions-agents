@@ -177,8 +177,22 @@ def calculate(req: dict[str, Any], artifact_id: str, *, persist: bool = True) ->
 
 
 def health() -> dict:
+    """Live health check. Soft-pass when REQUIRE=1 so offline disk-served rebuilds can proceed."""
+    require = os.environ.get("PART_G_V4_REQUIRE_CALC_ARTIFACT", "").strip() in {"1", "true", "yes"}
     try:
         with urllib.request.urlopen(f"{BASE_URL}/health", timeout=3) as resp:
-            return json.loads(resp.read().decode())
+            body = json.loads(resp.read().decode())
+            if body.get("status") == "ok":
+                return body
+            live = body
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        live = {"status": "error", "detail": str(e)}
+    if require:
+        # calculate() still fails hard on missing disk artifacts
+        return {
+            "status": "ok",
+            "offline_require": True,
+            "live": live,
+            "note": "PART_G_V4_REQUIRE_CALC_ARTIFACT=1: health soft-pass; serve from disk only",
+        }
+    return live

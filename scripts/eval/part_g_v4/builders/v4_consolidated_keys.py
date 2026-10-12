@@ -176,12 +176,12 @@ def h15_primarina(sd, snap):
         "modest_top": {
             "nature": "Modest",
             "evs": clamp(modest["evs"]),
-            "pct": modest["pct"],
+            "chaos_weight": modest.get("chaos_weight", modest.get("pct")),
         },
         "modest_top_joint": {
             "nature": "Modest",
             "evs": clamp(modest["evs"]),
-            "chaos_weight": modest["pct"],
+            "chaos_weight": modest.get("chaos_weight", modest.get("pct")),
             "chaos_weight_label": "weight (not a percentage; presenting as % = false claim)",
         },
         "timid_retained": False,

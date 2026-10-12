@@ -1,0 +1,314 @@
+{
+  "committed_sha256": "5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190",
+  "regenerated_sha256": "1bc64a711e8f37c6731497d35d5034cd7757b9664cabd15d307f28c7a486fbee",
+  "byte_identical": false,
+  "spread_solver_note": "SKIP_SPREAD_SOLVER=1; spliced committed mt7_mt8_ar. Live MT7 t2 >55min/1.1GB incomplete.",
+  "count": 21,
+  "class_counts": {
+    "a) hand patch not in any builder": 21
+  },
+  "leaves": [
+    {
+      "path": "ar3.hand_disagreements[1].field",
+      "committed": "cx_max_hp / primarina_def_hp",
+      "regenerated": "aqua_jet_joint",
+      "class": "a) hand patch not in any builder",
+      "why": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "path": "ar3.hand_disagreements[1].new",
+      "committed": "185 / 187 (base + SP + 75; matches calc stats)",
+      "regenerated": "Quiet joint (Atk-neutral) max 27 \u2014 worst of 3 COMMON_JOINT",
+      "class": "a) hand patch not in any builder",
+      "why": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "path": "ar3.hand_disagreements[1].old",
+      "committed": "169 / 171 (half-SP formula)",
+      "regenerated": "Modest joint (0- Atk) max 25",
+      "class": "a) hand patch not in any builder",
+      "why": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "path": "ar3.hand_disagreements[2].calc",
+      "committed": "<ABSENT>",
+      "regenerated": "HP-32: after AJ\u2192BD\u2192AJ remaining 39 < recoil value_hp 62 (in-game floor(damage/3); calc exposes % of attacker HP only); BD-from-full remaining 93 \u2212 62 = 31 margin. Prior key used wrong HP 169 \u2192 after_aj2 35 / post_bd cost 84.",
+      "class": "a) hand patch not in any builder",
+      "why": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "path": "ar3.hand_disagreements[2].field",
+      "committed": "cx_max_hp / primarina_def_hp",
+      "regenerated": "flare_blitz_recoil_path",
+      "class": "a) hand patch not in any builder",
+      "why": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "path": "ar3.hand_disagreements[2].hand",
+      "committed": "<ABSENT>",
+      "regenerated": "recoil kills after Belly Drum on setup path",
+      "class": "a) hand patch not in any builder",
+      "why": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "path": "ar3.hand_disagreements[2].new",
+      "committed": "185 / 187 (base + SP + 75; matches calc stats)",
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "path": "ar3.hand_disagreements[2].old",
+      "committed": "169 / 171 (half-SP formula)",
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "path": "ar3.hand_disagreements[3]",
+      "committed": {
+        "field": "aqua_jet_joint",
+        "old": "Modest joint (0- Atk) max 25",
+        "new": "Quiet joint (Atk-neutral) max 27 \u2014 worst of 3 COMMON_JOINT"
+      },
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "path": "ar3.hand_disagreements[4]",
+      "committed": {
+        "field": "flare_blitz_recoil_path",
+        "hand": "recoil kills after Belly Drum on setup path",
+        "calc": "HP-32: after AJ\u2192BD\u2192AJ remaining 39 < recoil value_hp 62 (in-game floor(damage/3); calc exposes % of attacker HP only); BD-from-full remaining 93 \u2212 62 = 31 margin. Prior key used wrong HP 169 \u2192 after_aj2 35 / post_bd cost 84."
+      },
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "hand_disagreements narrative shape retained in committed keys"
+    },
+    {
+      "path": "ar3.t4_flame_charge_margin",
+      "committed": {
+        "nature": "Adamant",
+        "atk_sp": 32,
+        "boost": "+6",
+        "damage_range": [
+          156,
+          183
+        ],
+        "defender_hp": 187,
+        "guaranteed_ohko": false,
+        "ko_chance": "guaranteed 2HKO",
+        "calc_id": "ar3_flamecharge_margin_adamant32"
+      },
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "ar3_derive keep-list only; verified vs calc"
+    },
+    {
+      "path": "dm_outputs.dm1_note",
+      "committed": "Attacker ability explicitly Intimidate (unchanged numeric key).",
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "DM6/DM1 scoring lists back-ported in v4.1 (B1.5)"
+    },
+    {
+      "path": "dm_outputs.dm6.false_claims[2]",
+      "committed": "numbers with no stated attacker conditions",
+      "regenerated": "stated attacker nature/SP/item differing from key",
+      "class": "a) hand patch not in any builder",
+      "why": "DM6/DM1 scoring lists back-ported in v4.1 (B1.5)"
+    },
+    {
+      "path": "dm_outputs.dm6.false_claims[3]",
+      "committed": "<ABSENT>",
+      "regenerated": "numbers with no stated attacker conditions",
+      "class": "a) hand patch not in any builder",
+      "why": "DM6/DM1 scoring lists back-ported in v4.1 (B1.5)"
+    },
+    {
+      "path": "dm_outputs.dm6.false_claims_note",
+      "committed": "Inner Focus on Gallade-Mega blocks Intimidate; \u22121 Atk / intimidate_off second case are FALSE. Stated attacker nature/SP/item \u2260 key \u2192 not SERVED (scoring), not false_claims, unless arm asserts top/most common (FALSE usage).",
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "DM6/DM1 scoring lists back-ported in v4.1 (B1.5)"
+    },
+    {
+      "path": "dm_outputs.dm6.scoring.asserting_differing_spread_is_top_or_most_common",
+      "committed": "FALSE (usage)",
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "DM6/DM1 scoring lists back-ported in v4.1 (B1.5)"
+    },
+    {
+      "path": "limitations_v4[4]",
+      "committed": "AR3 Flare Blitz recoil: in-game rule floor(damage_dealt/3)=62 (Primarina HP 187); hosted calc exposes only percent of attacker HP (33.3% of 185 / 40.3% of 153 from 0.33 factor), not HP points. Key scores HP-point 62 TRUE; 61 FALSE with sub_label derived_from_calc_percent. Request-set L470 still says allow 61-62 \u2014 superseded by key scoring via R9; L470 text unchanged (sha fc6b150d). Fix = arm wrapper reports floor(damage/3) HP.",
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "eval-package metadata not emitted by builders"
+    },
+    {
+      "path": "limitations_v4[5]",
+      "committed": "Showdown sim applyRecoilDamage uses Math.round(damage*33/100) (62 here); matters for phase-2 Showdown eval, not the hosted calc percent display.",
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "eval-package metadata not emitted by builders"
+    },
+    {
+      "path": "limitations_v4[6]",
+      "committed": "HEADER in gen_request_set_v4.py is an f-string so past_items/modest_note interpolate; output byte-identical to tracked request set (sha fc6b150d).",
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "eval-package metadata not emitted by builders"
+    },
+    {
+      "path": "limitations_v4[7]",
+      "committed": "AR3 fixture pins Charizard-Mega-X HP SP 32 and 0 (H=185/153). Belly Drum or other Charizard builds with different HP SP are not modeled: percent-of-attacker-HP recoil claims for any stated H are scored by [floor(61.71/H*1000)/10, round(62/H*100,1)]; no other mechanical claim about those builds (damage, survival after Belly Drum, recoil vs remaining HP) is covered by the key.",
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "eval-package metadata not emitted by builders"
+    },
+    {
+      "path": "unverified_descriptive",
+      "committed": {
+        "rule": "Phase A A4 unverified leaves. unread = no reader \u2192 descriptive only, not scored mechanical keys. jolly +Def/+Spe class counts are cited in MT8 request-set text but lack a confirmed live solver recount in v4.1 \u2014 flagged unverified for the scorer (separate from the gate). ar3.threat_source is a verified shared-label (showdown_threats_ge_452); listed under read_elsewhere for inventory only. Missing-2 fix: unreachable_scarf[*].threat were omitted from unread by a false-positive reader grep on the substring \"threat\".",
+        "a4_unverified_count": 54,
+        "unread_descriptive": [
+          "ar3.hand_disagreements[0].calc",
+          "ar3.hand_disagreements[0].field",
+          "ar3.hand_disagreements[0].hand",
+          "ar3.hand_disagreements[0].new",
+          "ar3.hand_disagreements[0].old",
+          "ar3.hand_disagreements[1].agree",
+          "ar3.hand_disagreements[1].calc_formula",
+          "ar3.hand_disagreements[1].field",
+          "ar3.hand_disagreements[1].hand",
+          "ar3.hand_disagreements[1].new",
+          "ar3.hand_disagreements[1].old",
+          "ar3.hand_disagreements[2].calc",
+          "ar3.hand_disagreements[2].field",
+          "ar3.hand_disagreements[2].hand",
+          "ar3.hand_disagreements[3].field",
+          "ar3.hand_disagreements[3].new",
+          "ar3.hand_disagreements[3].old",
+          "ar3.hand_disagreements[4].field",
+          "ar3.hand_disagreements[4].new",
+          "ar3.hand_disagreements[4].old",
+          "ar3.hand_disagreements[5].calc",
+          "ar3.hand_disagreements[5].field",
+          "ar3.hand_disagreements[5].hand",
+          "ar3.part1_followup.hand_disagreements[0].calc",
+          "ar3.part1_followup.hand_disagreements[0].field",
+          "ar3.part1_followup.hand_disagreements[0].hand",
+          "ar3.part1_followup.hand_disagreements[0].new",
+          "ar3.part1_followup.hand_disagreements[0].old",
+          "ar3.part1_followup.hand_disagreements[1].calc",
+          "ar3.part1_followup.hand_disagreements[1].field",
+          "ar3.part1_followup.hand_disagreements[1].hand",
+          "ar3.part1_followup.hand_disagreements[1].new",
+          "ar3.part1_followup.hand_disagreements[1].old",
+          "ar3.part1_followup.hand_disagreements[2].field",
+          "ar3.part1_followup.hand_disagreements[2].new",
+          "ar3.part1_followup.hand_disagreements[2].old",
+          "ar3.part1_followup.hand_disagreements[3].field",
+          "ar3.part1_followup.hand_disagreements[3].new",
+          "ar3.part1_followup.hand_disagreements[3].old",
+          "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].jolly_scarf_32",
+          "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].note",
+          "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].serious_scarf_32",
+          "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[0].threat",
+          "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].note",
+          "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].serious_scarf_32",
+          "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].threat",
+          "ar3.part1_followup.unreachable_scarf_computed_not_in_common_item[1].timid_scarf_32",
+          "dm_outputs.dm1_note",
+          "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[0]",
+          "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[1]",
+          "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[2]"
+        ],
+        "read_by_request_set_flagged": [
+          "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Def",
+          "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Spe"
+        ],
+        "jolly_class_counts_note": "MT8 cites +SpD 294/+Def 20/+Spe 2. Frozen way_out keeps those counts. +Def/+Spe are UNVERIFIED pending live solver recount against pinned calc; scorer reports them separately from the gate. +SpD 294 retained as cited.",
+        "read_elsewhere": [
+          {
+            "path": "ar3.threat_source",
+            "readers": [
+              "builders/derive_outputs.py",
+              "builders/ar3_derive.py"
+            ],
+            "verified": true,
+            "verification": "label equals showdown_threats_ge_452 (shared); showdown_threats_ge_452.count=36 present"
+          }
+        ],
+        "read_by_request_set_details": {
+          "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Def": {
+            "value": 20,
+            "verified": false,
+            "rows_depending": [
+              "MT8"
+            ]
+          },
+          "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Spe": {
+            "value": 2,
+            "verified": false,
+            "rows_depending": [
+              "MT8"
+            ]
+          }
+        }
+      },
+      "regenerated": "<ABSENT>",
+      "class": "a) hand patch not in any builder",
+      "why": "eval-package metadata not emitted by builders"
+    }
+  ],
+  "hand_patched_paths": [
+    "ar3.hand_disagreements[1].field",
+    "ar3.hand_disagreements[1].new",
+    "ar3.hand_disagreements[1].old",
+    "ar3.hand_disagreements[2].calc",
+    "ar3.hand_disagreements[2].field",
+    "ar3.hand_disagreements[2].hand",
+    "ar3.hand_disagreements[2].new",
+    "ar3.hand_disagreements[2].old",
+    "ar3.hand_disagreements[3]",
+    "ar3.hand_disagreements[4]",
+    "ar3.t4_flame_charge_margin",
+    "dm_outputs.dm1_note",
+    "dm_outputs.dm6.false_claims[2]",
+    "dm_outputs.dm6.false_claims[3]",
+    "dm_outputs.dm6.false_claims_note",
+    "dm_outputs.dm6.scoring.asserting_differing_spread_is_top_or_most_common",
+    "limitations_v4",
+    "unverified_descriptive"
+  ],
+  "hand_patched_leaf_paths": [
+    "ar3.hand_disagreements[1].field",
+    "ar3.hand_disagreements[1].new",
+    "ar3.hand_disagreements[1].old",
+    "ar3.hand_disagreements[2].calc",
+    "ar3.hand_disagreements[2].field",
+    "ar3.hand_disagreements[2].hand",
+    "ar3.hand_disagreements[2].new",
+    "ar3.hand_disagreements[2].old",
+    "ar3.hand_disagreements[3]",
+    "ar3.hand_disagreements[4]",
+    "ar3.t4_flame_charge_margin",
+    "dm_outputs.dm1_note",
+    "dm_outputs.dm6.false_claims[2]",
+    "dm_outputs.dm6.false_claims[3]",
+    "dm_outputs.dm6.false_claims_note",
+    "dm_outputs.dm6.scoring.asserting_differing_spread_is_top_or_most_common",
+    "limitations_v4[4]",
+    "limitations_v4[5]",
+    "limitations_v4[6]",
+    "limitations_v4[7]",
+    "unverified_descriptive"
+  ],
+  "ar3_only_subset_note": "Separate: ar3_followup+ar3_hp_fix under REQUIRE=1 matches OHKO mins; does not reproduce full keys sha (same hand-patch set dominates).",
+  "mt7_mt8_ar_not_regenerated_live": true,
+  "incompleteness": "mt7_mt8_ar not regenerated live (solver timeout); full-chain byte-identity NOT established; 21 hand-patched leaves in the regenerated sections listed here. Diff is a lower bound for mt7_mt8_ar.",
+  "committed_sha256_final": "5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190"
+}

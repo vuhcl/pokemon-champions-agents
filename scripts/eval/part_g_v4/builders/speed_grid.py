@@ -148,7 +148,7 @@ def forward_grid(
                     "nature": nat,
                     "spe_sp": sp,
                     "spe": champions_spe(ob, sp, nat),
-                    "pct": row.get("pct"),
+                    "chaos_weight": row.get("chaos_weight", row.get("pct")),
                 }
             )
         own_lines.extend(

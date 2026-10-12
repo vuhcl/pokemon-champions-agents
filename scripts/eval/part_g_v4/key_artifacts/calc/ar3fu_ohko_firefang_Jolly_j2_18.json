@@ -1,0 +1,136 @@
+{
+  "id": "ar3fu_ohko_firefang_Jolly_j2_18",
+  "request": {
+    "attacker": {
+      "species": "Charizard-Mega-X",
+      "level": 50,
+      "nature": "Jolly",
+      "ability": "Tough Claws",
+      "item": "Charizardite X",
+      "evs": {
+        "hp": 0,
+        "atk": 18,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      },
+      "boosts": {
+        "atk": 6
+      }
+    },
+    "defender": {
+      "species": "Primarina",
+      "level": 50,
+      "nature": "Quiet",
+      "ability": "Torrent",
+      "item": "Life Orb",
+      "evs": {
+        "hp": 32,
+        "atk": 0,
+        "def": 2,
+        "spa": 32,
+        "spd": 0,
+        "spe": 0
+      }
+    },
+    "move": "Fire Fang",
+    "field": {
+      "gameType": "Doubles"
+    }
+  },
+  "response": {
+    "damageRange": [
+      167,
+      197
+    ],
+    "koChance": "31.3% chance to OHKO",
+    "raw": {
+      "damage": [
+        167,
+        169,
+        171,
+        173,
+        175,
+        177,
+        179,
+        180,
+        183,
+        185,
+        186,
+        189,
+        191,
+        192,
+        195,
+        197
+      ],
+      "range": [
+        167,
+        197
+      ],
+      "kochance": {
+        "chance": 0.3125,
+        "n": 1,
+        "text": "31.3% chance to OHKO"
+      },
+      "desc": "+6 18 Atk Tough Claws Charizard-Mega-X Fire Fang vs. 32 HP / 2 Def Primarina: 167-197 (89.3 - 105.3%) -- 31.3% chance to OHKO",
+      "fullDesc": "+6 18 Atk Tough Claws Charizard-Mega-X Fire Fang vs. 32 HP / 2 Def Primarina: 167-197 (89.3 - 105.3%) -- 31.3% chance to OHKO",
+      "recovery": {
+        "recovery": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "recoil": {
+        "recoil": [
+          0,
+          0
+        ],
+        "text": ""
+      },
+      "stats": {
+        "attacker": {
+          "hp": 153,
+          "atk": 168,
+          "def": 131,
+          "spa": 135,
+          "spd": 105,
+          "spe": 132
+        },
+        "defender": {
+          "hp": 187,
+          "atk": 94,
+          "def": 96,
+          "spa": 195,
+          "spd": 136,
+          "spe": 72
+        }
+      }
+    }
+  },
+  "key": {
+    "damage_range": [
+      167,
+      197
+    ],
+    "ko_chance": "31.3% chance to OHKO",
+    "desc": "+6 18 Atk Tough Claws Charizard-Mega-X Fire Fang vs. 32 HP / 2 Def Primarina: 167-197 (89.3 - 105.3%) -- 31.3% chance to OHKO",
+    "max_damage": 197,
+    "recoil": {
+      "recoil": [
+        0,
+        0
+      ],
+      "text": ""
+    }
+  },
+  "ability_assert": {
+    "attacker_ability": "Tough Claws",
+    "defender_ability": "Torrent",
+    "notes": [
+      "attacker:Tough Claws:desc_echo_ok",
+      "defender:Torrent:legal_ok"
+    ]
+  }
+}

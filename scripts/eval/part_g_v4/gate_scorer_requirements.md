@@ -183,40 +183,24 @@ Frozen quotes:
 
 ---
 
-## R9 — Frozen `false_claims` vs scoring conflicts
+## R9 — Frozen text / `false_claims` vs scoring conflicts
 
-Where a frozen key’s `false_claims` entry (or equivalent list) **conflicts** with its `scoring` / request-set row text under the R6/R7 rules, the scorer follows **`scoring` and the decided R6/R7 rules**. The conflicting `false_claims` entry is a **known defect** in the frozen key (table below). A fix is a **new key version with a new hash**, out of scope here — do not edit `derived_keys.json` in this package.
+Where a frozen request-set line or a key’s `false_claims` entry **conflicts** with its `scoring` under the R6/R7 rules, the scorer follows **`scoring` and the decided R6/R7 rules**. Conflicting frozen request-set wording stays byte-identical (hash discipline); the key supersedes it.
 
-### Sweep coverage (read-only; complete)
+### Sweep coverage (v4.1 keys)
 
 | Measure | Count |
 |---|---|
-| Top-level keys in `derived_keys.json` | 58 |
 | Nodes with a `false_claims` field | **2** (`dm_outputs.dm6`, `mv3_rock_slide`) |
-| Of those, also having scoring / class-fail fields (checked for conflict) | **2** / **2** |
-| Confirmed conflicts under R6/R7 | **1** (DM6 only) |
+| Confirmed `false_claims`↔scoring conflicts under R6/R7 | **0** (DM6 list aligned in v4.1) |
+| Request-set text ↔ key scoring conflicts | **1** (AR3 Flare Blitz recoil L470 — see table) |
 
-**Required-row confirmations (individually):**
+**`false_claims` rows:**
 
 | Row / key | `false_claims`? | Conflict? |
 |---|---|---|
-| DM1 (`dm_outputs.dm1`) | No | None — `stated_conditions_differ_from_key` = not SERVED; no-conditions = false claim (aligned) |
-| DM2 (`dm_outputs.dm2`) | No | None |
-| DM3 (`dm_outputs.dm3`) | No | None |
-| DM4 (`dm_outputs.dm4`) | No | None |
-| DM5 (`dm_outputs.dm5`) | No | None |
-| DM6 (`dm_outputs.dm6`) | Yes | **Yes** — see table |
-| DM7 (`dm_outputs.dm7`) | No | None — `stated_attacker_differs_from_key` = not SERVED (no conflicting list). Row text “mismatch/unstated → not SERVED / false” is compressed; scoring splits mismatch vs unstated |
-| H5 (`h5`) | No | None — row: spread ≠ key → not SERVED |
-| H12 (`h12_sinistcha_calm_vs_bold`) | No | None — unsupported/wrong-winner live under `scoring`, not `false_claims` |
-| H18 (`h18_hyper_offense`) | No | None |
-| H18b (`h18b`) | No | None |
-| MU1 (`mu1_item_clause`) | No | None |
-| MU2–MU4 | No dedicated key objects in `derived_keys.json` | None (inline request-set “claims scored” only) |
-| MV3 (`mv3_rock_slide`) | Yes | **None** — list items are true FALSE claims; `targeting_without_accuracy` = not SERVED is a different condition, not listed under `false_claims` |
-| AR1–AR3 (`mt7_mt8_ar.*` / `ar3`) | No | None |
-
-**No other `false_claims`↔scoring conflict found beyond DM6.**
+| DM6 (`dm_outputs.dm6`) | Yes | **None (v4.1)** — list is (−1 Atk; intimidate_off second case; numbers with no stated attacker conditions). `stated_attacker_differs_from_key` = not SERVED stays in `scoring` only; `asserting_differing_spread_is_top_or_most_common` = FALSE (usage) |
+| MV3 (`mv3_rock_slide`) | Yes | **None** — list items are true FALSE claims; `targeting_without_accuracy` = not SERVED is a different condition |
 
 ### Structure differences (uniform reader note)
 
@@ -227,35 +211,20 @@ Where a frozen key’s `false_claims` entry (or equivalent list) **conflicts** w
 | Class-fail as sibling string | e.g. `targeting_without_accuracy: "not SERVED"` | `mv3_rock_slide` (no `scoring` object) |
 | Class-fail inside `scoring` | `scoring.<field>: "not SERVED"` / `"false claim"` / `"unsupported — does not pass"` | DM1/DM3/DM4/DM6/DM7, H12, H18, … |
 
-A scorer needs a uniform reader over `false_claims` **and** must not treat `failures` as FALSE claims without applying R6/R7 (MC1 `failures` are class/acceptance fails). Prefer `scoring` / row text when they conflict with `false_claims` (this R9).
+A scorer needs a uniform reader over `false_claims` **and** must not treat `failures` as FALSE claims without applying R6/R7 (MC1 `failures` are class/acceptance fails). Prefer `scoring` when they conflict with frozen request-set text or an outdated `false_claims` entry (this R9).
 
 ### Known defect table
 
-#### A — `false_claims` vs scoring (R6/R7)
+#### A — request-set / list vs scoring
 
-| Key id | `false_claims` entry (verbatim) | Conflicting scoring / row text (verbatim) | Path | Resolution |
+| Key id | Conflicting frozen text (verbatim) | Key scoring (verbatim intent) | Path / hashes | Resolution |
 |---|---|---|---|---|
-| DM6 | `stated attacker nature/SP/item differing from key` | `scoring.stated_attacker_differs_from_key` = `"not SERVED"`; request-set DM6 row: `mismatch → not SERVED` | `derived_keys.dm_outputs.dm6`; `part3_request_set_v4.md` DM6 row | **not SERVED** (class fail, no FALSE) unless the arm also asserts the assumption is the top/most common (FALSE usage). Do **not** count the list entry as FALSE. |
+| AR3 Flare Blitz recoil | request-set L470 / `_ar3_key`: **“exact claims allow 61–62 in-game rounding”** (superseded allowance) | HP-point: `62` TRUE; `61` FALSE with `sub_label` `derived_from_calc_percent`. Percent-of-attacker-HP: against stated H (or HP SP → H=78+SP+75), accepted band `[floor(61.71/H×1000)/10, round(62/H×100,1)]` attributed to calc display → TRUE; no stated H → FALSE | Request-set sha **before = after** `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385` (text unchanged). `derived_keys` **before** (main) `1dd982d678e6c6a66f780836b252f684b09466b9644e35e8eb0a4fe984fd355d` → **after** `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190`. Path: `derived_keys.ar3.t4_flare_blitz_recoil` | **Scorer follows scoring.** L470 unchanged (hash discipline). Rationale errata: cause is fraction (1/3 vs 0.33 display), not “in-game rounding.” Fixture H 185/153 are worked examples only. |
+| DM6 (historical v4) | previously listed “stated attacker nature/SP/item differing from key” under `false_claims` | `scoring.stated_attacker_differs_from_key` = `"not SERVED"` | fixed in v4.1 keys | resolved — no longer a defect row |
 
-Non-conflicting DM6 `false_claims` items (aligned with `scoring`): `applying -1 Atk stage`; `presenting intimidate_off as a meaningful second case`; `numbers with no stated attacker conditions` (= `scoring.numbers_without_stated_attacker_conditions` / `scoring.applying_minus1_or_second_case` = false claim).
+#### B — chaos-weight field rename (R10; resolved in v4.1 keys)
 
-#### B — unlabeled / misnamed `pct` fields that are chaos weights (R10)
-
-Sweep of all numeric `pct` / `usage_pct` / `*_pct` fields in `derived_keys.json` (damage `move_pct` / `pct_of_hp_*` excluded): **665** examined; **17** are Showdown chaos weights (all values &gt; 100); **648** candidates with value ≤100.
-
-**How “0 unlabeled chaos weights with value ≤100” was established:** an initial pass used a **range heuristic** (value ≤100 ⇒ treat as usage-style percentage). That is not a pin join. A follow-up compared each of the **648** candidate field values to the set of Showdown pin `top_spreads[].pct` chaos weights by **exact float membership** in that pin weight set (not a species/joint path join against each field’s source). Result: **0** unlabeled ≤100 fields whose value equals a pin chaos weight. Of the 648, **644** match some usage-style pin `pct`; **4** match neither (aggregates: `hn3_common_item.cumulative_pct`, `dm_outputs.dm7.attacker.ability_usage_pct`, `ar3.primarina_common_item.cumulative_pct`, `showdown_threats_ge_452.cutoff_pct`). Of the 17 weights (&gt;100): **10** carry `pct_kind: "chaos_weight"`; **7** are unlabeled (prior note said 9/8 — corrected).
-
-| Key path | Value | What it is | Pinned source | Resolution |
-|---|---|---|---|---|
-| `h15_primarina.modest_top.pct` | 8876.721851952036 | chaos weight (same number as `modest_top_joint.chaos_weight`) | Showdown doubles `primarina.top_spreads[0].pct` | Scorer **ignores** unlabeled `pct`; read `modest_top_joint.chaos_weight` (+ label). Fix = new key version / hash. |
-| `hn2b_forward_grid.own_lines[0].pct` | 13607.750963984106 | chaos weight (Annihilape COMMON_SPEED / joint weight) | Showdown doubles `annihilape.top_spreads` pcts | Ignore unlabeled `pct` for share claims; use as weight for ranking only if needed. Fix = new key version / hash. |
-| `hn2b_forward_grid.own_lines[1].pct` | 8140.390865164758 | chaos weight | same | same |
-| `hn2b_forward_grid.own_lines[2].pct` | 3774.0833345089777 | chaos weight | same | same |
-| `dm_outputs.dm2.per_joint_cell[0].pct` | 21764.332640641533 | chaos weight (Hatterene COMMON_JOINT) | Showdown doubles `hatterene.top_spreads` pcts | Ignore unlabeled `pct` for share claims; cell identity / ranking only. Fix = new key version / hash. |
-| `dm_outputs.dm2.per_joint_cell[1].pct` | 11742.911732149212 | chaos weight | same | same |
-| `dm_outputs.dm2.per_joint_cell[2].pct` | 6184.18133744593 | chaos weight | same | same |
-
-Already labeled (`pct_kind: "chaos_weight"`) — not R9 defect rows: `sneasler.top.pct`, `sneasler.rows[0..2].pct`, `archaludon.rows[0..2].pct`, `ar3.primarina_common_joint[0..2].pct` (10 nodes). Scorer may read these only because `pct_kind` labels them (R10).
+v4.1 renames the 17 Showdown chaos-weight fields from `pct` (+ optional `pct_kind`) to **`chaos_weight`**. Scorer reads weights only from `chaos_weight` (or legacy `pct_kind = "chaos_weight"` if present). Request-set prose still emits `chaos_weight pct≈…` (token unchanged; presenting the number as a percent remains FALSE).
 
 ---
 
@@ -265,12 +234,14 @@ The scorer reads **weights** only from fields named `chaos_weight` or carrying *
 
 - Any arm claim that presents a chaos weight (or a rescaled weight) as a **percentage or share** is a **FALSE** usage claim.
 - A **share** claim needs a real percentage source (pinned in-game or Showdown **usage** percentage). If none exists for that joint, a share claim for that joint is **UNVERIFIABLE**, not TRUE.
-- Ranking / ordering claims that only need relative joint weight remain valid when the weight is taken from a labeled field (or, for defect rows above, from the known pin-backed weight value without calling it a percent).
+- Ranking / ordering claims that only need relative joint weight remain valid when the weight is taken from a labeled field.
 
 ### Open items (owner; not eval/scorer changes)
 
-1. **Frozen H15 wording (not edited):** request-set prose (emitted from `builders/gen_request_set_v4.py` into `part3_request_set_v4.md` L203 and H15 table row L377) writes `chaos_weight pct≈8876.7` while also saying “label chaos_weight as **weight** (not % — presenting as percent = false)”. The `pct≈` token in the key text is misleading; scorer still treats presenting 8876.7 as a percent as FALSE per the row’s own rule and R10. Fix = new frozen request-set version / hash — out of scope here.
-2. **Arm tool surface — `top_spreads[].pct` name:** pinned Showdown data stores the chaos weight under the field name `pct` (with `pct_kind: "chaos_weight"`). Usage APIs that return the species entry pass that field name through unchanged (`recommender/usage_showdown.py` `fetch_showdown_vgc_species` L39–41 returns the offline row as-is; `recommender/usage_data.py` `species_usage` / `showdown_species_map` expose the same pin shape; pin writer `scripts/extract_usage/fetch_usage_mb.py` L158–159). Live row build also names the weight `pct` (`recommender/usage_spreads.py` `_showdown_rows` L165). If an arm-visible spread/usage tool returns that dict to the LLM, the model may present a weight as a percentage. **Arm-side item:** relabel or withhold `pct` in arm-visible output — not an eval/scorer change.
+1. **Frozen H15 wording (not edited):** request-set prose still writes `chaos_weight pct≈8876.7` while also saying “label chaos_weight as **weight** (not % — presenting as percent = false)”. The `pct≈` token is misleading; scorer still treats presenting 8876.7 as a percent as FALSE. Fix = new frozen request-set version / hash — out of scope for v4.1 (sha stays `fc6b150d…`).
+2. **Arm tool surface — `top_spreads[].pct` name:** pinned Showdown data stores the chaos weight under the field name `pct` (with `pct_kind: "chaos_weight"`). Usage APIs that return the species entry pass that field name through unchanged. **Arm-side item:** relabel or withhold `pct` in arm-visible output — not an eval/scorer change.
+3. **Arm tool surface — Flare Blitz recoil HP points:** hosted `@smogon/calc` `/calculate` exposes recoil only as a rounded **percent of attacker max HP** (`raw.recoil`, e.g. `33.3%` / text `33.3 - 33.3% recoil damage`) — **not** an HP-point value. An arm that converts that percent to HP can land on 61 or 62; key scores HP-point **62** TRUE and **61** FALSE with sub_label `derived_from_calc_percent`. **Fix belongs to the arm tool surface** (wrapper reports `floor(damage_dealt/3)` in HP), not the eval.
+4. **AR3 Charizard HP SP scope:** the key fixture pins Charizard-Mega-X HP SP **32** and **0** (H=185/153). Belly Drum or other Charizard builds with different HP SP are **not modeled**. Percent-of-attacker-HP recoil claims for any stated H are scored by `[floor(61.71/H×1000)/10, round(62/H×100,1)]` (worked examples: 33.3–33.5% @ 185, 40.3–40.5% @ 153); no other mechanical claim about those builds (damage, survival after Belly Drum, recoil vs remaining HP) is covered by the key.
 
 ---
 
@@ -294,3 +265,18 @@ These are different things. Both apply to **TRUE+FALSE** scored counts (R8), not
 | Request-set claim line | Descriptive (R2) | Request-set TRUE+FALSE; UNVERIFIABLE share separate | **No** |
 | Request-set row-level | Secondary (R1); underpowered | Scored rows (≥1 typed claim); false = ≥1 FALSE | **No** (cannot demonstrate 2% at ~101) |
 | Class pass/fail | Descriptive | Expected class match | **No** |
+
+
+---
+
+## v4.1 key revision (changelog — eval package)
+
+- **Request set:** no text change; sha256 remains `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385`. `HEADER` is an f-string so interpolations evaluate; output unchanged. `gen_request_set_v4` reads Modest `chaos_weight` only (no `pct` fallback).
+- **AR3 recoil:** in-game `floor(damage/3)` → **62**; calc exposes **percent of attacker HP only**; HP-point **61** is FALSE with sub_label `derived_from_calc_percent`. Percent claims scored vs stated H by `[floor(61.71/H×1000)/10, round(62/H×100,1)]` (185/153 are worked examples only). L470 “61–62” superseded by key scoring (R9).
+- **DM6:** `false_claims` aligned with scoring; differing spread → not SERVED; top/most-common assertion → FALSE (usage).
+- **Chaos weights:** 17 fields renamed `pct` → `chaos_weight` (drop `pct_kind`).
+- **Artifact ids:** joint-keyed `ar3_probe_*_j{i}_{atk}` / `ar3fu_ohko_*_j{i}_{atk}`; no content-hash `probe_*` search dumps.
+- **Batteries / seeds / pins:** unchanged (`13d08244…` / `13dda05d…`).
+- **Leaf inventory:** 196 Phase A differing leaves = 74 builder bug + 101 builder-absent patch + 21 frozen error. Of 101: 54 A4-unverified (51 unread + 2 read-by-request-set + 1 read-elsewhere) + 6 B1.4 verified notes + 41 other (9 flame_charge_margin hand patch + 31 diagnostic omitted + 1 offers_of_either = 10 hand patches inside the 41). Separate inventory: full-chain committed-vs-regen diff has **21** hand-patched leaves (not equal to 41; see `full_chain_to_disposition_map.json`). Table: `key_artifacts/leaf_disposition_v41.tsv`.
+- **Unverified for scorer (not gate):** MT8 rows that depend on `jolly_sneasler.solutions_at_minimal_spe_by_class.+Def` (=20) and `.+Spe` (=2) — marked unverified in `derived_keys.unverified_descriptive` until a live solver recount confirms. `ar3.threat_source` verified as shared label. `ar3.t4_flame_charge_margin` (9 children) verified vs pinned calc `ar3_flamecharge_margin_adamant32` and unread by request-set/scorer (keep-list only) — not gated as unverified.
+- **B3 full-chain status:** `mt7_mt8_ar` **not regenerated live** (solver timeout >55min / 1.1GB on MT7 t2); chain spliced committed `mt7_mt8_ar`. Full-chain byte-identity **NOT established**. 21 hand-patched leaves in the regenerated sections listed in `key_artifacts/full_chain_leaf_diff.json` (lower bound for the `mt7_mt8_ar` section). Live + REQUIRE=1 regenerated sha `1bc64a711e8f37c6731497d35d5034cd7757b9664cabd15d307f28c7a486fbee` ≠ committed `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190`. Unattended live `mt7_mt8_ar` solver re-run started under `key_artifacts/solver_runs/` (does not block merge). **Ar3-only subset:** OHKO mins match; keys sha differs (hand_disagreements reshape).

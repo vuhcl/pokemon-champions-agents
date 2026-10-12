@@ -249,7 +249,7 @@ def dm2_hatterene_grid() -> dict:
             {
                 "nature": nat,
                 "spread": spread,
-                "pct": row.get("pct"),
+                "chaos_weight": row.get("chaos_weight", row.get("pct")),
                 "key": rec.get("key"),
             }
         )

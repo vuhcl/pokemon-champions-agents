@@ -13,6 +13,7 @@ CHECKS = [
     "check_pins.py",
     "check_calc_artifacts.py",
     "check_battery_hash.py",
+    "check_ar3_probes.py",
 ]
 
 

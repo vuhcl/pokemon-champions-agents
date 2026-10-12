@@ -388,22 +388,43 @@ def mt7_mt8_ar_keys() -> dict:
         "mt8_t4_drop_speed_gate": mt8_nospe,
         "mt8_t4_way_out": {
             "offers_of_either_relaxation_correct": True,
+            "valid_relaxations": [
+                "make Sneasler Jolly (solutions at minimal Spe: classes from solver)",
+                "drop Weather Ball (equals MT7 t2)",
+                "Timid Zard WB extra (not in 3-cap)",
+            ],
+            "invalid_relaxation": "drop Spe gate (0 legal SP≤32 solutions)",
             "jolly_sneasler": {
                 "feasible": mt8_t4["feasible"],
                 "solutions_at_minimal_spe_by_class": mt8_t4["solutions_at_minimal_spe_by_class"],
                 "min_total_sp": mt8_t4["min_total_sp"],
                 "example": mt8_t4["example"],
                 "note": (
-                    "Jolly works under +SpD / +Def / +Spe (not +SpD-only). "
-                    "Counts = solutions at minimal Spe (gate minimum), not totals."
+                    "Jolly Sneasler relaxation feasible. "
+                    "Counts = solutions at minimal Spe (gate minimum), not totals. "
+                    "Request-set MT8 cites +SpD 294/+Def 20/+Spe 2; live solver class "
+                    "counts may differ — see unverified_descriptive if mismatch."
                 ),
+                "count_semantics": mt8_t4.get("count_semantics"),
+                "search_note": mt8_t4.get("search_note"),
+                "class_count_note": mt8_t4.get("class_count_note"),
             },
             "drop_speed_gate": {
                 "feasible": mt8_nospe["feasible"],
                 "solutions_at_minimal_spe_by_class": mt8_nospe["solutions_at_minimal_spe_by_class"],
                 "min_total_sp": mt8_nospe["min_total_sp"],
                 "example": mt8_nospe["example"],
-                "note": "Dropping Spe gate helps (+Def solutions exist).",
+                "note": (
+                    "With per-stat SP≤32 enforced, dropping Spe gate is INFEASIBLE vs "
+                    "Adamant CC + Modest WB. Prior +Def 3 at SP 66 used SpD=34 "
+                    "(illegal Champions SP). Not a valid way out."
+                ),
+                "prior_illegal_spd34_note": (
+                    "Pre-fix solver allowed SpD>32 when rem>32; those 3 sols were invalid."
+                ),
+                "count_semantics": mt8_nospe.get("count_semantics"),
+                "search_note": mt8_nospe.get("search_note"),
+                "class_count_note": mt8_nospe.get("class_count_note"),
             },
             "timid_zard_extra": {
                 "feasible": mt8_t3_timid["feasible"],

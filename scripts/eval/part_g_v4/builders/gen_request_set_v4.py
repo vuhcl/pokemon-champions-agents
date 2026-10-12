@@ -151,11 +151,13 @@ _dm7_key = (
 )
 
 modest_evs = modest["evs"] if modest else {}
-modest_note = (
-    f"Modest top joint SP={modest_evs} chaos_weight pct≈{modest['pct']:.1f}"
-    if modest
-    else "Modest absent"
-)
+if modest is None:
+    modest_note = "Modest absent"
+elif "chaos_weight" not in modest:
+    raise KeyError("h15 Modest top joint missing chaos_weight (pct fallback removed)")
+else:
+    _modest_cw = modest["chaos_weight"]
+    modest_note = f"Modest top joint SP={modest_evs} chaos_weight pct≈{_modest_cw:.1f}"
 
 # Illegal / legal item lists from pinned legality blob
 past_items = sorted(
@@ -224,7 +226,7 @@ water_fire = sorted(
 )
 assert water_fire == [], water_fire
 
-HEADER = """# Part G v4 — request-level held-out set (DRAFT — do not run)
+HEADER = f"""# Part G v4 — request-level held-out set (DRAFT — do not run)
 
 **HEAD:** `e935de9b2051da6fe968b87087b27c7b5901168b`  
 **Source:** `scripts/eval/part_g_v4/part3_request_set_v3.md` + Part G v4 edits  
@@ -281,7 +283,7 @@ Champions Spe: `floor(n * (base + SP + 20))` with Spe+ natures `n=1.1`, Spe− `
 
 ### Mega naming
 
-"Mega <Species>" means <Species>-Mega when that form exists and is legal in the pinned blob. "Mega <Species> X", "Y" or "Z" means <Species>-Mega-X / -Y / -Z. If a legal species has no plain <Species>-Mega (pinned: Charizard, Raichu, Meowstic), a bare "Mega <Species>" is ambiguous — the arm must ASK, or state an assumption (ASSUME-STATE). A prompt that relies on a bare name for such a species is only allowed in **MC1**; everywhere else the prompt must carry the form. If a species has both a plain and a lettered mega (pinned: Absol, Garchomp, Lucario), the bare name resolves to the plain form. Species with `is_nonstandard` set (Past or Future) are illegal and excluded. Source for any mega-specific build, moves, items or spreads is the Showdown per-form entry (the in-game list is species-level).
+"Mega \<Species\>" means \<Species\>-Mega when that form exists and is legal in the pinned blob. "Mega \<Species\> X", "Y" or "Z" means \<Species\>-Mega-X / -Y / -Z. If a legal species has no plain \<Species\>-Mega (pinned: Charizard, Raichu, Meowstic), a bare "Mega \<Species\>" is ambiguous — the arm must ASK, or state an assumption (ASSUME-STATE). A prompt that relies on a bare name for such a species is only allowed in **MC1**; everywhere else the prompt must carry the form. If a species has both a plain and a lettered mega (pinned: Absol, Garchomp, Lucario), the bare name resolves to the plain form. Species with `is_nonstandard` set (Past or Future) are illegal and excluded. Source for any mega-specific build, moves, items or spreads is the Showdown per-form entry (the in-game list is species-level).
 
 ### Choice lock (hand rule — no field in pinned items blob)
 
