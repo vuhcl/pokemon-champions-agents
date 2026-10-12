@@ -1,0 +1,339 @@
+{
+  "committed_vs_fast_diff_count": 35,
+  "semantic_diff_count": 13,
+  "meta_diff_count": 22,
+  "mt8_jolly_counts": {
+    "committed": {
+      "+Def": 20,
+      "+Spe": 2,
+      "+SpD": 294
+    },
+    "fast": {
+      "+SpD": 294
+    },
+    "live": {
+      "+SpD": 294
+    }
+  },
+  "semantic_diffs": [
+    {
+      "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Atk": 32158,
+        "+Def": 88658,
+        "+SpA": 32158,
+        "+SpD": 32158,
+        "+Spe": 48604,
+        "neutral": 63950
+      }
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Atk": 32158,
+        "+Def": 88658,
+        "+SpA": 32158,
+        "+SpD": 32158,
+        "+Spe": 48604,
+        "neutral": 63950
+      }
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Atk": 3554,
+        "+Def": 41677,
+        "+SpA": 3554,
+        "+SpD": 3554,
+        "+Spe": 7878,
+        "neutral": 8675
+      }
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Def": 420,
+        "+SpD": 12
+      }
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Atk": 9,
+        "+Def": 4481,
+        "+SpA": 9,
+        "+SpD": 1200,
+        "+Spe": 394,
+        "neutral": 45
+      }
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t3_adamant_cc_weatherball.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {}
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t3_timid_weatherball_extra.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Def": 276,
+        "+SpD": 4
+      }
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_drop_speed_gate.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {}
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_make_sneasler_jolly.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+SpD": 294
+      }
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.note",
+      "committed": "Jolly works under +SpD / +Def / +Spe (not +SpD-only). Counts = solutions at minimal Spe (gate minimum), not totals.",
+      "fast_live": "Jolly Sneasler relaxation feasible. Counts = solutions at minimal Spe (gate minimum), not totals. Request-set MT8 cites +SpD 294/+Def 20/+Spe 2; live solver class counts may differ \u2014 see unverified_descriptive if mismatch."
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Def",
+      "committed": 20,
+      "fast_live": "<ABSENT>"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Spe",
+      "committed": 2,
+      "fast_live": "<ABSENT>"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[0]",
+      "committed": "make Sneasler Jolly (solutions at minimal Spe: +SpD/+Def/+Spe)",
+      "fast_live": "make Sneasler Jolly (solutions at minimal Spe: classes from solver)"
+    }
+  ],
+  "meta_diffs_sample": [
+    {
+      "path": "mt7_mt8_ar.ar1.monotone_fallback_count",
+      "committed": "<ABSENT>",
+      "fast": 0
+    },
+    {
+      "path": "mt7_mt8_ar.ar1.search_note",
+      "committed": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k...",
+      "fast": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k..."
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t1_jolly_cc.monotone_fallback_count",
+      "committed": "<ABSENT>",
+      "fast": 0
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t1_jolly_cc.search_note",
+      "committed": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k...",
+      "fast": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k..."
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t2_adamant_cc.monotone_fallback_count",
+      "committed": "<ABSENT>",
+      "fast": 0
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t2_adamant_cc.search_note",
+      "committed": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k...",
+      "fast": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k..."
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.monotone_fallback_count",
+      "committed": "<ABSENT>",
+      "fast": 0
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.search_note",
+      "committed": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k...",
+      "fast": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k..."
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.monotone_fallback_count",
+      "committed": "<ABSENT>",
+      "fast": 0
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.search_note",
+      "committed": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k...",
+      "fast": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k..."
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t3_adamant_cc_weatherball.monotone_fallback_count",
+      "committed": "<ABSENT>",
+      "fast": 0
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t3_adamant_cc_weatherball.search_note",
+      "committed": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k...",
+      "fast": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k..."
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t3_timid_weatherball_extra.monotone_fallback_count",
+      "committed": "<ABSENT>",
+      "fast": 0
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t3_timid_weatherball_extra.search_note",
+      "committed": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k...",
+      "fast": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not k..."
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_drop_speed_gate.monotone_fallback_count",
+      "committed": "<ABSENT>",
+      "fast": 0
+    }
+  ],
+  "semantic_diffs_classified": [
+    {
+      "path": "mt7_mt8_ar.ar1.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Atk": 32158,
+        "+Def": 88658,
+        "+SpA": 32158,
+        "+SpD": 32158,
+        "+Spe": 48604,
+        "neutral": 63950
+      },
+      "class": "hand patch (diagnostic class totals intentionally omitted from committed; unread)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t1_jolly_cc.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Atk": 32158,
+        "+Def": 88658,
+        "+SpA": 32158,
+        "+SpD": 32158,
+        "+Spe": 48604,
+        "neutral": 63950
+      },
+      "class": "hand patch (diagnostic class totals intentionally omitted from committed; unread)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t2_adamant_cc.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Atk": 3554,
+        "+Def": 41677,
+        "+SpA": 3554,
+        "+SpD": 3554,
+        "+Spe": 7878,
+        "neutral": 8675
+      },
+      "class": "hand patch (diagnostic class totals intentionally omitted from committed; unread)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_adamant_cc_flamethrower.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Def": 420,
+        "+SpD": 12
+      },
+      "class": "hand patch (diagnostic class totals intentionally omitted from committed; unread)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt7_t3_timid_flamethrower_extra.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Atk": 9,
+        "+Def": 4481,
+        "+SpA": 9,
+        "+SpD": 1200,
+        "+Spe": 394,
+        "neutral": 45
+      },
+      "class": "hand patch (diagnostic class totals intentionally omitted from committed; unread)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t3_adamant_cc_weatherball.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {},
+      "class": "hand patch (diagnostic class totals intentionally omitted from committed; unread)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t3_timid_weatherball_extra.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+Def": 276,
+        "+SpD": 4
+      },
+      "class": "hand patch (diagnostic class totals intentionally omitted from committed; unread)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_drop_speed_gate.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {},
+      "class": "hand patch (diagnostic class totals intentionally omitted from committed; unread)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_make_sneasler_jolly.solutions_at_minimal_spe_by_class",
+      "committed": "<ABSENT>",
+      "fast_live": {
+        "+SpD": 294
+      },
+      "class": "hand patch (diagnostic class totals intentionally omitted from committed; unread)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.note",
+      "committed": "Jolly works under +SpD / +Def / +Spe (not +SpD-only). Counts = solutions at minimal Spe (gate minimum), not totals.",
+      "fast_live": "Jolly Sneasler relaxation feasible. Counts = solutions at minimal Spe (gate minimum), not totals. Request-set MT8 cites +SpD 294/+Def 20/+Spe 2; live solver class counts may differ \u2014 see unverified_descriptive if mismatch.",
+      "class": "hand patch (narrative / request-set wording retained in committed keys)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Def",
+      "committed": 20,
+      "fast_live": "<ABSENT>",
+      "class": "committed value wrong \u2014 hand-patched counts; independent solver yields ABSENT (only +SpD 294)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Spe",
+      "committed": 2,
+      "fast_live": "<ABSENT>",
+      "class": "committed value wrong \u2014 hand-patched counts; independent solver yields ABSENT (only +SpD 294)"
+    },
+    {
+      "path": "mt7_mt8_ar.mt8_t4_way_out.valid_relaxations[0]",
+      "committed": "make Sneasler Jolly (solutions at minimal Spe: +SpD/+Def/+Spe)",
+      "fast_live": "make Sneasler Jolly (solutions at minimal Spe: classes from solver)",
+      "class": "hand patch (narrative / request-set wording retained in committed keys)"
+    }
+  ],
+  "mt8_def_spe_verdict": {
+    "committed": {
+      "+Def": 20,
+      "+Spe": 2,
+      "+SpD": 294
+    },
+    "solver_fast_live": {
+      "+SpD": 294
+    },
+    "match": false,
+    "now_verified": false,
+    "reason": "Independent calc-backed solver (live 5.37h + fast path, byte-identical) yields solutions_at_minimal_spe_by_class = {+SpD: 294} only. Committed +Def:20 and +Spe:2 do not match \u2014 they are wrong/stale hand patches, not newly verified. +SpD:294 already agrees and was never the unverified pair.",
+    "unverified_descriptive_paths_remain": [
+      "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Def",
+      "mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class.+Spe"
+    ],
+    "readers": [
+      "derived_keys.unverified_descriptive (read_by_request_set)",
+      "gate_scorer_requirements.md (Unverified for scorer, not gate)",
+      "leaf_disposition_v41.tsv rows for those two paths",
+      "gen_request_set_v4.py MT8 narrative (+SpD 294/+Def 20/+Spe 2)",
+      "part3_request_set_v4.md MT8 row"
+    ],
+    "followup_to_remove_outside_gate": "After keys are updated to drop +Def/+Spe (or set to solver truth) and request-set text stops citing 20/2, remove those two paths from unverified_descriptive and the scorer outside-gate handling in gate_scorer_requirements.md."
+  }
+}

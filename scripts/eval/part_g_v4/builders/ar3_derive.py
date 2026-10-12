@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import sys
 from pathlib import Path
 
@@ -88,44 +89,124 @@ def _prim(row: dict, item: str) -> dict:
     }
 
 
+def _ohko_at(
+    nature: str, move: str, prim: dict, field: dict, atk: int, joint_i: int, *, persist: bool
+) -> tuple[bool | None, dict]:
+    """Return (is_ohko|None on error/immune, record). None means zero/immune/error."""
+    spread = {"hp": 0, "atk": atk, "def": 0, "spa": 0, "spd": 0, "spe": 0}
+    rec = calculate(
+        {
+            "attacker": _cx(nature, spread, {"atk": 6}),
+            "defender": prim,
+            "move": move,
+            "field": field,
+        },
+        f"ar3_probe_{to_id(move)}_{nature}_j{joint_i}_{atk}",
+        persist=persist,
+    )
+    resp = rec.get("response") or {}
+    if "error" in resp:
+        return None, rec
+    raw = resp.get("raw") or {}
+    dmg = raw.get("damage") or []
+    if not dmg:
+        return None, rec
+    hp = (raw.get("stats") or {}).get("defender", {}).get("hp") or 0
+    return min(dmg) >= hp, rec
+
+
 def min_atk_for_ohko(
     nature: str, move: str, prim: dict, field: dict, joint_i: int = 0
 ) -> dict:
-    """Scan min Atk SP for guaranteed OHKO at +6 Atk under Tough Claws."""
+    """Min Atk SP for guaranteed OHKO at +6 Atk under Tough Claws.
+
+    Binary search over 0..32 with boundary verify; persists the full 0..min
+    ladder (and a failing max if none) so committed probe ids stay complete.
+    Set PART_G_V4_AR3_LINEAR=1 to force the old linear scan.
+    """
+    linear = os.environ.get("PART_G_V4_AR3_LINEAR", "").strip() in {"1", "true", "yes"}
     best = None
     best_rec = None
-    for atk in range(33):
-        spread = {"hp": 0, "atk": atk, "def": 0, "spa": 0, "spd": 0, "spe": 0}
-        rec = calculate(
-            {
-                "attacker": _cx(nature, spread, {"atk": 6}),
-                "defender": prim,
-                "move": move,
-                "field": field,
-            },
-            f"ar3_probe_{to_id(move)}_{nature}_j{joint_i}_{atk}",
-            persist=True,
-        )
-        resp = rec.get("response") or {}
-        if "error" in resp:
-            return {"error": resp["error"], "move": move, "nature": nature}
-        raw = resp.get("raw") or {}
-        dmg = raw.get("damage") or []
-        if not dmg:
-            # immune / zero
-            return {
-                "move": move,
-                "nature": nature,
-                "guaranteed_ohko": False,
-                "min_atk_sp": None,
-                "reason": "zero_damage_or_immune",
-                "desc": raw.get("desc"),
-            }
-        hp = (raw.get("stats") or {}).get("defender", {}).get("hp") or 0
-        if min(dmg) >= hp:
-            best = atk
-            best_rec = rec
-            break
+    if linear:
+        for atk in range(33):
+            ok, rec = _ohko_at(nature, move, prim, field, atk, joint_i, persist=True)
+            if ok is None:
+                resp = rec.get("response") or {}
+                if "error" in resp:
+                    return {"error": resp["error"], "move": move, "nature": nature}
+                raw = resp.get("raw") or {}
+                return {
+                    "move": move,
+                    "nature": nature,
+                    "guaranteed_ohko": False,
+                    "min_atk_sp": None,
+                    "reason": "zero_damage_or_immune",
+                    "desc": raw.get("desc"),
+                }
+            if ok:
+                best = atk
+                best_rec = rec
+                break
+    else:
+        # Damage non-decreasing in Atk SP → binary search min OHKO threshold.
+        lo, hi = 0, 32
+        while lo <= hi:
+            mid = (lo + hi) // 2
+            ok, rec = _ohko_at(nature, move, prim, field, mid, joint_i, persist=False)
+            if ok is None:
+                resp = rec.get("response") or {}
+                if "error" in resp:
+                    return {"error": resp["error"], "move": move, "nature": nature}
+                raw = resp.get("raw") or {}
+                return {
+                    "move": move,
+                    "nature": nature,
+                    "guaranteed_ohko": False,
+                    "min_atk_sp": None,
+                    "reason": "zero_damage_or_immune",
+                    "desc": raw.get("desc"),
+                }
+            if ok:
+                best = mid
+                best_rec = rec
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        if best is not None:
+            ok_b, rec_b = _ohko_at(
+                nature, move, prim, field, best, joint_i, persist=False
+            )
+            ok_m1 = True
+            if best > 0:
+                ok_m1, _ = _ohko_at(
+                    nature, move, prim, field, best - 1, joint_i, persist=False
+                )
+            if (not ok_b) or (best > 0 and ok_m1 is not False):
+                # Boundary verify failed → linear fallback for this cell
+                print(
+                    f"    WARN monotone_fallback ar3 {move} {nature} j{joint_i} best={best}",
+                    flush=True,
+                )
+                best = None
+                best_rec = None
+                for atk in range(33):
+                    ok, rec = _ohko_at(
+                        nature, move, prim, field, atk, joint_i, persist=True
+                    )
+                    if ok is None:
+                        break
+                    if ok:
+                        best = atk
+                        best_rec = rec
+                        break
+            else:
+                # Persist ladder 0..best for probe completeness
+                for atk in range(0, best + 1):
+                    ok, rec = _ohko_at(
+                        nature, move, prim, field, atk, joint_i, persist=True
+                    )
+                    if ok and atk == best:
+                        best_rec = rec
     if best is None:
         # persist max attempt
         calculate(
