@@ -1,17 +1,19 @@
 {
-  "committed_sha256": "b39a706c18c6437933251341c5ab17fa69e94eaa265ea10054b42498d39d6e94",
-  "regenerated_sha256": "db29780c44cfb3669367f71a54e2f8d30bbc3061bd740908da6567ba9a14f3f4",
+  "committed_sha256": "0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a",
+  "regenerated_sha256": "ba2855399ebd1e68f023d7a8afb230d52b96bd66ef5e50eca71910c5d60ac868",
+  "prior_expected_sha_b39a706c_note": "b39a706c\u2026 was produced when Showdown items.ts cache was missing (mega_stone_map.error='cache items.ts missing'). Post-rebase regen on main with #265 + local .cache parses 90 stones; after the same 21 hand patches the keys sha is this committed_sha256. MT8 Jolly/Timid counts unchanged.",
   "byte_identical_except_hand_patches": true,
   "full_chain_claim": "regenerates byte-identically except the 21 listed hand-patched leaves",
   "regen": {
     "backend": "inprocess",
     "workers": 4,
     "ignore_disk": "1",
-    "wall_clock_seconds": 49.9,
-    "tooling": "PR #265 fast path (worktree at origin/eval/spread-solver-speedup + v4.2 spread_solver way_out edits)",
+    "wall_clock_seconds": 57.2,
+    "tooling": "main after #265 merge; run_full_chain_fast.py",
     "unspliced": true
   },
   "supersedes_v41_keys_sha": "5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190",
+  "supersedes_pr266_initial_keys_sha": "b39a706c18c6437933251341c5ab17fa69e94eaa265ea10054b42498d39d6e94",
   "request_set_sha_unchanged": "fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385",
   "hand_patched_leaf_paths": [
     "ar3.hand_disagreements[1].field",
@@ -37,11 +39,20 @@
     "unverified_descriptive"
   ],
   "mt8_jolly": {
-    "solutions_at_minimal_spe_by_class": {"+SpD": 294},
-    "removed_illegal": {"+Def": 20, "+Spe": 2}
+    "solutions_at_minimal_spe_by_class": {
+      "+SpD": 294
+    },
+    "removed_illegal": {
+      "+Def": 20,
+      "+Spe": 2
+    }
   },
   "timid_zard_extra": {
-    "solutions_at_minimal_spe_by_class": {"+Def": 276, "+Spe": 0, "+SpD": 4},
+    "solutions_at_minimal_spe_by_class": {
+      "+Def": 276,
+      "+Spe": 0,
+      "+SpD": 4
+    },
     "example": "Bold 31/1/23/5 total 60 spare 6"
   }
 }

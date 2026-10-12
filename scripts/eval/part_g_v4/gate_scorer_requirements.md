@@ -219,8 +219,8 @@ A scorer needs a uniform reader over `false_claims` **and** must not treat `fail
 
 | Key id | Conflicting frozen text (verbatim) | Key scoring (verbatim intent) | Path / hashes | Resolution |
 |---|---|---|---|---|
-| AR3 Flare Blitz recoil | request-set L470 / `_ar3_key`: **“exact claims allow 61–62 in-game rounding”** (superseded allowance) | HP-point: `62` TRUE; `61` FALSE with `sub_label` `derived_from_calc_percent`. Percent-of-attacker-HP: against stated H (or HP SP → H=78+SP+75), accepted band `[floor(61.71/H×1000)/10, round(62/H×100,1)]` attributed to calc display → TRUE; no stated H → FALSE | Request-set sha **before = after** `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385` (text unchanged). Keys path: `derived_keys.ar3.t4_flare_blitz_recoil`. v4.1 keys sha `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190` superseded by v4.2 (see changelog). | **Scorer follows scoring.** L470 unchanged (hash discipline). Fold corrected L470 text into the request-set cut at the **Oct 19–20 pin refresh** (tracked item below). Rationale errata: cause is fraction (1/3 vs 0.33 display), not “in-game rounding.” Fixture H 185/153 are worked examples only. |
-| MT8 Jolly class counts | request-set L472: **“solutions at minimal Spe +SpD 294/+Def 20/+Spe 2”** | Jolly Sneasler + Modest Mega-Y WB: `{+SpD: 294}` only under legal SP≤32. Claims of **+Def 20** or **+Spe 2** are **FALSE** (illegal-SpD>32 artifacts from cap-less `spd_hi=rem-hp-df`; +Spe cells needed SpD=34). Not “unverified.” | Request-set sha **before = after** `fc6b150d…` (text unchanged). Path: `derived_keys.mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class`. Evidence: `key_artifacts/mt8_correction_analysis.json`. | **Scorer follows key.** L472 unchanged until Oct 19–20 pin-refresh fold-in. Outside-gate “unverified for scorer” for +Def/+Spe **removed** in v4.2. |
+| AR3 Flare Blitz recoil | request-set L470 / `_ar3_key`: **“exact claims allow 61–62 in-game rounding”** (superseded wording, verbatim) | HP-point: `62` TRUE; `61` FALSE with `sub_label` `derived_from_calc_percent`. Percent-of-attacker-HP: against stated H (or HP SP → H=78+SP+75), accepted band `[floor(61.71/H×1000)/10, round(62/H×100,1)]` attributed to calc display → TRUE; no stated H → FALSE | **Request-set sha** before = after `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385` (text unchanged). **Keys sha** before (v4.1) `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190` → after (v4.2) `0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a`. Path: `derived_keys.ar3.t4_flare_blitz_recoil`. | **Scorer follows scoring.** L470 unchanged (hash discipline). Fold corrected L470 text into the request-set cut at the **Oct 19–20 pin refresh**. Rationale errata: cause is fraction (1/3 vs 0.33 display), not “in-game rounding.” Fixture H 185/153 are worked examples only. |
+| MT8 Jolly class counts | request-set L472: **“solutions at minimal Spe +SpD 294/+Def 20/+Spe 2”** (superseded wording, verbatim) | Jolly Sneasler + Modest Mega-Y WB: `{+SpD: 294}` only under legal SP≤32. Claims of **+Def 20** or **+Spe 2** are **FALSE** (illegal-SpD>32 artifacts from cap-less `spd_hi=rem-hp-df`; +Spe cells needed SpD=34). Not “unverified.” | **Request-set sha** before = after `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385` (text unchanged). **Keys sha** before (v4.1) `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190` → after (v4.2) `0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a`. Path: `derived_keys.mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class`. Evidence: `key_artifacts/mt8_correction_analysis.json`. | **Scorer follows key.** L472 unchanged until Oct 19–20 pin-refresh fold-in. Outside-gate “unverified for scorer” for +Def/+Spe **removed** in v4.2. |
 | DM6 (historical v4) | previously listed “stated attacker nature/SP/item differing from key” under `false_claims` | `scoring.stated_attacker_differs_from_key` = `"not SERVED"` | fixed in v4.1 keys | resolved — no longer a defect row |
 
 #### B — chaos-weight field rename (R10; resolved in v4.1 keys)
@@ -284,19 +284,34 @@ These are different things. Both apply to **TRUE+FALSE** scored counts (R8), not
 
 ---
 
+## MT8 scenario-scoped scoring (v4.2)
+
+Class-count and feasibility claims for MT8 / Archaludon bulk are scored against the **scenario the arm states**. Matching key paths:
+
+| Stated scenario | Key | Feasible nature classes / counts | FALSE claims |
+|---|---|---|---|
+| Jolly Sneasler + Modest Mega Charizard Y Weather Ball (Sun), Spe≥110 | `mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler` | **+SpD only** (`294` at minimal Spe) | Any +Def or +Spe feasibility/count claim, including counts **20** and **2** |
+| Timid Mega Charizard Y Weather Ball (Sun) + Adamant Sneasler Close Combat, Spe≥110 | `mt7_mt8_ar.mt8_t4_way_out.timid_zard_extra` | **+Def** feasible (`276`); **+Spe** `0`; **+SpD** `4` | +Spe count **2** (never legal); other counts that disagree with the key |
+| No stated scenario (conditions omitted) | — | — | Existing no-stated-conditions rule: numeric/feasibility claims without stated conditions are **FALSE** |
+
+Frozen request-set L472 still cites the Jolly counts including 20/2; R9 — scorer follows the key, not the frozen acceptance text.
+
+---
+
 ## v4.2 key revision (changelog — eval package)
 
-- **Supersedes keys sha** `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190` (v4.1, #264). New keys sha: `b39a706c18c6437933251341c5ab17fa69e94eaa265ea10054b42498d39d6e94`.
+- **Supersedes keys sha** `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190` (v4.1, #264). New keys sha: `0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a`. (Post-rebase on main+#265 with Showdown `items.ts` cache present; interim PR head `b39a706c…` had `mega_stone_map.error=cache items.ts missing` from a cache-less worktree regen — MT8 counts unchanged.)
 - **Request set:** no text change; sha256 remains `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385`. L470 and L472 wrong wording stay in the **acceptance/key column** (not the arm prompt column); scorer follows keys via R9.
 - **R9 errata (both rows; scorer follows key):**
-  - **L470** — supersedes “exact claims allow 61–62 in-game rounding” → HP-point 62 TRUE / 61 FALSE (`derived_from_calc_percent`); unchanged from v4.1 scoring.
-  - **L472** — supersedes “+SpD 294/+Def 20/+Spe 2” → **+SpD 294 only**; +Def 20 / +Spe 2 = **FALSE**.
+  - **L470** — superseded wording: “exact claims allow 61–62 in-game rounding” → HP-point 62 TRUE / 61 FALSE (`derived_from_calc_percent`). Request-set sha before = after `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385`. Keys sha before `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190` → after `0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a`.
+  - **L472** — superseded wording: “solutions at minimal Spe +SpD 294/+Def 20/+Spe 2” → **+SpD 294 only**; +Def 20 / +Spe 2 = **FALSE**. Same request-set / keys before→after hashes as L470.
 - **Tracked fold-in:** at the **Oct 19–20 pin refresh**, edit request-set text for L470 and L472 (new request-set hash) to match the keys; record old/new hashes in this table when cut.
+- **Scenario-scoped class-count / feasibility scoring:** claims are scored against the scenario the arm states (see § “MT8 scenario-scoped scoring” below). No stated scenario → existing no-stated-conditions rule (**FALSE**).
 - **MT8 Jolly (`mt8_t4_way_out.jolly_sneasler`):** `{+SpD: 294}` only. Root cause: old solver used cap-less `spd_hi = rem - hp - df` (SpD>32). Modest-branch mechanism: neutral 32 HP/32 SpD takes Weather Ball 169–199 into 197 HP (does not guarantee survival) — evidence in `key_artifacts/mt8_correction_analysis.json`.
 - **Timid + Adamant extra (`timid_zard_extra`):** verified `{+Def: 276, +Spe: 0, +SpD: 4}`, example Bold 31/1/23/5 (total 60, spare 6). +Spe:2 never legal; not stored.
 - **Diagnostic maps:** committed keys now include solver-emitted `solutions_at_minimal_spe_by_class` and `monotone_fallback_count` (calc-derived; unread by request-set/scorer).
 - **Outside-gate removed:** +Def/+Spe are **not** “unverified for scorer”; they are resolved wrong. Scorer must **not** reward +Def 20 or +Spe 2.
-- **Full-chain claim:** regenerates byte-identically except the **21** listed hand-patched leaves (`key_artifacts/full_chain_leaf_diff_v42.json`). Regen used in-process calc / 4 workers (PR #265 fast path); rebase onto main after #265 merges to reproduce without a worktree.
+- **Full-chain claim:** regenerates byte-identically except the **21** listed hand-patched leaves (`key_artifacts/full_chain_leaf_diff_v42.json`). Regen uses in-process calc / 4 workers (#265, now on main).
 - **Disposition table:** `key_artifacts/leaf_disposition_v42.tsv` (v41 retained for history).
 - **Task C sweep:** `key_artifacts/task_c_sp_cap_sweep.md` — no remaining cap-less `spd_hi` in builders; stale 20/2 narrative cleared from keys (frozen RS text deferred to pin refresh).
 - **Batteries / seeds / pins:** unchanged.

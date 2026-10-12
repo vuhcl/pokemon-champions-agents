@@ -8,7 +8,7 @@ Evidence JSON: `mt8_correction_analysis.json`.
 - Prior committed `+Def:20` / `+Spe:2` were illegal-SpD>32 artifacts (cap-less `spd_hi=rem-hp-df`; +Spe cells needed SpD=34) — not a Timid-branch labeling mixup.
 - Timid + Adamant extra (`timid_zard_extra`): `{+Def:276, +Spe:0, +SpD:4}`, Bold 31/1/23/5 (total 60, spare 6).
 - Request-set sha unchanged `fc6b150d…`; R9 errata for L470 and L472; fold text at Oct 19–20 pin refresh.
-- Keys sha: `b39a706c18c6437933251341c5ab17fa69e94eaa265ea10054b42498d39d6e94` (supersedes v4.1 `5b244be8…7190`).
+- Keys sha: `0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a` (supersedes v4.1 `5b244be8…7190`).
 
 ## Direct-calc anchors
 
