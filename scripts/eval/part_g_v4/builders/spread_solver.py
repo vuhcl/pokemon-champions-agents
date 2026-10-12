@@ -1,6 +1,10 @@
 """Property-check spread search for AR1/AR2/MT7/MT8 (calc-backed, binary SpD)."""
 from __future__ import annotations
 
+import json
+import os
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from pathlib import Path
 from typing import Any
 
 from _lib import champions_spe, common_joint, load_legality, load_showdown, to_id
@@ -15,6 +19,9 @@ ARCH_ITEM = "Leftovers"
 MIRROR_MIN_SPE = 110
 MIRROR_CORE_CELLS = [108, 109]
 MIRROR_DROPPED_MAX = 150
+
+# Monotone fallback log (stderr/print); also appended when checkpoint dir set.
+_MONOTONE_FALLBACKS: list[str] = []
 
 
 def _defender(nature: str, spread: dict) -> dict:
@@ -79,67 +86,303 @@ def _ok(nature: str, spread: dict, conditions: list[tuple[dict, str, dict]]) -> 
     return all(_survives(att, defender, move, field) for att, move, field in conditions)
 
 
+def _workers() -> int:
+    raw = (os.environ.get("PART_G_V4_SOLVER_WORKERS") or "").strip()
+    if raw:
+        return max(1, int(raw))
+    return max(1, min(8, (os.cpu_count() or 2) - 1))
+
+
+def _checkpoint_path(prefix: str) -> Path | None:
+    root = (os.environ.get("PART_G_V4_SOLVER_CHECKPOINT_DIR") or "").strip()
+    if not root:
+        return None
+    p = Path(root)
+    p.mkdir(parents=True, exist_ok=True)
+    return p / f"{prefix}_cells.jsonl"
+
+
+def _load_checkpoint(path: Path | None) -> dict[str, dict]:
+    if path is None or not path.is_file():
+        return {}
+    out: dict[str, dict] = {}
+    for line in path.read_text().splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        cid = row.get("cell_id") or row.get("nature")
+        if cid:
+            out[str(cid)] = row
+    return out
+
+
+def _append_checkpoint(path: Path | None, row: dict) -> None:
+    if path is None:
+        return
+    with path.open("a") as f:
+        f.write(json.dumps(row, sort_keys=True) + "\n")
+
+
+def _min_spd_linear(
+    nature: str,
+    hp: int,
+    df: int,
+    spe: int,
+    spd_hi: int,
+    conditions: list[tuple[dict, str, dict]],
+) -> int | None:
+    for spd in range(0, spd_hi + 1):
+        spread = {"hp": hp, "atk": 0, "def": df, "spa": 0, "spd": spd, "spe": spe}
+        if _ok(nature, spread, conditions):
+            return spd
+    return None
+
+
+def _min_spd_binary_verified(
+    nature: str,
+    hp: int,
+    df: int,
+    spe: int,
+    spd_hi: int,
+    conditions: list[tuple[dict, str, dict]],
+    *,
+    cell_id: str,
+) -> int | None:
+    """Binary-search min SpD; verify boundary; fall back to linear on monotone fail."""
+    lo, hi = 0, spd_hi
+    best: int | None = None
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        spread = {"hp": hp, "atk": 0, "def": df, "spa": 0, "spd": mid, "spe": spe}
+        if _ok(nature, spread, conditions):
+            best = mid
+            hi = mid - 1
+        else:
+            lo = mid + 1
+    if best is None:
+        return None
+    # Boundary verify: best passes, best-1 fails (if best>0)
+    spread_ok = {"hp": hp, "atk": 0, "def": df, "spa": 0, "spd": best, "spe": spe}
+    if not _ok(nature, spread_ok, conditions):
+        msg = f"monotone_fallback boundary_fail_pass {cell_id} spd={best}"
+        _MONOTONE_FALLBACKS.append(msg)
+        print(f"    WARN {msg}", flush=True)
+        return _min_spd_linear(nature, hp, df, spe, spd_hi, conditions)
+    if best > 0:
+        spread_lo = {"hp": hp, "atk": 0, "def": df, "spa": 0, "spd": best - 1, "spe": spe}
+        if _ok(nature, spread_lo, conditions):
+            msg = f"monotone_fallback boundary_fail_min1 {cell_id} spd={best}"
+            _MONOTONE_FALLBACKS.append(msg)
+            print(f"    WARN {msg}", flush=True)
+            return _min_spd_linear(nature, hp, df, spe, spd_hi, conditions)
+    return best
+
+
+def _search_one_nature(
+    nature: str,
+    conditions: list[tuple[dict, str, dict]],
+    spe: int,
+    base_spe: int,
+    *,
+    use_staircase: bool,
+) -> dict[str, Any]:
+    """Per-nature HP×Def search. Staircase skips infeasible HP below frontier."""
+    ncls = nature_class(nature)
+    rem = 66 - spe
+    n_ok = 0
+    min_total: int | None = None
+    example: dict | None = None
+    fallbacks_before = len(_MONOTONE_FALLBACKS)
+
+    def handle_cell(hp: int, df: int) -> None:
+        nonlocal n_ok, min_total, example
+        spd_hi = min(32, rem - hp - df)
+        cid = f"{nature}|hp={hp}|def={df}|spe={spe}"
+        best = _min_spd_binary_verified(
+            nature, hp, df, spe, spd_hi, conditions, cell_id=cid
+        )
+        if best is None:
+            return
+        n_ok += spd_hi - best + 1
+        tot = hp + df + best + spe
+        if min_total is None or tot < min_total:
+            min_total = tot
+            example = {
+                "nature": nature,
+                "nature_class": ncls,
+                "spread": {
+                    "hp": hp,
+                    "atk": 0,
+                    "def": df,
+                    "spa": 0,
+                    "spd": best,
+                    "spe": spe,
+                },
+                "spe": champions_spe(base_spe, spe, nature),
+                "total_sp": tot,
+            }
+
+    if use_staircase:
+        # Damage non-increasing in defender HP/Def/SpD → feasible region is a staircase:
+        # for each Def, binary-search min HP that admits some SpD, then fill HP≥min.
+        # If frontier verify fails, fall back to full HP scan for that Def column.
+        for df in range(33):
+            if df > rem:
+                continue
+            # Per-stat SP max 32 (budget rem may exceed 32 when Spe is low).
+            hp_hi = min(32, rem - df)
+            lo, hi = 0, hp_hi
+            min_hp: int | None = None
+            while lo <= hi:
+                mid = (lo + hi) // 2
+                spd_hi = min(32, rem - mid - df)
+                cid = f"{nature}|frontier|hp={mid}|def={df}|spe={spe}"
+                if (
+                    _min_spd_binary_verified(
+                        nature, mid, df, spe, spd_hi, conditions, cell_id=cid
+                    )
+                    is not None
+                ):
+                    min_hp = mid
+                    hi = mid - 1
+                else:
+                    lo = mid + 1
+            if min_hp is None:
+                continue
+            # Frontier verify: min_hp-1 must be infeasible even at max SpD
+            if min_hp > 0:
+                spd_hi_lo = min(32, rem - (min_hp - 1) - df)
+                spread_lo = {
+                    "hp": min_hp - 1,
+                    "atk": 0,
+                    "def": df,
+                    "spa": 0,
+                    "spd": spd_hi_lo,
+                    "spe": spe,
+                }
+                if _ok(nature, spread_lo, conditions):
+                    msg = (
+                        f"monotone_fallback frontier_hp {nature}|def={df} "
+                        f"min_hp={min_hp} but hp-1 ok at spd={spd_hi_lo}"
+                    )
+                    _MONOTONE_FALLBACKS.append(msg)
+                    print(f"    WARN {msg}", flush=True)
+                    for hp in range(0, hp_hi + 1):
+                        handle_cell(hp, df)
+                    continue
+            for hp in range(min_hp, hp_hi + 1):
+                handle_cell(hp, df)
+    else:
+        for hp in range(33):
+            for df in range(33):
+                if hp + df > rem:
+                    continue
+                handle_cell(hp, df)
+
+    return {
+        "cell_id": nature,
+        "nature": nature,
+        "nature_class": ncls,
+        "n_ok": n_ok,
+        "min_total": min_total,
+        "example": example,
+        "monotone_fallbacks": len(_MONOTONE_FALLBACKS) - fallbacks_before,
+    }
+
+
+def _nature_job(args: tuple) -> dict[str, Any]:
+    nature, conditions, spe, base_spe, use_staircase = args
+    return _search_one_nature(
+        nature, conditions, spe, base_spe, use_staircase=use_staircase
+    )
+
+
 def search_conditions(
     conditions: list[tuple[dict, str, dict]],
     speed_gate: bool,
     prefix: str,
 ) -> dict[str, Any]:
-    """Return feasibility, min total SP, one example. Counts are diagnostic only."""
+    """Return feasibility, min total SP, one example. Counts are diagnostic only.
+
+    Fast path (default): full HP×Def grid + binary SpD with boundary verify;
+    parallel over natures; optional JSONL checkpoint resume.
+    PART_G_V4_SOLVER_STAIRCASE=1 enables experimental HP frontier (unsound under
+    SP budget — see search_note); linear SpD fallback on monotone fail.
+    """
     snap = load_legality()
     base_spe = snap["species"][to_id("Archaludon")]["base_stats"]["spe"]
-    # Diagnostic counts at minimal Spe (gate minimum) — not exhaustive totals.
-    diag_counts: dict[str, int] = {}
-    min_total: int | None = None
-    example: dict | None = None
-    any_ok = False
+    # Default: full HP×Def grid + binary SpD (with boundary verify).
+    # Opt-in staircase is UNSOUND under Champions SP budget: raising HP/Def
+    # lowers spd_hi=min(32,rem-hp-df), so feasibility is not monotone in HP
+    # for fixed Def — holes exist (validated vs linear on MT7 t3 Bold).
+    # Atk-SP OHKO binary search (ar3) remains valid (no bulk tradeoff).
+    use_staircase = os.environ.get("PART_G_V4_SOLVER_STAIRCASE", "").strip() in {
+        "1",
+        "true",
+        "yes",
+    }
+    if os.environ.get("PART_G_V4_SOLVER_LINEAR", "").strip() in {"1", "true", "yes"}:
+        use_staircase = False
+    ck_path = _checkpoint_path(prefix)
+    done = _load_checkpoint(ck_path)
 
+    jobs: list[tuple] = []
+    nature_order: list[str] = []
     for nature in ALL_NATURES:
-        ncls = nature_class(nature)
         min_spe = _min_spe_sp(base_spe, nature) if speed_gate else 0
         if speed_gate and min_spe is None:
             continue
         spe = min_spe or 0
-        rem = 66 - spe
-        n_ok = 0
-        for hp in range(33):
-            for df in range(33):
-                if hp + df > rem:
-                    continue
-                # Per-stat Champions SP max is 32 (budget rem may be larger when Spe ungated)
-                spd_hi = min(32, rem - hp - df)
-                lo, hi = 0, spd_hi
-                best = None
-                while lo <= hi:
-                    mid = (lo + hi) // 2
-                    spread = {"hp": hp, "atk": 0, "def": df, "spa": 0, "spd": mid, "spe": spe}
-                    if _ok(nature, spread, conditions):
-                        best = mid
-                        hi = mid - 1
-                    else:
-                        lo = mid + 1
-                if best is None:
-                    continue
-                n_ok += spd_hi - best + 1
-                tot = hp + df + best + spe
-                any_ok = True
-                if min_total is None or tot < min_total:
-                    min_total = tot
-                    example = {
-                        "nature": nature,
-                        "nature_class": ncls,
-                        "spread": {
-                            "hp": hp,
-                            "atk": 0,
-                            "def": df,
-                            "spa": 0,
-                            "spd": best,
-                            "spe": spe,
-                        },
-                        "spe": champions_spe(base_spe, spe, nature),
-                        "total_sp": tot,
-                    }
+        nature_order.append(nature)
+        if nature in done and done[nature].get("n_ok") is not None:
+            continue
+        jobs.append((nature, conditions, spe, base_spe, use_staircase))
+
+    results_by_nat: dict[str, dict] = {
+        n: done[n] for n in nature_order if n in done and done[n].get("n_ok") is not None
+    }
+    workers = _workers() if jobs else 1
+    if jobs and workers > 1:
+        with ProcessPoolExecutor(max_workers=workers) as pool:
+            futs = [pool.submit(_nature_job, j) for j in jobs]
+            for fut in as_completed(futs):
+                row = fut.result()
+                results_by_nat[row["nature"]] = row
+                _append_checkpoint(ck_path, row)
+    else:
+        for j in jobs:
+            row = _nature_job(j)
+            results_by_nat[row["nature"]] = row
+            _append_checkpoint(ck_path, row)
+
+    # Deterministic merge: ALL_NATURES order (not completion order / worker count).
+    diag_counts: dict[str, int] = {}
+    min_total: int | None = None
+    example: dict | None = None
+    any_ok = False
+    monotone_fallbacks = 0
+    for nature in nature_order:
+        row = results_by_nat[nature]
+        n_ok = int(row.get("n_ok") or 0)
+        ncls = row.get("nature_class") or nature_class(nature)
+        monotone_fallbacks += int(row.get("monotone_fallbacks") or 0)
         if n_ok:
             diag_counts[ncls] = diag_counts.get(ncls, 0) + n_ok
+            any_ok = True
+        mt = row.get("min_total")
+        ex = row.get("example")
+        if mt is not None and (min_total is None or int(mt) < min_total):
+            min_total = int(mt)
+            example = ex
+        elif (
+            mt is not None
+            and min_total is not None
+            and int(mt) == min_total
+            and example is not None
+            and ex is not None
+        ):
+            # Tie-break: earliest nature in ALL_NATURES (already iterating that order).
+            pass
 
     if example:
         for i, (att, move, field) in enumerate(conditions):
@@ -154,18 +397,29 @@ def search_conditions(
                 persist=True,
             )
 
+    # search_note must not mention worker count (byte-identity across PART_G_V4_SOLVER_WORKERS).
+    note_extra = (
+        "staircase HP×Def + binary SpD with boundary verify; "
+        "linear SpD fallback on monotone fail."
+        if use_staircase
+        else "full HP×Def grid; binary SpD with boundary verify; "
+        "linear SpD fallback on monotone fail."
+    )
+    # Stable class-key order for readers that don't sort_keys.
+    diag_sorted = {k: diag_counts[k] for k in sorted(diag_counts)}
     return {
         "feasible": any_ok,
         "min_total_sp": min_total,
         "example": example,
-        "solutions_at_minimal_spe_by_class": diag_counts,
+        "solutions_at_minimal_spe_by_class": diag_sorted,
         "count_semantics": (
             "solutions at minimal Spe (gate minimum); Spe fixed at gate min; "
             "not exhaustive totals across Spe SP. Only feasible/infeasible is exact."
         ),
         "search_note": (
             "Spe fixed at min for gate; binary-search min SpD per (HP,Def); "
-            "diagnostic SpD>=min counts summed per nature class (not key totals)."
+            "diagnostic SpD>=min counts summed per nature class (not key totals). "
+            + note_extra
         ),
         "class_count_note": (
             "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match "
@@ -173,6 +427,7 @@ def search_conditions(
             "mixes 2 full-bulk + 1 Def− + 1 Spe− nature (fewer sols). Not double-counting; "
             "Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set."
         ),
+        "monotone_fallback_count": monotone_fallbacks,
     }
 
 

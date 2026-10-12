@@ -1,0 +1,73 @@
+{
+  "checks": {
+    "ar3_ohko_mins": {
+      "checked_key_rows": 30,
+      "committed_ladder_files": 602,
+      "ladders": 40,
+      "differences": 0,
+      "monotone_violations": 0,
+      "ok": true,
+      "diffs": [],
+      "mono_bad": []
+    },
+    "inprocess_vs_http": {
+      "n": 1000,
+      "seed": 42,
+      "differences": 0,
+      "ok": true,
+      "sample_mismatches": []
+    },
+    "fast_vs_linear_cells": {
+      "n": 200,
+      "seed": 7,
+      "differences": 0,
+      "ok": true,
+      "samples": []
+    },
+    "mt7_t1_fast_timing": {
+      "fast_wall_s": 3.93,
+      "feasible": true,
+      "min_total_sp": 17,
+      "solutions_at_minimal_spe_by_class": {
+        "neutral": 63950,
+        "+Atk": 32158,
+        "+Def": 88658,
+        "+Spe": 48604,
+        "+SpA": 32158,
+        "+SpD": 32158
+      },
+      "monotone_fallback_count": 0
+    },
+    "live_vs_fast": {
+      "ok": true,
+      "differences": 0,
+      "diffs": []
+    }
+  },
+  "ok": true,
+  "determinism": {
+    "workers_1_sha256": "fadabe712516f5d4b47739c520dc8e818c854977d88a648c115e0cfeeb66daee",
+    "workers_4_sha256": "fadabe712516f5d4b47739c520dc8e818c854977d88a648c115e0cfeeb66daee",
+    "workers_14_sha256": "fadabe712516f5d4b47739c520dc8e818c854977d88a648c115e0cfeeb66daee",
+    "all_byte_identical": true,
+    "kill_resume_sha256": "fadabe712516f5d4b47739c520dc8e818c854977d88a648c115e0cfeeb66daee",
+    "kill_resume_identical_to_uninterrupted": true,
+    "wall_s": {
+      "1": 81.3,
+      "4": 49.4,
+      "14": 42.3
+    }
+  },
+  "full_chain": {
+    "wall_clock_seconds": 55.7,
+    "regenerated_sha256": "2f78620bef91b4b2130094fa5abc5e66a4353c347013c65af949c7f04e8ba536",
+    "committed_sha256": "5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190",
+    "byte_identical": false,
+    "leaf_count": 56,
+    "class_counts": {
+      "hand patch": 21,
+      "solver-group difference": 35
+    },
+    "prior_21_remaining_count": 21
+  }
+}

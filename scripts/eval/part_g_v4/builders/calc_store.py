@@ -26,10 +26,19 @@ def reset_call_log() -> None:
     CALL_LOG.clear()
 
 
+_LEGAL_ABILITY_CACHE: dict[str, set[str]] = {}
+
+
 def _legal_abilities(species: str) -> set[str]:
+    key = to_id(species)
+    hit = _LEGAL_ABILITY_CACHE.get(key)
+    if hit is not None:
+        return hit
     snap = load_legality()
-    sp = snap["species"].get(to_id(species)) or {}
-    return {str(v) for v in (sp.get("abilities") or {}).values() if v}
+    sp = snap["species"].get(key) or {}
+    out = {str(v) for v in (sp.get("abilities") or {}).values() if v}
+    _LEGAL_ABILITY_CACHE[key] = out
+    return out
 
 
 def assert_abilities(req: dict[str, Any], resp: dict[str, Any]) -> dict[str, Any]:
@@ -88,11 +97,37 @@ def _stable_probe_id(req: dict[str, Any]) -> str:
     return f"probe_{digest}"
 
 
-def calculate(req: dict[str, Any], artifact_id: str, *, persist: bool = True) -> dict[str, Any]:
-    """Load saved artifact by id, else POST /calculate and persist.
+def _backend() -> str:
+    """http (default) or inprocess (Node batch_worker, same @smogon/calc pin)."""
+    return (os.environ.get("PART_G_V4_CALC_BACKEND") or "http").strip().lower()
 
-    `persist=False` still writes when the id is unique (search winners / probes);
-    use artifact_id \"probe\" to auto-hash the request into probe_<sha16>.
+
+def _live_calculate(req: dict[str, Any]) -> dict[str, Any]:
+    if _backend() == "inprocess":
+        from inprocess_calc import calculate_one
+
+        return calculate_one(req)
+    payload = json.dumps(req).encode()
+    http_req = urllib.request.Request(
+        f"{BASE_URL}/calculate",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(http_req, timeout=30) as resp:
+            return json.loads(resp.read().decode())
+    except urllib.error.HTTPError as e:
+        return json.loads(e.read().decode()) if e.fp else {"error": str(e)}
+    except Exception as e:
+        return {"error": f"{type(e).__name__}: {e}"}
+
+
+def calculate(req: dict[str, Any], artifact_id: str, *, persist: bool = True) -> dict[str, Any]:
+    """Load saved artifact by id, else calc (HTTP or in-process) and optionally persist.
+
+    Use artifact_id \"probe\" to auto-hash the request into probe_<sha16>.
+    `persist=False` skips disk write (search path); named winners should pass persist=True.
     """
     for side in ("attacker", "defender"):
         if not (req.get(side) or {}).get("ability"):
@@ -103,8 +138,13 @@ def calculate(req: dict[str, Any], artifact_id: str, *, persist: bool = True) ->
 
     path = CALC_DIR / f"{artifact_id}.json"
     require = os.environ.get("PART_G_V4_REQUIRE_CALC_ARTIFACT", "").strip() in {"1", "true", "yes"}
+    ignore_disk = os.environ.get("PART_G_V4_CALC_IGNORE_DISK", "").strip() in {
+        "1",
+        "true",
+        "yes",
+    }
 
-    if path.is_file():
+    if path.is_file() and not ignore_disk:
         record = json.loads(path.read_text())
         # Prefer on-disk request/response; refresh asserts
         if "error" not in (record.get("response") or {}) and "raw" in (record.get("response") or {}):
@@ -131,24 +171,10 @@ def calculate(req: dict[str, Any], artifact_id: str, *, persist: bool = True) ->
         record = {"id": artifact_id, "request": req, "response": body, "cached": True}
         source = "memory"
     else:
-        CALC_DIR.mkdir(parents=True, exist_ok=True)
-        payload = json.dumps(req).encode()
-        http_req = urllib.request.Request(
-            f"{BASE_URL}/calculate",
-            data=payload,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(http_req, timeout=30) as resp:
-                body = json.loads(resp.read().decode())
-        except urllib.error.HTTPError as e:
-            body = json.loads(e.read().decode()) if e.fp else {"error": str(e)}
-        except Exception as e:
-            body = {"error": f"{type(e).__name__}: {e}"}
+        body = _live_calculate(req)
         _CACHE[key] = body
         record = {"id": artifact_id, "request": req, "response": body}
-        source = "live"
+        source = "inprocess" if _backend() == "inprocess" else "live"
 
     if "error" not in record["response"] and "raw" in record["response"]:
         raw = record["response"]["raw"]
@@ -162,14 +188,17 @@ def calculate(req: dict[str, Any], artifact_id: str, *, persist: bool = True) ->
         }
         record["ability_assert"] = assert_abilities(req, record["response"])
 
-    # Always persist successful or error responses under the artifact id so regen is offline.
-    CALC_DIR.mkdir(parents=True, exist_ok=True)
-    (CALC_DIR / f"{artifact_id}.json").write_text(json.dumps(record, indent=2) + "\n")
+    if persist:
+        CALC_DIR.mkdir(parents=True, exist_ok=True)
+        (CALC_DIR / f"{artifact_id}.json").write_text(json.dumps(record, indent=2) + "\n")
+        path_note = str((CALC_DIR / f"{artifact_id}.json").relative_to(PKG))
+    else:
+        path_note = "(not_persisted)"
     CALL_LOG.append(
         {
             "id": artifact_id,
             "source": source,
-            "path": str((CALC_DIR / f"{artifact_id}.json").relative_to(PKG)),
+            "path": path_note,
             "persist_arg": persist,
         }
     )
@@ -179,6 +208,30 @@ def calculate(req: dict[str, Any], artifact_id: str, *, persist: bool = True) ->
 def health() -> dict:
     """Live health check. Soft-pass when REQUIRE=1 so offline disk-served rebuilds can proceed."""
     require = os.environ.get("PART_G_V4_REQUIRE_CALC_ARTIFACT", "").strip() in {"1", "true", "yes"}
+    if _backend() == "inprocess":
+        try:
+            from inprocess_calc import calculate_one
+
+            # Tiny self-check; species must be legal Champions
+            calculate_one(
+                {
+                    "attacker": {
+                        "species": "Pikachu",
+                        "ability": "Static",
+                        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+                    },
+                    "defender": {
+                        "species": "Pikachu",
+                        "ability": "Static",
+                        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+                    },
+                    "move": "Tackle",
+                    "field": {"gameType": "Doubles"},
+                }
+            )
+            return {"status": "ok", "backend": "inprocess"}
+        except Exception as e:
+            return {"status": "error", "backend": "inprocess", "detail": str(e)}
     try:
         with urllib.request.urlopen(f"{BASE_URL}/health", timeout=3) as resp:
             body = json.loads(resp.read().decode())

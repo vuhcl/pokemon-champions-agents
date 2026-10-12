@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import sys
 from pathlib import Path
 
@@ -65,26 +66,75 @@ def min_spe_to_outspeed(nature: str, target: int) -> int | None:
     return None
 
 
+def _fu_ohko_at(nature, move, prim, field, atk: int, joint_i: int, *, persist: bool):
+    rec = calculate(
+        {
+            "attacker": _cx(
+                nature,
+                {"hp": 0, "atk": atk, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+                {"atk": 6},
+            ),
+            "defender": prim,
+            "move": move,
+            "field": field,
+        },
+        f"ar3fu_ohko_{to_id(move)}_{nature}_j{joint_i}_{atk}",
+        persist=persist,
+    )
+    raw = (rec.get("response") or {}).get("raw") or {}
+    dmg = raw.get("damage") or []
+    if not dmg:
+        return None
+    hp = (raw.get("stats") or {}).get("defender", {}).get("hp") or 0
+    return min(dmg) >= hp
+
+
 def ohko_min_atk(nature, move, prim, field, joint_i: int = 0) -> int | None:
-    for atk in range(33):
-        rec = calculate(
-            {
-                "attacker": _cx(nature, {"hp": 0, "atk": atk, "def": 0, "spa": 0, "spd": 0, "spe": 0}, {"atk": 6}),
-                "defender": prim,
-                "move": move,
-                "field": field,
-            },
-            f"ar3fu_ohko_{to_id(move)}_{nature}_j{joint_i}_{atk}",
-            persist=True,
-        )
-        raw = (rec.get("response") or {}).get("raw") or {}
-        dmg = raw.get("damage") or []
-        if not dmg:
+    """Binary-search min Atk SP for OHKO; persist 0..min ladder; linear fallback on verify fail."""
+    if os.environ.get("PART_G_V4_AR3_LINEAR", "").strip() in {"1", "true", "yes"}:
+        for atk in range(33):
+            ok = _fu_ohko_at(nature, move, prim, field, atk, joint_i, persist=True)
+            if ok is None:
+                return None
+            if ok:
+                return atk
+        return None
+    lo, hi = 0, 32
+    best = None
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        ok = _fu_ohko_at(nature, move, prim, field, mid, joint_i, persist=False)
+        if ok is None:
             return None
-        hp = (raw.get("stats") or {}).get("defender", {}).get("hp") or 0
-        if min(dmg) >= hp:
-            return atk
-    return None
+        if ok:
+            best = mid
+            hi = mid - 1
+        else:
+            lo = mid + 1
+    if best is None:
+        _fu_ohko_at(nature, move, prim, field, 32, joint_i, persist=True)
+        return None
+    ok_b = _fu_ohko_at(nature, move, prim, field, best, joint_i, persist=False)
+    ok_m1 = (
+        False
+        if best == 0
+        else _fu_ohko_at(nature, move, prim, field, best - 1, joint_i, persist=False)
+    )
+    if (not ok_b) or (best > 0 and ok_m1 is not False):
+        print(
+            f"    WARN monotone_fallback ar3fu {move} {nature} j{joint_i} best={best}",
+            flush=True,
+        )
+        for atk in range(33):
+            ok = _fu_ohko_at(nature, move, prim, field, atk, joint_i, persist=True)
+            if ok is None:
+                return None
+            if ok:
+                return atk
+        return None
+    for atk in range(0, best + 1):
+        _fu_ohko_at(nature, move, prim, field, atk, joint_i, persist=True)
+    return best
 
 
 def aj_damage(prim, cx_spread, field, aid):
