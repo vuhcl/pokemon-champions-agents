@@ -431,6 +431,53 @@ def search_conditions(
     }
 
 
+def _timid_zard_extra_key(mt8_t3_timid: dict) -> dict:
+    """Verified Timid Mega-Y WB + Adamant Sneasler CC branch (not in 3-cap)."""
+    raw = dict(mt8_t3_timid.get("solutions_at_minimal_spe_by_class") or {})
+    # Explicit zeros for classes the scorer / readers may check; +Spe:2 was never legal.
+    counts = {
+        "+Def": int(raw.get("+Def") or 0),
+        "+Spe": int(raw.get("+Spe") or 0),
+        "+SpD": int(raw.get("+SpD") or 0),
+    }
+    ex = mt8_t3_timid.get("example")
+    spare = None
+    if ex and ex.get("total_sp") is not None:
+        spare = 66 - int(ex["total_sp"])
+    return {
+        "scenario": (
+            "Adamant Sneasler Close Combat + Timid Mega Charizard Y Weather Ball "
+            "(Sun), Spe≥110; Archaludon Stamina Leftovers"
+        ),
+        "feasible": mt8_t3_timid["feasible"],
+        "solutions_at_minimal_spe_by_class": counts,
+        "min_total_sp": mt8_t3_timid["min_total_sp"],
+        "example": ex,
+        "spare_sp": spare,
+        "accepted_extra_offer": True,
+        "counts_toward_3_relaxation_cap": False,
+        "note": (
+            "VERIFIED solver counts under legal SP≤32. Example Bold 31/1/23/5 "
+            "(total 60, spare 6). Owner hand build 32 HP/1 Def/21 SpD/Spe 4 fails "
+            "Timid Weather Ball (169–199 into 197 HP); Bold Spe gate is 5. "
+            "+Spe:2 was never legal on this branch (0 cells) and is not stored. "
+            "Direct-calc evidence: key_artifacts/mt8_correction_analysis.json."
+        ),
+        "direct_calc": {
+            "timid_wb_vs_example": "survives (solver-verified Bold 31/1/23/5)",
+            "adamant_cc_vs_example": "survives (solver-verified Bold 31/1/23/5)",
+            "timid_wb_vs_owner_hand_32_1_21_4": {
+                "damage_range": [169, 199],
+                "defender_hp": 197,
+                "survives_max": False,
+            },
+        },
+        "count_semantics": mt8_t3_timid.get("count_semantics"),
+        "search_note": mt8_t3_timid.get("search_note"),
+        "class_count_note": mt8_t3_timid.get("class_count_note"),
+    }
+
+
 def ar2_pareto() -> dict[str, list]:
     doubles = {"gameType": "Doubles"}
     class_natures = {
@@ -644,9 +691,9 @@ def mt7_mt8_ar_keys() -> dict:
         "mt8_t4_way_out": {
             "offers_of_either_relaxation_correct": True,
             "valid_relaxations": [
-                "make Sneasler Jolly (solutions at minimal Spe: classes from solver)",
+                "make Sneasler Jolly (solutions at minimal Spe: +SpD only under legal SP≤32)",
                 "drop Weather Ball (equals MT7 t2)",
-                "Timid Zard WB extra (not in 3-cap)",
+                "Timid Zard WB extra (not in 3-cap; see timid_zard_extra)",
             ],
             "invalid_relaxation": "drop Spe gate (0 legal SP≤32 solutions)",
             "jolly_sneasler": {
@@ -655,14 +702,21 @@ def mt7_mt8_ar_keys() -> dict:
                 "min_total_sp": mt8_t4["min_total_sp"],
                 "example": mt8_t4["example"],
                 "note": (
-                    "Jolly Sneasler relaxation feasible. "
-                    "Counts = solutions at minimal Spe (gate minimum), not totals. "
-                    "Request-set MT8 cites +SpD 294/+Def 20/+Spe 2; live solver class "
-                    "counts may differ — see unverified_descriptive if mismatch."
+                    "Jolly Sneasler + Modest Mega-Y Weather Ball (Sun), Spe≥110: "
+                    "feasible under legal SP≤32 with +SpD only. +Def and +Spe have "
+                    "zero feasible cells. Binding threat is special (Weather Ball); "
+                    "neutral-SpD 32 HP/32 SpD takes 169–199 into 197 HP and does not "
+                    "guarantee survival — see key_artifacts/mt8_correction_analysis.json. "
+                    "Prior committed +Def:20/+Spe:2 were illegal-SpD>32 artifacts "
+                    "(cap-less spd_hi=rem-hp-df); +Spe cells needed SpD=34. "
+                    "Counts = solutions at minimal Spe (gate minimum), not totals."
                 ),
                 "count_semantics": mt8_t4.get("count_semantics"),
                 "search_note": mt8_t4.get("search_note"),
-                "class_count_note": mt8_t4.get("class_count_note"),
+                "class_count_note": (
+                    "Under legal SP≤32, only the +SpD class is non-zero for this "
+                    "fixture. +Def/+Spe/neutral have no feasible cells."
+                ),
             },
             "drop_speed_gate": {
                 "feasible": mt8_nospe["feasible"],
@@ -681,13 +735,7 @@ def mt7_mt8_ar_keys() -> dict:
                 "search_note": mt8_nospe.get("search_note"),
                 "class_count_note": mt8_nospe.get("class_count_note"),
             },
-            "timid_zard_extra": {
-                "feasible": mt8_t3_timid["feasible"],
-                "min_total_sp": mt8_t3_timid["min_total_sp"],
-                "example": mt8_t3_timid["example"],
-                "accepted_extra_offer": True,
-                "counts_toward_3_relaxation_cap": False,
-            },
+            "timid_zard_extra": _timid_zard_extra_key(mt8_t3_timid),
         },
         "ar1": mt7_t1,
         "ar2_pareto_hp_def_by_class": pareto,

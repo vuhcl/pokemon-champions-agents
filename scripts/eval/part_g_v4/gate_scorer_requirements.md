@@ -187,13 +187,13 @@ Frozen quotes:
 
 Where a frozen request-set line or a key’s `false_claims` entry **conflicts** with its `scoring` under the R6/R7 rules, the scorer follows **`scoring` and the decided R6/R7 rules**. Conflicting frozen request-set wording stays byte-identical (hash discipline); the key supersedes it.
 
-### Sweep coverage (v4.1 keys)
+### Sweep coverage (v4.2 keys)
 
 | Measure | Count |
 |---|---|
 | Nodes with a `false_claims` field | **2** (`dm_outputs.dm6`, `mv3_rock_slide`) |
 | Confirmed `false_claims`↔scoring conflicts under R6/R7 | **0** (DM6 list aligned in v4.1) |
-| Request-set text ↔ key scoring conflicts | **1** (AR3 Flare Blitz recoil L470 — see table) |
+| Request-set text ↔ key scoring conflicts | **2** (AR3 Flare Blitz recoil L470; MT8 Jolly class counts L472 — see table) |
 
 **`false_claims` rows:**
 
@@ -219,7 +219,8 @@ A scorer needs a uniform reader over `false_claims` **and** must not treat `fail
 
 | Key id | Conflicting frozen text (verbatim) | Key scoring (verbatim intent) | Path / hashes | Resolution |
 |---|---|---|---|---|
-| AR3 Flare Blitz recoil | request-set L470 / `_ar3_key`: **“exact claims allow 61–62 in-game rounding”** (superseded allowance) | HP-point: `62` TRUE; `61` FALSE with `sub_label` `derived_from_calc_percent`. Percent-of-attacker-HP: against stated H (or HP SP → H=78+SP+75), accepted band `[floor(61.71/H×1000)/10, round(62/H×100,1)]` attributed to calc display → TRUE; no stated H → FALSE | Request-set sha **before = after** `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385` (text unchanged). `derived_keys` **before** (main) `1dd982d678e6c6a66f780836b252f684b09466b9644e35e8eb0a4fe984fd355d` → **after** `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190`. Path: `derived_keys.ar3.t4_flare_blitz_recoil` | **Scorer follows scoring.** L470 unchanged (hash discipline). Rationale errata: cause is fraction (1/3 vs 0.33 display), not “in-game rounding.” Fixture H 185/153 are worked examples only. |
+| AR3 Flare Blitz recoil | request-set L470 / `_ar3_key`: **“exact claims allow 61–62 in-game rounding”** (superseded allowance) | HP-point: `62` TRUE; `61` FALSE with `sub_label` `derived_from_calc_percent`. Percent-of-attacker-HP: against stated H (or HP SP → H=78+SP+75), accepted band `[floor(61.71/H×1000)/10, round(62/H×100,1)]` attributed to calc display → TRUE; no stated H → FALSE | Request-set sha **before = after** `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385` (text unchanged). Keys path: `derived_keys.ar3.t4_flare_blitz_recoil`. v4.1 keys sha `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190` superseded by v4.2 (see changelog). | **Scorer follows scoring.** L470 unchanged (hash discipline). Fold corrected L470 text into the request-set cut at the **Oct 19–20 pin refresh** (tracked item below). Rationale errata: cause is fraction (1/3 vs 0.33 display), not “in-game rounding.” Fixture H 185/153 are worked examples only. |
+| MT8 Jolly class counts | request-set L472: **“solutions at minimal Spe +SpD 294/+Def 20/+Spe 2”** | Jolly Sneasler + Modest Mega-Y WB: `{+SpD: 294}` only under legal SP≤32. Claims of **+Def 20** or **+Spe 2** are **FALSE** (illegal-SpD>32 artifacts from cap-less `spd_hi=rem-hp-df`; +Spe cells needed SpD=34). Not “unverified.” | Request-set sha **before = after** `fc6b150d…` (text unchanged). Path: `derived_keys.mt7_mt8_ar.mt8_t4_way_out.jolly_sneasler.solutions_at_minimal_spe_by_class`. Evidence: `key_artifacts/mt8_correction_analysis.json`. | **Scorer follows key.** L472 unchanged until Oct 19–20 pin-refresh fold-in. Outside-gate “unverified for scorer” for +Def/+Spe **removed** in v4.2. |
 | DM6 (historical v4) | previously listed “stated attacker nature/SP/item differing from key” under `false_claims` | `scoring.stated_attacker_differs_from_key` = `"not SERVED"` | fixed in v4.1 keys | resolved — no longer a defect row |
 
 #### B — chaos-weight field rename (R10; resolved in v4.1 keys)
@@ -277,6 +278,25 @@ These are different things. Both apply to **TRUE+FALSE** scored counts (R8), not
 - **Chaos weights:** 17 fields renamed `pct` → `chaos_weight` (drop `pct_kind`).
 - **Artifact ids:** joint-keyed `ar3_probe_*_j{i}_{atk}` / `ar3fu_ohko_*_j{i}_{atk}`; no content-hash `probe_*` search dumps.
 - **Batteries / seeds / pins:** unchanged (`13d08244…` / `13dda05d…`).
-- **Leaf inventory:** 196 Phase A differing leaves = 74 builder bug + 101 builder-absent patch + 21 frozen error. Of 101: 54 A4-unverified (51 unread + 2 read-by-request-set + 1 read-elsewhere) + 6 B1.4 verified notes + 41 other (9 flame_charge_margin hand patch + 31 diagnostic omitted + 1 offers_of_either = 10 hand patches inside the 41). Separate inventory: full-chain committed-vs-regen diff has **21** hand-patched leaves (not equal to 41; see `full_chain_to_disposition_map.json`). Table: `key_artifacts/leaf_disposition_v41.tsv`.
-- **Unverified for scorer (not gate):** MT8 rows that depend on `jolly_sneasler.solutions_at_minimal_spe_by_class.+Def` (=20) and `.+Spe` (=2) — marked unverified in `derived_keys.unverified_descriptive` until a live solver recount confirms. `ar3.threat_source` verified as shared label. `ar3.t4_flame_charge_margin` (9 children) verified vs pinned calc `ar3_flamecharge_margin_adamant32` and unread by request-set/scorer (keep-list only) — not gated as unverified.
-- **B3 full-chain status:** `mt7_mt8_ar` **not regenerated live** (solver timeout >55min / 1.1GB on MT7 t2); chain spliced committed `mt7_mt8_ar`. Full-chain byte-identity **NOT established**. 21 hand-patched leaves in the regenerated sections listed in `key_artifacts/full_chain_leaf_diff.json` (lower bound for the `mt7_mt8_ar` section). Live + REQUIRE=1 regenerated sha `1bc64a711e8f37c6731497d35d5034cd7757b9664cabd15d307f28c7a486fbee` ≠ committed `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190`. Unattended live `mt7_mt8_ar` solver re-run started under `key_artifacts/solver_runs/` (does not block merge). **Ar3-only subset:** OHKO mins match; keys sha differs (hand_disagreements reshape).
+- **Leaf inventory:** 196 Phase A differing leaves = 74 builder bug + 101 builder-absent patch + 21 frozen error. Of 101: 54 A4-unverified (51 unread + 2 read-by-request-set + 1 read-elsewhere) + 6 B1.4 verified notes + 41 other (9 flame_charge_margin hand patch + 31 diagnostic omitted + 1 offers_of_either = 10 hand patches inside the 41). Separate inventory: full-chain committed-vs-regen diff has **21** hand-patched leaves (not equal to 41; see `full_chain_to_disposition_map.json`). Table: `key_artifacts/leaf_disposition_v41.tsv` (superseded by `leaf_disposition_v42.tsv`).
+- **Unverified for scorer (not gate) — superseded by v4.2:** v4.1 marked MT8 Jolly `+Def` (=20) / `+Spe` (=2) as unverified. Those values are **wrong** (illegal SpD>32), not unverified — see v4.2.
+- **B3 full-chain status — superseded by v4.2:** v4.1 spliced `mt7_mt8_ar` (solver timeout). v4.2 regenerates unspliced with the fast path (depends on PR #265 tooling).
+
+---
+
+## v4.2 key revision (changelog — eval package)
+
+- **Supersedes keys sha** `5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190` (v4.1, #264). New keys sha: `b39a706c18c6437933251341c5ab17fa69e94eaa265ea10054b42498d39d6e94`.
+- **Request set:** no text change; sha256 remains `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385`. L470 and L472 wrong wording stay in the **acceptance/key column** (not the arm prompt column); scorer follows keys via R9.
+- **R9 errata (both rows; scorer follows key):**
+  - **L470** — supersedes “exact claims allow 61–62 in-game rounding” → HP-point 62 TRUE / 61 FALSE (`derived_from_calc_percent`); unchanged from v4.1 scoring.
+  - **L472** — supersedes “+SpD 294/+Def 20/+Spe 2” → **+SpD 294 only**; +Def 20 / +Spe 2 = **FALSE**.
+- **Tracked fold-in:** at the **Oct 19–20 pin refresh**, edit request-set text for L470 and L472 (new request-set hash) to match the keys; record old/new hashes in this table when cut.
+- **MT8 Jolly (`mt8_t4_way_out.jolly_sneasler`):** `{+SpD: 294}` only. Root cause: old solver used cap-less `spd_hi = rem - hp - df` (SpD>32). Modest-branch mechanism: neutral 32 HP/32 SpD takes Weather Ball 169–199 into 197 HP (does not guarantee survival) — evidence in `key_artifacts/mt8_correction_analysis.json`.
+- **Timid + Adamant extra (`timid_zard_extra`):** verified `{+Def: 276, +Spe: 0, +SpD: 4}`, example Bold 31/1/23/5 (total 60, spare 6). +Spe:2 never legal; not stored.
+- **Diagnostic maps:** committed keys now include solver-emitted `solutions_at_minimal_spe_by_class` and `monotone_fallback_count` (calc-derived; unread by request-set/scorer).
+- **Outside-gate removed:** +Def/+Spe are **not** “unverified for scorer”; they are resolved wrong. Scorer must **not** reward +Def 20 or +Spe 2.
+- **Full-chain claim:** regenerates byte-identically except the **21** listed hand-patched leaves (`key_artifacts/full_chain_leaf_diff_v42.json`). Regen used in-process calc / 4 workers (PR #265 fast path); rebase onto main after #265 merges to reproduce without a worktree.
+- **Disposition table:** `key_artifacts/leaf_disposition_v42.tsv` (v41 retained for history).
+- **Task C sweep:** `key_artifacts/task_c_sp_cap_sweep.md` — no remaining cap-less `spd_hi` in builders; stale 20/2 narrative cleared from keys (frozen RS text deferred to pin refresh).
+- **Batteries / seeds / pins:** unchanged.

@@ -1,0 +1,1124 @@
+{
+  "branches": {
+    "jolly_sneasler_modest_wb": {
+      "conditions": "Jolly Sneasler CC + Modest Mega-Y WB Sun; Spe\u2265110",
+      "search_conditions": {
+        "feasible": true,
+        "min_total_sp": 61,
+        "example": {
+          "nature": "Calm",
+          "nature_class": "+SpD",
+          "spread": {
+            "hp": 30,
+            "atk": 0,
+            "def": 1,
+            "spa": 0,
+            "spd": 25,
+            "spe": 5
+          },
+          "spe": 110,
+          "total_sp": 61
+        },
+        "solutions_at_minimal_spe_by_class": {
+          "+SpD": 294
+        }
+      },
+      "enum_by_class": {
+        "neutral": {
+          "n_ok": 0,
+          "min_total": null,
+          "natures": [
+            "Hardy",
+            "Docile",
+            "Serious",
+            "Bashful",
+            "Quirky"
+          ],
+          "min_spreads": [],
+          "n_min_spreads": 0
+        },
+        "+Atk": {
+          "n_ok": 0,
+          "min_total": null,
+          "natures": [
+            "Lonely",
+            "Brave",
+            "Adamant",
+            "Naughty"
+          ],
+          "min_spreads": [],
+          "n_min_spreads": 0
+        },
+        "+Def": {
+          "n_ok": 0,
+          "min_total": null,
+          "natures": [
+            "Bold",
+            "Relaxed",
+            "Impish",
+            "Lax"
+          ],
+          "min_spreads": [],
+          "n_min_spreads": 0
+        },
+        "+Spe": {
+          "n_ok": 0,
+          "min_total": null,
+          "natures": [
+            "Timid",
+            "Hasty",
+            "Jolly",
+            "Naive"
+          ],
+          "min_spreads": [],
+          "n_min_spreads": 0
+        },
+        "+SpA": {
+          "n_ok": 0,
+          "min_total": null,
+          "natures": [
+            "Modest",
+            "Mild",
+            "Quiet",
+            "Rash"
+          ],
+          "min_spreads": [],
+          "n_min_spreads": 0
+        },
+        "+SpD": {
+          "n_ok": 294,
+          "min_total": 61,
+          "natures": [
+            "Calm",
+            "Gentle",
+            "Sassy",
+            "Careful"
+          ],
+          "min_spreads": [
+            {
+              "nature": "Calm",
+              "hp": 30,
+              "def": 1,
+              "spd": 25,
+              "spe": 5,
+              "spd_hi": 30,
+              "total": 61,
+              "spare": 5,
+              "n_ok_at_cell": 6
+            },
+            {
+              "nature": "Calm",
+              "hp": 31,
+              "def": 1,
+              "spd": 24,
+              "spe": 5,
+              "spd_hi": 29,
+              "total": 61,
+              "spare": 5,
+              "n_ok_at_cell": 6
+            },
+            {
+              "nature": "Careful",
+              "hp": 30,
+              "def": 1,
+              "spd": 25,
+              "spe": 5,
+              "spd_hi": 30,
+              "total": 61,
+              "spare": 5,
+              "n_ok_at_cell": 6
+            },
+            {
+              "nature": "Careful",
+              "hp": 31,
+              "def": 1,
+              "spd": 24,
+              "spe": 5,
+              "spd_hi": 29,
+              "total": 61,
+              "spare": 5,
+              "n_ok_at_cell": 6
+            }
+          ],
+          "n_min_spreads": 4
+        }
+      }
+    },
+    "timid_zard_adamant_sneasler": {
+      "conditions": "Adamant Sneasler CC + Timid Mega-Y WB Sun; Spe\u2265110",
+      "search_conditions": {
+        "feasible": true,
+        "min_total_sp": 60,
+        "example": {
+          "nature": "Bold",
+          "nature_class": "+Def",
+          "spread": {
+            "hp": 31,
+            "atk": 0,
+            "def": 1,
+            "spa": 0,
+            "spd": 23,
+            "spe": 5
+          },
+          "spe": 110,
+          "total_sp": 60
+        },
+        "solutions_at_minimal_spe_by_class": {
+          "+Def": 276,
+          "+SpD": 4
+        }
+      },
+      "enum_by_class": {
+        "neutral": {
+          "n_ok": 0,
+          "min_total": null,
+          "natures": [
+            "Hardy",
+            "Docile",
+            "Serious",
+            "Bashful",
+            "Quirky"
+          ],
+          "min_spreads": [],
+          "n_min_spreads": 0
+        },
+        "+Atk": {
+          "n_ok": 0,
+          "min_total": null,
+          "natures": [
+            "Lonely",
+            "Brave",
+            "Adamant",
+            "Naughty"
+          ],
+          "min_spreads": [],
+          "n_min_spreads": 0
+        },
+        "+Def": {
+          "n_ok": 276,
+          "min_total": 60,
+          "natures": [
+            "Bold",
+            "Relaxed",
+            "Impish",
+            "Lax"
+          ],
+          "min_spreads": [
+            {
+              "nature": "Bold",
+              "hp": 31,
+              "def": 1,
+              "spd": 23,
+              "spe": 5,
+              "spd_hi": 29,
+              "total": 60,
+              "spare": 6,
+              "n_ok_at_cell": 7
+            },
+            {
+              "nature": "Impish",
+              "hp": 31,
+              "def": 1,
+              "spd": 23,
+              "spe": 5,
+              "spd_hi": 29,
+              "total": 60,
+              "spare": 6,
+              "n_ok_at_cell": 7
+            }
+          ],
+          "n_min_spreads": 2
+        },
+        "+Spe": {
+          "n_ok": 0,
+          "min_total": null,
+          "natures": [
+            "Timid",
+            "Hasty",
+            "Jolly",
+            "Naive"
+          ],
+          "min_spreads": [],
+          "n_min_spreads": 0
+        },
+        "+SpA": {
+          "n_ok": 0,
+          "min_total": null,
+          "natures": [
+            "Modest",
+            "Mild",
+            "Quiet",
+            "Rash"
+          ],
+          "min_spreads": [],
+          "n_min_spreads": 0
+        },
+        "+SpD": {
+          "n_ok": 4,
+          "min_total": 66,
+          "natures": [
+            "Calm",
+            "Gentle",
+            "Sassy",
+            "Careful"
+          ],
+          "min_spreads": [
+            {
+              "nature": "Calm",
+              "hp": 30,
+              "def": 16,
+              "spd": 15,
+              "spe": 5,
+              "spd_hi": 15,
+              "total": 66,
+              "spare": 0,
+              "n_ok_at_cell": 1
+            },
+            {
+              "nature": "Calm",
+              "hp": 31,
+              "def": 16,
+              "spd": 14,
+              "spe": 5,
+              "spd_hi": 14,
+              "total": 66,
+              "spare": 0,
+              "n_ok_at_cell": 1
+            },
+            {
+              "nature": "Careful",
+              "hp": 30,
+              "def": 16,
+              "spd": 15,
+              "spe": 5,
+              "spd_hi": 15,
+              "total": 66,
+              "spare": 0,
+              "n_ok_at_cell": 1
+            },
+            {
+              "nature": "Careful",
+              "hp": 31,
+              "def": 16,
+              "spd": 14,
+              "spe": 5,
+              "spd_hi": 14,
+              "total": 66,
+              "spare": 0,
+              "n_ok_at_cell": 1
+            }
+          ],
+          "n_min_spreads": 4
+        }
+      },
+      "all_plus_spe_cells": []
+    },
+    "adamant_sneasler_modest_wb": {
+      "conditions": "Adamant Sneasler CC + Modest Mega-Y WB Sun; Spe\u2265110",
+      "search_conditions": {
+        "feasible": false,
+        "min_total_sp": null,
+        "solutions_at_minimal_spe_by_class": {}
+      }
+    },
+    "drop_wb_equals_mt7_t2": {
+      "conditions": "Adamant Sneasler CC only; Spe\u2265110",
+      "search_conditions": {
+        "feasible": true,
+        "min_total_sp": 33,
+        "solutions_at_minimal_spe_by_class": {
+          "+Atk": 3554,
+          "+Def": 41677,
+          "+SpA": 3554,
+          "+SpD": 3554,
+          "+Spe": 7878,
+          "neutral": 8675
+        }
+      }
+    }
+  },
+  "direct_calcs": {
+    "modest_wb_vs_neutral_32hp_32spd": {
+      "http": {
+        "damageRange": [
+          169,
+          199
+        ],
+        "koChance": "6.3% chance to OHKO",
+        "max_dmg": 199,
+        "min_dmg": 169,
+        "def_hp": 197,
+        "survives_max": false,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 153,
+          "atk": 111,
+          "def": 98,
+          "spa": 232,
+          "spd": 135,
+          "spe": 120
+        },
+        "defender_stats": {
+          "hp": 197,
+          "atk": 125,
+          "def": 150,
+          "spa": 145,
+          "spd": 117,
+          "spe": 110
+        },
+        "desc": "32+ SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 32 HP / 32 SpD Archaludon in Sun: 169-199 (85.7 - 101%) -- 6.3% chance to OHKO"
+      },
+      "inprocess": {
+        "damageRange": [
+          169,
+          199
+        ],
+        "koChance": "6.3% chance to OHKO",
+        "max_dmg": 199,
+        "min_dmg": 169,
+        "def_hp": 197,
+        "survives_max": false,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 153,
+          "atk": 111,
+          "def": 98,
+          "spa": 232,
+          "spd": 135,
+          "spe": 120
+        },
+        "defender_stats": {
+          "hp": 197,
+          "atk": 125,
+          "def": 150,
+          "spa": 145,
+          "spd": 117,
+          "spe": 110
+        },
+        "desc": "32+ SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 32 HP / 32 SpD Archaludon in Sun: 169-199 (85.7 - 101%) -- 6.3% chance to OHKO"
+      },
+      "match": true
+    },
+    "modest_wb_vs_jolly_min_example": {
+      "http": {
+        "damageRange": [
+          163,
+          193
+        ],
+        "koChance": "guaranteed 2HKO after Leftovers recovery",
+        "max_dmg": 193,
+        "min_dmg": 163,
+        "def_hp": 195,
+        "survives_max": true,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 153,
+          "atk": 111,
+          "def": 98,
+          "spa": 232,
+          "spd": 135,
+          "spe": 120
+        },
+        "defender_stats": {
+          "hp": 195,
+          "atk": 112,
+          "def": 151,
+          "spa": 145,
+          "spd": 121,
+          "spe": 110
+        },
+        "desc": "32+ SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 30 HP / 25+ SpD Archaludon in Sun: 163-193 (83.5 - 98.9%) -- guaranteed 2HKO after Leftovers recovery"
+      },
+      "inprocess": {
+        "damageRange": [
+          163,
+          193
+        ],
+        "koChance": "guaranteed 2HKO after Leftovers recovery",
+        "max_dmg": 193,
+        "min_dmg": 163,
+        "def_hp": 195,
+        "survives_max": true,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 153,
+          "atk": 111,
+          "def": 98,
+          "spa": 232,
+          "spd": 135,
+          "spe": 120
+        },
+        "defender_stats": {
+          "hp": 195,
+          "atk": 112,
+          "def": 151,
+          "spa": 145,
+          "spd": 121,
+          "spe": 110
+        },
+        "desc": "32+ SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 30 HP / 25+ SpD Archaludon in Sun: 163-193 (83.5 - 98.9%) -- guaranteed 2HKO after Leftovers recovery"
+      },
+      "match": true
+    },
+    "modest_wb_vs_jolly_min_example_spd_minus_1": {
+      "http": {
+        "damageRange": [
+          165,
+          195
+        ],
+        "koChance": "6.3% chance to OHKO",
+        "max_dmg": 195,
+        "min_dmg": 165,
+        "def_hp": 195,
+        "survives_max": false,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 153,
+          "atk": 111,
+          "def": 98,
+          "spa": 232,
+          "spd": 135,
+          "spe": 120
+        },
+        "defender_stats": {
+          "hp": 195,
+          "atk": 112,
+          "def": 151,
+          "spa": 145,
+          "spd": 119,
+          "spe": 110
+        },
+        "desc": "32+ SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 30 HP / 24+ SpD Archaludon in Sun: 165-195 (84.6 - 100%) -- 6.3% chance to OHKO"
+      },
+      "inprocess": {
+        "damageRange": [
+          165,
+          195
+        ],
+        "koChance": "6.3% chance to OHKO",
+        "max_dmg": 195,
+        "min_dmg": 165,
+        "def_hp": 195,
+        "survives_max": false,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 153,
+          "atk": 111,
+          "def": 98,
+          "spa": 232,
+          "spd": 135,
+          "spe": 120
+        },
+        "defender_stats": {
+          "hp": 195,
+          "atk": 112,
+          "def": 151,
+          "spa": 145,
+          "spd": 119,
+          "spe": 110
+        },
+        "desc": "32+ SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 30 HP / 24+ SpD Archaludon in Sun: 165-195 (84.6 - 100%) -- 6.3% chance to OHKO"
+      },
+      "match": true
+    },
+    "jolly_cc_vs_jolly_min_example": {
+      "http": {
+        "damageRange": [
+          164,
+          194
+        ],
+        "koChance": "guaranteed 2HKO after Leftovers recovery",
+        "max_dmg": 194,
+        "min_dmg": 164,
+        "def_hp": 195,
+        "survives_max": true,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 157,
+          "atk": 182,
+          "def": 80,
+          "spa": 54,
+          "spd": 100,
+          "spe": 189
+        },
+        "defender_stats": {
+          "hp": 195,
+          "atk": 112,
+          "def": 151,
+          "spa": 145,
+          "spd": 121,
+          "spe": 110
+        },
+        "desc": "32 Atk Sneasler Close Combat vs. 30 HP / 1 Def Archaludon: 164-194 (84.1 - 99.4%) -- guaranteed 2HKO after Leftovers recovery"
+      },
+      "inprocess": {
+        "damageRange": [
+          164,
+          194
+        ],
+        "koChance": "guaranteed 2HKO after Leftovers recovery",
+        "max_dmg": 194,
+        "min_dmg": 164,
+        "def_hp": 195,
+        "survives_max": true,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 157,
+          "atk": 182,
+          "def": 80,
+          "spa": 54,
+          "spd": 100,
+          "spe": 189
+        },
+        "defender_stats": {
+          "hp": 195,
+          "atk": 112,
+          "def": 151,
+          "spa": 145,
+          "spd": 121,
+          "spe": 110
+        },
+        "desc": "32 Atk Sneasler Close Combat vs. 30 HP / 1 Def Archaludon: 164-194 (84.1 - 99.4%) -- guaranteed 2HKO after Leftovers recovery"
+      },
+      "match": true
+    },
+    "bold_min_spe_for_gate": 5,
+    "timid_wb_vs_hand_32_1_21_spe": {
+      "http": {
+        "damageRange": [
+          169,
+          199
+        ],
+        "koChance": "6.3% chance to OHKO",
+        "max_dmg": 199,
+        "min_dmg": 169,
+        "def_hp": 197,
+        "survives_max": false,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 153,
+          "atk": 111,
+          "def": 98,
+          "spa": 211,
+          "spd": 135,
+          "spe": 132
+        },
+        "defender_stats": {
+          "hp": 197,
+          "atk": 112,
+          "def": 166,
+          "spa": 145,
+          "spd": 106,
+          "spe": 110
+        },
+        "desc": "32 SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 32 HP / 21 SpD Archaludon in Sun: 169-199 (85.7 - 101%) -- 6.3% chance to OHKO"
+      },
+      "inprocess": {
+        "damageRange": [
+          169,
+          199
+        ],
+        "koChance": "6.3% chance to OHKO",
+        "max_dmg": 199,
+        "min_dmg": 169,
+        "def_hp": 197,
+        "survives_max": false,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 153,
+          "atk": 111,
+          "def": 98,
+          "spa": 211,
+          "spd": 135,
+          "spe": 132
+        },
+        "defender_stats": {
+          "hp": 197,
+          "atk": 112,
+          "def": 166,
+          "spa": 145,
+          "spd": 106,
+          "spe": 110
+        },
+        "desc": "32 SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 32 HP / 21 SpD Archaludon in Sun: 169-199 (85.7 - 101%) -- 6.3% chance to OHKO"
+      },
+      "match": true
+    },
+    "adamant_cc_vs_hand_32_1_21_spe": {
+      "http": {
+        "damageRange": [
+          164,
+          194
+        ],
+        "koChance": "guaranteed 2HKO after Leftovers recovery",
+        "max_dmg": 194,
+        "min_dmg": 164,
+        "def_hp": 197,
+        "survives_max": true,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 157,
+          "atk": 200,
+          "def": 80,
+          "spa": 54,
+          "spd": 100,
+          "spe": 172
+        },
+        "defender_stats": {
+          "hp": 197,
+          "atk": 112,
+          "def": 166,
+          "spa": 145,
+          "spd": 106,
+          "spe": 110
+        },
+        "desc": "32+ Atk Sneasler Close Combat vs. 32 HP / 1+ Def Archaludon: 164-194 (83.2 - 98.4%) -- guaranteed 2HKO after Leftovers recovery"
+      },
+      "inprocess": {
+        "damageRange": [
+          164,
+          194
+        ],
+        "koChance": "guaranteed 2HKO after Leftovers recovery",
+        "max_dmg": 194,
+        "min_dmg": 164,
+        "def_hp": 197,
+        "survives_max": true,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 157,
+          "atk": 200,
+          "def": 80,
+          "spa": 54,
+          "spd": 100,
+          "spe": 172
+        },
+        "defender_stats": {
+          "hp": 197,
+          "atk": 112,
+          "def": 166,
+          "spa": 145,
+          "spd": 106,
+          "spe": 110
+        },
+        "desc": "32+ Atk Sneasler Close Combat vs. 32 HP / 1+ Def Archaludon: 164-194 (83.2 - 98.4%) -- guaranteed 2HKO after Leftovers recovery"
+      },
+      "match": true
+    },
+    "timid_wb_vs_owner_32_1_21_4": {
+      "http": {
+        "damageRange": [
+          169,
+          199
+        ],
+        "koChance": "6.3% chance to OHKO",
+        "max_dmg": 199,
+        "min_dmg": 169,
+        "def_hp": 197,
+        "survives_max": false,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 153,
+          "atk": 111,
+          "def": 98,
+          "spa": 211,
+          "spd": 135,
+          "spe": 132
+        },
+        "defender_stats": {
+          "hp": 197,
+          "atk": 112,
+          "def": 166,
+          "spa": 145,
+          "spd": 106,
+          "spe": 109
+        },
+        "desc": "32 SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 32 HP / 21 SpD Archaludon in Sun: 169-199 (85.7 - 101%) -- 6.3% chance to OHKO"
+      },
+      "inprocess": {
+        "damageRange": [
+          169,
+          199
+        ],
+        "koChance": "6.3% chance to OHKO",
+        "max_dmg": 199,
+        "min_dmg": 169,
+        "def_hp": 197,
+        "survives_max": false,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 153,
+          "atk": 111,
+          "def": 98,
+          "spa": 211,
+          "spd": 135,
+          "spe": 132
+        },
+        "defender_stats": {
+          "hp": 197,
+          "atk": 112,
+          "def": 166,
+          "spa": 145,
+          "spd": 106,
+          "spe": 109
+        },
+        "desc": "32 SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 32 HP / 21 SpD Archaludon in Sun: 169-199 (85.7 - 101%) -- 6.3% chance to OHKO"
+      },
+      "match": true
+    },
+    "adamant_cc_vs_owner_32_1_21_4": {
+      "http": {
+        "damageRange": [
+          164,
+          194
+        ],
+        "koChance": "guaranteed 2HKO after Leftovers recovery",
+        "max_dmg": 194,
+        "min_dmg": 164,
+        "def_hp": 197,
+        "survives_max": true,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 157,
+          "atk": 200,
+          "def": 80,
+          "spa": 54,
+          "spd": 100,
+          "spe": 172
+        },
+        "defender_stats": {
+          "hp": 197,
+          "atk": 112,
+          "def": 166,
+          "spa": 145,
+          "spd": 106,
+          "spe": 109
+        },
+        "desc": "32+ Atk Sneasler Close Combat vs. 32 HP / 1+ Def Archaludon: 164-194 (83.2 - 98.4%) -- guaranteed 2HKO after Leftovers recovery"
+      },
+      "inprocess": {
+        "damageRange": [
+          164,
+          194
+        ],
+        "koChance": "guaranteed 2HKO after Leftovers recovery",
+        "max_dmg": 194,
+        "min_dmg": 164,
+        "def_hp": 197,
+        "survives_max": true,
+        "ohko_min": false,
+        "attacker_stats": {
+          "hp": 157,
+          "atk": 200,
+          "def": 80,
+          "spa": 54,
+          "spd": 100,
+          "spe": 172
+        },
+        "defender_stats": {
+          "hp": 197,
+          "atk": 112,
+          "def": 166,
+          "spa": 145,
+          "spd": 106,
+          "spe": 109
+        },
+        "desc": "32+ Atk Sneasler Close Combat vs. 32 HP / 1+ Def Archaludon: 164-194 (83.2 - 98.4%) -- guaranteed 2HKO after Leftovers recovery"
+      },
+      "match": true
+    },
+    "plus_spe_attempt": {
+      "spe_need_jolly_arch": 0,
+      "spread": {
+        "hp": 32,
+        "atk": 0,
+        "def": 13,
+        "spa": 0,
+        "spd": 21,
+        "spe": 0
+      },
+      "timid_wb": {
+        "http": {
+          "damageRange": [
+            169,
+            199
+          ],
+          "koChance": "6.3% chance to OHKO",
+          "max_dmg": 199,
+          "min_dmg": 169,
+          "def_hp": 197,
+          "survives_max": false,
+          "ohko_min": false,
+          "attacker_stats": {
+            "hp": 153,
+            "atk": 111,
+            "def": 98,
+            "spa": 211,
+            "spd": 135,
+            "spe": 132
+          },
+          "defender_stats": {
+            "hp": 197,
+            "atk": 125,
+            "def": 163,
+            "spa": 130,
+            "spd": 106,
+            "spe": 115
+          },
+          "desc": "32 SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 32 HP / 21 SpD Archaludon in Sun: 169-199 (85.7 - 101%) -- 6.3% chance to OHKO"
+        },
+        "inprocess": {
+          "damageRange": [
+            169,
+            199
+          ],
+          "koChance": "6.3% chance to OHKO",
+          "max_dmg": 199,
+          "min_dmg": 169,
+          "def_hp": 197,
+          "survives_max": false,
+          "ohko_min": false,
+          "attacker_stats": {
+            "hp": 153,
+            "atk": 111,
+            "def": 98,
+            "spa": 211,
+            "spd": 135,
+            "spe": 132
+          },
+          "defender_stats": {
+            "hp": 197,
+            "atk": 125,
+            "def": 163,
+            "spa": 130,
+            "spd": 106,
+            "spe": 115
+          },
+          "desc": "32 SpA Charizard-Mega-Y Weather Ball (100 BP Fire) vs. 32 HP / 21 SpD Archaludon in Sun: 169-199 (85.7 - 101%) -- 6.3% chance to OHKO"
+        },
+        "match": true
+      },
+      "adamant_cc": {
+        "http": {
+          "damageRange": [
+            168,
+            198
+          ],
+          "koChance": "6.3% chance to OHKO",
+          "max_dmg": 198,
+          "min_dmg": 168,
+          "def_hp": 197,
+          "survives_max": false,
+          "ohko_min": false,
+          "attacker_stats": {
+            "hp": 157,
+            "atk": 200,
+            "def": 80,
+            "spa": 54,
+            "spd": 100,
+            "spe": 172
+          },
+          "defender_stats": {
+            "hp": 197,
+            "atk": 125,
+            "def": 163,
+            "spa": 130,
+            "spd": 106,
+            "spe": 115
+          },
+          "desc": "32+ Atk Sneasler Close Combat vs. 32 HP / 13 Def Archaludon: 168-198 (85.2 - 100.5%) -- 6.3% chance to OHKO"
+        },
+        "inprocess": {
+          "damageRange": [
+            168,
+            198
+          ],
+          "koChance": "6.3% chance to OHKO",
+          "max_dmg": 198,
+          "min_dmg": 168,
+          "def_hp": 197,
+          "survives_max": false,
+          "ohko_min": false,
+          "attacker_stats": {
+            "hp": 157,
+            "atk": 200,
+            "def": 80,
+            "spa": 54,
+            "spd": 100,
+            "spe": 172
+          },
+          "defender_stats": {
+            "hp": 197,
+            "atk": 125,
+            "def": 163,
+            "spa": 130,
+            "spd": 106,
+            "spe": 115
+          },
+          "desc": "32+ Atk Sneasler Close Combat vs. 32 HP / 13 Def Archaludon: 168-198 (85.2 - 100.5%) -- 6.3% chance to OHKO"
+        },
+        "match": true
+      }
+    }
+  },
+  "counts_origin": {
+    "plus_def_cell_shapes": {
+      "jolly_modest": {
+        "n_ok_spd_expanded": 0,
+        "n_unique_nature_hp_def": 0,
+        "n_unique_nature_hp_def_minspd": 0,
+        "sample_hp_def": [],
+        "n_unique_hp_def_ignoring_nature": 0
+      },
+      "timid_adamant": {
+        "n_ok_spd_expanded": 276,
+        "n_unique_nature_hp_def": 96,
+        "n_unique_nature_hp_def_minspd": 96,
+        "sample_hp_def": [
+          [
+            18,
+            11
+          ],
+          [
+            20,
+            11
+          ],
+          [
+            22,
+            9
+          ],
+          [
+            22,
+            10
+          ],
+          [
+            23,
+            9
+          ],
+          [
+            24,
+            6
+          ],
+          [
+            24,
+            7
+          ],
+          [
+            24,
+            8
+          ],
+          [
+            25,
+            6
+          ],
+          [
+            25,
+            7
+          ],
+          [
+            25,
+            8
+          ],
+          [
+            25,
+            9
+          ],
+          [
+            26,
+            6
+          ],
+          [
+            26,
+            7
+          ],
+          [
+            26,
+            8
+          ],
+          [
+            26,
+            9
+          ],
+          [
+            27,
+            6
+          ],
+          [
+            27,
+            7
+          ],
+          [
+            27,
+            8
+          ],
+          [
+            28,
+            3
+          ],
+          [
+            28,
+            4
+          ],
+          [
+            28,
+            5
+          ],
+          [
+            28,
+            6
+          ],
+          [
+            28,
+            7
+          ],
+          [
+            29,
+            3
+          ],
+          [
+            29,
+            4
+          ],
+          [
+            29,
+            5
+          ],
+          [
+            29,
+            6
+          ],
+          [
+            29,
+            7
+          ],
+          [
+            30,
+            1
+          ]
+        ],
+        "n_unique_hp_def_ignoring_nature": 48
+      }
+    },
+    "plus_spe_cell_shapes": {},
+    "hypothesis_b_timid_plus_def_n_ok": 276,
+    "committed": {
+      "+Def": 20,
+      "+Spe": 2,
+      "+SpD": 294
+    },
+    "solver_jolly": {
+      "+SpD": 294
+    },
+    "solver_timid": {
+      "+Def": 276,
+      "+SpD": 4
+    }
+  },
+  "hypothesis_c_check": {
+    "jolly_modest_plus_def_n_ok": 0,
+    "jolly_modest_plus_spe_n_ok": 0,
+    "jolly_modest_plus_spd_n_ok": 294,
+    "jolly_modest_neutral_n_ok": 0,
+    "neutral_32_32_survives_modest_wb": false
+  }
+}
