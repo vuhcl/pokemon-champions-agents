@@ -70,11 +70,18 @@ class PokemonSpec(TypedDict):
 class PokemonSpecOptional(PokemonSpec, total=False):
     item: str
     ability: str
+    abilityOverride: str
     moves: list[str]
     nature: str
     evs: StatSpreadJson
     level: int
     boosts: StatSpreadJson
+    curHP: int
+    substitute: bool
+    substituteHp: int
+    endure: bool
+    form: Literal["disguised", "busted"]
+    types: list[str]
 
 
 class MoveOverrides(TypedDict, total=False):
@@ -121,10 +128,23 @@ class CalcRaw(TypedDict, total=False):
     stats: CalcStatsRaw
 
 
+class AbilityResolutionSide(TypedDict, total=False):
+    applied: str
+    supplied: str
+    source: Literal["dex", "request", "override"]
+
+
+class AbilityResolution(TypedDict, total=False):
+    attacker: AbilityResolutionSide
+    defender: AbilityResolutionSide
+
+
 class CalcSuccessResponse(TypedDict):
     damageRange: list[int]
     koChance: str
     raw: CalcRaw
+    recoilHp: NotRequired[int | list[int] | str]
+    abilityResolution: NotRequired[AbilityResolution]
 
 
 class CalcErrorResponse(TypedDict):

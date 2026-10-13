@@ -5,6 +5,15 @@
 import {calculate, Field, Generations, Move, Pokemon, Side, toID} from '@smogon/calc';
 import {Sets} from '@pkmn/sets';
 import type {PokemonSet} from '@pkmn/sets';
+import {
+  buildInitialHitState,
+  computeRecoilHp,
+  resolveAbility,
+  type AbilityResolution,
+  type AbilityResolutionSide,
+  type DisguiseForm,
+  type RecoilHp,
+} from './recoil.js';
 
 /** Champions pseudo-generation in @smogon/calc — NOT Generations.get('champions'). */
 const GEN = Generations.get(0);
@@ -22,6 +31,8 @@ export type PokemonSpec = {
   species: string;
   item?: string;
   ability?: string;
+  /** Explicit mid-battle / Trace / Skill Swap result; overrides plain + Mega dex. */
+  abilityOverride?: string;
   moves?: string[];
   nature?: string;
   /** Champions SP 0–32 (field name is still `evs` in Showdown/calc). */
@@ -30,6 +41,17 @@ export type PokemonSpec = {
   level?: number;
   /** Stat stages (−6…+6), forwarded to @smogon/calc. */
   boosts?: StatSpread;
+  /** Current HP; default max HP. */
+  curHP?: number;
+  /** Substitute present. Fresh HP = floor(maxHP/4) unless substituteHp set. */
+  substitute?: boolean;
+  substituteHp?: number;
+  /** Turn-level Endure (defender). */
+  endure?: boolean;
+  /** Wrapper Disguise state; default disguised when ability is Disguise. */
+  form?: DisguiseForm;
+  /** Current types (Soak/etc.) → calc overrides.types. */
+  types?: string[];
 };
 
 export type SideSpec = Partial<{
@@ -85,6 +107,13 @@ export type CalcSuccess = {
     recoil: {recoil: number | [number, number]; text: string};
     stats: {attacker: StatSpread; defender: StatSpread};
   };
+  /**
+   * Project-convention HP recoil for 1/3-of-dealt moves.
+   * Single-hit: per-roll array. Parental Bond: sorted distinct achievable totals.
+   * Rock Head / Magic Guard: 0. Else label string.
+   */
+  recoilHp: RecoilHp;
+  abilityResolution?: AbilityResolution;
 };
 
 export type CalcResult = CalcSuccess | {error: string};
@@ -113,7 +142,31 @@ function toField(spec: FieldSpec | undefined, moveTarget: string): Field {
   });
 }
 
-function toPokemon(spec: PokemonSpec): Pokemon {
+function dexAbility0(speciesName: string): string {
+  const sp = GEN.species.get(toID(speciesName));
+  if (!sp) throw new Error(`unknown Champions species: ${speciesName}`);
+  const a0 = sp.abilities[0];
+  if (!a0) throw new Error(`no dex ability for ${speciesName}`);
+  return a0;
+}
+
+function resolveSide(spec: PokemonSpec): AbilityResolutionSide {
+  return resolveAbility({
+    species: spec.species,
+    ability: spec.ability,
+    abilityOverride: spec.abilityOverride,
+    dexAbility: dexAbility0(spec.species),
+  });
+}
+
+function shouldRecord(side: AbilityResolutionSide, isMega: boolean): boolean {
+  if (side.source === 'override') return true;
+  if (side.source === 'dex' && isMega) return true;
+  if (side.source === 'request') return true;
+  return false;
+}
+
+function toPokemon(spec: PokemonSpec, ability: string): Pokemon {
   if (!spec?.species) throw new Error('species is required');
   if (!GEN.species.get(toID(spec.species))) {
     throw new Error(`unknown Champions species: ${spec.species}`);
@@ -121,20 +174,29 @@ function toPokemon(spec: PokemonSpec): Pokemon {
   if (spec.item && !GEN.items.get(toID(spec.item))) {
     throw new Error(`unknown Champions item: ${spec.item}`);
   }
+  const overrides = spec.types
+    ? {types: spec.types as [string] | [string, string]}
+    : undefined;
   return new Pokemon(GEN, spec.species, {
     item: spec.item,
-    ability: spec.ability,
+    ability,
     moves: spec.moves,
     nature: spec.nature,
     evs: spec.evs,
     boosts: spec.boosts,
+    curHP: spec.curHP,
+    overrides,
   });
 }
 
 export function runCalculate(req: CalcRequest): CalcSuccess {
   if (!req?.move) throw new Error('move is required');
-  const attacker = toPokemon(req.attacker);
-  const defender = toPokemon(req.defender);
+
+  const atkRes = resolveSide(req.attacker);
+  const defRes = resolveSide(req.defender);
+
+  const attacker = toPokemon(req.attacker, atkRes.applied);
+  const defender = toPokemon(req.defender, defRes.applied);
   const move = new Move(
     GEN,
     req.move,
@@ -149,6 +211,51 @@ export function runCalculate(req: CalcRequest): CalcSuccess {
   };
   const recovery = result.recovery();
   const recoil = result.recoil();
+
+  const isSpread =
+    field.gameType !== 'Singles' && SPREAD_TARGETS.has(move.target);
+  // Ability + not-spread + hits===1: treat nesting as PB; missing second hit → label.
+  const parentalBond =
+    atkRes.applied === 'Parental Bond' && move.hits === 1 && !isSpread;
+
+  const initial = buildInitialHitState({
+    maxHP: defender.rawStats.hp,
+    curHP: req.defender.curHP,
+    substitute: req.defender.substitute,
+    substituteHp: req.defender.substituteHp,
+    endure: req.defender.endure,
+    form: req.defender.form,
+    defenderAbility: defRes.applied,
+    item: req.defender.item,
+  });
+
+  const recoilHp = computeRecoilHp({
+    damage: result.damage,
+    moveRecoil: move.recoil,
+    moveHits: move.hits,
+    isSpread,
+    attackerAbility: atkRes.applied,
+    defenderAbility: defRes.applied,
+    infiltrator: atkRes.applied === 'Infiltrator',
+    initial,
+    parentalBond,
+  });
+
+  const abilityResolution: AbilityResolution = {};
+  if (shouldRecord(atkRes, req.attacker.species.includes('-Mega'))) {
+    abilityResolution.attacker = atkRes;
+  }
+  if (shouldRecord(defRes, req.defender.species.includes('-Mega'))) {
+    abilityResolution.defender = defRes;
+  }
+
+  const base = {
+    recoilHp,
+    ...(Object.keys(abilityResolution).length
+      ? {abilityResolution}
+      : {}),
+  };
+
   // Immunity / status / BP-0: calc returns damage 0. kochance()/desc() with
   // err=true throw "damage[damage.length - 1] === 0." — treat as success.
   if (range[1] === 0) {
@@ -165,6 +272,7 @@ export function runCalculate(req: CalcRequest): CalcSuccess {
         recoil,
         stats,
       },
+      ...base,
     };
   }
   const kochance = result.kochance();
@@ -181,6 +289,7 @@ export function runCalculate(req: CalcRequest): CalcSuccess {
       recoil,
       stats,
     },
+    ...base,
   };
 }
 
