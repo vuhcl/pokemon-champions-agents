@@ -57,55 +57,65 @@ def main() -> int:
         cwd=str(REPO),
     )
 
-    LOG.write_text("")
-    with LOG.open("a") as log:
-        log.write(
-            f"backend={env['PART_G_V4_CALC_BACKEND']} ignore_disk="
-            f"{env['PART_G_V4_CALC_IGNORE_DISK']} workers="
-            f"{env.get('PART_G_V4_SOLVER_WORKERS')}\n"
+    def _restore_keys() -> None:
+        subprocess.check_call(
+            ["git", "checkout", "HEAD", "--", str(KEYS.relative_to(REPO))],
+            cwd=str(REPO),
         )
-        for name in BUILDERS:
-            print(f"=== {name} ===", flush=True)
-            log.write(f"=== {name} ===\n")
-            log.flush()
-            rc = subprocess.call(
-                [sys.executable, str(BUILDERS_DIR / name)],
-                cwd=str(REPO),
-                env=env,
-                stdout=log,
-                stderr=subprocess.STDOUT,
+
+    LOG.write_text("")
+    failed = False
+    try:
+        with LOG.open("a") as log:
+            log.write(
+                f"backend={env['PART_G_V4_CALC_BACKEND']} ignore_disk="
+                f"{env['PART_G_V4_CALC_IGNORE_DISK']} workers="
+                f"{env.get('PART_G_V4_SOLVER_WORKERS')}\n"
             )
-            if rc != 0:
-                print(f"FAIL {name} rc={rc}", flush=True)
-                return rc
-            print(f"OK {name}", flush=True)
-            log.write(f"OK {name}\n")
+            for name in BUILDERS:
+                print(f"=== {name} ===", flush=True)
+                log.write(f"=== {name} ===\n")
+                log.flush()
+                rc = subprocess.call(
+                    [sys.executable, str(BUILDERS_DIR / name)],
+                    cwd=str(REPO),
+                    env=env,
+                    stdout=log,
+                    stderr=subprocess.STDOUT,
+                )
+                if rc != 0:
+                    print(f"FAIL {name} rc={rc}", flush=True)
+                    failed = True
+                    break
+                print(f"OK {name}", flush=True)
+                log.write(f"OK {name}\n")
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(KEYS, OUT)
-    sha = hashlib.sha256(OUT.read_bytes()).hexdigest()
-    elapsed = time.time() - t0
-    meta = {
-        "out": str(OUT),
-        "sha256": sha,
-        "wall_clock_seconds": round(elapsed, 1),
-        "wall_clock_hours": round(elapsed / 3600, 3),
-        "backend": env["PART_G_V4_CALC_BACKEND"],
-        "ignore_disk": env["PART_G_V4_CALC_IGNORE_DISK"],
-        "workers": env.get("PART_G_V4_SOLVER_WORKERS"),
-    }
-    (HERE / "full_chain_fast_FINISH.json").write_text(
-        __import__("json").dumps(meta, indent=2) + "\n"
-    )
-    print(meta, flush=True)
+        if failed:
+            print(f"restored committed {KEYS.name} after builder failure", flush=True)
+            return 1
 
-    # Restore committed derived_keys (and leave calc probe dirt for git clean).
-    subprocess.check_call(
-        ["git", "checkout", "HEAD", "--", str(KEYS.relative_to(REPO))],
-        cwd=str(REPO),
-    )
-    print(f"restored committed {KEYS.name}; result at {OUT}", flush=True)
-    return 0
+        OUT.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(KEYS, OUT)
+        sha = hashlib.sha256(OUT.read_bytes()).hexdigest()
+        elapsed = time.time() - t0
+        meta = {
+            "out": str(OUT),
+            "sha256": sha,
+            "wall_clock_seconds": round(elapsed, 1),
+            "wall_clock_hours": round(elapsed / 3600, 3),
+            "backend": env["PART_G_V4_CALC_BACKEND"],
+            "ignore_disk": env["PART_G_V4_CALC_IGNORE_DISK"],
+            "workers": env.get("PART_G_V4_SOLVER_WORKERS"),
+        }
+        (HERE / "full_chain_fast_FINISH.json").write_text(
+            __import__("json").dumps(meta, indent=2) + "\n"
+        )
+        print(meta, flush=True)
+        print(f"restored committed {KEYS.name}; result at {OUT}", flush=True)
+        return 0
+    finally:
+        # Always restore committed derived_keys (leave calc probe dirt for git clean).
+        _restore_keys()
 
 
 if __name__ == "__main__":

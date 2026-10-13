@@ -14,6 +14,7 @@ CHECKS = [
     "check_calc_artifacts.py",
     "check_battery_hash.py",
     "check_ar3_probes.py",
+    "check_keys_no_error_fields.py",
 ]
 
 
