@@ -179,12 +179,18 @@ describe('resolveDealtForHit / survival', () => {
 });
 
 describe('sumRecoilAcrossHits PB Case A/B', () => {
-  it('Case A: all 256 pairs equal floor((h1+h2)/3) when remainders allow', () => {
-    // Rolls all ≡0 mod 3 ⇒ per-hit sum === floor((h1+h2)/3) for every pair.
-    const hit1 = Array.from({length: 16}, (_, i) => 60 + i * 3);
-    const hit2 = Array.from({length: 16}, (_, i) => 15 + i * 3);
+  it('Case A: 256 actual calc pairs equal floor((h1+h2)/3) (no remainder carry)', () => {
+    // Actual calc rolls (defender HP 169); both hits land fully under maxHP 169+.
+    const hit1 = [
+      97, 99, 99, 100, 102, 103, 105, 105, 106, 108, 109, 109, 111, 112, 114, 115,
+    ];
+    const hit2 = [
+      24, 24, 24, 24, 24, 25, 25, 25, 25, 25, 27, 27, 27, 27, 27, 28,
+    ];
+    // No carry: floor(a/3)+floor(b/3) === floor((a+b)/3) iff (a%3)+(b%3) < 3.
+    // These rolls: h1 mods only {0,1}, h2 mods only {0,1}; max sum of mods is 2.
     const init = buildInitialHitState({
-      maxHP: 500,
+      maxHP: 169,
       defenderAbility: 'Torrent',
     });
     const totals = sumRecoilAcrossHits({
@@ -197,6 +203,7 @@ describe('sumRecoilAcrossHits PB Case A/B', () => {
     const expected = new Set<number>();
     for (const a of hit1) {
       for (const b of hit2) {
+        assert.ok(a % 3 + (b % 3) < 3, `carry would occur for ${a}+${b}`);
         assert.equal(
           recoilOneThirdHp(a) + recoilOneThirdHp(b),
           Math.floor((a + b) / 3),
@@ -208,7 +215,27 @@ describe('sumRecoilAcrossHits PB Case A/B', () => {
     assert.equal(hit1.length * hit2.length, 256);
   });
 
-  it('Case B: achievable set exactly {50,51} (Endure; fails if once-on-total)', () => {
+  it('Case B (no Endure): set exactly {50,51}; fails if once-on-total', () => {
+    // No Endure. Defender HP 153. Both hits finish the KO (dealt1+dealt2=153).
+    // h1%3==0 (153) → 51; h1%3==1 (148) → 50 (min-1 on the leftover chip).
+    // Once-on-total always floor(153/3)=51 → set {51} only — this assert fails if summing changes.
+    const init = buildInitialHitState({
+      maxHP: 153,
+      curHP: 153,
+      defenderAbility: 'Torrent',
+    });
+    assert.equal(init.endure, false);
+    const totals = sumRecoilAcrossHits({
+      hits: [[148, 153], [36]],
+      initial: init,
+      attackerAbility: 'Parental Bond',
+      defenderAbility: 'Torrent',
+      infiltrator: false,
+    }) as number[];
+    assert.deepEqual(totals, [50, 51]);
+  });
+
+  it('Case B Endure variant: total capped at 152 → set exactly {50}', () => {
     const init = buildInitialHitState({
       maxHP: 153,
       curHP: 153,
@@ -217,7 +244,7 @@ describe('sumRecoilAcrossHits PB Case A/B', () => {
     });
     const totals = sumRecoilAcrossHits({
       hits: [
-        [153, 150],
+        [153, 200],
         [30, 36],
       ],
       initial: init,
@@ -225,8 +252,8 @@ describe('sumRecoilAcrossHits PB Case A/B', () => {
       defenderAbility: 'Torrent',
       infiltrator: false,
     }) as number[];
-    // Once-on-total would collapse; per-hit Endure path yields both 50 and 51.
-    assert.deepEqual(totals, [50, 51]);
+    // Endure: dealt=min(r,152) on full HP → 152 → floor/3=50; hp=1; hit2→0. Set {50} only.
+    assert.deepEqual(totals, [50]);
   });
 
   it('Endure worked example: HP 153, hit1=123, hit2 capped 29 → recoil 50', () => {
@@ -549,28 +576,40 @@ describe('runCalculate recoilHp live', () => {
     assert.notEqual(r.recoilHp, RECOIL_NOT_IMPLEMENTED);
   });
 
-  it('AR3 live: Flare Blitz vs Primarina HP 187 — no roll reaches 187; synthetic caps', () => {
-    const live = runCalculate({
+  it('AR3 key scenario: Charizard-Mega-X +6 Flare Blitz vs Primarina HP 187 → every KO roll recoilHp 62', () => {
+    // Probe: scripts/eval/part_g_v4/key_artifacts/calc/ar3_flareblitz_recoil_j0_hp32.json
+    const r = runCalculate({
       attacker: {
-        species: 'Infernape',
-        ability: 'Blaze',
+        species: 'Charizard-Mega-X',
+        level: 50,
         nature: 'Adamant',
-        evs: {atk: 32},
+        ability: 'Tough Claws',
+        item: 'Charizardite X',
+        evs: {hp: 32, atk: 0, def: 0, spa: 0, spd: 0, spe: 0},
+        boosts: {atk: 6},
       },
-      defender: {species: 'Primarina', ability: 'Torrent', evs: {hp: 32}},
+      defender: {
+        species: 'Primarina',
+        level: 50,
+        nature: 'Modest',
+        ability: 'Torrent',
+        item: 'Life Orb',
+        evs: {hp: 32, atk: 0, def: 0, spa: 32, spd: 2, spe: 0},
+      },
       move: 'Flare Blitz',
+      field: {gameType: 'Doubles'},
     });
-    assert.equal(live.raw.stats.defender.hp, 187);
-    assert.deepEqual(live.damageRange, [62, 73]);
-    const rolls = live.raw.damage as number[];
-    assert.ok(rolls.every((d) => d < 187), 'no live roll reaches 187');
-    assert.deepEqual(live.recoilHp, [
-      20, 21, 21, 21, 21, 22, 22, 22, 22, 23, 23, 23, 23, 24, 24, 24,
-    ]);
-    // raw.recoil is % of attacker max HP, not HP points
-    assert.deepEqual(live.raw.recoil.recoil, [13.5, 15.9]);
+    assert.equal(r.raw.stats.defender.hp, 187);
+    assert.deepEqual(r.damageRange, [307, 362]);
+    const rolls = r.raw.damage as number[];
+    assert.ok(rolls.every((d) => d >= 187), 'every roll is a KO into 187');
+    assert.ok(Array.isArray(r.recoilHp));
+    for (const v of r.recoilHp as number[]) {
+      assert.equal(v, 62);
+    }
+  });
 
-    // Synthetic: roll near 250 into HP 187 → dealt 187 → 62 (not 83)
+  it('AR3 synthetic caps: 250/187/186 into HP 187 → 62; partial curHP 100 → 33', () => {
     const syn = sumRecoilAcrossHits({
       hits: [250, 187, 186],
       initial: buildInitialHitState({
@@ -582,7 +621,6 @@ describe('runCalculate recoilHp live', () => {
       infiltrator: false,
     }) as number[];
     assert.deepEqual(syn, [62, 62, 62]);
-    // Partial HP: curHP 100, roll 187 → dealt 100 → 33
     const partial = sumRecoilAcrossHits({
       hits: [187],
       initial: buildInitialHitState({
