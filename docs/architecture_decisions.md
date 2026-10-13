@@ -11754,8 +11754,7 @@ two +Spe cells needed SpD 34). Legal result: {+SpD 294} only; the
 mechanism is that neutral-SpD 32 HP / 32 SpD takes 169-199 from a
 Modest Mega-Y Weather Ball into 197 HP. The Timid + Adamant branch
 ({+Def 276, +Spe 0, +SpD 4}, minimum Bold 31/1/23/5) is stored under
-timid_zard_extra. Fixed in v4.2 keys (sha 0f160e234bb5becc24aea36785b
-fc6b150d... see below for the request set). The v4.1 claim that these
+timid_zard_extra. Fixed in v4.2 keys (sha 0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a). The v4.1 claim that these
 counts were merely "unverified" was itself wrong.
 
 (b) A cache-less regeneration embedded `mega_stone_map.error` in the
@@ -11763,8 +11762,7 @@ keys. The merged v4.1 keys were not affected (count 90, no error), but
 the reproducibility hole is closed by the hard-fail, the pin and the
 check above.
 
-(c) The request-set text is unchanged (sha fc6b150dc70b3f73f80e7d5
-29a9371f2799250c3316b15ec666eb473fb030385). Two acceptance-column
+(c) The request-set text is unchanged (sha fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385). Two acceptance-column
 strings are wrong: L470 ("61-62" recoil) and L472 (+Def 20 / +Spe 2).
 Neither is shown to the arm. R9 errata rows record them with old/new
 hashes; the scorer follows the key. Both text fixes fold into the
