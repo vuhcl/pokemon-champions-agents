@@ -166,6 +166,24 @@ class BatchResponse(TypedDict):
     results: list[CalcResult]
 
 
+class MovesBatchRequest(TypedDict):
+    attacker: PokemonSpecOptional
+    defender: PokemonSpecOptional
+    moves: list[str]
+    field: NotRequired[FieldSpec]
+    moveOverrides: NotRequired[MoveOverrides]
+
+
+class MovesBatchEntry(TypedDict, total=False):
+    move: str
+    damageRange: list[int]
+    koChance: str
+    raw: CalcRaw
+    recoilHp: int | list[int] | str
+    abilityResolution: AbilityResolution
+    error: str
+
+
 class PackRequest(TypedDict):
     set: dict[str, Any]
 
@@ -322,6 +340,33 @@ class CalcClient:
             raise CalcClientError(status, body)
         return body["results"]
 
+    def calculate_moves(
+        self,
+        attacker: PokemonSpecOptional,
+        defender: PokemonSpecOptional,
+        moves: list[str],
+        field: FieldSpec | None = None,
+        move_overrides: MoveOverrides | None = None,
+    ) -> list[MovesBatchEntry]:
+        payload: MovesBatchRequest = {
+            "attacker": attacker,
+            "defender": defender,
+            "moves": moves,
+        }
+        if field is not None:
+            payload["field"] = field
+        if move_overrides is not None:
+            payload["moveOverrides"] = move_overrides
+        status, body = self._json_request("POST", "/calculate/moves", payload)
+        if status < 200 or status >= 300 or not isinstance(body, dict):
+            raise CalcClientError(status, body)
+        if "error" in body and "results" not in body:
+            raise CalcClientError(status, body)
+        results = body.get("results")
+        if not isinstance(results, list):
+            raise CalcClientError(status, body)
+        return results
+
     def sets_pack(self, set_data: dict[str, Any]) -> str:
         status, body = self._json_request("POST", "/sets/pack", {"set": set_data})
         if status < 200 or status >= 300:
@@ -386,6 +431,20 @@ def calculate_batch(
     base_url: str | None = None,
 ) -> list[CalcResult]:
     return _client(base_url).calculate_batch(requests)
+
+
+def calculate_moves(
+    attacker: PokemonSpecOptional,
+    defender: PokemonSpecOptional,
+    moves: list[str],
+    field: FieldSpec | None = None,
+    move_overrides: MoveOverrides | None = None,
+    *,
+    base_url: str | None = None,
+) -> list[MovesBatchEntry]:
+    return _client(base_url).calculate_moves(
+        attacker, defender, moves, field, move_overrides
+    )
 
 
 def sets_pack(set_data: dict[str, Any], *, base_url: str | None = None) -> str:

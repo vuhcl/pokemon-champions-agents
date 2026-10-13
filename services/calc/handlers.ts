@@ -306,6 +306,44 @@ export function runCalculateBatch(requests: CalcRequest[]): CalcResult[] {
   return requests.map(runCalculateSafe);
 }
 
+export type MovesBatchRequest = {
+  attacker: PokemonSpec;
+  defender: PokemonSpec;
+  field?: FieldSpec;
+  moves: string[];
+  moveOverrides?: {basePower?: number};
+};
+
+export type MovesBatchEntry = CalcResult & {move: string};
+
+const MOVES_BATCH_CAP = 32;
+
+/**
+ * Shared-side moves batch. Cap 32 on moves.length; over-cap → whole-call error.
+ * Expands to CalcRequest[] → runCalculateBatch. /calculate/batch stays uncapped.
+ */
+export function runCalculateMovesBatch(
+  req: MovesBatchRequest,
+): MovesBatchEntry[] | {error: string} {
+  if (!Array.isArray(req?.moves)) {
+    return {error: 'moves array required'};
+  }
+  if (req.moves.length > MOVES_BATCH_CAP) {
+    return {
+      error: `moves length ${req.moves.length} exceeds cap ${MOVES_BATCH_CAP}`,
+    };
+  }
+  const requests: CalcRequest[] = req.moves.map((move) => ({
+    attacker: req.attacker,
+    defender: req.defender,
+    move,
+    field: req.field,
+    moveOverrides: req.moveOverrides,
+  }));
+  const results = runCalculateBatch(requests);
+  return results.map((r, i) => ({...r, move: req.moves[i]!}));
+}
+
 export function setsPack(set: Partial<PokemonSet>): string {
   return Sets.pack(set);
 }
