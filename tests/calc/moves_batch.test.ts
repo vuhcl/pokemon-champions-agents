@@ -68,7 +68,7 @@ describe('runCalculateMovesBatch', () => {
     assert.ok(!('error' in batch[2]!));
   });
 
-  it('immune / zero-damage entry OK', () => {
+  it('immune / zero-damage entry does not poison the batch', () => {
     const batch = runCalculateMovesBatch({
       attacker: {
         species: 'Tauros',
@@ -77,14 +77,18 @@ describe('runCalculateMovesBatch', () => {
         evs: {atk: 32},
       },
       defender: {species: 'Mimikyu', ability: 'Disguise', evs: {hp: 32}},
+      field: {gameType: 'Doubles'},
       moves: ['Double-Edge', 'Earthquake'],
     });
     assert.ok(Array.isArray(batch));
     const de = batch[0]!;
+    const eq = batch[1]!;
     assert.ok(!('error' in de));
-    if ('error' in de) return;
+    assert.ok(!('error' in eq));
+    if ('error' in de || 'error' in eq) return;
     assert.equal(de.damageRange[1], 0);
     assert.equal(de.recoilHp, 0);
+    assert.ok(eq.damageRange[1]! > 0);
   });
 
   it('preserves move order', () => {
