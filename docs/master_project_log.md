@@ -6173,6 +6173,141 @@ Corrections along the way: I said `test_usage_split_equivalence.py` pinning 260 
 
 v1.0.0 had been published (version bumps, README, demo, #189 and #190) but never tagged; the repo had only v0.1.0 and v0.2.0. Tagged retroactively, annotated, at cc29947 (merge of #190, 2026-09-06), the last packaging commit, and not at main HEAD, which is about 170 commits later. Decided sequence: discovery-error redaction, then 1.1.0 packaging (version bumps, README, honest eval and test framing, no demo transcript unless it can be recorded for real), then the v2 pre-registration and the remaining v2 items.
 
+## Part G v4 held-out claim battery and request set (eval harness;
+## arm not built, no gate result yet)
+
+*What to measure: false-claim rate of the model-driven arm on the
+300-item claim battery (claim-level, one-sided 95% Clopper-Pearson
+upper bound <= 2%), plus class-scored outcomes on 134 request-set rows.
+This section records the harness and key-oracle measurements only. Do
+not read it as an arm result.*
+
+- Gate result: TBD (arm not built; scorer not built)
+- Power (designed, not measured): ~267 scored claims @ 70% answer rate
+  tolerates 1 false (zero-failure bound ~1.1%); thresholds n >=
+  149/236/313/386 for 0/1/2/3 false. Item-level ~227 items, tolerates 0
+  (~1.3%). Row-level ~101 rows, cannot demonstrate 2% (~2.9%),
+  descriptive only. Upper estimates: UNVERIFIABLE is excluded (R8).
+- Measured: 2026-10-12
+- Pins: calc 0.11.0-champions.5d5bf43; claim battery sha 13d08244...
+  (seed 0), false-legal battery 13dda05d...; request set sha
+  fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385;
+  keys sha 0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a;
+  Showdown data commit 942cda7, items.ts 75da206e..., 90 mega stones.
+
+### Key-oracle verification
+- ar3 probes: 602 files (145 ar3_probe_* + 457 ar3fu_ohko_*, 1,614,113
+  bytes) replay 602/602 against the pinned calc; OHKO minimums match the
+  key ladders.
+- Full builder chain vs committed keys: differs only in 21 hand-patched
+  leaves (classified in PR #266). Clean checkout + pinned cache
+  reproduces; without the cache the build fails loudly.
+- Earlier committed keys (v4.1, sha 5b244be8...7190) had 35 wrong
+  solver-group leaves: MT8 Jolly {+Def 20, +Spe 2, +SpD 294} came from an
+  old solver with no per-stat 32 SP cap. Legal result {+SpD 294}. Timid
+  Mega-Y + Adamant Sneasler: {+Def 276, +Spe 0, +SpD 4}. Corrected in
+  v4.2 (this sha).
+- Direct calc check: neutral 32 HP / 32 SpD vs Modest Mega-Y Weather
+  Ball 169-199 into 197 HP (does not guarantee survival). Owner hand
+  build 32/1/21/4 fails the Timid Weather Ball (169-199 into 197); the
+  solver minimum is Bold 31/1/23/5 (total 60).
+
+### Solver speedup (eval infrastructure)
+- Profile of the slow run (5.37 h): single process, ~97% of one core,
+  14 cores idle; ~587k probe_*.json writes at ~30/s were the bottleneck.
+  HTTP was ~0.29 ms/calc; the search was already binary SpD (~5.2
+  calcs/cell over 26,579 speed-gated cells). The initial hypothesis
+  (linear ladders) was wrong for the spread solver.
+- Fast path (in-process calc, 4 workers, persist=False on search
+  probes): MT7/MT8/AR chain 48.9 s; full builder chain 55.7 s.
+- Validation: 602 AR3 ladders 0 diffs; in-process vs HTTP n=1000
+  seed 42 0 diffs; binary vs linear SpD n=200 seed 7 0 diffs; fast vs
+  the completed live run 0 diffs on all stages; output byte-identical
+  for 1/4/14 workers and after kill-and-resume (sha fadabe712516f5d4
+  b47739c520dc8e818c854977d88a648c115e0cfeeb66daee).
+- Staircase HP x Def search is unsound under the SP budget; opt-in only.
+
+### Recoil (AR3 Flare Blitz, Primarina HP 187)
+- Game rule floor(187/3) = 62; Showdown sim round(187*33/100) = 62; the
+  calc exposes only a rounded percent of attacker HP (33.3% of 185,
+  40.3% of 153), not HP points. Scoring: 62 TRUE; 61 FALSE
+  (derived_from_calc_percent); percent claims by band [61.71/H, 62/H].
+
+(Append under "Known limitations / honest gaps")
+- Part G v4 keys (2026-10-12): 21 leaves are hand-patched and not
+  rebuilt by any builder (status per leaf in PR #266). The L470 and L472
+  acceptance strings in the frozen request set are wrong (recoil
+  "61-62"; MT8 +Def 20/+Spe 2); R9 errata supersede them, and the text
+  fix lands with the Oct 19-20 request-set cut. Keys are feasibility
+  sets, not recommendations. MT8 does not model Belly Drum or other
+  Charizard builds. Learnsets not oracle-cross-checked; spread-move
+  0.75 modifier untested. The gate has not been run: the arm does not
+  exist yet.
+
+### 2026-10-12 — Part G v4 eval package finalized: gate, key oracle,
+and the corrections it took to get there
+
+Where it landed: the held-out eval is merged and eval-only (#261-#266;
+ADR-078). The headline gate is claim-level on the 300-item battery
+(one-sided 95% Clopper-Pearson upper bound <= 2%); request-set rows are
+class-scored and not pooled; scorer requirements R1-R10 are written
+down; keys are derived from the pinned calc and the full chain
+regenerates them byte-identically except 21 disclosed hand-patched
+leaves. The arm is not built and nothing has been scored.
+
+What went wrong, kept plainly:
+
+- I assumed request-set row claims fed the headline gate. The harness
+  scores rows by class and the gate is battery-only; the PR body and
+  the ADR draft were corrected. Likewise I said the arm's tools pass
+  `pct` to the LLM; no LLM-visible tool does (latent risk only).
+- The recoil rule flip-flopped. The calc's move data (33/100) and the
+  game's text ("1/3 of the damage dealt") give 61 vs 62, and the calc
+  only exposes a rounded percent of attacker HP. Settled on the game
+  rule (62), with 61 FALSE and sub-labeled; the frozen L470 text stays
+  and is superseded by R9.
+- The v4.1 key group for MT8 was accepted as correct after only
+  spot-checks. The committed MT8 Jolly {+Def 20, +Spe 2} counts were
+  illegal-SpD artifacts from a solver with no per-stat 32 SP cap; legal
+  result {+SpD 294}. The owner's mechanism argument (the binding threat
+  is a special Weather Ball, so Def cannot help) was the fastest
+  independent check and the solver agreed. My own Timid-branch
+  hypothesis for where 20/2 came from was wrong. An owner hand build of
+  32/1/21/4 for the Timid branch also failed the calc; the real
+  minimum is Bold 31/1/23/5.
+- A cache-less regeneration silently wrote an error string into the
+  keys (mega_stone_map). Main's v4.1 keys were fine, but the build had
+  an untracked input. Now pinned, hashed, provenance-recorded and
+  hard-failing.
+- A Cursor hand damage chain applied the random roll last (explained a
+  1-point discrepancy); the calc was right.
+
+What worked: profiling before optimizing. The assumed bottleneck
+(linear ladders, HTTP) was wrong; the real one was ~587k always-on probe
+file writes. Fixing that took the MT7/MT8/AR chain from 5.37 h to 48.9 s
+with 0 diffs against the completed slow run, and made the unspliced
+full-chain comparison possible, which is what exposed the wrong counts.
+Also: defining reproducibility as an exact boundary (what it covers,
+what is excluded and why) instead of a blanket claim.
+
+Open / time-gated:
+- Oct 19-20 pin refresh: request-set cut (L470/L472 text), re-pin
+  items.ts and provenance, re-validate the in-process calc against
+  hosted /calculate, full key regeneration (~1 min).
+- Arm items (not eval): calc wrapper reporting recoil as floor(damage/3)
+  HP; usage tool with explicit source/labels and no raw weights under a
+  percent-named field; batch moves in the calc tool surface; VGCPastes
+  builds tool surface; tool-backed mega-stone check; stale-gate item.
+- Arm design ideas logged, not decided: suggest feasible spreads nearest
+  to commonly used spreads (usage-sourced; ranking must penalize natures
+  that lower a stat the set uses, and fill HP toward 32 before spending
+  spare SP on offense); runtime survival search should check candidates
+  first, then search per fixed HP with exhaustive HP iteration for any
+  infeasibility or minimality claim (HP-first is an ordering, not an
+  optimum: minimum builds sit at HP 30-31). Needs an ADR with a latency
+  target when decided.
+- A threshold on the UNVERIFIABLE share is still undecided.  
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

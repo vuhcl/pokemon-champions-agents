@@ -11679,3 +11679,112 @@ Status: Shipped (#254). The open item recorded in Amendment 2026-10-04a (`Candid
 **Evidence:** A data-driven test iterates every non-item species, move and ability id and asserts "who uses <name>" returns None; the near-miss collision set is computed from the snapshot in the test, with four named spot cases (Salamence, Leer, Magneton, Poison Jab). "Who uses Psychic Sead" fails closed with examples; "who uses Protector" returns the illegal message. Added tests: unknown regulation with a matching phrase does not raise; missing `regulation_mod` with a non-matching message falls through to `classify_pending`. Cost of the broad catch: a real bug inside the gate looks like an unrecognised question, so a clear item question that falls through should prompt a check for a swallowed exception.
 
 **Status:** Shipped (#252). Revert #252 alone to disable routing; reverting #251 as well removes the feature. No data migrations.
+
+---
+
+## ADR-078: Part G v4 eval — claim-level gate on the battery, class
+scoring for request-set rows, and a reproducible, honestly bounded
+key oracle
+
+**Decision:**
+
+1. The false-claim gate is measured on the 300-item claim battery at
+claim level: one-sided 95% Clopper-Pearson upper bound on the
+false-claim rate must be <= 2%. At a ~70% answer rate that is ~267
+scored claims, which tolerates 1 false (zero-failure bound ~1.1%);
+exact thresholds for 0/1/2/3 false are n >= 149/236/313/386. Item-level
+(~227 scored items, tolerates 0, ~1.3%) and row-level (~101 rows,
+cannot demonstrate 2%, ~2.9%) numbers are reported as secondary and
+descriptive only. The three figures are upper estimates because
+UNVERIFIABLE claims are excluded from the denominator (R8) and reported
+as their own share.
+
+2. The 134 request-set rows are NOT pooled into the gate. They are
+scored by outcome class (SERVED, PARTIAL, FAIL-CLOSED, ASSUME-STATE,
+ASK, MUTATION-OK/REFUSED, NO-MUTATION); a failed class is not a false
+claim (R7). A separate non-gating request-set claim line reports the
+observed count and its bound with an explicit clustered/optimistic
+caveat (R2). Battery and rows share no fixture_id. Scorer requirements
+R1-R10 live in scripts/eval/part_g_v4/gate_scorer_requirements.md;
+R6 fixes the verdict enum TRUE/FALSE/UNVERIFIABLE, R9 makes the scorer
+follow a key's `scoring` over conflicting frozen text (with a defect
+table), and R10 allows weights only from fields labeled chaos_weight.
+
+3. Mechanical truth in the keys comes from the pinned calc
+(@smogon/calc 0.11.0-champions.5d5bf43) through a builder chain, never
+from generated text. Reproducibility is defined precisely: with the
+pinned calc and the pinned Showdown data (commit 942cda7, items.ts
+75da206e..., 90 mega stones), the full chain regenerates
+derived_keys.json byte-identically except 21 listed hand-patched leaves.
+Disk-only replay covers named artifacts and the ar3 probes (602 files,
+1.6 MB, all replayed 602/602 against the pinned calc). Spread-solver
+probe_* files are NOT committed (~587k files, ~1.4 GB if persisted) and
+regenerate live. Builders hard-fail when the Showdown cache is missing
+or mismatched, and a check rejects any `error` field in the keys.
+
+4. Showdown `top_spreads[].pct` is a chaos weight, not a percent. The 17
+such fields in the keys are renamed chaos_weight; `pct` is reserved for
+real percentages. Presenting a weight as a percentage is a FALSE claim.
+No LLM-visible tool returns it today (latent risk only); a future arm
+usage tool must not expose raw weights under a percent-named field.
+
+5. Recoil (AR3 Flare Blitz): the game rule is 1/3 of damage dealt,
+floor(187/3) = 62. The calc exposes recoil only as a rounded percent of
+attacker HP (0.33 factor). Scoring: HP-point 62 TRUE; 61 FALSE with
+sub-label derived_from_calc_percent (counts in the gate, reported as its
+own line); percent claims are checked against the claim's own stated
+attacker HP H, accepted band [61.71/H, 62/H] rounded to 0.1; no stated
+H or spread is FALSE.
+
+**Why:** The gate measures only what the sample size can actually
+demonstrate. At row level a 2% bound is unreachable, and request-set
+claims cluster inside rows, so pooling them would give an optimistic
+bound that reads as stronger than it is. Class scoring keeps behavior
+failures (failed to serve, asked unnecessarily) separate from asserted
+falsehoods. Reproducibility is stated as an exact boundary, with the
+unreproducible part listed, because the earlier looser phrasing was
+shown to be wrong in three ways during this work (see below).
+
+**Corrections found while finalizing (kept in the record):**
+
+(a) The committed MT8 Jolly class counts {+Def 20, +Spe 2, +SpD 294}
+were wrong. The old solver lacked a per-stat 32 SP cap
+(spd_hi = rem - hp - df); the 20 and 2 were illegal-SpD artifacts (the
+two +Spe cells needed SpD 34). Legal result: {+SpD 294} only; the
+mechanism is that neutral-SpD 32 HP / 32 SpD takes 169-199 from a
+Modest Mega-Y Weather Ball into 197 HP. The Timid + Adamant branch
+({+Def 276, +Spe 0, +SpD 4}, minimum Bold 31/1/23/5) is stored under
+timid_zard_extra. Fixed in v4.2 keys (sha 0f160e234bb5becc24aea36785b
+fc6b150d... see below for the request set). The v4.1 claim that these
+counts were merely "unverified" was itself wrong.
+
+(b) A cache-less regeneration embedded `mega_stone_map.error` in the
+keys. The merged v4.1 keys were not affected (count 90, no error), but
+the reproducibility hole is closed by the hard-fail, the pin and the
+check above.
+
+(c) The request-set text is unchanged (sha fc6b150dc70b3f73f80e7d5
+29a9371f2799250c3316b15ec666eb473fb030385). Two acceptance-column
+strings are wrong: L470 ("61-62" recoil) and L472 (+Def 20 / +Spe 2).
+Neither is shown to the arm. R9 errata rows record them with old/new
+hashes; the scorer follows the key. Both text fixes fold into the
+request-set cut at the Oct 19-20 pin refresh so there is one hash change,
+not two. Nothing has been scored, so no result depends on the old text.
+
+**Rejected:** pooling row claims into the gate (clustered, optimistic);
+persisting every solver probe (~1.4 GB); a HP x Def staircase search
+(unsound under the SP budget); binary search over HP (feasibility is not
+monotone in HP once Def/SpD compete for the same 66 SP).
+
+**Known limits:** the arm is not built and the gate has not been run.
+The 21 hand-patched leaves are disclosed with verified/unverified status
+in PR #266, not rebuilt by any builder. Keys are feasibility sets, not
+recommendations (e.g. +SpD cells include Careful on a special attacker).
+MT8 keys do not model Belly Drum or other non-pinned Charizard builds.
+Learnsets are not cross-checked against an independent oracle and the
+spread-move 0.75 modifier is untested.
+
+**Status:** Shipped, eval-only: #261 (request set + battery), #262 and
+#263 (scorer requirements), #264 (v4.1 keys), #265 (solver speedup),
+#266 (v4.2 keys). main at fb06db3 verified with run_all_checks.py
+(7 checks) on a fresh checkout with the pinned cache.
