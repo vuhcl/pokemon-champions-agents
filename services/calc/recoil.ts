@@ -125,6 +125,12 @@ function cloneState(s: HitResolutionState): HitResolutionState {
  * Only place per-hit recoil summing lives.
  * Single-hit: maps each roll independently from the same starting state.
  * PB: every (h1,h2) pair sequential; returns sorted distinct totals.
+ *
+ * Sim conflict (pinned Showdown @ 942cda7): `battle-actions.ts` L961–979
+ * accumulates `move.totalDamage` across hits then calls `applyRecoilDamage`
+ * once on that total. This helper assumes per-hit floor(dealt/3) then sum.
+ * An in-game check decides which is correct; Parental Bond Case B `{50,51}`
+ * is the pin and fails deliberately if summing is changed to once-on-total.
  */
 export function sumRecoilAcrossHits(args: {
   hits: number[] | [number[], number[]];
