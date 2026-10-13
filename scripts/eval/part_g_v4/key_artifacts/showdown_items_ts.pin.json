@@ -1,0 +1,9 @@
+{
+  "path": ".cache/pokemon-showdown/data/items.ts",
+  "items_ts_sha256": "75da206e2cb09868bb549360f38a144c2f50b24e1d189e03b485d550a4f6357a",
+  "showdown_commit": "942cda71d14bf0618bd57991708a2e2734b6daba",
+  "showdown_commit_short": "942cda7",
+  "stone_count": 90,
+  "repo": "https://github.com/smogon/pokemon-showdown.git",
+  "note": "Offline pin for Part G v4 mega_stone_map parse (v4_rows_ah_derive). Builder fails if the cache file is missing, the sha256 mismatches, HEAD ≠ showdown_commit, or the parse count ≠ stone_count."
+}

@@ -1,7 +1,7 @@
 {
   "committed_sha256": "0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a",
   "regenerated_sha256": "ba2855399ebd1e68f023d7a8afb230d52b96bd66ef5e50eca71910c5d60ac868",
-  "prior_expected_sha_b39a706c_note": "b39a706c\u2026 was produced when Showdown items.ts cache was missing (mega_stone_map.error='cache items.ts missing'). Post-rebase regen on main with #265 + local .cache parses 90 stones; after the same 21 hand patches the keys sha is this committed_sha256. MT8 Jolly/Timid counts unchanged.",
+  "cache_less_interim_discarded": "An interim cache-less worktree regen wrote mega_stone_map.error into the keys and was discarded; builders now hard-fail instead. Final keys sha is committed_sha256 above (90 stones with pinned items.ts).",
   "byte_identical_except_hand_patches": true,
   "full_chain_claim": "regenerates byte-identically except the 21 listed hand-patched leaves",
   "regen": {
@@ -10,10 +10,10 @@
     "ignore_disk": "1",
     "wall_clock_seconds": 57.2,
     "tooling": "main after #265 merge; run_full_chain_fast.py",
-    "unspliced": true
+    "unspliced": true,
+    "showdown_items_ts_pin": "showdown_items_ts.pin.json"
   },
   "supersedes_v41_keys_sha": "5b244be83f5926159025642f02fd56c28a13731af2ceb28a8dce72cac59a7190",
-  "supersedes_pr266_initial_keys_sha": "b39a706c18c6437933251341c5ab17fa69e94eaa265ea10054b42498d39d6e94",
   "request_set_sha_unchanged": "fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385",
   "hand_patched_leaf_paths": [
     "ar3.hand_disagreements[1].field",

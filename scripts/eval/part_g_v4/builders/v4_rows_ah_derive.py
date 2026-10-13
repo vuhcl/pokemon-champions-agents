@@ -2,9 +2,11 @@
 """IS2 redesign + rows A–I keys (eval-only, ADR-060)."""
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -21,10 +23,13 @@ from _lib import (
 from speed_grid import common_speed_distinct
 
 OUT = Path(__file__).resolve().parents[1] / "key_artifacts" / "derived_keys.json"
+PKG = Path(__file__).resolve().parents[1]
 FLAGS = ROOT / "data" / "moves" / "flags.v1.json"
 STAT_BOOSTS = ROOT / "data" / "moves" / "stat_boosts.v1.json"
 VGCPA_STES = ROOT / "data" / "team-composition" / "champions-reg-mc.vgcpastes-builds.v1.json"
 CACHE_ITEMS = ROOT / ".cache" / "pokemon-showdown" / "data" / "items.ts"
+SHOWDOWN_CACHE = ROOT / ".cache" / "pokemon-showdown"
+ITEMS_TS_PIN = PKG / "key_artifacts" / "showdown_items_ts.pin.json"
 
 
 def is2_basculegion(sd, snap) -> dict:
@@ -330,12 +335,53 @@ def row_f_incineroar(snap, flags) -> dict:
     }
 
 
+def _require_showdown_items_ts() -> tuple[str, str, str]:
+    """Return (items_ts_sha256, showdown_commit, text). Exit non-zero if missing/mismatch."""
+    if not ITEMS_TS_PIN.is_file():
+        raise SystemExit(f"FATAL: missing pin file {ITEMS_TS_PIN}")
+    pin = json.loads(ITEMS_TS_PIN.read_text())
+    if not CACHE_ITEMS.is_file():
+        raise SystemExit(
+            "FATAL: Showdown items.ts cache missing at "
+            f"{CACHE_ITEMS}. Provision offline (no runtime fetch): see "
+            "scripts/eval/part_g_v4/key_artifacts/SHOWDOWN_CACHE.md. "
+            "Refusing to write partial mega_stone_map into derived_keys.json."
+        )
+    raw = CACHE_ITEMS.read_bytes()
+    got_sha = hashlib.sha256(raw).hexdigest()
+    expect_sha = pin.get("items_ts_sha256")
+    if got_sha != expect_sha:
+        raise SystemExit(
+            f"FATAL: items.ts sha256 mismatch: got {got_sha}, "
+            f"expected {expect_sha} (pin {ITEMS_TS_PIN.name}). "
+            "Checkout the pinned Showdown commit — see SHOWDOWN_CACHE.md."
+        )
+    try:
+        commit = subprocess.check_output(
+            ["git", "-C", str(SHOWDOWN_CACHE), "rev-parse", "HEAD"],
+            text=True,
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        raise SystemExit(
+            f"FATAL: cannot read Showdown cache git HEAD at {SHOWDOWN_CACHE}: {e}"
+        ) from e
+    expect_commit = pin.get("showdown_commit")
+    if commit != expect_commit:
+        raise SystemExit(
+            f"FATAL: Showdown cache HEAD {commit} != pinned {expect_commit} "
+            f"({ITEMS_TS_PIN.name}). See SHOWDOWN_CACHE.md."
+        )
+    return got_sha, commit, raw.decode()
+
+
 def parse_mega_stones_from_cache() -> dict:
-    """Parse stone name → mega forme from Showdown items.ts (object megaStone map)."""
-    if not CACHE_ITEMS.exists():
-        return {"error": "cache items.ts missing", "stones": {}}
-    text = CACHE_ITEMS.read_text()
-    stones = {}
+    """Parse stone name → mega forme from Showdown items.ts (object megaStone map).
+
+    Hard-fails (SystemExit) if the cache file is missing, unpinned, or unparsable.
+    Never writes an error string into derived_keys.
+    """
+    _sha, _commit, text = _require_showdown_items_ts()
+    stones: dict[str, str] = {}
     # name: "Salamencite" ... megaStone: { "Salamence": "Salamence-Mega" }
     for m in re.finditer(
         r'name:\s*"([^"]+)"[^{}]*?megaStone:\s*\{\s*"[^"]+"\s*:\s*"([^"]+)"\s*\}',
@@ -349,6 +395,14 @@ def parse_mega_stones_from_cache() -> dict:
         re.S,
     ):
         stones[m.group(2)] = m.group(1)
+    pin = json.loads(ITEMS_TS_PIN.read_text())
+    expect_n = int(pin.get("stone_count") or 0)
+    if len(stones) != expect_n:
+        raise SystemExit(
+            f"FATAL: parsed {len(stones)} mega stones from items.ts, "
+            f"expected {expect_n} (unparsable or wrong Showdown revision). "
+            "Refusing to write derived_keys.json."
+        )
     return {
         "stones": stones,
         "count": len(stones),

@@ -1,0 +1,14 @@
+{
+  "items_ts_sha256": "75da206e2cb09868bb549360f38a144c2f50b24e1d189e03b485d550a4f6357a",
+  "showdown_commit": "942cda71d14bf0618bd57991708a2e2734b6daba",
+  "showdown_commit_date": "2026-10-09",
+  "showdown_commit_subject": "Fix virtual formats",
+  "stone_count": 90,
+  "source_path": ".cache/pokemon-showdown/data/items.ts",
+  "used_by": [
+    "builders/v4_rows_ah_derive.py → derived_keys.mega_stone_map",
+    "derived_keys.row_g_h_salamence_mega.stone_parse / stone_map_sample"
+  ],
+  "keys_sha_at_record": "0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a",
+  "provision": "See SHOWDOWN_CACHE.md (git clone + checkout pinned commit; offline data prep only)."
+}
