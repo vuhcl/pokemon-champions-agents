@@ -341,6 +341,92 @@ export function resolveAbility(input: PokemonAbilityInput): AbilityResolutionSid
   return {applied: input.dexAbility, source: 'dex'};
 }
 
+export type SelfDamageKind = 'crash' | 'struggle' | 'max_hp_half';
+
+export type SelfDamageEntry = {
+  kind: SelfDamageKind;
+  hp: number;
+  applies: string;
+  ruleSource: string;
+};
+
+export type SelfDamageMoveFlags = {
+  hasCrashDamage?: boolean;
+  struggleRecoil?: boolean;
+  mindBlownRecoil?: boolean;
+};
+
+const RULE_SOURCE_SIM_BULBA =
+  'sim + Bulbapedia (secondary); not observed in game';
+
+/** crash: floor(H/2), min 1 — sim baseMaxhp/2 via clampIntRange; Bulbapedia Gen V+. */
+export function crashSelfHp(attackerMaxHp: number): number {
+  if (attackerMaxHp <= 0) return 0;
+  return Math.max(1, Math.floor(attackerMaxHp / 2));
+}
+
+/** struggle: floor((H+2)/4), min 1 — sim Math.round(baseMaxhp/4). */
+export function struggleSelfHp(attackerMaxHp: number): number {
+  if (attackerMaxHp <= 0) return 0;
+  return Math.max(1, Math.floor((attackerMaxHp + 2) / 4));
+}
+
+/** steelbeam / mindBlown: floor((H+1)/2), min 1 — sim Math.round(maxhp/2). */
+export function maxHpHalfSelfHp(attackerMaxHp: number): number {
+  if (attackerMaxHp <= 0) return 0;
+  return Math.max(1, Math.floor((attackerMaxHp + 1) / 2));
+}
+
+/**
+ * Max-HP self-damage entries (crash / Struggle / Steel Beam).
+ * Magic Guard: crash + max_hp_half → hp 0 (Condition damage via Damage event);
+ * Struggle uses directDamage / strugglerecoil and skips that event → not blocked.
+ * Rock Head: only effect.id === 'recoil'; does not block these kinds.
+ */
+export function computeSelfDamage(args: {
+  move: SelfDamageMoveFlags;
+  attackerMaxHp: number;
+  attackerAbility: string;
+}): SelfDamageEntry[] {
+  const {move, attackerMaxHp, attackerAbility} = args;
+  const magicGuard = attackerAbility === 'Magic Guard';
+  const out: SelfDamageEntry[] = [];
+
+  if (move.hasCrashDamage) {
+    out.push({
+      kind: 'crash',
+      hp: magicGuard ? 0 : crashSelfHp(attackerMaxHp),
+      applies: magicGuard
+        ? 'Magic Guard blocks Condition/non-Move damage (abilities.ts onDamage); amount would apply when the move fails (miss, Protect-family, type immunity, or other hit-step failure that empties targets). No target: sim returns before MoveFail (no crash).'
+        : 'when the move fails (miss, Protect-family block, type immunity, or other hit-step failure emptying targets); not when there is no target (sim skips MoveFail). Calc has no accuracy — do not assert a miss; isProtected / immune (damage 0) are request-expressible failure modes.',
+      ruleSource: RULE_SOURCE_SIM_BULBA,
+    });
+  }
+
+  if (move.struggleRecoil) {
+    out.push({
+      kind: 'struggle',
+      hp: struggleSelfHp(attackerMaxHp),
+      applies:
+        'when the move deals >0 totalDamage (applyRecoilDamage only if totalDamage truthy); uses directDamage with strugglerecoil (skips Damage event — Magic Guard does not block). Rock Head does not block (struggle exception).',
+      ruleSource: RULE_SOURCE_SIM_BULBA,
+    });
+  }
+
+  if (move.mindBlownRecoil) {
+    out.push({
+      kind: 'max_hp_half',
+      hp: magicGuard ? 0 : maxHpHalfSelfHp(attackerMaxHp),
+      applies: magicGuard
+        ? 'Magic Guard blocks Condition/non-Move damage; Steel Beam uses condition damage on hit (mindBlownRecoil) and onMoveFail.'
+        : 'on hit when totalDamage > 0 (mindBlownRecoil via applyRecoilDamage) and on MoveFail (miss/Protect/immune); max-HP based, not damage-fraction.',
+      ruleSource: RULE_SOURCE_SIM_BULBA,
+    });
+  }
+
+  return out;
+}
+
 export function buildInitialHitState(opts: {
   maxHP: number;
   curHP?: number;
