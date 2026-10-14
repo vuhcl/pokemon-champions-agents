@@ -11786,3 +11786,62 @@ spread-move 0.75 modifier is untested.
 #263 (scorer requirements), #264 (v4.1 keys), #265 (solver speedup),
 #266 (v4.2 keys). main at fb06db3 verified with run_all_checks.py
 (7 checks) on a fresh checkout with the pinned cache.
+
+---
+
+## ADR-079: Damage-fraction recoil HP operator and timing for the arm (supersedes the "game rule floor(damage/3)" wording in ADR-078 / R-rules)
+
+**Date:** 2026-10-13
+**Status:** Accepted for the arm (merged; stack at 25b522c, Merge #268). Amendments to ADR-078, the R-rules, the key builders and the request-set report land with the Oct 19-20 refresh.
+
+**Context:** ADR-078 and the Part G R-rules described Flare Blitz recoil as the in-game rule floor(damage_dealt / 3). That wording belongs to the eval key and scorer, not only to an arm tool. The convention came from secondary sources (Bulbapedia: Gen IV floors all recoil; the Gen V+ text names only Struggle as changed), and the pinned Showdown formula, Math.round(dealt * 33 / 100), was discounted because [33,100] is visibly an approximation of the in-game text, which says 1/3. No primary source was checked. On 2026-10-13 the owner read recoil off Champions casual-battle logs (own-screen HP; the opponent's side shows only a percent, so exact damage came from ally targets, capped KO hits, and recoil read on the owner's own attacker).
+
+**Decision:** For move.recoil = [n, den], recoil HP is max(1, floor((2*d*n + den) / (2*den))) for d > 0, and 0 for d = 0, in integer arithmetic. d is the total damage actually dealt: each hit is capped by the defender's remaining HP (or Substitute HP) and resolved in sequence (Substitute, Disguise, Endure, Focus Sash, Sturdy), the dealt values are summed, and the operator is applied once on the total. Encodings [33,100], [1,2] and [1,4] get numbers. [1,3] and any other encoding return the label "recoil rule not implemented". For [33,100] the formula reduces to floor((33*d + 50) / 100).
+
+**Why (alternatives rejected, with the observation that rejected each):**
+- floor(d/3): fails at d=47 (observed 16, floor gives 15), d=35 (12 vs 11) and d=180 (59 vs 60).
+- round(d/3): fails at d=80 (observed 26, gives 27), d=68 (22 vs 23) and d=188 (62 vs 63). Hits 47 and 80 have the same remainder mod 3 yet round in opposite directions, so no rounding of d/3 can fit both.
+- Recoil from the rolled damage instead of damage dealt: contradicted by capped KO hits (d=47 against a 59-70 roll range gave 16, d=180 against a 180-212 range gave 59, d=150 gave 50).
+- Per-hit recoil summed over Parental Bond hits: dropped in favor of once-on-total. The pinned sim applies recoil once on move.totalDamage (battle-actions.ts L961-979), and the owner saw a single recoil line. See the unverified list.
+- Fitted multiplier: if recoil is one multiplication followed by round-half-up, the observations bound it to about [0.33, 0.3306). A true third (0.3333) is outside, and 33/100 is the simple value inside, which is what the sim uses. The d=150 tie (49.5) rounded up to 50.
+The earlier floor convention was set without a primary check and was wrong; the sim's formula was right.
+
+**Unverified (stated openly):**
+- Minimum of 1 at d=1: the sim's clamp, never tested (d=1 is the only value affected).
+- Once-on-total versus per-hit: supported by the sim and one log line. Four logged Parental Bond pairs (57+12, 54+13, 55+12, 52+12) all give the same number under both models, and only 29 of 256 roll pairs for the Kangaskhan-Mega Double-Edge into Rampardos matchup separate them.
+- [1,2] and [1,4]: same formula as the sim, not tested in game.
+- Other formulas could agree with the 13 observations; this one is the simplest that fits.
+
+**Consequences:**
+- AR3 is unchanged: round(187 * 0.33) = 61.71 -> 62, and floor(187/3) = 62. All eight value_hp leaves in the frozen keys are 62 at capped dealt 187, so the keys sha 0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a is unaffected, and run_all_checks.py passes with the three hashes unchanged. HP-point 62 stays TRUE and 61 stays FALSE.
+- Text still saying floor(damage/3) or per-hit, to amend at the Oct 19-20 cut: gate_scorer_requirements.md L244 and L276, v4_request_set_report.md L140, builders/_lib.py L74 and L108-111, builders/ar3_hp_fix.py L391 and L466, and the docs mirror. The R-rule recoil wording and the percent band's derivation should be re-checked against this operator when those edits are made.
+- The recoil helpers carry the operator and the timing in one function each, so either can change without touching callers.
+- Code: calc/recoil-hp-pr1 and calc/moves-batch-pr2 (merged), main at 4d1b6c8b71960f9e917117b8240b134da7d53229 after #270.
+
+---
+
+## ADR-080: selfDamage field for crash, Struggle and Steel Beam
+
+**Date:** 2026-10-13
+**Status:** Accepted for the arm (merged in #270, main at 4d1b6c8b71960f9e917117b8240b134da7d53229).
+
+**Context:** Crash moves (High Jump Kick, Axe Kick, Supercell Slam), Struggle and Steel Beam cost the user HP, but their basis is the user's max HP, not damage dealt, and each has its own rounding and conditions. The arm needs these amounts, and a damage-fraction recoilHp would misstate all three.
+
+**Decision:** Add selfDamage: list of { kind, hp, applies, ruleSource } (kinds crash, struggle, max_hp_half), with hp computed from the attacker's max HP H:
+- crash: floor(H/2). Struggle: floor((H+2)/4) (round half-up of H/4). Steel Beam: floor((H+1)/2) (ceil of H/2). Minimum 1.
+- recoilHp for these moves returns "not damage-based; see selfDamage", so the two fields cannot contradict each other (a contract change from the first merged recoil PR).
+- One extra branch: when the defender is protected, Struggle's hp is 0 (observed). Crash and Steel Beam keep their cost under Protect (observed). Substitute and Magic Guard are described in the fixed applies strings and are not branched on.
+- Rock Head blocks only effect.id === 'recoil' (abilities.ts L3907-3912), so none of the three kinds.
+
+**Why one field and not recoilHp:** different basis (max HP versus damage dealt), different rounding, and conditions that the calc cannot compute (it has no accuracy model, so crash conditions are stated, not derived).
+
+**Evidence (Champions casual battles, 2026-10-13, own-screen HP):**
+- Struggle: max HP 211 -> 53, 206 (current 152) -> 52, 205 -> 51. Half-up fits all three; floor fails at 211 and 206, half-down at 206, ceiling at 205. Typeless (a Ghost/Steel target took damage). No recoil into Protect. Recoil applied into a surviving Substitute (a Struggle user cannot create one).
+- Steel Beam: max HP 167 -> loss 84 on a hit, into Protect, and into a Substitute. Rounding down ruled out.
+- Crash: High Jump Kick at max HP 147 -> loss 73 into a Ghost-type (immune, so the move failed; current HP 111) and into Protect. Rounding up ruled out; the cost follows max HP, not current HP.
+
+**Sim finding:** the pinned sim (including the Champions mod) adds 0 to move.totalDamage when a Substitute absorbs the hit (battle-actions.ts L960-962, L1057-1059), so Struggle and Steel Beam self-damage, which are gated on totalDamage (L978-979), never run, and onMoveFail does not run either (L529-531). The game applies both costs. The sim is wrong for Substitute absorbs, and its other Substitute handling for recoil-type costs should not be trusted without a check.
+
+**Not verified:** Magic Guard for all three kinds; a miss; Axe Kick and Supercell Slam (assumed to match High Jump Kick); Struggle into a Substitute that breaks; Steel Beam when immune or with no target; damage-fraction recoil on a Substitute (the first recoil PR caps dealt at the Substitute's HP, an owner statement with no numbers behind it). Wide Guard and Quick Guard are not expressible in the request, so a Struggle blocked by them would still show the formula amount.
+
+**Calc note:** @smogon/calc forces Struggle to type '???' (move.js L71-73), so there is no immunity and no STAB, although the move data lists Normal. Parental Bond nests two hit arrays for Struggle, and Result.range() sums them into one range.

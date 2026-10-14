@@ -6235,7 +6235,17 @@ Open / time-gated:
   infeasibility or minimality claim (HP-first is an ordering, not an
   optimum: minimum builds sit at HP 30-31). Needs an ADR with a latency
   target when decided.
-- A threshold on the UNVERIFIABLE share is still undecided.  
+- A threshold on the UNVERIFIABLE share is still undecided.
+
+### 2026-10-13: Recoil and self-damage conventions corrected from in-game logs
+
+What went wrong: the project's recoil rule, floor(damage/3) per hit, was set from secondary sources (Bulbapedia) and a discounted reading of the pinned sim, with no primary check. The sim's formula was dismissed because its [33,100] encoding is an approximation of the in-game "1/3", and I (the assistant) advised keeping floor. Owner logs from Champions casual battles showed floor failing at three damage values and round(d/3) failing at three others, while the sim's formula fit every observation. The same pattern appeared again: the sim's Substitute handling, which never applies Struggle or Steel Beam costs on a Substitute absorb, is wrong for the game. A Mega ability read from the vendored calc table was also stale (Skarmory-Mega and Hawlucha-Mega) while the project's own data had the right values, and the owner's claim that Parental Bond cannot be Traced did not match the sim's flags ({}).
+
+What worked: capped KO hits as falsifying cases; ally targets and own-screen HP for exact values; checking the calc's roll range against each KO hit; separating observed claims from sim-only and secondary ones in every string and PR body; keeping the operator and timing each in one function so the correction was a one-function change. The correction was reached before the Oct 19-20 refresh, and AR3 (62) and the keys sha 0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a did not change.
+
+Decided: ADR-079 (recoil operator, once-on-total, damage dealt) and ADR-080 (selfDamage field). Slot model direction: the team slot is the base species holding a stone and the Mega is derived state, with ability_kind labels per source (draft ADR still to write). Builder and R-rule text that still says floor or per-hit is amended at the Oct 19-20 cut.
+
+Open: minimum of 1 at d=1; once-on-total not numerically separated in game; [1,2] and [1,4] untested; Magic Guard, a miss, Axe Kick, Supercell Slam and Struggle into a breaking Substitute untested; "switch-in" wording for Mega weather setters and the Disguise display of full rolls (tool surface); learnsets keyed by Mega forme are missing (inherit by absence; meowstic and floette base keys need checking); 39 of 69 VGCPastes Mega members carry a base ability, which is the convention for Mega-stone holders, so labeling matters more than cleaning. Main is at 4d1b6c8b71960f9e917117b8240b134da7d53229.
 
 ---
 
