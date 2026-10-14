@@ -552,11 +552,16 @@ returned nothing). The disclosure also carries the error kind where one applies,
 retry and timeout policy of that mechanism is unchanged. This restates the sentence in Amendment 2026-10-14a
 that the tool "does not retry", which is accurate only for the tool itself.
 
-**Freshness.** The scheduled refresh jobs are the freshness mechanism: the in-game data is refreshed daily and
-the Showdown data monthly. A live fetch fills only rows that are absent offline. It is not a refresh path and
-does not replace rows that exist. Every result carries as-of fields (in-game capture date and season; Showdown
-month and rating) and the age in days at call time, and a multi-anchor result carries the dates for each
-anchor and a note when they differ. No staleness threshold is set by this amendment.
+**Freshness.** The scheduled refresh jobs are the freshness mechanism. The in-game workflow runs on a daily
+cron, but its gate (scripts/ci/usage_refresh_mc_gate.py) commits daily only in a regulation's first week
+and roughly every two weeks afterwards (or inside a season window), and records a no-op when nothing is due,
+so a committed in-game snapshot can be days to about two weeks old by design. The Showdown data is refreshed
+monthly, for a completed month. A live fetch fills only rows that are absent offline. It is not a refresh
+path and does not replace rows that exist. Every result carries as-of fields, so the age is visible instead
+of assumed: for in-game, the capture date and season, with age in days counted from the capture date; for
+Showdown, the month, the rating and the period end, with age in days counted from the period end and the
+extraction timestamp carried for reference only. A multi-anchor result carries the dates for each anchor and
+a note when they differ. No staleness threshold is set by this amendment.
 
 **Offline-only sources.** VGCPastes is a spreadsheet scrape and is offline-only, and the other build-level
 sources (Pikalytics team usage, Pokemon-Zone cores, scraped teams) are offline data files refreshed by their
