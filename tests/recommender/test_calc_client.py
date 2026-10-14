@@ -130,6 +130,37 @@ def test_calculate_batch():
     assert results[1]["error"] == "move is required"
 
 
+def test_calculate_moves_endpoint_and_recoilHp():
+    client = CalcClient("http://127.0.0.1:9")
+    entry = {
+        **CALC_SUCCESS,
+        "move": "Flare Blitz",
+        "recoilHp": [20, 21, 22],
+    }
+    with patch.object(
+        client, "_json_request", return_value=(200, {"results": [entry]})
+    ) as req:
+        results = client.calculate_moves(GARCHOMP, KINGAMBIT, ["Flare Blitz"])
+    assert req.call_args.args[:2] == ("POST", "/calculate/moves")
+    body = req.call_args.args[2]
+    assert body["moves"] == ["Flare Blitz"]
+    assert results[0]["move"] == "Flare Blitz"
+    assert results[0]["recoilHp"] == [20, 21, 22]
+
+
+def test_calculate_moves_over_cap_error():
+    client = CalcClient("http://127.0.0.1:9")
+    with patch.object(
+        client,
+        "_json_request",
+        return_value=(400, {"error": "moves length 33 exceeds cap 32"}),
+    ):
+        with pytest.raises(CalcClientError) as exc:
+            client.calculate_moves(GARCHOMP, KINGAMBIT, ["Mach Punch"] * 33)
+    assert exc.value.status == 400
+    assert "exceeds cap 32" in str(exc.value.body)
+
+
 def test_connection_error_is_normalized():
     client = CalcClient("http://127.0.0.1:9")
     with patch(

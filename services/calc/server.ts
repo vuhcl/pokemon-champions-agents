@@ -8,11 +8,13 @@ import {fileURLToPath} from 'node:url';
 import {
   runCalculateSafe,
   runCalculateBatch,
+  runCalculateMovesBatch,
   setsPack,
   setsUnpack,
   setsImport,
   setsExport,
   type CalcRequest,
+  type MovesBatchRequest,
 } from './handlers.js';
 
 const HOST = '127.0.0.1';
@@ -75,6 +77,14 @@ async function handle(req: http.IncomingMessage, res: http.ServerResponse) {
         return send(res, 400, {error: 'requests array required'});
       }
       return send(res, 200, {results: runCalculateBatch(requests)});
+    }
+
+    if (url === '/calculate/moves') {
+      const result = runCalculateMovesBatch(body as MovesBatchRequest);
+      if ('error' in result && !Array.isArray(result)) {
+        return send(res, 400, result);
+      }
+      return send(res, 200, {results: result});
     }
 
     if (url === '/sets/pack') {
