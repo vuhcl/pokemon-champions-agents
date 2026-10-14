@@ -514,6 +514,63 @@ fallback and failure rules. ADR-014's general prohibition on runtime web search 
 
 ---
 
+### ADR-014 — Amendment 2026-10-14b
+
+**Clarifies how the arm-facing usage tools relate to phase scoping, derives live mappings from the registry,
+fixes the fallback vocabulary, and states what counts as freshness. Supplements Amendment 2026-10-14a.**
+
+**Phase scoping.** The arm-facing usage tools take no phase argument. The phase gate of Amendment 2026-08-08b
+sits in the graph callers (refresh_team_signals and discover_multi_locked, which run in multi_locked; the
+complete phase publishes shared_teammates: None without querying), and it continues to govern those calls.
+Nothing in this amendment lets a graph node query outside that scope. A call made explicitly through an
+arm-facing tool is governed by the caller's allow_live setting. Amendment 2026-10-14a's sentence that phase
+scoping is "unchanged" means exactly this: the graph callers keep their scope, and the tool does not enforce a
+phase on its own.
+
+**Live mappings are derived, not hardcoded.** A regulation's live fetch tuple is derived from the regulation
+registry (the Showdown format) and from the offline Showdown snapshot's own metadata for that regulation (the
+month and the rating). A month is never written into code. Resolution stays exact-tag: a regulation never
+resolves to another regulation's tuple. A regulation without a Showdown snapshot has no live tuple, and the
+absence is recorded as an explicit deferral with a reason, not as a silent None. A CI check fails when a
+registered current regulation that has a Showdown snapshot has neither a live tuple nor a deferral. This
+replaces the words "fixed regulation, month and rating mappings" in Amendment 2026-10-14a with a deterministic
+derivation, which stays fixed for each snapshot.
+
+**M-C live tuple.** ADR-016 Amendment 2026-10-04a, item 6, deferred the M-C live tuple because live-but-missing-
+offline was 0 at that time. That deferral had no trigger or date, and the absence returned nothing and raised no
+error. It is superseded: the M-C tuple is added through the derivation above (at the time of writing,
+gen9championsvgc2026regmc, 2026-09, rating 1500, taken from the offline snapshot metadata). The exact-tag rule
+of item 6 stands. Until that change merges, the arm tool reports live_not_supported for M-C.
+
+**Fallback reasons.** A fallback disclosure carries one of: no_row (the requested source has no row for the
+species), form_not_in_source (the in-game blob carries no Mega formes, so a Mega request or any Mega anchor is
+served whole from Showdown), live_disabled (the caller set allow_live to False), live_not_supported (the
+regulation has no live tuple, so no fetch was attempted), live_unavailable (a fetch was attempted and failed or
+returned nothing). The disclosure also carries the error kind where one applies, and never exception text.
+
+**Retry.** The arm tools add no retry of their own and make one call into the existing live mechanism. The
+retry and timeout policy of that mechanism is unchanged. This restates the sentence in Amendment 2026-10-14a
+that the tool "does not retry", which is accurate only for the tool itself.
+
+**Freshness.** The scheduled refresh jobs are the freshness mechanism: the in-game data is refreshed daily and
+the Showdown data monthly. A live fetch fills only rows that are absent offline. It is not a refresh path and
+does not replace rows that exist. Every result carries as-of fields (in-game capture date and season; Showdown
+month and rating) and the age in days at call time, and a multi-anchor result carries the dates for each
+anchor and a note when they differ. No staleness threshold is set by this amendment.
+
+**Offline-only sources.** VGCPastes is a spreadsheet scrape and is offline-only, and the other build-level
+sources (Pikalytics team usage, Pokemon-Zone cores, scraped teams) are offline data files refreshed by their
+own workflows. None of them is a live source under this ADR. Stated here again for the avoidance of doubt.
+
+**Evaluation.** Evaluation runs must call the arm tools with allow_live set to False. Until an evaluation entry
+point calls these tools, this is a documented obligation and not a tested one.
+
+**Status:** Accepted. Implemented by the D7 arm usage tool PR (explicit source, disclosed fallback, labels,
+allow_live) and by a separate follow-up PR for the derived live mapping and the M-C tuple. ADR-014's general
+prohibition on runtime web search remains unchanged.
+
+---
+
 ## ADR-004: RL policy — retrain, do not reuse
 **Decision:** Train a new RL policy specifically for Pokémon Champions and the current regulation, rather than adapting the ~6-year-old SARSA policy from the original Pokémon Battler project.
 **Alternatives considered:** Fine-tune/adapt the old policy; use the old policy's reward structure unchanged with new state representation.
