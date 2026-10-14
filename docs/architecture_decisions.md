@@ -470,6 +470,50 @@ prohibition on runtime web search remains unchanged.
 
 ---
 
+### ADR-014 — Amendment 2026-10-14a
+
+**Named structured sources for the arm-facing usage tools; failure and fallback rules.**
+
+ADR-014 was written before the agent had any tools. Its purpose was to keep the agent away from unreliable or
+irrelevant sources (unstructured, model-directed search that mixes in other games and formats). Amendments
+2026-08-05a, 2026-08-08a and 2026-08-08b already permit structured, deterministic fetches from named
+sources. This amendment extends that to the arm-facing usage tools (the explicit-source teammate tool, request-set
+defect D7) and states the rules once, so each tool does not need its own exception.
+
+**What is permitted:** a runtime fetch is allowed only from a source named in this amendment, through a known
+endpoint, a fixed regulation, month and rating mapping, deterministic parsing, and cached misses. Free-form or
+model-directed search stays prohibited everywhere. The named source today is the structured MunchStats species
+record, through the existing recommender/usage_live.py mechanism. A further source needs its own dated
+amendment naming the endpoint, the parser and the data it may supply. Construction-scoped extractors stay
+unavailable to runtime paths. No live CBD fetch is authorized.
+VGCPastes is a spreadsheet scrape and is offline-only: it is not a permitted live source. Other
+build-level sources (Pikalytics team usage, Pokemon-Zone cores, scraped teams) are likewise offline data
+files refreshed by their own workflows and are not named here.
+
+**When a live fetch may run:** only when the offline row for the species is absent for the requested source. A
+malformed offline row returns an explicit error and does not trigger a live fetch or a fallback. The phase
+scoping of Amendment 2026-08-08b is unchanged.
+
+**Fallback:** when the requested source has no row, the tool may serve another source only with a
+disclosure in the result: the requested source, the source actually used, and the reason. A live fetch from
+the requested source is a retrieval method, not a fallback, and the result is labeled live. A fallback may
+change the kind of value (Showdown rows carry conditional percentages, in-game rows are rank-only), so the value
+kind travels with every row. A fallback is never silent.
+
+**Failure:** a failed or timed-out live fetch is treated as that source having no data and falls under the
+fallback rule with reason live_unavailable, carrying the error kind and no exception text. An unexpected
+exception inside a tool is never raised to the model: the tool returns a fixed-message error result with a kind,
+and the exception class is logged through log_tool_call (Amendment 2026-10-04a and ADR-071). The tool makes
+one bounded attempt and does not retry.
+
+**Reproducibility:** live data is not pinned, so a claim checked against it cannot be replayed. Evaluation runs
+disable live fetches.
+
+**Status:** Extends the named-source, structured runtime exceptions to the arm-facing usage tools and fixes the
+fallback and failure rules. ADR-014's general prohibition on runtime web search remains unchanged.
+
+---
+
 ## ADR-004: RL policy — retrain, do not reuse
 **Decision:** Train a new RL policy specifically for Pokémon Champions and the current regulation, rather than adapting the ~6-year-old SARSA policy from the original Pokémon Battler project.
 **Alternatives considered:** Fine-tune/adapt the old policy; use the old policy's reward structure unchanged with new state representation.
