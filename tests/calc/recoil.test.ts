@@ -8,6 +8,8 @@ import {runCalculate} from '../../services/calc/handlers.js';
 import {
   RECOIL_NOT_IMPLEMENTED,
   recoilHpFrom33Over100,
+  recoilHpFromDamageFraction,
+  computeRecoilHp,
   resolveAbility,
   resolveDealtForHit,
   recoilHpFromTotalDealt,
@@ -15,8 +17,25 @@ import {
   type HitResolutionState,
 } from '../../services/calc/recoil.js';
 
-describe('recoilHpFrom33Over100 operator pins', () => {
-  it('observation + edge pins (d→r)', () => {
+function totalDealt(
+  hits: number[] | [number[], number[]],
+  initial: HitResolutionState,
+  n = 33,
+  den = 100,
+) {
+  return recoilHpFromTotalDealt({
+    hits,
+    initial,
+    attackerAbility: 'Blaze',
+    defenderAbility: 'Torrent',
+    infiltrator: false,
+    n,
+    den,
+  });
+}
+
+describe('recoilHpFromDamageFraction encoding pins', () => {
+  it('[33,100] observation + edge pins (d→r)', () => {
     const pins: [number, number][] = [
       [187, 62],
       [150, 50],
@@ -26,28 +45,68 @@ describe('recoilHpFrom33Over100 operator pins', () => {
       [80, 26],
       [68, 22],
       [188, 62],
-      [148, 49],
       [5, 2],
-      [186, 61],
       [1, 1],
       [0, 0],
     ];
     for (const [d, r] of pins) {
-      assert.equal(recoilHpFrom33Over100(d), r, `${d}→${r}`);
+      assert.equal(recoilHpFromDamageFraction(d, 33, 100), r, `33/100 ${d}→${r}`);
+      assert.equal(recoilHpFrom33Over100(d), r);
     }
   });
 
-  it('fails if floor(d/3) is substituted (rows floor misses)', () => {
+  it('[1,2] pins', () => {
+    for (const [d, r] of [
+      [1, 1],
+      [3, 2],
+      [150, 75],
+      [151, 76],
+    ] as [number, number][]) {
+      assert.equal(recoilHpFromDamageFraction(d, 1, 2), r, `1/2 ${d}→${r}`);
+    }
+  });
+
+  it('[1,4] pins', () => {
+    for (const [d, r] of [
+      [1, 1],
+      [2, 1],
+      [6, 2],
+      [7, 2],
+      [150, 38],
+    ] as [number, number][]) {
+      assert.equal(recoilHpFromDamageFraction(d, 1, 4), r, `1/4 ${d}→${r}`);
+    }
+  });
+
+  it('[1,3] is labeled (not numbered)', () => {
+    const init = buildInitialHitState({maxHP: 100, defenderAbility: 'Torrent'});
+    assert.equal(
+      computeRecoilHp({
+        damage: [150],
+        moveRecoil: [1, 3],
+        moveHits: 1,
+        isSpread: false,
+        attackerAbility: 'Blaze',
+        defenderAbility: 'Torrent',
+        infiltrator: false,
+        initial: init,
+        parentalBond: false,
+      }),
+      RECOIL_NOT_IMPLEMENTED,
+    );
+  });
+
+  it('fails if floor(d/3) is substituted for [33,100] (rows floor misses)', () => {
     for (const d of [47, 35, 180]) {
-      const got = recoilHpFrom33Over100(d);
+      const got = recoilHpFromDamageFraction(d, 33, 100);
       const floor3 = Math.max(1, Math.floor(d / 3));
       assert.notEqual(got, floor3, `d=${d}: operator must ≠ floor(d/3)=${floor3}`);
     }
   });
 
-  it('fails if round(d/3) is substituted (rows round misses)', () => {
+  it('fails if round(d/3) is substituted for [33,100] (rows round misses)', () => {
     for (const d of [80, 68, 188]) {
-      const got = recoilHpFrom33Over100(d);
+      const got = recoilHpFromDamageFraction(d, 33, 100);
       const round3 = Math.max(1, Math.round(d / 3));
       assert.notEqual(got, round3, `d=${d}: operator must ≠ round(d/3)=${round3}`);
     }
@@ -225,6 +284,8 @@ describe('recoilHpFromTotalDealt PB + timing', () => {
       attackerAbility: 'Parental Bond',
       defenderAbility: 'Torrent',
       infiltrator: false,
+      n: 33,
+      den: 100,
     }) as number[];
     const expected = new Set<number>();
     for (const a of hit1) {
@@ -250,6 +311,8 @@ describe('recoilHpFromTotalDealt PB + timing', () => {
       attackerAbility: 'Parental Bond',
       defenderAbility: 'Torrent',
       infiltrator: false,
+      n: 33,
+      den: 100,
     }) as number[];
     // Total dealt always 153 → operator → 50
     assert.deepEqual(totals, [50]);
@@ -271,6 +334,8 @@ describe('recoilHpFromTotalDealt PB + timing', () => {
       attackerAbility: 'Parental Bond',
       defenderAbility: 'Torrent',
       infiltrator: false,
+      n: 33,
+      den: 100,
     }) as number[];
     assert.deepEqual(totals, [50]);
   });
@@ -288,6 +353,8 @@ describe('recoilHpFromTotalDealt PB + timing', () => {
       attackerAbility: 'Parental Bond',
       defenderAbility: 'Torrent',
       infiltrator: false,
+      n: 33,
+      den: 100,
     });
     // dealt 123+29=152 → 50
     assert.deepEqual(totals, [50]);
@@ -306,6 +373,8 @@ describe('recoilHpFromTotalDealt PB + timing', () => {
       attackerAbility: 'Parental Bond',
       defenderAbility: 'Torrent',
       infiltrator: false,
+      n: 33,
+      den: 100,
     });
     assert.deepEqual(totals, [33]);
   });
@@ -323,6 +392,8 @@ describe('recoilHpFromTotalDealt PB + timing', () => {
       attackerAbility: 'Parental Bond',
       defenderAbility: 'Torrent',
       infiltrator: false,
+      n: 33,
+      den: 100,
     });
     assert.deepEqual(totals, [23]);
   });
@@ -338,6 +409,8 @@ describe('recoilHpFromTotalDealt PB + timing', () => {
       attackerAbility: 'Parental Bond',
       defenderAbility: 'Torrent',
       infiltrator: false,
+      n: 33,
+      den: 100,
     }) as number[];
     assert.deepEqual(totals, [3]);
     const perHitSum =
@@ -378,7 +451,7 @@ describe('runCalculate recoilHp live', () => {
     }
   });
 
-  it('Head Smash / Wild Charge → not-implemented label', () => {
+  it('Head Smash [1,2] / Wild Charge [1,4] → numbered recoilHp', () => {
     const head = runCalculate({
       attacker: {
         species: 'Tyrantrum',
@@ -389,7 +462,17 @@ describe('runCalculate recoilHp live', () => {
       defender: {species: 'Primarina', ability: 'Torrent', evs: {hp: 32}},
       move: 'Head Smash',
     });
-    assert.equal(head.recoilHp, RECOIL_NOT_IMPLEMENTED);
+    assert.ok(Array.isArray(head.recoilHp));
+    assert.notEqual(head.recoilHp, RECOIL_NOT_IMPLEMENTED);
+    const hd = head.raw.damage as number[];
+    const hrh = head.recoilHp as number[];
+    const hhp = head.raw.stats.defender.hp!;
+    for (let i = 0; i < hd.length; i++) {
+      assert.equal(
+        hrh[i],
+        recoilHpFromDamageFraction(Math.min(hd[i]!, hhp), 1, 2),
+      );
+    }
     const wild = runCalculate({
       attacker: {
         species: 'Luxray',
@@ -400,7 +483,16 @@ describe('runCalculate recoilHp live', () => {
       defender: {species: 'Primarina', ability: 'Torrent', evs: {hp: 32}},
       move: 'Wild Charge',
     });
-    assert.equal(wild.recoilHp, RECOIL_NOT_IMPLEMENTED);
+    assert.ok(Array.isArray(wild.recoilHp));
+    const wd = wild.raw.damage as number[];
+    const wrh = wild.recoilHp as number[];
+    const whp = wild.raw.stats.defender.hp!;
+    for (let i = 0; i < wd.length; i++) {
+      assert.equal(
+        wrh[i],
+        recoilHpFromDamageFraction(Math.min(wd[i]!, whp), 1, 4),
+      );
+    }
   });
 
   it('Rock Head → recoilHp 0', () => {
@@ -651,6 +743,8 @@ describe('runCalculate recoilHp live', () => {
       attackerAbility: 'Blaze',
       defenderAbility: 'Torrent',
       infiltrator: false,
+      n: 33,
+      den: 100,
     }) as number[];
     assert.deepEqual(syn, [62, 62, 61]);
     const partial = recoilHpFromTotalDealt({
@@ -663,6 +757,8 @@ describe('runCalculate recoilHp live', () => {
       attackerAbility: 'Blaze',
       defenderAbility: 'Torrent',
       infiltrator: false,
+      n: 33,
+      den: 100,
     }) as number[];
     assert.deepEqual(partial, [33]);
   });

@@ -1,18 +1,19 @@
 /**
- * Project convention for 1/3-class recoil as HP points from damage dealt.
+ * Project convention for damage-fraction recoil as HP points from damage dealt.
  * Not "the game rule" — see PR notes / planned ADR-078 amendment.
  *
- * Observation table (owner, Champions casual; d = damage dealt, r = recoil;
- * all 1/3-class): floor(d/3) fails at 47→15, 35→11, 180→60; round(d/3) fails
- * at 80→27, 68→23, 188→63; floor((d*33+50)/100) fits every logged row
- * (including capped KO deals). Earlier floor(d/3) convention was contradicted.
- * Pinned sim (942cda7) `applyRecoilDamage` uses
- * clampIntRange(Math.round(dealt * n / d), 1) — same numbers for [33,100].
- * As a single multiplication the ratio is in about [0.33, 0.3306).
+ * Formula (pinned sim 942cda7 `applyRecoilDamage`): for move.recoil = [n, den],
+ * recoil = max(1, floor((2*d*n + den) / (2*den))) when d > 0; 0 when d = 0.
+ * Same numbers as Math.round(d*n/den) with half-up ties (observed at d=150).
  *
- * Open: min-1 for d=1 unsourced/untested; once-on-total supported by sim
- * (battle-actions.ts L961–979) + one log line, not numerically pinned vs
- * per-hit; 1/2 and 1/4 moves untested (labeled not implemented).
+ * [33,100] is primary-observed (owner Champions table: floor(d/3) and round(d/3)
+ * both fail some rows; this formula fits). [1,2] and [1,4] use the same formula
+ * and were NOT tested in game. [1,3] is labeled (older encoding; no legal move;
+ * round(d/3) contradicted). Min-1 is the sim clamp; unsourced/untested at d=1.
+ *
+ * Timing: resolve dealt per hit (Sub / Disguise / Endure / Sash / Sturdy), sum,
+ * apply operator once (sim battle-actions.ts L961–979 + one log line; not
+ * numerically pinned vs per-hit).
  */
 
 export const RECOIL_NOT_IMPLEMENTED = 'recoil rule not implemented' as const;
@@ -60,19 +61,32 @@ export type HitResolutionOpts = {
 const MB_FAMILY = new Set(['Mold Breaker', 'Teravolt', 'Turboblaze']);
 
 /**
- * Recoil HP from total damage dealt via the 33/100 operator.
- * Integer only: floor((dealt * 33 + 50) / 100); d=0 → 0; d>0 → max(1, …).
- * Matches pinned-sim Math.round(dealt * 33 / 100) clamped to ≥1 when dealt>0.
+ * Recoil HP from damage dealt for move.recoil = [n, den].
+ * Integer only: max(1, floor((2*d*n + den) / (2*den))) when d > 0; 0 when d = 0.
  */
-export function recoilHpFrom33Over100(dealt: number): number {
+export function recoilHpFromDamageFraction(
+  dealt: number,
+  n: number,
+  den: number,
+): number {
   if (dealt <= 0) return 0;
-  return Math.max(1, Math.floor((dealt * 33 + 50) / 100));
+  return Math.max(1, Math.floor((2 * dealt * n + den) / (2 * den)));
 }
 
-export function isOneThirdRecoil(recoil: [number, number] | undefined): boolean {
+/** @deprecated alias — prefer recoilHpFromDamageFraction(dealt, 33, 100) */
+export function recoilHpFrom33Over100(dealt: number): number {
+  return recoilHpFromDamageFraction(dealt, 33, 100);
+}
+
+/** Accepted Champions encodings that get numbers. [1,3] is labeled. */
+export function isAcceptedRecoilEncoding(
+  recoil: [number, number] | undefined,
+): recoil is [number, number] {
   if (!recoil) return false;
   const [n, d] = recoil;
-  return (n === 33 && d === 100) || (n === 1 && d === 3);
+  return (
+    (n === 33 && d === 100) || (n === 1 && d === 2) || (n === 1 && d === 4)
+  );
 }
 
 export function isMoldBreakerFamily(ability: string): boolean {
@@ -133,10 +147,8 @@ function cloneState(s: HitResolutionState): HitResolutionState {
 
 /**
  * Only place once-on-total recoil timing lives.
- * Resolves dealt per hit sequentially (Sub / Disguise / Endure / Sash / Sturdy),
- * sums dealt, then applies recoilHpFrom33Over100 once.
- * Single-hit: each roll from a fresh copy of initial.
- * Parental Bond: every (h1,h2) pair; returns sorted distinct totals.
+ * Resolves dealt per hit sequentially, sums dealt, applies
+ * recoilHpFromDamageFraction once with the move's [n, den].
  */
 export function recoilHpFromTotalDealt(args: {
   hits: number[] | [number[], number[]];
@@ -144,8 +156,18 @@ export function recoilHpFromTotalDealt(args: {
   attackerAbility: string;
   defenderAbility: string;
   infiltrator: boolean;
+  n: number;
+  den: number;
 }): number | number[] {
-  const {hits, initial, attackerAbility, defenderAbility, infiltrator} = args;
+  const {
+    hits,
+    initial,
+    attackerAbility,
+    defenderAbility,
+    infiltrator,
+    n,
+    den,
+  } = args;
   const dealtOne = (state: HitResolutionState, roll: number) =>
     resolveDealtForHit({
       roll,
@@ -154,12 +176,13 @@ export function recoilHpFromTotalDealt(args: {
       defenderAbility,
       infiltrator,
     });
+  const op = (dealt: number) => recoilHpFromDamageFraction(dealt, n, den);
 
   if (!Array.isArray(hits[0])) {
     const rolls = hits as number[];
     return rolls.map((r) => {
       const state = cloneState(initial);
-      return recoilHpFrom33Over100(dealtOne(state, r));
+      return op(dealtOne(state, r));
     });
   }
 
@@ -168,8 +191,7 @@ export function recoilHpFromTotalDealt(args: {
   for (const a of hit1) {
     for (const b of hit2) {
       const state = cloneState(initial);
-      const totalDealt = dealtOne(state, a) + dealtOne(state, b);
-      totals.add(recoilHpFrom33Over100(totalDealt));
+      totals.add(op(dealtOne(state, a) + dealtOne(state, b)));
     }
   }
   return [...totals].sort((x, y) => x - y);
@@ -192,9 +214,10 @@ export type ComputeRecoilArgs = {
  * Gate + Rock Head/Magic Guard + single-hit / PB recoilHp.
  */
 export function computeRecoilHp(args: ComputeRecoilArgs): RecoilHp {
-  if (!isOneThirdRecoil(args.moveRecoil)) {
+  if (!isAcceptedRecoilEncoding(args.moveRecoil)) {
     return RECOIL_NOT_IMPLEMENTED;
   }
+  const [n, den] = args.moveRecoil;
   // Inherent multi-hit recoil moves: none legal today; label if gated.
   if (args.moveHits > 1) {
     return RECOIL_NOT_IMPLEMENTED;
@@ -210,7 +233,7 @@ export function computeRecoilHp(args: ComputeRecoilArgs): RecoilHp {
         return 0;
       }
       const state = cloneState(args.initial);
-      return recoilHpFrom33Over100(
+      return recoilHpFromDamageFraction(
         resolveDealtForHit({
           roll: 0,
           state,
@@ -218,6 +241,8 @@ export function computeRecoilHp(args: ComputeRecoilArgs): RecoilHp {
           defenderAbility: args.defenderAbility,
           infiltrator: args.infiltrator,
         }),
+        n,
+        den,
       );
     }
     return RECOIL_NOT_IMPLEMENTED;
@@ -238,6 +263,8 @@ export function computeRecoilHp(args: ComputeRecoilArgs): RecoilHp {
       attackerAbility: args.attackerAbility,
       defenderAbility: args.defenderAbility,
       infiltrator: args.infiltrator,
+      n,
+      den,
     });
     if (
       args.attackerAbility === 'Rock Head' ||
@@ -248,7 +275,6 @@ export function computeRecoilHp(args: ComputeRecoilArgs): RecoilHp {
     return totals;
   }
 
-  // Parental Bond claimed but no second hit nesting
   if (args.parentalBond) {
     return RECOIL_NOT_IMPLEMENTED;
   }
@@ -259,6 +285,8 @@ export function computeRecoilHp(args: ComputeRecoilArgs): RecoilHp {
     attackerAbility: args.attackerAbility,
     defenderAbility: args.defenderAbility,
     infiltrator: args.infiltrator,
+    n,
+    den,
   });
   if (
     args.attackerAbility === 'Rock Head' ||
