@@ -148,6 +148,30 @@ def test_calculate_moves_endpoint_and_recoilHp():
     assert results[0]["recoilHp"] == [20, 21, 22]
 
 
+def test_calculate_moves_forwards_selfDamage():
+    client = CalcClient("http://127.0.0.1:9")
+    self_damage = [
+        {
+            "kind": "crash",
+            "hp": 100,
+            "applies": "when the move fails.",
+            "ruleSource": "sim + Bulbapedia",
+        }
+    ]
+    entry = {
+        **CALC_SUCCESS,
+        "move": "High Jump Kick",
+        "recoilHp": "not damage-based; see selfDamage",
+        "selfDamage": self_damage,
+    }
+    with patch.object(
+        client, "_json_request", return_value=(200, {"results": [entry]})
+    ):
+        results = client.calculate_moves(GARCHOMP, KINGAMBIT, ["High Jump Kick"])
+    assert results[0]["selfDamage"] == self_damage
+    assert results[0]["recoilHp"] == "not damage-based; see selfDamage"
+
+
 def test_calculate_moves_over_cap_error():
     client = CalcClient("http://127.0.0.1:9")
     with patch.object(

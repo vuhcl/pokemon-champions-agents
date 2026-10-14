@@ -7,7 +7,10 @@ import {
   runCalculate,
   runCalculateMovesBatch,
 } from '../../services/calc/handlers.js';
-import {RECOIL_NOT_IMPLEMENTED} from '../../services/calc/recoil.js';
+import {
+  RECOIL_NOT_IMPLEMENTED,
+  RECOIL_SEE_SELFDAMAGE,
+} from '../../services/calc/recoil.js';
 
 const ATK = {
   species: 'Infernape',
@@ -116,5 +119,31 @@ describe('runCalculateMovesBatch', () => {
     assert.ok(!Array.isArray(result));
     assert.ok('error' in result);
     assert.match(result.error, /exceeds cap 32/);
+  });
+
+  it('High Jump Kick entry forwards selfDamage matching single-call', () => {
+    const attacker = {
+      species: 'Gallade',
+      ability: 'Justified',
+      nature: 'Adamant' as const,
+      evs: {hp: 32, atk: 32},
+    };
+    const batch = runCalculateMovesBatch({
+      attacker,
+      defender: {...DEF},
+      moves: ['High Jump Kick'],
+    });
+    assert.ok(Array.isArray(batch));
+    const entry = batch[0]!;
+    assert.ok(!('error' in entry));
+    if ('error' in entry) return;
+    const single = runCalculate({
+      attacker,
+      defender: {...DEF},
+      move: 'High Jump Kick',
+    });
+    assert.equal(entry.recoilHp, RECOIL_SEE_SELFDAMAGE);
+    assert.deepEqual(entry.selfDamage, single.selfDamage);
+    assert.equal(entry.selfDamage?.[0]?.kind, 'crash');
   });
 });

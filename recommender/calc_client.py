@@ -139,11 +139,19 @@ class AbilityResolution(TypedDict, total=False):
     defender: AbilityResolutionSide
 
 
+class SelfDamageEntry(TypedDict):
+    kind: Literal["crash", "struggle", "max_hp_half"]
+    hp: int
+    applies: str
+    ruleSource: str
+
+
 class CalcSuccessResponse(TypedDict):
     damageRange: list[int]
     koChance: str
     raw: CalcRaw
     recoilHp: NotRequired[int | list[int] | str]
+    selfDamage: NotRequired[list[SelfDamageEntry]]
     abilityResolution: NotRequired[AbilityResolution]
 
 
@@ -180,6 +188,7 @@ class MovesBatchEntry(TypedDict, total=False):
     koChance: str
     raw: CalcRaw
     recoilHp: int | list[int] | str
+    selfDamage: list[SelfDamageEntry]
     abilityResolution: AbilityResolution
     error: str
 

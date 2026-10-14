@@ -10,8 +10,8 @@
  * [33,100] is primary-observed (owner Champions 2026-10-13 table). [1,2] and
  * [1,4] use the same sim formula but were not tested in game. [1,3] is labeled
  * (older encoding; no legal Champions move; round(d/3) contradicted). Min-1 is
- * the sim clamp; untested at d=1. Crash / Struggle / Steel Beam stay labeled
- * (follow-up PR).
+ * the sim clamp; untested at d=1. Crash / Struggle / Steel Beam use
+ * selfDamage (max-HP kinds); recoilHp is "not damage-based; see selfDamage".
  *
  * Timing: resolve dealt per hit (Sub / Disguise / Endure / Sash / Sturdy), sum,
  * apply operator once (sim battle-actions.ts L961–979 + one log line; not
@@ -19,11 +19,14 @@
  */
 
 export const RECOIL_NOT_IMPLEMENTED = 'recoil rule not implemented' as const;
+export const RECOIL_SEE_SELFDAMAGE =
+  'not damage-based; see selfDamage' as const;
 
 export type RecoilHp =
   | number
   | number[]
-  | typeof RECOIL_NOT_IMPLEMENTED;
+  | typeof RECOIL_NOT_IMPLEMENTED
+  | typeof RECOIL_SEE_SELFDAMAGE;
 
 export type AbilitySource = 'dex' | 'request' | 'override';
 
@@ -341,6 +344,126 @@ export function resolveAbility(input: PokemonAbilityInput): AbilityResolutionSid
     };
   }
   return {applied: input.dexAbility, source: 'dex'};
+}
+
+export type SelfDamageKind = 'crash' | 'struggle' | 'max_hp_half';
+
+export type SelfDamageEntry = {
+  kind: SelfDamageKind;
+  hp: number;
+  applies: string;
+  ruleSource: string;
+};
+
+export type SelfDamageMoveFlags = {
+  hasCrashDamage?: boolean;
+  struggleRecoil?: boolean;
+  mindBlownRecoil?: boolean;
+};
+
+const RULE_SOURCE_CRASH =
+  'sim + Bulbapedia (Crash damage, Gen V+: half of max HP rounded down). Observed 2026-10-13, Champions casual battle: High Jump Kick, max HP 147, loss 73 both into a Ghost-type (current HP 111) and into Protect (full HP); floor of 73.5, rounding up would give 74. Based on max HP. Only High Jump Kick observed; Axe Kick and Supercell Slam assumed to match. A miss and Magic Guard not tested.';
+
+const RULE_SOURCE_STRUGGLE =
+  'sim + Bulbapedia (round half-up of max HP / 4). Observed 2026-10-13, Champions casual battle (max HP, loss): 211 -> 53; 206 -> 52 (tie, current HP 152); 205 -> 51. Floor, half-down and ceiling each fail on at least one; half-up fits all three. Based on max HP, not current HP. Also observed: no recoil into Protect; recoil (loss 51 at max HP 205) into a Substitute that survived; damage dealt to a Ghost/Steel target (typeless). Substitute that breaks and Magic Guard not tested.';
+
+const RULE_SOURCE_MAX_HP_HALF =
+  'sim + Bulbapedia (half of max HP, rounded up). Observed 2026-10-13: max HP 167 (full) -> loss 84 on a hit, into Protect, and into a Substitute. Rounding down ruled out. Magic Guard, a miss and the immune case not tested.';
+
+const APPLIES_CRASH =
+  'when the move fails. Observed 2026-10-13: High Jump Kick failed against a Ghost-type (immune) and when the target was protecting, and the crash applied in both. Per the sim only (not observed): also on a miss; not applied with no target (battle-actions.ts L514-517, L529-531). Do not describe this as "on a miss".';
+
+const APPLIES_CRASH_MAGIC_GUARD =
+  'per the sim only (not observed): Magic Guard blocks Condition damage (abilities.ts magicguard onDamage); the amount would apply when the move fails; not applied with no target.';
+
+const APPLIES_STRUGGLE =
+  'observed 2026-10-13 (Champions casual battle): no recoil when the target was protecting (Struggle executed and was blocked); recoil applied when the hit landed on a Substitute that survived; Struggle damaged a Ghost/Steel target (typeless). Per the pinned sim: recoil applies only when totalDamage is truthy (battle-actions.ts L978-979) and a Substitute absorb counts as 0 (L960-962); the sim is wrong for the Substitute case (observed in game; see Report A). Magic Guard per the sim only (directDamage with strugglerecoil skips the Damage event, battle.ts L2119); not observed. Secondary sources about other games (Reddit r/PokemonEmerald, Pokemon3D wiki, CAPX Fandom) say it applies even when blocked; not supported for Protect.';
+
+const APPLIES_MAX_HP_HALF =
+  'observed 2026-10-13 (Champions casual battle): cost applied when the move hit, when the target was protecting, and when the hit landed on a Substitute. Bulbapedia (secondary): also applies on a miss; not applied when there are no targets. Per the sim only (not observed): also on MoveFail when immune. The pinned sim applies neither path when a Substitute absorbs the hit (the absorb adds 0 to totalDamage, battle-actions.ts L960-962, L978-979, and MoveFail does not run); the sim is wrong for the Substitute case (observed in game; see Report A).';
+
+const APPLIES_MAX_HP_HALF_MAGIC_GUARD =
+  'per the sim only (not observed): Magic Guard blocks Condition and non-Move damage; Steel Beam uses condition damage on hit and onMoveFail. Bulbapedia agrees that Magic Guard prevents it.';
+
+/** crash: floor(H/2), min 1 — sim baseMaxhp/2 via clampIntRange; Bulbapedia Gen V+. */
+export function crashSelfHp(attackerMaxHp: number): number {
+  if (attackerMaxHp <= 0) return 0;
+  return Math.max(1, Math.floor(attackerMaxHp / 2));
+}
+
+/** struggle: floor((H+2)/4), min 1 — sim Math.round(baseMaxhp/4). */
+export function struggleSelfHp(attackerMaxHp: number): number {
+  if (attackerMaxHp <= 0) return 0;
+  return Math.max(1, Math.floor((attackerMaxHp + 2) / 4));
+}
+
+/** steelbeam / mindBlown: floor((H+1)/2), min 1 — sim Math.round(maxhp/2). */
+export function maxHpHalfSelfHp(attackerMaxHp: number): number {
+  if (attackerMaxHp <= 0) return 0;
+  return Math.max(1, Math.floor((attackerMaxHp + 1) / 2));
+}
+
+export function struggleProtectApplies(formulaHp: number): string {
+  return `observed 2026-10-13: no recoil when the target was protecting; amount would be ${formulaHp} otherwise`;
+}
+
+/**
+ * Max-HP self-damage entries (crash / Struggle / Steel Beam).
+ * Magic Guard: crash + max_hp_half → hp 0; Struggle not blocked (sim).
+ * Rock Head: only effect.id === 'recoil'; does not block these kinds.
+ * Only extra branch: Struggle + defenderSide.isProtected → hp 0.
+ */
+export function computeSelfDamage(args: {
+  move: SelfDamageMoveFlags;
+  attackerMaxHp: number;
+  attackerAbility: string;
+  /** Request field.defenderSide.isProtected — Struggle only. */
+  defenderProtected?: boolean;
+}): SelfDamageEntry[] {
+  const {move, attackerMaxHp, attackerAbility, defenderProtected} = args;
+  const magicGuard = attackerAbility === 'Magic Guard';
+  const out: SelfDamageEntry[] = [];
+
+  if (move.hasCrashDamage) {
+    out.push({
+      kind: 'crash',
+      hp: magicGuard ? 0 : crashSelfHp(attackerMaxHp),
+      applies: magicGuard ? APPLIES_CRASH_MAGIC_GUARD : APPLIES_CRASH,
+      ruleSource: RULE_SOURCE_CRASH,
+    });
+  }
+
+  if (move.struggleRecoil) {
+    const formulaHp = struggleSelfHp(attackerMaxHp);
+    if (defenderProtected) {
+      out.push({
+        kind: 'struggle',
+        hp: 0,
+        applies: struggleProtectApplies(formulaHp),
+        ruleSource: RULE_SOURCE_STRUGGLE,
+      });
+    } else {
+      out.push({
+        kind: 'struggle',
+        hp: formulaHp,
+        applies: APPLIES_STRUGGLE,
+        ruleSource: RULE_SOURCE_STRUGGLE,
+      });
+    }
+  }
+
+  if (move.mindBlownRecoil) {
+    out.push({
+      kind: 'max_hp_half',
+      hp: magicGuard ? 0 : maxHpHalfSelfHp(attackerMaxHp),
+      applies: magicGuard
+        ? APPLIES_MAX_HP_HALF_MAGIC_GUARD
+        : APPLIES_MAX_HP_HALF,
+      ruleSource: RULE_SOURCE_MAX_HP_HALF,
+    });
+  }
+
+  return out;
 }
 
 export function buildInitialHitState(opts: {
