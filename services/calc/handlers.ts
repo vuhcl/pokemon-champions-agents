@@ -8,11 +8,14 @@ import type {PokemonSet} from '@pkmn/sets';
 import {
   buildInitialHitState,
   computeRecoilHp,
+  computeSelfDamage,
+  RECOIL_SEE_SELFDAMAGE,
   resolveAbility,
   type AbilityResolution,
   type AbilityResolutionSide,
   type DisguiseForm,
   type RecoilHp,
+  type SelfDamageEntry,
 } from './recoil.js';
 
 /** Champions pseudo-generation in @smogon/calc — NOT Generations.get('champions'). */
@@ -111,9 +114,15 @@ export type CalcSuccess = {
    * Project-convention HP recoil for accepted damage-fraction encodings
    * ([33,100], [1,2], [1,4]) via sim half-up on total damage dealt.
    * Single-hit: per-roll array. Parental Bond: sorted distinct totals.
-   * Rock Head / Magic Guard: 0. Else label string.
+   * Rock Head / Magic Guard: 0. Crash / Struggle / Steel Beam:
+   * "not damage-based; see selfDamage". Else "recoil rule not implemented".
    */
   recoilHp: RecoilHp;
+  /**
+   * Max-HP self-damage (crash / Struggle / Steel Beam). Not nested by roll.
+   * Empty / omitted when the move has none of those flags.
+   */
+  selfDamage?: SelfDamageEntry[];
   abilityResolution?: AbilityResolution;
 };
 
@@ -230,7 +239,7 @@ export function runCalculate(req: CalcRequest): CalcSuccess {
     item: req.defender.item,
   });
 
-  const recoilHp = computeRecoilHp({
+  let recoilHp = computeRecoilHp({
     damage: result.damage,
     moveRecoil: move.recoil,
     moveHits: move.hits,
@@ -242,6 +251,20 @@ export function runCalculate(req: CalcRequest): CalcSuccess {
     parentalBond,
   });
 
+  const selfDamage = computeSelfDamage({
+    move: {
+      hasCrashDamage: !!move.hasCrashDamage,
+      struggleRecoil: !!move.struggleRecoil,
+      mindBlownRecoil: !!(move as {mindBlownRecoil?: boolean}).mindBlownRecoil,
+    },
+    attackerMaxHp: attacker.rawStats.hp,
+    attackerAbility: atkRes.applied,
+    defenderProtected: !!req.field?.defenderSide?.isProtected,
+  });
+  if (selfDamage.length) {
+    recoilHp = RECOIL_SEE_SELFDAMAGE;
+  }
+
   const abilityResolution: AbilityResolution = {};
   if (shouldRecord(atkRes, req.attacker.species.includes('-Mega'))) {
     abilityResolution.attacker = atkRes;
@@ -252,6 +275,7 @@ export function runCalculate(req: CalcRequest): CalcSuccess {
 
   const base = {
     recoilHp,
+    ...(selfDamage.length ? {selfDamage} : {}),
     ...(Object.keys(abilityResolution).length
       ? {abilityResolution}
       : {}),
