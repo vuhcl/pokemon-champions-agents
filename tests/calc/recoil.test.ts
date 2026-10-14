@@ -10,10 +10,6 @@ import {
   recoilHpFrom33Over100,
   recoilHpFromDamageFraction,
   computeRecoilHp,
-  computeSelfDamage,
-  crashSelfHp,
-  struggleSelfHp,
-  maxHpHalfSelfHp,
   resolveAbility,
   resolveDealtForHit,
   recoilHpFromTotalDealt,
@@ -884,142 +880,24 @@ describe('runCalculate recoilHp live', () => {
   });
 });
 
-describe('selfDamage (crash / Struggle / Steel Beam)', () => {
-  it('formula pins: crash / struggle / max_hp_half', () => {
-    assert.equal(crashSelfHp(201), 100);
-    assert.equal(crashSelfHp(1), 1);
-    assert.equal(struggleSelfHp(201), 50);
-    assert.equal(struggleSelfHp(202), 51);
-    assert.equal(struggleSelfHp(203), 51);
-    assert.equal(maxHpHalfSelfHp(201), 101);
-    assert.equal(maxHpHalfSelfHp(200), 100);
-  });
-
-  it('High Jump Kick → crash selfDamage; recoilHp labeled', () => {
-    const r = runCalculate({
-      attacker: {
-        species: 'Gallade',
-        ability: 'Justified',
-        nature: 'Adamant',
-        evs: {hp: 32, atk: 32},
-      },
-      defender: {species: 'Primarina', ability: 'Torrent', evs: {hp: 32}},
-      move: 'High Jump Kick',
-    });
-    assert.equal(r.recoilHp, RECOIL_NOT_IMPLEMENTED);
-    assert.ok(r.selfDamage);
-    assert.equal(r.selfDamage!.length, 1);
-    assert.equal(r.selfDamage![0]!.kind, 'crash');
-    assert.equal(r.selfDamage![0]!.hp, crashSelfHp(r.raw.stats.attacker.hp!));
-  });
-
-  it('Axe Kick and Supercell Slam → crash', () => {
-    const axe = runCalculate({
-      attacker: {
-        species: 'Gallade',
-        ability: 'Justified',
-        nature: 'Adamant',
-        evs: {hp: 32, atk: 32},
-      },
-      defender: {species: 'Primarina', ability: 'Torrent', evs: {hp: 32}},
-      move: 'Axe Kick',
-    });
-    assert.equal(axe.selfDamage?.[0]?.kind, 'crash');
-    assert.equal(axe.recoilHp, RECOIL_NOT_IMPLEMENTED);
-    const slam = runCalculate({
-      attacker: {
-        species: 'Pawmot',
-        ability: 'Volt Absorb',
-        nature: 'Adamant',
-        evs: {hp: 32, atk: 32},
-      },
-      defender: {species: 'Primarina', ability: 'Torrent', evs: {hp: 32}},
-      move: 'Supercell Slam',
-    });
-    assert.equal(slam.selfDamage?.[0]?.kind, 'crash');
-    assert.equal(slam.recoilHp, RECOIL_NOT_IMPLEMENTED);
-  });
-
-  it('Struggle → struggle selfDamage', () => {
-    const r = runCalculate({
-      attacker: {
-        species: 'Tauros',
-        ability: 'Intimidate',
-        nature: 'Adamant',
-        evs: {hp: 32, atk: 32},
-      },
-      defender: {species: 'Primarina', ability: 'Torrent', evs: {hp: 32}},
-      move: 'Struggle',
-    });
-    assert.equal(r.selfDamage?.[0]?.kind, 'struggle');
-    assert.equal(r.selfDamage![0]!.hp, struggleSelfHp(r.raw.stats.attacker.hp!));
-    assert.equal(r.recoilHp, RECOIL_NOT_IMPLEMENTED);
-  });
-
-  it('Steel Beam → max_hp_half selfDamage', () => {
-    const r = runCalculate({
-      attacker: {
-        species: 'Metagross',
-        ability: 'Clear Body',
-        nature: 'Modest',
-        evs: {hp: 32, spa: 32},
-      },
-      defender: {species: 'Primarina', ability: 'Torrent', evs: {hp: 32}},
-      move: 'Steel Beam',
-    });
-    assert.equal(r.selfDamage?.[0]?.kind, 'max_hp_half');
-    assert.equal(r.selfDamage![0]!.hp, maxHpHalfSelfHp(r.raw.stats.attacker.hp!));
-    assert.equal(r.recoilHp, RECOIL_NOT_IMPLEMENTED);
-  });
-
-  it('Magic Guard zeroes crash and Steel Beam; not Struggle', () => {
-    const crash = computeSelfDamage({
-      move: {hasCrashDamage: true},
-      attackerMaxHp: 201,
-      attackerAbility: 'Magic Guard',
-    });
-    assert.equal(crash[0]!.hp, 0);
-    const steel = computeSelfDamage({
-      move: {mindBlownRecoil: true},
-      attackerMaxHp: 201,
-      attackerAbility: 'Magic Guard',
-    });
-    assert.equal(steel[0]!.hp, 0);
-    const struggle = computeSelfDamage({
-      move: {struggleRecoil: true},
-      attackerMaxHp: 201,
-      attackerAbility: 'Magic Guard',
-    });
-    assert.equal(struggle[0]!.hp, 50);
-  });
-
-  it('Rock Head does not zero crash / Struggle / Steel Beam', () => {
-    for (const move of [
-      {hasCrashDamage: true},
-      {struggleRecoil: true},
-      {mindBlownRecoil: true},
+describe('crash / Struggle / Steel Beam stay labeled (follow-up PR)', () => {
+  it('High Jump Kick, Struggle, Steel Beam → recoil rule not implemented', () => {
+    for (const [species, ability, move, nature, evKey] of [
+      ['Gallade', 'Justified', 'High Jump Kick', 'Adamant', 'atk'],
+      ['Tauros', 'Intimidate', 'Struggle', 'Adamant', 'atk'],
+      ['Metagross', 'Clear Body', 'Steel Beam', 'Modest', 'spa'],
     ] as const) {
-      const entries = computeSelfDamage({
+      const r = runCalculate({
+        attacker: {
+          species,
+          ability,
+          nature,
+          evs: {hp: 32, [evKey]: 32},
+        },
+        defender: {species: 'Primarina', ability: 'Torrent', evs: {hp: 32}},
         move,
-        attackerMaxHp: 200,
-        attackerAbility: 'Rock Head',
       });
-      assert.ok(entries[0]!.hp > 0);
+      assert.equal(r.recoilHp, RECOIL_NOT_IMPLEMENTED, move);
     }
-  });
-
-  it('Flare Blitz has recoilHp numbers and no selfDamage', () => {
-    const r = runCalculate({
-      attacker: {
-        species: 'Infernape',
-        ability: 'Blaze',
-        nature: 'Adamant',
-        evs: {atk: 32},
-      },
-      defender: {species: 'Primarina', ability: 'Torrent', evs: {hp: 32}},
-      move: 'Flare Blitz',
-    });
-    assert.ok(Array.isArray(r.recoilHp));
-    assert.equal(r.selfDamage, undefined);
   });
 });

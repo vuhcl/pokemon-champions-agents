@@ -8,13 +8,11 @@ import type {PokemonSet} from '@pkmn/sets';
 import {
   buildInitialHitState,
   computeRecoilHp,
-  computeSelfDamage,
   resolveAbility,
   type AbilityResolution,
   type AbilityResolutionSide,
   type DisguiseForm,
   type RecoilHp,
-  type SelfDamageEntry,
 } from './recoil.js';
 
 /** Champions pseudo-generation in @smogon/calc — NOT Generations.get('champions'). */
@@ -116,11 +114,6 @@ export type CalcSuccess = {
    * Rock Head / Magic Guard: 0. Else label string.
    */
   recoilHp: RecoilHp;
-  /**
-   * Max-HP self-damage (crash / Struggle / Steel Beam). Not nested by roll.
-   * Empty / omitted when the move has none of those flags.
-   */
-  selfDamage?: SelfDamageEntry[];
   abilityResolution?: AbilityResolution;
 };
 
@@ -249,16 +242,6 @@ export function runCalculate(req: CalcRequest): CalcSuccess {
     parentalBond,
   });
 
-  const selfDamage = computeSelfDamage({
-    move: {
-      hasCrashDamage: !!move.hasCrashDamage,
-      struggleRecoil: !!move.struggleRecoil,
-      mindBlownRecoil: !!(move as {mindBlownRecoil?: boolean}).mindBlownRecoil,
-    },
-    attackerMaxHp: attacker.rawStats.hp,
-    attackerAbility: atkRes.applied,
-  });
-
   const abilityResolution: AbilityResolution = {};
   if (shouldRecord(atkRes, req.attacker.species.includes('-Mega'))) {
     abilityResolution.attacker = atkRes;
@@ -269,7 +252,6 @@ export function runCalculate(req: CalcRequest): CalcSuccess {
 
   const base = {
     recoilHp,
-    ...(selfDamage.length ? {selfDamage} : {}),
     ...(Object.keys(abilityResolution).length
       ? {abilityResolution}
       : {}),
