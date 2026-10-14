@@ -283,6 +283,8 @@ CHAMPIONS_MOD_DEFAULT_ALLOWLIST: frozenset[tuple[str, str]] = frozenset(
         ("recommender/coverage.py", "candidate_improves_best_bring"),
         ("recommender/teammates.py", "query_teammates"),
         ("recommender/teammates.py", "query_shared_teammates"),
+        ("recommender/arm_teammates.py", "arm_query_teammates"),
+        ("recommender/arm_teammates.py", "arm_query_teammates_multi"),
         ("recommender/quick_pick.py", "quick_pick"),
         ("recommender/usage_spreads.py", "fetch_live_spreads"),
         ("recommender/usage_spreads.py", "select_usage_spread"),
