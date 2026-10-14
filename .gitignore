@@ -9,7 +9,13 @@ __pycache__/
 .pytest_cache/
 .tmp_agent/
 .tmp_pytest/
+.tmp/
+.scratch/
 .cursor/
+# Part G v4: content-hash calc probes + solver checkpoints (regenerated; never commit)
+scripts/eval/part_g_v4/key_artifacts/calc/probe_*.json
+scripts/eval/part_g_v4/key_artifacts/solver_runs/ckpt_*/
+scripts/eval/part_g_v4/key_artifacts/solver_runs/determinism/
 .vscode/
 .specstory/
 scratch/
