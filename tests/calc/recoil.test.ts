@@ -1,27 +1,56 @@
 /**
- * recoilHp: project-convention 1/3-of-dealt, per-hit. Not "the game rule."
+ * recoilHp: 33/100 operator on total damage dealt (once per attack).
+ * Not "the game rule."
  */
 import assert from 'node:assert/strict';
 import {describe, it} from 'node:test';
 import {runCalculate} from '../../services/calc/handlers.js';
 import {
   RECOIL_NOT_IMPLEMENTED,
-  recoilOneThirdHp,
+  recoilHpFrom33Over100,
   resolveAbility,
   resolveDealtForHit,
-  sumRecoilAcrossHits,
+  recoilHpFromTotalDealt,
   buildInitialHitState,
   type HitResolutionState,
 } from '../../services/calc/recoil.js';
 
-describe('recoilOneThirdHp operator pins', () => {
-  it('187→62, 186→62, 5→1, 1→1, 2→1, 0→0', () => {
-    assert.equal(recoilOneThirdHp(187), 62);
-    assert.equal(recoilOneThirdHp(186), 62);
-    assert.equal(recoilOneThirdHp(5), 1);
-    assert.equal(recoilOneThirdHp(1), 1);
-    assert.equal(recoilOneThirdHp(2), 1);
-    assert.equal(recoilOneThirdHp(0), 0);
+describe('recoilHpFrom33Over100 operator pins', () => {
+  it('observation + edge pins (d→r)', () => {
+    const pins: [number, number][] = [
+      [187, 62],
+      [150, 50],
+      [47, 16],
+      [35, 12],
+      [180, 59],
+      [80, 26],
+      [68, 22],
+      [188, 62],
+      [148, 49],
+      [5, 2],
+      [186, 61],
+      [1, 1],
+      [0, 0],
+    ];
+    for (const [d, r] of pins) {
+      assert.equal(recoilHpFrom33Over100(d), r, `${d}→${r}`);
+    }
+  });
+
+  it('fails if floor(d/3) is substituted (rows floor misses)', () => {
+    for (const d of [47, 35, 180]) {
+      const got = recoilHpFrom33Over100(d);
+      const floor3 = Math.max(1, Math.floor(d / 3));
+      assert.notEqual(got, floor3, `d=${d}: operator must ≠ floor(d/3)=${floor3}`);
+    }
+  });
+
+  it('fails if round(d/3) is substituted (rows round misses)', () => {
+    for (const d of [80, 68, 188]) {
+      const got = recoilHpFrom33Over100(d);
+      const round3 = Math.max(1, Math.round(d / 3));
+      assert.notEqual(got, round3, `d=${d}: operator must ≠ round(d/3)=${round3}`);
+    }
   });
 });
 
@@ -178,22 +207,19 @@ describe('resolveDealtForHit / survival', () => {
   });
 });
 
-describe('sumRecoilAcrossHits PB Case A/B', () => {
-  it('Case A: 256 actual calc pairs equal floor((h1+h2)/3) (no remainder carry)', () => {
-    // Actual calc rolls (defender HP 169); both hits land fully under maxHP 169+.
+describe('recoilHpFromTotalDealt PB + timing', () => {
+  it('Case A: 256 actual calc pairs → once-on-total set [40..47]', () => {
     const hit1 = [
       97, 99, 99, 100, 102, 103, 105, 105, 106, 108, 109, 109, 111, 112, 114, 115,
     ];
     const hit2 = [
       24, 24, 24, 24, 24, 25, 25, 25, 25, 25, 27, 27, 27, 27, 27, 28,
     ];
-    // No carry: floor(a/3)+floor(b/3) === floor((a+b)/3) iff (a%3)+(b%3) < 3.
-    // These rolls: h1 mods only {0,1}, h2 mods only {0,1}; max sum of mods is 2.
     const init = buildInitialHitState({
       maxHP: 169,
       defenderAbility: 'Torrent',
     });
-    const totals = sumRecoilAcrossHits({
+    const totals = recoilHpFromTotalDealt({
       hits: [hit1, hit2],
       initial: init,
       attackerAbility: 'Parental Bond',
@@ -203,36 +229,30 @@ describe('sumRecoilAcrossHits PB Case A/B', () => {
     const expected = new Set<number>();
     for (const a of hit1) {
       for (const b of hit2) {
-        assert.ok(a % 3 + (b % 3) < 3, `carry would occur for ${a}+${b}`);
-        assert.equal(
-          recoilOneThirdHp(a) + recoilOneThirdHp(b),
-          Math.floor((a + b) / 3),
-        );
-        expected.add(Math.floor((a + b) / 3));
+        expected.add(recoilHpFrom33Over100(a + b));
       }
     }
     assert.deepEqual(totals, [...expected].sort((x, y) => x - y));
+    assert.deepEqual(totals, [40, 41, 42, 43, 44, 45, 46, 47]);
     assert.equal(hit1.length * hit2.length, 256);
   });
 
-  it('Case B (no Endure): set exactly {50,51}; fails if once-on-total', () => {
-    // No Endure. Defender HP 153. Both hits finish the KO (dealt1+dealt2=153).
-    // h1%3==0 (153) → 51; h1%3==1 (148) → 50 (min-1 on the leftover chip).
-    // Once-on-total always floor(153/3)=51 → set {51} only — this assert fails if summing changes.
+  it('Case B (no Endure): HP 153 KO → set exactly {50}', () => {
     const init = buildInitialHitState({
       maxHP: 153,
       curHP: 153,
       defenderAbility: 'Torrent',
     });
     assert.equal(init.endure, false);
-    const totals = sumRecoilAcrossHits({
+    const totals = recoilHpFromTotalDealt({
       hits: [[148, 153], [36]],
       initial: init,
       attackerAbility: 'Parental Bond',
       defenderAbility: 'Torrent',
       infiltrator: false,
     }) as number[];
-    assert.deepEqual(totals, [50, 51]);
+    // Total dealt always 153 → operator → 50
+    assert.deepEqual(totals, [50]);
   });
 
   it('Case B Endure variant: total capped at 152 → set exactly {50}', () => {
@@ -242,7 +262,7 @@ describe('sumRecoilAcrossHits PB Case A/B', () => {
       endure: true,
       defenderAbility: 'Torrent',
     });
-    const totals = sumRecoilAcrossHits({
+    const totals = recoilHpFromTotalDealt({
       hits: [
         [153, 200],
         [30, 36],
@@ -252,7 +272,6 @@ describe('sumRecoilAcrossHits PB Case A/B', () => {
       defenderAbility: 'Torrent',
       infiltrator: false,
     }) as number[];
-    // Endure: dealt=min(r,152) on full HP → 152 → floor/3=50; hp=1; hit2→0. Set {50} only.
     assert.deepEqual(totals, [50]);
   });
 
@@ -263,57 +282,73 @@ describe('sumRecoilAcrossHits PB Case A/B', () => {
       endure: true,
       defenderAbility: 'Torrent',
     });
-    const totals = sumRecoilAcrossHits({
+    const totals = recoilHpFromTotalDealt({
       hits: [[123], [29]],
       initial: init,
       attackerAbility: 'Parental Bond',
       defenderAbility: 'Torrent',
       infiltrator: false,
     });
-    // hit1 dealt 123 → 41; hp 30; hit2 endure min(29,29)=29 → 9; total 50
+    // dealt 123+29=152 → 50
     assert.deepEqual(totals, [50]);
   });
 
-  it('Sash + Parental Bond: hit1 sash-leaves-1, hit2 chips last HP', () => {
+  it('Sash + Parental Bond: total dealt = HP 100 → 33', () => {
     const init = buildInitialHitState({
       maxHP: 100,
       item: 'Focus Sash',
       defenderAbility: 'Torrent',
     });
     assert.equal(init.sashAvailable, true);
-    const totals = sumRecoilAcrossHits({
+    const totals = recoilHpFromTotalDealt({
       hits: [[200], [50]],
       initial: init,
       attackerAbility: 'Parental Bond',
       defenderAbility: 'Torrent',
       infiltrator: false,
     });
-    // hit1 sash: dealt 99 → 33; hp 1; hit2: dealt 1 (no endure) → 1; total 34
-    // Wait without endure at 1hp: dealt=min(50,1)=1 → recoil 1
-    assert.deepEqual(totals, [34]);
+    assert.deepEqual(totals, [33]);
   });
 
-  it('Substitute + Parental Bond: Sub absorbs hit1, hit2 after Sub breaks', () => {
+  it('Substitute + Parental Bond: Sub 40 + hit2 30 → total 70 → 23', () => {
     const init = buildInitialHitState({
       maxHP: 200,
       substitute: true,
       substituteHp: 40,
       defenderAbility: 'Torrent',
     });
-    const totals = sumRecoilAcrossHits({
+    const totals = recoilHpFromTotalDealt({
       hits: [[50], [30]],
       initial: init,
       attackerAbility: 'Parental Bond',
       defenderAbility: 'Torrent',
       infiltrator: false,
     });
-    // hit1 vs sub 40: dealt 40 → 13; sub gone; hit2 dealt 30 → 10; total 23
     assert.deepEqual(totals, [23]);
+  });
+
+  it('hits 5+5: once-on-total 3; per-hit sum would be 4 (switch-back fails)', () => {
+    const init = buildInitialHitState({
+      maxHP: 200,
+      defenderAbility: 'Torrent',
+    });
+    const totals = recoilHpFromTotalDealt({
+      hits: [[5], [5]],
+      initial: init,
+      attackerAbility: 'Parental Bond',
+      defenderAbility: 'Torrent',
+      infiltrator: false,
+    }) as number[];
+    assert.deepEqual(totals, [3]);
+    const perHitSum =
+      recoilHpFrom33Over100(5) + recoilHpFrom33Over100(5);
+    assert.equal(perHitSum, 4);
+    assert.notEqual(totals[0], perHitSum);
   });
 });
 
 describe('runCalculate recoilHp live', () => {
-  it('Flare Blitz vs Primarina: AR3-style capped rolls → floor/3', () => {
+  it('Flare Blitz vs Primarina: AR3-style capped rolls → 33/100 operator', () => {
     const result = runCalculate({
       attacker: {
         species: 'Infernape',
@@ -335,9 +370,8 @@ describe('runCalculate recoilHp live', () => {
     assert.equal(rh.length, dmg.length);
     for (let i = 0; i < dmg.length; i++) {
       const dealt = Math.min(dmg[i]!, result.raw.stats.defender.hp!);
-      assert.equal(rh[i], recoilOneThirdHp(dealt));
+      assert.equal(rh[i], recoilHpFrom33Over100(dealt));
     }
-    // Pin: if any roll is 187 into hp>=187 → 62
     const hp = result.raw.stats.defender.hp!;
     for (let i = 0; i < dmg.length; i++) {
       if (Math.min(dmg[i]!, hp) === 187) assert.equal(rh[i], 62);
@@ -439,7 +473,6 @@ describe('runCalculate recoilHp live', () => {
     });
     assert.equal(r.abilityResolution?.attacker?.source, 'override');
     assert.equal(r.abilityResolution?.attacker?.applied, 'Intimidate');
-    // No PB nesting without Parental Bond
     assert.ok(Array.isArray(r.raw.damage) && !Array.isArray((r.raw.damage as number[])[0]));
   });
 
@@ -479,7 +512,7 @@ describe('runCalculate recoilHp live', () => {
     const rh = mb.recoilHp as number[];
     const hp = mb.raw.stats.defender.hp!;
     for (let i = 0; i < dmg.length; i++) {
-      assert.equal(rh[i], recoilOneThirdHp(Math.min(dmg[i]!, hp)));
+      assert.equal(rh[i], recoilHpFrom33Over100(Math.min(dmg[i]!, hp)));
     }
 
     const busted = runCalculate({
@@ -557,7 +590,7 @@ describe('runCalculate recoilHp live', () => {
     const dmg = r.raw.damage as number[];
     for (let i = 0; i < dmg.length; i++) {
       const dealt = Math.min(dmg[i]!, hp - 1);
-      assert.equal(rh[i], recoilOneThirdHp(dealt));
+      assert.equal(rh[i], recoilHpFrom33Over100(dealt));
     }
   });
 
@@ -577,7 +610,6 @@ describe('runCalculate recoilHp live', () => {
   });
 
   it('AR3 key scenario: Charizard-Mega-X +6 Flare Blitz vs Primarina HP 187 → every KO roll recoilHp 62', () => {
-    // Probe: scripts/eval/part_g_v4/key_artifacts/calc/ar3_flareblitz_recoil_j0_hp32.json
     const r = runCalculate({
       attacker: {
         species: 'Charizard-Mega-X',
@@ -609,8 +641,8 @@ describe('runCalculate recoilHp live', () => {
     }
   });
 
-  it('AR3 synthetic caps: 250/187/186 into HP 187 → 62; partial curHP 100 → 33', () => {
-    const syn = sumRecoilAcrossHits({
+  it('AR3 synthetic caps: 250/187→62, 186→61 into HP 187; partial curHP 100 → 33', () => {
+    const syn = recoilHpFromTotalDealt({
       hits: [250, 187, 186],
       initial: buildInitialHitState({
         maxHP: 187,
@@ -620,8 +652,8 @@ describe('runCalculate recoilHp live', () => {
       defenderAbility: 'Torrent',
       infiltrator: false,
     }) as number[];
-    assert.deepEqual(syn, [62, 62, 62]);
-    const partial = sumRecoilAcrossHits({
+    assert.deepEqual(syn, [62, 62, 61]);
+    const partial = recoilHpFromTotalDealt({
       hits: [187],
       initial: buildInitialHitState({
         maxHP: 187,
@@ -652,7 +684,7 @@ describe('runCalculate recoilHp live', () => {
     assert.equal(r.recoilHp, 0);
   });
 
-  it('PB vs Disguise: usable hit-2 rolls; absorb hit1 recoil 0', () => {
+  it('PB vs Disguise: usable hit-2 rolls; absorb hit1 → recoil from hit2 total only', () => {
     const r = runCalculate({
       attacker: {
         species: 'Kangaskhan-Mega',
@@ -673,9 +705,8 @@ describe('runCalculate recoilHp live', () => {
     assert.equal(h2.length, 16);
     assert.ok(h2.every((x) => x > 0));
     const rh = r.recoilHp as number[];
-    // hit1 absorbed → 0; only hit2 contributes
     for (const t of rh) {
-      assert.ok(t >= recoilOneThirdHp(h2[0]!) && t <= recoilOneThirdHp(h2[15]!));
+      assert.ok(t >= recoilHpFrom33Over100(h2[0]!) && t <= recoilHpFrom33Over100(h2[15]!));
     }
   });
 
@@ -716,7 +747,7 @@ describe('runCalculate recoilHp live', () => {
     const hp = r.raw.stats.defender.hp!;
     assert.ok(dmg.every((d) => d > 0));
     for (let i = 0; i < dmg.length; i++) {
-      assert.equal(rh[i], recoilOneThirdHp(Math.min(dmg[i]!, hp)));
+      assert.equal(rh[i], recoilHpFrom33Over100(Math.min(dmg[i]!, hp)));
     }
   });
 

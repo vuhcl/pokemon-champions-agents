@@ -1,7 +1,18 @@
 /**
- * Project convention for 1/3-of-damage-dealt recoil as HP points.
- * Not "the game rule" — see plan appendix / PR notes. Operator and per-hit
- * summing are project conventions; ADR may change them.
+ * Project convention for 1/3-class recoil as HP points from damage dealt.
+ * Not "the game rule" — see PR notes / planned ADR-078 amendment.
+ *
+ * Observation table (owner, Champions casual; d = damage dealt, r = recoil;
+ * all 1/3-class): floor(d/3) fails at 47→15, 35→11, 180→60; round(d/3) fails
+ * at 80→27, 68→23, 188→63; floor((d*33+50)/100) fits every logged row
+ * (including capped KO deals). Earlier floor(d/3) convention was contradicted.
+ * Pinned sim (942cda7) `applyRecoilDamage` uses
+ * clampIntRange(Math.round(dealt * n / d), 1) — same numbers for [33,100].
+ * As a single multiplication the ratio is in about [0.33, 0.3306).
+ *
+ * Open: min-1 for d=1 unsourced/untested; once-on-total supported by sim
+ * (battle-actions.ts L961–979) + one log line, not numerically pinned vs
+ * per-hit; 1/2 and 1/4 moves untested (labeled not implemented).
  */
 
 export const RECOIL_NOT_IMPLEMENTED = 'recoil rule not implemented' as const;
@@ -49,14 +60,13 @@ export type HitResolutionOpts = {
 const MB_FAMILY = new Set(['Mold Breaker', 'Teravolt', 'Turboblaze']);
 
 /**
- * Recoil HP for one hit from damage dealt.
- * Project convention: floor(dealt/3), min 1 when dealt > 0.
- * Secondary sources only for operator; [33,100]/ Showdown Math.round are not operator evidence.
- * min-1 = unsourced sim-clamp convention. ADR to change.
+ * Recoil HP from total damage dealt via the 33/100 operator.
+ * Integer only: floor((dealt * 33 + 50) / 100); d=0 → 0; d>0 → max(1, …).
+ * Matches pinned-sim Math.round(dealt * 33 / 100) clamped to ≥1 when dealt>0.
  */
-export function recoilOneThirdHp(dealt: number): number {
+export function recoilHpFrom33Over100(dealt: number): number {
   if (dealt <= 0) return 0;
-  return Math.max(1, Math.floor(dealt / 3));
+  return Math.max(1, Math.floor((dealt * 33 + 50) / 100));
 }
 
 export function isOneThirdRecoil(recoil: [number, number] | undefined): boolean {
@@ -122,17 +132,13 @@ function cloneState(s: HitResolutionState): HitResolutionState {
 }
 
 /**
- * Only place per-hit recoil summing lives.
- * Single-hit: maps each roll independently from the same starting state.
- * PB: every (h1,h2) pair sequential; returns sorted distinct totals.
- *
- * Sim conflict (pinned Showdown @ 942cda7): `battle-actions.ts` L961–979
- * accumulates `move.totalDamage` across hits then calls `applyRecoilDamage`
- * once on that total. This helper assumes per-hit floor(dealt/3) then sum.
- * An in-game check decides which is correct; Parental Bond Case B `{50,51}`
- * is the pin and fails deliberately if summing is changed to once-on-total.
+ * Only place once-on-total recoil timing lives.
+ * Resolves dealt per hit sequentially (Sub / Disguise / Endure / Sash / Sturdy),
+ * sums dealt, then applies recoilHpFrom33Over100 once.
+ * Single-hit: each roll from a fresh copy of initial.
+ * Parental Bond: every (h1,h2) pair; returns sorted distinct totals.
  */
-export function sumRecoilAcrossHits(args: {
+export function recoilHpFromTotalDealt(args: {
   hits: number[] | [number[], number[]];
   initial: HitResolutionState;
   attackerAbility: string;
@@ -140,20 +146,21 @@ export function sumRecoilAcrossHits(args: {
   infiltrator: boolean;
 }): number | number[] {
   const {hits, initial, attackerAbility, defenderAbility, infiltrator} = args;
-  const apply = (state: HitResolutionState, roll: number) => {
-    const dealt = resolveDealtForHit({
+  const dealtOne = (state: HitResolutionState, roll: number) =>
+    resolveDealtForHit({
       roll,
       state,
       attackerAbility,
       defenderAbility,
       infiltrator,
     });
-    return recoilOneThirdHp(dealt);
-  };
 
   if (!Array.isArray(hits[0])) {
     const rolls = hits as number[];
-    return rolls.map((r) => apply(cloneState(initial), r));
+    return rolls.map((r) => {
+      const state = cloneState(initial);
+      return recoilHpFrom33Over100(dealtOne(state, r));
+    });
   }
 
   const [hit1, hit2] = hits as [number[], number[]];
@@ -161,9 +168,8 @@ export function sumRecoilAcrossHits(args: {
   for (const a of hit1) {
     for (const b of hit2) {
       const state = cloneState(initial);
-      const r1 = apply(state, a);
-      const r2 = apply(state, b);
-      totals.add(r1 + r2);
+      const totalDealt = dealtOne(state, a) + dealtOne(state, b);
+      totals.add(recoilHpFrom33Over100(totalDealt));
     }
   }
   return [...totals].sort((x, y) => x - y);
@@ -204,7 +210,7 @@ export function computeRecoilHp(args: ComputeRecoilArgs): RecoilHp {
         return 0;
       }
       const state = cloneState(args.initial);
-      return recoilOneThirdHp(
+      return recoilHpFrom33Over100(
         resolveDealtForHit({
           roll: 0,
           state,
@@ -226,7 +232,7 @@ export function computeRecoilHp(args: ComputeRecoilArgs): RecoilHp {
     if (pair.length < 2 || !Array.isArray(pair[1])) {
       return RECOIL_NOT_IMPLEMENTED;
     }
-    let totals = sumRecoilAcrossHits({
+    const totals = recoilHpFromTotalDealt({
       hits: pair,
       initial: args.initial,
       attackerAbility: args.attackerAbility,
@@ -247,7 +253,7 @@ export function computeRecoilHp(args: ComputeRecoilArgs): RecoilHp {
     return RECOIL_NOT_IMPLEMENTED;
   }
 
-  let result = sumRecoilAcrossHits({
+  const result = recoilHpFromTotalDealt({
     hits: damage as number[],
     initial: args.initial,
     attackerAbility: args.attackerAbility,
@@ -267,12 +273,16 @@ export type PokemonAbilityInput = {
   species: string;
   ability?: string;
   abilityOverride?: string;
-  /** Dex abilities[0] (sole ability for legal Megas). */
+  /**
+   * Fallback / Mega sole ability. For Megas the wrapper supplies
+   * champions.v1.json's sole ability (not calc species.abilities[0]).
+   */
   dexAbility: string;
 };
 
 /**
- * Ability resolution before @smogon/calc. Mega → dex unless abilityOverride.
+ * Ability resolution before @smogon/calc.
+ * Mega → dexAbility (champions.v1 sole ability) unless abilityOverride.
  */
 export function resolveAbility(input: PokemonAbilityInput): AbilityResolutionSide {
   if (input.abilityOverride) {

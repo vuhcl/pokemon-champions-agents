@@ -108,8 +108,9 @@ export type CalcSuccess = {
     stats: {attacker: StatSpread; defender: StatSpread};
   };
   /**
-   * Project-convention HP recoil for 1/3-of-dealt moves.
-   * Single-hit: per-roll array. Parental Bond: sorted distinct achievable totals.
+   * Project-convention HP recoil for 1/3-class moves (33/100 operator on
+   * total damage dealt; once per attack). Single-hit: per-roll array.
+   * Parental Bond: sorted distinct achievable totals over roll pairs.
    * Rock Head / Magic Guard: 0. Else label string.
    */
   recoilHp: RecoilHp;
