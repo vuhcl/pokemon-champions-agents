@@ -120,3 +120,35 @@ def test_resolution_is_exact_tag():
     assert mc[1] == REGULATIONS["champions-reg-mc"]["showdown_format"]
     assert _live_format_for("champions") is None
     assert _live_format_for("not-a-regulation") is None
+
+
+def test_bare_champions_has_no_live_tuple():
+    """Evaluation protection rests on this (PR #273 decision, ADR-014 2026-10-14b).
+
+    The graph and the arm tools default to bare ``champions``. If it ever gets a
+    live tuple, every graph and eval path on M-C can fetch live. Do not change
+    this without adding the usage_live kill switch and updating the eval entry
+    points first.
+    """
+    why = "bare 'champions' must have no live tuple; see this test's docstring"
+    assert not isinstance(live_tuple_for("champions"), LiveTuple), why
+    assert _live_format_for("champions") is None, why
+    assert ul.supports_live_usage("champions") is False, why
+
+
+def test_arm_tools_default_regulation_is_bare_champions_so_live_is_off_by_default():
+    import inspect
+
+    from recommender.arm_teammates import arm_query_teammates_multi
+
+    for fn in (arm_query_teammates, arm_query_teammates_multi):
+        assert inspect.signature(fn).parameters["regulation"].default == "champions"
+
+    def no_live(*_a):
+        raise AssertionError("default regulation must not fetch live")
+
+    r = arm_query_teammates(
+        "Exactform", source="showdown", live_showdown_fetch=no_live
+    )
+    assert r.attempts[0].source == "showdown"
+    assert r.attempts[0].reason == "live_not_supported"
