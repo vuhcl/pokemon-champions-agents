@@ -58,7 +58,13 @@ def _gender_rewrite(sid: str, species: dict[str, Any]) -> str | None:
     return None
 
 
-def resolve_species_label(raw: str, snap: dict[str, Any]) -> ResolvedSpecies | None:
+def lookup_species_id(raw: str, snap: dict[str, Any]) -> str | None:
+    """Snapshot species id for a user-typed label, regardless of legality.
+
+    Alias, forme and gender rewrites only. Callers that need to tell an unknown
+    name from a known-but-illegal one use this; resolve_species_label adds the
+    legality filter on top.
+    """
     sid = to_id(raw)
     if not sid:
         return None
@@ -67,8 +73,16 @@ def resolve_species_label(raw: str, snap: dict[str, Any]) -> ResolvedSpecies | N
     candidate = aliases.get(sid, sid)
     if candidate not in species:
         candidate = _forme_rewrite(sid, aliases, species) or _gender_rewrite(sid, species) or ""
-    if not candidate or candidate not in species or not is_species_legal(snap, candidate):
+    if not candidate or candidate not in species:
         return None
+    return candidate
+
+
+def resolve_species_label(raw: str, snap: dict[str, Any]) -> ResolvedSpecies | None:
+    candidate = lookup_species_id(raw, snap)
+    if candidate is None or not is_species_legal(snap, candidate):
+        return None
+    species: dict[str, Any] = snap.get("species") or {}
     entry = species[candidate]
     name = str(entry.get("name") or raw)
     notice = None
