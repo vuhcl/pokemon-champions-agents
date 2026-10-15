@@ -17,6 +17,7 @@ from recommender.format import resolve_format
 from recommender.ids import to_id
 from recommender.legality import check_set, load_snapshot
 from recommender.species_resolve import resolve_species_label
+from recommender.team_validation import TEAM_ATTRS, validate_team_value
 from recommender.matchup import MatchupEvidenceError
 from recommender.bootstrap import BOOTSTRAP_INTAKE_MISSING_PAYLOAD_MSG
 from recommender.present_text import BOOTSTRAP_PARSER_NOT_CONFIGURED, format_roster
@@ -765,6 +766,23 @@ def _full_slot_error(message: str) -> dict:
 
 
 LOCK_FULLY_LOCKED_SLOT_MSG = "Revise a locked slot is not supported yet."
+LOCK_BAD_SLOT_MSG = "I couldn't tell which slot to lock."
+
+
+def _validated_team_value(
+    state: RecommenderState, attr: str, value: object, slot_index: int
+) -> tuple[str | None, str | None]:
+    """(canonical, refusal message) for a species/item write; the one gate every
+    team_draft species/item writer goes through (recommender/team_validation.py)."""
+    verdict = validate_team_value(
+        attr,
+        value,
+        slot_index=slot_index,
+        team_draft=state["team_draft"],
+    )
+    if verdict.refusal is not None:
+        return None, verdict.refusal.message
+    return verdict.canonical, None
 
 
 def commit_full_slot(state: RecommenderState) -> dict:
@@ -826,6 +844,11 @@ def commit_full_slot(state: RecommenderState) -> dict:
             "illegal provisional slot: "
             + "; ".join(f"{failure.kind}:{failure.element}" for failure in legality.failures)
         )
+    _, species_refusal = _validated_team_value(
+        state, "species", provisional.species, index
+    )
+    if species_refusal:
+        return _full_slot_error(species_refusal)
     unsupported_hard = commit_unsupported_hard_predicates(state.get("constraints", []))
     if unsupported_hard:
         return _full_slot_error(
@@ -865,9 +888,15 @@ def commit_full_slot(state: RecommenderState) -> dict:
 
 def apply_lock(state: RecommenderState) -> dict:
     payload: LockPayload = state["turn_payload"]  # type: ignore[assignment]
-    slot_index = payload["slot_index"]
+    slot_index = payload.get("slot_index")
     draft = state["team_draft"]
-    if 0 <= slot_index < len(draft) and all_locked(draft[slot_index]):
+    if (
+        isinstance(slot_index, bool)
+        or not isinstance(slot_index, int)
+        or not 0 <= slot_index < len(draft)
+    ):
+        return _full_slot_error(LOCK_BAD_SLOT_MSG)
+    if all_locked(draft[slot_index]):
         return _full_slot_error(LOCK_FULLY_LOCKED_SLOT_MSG)
     if payload.get("locks"):
         out = _apply_locks_batch(state, payload)
@@ -936,9 +965,15 @@ def _apply_lock_single(state: RecommenderState, payload: LockPayload) -> dict:
         getattr(slot, a).locked for a in SLOT_ATTRS if a != attr_name
     )
 
+    value = payload.get("value")
+    if "value" in payload and attr_name in TEAM_ATTRS:
+        value, refusal = _validated_team_value(state, attr_name, value, slot_index)
+        if refusal:
+            return _full_slot_error(refusal)
+
     if "value" in payload:
         new_attr = Attr(
-            value=payload["value"],
+            value=value,
             locked=True,
             reason=ReasonRef(kind="user_stated"),
             exempt_from_theme=current.exempt_from_theme,
@@ -987,7 +1022,16 @@ def _apply_locks_batch(state: RecommenderState, payload: LockPayload) -> dict:
             continue
         if "value" not in entry:
             continue
-        incoming[attr] = entry["value"]
+        if attr in incoming:
+            return _full_slot_error(
+                f"I got {attr} more than once in one request; nothing was locked."
+            )
+        value = entry["value"]
+        if attr in TEAM_ATTRS:
+            value, refusal = _validated_team_value(state, attr, value, slot_index)
+            if refusal:
+                return _full_slot_error(refusal)
+        incoming[attr] = value
 
     # Provisional: all incoming as locked (detection only).
     provisional = slot
@@ -1229,11 +1273,18 @@ def restore_superseded(state: RecommenderState) -> dict:
     if match_idx is None:
         return {}
 
-    entry: SupersededEntry = superseded.pop(match_idx)
+    entry: SupersededEntry = superseded[match_idx]
+    value = entry["value"]
+    if attr_name in TEAM_ATTRS:
+        # On refusal the superseded stack is left exactly as it was.
+        value, refusal = _validated_team_value(state, attr_name, value, slot_index)
+        if refusal:
+            return _full_slot_error(refusal)
+    superseded.pop(match_idx)
     draft = list(state["team_draft"])
     slot = draft[slot_index]
     restored = Attr(
-        value=entry["value"],
+        value=value,
         locked=True,
         reason=ReasonRef(kind="user_stated"),
         still_active=True,
