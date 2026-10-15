@@ -19,6 +19,10 @@ Contract:
 * Mega formes are never served from in-game (the in-game blob has no Mega
   keys). A Mega request or any Mega anchor is served whole from Showdown.
 * A malformed offline row is an explicit error: no live call and no hop.
+* Showdown results carry ``denominator``: the weight that ``conditional_pct``
+  is a fraction of, read from the record's own metadata with a label naming the
+  quantity. When a record lacks it, ``denominator`` is None and a caveat says
+  the base is unavailable; it is never back-computed.
 * Nothing raises. Unexpected exceptions become a fixed-message error result
   and the exception class is logged through ``log_tool_call``.
 * A live call goes through the existing ``fetch_live_showdown_detail``
@@ -43,6 +47,7 @@ from recommender.item_conditions import mega_stones_by_item_id
 from recommender.legality import is_species_legal, load_snapshot
 from recommender.teammate_types import (
     ArmErrorKind,
+    DenominatorKind,
     ArmFallbackReason,
     ArmLiveErrorKind,
     ArmMultiMode,
@@ -119,6 +124,20 @@ class ArmAsOf:
 
 
 @dataclass(frozen=True)
+class ArmDenominator:
+    """What a Showdown row's ``conditional_pct`` is a fraction of.
+
+    Read from the record's own metadata (offline ``teammates_meta`` or the live
+    normalization); never back-computed. ``conditional_pct`` equals
+    ``round(100 * chaos_weight / weight, 3)``.
+    """
+
+    weight: float
+    kind: DenominatorKind
+    label: str
+
+
+@dataclass(frozen=True)
 class ArmFallback:
     """Disclosure that the served source differs from the requested one.
 
@@ -168,6 +187,7 @@ class ArmTeammateResult:
     attempts: tuple[ArmAttempt, ...]
     as_of: ArmAsOf | None
     caveats: tuple[str, ...] = ()
+    denominator: ArmDenominator | None = None  # showdown only
     message: str | None = None
     error_kind: str | None = None
     exception_type: str | None = None
@@ -291,7 +311,36 @@ class _Retrieval:
     truncated: bool | None = None
     as_of: ArmAsOf | None = None
     caveats: tuple[str, ...] = ()
+    denominator: ArmDenominator | None = None
     exception_type: str | None = None
+
+
+_DENOMINATOR_LABELS: dict[str, str] = {
+    "ability_weight": (
+        "conditional_pct = 100 x teammate chaos_weight / the anchor's summed "
+        "Abilities weights (its total weighted usage in the source)"
+    ),
+    "teammate_weight_div_6": (
+        "conditional_pct = 100 x teammate chaos_weight / (sum of all listed "
+        "teammate weights / 6); an upstream display floor, not an independent "
+        "sample count"
+    ),
+    "floor_1": (
+        "conditional_pct = 100 x teammate chaos_weight / 1.0 (the source had "
+        "no usable Abilities weights)"
+    ),
+}
+_NO_DENOMINATOR_CAVEAT = (
+    "conditional_pct is a share of the anchor's total weight, but this record "
+    "does not carry that total, so the base is unavailable"
+)
+
+
+def _denominator(weight: object, kind: object) -> ArmDenominator | None:
+    w = _number(weight)
+    if w is None or w <= 0 or kind not in _DENOMINATOR_LABELS:
+        return None
+    return ArmDenominator(weight=w, kind=kind, label=_DENOMINATOR_LABELS[kind])  # type: ignore[arg-type]
 
 
 def _miss(
@@ -432,6 +481,7 @@ def _showdown_ok(
     q: Any,
     method: Literal["offline", "live"],
     as_of: ArmAsOf,
+    denominator: ArmDenominator | None,
     extra: tuple[str, ...] = (),
 ) -> _Retrieval:
     rows = tuple(
@@ -456,7 +506,13 @@ def _showdown_ok(
         raw_count=q.raw_count,
         truncated=q.truncated,
         as_of=as_of,
-        caveats=tuple(q.caveats) + extra + _date_caveats(as_of),
+        caveats=(
+            tuple(q.caveats)
+            + extra
+            + (() if denominator else (_NO_DENOMINATOR_CAVEAT,))
+            + _date_caveats(as_of)
+        ),
+        denominator=denominator,
     )
 
 
@@ -480,7 +536,15 @@ def _retrieve_showdown(
         )
         if q is None:
             return _malformed("showdown", entry.get("teammates"))
-        return _showdown_ok(species, q, "offline", _showdown_offline_as_of(regulation))
+        meta = entry.get("teammates_meta")
+        meta = meta if isinstance(meta, dict) else {}
+        return _showdown_ok(
+            species,
+            q,
+            "offline",
+            _showdown_offline_as_of(regulation),
+            _denominator(meta.get("denominator_weight"), meta.get("denominator_kind")),
+        )
 
     if not allow_live:
         return _miss("showdown", "offline", "live_disabled")
@@ -489,6 +553,7 @@ def _retrieve_showdown(
 
     subkind: ArmLiveErrorKind = "miss_or_error"
     q = None
+    normalized = None
     try:
         detail = live_fetch(species, regulation)
     except ArmLiveFetchError as exc:
@@ -511,6 +576,9 @@ def _retrieve_showdown(
         q,
         "live",
         _showdown_live_as_of(regulation),
+        _denominator(normalized.denominator_weight, normalized.denominator_kind)
+        if normalized is not None
+        else None,
         ("live fetch: not pinned, so this result cannot be replayed",),
     )
 
@@ -621,6 +689,7 @@ def _served(
         attempts=attempts,
         as_of=r.as_of,
         caveats=r.caveats,
+        denominator=r.denominator,
     )
 
 
@@ -1124,6 +1193,7 @@ def _reverse_rows(
 
 __all__ = [
     "ARM_MESSAGE_ALLOWLIST",
+    "ArmDenominator",
     "ArmLiveFetchError",
     "arm_query_teammates",
     "arm_query_teammates_multi",

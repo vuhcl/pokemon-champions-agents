@@ -245,6 +245,36 @@ def test_regulation_without_live_tuple_is_live_not_supported(maps, reg):
     assert r.attempts[0].reason == "live_not_supported"
 
 
+def test_offline_showdown_denominator_reproduces_every_conditional_pct():
+    r = arm_query_teammates("Rillaboom", source="showdown", allow_live=False)
+    d = r.denominator
+    assert d is not None and d.kind == "ability_weight" and d.weight > 0
+    assert "Abilities weights" in d.label
+    for row in r.rows:
+        assert round(100.0 * row.chaos_weight / d.weight, 3) == row.conditional_pct
+    assert not any("does not carry that total" in c for c in r.caveats)
+
+
+def test_live_showdown_denominator_comes_from_the_fetched_record(maps):
+    r = arm_query_teammates(
+        "Exactform",
+        source="showdown",
+        regulation=LIVE_REG,
+        live_showdown_fetch=lambda s, g: DETAIL,
+    )
+    assert r.denominator.weight == 20.0  # DETAIL Abilities: {"Pressure": 20}
+    assert r.denominator.kind == "ability_weight"
+    assert {row.name: row.conditional_pct for row in r.rows}["Pelipper"] == 50.0
+
+
+def test_showdown_row_without_denominator_meta_says_the_base_is_unavailable(maps):
+    maps["showdown"].update(sd("rillaboom", [("incineroar", 30.0)]))
+    maps["showdown"]["rillaboom"]["teammates_meta"] = {"raw_count": 100}
+    r = arm_query_teammates("Rillaboom", source="showdown", allow_live=False)
+    assert r.status == "available" and r.denominator is None
+    assert any("does not carry that total" in c for c in r.caveats)
+
+
 # --- in-game and Mega ------------------------------------------------------
 
 
