@@ -21,8 +21,10 @@ from recommender.ids import to_id
 from recommender.item_conditions import mega_stones_by_item_id
 from recommender.legality import is_species_legal, load_snapshot
 from recommender.regulation_registry import CHAMPIONS_MOD_DEFAULT_ALLOWLIST
+from recommender.usage_data import load_usage
 
-LIVE_REG = "champions-reg-mb"  # the only regulation with a live tuple today
+LIVE_REG = "champions-reg-mb"  # an exact tag with a derived live tuple
+MC_REG = "champions-reg-mc"
 DETAIL = {"Abilities": {"Pressure": 20}, "Teammates": {"Pelipper": 10, "Incineroar": 8}}
 
 H6_TOP5 = {"Incineroar", "Sneasler", "Salamence", "Gholdengo", "Raichu"}
@@ -193,7 +195,12 @@ def test_live_success_is_labeled_live_with_one_call(maps):
         None,
     )
     assert r.as_of.extracted_at is None and r.as_of.fetched_at
-    assert (r.as_of.month, r.as_of.period_end) == ("2026-06", "2026-06-30")
+    # the live month is the offline snapshot's own showdown_month, not a literal
+    live_month = load_usage(LIVE_REG)["meta"]["showdown_month"]
+    assert (r.as_of.month, r.as_of.period_end) == (
+        live_month,
+        period_end_for_month(live_month),
+    )
 
 
 def test_live_miss_in_production_form_is_miss_or_error_then_hops(maps):
@@ -236,13 +243,49 @@ def test_allow_live_false_records_live_disabled_and_never_fetches(maps):
     assert r.attempts[0].reason == "live_disabled"
 
 
-@pytest.mark.parametrize("reg", ["champions-reg-mc", "champions"])
-def test_regulation_without_live_tuple_is_live_not_supported(maps, reg):
+def test_bare_champions_is_live_not_supported(maps):
     r = arm_query_teammates(
-        "Exactform", source="showdown", regulation=reg, live_showdown_fetch=_no_live
+        "Exactform",
+        source="showdown",
+        regulation="champions",
+        live_showdown_fetch=_no_live,
     )
     assert r.status == "unavailable"
     assert r.attempts[0].reason == "live_not_supported"
+
+
+def test_mc_takes_the_live_path_through_an_injected_fetch(maps):
+    calls = []
+
+    def fetch(species, regulation):
+        calls.append((species, regulation))
+        return DETAIL
+
+    r = arm_query_teammates(
+        "Exactform", source="showdown", regulation=MC_REG, live_showdown_fetch=fetch
+    )
+    assert calls == [("Exactform", MC_REG)]
+    assert (r.status, r.used_source, r.method, r.fallback) == (
+        "available",
+        "showdown",
+        "live",
+        None,
+    )
+    mc_month = load_usage(MC_REG)["meta"]["showdown_month"]
+    assert (r.as_of.month, r.as_of.rating) == (mc_month, 1500)
+    assert r.as_of.fetched_at
+
+
+def test_mc_live_failure_is_live_unavailable_not_live_not_supported(maps):
+    def fetch(species, regulation):
+        raise ArmLiveFetchError("transient_exhausted")
+
+    r = arm_query_teammates(
+        "Exactform", source="showdown", regulation=MC_REG, live_showdown_fetch=fetch
+    )
+    assert r.status == "unavailable"
+    assert r.attempts[0].reason == "live_unavailable"
+    assert r.attempts[0].subkind == "transient_exhausted"
 
 
 def test_offline_showdown_denominator_reproduces_every_conditional_pct():
@@ -483,11 +526,15 @@ def test_second_leg_miss_keeps_every_anchor_and_names_the_missing_one(maps):
     assert m.rows is None
 
 
-def test_one_live_and_one_offline_anchor_flags_differing_dates(maps):
-    maps["showdown"].update(sd("pelipper", [("rillaboom", 20.0)]))  # offline (M-B 2026-07)
+def test_one_live_and_one_offline_anchor_flags_differing_dates(maps, monkeypatch):
+    # Derived live month equals the offline month for M-B now, so force a
+    # different live month: this test covers the flag logic, not the data.
+    _month, fmt, rating = arm._live_format_for(LIVE_REG)
+    monkeypatch.setattr(arm, "_live_format_for", lambda reg: ("2000-01", fmt, rating))
+    maps["showdown"].update(sd("pelipper", [("rillaboom", 20.0)]))  # offline
     detail = {"Abilities": {"Drizzle": 20}, "Teammates": {"Rillaboom": 10}}
     m = arm_query_teammates_multi(
-        ["Pelipper", "Exactform"],  # Exactform is absent offline, so it goes live (2026-06)
+        ["Pelipper", "Exactform"],  # Exactform is absent offline, so it goes live
         source="showdown",
         regulation=LIVE_REG,
         live_showdown_fetch=lambda s, g: detail,

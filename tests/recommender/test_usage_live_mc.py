@@ -5,8 +5,8 @@ from __future__ import annotations
 from unittest.mock import patch
 
 from recommender.teammates import query_teammates
+from recommender.usage_data import load_usage
 from recommender.usage_live import (
-    _LIVE_FORMATS,
     _live_format_for,
     fetch_live_showdown_detail,
     supports_live_usage,
@@ -14,17 +14,28 @@ from recommender.usage_live import (
 from recommender.usage_spreads import fetch_live_spreads, select_usage_spread
 
 
-def test_live_format_exact_tag_no_mb_for_mc():
-    # Red on pre-B2a main: _live_format_for("champions") returned the M-B tuple.
-    assert _live_format_for("champions-reg-mb") == _LIVE_FORMATS["champions-reg-mb"]
+def test_live_format_exact_tag_mc_has_its_own_tuple():
+    """ADR-014 2026-10-14b: M-C derives its own tuple; bare ``champions`` stays off."""
+    mc_meta = load_usage("champions-reg-mc")["meta"]
+    assert _live_format_for("champions-reg-mc") == (
+        "2026-09",
+        "gen9championsvgc2026regmc",
+        1500,
+    )
+    # the derivation reads the snapshot meta, so the literals above must match it
+    assert _live_format_for("champions-reg-mc") == (
+        mc_meta["showdown_month"],
+        mc_meta["showdown_format"],
+        mc_meta["showdown_rating"],
+    )
+    assert _live_format_for("champions-reg-mc") != _live_format_for("champions-reg-mb")
     assert _live_format_for("champions") is None
-    assert _live_format_for("champions-reg-mc") is None
     assert supports_live_usage("champions-reg-mb") is True
+    assert supports_live_usage("champions-reg-mc") is True
     assert supports_live_usage("champions") is False
-    assert supports_live_usage("champions-reg-mc") is False
 
 
-def test_fetch_live_showdown_detail_mc_skips_network():
+def test_fetch_live_showdown_detail_exact_mc_tag_uses_mc_url_only():
     fetch_live_showdown_detail.cache_clear()
     calls: list[str] = []
 
@@ -32,9 +43,14 @@ def test_fetch_live_showdown_detail_mc_skips_network():
         calls.append(url)
         return {"pokemon": {}}
 
+    # bare product mod name: no live tuple, no fetch
     assert fetch_live_showdown_detail("Beedrill", "champions", fetch) is None
-    assert fetch_live_showdown_detail("Beedrill", "champions-reg-mc", fetch) is None
     assert calls == []
+    # explicit M-C tag: one index fetch against the M-C tuple, never M-B
+    assert fetch_live_showdown_detail("Beedrill", "champions-reg-mc", fetch) is None
+    assert len(calls) == 1
+    assert "/stats/2026-09/gen9championsvgc2026regmc/1500/_index.json" in calls[0]
+    assert "regmb" not in calls[0]
 
 
 def test_out_of_snapshot_mc_select_usage_spread_no_mb_live():

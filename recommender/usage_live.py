@@ -3,25 +3,22 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from collections import OrderedDict
 from collections.abc import Callable, Hashable
-from typing import Any
+from dataclasses import dataclass
+from typing import Any, NamedTuple
 
 from recommender.ids import regulation_file_tag, to_id
+from recommender.regulation_registry import REGULATIONS
 from recommender.tool_log import log_tool_call, timed_tool_call
+from recommender.usage_data import load_usage, showdown_species_map
 
 _UA = "pokemon-champions-agents/0.1"
-_LIVE_FORMATS = {
-    "champions-reg-mb": (
-        "2026-06",
-        "gen9championsvgc2026regmb",
-        1500,
-    )
-}
 _LIVE_FETCH_ATTEMPTS = 3
 _LIVE_FETCH_BACKOFF_S = (0.2, 0.4)
 _CACHE_MAX = 128
@@ -34,12 +31,68 @@ class LiveFetchError(Exception):
     """Transport / malformed-body failure — not a cacheable miss."""
 
 
+class LiveTuple(NamedTuple):
+    """Live fetch tuple; slot order is the contract of ``_live_format_for``."""
+
+    month: str
+    format_id: str
+    rating: int
+
+
+@dataclass(frozen=True)
+class LiveDeferral:
+    """A regulation with no live tuple, and why (never a silent None)."""
+
+    tag: str
+    reason: str
+    decided_in: str  # "computed" or the amendment/PR that recorded the deferral
+
+
+# Deliberate, owner-decided deferrals only. Computed failures never belong here.
+RECORDED_DEFERRALS: dict[str, LiveDeferral] = {}
+
+_MONTH = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
+
+
+def live_tuple_for(tag: str) -> LiveTuple | LiveDeferral:
+    """Derive a regulation's live tuple (ADR-014 Amendment 2026-10-14b).
+
+    Format from the registry; month and rating from the offline Showdown
+    snapshot's own meta. Exact tag only: no other regulation's tuple is used.
+    """
+    recorded = RECORDED_DEFERRALS.get(tag)
+    if recorded is not None:
+        return recorded
+    expected = (REGULATIONS.get(tag) or {}).get("showdown_format")
+    if not expected:
+        return LiveDeferral(tag, "no_registered_showdown_format", "computed")
+    if not showdown_species_map(tag):
+        return LiveDeferral(tag, "no_showdown_snapshot", "computed")
+    meta = load_usage(tag).get("meta") or {}
+    if meta.get("showdown_format") != expected:
+        return LiveDeferral(tag, "format_mismatch", "computed")
+    month = meta.get("showdown_month")
+    if not isinstance(month, str) or not _MONTH.match(month):
+        return LiveDeferral(tag, "meta_month_invalid", "computed")
+    rating = meta.get("showdown_rating")
+    if isinstance(rating, bool) or not isinstance(rating, int) or rating <= 0:
+        return LiveDeferral(tag, "meta_rating_invalid", "computed")
+    return LiveTuple(month, str(expected), rating)
+
+
 def _live_format_for(regulation: str) -> tuple[str, str, int] | None:
-    """Exact tag only — no archive walk (M-C must not resolve to M-B live)."""
+    """Exact tag only — no archive walk (M-C must not resolve to M-B live).
+
+    Bare ``champions`` (the product mod name the graph passes as
+    ``regulation_mod``) is unsupported: it never resolves to a tuple.
+    """
+    if regulation.strip().lower() == "champions":
+        return None
     try:
-        return _LIVE_FORMATS.get(regulation_file_tag(regulation))
+        result = live_tuple_for(regulation_file_tag(regulation))
     except ValueError:
         return None
+    return tuple(result) if isinstance(result, LiveTuple) else None
 
 
 def fetch_json(

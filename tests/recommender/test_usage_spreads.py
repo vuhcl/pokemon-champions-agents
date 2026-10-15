@@ -217,7 +217,7 @@ def test_live_fetch_custom_fetcher_not_memoized_and_rejects_unknown_regulation()
     assert calls == []
 
 
-def test_mc_live_spreads_empty_without_chain_walk():
+def test_mc_live_spreads_use_the_mc_tuple_without_chain_walk():
     fetch_live_spreads.cache_clear()
     calls: list[str] = []
 
@@ -225,9 +225,13 @@ def test_mc_live_spreads_empty_without_chain_walk():
         calls.append(url)
         return {"pokemon": {"X": {}}}
 
+    # bare product mod name has no live tuple: no fetch at all
     assert fetch_live_spreads("Farigiraf", "champions", fetch) == ()
-    assert fetch_live_spreads("Farigiraf", "champions-reg-mc", fetch) == ()
     assert calls == []
+    # explicit M-C tag: Showdown index is the M-C tuple's, never M-B's
+    assert fetch_live_spreads("Farigiraf", "champions-reg-mc", fetch) == ()
+    assert calls[0].endswith("/2026-09/gen9championsvgc2026regmc/1500/_index.json")
+    assert not any("regmb" in url for url in calls)
 
 
 def test_nature_for_spread_exact_ev_and_moveset_join():
