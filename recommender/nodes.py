@@ -779,7 +779,6 @@ def _validated_team_value(
         value,
         slot_index=slot_index,
         team_draft=state["team_draft"],
-        format_label=state.get("regulation_mod"),
     )
     if verdict.refusal is not None:
         return None, verdict.refusal.message
@@ -1025,7 +1024,7 @@ def _apply_locks_batch(state: RecommenderState, payload: LockPayload) -> dict:
             continue
         if attr in incoming:
             return _full_slot_error(
-                f"I got two different values for {attr} in one request; nothing was locked."
+                f"I got {attr} more than once in one request; nothing was locked."
             )
         value = entry["value"]
         if attr in TEAM_ATTRS:

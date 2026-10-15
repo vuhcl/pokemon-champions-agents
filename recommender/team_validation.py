@@ -64,11 +64,10 @@ def validate_team_value(
     slot_index: object,
     team_draft: list[Slot],
     snap: dict[str, Any] | None = None,
-    format_label: str | None = None,
 ) -> TeamValueVerdict:
     """Accept (with the canonical display name) or refuse one species/item value."""
     snap = snap or load_snapshot()
-    where = format_label or "this format"
+    where = "this format"  # not the internal regulation id; it is not user-facing
     if attr not in TEAM_ATTRS:
         raise ValueError(f"validate_team_value only handles species/item, got {attr!r}")
     if (
@@ -93,6 +92,8 @@ def validate_team_value(
                 "illegal_species", attr, value,
                 f"{name} is not legal in {where}, so I can't lock it.",
             )
+        # Assumes every species value in team_draft is locked: the only writers are
+        # lock single/batch, restore and commit, all locked=True (test_team_validation).
         mine = dex_id(sid, snap)
         for i, slot in enumerate(team_draft):
             other = slot.species.value

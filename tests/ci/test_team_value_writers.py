@@ -87,6 +87,10 @@ def _calls(path: str, name: str) -> set[str]:
     raise AssertionError(f"{path}:{name} not found")
 
 
+# This spy check proves each validating writer *contains* a call to
+# _validated_team_value, not that the call precedes the write. Ordering (a refusal
+# leaves team_draft untouched) is covered by the behavior tests in
+# tests/recommender/test_team_validation.py.
 @pytest.mark.parametrize(
     "path,name", sorted(k for k, v in WRITERS.items() if v == VALIDATING)
 )

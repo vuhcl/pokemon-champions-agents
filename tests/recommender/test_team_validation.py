@@ -293,7 +293,7 @@ def test_batch_duplicate_attr_refused_whole():
         {"attr": "species", "value": "Incineroar"},
         {"attr": "species", "value": "Garchomp"},
     ])
-    _assert_refused(out, state, before, "two different values for species")
+    _assert_refused(out, state, before, "species more than once")
 
 
 def test_batch_illegal_entry_blocks_legal_entry():
@@ -364,3 +364,51 @@ def test_dex_grouping_equals_lineage_ids_for_every_legal_species():
     for sid in LEGAL:
         mine = {x for x in SPECIES if dex_id(x, SNAP) == dex_id(sid, SNAP)}
         assert mine == set(lineage_ids(sid)), sid
+
+
+# ---- refusal text never leaks the internal regulation id -----------------------------
+
+@pytest.mark.parametrize("reg", ["championsregma", "championsregmb", "champions"])
+def test_refusal_text_says_this_format_not_the_regulation_id(reg):
+    state = {**_state([empty_slot() for _ in range(6)]), "regulation_mod": reg}
+    iid = ILLEGAL_ITEMS[0]
+    cases = [
+        _lock(state, 0, "species", "Flutter Mane"),
+        _lock(state, 0, "item", SNAP["items"][iid]["name"]),
+        _lock_batch(state, 0, [{"attr": "species", "value": "Koraidon"}]),
+    ]
+    for out in cases:
+        msg = out["slot_commit_error"]
+        assert "this format" in msg and reg not in msg
+
+
+# ---- every species value reachable in team_draft is locked ---------------------------
+
+def _species_locked(draft: list[Slot]) -> bool:
+    return all(s.species.locked for s in draft if s.species.value)
+
+
+def test_normal_paths_never_leave_an_unlocked_species_in_team_draft():
+    """team_validation's Species Clause compares against every slot's species value
+    and relies on this: species enters team_draft only locked."""
+    from recommender.nodes import record_rejection
+    from recommender.propose import fill_team_draft
+
+    state = _state([empty_slot() for _ in range(6)], archetype=Attr(), rejected=[], picked_team_size=4)
+    after_lock = {**state, **_lock(state, 0, "species", "Incineroar")}
+    after_batch = {**after_lock, **_lock_batch(after_lock, 1, [
+        {"attr": "species", "value": "Garchomp"}, {"attr": "item", "value": "Sitrus Berry"},
+    ])}
+    entry = {"slot_index": 2, "attr": "species", "value": "Rillaboom", "reason": "x", "turn_removed": 1}
+    after_restore = {**after_batch, **restore_superseded(
+        {**after_batch, "superseded": [entry], "turn_payload": {"slot_index": 2, "attr": "species"}}
+    )}
+    filled = {**after_restore, **fill_team_draft(after_restore)}
+    rejected = {**filled, **record_rejection(
+        {**filled, "turn_payload": {"species": "Kingambit", "slot_index": 3, "reason": "x"}}
+    )}
+    cstate = _commit_state(_draft_with(0, species="Incineroar"), 1, "Rillaboom", "Sitrus Berry")
+    committed = {**cstate, **commit_full_slot(cstate)}
+    for st in (after_lock, after_batch, after_restore, filled, rejected, committed):
+        assert any(s.species.value for s in st["team_draft"])
+        assert _species_locked(st["team_draft"])
