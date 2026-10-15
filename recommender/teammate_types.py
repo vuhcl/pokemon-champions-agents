@@ -10,6 +10,37 @@ DenominatorKind = Literal["ability_weight", "teammate_weight_div_6", "floor_1"]
 AttributionStatus = Literal["exact", "ambiguous", "unresolved"]
 TeammateSource = Literal["showdown-offline", "showdown-live", "cbd-offline"]
 
+# --- arm-facing explicit-source teammate API (D7 / ADR-014 2026-10-14a+b) ---
+
+ArmPieceSource = Literal["ingame", "showdown"]
+ArmFallbackReason = Literal[
+    "no_row",
+    "form_not_in_source",
+    "live_disabled",
+    "live_not_supported",
+    "live_unavailable",
+]
+ArmLiveErrorKind = Literal[
+    "miss_or_error",
+    "http_4xx_miss",
+    "transient_exhausted",
+    "json_decode",
+]
+ArmStatus = Literal[
+    "available",
+    "unavailable",
+    "error",
+    "deferred_build_surface",
+]
+ArmErrorKind = Literal[
+    "invalid_source",
+    "invalid_mode",
+    "malformed_offline_row",
+    "unexpected_failure",
+]
+ArmValueKind = Literal["rank_only", "conditional_percent"]
+ArmMultiMode = Literal["intersection", "reverse_lookup", "team_level"]
+
 
 @dataclass(frozen=True)
 class NormalizedTeammate:
