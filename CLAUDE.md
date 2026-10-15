@@ -55,6 +55,8 @@ The held-out eval keys (`scripts/eval/part_g_v4/key_artifacts/`), the claim and 
 - Run the full suites before calling anything ready (`uv run pytest`, `npm test`, `run_all_checks.py`). Targeted runs alone have missed breakage before.
 - Report exact test counts, and say whether the keys sha and both battery hashes printed by `run_all_checks.py` are unchanged. Keep hashes on one unbroken line.
 - One task per worktree. Do not spawn subagents or run parallel agents unless the owner asks (usage limits are shared with the owner's chat).
+- `scripts/eval/part_g_v4/checks/run_all_checks.py` rewrites two tracked files (`LAST_CHECK.json`, `calc_coverage.json`) when it runs. Restore them with `git checkout` before committing.
+- Before running the full `uv run pytest`, confirm nothing else is listening on port 4173. The Python calc client is hardwired to that port, and a stale service from another worktree will silently answer the tests.
 
 ## Read-only mirror files: never write these
 
