@@ -128,3 +128,42 @@ def changed_keys(before: dict, after: dict) -> set[str]:
 
 PENDING_KEYS = ("pending_presentation", "pending_slot_intent", "provisional_slot", "provisional_refinement")
 LOCK_GARCHOMP = {"turn_intent": "lock", "slot_index": 1, "attr": "species", "value": "Garchomp"}
+
+
+# Keys a refusal turn may change (PR B, plan section D): bookkeeping written by classify_input
+# every turn, the refusal message, and the per-turn resets classify_input applies.
+REFUSAL_ALLOWED = frozenset({
+    "turn", "turn_intent", "turn_payload", "last_user_text", "obs_thread_id", "pending_input",
+    "slot_commit_error",
+    "compare_analysis", "bootstrap_intake_error", "correction_response", "claim_correction_rerun_discovery",
+})
+
+
+def commit_seed(draft: list[Slot], species: str, *, ability: str | None = None, item: str = "Sitrus Berry",
+                moves: tuple[str, ...] | None = None, slot_index: int = 1) -> dict:
+    """State values for a live full_build_confirmation that commit_full_slot will evaluate."""
+    from recommender.ids import to_id
+    from recommender.legality import legal_moves_for, load_snapshot
+
+    snap = load_snapshot()
+    ability = ability or next(iter(snap["species"][to_id(species)]["abilities"].values()))
+    moves = moves or tuple(legal_moves_for(species)[:4])
+    prov = ProvisionalSlot(
+        schema_version=1, slot_index=slot_index, target_role_decision=_DECISION, species=species,
+        ability=ability, item=item, moves=moves, nature="Modest",
+        spread=(("hp", 32), ("atk", 0), ("def", 0), ("spa", 32), ("spd", 2), ("spe", 0)),
+        base_slot_fingerprint=slot_fingerprint(draft[slot_index]), fingerprint="fp",
+    )
+    return {
+        "team_draft": draft,
+        "provisional_slot": prov,
+        "pending_slot_intent": PendingSlotIntent(
+            schema_version=1, slot_index=slot_index, species=species, target_role_decision=_DECISION,
+            source="need", base_slot_fingerprint=slot_fingerprint(draft[slot_index]),
+        ),
+        "pending_presentation": {
+            "schema_version": 1, "kind": "full_build_confirmation",
+            "slot_index": slot_index, "provisional_fingerprint": "fp",
+        },
+        "constraints": [],
+    }

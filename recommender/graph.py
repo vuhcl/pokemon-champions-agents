@@ -63,6 +63,16 @@ def _route_after_refine(state: RecommenderState) -> str:
     return "route_team_phase"
 
 
+def _route_after_slot_handler(state: RecommenderState) -> str:
+    """A refusal (slot_commit_error, reset every turn by classify_input) ends the turn.
+
+    Re-running discovery would replace the user's pending screen; success continues as before.
+    """
+    if state.get("slot_commit_error"):
+        return END
+    return "route_team_phase"
+
+
 def _route_after_claim_correction(state: RecommenderState) -> str:
     if state.get("claim_correction_rerun_discovery"):
         return "route_team_phase"
@@ -117,16 +127,14 @@ def build_graph(*, bootstrap_intake_parser=None, turn_intent_parser=None) -> Sta
     for handler in (
         "record_constraint",
         "record_rejection",
-        "apply_lock",
         "handle_archetype_change",
         "reset_team",
-        "restore_superseded",
         "restore_constraint",
-        "commit_full_slot",
-        "unlock_locked_slot",
         "record_bootstrap_response",
     ):
         g.add_edge(handler, "route_team_phase")
+    for handler in ("apply_lock", "restore_superseded", "commit_full_slot", "unlock_locked_slot"):
+        g.add_conditional_edges(handler, _route_after_slot_handler, [END, "route_team_phase"])
     g.add_conditional_edges("route_team_phase", _route_team_phase, _PHASE_ROUTES)
     g.add_edge("bootstrap_direction", END)
     g.add_edge("discover_single_locked", END)
