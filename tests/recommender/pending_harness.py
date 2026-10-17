@@ -139,8 +139,25 @@ REFUSAL_ALLOWED = frozenset({
 })
 
 
+def build_groups() -> tuple[dict, ...]:
+    """One spread_nature group: the default plus two alternates (each a legal 66-SP spread)."""
+    def opt(oid, label, overrides):
+        return {"option_id": oid, "label": label, "axis": "spread_nature", "provenance": "usage_spread",
+                "overrides": overrides, "diff_summary": "spread", "tradeoff": "x"}
+    return ({
+        "axis": "spread_nature", "prompt": "Choose spread/nature:",
+        "options": (
+            opt("spread_nature:default", "Default", {}),
+            opt("spread_nature:1", "Fast", {"nature": "Timid", "spread": {
+                "hp": 2, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 32}}),
+            opt("spread_nature:2", "Wall", {"nature": "Calm", "spread": {
+                "hp": 32, "atk": 0, "def": 2, "spa": 0, "spd": 32, "spe": 0}}),
+        ),
+    },)
+
+
 def commit_seed(draft: list[Slot], species: str, *, ability: str | None = None, item: str = "Sitrus Berry",
-                moves: tuple[str, ...] | None = None, slot_index: int = 1) -> dict:
+                moves: tuple[str, ...] | None = None, slot_index: int = 1, with_options: bool = False) -> dict:
     """State values for a live full_build_confirmation that commit_full_slot will evaluate."""
     from recommender.ids import to_id
     from recommender.legality import legal_moves_for, load_snapshot
@@ -154,6 +171,13 @@ def commit_seed(draft: list[Slot], species: str, *, ability: str | None = None, 
         spread=(("hp", 32), ("atk", 0), ("def", 0), ("spa", 32), ("spd", 2), ("spe", 0)),
         base_slot_fingerprint=slot_fingerprint(draft[slot_index]), fingerprint="fp",
     )
+    pend = {
+        "schema_version": 1, "kind": "full_build_confirmation",
+        "slot_index": slot_index, "provisional_fingerprint": "fp",
+    }
+    if with_options:
+        pend["build_option_groups"] = build_groups()
+        pend["default_option_ids"] = ("spread_nature:default",)
     return {
         "team_draft": draft,
         "provisional_slot": prov,
@@ -161,9 +185,6 @@ def commit_seed(draft: list[Slot], species: str, *, ability: str | None = None, 
             schema_version=1, slot_index=slot_index, species=species, target_role_decision=_DECISION,
             source="need", base_slot_fingerprint=slot_fingerprint(draft[slot_index]),
         ),
-        "pending_presentation": {
-            "schema_version": 1, "kind": "full_build_confirmation",
-            "slot_index": slot_index, "provisional_fingerprint": "fp",
-        },
+        "pending_presentation": pend,
         "constraints": [],
     }
