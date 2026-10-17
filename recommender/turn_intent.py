@@ -51,6 +51,10 @@ TurnIntentName = Literal[
     "claim_correction",
 ]
 
+# lock/restore clear pending in their handlers, on success only, so a refusal leaves
+# the user's pending screen alone (nodes.apply_lock / restore_superseded).
+_DEFERRED_CLEAR_INTENTS = frozenset({"lock", "restore"})
+
 _ACTIONABLE_INTENTS = frozenset(
     {
         "constraint",
@@ -1248,7 +1252,11 @@ def parse_turn_intent(
                 "user_text": user_text.strip(),
             }
         out["turn_payload"] = payload
-    if extraction.turn_intent in _ACTIONABLE_INTENTS and had_pending:
+    if (
+        extraction.turn_intent in _ACTIONABLE_INTENTS
+        and extraction.turn_intent not in _DEFERRED_CLEAR_INTENTS
+        and had_pending
+    ):
         out.update(_clear_pending_keys())
     return out
 

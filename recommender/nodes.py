@@ -767,6 +767,20 @@ def _full_slot_error(message: str) -> dict:
 
 LOCK_FULLY_LOCKED_SLOT_MSG = "Revise a locked slot is not supported yet."
 LOCK_BAD_SLOT_MSG = "I couldn't tell which slot to lock."
+RESTORE_NOTHING_MSG = "There is nothing to restore for that slot."
+
+
+def _clear_pending_on_success(state: RecommenderState, out: dict) -> dict:
+    """Lock/restore clear pending here, not at classification, so a refusal keeps it.
+
+    Mirrors the old classify-time condition (had_pending): only when a pending
+    screen is live, and only the four keys _clear_pending_keys names.
+    """
+    from recommender.turn_intent import _clear_pending_keys
+
+    if state.get("pending_presentation") is None:
+        return out
+    return {**out, **_clear_pending_keys()}
 
 
 def _validated_team_value(
@@ -902,6 +916,8 @@ def apply_lock(state: RecommenderState) -> dict:
         out = _apply_locks_batch(state, payload)
     else:
         out = _apply_lock_single(state, payload)
+    if not out.get("slot_commit_error"):
+        out = _clear_pending_on_success(state, out)
     return _clear_rejected_for_newly_locked_species(state, out)
 
 
@@ -937,22 +953,6 @@ def _clear_rejected_for_newly_locked_species(
     if len(remaining) != len(rejected):
         out = {**out, "rejected": remaining}
     return out
-
-
-def _locks_pending_presentation(
-    state: RecommenderState, payload: LockPayload
-) -> bool:
-    pending = state.get("pending_presentation")
-    if (
-        pending is None
-        or pending.get("kind") != "candidate_selection"
-        or payload.get("slot_index") != pending.get("slot_index")
-        or payload.get("attr") != "species"
-        or "value" not in payload
-    ):
-        return False
-    selected = to_id(str(payload["value"]))
-    return any(to_id(option["species"]) == selected for option in pending["options"])
 
 
 def _apply_lock_single(state: RecommenderState, payload: LockPayload) -> dict:
@@ -1000,8 +1000,6 @@ def _apply_lock_single(state: RecommenderState, payload: LockPayload) -> dict:
 
     draft[slot_index] = slot
     out["team_draft"] = draft
-    if _locks_pending_presentation(state, payload):
-        out["pending_presentation"] = None
     return out
 
 
@@ -1271,7 +1269,7 @@ def restore_superseded(state: RecommenderState) -> dict:
             match_idx = i
             break
     if match_idx is None:
-        return {}
+        return _full_slot_error(RESTORE_NOTHING_MSG)
 
     entry: SupersededEntry = superseded[match_idx]
     value = entry["value"]
@@ -1290,7 +1288,7 @@ def restore_superseded(state: RecommenderState) -> dict:
         still_active=True,
     )
     draft[slot_index] = replace(slot, **{attr_name: restored})
-    return {"team_draft": draft, "superseded": superseded}
+    return _clear_pending_on_success(state, {"team_draft": draft, "superseded": superseded})
 
 
 def restore_constraint(state: RecommenderState) -> dict:
