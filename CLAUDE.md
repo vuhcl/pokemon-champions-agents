@@ -35,7 +35,7 @@ Data extraction scripts are in `package.json` (`npm run extract:legality`, `extr
 - **Regulation is a parameter and never a hardcoded literal.** `tests/ci/test_no_regulation_literals.py` enforces this with an AST scan and a path allowlist. The schedule is in `data/active_regulation.json`, and the regulation-to-mod/format mapping is in `recommender/regulation_registry.py`. Champions is its own Showdown mod (`data/mods/champions*`), not "gen9 minus a banlist." Check the current regulation letter; don't assume it.
 - **Calc-unavailable behavior is typed** (ADR-029). `single_locked` may show static estimates labeled with `estimate_kind="static"`. `multi_locked` fails closed. Never let unverified rows look like verified ones.
 - Out of scope: Showdown win-rate eval, battle-log/RL piloting, singles/BSS. Point out any drift toward these.
-- Until the Oct 19-20 pin refresh is done, run no gate or scoring against the current keys.
+- Until the Oct 19-20 pin refresh is done, do not run the gate or score any arm output against the current keys. `run_all_checks.py` is allowed and still required under the PR rules: it verifies the frozen artifacts' integrity (hashes, key reproduction) and does not score arm output.
 
 ## Never present plausible-looking results as complete
 
@@ -56,7 +56,7 @@ The held-out eval keys (`scripts/eval/part_g_v4/key_artifacts/`), the claim and 
 - Report exact test counts, and say whether the keys sha and both battery hashes printed by `run_all_checks.py` are unchanged. Keep hashes on one unbroken line.
 - One task per worktree. Do not spawn subagents or run parallel agents unless the owner asks (usage limits are shared with the owner's chat).
 - `scripts/eval/part_g_v4/checks/run_all_checks.py` rewrites two tracked files (`LAST_CHECK.json`, `calc_coverage.json`) when it runs. Restore them with `git checkout` before committing.
-- Before running the full `uv run pytest`, confirm nothing else is listening on port 4173. The Python calc client is hardwired to that port, and a stale service from another worktree will silently answer the tests.
+- Before running the full `uv run pytest`, confirm nothing else is listening on port 4173. The Python calc client is hardwired to that port, and a stale service from another worktree will silently answer the tests. Confirm the calc service you started is up (`GET 127.0.0.1:4173/health`) before the full `uv run pytest`. A dead calc service makes the suite hang rather than fail (seen once during #275), so a hang means check `/health` first. Stop the service you started when the run is done.
 
 ## Read-only mirror files: never write these
 
