@@ -788,4 +788,7 @@ work or an eval result is weak, it goes here plainly, not smoothed over.*
   surviving FALSE this run — ADR-051 Amendment 2026-09-05a mid-sentence prose-prefix residual
   not observed (still a known under-match, not disproven). Unverifiable spans remain
   (generic type-option / “grass type request” phrasing).
--
+- CLI as a capability reference for Part G (2026-10-16): until #274/#275 the CLI did not validate species/items on lock paths or enforce the Species Clause, so it could not stand in for the refusal rows. After them it refuses illegal/clashing locks and keeps the pending screen, but it still has no rules Q&A gate (Q9, H8, MU rules questions), no read-back for MS1/MS2, and no generic parse-failure text for MR7/Q10. Treat the CLI as a reference only for rows it demonstrably covers; check row by row against part3_request_set_v4.md before citing it. (Row IDs to be re-verified before this is committed.)
+- Slot-index convention is undefined (prompt silent; user text 1-based; tests mix conventions; one real-parser sample wrote index 2 for "Lock Garchomp in slot 2"). Affects slot-numbered rows. The validator refuses out-of-range indices but cannot detect a plausible wrong one.
+- Keys sha 0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a and both battery hashes were not re-measured for #274/#275 (run_all_checks.py blocked by the pin-refresh line); unchanged by construction only, since no key, battery or request-set file is in either diff. Measure after the Oct 19-20 refresh.
+- Steering eval (12 scenarios) was not re-run for #275, which changes pending handling on refusals. Re-run `run_steering.py` and record the result here.

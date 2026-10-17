@@ -6247,6 +6247,29 @@ Decided: ADR-079 (recoil operator, once-on-total, damage dealt) and ADR-080 (sel
 
 Open: minimum of 1 at d=1; once-on-total not numerically separated in game; [1,2] and [1,4] untested; Magic Guard, a miss, Axe Kick, Supercell Slam and Struggle into a breaking Substitute untested; "switch-in" wording for Mega weather setters and the Disguise display of full rolls (tool surface); learnsets keyed by Mega forme are missing (inherit by absence; meowstic and floette base keys need checking); 39 of 69 VGCPastes Mega members carry a base ability, which is the convention for Mega-stone holders, so labeling matters more than cleaning. Main is at 4d1b6c8b71960f9e917117b8240b134da7d53229.
 
+### 2026-10-16: Species Clause and lock-path validation found missing and closed (#274); refusals now preserve the pending screen (#275)
+
+Where it landed: both PRs are merged and tested. #274 (c90dba0) puts one validator on every `team_draft` species/item writer (ADR-081). #275 (db263c1) stops refused lock/restore/unlock/commit turns from clearing or replacing the pending screen (ADR-031 Amendment 2026-10-16a). Suite after #275: 4552 passed, 11 skipped, npm 119 passed.
+
+How it started: while deciding whether the Part G arm needs a graph, I asked how the arm's locks would be validated. The answer was that the CLI's lock paths did not validate anything. `apply_lock` and `restore_superseded` wrote parsed values verbatim, `check_set` is per-slot, and nothing enforced the Species Clause (ADR-038 Amendment 2026-10-16a). A model-driven arm that reuses these paths would have inherited the gap, and the CLI is not a trustworthy reference for the refusal rows until it is fixed.
+
+What I got wrong, kept plainly:
+- I called the arm stateless for the request set; the rows contain mutation and working-state classes. Corrected after you pointed at them.
+- I said the Item Clause was enforced at commit, without saying the lock paths bypassed it.
+- I described `lineage_ids` as evolution lineages. It groups forms of one dex number. Evolution relatives are different species and pass.
+- My first structural-guard spec for #274 keyed on literal `species=`/`item=` keywords and would have missed `replace(slot, **{attr: new})`. The guard that merged scans any function that assigns or returns `team_draft`.
+- My PR B note told Claude Code that a blocked exit meant dropping `commit_full_slot` from the router. One exit (option pick on an illegal build) was refused, but the control showed the identical refusal with no prior commit attempt, so the router was not the cause. I changed the decision to keep it and assert preservation instead.
+
+What review caught: the raw regulation id (`regulation_mod`) appeared in user-facing text in #274; it now says "this format". The first mutation check of the new illegal-build pick test passed with the router reverted, because discovery is stubbed in the harness; asserting that no discovery ran fixed it.
+
+What worked: characterization tests committed before the change (21, green on main first), whole-state diffs limited to a listed key set, and mutation checks that each name how many tests fail. `compare_analysis` is wiped per turn; accepted and listed. The option pick on a provisional slot with an illegal field is refused with no repair offered; pre-existing, logged, separate task.
+
+Open:
+- Slot-index convention (affects slot-numbered Part G rows such as MS1).
+- Rules Q&A gate (Q9, H8, MU rules questions), read-back for MS1/MS2, and generic parse-failure text for MR7/Q10 are not in the CLI.
+- Pin refresh Oct 19-20 (calc 0.11.0-champions.5d5bf43, Showdown data 942cda7). Run `run_all_checks.py` afterwards to measure the keys sha and both battery hashes; for #274/#275 they are unchanged by construction only (no key, battery or request-set file in either diff). Reminder set for Oct 21.
+- Unchanged: housekeeping PR for CLAUDE.md (restore LAST_CHECK.json/calc_coverage.json after `run_all_checks.py`, check port 4173, note that a dead calc service hangs the suite), and removing the `d7b` worktree.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)

@@ -8231,6 +8231,29 @@ cleanly onto "detect one known value in text."
 
 ---
 
+### ADR-031 — Amendment 2026-10-16a — Refused lock/restore/unlock/commit turns preserve the pending screen (PR #275)
+
+**Context:** Amendments 2026-08-16b and 2026-08-16c fixed `continue` and `team_review` on `full_build_confirmation`, which were destroying the pending screen. 16b found that `continue` reaches `route_team_phase`, whose rediscovery overwrites pending regardless of clear-key handling. 16c found that `parse_turn_intent` clears four pending keys (pending_presentation, pending_slot_intent, provisional_slot, provisional_refinement) for every `_ACTIONABLE_INTENTS` member at classification, before the handler knows whether the action will succeed. Neither amendment covered `lock` and `restore`. When those were refused (already-fully-locked slot under ADR-048 Amendment 2026-08-29a, or, since PR #274, an illegal or clashing value), the classify-time clear had already run and the unconditional handler → `route_team_phase` edge re-ran discovery. The user got the refusal plus a fresh candidate screen, and the screen they were answering was gone.
+
+**Decision:**
+1. `turn_intent.py` adds `_DEFERRED_CLEAR_INTENTS = frozenset({"lock", "restore"})`. The classify-time clear now applies only to `_ACTIONABLE_INTENTS` outside that set, when a pending screen exists.
+2. `apply_lock` and `restore_superseded` return the four None pending keys on success only, and only when `pending_presentation` is not None. This mirrors the old `had_pending` condition.
+3. `graph.py` adds `_route_after_slot_handler`: a truthy `slot_commit_error` ends the turn, and anything else continues to `route_team_phase`. It is applied to `apply_lock`, `restore_superseded`, `unlock_locked_slot` and `commit_full_slot`.
+4. `restore_superseded` with no match returns a typed refusal ("There is nothing to restore for that slot.") instead of falling through. The dead `_locks_pending_presentation` helper is removed.
+
+**Why:** A refusal changes nothing, so it must not change the screen. Deferring the clear to the handler puts the decision where success is known. The alternative of re-seeding pending after a refusal would have rebuilt state that was never supposed to be lost. `commit_full_slot` was included only after escape-path tests passed: after a refused commit (species clause, then illegal build) on `full_build_confirmation`, defer, continue then confirm-abandon, rejection, team review, ability edit, pick by option id and `compare` each work as a normal follow-up turn.
+
+**Consequences / behavior changes:**
+- A refusal with no pending screen now ends at the error plus the roster, with no fresh candidate screen (ADR-048's idle-turn behavior for this one case).
+- `compare_analysis` is reset on every turn (existing per-turn wipe). A refused turn between a compare and a follow-up loses the compare result. Accepted and listed, not fixed.
+- Question kinds (spread_reallocation_question, spread_target_question, item_moveset_conflict_question) consume any reply and re-ask with an updated question. That pending rewrite is pre-existing closed-set behavior, not a refusal, and is excluded from the whole-state diff tests.
+
+**Known limit (pre-existing, not changed):** an option pick on a provisional slot that still holds an illegal field is refused with "illegal edited slot: <field>", with or without a prior refused commit. The screen is preserved and defer/edit work, but no repair is offered. Separate task.
+
+**Status:** Implemented and verified. Merged as PR #275 (db263c10315dd4ba0852a284274edb651e91503a). 21 characterization tests were committed first and passed on main (c90dba0) before any code change. 0 existing tests changed. Full suite 4552 passed, 11 skipped. Reverting the router fails 31 refusal tests and 13 of the 23 in the escape-path file; reverting the deferred-clear condition fails 22.
+
+---
+
 ## ADR-032 — Multi-slot batch locking with sequential refinement
 
 ### Status
@@ -9077,6 +9100,20 @@ limitation, not a regression).
 
 Status: Reversed and merged (branches
 revert/adr-038-core-resolution-ui, revert/adr-038-detect-core-resource-conflicts).
+
+---
+
+### ADR-038 — Amendment 2026-10-16a — Correct the Species Clause claim: stated as a roster constraint, not enforced until PR #274
+
+**Correction:** Amendment 2026-09-03a states that Reg M-B doubles' roster of six is gated only by Item Clause and Species Clause. As a statement of the format's rules that is right. But nothing in the graph enforced the Species Clause. `legality.check_set` (legality.py:202) is per-slot and enforces the Item Clause only on the commit and provisional-edit paths. `apply_lock` (single and batch) and `restore_superseded` wrote species and item values to `team_draft` verbatim, with no check against the roster, the legal-species data, or the Item Clause. The parser's output type for lock values is `object | None` with no validation. The Species Clause was therefore absent from the code, and the Item Clause was missing on the lock paths. I also earlier described the Item Clause as enforced at commit; that was true only of `commit_full_slot` and the provisional edit path.
+
+**Found by:** Claude Code's lineage_ids/species-clause investigation. Reproduction: Charizard locked beside Charizard-Mega-X, and an illegal or unknown species/item locked directly, both accepted.
+
+**What stands:** the rule statements in this ADR and in ADR-023 Amendment 2026-08-16a. Mega Evolution remains optional even with several holders, and the Species Clause does not forbid carrying several Mega-Stone holders. Only the implied coverage was wrong.
+
+**Fix:** ADR-081 (validator on every `team_draft` species/item writer), merged in PR #274 at c90dba033084b84de1fe370fb63df02ce6fca98c. The Species Clause is enforced by dex number (see ADR-081).
+
+**Status:** Documentation correction. The original 2026-09-03a text is left in place; this amendment supersedes any reading of it as describing enforced behavior.
 
 ---
 
@@ -11951,3 +11988,32 @@ The earlier floor convention was set without a primary check and was wrong; the 
 **Not verified:** Magic Guard for all three kinds; a miss; Axe Kick and Supercell Slam (assumed to match High Jump Kick); Struggle into a Substitute that breaks; Steel Beam when immune or with no target; damage-fraction recoil on a Substitute (the first recoil PR caps dealt at the Substitute's HP, an owner statement with no numbers behind it). Wide Guard and Quick Guard are not expressible in the request, so a Struggle blocked by them would still show the formula amount.
 
 **Calc note:** @smogon/calc forces Struggle to type '???' (move.js L71-73), so there is no immunity and no STAB, although the move data lists Normal. Parental Bond nests two hit arrays for Struggle, and Result.range() sums them into one range.
+
+---
+
+## ADR-081: One team-level validator for every team_draft species/item writer; Species Clause by dex number
+
+**Date:** 2026-10-16
+**Status:** Accepted (merged in PR #274, c90dba033084b84de1fe370fb63df02ce6fca98c).
+
+**Context:** ADR-002 says legality is a tool call against real data, never a model assertion. The lock paths did not meet it. `apply_lock` (single and batch) and `restore_superseded` wrote LLM-parsed species and item values to `team_draft` as received. `check_set` is per-slot and only the commit/provisional-edit paths called it, so the Item Clause was enforced on those paths only and the Species Clause nowhere (ADR-038 Amendment 2026-10-16a). A user could lock an unknown or illegal species or item, two forms of the same dex number, or a repeated item.
+
+**Decision:**
+1. `recommender/team_validation.py` adds `validate_team_value(attr, value, *, slot_index, team_draft, snap=None) -> TeamValueVerdict`. A refusal is a `TeamRefusal(kind, attr, value, conflicts_with_slot, message)` with kinds unknown_species, illegal_species, unknown_item, illegal_item, species_clause, item_clause, bad_slot_index, bad_value. A pass returns the canonical display name, which is what gets stored.
+2. Species identity is the dex number, taken from the snapshot's `base_species_id` (falling back to `species_id`). Forms of one dex number clash; evolution relatives are different species (Pikachu with Raichu passes). Over legal species the snapshot's `base_species_id` and `lineage_ids` disagree 0 times, and a drift test keeps it that way. Measured: 355 legal species, 231 legal dex groups, 101 groups with more than one legal member, 159 clashing pairs. Two legal species have an illegal base entry (floetteeternal, floettemega); the base-or-species fallback handles them.
+3. Every writer calls it: `apply_lock` single and batch, `restore_superseded`, and `commit_full_slot` (Species Clause added after `check_set`). Other slots are checked, not the target slot.
+4. `apply_lock` rejects an undeterminable slot index first ("I couldn't tell which slot to lock."). A batch refuses the whole payload on any refusal or on a repeated attribute ("I got {attr} more than once in one request; nothing was locked."). `restore_superseded` validates before popping the superseded entry, so a refusal leaves the stack unchanged.
+5. Refusal messages say "this format", never the raw regulation id (caught in review of the first version; fixed in 6f57080).
+6. `species_resolve.lookup_species_id` is factored out of `resolve_species_label` (alias/forme/gender rewrite, no legality filter); the resolver's behavior is unchanged and covered by an equivalence test.
+
+**Why (alternatives rejected):**
+- Validating in the parser or prompt: the model is the source of the bad values; a prompt instruction is guidance the model can ignore (ADR-031 Amendment 2026-08-16a found exactly this).
+- A per-writer check: that is how three paths ended up unguarded. One function, and a structural test that scans every function that assigns or returns `team_draft` against an allowlist labeled validating, clear-only or non-species/item. The first version of that guard keyed on literal `species=`/`item=` keywords and would have missed `replace(slot, **{attr: value})`; it was widened before merge.
+- Species Clause by exact species id: Charizard and Charizard-Mega-X would pass.
+
+**Tests:** data-driven same-dex pairs across all writers, illegal species/items from the snapshot, Item Clause, batch behavior, restore refusal leaves the stack unchanged, canonical storage, the drift test against `lineage_ids`, and the structural scan. Main after merge: 4442 passed, 11 skipped.
+
+**Known limits:**
+- The validator assumes every species value in `team_draft` is locked (comment plus test). An unlocked proposed species is not treated as occupying a slot.
+- The slot-index convention is undefined and unchanged. The prompt is silent, user text is 1-based, existing tests mix conventions, and one real-parser sample wrote index 2 for "Lock Garchomp in slot 2". Out-of-range indices are refused (bad_slot_index); a plausible but wrong index is not detected.
+- Multi-attribute forme pooling (Toxtricity, Squawkabilly) is not addressed here.
