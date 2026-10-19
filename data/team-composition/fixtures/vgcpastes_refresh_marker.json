@@ -1,6 +1,6 @@
 {
-  "last_extract_at": "2026-10-04T03:47:49Z",
-  "teams_resolved": 463,
+  "last_extract_at": "2026-10-18T19:02:24Z",
+  "teams_resolved": 659,
   "sheet_gid": "2001945654",
   "last_outcome": "pr_opened",
   "note": "Bootstrap epoch \u2014 first eligible run may fire. Bumped by vgcpastes-refresh-mc."
