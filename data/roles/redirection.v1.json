@@ -1,7 +1,7 @@
 {
   "category": "redirection",
   "condition": "",
-  "built_at": "2026-10-06T05:34:06.843681+00:00",
+  "built_at": "2026-10-20T20:06:34.283599+00:00",
   "sub_criteria": {
     "kind": "redirection",
     "condition": "",
@@ -133,7 +133,7 @@
         }
       ],
       "reasoning": "Follow Me clears Excellent (basis=secondary_stack, reinforce=none, usage_proven=True, verified_secondary=True, excellent_secondary=True).",
-      "change_reason": "secondary_stack Excellent (Follow Me + Helping Hand/Life Dew/Encore/Light Screen/Reflect); pre-Task-B drift vs committed Good",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "secondary_stack"
     },
@@ -189,7 +189,7 @@
         }
       ],
       "reasoning": "Follow Me clears Excellent (basis=secondary_stack, reinforce=none, usage_proven=True, verified_secondary=True, excellent_secondary=True).",
-      "change_reason": "pre-Task-B drift admit (Excellent, basis=secondary_stack)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "secondary_stack"
     },
@@ -281,7 +281,7 @@
         }
       ],
       "reasoning": "Rage Powder clears Good (basis=secondary_reinforce, reinforce=none, usage_proven=False, verified_secondary=True, excellent_secondary=False / showdown usage discounted (base 0.042% < 0.25\u00d7 mega 1.132%)).",
-      "change_reason": "pre-Task-B drift admit (Good, basis=secondary_reinforce)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "secondary_reinforce"
     },
@@ -480,7 +480,7 @@
         }
       ],
       "reasoning": "Rage Powder clears Excellent (basis=secondary_stack, reinforce=none, usage_proven=True, verified_secondary=True, excellent_secondary=True).",
-      "change_reason": "secondary_stack Excellent (Rage Powder + Tailwind/Light Screen); pre-Task-B drift vs committed Good",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "secondary_stack"
     }

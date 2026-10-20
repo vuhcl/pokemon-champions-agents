@@ -1,7 +1,7 @@
 {
   "category": "trick_room_setter",
   "condition": "",
-  "built_at": "2026-10-06T05:34:06.845138+00:00",
+  "built_at": "2026-10-20T20:06:34.284451+00:00",
   "sub_criteria": {
     "kind": "trick_room_setter",
     "condition": "",
@@ -61,19 +61,19 @@
     "membership requires Trick Room set% \u2265 22.5 (self-protection and Showdown-discount do not waive the floor)",
     "membership requires bulk (HP+Def+SpD) \u2265 210, waived for one-hit absorption (Disguise / Ice Face)",
     "tiers grade self-provided cover of the shared Fake Out / Taunt exposure: ability flinch denial > Ghost Fake Out immunity or Taunt immunity > none",
-    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.133 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.508 base=0.048; stone-heuristic fallback unused",
-    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=8.968 base=0.217; stone-heuristic fallback unused",
-    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
-    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.754 base=0.227; stone-heuristic fallback unused",
-    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.107 base=0.179; stone-heuristic fallback unused",
-    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.053 base=0.077; stone-heuristic fallback unused",
     "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
-    "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.987 base=0.247; stone-heuristic fallback unused",
-    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
-    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.106 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused",
     "Showdown attribution (Chandelure/Chandelure-Mega): mega usage_pct=0.312 base=0.419; stone-heuristic fallback unused",
-    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused"
+    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.107 base=0.179; stone-heuristic fallback unused",
+    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.133 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.106 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.508 base=0.048; stone-heuristic fallback unused",
+    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.053 base=0.077; stone-heuristic fallback unused",
+    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
+    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=8.968 base=0.217; stone-heuristic fallback unused",
+    "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.987 base=0.247; stone-heuristic fallback unused",
+    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.754 base=0.227; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused"
   ],
   "candidates": [
     {
@@ -332,7 +332,7 @@
         }
       ],
       "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection) / showdown form-separated usage.",
-      "change_reason": "pct-convention rescale: admit Good (basis=ghost_fakeout_immunity)",
+      "change_reason": null,
       "reinforce_class": "self_protection",
       "excellence_basis": "ghost_fakeout_immunity"
     },
@@ -404,7 +404,7 @@
         }
       ],
       "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection) / showdown form-separated usage.",
-      "change_reason": "pct-convention rescale: admit Good (basis=ghost_fakeout_immunity)",
+      "change_reason": null,
       "reinforce_class": "self_protection",
       "excellence_basis": "ghost_fakeout_immunity"
     },
@@ -455,7 +455,7 @@
         }
       ],
       "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none) / showdown form-separated usage.",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=unprotected)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "unprotected"
     },
@@ -542,7 +542,7 @@
         }
       ],
       "reasoning": "Trick Room clears Good (basis=taunt_denial, usage_proven=True, self_protection=self_protection).",
-      "change_reason": "pct-convention rescale: admit Good (basis=taunt_denial)",
+      "change_reason": null,
       "reinforce_class": "self_protection",
       "excellence_basis": "taunt_denial"
     },
@@ -705,7 +705,7 @@
         }
       ],
       "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none) / showdown form-separated usage.",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=unprotected)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "unprotected"
     },
@@ -818,7 +818,7 @@
         }
       ],
       "reasoning": "Trick Room clears Good (basis=ghost_fakeout_immunity, usage_proven=True, self_protection=self_protection).",
-      "change_reason": "Gourgeist-Super learnset fix: admit Good (basis=ghost_fakeout_immunity)",
+      "change_reason": null,
       "reinforce_class": "self_protection",
       "excellence_basis": "ghost_fakeout_immunity"
     },
@@ -920,7 +920,7 @@
         }
       ],
       "reasoning": "Trick Room clears Excellent (basis=psychic_terrain_priority_denial, usage_proven=True, self_protection=self_protection).",
-      "change_reason": "pre-Task-B drift admit (Excellent, basis=flinch_denial)",
+      "change_reason": null,
       "reinforce_class": "self_protection",
       "excellence_basis": "psychic_terrain_priority_denial"
     },
@@ -971,7 +971,7 @@
         }
       ],
       "reasoning": "Trick Room clears Excellent (basis=psychic_terrain_priority_denial, usage_proven=True, self_protection=self_protection).",
-      "change_reason": "ability-usage tier or Psychic Terrain credit: Acceptable \u2192 Excellent (basis unprotected\u2192psychic_terrain_priority_denial)",
+      "change_reason": null,
       "reinforce_class": "self_protection",
       "excellence_basis": "psychic_terrain_priority_denial"
     },
@@ -1104,7 +1104,7 @@
         }
       ],
       "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none) / showdown form-separated usage.",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=unprotected)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "unprotected"
     },
@@ -1150,7 +1150,7 @@
         }
       ],
       "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=unprotected)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "unprotected"
     },
@@ -1554,7 +1554,7 @@
         }
       ],
       "reasoning": "Trick Room clears Acceptable (basis=unprotected, usage_proven=True, self_protection=none) / showdown form-separated usage.",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=unprotected)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "unprotected"
     },
@@ -1850,7 +1850,7 @@
       "species": "Gourgeist-Small",
       "species_id": "gourgeistsmall",
       "reason": "Trick Room learnset but Trick Room set% below 22.5",
-      "change_reason": "usage below 22.5% set% floor"
+      "change_reason": null
     },
     {
       "species": "Medicham-Mega",
@@ -1904,7 +1904,7 @@
       "species": "Slowbro",
       "species_id": "slowbro",
       "reason": "Trick Room learnset but Trick Room set% below 22.5 (showdown usage discounted (base 0.063% < 0.25\u00d7 mega 0.381%))",
-      "change_reason": "usage below 22.5% set% floor"
+      "change_reason": null
     },
     {
       "species": "Starmie",

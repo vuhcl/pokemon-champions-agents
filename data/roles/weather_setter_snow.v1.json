@@ -1,7 +1,7 @@
 {
   "category": "weather_setter",
   "condition": "Snow",
-  "built_at": "2026-10-06T05:34:06.839733+00:00",
+  "built_at": "2026-10-20T20:06:34.281394+00:00",
   "sub_criteria": {
     "kind": "weather_setter",
     "condition": "Snow",

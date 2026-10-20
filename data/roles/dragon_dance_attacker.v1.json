@@ -1,7 +1,7 @@
 {
   "category": "dragon_dance_attacker",
   "condition": "",
-  "built_at": "2026-10-06T05:34:06.860480+00:00",
+  "built_at": "2026-10-20T20:06:34.301923+00:00",
   "sub_criteria": {
     "kind": "offense_speed_setup",
     "condition": "",
@@ -39,22 +39,22 @@
   "notes": [
     "exact Status self-boost {'atk': 1, 'spe': 1} \u2192 dragondance; no SD Branch A/B OR-gate",
     "Spe stage is setup-turn self-solve \u2014 rank on +1 Atk payoff only",
-    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Grassy Seed+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
+    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Rocky Helmet+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
     "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
     "payoff=per-defender best kit damaging move (KO-bin then weighted frac); zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; debuff_surv n=defenders whose chosen mid has self Def/SpD drops",
     "spe_crossings=not-faster\u2192faster after int(unboosted*1.5); turn-order diagnostic only; k/n_relevant",
-    "Showdown attribution (Sceptile/Sceptile-Mega): mega usage_pct=0.408 base=0.069; stone-heuristic fallback unused",
-    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.712 base=1.031; stone-heuristic fallback unused",
-    "Showdown attribution (Baxcalibur/Baxcalibur-Mega): mega usage_pct=4.113 base=0.733; stone-heuristic fallback unused",
-    "Showdown attribution (Steelix/Steelix-Mega): mega usage_pct=0.251 base=0.051; stone-heuristic fallback unused",
     "Showdown attribution (Drampa/Drampa-Mega): mega usage_pct=0.385 base=0.216; stone-heuristic fallback unused",
-    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=6.729 base=2.244; stone-heuristic fallback unused",
-    "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=0.520 base=0.249; stone-heuristic fallback unused",
-    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.238 base=0.443; stone-heuristic fallback unused",
-    "Showdown attribution (Feraligatr/Feraligatr-Mega): mega usage_pct=0.179 base=0.051; stone-heuristic fallback unused",
+    "Showdown attribution (Steelix/Steelix-Mega): mega usage_pct=0.251 base=0.051; stone-heuristic fallback unused",
     "Showdown attribution (Gyarados/Gyarados-Mega): mega usage_pct=0.420 base=0.234; stone-heuristic fallback unused",
     "Showdown attribution (Salamence/Salamence-Mega): mega usage_pct=24.843 base=0.392; stone-heuristic fallback unused",
+    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.238 base=0.443; stone-heuristic fallback unused",
+    "Showdown attribution (Sceptile/Sceptile-Mega): mega usage_pct=0.408 base=0.069; stone-heuristic fallback unused",
     "Showdown attribution (Aerodactyl/Aerodactyl-Mega): mega usage_pct=1.412 base=1.656; stone-heuristic fallback unused",
+    "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=0.520 base=0.249; stone-heuristic fallback unused",
+    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=6.729 base=2.244; stone-heuristic fallback unused",
+    "Showdown attribution (Feraligatr/Feraligatr-Mega): mega usage_pct=0.179 base=0.051; stone-heuristic fallback unused",
+    "Showdown attribution (Baxcalibur/Baxcalibur-Mega): mega usage_pct=4.113 base=0.733; stone-heuristic fallback unused",
+    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.712 base=1.031; stone-heuristic fallback unused",
     "Excellent damage floor = 2nd-highest \u00d7 0.95 \u2192 1.061 (top: Charizard-Mega-X=1.146, Feraligatr-Mega=1.117)",
     "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.743",
     "sweep_ohko=outgoing OHKO k/n vs panel (unscaled max-roll); survive_hp=mean/min remain on outsped-and-survive (n_surv=0 \u2192 n/a); display only \u2014 within-tier sort stays crossings"
@@ -507,7 +507,7 @@
         }
       ],
       "reasoning": "Good: calc 1.038 (floor 1.061); priority_or_spe_ok; spe_crossings=16/36",
-      "change_reason": "pre-Task-B drift: Excellent \u2192 Good (basis=good_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
     },
@@ -689,7 +689,7 @@
         }
       ],
       "reasoning": "Good: calc 1.050 (floor 1.061); priority_or_spe_ok; spe_crossings=15/36",
-      "change_reason": "pre-Task-B drift admit (Good, basis=good_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
     },
@@ -1046,7 +1046,7 @@
         }
       ],
       "reasoning": "Good: calc 0.836 (floor 1.061); priority_or_spe_ok; spe_crossings=11/36",
-      "change_reason": "pct-convention rescale: admit Good (basis=good_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
     },
@@ -1221,7 +1221,7 @@
         }
       ],
       "reasoning": "Good: calc 0.870 (floor 1.061); priority_or_spe_ok; spe_crossings=1/36",
-      "change_reason": "pct-convention rescale: admit Good (basis=good_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
     },
@@ -1316,7 +1316,7 @@
         }
       ],
       "reasoning": "Acceptable: calc 1.092 (floor 1.061); priority_or_spe_ok; spe_crossings=15/36",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=usage_discounted)",
+      "change_reason": "usage discount demote / mech Excellent \u2192 Acceptable (showdown usage discounted (base 0.733% < 0.25\u00d7 mega 4.113%))",
       "reinforce_class": "",
       "excellence_basis": "usage_discounted"
     },
@@ -1395,7 +1395,7 @@
         }
       ],
       "reasoning": "Acceptable: calc 0.723 (floor 1.061); slow_no_priority spe=81; spe_crossings=15/36",
-      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
     }
@@ -1435,7 +1435,7 @@
       "species": "Dragapult",
       "species_id": "dragapult",
       "reason": "no kit damaging payoff converting the boosted offense stat",
-      "change_reason": "payoff re-eval / tier 'Good' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Dragonite-Mega",

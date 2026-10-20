@@ -1,7 +1,7 @@
 {
   "category": "bulk_up_attacker",
   "condition": "",
-  "built_at": "2026-10-06T05:34:06.858168+00:00",
+  "built_at": "2026-10-20T20:06:34.299175+00:00",
   "sub_criteria": {
     "kind": "offense_bulk_setup",
     "condition": "",
@@ -63,30 +63,30 @@
   },
   "notes": [
     "exact Status self-boost {'atk': 1, 'def': 1} \u2192 bulkup; no SD Branch A/B OR-gate",
-    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Grassy Seed+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
+    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Rocky Helmet+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
     "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
     "payoff=per-defender best kit damaging move (KO-bin then weighted frac); zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; debuff_surv n=defenders whose chosen mid has self Def/SpD drops",
     "bulk_crossings=incoming Physical after candidate Def+1; KO bins from damageRange[-1]/HP; OHKO\u2192not-OHKO and 2HKO\u21923HKO+; immunity excluded from n_relevant",
     "within-tier sort by bulk_crossings; no promotion threshold (no natural gap)",
-    "Showdown attribution (Blaziken/Blaziken-Mega): mega usage_pct=1.384 base=0.750; stone-heuristic fallback unused",
-    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.508 base=0.048; stone-heuristic fallback unused",
-    "Showdown attribution (Staraptor/Staraptor-Mega): mega usage_pct=6.159 base=1.182; stone-heuristic fallback unused",
-    "Showdown attribution (Eelektross/Eelektross-Mega): mega usage_pct=0.237 base=0.012; stone-heuristic fallback unused",
-    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
-    "Showdown attribution (Swampert/Swampert-Mega): mega usage_pct=3.625 base=0.387; stone-heuristic fallback unused",
-    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.053 base=0.077; stone-heuristic fallback unused",
-    "Showdown attribution (Heracross/Heracross-Mega): mega usage_pct=0.109 base=0.019; stone-heuristic fallback unused",
     "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
-    "Showdown attribution (Barbaracle/Barbaracle-Mega): mega usage_pct=0.053 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Emboar/Emboar-Mega): mega usage_pct=0.059 base=0.015; stone-heuristic fallback unused",
-    "Showdown attribution (Golisopod/Golisopod-Mega): mega usage_pct=18.357 base=0.125; stone-heuristic fallback unused",
-    "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=0.520 base=0.249; stone-heuristic fallback unused",
-    "Showdown attribution (Crabominable/Crabominable-Mega): mega usage_pct=0.506 base=0.021; stone-heuristic fallback unused",
-    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.073 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Hawlucha/Hawlucha-Mega): mega usage_pct=0.184 base=0.174; stone-heuristic fallback unused",
-    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.086 base=2.353; stone-heuristic fallback unused",
+    "Showdown attribution (Swampert/Swampert-Mega): mega usage_pct=3.625 base=0.387; stone-heuristic fallback unused",
+    "Showdown attribution (Eelektross/Eelektross-Mega): mega usage_pct=0.237 base=0.012; stone-heuristic fallback unused",
     "Showdown attribution (Pinsir/Pinsir-Mega): mega usage_pct=0.043 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Emboar/Emboar-Mega): mega usage_pct=0.059 base=0.015; stone-heuristic fallback unused",
     "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.294 base=0.099; stone-heuristic fallback unused",
+    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.086 base=2.353; stone-heuristic fallback unused",
+    "Showdown attribution (Barbaracle/Barbaracle-Mega): mega usage_pct=0.053 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.073 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
+    "Showdown attribution (Golisopod/Golisopod-Mega): mega usage_pct=18.357 base=0.125; stone-heuristic fallback unused",
+    "Showdown attribution (Heracross/Heracross-Mega): mega usage_pct=0.109 base=0.019; stone-heuristic fallback unused",
+    "Showdown attribution (Staraptor/Staraptor-Mega): mega usage_pct=6.159 base=1.182; stone-heuristic fallback unused",
+    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.508 base=0.048; stone-heuristic fallback unused",
+    "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.053 base=0.077; stone-heuristic fallback unused",
+    "Showdown attribution (Blaziken/Blaziken-Mega): mega usage_pct=1.384 base=0.750; stone-heuristic fallback unused",
+    "Showdown attribution (Crabominable/Crabominable-Mega): mega usage_pct=0.506 base=0.021; stone-heuristic fallback unused",
+    "Showdown attribution (Hawlucha/Hawlucha-Mega): mega usage_pct=0.184 base=0.174; stone-heuristic fallback unused",
+    "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=0.520 base=0.249; stone-heuristic fallback unused",
     "damage admission floor = 0.766 (score >= floor; n_kept=40)",
     "Excellent damage floor = 2nd-highest \u00d7 0.95 \u2192 1.077 (top: Blaziken-Mega=1.150, Swampert-Mega=1.134)",
     "Acceptable floor = Excellent floor \u00d7 0.9 \u2192 0.969",
@@ -280,7 +280,7 @@
         }
       ],
       "reasoning": "Excellent: calc 1.124 (floor 1.077); priority_or_spe_ok; bulk_crossings=9/24",
-      "change_reason": "pre-Task-B drift admit (Excellent, basis=calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
     },
@@ -376,7 +376,7 @@
         }
       ],
       "reasoning": "Excellent: calc 1.134 (floor 1.077); slow_no_priority spe=70; bulk_crossings=8/24",
-      "change_reason": "pre-Task-B drift: Good \u2192 Excellent (basis=calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
     },
@@ -743,7 +743,7 @@
         }
       ],
       "reasoning": "Excellent: calc 1.078 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
-      "change_reason": "pre-Task-B drift: Acceptable \u2192 Excellent (basis=calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
     },
@@ -838,7 +838,7 @@
         }
       ],
       "reasoning": "Excellent: calc 1.105 (floor 1.077); priority_or_spe_ok; bulk_crossings=5/24",
-      "change_reason": "pre-Task-B drift: Good \u2192 Excellent (basis=calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
     },
@@ -934,7 +934,7 @@
         }
       ],
       "reasoning": "Excellent: calc 1.081 (floor 1.077); priority_or_spe_ok; bulk_crossings=5/24",
-      "change_reason": "pre-Task-B drift: Good \u2192 Excellent (basis=calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
     },
@@ -1030,7 +1030,7 @@
         }
       ],
       "reasoning": "Excellent: calc 1.119 (floor 1.077); priority_or_spe_ok; bulk_crossings=4/24",
-      "change_reason": "pre-Task-B drift: Acceptable \u2192 Excellent (basis=calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
     },
@@ -1118,7 +1118,7 @@
         }
       ],
       "reasoning": "Excellent: calc 1.118 (floor 1.077); priority_or_spe_ok; bulk_crossings=4/24",
-      "change_reason": "pre-Task-B drift: Good \u2192 Excellent (basis=calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
     },
@@ -1206,7 +1206,7 @@
         }
       ],
       "reasoning": "Excellent: calc 1.112 (floor 1.077); priority_or_spe_ok; bulk_crossings=4/24",
-      "change_reason": "pct-convention rescale: admit Excellent (basis=calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_payoff"
     },
@@ -1294,7 +1294,7 @@
         }
       ],
       "reasoning": "Good: calc 1.037 (floor 1.077); priority_or_spe_ok; bulk_crossings=12/24",
-      "change_reason": "pct-convention rescale: admit Good (basis=good_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
     },
@@ -1381,7 +1381,7 @@
         }
       ],
       "reasoning": "Good: calc 1.041 (floor 1.077); priority_or_spe_ok; bulk_crossings=11/24",
-      "change_reason": "pre-Task-B drift admit (Good, basis=good_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
     },
@@ -1740,7 +1740,7 @@
         }
       ],
       "reasoning": "Good: calc 1.028 (floor 1.077); slow_no_priority spe=90; bulk_crossings=7/24",
-      "change_reason": "pre-Task-B drift: Acceptable \u2192 Good (basis=good_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
     },
@@ -1914,7 +1914,7 @@
         }
       ],
       "reasoning": "Good: calc 1.016 (floor 1.077); slow_no_priority spe=60; bulk_crossings=6/24",
-      "change_reason": "pct-convention rescale: admit Good (basis=good_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_payoff"
     },
@@ -2290,7 +2290,7 @@
         }
       ],
       "reasoning": "Acceptable: calc 0.917 (floor 1.077); priority_or_spe_ok; bulk_crossings=12/24",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=acceptable_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
     },
@@ -2377,7 +2377,7 @@
         }
       ],
       "reasoning": "Acceptable: calc 0.958 (floor 1.077); priority_or_spe_ok; bulk_crossings=11/24",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=acceptable_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
     },
@@ -2552,7 +2552,7 @@
         }
       ],
       "reasoning": "Acceptable: calc 0.919 (floor 1.077); priority_or_spe_ok; bulk_crossings=9/24",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
     },
@@ -2727,7 +2727,7 @@
         }
       ],
       "reasoning": "Acceptable: calc 0.797 (floor 1.077); priority_or_spe_ok; bulk_crossings=9/24",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
     },
@@ -2822,7 +2822,7 @@
         }
       ],
       "reasoning": "Acceptable: calc 0.933 (floor 1.077); priority_or_spe_ok; bulk_crossings=8/24",
-      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
     },
@@ -3101,7 +3101,7 @@
         }
       ],
       "reasoning": "Acceptable: calc 0.871 (floor 1.077); priority_or_spe_ok; bulk_crossings=6/24",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
     },
@@ -3354,7 +3354,7 @@
         }
       ],
       "reasoning": "Acceptable: calc 0.967 (floor 1.077); priority_or_spe_ok; bulk_crossings=5/24",
-      "change_reason": "pre-Task-B drift: Excellent \u2192 Acceptable (basis=acceptable_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
     },
@@ -3536,7 +3536,7 @@
         }
       ],
       "reasoning": "Acceptable: calc 0.937 (floor 1.077); priority_or_spe_ok; bulk_crossings=3/24",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_payoff)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_payoff"
     }
@@ -3552,7 +3552,7 @@
       "species": "Beartic",
       "species_id": "beartic",
       "reason": "learnset has bulkup but no usage evidence of the setup move",
-      "change_reason": "usage re-eval / tier 'Acceptable' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Blaziken",
@@ -3570,7 +3570,7 @@
       "species": "Diggersby",
       "species_id": "diggersby",
       "reason": "learnset has bulkup but no usage evidence of the setup move",
-      "change_reason": "usage re-eval / tier 'Good' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Eelektross",
@@ -3588,7 +3588,7 @@
       "species": "Emboar",
       "species_id": "emboar",
       "reason": "learnset has bulkup but no usage evidence of the setup move",
-      "change_reason": "usage re-eval / tier 'Acceptable' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Falinks",
@@ -3600,7 +3600,7 @@
       "species": "Falinks-Mega",
       "species_id": "falinksmega",
       "reason": "learnset has bulkup but no usage evidence of the setup move",
-      "change_reason": "usage re-eval / tier 'Acceptable' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Heracross",
@@ -3636,7 +3636,7 @@
       "species": "Lycanroc",
       "species_id": "lycanroc",
       "reason": "learnset has bulkup but no usage evidence of the setup move",
-      "change_reason": "usage re-eval / tier 'Acceptable' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Lycanroc-Dusk",
@@ -3648,7 +3648,7 @@
       "species": "Lycanroc-Midnight",
       "species_id": "lycanrocmidnight",
       "reason": "learnset has bulkup but no usage evidence of the setup move",
-      "change_reason": "usage re-eval / tier 'Acceptable' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Medicham",
@@ -3666,7 +3666,7 @@
       "species": "Pinsir-Mega",
       "species_id": "pinsirmega",
       "reason": "learnset has bulkup but no usage evidence of the setup move",
-      "change_reason": "usage re-eval / tier 'Good' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Sableye",
@@ -3696,7 +3696,7 @@
       "species": "Tauros-Paldea-Combat",
       "species_id": "taurospaldeacombat",
       "reason": "learnset has bulkup but no usage evidence of the setup move",
-      "change_reason": "usage re-eval / tier 'Acceptable' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Chesnaught",
@@ -3708,7 +3708,7 @@
       "species": "Chesnaught-Mega",
       "species_id": "chesnaughtmega",
       "reason": "damage_score 0.620 below admission floor 0.766",
-      "change_reason": "setup admission floor re-eval / tier 'Acceptable' \u2192 rejected (score=0.620 < 0.766)"
+      "change_reason": null
     },
     {
       "species": "Gogoat",

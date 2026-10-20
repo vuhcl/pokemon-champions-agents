@@ -1,7 +1,7 @@
 {
   "category": "swords_dance_attacker",
   "condition": "",
-  "built_at": "2026-10-06T05:34:06.852169+00:00",
+  "built_at": "2026-10-20T20:06:34.291479+00:00",
   "sub_criteria": {
     "kind": "setup_attacker",
     "condition": "",
@@ -35,10 +35,10 @@
       "Pinsir-Mega",
       "Diggersby",
       "Baxcalibur",
-      "Kleavor",
       "Beedrill-Mega",
       "Heracross-Mega",
       "Lucario-Mega",
+      "Kleavor",
       "Garchomp-Mega",
       "Rhyperior",
       "Garchomp",
@@ -53,48 +53,49 @@
       "Weavile",
       "Toxicroak",
       "Gliscor",
-      "Gallade-Mega"
+      "Gallade-Mega",
+      "Overqwil"
     ]
   },
   "notes": [
     "delivery move locked by self +2 atk-only Status rule \u2192 swordsdance",
-    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Grassy Seed+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
+    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Rocky Helmet+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
     "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
     "payoff=per-defender best kit damaging move (KO-bin then weighted frac); zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; debuff_surv n=defenders whose chosen mid has self Def/SpD drops",
-    "Showdown attribution (Sceptile/Sceptile-Mega): mega usage_pct=0.408 base=0.069; stone-heuristic fallback unused",
-    "Showdown attribution (Blaziken/Blaziken-Mega): mega usage_pct=1.384 base=0.750; stone-heuristic fallback unused",
-    "Showdown attribution (Mawile/Mawile-Mega): mega usage_pct=1.576 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Baxcalibur/Baxcalibur-Mega): mega usage_pct=4.113 base=0.733; stone-heuristic fallback unused",
-    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
-    "Showdown attribution (Absol/Absol-Mega): mega usage_pct=0.011 base=0.012; stone-heuristic fallback unused",
-    "Showdown attribution (Meganium/Meganium-Mega): mega usage_pct=1.112 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Beedrill/Beedrill-Mega): mega usage_pct=0.153 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Lopunny/Lopunny-Mega): mega usage_pct=0.803 base=0.011; stone-heuristic fallback unused",
-    "Showdown attribution (Heracross/Heracross-Mega): mega usage_pct=0.109 base=0.019; stone-heuristic fallback unused",
-    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
-    "Showdown attribution (Barbaracle/Barbaracle-Mega): mega usage_pct=0.053 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.229 base=0.032; stone-heuristic fallback unused",
-    "Showdown attribution (Golisopod/Golisopod-Mega): mega usage_pct=18.357 base=0.125; stone-heuristic fallback unused",
-    "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=0.520 base=0.249; stone-heuristic fallback unused",
-    "Showdown attribution (Garchomp/Garchomp-Mega): mega usage_pct=0.456 base=7.893; stone-heuristic fallback unused",
-    "Showdown attribution (Scolipede/Scolipede-Mega): mega usage_pct=0.080 base=0.044; stone-heuristic fallback unused",
-    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=0.637 base=2.208; stone-heuristic fallback unused",
-    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.073 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Hawlucha/Hawlucha-Mega): mega usage_pct=0.184 base=0.174; stone-heuristic fallback unused",
-    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.106 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Feraligatr/Feraligatr-Mega): mega usage_pct=0.179 base=0.051; stone-heuristic fallback unused",
-    "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.406 base=0.030; stone-heuristic fallback unused",
-    "Showdown attribution (Pinsir/Pinsir-Mega): mega usage_pct=0.043 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.294 base=0.099; stone-heuristic fallback unused",
     "Showdown attribution (Excadrill/Excadrill-Mega): mega usage_pct=0.156 base=6.016; stone-heuristic fallback unused",
-    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.082 base=0.013; stone-heuristic fallback unused",
-    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=0.337 base=0.509; stone-heuristic fallback unused",
+    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
+    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=0.637 base=2.208; stone-heuristic fallback unused",
+    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.229 base=0.032; stone-heuristic fallback unused",
     "Showdown attribution (Greninja/Greninja-Mega): mega usage_pct=0.290 base=0.160; stone-heuristic fallback unused",
+    "Showdown attribution (Garchomp/Garchomp-Mega): mega usage_pct=0.456 base=7.893; stone-heuristic fallback unused",
+    "Showdown attribution (Pinsir/Pinsir-Mega): mega usage_pct=0.043 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Scolipede/Scolipede-Mega): mega usage_pct=0.080 base=0.044; stone-heuristic fallback unused",
+    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.294 base=0.099; stone-heuristic fallback unused",
+    "Showdown attribution (Absol/Absol-Mega): mega usage_pct=0.011 base=0.012; stone-heuristic fallback unused",
+    "Showdown attribution (Lopunny/Lopunny-Mega): mega usage_pct=0.803 base=0.011; stone-heuristic fallback unused",
+    "Showdown attribution (Barbaracle/Barbaracle-Mega): mega usage_pct=0.053 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.073 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=0.337 base=0.509; stone-heuristic fallback unused",
+    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
+    "Showdown attribution (Golisopod/Golisopod-Mega): mega usage_pct=18.357 base=0.125; stone-heuristic fallback unused",
+    "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.406 base=0.030; stone-heuristic fallback unused",
+    "Showdown attribution (Heracross/Heracross-Mega): mega usage_pct=0.109 base=0.019; stone-heuristic fallback unused",
+    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.082 base=0.013; stone-heuristic fallback unused",
+    "Showdown attribution (Meganium/Meganium-Mega): mega usage_pct=1.112 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.106 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Mawile/Mawile-Mega): mega usage_pct=1.576 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Blaziken/Blaziken-Mega): mega usage_pct=1.384 base=0.750; stone-heuristic fallback unused",
+    "Showdown attribution (Sceptile/Sceptile-Mega): mega usage_pct=0.408 base=0.069; stone-heuristic fallback unused",
+    "Showdown attribution (Hawlucha/Hawlucha-Mega): mega usage_pct=0.184 base=0.174; stone-heuristic fallback unused",
+    "Showdown attribution (Beedrill/Beedrill-Mega): mega usage_pct=0.153 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Scrafty/Scrafty-Mega): mega usage_pct=0.520 base=0.249; stone-heuristic fallback unused",
+    "Showdown attribution (Feraligatr/Feraligatr-Mega): mega usage_pct=0.179 base=0.051; stone-heuristic fallback unused",
+    "Showdown attribution (Baxcalibur/Baxcalibur-Mega): mega usage_pct=4.113 base=0.733; stone-heuristic fallback unused",
     "CBD move-rate plausibility (Hawlucha/Hawlucha-Mega): CBD 35.3% swordsdance > Mega Showdown 1.6%; usage_proven=Showdown base",
     "CBD move-rate plausibility (Heracross/Heracross-Mega): CBD 4.2% swordsdance > Mega Showdown 3.4%; usage_proven=Showdown base",
     "CBD move-rate plausibility (Lopunny/Lopunny-Mega): CBD 9.5% swordsdance > Mega Showdown 1.7%; usage_proven=Showdown base",
     "CBD move-rate plausibility (Sceptile/Sceptile-Mega): CBD 8.6% swordsdance > Mega Showdown 0.2%; usage_proven=Showdown base",
-    "damage admission floor = 0.969 (score >= floor; n_kept=38)",
+    "damage admission floor = 0.969 (score >= floor; n_kept=39)",
     "Excellent damage floor = 2nd-highest adjusted \u00d7 0.95 \u2192 1.270 (top: Baxcalibur=1.349, Baxcalibur-Mega=1.337)",
     "Acceptable floor = Excellent floor \u00d7 0.85 \u2192 1.080",
     "sweep_ohko=outgoing OHKO k/n vs panel (unscaled max-roll); survive_hp=mean/min remain on outsped-and-survive (n_surv=0 \u2192 n/a); within-tier sort by sweep_ohko then survive_hp then damage_score"
@@ -195,7 +196,7 @@
         }
       ],
       "reasoning": "Excellent: branches=A+B; calc 1.337 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift admit (Excellent, basis=calc_both_branches)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "calc_both_branches"
     },
@@ -302,7 +303,7 @@
         }
       ],
       "reasoning": "Good: branches=A; calc 1.112 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift admit (Good, basis=good_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
     },
@@ -402,7 +403,7 @@
         }
       ],
       "reasoning": "Good: branches=A; calc 1.200 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift admit (Good, basis=good_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
     },
@@ -789,7 +790,7 @@
         }
       ],
       "reasoning": "Good: branches=A+B; calc 1.247 (floor 1.270); secondary=True",
-      "change_reason": "pre-Task-B drift: Excellent \u2192 Good (basis=good_calc_both_branches)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "good_calc_both_branches"
     },
@@ -1067,7 +1068,7 @@
         }
       ],
       "reasoning": "Good: branches=A+B; calc 1.224 (floor 1.270); secondary=True",
-      "change_reason": "pre-Task-B drift: Excellent \u2192 Good (basis=good_calc_both_branches)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "good_calc_both_branches"
     },
@@ -1171,7 +1172,7 @@
         }
       ],
       "reasoning": "Good: branches=A+B; calc 1.254 (floor 1.270); secondary=True",
-      "change_reason": "pre-Task-B drift: Excellent \u2192 Good (basis=good_calc_both_branches)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "good_calc_both_branches"
     },
@@ -1262,7 +1263,7 @@
         }
       ],
       "reasoning": "Good: branches=A+B; calc 1.246 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift admit (Good, basis=good_calc_both_branches)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_both_branches"
     },
@@ -1445,7 +1446,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 1.051 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -1834,109 +1835,9 @@
         }
       ],
       "reasoning": "Acceptable: branches=A+B; calc 1.349 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=usage_discounted)",
+      "change_reason": "usage discount demote / mech Excellent \u2192 Acceptable (showdown usage discounted (base 0.733% < 0.25\u00d7 mega 4.113%))",
       "reinforce_class": "",
       "excellence_basis": "usage_discounted"
-    },
-    {
-      "species": "Kleavor",
-      "species_id": "kleavor",
-      "tier": "Acceptable",
-      "delivery_class": "move_setup",
-      "mechanism": "Swords Dance",
-      "criteria_notes": {
-        "delivery": "move-based setup (usage-proven)",
-        "execution": "damage_score=1.049 raw=1.049 floor=1.270 excellent_exec=False",
-        "secondary_role": "excellent_secondary",
-        "branches_cleared": "A",
-        "usage_proven": "True",
-        "attribution": "none",
-        "payoff_moves": [
-          "stoneaxe",
-          "xscissor",
-          "closecombat"
-        ],
-        "payoff_targets": {
-          "xscissor": [
-            "Rillaboom+Sneasler",
-            "Indeedee-F+Sneasler",
-            "Farigiraf+Rillaboom",
-            "Milotic+Sneasler",
-            "Gardevoir-Mega+Sneasler",
-            "Whimsicott+Basculegion",
-            "Sinistcha+Incineroar",
-            "Garchomp+Charizard-Mega-Y",
-            "Armarouge+Indeedee-F",
-            "Politoed+Golisopod-Mega",
-            "Metagross-Mega+Salamence-Mega",
-            "Grimmsnarl+Pelipper"
-          ],
-          "stoneaxe": [
-            "Sneasler+Rillaboom",
-            "Salamence-Mega+Rillaboom",
-            "Golisopod-Mega+Pelipper",
-            "Basculegion+Sneasler",
-            "Gholdengo+Rillaboom",
-            "Pelipper+Golisopod-Mega",
-            "Charizard-Mega-Y+Garchomp",
-            "Floette-Mega+Rillaboom",
-            "Volcarona+Rillaboom",
-            "Sylveon+Rillaboom",
-            "Staraptor-Mega+Kingambit",
-            "Torkoal+Indeedee-F",
-            "Gengar-Mega+Incineroar",
-            "Froslass-Mega+Sneasler"
-          ],
-          "closecombat": [
-            "Incineroar+Rillaboom",
-            "Kingambit+Sneasler",
-            "Archaludon+Pelipper",
-            "Raichu-Mega-Y+Rillaboom",
-            "Arcanine-Hisui+Rillaboom",
-            "Garchomp-Mega-Z+Sneasler",
-            "Indeedee+Sneasler",
-            "Tyranitar-Mega+Excadrill",
-            "Excadrill+Tyranitar-Mega",
-            "Lucario-Mega-Z+Rillaboom"
-          ]
-        },
-        "calc_species": "Kleavor",
-        "damage_score_raw": "1.049",
-        "damage_score": "1.049",
-        "score_boosts": "none",
-        "sweep_ohko": "33/36",
-        "sweep_2hko": "36/36",
-        "survive_n": "14",
-        "survive_hp_mean": "0.19",
-        "survive_hp_min": "0.05",
-        "debuff_surv": "1/10"
-      },
-      "claimed_traits": [
-        {
-          "name": "Swords Dance",
-          "criterion": "delivery",
-          "purpose_claimed": "setup via swordsdance (+2 atk)"
-        },
-        {
-          "name": "Stone Axe",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.049 vs panel; branches=A; 14 defender(s)"
-        },
-        {
-          "name": "X-Scissor",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.049 vs panel; branches=A; 12 defender(s)"
-        },
-        {
-          "name": "Close Combat",
-          "criterion": "execution",
-          "purpose_claimed": "calc damage fraction 1.049 vs panel; branches=A; 10 defender(s)"
-        }
-      ],
-      "reasoning": "Acceptable: branches=A; calc 1.049 (floor 1.270); secondary=True",
-      "change_reason": null,
-      "reinforce_class": "excellent_secondary",
-      "excellence_basis": "acceptable_calc_branch_a"
     },
     {
       "species": "Beedrill-Mega",
@@ -2033,7 +1934,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 1.078 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -2133,7 +2034,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 1.059 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -2238,6 +2139,105 @@
       "excellence_basis": "acceptable_calc_branch_a"
     },
     {
+      "species": "Kleavor",
+      "species_id": "kleavor",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=1.032 raw=1.032 floor=1.270 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "nightslash",
+          "stoneaxe",
+          "xscissor"
+        ],
+        "payoff_targets": {
+          "xscissor": [
+            "Rillaboom+Sneasler",
+            "Incineroar+Rillaboom",
+            "Kingambit+Sneasler",
+            "Milotic+Sneasler",
+            "Whimsicott+Basculegion",
+            "Garchomp+Charizard-Mega-Y",
+            "Tyranitar-Mega+Excadrill",
+            "Politoed+Golisopod-Mega",
+            "Grimmsnarl+Pelipper"
+          ],
+          "stoneaxe": [
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Golisopod-Mega+Pelipper",
+            "Pelipper+Golisopod-Mega",
+            "Arcanine-Hisui+Rillaboom",
+            "Floette-Mega+Rillaboom",
+            "Volcarona+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Garchomp-Mega-Z+Sneasler",
+            "Staraptor-Mega+Kingambit",
+            "Torkoal+Indeedee-F"
+          ],
+          "nightslash": [
+            "Indeedee-F+Sneasler",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Archaludon+Pelipper",
+            "Raichu-Mega-Y+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Gardevoir-Mega+Sneasler",
+            "Sinistcha+Incineroar",
+            "Indeedee+Sneasler",
+            "Armarouge+Indeedee-F",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Kleavor",
+        "damage_score_raw": "1.032",
+        "damage_score": "1.032",
+        "score_boosts": "none",
+        "sweep_ohko": "32/36",
+        "sweep_2hko": "35/36",
+        "survive_n": "14",
+        "survive_hp_mean": "0.19",
+        "survive_hp_min": "0.05"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Night Slash",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.032 vs panel; branches=A; 16 defender(s)"
+        },
+        {
+          "name": "Stone Axe",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.032 vs panel; branches=A; 11 defender(s)"
+        },
+        {
+          "name": "X-Scissor",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 1.032 vs panel; branches=A; 9 defender(s)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 1.032 (floor 1.270); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
       "species": "Garchomp-Mega",
       "species_id": "garchompmega",
       "tier": "Acceptable",
@@ -2333,7 +2333,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=B; calc 1.046 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_branch_b)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_b"
     },
@@ -2525,7 +2525,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 1.060 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -2991,7 +2991,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.993 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -3082,7 +3082,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 1.045 (floor 1.270); secondary=True",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -3173,7 +3173,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.986 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -3363,7 +3363,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.971 (floor 1.270); secondary=True",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -3463,7 +3463,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 1.011 (floor 1.270); secondary=False",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -3656,6 +3656,102 @@
       "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
+    },
+    {
+      "species": "Overqwil",
+      "species_id": "overqwil",
+      "tier": "Acceptable",
+      "delivery_class": "move_setup",
+      "mechanism": "Swords Dance",
+      "criteria_notes": {
+        "delivery": "move-based setup (usage-proven)",
+        "execution": "damage_score=0.976 raw=0.976 floor=1.270 excellent_exec=False",
+        "secondary_role": "excellent_secondary",
+        "branches_cleared": "A",
+        "usage_proven": "True",
+        "attribution": "none",
+        "payoff_moves": [
+          "throatchop",
+          "barbbarrage"
+        ],
+        "payoff_targets": {
+          "barbbarrage": [
+            "Rillaboom+Sneasler",
+            "Incineroar+Rillaboom",
+            "Raichu-Mega-Y+Rillaboom",
+            "Gardevoir-Mega+Sneasler",
+            "Whimsicott+Basculegion",
+            "Floette-Mega+Rillaboom",
+            "Sylveon+Rillaboom",
+            "Indeedee+Sneasler",
+            "Staraptor-Mega+Kingambit",
+            "Grimmsnarl+Pelipper"
+          ],
+          "throatchop": [
+            "Sneasler+Rillaboom",
+            "Salamence-Mega+Rillaboom",
+            "Indeedee-F+Sneasler",
+            "Kingambit+Sneasler",
+            "Golisopod-Mega+Pelipper",
+            "Basculegion+Sneasler",
+            "Farigiraf+Rillaboom",
+            "Gholdengo+Rillaboom",
+            "Pelipper+Golisopod-Mega",
+            "Archaludon+Pelipper",
+            "Milotic+Sneasler",
+            "Arcanine-Hisui+Rillaboom",
+            "Charizard-Mega-Y+Garchomp",
+            "Sinistcha+Incineroar",
+            "Volcarona+Rillaboom",
+            "Garchomp+Charizard-Mega-Y",
+            "Garchomp-Mega-Z+Sneasler",
+            "Tyranitar-Mega+Excadrill",
+            "Armarouge+Indeedee-F",
+            "Politoed+Golisopod-Mega",
+            "Metagross-Mega+Salamence-Mega",
+            "Excadrill+Tyranitar-Mega",
+            "Torkoal+Indeedee-F",
+            "Lucario-Mega-Z+Rillaboom",
+            "Gengar-Mega+Incineroar",
+            "Froslass-Mega+Sneasler"
+          ]
+        },
+        "calc_species": "Overqwil",
+        "damage_score_raw": "0.976",
+        "damage_score": "0.976",
+        "score_boosts": "none",
+        "sweep_ohko": "21/36",
+        "sweep_2hko": "33/36",
+        "survive_n": "17",
+        "survive_hp_mean": "0.55",
+        "survive_hp_min": "0.24"
+      },
+      "claimed_traits": [
+        {
+          "name": "Swords Dance",
+          "criterion": "delivery",
+          "purpose_claimed": "setup via swordsdance (+2 atk)"
+        },
+        {
+          "name": "Throat Chop",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.976 vs panel; branches=A; 26 defender(s)"
+        },
+        {
+          "name": "Barb Barrage",
+          "criterion": "execution",
+          "purpose_claimed": "calc damage fraction 0.976 vs panel; branches=A; 10 defender(s)"
+        },
+        {
+          "name": "Intimidate",
+          "criterion": "secondary_role",
+          "purpose_claimed": "high-impact ability secondary (reliability\u00d7impact)"
+        }
+      ],
+      "reasoning": "Acceptable: branches=A; calc 0.976 (floor 1.270); secondary=True",
+      "change_reason": null,
+      "reinforce_class": "excellent_secondary",
+      "excellence_basis": "acceptable_calc_branch_a"
     }
   ],
   "considered_rejected": [
@@ -3675,7 +3771,7 @@
       "species": "Absol",
       "species_id": "absol",
       "reason": "learnset has swordsdance but no usage evidence of the setup move",
-      "change_reason": "CBD/Showdown usage re-eval / tier 'Acceptable' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Archaludon",
@@ -3740,6 +3836,12 @@
     {
       "species": "Clawitzer",
       "species_id": "clawitzer",
+      "reason": "learnset has swordsdance but no usage evidence of the setup move",
+      "change_reason": null
+    },
+    {
+      "species": "Decidueye",
+      "species_id": "decidueye",
       "reason": "learnset has swordsdance but no usage evidence of the setup move",
       "change_reason": null
     },
@@ -3837,7 +3939,7 @@
       "species": "Lycanroc-Midnight",
       "species_id": "lycanrocmidnight",
       "reason": "learnset has swordsdance but no usage evidence of the setup move",
-      "change_reason": "CBD/Showdown usage re-eval / tier 'Acceptable' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Mawile",
@@ -3993,13 +4095,7 @@
       "species": "Chesnaught-Mega",
       "species_id": "chesnaughtmega",
       "reason": "damage_score 0.862 below admission floor 0.969",
-      "change_reason": "setup admission floor re-eval / tier 'Good' \u2192 rejected (score=0.862 < 0.969)"
-    },
-    {
-      "species": "Decidueye",
-      "species_id": "decidueye",
-      "reason": "damage_score 0.848 below admission floor 0.969",
-      "change_reason": "setup admission floor re-eval / tier 'Acceptable' \u2192 rejected (score=0.848 < 0.969)"
+      "change_reason": null
     },
     {
       "species": "Decidueye-Hisui",
@@ -4041,25 +4137,19 @@
       "species": "Lycanroc-Dusk",
       "species_id": "lycanrocdusk",
       "reason": "damage_score 0.929 below admission floor 0.969",
-      "change_reason": "setup admission floor re-eval / tier 'Acceptable' \u2192 rejected (score=0.929 < 0.969)"
-    },
-    {
-      "species": "Overqwil",
-      "species_id": "overqwil",
-      "reason": "damage_score 0.867 below admission floor 0.969",
       "change_reason": null
     },
     {
       "species": "Pangoro",
       "species_id": "pangoro",
       "reason": "damage_score 0.960 below admission floor 0.969",
-      "change_reason": "setup admission floor re-eval / tier 'Good' \u2192 rejected (score=0.960 < 0.969)"
+      "change_reason": null
     },
     {
       "species": "Quaquaval",
       "species_id": "quaquaval",
       "reason": "damage_score 0.934 below admission floor 0.969",
-      "change_reason": "setup admission floor re-eval / tier 'Acceptable' \u2192 rejected (score=0.934 < 0.969)"
+      "change_reason": null
     },
     {
       "species": "Qwilfish",
@@ -4071,7 +4161,7 @@
       "species": "Samurott-Hisui",
       "species_id": "samurotthisui",
       "reason": "damage_score 0.945 below admission floor 0.969",
-      "change_reason": "setup admission floor re-eval / tier 'Acceptable' \u2192 rejected (score=0.945 < 0.969)"
+      "change_reason": null
     },
     {
       "species": "Scizor-Mega",
@@ -4107,7 +4197,7 @@
       "species": "Sneasler",
       "species_id": "sneasler",
       "reason": "damage_score 0.962 below admission floor 0.969",
-      "change_reason": "setup admission floor re-eval / tier 'Acceptable' \u2192 rejected (score=0.962 < 0.969)"
+      "change_reason": null
     },
     {
       "species": "Tinkaton",

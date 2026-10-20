@@ -1,7 +1,7 @@
 {
   "category": "terrain_setter",
   "condition": "Psychic",
-  "built_at": "2026-10-06T05:34:06.842597+00:00",
+  "built_at": "2026-10-20T20:06:34.283030+00:00",
   "sub_criteria": {
     "kind": "terrain_setter",
     "condition": "Psychic",

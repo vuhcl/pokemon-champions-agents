@@ -1,7 +1,7 @@
 {
   "category": "nasty_plot_attacker",
   "condition": "",
-  "built_at": "2026-10-06T05:34:06.854452+00:00",
+  "built_at": "2026-10-20T20:06:34.294708+00:00",
   "sub_criteria": {
     "kind": "setup_attacker",
     "condition": "",
@@ -41,19 +41,19 @@
   },
   "notes": [
     "delivery move locked by self +2 spa-only Status rule \u2192 nastyplot",
-    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Grassy Seed+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
+    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Rocky Helmet+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
     "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
     "payoff=per-defender best kit damaging move (KO-bin then weighted frac); zeros kept in mean; no usage-bag search; sweep_ohko=best-move OHKO rate; debuff_surv n=defenders whose chosen mid has self Def/SpD drops",
-    "Showdown attribution (Houndoom/Houndoom-Mega): mega usage_pct=0.202 base=0.036; stone-heuristic fallback unused",
-    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
-    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.754 base=0.227; stone-heuristic fallback unused",
-    "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.987 base=0.247; stone-heuristic fallback unused",
-    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
-    "Showdown attribution (Froslass/Froslass-Mega): mega usage_pct=4.573 base=0.028; stone-heuristic fallback unused",
-    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.106 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.086 base=2.353; stone-heuristic fallback unused",
-    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.294 base=0.099; stone-heuristic fallback unused",
     "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused",
+    "Showdown attribution (Lucario/Lucario-Mega): mega usage_pct=0.294 base=0.099; stone-heuristic fallback unused",
+    "Showdown attribution (Houndoom/Houndoom-Mega): mega usage_pct=0.202 base=0.036; stone-heuristic fallback unused",
+    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.086 base=2.353; stone-heuristic fallback unused",
+    "Showdown attribution (Banette/Banette-Mega): mega usage_pct=0.106 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
+    "Showdown attribution (Froslass/Froslass-Mega): mega usage_pct=4.573 base=0.028; stone-heuristic fallback unused",
+    "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.987 base=0.247; stone-heuristic fallback unused",
+    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.754 base=0.227; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
     "Excellent damage floor = 2nd-highest adjusted \u00d7 0.95 \u2192 1.035 (top: Raichu-Mega-Y=1.228, Gengar-Mega=1.090)",
     "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.725",
     "sweep_ohko=outgoing OHKO k/n vs panel (unscaled max-roll); survive_hp=mean/min remain on outsped-and-survive (n_surv=0 \u2192 n/a); within-tier sort by sweep_ohko then survive_hp then damage_score"
@@ -328,7 +328,7 @@
         }
       ],
       "reasoning": "Excellent: branches=A; calc 1.056 (floor 1.035); secondary=True",
-      "change_reason": "pre-Task-B drift: Good \u2192 Excellent (basis=calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "calc_branch_a"
     },
@@ -617,7 +617,7 @@
         }
       ],
       "reasoning": "Good: branches=A; calc 1.035 (floor 1.035); secondary=False",
-      "change_reason": "pre-Task-B drift admit (Good, basis=good_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
     },
@@ -1551,7 +1551,7 @@
         }
       ],
       "reasoning": "Good: branches=A; calc 0.893 (floor 1.035); secondary=True",
-      "change_reason": "pre-Task-B drift: Acceptable \u2192 Good (basis=good_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "good_calc_branch_a"
     },
@@ -1642,7 +1642,7 @@
         }
       ],
       "reasoning": "Good: branches=A; calc 0.761 (floor 1.035); secondary=False",
-      "change_reason": "pre-Task-B drift: Acceptable \u2192 Good (basis=good_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_branch_a"
     },
@@ -1733,7 +1733,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.710 (floor 1.035); secondary=True",
-      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -1899,7 +1899,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.565 (floor 1.035); secondary=True",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "excellent_secondary",
       "excellence_basis": "acceptable_calc_branch_a"
     },
@@ -2065,7 +2065,7 @@
         }
       ],
       "reasoning": "Acceptable: branches=A; calc 0.408 (floor 1.035); secondary=False",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_branch_a)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_branch_a"
     }
@@ -2183,7 +2183,7 @@
       "species": "Infernape",
       "species_id": "infernape",
       "reason": "no kit damaging payoff matching boosted offense (excluded recharge/charge/Focus Punch/Future Sight/Upper Hand/self-drop)",
-      "change_reason": "setup calc/membership re-eval / tier 'Acceptable' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Liepard",
@@ -2195,7 +2195,7 @@
       "species": "Lucario-Mega",
       "species_id": "lucariomega",
       "reason": "no kit damaging payoff matching boosted offense (excluded recharge/charge/Focus Punch/Future Sight/Upper Hand/self-drop)",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Malamar",
@@ -2339,7 +2339,7 @@
       "species": "Simisear",
       "species_id": "simisear",
       "reason": "learnset has nastyplot but no usage evidence of the setup move",
-      "change_reason": "CBD/Showdown usage re-eval / tier 'Acceptable' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Sinistcha",
@@ -2417,7 +2417,7 @@
       "species": "Alakazam",
       "species_id": "alakazam",
       "reason": "Showdown usage discounted; mech Good \u2192 reject (showdown usage discounted (base 0.247% < 0.25\u00d7 mega 0.987%))",
-      "change_reason": "setup calc/membership re-eval / tier 'Good' \u2192 rejected (score=0.834, branches=A)"
+      "change_reason": null
     },
     {
       "species": "Delphox",

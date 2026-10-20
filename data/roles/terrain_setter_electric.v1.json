@@ -1,7 +1,7 @@
 {
   "category": "terrain_setter",
   "condition": "Electric",
-  "built_at": "2026-10-06T05:34:06.840512+00:00",
+  "built_at": "2026-10-20T20:06:34.282045+00:00",
   "sub_criteria": {
     "kind": "terrain_setter",
     "condition": "Electric",

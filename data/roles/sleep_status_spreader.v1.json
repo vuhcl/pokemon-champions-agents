@@ -1,7 +1,7 @@
 {
   "category": "sleep_status_spreader",
   "condition": "",
-  "built_at": "2026-10-06T05:34:06.848461+00:00",
+  "built_at": "2026-10-20T20:06:34.287829+00:00",
   "sub_criteria": {
     "kind": "sleep_status_spreader",
     "condition": "",
@@ -55,23 +55,23 @@
     "delivery availability: spore learners_in_pool=0 (catalog accuracy=100)",
     "spore reliability class ABSENT from current legal pool (ADR-019 entire-class gap)",
     "delivery availability: yawn learners_in_pool=47 (catalog accuracy=100)",
-    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.133 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=8.968 base=0.217; stone-heuristic fallback unused",
-    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
-    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.754 base=0.227; stone-heuristic fallback unused",
-    "Showdown attribution (Camerupt/Camerupt-Mega): mega usage_pct=2.233 base=0.010; stone-heuristic fallback unused",
-    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.107 base=0.179; stone-heuristic fallback unused",
-    "Showdown attribution (Blastoise/Blastoise-Mega): mega usage_pct=2.737 base=0.107; stone-heuristic fallback unused",
-    "Showdown attribution (Swampert/Swampert-Mega): mega usage_pct=3.625 base=0.387; stone-heuristic fallback unused",
     "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
-    "Showdown attribution (Emboar/Emboar-Mega): mega usage_pct=0.059 base=0.015; stone-heuristic fallback unused",
-    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
-    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.238 base=0.443; stone-heuristic fallback unused",
+    "Showdown attribution (Swampert/Swampert-Mega): mega usage_pct=3.625 base=0.387; stone-heuristic fallback unused",
     "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=0.637 base=2.208; stone-heuristic fallback unused",
-    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.082 base=0.013; stone-heuristic fallback unused",
-    "Showdown attribution (Clefable/Clefable-Mega): mega usage_pct=0.148 base=0.897; stone-heuristic fallback unused",
     "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused",
-    "Showdown attribution (Pyroar/Pyroar-Mega): mega usage_pct=0.692 base=0.000; stone-heuristic fallback unused"
+    "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.107 base=0.179; stone-heuristic fallback unused",
+    "Showdown attribution (Emboar/Emboar-Mega): mega usage_pct=0.059 base=0.015; stone-heuristic fallback unused",
+    "Showdown attribution (Camerupt/Camerupt-Mega): mega usage_pct=2.233 base=0.010; stone-heuristic fallback unused",
+    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.082 base=0.013; stone-heuristic fallback unused",
+    "Showdown attribution (Pyroar/Pyroar-Mega): mega usage_pct=0.692 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Blastoise/Blastoise-Mega): mega usage_pct=2.737 base=0.107; stone-heuristic fallback unused",
+    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.133 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.238 base=0.443; stone-heuristic fallback unused",
+    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
+    "Showdown attribution (Clefable/Clefable-Mega): mega usage_pct=0.148 base=0.897; stone-heuristic fallback unused",
+    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=8.968 base=0.217; stone-heuristic fallback unused",
+    "Showdown attribution (Gengar/Gengar-Mega): mega usage_pct=4.754 base=0.227; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused"
   ],
   "candidates": [
     {
@@ -119,7 +119,7 @@
         }
       ],
       "reasoning": "Sing clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis_slow, usage_proven=True) / showdown form-separated usage.",
-      "change_reason": "pct-convention rescale admit via Sing (SD 4.331%, weight 204); not Hypnosis \u2014 pushup_bare_hypnosis_slow / P3",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "pushup_bare_hypnosis_slow"
     },
@@ -178,7 +178,7 @@
         }
       ],
       "reasoning": "Hypnosis clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis_slow, usage_proven=True).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=pushup_bare_hypnosis_slow)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "pushup_bare_hypnosis_slow"
     },
@@ -394,7 +394,7 @@
         }
       ],
       "reasoning": "Hypnosis clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis, usage_proven=True).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=pushup_bare_hypnosis)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "pushup_bare_hypnosis"
     },
@@ -438,7 +438,7 @@
         }
       ],
       "reasoning": "Hypnosis clears Acceptable (pathway=P3, basis=pushup_bare_hypnosis, usage_proven=True).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=pushup_bare_hypnosis)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "pushup_bare_hypnosis"
     },
@@ -1086,7 +1086,7 @@
       "species": "Gourgeist-Large",
       "species_id": "gourgeistlarge",
       "reason": "Hypnosis learnset (bare hypnosis) but no usage evidence of sleep delivery and no pathway-matched reinforce",
-      "change_reason": "learnset-only without usage/reinforce"
+      "change_reason": null
     },
     {
       "species": "Gourgeist-Small",
