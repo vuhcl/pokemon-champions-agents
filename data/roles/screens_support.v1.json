@@ -1,7 +1,7 @@
 {
   "category": "screens_support",
   "condition": "",
-  "built_at": "2026-10-06T05:34:06.850617+00:00",
+  "built_at": "2026-10-20T20:06:34.289296+00:00",
   "sub_criteria": {
     "kind": "screens_support",
     "condition": "",
@@ -59,34 +59,34 @@
     "move-only delivery; no ability sets screens \u2014 weather's move\u2192Good cap does not apply (no ability tier above move delivery)",
     "usage evidence prefers Champions in-game data where a row exists; Showdown is a fallback only for formes with no Champions row",
     "Prankster is blocked by Dark-types / Armor Tail / Queenly Majesty \u2014 noted in execution text, not an auto-reject",
-    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.133 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.712 base=1.031; stone-heuristic fallback unused",
-    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.508 base=0.048; stone-heuristic fallback unused",
-    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=8.968 base=0.217; stone-heuristic fallback unused",
+    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
+    "Showdown attribution (Ampharos/Ampharos-Mega): mega usage_pct=0.299 base=0.020; stone-heuristic fallback unused",
+    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=0.637 base=2.208; stone-heuristic fallback unused",
+    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.229 base=0.032; stone-heuristic fallback unused",
+    "Showdown attribution (Glalie/Glalie-Mega): mega usage_pct=0.177 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused",
+    "Showdown attribution (Drampa/Drampa-Mega): mega usage_pct=0.385 base=0.216; stone-heuristic fallback unused",
     "Showdown attribution (Eelektross/Eelektross-Mega): mega usage_pct=0.237 base=0.012; stone-heuristic fallback unused",
-    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
-    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
-    "Showdown attribution (Meganium/Meganium-Mega): mega usage_pct=1.112 base=0.000; stone-heuristic fallback unused",
     "Showdown attribution (Audino/Audino-Mega): mega usage_pct=0.107 base=0.179; stone-heuristic fallback unused",
+    "Showdown attribution (Golurk/Golurk-Mega): mega usage_pct=0.270 base=0.038; stone-heuristic fallback unused",
+    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.086 base=2.353; stone-heuristic fallback unused",
+    "Showdown attribution (Manectric/Manectric-Mega): mega usage_pct=0.274 base=0.031; stone-heuristic fallback unused",
+    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=0.337 base=0.509; stone-heuristic fallback unused",
+    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
+    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.082 base=0.013; stone-heuristic fallback unused",
+    "Showdown attribution (Meganium/Meganium-Mega): mega usage_pct=1.112 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Chimecho/Chimecho-Mega): mega usage_pct=0.133 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Starmie/Starmie-Mega): mega usage_pct=0.508 base=0.048; stone-heuristic fallback unused",
     "Showdown attribution (Metagross/Metagross-Mega): mega usage_pct=6.135 base=0.294; stone-heuristic fallback unused",
     "Showdown attribution (Medicham/Medicham-Mega): mega usage_pct=0.053 base=0.077; stone-heuristic fallback unused",
-    "Showdown attribution (Gallade/Gallade-Mega): mega usage_pct=0.166 base=1.236; stone-heuristic fallback unused",
-    "Showdown attribution (Drampa/Drampa-Mega): mega usage_pct=0.385 base=0.216; stone-heuristic fallback unused",
-    "Showdown attribution (Abomasnow/Abomasnow-Mega): mega usage_pct=0.229 base=0.032; stone-heuristic fallback unused",
+    "Showdown attribution (Delphox/Delphox-Mega): mega usage_pct=3.032 base=0.243; stone-heuristic fallback unused",
+    "Showdown attribution (Froslass/Froslass-Mega): mega usage_pct=4.573 base=0.028; stone-heuristic fallback unused",
+    "Showdown attribution (Clefable/Clefable-Mega): mega usage_pct=0.148 base=0.897; stone-heuristic fallback unused",
+    "Showdown attribution (Gardevoir/Gardevoir-Mega): mega usage_pct=8.968 base=0.217; stone-heuristic fallback unused",
     "Showdown attribution (Alakazam/Alakazam-Mega): mega usage_pct=0.987 base=0.247; stone-heuristic fallback unused",
     "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
-    "Showdown attribution (Froslass/Froslass-Mega): mega usage_pct=4.573 base=0.028; stone-heuristic fallback unused",
-    "Showdown attribution (Venusaur/Venusaur-Mega): mega usage_pct=0.637 base=2.208; stone-heuristic fallback unused",
-    "Showdown attribution (Glalie/Glalie-Mega): mega usage_pct=0.177 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Manectric/Manectric-Mega): mega usage_pct=0.274 base=0.031; stone-heuristic fallback unused",
-    "Showdown attribution (Golurk/Golurk-Mega): mega usage_pct=0.270 base=0.038; stone-heuristic fallback unused",
-    "Showdown attribution (Ampharos/Ampharos-Mega): mega usage_pct=0.299 base=0.020; stone-heuristic fallback unused",
-    "Showdown attribution (Sableye/Sableye-Mega): mega usage_pct=0.086 base=2.353; stone-heuristic fallback unused",
-    "Showdown attribution (Victreebel/Victreebel-Mega): mega usage_pct=0.082 base=0.013; stone-heuristic fallback unused",
-    "Showdown attribution (Clefable/Clefable-Mega): mega usage_pct=0.148 base=0.897; stone-heuristic fallback unused",
-    "Showdown attribution (Malamar/Malamar-Mega): mega usage_pct=0.346 base=0.300; stone-heuristic fallback unused",
-    "Showdown attribution (Glimmora/Glimmora-Mega): mega usage_pct=2.292 base=1.774; stone-heuristic fallback unused",
-    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=0.337 base=0.509; stone-heuristic fallback unused"
+    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.712 base=1.031; stone-heuristic fallback unused",
+    "Showdown attribution (Glimmora/Glimmora-Mega): mega usage_pct=2.292 base=1.774; stone-heuristic fallback unused"
   ],
   "candidates": [
     {
@@ -212,7 +212,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Good (basis=natural_speed, dual_path=ls+reflect, prankster=False, spe=120) / showdown usage discounted (base 0.247% < 0.25\u00d7 mega 0.987%).",
-      "change_reason": "pct-convention rescale: admit Good (basis=natural_speed)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "natural_speed"
     },
@@ -251,7 +251,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=55) / showdown usage discounted (base 0.020% < 0.25\u00d7 mega 0.299%).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -290,7 +290,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=30).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -334,7 +334,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=39).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -407,7 +407,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=45).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -456,7 +456,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=60).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -549,7 +549,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Good (basis=natural_speed, dual_path=ls+reflect, prankster=False, spe=110).",
-      "change_reason": "pct-convention rescale: admit Good (basis=natural_speed)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "natural_speed"
     },
@@ -588,7 +588,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=40).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -632,7 +632,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Good (basis=natural_speed, dual_path=ls+reflect, prankster=False, spe=110) / showdown usage discounted (base 0.028% < 0.25\u00d7 mega 4.573%).",
-      "change_reason": "pct-convention rescale: admit Good (basis=natural_speed)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "natural_speed"
     },
@@ -857,7 +857,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Good (basis=natural_speed, dual_path=ls+reflect, prankster=False, spe=124).",
-      "change_reason": "pre-Task-B drift admit (Good, basis=natural_speed)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "natural_speed"
     },
@@ -906,7 +906,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=90).",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -955,7 +955,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=70).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -999,7 +999,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=29).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -1097,7 +1097,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Good (basis=natural_speed, dual_path=ls+reflect, prankster=False, spe=110).",
-      "change_reason": "pre-Task-B drift admit (Good, basis=natural_speed)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "natural_speed"
     },
@@ -1190,7 +1190,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=20) / showdown form-separated usage.",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -1205,7 +1205,7 @@
         "execution": "base Spe=113; natural Spe \u2265 100 floor (no Prankster); Light Clay extends screen duration; dual_path=ls+reflect",
         "secondary_role": "Helping Hand",
         "usage_proven": "True",
-        "usage_source": "champions+showdown",
+        "usage_source": "showdown",
         "verified_secondary": "True",
         "excellent_secondary": "False",
         "reinforce_class": "none",
@@ -1273,7 +1273,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=65).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -1410,7 +1410,7 @@
         }
       ],
       "reasoning": "Light Screen / Reflect clears Acceptable (basis=slow_manual, dual_path=ls+reflect, prankster=False, spe=65).",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     }

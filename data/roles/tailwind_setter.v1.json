@@ -1,7 +1,7 @@
 {
   "category": "tailwind_setter",
   "condition": "",
-  "built_at": "2026-10-06T05:34:06.847286+00:00",
+  "built_at": "2026-10-20T20:06:34.286561+00:00",
   "sub_criteria": {
     "kind": "tailwind_setter",
     "condition": "",
@@ -51,14 +51,14 @@
     "do not import Trick Room bulk\u2265210 membership \u2014 wrong axis (go-last survival)",
     "usage evidence prefers Champions in-game data where a row exists; Showdown is a fallback only for formes with no Champions row",
     "Prankster is blocked by Dark-types / Armor Tail / Queenly Majesty \u2014 noted in execution text, not an auto-reject",
-    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.712 base=1.031; stone-heuristic fallback unused",
+    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=0.337 base=0.509; stone-heuristic fallback unused",
+    "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.406 base=0.030; stone-heuristic fallback unused",
     "Showdown attribution (Staraptor/Staraptor-Mega): mega usage_pct=6.159 base=1.182; stone-heuristic fallback unused",
+    "Showdown attribution (Salamence/Salamence-Mega): mega usage_pct=24.843 base=0.392; stone-heuristic fallback unused",
     "Showdown attribution (Altaria/Altaria-Mega): mega usage_pct=0.238 base=0.443; stone-heuristic fallback unused",
     "Showdown attribution (Pidgeot/Pidgeot-Mega): mega usage_pct=0.091 base=0.000; stone-heuristic fallback unused",
-    "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.406 base=0.030; stone-heuristic fallback unused",
-    "Showdown attribution (Salamence/Salamence-Mega): mega usage_pct=24.843 base=0.392; stone-heuristic fallback unused",
     "Showdown attribution (Aerodactyl/Aerodactyl-Mega): mega usage_pct=1.412 base=1.656; stone-heuristic fallback unused",
-    "Showdown attribution (Scizor/Scizor-Mega): mega usage_pct=0.337 base=0.509; stone-heuristic fallback unused"
+    "Showdown attribution (Dragonite/Dragonite-Mega): mega usage_pct=2.712 base=1.031; stone-heuristic fallback unused"
   ],
   "candidates": [
     {
@@ -673,7 +673,7 @@
         }
       ],
       "reasoning": "Tailwind clears Good (basis=natural_speed, usage_proven=True, prankster=False, spe=120) / showdown form-separated usage.",
-      "change_reason": "pre-Task-B drift admit (Good, basis=natural_speed)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "natural_speed"
     },
@@ -755,7 +755,7 @@
         }
       ],
       "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=75) / showdown form-separated usage.",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },
@@ -827,7 +827,7 @@
         }
       ],
       "reasoning": "Tailwind clears Acceptable (basis=slow_manual, usage_proven=True, prankster=False, spe=92).",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=slow_manual)",
+      "change_reason": null,
       "reinforce_class": "none",
       "excellence_basis": "slow_manual"
     },

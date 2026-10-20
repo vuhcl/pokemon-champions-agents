@@ -1,7 +1,7 @@
 {
   "category": "weather_setter",
   "condition": "Rain",
-  "built_at": "2026-10-06T05:34:06.836169+00:00",
+  "built_at": "2026-10-20T20:06:34.279130+00:00",
   "sub_criteria": {
     "kind": "weather_setter",
     "condition": "Rain",
@@ -156,7 +156,7 @@
         }
       ],
       "reasoning": "Prankster Rain Dance clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Encore, Trick Room, Helping Hand.",
-      "change_reason": "pre-Task-B drift admit (Good, basis=move_priority)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "move_priority"
     },

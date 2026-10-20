@@ -1,7 +1,7 @@
 {
   "category": "iron_defense_body_press",
   "condition": "",
-  "built_at": "2026-10-06T05:34:06.861851+00:00",
+  "built_at": "2026-10-20T20:06:34.303295+00:00",
   "sub_criteria": {
     "kind": "def_payoff_setup",
     "condition": "",
@@ -49,22 +49,22 @@
     "learnset conjunction irondefense \u2229 bodypress; admit iff the same usage row lists both (Champions row if present, else Showdown)",
     "Champions offline does not confirm ID+BP co-listing; Showdown-admitted field may be demoted at critic",
     "ID+BP dual-purpose split: high-offense members \u2260 high-bulk-crossing members; sort-only, no promote/demote threshold",
-    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Grassy Seed+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
+    "threat_panel=showdown>=4.52%/15game n=36 pair=top1-partner (Rillaboom/Miracle Seed+Sneasler/White Herb, Sneasler/White Herb+Rillaboom/Miracle Seed, Incineroar/Sitrus Berry+Rillaboom/Miracle Seed, Salamence-Mega/Salamencite+Rillaboom/Miracle Seed, Indeedee-F/Rocky Helmet+Sneasler/White Herb, Kingambit/Chople Berry+Sneasler/White Herb, Golisopod-Mega/Golisopite+Pelipper/Focus Sash, Basculegion/Choice Scarf+Sneasler/White Herb, Farigiraf/Sitrus Berry+Rillaboom/Miracle Seed, Gholdengo/Life Orb+Rillaboom/Miracle Seed, Pelipper/Focus Sash+Golisopod-Mega/Golisopite, Archaludon/Leftovers+Pelipper/Focus Sash, Milotic/Leftovers+Sneasler/White Herb, Raichu-Mega-Y/Raichunite Y+Rillaboom/Miracle Seed, Arcanine-Hisui/Focus Sash+Rillaboom/Miracle Seed, Charizard-Mega-Y/Charizardite Y+Garchomp/Life Orb, Gardevoir-Mega/Gardevoirite+Sneasler/White Herb, Whimsicott/Focus Sash+Basculegion/Choice Scarf, Sinistcha/Sitrus Berry+Incineroar/Sitrus Berry, Floette-Mega/Floettite+Rillaboom/Miracle Seed, Volcarona/Rocky Helmet+Rillaboom/Miracle Seed, Sylveon/Fairy Feather+Rillaboom/Miracle Seed, Garchomp/Life Orb+Charizard-Mega-Y/Charizardite Y, Garchomp-Mega-Z/Garchompite Z+Sneasler/White Herb, Indeedee/Choice Scarf+Sneasler/White Herb, Tyranitar-Mega/Tyranitarite+Excadrill/Focus Sash, Armarouge/Life Orb+Indeedee-F/Rocky Helmet, Politoed/Sitrus Berry+Golisopod-Mega/Golisopite, Staraptor-Mega/Staraptite+Kingambit/Chople Berry, Metagross-Mega/Metagrossite+Salamence-Mega/Salamencite, Excadrill/Focus Sash+Tyranitar-Mega/Tyranitarite, Torkoal/Charcoal+Indeedee-F/Rocky Helmet, Grimmsnarl/Light Clay+Pelipper/Focus Sash, Lucario-Mega-Z/Lucarionite Z+Rillaboom/Miracle Seed, Gengar-Mega/Gengarite+Incineroar/Sitrus Berry, Froslass-Mega/Froslassite+Sneasler/White Herb)",
     "threat_panel_builds=cbd-first; showdown only for mega/base gap or missing CBD",
     "payoff_fallback=per-defender on type immunity (usage then learnset, STAB-then-corrected-BP); skip only if all candidate moves zero",
     "bulk_crossings=incoming Physical after candidate Def+2; KO bins from damageRange[-1]/HP; OHKO\u2192not-OHKO and 2HKO\u21923HKO+; immunity excluded from n_relevant",
     "within-tier sort by bulk_crossings; no promotion threshold (gap does not map onto any single candidate)",
-    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
-    "Showdown attribution (Blastoise/Blastoise-Mega): mega usage_pct=2.737 base=0.107; stone-heuristic fallback unused",
-    "Showdown attribution (Metagross/Metagross-Mega): mega usage_pct=6.135 base=0.294; stone-heuristic fallback unused",
-    "Showdown attribution (Steelix/Steelix-Mega): mega usage_pct=0.251 base=0.051; stone-heuristic fallback unused",
-    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=6.729 base=2.244; stone-heuristic fallback unused",
-    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
-    "Showdown attribution (Crabominable/Crabominable-Mega): mega usage_pct=0.506 base=0.021; stone-heuristic fallback unused",
-    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.073 base=0.000; stone-heuristic fallback unused",
     "Showdown attribution (Golurk/Golurk-Mega): mega usage_pct=0.270 base=0.038; stone-heuristic fallback unused",
+    "Showdown attribution (Steelix/Steelix-Mega): mega usage_pct=0.251 base=0.051; stone-heuristic fallback unused",
+    "Showdown attribution (Falinks/Falinks-Mega): mega usage_pct=0.073 base=0.000; stone-heuristic fallback unused",
+    "Showdown attribution (Chesnaught/Chesnaught-Mega): mega usage_pct=0.260 base=0.076; stone-heuristic fallback unused",
     "Showdown attribution (Aggron/Aggron-Mega): mega usage_pct=0.354 base=0.010; stone-heuristic fallback unused",
     "Showdown attribution (Skarmory/Skarmory-Mega): mega usage_pct=0.406 base=0.030; stone-heuristic fallback unused",
+    "Showdown attribution (Blastoise/Blastoise-Mega): mega usage_pct=2.737 base=0.107; stone-heuristic fallback unused",
+    "Showdown attribution (Metagross/Metagross-Mega): mega usage_pct=6.135 base=0.294; stone-heuristic fallback unused",
+    "Showdown attribution (Crabominable/Crabominable-Mega): mega usage_pct=0.506 base=0.021; stone-heuristic fallback unused",
+    "Showdown attribution (Tyranitar/Tyranitar-Mega): mega usage_pct=6.729 base=2.244; stone-heuristic fallback unused",
+    "Showdown attribution (Slowbro/Slowbro-Mega): mega usage_pct=0.381 base=0.063; stone-heuristic fallback unused",
     "Excellent damage floor = 2nd-highest post-ID \u00d7 0.95 \u2192 0.843 (top: Chesnaught-Mega=0.913, Steelix=0.887)",
     "Acceptable floor = Excellent floor \u00d7 0.7 \u2192 0.590",
     "sweep_ohko + sweep_2hko vs panel (ID+BP OHKO clumps; 2HKO+ is the spreading axis); survive_hp n_surv=0 \u2192 n/a; display only \u2014 sort stays bulk_crossings"
@@ -251,7 +251,7 @@
         }
       ],
       "reasoning": "Good: post-ID 0.768 delta=0.337 (floor 0.843); bulk_crossings=9/24",
-      "change_reason": "pre-Task-B drift: Excellent \u2192 Good (basis=good_calc_body_press)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
     },
@@ -399,7 +399,7 @@
         }
       ],
       "reasoning": "Good: post-ID 0.692 delta=0.281 (floor 0.843); bulk_crossings=8/24",
-      "change_reason": "pre-Task-B drift admit (Good, basis=good_calc_body_press)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
     },
@@ -473,7 +473,7 @@
         }
       ],
       "reasoning": "Good: post-ID 0.778 delta=0.339 (floor 0.843); bulk_crossings=7/24",
-      "change_reason": "pre-Task-B drift admit (Good, basis=good_calc_body_press)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
     },
@@ -510,7 +510,7 @@
         }
       ],
       "reasoning": "Good: post-ID 0.653 delta=0.277 (floor 0.843); bulk_crossings=7/24",
-      "change_reason": "pct-convention rescale: admit Good (basis=good_calc_body_press)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "good_calc_body_press"
     },
@@ -917,7 +917,7 @@
         }
       ],
       "reasoning": "Acceptable: post-ID 0.581 delta=0.278 (floor 0.843); bulk_crossings=12/24",
-      "change_reason": "pct-convention rescale: admit Acceptable (basis=acceptable_calc_body_press)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_body_press"
     },
@@ -954,7 +954,7 @@
         }
       ],
       "reasoning": "Acceptable: post-ID 0.494 delta=0.231 (floor 0.843); bulk_crossings=10/24",
-      "change_reason": "pre-Task-B drift admit (Acceptable, basis=acceptable_calc_body_press)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_body_press"
     },
@@ -991,7 +991,7 @@
         }
       ],
       "reasoning": "Acceptable: post-ID 0.570 delta=0.270 (floor 0.843); bulk_crossings=8/24",
-      "change_reason": "pre-Task-B drift: Good \u2192 Acceptable (basis=acceptable_calc_body_press)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "acceptable_calc_body_press"
     },
@@ -1075,7 +1075,7 @@
       "species": "Appletun",
       "species_id": "appletun",
       "reason": "learnset has irondefense+bodypress but same usage row does not list both",
-      "change_reason": "presence-count change: Body Press Showdown weight 16.71 < 20 (Iron Defense clears; same-row passes; reject string overloaded)"
+      "change_reason": null
     },
     {
       "species": "Blastoise-Mega",
@@ -1117,7 +1117,7 @@
       "species": "Slowbro",
       "species_id": "slowbro",
       "reason": "learnset has irondefense+bodypress but same usage row does not list both",
-      "change_reason": "ID+BP usage re-eval / tier 'Acceptable' \u2192 rejected"
+      "change_reason": null
     },
     {
       "species": "Aggron",

@@ -1,7 +1,7 @@
 {
   "category": "weather_setter",
   "condition": "Sand",
-  "built_at": "2026-10-06T05:34:06.838682+00:00",
+  "built_at": "2026-10-20T20:06:34.280779+00:00",
   "sub_criteria": {
     "kind": "weather_setter",
     "condition": "Sand",
@@ -97,7 +97,7 @@
         }
       ],
       "reasoning": "Sand Spit reactive ability delivery clears Good (below switch-in surge setters); secondary: none observed in usage common_moves.",
-      "change_reason": "ability-usage tier or Psychic Terrain credit: admit Good (basis=reactive_ability)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "reactive_ability"
     },
@@ -218,7 +218,7 @@
         }
       ],
       "reasoning": "Prankster Sandstorm clears Good (priority move delivery); below ability-guaranteed setters. Secondary: Light Screen, Reflect, Trick Room.",
-      "change_reason": "pre-Task-B drift admit (Good, basis=move_priority)",
+      "change_reason": null,
       "reinforce_class": "",
       "excellence_basis": "move_priority"
     }
