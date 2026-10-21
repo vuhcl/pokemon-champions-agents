@@ -101,7 +101,7 @@ def usage_fingerprint(usage_path: Path = USAGE_PATH) -> str | None:
     if not usage_path.exists():
         return None
     meta = (load_json(usage_path).get("meta") or {})
-    raw = meta.get("munchstats_generated_at")
+    raw = meta.get("capturedAt") or meta.get("munchstats_generated_at")
     return str(raw) if raw else None
 
 

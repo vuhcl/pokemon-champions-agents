@@ -55,5 +55,5 @@ jobs:
             echo "nothing to commit"
             exit 0
           fi
-          git commit -m "chore: refresh champions-reg-mc ingame usage from MunchStats champions-data"
+          git commit -m "chore: refresh champions-reg-mc ingame usage from MetaRoll"
           bash scripts/ci/push_to_main.sh

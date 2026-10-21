@@ -200,3 +200,79 @@ def test_validate_ok_ingame_floors():
     decision, reason = validate_snapshot(snap, index=index, stats=stats, previous=None)
     assert decision == "ok"
     assert reason == "validated"
+
+
+# --- MetaRoll staleness guard (ADR-082 item 6) -------------------------------
+
+from types import SimpleNamespace  # noqa: E402
+
+from scripts.ci import usage_refresh_mc_gate as gate  # noqa: E402
+
+SEASON_M7 = SimpleNamespace(
+    start_utc=datetime(2026, 10, 7, 2, 0, tzinfo=timezone.utc), season_number=7
+)
+
+
+def _meta_snap(captured: str, season: str = "M-7") -> dict:
+    return {"meta": {"capturedAt": captured, "season": season}}
+
+
+def test_staleness_reason_cases():
+    assert gate.staleness_reason(_meta_snap("2026-10-20T21:46:19.000Z"), SEASON_M7) is None
+    assert (
+        gate.staleness_reason(_meta_snap("2026-10-06T12:07:01.000Z"), SEASON_M7)
+        == "capture_older_than_season_start"
+    )
+    assert (
+        gate.staleness_reason(_meta_snap("2026-10-20T21:46:19.000Z", "M-6"), SEASON_M7)
+        == "season_label_mismatch"
+    )
+    assert gate.staleness_reason({"meta": {}}, SEASON_M7) == "capturedAt_unparseable"
+
+
+def _run_forced(tmp_path, monkeypatch, snap, season):
+    def resolve(**_kw):
+        if isinstance(season, Exception):
+            raise season
+        return season
+
+    monkeypatch.setattr(gate, "resolve_season", resolve)
+    out = tmp_path / "ingame.json"
+    result = gate.run_gate(
+        now=datetime(2026, 10, 21, 12, tzinfo=timezone.utc),
+        out_path=out,
+        force=True,
+        extract_fn=lambda previous=None: (snap, {}, {}),
+    )
+    return result, out
+
+
+def _ok_snap(captured: str, season: str = "M-7") -> dict:
+    s = _ingame_species(230)
+    return {
+        "meta": {"schema_version": 4, "capturedAt": captured, "season": season},
+        "ingame_doubles": {"species": s},
+    }
+
+
+def test_gate_refuses_stale_capture_and_writes_nothing(tmp_path, monkeypatch):
+    result, out = _run_forced(
+        tmp_path, monkeypatch, _ok_snap("2026-10-06T12:07:01.000Z"), SEASON_M7
+    )
+    assert (result["decision"], result["reason"]) == ("fail", "capture_older_than_season_start")
+    assert not out.exists()
+
+
+def test_gate_fails_closed_when_season_start_unresolved(tmp_path, monkeypatch):
+    result, out = _run_forced(
+        tmp_path, monkeypatch, _ok_snap("2026-10-20T21:46:19.000Z"), LookupError("no page")
+    )
+    assert (result["decision"], result["reason"]) == ("fail", "season_start_unresolved")
+    assert not out.exists()
+
+
+def test_gate_commits_fresh_capture(tmp_path, monkeypatch):
+    result, out = _run_forced(
+        tmp_path, monkeypatch, _ok_snap("2026-10-20T21:46:19.000Z"), SEASON_M7
+    )
+    assert result["decision"] == "commit" and out.exists()

@@ -62,44 +62,56 @@ def test_build_snapshot_is_ingame_only_no_showdown_preserve():
     assert snap["meta"]["munchstats_generated_at"] == index["generatedAt"]
 
 
-def test_run_gate_commits_ingame_without_showdown(tmp_path: Path):
+def test_run_gate_commits_ingame_without_showdown(tmp_path: Path, monkeypatch):
+    from datetime import datetime, timezone
+    from types import SimpleNamespace
+
+    from scripts.ci import usage_refresh_mc_gate as gate
+    from scripts.extract_usage import fetch_usage_mc_metaroll as mr
+
+    monkeypatch.setattr(
+        gate,
+        "resolve_season",
+        lambda **_kw: SimpleNamespace(
+            start_utc=datetime(2026, 10, 7, tzinfo=timezone.utc), season_number=7
+        ),
+    )
     previous = {
         "meta": {
             "schema_version": 4,
             "regulation": "champions-reg-mc",
-            "munchstats_generated_at": "2026-09-10T00:00:00+00:00",
-            "sources": [SOURCE],
+            "capturedAt": "2026-10-10T00:00:00.000Z",
+            "sources": ["metaroll"],
         },
         "ingame_doubles": {"species": _ingame_meeting_floor()},
     }
     out_path = tmp_path / "champions-reg-mc.ingame_doubles.v1.json"
     out_path.write_text(json.dumps(previous) + "\n", encoding="utf-8")
 
-    index = {
-        "generatedAt": "2026-09-21T00:00:00+00:00",
-        "publishedAt": "2026-09-21T00:00:01+00:00",
-        "capturedOn": "2026-09-21",
-        "defaultSeason": "Current",
+    payload = {
+        "season": "M-7",
+        "capturedAt": "2026-10-20T21:46:19.000Z",
+        "comparedTo": "2026-10-19T21:46:19.000Z",
         "count": 230,
+        "attribution": {"required": True, "text": "Usage data from MetaRoll (metaroll.app)"},
     }
-    stats = {
-        "join_n": 230,
-        "detail_fetch_ok_n": 230,
-        "detail_fetch_fail_n": 0,
-        "index_count": 230,
-    }
+    stats = {"join_n": 230, "index_count": 230}
     new_ingame = _ingame_meeting_floor(230)
 
     def extract_fn(*, previous=None):
-        snap = build_snapshot(new_ingame, index, stats, previous=previous)
-        return snap, index, stats
+        return mr.build_snapshot(new_ingame, payload, stats), payload, stats
 
-    result = run_gate(out_path=out_path, force=True, extract_fn=extract_fn)
+    result = run_gate(
+        now=datetime(2026, 10, 21, tzinfo=timezone.utc),
+        out_path=out_path,
+        force=True,
+        extract_fn=extract_fn,
+    )
     assert result["decision"] == "commit"
     written = json.loads(out_path.read_text(encoding="utf-8"))
     assert set(written) == {"meta", "ingame_doubles"}
     assert len(written["ingame_doubles"]["species"]) == 230
-    assert written["meta"]["munchstats_generated_at"] == index["generatedAt"]
+    assert written["meta"]["capturedAt"] == payload["capturedAt"]
 
 
 def test_main_loads_previous_before_extract(tmp_path: Path, monkeypatch):
