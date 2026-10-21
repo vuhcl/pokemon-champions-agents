@@ -10,9 +10,9 @@
     "version": "0.11.0-champions.5d5bf43"
   },
   "compendium_refresh_gate": {
-    "approx_date": "2026-10-19/20",
-    "can_land_before": true,
-    "if_refresh_changes_pin": "Re-run builders against new pins; regenerate derived_keys.json, request set, report, and any calc-backed keys; new battery hash required (new version)."
+    "approx_date": "2026-10-19/20: the compendium-refresh-gate's 14-day cadence date, not a pin-change event",
+    "can_land_before": "not applicable: that gate writes only data/roles/*.v1.json and its marker and cannot change a pinned file",
+    "if_refresh_changes_pin": "A pinned file changes only through usage-refresh-mc (ingame_doubles), usage-showdown-rollover (showdown_doubles), the legality extract gate (legality + three move files), vgcpastes-refresh-mc (PR only when the team-id set changes), or a manual commit. If one changes: re-run builders against the new pin; regenerate derived_keys.json, request set, report and any calc-backed keys; new battery hash required (new version). Notes only; enforced by no code (check_pins.py EXPECTED_BLOB is the enforcement)."
   },
   "eval_pin_repo_commit": "e935de9b2051da6fe968b87087b27c7b5901168b",
   "pins": [
