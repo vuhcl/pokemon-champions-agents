@@ -1,4 +1,4 @@
-"""Cadence + validate gate for MunchStats Reg M-C usage refresh."""
+"""Cadence + validate + staleness gate for the MetaRoll Reg M-C in-game usage refresh."""
 
 from __future__ import annotations
 
@@ -15,11 +15,12 @@ from scripts.ci.champions_news import (
     scan_for_letter,
 )
 from scripts.ci.regulation_letters import letter_from_format_name
-from scripts.extract_usage.fetch_usage_mc_munchstats import (
+from scripts.extract_usage.fetch_usage_mc_metaroll import (
     DEFAULT_OUT,
     extract,
     validate_snapshot,
 )
+from scripts.extract_usage.fetch_usage_mc_munchstats import parse_generated_at
 
 ROOT = Path(__file__).resolve().parents[2]
 LEGALITY = ROOT / "data" / "legality" / "champions.v1.json"
@@ -93,6 +94,32 @@ def should_run_cadence(
     if day_of_season in SEASON_RUN_DAYS:
         return True, f"season_m{season.season_number}_day_{day_of_season}"
     return False, f"outside_window_season_day_{day_of_season}"
+
+
+def resolve_season(*, now: datetime, fetch_html_fn=fetch_html):
+    """Current ranked season (news page whose UTC window contains ``now``)."""
+    start_id = int(load_json(SEASON_BOOKMARK)["last_seen_page_id"])
+    return scan_for_current_season(
+        start_page_id=start_id, window=80, now=now, fetch=fetch_html_fn
+    )
+
+
+def staleness_reason(snap: dict[str, Any], season: Any) -> str | None:
+    """Why a capture must be refused, or None. ``season`` has start_utc / season_number.
+
+    MetaRoll keeps serving the previous season's final capture until it rolls
+    over, so a capture older than the season start (or labelled for another
+    season) would silently replace current-season rows.
+    """
+    meta = snap.get("meta") or {}
+    captured = parse_generated_at(meta.get("capturedAt"))
+    if captured is None:
+        return "capturedAt_unparseable"
+    if captured < season.start_utc:
+        return "capture_older_than_season_start"
+    if meta.get("season") != f"M-{season.season_number}":
+        return "season_label_mismatch"
+    return None
 
 
 def bump_season_bookmark(page_id: int, season_number: int) -> None:
@@ -182,6 +209,17 @@ def run_gate(
         result["decision"] = "noop"
         result["reason"] = reason
         write_github_output(github_output, {"decision": "noop", "reason": reason})
+        return result
+
+    try:
+        stale = staleness_reason(snap, resolve_season(now=now, fetch_html_fn=fetch_html_fn))
+    except Exception as e:  # fail closed: an unresolvable season start is not "fresh"
+        stale = "season_start_unresolved"
+        result["message"] = str(e)
+    if stale:
+        result["decision"] = "fail"
+        result["reason"] = stale
+        write_github_output(github_output, {"decision": "fail", "reason": stale})
         return result
 
     out_path.parent.mkdir(parents=True, exist_ok=True)

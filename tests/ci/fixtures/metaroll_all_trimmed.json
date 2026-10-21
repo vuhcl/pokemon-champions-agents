@@ -1,0 +1,899 @@
+{
+ "version": 1,
+ "game": "Pokémon Champions",
+ "source": "in-game ranked ladder",
+ "format": "doubles",
+ "season": "M-7",
+ "capturedAt": "2026-10-21T00:46:19.000Z",
+ "comparedTo": "2026-10-20T00:46:13.000Z",
+ "attribution": {
+  "required": true,
+  "name": "MetaRoll",
+  "url": "https://metaroll.app",
+  "text": "Usage data from MetaRoll (metaroll.app)",
+  "terms": "/api/v1/docs#using"
+ },
+ "count": 262,
+ "entries": [
+  {
+   "id": "garchomp",
+   "name": "Garchomp",
+   "rank": 1,
+   "previousRank": 1,
+   "abilities": [
+    {
+     "name": "Rough Skin",
+     "percent": 97.7
+    },
+    {
+     "name": "Sand Veil",
+     "percent": 2.3
+    }
+   ],
+   "items": [
+    {
+     "name": "Garchompite Z",
+     "percent": 37.9
+    },
+    {
+     "name": "Choice Scarf",
+     "percent": 34.8
+    },
+    {
+     "name": "Life Orb",
+     "percent": 15.3
+    }
+   ],
+   "moves": [
+    {
+     "name": "Protect",
+     "percent": 60.6
+    },
+    {
+     "name": "Rock Slide",
+     "percent": 54.9
+    },
+    {
+     "name": "Dragon Claw",
+     "percent": 50.4
+    }
+   ],
+   "natures": [
+    {
+     "name": "Adamant",
+     "percent": 39.0
+    },
+    {
+     "name": "Modest",
+     "percent": 27.9
+    },
+    {
+     "name": "Jolly",
+     "percent": 20.7
+    }
+   ],
+   "teammates": [
+    {
+     "name": "Charizard",
+     "percent": null
+    },
+    {
+     "name": "Incineroar",
+     "percent": null
+    },
+    {
+     "name": "Rillaboom",
+     "percent": null
+    }
+   ],
+   "spreads": [
+    {
+     "statPoints": {
+      "hp": 2,
+      "atk": 32,
+      "def": 0,
+      "spa": 0,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 29.9
+    },
+    {
+     "statPoints": {
+      "hp": 2,
+      "atk": 0,
+      "def": 0,
+      "spa": 32,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 16.6
+    },
+    {
+     "statPoints": {
+      "hp": 0,
+      "atk": 0,
+      "def": 4,
+      "spa": 30,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 4.0
+    }
+   ]
+  },
+  {
+   "id": "floette-eternal",
+   "name": "Floette-Eternal",
+   "rank": 30,
+   "previousRank": 30,
+   "abilities": [
+    {
+     "name": "Flower Veil",
+     "percent": 99.4
+    },
+    {
+     "name": "Symbiosis",
+     "percent": 0.6
+    }
+   ],
+   "items": [
+    {
+     "name": "Floettite",
+     "percent": 97.7
+    },
+    {
+     "name": "Choice Scarf",
+     "percent": 1.1
+    },
+    {
+     "name": "Fairy Feather",
+     "percent": 0.2
+    }
+   ],
+   "moves": [
+    {
+     "name": "Protect",
+     "percent": 96.7
+    },
+    {
+     "name": "Dazzling Gleam",
+     "percent": 96.6
+    },
+    {
+     "name": "Calm Mind",
+     "percent": 73.3
+    }
+   ],
+   "natures": [
+    {
+     "name": "Modest",
+     "percent": 71.9
+    },
+    {
+     "name": "Timid",
+     "percent": 22.0
+    },
+    {
+     "name": "Bold",
+     "percent": 5.5
+    }
+   ],
+   "teammates": [
+    {
+     "name": "Rillaboom",
+     "percent": null
+    },
+    {
+     "name": "Sneasler",
+     "percent": null
+    },
+    {
+     "name": "Incineroar",
+     "percent": null
+    }
+   ],
+   "spreads": [
+    {
+     "statPoints": {
+      "hp": 2,
+      "atk": 0,
+      "def": 0,
+      "spa": 32,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 20.3
+    },
+    {
+     "statPoints": {
+      "hp": 28,
+      "atk": 0,
+      "def": 17,
+      "spa": 5,
+      "spd": 0,
+      "spe": 16
+     },
+     "percent": 3.6
+    },
+    {
+     "statPoints": {
+      "hp": 27,
+      "atk": 0,
+      "def": 15,
+      "spa": 5,
+      "spd": 0,
+      "spe": 19
+     },
+     "percent": 3.3
+    }
+   ]
+  },
+  {
+   "id": "meowstic-f",
+   "name": "Meowstic-F",
+   "rank": 87,
+   "previousRank": 86,
+   "abilities": [
+    {
+     "name": "Competitive",
+     "percent": 99.1
+    },
+    {
+     "name": "Infiltrator",
+     "percent": 0.7
+    },
+    {
+     "name": "Keen Eye",
+     "percent": 0.2
+    }
+   ],
+   "items": [
+    {
+     "name": "Meowsticite",
+     "percent": 97.5
+    },
+    {
+     "name": "Focus Sash",
+     "percent": 0.7
+    },
+    {
+     "name": "Life Orb",
+     "percent": 0.3
+    }
+   ],
+   "moves": [
+    {
+     "name": "Expanding Force",
+     "percent": 98.3
+    },
+    {
+     "name": "Protect",
+     "percent": 94.4
+    },
+    {
+     "name": "Thunderbolt",
+     "percent": 81.9
+    }
+   ],
+   "natures": [
+    {
+     "name": "Timid",
+     "percent": 87.8
+    },
+    {
+     "name": "Modest",
+     "percent": 10.2
+    },
+    {
+     "name": "Bold",
+     "percent": 0.6
+    }
+   ],
+   "teammates": [
+    {
+     "name": "Sneasler",
+     "percent": null
+    },
+    {
+     "name": "Indeedee",
+     "percent": null
+    },
+    {
+     "name": "Charizard",
+     "percent": null
+    }
+   ],
+   "spreads": [
+    {
+     "statPoints": {
+      "hp": 2,
+      "atk": 0,
+      "def": 0,
+      "spa": 32,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 76.3
+    },
+    {
+     "statPoints": {
+      "hp": 0,
+      "atk": 0,
+      "def": 2,
+      "spa": 32,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 5.3
+    },
+    {
+     "statPoints": {
+      "hp": 0,
+      "atk": 0,
+      "def": 0,
+      "spa": 32,
+      "spd": 2,
+      "spe": 32
+     },
+     "percent": 3.0
+    }
+   ]
+  },
+  {
+   "id": "toxtricity",
+   "name": "Toxtricity",
+   "rank": 115,
+   "previousRank": 116,
+   "abilities": [
+    {
+     "name": "Punk Rock",
+     "percent": 92.2
+    },
+    {
+     "name": "Technician",
+     "percent": 4.8
+    },
+    {
+     "name": "Plus",
+     "percent": 3.0
+    }
+   ],
+   "items": [
+    {
+     "name": "Life Orb",
+     "percent": 34.5
+    },
+    {
+     "name": "Choice Scarf",
+     "percent": 17.1
+    },
+    {
+     "name": "Focus Sash",
+     "percent": 14.6
+    }
+   ],
+   "moves": [
+    {
+     "name": "Overdrive",
+     "percent": 96.1
+    },
+    {
+     "name": "Sludge Bomb",
+     "percent": 75.2
+    },
+    {
+     "name": "Protect",
+     "percent": 69.1
+    }
+   ],
+   "natures": [
+    {
+     "name": "Modest",
+     "percent": 65.0
+    },
+    {
+     "name": "Timid",
+     "percent": 18.5
+    },
+    {
+     "name": "Quiet",
+     "percent": 10.4
+    }
+   ],
+   "teammates": [
+    {
+     "name": "Indeedee-F",
+     "percent": null
+    },
+    {
+     "name": "Rillaboom",
+     "percent": null
+    },
+    {
+     "name": "Garchomp",
+     "percent": null
+    }
+   ],
+   "spreads": [
+    {
+     "statPoints": {
+      "hp": 2,
+      "atk": 0,
+      "def": 0,
+      "spa": 32,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 32.7
+    },
+    {
+     "statPoints": {
+      "hp": 0,
+      "atk": 0,
+      "def": 2,
+      "spa": 32,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 5.7
+    },
+    {
+     "statPoints": {
+      "hp": 32,
+      "atk": 0,
+      "def": 2,
+      "spa": 32,
+      "spd": 0,
+      "spe": 0
+     },
+     "percent": 5.1
+    }
+   ]
+  },
+  {
+   "id": "meowstic",
+   "name": "Meowstic",
+   "rank": 119,
+   "previousRank": 119,
+   "abilities": [
+    {
+     "name": "Prankster",
+     "percent": 97.0
+    },
+    {
+     "name": "Infiltrator",
+     "percent": 2.3
+    },
+    {
+     "name": "Keen Eye",
+     "percent": 0.7
+    }
+   ],
+   "items": [
+    {
+     "name": "Meowsticite",
+     "percent": 18.0
+    },
+    {
+     "name": "Light Clay",
+     "percent": 17.3
+    },
+    {
+     "name": "Colbur Berry",
+     "percent": 13.1
+    }
+   ],
+   "moves": [
+    {
+     "name": "Fake Out",
+     "percent": 44.9
+    },
+    {
+     "name": "Expanding Force",
+     "percent": 35.3
+    },
+    {
+     "name": "Light Screen",
+     "percent": 31.1
+    }
+   ],
+   "natures": [
+    {
+     "name": "Bold",
+     "percent": 35.5
+    },
+    {
+     "name": "Timid",
+     "percent": 18.1
+    },
+    {
+     "name": "Modest",
+     "percent": 16.0
+    }
+   ],
+   "teammates": [
+    {
+     "name": "Sneasler",
+     "percent": null
+    },
+    {
+     "name": "Staraptor",
+     "percent": null
+    },
+    {
+     "name": "Rillaboom",
+     "percent": null
+    }
+   ],
+   "spreads": [
+    {
+     "statPoints": {
+      "hp": 32,
+      "atk": 0,
+      "def": 24,
+      "spa": 0,
+      "spd": 10,
+      "spe": 0
+     },
+     "percent": 14.5
+    },
+    {
+     "statPoints": {
+      "hp": 2,
+      "atk": 0,
+      "def": 0,
+      "spa": 32,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 10.3
+    },
+    {
+     "statPoints": {
+      "hp": 32,
+      "atk": 0,
+      "def": 32,
+      "spa": 0,
+      "spd": 2,
+      "spe": 0
+     },
+     "percent": 7.3
+    }
+   ]
+  },
+  {
+   "id": "toxtricity-low-key",
+   "name": "Toxtricity-Low-Key",
+   "rank": 139,
+   "previousRank": 140,
+   "abilities": [
+    {
+     "name": "Punk Rock",
+     "percent": 87.2
+    },
+    {
+     "name": "Technician",
+     "percent": 7.1
+    },
+    {
+     "name": "Minus",
+     "percent": 5.8
+    }
+   ],
+   "items": [
+    {
+     "name": "Life Orb",
+     "percent": 34.3
+    },
+    {
+     "name": "Choice Scarf",
+     "percent": 16.8
+    },
+    {
+     "name": "Focus Sash",
+     "percent": 13.7
+    }
+   ],
+   "moves": [
+    {
+     "name": "Overdrive",
+     "percent": 94.7
+    },
+    {
+     "name": "Sludge Bomb",
+     "percent": 72.5
+    },
+    {
+     "name": "Protect",
+     "percent": 58.7
+    }
+   ],
+   "natures": [
+    {
+     "name": "Modest",
+     "percent": 67.3
+    },
+    {
+     "name": "Timid",
+     "percent": 16.8
+    },
+    {
+     "name": "Quiet",
+     "percent": 9.1
+    }
+   ],
+   "teammates": [
+    {
+     "name": "Indeedee-F",
+     "percent": null
+    },
+    {
+     "name": "Rillaboom",
+     "percent": null
+    },
+    {
+     "name": "Garchomp",
+     "percent": null
+    }
+   ],
+   "spreads": [
+    {
+     "statPoints": {
+      "hp": 2,
+      "atk": 0,
+      "def": 0,
+      "spa": 32,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 26.6
+    },
+    {
+     "statPoints": {
+      "hp": 28,
+      "atk": 0,
+      "def": 0,
+      "spa": 32,
+      "spd": 0,
+      "spe": 6
+     },
+     "percent": 5.9
+    },
+    {
+     "statPoints": {
+      "hp": 0,
+      "atk": 0,
+      "def": 2,
+      "spa": 32,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 5.6
+    }
+   ]
+  },
+  {
+   "id": "squawkabilly-yellow",
+   "name": "Squawkabilly-Yellow",
+   "rank": 200,
+   "previousRank": 195,
+   "abilities": [
+    {
+     "name": "Intimidate",
+     "percent": 80.7
+    },
+    {
+     "name": "Hustle",
+     "percent": 11.7
+    },
+    {
+     "name": "Sheer Force",
+     "percent": 7.6
+    }
+   ],
+   "items": [
+    {
+     "name": "Choice Scarf",
+     "percent": 74.2
+    },
+    {
+     "name": "Focus Sash",
+     "percent": 21.4
+    },
+    {
+     "name": "Life Orb",
+     "percent": 1.5
+    }
+   ],
+   "moves": [
+    {
+     "name": "Final Gambit",
+     "percent": 82.6
+    },
+    {
+     "name": "Parting Shot",
+     "percent": 78.2
+    },
+    {
+     "name": "Brave Bird",
+     "percent": 71.9
+    }
+   ],
+   "natures": [
+    {
+     "name": "Jolly",
+     "percent": 80.6
+    },
+    {
+     "name": "Adamant",
+     "percent": 9.4
+    },
+    {
+     "name": "Careful",
+     "percent": 6.0
+    }
+   ],
+   "teammates": [
+    {
+     "name": "Farigiraf",
+     "percent": null
+    },
+    {
+     "name": "Torkoal",
+     "percent": null
+    },
+    {
+     "name": "Rillaboom",
+     "percent": null
+    }
+   ],
+   "spreads": [
+    {
+     "statPoints": {
+      "hp": 32,
+      "atk": 2,
+      "def": 0,
+      "spa": 0,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 35.8
+    },
+    {
+     "statPoints": {
+      "hp": 2,
+      "atk": 32,
+      "def": 0,
+      "spa": 0,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 12.1
+    },
+    {
+     "statPoints": {
+      "hp": 32,
+      "atk": 0,
+      "def": 2,
+      "spa": 0,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 10.4
+    }
+   ]
+  },
+  {
+   "id": "squawkabilly",
+   "name": "Squawkabilly",
+   "rank": 206,
+   "previousRank": 204,
+   "abilities": [
+    {
+     "name": "Intimidate",
+     "percent": 87.0
+    },
+    {
+     "name": "Hustle",
+     "percent": 10.3
+    },
+    {
+     "name": "Guts",
+     "percent": 2.7
+    }
+   ],
+   "items": [
+    {
+     "name": "Choice Scarf",
+     "percent": 81.4
+    },
+    {
+     "name": "Rocky Helmet",
+     "percent": 5.5
+    },
+    {
+     "name": "Focus Sash",
+     "percent": 4.4
+    }
+   ],
+   "moves": [
+    {
+     "name": "Final Gambit",
+     "percent": 82.9
+    },
+    {
+     "name": "Parting Shot",
+     "percent": 80.0
+    },
+    {
+     "name": "Brave Bird",
+     "percent": 72.5
+    }
+   ],
+   "natures": [
+    {
+     "name": "Jolly",
+     "percent": 79.7
+    },
+    {
+     "name": "Adamant",
+     "percent": 7.2
+    },
+    {
+     "name": "Bold",
+     "percent": 5.5
+    }
+   ],
+   "teammates": [
+    {
+     "name": "Farigiraf",
+     "percent": null
+    },
+    {
+     "name": "Camerupt",
+     "percent": null
+    },
+    {
+     "name": "Indeedee-F",
+     "percent": null
+    }
+   ],
+   "spreads": [
+    {
+     "statPoints": {
+      "hp": 32,
+      "atk": 2,
+      "def": 0,
+      "spa": 0,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 41.4
+    },
+    {
+     "statPoints": {
+      "hp": 32,
+      "atk": 0,
+      "def": 2,
+      "spa": 0,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 15.8
+    },
+    {
+     "statPoints": {
+      "hp": 32,
+      "atk": 0,
+      "def": 0,
+      "spa": 0,
+      "spd": 0,
+      "spe": 32
+     },
+     "percent": 7.7
+    }
+   ]
+  }
+ ]
+}

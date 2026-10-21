@@ -109,13 +109,13 @@ Defender bulk is monotone when HP/Def/SpD are raised independently. Under a shar
 
 Validation: `solver_speedup_validation.json` — AR3 602 files / 30 key rows, in-process vs HTTP n=1000 seed=42, fast vs linear SpD cells n=200 seed=7 (0 diffs). Re-compare full live vs fast after default-grid regen.
 
-## In-process vs hosted /calculate — pin refresh
+## In-process vs hosted /calculate — when the calc build changes
 
 The n=1000 (seed=42) in-process vs HTTP check is sufficient for the current pin
 `@smogon/calc 0.11.0-champions.5d5bf43`. **Re-run that sample (and the AR3 / MT7
-gates) against hosted `/calculate` after the Oct 19–20 pin refresh** (new calc
-build under `vendor/smogon-calc`); do not treat the old sample as covering a new
-pin.
+gates) against hosted `/calculate` whenever the calc build under
+`vendor/smogon-calc` changes**; do not treat the old sample as covering a new
+pin. (The 2026-10-21 key cut did not change the calc build, so it was not re-run.)
 
 `persist=False` on spread-solver search probes is intentional and matches the
 probe persistence policy: `probe_*` files from the solver are regenerated live

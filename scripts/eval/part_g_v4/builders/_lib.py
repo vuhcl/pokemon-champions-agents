@@ -55,7 +55,7 @@ def champions_hp(base_hp: int, hp_sp: int) -> int:
     return base_hp + int(hp_sp) + 75
 
 
-# Flare Blitz / damage-fraction recoil — in-game 1/3 floor; calc exposes % of attacker HP only
+# Flare Blitz / damage-fraction recoil — ADR-079: round-half-up of damage dealt x 33/100 (min 1); calc exposes % of attacker HP only
 RECOIL_DAMAGE_FRACTION_SCOPE = (
     "moves whose recoil is a fraction of damage dealt; "
     "Struggle and Steel Beam (fixed fraction of max HP) are excluded"
@@ -71,9 +71,9 @@ def _dealt_cap(damage: list | None, def_hp: int | None) -> tuple[int | None, int
     return min(min(dmg), def_hp), min(max(dmg), def_hp)
 
 
-# AR3 OHKO into Primarina HP 187: unrounded 0.33×damage and in-game floor(damage/3)
+# AR3 OHKO into Primarina HP 187: unrounded 0.33×damage and the ADR-079 recoil HP (62)
 AR3_RECOIL_CALC_UNROUNDED_HP = 61.71  # 187 * 0.33
-AR3_RECOIL_VALUE_HP = 62  # floor(187/3)
+AR3_RECOIL_VALUE_HP = 62  # ADR-079 operator at damage dealt 187: floor((33*187 + 50)/100)
 CX_MEGA_X_BASE_HP = 78
 
 
@@ -98,6 +98,11 @@ def recoil_share_pct_range_for_attacker_hp(attacker_max_hp: int) -> list[float]:
     return [lo, hi]
 
 
+def recoil_hp_adr079(dealt: int, n: int = 33, den: int = 100) -> int:
+    """ADR-079: max(1, floor((2*d*n + den) / (2*den))) for d > 0, else 0 (integer arithmetic)."""
+    return max(1, (2 * dealt * n + den) // (2 * den)) if dealt > 0 else 0
+
+
 def flare_blitz_recoil_basis(
     *,
     def_hp: int | None,
@@ -105,10 +110,10 @@ def flare_blitz_recoil_basis(
     damage: list | None,
     calc_display_pct: list | None = None,
 ) -> dict:
-    """In-game Flare Blitz recoil = floor(damage_dealt/3); calc exposes % of atk HP only."""
+    """Flare Blitz recoil HP per ADR-079 (observed in-game: round-half-up of damage_dealt x 33/100); calc exposes % of atk HP only."""
     dealt_lo, dealt_hi = _dealt_cap(damage, def_hp)
-    value_hp = math.floor(dealt_lo / 3) if dealt_lo is not None else None
-    value_hi = math.floor(dealt_hi / 3) if dealt_hi is not None else None
+    value_hp = recoil_hp_adr079(dealt_lo) if dealt_lo is not None else None
+    value_hi = recoil_hp_adr079(dealt_hi) if dealt_hi is not None else None
     # OHKO into full Primarina: dealt == def_hp → single HP figure
     if value_hp is not None and value_hi is not None and value_hp != value_hi:
         # non-OHKO / non-cap range — keep lo; callers for AR3 OHKO expect a single value
@@ -182,7 +187,7 @@ def flare_blitz_recoil_basis(
     return {
         "scope": RECOIL_DAMAGE_FRACTION_SCOPE,
         "recoil_basis": {
-            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "rule": "ADR-079: round-half-up of damage dealt x 33/100 (min 1), damage capped at defender remaining HP",
             "value_hp": value_hp,
             "value_hp_source": (
                 "owner-stated in-game text "

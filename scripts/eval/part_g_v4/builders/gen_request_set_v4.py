@@ -25,6 +25,7 @@ pstack = isn["Pincurchin"]["max_stack"]
 aplus = isn["Alakazam-Mega"]["plus_32"]
 modest = keys["h15_primarina"]["modest_top"]
 top10 = ", ".join(f"{r}:{n}" for r, n, _ in keys["ingame_top10_usage"])
+_hn3_items = ", ".join(f"{i['name']} {i['pct']}" for i in keys["hn3_common_item"]["items"])
 hn2d_opp = keys.get("hn2d_opp") or {
     "species": "Garchomp",
     "nature": "Jolly",
@@ -90,7 +91,7 @@ _ar3_key = (
     f"t4 SERVED — AJ worst joint {_ar3_worst} Life Orb {_ar3_aj}/hit; chain at HP-32 (cx HP 185): "
     f"{_ar3_chain}; HP-0 leaves {_ar3_hp0}; BD remaining from full 93. "
     f"Flare Blitz recoil ≈61.71 (0.33× Primarina HP 187); calc % 33.3% of atk HP 185 / 40.3% of 153; "
-    f"exact claims allow 61–62 in-game rounding. OHKO mins across 3 COMMON_JOINT (def_hp 187): "
+    f"HP-point 62 TRUE; 61 FALSE (sub_label derived_from_calc_percent); percent claims scored by the key H-band. OHKO mins across 3 COMMON_JOINT (def_hp 187): "
     f"Jolly FP/TF Atk-14; Adamant FP/TF 0; Fire Fang Adamant 22. ASSUME-STATE t4: Jolly HP0/Atk14/Spe28. "
     f"t5 PARTIAL — Jolly for Scarf cells 231–241; leftover 24. "
     f"Keys: derived_keys.ar3 (+ part1_followup) + calc/ar3_*."
@@ -283,7 +284,7 @@ Champions Spe: `floor(n * (base + SP + 20))` with Spe+ natures `n=1.1`, Spe− `
 
 ### Mega naming
 
-"Mega \<Species\>" means \<Species\>-Mega when that form exists and is legal in the pinned blob. "Mega \<Species\> X", "Y" or "Z" means \<Species\>-Mega-X / -Y / -Z. If a legal species has no plain \<Species\>-Mega (pinned: Charizard, Raichu, Meowstic), a bare "Mega \<Species\>" is ambiguous — the arm must ASK, or state an assumption (ASSUME-STATE). A prompt that relies on a bare name for such a species is only allowed in **MC1**; everywhere else the prompt must carry the form. If a species has both a plain and a lettered mega (pinned: Absol, Garchomp, Lucario), the bare name resolves to the plain form. Species with `is_nonstandard` set (Past or Future) are illegal and excluded. Source for any mega-specific build, moves, items or spreads is the Showdown per-form entry (the in-game list is species-level).
+"Mega \\<Species\\>" means \\<Species\\>-Mega when that form exists and is legal in the pinned blob. "Mega \\<Species\\> X", "Y" or "Z" means \\<Species\\>-Mega-X / -Y / -Z. If a legal species has no plain \\<Species\\>-Mega (pinned: Charizard, Raichu, Meowstic), a bare "Mega \\<Species\\>" is ambiguous — the arm must ASK, or state an assumption (ASSUME-STATE). A prompt that relies on a bare name for such a species is only allowed in **MC1**; everywhere else the prompt must carry the form. If a species has both a plain and a lettered mega (pinned: Absol, Garchomp, Lucario), the bare name resolves to the plain form. Species with `is_nonstandard` set (Past or Future) are illegal and excluded. Source for any mega-specific build, moves, items or spreads is the Showdown per-form entry (the in-game list is species-level).
 
 ### Choice lock (hand rule — no field in pinned items blob)
 
@@ -622,7 +623,7 @@ R(
     )(keys.get("h5") or {}),
     "SIBLING~i5L",
 )
-R("H6", "What are the top 5 partners for Rillaboom?", "idle", "SERVED", "—", "usage", "unordered `{Incineroar,Sneasler,Salamence,Gholdengo,Raichu}`; set-scoring; must label **in-game** source", "NEW")
+R("H6", "What are the top 5 partners for Rillaboom?", "idle", "SERVED", "—", "usage", "unordered `{Incineroar,Garchomp,Sneasler,Gholdengo,Raichu}`; set-scoring; must label **in-game** source", "NEW")
 R("H7", "Is Earthquake a Physical move, and what is its base power?", "idle", "SERVED", "—", "move", "Physical, BP 100", "NEW")
 R("H8", "Can I put Choice Scarf on both Garchomp and Jolteon?", "idle empty", "SERVED", "—", "team-rules", "**No** (Item Clause); **no-mutation check**", "NEW")
 R("Q9", "Can I have two Incineroar on one team?", "idle", "SERVED", "—", "team-rules", "**No** (Species Clause); no mutation", "NEW")
@@ -724,7 +725,7 @@ R("H20", "Mono-Electric doubles", "bootstrap empty", "SERVED", "checklist §", "
 R("H21", "All monkey team", "bootstrap empty", "ASSUME-STATE", "—", "—", "No frozen checklist; state membership assumption (e.g. species name contains monkey / dex category); confirm or proceed under assumption", "NEW")
 R("H22", "Girly pop vibes — show a candidate set I can confirm or reject", "bootstrap empty", "ASSUME-STATE", "checklist §", "—", "Binary checklist H22 (ASSUME-STATE)", "NEW")
 R("MT1", "(t1) Slot 1 Water. (t2) Also no Intimidate. (t3) What constraints are active?", "idle", "SERVED", "—", "typing;ability", "Both constraints in t3 read-back", "NEW")
-R("MT2", "(t1) Lock Pelipper. (t2) Who pairs with both Pelipper and Whimsicott? (t3) Confirm slot 1.", "idle→locked", "SERVED", "—", "usage", "t2 unordered `{Basculegion-F,Charizard,Rillaboom,Sneasler}`; set-scoring; label in-game; t3 Pelipper", "SIBLING~i7")
+R("MT2", "(t1) Lock Pelipper. (t2) Who pairs with both Pelipper and Whimsicott? (t3) Confirm slot 1.", "idle→locked", "SERVED", "—", "usage", "t2 unordered `{Charizard,Garchomp,Sneasler}`; set-scoring; label in-game; t3 Pelipper", "SIBLING~i7")
 R("MT3", "(t1) No Intimidate. (t2) Suggest a Fire type for slot 2. (t3) Does it have Intimidate?", "after t1", "SERVED", "checklist §", "ability", "Binary checklist MT3 (Fire required; Intimidate → flag)", "NEW")
 R("MT4", "(t1) Reject option 2. (t2) Show candidates. (t3) Rejected absent?", "CS pending", "SERVED", "—", "—", "Rejected not reappearing unlabeled; read-back reject state", "NEW")
 R("MT5", "(t1) Archetype rain offense. (t2) Rain setter candidate? (t3) Read back archetype.", "mid-build", "SERVED", "—", "theme", "Archetype string in t3 read-back", "NEW")
@@ -804,7 +805,7 @@ R(
     "SERVED",
     "—",
     "usage+item",
-    "COMMON_ITEM (ingame): Glimmoranite 48.7, Focus Sash 37.9, Life Orb 3.3, Choice Scarf 2.1 (cum≥90% at 4; first three = 89.9%); 'nothing' counts toward slots and 90% cutoff when present; label in-game",
+    f"COMMON_ITEM (ingame): {_hn3_items} (cum≥90% at {len(keys['hn3_common_item']['items'])}, cum {keys['hn3_common_item']['cumulative_pct']:.1f}); 'nothing' counts toward slots and 90% cutoff when present; label in-game",
     "NEW",
 )
 R("HN4", "Is Protect a Status move with base power 0?", "idle", "SERVED", "—", "move", "yes", "NEW")
@@ -1091,7 +1092,7 @@ R(
     "SERVED",
     "—",
     "damage+speed",
-    "Item held as given (t1 asks for a spread only — no item search). t3 max-SpA = Modest 32 SpA (232) Drought/Sun unless stated. At t4 the arm MUST state: Modest Mega Charizard Y Weather Ball has no solution, but Timid (32 SpA / 211) does — before offering any other way out. Timid = accepted extra (not in 3-cap), e.g. Bold 31/1/23/5. Then valid relaxations: (1) Jolly Sneasler → solutions at minimal Spe +SpD 294/+Def 20/+Spe 2; (2) drop WB → MT7 t2. Drop Spe gate NOT legal (0 sols SP≤32). Never apply silently.",
+    "Item held as given (t1 asks for a spread only — no item search). t3 max-SpA = Modest 32 SpA (232) Drought/Sun unless stated. At t4 the arm MUST state: Modest Mega Charizard Y Weather Ball has no solution, but Timid (32 SpA / 211) does — before offering any other way out. Timid = accepted extra (not in 3-cap), e.g. Bold 31/1/23/5. Then valid relaxations: (1) Jolly Sneasler → solutions at minimal Spe: +SpD 294 only (no +Def or +Spe solution at SP≤32); (2) drop WB → MT7 t2. Drop Spe gate NOT legal (0 sols SP≤32). Never apply silently.",
     "NEW",
 )
 R(
@@ -1226,7 +1227,7 @@ R(
     "SERVED",
     "—",
     "usage+legality",
-    "VGCPastes mixed: 99 Gholdengo builds, 2 contain Trick — both Choice Scarf + Make It Rain/Shadow Ball/Power Gem/Trick (Timid + Modest). Draft must include Trick+Scarf. Refusing Scarf = fail. Specs/Band = Past illegal. If commenting on Trick sets, bound by n=2. Status extras (Protect/Nasty Plot) must be named as Scarf conflicts. derived_keys.row_b_gholdengo_trick. Open: arm needs VGCPastes tool surface.",
+    f"VGCPastes mixed: {keys['row_b_gholdengo_trick']['gholdengo_build_count']} Gholdengo builds, {keys['row_b_gholdengo_trick']['trick_build_count']} contain Trick — both Choice Scarf + Make It Rain/Shadow Ball/Power Gem/Trick (Timid + Modest). Draft must include Trick+Scarf. Refusing Scarf = fail. Specs/Band = Past illegal. If commenting on Trick sets, bound by n={keys['row_b_gholdengo_trick']['trick_build_count']}. Status extras (Protect/Nasty Plot) must be named as Scarf conflicts. derived_keys.row_b_gholdengo_trick. Open: arm needs VGCPastes tool surface.",
     "NEW",
 )
 R(

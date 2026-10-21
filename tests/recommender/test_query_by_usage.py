@@ -8,7 +8,7 @@ from recommender.by_usage import query_by_usage
 from recommender.counters import query_counters
 from recommender.ids import to_id
 from recommender.legality import is_species_legal, load_snapshot
-from recommender.usage_data import ingame_species_map
+from recommender.usage_data import ingame_ladder_species_map, ingame_species_map
 
 
 def test_default_pool_usage_ranking():
@@ -18,8 +18,9 @@ def test_default_pool_usage_ranking():
 
     ranks = [c.usage_rank for c in out if c.usage_rank is not None]
     assert ranks == sorted(ranks)
-    # First ranked result should be the lowest usage_rank in the ingame map.
-    ig = ingame_species_map("champions")
+    # First ranked result should be the lowest usage_rank on the ladder map (query_by_usage
+    # ranks from it; ingame_species_map drops mega-capable species such as a rank-1 Garchomp).
+    ig = ingame_ladder_species_map("champions")
     best = min(
         int(e["usage_rank"])
         for e in ig.values()

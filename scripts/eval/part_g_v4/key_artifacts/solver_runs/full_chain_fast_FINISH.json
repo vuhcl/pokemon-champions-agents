@@ -1,0 +1,9 @@
+{
+  "out": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/part_g_v4/key_artifacts/solver_runs/full_chain_v42_post_rebase_derived_keys.json",
+  "sha256": "ba2855399ebd1e68f023d7a8afb230d52b96bd66ef5e50eca71910c5d60ac868",
+  "wall_clock_seconds": 57.2,
+  "wall_clock_hours": 0.016,
+  "backend": "inprocess",
+  "ignore_disk": "1",
+  "workers": "4"
+}

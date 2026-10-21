@@ -363,9 +363,9 @@ def _malformed(source: ArmPieceSource, value: object) -> _Retrieval:
 
 def _ingame_as_of(regulation: str) -> ArmAsOf:
     meta = load_usage(regulation).get("meta") or {}
-    captured = meta.get("munchstats_captured_on")
+    captured = meta.get("capturedAt") or meta.get("munchstats_captured_on")
     captured_s = captured[:10] if isinstance(captured, str) else None
-    season = meta.get("munchstats_default_season")
+    season = meta.get("season") or meta.get("munchstats_default_season")
     return ArmAsOf(
         source="ingame",
         captured_on=captured_s,

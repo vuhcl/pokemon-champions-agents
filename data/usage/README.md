@@ -5,8 +5,8 @@ ranks plus Showdown chaos @ 1500 per-form builds.
 
 | Path | Role |
 |------|------|
-| `champions-reg-mc.ingame_doubles.v1.json` | Reg M-C in-game doubles from MunchStats `champions-data` (schema v4). Daily refresh writes this file only. |
-| `champions-reg-mc.showdown_doubles.v1.json` | Reg M-C Showdown@1500 (schema v4). Written by graft / monthly rollover — not by the daily MunchStats job. |
+| `champions-reg-mc.ingame_doubles.v1.json` | Reg M-C in-game doubles from MetaRoll (`metaroll.app`, schema v4; meta carries `source`, `season`, `capturedAt`, `comparedTo`). Daily refresh writes this file only. Attribution: "Usage data from MetaRoll (metaroll.app)"; not official data, not endorsed. |
+| `champions-reg-mc.showdown_doubles.v1.json` | Reg M-C Showdown@1500 (schema v4). Written by graft / monthly rollover — not by the daily in-game job. |
 | `champions-reg-mb.v1.json` | Reg M-B archive monolith (schema v3, `showdown_vgc_mb`). Loader remaps to `showdown_doubles` in memory. |
 
 Loader (`recommender.usage_data.load_usage`) prefers per-source files when present,
@@ -16,12 +16,12 @@ else a legacy monolith. In-memory keys: `ingame_doubles`, `showdown_doubles`,
 `showdown_ready(regulation)` is the Showdown integrity predicate (format id, nonempty
 month, nonempty species). Distinct from `regulation_ready` (legality letter).
 
-## Rebuild Reg M-C in-game (MunchStats champions-data)
+## Rebuild Reg M-C in-game (MetaRoll all.json)
 
-Scheduled by `.github/workflows/usage-refresh-mc.yml` (daily cron; gate decides early-window vs biweekly). Manual:
+Scheduled by `.github/workflows/usage-refresh-mc.yml` (daily cron; gate decides early-window vs biweekly, and refuses a capture older than the current season start). Manual:
 
 ```bash
-uv run python -m scripts.extract_usage.fetch_usage_mc_munchstats
+uv run python -m scripts.extract_usage.fetch_usage_mc_metaroll
 # or via cadence gate (writes only when validation passes):
 uv run python -m scripts.ci.usage_refresh_mc_gate --force
 ```

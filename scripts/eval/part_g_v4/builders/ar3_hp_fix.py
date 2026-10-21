@@ -388,7 +388,7 @@ def main() -> None:
             "calc_after_two_aj": ch["after_aj2"] > pts_hi,
             "note": (
                 f"At HP-32 (185): BD remaining from full={ch['post_belly_drum_remaining_from_full']}; "
-                f"in-game recoil value_hp={pts} (floor(damage/3)); "
+                f"in-game recoil value_hp={pts} (ADR-079 operator); "
                 f"calc exposes only % of attacker HP (33.3% here), not HP points; "
                 f"after AJ→BD→AJ remaining={ch['after_aj2']} < {pts}. "
                 f"Showdown sim Math.round(187*33/100)=62 cross-checks."
@@ -463,7 +463,7 @@ def main() -> None:
             "hand": "recoil kills after Belly Drum on setup path",
             "calc": (
                 f"HP-32: after AJ→BD→AJ remaining {ch['after_aj2']} < recoil value_hp {pts} "
-                f"(in-game floor(damage/3); calc exposes % of attacker HP only); "
+                f"(ADR-079 operator on damage dealt; calc exposes % of attacker HP only); "
                 f"BD-from-full remaining {ch['post_belly_drum_remaining_from_full']} − {pts} = {margin_full_bd} margin. "
                 f"Prior key used wrong HP 169 → after_aj2 35 / post_bd cost 84."
             ),

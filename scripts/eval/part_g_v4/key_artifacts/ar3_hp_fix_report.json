@@ -1,0 +1,101 @@
+{
+  "old": {
+    "cx_max_hp": 185,
+    "aj1_max": 25,
+    "belly_drum_cost": 92,
+    "after_aj1": 160,
+    "after_bd": 68,
+    "after_aj2": 43,
+    "post_belly_drum_hp": null,
+    "hp_after_aj_bd_aj": 43,
+    "def_hp_sample": 187,
+    "min_hp_sp": 0,
+    "atk_mins": [
+      [
+        "Fire Punch",
+        "Adamant",
+        0
+      ],
+      [
+        "Fire Punch",
+        "Jolly",
+        14
+      ],
+      [
+        "Temper Flare",
+        "Adamant",
+        0
+      ],
+      [
+        "Temper Flare",
+        "Jolly",
+        14
+      ],
+      [
+        "Fire Fang",
+        "Adamant",
+        22
+      ],
+      [
+        "Fire Fang",
+        "Jolly",
+        null
+      ]
+    ],
+    "leftover_max": 24
+  },
+  "new": {
+    "cx_max_hp": 185,
+    "aj1_max": 27,
+    "belly_drum_cost": 92,
+    "after_aj1": 158,
+    "after_bd": 66,
+    "after_aj2": 39,
+    "post_belly_drum_remaining_from_full": 93,
+    "worst_joint": "Quiet",
+    "worst_aj": 27,
+    "min_hp_sp": 0,
+    "def_hp": 187,
+    "recoil_value_hp_32": 62,
+    "recoil_value_hp_0": 62,
+    "recoil_pct_hp0": [
+      40.3,
+      40.3
+    ],
+    "atk_mins": [
+      [
+        "Fire Punch",
+        "Adamant",
+        0
+      ],
+      [
+        "Fire Punch",
+        "Jolly",
+        14
+      ],
+      [
+        "Temper Flare",
+        "Adamant",
+        0
+      ],
+      [
+        "Temper Flare",
+        "Jolly",
+        14
+      ],
+      [
+        "Fire Fang",
+        "Adamant",
+        22
+      ],
+      [
+        "Fire Fang",
+        "Jolly",
+        null
+      ]
+    ],
+    "atk_mins_unchanged": true,
+    "leftover_unchanged": true,
+    "hp0_after_aj2": 23
+  }
+}

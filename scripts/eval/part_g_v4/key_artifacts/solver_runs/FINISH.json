@@ -1,0 +1,22 @@
+{
+  "finished_at_utc": "2026-10-12T01:37:54Z",
+  "wall_clock_seconds": 19324.5,
+  "wall_clock_hours": 5.368,
+  "out": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/part_g_v4/key_artifacts/solver_runs/mt7_mt8_ar_live.json",
+  "jolly_solutions_at_minimal_spe_by_class": {
+    "+SpD": 294
+  },
+  "match_committed_def_spe": false,
+  "mt7_t2": {
+    "feasible": true,
+    "min_total_sp": 33,
+    "solutions_at_minimal_spe_by_class": {
+      "neutral": 8675,
+      "+Atk": 3554,
+      "+Def": 41677,
+      "+Spe": 7878,
+      "+SpA": 3554,
+      "+SpD": 3554
+    }
+  }
+}

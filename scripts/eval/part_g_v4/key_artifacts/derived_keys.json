@@ -1321,8 +1321,8 @@
   "ingame_top10_usage": [
     [
       1,
-      "Rillaboom",
-      "rillaboom"
+      "Garchomp",
+      "garchomp"
     ],
     [
       2,
@@ -1331,43 +1331,43 @@
     ],
     [
       3,
+      "Rillaboom",
+      "rillaboom"
+    ],
+    [
+      4,
       "Incineroar",
       "incineroar"
     ],
     [
-      4,
-      "Salamence",
-      "salamence"
-    ],
-    [
       5,
-      "Indeedee-F",
-      "indeedeef"
+      "Charizard",
+      "charizard"
     ],
     [
       6,
-      "Garchomp",
-      "garchomp"
+      "Archaludon",
+      "archaludon"
     ],
     [
       7,
+      "Raichu",
+      "raichu"
+    ],
+    [
+      8,
+      "Pelipper",
+      "pelipper"
+    ],
+    [
+      9,
       "Kingambit",
       "kingambit"
     ],
     [
-      8,
-      "Gholdengo",
-      "gholdengo"
-    ],
-    [
-      9,
-      "Basculegion",
-      "basculegion"
-    ],
-    [
       10,
-      "Golisopod",
-      "golisopod"
+      "Indeedee-F",
+      "indeedeef"
     ]
   ],
   "move_static": {
@@ -1381,23 +1381,19 @@
   "hn3_common_item": {
     "items": [
       {
+        "name": "Life Orb",
+        "pct": 37.0
+      },
+      {
         "name": "Glimmoranite",
-        "pct": 48.7
+        "pct": 30.7
       },
       {
         "name": "Focus Sash",
-        "pct": 37.9
-      },
-      {
-        "name": "Life Orb",
-        "pct": 3.3
-      },
-      {
-        "name": "Choice Scarf",
-        "pct": 2.1
+        "pct": 26.9
       }
     ],
-    "cumulative_pct": 91.99999999999999,
+    "cumulative_pct": 94.6,
     "cutoff_rule": "include entries until cumulative >= 90%; max 5 slots; 'nothing' counts as a slot and toward cumulative",
     "source": "ingame_doubles"
   },
@@ -4205,15 +4201,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
+        "spe": 110,
         "spread": {
-          "hp": 0,
           "atk": 0,
           "def": 12,
+          "hp": 0,
           "spa": 0,
           "spd": 0,
           "spe": 5
         },
-        "spe": 110,
         "total_sp": 17
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4235,15 +4231,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
+        "spe": 110,
         "spread": {
-          "hp": 6,
           "atk": 0,
           "def": 22,
+          "hp": 6,
           "spa": 0,
           "spd": 0,
           "spe": 5
         },
-        "spe": 110,
         "total_sp": 33
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4265,15 +4261,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
+        "spe": 110,
         "spread": {
-          "hp": 31,
           "atk": 0,
           "def": 1,
+          "hp": 31,
           "spa": 0,
           "spd": 22,
           "spe": 5
         },
-        "spe": 110,
         "total_sp": 59
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4291,15 +4287,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
+        "spe": 110,
         "spread": {
-          "hp": 30,
           "atk": 0,
           "def": 1,
+          "hp": 30,
           "spa": 0,
           "spd": 14,
           "spe": 5
         },
-        "spe": 110,
         "total_sp": 50
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4335,15 +4331,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
+        "spe": 110,
         "spread": {
-          "hp": 31,
           "atk": 0,
           "def": 1,
+          "hp": 31,
           "spa": 0,
           "spd": 23,
           "spe": 5
         },
-        "spe": 110,
         "total_sp": 60
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4376,15 +4372,15 @@
       "example": {
         "nature": "Calm",
         "nature_class": "+SpD",
+        "spe": 110,
         "spread": {
-          "hp": 30,
           "atk": 0,
           "def": 1,
+          "hp": 30,
           "spa": 0,
           "spd": 25,
           "spe": 5
         },
-        "spe": 110,
         "total_sp": 61
       },
       "solutions_at_minimal_spe_by_class": {
@@ -4422,15 +4418,15 @@
         "example": {
           "nature": "Calm",
           "nature_class": "+SpD",
+          "spe": 110,
           "spread": {
-            "hp": 30,
             "atk": 0,
             "def": 1,
+            "hp": 30,
             "spa": 0,
             "spd": 25,
             "spe": 5
           },
-          "spe": 110,
           "total_sp": 61
         },
         "note": "Jolly Sneasler + Modest Mega-Y Weather Ball (Sun), Spe\u2265110: feasible under legal SP\u226432 with +SpD only. +Def and +Spe have zero feasible cells. Binding threat is special (Weather Ball); neutral-SpD 32 HP/32 SpD takes 169\u2013199 into 197 HP and does not guarantee survival \u2014 see key_artifacts/mt8_correction_analysis.json. Prior committed +Def:20/+Spe:2 were illegal-SpD>32 artifacts (cap-less spd_hi=rem-hp-df); +Spe cells needed SpD=34. Counts = solutions at minimal Spe (gate minimum), not totals.",
@@ -4461,15 +4457,15 @@
         "example": {
           "nature": "Bold",
           "nature_class": "+Def",
+          "spe": 110,
           "spread": {
-            "hp": 31,
             "atk": 0,
             "def": 1,
+            "hp": 31,
             "spa": 0,
             "spd": 23,
             "spe": 5
           },
-          "spe": 110,
           "total_sp": 60
         },
         "spare_sp": 6,
@@ -4499,15 +4495,15 @@
       "example": {
         "nature": "Bold",
         "nature_class": "+Def",
+        "spe": 110,
         "spread": {
-          "hp": 0,
           "atk": 0,
           "def": 12,
+          "hp": 0,
           "spa": 0,
           "spd": 0,
           "spe": 5
         },
-        "spe": 110,
         "total_sp": 17
       },
       "solutions_at_minimal_spe_by_class": {
@@ -11437,7 +11433,7 @@
           "ability": "Tough Claws",
           "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
           "recoil_basis": {
-            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "rule": "ADR-079: round-half-up of damage dealt x 33/100 (min 1), damage capped at defender remaining HP",
             "value_hp": 62,
             "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
             "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
@@ -11570,7 +11566,7 @@
           "ability": "Tough Claws",
           "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
           "recoil_basis": {
-            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "rule": "ADR-079: round-half-up of damage dealt x 33/100 (min 1), damage capped at defender remaining HP",
             "value_hp": 62,
             "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
             "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
@@ -11713,7 +11709,7 @@
       "recoil_hp": 62,
       "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
       "recoil_basis": {
-        "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+        "rule": "ADR-079: round-half-up of damage dealt x 33/100 (min 1), damage capped at defender remaining HP",
         "value_hp": 62,
         "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
         "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
@@ -11830,7 +11826,7 @@
         "hand": "recoil kills Charizard after Belly Drum on the AJ\u2192BD\u2192AJ path",
         "calc_half_alone": true,
         "calc_after_two_aj": false,
-        "note": "At HP-32 (185): BD remaining from full=93; in-game recoil value_hp=62 (floor(damage/3)); calc exposes only % of attacker HP (33.3% here), not HP points; after AJ\u2192BD\u2192AJ remaining=39 < 62. Showdown sim Math.round(187*33/100)=62 cross-checks."
+        "note": "At HP-32 (185): BD remaining from full=93; in-game recoil value_hp=62 (ADR-079 operator); calc exposes only % of attacker HP (33.3% here), not HP points; after AJ\u2192BD\u2192AJ remaining=39 < 62. Showdown sim Math.round(187*33/100)=62 cross-checks."
       }
     },
     "haze_caveat": "Haze resets Belly Drum +6; OHKO lost. Known caveat; no claim required unless arm raises it.",
@@ -14491,8 +14487,8 @@
       },
       {
         "field": "cx_max_hp / primarina_def_hp",
-        "old": "169 / 171 (half-SP formula)",
-        "new": "185 / 187 (base + SP + 75; matches calc stats)"
+        "new": "185 / 187 (base + SP + 75; matches calc stats)",
+        "old": "169 / 171 (half-SP formula)"
       },
       {
         "field": "aqua_jet_joint",
@@ -14502,7 +14498,7 @@
       {
         "field": "flare_blitz_recoil_path",
         "hand": "recoil kills after Belly Drum on setup path",
-        "calc": "HP-32: after AJ\u2192BD\u2192AJ remaining 39 < recoil value_hp 62 (in-game floor(damage/3); calc exposes % of attacker HP only); BD-from-full remaining 93 \u2212 62 = 31 margin. Prior key used wrong HP 169 \u2192 after_aj2 35 / post_bd cost 84."
+        "calc": "HP-32: after AJ\u2192BD\u2192AJ remaining 39 < recoil value_hp 62 (ADR-079 operator on damage dealt; calc exposes % of attacker HP only); BD-from-full remaining 93 \u2212 62 = 31 margin. Prior key used wrong HP 169 \u2192 after_aj2 35 / post_bd cost 84."
       }
     ],
     "threat_source": "showdown_threats_ge_452 (shared)",
@@ -16020,7 +16016,7 @@
           "ability": "Tough Claws",
           "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
           "recoil_basis": {
-            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "rule": "ADR-079: round-half-up of damage dealt x 33/100 (min 1), damage capped at defender remaining HP",
             "value_hp": 62,
             "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
             "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
@@ -16155,7 +16151,7 @@
           "ability": "Tough Claws",
           "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
           "recoil_basis": {
-            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "rule": "ADR-079: round-half-up of damage dealt x 33/100 (min 1), damage capped at defender remaining HP",
             "value_hp": 62,
             "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
             "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
@@ -16290,7 +16286,7 @@
           "ability": "Tough Claws",
           "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
           "recoil_basis": {
-            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "rule": "ADR-079: round-half-up of damage dealt x 33/100 (min 1), damage capped at defender remaining HP",
             "value_hp": 62,
             "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
             "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
@@ -16427,7 +16423,7 @@
           "ability": "Tough Claws",
           "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
           "recoil_basis": {
-            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "rule": "ADR-079: round-half-up of damage dealt x 33/100 (min 1), damage capped at defender remaining HP",
             "value_hp": 62,
             "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
             "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
@@ -16560,7 +16556,7 @@
           "ability": "Tough Claws",
           "scope": "moves whose recoil is a fraction of damage dealt; Struggle and Steel Beam (fixed fraction of max HP) are excluded",
           "recoil_basis": {
-            "rule": "true 1/3 of damage dealt, floor, capped at defender remaining HP",
+            "rule": "ADR-079: round-half-up of damage dealt x 33/100 (min 1), damage capped at defender remaining HP",
             "value_hp": 62,
             "value_hp_source": "owner-stated in-game text ('The user also takes 1/3 of the damage dealt by this move.'); sim cross-check Math.round(187*33/100)=62 (.cache/pokemon-showdown/sim/battle-actions.ts applyRecoilDamage L1376\u20131377)",
             "in_game_text": "The user also takes 1/3 of the damage dealt by this move.",
@@ -16742,37 +16738,37 @@
     "corviknight_ingame_common_items": [
       {
         "name": "Psychic Seed",
-        "pct": 50.7
+        "pct": 38.8
       },
       {
         "name": "Leftovers",
-        "pct": 26.7
-      },
-      {
-        "name": "Rocky Helmet",
-        "pct": 7.2
+        "pct": 32.0
       },
       {
         "name": "Sitrus Berry",
-        "pct": 6.2
+        "pct": 9.2
+      },
+      {
+        "name": "Rocky Helmet",
+        "pct": 7.7
       },
       {
         "name": "Occa Berry",
-        "pct": 2.8
+        "pct": 4.8
       }
     ],
     "after_item_clause": [
       {
         "name": "Leftovers",
-        "pct": 26.7
+        "pct": 32.0
       },
       {
         "name": "Sitrus Berry",
-        "pct": 6.2
+        "pct": 9.2
       },
       {
         "name": "Occa Berry",
-        "pct": 2.8
+        "pct": 4.8
       }
     ],
     "t1_expected_item": "Leftovers",
@@ -16790,11 +16786,11 @@
   "row_b_gholdengo_trick": {
     "source": "data/team-composition/champions-reg-mc.vgcpastes-builds.v1.json",
     "population": "mixed",
-    "gholdengo_build_count": 99,
+    "gholdengo_build_count": 130,
     "trick_build_count": 2,
     "trick_builds": [
       {
-        "team_i": 180,
+        "team_i": 376,
         "team_id": "MC283",
         "nature": "Timid",
         "item": "Choice Scarf",
@@ -16815,7 +16811,7 @@
         }
       },
       {
-        "team_i": 374,
+        "team_i": 570,
         "team_id": "MC89",
         "nature": "Modest",
         "item": "Choice Scarf",
@@ -16857,20 +16853,20 @@
       },
       {
         "name": "Shadow Ball",
-        "pct": 98.6
+        "pct": 98.7
       },
       {
         "name": "Protect",
-        "pct": 90.8
+        "pct": 89.2
       },
       {
         "name": "Nasty Plot",
-        "pct": 83.1
+        "pct": 81.0
       }
     ],
     "t1_modal_item": {
       "name": "Life Orb",
-      "pct": 79.2
+      "pct": 78.0
     },
     "t2": "Use Choice Scarf",
     "status_moves_in_modal_draft": [
@@ -17333,11 +17329,11 @@
     "vgcpastes_scan": {
       "source": "champions-reg-mc.vgcpastes-builds.v1.json",
       "population": "mixed",
-      "teams": 463,
-      "member_builds": 2778,
+      "teams": 659,
+      "member_builds": 3954,
       "member_builds_with_overlapping_status_booster_pair": 0,
       "hits": [],
-      "note": "2,778 = members_total (per-Pok\u00e9mon builds), not team count (463)"
+      "note": "3,954 = members_total (per-Pok\u00e9mon builds), not team count (659)"
     },
     "showdown_top4_overlap_hits": [
       {
@@ -21323,9 +21319,9 @@
     "Learnsets/moves not oracle-cross-checked",
     "H18 SP rule measures investment, not behavior",
     "H12 scores each threat's best move by max-roll damage into Sinistcha; accuracy and conditional effects are ignored. The Expanding Force case depends on the untested multi-target (0.75) assumption.",
-    "AR3 Flare Blitz recoil: in-game rule floor(damage_dealt/3)=62 (Primarina HP 187); hosted calc exposes only percent of attacker HP (33.3% of 185 / 40.3% of 153 from 0.33 factor), not HP points. Key scores HP-point 62 TRUE; 61 FALSE with sub_label derived_from_calc_percent. Request-set L470 still says allow 61-62 \u2014 superseded by key scoring via R9; L470 text unchanged (sha fc6b150d). Fix = arm wrapper reports floor(damage/3) HP.",
+    "AR3 Flare Blitz recoil: recoil HP follows the ADR-079 operator on damage dealt (round-half-up of damage x 33/100; 62 at damage dealt 187, Primarina HP 187); hosted calc exposes only percent of attacker HP (33.3% of 185 / 40.3% of 153 from 0.33 factor), not HP points. Key scores HP-point 62 TRUE; 61 FALSE with sub_label derived_from_calc_percent. Request-set L470 now says the same (R9 errata folded into the key cut, #286; request-set sha 7fb9510c). Fix = arm wrapper reports recoil HP by the ADR-079 operator.",
     "Showdown sim applyRecoilDamage uses Math.round(damage*33/100) (62 here); matters for phase-2 Showdown eval, not the hosted calc percent display.",
-    "HEADER in gen_request_set_v4.py is an f-string so past_items/modest_note interpolate; output byte-identical to tracked request set (sha fc6b150d).",
+    "HEADER in gen_request_set_v4.py is an f-string so past_items/modest_note interpolate; output byte-identical to tracked request set (sha 7fb9510c).",
     "AR3 fixture pins Charizard-Mega-X HP SP 32 and 0 (H=185/153). Belly Drum or other Charizard builds with different HP SP are not modeled: percent-of-attacker-HP recoil claims for any stated H are scored by [floor(61.71/H*1000)/10, round(62/H*100,1)]; no other mechanical claim about those builds (damage, survival after Belly Drum, recoil vs remaining HP) is covered by the key."
   ],
   "tool_surface_v4": [
@@ -21409,7 +21405,7 @@
         "+Def 20",
         "+Spe 2"
       ],
-      "note": "Request-set L472 still cites +SpD 294/+Def 20/+Spe 2 (sha fc6b150d unchanged). R9: scorer follows key. Fold L472 text into request-set cut at Oct 19\u201320 pin refresh."
+      "note": "Request-set L472 text corrected in the key cut (#286) to '+SpD 294 only' (request-set sha fc6b150d -> 7fb9510c). R9: scorer follows key."
     }
   }
 }

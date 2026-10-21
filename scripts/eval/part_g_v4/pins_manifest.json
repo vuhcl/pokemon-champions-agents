@@ -10,9 +10,9 @@
     "version": "0.11.0-champions.5d5bf43"
   },
   "compendium_refresh_gate": {
-    "approx_date": "2026-10-19/20",
-    "can_land_before": true,
-    "if_refresh_changes_pin": "Re-run builders against new pins; regenerate derived_keys.json, request set, report, and any calc-backed keys; new battery hash required (new version)."
+    "approx_date": "2026-10-19/20: the compendium-refresh-gate's 14-day cadence date, not a pin-change event",
+    "can_land_before": "not applicable: that gate writes only data/roles/*.v1.json and its marker and cannot change a pinned file",
+    "if_refresh_changes_pin": "A pinned file changes only through usage-refresh-mc (ingame_doubles), usage-showdown-rollover (showdown_doubles), the legality extract gate (legality + three move files), vgcpastes-refresh-mc (PR only when the team-id set changes), or a manual commit. If one changes: re-run builders against the new pin; regenerate derived_keys.json, request set, report and any calc-backed keys; new battery hash required (new version). Notes only; enforced by no code (check_pins.py EXPECTED_BLOB is the enforcement)."
   },
   "eval_pin_repo_commit": "e935de9b2051da6fe968b87087b27c7b5901168b",
   "pins": [
@@ -22,8 +22,8 @@
       "path": "data/legality/champions.v1.json"
     },
     {
-      "content_sha256": "cae998303f4cf39b338a5bb6c774d79393889ce9a51fd5baa60e0b41b3b75653",
-      "git_blob_sha": "65f8c51e3ce4068736a2c8aa65609f836064cbcc",
+      "content_sha256": "4ac4985a9b7531b78744d7c5bf9454dab028b22ac156960c87d5f6aa050ae97e",
+      "git_blob_sha": "31af0801235dc4158c6206363c70ae8cc2b6417b",
       "path": "data/usage/champions-reg-mc.ingame_doubles.v1.json"
     },
     {
@@ -50,6 +50,11 @@
       "content_sha256": "d6cb8ae27a313842202344713d1995ba255916b9ab824a09f12c371791b993b7",
       "git_blob_sha": "040059884684b27f0894e484c7c987fb5aef158e",
       "path": "data/moves/stat_boosts.v1.json"
+    },
+    {
+      "content_sha256": "46b445cbe953c9269ad7507c196b1c3417e43280b320a27d76c8eeb4bb62d5e0",
+      "git_blob_sha": "21dae5e398faeea7bad7da3d8ce8d57146781bbc",
+      "path": "data/team-composition/champions-reg-mc.vgcpastes-builds.v1.json"
     }
   ],
   "refresh_merge": "6674b74c41810f63d1a25453d26ea8498d0b9341",

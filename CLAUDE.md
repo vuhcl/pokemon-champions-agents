@@ -35,7 +35,6 @@ Data extraction scripts are in `package.json` (`npm run extract:legality`, `extr
 - **Regulation is a parameter and never a hardcoded literal.** `tests/ci/test_no_regulation_literals.py` enforces this with an AST scan and a path allowlist. The schedule is in `data/active_regulation.json`, and the regulation-to-mod/format mapping is in `recommender/regulation_registry.py`. Champions is its own Showdown mod (`data/mods/champions*`), not "gen9 minus a banlist." Check the current regulation letter; don't assume it.
 - **Calc-unavailable behavior is typed** (ADR-029). `single_locked` may show static estimates labeled with `estimate_kind="static"`. `multi_locked` fails closed. Never let unverified rows look like verified ones.
 - Out of scope: Showdown win-rate eval, battle-log/RL piloting, singles/BSS. Point out any drift toward these.
-- Until the Oct 19-20 pin refresh is done, do not run the gate or score any arm output against the current keys. `run_all_checks.py` is allowed and still required under the PR rules: it verifies the frozen artifacts' integrity (hashes, key reproduction) and does not score arm output.
 
 ## Never present plausible-looking results as complete
 

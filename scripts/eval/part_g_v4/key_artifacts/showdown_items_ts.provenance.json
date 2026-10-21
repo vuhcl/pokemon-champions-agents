@@ -9,6 +9,6 @@
     "builders/v4_rows_ah_derive.py → derived_keys.mega_stone_map",
     "derived_keys.row_g_h_salamence_mega.stone_parse / stone_map_sample"
   ],
-  "keys_sha_at_record": "0f160e234bb5becc24aea36785bfc5e89ed0b40019e1dabd6372356d4ee3157a",
+  "keys_sha_at_record": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a",
   "provision": "See SHOWDOWN_CACHE.md (git clone + checkout pinned commit; offline data prep only)."
 }

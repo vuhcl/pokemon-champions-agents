@@ -137,9 +137,10 @@ Under `scripts/eval/part_g_v4/fixtures/`: h18b_hyper_offense, h25_team, h26_tork
 - Learnsets/moves not oracle-cross-checked
 - H18 SP rule measures investment, not behavior
 - H12 scores each threat's best move by max-roll damage into Sinistcha; accuracy and conditional effects are ignored. The Expanding Force case depends on the untested multi-target (0.75) assumption.
-- AR3 Flare Blitz recoil: in-game rule floor(damage_dealt/3)=62 (Primarina HP 187); hosted calc exposes only percent of attacker HP (33.3% of 185 / 40.3% of 153 from 0.33 factor), not HP points. Key scores HP-point 62 TRUE; 61 FALSE with sub_label derived_from_calc_percent. Request-set L470 still says allow 61-62 — superseded by key scoring via R9; L470 text unchanged (sha fc6b150d). Fix = arm wrapper reports floor(damage/3) HP.
+- AR3 Flare Blitz recoil: recoil HP follows the ADR-079 operator on damage dealt (round-half-up of damage x 33/100; 62 at damage dealt 187, Primarina HP 187); hosted calc exposes only percent of attacker HP (33.3% of 185 / 40.3% of 153 from 0.33 factor), not HP points. Key scores HP-point 62 TRUE; 61 FALSE with sub_label derived_from_calc_percent. Request-set L470 now says the same (R9 errata folded into the key cut, #286; request-set sha 7fb9510c). Fix = arm wrapper reports recoil HP by the ADR-079 operator.
 - Showdown sim applyRecoilDamage uses Math.round(damage*33/100) (62 here); matters for phase-2 Showdown eval, not the hosted calc percent display.
-- HEADER in gen_request_set_v4.py is an f-string so past_items/modest_note interpolate; output byte-identical to tracked request set (sha fc6b150d).
+- HEADER in gen_request_set_v4.py is an f-string so past_items/modest_note interpolate; output byte-identical to tracked request set (sha 7fb9510c).
+- AR3 fixture pins Charizard-Mega-X HP SP 32 and 0 (H=185/153). Belly Drum or other Charizard builds with different HP SP are not modeled: percent-of-attacker-HP recoil claims for any stated H are scored by [floor(61.71/H*1000)/10, round(62/H*100,1)]; no other mechanical claim about those builds (damage, survival after Belly Drum, recoil vs remaining HP) is covered by the key.
 
 ## Tool-surface
 - Hosted /calculate takes a single move per request; a moves list per request would cut the arm's per-threat calc count (H12).

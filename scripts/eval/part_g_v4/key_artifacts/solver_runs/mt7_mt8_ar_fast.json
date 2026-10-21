@@ -1,0 +1,502 @@
+{
+  "ar1": {
+    "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set.",
+    "count_semantics": "solutions at minimal Spe (gate minimum); Spe fixed at gate min; not exhaustive totals across Spe SP. Only feasible/infeasible is exact.",
+    "example": {
+      "nature": "Bold",
+      "nature_class": "+Def",
+      "spe": 110,
+      "spread": {
+        "atk": 0,
+        "def": 12,
+        "hp": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 5
+      },
+      "total_sp": 17
+    },
+    "feasible": true,
+    "min_total_sp": 17,
+    "monotone_fallback_count": 0,
+    "search_note": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not key totals). PART_G_V4_SOLVER_LINEAR full HP\u00d7Def grid; binary SpD.",
+    "solutions_at_minimal_spe_by_class": {
+      "+Atk": 32158,
+      "+Def": 88658,
+      "+SpA": 32158,
+      "+SpD": 32158,
+      "+Spe": 48604,
+      "neutral": 63950
+    }
+  },
+  "ar2_pareto_hp_def_by_class": {
+    "+Atk": [
+      [
+        16,
+        29
+      ],
+      [
+        18,
+        27
+      ],
+      [
+        22,
+        24
+      ],
+      [
+        24,
+        21
+      ],
+      [
+        28,
+        18
+      ],
+      [
+        30,
+        16
+      ]
+    ],
+    "+Def": [
+      [
+        0,
+        29
+      ],
+      [
+        4,
+        26
+      ],
+      [
+        6,
+        22
+      ],
+      [
+        10,
+        20
+      ],
+      [
+        12,
+        17
+      ],
+      [
+        16,
+        13
+      ],
+      [
+        18,
+        11
+      ],
+      [
+        22,
+        9
+      ],
+      [
+        24,
+        6
+      ],
+      [
+        28,
+        3
+      ],
+      [
+        30,
+        1
+      ]
+    ],
+    "+SpA": [
+      [
+        16,
+        29
+      ],
+      [
+        18,
+        27
+      ],
+      [
+        22,
+        24
+      ],
+      [
+        24,
+        21
+      ],
+      [
+        28,
+        18
+      ],
+      [
+        30,
+        16
+      ]
+    ],
+    "+SpD": [
+      [
+        16,
+        29
+      ],
+      [
+        18,
+        27
+      ],
+      [
+        22,
+        24
+      ],
+      [
+        24,
+        21
+      ],
+      [
+        28,
+        18
+      ],
+      [
+        30,
+        16
+      ]
+    ],
+    "+Spe": [
+      [
+        16,
+        29
+      ],
+      [
+        18,
+        27
+      ],
+      [
+        22,
+        24
+      ],
+      [
+        24,
+        21
+      ],
+      [
+        28,
+        18
+      ],
+      [
+        30,
+        16
+      ]
+    ],
+    "neutral": [
+      [
+        16,
+        29
+      ],
+      [
+        18,
+        27
+      ],
+      [
+        22,
+        24
+      ],
+      [
+        24,
+        21
+      ],
+      [
+        28,
+        18
+      ],
+      [
+        30,
+        16
+      ]
+    ]
+  },
+  "attacker_nature_key": {
+    "max_spa": "Modest, 32 SpA (stat 232), Drought/Sun",
+    "timid_spa": "Timid, 32 SpA (stat 211), Drought/Sun"
+  },
+  "mirror_speed_gate": {
+    "common_speed_note": "Regenerated COMMON_SPEED for Archaludon is typically [105,150,108] (gate 109 if used); Part 0 assigns COMMON_JOINT \u2192 gate 110 from core [108, 109].",
+    "core_cells": [
+      108,
+      109
+    ],
+    "dropped_opp_max_spe": 150,
+    "hardcoded_match": true,
+    "joint_spe_cells": [
+      108,
+      109,
+      150
+    ],
+    "min_spe": 110,
+    "part0_constant": "COMMON_JOINT",
+    "part0_rule": "COMMON_JOINT top 3; for outspeed comparisons drop the max-speed cell and mention its share. COMMON_SPEED is not the mirror gate."
+  },
+  "mt7_t1_jolly_cc": {
+    "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set.",
+    "count_semantics": "solutions at minimal Spe (gate minimum); Spe fixed at gate min; not exhaustive totals across Spe SP. Only feasible/infeasible is exact.",
+    "example": {
+      "nature": "Bold",
+      "nature_class": "+Def",
+      "spe": 110,
+      "spread": {
+        "atk": 0,
+        "def": 12,
+        "hp": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 5
+      },
+      "total_sp": 17
+    },
+    "feasible": true,
+    "min_total_sp": 17,
+    "monotone_fallback_count": 0,
+    "search_note": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not key totals). PART_G_V4_SOLVER_LINEAR full HP\u00d7Def grid; binary SpD.",
+    "solutions_at_minimal_spe_by_class": {
+      "+Atk": 32158,
+      "+Def": 88658,
+      "+SpA": 32158,
+      "+SpD": 32158,
+      "+Spe": 48604,
+      "neutral": 63950
+    }
+  },
+  "mt7_t2_adamant_cc": {
+    "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set.",
+    "count_semantics": "solutions at minimal Spe (gate minimum); Spe fixed at gate min; not exhaustive totals across Spe SP. Only feasible/infeasible is exact.",
+    "example": {
+      "nature": "Bold",
+      "nature_class": "+Def",
+      "spe": 110,
+      "spread": {
+        "atk": 0,
+        "def": 22,
+        "hp": 6,
+        "spa": 0,
+        "spd": 0,
+        "spe": 5
+      },
+      "total_sp": 33
+    },
+    "feasible": true,
+    "min_total_sp": 33,
+    "monotone_fallback_count": 0,
+    "search_note": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not key totals). PART_G_V4_SOLVER_LINEAR full HP\u00d7Def grid; binary SpD.",
+    "solutions_at_minimal_spe_by_class": {
+      "+Atk": 3554,
+      "+Def": 41677,
+      "+SpA": 3554,
+      "+SpD": 3554,
+      "+Spe": 7878,
+      "neutral": 8675
+    }
+  },
+  "mt7_t3_adamant_cc_flamethrower": {
+    "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set.",
+    "count_semantics": "solutions at minimal Spe (gate minimum); Spe fixed at gate min; not exhaustive totals across Spe SP. Only feasible/infeasible is exact.",
+    "example": {
+      "nature": "Bold",
+      "nature_class": "+Def",
+      "spe": 110,
+      "spread": {
+        "atk": 0,
+        "def": 1,
+        "hp": 31,
+        "spa": 0,
+        "spd": 22,
+        "spe": 5
+      },
+      "total_sp": 59
+    },
+    "feasible": true,
+    "min_total_sp": 59,
+    "monotone_fallback_count": 0,
+    "search_note": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not key totals). PART_G_V4_SOLVER_LINEAR full HP\u00d7Def grid; binary SpD.",
+    "solutions_at_minimal_spe_by_class": {
+      "+Def": 420,
+      "+SpD": 12
+    }
+  },
+  "mt7_t3_timid_flamethrower_extra": {
+    "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set.",
+    "count_semantics": "solutions at minimal Spe (gate minimum); Spe fixed at gate min; not exhaustive totals across Spe SP. Only feasible/infeasible is exact.",
+    "counts_toward_3_relaxation_cap": false,
+    "example": {
+      "nature": "Bold",
+      "nature_class": "+Def",
+      "spe": 110,
+      "spread": {
+        "atk": 0,
+        "def": 1,
+        "hp": 30,
+        "spa": 0,
+        "spd": 14,
+        "spe": 5
+      },
+      "total_sp": 50
+    },
+    "feasible": true,
+    "min_total_sp": 50,
+    "monotone_fallback_count": 0,
+    "note": "Record only if Timid changes feasibility vs Modest; Modest remains required t3.",
+    "offer_class": "threat_relaxation_extra",
+    "required": false,
+    "search_note": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not key totals). PART_G_V4_SOLVER_LINEAR full HP\u00d7Def grid; binary SpD.",
+    "solutions_at_minimal_spe_by_class": {
+      "+Atk": 9,
+      "+Def": 4481,
+      "+SpA": 9,
+      "+SpD": 1200,
+      "+Spe": 394,
+      "neutral": 45
+    }
+  },
+  "mt8_t3_adamant_cc_weatherball": {
+    "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set.",
+    "count_semantics": "solutions at minimal Spe (gate minimum); Spe fixed at gate min; not exhaustive totals across Spe SP. Only feasible/infeasible is exact.",
+    "example": null,
+    "feasible": false,
+    "min_total_sp": null,
+    "monotone_fallback_count": 0,
+    "search_note": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not key totals). PART_G_V4_SOLVER_LINEAR full HP\u00d7Def grid; binary SpD.",
+    "solutions_at_minimal_spe_by_class": {}
+  },
+  "mt8_t3_timid_weatherball_extra": {
+    "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set.",
+    "count_semantics": "solutions at minimal Spe (gate minimum); Spe fixed at gate min; not exhaustive totals across Spe SP. Only feasible/infeasible is exact.",
+    "counts_toward_3_relaxation_cap": false,
+    "example": {
+      "nature": "Bold",
+      "nature_class": "+Def",
+      "spe": 110,
+      "spread": {
+        "atk": 0,
+        "def": 1,
+        "hp": 31,
+        "spa": 0,
+        "spd": 23,
+        "spe": 5
+      },
+      "total_sp": 60
+    },
+    "feasible": true,
+    "hand_example": {
+      "nature": "Bold",
+      "spread": {
+        "atk": 0,
+        "def": 1,
+        "hp": 31,
+        "spa": 0,
+        "spd": 23,
+        "spe": 5
+      }
+    },
+    "hand_example_bold_31_1_23_5_survives": true,
+    "min_total_sp": 60,
+    "monotone_fallback_count": 0,
+    "offer_class": "threat_relaxation_extra",
+    "required": false,
+    "search_note": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not key totals). PART_G_V4_SOLVER_LINEAR full HP\u00d7Def grid; binary SpD.",
+    "solutions_at_minimal_spe_by_class": {
+      "+Def": 276,
+      "+SpD": 4
+    }
+  },
+  "mt8_t4_drop_speed_gate": {
+    "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set.",
+    "count_semantics": "solutions at minimal Spe (gate minimum); Spe fixed at gate min; not exhaustive totals across Spe SP. Only feasible/infeasible is exact.",
+    "example": null,
+    "feasible": false,
+    "min_total_sp": null,
+    "monotone_fallback_count": 0,
+    "search_note": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not key totals). PART_G_V4_SOLVER_LINEAR full HP\u00d7Def grid; binary SpD.",
+    "solutions_at_minimal_spe_by_class": {}
+  },
+  "mt8_t4_make_sneasler_jolly": {
+    "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set.",
+    "count_semantics": "solutions at minimal Spe (gate minimum); Spe fixed at gate min; not exhaustive totals across Spe SP. Only feasible/infeasible is exact.",
+    "example": {
+      "nature": "Calm",
+      "nature_class": "+SpD",
+      "spe": 110,
+      "spread": {
+        "atk": 0,
+        "def": 1,
+        "hp": 30,
+        "spa": 0,
+        "spd": 25,
+        "spe": 5
+      },
+      "total_sp": 61
+    },
+    "feasible": true,
+    "min_total_sp": 61,
+    "monotone_fallback_count": 0,
+    "search_note": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not key totals). PART_G_V4_SOLVER_LINEAR full HP\u00d7Def grid; binary SpD.",
+    "solutions_at_minimal_spe_by_class": {
+      "+SpD": 294
+    }
+  },
+  "mt8_t4_way_out": {
+    "drop_speed_gate": {
+      "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set.",
+      "count_semantics": "solutions at minimal Spe (gate minimum); Spe fixed at gate min; not exhaustive totals across Spe SP. Only feasible/infeasible is exact.",
+      "example": null,
+      "feasible": false,
+      "min_total_sp": null,
+      "note": "With per-stat SP\u226432 enforced, dropping Spe gate is INFEASIBLE vs Adamant CC + Modest WB. Prior +Def 3 at SP 66 used SpD=34 (illegal Champions SP). Not a valid way out.",
+      "prior_illegal_spd34_note": "Pre-fix solver allowed SpD>32 when rem>32; those 3 sols were invalid.",
+      "search_note": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not key totals). PART_G_V4_SOLVER_LINEAR full HP\u00d7Def grid; binary SpD.",
+      "solutions_at_minimal_spe_by_class": {}
+    },
+    "invalid_relaxation": "drop Spe gate (0 legal SP\u226432 solutions)",
+    "jolly_sneasler": {
+      "class_count_note": "Neutral count exceeds +Atk/+SpA/+SpD when HP/Def/Spe constraints match because neutral has 5 identical full-bulk natures while each +/- class mixes 2 full-bulk + 1 Def\u2212 + 1 Spe\u2212 nature (fewer sols). Not double-counting; Spe is fixed so natures that do not change Def/Spe share the same (HP,Def,SpD) set.",
+      "count_semantics": "solutions at minimal Spe (gate minimum); Spe fixed at gate min; not exhaustive totals across Spe SP. Only feasible/infeasible is exact.",
+      "example": {
+        "nature": "Calm",
+        "nature_class": "+SpD",
+        "spe": 110,
+        "spread": {
+          "atk": 0,
+          "def": 1,
+          "hp": 30,
+          "spa": 0,
+          "spd": 25,
+          "spe": 5
+        },
+        "total_sp": 61
+      },
+      "feasible": true,
+      "min_total_sp": 61,
+      "note": "Jolly Sneasler relaxation feasible. Counts = solutions at minimal Spe (gate minimum), not totals. Request-set MT8 cites +SpD 294/+Def 20/+Spe 2; live solver class counts may differ \u2014 see unverified_descriptive if mismatch.",
+      "search_note": "Spe fixed at min for gate; binary-search min SpD per (HP,Def); diagnostic SpD>=min counts summed per nature class (not key totals). PART_G_V4_SOLVER_LINEAR full HP\u00d7Def grid; binary SpD.",
+      "solutions_at_minimal_spe_by_class": {
+        "+SpD": 294
+      }
+    },
+    "offers_of_either_relaxation_correct": true,
+    "timid_zard_extra": {
+      "accepted_extra_offer": true,
+      "counts_toward_3_relaxation_cap": false,
+      "example": {
+        "nature": "Bold",
+        "nature_class": "+Def",
+        "spe": 110,
+        "spread": {
+          "atk": 0,
+          "def": 1,
+          "hp": 31,
+          "spa": 0,
+          "spd": 23,
+          "spe": 5
+        },
+        "total_sp": 60
+      },
+      "feasible": true,
+      "min_total_sp": 60
+    },
+    "valid_relaxations": [
+      "make Sneasler Jolly (solutions at minimal Spe: classes from solver)",
+      "drop Weather Ball (equals MT7 t2)",
+      "Timid Zard WB extra (not in 3-cap)"
+    ]
+  }
+}
