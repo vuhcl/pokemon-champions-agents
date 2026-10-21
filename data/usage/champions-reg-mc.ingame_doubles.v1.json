@@ -3,8 +3,8 @@
     "schema_version": 4,
     "regulation": "champions-reg-mc",
     "section": "ingame_doubles",
-    "extracted_at": "2026-10-21T01:25:32Z",
-    "ingame_doubles_extracted_at": "2026-10-21T01:25:32Z",
+    "extracted_at": "2026-10-21T01:54:06Z",
+    "ingame_doubles_extracted_at": "2026-10-21T01:54:06Z",
     "ingame_ladder_n": 262,
     "join_n": 262,
     "index_count": 262,
@@ -551,7 +551,7 @@
             "pct": 52.6
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 43.4
           },
           {
@@ -1836,7 +1836,7 @@
             "pct": 7.7
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 2.9
           },
           {
@@ -3864,7 +3864,7 @@
             "pct": 38.9
           },
           {
-            "name": "Double Edge",
+            "name": "Double-Edge",
             "pct": 12.1
           },
           {
@@ -4631,7 +4631,7 @@
             "pct": 9.4
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 7.5
           },
           {
@@ -7422,7 +7422,7 @@
             "pct": 70.7
           },
           {
-            "name": "Light Of Ruin",
+            "name": "Light of Ruin",
             "pct": 27.0
           },
           {
@@ -10747,7 +10747,7 @@
             "pct": 18.1
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 12.8
           }
         ],
@@ -10984,7 +10984,7 @@
             "pct": 43.9
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 29.9
           },
           {
@@ -11237,7 +11237,7 @@
             "pct": 60.6
           },
           {
-            "name": "Freeze Dry",
+            "name": "Freeze-Dry",
             "pct": 58.1
           },
           {
@@ -12016,7 +12016,7 @@
             "pct": 12.1
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 10.9
           },
           {
@@ -13024,7 +13024,7 @@
             "pct": 45.4
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 41.3
           },
           {
@@ -13040,7 +13040,7 @@
             "pct": 16.8
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 16.1
           },
           {
@@ -14325,7 +14325,7 @@
             "pct": 8.7
           },
           {
-            "name": "X Scissor",
+            "name": "X-Scissor",
             "pct": 7.4
           }
         ],
@@ -14823,7 +14823,7 @@
             "pct": 17.5
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 14.3
           },
           {
@@ -15088,7 +15088,7 @@
             "pct": 18.0
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 7.1
           }
         ],
@@ -16610,7 +16610,7 @@
             "pct": 15.4
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 14.4
           }
         ],
@@ -16859,7 +16859,7 @@
             "pct": 4.6
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 3.5
           }
         ],
@@ -17349,7 +17349,7 @@
             "pct": 63.7
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 41.9
           },
           {
@@ -17618,7 +17618,7 @@
             "pct": 17.3
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 14.1
           },
           {
@@ -18108,7 +18108,7 @@
             "pct": 98.7
           },
           {
-            "name": "X Scissor",
+            "name": "X-Scissor",
             "pct": 90.6
           },
           {
@@ -18128,7 +18128,7 @@
             "pct": 26.9
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 15.5
           },
           {
@@ -18622,7 +18622,7 @@
             "pct": 93.3
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 64.4
           },
           {
@@ -18871,7 +18871,7 @@
             "pct": 96.2
           },
           {
-            "name": "Double Edge",
+            "name": "Double-Edge",
             "pct": 52.9
           },
           {
@@ -19136,7 +19136,7 @@
             "pct": 56.4
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 50.1
           },
           {
@@ -22200,7 +22200,7 @@
             "pct": 24.2
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 9.2
           },
           {
@@ -23746,7 +23746,7 @@
             "pct": 18.3
           },
           {
-            "name": "Topsy Turvy",
+            "name": "Topsy-Turvy",
             "pct": 13.1
           },
           {
@@ -24750,7 +24750,7 @@
             "pct": 45.5
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 36.9
           },
           {
@@ -26513,7 +26513,7 @@
         "name": "Aegislash",
         "common_moves": [
           {
-            "name": "Kings Shield",
+            "name": "King's Shield",
             "pct": 83.9
           },
           {
@@ -26786,7 +26786,7 @@
             "pct": 26.3
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 11.5
           },
           {
@@ -28047,7 +28047,7 @@
             "pct": 94.0
           },
           {
-            "name": "Freeze Dry",
+            "name": "Freeze-Dry",
             "pct": 84.8
           },
           {
@@ -30866,7 +30866,7 @@
             "pct": 45.1
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 44.4
           },
           {
@@ -33677,7 +33677,7 @@
             "pct": 39.9
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 29.0
           },
           {
@@ -34701,7 +34701,7 @@
             "pct": 22.8
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 18.2
           },
           {
@@ -36436,7 +36436,7 @@
             "pct": 57.6
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 49.6
           },
           {
@@ -36697,7 +36697,7 @@
             "pct": 35.6
           },
           {
-            "name": "Double Edge",
+            "name": "Double-Edge",
             "pct": 30.0
           },
           {
@@ -37183,7 +37183,7 @@
         "name": "Glaceon",
         "common_moves": [
           {
-            "name": "Freeze Dry",
+            "name": "Freeze-Dry",
             "pct": 91.8
           },
           {
@@ -37974,7 +37974,7 @@
             "pct": 10.4
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 5.2
           },
           {
@@ -42022,7 +42022,7 @@
             "pct": 79.3
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 56.9
           },
           {
@@ -42777,7 +42777,7 @@
             "pct": 82.4
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 78.1
           },
           {
@@ -42801,7 +42801,7 @@
             "pct": 7.4
           },
           {
-            "name": "X Scissor",
+            "name": "X-Scissor",
             "pct": 5.0
           },
           {
@@ -43034,7 +43034,7 @@
             "pct": 43.5
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 23.7
           },
           {
@@ -43572,7 +43572,7 @@
             "pct": 7.3
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 6.3
           }
         ],
@@ -44062,7 +44062,7 @@
             "pct": 49.0
           },
           {
-            "name": "Freeze Dry",
+            "name": "Freeze-Dry",
             "pct": 45.8
           },
           {
@@ -44817,7 +44817,7 @@
             "pct": 35.9
           },
           {
-            "name": "Freeze Dry",
+            "name": "Freeze-Dry",
             "pct": 34.3
           },
           {
@@ -45568,7 +45568,7 @@
         "name": "Mr. Rime",
         "common_moves": [
           {
-            "name": "Freeze Dry",
+            "name": "Freeze-Dry",
             "pct": 54.2
           },
           {
@@ -47359,7 +47359,7 @@
             "pct": 77.1
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 40.4
           },
           {
@@ -49403,7 +49403,7 @@
             "pct": 16.9
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 16.8
           },
           {
@@ -49917,7 +49917,7 @@
             "pct": 18.6
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 18.4
           },
           {
@@ -50664,7 +50664,7 @@
             "pct": 37.2
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 34.4
           },
           {
@@ -51435,7 +51435,7 @@
             "pct": 48.1
           },
           {
-            "name": "X Scissor",
+            "name": "X-Scissor",
             "pct": 27.2
           },
           {
@@ -51941,7 +51941,7 @@
             "pct": 41.4
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 30.5
           },
           {
@@ -51961,7 +51961,7 @@
             "pct": 19.0
           },
           {
-            "name": "Forests Curse",
+            "name": "Forest's Curse",
             "pct": 17.6
           },
           {
@@ -52202,7 +52202,7 @@
             "pct": 29.3
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 22.2
           },
           {
@@ -52222,7 +52222,7 @@
             "pct": 10.4
           },
           {
-            "name": "Double Edge",
+            "name": "Double-Edge",
             "pct": 7.3
           }
         ],
@@ -55021,7 +55021,7 @@
             "pct": 12.5
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 12.4
           },
           {
@@ -58065,7 +58065,7 @@
             "pct": 11.7
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 7.9
           },
           {
@@ -58302,7 +58302,7 @@
             "pct": 70.8
           },
           {
-            "name": "Trick Or Treat",
+            "name": "Trick-or-Treat",
             "pct": 66.9
           },
           {
@@ -58310,7 +58310,7 @@
             "pct": 42.9
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 40.1
           },
           {
@@ -58824,7 +58824,7 @@
             "pct": 41.3
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 38.0
           },
           {
@@ -59595,7 +59595,7 @@
             "pct": 23.6
           },
           {
-            "name": "Self Destruct",
+            "name": "Self-Destruct",
             "pct": 16.0
           },
           {
@@ -59844,7 +59844,7 @@
             "pct": 61.2
           },
           {
-            "name": "U Turn",
+            "name": "U-turn",
             "pct": 29.5
           },
           {
@@ -60105,7 +60105,7 @@
             "pct": 27.7
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 20.6
           },
           {
@@ -62647,7 +62647,7 @@
             "pct": 48.2
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 37.4
           },
           {
@@ -63900,7 +63900,7 @@
             "pct": 35.0
           },
           {
-            "name": "Double Edge",
+            "name": "Double-Edge",
             "pct": 34.3
           },
           {
@@ -65149,7 +65149,7 @@
         "name": "Gourgeist-Small",
         "common_moves": [
           {
-            "name": "Trick Or Treat",
+            "name": "Trick-or-Treat",
             "pct": 85.6
           },
           {
@@ -65165,7 +65165,7 @@
             "pct": 56.0
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 19.9
           },
           {
@@ -65916,11 +65916,11 @@
             "pct": 54.5
           },
           {
-            "name": "Trick Or Treat",
+            "name": "Trick-or-Treat",
             "pct": 50.9
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 36.1
           },
           {
@@ -66426,11 +66426,11 @@
             "pct": 57.8
           },
           {
-            "name": "Trick Or Treat",
+            "name": "Trick-or-Treat",
             "pct": 56.7
           },
           {
-            "name": "Will O Wisp",
+            "name": "Will-O-Wisp",
             "pct": 51.4
           },
           {

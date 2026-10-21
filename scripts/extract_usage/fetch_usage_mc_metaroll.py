@@ -54,12 +54,14 @@ _ROW_KEYS = (
 _STATS = ("hp", "atk", "def", "spa", "spd", "spe")
 
 
-def _pct_rows(rows: Any) -> list[dict[str, Any]]:
+def _pct_rows(rows: Any, names: dict[str, str] | None = None) -> list[dict[str, Any]]:
+    """``names`` maps to_id → canonical display name; MetaRoll strips punctuation from some."""
     out: list[dict[str, Any]] = []
     for r in rows or []:
         name = str((r or {}).get("name") or "").strip()
         if not name:
             continue
+        name = (names or {}).get(to_id(name), name)
         item: dict[str, Any] = {"name": name}
         if r.get("percent") is not None:
             item["pct"] = float(r["percent"])
@@ -91,11 +93,13 @@ def spreads_with_natures(entry: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
-def entry_from_metaroll(entry: dict[str, Any], *, showdown_id: str) -> dict[str, Any]:
+def entry_from_metaroll(
+    entry: dict[str, Any], *, showdown_id: str, move_names: dict[str, str] | None = None
+) -> dict[str, Any]:
     out: dict[str, Any] = {
         "id": showdown_id,
         "name": str(entry.get("name") or showdown_id),
-        "common_moves": _pct_rows(entry.get("moves")),
+        "common_moves": _pct_rows(entry.get("moves"), move_names),
         "common_abilities": _pct_rows(entry.get("abilities")),
         "common_items": _pct_rows(entry.get("items")),
         "teammates": [t["name"] for t in _pct_rows(entry.get("teammates"))],
@@ -115,6 +119,9 @@ def build_ingame(
     """Join MetaRoll entries to legal species by hyphen-stripped id; return (species, stats)."""
     snap = legality or load_snapshot()
     legal = legal_lookup_ids(snap)
+    move_names = {
+        mid: str(m["name"]) for mid, m in (snap.get("moves") or {}).items() if m.get("name")
+    }
     species: dict[str, dict[str, Any]] = {}
     unmatched: list[str] = []
     entries = payload.get("entries") or []
@@ -125,7 +132,7 @@ def build_ingame(
         # legal_lookup_ids collapses Megas onto their base, which can be illegal itself
         # (floette: its Mega child is legal, it is not); a row must be a legal species.
         if lid in legal and is_species_legal(snap, lid) and lid not in species:
-            species[lid] = entry_from_metaroll(e, showdown_id=lid)
+            species[lid] = entry_from_metaroll(e, showdown_id=lid, move_names=move_names)
         else:
             unmatched.append(str(e.get("id")))
     stats = {

@@ -132,3 +132,10 @@ def test_floette_eternal_maps_and_a_floette_entry_is_never_emitted(payload):
     p["entries"].append({**copy.deepcopy(p["entries"][0]), "id": "floette", "name": "Floette"})
     species = extract(fetch=lambda _url: p)[0]["ingame_doubles"]["species"]
     assert "floetteeternal" in species and "floette" not in species
+
+
+def test_punctuation_stripped_move_names_are_restored_by_id(payload):
+    p = copy.deepcopy(payload)
+    p["entries"][0]["moves"][0]["name"] = "U Turn"
+    row = extract(fetch=lambda _url: p)[0]["ingame_doubles"]["species"][to_id(p["entries"][0]["id"])]
+    assert row["common_moves"][0]["name"] == "U-turn"
