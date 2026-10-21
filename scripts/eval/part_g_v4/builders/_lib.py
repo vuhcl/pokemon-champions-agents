@@ -98,6 +98,11 @@ def recoil_share_pct_range_for_attacker_hp(attacker_max_hp: int) -> list[float]:
     return [lo, hi]
 
 
+def recoil_hp_adr079(dealt: int, n: int = 33, den: int = 100) -> int:
+    """ADR-079: max(1, floor((2*d*n + den) / (2*den))) for d > 0, else 0 (integer arithmetic)."""
+    return max(1, (2 * dealt * n + den) // (2 * den)) if dealt > 0 else 0
+
+
 def flare_blitz_recoil_basis(
     *,
     def_hp: int | None,
@@ -107,8 +112,8 @@ def flare_blitz_recoil_basis(
 ) -> dict:
     """Flare Blitz recoil HP per ADR-079 (observed in-game: round-half-up of damage_dealt x 33/100); calc exposes % of atk HP only."""
     dealt_lo, dealt_hi = _dealt_cap(damage, def_hp)
-    value_hp = math.floor(dealt_lo / 3) if dealt_lo is not None else None
-    value_hi = math.floor(dealt_hi / 3) if dealt_hi is not None else None
+    value_hp = recoil_hp_adr079(dealt_lo) if dealt_lo is not None else None
+    value_hi = recoil_hp_adr079(dealt_hi) if dealt_hi is not None else None
     # OHKO into full Primarina: dealt == def_hp → single HP figure
     if value_hp is not None and value_hi is not None and value_hp != value_hi:
         # non-OHKO / non-cap range — keep lo; callers for AR3 OHKO expect a single value
