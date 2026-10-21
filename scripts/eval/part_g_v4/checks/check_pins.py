@@ -14,7 +14,7 @@ MANIFEST = PKG / "pins_manifest.json"
 
 EXPECTED_BLOB = {
     "data/legality/champions.v1.json": "ca5bb8181448765875396ce3b02561923c3e4694",
-    "data/usage/champions-reg-mc.ingame_doubles.v1.json": "65f8c51e3ce4068736a2c8aa65609f836064cbcc",
+    "data/usage/champions-reg-mc.ingame_doubles.v1.json": "e21ebb1fb8c75b1c018ff05fe7d3e487b15e1a2e",
     "data/usage/champions-reg-mc.showdown_doubles.v1.json": "63bcefe4512a202d75b62e79f2ccc5436527b46e",
     "data/moves/static.v1.json": "c4f2aabe8ffb420a70e77afaa50b5a4d616a1f54",
     "data/moves/flags.v1.json": "89a00b2c46df4c139027f81f77627a4a85fdd631",
