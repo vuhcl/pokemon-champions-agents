@@ -1,0 +1,40 @@
+{
+  "record": "Key cut (#286): unspliced full chain regeneration + the 21 PR #266 hand-patched leaves reapplied",
+  "regenerated_sha256": "16e4516293fdd05d241617039d00be757b0012fc026f145195b22297668a9a24",
+  "committed_sha256": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a",
+  "byte_identical_except_hand_patches": true,
+  "hand_patched_leaf_paths": [
+    "ar3.hand_disagreements[1].field",
+    "ar3.hand_disagreements[1].new",
+    "ar3.hand_disagreements[1].old",
+    "ar3.hand_disagreements[2].calc",
+    "ar3.hand_disagreements[2].field",
+    "ar3.hand_disagreements[2].hand",
+    "ar3.hand_disagreements[2].new",
+    "ar3.hand_disagreements[2].old",
+    "ar3.hand_disagreements[3]",
+    "ar3.hand_disagreements[4]",
+    "ar3.t4_flame_charge_margin",
+    "dm_outputs.dm1_note",
+    "dm_outputs.dm6.false_claims[2]",
+    "dm_outputs.dm6.false_claims[3]",
+    "dm_outputs.dm6.false_claims_note",
+    "dm_outputs.dm6.scoring.asserting_differing_spread_is_top_or_most_common",
+    "limitations_v4[4]",
+    "limitations_v4[5]",
+    "limitations_v4[6]",
+    "limitations_v4[7]",
+    "unverified_descriptive"
+  ],
+  "patch_wording_updated_in": [
+    "ar3.hand_disagreements[4]",
+    "limitations_v4[4]",
+    "limitations_v4[6]",
+    "unverified_descriptive"
+  ],
+  "regen_equals_patch_for": 0,
+  "backend": "inprocess",
+  "ignore_disk": "1",
+  "supersedes": "full_chain_leaf_diff_v42.json",
+  "reproduce": "run_full_chain_fast.py to a temp out, then overwrite the 21 listed paths with the values in the committed derived_keys.json (the 4 wording-updated ones included); that reproduces derived_keys.json byte-identically"
+}
