@@ -3,8 +3,8 @@
     "schema_version": 4,
     "regulation": "champions-reg-mc",
     "section": "ingame_doubles",
-    "extracted_at": "2026-10-21T01:54:06Z",
-    "ingame_doubles_extracted_at": "2026-10-21T01:54:06Z",
+    "extracted_at": "2026-10-21T05:14:13Z",
+    "ingame_doubles_extracted_at": "2026-10-21T05:14:13Z",
     "ingame_ladder_n": 262,
     "join_n": 262,
     "index_count": 262,
@@ -2874,7 +2874,7 @@
         ],
         "common_abilities": [
           {
-            "name": "Good As Gold",
+            "name": "Good as Gold",
             "pct": 100.0
           }
         ],
@@ -27273,7 +27273,7 @@
       },
       "sirfetchd": {
         "id": "sirfetchd",
-        "name": "Sirfetchd",
+        "name": "Sirfetch’d",
         "common_moves": [
           {
             "name": "Meteor Assault",
@@ -37478,7 +37478,7 @@
         ],
         "common_abilities": [
           {
-            "name": "Zero To Hero",
+            "name": "Zero to Hero",
             "pct": 100.0
           }
         ],
@@ -41505,7 +41505,7 @@
       },
       "mrmime": {
         "id": "mrmime",
-        "name": "Mr Mime",
+        "name": "Mr. Mime",
         "common_moves": [
           {
             "name": "Wide Guard",
@@ -55745,7 +55745,7 @@
       },
       "farfetchd": {
         "id": "farfetchd",
-        "name": "Farfetchd",
+        "name": "Farfetch’d",
         "common_moves": [
           {
             "name": "Brave Bird",
@@ -55846,7 +55846,7 @@
           "Charizard",
           "Kommo-o",
           "Basculegion",
-          "Mr Mime"
+          "Mr. Mime"
         ],
         "top_spreads": [
           {
@@ -60432,7 +60432,7 @@
           "Primarina",
           "Salamence",
           "Pelipper",
-          "Mr Mime"
+          "Mr. Mime"
         ],
         "top_spreads": [
           {

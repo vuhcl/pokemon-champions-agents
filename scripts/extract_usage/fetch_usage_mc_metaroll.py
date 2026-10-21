@@ -94,15 +94,16 @@ def spreads_with_natures(entry: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def entry_from_metaroll(
-    entry: dict[str, Any], *, showdown_id: str, move_names: dict[str, str] | None = None
+    entry: dict[str, Any], *, showdown_id: str, names: dict[str, dict[str, str]] | None = None
 ) -> dict[str, Any]:
+    names = names or {}
     out: dict[str, Any] = {
         "id": showdown_id,
-        "name": str(entry.get("name") or showdown_id),
-        "common_moves": _pct_rows(entry.get("moves"), move_names),
-        "common_abilities": _pct_rows(entry.get("abilities")),
-        "common_items": _pct_rows(entry.get("items")),
-        "teammates": [t["name"] for t in _pct_rows(entry.get("teammates"))],
+        "name": names.get("species", {}).get(showdown_id) or str(entry.get("name") or showdown_id),
+        "common_moves": _pct_rows(entry.get("moves"), names.get("moves")),
+        "common_abilities": _pct_rows(entry.get("abilities"), names.get("abilities")),
+        "common_items": _pct_rows(entry.get("items"), names.get("items")),
+        "teammates": [t["name"] for t in _pct_rows(entry.get("teammates"), names.get("species_by_id"))],
         "top_spreads": spreads_with_natures(entry),
         "common_natures": _pct_rows(entry.get("natures")),
         "featured_sets": [],
@@ -113,15 +114,33 @@ def entry_from_metaroll(
     return out
 
 
+def _legality_names(snap: dict[str, Any]) -> dict[str, dict[str, str]]:
+    """to_id → canonical display name per kind; MetaRoll strips punctuation / title-cases."""
+    table = lambda key: {  # noqa: E731
+        k: str(v["name"]) for k, v in (snap.get(key) or {}).items() if v.get("name")
+    }
+    species = table("species")
+    abilities = {
+        to_id(a): str(a)
+        for sp in (snap.get("species") or {}).values()
+        for a in (sp.get("abilities") or {}).values()
+    }
+    return {
+        "moves": table("moves"),
+        "items": table("items"),
+        "abilities": abilities,
+        "species": species,
+        "species_by_id": species,
+    }
+
+
 def build_ingame(
     payload: dict[str, Any], *, legality: dict[str, Any] | None = None
 ) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
     """Join MetaRoll entries to legal species by hyphen-stripped id; return (species, stats)."""
     snap = legality or load_snapshot()
     legal = legal_lookup_ids(snap)
-    move_names = {
-        mid: str(m["name"]) for mid, m in (snap.get("moves") or {}).items() if m.get("name")
-    }
+    names = _legality_names(snap)
     species: dict[str, dict[str, Any]] = {}
     unmatched: list[str] = []
     entries = payload.get("entries") or []
@@ -132,7 +151,7 @@ def build_ingame(
         # legal_lookup_ids collapses Megas onto their base, which can be illegal itself
         # (floette: its Mega child is legal, it is not); a row must be a legal species.
         if lid in legal and is_species_legal(snap, lid) and lid not in species:
-            species[lid] = entry_from_metaroll(e, showdown_id=lid, move_names=move_names)
+            species[lid] = entry_from_metaroll(e, showdown_id=lid, names=names)
         else:
             unmatched.append(str(e.get("id")))
     stats = {

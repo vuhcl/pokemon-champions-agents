@@ -139,3 +139,15 @@ def test_punctuation_stripped_move_names_are_restored_by_id(payload):
     p["entries"][0]["moves"][0]["name"] = "U Turn"
     row = extract(fetch=lambda _url: p)[0]["ingame_doubles"]["species"][to_id(p["entries"][0]["id"])]
     assert row["common_moves"][0]["name"] == "U-turn"
+
+
+def test_ability_species_and_teammate_names_are_restored_by_id(payload):
+    p = copy.deepcopy(payload)
+    e = {**copy.deepcopy(p["entries"][0]), "id": "mr-mime", "name": "Mr Mime"}
+    e["abilities"][0]["name"] = "Good As Gold"
+    e["teammates"][0]["name"] = "Mr Mime"
+    p["entries"].append(e)
+    row = extract(fetch=lambda _url: p)[0]["ingame_doubles"]["species"]["mrmime"]
+    assert row["name"] == "Mr. Mime"
+    assert row["common_abilities"][0]["name"] == "Good as Gold"
+    assert row["teammates"][0] == "Mr. Mime"
