@@ -20,6 +20,7 @@ EXPECTED_BLOB = {
     "data/moves/flags.v1.json": "89a00b2c46df4c139027f81f77627a4a85fdd631",
     "data/moves/gen9_accuracy.v1.json": "4eeb96eacfdee56ccaf7e9a7b8d6a65c6fb1da20",
     "data/moves/stat_boosts.v1.json": "040059884684b27f0894e484c7c987fb5aef158e",
+    "data/team-composition/champions-reg-mc.vgcpastes-builds.v1.json": "21dae5e398faeea7bad7da3d8ce8d57146781bbc",
 }
 
 

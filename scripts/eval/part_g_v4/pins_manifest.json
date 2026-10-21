@@ -50,6 +50,11 @@
       "content_sha256": "d6cb8ae27a313842202344713d1995ba255916b9ab824a09f12c371791b993b7",
       "git_blob_sha": "040059884684b27f0894e484c7c987fb5aef158e",
       "path": "data/moves/stat_boosts.v1.json"
+    },
+    {
+      "content_sha256": "46b445cbe953c9269ad7507c196b1c3417e43280b320a27d76c8eeb4bb62d5e0",
+      "git_blob_sha": "21dae5e398faeea7bad7da3d8ce8d57146781bbc",
+      "path": "data/team-composition/champions-reg-mc.vgcpastes-builds.v1.json"
     }
   ],
   "refresh_merge": "6674b74c41810f63d1a25453d26ea8498d0b9341",
