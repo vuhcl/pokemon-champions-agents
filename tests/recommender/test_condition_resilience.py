@@ -407,7 +407,7 @@ def test_anchor_has_obvious_need_archaludon_real_external_dependency():
     assert anchor_has_obvious_need(decision, needs) is True
 
 
-def test_anchor_has_obvious_need_charizard_mega_y_self_sufficient():
+def test_anchor_has_obvious_need_charizard_mega_y_self_sufficient(monkeypatch):
     """Regression, confirmed live (2026-08-21): Charizard-Mega-Y needs Sun
     for Solar Beam but provides Sun itself via Drought -- a real needed
     dependency, but self-satisfied, so there's nothing external left to
@@ -419,8 +419,12 @@ def test_anchor_has_obvious_need_charizard_mega_y_self_sufficient():
     """
     from recommender.anchor_roles import classify_anchor_role, resolve_anchor_build
     from recommender.condition_resilience import anchor_has_obvious_need
+    from recommender import support_needs
     from recommender.support_needs import RoleShapeContext, query_support_needs
 
+    # The tier is a function of the current top-ranked field, so pin the premise of this
+    # regression ("already_fast") rather than inherit it from whichever usage blob is committed.
+    monkeypatch.setattr(support_needs, "_spe_tier", lambda *_a, **_k: "already_fast")
     build = resolve_anchor_build("Charizard-Mega-Y", regulation="champions")
     decision = classify_anchor_role(build)
     shape = RoleShapeContext(

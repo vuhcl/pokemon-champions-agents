@@ -526,6 +526,9 @@ def test_cm_bu_presence_floor_unaffected_by_dd_override(monkeypatch):
         },
     )
     monkeypatch.setattr("recommender.role_compendium.showdown_species_map", lambda *a, **k: {})
+    # Isolate from the committed blob (a real Cofagrigus row can carry Calm Mind).
+    for mod in ("role_compendium", "role_compendium_usage"):
+        monkeypatch.setattr(f"recommender.{mod}.ingame_species_map", lambda *a, **k: {})
     uctx = _UsageCtx(live_fetch=lambda _n: None, showdown_fetch=lambda _n: None)
 
     # Same numeric band as DD thin cluster (0.390) — CM/BU must stay admitted at 0.1%.
