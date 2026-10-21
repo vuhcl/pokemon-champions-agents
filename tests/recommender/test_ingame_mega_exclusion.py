@@ -154,3 +154,21 @@ def test_extract_ingame_skips_mega_capable(monkeypatch):
         "build_n": 1,
     }
     assert "charizard" in excluded
+
+
+def test_floette_eternal_is_ladder_only_and_never_canonicalises_to_floette():
+    """Legality gives floetteeternal and floettemega base_species_id="floette", an illegal
+    species that cannot Mega Evolve; the committed Reg M-C snapshot must not use that base."""
+    from recommender.forme_identity import canonical_usage_species_id
+    from recommender.legality import load_snapshot
+    from recommender.species_forms import ingame_excluded_species_ids
+    from recommender.usage_data import ingame_ladder_species_map, ingame_species_map
+
+    reg = "champions-reg-mc"
+    snap = load_snapshot()
+    ladder = ingame_ladder_species_map(reg)
+    assert "floetteeternal" in ladder and "floette" not in ladder
+    assert "floetteeternal" in ingame_excluded_species_ids(snap)
+    assert "floetteeternal" not in ingame_species_map(reg)
+    for sid in ("floettemega", "floetteeternal"):
+        assert canonical_usage_species_id(snap, sid, regulation=reg) != "floette"

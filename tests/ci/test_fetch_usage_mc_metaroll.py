@@ -124,3 +124,11 @@ def test_validate_fails_on_drop_missing_attribution_or_season():
     no_attr = {"count": 262, "attribution": {"required": True}}
     assert validate_snapshot(_snap(240), index=no_attr, stats=stats)[0] == "fail"
     assert validate_snapshot(_snap(240, season=None), index=_IDX, stats=stats)[0] == "fail"
+
+
+def test_floette_eternal_maps_and_a_floette_entry_is_never_emitted(payload):
+    # floette is illegal (cannot Mega Evolve) but legal_lookup_ids includes it via floettemega.
+    p = copy.deepcopy(payload)
+    p["entries"].append({**copy.deepcopy(p["entries"][0]), "id": "floette", "name": "Floette"})
+    species = extract(fetch=lambda _url: p)[0]["ingame_doubles"]["species"]
+    assert "floetteeternal" in species and "floette" not in species

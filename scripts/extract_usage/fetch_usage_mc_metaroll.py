@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from recommender.ids import to_id
+from recommender.legality import is_species_legal, load_snapshot
 from recommender.usage_split import SCHEMA_VERSION
 from scripts.extract_usage.fetch_usage_mc_munchstats import (
     ABS_FLOOR,
@@ -112,7 +113,8 @@ def build_ingame(
     payload: dict[str, Any], *, legality: dict[str, Any] | None = None
 ) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
     """Join MetaRoll entries to legal species by hyphen-stripped id; return (species, stats)."""
-    legal = legal_lookup_ids(legality)
+    snap = legality or load_snapshot()
+    legal = legal_lookup_ids(snap)
     species: dict[str, dict[str, Any]] = {}
     unmatched: list[str] = []
     entries = payload.get("entries") or []
@@ -120,7 +122,9 @@ def build_ingame(
         if not isinstance(e, dict):
             continue
         lid = to_id(str(e.get("id") or ""))
-        if lid in legal and lid not in species:
+        # legal_lookup_ids collapses Megas onto their base, which can be illegal itself
+        # (floette: its Mega child is legal, it is not); a row must be a legal species.
+        if lid in legal and is_species_legal(snap, lid) and lid not in species:
             species[lid] = entry_from_metaroll(e, showdown_id=lid)
         else:
             unmatched.append(str(e.get("id")))
