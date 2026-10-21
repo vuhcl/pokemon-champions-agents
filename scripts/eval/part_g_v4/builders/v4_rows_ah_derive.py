@@ -652,7 +652,7 @@ def row_j_calm_mind_nasty_plot(sd) -> dict:
             or sum(len(t.get("members") or []) for t in teams),
             "member_builds_with_overlapping_status_booster_pair": len(hit_builds),
             "hits": hit_builds[:20],
-            "note": "2,778 = members_total (per-Pokémon builds), not team count (463)",
+            "note": f"{(vp.get('meta') or {}).get('ev_completeness', {}).get('members_total') or sum(len(t.get('members') or []) for t in teams):,} = members_total (per-Pokémon builds), not team count ({len(teams)})",
         },
         "showdown_top4_overlap_hits": sd_hits,
         "source": "data/moves/stat_boosts.v1.json",
