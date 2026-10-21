@@ -1,0 +1,33 @@
+{
+  "finished_at_utc": "2026-10-12T06:09:08Z",
+  "wall_clock_seconds": 48.9,
+  "wall_clock_hours": 0.014,
+  "out": "/Users/nowaki027/pokemon-champions-agents/scripts/eval/part_g_v4/key_artifacts/solver_runs/mt7_mt8_ar_fast.json",
+  "backend": "inprocess",
+  "workers": "4",
+  "checkpoint_dir": "scripts/eval/part_g_v4/key_artifacts/solver_runs/ckpt_fast2",
+  "mt7_t1": {
+    "feasible": true,
+    "min_total_sp": 17,
+    "solutions_at_minimal_spe_by_class": {
+      "neutral": 63950,
+      "+Atk": 32158,
+      "+Def": 88658,
+      "+Spe": 48604,
+      "+SpA": 32158,
+      "+SpD": 32158
+    }
+  },
+  "mt7_t2": {
+    "feasible": true,
+    "min_total_sp": 33,
+    "solutions_at_minimal_spe_by_class": {
+      "neutral": 8675,
+      "+Atk": 3554,
+      "+Def": 41677,
+      "+Spe": 7878,
+      "+SpA": 3554,
+      "+SpD": 3554
+    }
+  }
+}
