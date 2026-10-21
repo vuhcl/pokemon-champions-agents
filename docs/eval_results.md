@@ -466,21 +466,38 @@ not read it as an arm result.*
 - Staircase HP x Def search is unsound under the SP budget; opt-in only.
 
 ### Recoil (AR3 Flare Blitz, Primarina HP 187)
-- Game rule floor(187/3) = 62; Showdown sim round(187*33/100) = 62; the
+- Recoil HP follows the ADR-079 operator on damage dealt d:
+  max(1, floor((2*d*33 + 100) / 200)); 62 at d = 187 (observed on the owner's own screen,
+  2026-10-13; the earlier floor(d/3) rule came from a secondary source and is
+  superseded). The Showdown sim's round(187*33/100) = 62 agrees here. The
   calc exposes only a rounded percent of attacker HP (33.3% of 185,
   40.3% of 153), not HP points. Scoring: 62 TRUE; 61 FALSE
-  (derived_from_calc_percent); percent claims by band [61.71/H, 62/H].
+  (derived_from_calc_percent); percent claims by band [61.71/H, 62/H]
+  (re-checked against the operator in the key cut: no value moved).
 
 (Append under "Known limitations / honest gaps")
 - Part G v4 keys (2026-10-12): 21 leaves are hand-patched and not
   rebuilt by any builder (status per leaf in PR #266). The L470 and L472
-  acceptance strings in the frozen request set are wrong (recoil
-  "61-62"; MT8 +Def 20/+Spe 2); R9 errata supersede them, and the text
-  fix lands with the Oct 19-20 request-set cut. Keys are feasibility
+  acceptance strings in the frozen request set were wrong (recoil
+  "61-62"; MT8 +Def 20/+Spe 2); R9 errata superseded them and the text
+  was fixed in the key cut of 2026-10-21 (#286; "Oct 19-20" was a
+  cadence-derived date, not a pin-change event). Keys are feasibility
   sets, not recommendations. MT8 does not model Belly Drum or other
   Charizard builds. Learnsets not oracle-cross-checked; spread-move
   0.75 modifier untested. The gate has not been run: the arm does not
   exist yet.
+
+### Part G key cut (2026-10-21, #286)
+- Inputs: in-game snapshot from MetaRoll (M-7, capturedAt 2026-10-21T00:46:19Z,
+  ADR-082), vgcpastes builds file pinned as the eighth blob (#285).
+- Measured at commit 96b87e7a37d7fefe25d4bb083b9baf54ac02449f (`run_all_checks.py`
+  7/7 with 8 pins; the commit hash is of the regenerated artifacts):
+  - keys sha (derived_keys.json): `e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a`
+  - claim battery sha: `af912615b46640d4758e77fd21850b8e1a7a46bd5ba20aba1b9c54acbe56cfa8`
+  - false-legal battery sha: `13dda05d4ea03654a2efdcca9241e27a4e1af54e7008e2b70146d179209da851` (unchanged)
+  - request set sha: `7fb9510cb50e8f1f320ac1cf6bced41e8dcd12f4245ed2abb03a42254a60afdb`
+    (was `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385`)
+- The arm is not built, the gate was not run, and nothing was scored.
 
 ---
 
