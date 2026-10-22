@@ -46,7 +46,7 @@ Label every mechanical claim in code strings, PR bodies, ADRs and log entries by
 
 ## Frozen artifacts
 
-The held-out eval keys (`scripts/eval/part_g_v4/key_artifacts/`), the claim and false-legal batteries, and the request-set text (`part3_request_set_v4.md`) are frozen. Don't edit them; they change only at a scheduled pin refresh on the owner's instruction. Known defects are handled by the scorer requirements (R9), so put proposed corrections in chat.
+The held-out eval keys (`scripts/eval/part_g_v4/key_artifacts/`), the claim and false-legal batteries, and the request-set text (`part3_request_set_v4.md`) are frozen. Don't edit them; they change only in a deliberate key cut on the owner's instruction (the last was 2026-10-21, #286). A change to any pinned blob (in-game, Showdown, legality, vgcpastes) makes `check_pins.py` fail until it is re-pinned on purpose, and a re-pin invalidates the answer keys, so cut once, after the change. Known defects are handled by the scorer requirements (R9), so put proposed corrections in chat.
 
 ## PR and test rules
 
@@ -54,8 +54,10 @@ The held-out eval keys (`scripts/eval/part_g_v4/key_artifacts/`), the claim and 
 - Run the full suites before calling anything ready (`uv run pytest`, `npm test`, `run_all_checks.py`). Targeted runs alone have missed breakage before.
 - Report exact test counts, and say whether the keys sha and both battery hashes printed by `run_all_checks.py` are unchanged. Keep hashes on one unbroken line.
 - One task per worktree. Do not spawn subagents or run parallel agents unless the owner asks (usage limits are shared with the owner's chat).
-- `scripts/eval/part_g_v4/checks/run_all_checks.py` rewrites two tracked files (`LAST_CHECK.json`, `calc_coverage.json`) when it runs. Restore them with `git checkout` before committing.
+- `scripts/eval/part_g_v4/checks/run_all_checks.py` rewrites `LAST_CHECK.json` and `calc_coverage.json` on every run, and also rewrites `battery/claim_battery_v4.json` and `battery/battery_manifest.json` (it regenerates the claim battery from the in-game blob) when the battery hash check fails. Restore them with `git checkout` before committing, unless the PR is a deliberate key cut. `check_ar3_probes` replays against the calc service, so start it first (port 4173); without it that check fails (replay skipped) and the script exits 1.
 - Before running the full `uv run pytest`, confirm nothing else is listening on port 4173. The Python calc client is hardwired to that port, and a stale service from another worktree will silently answer the tests. Confirm the calc service you started is up (`GET 127.0.0.1:4173/health`) before the full `uv run pytest`. A dead calc service makes the suite hang rather than fail (seen once during #275), so a hang means check `/health` first. Stop the service you started when the run is done.
+- Work starts from a GitHub issue. Write issues in the structure of `.github/ISSUE_TEMPLATE/task.md` (What, Why it matters, Evidence, Acceptance, Links), including when filing with `gh issue create`, which skips the template. In a PR body, put one closing keyword per issue, each on its own line (`Closes #285`, then `Closes #286`). On #300, "Closes #285 and #286" closed only #285.
+- Scheduled workflows can run hours after their cron time (on 2026-10-21 the first job ran about 11 AM PT, not at 15:27Z). Check what a job already did before assuming it has not run.
 
 ## Read-only mirror files: never write these
 
