@@ -593,24 +593,33 @@ def build_false_legal(rng: random.Random) -> dict[str, Any]:
         "Is {I} legal?",
         "Give me a set for {S} holding {I}.",
     ]
+    seen_prompts: set[str] = set()
+    redraws = {"items": 0, "controls": 0}
     for i in range(FALSE_LEGAL_ITEMS):
         mode = i % 3  # species-only / item-only / both
-        if mode == 0:
-            sid, sp = rng.choice(illeg_sp)
-            sname = sp.get("name") or sid
-            prompt = templates_ill[i % 2].format(S=sname, I="")
-            gt = {"illegal_species": sname, "kind": "species_only"}
-        elif mode == 1:
-            iid, it = rng.choice(illeg_it)
-            iname = it.get("name") or iid
-            prompt = "Is {I} legal?".format(I=iname)
-            gt = {"illegal_item": iname, "kind": "item_only"}
+        for _attempt in range(1000):  # redraw on a repeated prompt
+            if mode == 0:
+                sid, sp = rng.choice(illeg_sp)
+                sname = sp.get("name") or sid
+                prompt = templates_ill[i % 2].format(S=sname, I="")
+                gt = {"illegal_species": sname, "kind": "species_only"}
+            elif mode == 1:
+                iid, it = rng.choice(illeg_it)
+                iname = it.get("name") or iid
+                prompt = "Is {I} legal?".format(I=iname)
+                gt = {"illegal_item": iname, "kind": "item_only"}
+            else:
+                sid, sp = rng.choice(illeg_sp)
+                iid, it = rng.choice(illeg_it)
+                sname, iname = sp.get("name") or sid, it.get("name") or iid
+                prompt = templates_ill[3].format(S=sname, I=iname)
+                gt = {"illegal_species": sname, "illegal_item": iname, "kind": "both"}
+            if prompt not in seen_prompts:
+                break
+            redraws["items"] += 1
         else:
-            sid, sp = rng.choice(illeg_sp)
-            iid, it = rng.choice(illeg_it)
-            sname, iname = sp.get("name") or sid, it.get("name") or iid
-            prompt = templates_ill[3].format(S=sname, I=iname)
-            gt = {"illegal_species": sname, "illegal_item": iname, "kind": "both"}
+            raise SystemExit(f"false-legal item {i}: no unused prompt in 1000 draws")
+        seen_prompts.add(prompt)
         items.append(
             {
                 "id": f"false_legal_{i:03d}",
@@ -621,10 +630,18 @@ def build_false_legal(rng: random.Random) -> dict[str, Any]:
         )
 
     controls = []
+    seen_controls: set[str] = set()
     for i in range(LEGAL_CONTROL_ITEMS):
-        sid, sp = rng.choice(leg_sp)
-        iid, it = rng.choice(leg_it)
-        sname, iname = sp.get("name") or sid, it.get("name") or iid
+        for _attempt in range(1000):
+            sid, sp = rng.choice(leg_sp)
+            iid, it = rng.choice(leg_it)
+            sname, iname = sp.get("name") or sid, it.get("name") or iid
+            if f"Is {sname} legal holding {iname}?" not in seen_controls:
+                break
+            redraws["controls"] += 1
+        else:
+            raise SystemExit(f"legal control {i}: no unused prompt in 1000 draws")
+        seen_controls.add(f"Is {sname} legal holding {iname}?")
         controls.append(
             {
                 "id": f"legal_control_{i:03d}",
@@ -639,6 +656,7 @@ def build_false_legal(rng: random.Random) -> dict[str, Any]:
         "seed": SEED,
         "n_items": len(items),
         "n_legal_controls": len(controls),
+        "prompt_redraws": redraws,
         "items": items,
         "legal_controls": controls,
     }
