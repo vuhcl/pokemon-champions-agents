@@ -29,6 +29,7 @@ BINARY = {
     "item": "legal",
     "legality": "legal",
     "item_stratum": "legal",
+    "damage": "guaranteed_ko",
     "speed": "s1_outspeeds",
 }
 
@@ -95,8 +96,10 @@ def evidence(item: dict, leg: dict, ig: dict, sd: dict) -> str:
         )
     if ct == "damage":
         return (
-            f"legality moves.{gt['move_id']}: {gt['move_category']} bp {gt['move_basePower']} "
-            f"{gt['move_type']}; key = calc builder, not stored"
+            f"kind {gt['damage_kind']}; calc: {gt['calc_desc']}; HP {gt['hp']}; rolls {gt['rolls']}; "
+            f"min {gt['min_roll']} max {gt['max_roll']}; {gt['rolls_ko_of_16']}/16 rolls KO; "
+            f"{gt['move_category']} bp {gt['move_basePower']} {gt['move_type']}, effectiveness x{gt['effectiveness']:g}, "
+            f"stab {gt['stab']}, bulk quartile {gt['defender_bulk_quartile']}, margin {gt['margin']}"
         )
     if ct == "move_static":
         return f"legality moves.{gt['id']} = {gt['category']}/{gt['basePower']}/{gt['type']}; static priority {gt['priority']}"
@@ -160,6 +163,31 @@ def main() -> int:
             print(f"{label:22}{len(rows):6}{slots:6}{'-':>6}{'-':>6}  n/a (open answer){extra}")
     print(f"binary items total (gated and ungated): True {tot_t}, False {tot_f}")
 
+    dmg = by_type.get("damage", [])
+    if dmg:
+        G = [r["claims"][0]["ground_truth"] for r in dmg]
+        print("\n== damage items ==")
+        kinds = collections.Counter(g["damage_kind"] for g in G)
+        print("per kind:", dict(sorted(kinds.items())), "| True", sum(g["guaranteed_ko"] for g in G), "False", len(G) - sum(g["guaranteed_ko"] for g in G))
+        eff = collections.Counter("super-effective" if g["effectiveness"] >= 2 else "neutral" if g["effectiveness"] == 1 else "resisted/immune" for g in G)
+        print("effectiveness classes:", dict(eff))
+        print("category match (move uses attacker's stronger category):", dict(collections.Counter(g["category_match"] for g in G)))
+        print("defender bulk quartile (1 = lowest):", dict(sorted(collections.Counter(g["defender_bulk_quartile"] for g in G).items())))
+        for kind in sorted(kinds):
+            gk = [g for g in G if g["damage_kind"] == kind]
+            mg = [g["margin"] for g in gk]
+            print(f"  {kind:9} n={len(gk):2} margin(min roll/HP) {min(mg):.2f}-{max(mg):.2f}; rolls KO of 16: {sorted(g['rolls_ko_of_16'] for g in gk)}")
+        cut = json.loads((PKG / "key_artifacts" / "battery_damage_pool.json").read_text())["meta"]["cutoffs"]["usable_move_basePower_q1_q3"][1]
+        base = {
+            "super-effective -> yes": lambda g: g["effectiveness"] >= 2,
+            f"base power >= {cut:g} -> yes": lambda g: g["move_basePower"] >= cut,
+            "stronger category -> yes": lambda g: g["category_match"],
+            "always no": lambda g: False,
+        }
+        for name, f in base.items():
+            hit = sum(1 for g in G if f(g) == g["guaranteed_ko"])
+            print(f"  heuristic '{name}': {hit}/{len(G)} correct ({hit / len(G):.0%})")
+
     print("\n== key lengths (tie-inclusive top 5) ==")
     for t in ("usage", "usage_showdown"):
         rows = by_type.get(t, [])
@@ -210,7 +238,14 @@ def main() -> int:
     for t, rows in by_type.items():
         print(f"\n--- {t} ---")
         picks = []
-        if t == "usage_showdown":
+        if t == "damage":
+            seen_kind = collections.Counter()
+            for r in rows:
+                k = r["claims"][0]["ground_truth"]["damage_kind"]
+                if seen_kind[k] < 2:
+                    picks.append(r)
+                    seen_kind[k] += 1
+        elif t == "usage_showdown":
             for sub in ("mega form", "mega-capable base form"):
                 subset = [r for r in rows if r["claims"][0]["ground_truth"]["substratum"] == sub]
                 picks += subset[:: max(1, len(subset) // 3)][:3]
@@ -234,7 +269,7 @@ def main() -> int:
             elif t == "usage_showdown":
                 print(f"   key: teammates {gt['teammates']}")
             elif t == "damage":
-                print(f"   key: none stored (calc builder); move {gt['move']} {gt['move_category']} bp {gt['move_basePower']}")
+                print(f"   key: guaranteed_ko {gt['guaranteed_ko']} ({gt['rolls_ko_of_16']}/16 rolls KO)")
             else:
                 print(f"   key: {r['claims'][0]['kind']} -> " + str({k: gt[k] for k in ('category', 'basePower', 'type') if k in gt}))
             print(f"   evidence: {evidence(r, leg, ig, sd)}")

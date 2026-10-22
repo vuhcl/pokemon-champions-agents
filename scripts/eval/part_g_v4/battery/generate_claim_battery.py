@@ -75,6 +75,8 @@ READ_BLOBS = (
 ITEMS_TS_PIN = PKG / "key_artifacts" / "showdown_items_ts.pin.json"
 STONE_MAP = PKG / "key_artifacts" / "stone_map.v1.json"
 ITEM_STRATUM = Path(__file__).resolve().parent / "item_stratum.json"
+DAMAGE_POOL = PKG / "key_artifacts" / "battery_damage_pool.json"
+TYPE_CHART = PKG / "key_artifacts" / "type_chart.v1.json"
 STONE_SHARE_LIMIT_PCT = 0.5  # Showdown base-form rows: max total pct of Mega stones among listed items
 
 
@@ -209,6 +211,23 @@ def own_abilities(snap_species: dict, sid: str) -> list[str]:
     return [v for v in snap_species[sid]["abilities"].values() if v]
 
 
+def load_damage_pool(snap_pins: list[dict[str, str]]) -> dict:
+    """Calc-labeled damage pool; stale if any input it was built from has changed."""
+    pool = json.loads(DAMAGE_POOL.read_text())
+    meta = pool["meta"]
+    manifest = json.loads((PKG / "pins_manifest.json").read_text())
+    by_path = {p["path"]: p["git_blob_sha"] for p in manifest["pins"]}
+    for p in meta["pins"]:
+        if by_path.get(p["path"]) != p["git_blob_sha"]:
+            raise SystemExit(f"damage pool is stale: {p['path']} changed since the pool was built")
+    for key, path in (("stone_map_sha256", STONE_MAP), ("type_chart_sha256", TYPE_CHART)):
+        if hashlib.sha256(path.read_bytes()).hexdigest() != meta[key]:
+            raise SystemExit(f"damage pool is stale: {path.name} changed since the pool was built")
+    if manifest["calc_service"]["version"] != meta["calc_build"]:
+        raise SystemExit("damage pool is stale: calc build changed")
+    return pool
+
+
 def load_stone_map() -> dict:
     return json.loads(STONE_MAP.read_text())
 
@@ -335,15 +354,6 @@ def build_claim_battery(
     def variable_power(mid: str) -> bool:
         return move_field(mid, "category") != "Status" and int(move_field(mid, "basePower")) == 0
 
-    damaging_moves = [
-        mid
-        for mid in move_ids
-        if move_field(mid, "category") in ("Physical", "Special")
-        and int(move_field(mid, "basePower")) > 0
-    ]
-    if not damaging_moves:
-        raise SystemExit("no damaging moves found in the legality blob")
-
     leg_sp = legal_species(snap)
     illeg_sp = illegal_species(snap)
     leg_it = legal_items(snap)
@@ -386,6 +396,15 @@ def build_claim_battery(
     for sub in ("mega", "base"):
         if len(sd_strata[sub]["upper"]) < 2 or len(sd_strata[sub]["lower"]) < 2:
             raise SystemExit(f"Showdown {sub} sub-stratum has too few admitted rows")
+    damage_pool = load_damage_pool(read_pins())
+    by_kind: dict[str, list[dict]] = {}
+    for e in damage_pool["entries"]:
+        by_kind.setdefault(e["kind"], []).append(e)
+    damage_kinds = [k for k, q in damage_pool["meta"]["quotas_per_battery"].items() for _ in range(q)]
+    n_damage = next(n for t, n, _ in TYPE_PLAN if t == "damage")
+    if len(damage_kinds) != n_damage:
+        raise SystemExit(f"damage quotas sum to {len(damage_kinds)}, TYPE_PLAN says {n_damage}")
+    damage_plan: list[str] = []  # shuffled lazily, at the first damage draw
     stratum_doc = json.loads(ITEM_STRATUM.read_text())
     bad = item_stratum_disagreements(stratum_doc, snap)
     if bad:
@@ -402,8 +421,11 @@ def build_claim_battery(
             "Who is faster: {S1} (Jolly, 32 Spe SP) or {S2} (Timid, 32 Spe SP)?",
         ],
         "damage": [
-            "What damage does {S1}'s {M} do into {S2}?",
-            "Does {S1}'s {M} OHKO {S2}?",
+            "{S1} ({A1}) uses {M} on {S2} ({A2}). Attacker: level 50, {NAT} nature, 32 SP in {OFF} and 0 SP "
+            "elsewhere, no item. Defender: level 50, Hardy nature, 32 HP SP and 0 SP in Defense and Special "
+            "Defense, no item. Both start at full HP with no stat changes or status; no weather, terrain or "
+            "screens; a single target; no critical hit. Does this guarantee a KO, that is, does every one of "
+            "the 16 damage rolls knock the defender out?"
         ],
         "usage": ["What are the top 5 held items and top 5 teammates for {S} (in-game)?"],
         "usage_showdown": ["Who are the top 5 teammates for {S} (Showdown)?"],
@@ -509,22 +531,36 @@ def build_claim_battery(
             kind = "outspeed" if tmpl.startswith("Does") else "faster"
             return tmpl.format(S1=n1, S2=n2), [(kind, gt)], tmpl
         if ctype == "damage":
-            sid1, sp1 = rng.choice(leg_sp)
-            sid2, sp2 = rng.choice(leg_sp)
-            mid = rng.choice(damaging_moves)
+            if not damage_plan:
+                damage_plan.extend(damage_kinds)
+                rng.shuffle(damage_plan)
+            kind = damage_plan[i]
+            cands = [
+                e for e in by_kind[kind]
+                if ("damage", "guaranteed_ko", "|".join((e["attacker"], e["defender"], e["move"]))) not in seen
+            ]
+            if not cands:
+                raise SystemExit(f"damage pool kind {kind} is exhausted (battery needs more than the pool holds)")
+            e = rng.choice(cands)
+            a = e["attrs"]
             gt = {
-                "attacker": sp1["name"],
-                "defender": sp2["name"],
-                "move": lmoves[mid]["name"],
-                "move_id": mid,
-                "move_category": lmoves[mid]["category"],
-                "move_basePower": lmoves[mid]["basePower"],
-                "move_type": lmoves[mid]["type"],
-                "note": "score via calc under explicit conditions; not asserted here",
-                "requires_calc": True,
+                "attacker": e["attacker"], "defender": e["defender"], "move": e["move"],
+                "attacker_ability": e["attacker_ability"], "defender_ability": e["defender_ability"],
+                "nature": e["nature"], "damage_kind": e["kind"],
+                "guaranteed_ko": e["guaranteed_ko"], "rolls_ko_of_16": e["rolls_ko_of_16"],
+                "min_roll": e["min_roll"], "max_roll": e["max_roll"], "hp": e["hp"], "rolls": e["rolls"],
+                "calc_desc": e["desc"],
+                "move_category": e["move_category"], "move_basePower": e["move_basePower"], "move_type": e["move_type"],
+                "effectiveness": a["effectiveness"], "category_match": a["category_match"],
+                "defender_bulk_quartile": a["defender_bulk_quartile"], "margin": a["margin"],
+                "max_ratio": a["max_ratio"], "high_power": a["high_power"], "stab": a["stab"],
             }
-            kind = "damage_range" if tmpl.startswith("What") else "ohko"
-            return tmpl.format(S1=sp1["name"], S2=sp2["name"], M=gt["move"]), [(kind, gt)], tmpl
+            off = "Attack" if e["move_category"] == "Physical" else "Special Attack"
+            prompt = tmpl.format(
+                S1=e["attacker"], A1=e["attacker_ability"], M=e["move"], S2=e["defender"], A2=e["defender_ability"],
+                NAT=e["nature"], OFF=off,
+            )
+            return prompt, [("guaranteed_ko", gt)], tmpl
         if ctype == "usage":
             pool = top_u if i % 2 == 0 else bot_u
             sid = rng.choice(pool)[0]
@@ -704,6 +740,19 @@ def build_claim_battery(
                 "illegal": sum(1 for e in stratum_doc["entries"] if e["expected"] == "illegal"),
                 "gated": False,
             },
+            "damage_pool": {
+                "file": "key_artifacts/battery_damage_pool.json",
+                "sha256": hashlib.sha256(DAMAGE_POOL.read_bytes()).hexdigest(),
+                "calc_build": damage_pool["meta"]["calc_build"],
+                "backend": damage_pool["meta"]["backend"],
+                "selector_sha256": damage_pool["meta"]["selector_sha256"],
+                "fixed_conditions": damage_pool["meta"]["fixed_conditions"],
+                "cutoffs": damage_pool["meta"]["cutoffs"],
+                "exclusions": damage_pool["meta"]["exclusions"],
+                "type_chart_sha256": damage_pool["meta"]["type_chart_sha256"],
+                "quotas_per_battery": damage_pool["meta"]["quotas_per_battery"],
+                "pool_sizes": damage_pool["meta"]["pool_sizes"],
+            },
             "stone_map": {
                 "file": "key_artifacts/stone_map.v1.json",
                 "sha256": hashlib.sha256(STONE_MAP.read_bytes()).hexdigest(),
@@ -805,15 +854,20 @@ def main() -> int:
     ap.add_argument(
         "--avoid-battery",
         type=Path,
+        nargs="+",
         default=None,
-        help="claim battery JSON; redraw items whose (type, kind, subject) matches it or an earlier item",
+        help="claim battery JSON(s); redraw items whose (type, kind, subject) matches them or an earlier item",
     )
     args = ap.parse_args()
     SEED = args.seed
     if SEED != 0 and args.out_dir is None:
         ap.error("--seed != 0 requires --out-dir (the default dir holds the frozen seed-0 battery)")
     rng = random.Random(SEED)
-    avoid = json.loads(args.avoid_battery.read_text())["items"] if args.avoid_battery else None
+    avoid = (
+        [it for path in args.avoid_battery for it in json.loads(path.read_text())["items"]]
+        if args.avoid_battery
+        else None
+    )
     claim = build_claim_battery(rng, avoid)
     # Separate RNG stream continuation is fine; false-legal uses same seed restart for stability
     rng_fl = random.Random(SEED + 1)
