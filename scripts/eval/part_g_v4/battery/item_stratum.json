@@ -1,0 +1,392 @@
+{
+ "schema": "part_g_v4_item_stratum",
+ "author": "Vu",
+ "date": "2026-10-22",
+ "note": "Hand-written held-item legality stratum. Expected statuses come from Vu (in-game knowledge); the generator and checks/check_item_stratum.py assert every entry against the pinned legality blob and never edit this file.",
+ "entries": [
+  {
+   "item": "Choice Band",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Choice Specs",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Assault Vest",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Booster Energy",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Covert Cloak",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Clear Amulet",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Eviolite",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Mirror Herb",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Heavy-Duty Boots",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Safety Goggles",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Throat Spray",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Weakness Policy",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Loaded Dice",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Toxic Orb",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Flame Orb",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Black Sludge",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Destiny Knot",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Punching Glove",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Eject Pack",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Blunder Policy",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Room Service",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Utility Umbrella",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Ability Shield",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Sticky Barb",
+   "expected": "illegal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as not usable in Champions"
+  },
+  {
+   "item": "Power Herb",
+   "expected": "illegal",
+   "source": "proposed_balance",
+   "reason": "proposed addition for balance; not yet confirmed by Vu"
+  },
+  {
+   "item": "Absorb Bulb",
+   "expected": "illegal",
+   "source": "proposed_balance",
+   "reason": "proposed addition for balance; not yet confirmed by Vu"
+  },
+  {
+   "item": "Cell Battery",
+   "expected": "illegal",
+   "source": "proposed_balance",
+   "reason": "proposed addition for balance; not yet confirmed by Vu"
+  },
+  {
+   "item": "Luminous Moss",
+   "expected": "illegal",
+   "source": "proposed_balance",
+   "reason": "proposed addition for balance; not yet confirmed by Vu"
+  },
+  {
+   "item": "Snowball",
+   "expected": "illegal",
+   "source": "proposed_balance",
+   "reason": "proposed addition for balance; not yet confirmed by Vu"
+  },
+  {
+   "item": "Adrenaline Orb",
+   "expected": "illegal",
+   "source": "proposed_balance",
+   "reason": "proposed addition for balance; not yet confirmed by Vu"
+  },
+  {
+   "item": "Protective Pads",
+   "expected": "illegal",
+   "source": "proposed_balance",
+   "reason": "proposed addition for balance; not yet confirmed by Vu"
+  },
+  {
+   "item": "Ring Target",
+   "expected": "illegal",
+   "source": "proposed_balance",
+   "reason": "proposed addition for balance; not yet confirmed by Vu"
+  },
+  {
+   "item": "Choice Scarf",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Life Orb",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Leftovers",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Focus Sash",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Sitrus Berry",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Rocky Helmet",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Expert Belt",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Muscle Band",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Wise Glasses",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Air Balloon",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Charcoal",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Mystic Water",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Black Glasses",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Spell Tag",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Dragon Fang",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Silk Scarf",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Metal Coat",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Fairy Feather",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Occa Berry",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Chople Berry",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Shuca Berry",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Roseli Berry",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Scope Lens",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "King's Rock",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Mental Herb",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "White Herb",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Lum Berry",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Psychic Seed",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Grassy Seed",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Eject Button",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Red Card",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Binding Band",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu as usable in Champions"
+  }
+ ]
+}

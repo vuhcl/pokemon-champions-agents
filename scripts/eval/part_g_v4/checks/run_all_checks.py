@@ -12,6 +12,7 @@ CHECKS = [
     "check_eval_independence.py",
     "check_pins.py",
     "check_calc_artifacts.py",
+    "check_item_stratum.py",
     "check_battery_hash.py",
     "check_ar3_probes.py",
     "check_keys_no_error_fields.py",
