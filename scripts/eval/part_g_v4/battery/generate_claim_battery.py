@@ -6,6 +6,7 @@ Eval-only. Reads pinned JSON under data/; no recommender imports.
 from __future__ import annotations
 
 import hashlib
+import argparse
 import json
 import random
 import re
@@ -408,13 +409,22 @@ def build_false_legal(rng: random.Random) -> dict[str, Any]:
 
 
 def main() -> int:
+    global SEED
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--out-dir", type=Path, default=None)
+    args = ap.parse_args()
+    SEED = args.seed
+    if SEED != 0 and args.out_dir is None:
+        ap.error("--seed != 0 requires --out-dir (the default dir holds the frozen seed-0 battery)")
     rng = random.Random(SEED)
     claim = build_claim_battery(rng)
     # Separate RNG stream continuation is fine; false-legal uses same seed restart for stability
     rng_fl = random.Random(SEED + 1)
     false_legal = build_false_legal(rng_fl)
 
-    out_dir = PKG / "battery"
+    out_dir = args.out_dir or PKG / "battery"
+    out_dir.mkdir(parents=True, exist_ok=True)
     claim_path = out_dir / "claim_battery_v4.json"
     fl_path = out_dir / "false_legal_battery_v4.json"
 
@@ -658,9 +668,9 @@ def main() -> int:
                 ),
             },
         },
-        "held_out": True,
-        "frozen": True,
-        "tuning_forbidden": True,
+        "held_out": SEED == 0,
+        "frozen": SEED == 0,
+        "tuning_forbidden": SEED == 0,
     }
     (out_dir / "battery_manifest.json").write_text(canonical_dumps(manifest))
     print(
