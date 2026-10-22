@@ -18,6 +18,8 @@ PKG = Path(__file__).resolve().parents[1]
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(PKG / "builders"))
 
+sys.path.insert(0, str(PKG / "checks"))
+from check_item_stratum import disagreements as item_stratum_disagreements  # noqa: E402
 from _lib import (  # noqa: E402
     champions_spe,
     is_legal_species,
@@ -32,8 +34,9 @@ FALSE_LEGAL_ITEMS = 240
 LEGAL_CONTROL_ITEMS = 80
 
 # (claim type, items, claim slots per item). About 1.15x the earlier 300-item plan.
-# "usage" = in-game stratum, "usage_showdown" = Showdown-labeled Mega stratum, "ability_form" =
-# form-conflation stratum. Every claim type except usage carries one slot per prompt.
+# "usage" = in-game stratum (held items + teammates), "usage_showdown" = Showdown-labeled stratum
+# (teammates only; Mega forms and mega-capable base forms), "ability_form" = form-conflation
+# stratum. Every claim type except in-game usage carries one slot per prompt.
 TYPE_PLAN: list[tuple[str, int, int]] = [
     ("typing", 44, 1),
     ("ability", 32, 1),
@@ -43,19 +46,24 @@ TYPE_PLAN: list[tuple[str, int, int]] = [
     ("speed", 51, 1),
     ("damage", 51, 1),
     ("usage", 34, 2),
-    ("usage_showdown", 10, 2),
+    ("usage_showdown", 10, 1),
     ("move_static", 35, 1),
 ]
 CLAIM_ITEMS = sum(n for _, n, _ in TYPE_PLAN)
 TOP_N = 5
 
-# In-game species excluded from the usage draw, by id.
-INGAME_USAGE_EXCLUDE = {
+# In-game species excluded from the usage draw, by id: every mega-capable base form (a holder in
+# the stone map of a legal Mega forme) plus the ids below.
+INGAME_EXCLUDE_EXTRA = {
     "meowsticf": (
         "child forme of Meowstic; its in-game row is Mega-dominated (Meowsticite 97.5% of "
         "held items), so the row does not describe the forme asked about"
     ),
 }
+INGAME_EXCLUDE_MEGA_CAPABLE = (
+    "mega-capable base form (holder in the Showdown stone map of a legal Mega forme): the in-game "
+    "base-form row blends Mega-stone holders with other sets"
+)
 
 # Blobs the generator reads (paths relative to the repo root); shas come from pins_manifest.json.
 READ_BLOBS = (
@@ -65,6 +73,9 @@ READ_BLOBS = (
     "data/moves/static.v1.json",
 )
 ITEMS_TS_PIN = PKG / "key_artifacts" / "showdown_items_ts.pin.json"
+STONE_MAP = PKG / "key_artifacts" / "stone_map.v1.json"
+ITEM_STRATUM = Path(__file__).resolve().parent / "item_stratum.json"
+STONE_SHARE_LIMIT_PCT = 0.5  # Showdown base-form rows: max total pct of Mega stones among listed items
 
 
 class Redraw(Exception):
@@ -168,6 +179,7 @@ _SUBJECT_FIELDS = {
     "ability": ("species", "asked_ability"),
     "ability_form": ("form", "asked_ability"),
     "item": ("item",),
+    "item_stratum": ("item",),
     "legality": ("species",),
     "speed": ("s1", "s2"),
     "damage": ("attacker", "defender", "move"),
@@ -193,48 +205,63 @@ def item_keys(entry: dict[str, Any]) -> set[tuple[str, str, str]]:
     return keys
 
 
-def pre_mega_id(snap_species: dict, mega_id: str) -> str | None:
-    """Pre-Mega forme id: the Mega name minus its -Mega suffix when that is a legality species."""
-    name = snap_species[mega_id]["name"]
-    stem = to_id(re.sub(r"-Mega(-[XYZ])?$", "", name))
-    for cand in (stem, snap_species[mega_id].get("base_species_id")):
-        if cand in snap_species and any(snap_species[cand].get("abilities", {}).values()):
-            return cand
-    return None
-
-
 def own_abilities(snap_species: dict, sid: str) -> list[str]:
     return [v for v in snap_species[sid]["abilities"].values() if v]
 
 
-def form_conflation_pool(snap: dict) -> tuple[list[dict], list[dict]]:
-    """Legal Mega forms with a False-case ability (base ability not in the Mega's own list)."""
+def load_stone_map() -> dict:
+    return json.loads(STONE_MAP.read_text())
+
+
+def mega_holders(snap: dict, stone_map: dict) -> dict[str, str]:
+    """Legal Mega forme id -> holder id, from the stone map (not base_species_id)."""
     sp = snap["species"]
-    ok, skipped = [], []
-    for mid in sorted(sp):
-        s = sp[mid]
-        if s.get("is_nonstandard") is not None or not re.search(r"-Mega($|-)", s["name"]):
+    out: dict[str, str] = {}
+    for p in stone_map["pairs"]:
+        m = sp.get(p["mega"])
+        if m is None or m.get("is_nonstandard") is not None:
             continue
-        pre = pre_mega_id(sp, mid)
-        if pre is None:
-            skipped.append({"form": mid, "reason": "no pre-Mega forme with abilities in legality"})
-            continue
-        m_list = own_abilities(sp, mid)
-        false_pool = [a for a in own_abilities(sp, pre) if a not in m_list]
+        if out.setdefault(p["mega"], p["holder"]) != p["holder"]:
+            raise SystemExit(f"{p['mega']}: more than one holder in the stone map")
+    named = {k for k, v in sp.items() if v.get("is_nonstandard") is None and re.search(r"-Mega($|-)", v["name"])}
+    if named != set(out):
+        raise SystemExit(f"legal Mega names and stone-map Megas differ: {sorted(named ^ set(out))}")
+    for mid, hid in out.items():
+        if hid not in sp or sp[hid].get("is_nonstandard") is not None or not own_abilities(sp, hid):
+            raise SystemExit(f"{mid}: holder {hid!r} is not a legal species with abilities")
+    return out
+
+
+def form_conflation_pools(snap: dict, holders: dict[str, str]) -> tuple[list[dict], list[dict], dict]:
+    """True forms (own list disjoint from the holder's) and False forms (a holder ability not in the
+    Mega's own list), from the legality blob alone."""
+    sp = snap["species"]
+    true_forms, false_forms, overlap, no_false = [], [], [], []
+    for mid in sorted(holders):
+        pre = holders[mid]
+        m_list, b_list = own_abilities(sp, mid), own_abilities(sp, pre)
+        false_pool = [a for a in b_list if a not in m_list]
         rec = {"form": mid, "pre_mega": pre, "form_abilities": m_list, "false_pool": false_pool}
-        if false_pool:
-            ok.append(rec)
+        if not set(m_list) & set(b_list):
+            true_forms.append(rec)
         else:
-            skipped.append({**rec, "reason": "every pre-Mega ability is in the Mega's own list"})
-    return ok, skipped
+            overlap.append(mid)
+        if false_pool:
+            false_forms.append(rec)
+        else:
+            no_false.append(mid)
+    return true_forms, false_forms, {"not_disjoint_so_no_true_case": overlap, "no_false_case": no_false}
 
 
-def showdown_stratum(snap: dict, ingame_ids: set[str], sd_species: dict) -> dict[str, Any]:
-    """Admit Showdown rows with no in-game row under four checks; split by usage_pct median."""
+def showdown_strata(
+    snap: dict, holders: dict[str, str], stone_names: set[str], sd_species: dict
+) -> dict[str, Any]:
+    """Showdown teammates strata: Mega forms and mega-capable base forms, each admitted by checks
+    run on the blobs and split into upper/lower half by the row's usage_pct."""
     sp, items = snap["species"], snap["items"]
     legal_item_names = {v["name"] for v in items.values() if v.get("is_nonstandard") is None}
-    admitted, rejected = [], []
-    for sid in sorted(set(sd_species) - ingame_ids):
+
+    def check(sid: str, kind: str) -> list[str]:
         row = sd_species[sid]
         reasons = []
         ent = sp.get(sid)
@@ -245,24 +272,41 @@ def showdown_stratum(snap: dict, ingame_ids: set[str], sd_species: dict) -> dict
             bad = [a["name"] for a in row["common_abilities"] if a["name"] not in legal_ab]
             if bad:
                 reasons.append(f"abilities not legal for this id: {bad}")
-        if not row["common_items"] or row["common_items"][0]["name"] not in legal_item_names:
-            reasons.append("top-listed item missing or not a legal item")
+        if kind == "mega":
+            if not row["common_items"] or row["common_items"][0]["name"] not in legal_item_names:
+                reasons.append("top-listed item missing or not a legal item")
+        else:
+            share = sum(x["pct"] for x in row["common_items"] if x["name"] in stone_names)
+            if share > STONE_SHARE_LIMIT_PCT:
+                reasons.append(f"Mega-stone share of listed items {share:.2f}% > {STONE_SHARE_LIMIT_PCT}%")
         if (row.get("teammates_meta") or {}).get("status") != "available":
             reasons.append("teammates_meta.status is not available")
-        (rejected if reasons else admitted).append((sid, reasons))
-    order = sorted((sid for sid, _ in admitted), key=lambda s: (-sd_species[s]["usage_pct"], s))
-    half = len(order) // 2
-    return {
-        "candidates": len(admitted) + len(rejected),
-        "admitted": [sid for sid, _ in admitted],
-        "rejected": [{"id": sid, "reasons": r} for sid, r in rejected],
-        "upper": order[:half],
-        "lower": order[half:],
-        "split_rule": (
-            "admitted rows sorted by showdown usage_pct descending (ties by id); "
-            "upper = first floor(n/2), lower = the rest; the blob has no rank field"
-        ),
-    }
+        return reasons
+
+    out: dict[str, Any] = {}
+    for kind, ids in (("mega", sorted(holders)), ("base", sorted(set(holders.values())))):
+        admitted, rejected, no_row = [], [], []
+        for sid in ids:
+            if sid not in sd_species:
+                no_row.append(sid)
+                continue
+            reasons = check(sid, kind)
+            (rejected if reasons else admitted).append((sid, reasons))
+        order = sorted((sid for sid, _ in admitted), key=lambda x: (-sd_species[x]["usage_pct"], x))
+        half = len(order) // 2
+        out[kind] = {
+            "candidates": len(admitted) + len(rejected),
+            "no_showdown_row": no_row,
+            "admitted": [sid for sid, _ in admitted],
+            "rejected": [{"id": sid, "reasons": r} for sid, r in rejected],
+            "upper": order[:half],
+            "lower": order[half:],
+        }
+    out["split_rule"] = (
+        "within each sub-stratum, admitted rows sorted by the row's Showdown usage_pct descending "
+        "(ties by id); upper = first floor(n/2), lower = the rest; the blob has no rank field"
+    )
+    return out
 
 
 def build_claim_battery(
@@ -313,13 +357,39 @@ def build_claim_battery(
             raise SystemExit(f"in-game row {sid!r} lacks usage_rank or name")
         usage_rows.append((sid, int(row["usage_rank"])))
     top_q, bot_q = quartile_split(usage_rows, rng)
-    top_u = [r for r in top_q if r[0] not in INGAME_USAGE_EXCLUDE]
-    bot_u = [r for r in bot_q if r[0] not in INGAME_USAGE_EXCLUDE]
 
-    form_pool, form_skipped = form_conflation_pool(snap)
-    sd_stratum = showdown_stratum(snap, set(ingame_species), sd_species)
-    if len(sd_stratum["admitted"]) < 2:
-        raise SystemExit("Showdown stratum has fewer than 2 admitted rows")
+    stone_map = load_stone_map()
+    stone_names = {p["stone"] for p in stone_map["pairs"]}
+    holders = mega_holders(snap, stone_map)
+    mega_capable = sorted(set(holders.values()))
+    ingame_excl: dict[str, str] = {}
+    for hid in mega_capable:
+        ingame_excl[hid] = INGAME_EXCLUDE_MEGA_CAPABLE
+    for hid, why in INGAME_EXCLUDE_EXTRA.items():
+        ingame_excl[hid] = (ingame_excl[hid] + "; " + why) if hid in ingame_excl else why
+    top_u = [r for r in top_q if r[0] not in ingame_excl]
+    bot_u = [r for r in bot_q if r[0] not in ingame_excl]
+    n_usage = next(n for t, n, _ in TYPE_PLAN if t == "usage")
+    for label, pool, need in (("top", top_u, (n_usage + 1) // 2), ("bottom", bot_u, n_usage // 2)):
+        if len(pool) < need:
+            raise SystemExit(f"in-game {label} quartile pool has {len(pool)} species after exclusions; need {need}")
+    in_game_stone_share = sorted(
+        sum(x["pct"] for x in ingame_species[h]["common_items"] if x["name"] in stone_names)
+        for h in mega_capable
+        if h in ingame_species
+    )
+
+    true_forms, false_forms, form_notes = form_conflation_pools(snap, holders)
+    if not true_forms or not false_forms:
+        raise SystemExit("form-conflation stratum has no True or no False forms")
+    sd_strata = showdown_strata(snap, holders, stone_names, sd_species)
+    for sub in ("mega", "base"):
+        if len(sd_strata[sub]["upper"]) < 2 or len(sd_strata[sub]["lower"]) < 2:
+            raise SystemExit(f"Showdown {sub} sub-stratum has too few admitted rows")
+    stratum_doc = json.loads(ITEM_STRATUM.read_text())
+    bad = item_stratum_disagreements(stratum_doc, snap)
+    if bad:
+        raise SystemExit("item_stratum.json disagrees with the legality blob:\n  " + "\n  ".join(bad))
 
     templates = {
         "typing": ["Is {S} a {T} type?", "Does {S} have {T} typing?"],
@@ -336,9 +406,7 @@ def build_claim_battery(
             "Does {S1}'s {M} OHKO {S2}?",
         ],
         "usage": ["What are the top 5 held items and top 5 teammates for {S} (in-game)?"],
-        "usage_showdown": [
-            "Who are the top 5 teammates and top 5 held items for {S} (Showdown)?"
-        ],
+        "usage_showdown": ["Who are the top 5 teammates for {S} (Showdown)?"],
         "move_static": [
             ("What category is {M}?", "category"),
             ("What is the base power of {M}?", "base_power"),
@@ -356,6 +424,8 @@ def build_claim_battery(
     seen: set[tuple[str, str, str]] = set()
     for a in avoid or []:
         seen |= item_keys(a)
+    for e in stratum_doc["entries"]:  # the main item draws must not repeat a stratum prompt
+        seen.add(("item", "item_legal", e["item"]))
     rejected = {t: 0 for t, _, _ in TYPE_PLAN}
     items: list[dict[str, Any]] = []
     claim_counts: dict[str, int] = {t: 0 for t, _, _ in TYPE_PLAN}
@@ -386,7 +456,7 @@ def build_claim_battery(
             assert gt["has_ability"] == want_true
             return tmpl.format(S=sp["name"], A=a), [(claim_kind[ctype], gt)], tmpl
         if ctype == "ability_form":
-            rec = rng.choice(form_pool)
+            rec = rng.choice(true_forms if want_true else false_forms)
             m = sp_all[rec["form"]]
             a = rng.choice(rec["form_abilities"] if want_true else rec["false_pool"])
             gt = {
@@ -475,26 +545,23 @@ def build_claim_battery(
                 tmpl,
             )
         if ctype == "usage_showdown":
-            half = sd_stratum["upper"] if i % 2 == 0 else sd_stratum["lower"]
-            sid = rng.choice(half)
+            sub = "mega" if i % 2 == 0 else "base"
+            j = i // 2
+            half = "upper" if (j % 2 == 0) == (sub == "mega") else "lower"  # 5 upper / 5 lower overall
+            sid = rng.choice(sd_strata[sub][half])
             row = sd_species[sid]
             name = sp_all[sid]["name"]
-            held = [(x["name"], x["pct"]) for x in row["common_items"]]
             mates = sorted(row["teammates"], key=lambda t: (-t["conditional_pct"], t["rank"]))
             gt = {
                 "species": name,
                 "id": sid,
                 "source": "showdown",
-                "usage_half": "upper" if i % 2 == 0 else "lower",
+                "substratum": "mega form" if sub == "mega" else "mega-capable base form",
+                "usage_half": half,
                 "usage_pct": row["usage_pct"],
-                "common_items": key_with_ties(held),
                 "teammates": key_with_ties([(t["name"], t["conditional_pct"]) for t in mates]),
             }
-            return (
-                tmpl.format(S=name),
-                [("common_items", gt), ("teammates", gt)],
-                tmpl,
-            )
+            return tmpl.format(S=name), [("teammates", gt)], tmpl
         # move_static
         tmpl_prompt, kind = tmpl
         mid = rng.choice(move_ids)
@@ -549,31 +616,99 @@ def build_claim_battery(
             i += 1
 
     assert len(items) == CLAIM_ITEMS
+    stratum_items = []
+    # The hand-written stratum is held-out: dev batteries (seed != 0) omit it, but their main item
+    # draws still avoid its prompts (see `seen` above).
+    for k, e in enumerate(stratum_doc["entries"] if SEED == 0 else []):
+        legal = e["expected"] == "legal"
+        stratum_items.append(
+            {
+                "id": f"item_stratum_{k:03d}",
+                "claim_type": "item_stratum",
+                "gated": False,
+                "template": templates["item"][0],
+                "prompt": templates["item"][0].format(I=e["item"]),
+                "claims": [
+                    {
+                        "index": 0,
+                        "kind": "item_legal",
+                        "ground_truth": {
+                            "item": e["item"],
+                            "legal": legal,
+                            "list_source": e["source"],
+                            "list_reason": e["reason"],
+                        },
+                    }
+                ],
+                "n_claims": 1,
+            }
+        )
     return {
         "overlap_rejected_by_type": rejected,
         "schema": "part_g_v4_claim_battery",
         "seed": SEED,
         "n_items": len(items),
-        "items": items,
+        "n_items_item_stratum": len(stratum_items),
+        "items": items + stratum_items,
         "claim_counts_by_type": claim_counts,
         "n_claims_total": sum(claim_counts.values()),
+        "n_claims_item_stratum_ungated": len(stratum_items),
         "ground_truth_framing": "fidelity to pinned snapshot",
         "strata": {
-            "ingame_usage_exclusions": INGAME_USAGE_EXCLUDE,
-            "ingame_usage_quartile_size": len(top_q),
-            "form_conflation": {
-                "qualifying_forms": len(form_pool),
-                "skipped_forms": form_skipped,
-                "false_candidates": sum(len(r["false_pool"]) for r in form_pool),
-                "true_candidates": sum(len(r["form_abilities"]) for r in form_pool),
+            "ingame_usage_exclusions": {
+                "rule": (
+                    "exclude every mega-capable base form (holder of a legal Mega forme in the stone "
+                    "map) and every id in extra_ids, by id"
+                ),
+                "mega_capable_reason": INGAME_EXCLUDE_MEGA_CAPABLE,
+                "extra_ids": INGAME_EXCLUDE_EXTRA,
+                "excluded_ids": sorted(ingame_excl),
+                "mega_capable_with_in_game_row": len(in_game_stone_share),
+                "mega_capable_stone_share_min_median_max_pct": [
+                    in_game_stone_share[0],
+                    in_game_stone_share[len(in_game_stone_share) // 2],
+                    in_game_stone_share[-1],
+                ],
+                "quartile_size": len(top_q),
+                "excluded_in_top_quartile": len(top_q) - len(top_u),
+                "excluded_in_bottom_quartile": len(bot_q) - len(bot_u),
+                "pool_after_exclusion": {"top": len(top_u), "bottom": len(bot_u)},
             },
-            "showdown_stratum": {
-                "candidates": sd_stratum["candidates"],
-                "admitted": len(sd_stratum["admitted"]),
-                "rejected": sd_stratum["rejected"],
-                "upper_n": len(sd_stratum["upper"]),
-                "lower_n": len(sd_stratum["lower"]),
-                "split_rule": sd_stratum["split_rule"],
+            "form_conflation": {
+                "mega_forms": len(holders),
+                "true_forms": len(true_forms),
+                "false_forms": len(false_forms),
+                "true_candidates": sum(len(r["form_abilities"]) for r in true_forms),
+                "false_candidates": sum(len(r["false_pool"]) for r in false_forms),
+                **form_notes,
+            },
+            "showdown_strata": {
+                sub: {
+                    "candidates": sd_strata[sub]["candidates"],
+                    "admitted": len(sd_strata[sub]["admitted"]),
+                    "no_showdown_row": sd_strata[sub]["no_showdown_row"],
+                    "rejected": sd_strata[sub]["rejected"],
+                    "upper_n": len(sd_strata[sub]["upper"]),
+                    "lower_n": len(sd_strata[sub]["lower"]),
+                }
+                for sub in ("mega", "base")
+            }
+            | {"split_rule": sd_strata["split_rule"], "stone_share_limit_pct": STONE_SHARE_LIMIT_PCT},
+            "item_stratum": {
+                "file": "battery/item_stratum.json",
+                "sha256": hashlib.sha256(ITEM_STRATUM.read_bytes()).hexdigest(),
+                "author": stratum_doc["author"],
+                "date": stratum_doc["date"],
+                "entries": len(stratum_doc["entries"]),
+                "legal": sum(1 for e in stratum_doc["entries"] if e["expected"] == "legal"),
+                "illegal": sum(1 for e in stratum_doc["entries"] if e["expected"] == "illegal"),
+                "gated": False,
+            },
+            "stone_map": {
+                "file": "key_artifacts/stone_map.v1.json",
+                "sha256": hashlib.sha256(STONE_MAP.read_bytes()).hexdigest(),
+                "source": stone_map["source"],
+                "pairs": len(stone_map["pairs"]),
             },
         },
     }
@@ -749,7 +884,9 @@ def main() -> int:
     # → P(item scored | n_i) = 1 − (1−p)^{n_i}; E = Σ_i that probability.
     # (300×0.70=210 is a lower bound: ignores multi-slot items.)
     expected_scored_items_exact = sum(
-        1.0 - (1.0 - answer_rate) ** int(it["n_claims"]) for it in claim["items"]
+        1.0 - (1.0 - answer_rate) ** int(it["n_claims"])
+        for it in claim["items"]
+        if it.get("gated", True)
     )
     expected_scored_items = int(round(expected_scored_items_exact))  # ~227
     item_tol = max_k(expected_scored_items)
@@ -944,6 +1081,7 @@ def main() -> int:
             "item category counts in report_battery.py only; not read by this generator"
         ),
         "strata": claim["strata"],
+        "item_stratum_slots_ungated": claim["n_claims_item_stratum_ungated"],
         "overlap_rejected_by_type": claim["overlap_rejected_by_type"],
     }
     (out_dir / "battery_manifest.json").write_text(canonical_dumps(manifest))
