@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Check a dev claim battery against the frozen seed-0 battery.
 
-Usage: check_dev_battery.py DEV_CLAIM_BATTERY.json
+Usage: check_dev_battery.py DEV_CLAIM_BATTERY.json [SEED0_CLAIM_BATTERY.json]
 Fails on any (type, kind, subject) shared with seed 0, any duplicate inside the dev
-battery, or item counts per type that differ from TYPE_PLAN. Also prints whether the
-usage_pct field behind the generator's quartile split exists, and the pools the dev items drew on.
+battery, an empty usage ground truth, or item counts per type that differ from TYPE_PLAN.
+Also prints how many usage items and speed species fall in the top and bottom usage_rank quartile.
 """
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ FROZEN = HERE / "claim_battery_v4.json"
 
 def main(argv: list[str]) -> int:
     dev = json.loads(Path(argv[1]).read_text())
-    frozen = json.loads(FROZEN.read_text())
+    frozen = json.loads((Path(argv[2]) if len(argv) > 2 else FROZEN).read_text())
     if dev["seed"] == frozen["seed"]:
         print("FAIL: dev battery has the frozen seed")
         return 1
@@ -45,16 +45,22 @@ def main(argv: list[str]) -> int:
         if counts[t] != n:
             errors.append(f"{t}: {counts[t]} items, TYPE_PLAN says {n}")
 
-    # The generator's usage-quartile stratification reads sp["usage_pct"]; report whether that
-    # field exists in the pinned blob, and the pools the dev items actually came from.
+    # Quartiles as the generator defines them: n//4 in-game species by usage_rank (1 = most used).
     sp_map = load_ingame()["ingame_doubles"]["species"]
-    n_pct = sum(1 for v in sp_map.values() if v.get("usage_pct") is not None)
-    speed_sp = {n for i in dev["items"] if i["claim_type"] == "speed"
-                for n in (i["claims"][0]["ground_truth"]["s1"], i["claims"][0]["ground_truth"]["s2"])}
-    usage = [i for i in dev["items"] if i["claim_type"] == "usage"]
-    no_row = sum(1 for i in usage if to_id(i["claims"][0]["ground_truth"]["species"]) not in sp_map)
-    print(f"in-game species with usage_pct: {n_pct}/{len(sp_map)} (0 means the quartile split is inactive)")
-    print(f"speed items draw on {len(speed_sp)} distinct species; usage items: {len(usage)}, with no in-game row: {no_row}")
+    rows = sorted(((s, v["usage_rank"]) for s, v in sp_map.items() if v.get("usage_rank") is not None),
+                  key=lambda x: (x[1], x[0]))
+    q = len(rows) // 4
+    top, bot = {s for s, _ in rows[:q]}, {s for s, _ in rows[-q:]}
+    where = Counter()
+    for it in dev["items"]:
+        g = it["claims"][0]["ground_truth"] if it["claims"] else {}
+        names = [g["species"]] if it["claim_type"] == "usage" else [g["s1"], g["s2"]] if it["claim_type"] == "speed" else []
+        for n in names:
+            where[(it["claim_type"], "top" if to_id(n) in top else "bottom" if to_id(n) in bot else "other")] += 1
+        if it["claim_type"] == "usage" and not (g["common_items"] or g["teammates"]):
+            errors.append(f"{it['id']}: empty usage ground truth")
+    print(f"ranked in-game species={len(rows)} quartile size={q}")
+    print("usage items / speed species slots by quartile:", dict(sorted(where.items())))
     print("rejected by type:", dev.get("overlap_rejected_by_type"))
     print("items by type:", dict(counts), "slots:", dev["n_claims_total"])
 
