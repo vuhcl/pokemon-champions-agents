@@ -47,9 +47,9 @@ def main() -> None:
     a("- Theme slice: H17–H22 + H18b (**7**)")
     a("- Build traps: IC1, GT1, GS1, LZ1, TB1, TB2, MM1, MM2, MC1, RB1 (**10**)")
     a(
-        "- Claim battery: **300** items → **381 claim slots**; expected **scored** claims = "
-        "`381 × 0.70 ≈ 267` (70% answer-rate assumption). Gate uses scored claims, not slots. "
-        "At ~267 scored, headline tolerance = **1** false claim. Design floor **240** = "
+        "- Claim battery: **300** items → **379 claim slots**; expected **scored** claims = "
+        "`379 × 0.70 ≈ 265` (70% answer-rate assumption). Gate uses scored claims, not slots. "
+        "At ~265 scored, headline tolerance = **1** false claim. Design floor **240** = "
         "1-failure threshold (236) + margin → **no extend** from sizing. "
         "Exact staircase: 0→149, 1→236, 2→313, 3→386 scored claims.\n"
     )

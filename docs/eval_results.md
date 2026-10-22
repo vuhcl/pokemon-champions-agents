@@ -499,6 +499,31 @@ not read it as an arm result.*
     (was `fc6b150dc70b3f73f80e7d529a9371f2799250c3316b15ec666eb473fb030385`)
 - The arm is not built, the gate was not run, and nothing was scored.
 
+### Part G battery cut (2026-10-22, branch eval/part-g-battery-cut)
+- Cause: the generator's usage-quartile stratification read `usage_pct`, a field
+  no in-game blob has (checked on all five versions of the in-game file; it
+  exists only in the Showdown sections). The quartile pools were empty, so speed
+  items drew from the first 20 legal species alphabetically and usage items from
+  all legal species, including 7 of 38 (14 claim slots) Mega formes with no
+  in-game row, an empty ground truth and a lowercase-id name in the prompt.
+  The false-legal battery had 9 duplicate item prompts and 1 duplicate control.
+- Change: quartiles by `usage_rank` over in-game species (n//4 each, 65 of 262);
+  speed and usage pools draw only from them, with no fallback; usage prompts use
+  the in-game display name; false-legal prompts are deduplicated by redraw
+  (9 item redraws, 1 control redraw; 240 items, 80 controls). The usage items
+  split 26 top / 12 bottom by `i % 3`, the speed pairs 1:1 by `i % 2`. This
+  is a generator-logic change, not a data change; all pins are as before.
+- Measured by `run_all_checks.py`, 7 of 7 checks PASS, on the regenerated files:
+  - claim battery sha: `7d5a5787d5500f1b98bdb4821b8d43a12618c15016ce266daf2a02340757c3be`
+    (was `af912615b46640d4758e77fd21850b8e1a7a46bd5ba20aba1b9c54acbe56cfa8`)
+  - false-legal battery sha: `fc0442e467c720dfc4a6c76dec27eba968dab7e31d5375d7866ff8c356da9635`
+    (was `13dda05d4ea03654a2efdcca9241e27a4e1af54e7008e2b70146d179209da851`)
+  - keys sha unchanged: `e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a`
+  - request set sha unchanged: `7fb9510cb50e8f1f320ac1cf6bced41e8dcd12f4245ed2abb03a42254a60afdb`
+  - claim slots 379 (was 381); expected scored at an assumed 70% answer rate
+    265 (was 267); tolerance at that count is still 1 false; item-level 226.59.
+- The arm is not built, the gate was not run, and nothing was scored.
+
 ---
 
 ## Showdown-simulated win rate (Phase 2)

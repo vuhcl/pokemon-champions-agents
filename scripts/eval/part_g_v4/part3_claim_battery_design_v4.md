@@ -29,7 +29,7 @@
 
 **Design floor 240:** the 1-failure threshold (**236**) plus a small margin; stop/extend if scored claims &lt; 240 before reading results.
 
-**Size target:** **300** items → **381** designed claim slots → expected scored claims = `381 × 0.70 ≈ 267` under the explicit **70% answer-rate** pre-run assumption (below). At that expected scored count, headline tolerance is **1** false claim (not 2).
+**Size target:** **300** items → **379** designed claim slots → expected scored claims = `379 × 0.70 ≈ 265` under the explicit **70% answer-rate** pre-run assumption (below). At that expected scored count, headline tolerance is **1** false claim (not 2).
 
 **Stop/extend rule:** If scored claims are less than 240 after a run, the battery is **extended BEFORE any results are read**; no conclusions from a short run.
 
@@ -87,7 +87,7 @@ Oracle Showdown commit in this pass: `942cda71…` (live cache). Pinned extract 
 ## Generator conventions
 
 - **Seed:** `random.seed(0)` (stdlib); record in battery header.
-- **Stratification:** legal vs illegal; usage top- vs bottom-quartile species; Spe ties; Mega/regional forms; common vs rare moves/items.
+- **Stratification:** legal vs illegal; usage top- vs bottom-quartile species (quartile = `n//4` in-game species by `usage_rank`, rank 1 = most used; usage items 2:1 top:bottom by `i % 3`, speed pairs 1:1 by `i % 2`, each pair from one quartile); Spe ties; Mega/regional forms; common vs rare moves/items.
 - **Derived-stat (9th type):** **deferred (D6)**. HU1 remains request-level only. Battery = **8 types**.
 
 ---
@@ -175,9 +175,9 @@ Oracle Showdown commit in this pass: `942cda71…` (live cache). Pinned extract 
 | **Claim slots (battery inventory)** | Designed scorable claim entries on the 300 items (`n_claims` / `claims[]`) | At generation |
 | **Scored claims** | Claims the arm actually authors that enter the false-claim gate denominator | After a model run |
 
-**381** = designed claim slots (seed 0). **Expected scored claims** = `381 × 0.70 ≈ 267` under the explicit **70% answer-rate** pre-run assumption (30% decline/incomplete → no scored claims from that item). The gate always uses the arm’s **actual** scored count; if the answer rate is lower, tolerance shrinks (see staircase).
+**379** = designed claim slots (seed 0). **Expected scored claims** = `379 × 0.70 ≈ 265` under the explicit **70% answer-rate** pre-run assumption (30% decline/incomplete → no scored claims from that item). The gate always uses the arm’s **actual** scored count; if the answer rate is lower, tolerance shrinks (see staircase).
 
-## Sizing arithmetic (300 items → 381 slots → ~267 expected scored)
+## Sizing arithmetic (300 items → 379 slots → ~265 expected scored)
 
 **Assumptions (explicit):**
 
@@ -196,21 +196,21 @@ Oracle Showdown commit in this pass: `942cda71…` (live cache). Pinned extract 
 | move static | 30 | 1.3 | 39.0 | 27.3 |
 | **Sum** | **300** | | **381.6** | **267.2** |
 
-**Generated battery (seed 0):** **300** items → **381** claim slots.  
-**Expected scored:** `381 × 0.70 ≈ 267`. At that count, headline max false claims that still pass = **1**.  
+**Generated battery (seed 0):** **300** items → **379** claim slots.  
+**Expected scored:** `379 × 0.70 ≈ 265`. At that count, headline max false claims that still pass = **1**.  
 **Design floor 240** = 1-failure threshold (236) + margin; if scored &lt; 240, extend before reading results.
 
 ### Answer rates at which headline tolerance drops
 
-Scored claims ≈ `381 × answer_rate`. Exact thresholds from the pass table:
+Scored claims ≈ `379 × answer_rate`. Exact thresholds from the pass table:
 
 | If answer rate falls below… | Scored n falls below… | Max false claims that still pass |
 |---|---|---|
-| **82.2%** (`313/381`) | 313 (2-failure min n) | drops from 2 → **at most 1** |
-| **61.9%** (`236/381`) | 236 (1-failure min n) | drops from 1 → **0 only** |
-| **39.1%** (`149/381`) | 149 (0-failure min n) | even **0** false fails the gate (extend) |
+| **82.6%** (`313/379`) | 313 (2-failure min n) | drops from 2 → **at most 1** |
+| **62.3%** (`236/379`) | 236 (1-failure min n) | drops from 1 → **0 only** |
+| **39.3%** (`149/379`) | 149 (0-failure min n) | even **0** false fails the gate (extend) |
 
-At the assumed **70%** rate (expected ~267 scored), tolerance is **1** false claim. If the arm’s actual answer rate is lower, tolerance shrinks accordingly.
+At the assumed **70%** rate (expected ~265 scored), tolerance is **1** false claim. If the arm’s actual answer rate is lower, tolerance shrinks accordingly.
 
 ---
 
@@ -220,7 +220,7 @@ The headline gate treats scored-claim outcomes as **independent**. That is **not
 
 **Limitation:** claims cluster by battery item (and by shared keys / fixtures — e.g. Intimidate DM rows, H12 threats). The effective independent sample is smaller than the scored-claim count, so the claim-level bound is **optimistic**.
 
-**70% answer rate** is a **pre-run sizing assumption**. The gate verdict uses the arm’s **actual** scored counts from the first run. An answer rate below about **62%** (`236/381`) loses the 1-failure tolerance (0-only reading, or extend if below 149).
+**70% answer rate** is a **pre-run sizing assumption**. The gate verdict uses the arm’s **actual** scored counts from the first run. An answer rate below about **62%** (`236/379`) loses the 1-failure tolerance (0-only reading, or extend if below 149).
 
 Headline gate is unchanged: claim-level, one-sided 95% Clopper-Pearson UCB ≤ 2% on scored claims. Two labeled secondaries sit beside it (same exact thresholds: 0→149, 1→236, 2→313, 3→386).
 
@@ -228,7 +228,7 @@ Headline gate is unchanged: claim-level, one-sided 95% Clopper-Pearson UCB ≤ 2
 
 | Pool | Count | Unit |
 |---|---|---|
-| Claim battery | **300** items | One prompt item with `n_claims` designed slots (mean ≈ 1.27; seed 0 → 381 slots) |
+| Claim battery | **300** items | One prompt item with `n_claims` designed slots (mean ≈ 1.27; seed 0 → 379 slots) |
 | Request set | **134** rows | One outcome-class row each (multi-turn cases = **one** row, not one item per turn) |
 
 These are **separate** eval pools — not one battery item per request-set row, and not repeated phrasings of rows. Request-set companions (AR3, IS2, build traps, H12/DM*) are documented next to the battery and are **not** in the battery item pool. Battery items have no `fixture_id` linking them to request-set rows; some claim types reuse species/keys conceptually. Within a request-set row, turns/claims share fixtures, keys, and assumptions (not independent).
@@ -244,7 +244,7 @@ Same CP rule on **scored items** (items with ≥1 model-authored claim).
 
 | | Value |
 |---|---|
-| Expected scored items (direct) | **≈227** (`227.01` on seed-0 battery; `≈227.14` from design rates) |
+| Expected scored items (direct) | **≈227** (`226.59` on seed-0 battery; `≈227.14` from design rates) |
 | Distance to 236 (1-failure line) | **9** below |
 | Max false items that still pass | **0** |
 
@@ -267,7 +267,7 @@ Same CP rule on **scored rows** (rows with ≥1 answered claim-type slot).
 
 | Level | Expected n (at 70%) | Max false that still pass | Independence assumption |
 |---|---|---|---|
-| **Headline** (scored claims) | ≈267 | **1** | scored claims independent |
+| **Headline** (scored claims) | ≈265 | **1** | scored claims independent |
 | **Secondary A** (scored battery items) | ≈227 | **0** | slots iid within item; items independent |
 | **Secondary B** (scored request-set rows) | ≈101 | **cannot demonstrate** | claim-type tokens iid within row |
 

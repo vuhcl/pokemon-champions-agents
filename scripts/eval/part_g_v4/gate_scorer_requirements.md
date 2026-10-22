@@ -84,7 +84,7 @@ The **unverifiable share** is reported as its **own line** next to the CP bound,
 
 alike.
 
-**Projection note:** the 70% / ~267 expected-scored-claims figure (and the ~227 / ~101 secondaries) assume every answered slot is verifiable, so those counts are **upper estimates** of scored (TRUE+FALSE) claims.
+**Projection note:** the 70% / ~265 expected-scored-claims figure (and the ~227 / ~101 secondaries) assume every answered slot is verifiable, so those counts are **upper estimates** of scored (TRUE+FALSE) claims.
 
 Battery design previously named “unverifiable share” separately (`part3_claim_battery_design_v4.md` L120, L139) without stating denominator membership; this requirement decides exclusion.
 
@@ -250,7 +250,7 @@ The scorer reads **weights** only from fields named `chaos_weight` or carrying *
 
 | Threshold | Meaning |
 |---|---|
-| **236** scored claims (`≈61.9%` of 381) | Below this, **1-failure tolerance is lost** (0 false only, or fail if below 149) |
+| **236** scored claims (`≈62.3%` of 379) | Below this, **1-failure tolerance is lost** (0 false only, or fail if below 149) |
 | **240** scored claims | Stop/extend **design floor** (236 + margin); extend battery before reading results if scored &lt; 240 |
 
 These are different things. Both apply to **TRUE+FALSE** scored counts (R8), not including UNVERIFIABLE.
@@ -277,7 +277,7 @@ These are different things. Both apply to **TRUE+FALSE** scored counts (R8), not
 - **DM6:** `false_claims` aligned with scoring; differing spread → not SERVED; top/most-common assertion → FALSE (usage).
 - **Chaos weights:** 17 fields renamed `pct` → `chaos_weight` (drop `pct_kind`).
 - **Artifact ids:** joint-keyed `ar3_probe_*_j{i}_{atk}` / `ar3fu_ohko_*_j{i}_{atk}`; no content-hash `probe_*` search dumps.
-- **Batteries / seeds / pins:** unchanged (`13d08244…` / `13dda05d…`).
+- **Batteries / seeds / pins:** unchanged (`13d08244…` / `13dda05d…`). (Superseded: the claim battery changed at the key cut and again at the battery cut of 2026-10-22; see `docs/eval_results.md`.)
 - **Leaf inventory:** 196 Phase A differing leaves = 74 builder bug + 101 builder-absent patch + 21 frozen error. Of 101: 54 A4-unverified (51 unread + 2 read-by-request-set + 1 read-elsewhere) + 6 B1.4 verified notes + 41 other (9 flame_charge_margin hand patch + 31 diagnostic omitted + 1 offers_of_either = 10 hand patches inside the 41). Separate inventory: full-chain committed-vs-regen diff has **21** hand-patched leaves (not equal to 41; see `full_chain_to_disposition_map.json`). Table: `key_artifacts/leaf_disposition_v41.tsv` (superseded by `leaf_disposition_v42.tsv`).
 - **Unverified for scorer (not gate) — superseded by v4.2:** v4.1 marked MT8 Jolly `+Def` (=20) / `+Spe` (=2) as unverified. Those values are **wrong** (illegal SpD>32), not unverified — see v4.2.
 - **B3 full-chain status — superseded by v4.2:** v4.1 spliced `mt7_mt8_ar` (solver timeout). v4.2 regenerates unspliced with the fast path (depends on PR #265 tooling).

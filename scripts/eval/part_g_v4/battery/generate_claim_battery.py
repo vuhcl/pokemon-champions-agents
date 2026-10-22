@@ -100,11 +100,12 @@ def load_moves_static() -> dict:
     return json.loads((ROOT / "data/moves/static.v1.json").read_text())
 
 
-def quartile_split(species_rows: list[tuple[str, float]], rng: random.Random) -> tuple[list, list]:
-    rows = sorted(species_rows, key=lambda x: (-x[1], x[0]))
+def quartile_split(species_rows: list[tuple[str, int]], rng: random.Random) -> tuple[list, list]:
+    """Top and bottom usage quartile; rows are (species id, usage_rank), rank 1 = most used."""
+    rows = sorted(species_rows, key=lambda x: (x[1], x[0]))
     n = len(rows)
-    if n < 4:
-        return rows, rows
+    if n < 8:
+        raise SystemExit(f"in-game blob has {n} ranked species; need >= 8 for quartiles")
     top = rows[: max(1, n // 4)]
     bot = rows[-(max(1, n // 4)) :]
     rng.shuffle(top)
@@ -155,12 +156,12 @@ def build_claim_battery(
     leg_it = legal_items(snap)
     illeg_it = illegal_items(snap)
 
-    usage_rows: list[tuple[str, float]] = []
-    for sid, sp in (ingame.get("ingame_doubles") or {}).get("species", {}).items():
-        pct = sp.get("usage_pct")
-        if pct is None:
-            continue
-        usage_rows.append((sid, float(pct)))
+    usage_rows: list[tuple[str, int]] = []
+    ingame_species = (ingame.get("ingame_doubles") or {}).get("species", {})
+    for sid, sp in ingame_species.items():
+        if sp.get("usage_rank") is None or not sp.get("name"):
+            raise SystemExit(f"in-game row {sid!r} lacks usage_rank or name")
+        usage_rows.append((sid, int(sp["usage_rank"])))
     top_q, bot_q = quartile_split(usage_rows, rng)
 
     items: list[dict[str, Any]] = []
@@ -280,8 +281,8 @@ def build_claim_battery(
             elif ctype == "speed":
                 pool = top_q if i % 2 == 0 else bot_q
                 if len(pool) < 2:
-                    pool = [(s, 0.0) for s, _ in leg_sp[:20]]
-                (s1, _), (s2, _) = rng.sample(pool, 2) if len(pool) >= 2 else (pool[0], pool[0])
+                    raise SystemExit(f"speed pool has {len(pool)} species; need >= 2")
+                (s1, _), (s2, _) = rng.sample(pool, 2)
                 sp1 = snap["species"].get(to_id(s1)) or {}
                 sp2 = snap["species"].get(to_id(s2)) or {}
                 n1, n2 = sp1.get("name") or s1, sp2.get("name") or s2
@@ -324,9 +325,9 @@ def build_claim_battery(
                     )
             elif ctype == "usage":
                 pool = top_q if i % 3 != 2 else bot_q
-                sid = rng.choice(pool)[0] if pool else rng.choice(leg_sp)[0]
-                sp = (ingame.get("ingame_doubles") or {}).get("species", {}).get(to_id(sid)) or {}
-                name = sp.get("name") or sid
+                sid = rng.choice(pool)[0]
+                sp = ingame_species[sid]
+                name = sp["name"]
                 prompt = tmpl_prompt.format(S=name)
                 def _name(x):
                     if isinstance(x, str):
@@ -408,24 +409,33 @@ def build_false_legal(rng: random.Random) -> dict[str, Any]:
         "Is {I} legal?",
         "Give me a set for {S} holding {I}.",
     ]
+    seen_prompts: set[str] = set()
+    redraws = {"items": 0, "controls": 0}
     for i in range(FALSE_LEGAL_ITEMS):
         mode = i % 3  # species-only / item-only / both
-        if mode == 0:
-            sid, sp = rng.choice(illeg_sp)
-            sname = sp.get("name") or sid
-            prompt = templates_ill[i % 2].format(S=sname, I="")
-            gt = {"illegal_species": sname, "kind": "species_only"}
-        elif mode == 1:
-            iid, it = rng.choice(illeg_it)
-            iname = it.get("name") or iid
-            prompt = "Is {I} legal?".format(I=iname)
-            gt = {"illegal_item": iname, "kind": "item_only"}
+        for _attempt in range(1000):  # redraw on a repeated prompt
+            if mode == 0:
+                sid, sp = rng.choice(illeg_sp)
+                sname = sp.get("name") or sid
+                prompt = templates_ill[i % 2].format(S=sname, I="")
+                gt = {"illegal_species": sname, "kind": "species_only"}
+            elif mode == 1:
+                iid, it = rng.choice(illeg_it)
+                iname = it.get("name") or iid
+                prompt = "Is {I} legal?".format(I=iname)
+                gt = {"illegal_item": iname, "kind": "item_only"}
+            else:
+                sid, sp = rng.choice(illeg_sp)
+                iid, it = rng.choice(illeg_it)
+                sname, iname = sp.get("name") or sid, it.get("name") or iid
+                prompt = templates_ill[3].format(S=sname, I=iname)
+                gt = {"illegal_species": sname, "illegal_item": iname, "kind": "both"}
+            if prompt not in seen_prompts:
+                break
+            redraws["items"] += 1
         else:
-            sid, sp = rng.choice(illeg_sp)
-            iid, it = rng.choice(illeg_it)
-            sname, iname = sp.get("name") or sid, it.get("name") or iid
-            prompt = templates_ill[3].format(S=sname, I=iname)
-            gt = {"illegal_species": sname, "illegal_item": iname, "kind": "both"}
+            raise SystemExit(f"false-legal item {i}: no unused prompt in 1000 draws")
+        seen_prompts.add(prompt)
         items.append(
             {
                 "id": f"false_legal_{i:03d}",
@@ -436,10 +446,18 @@ def build_false_legal(rng: random.Random) -> dict[str, Any]:
         )
 
     controls = []
+    seen_controls: set[str] = set()
     for i in range(LEGAL_CONTROL_ITEMS):
-        sid, sp = rng.choice(leg_sp)
-        iid, it = rng.choice(leg_it)
-        sname, iname = sp.get("name") or sid, it.get("name") or iid
+        for _attempt in range(1000):
+            sid, sp = rng.choice(leg_sp)
+            iid, it = rng.choice(leg_it)
+            sname, iname = sp.get("name") or sid, it.get("name") or iid
+            if f"Is {sname} legal holding {iname}?" not in seen_controls:
+                break
+            redraws["controls"] += 1
+        else:
+            raise SystemExit(f"legal control {i}: no unused prompt in 1000 draws")
+        seen_controls.add(f"Is {sname} legal holding {iname}?")
         controls.append(
             {
                 "id": f"legal_control_{i:03d}",
@@ -454,6 +472,7 @@ def build_false_legal(rng: random.Random) -> dict[str, Any]:
         "seed": SEED,
         "n_items": len(items),
         "n_legal_controls": len(controls),
+        "prompt_redraws": redraws,
         "items": items,
         "legal_controls": controls,
     }
