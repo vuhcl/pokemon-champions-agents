@@ -112,7 +112,38 @@ def quartile_split(species_rows: list[tuple[str, float]], rng: random.Random) ->
     return top, bot
 
 
-def build_claim_battery(rng: random.Random) -> dict[str, Any]:
+# Entities named in the prompt, per claim type (ground-truth field names).
+_SUBJECT_FIELDS = {
+    "typing": ("species",),
+    "ability": ("species",),
+    "item": ("item", "species"),
+    "legality": ("species",),
+    "speed": ("s1", "s2"),
+    "damage": ("attacker", "defender", "move"),
+    "usage": ("species",),
+    "move_static": ("move",),
+}
+
+
+def item_keys(entry: dict[str, Any]) -> set[tuple[str, str, str]]:
+    """(claim type, claim kind, subject entity) for each claim of an item.
+
+    Speed pairs are unordered ("who is faster" is symmetric).
+    """
+    ctype = entry["claim_type"]
+    keys = set()
+    for c in entry["claims"]:
+        gt = c["ground_truth"]
+        names = [str(gt[f]) for f in _SUBJECT_FIELDS[ctype]]
+        if ctype == "speed":
+            names.sort()
+        keys.add((ctype, c["kind"], "|".join(names)))
+    return keys
+
+
+def build_claim_battery(
+    rng: random.Random, avoid: list[dict[str, Any]] | None = None
+) -> dict[str, Any]:
     snap = load_legality()
     ingame = load_ingame()
     sd = load_showdown()
@@ -179,8 +210,18 @@ def build_claim_battery(rng: random.Random) -> dict[str, Any]:
         if (m.get("category") or "") in ("Physical", "Special") and int(m.get("basePower") or 0) > 0
     ]
 
+    # Overlap rejection (dev batteries only): redraw an item whose key matches an
+    # `avoid` item or an earlier item of this battery. Off by default, so seed 0 is unchanged.
+    seen: set[tuple[str, str, str]] = set()
+    for a in avoid or []:
+        seen |= item_keys(a)
+    rejected = {t: 0 for t, _, _ in TYPE_PLAN}
+
     for ctype, n_items, rate in TYPE_PLAN:
-        for i in range(n_items):
+        i = -1
+        attempts = 0
+        while i + 1 < n_items:
+            i += 1
             n_claims = claims_for_item(rate, rng)
             tmpl_prompt, claim_kind = rng.choice(templates[ctype])
             entry: dict[str, Any] = {
@@ -327,11 +368,21 @@ def build_claim_battery(rng: random.Random) -> dict[str, Any]:
 
             entry["prompt"] = prompt
             entry["n_claims"] = len(entry["claims"])
+            if avoid is not None:
+                if item_keys(entry) & seen:
+                    rejected[ctype] += 1
+                    attempts += 1
+                    if attempts > 2000:
+                        raise SystemExit(f"{ctype}: pool too small to avoid overlap at item {i}")
+                    i -= 1  # redraw this index (templates depend on i)
+                    continue
+                seen |= item_keys(entry)
             claim_counts[ctype] += entry["n_claims"]
             items.append(entry)
 
     assert len(items) == CLAIM_ITEMS
     return {
+        **({"overlap_rejected_by_type": rejected} if avoid is not None else {}),
         "schema": "part_g_v4_claim_battery",
         "seed": SEED,
         "n_items": len(items),
@@ -413,12 +464,19 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out-dir", type=Path, default=None)
+    ap.add_argument(
+        "--avoid-battery",
+        type=Path,
+        default=None,
+        help="claim battery JSON; redraw items whose (type, kind, subject) matches it or an earlier item",
+    )
     args = ap.parse_args()
     SEED = args.seed
     if SEED != 0 and args.out_dir is None:
         ap.error("--seed != 0 requires --out-dir (the default dir holds the frozen seed-0 battery)")
     rng = random.Random(SEED)
-    claim = build_claim_battery(rng)
+    avoid = json.loads(args.avoid_battery.read_text())["items"] if args.avoid_battery else None
+    claim = build_claim_battery(rng, avoid)
     # Separate RNG stream continuation is fine; false-legal uses same seed restart for stability
     rng_fl = random.Random(SEED + 1)
     false_legal = build_false_legal(rng_fl)
