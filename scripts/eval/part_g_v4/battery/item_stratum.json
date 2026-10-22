@@ -151,50 +151,50 @@
   {
    "item": "Power Herb",
    "expected": "illegal",
-   "source": "proposed_balance",
-   "reason": "proposed addition for balance; not yet confirmed by Vu"
+   "source": "assistant_proposed_vu_approved",
+   "reason": "proposed by assistant, approved by Vu 2026-10-22"
   },
   {
    "item": "Absorb Bulb",
    "expected": "illegal",
-   "source": "proposed_balance",
-   "reason": "proposed addition for balance; not yet confirmed by Vu"
+   "source": "assistant_proposed_vu_approved",
+   "reason": "proposed by assistant, approved by Vu 2026-10-22"
   },
   {
    "item": "Cell Battery",
    "expected": "illegal",
-   "source": "proposed_balance",
-   "reason": "proposed addition for balance; not yet confirmed by Vu"
+   "source": "assistant_proposed_vu_approved",
+   "reason": "proposed by assistant, approved by Vu 2026-10-22"
   },
   {
    "item": "Luminous Moss",
    "expected": "illegal",
-   "source": "proposed_balance",
-   "reason": "proposed addition for balance; not yet confirmed by Vu"
+   "source": "assistant_proposed_vu_approved",
+   "reason": "proposed by assistant, approved by Vu 2026-10-22"
   },
   {
    "item": "Snowball",
    "expected": "illegal",
-   "source": "proposed_balance",
-   "reason": "proposed addition for balance; not yet confirmed by Vu"
+   "source": "assistant_proposed_vu_approved",
+   "reason": "proposed by assistant, approved by Vu 2026-10-22"
   },
   {
    "item": "Adrenaline Orb",
    "expected": "illegal",
-   "source": "proposed_balance",
-   "reason": "proposed addition for balance; not yet confirmed by Vu"
+   "source": "assistant_proposed_vu_approved",
+   "reason": "proposed by assistant, approved by Vu 2026-10-22"
   },
   {
    "item": "Protective Pads",
    "expected": "illegal",
-   "source": "proposed_balance",
-   "reason": "proposed addition for balance; not yet confirmed by Vu"
+   "source": "assistant_proposed_vu_approved",
+   "reason": "proposed by assistant, approved by Vu 2026-10-22"
   },
   {
    "item": "Ring Target",
    "expected": "illegal",
-   "source": "proposed_balance",
-   "reason": "proposed addition for balance; not yet confirmed by Vu"
+   "source": "assistant_proposed_vu_approved",
+   "reason": "proposed by assistant, approved by Vu 2026-10-22"
   },
   {
    "item": "Choice Scarf",
