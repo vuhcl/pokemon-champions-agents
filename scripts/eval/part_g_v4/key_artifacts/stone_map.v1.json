@@ -1,0 +1,495 @@
+{
+ "pairs": [
+  {
+   "holder": "abomasnow",
+   "mega": "abomasnowmega",
+   "stone": "Abomasite"
+  },
+  {
+   "holder": "absol",
+   "mega": "absolmega",
+   "stone": "Absolite"
+  },
+  {
+   "holder": "absol",
+   "mega": "absolmegaz",
+   "stone": "Absolite Z"
+  },
+  {
+   "holder": "aerodactyl",
+   "mega": "aerodactylmega",
+   "stone": "Aerodactylite"
+  },
+  {
+   "holder": "aggron",
+   "mega": "aggronmega",
+   "stone": "Aggronite"
+  },
+  {
+   "holder": "alakazam",
+   "mega": "alakazammega",
+   "stone": "Alakazite"
+  },
+  {
+   "holder": "altaria",
+   "mega": "altariamega",
+   "stone": "Altarianite"
+  },
+  {
+   "holder": "ampharos",
+   "mega": "ampharosmega",
+   "stone": "Ampharosite"
+  },
+  {
+   "holder": "audino",
+   "mega": "audinomega",
+   "stone": "Audinite"
+  },
+  {
+   "holder": "banette",
+   "mega": "banettemega",
+   "stone": "Banettite"
+  },
+  {
+   "holder": "barbaracle",
+   "mega": "barbaraclemega",
+   "stone": "Barbaracite"
+  },
+  {
+   "holder": "baxcalibur",
+   "mega": "baxcaliburmega",
+   "stone": "Baxcalibrite"
+  },
+  {
+   "holder": "beedrill",
+   "mega": "beedrillmega",
+   "stone": "Beedrillite"
+  },
+  {
+   "holder": "blastoise",
+   "mega": "blastoisemega",
+   "stone": "Blastoisinite"
+  },
+  {
+   "holder": "blaziken",
+   "mega": "blazikenmega",
+   "stone": "Blazikenite"
+  },
+  {
+   "holder": "camerupt",
+   "mega": "cameruptmega",
+   "stone": "Cameruptite"
+  },
+  {
+   "holder": "chandelure",
+   "mega": "chandeluremega",
+   "stone": "Chandelurite"
+  },
+  {
+   "holder": "charizard",
+   "mega": "charizardmegax",
+   "stone": "Charizardite X"
+  },
+  {
+   "holder": "charizard",
+   "mega": "charizardmegay",
+   "stone": "Charizardite Y"
+  },
+  {
+   "holder": "chesnaught",
+   "mega": "chesnaughtmega",
+   "stone": "Chesnaughtite"
+  },
+  {
+   "holder": "chimecho",
+   "mega": "chimechomega",
+   "stone": "Chimechite"
+  },
+  {
+   "holder": "clefable",
+   "mega": "clefablemega",
+   "stone": "Clefablite"
+  },
+  {
+   "holder": "crabominable",
+   "mega": "crabominablemega",
+   "stone": "Crabominite"
+  },
+  {
+   "holder": "crucibelle",
+   "mega": "crucibellemega",
+   "stone": "Crucibellite"
+  },
+  {
+   "holder": "darkrai",
+   "mega": "darkraimega",
+   "stone": "Darkranite"
+  },
+  {
+   "holder": "delphox",
+   "mega": "delphoxmega",
+   "stone": "Delphoxite"
+  },
+  {
+   "holder": "diancie",
+   "mega": "dianciemega",
+   "stone": "Diancite"
+  },
+  {
+   "holder": "dragalge",
+   "mega": "dragalgemega",
+   "stone": "Dragalgite"
+  },
+  {
+   "holder": "dragonite",
+   "mega": "dragonitemega",
+   "stone": "Dragoninite"
+  },
+  {
+   "holder": "drampa",
+   "mega": "drampamega",
+   "stone": "Drampanite"
+  },
+  {
+   "holder": "eelektross",
+   "mega": "eelektrossmega",
+   "stone": "Eelektrossite"
+  },
+  {
+   "holder": "emboar",
+   "mega": "emboarmega",
+   "stone": "Emboarite"
+  },
+  {
+   "holder": "excadrill",
+   "mega": "excadrillmega",
+   "stone": "Excadrite"
+  },
+  {
+   "holder": "falinks",
+   "mega": "falinksmega",
+   "stone": "Falinksite"
+  },
+  {
+   "holder": "feraligatr",
+   "mega": "feraligatrmega",
+   "stone": "Feraligite"
+  },
+  {
+   "holder": "floetteeternal",
+   "mega": "floettemega",
+   "stone": "Floettite"
+  },
+  {
+   "holder": "froslass",
+   "mega": "froslassmega",
+   "stone": "Froslassite"
+  },
+  {
+   "holder": "gallade",
+   "mega": "gallademega",
+   "stone": "Galladite"
+  },
+  {
+   "holder": "garchomp",
+   "mega": "garchompmega",
+   "stone": "Garchompite"
+  },
+  {
+   "holder": "garchomp",
+   "mega": "garchompmegaz",
+   "stone": "Garchompite Z"
+  },
+  {
+   "holder": "gardevoir",
+   "mega": "gardevoirmega",
+   "stone": "Gardevoirite"
+  },
+  {
+   "holder": "gengar",
+   "mega": "gengarmega",
+   "stone": "Gengarite"
+  },
+  {
+   "holder": "glalie",
+   "mega": "glaliemega",
+   "stone": "Glalitite"
+  },
+  {
+   "holder": "glimmora",
+   "mega": "glimmoramega",
+   "stone": "Glimmoranite"
+  },
+  {
+   "holder": "golisopod",
+   "mega": "golisopodmega",
+   "stone": "Golisopite"
+  },
+  {
+   "holder": "golurk",
+   "mega": "golurkmega",
+   "stone": "Golurkite"
+  },
+  {
+   "holder": "greninja",
+   "mega": "greninjamega",
+   "stone": "Greninjite"
+  },
+  {
+   "holder": "gyarados",
+   "mega": "gyaradosmega",
+   "stone": "Gyaradosite"
+  },
+  {
+   "holder": "hawlucha",
+   "mega": "hawluchamega",
+   "stone": "Hawluchanite"
+  },
+  {
+   "holder": "heatran",
+   "mega": "heatranmega",
+   "stone": "Heatranite"
+  },
+  {
+   "holder": "heracross",
+   "mega": "heracrossmega",
+   "stone": "Heracronite"
+  },
+  {
+   "holder": "houndoom",
+   "mega": "houndoommega",
+   "stone": "Houndoominite"
+  },
+  {
+   "holder": "kangaskhan",
+   "mega": "kangaskhanmega",
+   "stone": "Kangaskhanite"
+  },
+  {
+   "holder": "latias",
+   "mega": "latiasmega",
+   "stone": "Latiasite"
+  },
+  {
+   "holder": "latios",
+   "mega": "latiosmega",
+   "stone": "Latiosite"
+  },
+  {
+   "holder": "lopunny",
+   "mega": "lopunnymega",
+   "stone": "Lopunnite"
+  },
+  {
+   "holder": "lucario",
+   "mega": "lucariomega",
+   "stone": "Lucarionite"
+  },
+  {
+   "holder": "lucario",
+   "mega": "lucariomegaz",
+   "stone": "Lucarionite Z"
+  },
+  {
+   "holder": "magearna",
+   "mega": "magearnamega",
+   "stone": "Magearnite"
+  },
+  {
+   "holder": "magearnaoriginal",
+   "mega": "magearnaoriginalmega",
+   "stone": "Magearnite"
+  },
+  {
+   "holder": "malamar",
+   "mega": "malamarmega",
+   "stone": "Malamarite"
+  },
+  {
+   "holder": "manectric",
+   "mega": "manectricmega",
+   "stone": "Manectite"
+  },
+  {
+   "holder": "mawile",
+   "mega": "mawilemega",
+   "stone": "Mawilite"
+  },
+  {
+   "holder": "medicham",
+   "mega": "medichammega",
+   "stone": "Medichamite"
+  },
+  {
+   "holder": "meganium",
+   "mega": "meganiummega",
+   "stone": "Meganiumite"
+  },
+  {
+   "holder": "meowstic",
+   "mega": "meowsticmmega",
+   "stone": "Meowsticite"
+  },
+  {
+   "holder": "meowsticf",
+   "mega": "meowsticfmega",
+   "stone": "Meowsticite"
+  },
+  {
+   "holder": "metagross",
+   "mega": "metagrossmega",
+   "stone": "Metagrossite"
+  },
+  {
+   "holder": "mewtwo",
+   "mega": "mewtwomegax",
+   "stone": "Mewtwonite X"
+  },
+  {
+   "holder": "mewtwo",
+   "mega": "mewtwomegay",
+   "stone": "Mewtwonite Y"
+  },
+  {
+   "holder": "pidgeot",
+   "mega": "pidgeotmega",
+   "stone": "Pidgeotite"
+  },
+  {
+   "holder": "pinsir",
+   "mega": "pinsirmega",
+   "stone": "Pinsirite"
+  },
+  {
+   "holder": "pyroar",
+   "mega": "pyroarmega",
+   "stone": "Pyroarite"
+  },
+  {
+   "holder": "raichu",
+   "mega": "raichumegax",
+   "stone": "Raichunite X"
+  },
+  {
+   "holder": "raichu",
+   "mega": "raichumegay",
+   "stone": "Raichunite Y"
+  },
+  {
+   "holder": "sableye",
+   "mega": "sableyemega",
+   "stone": "Sablenite"
+  },
+  {
+   "holder": "salamence",
+   "mega": "salamencemega",
+   "stone": "Salamencite"
+  },
+  {
+   "holder": "sceptile",
+   "mega": "sceptilemega",
+   "stone": "Sceptilite"
+  },
+  {
+   "holder": "scizor",
+   "mega": "scizormega",
+   "stone": "Scizorite"
+  },
+  {
+   "holder": "scolipede",
+   "mega": "scolipedemega",
+   "stone": "Scolipite"
+  },
+  {
+   "holder": "scovillain",
+   "mega": "scovillainmega",
+   "stone": "Scovillainite"
+  },
+  {
+   "holder": "scrafty",
+   "mega": "scraftymega",
+   "stone": "Scraftinite"
+  },
+  {
+   "holder": "sharpedo",
+   "mega": "sharpedomega",
+   "stone": "Sharpedonite"
+  },
+  {
+   "holder": "skarmory",
+   "mega": "skarmorymega",
+   "stone": "Skarmorite"
+  },
+  {
+   "holder": "slowbro",
+   "mega": "slowbromega",
+   "stone": "Slowbronite"
+  },
+  {
+   "holder": "staraptor",
+   "mega": "staraptormega",
+   "stone": "Staraptite"
+  },
+  {
+   "holder": "starmie",
+   "mega": "starmiemega",
+   "stone": "Starminite"
+  },
+  {
+   "holder": "steelix",
+   "mega": "steelixmega",
+   "stone": "Steelixite"
+  },
+  {
+   "holder": "swampert",
+   "mega": "swampertmega",
+   "stone": "Swampertite"
+  },
+  {
+   "holder": "tatsugiri",
+   "mega": "tatsugiricurlymega",
+   "stone": "Tatsugirinite"
+  },
+  {
+   "holder": "tatsugiridroopy",
+   "mega": "tatsugiridroopymega",
+   "stone": "Tatsugirinite"
+  },
+  {
+   "holder": "tatsugiristretchy",
+   "mega": "tatsugiristretchymega",
+   "stone": "Tatsugirinite"
+  },
+  {
+   "holder": "tyranitar",
+   "mega": "tyranitarmega",
+   "stone": "Tyranitarite"
+  },
+  {
+   "holder": "venusaur",
+   "mega": "venusaurmega",
+   "stone": "Venusaurite"
+  },
+  {
+   "holder": "victreebel",
+   "mega": "victreebelmega",
+   "stone": "Victreebelite"
+  },
+  {
+   "holder": "zeraora",
+   "mega": "zeraoramega",
+   "stone": "Zeraorite"
+  },
+  {
+   "holder": "zygardecomplete",
+   "mega": "zygardemega",
+   "stone": "Zygardite"
+  }
+ ],
+ "schema": "part_g_v4_stone_map",
+ "source": {
+  "items_ts_sha256": "75da206e2cb09868bb549360f38a144c2f50b24e1d189e03b485d550a4f6357a",
+  "path": ".cache/pokemon-showdown/data/items.ts",
+  "showdown_commit": "942cda71d14bf0618bd57991708a2e2734b6daba"
+ }
+}

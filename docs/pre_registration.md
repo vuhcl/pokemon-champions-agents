@@ -81,10 +81,19 @@ Exactly:
    bot commits move usage ranks and change data under a fixed method; a method
    SHA alone is not enough to reproduce a data-dependent result.
 6. **Amendments are append-only.** After a run, do not edit the original
-   registration text. Append a dated amendment under that section (or a new
-   section that supersedes by id + date). Changing metric, thresholds, oracle,
-   or sample requires a new registration (new SHA) before any comparable
-   remeasure.
+   registration text, and do not insert, move or delete any line inside a
+   registered `##` section or between it and the next `##` heading. Record each
+   amendment as a `### <REG-ID> Amendment YYYY-MM-DDa` subsection (then `b`, `c`,
+   ...) under a single `## Amendments to registrations` heading, appended below
+   any earlier amendments, and say which earlier amendment it supersedes. That
+   heading must follow the registered section and exist in the registering
+   commit, so the line-range walk in step 4 always ends at a `##` heading that
+   does not move. A registered section with no following `##` heading makes the
+   step-4 command error instead of printing nothing, which the step-4 sanity run
+   does not catch. Register each new experiment directly above the most recent
+   registration, never between a registered section and the Amendments heading.
+   Changing metric, thresholds, oracle, or sample still requires a new
+   registration (new SHA) before any comparable remeasure.
 
 ### Sample dataset rule
 

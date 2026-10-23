@@ -1,0 +1,432 @@
+{
+ "excluded": {
+  "assurance": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "reads hurtThisTurn"
+   ],
+   "depends_on": "whether the target was already damaged this turn",
+   "name": "Assurance"
+  },
+  "aurawheel": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry"
+   ],
+   "depends_on": "the user being Morpeko in a specific form (Hunger Switch state)",
+   "name": "Aura Wheel"
+  },
+  "avalanche": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "reads attackedBy"
+   ],
+   "depends_on": "whether the target damaged the user earlier this turn",
+   "name": "Avalanche"
+  },
+  "beakblast": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "priorityChargeCallback"
+   ],
+   "depends_on": "a charge-up turn with contact punishment",
+   "name": "Beak Blast"
+  },
+  "belch": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry",
+    "onDisableMove"
+   ],
+   "depends_on": "the user having eaten a berry in this battle",
+   "name": "Belch"
+  },
+  "bounce": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "a charge turn first (the charge flag in flags.v1.json already excludes it)",
+   "name": "Bounce"
+  },
+  "burnup": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "the user being Fire-type (fails otherwise)",
+   "name": "Burn Up"
+  },
+  "dig": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "a charge turn first (the charge flag in flags.v1.json already excludes it)",
+   "name": "Dig"
+  },
+  "dive": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "a charge turn first (the charge flag in flags.v1.json already excludes it)",
+   "name": "Dive"
+  },
+  "doubleshock": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "the user being Electric-type (fails otherwise)",
+   "name": "Double Shock"
+  },
+  "electroshot": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "a charge turn first (the charge flag in flags.v1.json already excludes it)",
+   "name": "Electro Shot"
+  },
+  "fakeout": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry",
+    "onDisableMove"
+   ],
+   "depends_on": "being the user's first turn on the field",
+   "name": "Fake Out"
+  },
+  "ficklebeam": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "reads randomChance"
+   ],
+   "depends_on": "a random 30% power boost",
+   "name": "Fickle Beam"
+  },
+  "firstimpression": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry",
+    "onDisableMove"
+   ],
+   "depends_on": "being the user's first turn on the field",
+   "name": "First Impression"
+  },
+  "fly": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "a charge turn first (the charge flag in flags.v1.json already excludes it)",
+   "name": "Fly"
+  },
+  "focuspunch": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "beforeMoveCallback",
+    "priorityChargeCallback"
+   ],
+   "depends_on": "the user not being hit before it moves (acts last in the turn)",
+   "name": "Focus Punch"
+  },
+  "futuresight": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry",
+    "flags.futuremove"
+   ],
+   "depends_on": "a delayed hit two turns later",
+   "name": "Future Sight"
+  },
+  "lastresort": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry"
+   ],
+   "depends_on": "the user having used every other move it knows",
+   "name": "Last Resort"
+  },
+  "lastrespects": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "reads totalFainted"
+   ],
+   "depends_on": "how many of the user's side have fainted",
+   "name": "Last Respects"
+  },
+  "meteorbeam": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "a charge turn first (the charge flag in flags.v1.json already excludes it)",
+   "name": "Meteor Beam"
+  },
+  "payback": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "reads newlySwitched",
+    "reads queue"
+   ],
+   "depends_on": "whether the target moves before the user this turn",
+   "name": "Payback"
+  },
+  "phantomforce": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "a charge turn first (the charge flag in flags.v1.json already excludes it)",
+   "name": "Phantom Force"
+  },
+  "pollenpuff": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "whether the target is an ally (heals instead)",
+   "name": "Pollen Puff"
+  },
+  "poltergeist": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry"
+   ],
+   "depends_on": "the target holding an item (fails with none)",
+   "name": "Poltergeist"
+  },
+  "ragefist": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "reads timesAttacked"
+   ],
+   "depends_on": "how many times the user has been hit",
+   "name": "Rage Fist"
+  },
+  "round": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry",
+    "reads sourceEffect"
+   ],
+   "depends_on": "whether an ally used Round earlier this turn",
+   "name": "Round"
+  },
+  "skyattack": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "a charge turn first (the charge flag in flags.v1.json already excludes it)",
+   "name": "Sky Attack"
+  },
+  "snore": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry"
+   ],
+   "depends_on": "the user being asleep",
+   "name": "Snore"
+  },
+  "solarbeam": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "a charge turn first (the charge flag in flags.v1.json already excludes it)",
+   "name": "Solar Beam"
+  },
+  "solarblade": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTryMove"
+   ],
+   "depends_on": "a charge turn first (the charge flag in flags.v1.json already excludes it)",
+   "name": "Solar Blade"
+  },
+  "steelroller": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry"
+   ],
+   "depends_on": "terrain being present (fails with none)",
+   "name": "Steel Roller"
+  },
+  "stompingtantrum": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "reads moveLastTurnResult"
+   ],
+   "depends_on": "whether the user's previous move failed",
+   "name": "Stomping Tantrum"
+  },
+  "suckerpunch": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry"
+   ],
+   "depends_on": "the target selecting a damaging move this turn",
+   "name": "Sucker Punch"
+  },
+  "temperflare": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "reads moveLastTurnResult"
+   ],
+   "depends_on": "whether the user's previous move failed",
+   "name": "Temper Flare"
+  },
+  "upperhand": {
+   "basis": "derived from the Showdown move entry",
+   "because": [
+    "onTry"
+   ],
+   "depends_on": "the target selecting a priority move this turn",
+   "name": "Upper Hand"
+  }
+ },
+ "hand_supplement": [],
+ "kept_with_defined_state": {
+  "acrobatics": {
+   "name": "Acrobatics",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "item"
+   ]
+  },
+  "barbbarrage": {
+   "name": "Barb Barrage",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "status"
+   ]
+  },
+  "eruption": {
+   "name": "Eruption",
+   "reads_state_defined_by_the_fixed_conditions": []
+  },
+  "expandingforce": {
+   "name": "Expanding Force",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "isTerrain"
+   ]
+  },
+  "facade": {
+   "name": "Facade",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "status"
+   ]
+  },
+  "gravapple": {
+   "name": "Grav Apple",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "gravity"
+   ]
+  },
+  "hex": {
+   "name": "Hex",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "status"
+   ]
+  },
+  "infernalparade": {
+   "name": "Infernal Parade",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "status"
+   ]
+  },
+  "knockoff": {
+   "name": "Knock Off",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "getItem",
+    "item"
+   ]
+  },
+  "lashout": {
+   "name": "Lash Out",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "statsLoweredThisTurn"
+   ]
+  },
+  "mistyexplosion": {
+   "name": "Misty Explosion",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "isTerrain"
+   ]
+  },
+  "powertrip": {
+   "name": "Power Trip",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "positiveBoosts"
+   ]
+  },
+  "risingvoltage": {
+   "name": "Rising Voltage",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "isTerrain"
+   ]
+  },
+  "storedpower": {
+   "name": "Stored Power",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "positiveBoosts"
+   ]
+  },
+  "tripleaxel": {
+   "name": "Triple Axel",
+   "reads_state_defined_by_the_fixed_conditions": []
+  },
+  "venoshock": {
+   "name": "Venoshock",
+   "reads_state_defined_by_the_fixed_conditions": [
+    "status"
+   ]
+  },
+  "watershuriken": {
+   "name": "Water Shuriken",
+   "reads_state_defined_by_the_fixed_conditions": []
+  },
+  "waterspout": {
+   "name": "Water Spout",
+   "reads_state_defined_by_the_fixed_conditions": []
+  }
+ },
+ "rule": {
+  "defined_state_tokens": [
+   ".item",
+   "getItem",
+   ".status",
+   "positiveBoosts",
+   "isTerrain",
+   "gravity",
+   "statsLoweredThisTurn"
+  ],
+  "gate_fields": [
+   "onTry",
+   "onTryMove",
+   "beforeMoveCallback",
+   "priorityChargeCallback",
+   "onDisableMove"
+  ],
+  "history_tokens": [
+   "hurtThisTurn",
+   "attackedBy",
+   "totalFainted",
+   "newlySwitched",
+   "queue",
+   "timesAttacked",
+   "moveLastTurnResult",
+   "randomChance",
+   "sourceEffect"
+  ]
+ },
+ "schema": "part_g_v4_move_conditionals",
+ "source": {
+  "mod_moves_ts_sha256": "4471bcc8eb98f4697d040953008330d7951d0bcc70688f3c85e77099b28ea228",
+  "mod_path": ".cache/pokemon-showdown/data/mods/champions/moves.ts",
+  "moves_ts_sha256": "738b8cfc1ca491537c0188546ab697942aaa313c5e6be83a5432edd5dd8997f7",
+  "path": ".cache/pokemon-showdown/data/moves.ts",
+  "showdown_commit": "942cda71d14bf0618bd57991708a2e2734b6daba"
+ }
+}

@@ -14,6 +14,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable
 
+from recommender.clock import utc_now
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SCHEDULE_PATH = ROOT / "data" / "active_regulation.json"
 DEFAULT_LEGALITY_PATH = ROOT / "data" / "legality" / "champions.v1.json"
@@ -157,7 +159,7 @@ def regulation_status(
     not ready (or has no schedule row), stay on the last regulation and emit
     ``schedule_past_end_not_ready``.
     """
-    now = now or datetime.now(timezone.utc)
+    now = now or utc_now()
     if now.tzinfo is None:
         now = now.replace(tzinfo=timezone.utc)
     else:

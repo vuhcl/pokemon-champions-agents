@@ -1,0 +1,9 @@
+{
+  "mod_moves_ts_sha256": "4471bcc8eb98f4697d040953008330d7951d0bcc70688f3c85e77099b28ea228",
+  "mod_path": ".cache/pokemon-showdown/data/mods/champions/moves.ts",
+  "moves_ts_sha256": "738b8cfc1ca491537c0188546ab697942aaa313c5e6be83a5432edd5dd8997f7",
+  "note": "Offline pin for the move-conditional extraction (builders/extract_move_conditionals.py). The extractor fails if either file is missing, a sha256 differs, or the checkout HEAD differs from showdown_commit.",
+  "path": ".cache/pokemon-showdown/data/moves.ts",
+  "repo": "https://github.com/smogon/pokemon-showdown.git",
+  "showdown_commit": "942cda71d14bf0618bd57991708a2e2734b6daba"
+}
