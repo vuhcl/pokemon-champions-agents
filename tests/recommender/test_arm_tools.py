@@ -109,3 +109,36 @@ def test_unknown_weather_is_a_tool_error_listing_valid_values(tools):
     from recommender.arm_tools import _field
 
     assert _field({"weather": "Rain"})["weather"] == "Rain"
+
+
+class _FailingCalc:
+    def __init__(self, species):
+        self.species = species
+
+    def calculate(self, *a, **k):
+        from recommender.calc_client import CalcClientError
+
+        raise CalcClientError(400, {"error": f"unknown Champions species: {self.species}"})
+
+
+def _speed_error(name):
+    return ArmTools(regulation="champions", allow_live=False, calc=_FailingCalc(name)).get_speed(name, "Hardy", 0)
+
+
+@pytest.mark.parametrize("name,base", [("Goodra-Gooey", "Goodra"), ("Typhlosion-Flash Fire", "Typhlosion"),
+                                       ("Slowbro-Galar-Own Tempo", "Slowbro-Galar")])
+def test_ability_suffix_suggests_the_species(name, base):
+    r = _speed_error(name)
+    assert r["error_kind"] == "calc_error" and r["calc_message"] == f"unknown Champions species: {name}"
+    assert f"Did you mean the species '{base}'" in r["message"] and "never include an ability" in r["message"]
+
+
+@pytest.mark.parametrize("name", ["Pikachu-Gooey", "Goodra-Blaze", "Notamon"])
+def test_other_unknown_names_suggest_nothing(name):
+    r = _speed_error(name)  # suffix is not an ability of that species, or there is no such species
+    assert "Did you mean" not in r["message"] and f"{name!r} is not a species name" in r["message"]
+
+
+def test_name_in_snapshot_but_rejected_by_calc_is_reported_as_such():
+    r = _speed_error("Aegislash")
+    assert "does not recognise the species name" in r["message"] and "Did you mean" not in r["message"]

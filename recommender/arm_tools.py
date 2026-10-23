@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import re
 from typing import Any, get_args
 
 from recommender import legality
@@ -100,7 +101,7 @@ class ArmTools:
         try:
             r = self.calc.calculate(spec, dict(SPEED_FILLER["opponent"], level=50), SPEED_FILLER["move"])
         except CalcClientError as exc:
-            return _err("calc_error", str(exc.body), source=CALC_SOURCE)
+            return self._calc_error(exc)
         return {"status": "ok", "species": species, "nature": nature, "speed_sp": speed_sp,
                 "speed": r["raw"]["stats"]["attacker"]["spe"],
                 "note": "final Speed stat from calc; no item, stat stage, weather, terrain or Tailwind applied",
@@ -116,7 +117,7 @@ class ArmTools:
         try:
             r = self.calc.calculate(req_a, req_d, move, req_f)
         except CalcClientError as exc:
-            return _err("calc_error", str(exc.body), source=CALC_SOURCE)
+            return self._calc_error(exc)
         raw = r["raw"]
         rolls, hp = raw.get("damage"), raw["stats"]["defender"]["hp"]
         flat = isinstance(rolls, list) and bool(rolls) and all(isinstance(x, int) for x in rolls)
@@ -126,6 +127,24 @@ class ArmTools:
                 "defender_hp": hp, "rolls_that_ko": ko, "guaranteed_ko": None if ko is None else ko == len(rolls),
                 "ko_text": r["koChance"], "kochance": raw.get("kochance"),
                 "calc_desc": raw.get("desc"), "ability_resolution": r.get("abilityResolution"), "source": CALC_SOURCE}
+
+    def _calc_error(self, exc: CalcClientError) -> dict[str, Any]:
+        """Calc failure as a tool error; an unknown-species failure says what is wrong with the name."""
+        body = exc.body.get("error") if isinstance(exc.body, dict) else exc.body
+        m = re.match(r"unknown Champions species: (.+)$", str(body))
+        if not m:
+            return _err("calc_error", str(exc.body), source=CALC_SOURCE)
+        name = m.group(1)
+        for i in (j for j, ch in enumerate(name) if ch == "-"):
+            base, suffix = name[:i], name[i + 1:]
+            if any(to_id(suffix) == to_id(a) for a in legality.species_abilities(self.snap, base) or []):
+                msg = (f"{name!r} is not a species name: {suffix!r} is an ability of {base}, and species names never include an "
+                       f"ability. Did you mean the species {base!r}? Pass the ability separately.")
+                return _err("calc_error", msg, source=CALC_SOURCE, calc_message=str(body))
+        if to_id(name) in self.snap["species"]:
+            return _err("calc_error", f"the calc does not recognise the species name {name!r}, though it is in the legality snapshot",
+                        source=CALC_SOURCE, calc_message=str(body))
+        return _err("calc_error", f"{name!r} is not a species name", source=CALC_SOURCE, calc_message=str(body))
 
     # -- usage --------------------------------------------------------------
     def get_usage_items(self, species: str, source: str, n: int = 5) -> dict[str, Any]:
@@ -196,10 +215,10 @@ TOOL_SPECS: list[dict[str, Any]] = [
     _spec("check_species_legal", "Whether a species or form id is legal in Champions VGC.", species=dict(_S)),
     _spec("check_item_legal", "Whether an item is legal as a held item in Champions VGC.", item=dict(_S)),
     _spec("get_move_static", "Type, category and base power of a move.", move=dict(_S)),
-    _spec("get_speed", "Final Speed stat from the calc for a species, nature and Speed SP (no item or field effects).",
+    _spec("get_speed", "Final Speed stat from the calc for a species, nature and Speed SP (no item or field effects). Species names never include an ability.",
           species=dict(_S), nature=dict(_S), speed_sp={"type": "integer"}),
     _spec("calc_damage", "Damage calc for one move. Returns the calc's rolls, range, defender HP and KO text. Level is always 50; "
-          "critical hits are not supported. field may set gameType (default Doubles), weather, terrain, attackerSide, defenderSide.",
+          "critical hits are not supported. Species names never include an ability: pass the ability in the pokemon's ability field. field may set gameType (default Doubles), weather, terrain, attackerSide, defenderSide.",
           attacker=dict(_MON_SCHEMA), defender=dict(_MON_SCHEMA), move=dict(_S), field={"type": "object", "optional": True}),
     _spec("get_usage_items", "Most-used held items for a species from one usage source, with percentages, plus any entries tied at rank n.",
           species=dict(_S), source={"type": "string", "enum": list(USAGE_SOURCES)}, n={"type": "integer", "optional": True}),
