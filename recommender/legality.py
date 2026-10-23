@@ -103,6 +103,18 @@ def is_move_legal(snap: dict[str, Any], move: str) -> bool:
     return e.get("is_nonstandard") is None
 
 
+def species_types(snap: dict[str, Any], species: str) -> list[str] | None:
+    """Types of a species or form id (Mega, regional); ``None`` when the id is not in the snapshot."""
+    e = _species_entry(snap, species)
+    return list(e.get("types") or []) if e else None
+
+
+def species_abilities(snap: dict[str, Any], species: str) -> list[str] | None:
+    """Ability names in slot order for a species or form id (a Mega form lists its single ability)."""
+    e = _species_entry(snap, species)
+    return [v for v in (e.get("abilities") or {}).values() if isinstance(v, str)] if e else None
+
+
 def species_can_have_ability(snap: dict[str, Any], species: str, ability: str) -> bool:
     e = _species_entry(snap, species)
     if not e:
