@@ -39,11 +39,13 @@ OUT = PKG / "key_artifacts" / "battery_damage_pool.json"
 STONE_MAP = PKG / "key_artifacts" / "stone_map.v1.json"
 TYPE_CHART = PKG / "key_artifacts" / "type_chart.v1.json"
 CALC_RULES = PKG / "key_artifacts" / "calc_move_rules.v1.json"
+CONDITIONALS = PKG / "key_artifacts" / "move_conditionals.v1.json"
 PINS = PKG / "pins_manifest.json"
 BLOBS = (
     "data/legality/champions.v1.json",
     "data/moves/static.v1.json",
     "data/moves/flags.v1.json",
+    "data/moves/gen9_accuracy.v1.json",
 )
 
 SEED = 20261022
@@ -51,14 +53,16 @@ POOL_MULTIPLE = 4
 # Battery quotas per kind (51 items: 25 True, 26 False). The pool holds POOL_MULTIPLE x each.
 # T4 = low-defense target: 4 plain + "T4r" (resisted, still a guaranteed KO) + "T4e" (chart exception).
 # T5 = chart exceptions: Freeze-Dry into a Water-type, Flying Press from Hawlucha (1 each).
+# M1/M2 = twins on one (attacker, ability, move): conversion makes a guaranteed KO / ends up resisted or immune.
 QUOTAS = {
     "T5fd": 1, "T5fp": 1,
-    "T1": 8, "T2": 1, "T3": 8, "T4": 4, "T4r": 1, "T4e": 1,
-    "F1": 5, "F2": 5, "F2b": 4,
+    "T1": 8, "T2": 1, "T3": 8, "T4": 4, "T4r": 1, "T4e": 1, "M1": 1,
+    "F1": 5, "F2": 5, "F2b": 4, "M2": 1,
     "F3r_low": 1, "F3r_mid": 1, "F3r_high": 1, "F3n": 2,
     "F5": 4, "F4": 3,
 }
-TRUE_KINDS = ("T1", "T2", "T3", "T4", "T4r", "T4e", "T5fd", "T5fp")
+TRUE_KINDS = ("T1", "T2", "T3", "T4", "T4r", "T4e", "T5fd", "T5fp", "M1")
+TWIN_KINDS = ("M1", "M2")  # an ability- or form-modified move: a True item and a False item on the same triple
 MAX_ATTEMPTS_PER_KIND = 60000
 # Defender abilities that change a first hit but that the calc's rolls do not model; excluded when the
 # scan confirms the calc rolls ignore them and a legal species has them.
@@ -114,8 +118,14 @@ class Data:
         self.chart = json.loads(TYPE_CHART.read_text())["effectiveness"]
         self.rules = json.loads(CALC_RULES.read_text())
         self.legal = sorted(k for k, v in self.sp.items() if v["is_nonstandard"] is None)
-        self.gap_moves = {m["id"] for m in self.rules["calc_dex_gaps"]["moves"]}
+        # Moves with no calc type at all would be a silent zero-damage trap: assert none can be drawn.
+        self.no_type_moves = {m["id"] for m in self.rules["calc_dex_gaps"]["moves"] if m["calc"][0] is None}
         self.gap_species = set(self.rules["calc_dex_gaps"]["species"])
+        cond = json.loads(CONDITIONALS.read_text())
+        self.conditional = set(cond["excluded"]) | {h["id"] for h in cond["hand_supplement"]}
+        self.cond_doc = cond
+        acc = json.loads((ROOT / "data/moves/gen9_accuracy.v1.json").read_text())
+        self.accuracy = {m: acc[m]["accuracy"] for m in self.static if m in acc}
 
     def ability_list(self, sid: str) -> list[str]:
         return [v for v in self.sp[sid]["abilities"].values() if v]
@@ -158,7 +168,7 @@ def usable_moves(d: Data) -> list[str]:
     out = []
     for m in sorted(d.static):
         mv, st, fl = d.moves[m], d.static[m], d.flags[m]["flags"]
-        if m in d.gap_moves:
+        if m in d.conditional:
             continue
         if mv["category"] in ("Physical", "Special") and mv["basePower"] > 0 \
                 and st["target"] in ("normal", "any") and not fl.get("charge") and not fl.get("recharge"):
@@ -289,6 +299,19 @@ def build() -> dict[str, Any]:
         return math.floor(base * 0.85 * mult) / hp, math.floor(base * mult) / hp
 
     learn = {s: sorted(set(d.ls[d.learnset_key(s)]) & set(usable)) if d.learnset_key(s) else [] for s in ok_species}
+    for s_ in ok_species:
+        assert not (set(learn[s_]) & d.no_type_moves), "a drawable move has no calc type"
+
+    def est_plain(att: str, att_ab: str, dfn: str, m: str) -> float:
+        """Estimated min roll / HP as if the move kept its listed type and the plain chart applied."""
+        mv, b, c = d.moves[m], d.sp[att]["base_stats"], d.sp[dfn]["base_stats"]
+        cat = mv["category"]
+        a = stat(b[OFFENSE[cat]], ATTACKER_SP, 1.1)
+        df = stat(c[DEFENSE[cat]], 0)
+        hp = hp_stat(c["hp"], DEFENDER_HP_SP)
+        base = math.floor(math.floor(22 * mv["basePower"] * a / df) / 50) + 2
+        mult = (1.5 if mv["type"] in d.sp[att]["types"] else 1.0) * d.plain_eff(m, d.sp[dfn]["types"])
+        return math.floor(base * 0.85 * mult) / hp
 
     def attrs(att: str, att_ab: str, move: str, dfn: str, res: dict) -> dict[str, Any]:
         mv = d.moves[move]
@@ -299,6 +322,9 @@ def build() -> dict[str, Any]:
         e = d.eff(att, att_ab, move, d.sp[dfn]["types"])
         plain = d.plain_eff(move, d.sp[dfn]["types"])
         return {
+            "type_changed": d.final_type(att, att_ab, move) != mv["type"],
+            "accuracy": d.accuracy.get(move),
+            "plain_est_min_ratio": round(est_plain(att, att_ab, dfn, move), 4),
             "effectiveness": e,
             "chart_effectiveness": plain,
             "chart_exception": e != plain,
@@ -437,10 +463,31 @@ def build() -> dict[str, Any]:
             return None
         return att, att_ab, m, dfn
 
+    def make_entry(kind: str, drawn_as: str, att: str, att_ab: str, m: str, dfn: str, dfn_ab: str, res: dict, a: dict) -> dict:
+        rolls = res["rolls"]
+        mv = d.moves[m]
+        cat = mv["category"]
+        return {
+            "kind": kind,
+            "drawn_as": drawn_as,
+            "attacker_id": att, "attacker": d.sp[att]["name"], "attacker_ability": att_ab,
+            "attacker_is_mega": att in d.holder,
+            "nature": NATURE[cat],
+            "move_id": m, "move": mv["name"], "move_category": cat, "move_basePower": mv["basePower"], "move_type": mv["type"],
+            "move_final_type": d.final_type(att, att_ab, m),
+            "defender_id": dfn, "defender": d.sp[dfn]["name"], "defender_ability": dfn_ab,
+            "defender_is_mega": dfn in d.holder,
+            "hp": res["hp"], "rolls": rolls, "min_roll": min(rolls), "max_roll": max(rolls),
+            "rolls_ko_of_16": sum(r >= res["hp"] for r in rolls),
+            "guaranteed_ko": min(rolls) >= res["hp"],
+            "desc": res["desc"],
+            "attrs": a,
+        }
+
     pool: dict[str, list[dict]] = {k: [] for k in QUOTAS}
     keys: set[tuple[str, str, str]] = set()
     stats: dict[str, collections.Counter] = {k: collections.Counter() for k in QUOTAS}
-    order = list(QUOTAS)
+    order = [k for k in QUOTAS if k not in TWIN_KINDS]
     for kind in order:
         target = QUOTAS[kind] * POOL_MULTIPLE
         while len(pool[kind]) < target and stats[kind]["attempts"] < MAX_ATTEMPTS_PER_KIND:
@@ -478,25 +525,102 @@ def build() -> dict[str, Any]:
                 continue
             if target_kind != kind:
                 stats[kind]["reassigned_to_" + target_kind] += 1
-            rolls = res["rolls"]
-            mv = d.moves[m]
             keys.add((att, m, dfn))
-            pool[target_kind].append(
-                {
-                    "kind": target_kind,
-                    "drawn_as": kind,
-                    "attacker_id": att, "attacker": d.sp[att]["name"], "attacker_ability": att_ab,
-                    "nature": NATURE[cat],
-                    "move_id": m, "move": mv["name"], "move_category": cat, "move_basePower": mv["basePower"], "move_type": mv["type"],
-                    "move_final_type": d.final_type(att, att_ab, m),
-                    "defender_id": dfn, "defender": d.sp[dfn]["name"], "defender_ability": dfn_ab,
-                    "hp": res["hp"], "rolls": rolls, "min_roll": min(rolls), "max_roll": max(rolls),
-                    "rolls_ko_of_16": sum(r >= res["hp"] for r in rolls),
-                    "guaranteed_ko": min(rolls) >= res["hp"],
-                    "desc": res["desc"],
-                    "attrs": a,
-                }
-            )
+            pool[target_kind].append(make_entry(target_kind, kind, att, att_ab, m, dfn, dfn_ab, res, a))
+
+    # Count every resisted-but-guaranteed-KO pair the enumeration can reach (the pool keeps only a few).
+    survivors = [e for e in pool["T4r"]]
+    extra = 0
+    for x, xab, m, y in resisted:
+        yab = rng.choice(defender_abilities(y))
+        k_, res = label(d, request(d, x, xab, m, y, yab))
+        if k_ == "ok" and min(res["rolls"]) >= res["hp"] and (x, m, y) not in keys:
+            extra += 1
+    resisted_ko_found = len(survivors) + extra
+
+    # --- twins M1/M2: ability- or form-modified moves; one True and one False item on the same triple ---
+    scrappy = d.rules["ghost_revealing_abilities"]
+
+    def converting(att: str, ab: str, m: str) -> bool:
+        ft = d.final_type(att, ab, m)
+        return ft != d.moves[m]["type"] or (ab in scrappy and ft in ("Normal", "Fighting"))
+
+    triples = [
+        (x, ab, m)
+        for x in ok_species for ab in d.ability_list(x) for m in learn[x]
+        if converting(x, ab, m) and (x, ab, d.moves[m]["category"]) not in echo and d.moves[m]["basePower"] >= bp_q3
+    ]
+    def family(ab: str, m: str) -> str:
+        if ab in scrappy and d.final_type("", ab, m) == d.moves[m]["type"]:
+            return "Scrappy"
+        return "Raging Bull" if m == "ragingbull" else ab
+
+    by_family: dict[str, list[tuple[str, str, str]]] = collections.defaultdict(list)
+    for t_ in triples:
+        by_family[family(t_[1], t_[2])].append(t_)
+    families = sorted(by_family)
+    rng.shuffle(families)
+    for f_ in families:
+        rng.shuffle(by_family[f_])
+    # one twin per conversion family, so the pool is not four copies of the same mechanism
+    ordered_triples = [t_ for f_ in families for t_ in by_family[f_]]
+    twin_log = []
+    twin_stats = collections.Counter()
+    target_pairs = QUOTAS["M1"] * POOL_MULTIPLE
+    done_families: set[str] = set()
+    for att, ab, m in ordered_triples:
+        if len(twin_log) >= target_pairs:
+            break
+        if family(ab, m) in done_families:
+            continue
+        twin_stats["triples_tried"] += 1
+        cat = d.moves[m]["category"]
+        up, down = [], []
+        for y in def_species:
+            if y == att or (att, m, y) in keys:
+                continue
+            e = d.eff(att, ab, m, d.sp[y]["types"])
+            plain = d.plain_eff(m, d.sp[y]["types"])
+            lo_est, hi_est = est(att, ab, y, m)
+            if e > plain and e >= 1 and lo_est >= 0.9 and est_plain(att, ab, y, m) < 0.95:
+                up.append(y)
+            elif e <= 0.5 and hi_est < 1.1:
+                down.append(y)
+        if not up or not down:
+            continue
+        rng.shuffle(up)
+        rng.shuffle(down)
+
+        def first(cands: list[str], want_ko: bool):
+            for y in cands[:10]:
+                abs_ = [x_ for x_ in defender_abilities(y) if x_ not in STEERING_IMMUNITY.get(d.final_type(att, ab, m), set())] or defender_abilities(y)
+                yab = rng.choice(abs_)
+                kind_, res = label(d, request(d, att, ab, m, y, yab))
+                twin_stats["calc_calls"] += 1
+                if kind_ != "ok":
+                    continue
+                at = attrs(att, ab, m, y, res)
+                if want_ko and min(res["rolls"]) >= res["hp"] and at["effectiveness"] > at["chart_effectiveness"] and at["plain_est_min_ratio"] < 0.95:
+                    return y, yab, res, at
+                if not want_ko and min(res["rolls"]) < res["hp"] and at["effectiveness"] <= 0.5:
+                    return y, yab, res, at
+            return None
+
+        g1, g2 = first(up, True), first(down, False)
+        if g1 is None or g2 is None:
+            twin_stats["no_twin_found"] += 1
+            continue
+        for kd, g in (("M1", g1), ("M2", g2)):
+            y, yab, res, at = g
+            keys.add((att, m, y))
+            e = make_entry(kd, kd, att, ab, m, y, yab, res, at)
+            e["twin"] = f"{att}|{ab}|{m}"
+            pool[kd].append(e)
+        done_families.add(family(ab, m))
+        twin_log.append({"family": family(ab, m), "attacker": d.sp[att]["name"], "ability": ab, "move": d.moves[m]["name"],
+                         "listed_type": d.moves[m]["type"], "final_type": d.final_type(att, ab, m)})
+    twin_stats["families_available"] = len(families)
+
     entries = sorted((e for lst in pool.values() for e in lst), key=lambda e: (e["kind"], e["attacker_id"], e["move_id"], e["defender_id"]))
     shortfalls = {k: QUOTAS[k] * POOL_MULTIPLE - len(v) for k, v in pool.items() if len(v) < QUOTAS[k] * POOL_MULTIPLE}
     pins = json.loads(PINS.read_text())
@@ -528,7 +652,8 @@ def build() -> dict[str, Any]:
             "exclusions": {
                 **pre,
                 "species_not_in_calc": sorted(d.gap_species),
-                "calc_dex_gap_moves": sorted(d.gap_moves),
+                "conditional_success_moves": {k: {"name": v["name"], "because": v["because"], "depends_on": v["depends_on"]} for k, v in sorted(d.cond_doc["excluded"].items())},
+                "calc_dex_gap_moves_note": "Pound and Struggle have no learners and Growth is Status, so none can be drawn; a drawable move with no calc type fails the build",
                 "defender_abilities_unmodeled_by_calc_rolls": unmodeled_species,
                 "defenders_left_without_a_usable_ability": excluded_defenders,
             },
@@ -537,7 +662,11 @@ def build() -> dict[str, Any]:
             "stone_map_sha256": hashlib.sha256(STONE_MAP.read_bytes()).hexdigest(),
             "type_chart_sha256": hashlib.sha256(TYPE_CHART.read_bytes()).hexdigest(),
             "calc_rules_sha256": hashlib.sha256(CALC_RULES.read_bytes()).hexdigest(),
-            "build_stats": {k: dict(v) for k, v in stats.items()},
+            "build_stats": {**{k: dict(v) for k, v in stats.items()}, "M1_M2_twins": dict(twin_stats)},
+            "twins": twin_log,
+            "resisted_but_guaranteed_ko_pairs_found": resisted_ko_found,
+            "usable_moves_below_100_accuracy": {d.moves[m]["name"]: d.accuracy[m] for m in usable if d.accuracy.get(m) is not True and (d.accuracy.get(m) or 100) < 100},
+            "move_conditionals_sha256": hashlib.sha256(CONDITIONALS.read_bytes()).hexdigest(),
             "pool_sizes": {k: len(v) for k, v in pool.items()},
         },
         "entries": entries,
