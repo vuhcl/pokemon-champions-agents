@@ -38,10 +38,11 @@ from __future__ import annotations
 import calendar
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
-from datetime import date, datetime, timezone
+from datetime import date
 from functools import lru_cache
 from typing import Any, Literal
 
+from recommender.clock import utc_now
 from recommender.ids import to_id
 from recommender.item_conditions import mega_stones_by_item_id
 from recommender.legality import is_species_legal, load_snapshot
@@ -254,7 +255,7 @@ def period_end_for_month(month: str) -> str | None:
 
 
 def _utc_today() -> date:
-    return datetime.now(timezone.utc).date()
+    return utc_now().date()
 
 
 def _age_days_from_iso(day: str | None) -> int | None:
@@ -413,7 +414,7 @@ def _showdown_live_as_of(regulation: str) -> ArmAsOf:
         rating=int(tup[2]) if tup else None,
         period_end=period_end,
         extracted_at=None,
-        fetched_at=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        fetched_at=utc_now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         age_days=_age_days_from_iso(period_end),
     )
 
