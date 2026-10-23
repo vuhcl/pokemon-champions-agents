@@ -101,3 +101,11 @@ def test_field_defaults_to_doubles_and_validates():
     assert _field({"gameType": "Singles"}) == {"gameType": "Singles"}
     with pytest.raises(ValueError):
         _field({"crit": True})
+
+
+def test_unknown_weather_is_a_tool_error_listing_valid_values(tools):
+    r = tools.call("calc_damage", {"attacker": {"species": "A"}, "defender": {"species": "B"}, "move": "M", "field": {"weather": "Drizzle"}})
+    assert r["error_kind"] == "bad_arguments" and "'Rain'" in r["message"] and "Drizzle" in r["message"]
+    from recommender.arm_tools import _field
+
+    assert _field({"weather": "Rain"})["weather"] == "Rain"

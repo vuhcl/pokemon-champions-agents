@@ -10,11 +10,11 @@ from __future__ import annotations
 
 import dataclasses
 import json
-from typing import Any
+from typing import Any, get_args
 
 from recommender import legality
 from recommender.arm_teammates import arm_query_teammates, mega_capable_base_ids
-from recommender.calc_client import CalcClient, CalcClientError
+from recommender.calc_client import CalcClient, CalcClientError, SideWeather
 from recommender.ids import to_id
 from recommender.usage_data import ingame_ladder_species_map, showdown_species_map
 
@@ -176,6 +176,9 @@ def _field(field: dict[str, Any] | None) -> dict[str, Any]:
     extra = set(field or {}) - _FIELD_KEYS
     if extra:
         raise ValueError(f"field keys must be among {sorted(_FIELD_KEYS)}; got {sorted(extra)}")
+    weather = (field or {}).get("weather")
+    if weather is not None and weather not in get_args(SideWeather):
+        raise ValueError(f"field.weather {weather!r} is not a weather value; valid values: {list(get_args(SideWeather))}")
     return {"gameType": "Doubles", **(field or {})}
 
 
