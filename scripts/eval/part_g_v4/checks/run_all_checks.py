@@ -13,6 +13,8 @@ CHECKS = [
     "check_pins.py",
     "check_calc_artifacts.py",
     "check_item_stratum.py",
+    "check_stone_map_source.py",
+    "check_stone_map_vs_calc.py",
     "check_battery_hash.py",
     "check_ar3_probes.py",
     "check_keys_no_error_fields.py",
