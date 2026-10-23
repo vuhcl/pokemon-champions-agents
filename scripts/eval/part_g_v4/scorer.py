@@ -79,6 +79,7 @@ class Claim:
     proposition: str
     verdict: Result
     line: str = "gate"
+    reason: str = ""  # e.g. "different_source": the answer named a source other than the prompt's
 
 
 def dedupe(claims: list[Claim]) -> list[Claim]:
@@ -139,11 +140,12 @@ def score_set(kind: str, subject: str, stated: list[str], key: list[str], *, key
     rank (its own claim, kind `<kind>_rank`)."""
     inherited = stated_source is None or stated_source == key_source
     keyset = {norm(k) for k in key}
-    claims = [Claim(kind, subject, m, (Verdict.TRUE if norm(m) in keyset else Verdict.FALSE) if inherited else Verdict.UNVERIFIABLE)
+    why = "" if inherited else "different_source"
+    claims = [Claim(kind, subject, m, (Verdict.TRUE if norm(m) in keyset else Verdict.FALSE) if inherited else Verdict.UNVERIFIABLE, reason=why)
               for m in stated]
     for m, r in (asserted_ranks or {}).items():
         v = Verdict.UNVERIFIABLE if not inherited else (Verdict.TRUE if (key_ranks or {}).get(norm(m)) == r else Verdict.FALSE)
-        claims.append(Claim(f"{kind}_rank", subject, f"{m}={r}", v))
+        claims.append(Claim(f"{kind}_rank", subject, f"{m}={r}", v, reason=why))
     return dedupe(claims)
 
 
@@ -215,26 +217,52 @@ def audit_sample(ids: list[str], size: int, seed: int) -> list[str]:
     return sorted(random.Random(seed).sample(sorted(ids), min(size, len(ids))))
 
 
+# --- pilot report ------------------------------------------------------------------------------
+
+def pilot_report(by_item: dict[str, list[Claim]], n_items: int, slots: int) -> dict[str, Any]:
+    """Counts only (no gate verdict): scored claims in the gate unit, items with a scored claim, UNVERIFIABLE share
+    overall and by kind, and how many claims were UNVERIFIABLE because the answer named a different source."""
+    gated = [c for cs in by_item.values() for c in cs if c.line == "gate"]
+    scored = [c for c in gated if c.verdict in (Verdict.TRUE, Verdict.FALSE)]
+    unver = [c for c in gated if c.verdict == Verdict.UNVERIFIABLE]
+    by_kind: dict[str, dict[str, Any]] = {}
+    for kind in sorted({c.kind for c in gated}):
+        u = sum(1 for c in unver if c.kind == kind)
+        t = u + sum(1 for c in scored if c.kind == kind)
+        by_kind[kind] = {"unverifiable": u, "typed": t, "share": u / t if t else None}
+    return {
+        "scored_claims_gate_unit": len(scored), "slots": slots,
+        "items_with_scored_claim": sum(1 for cs in by_item.values() if any(c.line == "gate" and c.verdict in (Verdict.TRUE, Verdict.FALSE) for c in cs)),
+        "items": n_items,
+        "unverifiable_share_overall": len(unver) / (len(unver) + len(scored)) if unver or scored else None,
+        "unverifiable_by_kind": by_kind,
+        "answer_names_different_source": sum(1 for c in gated if c.reason == "different_source"),
+    }
+
+
 # --- CLI ---------------------------------------------------------------------------------------
 
 def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--answers", type=Path, required=True)
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--answers", type=Path, help="answers JSONL (for the audit sample ids)")
     ap.add_argument("--battery", type=Path, required=True)
+    ap.add_argument("--claims", type=Path, help="JSONL {id, claims:[[kind,subject,proposition,verdict|null,line,reason]]} from an extractor")
     ap.add_argument("--audit-size", type=int, default=None)
     ap.add_argument("--audit-seed", type=int, default=0)
     ap.add_argument("--gate-ko-chance", action="store_true", help="count the numeric KO chance in the headline (pending the owner's decision)")
     args = ap.parse_args()
     items = {i["id"]: i for i in json.loads(args.battery.read_text())["items"] if i.get("gated", True)}
-    answers = {r["id"]: r for r in map(json.loads, args.answers.read_text().splitlines())}
-    if args.audit_size:
-        print(json.dumps({"audit_ids": audit_sample(sorted(answers), args.audit_size, args.audit_seed)}))
-    claims: list[Claim] = []
-    for iid, it in items.items():
-        for claim in it["claims"]:
-            if iid in answers:
-                EXTRACTORS[(it["claim_type"], claim["kind"])](it, answers[iid])  # stubs raise until written
-    print(json.dumps(gate_summary(claims, slots=sum(i["n_claims"] for i in items.values()), gate_ko_chance=args.gate_ko_chance), indent=1))
+    slots = sum(i["n_claims"] for i in items.values())
+    if args.audit_size and args.answers:
+        ids = [json.loads(line)["id"] for line in args.answers.read_text().splitlines()]
+        print(json.dumps({"audit_ids": audit_sample(ids, args.audit_size, args.audit_seed)}))
+    if not args.claims:
+        raise SystemExit("no --claims: the per-template extractors are stubs until dev outputs are reviewed")
+    by_item = {r["id"]: [Claim(k, s_, p, Verdict(v) if v else None, ln, *rest) for k, s_, p, v, ln, *rest in r["claims"]]
+               for r in map(json.loads, args.claims.read_text().splitlines())}
+    print(json.dumps({"pilot": pilot_report(by_item, len(items), slots),
+                      "gate": gate_summary([c for cs in by_item.values() for c in cs], slots, gate_ko_chance=args.gate_ko_chance)},
+                     indent=1, default=str))
     return 0
 
 

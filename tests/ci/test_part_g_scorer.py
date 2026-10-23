@@ -113,3 +113,17 @@ def test_score_equal_and_audit_sampler():
 def test_extractors_are_stubs():
     with pytest.raises(NotImplementedError):
         sc.EXTRACTORS[("typing", "has_type")]({}, {})
+
+
+def test_pilot_report_counts_and_different_source():
+    by_item = {
+        "a": sc.score_set("common_items", "S", ["Life Orb", "Leftovers"], ["Life Orb"], key_source="in-game"),  # T, F
+        "b": sc.score_set("teammates", "S", ["X", "Y"], ["X"], key_source="in-game", stated_source="showdown"),  # U, U
+        "c": [sc.Claim("has_type", "A", "Fairy", None)],  # hedge
+        "d": [sc.Claim("ko_chance", "A", "25", T, line="ko_chance")],  # own line, not in the gate unit
+    }
+    r = sc.pilot_report(by_item, n_items=4, slots=10)
+    assert (r["scored_claims_gate_unit"], r["items_with_scored_claim"], r["items"]) == (2, 1, 4)
+    assert r["answer_names_different_source"] == 2 and r["unverifiable_share_overall"] == pytest.approx(2 / 4)
+    assert r["unverifiable_by_kind"]["teammates"] == {"unverifiable": 2, "typed": 2, "share": 1.0}
+    assert r["unverifiable_by_kind"]["common_items"]["share"] == 0.0
