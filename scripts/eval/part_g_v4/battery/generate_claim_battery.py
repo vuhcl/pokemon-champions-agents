@@ -424,11 +424,12 @@ def build_claim_battery(
             "Who is faster: {S1} (Jolly, 32 Spe SP) or {S2} (Timid, 32 Spe SP)?",
         ],
         "damage": [
-            "{S1}{A1} uses {M} on {S2}{A2}. Attacker: level 50, {NAT} nature, 32 SP in {OFF} and 0 SP "
-            "elsewhere, no item. Defender: level 50, Hardy nature, 32 HP SP and 0 SP in Defense and Special "
-            "Defense, no item. Both start at full HP with no stat changes or status; no weather, terrain or "
-            "screens; a single target; no critical hit. Assuming the move hits, does this guarantee a KO, "
-            "that is, does every one of the 16 damage rolls knock the defender out?{MEGA}"
+            "{S1}{A1} uses {M} on {S2}{A2}. Attacker: level 50, {NAT} nature, {ASP}, no item. "
+            "Defender: level 50, Hardy nature, 32 SP in HP and 0 SP in Attack, Defense, Special Attack, "
+            "Special Defense and Speed, no item. Both start at full HP with no stat changes or status; "
+            "no weather, terrain, screens or other field effects; a single target; no critical hit. "
+            "Assuming the move hits, does this guarantee a KO, that is, does every one of the 16 damage "
+            "rolls knock the defender out?{MEGA}"
         ],
         "usage": ["What are the top 5 held items and top 5 teammates for {S} (in-game)?"],
         "usage_showdown": ["Who are the top 5 teammates for {S} (Showdown)?"],
@@ -577,12 +578,24 @@ def build_claim_battery(
                     "chance_tolerance_points": 3.125,
                 },
             }
-            off = "Attack" if e["move_category"] == "Physical" else "Special Attack"
+            if mega_pair := (e["attacker_is_mega"] or e["defender_is_mega"]):
+                gt["scoring"]["stated_ability_differs_from_form_ability"] = "UNVERIFIABLE"
+                gt["scoring"]["stated_ability_differs_from_form_ability_note"] = (
+                    "damage claim only; the ability claim itself is scored FALSE by the ability item's own key"
+                )
+                gt["scoring"]["form_ability_used_by_key"] = {
+                    "attacker": e["attacker_ability"] if e["attacker_is_mega"] else None,
+                    "defender": e["defender_ability"] if e["defender_is_mega"] else None,
+                }
+            if e["move_category"] == "Physical":
+                asp = "32 SP in Attack and 0 SP in HP, Defense, Special Attack, Special Defense and Speed"
+            else:
+                asp = "32 SP in Special Attack and 0 SP in HP, Attack, Defense, Special Defense and Speed"
             mega = e["attacker_is_mega"] or e["defender_is_mega"]
             prompt = tmpl.format(
                 S1=e["attacker"], A1="" if e["attacker_is_mega"] else f" ({e['attacker_ability']})",
                 M=e["move"], S2=e["defender"], A2="" if e["defender_is_mega"] else f" ({e['defender_ability']})",
-                NAT=e["nature"], OFF=off, MEGA=" A Mega form uses its own single ability." if mega else "",
+                NAT=e["nature"], ASP=asp, MEGA=" A Mega form uses its own single ability." if mega else "",
             )
             return prompt, [("guaranteed_ko", gt)], tmpl
         if ctype == "usage":
