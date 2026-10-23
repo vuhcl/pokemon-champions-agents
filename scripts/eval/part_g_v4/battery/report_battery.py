@@ -96,7 +96,7 @@ def evidence(item: dict, leg: dict, ig: dict, sd: dict) -> str:
         )
     if ct == "damage":
         return (
-            f"kind {gt['damage_kind']}; calc: {gt['calc_desc']}; HP {gt['hp']}; rolls {gt['rolls']}; "
+            f"kind {gt['damage_kind']}{' twin ' + gt['twin'] if gt.get('twin') else ''}; calc: {gt['calc_desc']}; HP {gt['hp']}; rolls {gt['rolls']}; "
             f"min {gt['min_roll']} max {gt['max_roll']}; {gt['rolls_ko_of_16']}/16 rolls KO; "
             f"{gt['move_category']} bp {gt['move_basePower']} {gt['move_type']}, effectiveness x{gt['effectiveness']:g}, "
             f"stab {gt['stab']}, bulk quartile {gt['defender_bulk_quartile']}, margin {gt['margin']}"
@@ -171,6 +171,9 @@ def main() -> int:
         print("per kind:", dict(sorted(kinds.items())), "| True", sum(g["guaranteed_ko"] for g in G), "False", len(G) - sum(g["guaranteed_ko"] for g in G))
         eff = collections.Counter("super-effective" if g["effectiveness"] >= 2 else "neutral" if g["effectiveness"] == 1 else "resisted/immune" for g in G)
         print("effectiveness classes:", dict(eff))
+        print("items naming a Mega form (ability not stated for it):", sum(1 for g in G if g["attacker_is_mega"] or g["defender_is_mega"]),
+              "| attacker Mega", sum(g["attacker_is_mega"] for g in G), "| defender Mega", sum(g["defender_is_mega"] for g in G))
+        print("move accuracy below 100 among the items:", sorted((g["move"], g["move_accuracy"]) for g in G if g["move_accuracy"] is not True and (g["move_accuracy"] or 100) < 100))
         print("category match (move uses attacker's stronger category):", dict(collections.Counter(g["category_match"] for g in G)))
         print("defender bulk quartile (1 = lowest):", dict(sorted(collections.Counter(g["defender_bulk_quartile"] for g in G).items())))
         for kind in sorted(kinds):
@@ -186,6 +189,7 @@ def main() -> int:
                 "effectiveness": "super-effective" if g["effectiveness"] >= 2 else "neutral" if g["effectiveness"] == 1 else "resisted/immune",
                 "base_power": "high" if g["move_basePower"] >= q3 else "low" if g["move_basePower"] <= q1 else "mid",
                 "category_match": "stronger" if g["category_match"] else "weaker",
+                "ability_changes_type": "yes" if g["type_changed"] else "no",
                 "bulk_quartile": f"q{g['defender_bulk_quartile']}",
                 "margin_class": (
                     "min roll >= 1.25 HP" if m >= 1.25 else "guaranteed, margin < 1.25" if g["guaranteed_ko"]

@@ -44,7 +44,7 @@ TYPE_PLAN: list[tuple[str, int, int]] = [
     ("item", 44, 1),
     ("legality", 35, 1),
     ("speed", 51, 1),
-    ("damage", 51, 1),
+    ("damage", 53, 1),
     ("usage", 34, 2),
     ("usage_showdown", 10, 1),
     ("move_static", 35, 1),
@@ -78,6 +78,7 @@ ITEM_STRATUM = Path(__file__).resolve().parent / "item_stratum.json"
 DAMAGE_POOL = PKG / "key_artifacts" / "battery_damage_pool.json"
 TYPE_CHART = PKG / "key_artifacts" / "type_chart.v1.json"
 CALC_RULES = PKG / "key_artifacts" / "calc_move_rules.v1.json"
+MOVE_CONDITIONALS = PKG / "key_artifacts" / "move_conditionals.v1.json"
 STONE_SHARE_LIMIT_PCT = 0.5  # Showdown base-form rows: max total pct of Mega stones among listed items
 
 
@@ -221,7 +222,7 @@ def load_damage_pool(snap_pins: list[dict[str, str]]) -> dict:
     for p in meta["pins"]:
         if by_path.get(p["path"]) != p["git_blob_sha"]:
             raise SystemExit(f"damage pool is stale: {p['path']} changed since the pool was built")
-    for key, path in (("stone_map_sha256", STONE_MAP), ("type_chart_sha256", TYPE_CHART), ("calc_rules_sha256", CALC_RULES)):
+    for key, path in (("stone_map_sha256", STONE_MAP), ("type_chart_sha256", TYPE_CHART), ("calc_rules_sha256", CALC_RULES), ("move_conditionals_sha256", MOVE_CONDITIONALS)):
         if hashlib.sha256(path.read_bytes()).hexdigest() != meta[key]:
             raise SystemExit(f"damage pool is stale: {path.name} changed since the pool was built")
     if manifest["calc_service"]["version"] != meta["calc_build"]:
@@ -406,6 +407,7 @@ def build_claim_battery(
     if len(damage_kinds) != n_damage:
         raise SystemExit(f"damage quotas sum to {len(damage_kinds)}, TYPE_PLAN says {n_damage}")
     damage_plan: list[str] = []  # shuffled lazily, at the first damage draw
+    twin_pick: dict[str, str] = {}  # the M1/M2 twin shared by the two ability-modified items
     stratum_doc = json.loads(ITEM_STRATUM.read_text())
     bad = item_stratum_disagreements(stratum_doc, snap)
     if bad:
@@ -422,11 +424,11 @@ def build_claim_battery(
             "Who is faster: {S1} (Jolly, 32 Spe SP) or {S2} (Timid, 32 Spe SP)?",
         ],
         "damage": [
-            "{S1} ({A1}) uses {M} on {S2} ({A2}). Attacker: level 50, {NAT} nature, 32 SP in {OFF} and 0 SP "
+            "{S1}{A1} uses {M} on {S2}{A2}. Attacker: level 50, {NAT} nature, 32 SP in {OFF} and 0 SP "
             "elsewhere, no item. Defender: level 50, Hardy nature, 32 HP SP and 0 SP in Defense and Special "
             "Defense, no item. Both start at full HP with no stat changes or status; no weather, terrain or "
-            "screens; a single target; no critical hit. Does this guarantee a KO, that is, does every one of "
-            "the 16 damage rolls knock the defender out?"
+            "screens; a single target; no critical hit. Assuming the move hits, does this guarantee a KO, "
+            "that is, does every one of the 16 damage rolls knock the defender out?{MEGA}"
         ],
         "usage": ["What are the top 5 held items and top 5 teammates for {S} (in-game)?"],
         "usage_showdown": ["Who are the top 5 teammates for {S} (Showdown)?"],
@@ -539,19 +541,24 @@ def build_claim_battery(
             cands = [
                 e for e in by_kind[kind]
                 if ("damage", "guaranteed_ko", "|".join((e["attacker"], e["defender"], e["move"]))) not in seen
+                and (kind not in ("M1", "M2") or "twin" not in twin_pick or e["twin"] == twin_pick["twin"])
             ]
             if not cands:
                 raise SystemExit(f"damage pool kind {kind} is exhausted (battery needs more than the pool holds)")
             e = rng.choice(cands)
+            if kind in ("M1", "M2"):
+                twin_pick.setdefault("twin", e["twin"])
             a = e["attrs"]
             gt = {
                 "attacker": e["attacker"], "defender": e["defender"], "move": e["move"],
                 "attacker_ability": e["attacker_ability"], "defender_ability": e["defender_ability"],
-                "nature": e["nature"], "damage_kind": e["kind"],
+                "attacker_is_mega": e["attacker_is_mega"], "defender_is_mega": e["defender_is_mega"],
+                "nature": e["nature"], "damage_kind": e["kind"], "twin": e.get("twin"),
                 "guaranteed_ko": e["guaranteed_ko"], "rolls_ko_of_16": e["rolls_ko_of_16"],
                 "min_roll": e["min_roll"], "max_roll": e["max_roll"], "hp": e["hp"], "rolls": e["rolls"],
                 "calc_desc": e["desc"],
                 "move_category": e["move_category"], "move_basePower": e["move_basePower"], "move_type": e["move_type"],
+                "move_accuracy": a["accuracy"], "type_changed": a["type_changed"],
                 "effectiveness": a["effectiveness"], "chart_effectiveness": a["chart_effectiveness"],
                 "chart_exception": a["chart_exception"], "move_final_type": e["move_final_type"],
                 "category_match": a["category_match"],
@@ -564,16 +571,18 @@ def build_claim_battery(
                     "numeric_chance_outside_half_step": "FALSE",
                     "hedge_without_number": "no verdict",
                     "yes_no_and_chance_scored_separately": True,
-                    "stated_conditions_differ_from_prompt": "not SERVED (numbers not FALSE merely for differing)",
+                    "stated_conditions_differ_from_prompt": "UNVERIFIABLE",
                     "chance_key_percent": 100 * e["rolls_ko_of_16"] / 16,
                     "chance_step_points": 6.25,
                     "chance_tolerance_points": 3.125,
                 },
             }
             off = "Attack" if e["move_category"] == "Physical" else "Special Attack"
+            mega = e["attacker_is_mega"] or e["defender_is_mega"]
             prompt = tmpl.format(
-                S1=e["attacker"], A1=e["attacker_ability"], M=e["move"], S2=e["defender"], A2=e["defender_ability"],
-                NAT=e["nature"], OFF=off,
+                S1=e["attacker"], A1="" if e["attacker_is_mega"] else f" ({e['attacker_ability']})",
+                M=e["move"], S2=e["defender"], A2="" if e["defender_is_mega"] else f" ({e['defender_ability']})",
+                NAT=e["nature"], OFF=off, MEGA=" A Mega form uses its own single ability." if mega else "",
             )
             return prompt, [("guaranteed_ko", gt)], tmpl
         if ctype == "usage":
@@ -764,6 +773,11 @@ def build_claim_battery(
                 "fixed_conditions": damage_pool["meta"]["fixed_conditions"],
                 "cutoffs": damage_pool["meta"]["cutoffs"],
                 "calc_rules_sha256": damage_pool["meta"]["calc_rules_sha256"],
+                "move_conditionals_sha256": damage_pool["meta"]["move_conditionals_sha256"],
+                "conditional_success_moves": sorted(v["name"] for v in damage_pool["meta"]["exclusions"]["conditional_success_moves"].values()),
+                "usable_moves_below_100_accuracy": damage_pool["meta"]["usable_moves_below_100_accuracy"],
+                "twins": damage_pool["meta"]["twins"],
+                "resisted_but_guaranteed_ko_pairs_found": damage_pool["meta"]["resisted_but_guaranteed_ko_pairs_found"],
                 "exclusions": damage_pool["meta"]["exclusions"],
                 "type_chart_sha256": damage_pool["meta"]["type_chart_sha256"],
                 "quotas_per_battery": damage_pool["meta"]["quotas_per_battery"],
