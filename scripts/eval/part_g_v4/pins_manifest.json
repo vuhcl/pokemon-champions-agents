@@ -55,6 +55,36 @@
       "content_sha256": "46b445cbe953c9269ad7507c196b1c3417e43280b320a27d76c8eeb4bb62d5e0",
       "git_blob_sha": "21dae5e398faeea7bad7da3d8ce8d57146781bbc",
       "path": "data/team-composition/champions-reg-mc.vgcpastes-builds.v1.json"
+    },
+    {
+      "content_sha256": "9b0478f71c150276b24df92a669a835eb8c61da6507f34e55787c860364d5f6d",
+      "git_blob_sha": "122646e810a30ffb1c1ff3d14506a3002f1e319d",
+      "path": "scripts/eval/part_g_v4/key_artifacts/stone_map.v1.json"
+    },
+    {
+      "content_sha256": "8ee3148f145fd487b501c345e0907342c7271dfa62f6cd468df2c7b1b7edaeb7",
+      "git_blob_sha": "94a38c1d5be098cb6f7799af572c0f8f064b3d63",
+      "path": "scripts/eval/part_g_v4/key_artifacts/type_chart.v1.json"
+    },
+    {
+      "content_sha256": "b1c80180193e80b5f14ffc89145aed71ccc01147502aa77dc9c3f0f0fba851f2",
+      "git_blob_sha": "ae1bff1317adc0cd7c4bf081b86af2dd5017d232",
+      "path": "scripts/eval/part_g_v4/key_artifacts/calc_move_rules.v1.json"
+    },
+    {
+      "content_sha256": "d639ecaf593c0b918fb0543dd6e70358f7b1a609da21b1ba7a592c1864fece01",
+      "git_blob_sha": "e8947088efaa7f2d1db5838028564b00aceabe07",
+      "path": "scripts/eval/part_g_v4/key_artifacts/move_conditionals.v1.json"
+    },
+    {
+      "content_sha256": "2db8d00e9dd1277002fa6eee8fdab5b18ec10242695ffcb485d70bb79cc53644",
+      "git_blob_sha": "38d4da8d4a5d3edec9403bd0467535bc099e7349",
+      "path": "scripts/eval/part_g_v4/battery/item_stratum.json"
+    },
+    {
+      "content_sha256": "c6ac24c277affc8852ce84ec17207b36a46fa3cec19ec0757724ac18eacfa2f7",
+      "git_blob_sha": "6f7af4ba218a13496e9fe3d3043e22e9ad77c0d5",
+      "path": "scripts/eval/part_g_v4/key_artifacts/battery_damage_pool.json"
     }
   ],
   "refresh_merge": "6674b74c41810f63d1a25453d26ea8498d0b9341",

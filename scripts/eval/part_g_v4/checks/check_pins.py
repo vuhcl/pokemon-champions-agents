@@ -21,6 +21,12 @@ EXPECTED_BLOB = {
     "data/moves/gen9_accuracy.v1.json": "4eeb96eacfdee56ccaf7e9a7b8d6a65c6fb1da20",
     "data/moves/stat_boosts.v1.json": "040059884684b27f0894e484c7c987fb5aef158e",
     "data/team-composition/champions-reg-mc.vgcpastes-builds.v1.json": "21dae5e398faeea7bad7da3d8ce8d57146781bbc",
+    "scripts/eval/part_g_v4/key_artifacts/stone_map.v1.json": "122646e810a30ffb1c1ff3d14506a3002f1e319d",
+    "scripts/eval/part_g_v4/key_artifacts/type_chart.v1.json": "94a38c1d5be098cb6f7799af572c0f8f064b3d63",
+    "scripts/eval/part_g_v4/key_artifacts/calc_move_rules.v1.json": "ae1bff1317adc0cd7c4bf081b86af2dd5017d232",
+    "scripts/eval/part_g_v4/key_artifacts/move_conditionals.v1.json": "e8947088efaa7f2d1db5838028564b00aceabe07",
+    "scripts/eval/part_g_v4/battery/item_stratum.json": "38d4da8d4a5d3edec9403bd0467535bc099e7349",
+    "scripts/eval/part_g_v4/key_artifacts/battery_damage_pool.json": "6f7af4ba218a13496e9fe3d3043e22e9ad77c0d5",
 }
 
 
