@@ -32,7 +32,6 @@ sys.modules["part_g_scorer"] = sc
 _spec.loader.exec_module(sc)
 
 TOP_N = 5
-SINGLE_TARGET_FIELD = {"gameType": "Singles"}  # the prompt says "a single target"; the key was computed with Doubles
 
 
 def top_with_ties(rows: list[tuple[str, float | None]], n: int = TOP_N) -> list[str]:
@@ -51,7 +50,7 @@ def damage_args(gt: dict) -> dict:
         att["ability"] = gt["attacker_ability"]
     if not gt["defender_is_mega"]:
         dfn["ability"] = gt["defender_ability"]
-    return {"attacker": att, "defender": dfn, "move": gt["move"], "field": SINGLE_TARGET_FIELD}
+    return {"attacker": att, "defender": dfn, "move": gt["move"]}
 
 
 def run_item(tools: ArmTools, it: dict) -> tuple[list[dict], list, list[dict]]:

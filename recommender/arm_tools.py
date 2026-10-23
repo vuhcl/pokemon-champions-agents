@@ -167,13 +167,12 @@ def _mon(spec: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
-def _field(field: dict[str, Any] | None) -> dict[str, Any] | None:
-    if not field:
-        return None
-    extra = set(field) - _FIELD_KEYS
+def _field(field: dict[str, Any] | None) -> dict[str, Any]:
+    """Champions VGC is doubles, so gameType defaults to Doubles (the battery key's setting); callers may override."""
+    extra = set(field or {}) - _FIELD_KEYS
     if extra:
         raise ValueError(f"field keys must be among {sorted(_FIELD_KEYS)}; got {sorted(extra)}")
-    return field
+    return {"gameType": "Doubles", **(field or {})}
 
 
 def _spec(name: str, description: str, **props: Any) -> dict[str, Any]:
@@ -193,7 +192,7 @@ TOOL_SPECS: list[dict[str, Any]] = [
     _spec("get_speed", "Final Speed stat from the calc for a species, nature and Speed SP (no item or field effects).",
           species=dict(_S), nature=dict(_S), speed_sp={"type": "integer"}),
     _spec("calc_damage", "Damage calc for one move. Returns the calc's rolls, range, defender HP and KO text. Level is always 50; "
-          "critical hits are not supported. field may set gameType, weather, terrain, attackerSide, defenderSide.",
+          "critical hits are not supported. field may set gameType (default Doubles), weather, terrain, attackerSide, defenderSide.",
           attacker=dict(_MON_SCHEMA), defender=dict(_MON_SCHEMA), move=dict(_S), field={"type": "object", "optional": True}),
     _spec("get_usage_items", "Most-used held items for a species from one usage source, with percentages, plus any entries tied at rank n.",
           species=dict(_S), source={"type": "string", "enum": list(USAGE_SOURCES)}, n={"type": "integer", "optional": True}),

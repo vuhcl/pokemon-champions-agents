@@ -91,3 +91,13 @@ def test_calc_backed_tools(tools):
                                    "defender": {"species": "Gengar", "sp": {"hp": 32}}, "move": "Earthquake"})
     assert d["status"] == "ok" and len(d["damage_rolls"]) == 16 and d["defender_hp"] == 167
     assert tools.get_speed("Aegislash", "Hardy", 0)["error_kind"] == "calc_error"
+
+
+def test_field_defaults_to_doubles_and_validates():
+    from recommender.arm_tools import _field
+
+    assert _field(None) == {"gameType": "Doubles"} == _field({})
+    assert _field({"weather": "Sun"}) == {"gameType": "Doubles", "weather": "Sun"}
+    assert _field({"gameType": "Singles"}) == {"gameType": "Singles"}
+    with pytest.raises(ValueError):
+        _field({"crit": True})
