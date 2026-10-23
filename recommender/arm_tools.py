@@ -22,6 +22,7 @@ from recommender.usage_data import ingame_ladder_species_map, showdown_species_m
 LEGALITY_SOURCE = "legality snapshot (Showdown Champions mod extract)"
 CALC_SOURCE = "@smogon/calc via calc service"
 USAGE_SOURCES = ("ingame", "showdown")
+NO_LOOKUP_CATEGORIES = ("lookup_not_required", "conceptual", "mutation_or_state", "cannot_answer")
 # Speed is read from the calc's own final stats; this move/opponent only make the call valid.
 SPEED_FILLER = {"move": "Tackle", "opponent": {"species": "Pikachu", "nature": "Hardy"}}
 _MON_KEYS = {"species", "nature", "sp", "item", "ability", "boosts"}
@@ -166,6 +167,13 @@ class ArmTools:
         res = arm_query_teammates(species, source=source, regulation=self.regulation, allow_live=self.allow_live)
         return {"source": f"{source} usage (offline snapshot)", **to_jsonable(res)}
 
+    def no_lookup_needed(self, reason: str, category: str) -> dict[str, Any]:
+        """Stub that makes an abstention visible; it looks nothing up."""
+        if category not in NO_LOOKUP_CATEGORIES:
+            return _err("bad_arguments", f"category must be one of {list(NO_LOOKUP_CATEGORIES)}")
+        return {"status": "ok", "recorded": True, "category": category, "reason": reason,
+                "note": "No lookup was performed; answer the request now.", "source": "none (abstention stub)"}
+
     def call(self, name: str, args: dict[str, Any]) -> dict[str, Any]:
         """Dispatch by tool name; bad names/arguments and unexpected exceptions come back as error results."""
         fn = getattr(self, name, None)
@@ -210,6 +218,9 @@ def _spec(name: str, description: str, **props: Any) -> dict[str, Any]:
 _S = {"type": "string"}
 _MON_SCHEMA = {"type": "object", "description": "species, nature, sp (dict hp/atk/def/spa/spd/spe -> Champions SP 0-32), item, ability, boosts"}
 TOOL_SPECS: list[dict[str, Any]] = [
+    _spec("no_lookup_needed", "Call this instead of a lookup tool when the request needs no lookup. It looks nothing up and only records "
+          "why. category is one of: lookup_not_required, conceptual, mutation_or_state, cannot_answer.",
+          reason=dict(_S), category={"type": "string", "enum": list(NO_LOOKUP_CATEGORIES)}),
     _spec("get_typing", "Types of a species or form id (e.g. 'Glalie-Mega').", species=dict(_S)),
     _spec("get_abilities", "Abilities of a species or form id; a Mega form lists its single ability.", species=dict(_S)),
     _spec("check_species_legal", "Whether a species or form id is legal in Champions VGC.", species=dict(_S)),

@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.eval.part_g_arm.config import ArmConfig, system_prompt_hash  # noqa: E402
+from scripts.eval.part_g_arm.config import ArmConfig  # noqa: E402
 
 FROZEN_DIR = (ROOT / "scripts/eval/part_g_v4/battery").resolve()
 OLLAMA = "http://127.0.0.1:11434"
@@ -101,7 +101,7 @@ def write_record(cfg: ArmConfig, out: Path, facts: dict) -> dict:
                                 "modelfile_defaults_left_as_is": facts["modelfile_parameters"]},
         "seed": None,
         "think_setting": cfg.think,
-        "system_prompt_hash": system_prompt_hash(),
+        "system_prompt_hash": cfg.prompt_hash(),
         "max_turns": cfg.max_turns,
         "timeouts": {"call_s": cfg.call_timeout_s, "item_s": cfg.item_timeout_s, "run_s": cfg.run_timeout_s},
     }

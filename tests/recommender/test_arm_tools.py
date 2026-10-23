@@ -142,3 +142,9 @@ def test_other_unknown_names_suggest_nothing(name):
 def test_name_in_snapshot_but_rejected_by_calc_is_reported_as_such():
     r = _speed_error("Aegislash")
     assert "does not recognise the species name" in r["message"] and "Did you mean" not in r["message"]
+
+
+def test_no_lookup_needed_records_reason_and_category(tools):
+    r = tools.call("no_lookup_needed", {"reason": "asks about strategy", "category": "conceptual"})
+    assert r["status"] == "ok" and r["recorded"] and r["category"] == "conceptual" and r["reason"] == "asks about strategy"
+    assert tools.call("no_lookup_needed", {"reason": "x", "category": "other"})["error_kind"] == "bad_arguments"

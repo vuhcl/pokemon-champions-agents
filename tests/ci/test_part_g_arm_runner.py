@@ -15,7 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from recommender.arm_tools import ArmTools  # noqa: E402
 from scripts.eval.part_g_arm import run_battery  # noqa: E402
-from scripts.eval.part_g_arm.config import ArmConfig, system_prompt_hash  # noqa: E402
+from scripts.eval.part_g_arm.config import ArmConfig  # noqa: E402
 from scripts.eval.part_g_arm.loop import ArmLoop  # noqa: E402
 
 
@@ -25,7 +25,7 @@ def test_config_pins_offline_and_explicit_think():
     with pytest.raises(AssertionError):
         ArmConfig(think=None)  # type: ignore[arg-type]
     assert ArmConfig().temperature == 0.0 and ArmConfig().think is False
-    assert len(system_prompt_hash()) == 64
+    assert len(ArmConfig().prompt_hash()) == 64
 
 
 def _repo(tmp_path, *, section=True, dirty=False):
@@ -85,12 +85,13 @@ class _Scripted:
     """Stands in for ChatOllama: replays AIMessages, one per invoke."""
 
     def __init__(self, msgs):
-        self.msgs, self.calls = list(msgs), 0
+        self.msgs, self.calls, self.seen = list(msgs), 0, []
 
     def bind_tools(self, _tools):
         return self
 
-    def invoke(self, _messages):
+    def invoke(self, messages):
+        self.seen.append([getattr(m, "content", "") for m in messages])
         self.calls += 1
         return self.msgs.pop(0)
 
@@ -121,3 +122,45 @@ def test_served_teammate_result_counts_as_ok():
                      AIMessage("done")])
     r = ArmLoop(ArmConfig(), llm=llm, tools=ArmTools(regulation="champions", allow_live=False)).run_item("x")
     assert r["tool_calls"][0]["ok"] is True
+
+
+def _arm(llm, **cfg):
+    return ArmLoop(ArmConfig(**cfg), llm=llm, tools=ArmTools(regulation="champions", allow_live=False))
+
+
+def test_first_turn_without_a_tool_is_rejected_once_and_reasked():
+    stub = _call("no_lookup_needed", {"reason": "conceptual question", "category": "conceptual"})
+    llm = _Scripted([AIMessage("Mega Charizard X is strong."), AIMessage("", tool_calls=[stub]), AIMessage("Here is my answer.")])
+    r = _arm(llm).run_item("Tell me about Charizard")
+    assert r["final_text"] == "Here is my answer." and r["turns"] == 3
+    assert r["enforcement"] == {"reasked": True, "rejected_first_turn_text": "Mega Charizard X is strong."}
+    assert r["abstentions"] == [{"reason": "conceptual question", "category": "conceptual"}]
+    assert any("call a lookup tool" in c for c in llm.seen[1])  # the re-ask reached the model
+    assert not any("Mega Charizard X is strong." in c for turn in llm.seen[1:] for c in turn)  # the rejected text did not
+
+
+def test_second_toolless_attempt_is_accepted_and_enforcement_can_be_off():
+    llm = _Scripted([AIMessage("first"), AIMessage("second")])
+    r = _arm(llm).run_item("x")
+    assert r["final_text"] == "second" and r["enforcement"]["reasked"] and r["tool_calls"] == [] and llm.calls == 2
+    off = _arm(_Scripted([AIMessage("only")]), enforce_first_turn_tool=False).run_item("x")
+    assert off["final_text"] == "only" and off["turns"] == 1 and not off["enforcement"]["reasked"]
+
+
+def test_lookup_on_the_first_turn_is_not_reasked_and_stub_tool_is_unbound_when_off():
+    llm = _Scripted([AIMessage("", tool_calls=[_call("get_typing", {"species": "Glalie-Mega"})]), AIMessage("Ice.")])
+    r = _arm(llm).run_item("x")
+    assert not r["enforcement"]["reasked"] and r["abstentions"] == [] and llm.calls == 2
+    with pytest.raises(AssertionError):
+        ArmConfig(no_lookup_tool=False, enforce_first_turn_tool=True)
+
+
+def test_prompt_text_drops_the_stub_line_when_the_tool_is_off(tmp_path, monkeypatch):
+    from scripts.eval.part_g_arm import config
+
+    (tmp_path / "p.md").write_text("- a\n- call no_lookup_needed when none\n- b\n")
+    monkeypatch.setattr(config, "HERE", tmp_path)
+    on = ArmConfig(prompt_file="p.md")
+    off = ArmConfig(prompt_file="p.md", no_lookup_tool=False, enforce_first_turn_tool=False)
+    assert "no_lookup_needed" in on.prompt_text() and off.prompt_text() == "- a\n- b\n"
+    assert on.prompt_hash() != off.prompt_hash()

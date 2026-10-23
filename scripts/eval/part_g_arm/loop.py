@@ -19,7 +19,11 @@ from langgraph.graph.message import add_messages
 from recommender.arm_tools import TOOL_SPECS, ArmTools, dumps, to_jsonable
 from recommender.calc_client import CalcClient
 
-from scripts.eval.part_g_arm.config import ArmConfig, system_prompt
+from scripts.eval.part_g_arm.config import ArmConfig
+
+
+REASK = ("Before answering, call a lookup tool for the facts in the question, or call no_lookup_needed with a reason "
+         "and a category if the request needs no lookup.")
 
 
 class _State(TypedDict):
@@ -30,6 +34,8 @@ class _State(TypedDict):
     invalid_tool_calls: list[dict[str, Any]]
     reasoning: list[str]
     errors: list[str]
+    reasked: bool
+    rejected_first_turn: str
 
 
 def build_llm(cfg: ArmConfig) -> ChatOllama:
@@ -45,14 +51,15 @@ class ArmLoop:
             os.environ["RECOMMENDER_FIXED_NOW_UTC"] = cfg.fixed_now_utc
         self.cfg = cfg
         self.tools = tools or ArmTools(regulation=cfg.regulation, allow_live=cfg.allow_live, calc=CalcClient(cfg.calc_base_url))
-        self.llm = (llm or build_llm(cfg)).bind_tools(TOOL_SPECS)
-        self.system = SystemMessage(system_prompt())
+        specs = [t for t in TOOL_SPECS if cfg.no_lookup_tool or t["function"]["name"] != "no_lookup_needed"]
+        self.llm = (llm or build_llm(cfg)).bind_tools(specs)
+        self.system = SystemMessage(cfg.prompt_text())
         self._deadline = 0.0
         g = StateGraph(_State)
         g.add_node("agent", self._agent)
         g.add_node("tools", self._run_tools)
         g.add_edge(START, "agent")
-        g.add_conditional_edges("agent", self._route, {"tools": "tools", "end": END})
+        g.add_conditional_edges("agent", self._route, {"tools": "tools", "agent": "agent", "end": END})
         g.add_edge("tools", "agent")
         self.graph = g.compile()
 
@@ -63,6 +70,9 @@ class ArmLoop:
             ai: AIMessage = self.llm.invoke([self.system, *s["messages"]])
         except Exception as exc:  # noqa: BLE001 - recorded, not raised
             return {"stop_reason": "model_error", "errors": [*s["errors"], f"{type(exc).__name__}: {exc}"]}
+        if self.cfg.enforce_first_turn_tool and s["turns"] == 0 and not ai.tool_calls:
+            # Reject once: the text is kept in the record but not shown to the model again.
+            return {"turns": 1, "reasked": True, "rejected_first_turn": ai.content, "messages": [HumanMessage(REASK)]}
         out: dict[str, Any] = {"messages": [ai], "turns": s["turns"] + 1}
         if ai.additional_kwargs.get("reasoning_content"):
             out["reasoning"] = [*s["reasoning"], ai.additional_kwargs["reasoning_content"]]
@@ -71,7 +81,11 @@ class ArmLoop:
         return out
 
     def _route(self, s: _State) -> str:
-        if s["stop_reason"] or not s["messages"] or not isinstance(s["messages"][-1], AIMessage):
+        if s["stop_reason"] or not s["messages"]:
+            return "end"
+        if isinstance(s["messages"][-1], HumanMessage):
+            return "agent"  # the re-ask after a rejected first turn
+        if not isinstance(s["messages"][-1], AIMessage):
             return "end"
         if not s["messages"][-1].tool_calls:
             return "end"
@@ -93,7 +107,7 @@ class ArmLoop:
         t0 = time.monotonic()
         self._deadline = t0 + self.cfg.item_timeout_s
         init: _State = {"messages": [HumanMessage(prompt)], "turns": 0, "stop_reason": "", "tool_calls": [],
-                        "invalid_tool_calls": [], "reasoning": [], "errors": []}
+                        "invalid_tool_calls": [], "reasoning": [], "errors": [], "reasked": False, "rejected_first_turn": ""}
         final = self.graph.invoke(init, {"recursion_limit": 4 * self.cfg.max_turns + 10})
         last = final["messages"][-1]
         ended_on_tool_request = isinstance(last, AIMessage) and bool(last.tool_calls)
@@ -101,4 +115,7 @@ class ArmLoop:
         text = last.content if isinstance(last, AIMessage) and not ended_on_tool_request and stop == "final" else ""
         return {"prompt": prompt, "final_text": text, "stop_reason": stop, "tool_calls": final["tool_calls"],
                 "invalid_tool_calls": final["invalid_tool_calls"], "turns": final["turns"],
-                "wall_s": round(time.monotonic() - t0, 2), "errors": final["errors"], "reasoning": final["reasoning"]}
+                "wall_s": round(time.monotonic() - t0, 2), "errors": final["errors"], "reasoning": final["reasoning"],
+                "abstentions": [{"reason": c["args"].get("reason"), "category": c["args"].get("category")}
+                                for c in final["tool_calls"] if c["name"] == "no_lookup_needed"],
+                "enforcement": {"reasked": final["reasked"], "rejected_first_turn_text": final["rejected_first_turn"]}}
