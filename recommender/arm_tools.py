@@ -118,9 +118,13 @@ class ArmTools:
         except CalcClientError as exc:
             return _err("calc_error", str(exc.body), source=CALC_SOURCE)
         raw = r["raw"]
+        rolls, hp = raw.get("damage"), raw["stats"]["defender"]["hp"]
+        flat = isinstance(rolls, list) and bool(rolls) and all(isinstance(x, int) for x in rolls)
+        ko = sum(x >= hp for x in rolls) if flat else None
         return {"status": "ok", "move": move, "request": {"attacker": req_a, "defender": req_d, "field": req_f},
                 "damage_rolls": raw.get("damage"), "damage_range": r["damageRange"],
-                "defender_hp": raw["stats"]["defender"]["hp"], "ko_text": r["koChance"], "kochance": raw.get("kochance"),
+                "defender_hp": hp, "rolls_that_ko": ko, "guaranteed_ko": None if ko is None else ko == len(rolls),
+                "ko_text": r["koChance"], "kochance": raw.get("kochance"),
                 "calc_desc": raw.get("desc"), "ability_resolution": r.get("abilityResolution"), "source": CALC_SOURCE}
 
     # -- usage --------------------------------------------------------------

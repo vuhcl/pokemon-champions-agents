@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import json
+import os
 import sys
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
@@ -32,3 +36,22 @@ def test_top_with_ties_extends_only_on_equal_pct():
     rows = [("a", 9.0), ("b", 8.0), ("c", 7.0), ("d", 6.0), ("e", 5.0), ("f", 5.0), ("g", 4.0)]
     assert oracle.top_with_ties(rows) == list("abcdef")
     assert oracle.top_with_ties([("x", None)] * 7) == ["x"] * 5  # no percentages: never extended
+
+
+DEV_BATTERY = Path(__file__).resolve().parents[2] / "scripts/eval/part_g_arm/dev_seed1/claim_battery_v4.json"
+
+
+@pytest.mark.skipif(os.environ.get("CALC_LIVE") != "1", reason="needs live calc service")
+def test_derived_ko_fields_agree_with_calc_kochance_and_key_on_all_seed1_damage_items():
+    tools = ArmTools(regulation="champions", allow_live=False)
+    items = [i for i in json.loads(DEV_BATTERY.read_text())["items"] if i["claim_type"] == "damage"]
+    assert len(items) == 53
+    disagree = []  # kochance has no `chance` key for 'possible nHKO' results; absent reads as not 1
+    for it in items:
+        gt = it["claims"][0]["ground_truth"]
+        r = tools.call("calc_damage", oracle.damage_args(gt))
+        kc = r["kochance"]
+        if r["guaranteed_ko"] != (kc.get("chance") == 1 and kc["n"] == 1) or r["guaranteed_ko"] != gt["guaranteed_ko"] \
+                or r["rolls_that_ko"] != gt["rolls_ko_of_16"]:
+            disagree.append((it["id"], r["guaranteed_ko"], r["rolls_that_ko"], kc, gt["guaranteed_ko"], gt["rolls_ko_of_16"]))
+    assert disagree == []
