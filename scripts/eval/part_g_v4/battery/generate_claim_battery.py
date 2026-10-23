@@ -77,6 +77,7 @@ STONE_MAP = PKG / "key_artifacts" / "stone_map.v1.json"
 ITEM_STRATUM = Path(__file__).resolve().parent / "item_stratum.json"
 DAMAGE_POOL = PKG / "key_artifacts" / "battery_damage_pool.json"
 TYPE_CHART = PKG / "key_artifacts" / "type_chart.v1.json"
+CALC_RULES = PKG / "key_artifacts" / "calc_move_rules.v1.json"
 STONE_SHARE_LIMIT_PCT = 0.5  # Showdown base-form rows: max total pct of Mega stones among listed items
 
 
@@ -220,7 +221,7 @@ def load_damage_pool(snap_pins: list[dict[str, str]]) -> dict:
     for p in meta["pins"]:
         if by_path.get(p["path"]) != p["git_blob_sha"]:
             raise SystemExit(f"damage pool is stale: {p['path']} changed since the pool was built")
-    for key, path in (("stone_map_sha256", STONE_MAP), ("type_chart_sha256", TYPE_CHART)):
+    for key, path in (("stone_map_sha256", STONE_MAP), ("type_chart_sha256", TYPE_CHART), ("calc_rules_sha256", CALC_RULES)):
         if hashlib.sha256(path.read_bytes()).hexdigest() != meta[key]:
             raise SystemExit(f"damage pool is stale: {path.name} changed since the pool was built")
     if manifest["calc_service"]["version"] != meta["calc_build"]:
@@ -551,9 +552,23 @@ def build_claim_battery(
                 "min_roll": e["min_roll"], "max_roll": e["max_roll"], "hp": e["hp"], "rolls": e["rolls"],
                 "calc_desc": e["desc"],
                 "move_category": e["move_category"], "move_basePower": e["move_basePower"], "move_type": e["move_type"],
-                "effectiveness": a["effectiveness"], "category_match": a["category_match"],
+                "effectiveness": a["effectiveness"], "chart_effectiveness": a["chart_effectiveness"],
+                "chart_exception": a["chart_exception"], "move_final_type": e["move_final_type"],
+                "category_match": a["category_match"],
                 "defender_bulk_quartile": a["defender_bulk_quartile"], "margin": a["margin"],
                 "max_ratio": a["max_ratio"], "high_power": a["high_power"], "stab": a["stab"],
+                "scoring": {
+                    "yes_no_matches_guaranteed_ko": "TRUE",
+                    "yes_no_contradicts_guaranteed_ko": "FALSE",
+                    "numeric_chance_within_half_step_of_key": "TRUE",
+                    "numeric_chance_outside_half_step": "FALSE",
+                    "hedge_without_number": "no verdict",
+                    "yes_no_and_chance_scored_separately": True,
+                    "stated_conditions_differ_from_prompt": "not SERVED (numbers not FALSE merely for differing)",
+                    "chance_key_percent": 100 * e["rolls_ko_of_16"] / 16,
+                    "chance_step_points": 6.25,
+                    "chance_tolerance_points": 3.125,
+                },
             }
             off = "Attack" if e["move_category"] == "Physical" else "Special Attack"
             prompt = tmpl.format(
@@ -748,6 +763,7 @@ def build_claim_battery(
                 "selector_sha256": damage_pool["meta"]["selector_sha256"],
                 "fixed_conditions": damage_pool["meta"]["fixed_conditions"],
                 "cutoffs": damage_pool["meta"]["cutoffs"],
+                "calc_rules_sha256": damage_pool["meta"]["calc_rules_sha256"],
                 "exclusions": damage_pool["meta"]["exclusions"],
                 "type_chart_sha256": damage_pool["meta"]["type_chart_sha256"],
                 "quotas_per_battery": damage_pool["meta"]["quotas_per_battery"],

@@ -177,16 +177,54 @@ def main() -> int:
             gk = [g for g in G if g["damage_kind"] == kind]
             mg = [g["margin"] for g in gk]
             print(f"  {kind:9} n={len(gk):2} margin(min roll/HP) {min(mg):.2f}-{max(mg):.2f}; rolls KO of 16: {sorted(g['rolls_ko_of_16'] for g in gk)}")
-        cut = json.loads((PKG / "key_artifacts" / "battery_damage_pool.json").read_text())["meta"]["cutoffs"]["usable_move_basePower_q1_q3"][1]
-        base = {
-            "super-effective -> yes": lambda g: g["effectiveness"] >= 2,
-            f"base power >= {cut:g} -> yes": lambda g: g["move_basePower"] >= cut,
-            "stronger category -> yes": lambda g: g["category_match"],
-            "always no": lambda g: False,
+        meta = json.loads((PKG / "key_artifacts" / "battery_damage_pool.json").read_text())["meta"]
+        q1, q3 = meta["cutoffs"]["usable_move_basePower_q1_q3"]
+
+        def feats(g):
+            m = g["margin"]
+            return {
+                "effectiveness": "super-effective" if g["effectiveness"] >= 2 else "neutral" if g["effectiveness"] == 1 else "resisted/immune",
+                "base_power": "high" if g["move_basePower"] >= q3 else "low" if g["move_basePower"] <= q1 else "mid",
+                "category_match": "stronger" if g["category_match"] else "weaker",
+                "bulk_quartile": f"q{g['defender_bulk_quartile']}",
+                "margin_class": (
+                    "min roll >= 1.25 HP" if m >= 1.25 else "guaranteed, margin < 1.25" if g["guaranteed_ko"]
+                    else "roll-dependent" if g["rolls_ko_of_16"] > 0 else "max roll < 0.6 HP" if g["max_ratio"] < 0.6 else "max roll 0.6-1.0 HP"
+                ),
+            }
+
+        F = [feats(g) for g in G]
+        Y = [g["guaranteed_ko"] for g in G]
+        simple = {
+            "super-effective -> yes": lambda f: f["effectiveness"] == "super-effective",
+            f"base power >= {q3:g} -> yes": lambda f: f["base_power"] == "high",
+            "stronger category -> yes": lambda f: f["category_match"] == "stronger",
+            "always no": lambda f: False,
+            "lowest bulk quartile -> yes": lambda f: f["bulk_quartile"] == "q1",
+            "highest bulk quartile -> no (else yes)": lambda f: f["bulk_quartile"] != "q4",
         }
-        for name, f in base.items():
-            hit = sum(1 for g in G if f(g) == g["guaranteed_ko"])
+        for name, f in simple.items():
+            hit = sum(1 for fe, y in zip(F, Y) if f(fe) == y)
             print(f"  heuristic '{name}': {hit}/{len(G)} correct ({hit / len(G):.0%})")
+        print("  items per feature value (True/False keys):")
+        for name in F[0]:
+            cnt = collections.defaultdict(lambda: [0, 0])
+            for fe, y in zip(F, Y):
+                cnt[fe[name]][0 if y else 1] += 1
+            print(f"    {name}: " + "; ".join(f"{v} {t}T/{f_}F" for v, (t, f_) in sorted(cnt.items())))
+        import itertools
+
+        def best(names):
+            cells = collections.defaultdict(lambda: [0, 0])
+            for fe, y in zip(F, Y):
+                cells[tuple(fe[n] for n in names)][0 if y else 1] += 1
+            return sum(max(t, f_) for t, f_ in cells.values()), cells
+
+        for label, pool_names in (("answerable without the calc", [n for n in F[0] if n != "margin_class"]), ("including the key-derived margin class", list(F[0]))):
+            for k in (1, 2):
+                ranked = sorted(((best(c)[0], c) for c in itertools.combinations(pool_names, k)), key=lambda x: (-x[0], x[1]))
+                top = ranked[0]
+                print(f"  best {k}-feature rule, {label}: {'+'.join(top[1])} -> {top[0]}/{len(G)} ({top[0] / len(G):.0%}); cells: " + "; ".join(f"{'/'.join(c)} {t}T/{f_}F" for c, (t, f_) in sorted(best(top[1])[1].items())))
 
     print("\n== key lengths (tie-inclusive top 5) ==")
     for t in ("usage", "usage_showdown"):
