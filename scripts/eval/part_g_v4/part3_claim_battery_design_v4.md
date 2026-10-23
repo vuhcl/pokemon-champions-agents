@@ -328,3 +328,26 @@ Same CP rule on **scored rows** (rows with ≥1 answered claim-type slot).
 ## Status
 
 Design frozen with generated battery + hash in this package. Held-out: do not use for tuning; any change is a new version with a new hash.
+
+## v5 amendment 2026-10-22
+
+Appended; nothing above this heading is edited. For the v5 battery this section supersedes the earlier statements about item counts, claim slots, expected scored claims and the damage templates.
+
+**Previous values (committed before the v5 cut).** Claim battery sha256 `af912615b46640d4758e77fd21850b8e1a7a46bd5ba20aba1b9c54acbe56cfa8`; false-legal battery sha256 `13dda05d4ea03654a2efdcca9241e27a4e1af54e7008e2b70146d179209da851`; 300 items and 381 claim slots (seed 0).
+
+**v5 battery (seed 0, from the committed `battery_manifest.json`).**
+- Claim battery sha256 `6e6c6be4351240629416f1e279bbf495bbf4670d79aaaa7d083a2c62c6d67443`; false-legal battery sha256 `3025138427391e57a92e1862a87b0074d44a51b290836077abf094af92c4bdec`; keys sha unchanged at `e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a`.
+- 350 gated items and 384 claim slots: typing 44, ability 32, ability_form 12, item 44, legality 35, speed 51, damage 53, usage 34 items (68 slots), usage_showdown 10, move_static 35.
+- Item stratum (ungated, reported beside the gate): 65 held-item legality prompts, 33 legal and 32 illegal, from `battery/item_stratum.json`. Every status was approved by Vu on 2026-10-22 from his own knowledge of the game, without reference to the pinned legality blob, and then asserted against the blob by `check_item_stratum.py`. Agreement is evidence for both; a disagreement would indicate a stale blob or a wrong entry. Metronome is included as a legal control (the item is legal in the blob; the same-named move is not).
+- Held-item prompts say "as a held item" (main item type, item stratum, false-legal item-only template).
+
+**Damage items.** The OHKO, range, 2HKO and crit-conditioned templates above are replaced by 53 yes/no items asking whether the move guarantees a KO (26 True, 27 False).
+- The prompt states level, nature, stat points for both sides (attacker: its stated SP in its offensive stat and 0 elsewhere; defender: 32 HP SP and 0 elsewhere), no items, full HP, no stat changes or status, no weather, terrain, screens or other field effects, a single target, no critical hit, and "assuming the move hits".
+- Key: `guaranteed_ko` is true iff the minimum of the 16 rolls is at least the defender's HP. Rolls come from the vendored `@smogon/calc` 0.11.0-champions.5d5bf43, through a pinned pool (`key_artifacts/battery_damage_pool.json`, built offline with the calc in-process, four times the per-battery quotas). Evidence: calc output. There is no in-game observation behind the damage keys.
+- Moves whose success or damage depends on state the stated conditions do not define are excluded, derived from the pinned Showdown source (commit `942cda7`, `move_conditionals.v1.json`). Defenders with Sturdy or Disguise are excluded because the calc rolls do not model those abilities (sim-only reading; no in-game observation).
+- Each defensive-equivalence group (identical types and base stats) appears in at most 2 damage items per battery; exact-id counts and base-species counts are reported in the manifest report. Mega forms are named by form id and use the form's single ability from the legality blob; an answer that states a different ability makes the damage claim UNVERIFIABLE and the ability claim scored FALSE against the legality blob's single ability for that form. Stat-override moves such as Foul Play remain as tests of mechanics. Transient formes such as Aegislash-Blade remain.
+- Twin items (ability-modified moves): Pixilate, Scrappy, Aerilate and Dragonize families are built into the pool. Raging Bull passed the filters but was not tried; Refrigerate, Liquid Voice and Mega Sol were dropped by the base-power filter (see `meta.twin_families`).
+
+**Sizing (arithmetic on an assumed answer rate, not a measurement).** Gated slots 384: at 62% expected scored 238.1 (below the 240 floor), at 65% 249.6, at 70% 268.8. The 313 line is not reached at any of these rates. The item stratum is outside the gate denominator and is reported separately. Item-level expected scored items at 70%: 252.14, from the committed manifest (`gate.cluster_aware`): the sum over the 350 gated items of 1 − (1 − 0.7)^n, where n is the item's claim-slot count and each slot is assumed answered independently.
+
+**Pins and checks.** 14 pins (adds `calc_move_rules.v1.json` and `move_conditionals.v1.json`). `run_all_checks.py` on a clean checkout of the committed cut (`cc70d1c`, calc service started from that worktree): exit 0, 12 checks, including `check_pins` (14), `check_battery_hash` (now regenerates into a temp directory and never writes to `battery/`), `check_move_conditionals_source` and `extract_calc_rules --check`. Full suites on the main tree at the same code: `uv run pytest` 4,608 passed and 11 skipped (exit 0); `npm test` 119 passed (exit 0).
