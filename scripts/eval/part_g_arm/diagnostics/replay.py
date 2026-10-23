@@ -4,7 +4,7 @@
 # Replay driver: the 40 dev1 no-tool prompts + 10 dev1 tool-backed correct items under variants A, B, C.
 import dataclasses, json, sys
 from pathlib import Path
-sys.path.insert(0,str(Path(__file__).resolve().parents[3]))
+sys.path.insert(0,str(Path(__file__).resolve().parents[4]))
 from scripts.eval.part_g_arm.config import ArmConfig
 from scripts.eval.part_g_arm.loop import ArmLoop
 from replay_eval import K, evaluate

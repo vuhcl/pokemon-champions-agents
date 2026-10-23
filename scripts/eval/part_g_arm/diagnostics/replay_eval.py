@@ -4,7 +4,7 @@
 # throwaway evaluation helpers for the dev1/replay comparison (heuristic; flagged cases are read by hand). Not the extractor.
 import json, re
 from pathlib import Path
-BASE=str(Path(__file__).resolve().parents[3])+'/'
+BASE=str(Path(__file__).resolve().parents[4])+'/'
 L=json.load(open(BASE+'data/legality/champions.v1.json')); SP=L['species']; MV=L['moves']
 K={i['id']:i for i in json.load(open(BASE+'scripts/eval/part_g_arm/dev_seed1/claim_battery_v4.json'))['items']}
 TYPES="Normal Fire Water Electric Grass Ice Fighting Poison Ground Flying Psychic Bug Rock Ghost Dragon Dark Steel Fairy".split()
