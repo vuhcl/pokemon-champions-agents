@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Build the calc-labeled damage pool for the claim battery (guaranteed-KO yes/no items).
 
-A calc-free selector steers candidate draws (type chart, base stats, learnsets); EVERY candidate is then
-labeled through builders/calc_store.py (in-process @smogon/calc, no HTTP service) and the calc result is the
-key. A candidate whose calc result does not satisfy the kind it was drawn for is reassigned to another kind
-it satisfies (if that kind has room) or discarded; both are counted in the pool metadata.
+A calc-free selector steers candidate draws (type chart plus the calc's own move and ability rules, base
+stats, learnsets); EVERY candidate is then labeled through builders/calc_store.py (in-process @smogon/calc,
+no HTTP service) and the calc result is the key. A candidate whose calc result does not satisfy the kind it
+was drawn for is reassigned to another kind it satisfies (if that kind has room) or discarded; both are
+counted in the pool metadata.
 
 Writes key_artifacts/battery_damage_pool.json. The battery generator stays calc-free and draws its damage
 items from that file. `--check` rebuilds and fails if the committed file differs.
@@ -32,11 +33,12 @@ ROOT = PKG.parents[2]
 sys.path.insert(0, str(HERE))
 
 import calc_store  # noqa: E402
-from _lib import load_legality, to_id  # noqa: E402
+from _lib import load_legality  # noqa: E402
 
 OUT = PKG / "key_artifacts" / "battery_damage_pool.json"
 STONE_MAP = PKG / "key_artifacts" / "stone_map.v1.json"
 TYPE_CHART = PKG / "key_artifacts" / "type_chart.v1.json"
+CALC_RULES = PKG / "key_artifacts" / "calc_move_rules.v1.json"
 PINS = PKG / "pins_manifest.json"
 BLOBS = (
     "data/legality/champions.v1.json",
@@ -47,14 +49,20 @@ BLOBS = (
 SEED = 20261022
 POOL_MULTIPLE = 4
 # Battery quotas per kind (51 items: 25 True, 26 False). The pool holds POOL_MULTIPLE x each.
+# T4 = low-defense target: 4 plain + "T4r" (resisted, still a guaranteed KO) + "T4e" (chart exception).
+# T5 = chart exceptions: Freeze-Dry into a Water-type, Flying Press from Hawlucha (1 each).
 QUOTAS = {
-    "T1": 8, "T2": 3, "T3": 8, "T4": 6,
+    "T5fd": 1, "T5fp": 1,
+    "T1": 8, "T2": 1, "T3": 8, "T4": 4, "T4r": 1, "T4e": 1,
     "F1": 5, "F2": 5, "F2b": 4,
     "F3r_low": 1, "F3r_mid": 1, "F3r_high": 1, "F3n": 2,
     "F5": 4, "F4": 3,
 }
-TRUE_KINDS = ("T1", "T2", "T3", "T4")
-MAX_ATTEMPTS_PER_KIND = 40000
+TRUE_KINDS = ("T1", "T2", "T3", "T4", "T4r", "T4e", "T5fd", "T5fp")
+MAX_ATTEMPTS_PER_KIND = 60000
+# Defender abilities that change a first hit but that the calc's rolls do not model; excluded when the
+# scan confirms the calc rolls ignore them and a legal species has them.
+UNMODELED_WATCH = ("Sturdy", "Disguise", "Wonder Guard", "Ice Face", "Shadow Shield", "Tera Shell")
 
 # Fixed conditions (stated in every prompt).
 LEVEL = 50
@@ -103,9 +111,11 @@ class Data:
         self.flags = json.loads((ROOT / "data/moves/flags.v1.json").read_text())["moves"]
         pairs = json.loads(STONE_MAP.read_text())["pairs"]
         self.holder = {p["mega"]: p["holder"] for p in pairs if p["mega"] in self.sp}
-        chart = json.loads(TYPE_CHART.read_text())
-        self.chart = chart["effectiveness"]
+        self.chart = json.loads(TYPE_CHART.read_text())["effectiveness"]
+        self.rules = json.loads(CALC_RULES.read_text())
         self.legal = sorted(k for k, v in self.sp.items() if v["is_nonstandard"] is None)
+        self.gap_moves = {m["id"] for m in self.rules["calc_dex_gaps"]["moves"]}
+        self.gap_species = set(self.rules["calc_dex_gaps"]["species"])
 
     def ability_list(self, sid: str) -> list[str]:
         return [v for v in self.sp[sid]["abilities"].values() if v]
@@ -119,10 +129,28 @@ class Data:
         b = self.sp[sid].get("base_species_id")
         return b if b in self.ls else None
 
-    def eff(self, move_type: str, def_types: list[str]) -> float:
+    def plain_eff(self, move_id: str, def_types: list[str]) -> float:
+        """Plain type chart on the move's listed type (what a reader would assume)."""
         m = 1.0
         for t in def_types:
-            m *= self.chart[move_type][t]
+            m *= self.chart[self.moves[move_id]["type"]][t]
+        return m
+
+    def final_type(self, att: str, ability: str, move_id: str) -> str:
+        return self.rules["type_changes"].get(f"{att}|{ability}|{move_id}", self.moves[move_id]["type"])
+
+    def eff(self, att: str, ability: str, move_id: str, def_types: list[str]) -> float:
+        """Effectiveness as the calc computes it: final move type, move rules, Scrappy."""
+        name = self.moves[move_id]["name"]
+        ft = self.final_type(att, ability, move_id)
+        exc = self.rules["move_effectiveness_exceptions"].get(name, {})
+        scrappy = ability in self.rules["ghost_revealing_abilities"]
+        m = 1.0
+        for t in def_types:
+            v = exc[t] if t in exc else self.chart[ft][t]
+            if scrappy and ft in ("Normal", "Fighting") and t == "Ghost":
+                v = 1.0
+            m *= v
         return m
 
 
@@ -130,6 +158,8 @@ def usable_moves(d: Data) -> list[str]:
     out = []
     for m in sorted(d.static):
         mv, st, fl = d.moves[m], d.static[m], d.flags[m]["flags"]
+        if m in d.gap_moves:
+            continue
         if mv["category"] in ("Physical", "Special") and mv["basePower"] > 0 \
                 and st["target"] in ("normal", "any") and not fl.get("charge") and not fl.get("recharge"):
             out.append(m)
@@ -181,25 +211,13 @@ def label(d: Data, req: dict) -> tuple[str, Any]:
 
 
 def preflight(d: Data, usable: list[str]) -> dict[str, Any]:
-    """Species the calc dex lacks, attacker (species, ability, category) triples assert_abilities rejects,
-    and multi-hit moves (the calc returns one roll set per hit, so 'every roll' is not defined)."""
+    """Attacker (species, ability, category) triples assert_abilities rejects, and multi-hit moves (the calc
+    returns one roll set per hit, so 'every roll' is not defined)."""
     ref = "garchomp"
-    not_in_calc = []
-    for sid in d.legal:
-        ab = d.ability_list(sid)[0]
-        bad = False
-        for att, dfn in ((sid, ref), (ref, sid)):
-            r = request(d, att, d.ability_list(att)[0], "tackle", dfn, d.ability_list(dfn)[0])
-            k, info = label(d, r)
-            if k == "error" and "unknown Champions species" in str(info):
-                bad = True
-        if bad:
-            not_in_calc.append(sid)
+    ok_species = [s for s in d.legal if s not in d.gap_species]
     echo = []
     reps = {"Physical": "tackle", "Special": "psychic"}
-    for sid in d.legal:
-        if sid in not_in_calc:
-            continue
+    for sid in ok_species:
         for ab in d.ability_list(sid):
             if ab not in ASSERT_ABILITIES:
                 continue
@@ -210,12 +228,11 @@ def preflight(d: Data, usable: list[str]) -> dict[str, Any]:
                     echo.append([sid, ab, cat])
     multi = []
     for m in usable:
-        cat = d.moves[m]["category"]
         r = request(d, ref, "Rough Skin", m, "arcanine", d.ability_list("arcanine")[0])
         k, info = label(d, r)
         if k == "error" and info == "multi_hit":
             multi.append(m)
-    return {"species_not_in_calc": sorted(not_in_calc), "ability_echo_rejected": sorted(echo), "multi_hit_moves": sorted(multi)}
+    return {"ability_echo_rejected": sorted(echo), "multi_hit_moves": sorted(multi)}
 
 
 def quartiles(vals: list[float]) -> list[float]:
@@ -229,8 +246,20 @@ def build() -> dict[str, Any]:
     pre = preflight(d, usable_all)
     multi = set(pre["multi_hit_moves"])
     usable = [m for m in usable_all if m not in multi]
-    ok_species = [s for s in d.legal if s not in set(pre["species_not_in_calc"])]
+    ok_species = [s for s in d.legal if s not in d.gap_species]
     echo = {tuple(t) for t in pre["ability_echo_rejected"]}
+
+    # Defender abilities whose first-hit effect the calc rolls do not model: excluded from the pool.
+    no_effect = set(d.rules["defender_abilities_without_effect_on_probe_rolls"])
+    legal_abilities = {a for s in ok_species for a in d.ability_list(s)}
+    unmodeled = sorted(a for a in UNMODELED_WATCH if a in no_effect and a in legal_abilities)
+    unmodeled_species = {a: sorted(s for s in ok_species if a in d.ability_list(s)) for a in unmodeled}
+
+    def defender_abilities(sid: str) -> list[str]:
+        return [a for a in d.ability_list(sid) if a not in unmodeled]
+
+    def_species = [s for s in ok_species if defender_abilities(s)]
+    excluded_defenders = sorted(set(ok_species) - set(def_species))
 
     bp = [d.moves[m]["basePower"] for m in usable]
     bp_q1, _, bp_q3 = quartiles(bp)
@@ -239,40 +268,43 @@ def build() -> dict[str, Any]:
         b = d.sp[sid]["base_stats"]
         return hp_stat(b["hp"], DEFENDER_HP_SP) * stat(b[DEFENSE[cat]], 0)
 
-    bulk_cut = {c: quartiles([bulk(s, c) for s in ok_species]) for c in ("Physical", "Special")}
+    bulk_cut = {c: quartiles([bulk(s, c) for s in def_species]) for c in ("Physical", "Special")}
 
     def bulk_quartile(sid: str, cat: str) -> int:
         v = bulk(sid, cat)
-        q = bulk_cut[cat]
-        return 1 + sum(v > c for c in q)
+        return 1 + sum(v > c for c in bulk_cut[cat])
 
     def strong_cat(sid: str) -> str:
         b = d.sp[sid]["base_stats"]
         return "Physical" if b["atk"] >= b["spa"] else "Special"
 
-    def est(att: str, dfn: str, m: str) -> tuple[float, float, int]:
+    def est(att: str, att_ab: str, dfn: str, m: str) -> tuple[float, float]:
         mv, b, c = d.moves[m], d.sp[att]["base_stats"], d.sp[dfn]["base_stats"]
         cat = mv["category"]
         a = stat(b[OFFENSE[cat]], ATTACKER_SP, 1.1)
         df = stat(c[DEFENSE[cat]], 0)
         hp = hp_stat(c["hp"], DEFENDER_HP_SP)
         base = math.floor(math.floor(22 * mv["basePower"] * a / df) / 50) + 2
-        mult = (1.5 if mv["type"] in d.sp[att]["types"] else 1.0) * d.eff(mv["type"], d.sp[dfn]["types"])
-        return math.floor(base * 0.85 * mult) / hp, math.floor(base * mult) / hp, hp
+        mult = (1.5 if d.final_type(att, att_ab, m) in d.sp[att]["types"] else 1.0) * d.eff(att, att_ab, m, d.sp[dfn]["types"])
+        return math.floor(base * 0.85 * mult) / hp, math.floor(base * mult) / hp
 
     learn = {s: sorted(set(d.ls[d.learnset_key(s)]) & set(usable)) if d.learnset_key(s) else [] for s in ok_species}
 
-    def attrs(att: str, move: str, dfn: str, res: dict) -> dict[str, Any]:
+    def attrs(att: str, att_ab: str, move: str, dfn: str, res: dict) -> dict[str, Any]:
         mv = d.moves[move]
         cat = mv["category"]
         rolls, hp = res["rolls"], res["hp"]
         b = d.sp[dfn]["base_stats"]
         other = "Special" if cat == "Physical" else "Physical"
+        e = d.eff(att, att_ab, move, d.sp[dfn]["types"])
+        plain = d.plain_eff(move, d.sp[dfn]["types"])
         return {
-            "effectiveness": d.eff(mv["type"], d.sp[dfn]["types"]),
+            "effectiveness": e,
+            "chart_effectiveness": plain,
+            "chart_exception": e != plain,
             "high_power": mv["basePower"] >= bp_q3,
             "low_power": mv["basePower"] <= bp_q1,
-            "stab": mv["type"] in d.sp[att]["types"],
+            "stab": d.final_type(att, att_ab, move) in d.sp[att]["types"],
             "category_match": cat == strong_cat(att),
             "defender_bulk_quartile": bulk_quartile(dfn, cat),
             "hits_stronger_defense": b[DEFENSE[cat]] > b[DEFENSE[other]],
@@ -280,21 +312,31 @@ def build() -> dict[str, Any]:
             "max_ratio": round(max(rolls) / hp, 4),
         }
 
-    def satisfied(res: dict, a: dict) -> list[str]:
+    def satisfied(move: str, res: dict, a: dict) -> list[str]:
         rolls, hp = res["rolls"], res["hp"]
         g = min(rolls) >= hp
         ko = sum(r >= hp for r in rolls)
         eff, hi, lo = a["effectiveness"], a["high_power"], a["low_power"]
+        name = d.moves[move]["name"]
         out = []
-        if g and eff >= 2 and hi and a["margin"] <= T1_MARGIN_MAX:
-            out.append("T1")
-        if g and eff >= 2 and hi and a["margin"] >= T2_MARGIN_MIN:
-            out.append("T2")
-        if g and eff == 1 and a["stab"] and hi and a["category_match"]:
-            out.append("T3")
-        if g and a["defender_bulk_quartile"] == 1:
-            out.append("T4")
-        if not g:
+        if g:
+            if name == "Freeze-Dry" and eff >= 2 and a["chart_exception"]:
+                out.append("T5fd")
+            if name == "Flying Press" and eff >= 2 and a["chart_exception"]:
+                out.append("T5fp")
+            if a["defender_bulk_quartile"] == 1 and 0 < eff <= 0.5:
+                out.append("T4r")
+            if a["defender_bulk_quartile"] == 1 and a["chart_exception"]:
+                out.append("T4e")
+            if eff >= 2 and hi and a["margin"] <= T1_MARGIN_MAX:
+                out.append("T1")
+            if eff >= 2 and hi and a["margin"] >= T2_MARGIN_MIN:
+                out.append("T2")
+            if eff == 1 and a["stab"] and hi and a["category_match"]:
+                out.append("T3")
+            if a["defender_bulk_quartile"] == 1:
+                out.append("T4")
+        else:
             if eff >= 2 and lo:
                 out.append("F1")
             if eff == 1 and hi and not a["category_match"]:
@@ -307,37 +349,77 @@ def build() -> dict[str, Any]:
                 out.append("F3n")
             if hi and a["defender_bulk_quartile"] == 4 and eff >= 1:
                 out.append("F5")
-            if hi and eff <= 0.5:
+            if hi and 0 < eff <= 0.5:
+                out.append("F4")
+            elif hi and eff == 0:
                 out.append("F4")
         return out
 
-    def pick_pair(kind: str) -> tuple[str, str, str] | None:
-        att = rng.choice(ok_species)
+    learners = {name: [s for s in ok_species if mid in learn[s]] for name, mid in (("freezedry", "freezedry"), ("flyingpress", "flyingpress"))}
+
+    # Resisted pairs that still KO are rare, so T4r enumerates them (estimate prefilter) instead of sampling.
+    resisted: list[tuple[str, str, str, str]] = []
+    for x in ok_species:
+        for xab in d.ability_list(x):
+            for m in learn[x]:
+                if (x, xab, d.moves[m]["category"]) in echo:
+                    continue
+                for y in def_species:
+                    if y == x:
+                        continue
+                    e = d.eff(x, xab, m, d.sp[y]["types"])
+                    if 0 < e <= 0.5 and bulk_quartile(y, d.moves[m]["category"]) == 1 and est(x, xab, y, m)[0] >= 0.55:
+                        resisted.append((x, xab, m, y))
+    rng.shuffle(resisted)
+
+    def pick_pair(kind: str) -> tuple[str, str, str, str] | None:
+        if kind == "T4r":
+            return resisted.pop() if resisted else None
+        if kind == "T5fd":
+            if not learners["freezedry"]:
+                return None
+            att = rng.choice(learners["freezedry"])
+        elif kind == "T5fp":
+            if not learners["flyingpress"]:
+                return None
+            att = rng.choice(learners["flyingpress"])
+        else:
+            att = rng.choice(ok_species)
+        att_ab = rng.choice([a for a in d.ability_list(att)])
         sc = strong_cat(att)
-        want = {"F2": "weak"}.get(kind, "strong")
-        moves = [m for m in learn[att] if (d.moves[m]["category"] == sc) == (want == "strong")]
+        want_strong = kind != "F2"
+        moves = [m for m in learn[att] if (d.moves[m]["category"] == sc) == want_strong]
         if kind == "F1":
             moves = [m for m in moves if d.moves[m]["basePower"] <= bp_q1]
-        elif kind != "T4":
+        elif kind in ("T5fd", "T5fp"):
+            moves = [m for m in learn[att] if d.moves[m]["name"] == ("Freeze-Dry" if kind == "T5fd" else "Flying Press")]
+        elif kind not in ("T4", "T4e"):
             moves = [m for m in moves if d.moves[m]["basePower"] >= bp_q3]
         if kind == "T3":
-            moves = [m for m in moves if d.moves[m]["type"] in d.sp[att]["types"]]
+            moves = [m for m in moves if d.final_type(att, att_ab, m) in d.sp[att]["types"]]
         if not moves:
             return None
         m = rng.choice(moves)
         cat = d.moves[m]["category"]
-        dfn = rng.choice([s for s in ok_species if s != att])
-        e = d.eff(d.moves[m]["type"], d.sp[dfn]["types"])
-        lo_est, hi_est, _ = est(att, dfn, m)
+        dfn = rng.choice([s for s in def_species if s != att])
+        e = d.eff(att, att_ab, m, d.sp[dfn]["types"])
+        lo_est, hi_est = est(att, att_ab, dfn, m)
         b = d.sp[dfn]["base_stats"]
         other = "Special" if cat == "Physical" else "Physical"
+        bq = bulk_quartile(dfn, cat)
+        if kind == "T5fd" and not (e >= 2 and lo_est >= 0.9):
+            return None
+        if kind == "T5fp" and not (e >= 2 and lo_est >= 0.9):
+            return None
         if kind == "T1" and not (e >= 2 and 0.98 <= lo_est <= 1.20):
             return None
         if kind == "T2" and not (e >= 2 and lo_est >= 1.35):
             return None
         if kind == "T3" and not (e == 1 and lo_est >= 1.0):
             return None
-        if kind == "T4" and not (bulk_quartile(dfn, cat) == 1 and lo_est >= 1.0):
+        if kind == "T4" and not (bq == 1 and lo_est >= 1.0):
+            return None
+        if kind == "T4e" and not (bq == 1 and e > 0 and e != d.plain_eff(m, d.sp[dfn]["types"]) and lo_est >= 0.9):
             return None
         if kind == "F1" and not (e >= 2 and hi_est < 0.9):
             return None
@@ -349,11 +431,11 @@ def build() -> dict[str, Any]:
             return None
         if kind == "F3n" and not (e == 1 and NEAR_MISS[0] <= hi_est <= NEAR_MISS[1]):
             return None
-        if kind == "F5" and not (bulk_quartile(dfn, cat) == 4 and e >= 1 and lo_est < 1.0):
+        if kind == "F5" and not (bq == 4 and e >= 1 and lo_est < 1.0):
             return None
         if kind == "F4" and not (e <= 0.5):
             return None
-        return att, m, dfn
+        return att, att_ab, m, dfn
 
     pool: dict[str, list[dict]] = {k: [] for k in QUOTAS}
     keys: set[tuple[str, str, str]] = set()
@@ -366,26 +448,25 @@ def build() -> dict[str, Any]:
             pr = pick_pair(kind)
             if pr is None:
                 continue
-            att, m, dfn = pr
+            att, att_ab, m, dfn = pr
+            cat = d.moves[m]["category"]
+            if (att, att_ab, cat) in echo:
+                stats[kind]["attacker_ability_excluded"] += 1
+                continue
             if (att, m, dfn) in keys:
                 stats[kind]["duplicate"] += 1
                 continue
-            cat = d.moves[m]["category"]
-            att_ab = rng.choice([a for a in d.ability_list(att) if (att, a, cat) not in echo] or [None])
-            if att_ab is None:
-                stats[kind]["attacker_ability_excluded"] += 1
-                continue
-            dfn_abs = d.ability_list(dfn)
+            dfn_abs = defender_abilities(dfn)
             if kind in TRUE_KINDS + ("F1", "F2", "F2b", "F3n", "F5") or kind.startswith("F3r"):
-                dfn_abs = [a for a in dfn_abs if a not in STEERING_IMMUNITY.get(d.moves[m]["type"], set())] or dfn_abs
+                dfn_abs = [a for a in dfn_abs if a not in STEERING_IMMUNITY.get(d.final_type(att, att_ab, m), set())] or dfn_abs
             dfn_ab = rng.choice(dfn_abs)
             res_kind, res = label(d, request(d, att, att_ab, m, dfn, dfn_ab))
             stats[kind]["calc_calls"] += 1
             if res_kind == "error":
                 stats[kind]["error:" + str(res)[:40]] += 1
                 continue
-            a = attrs(att, m, dfn, res)
-            sat = satisfied(res, a)
+            a = attrs(att, att_ab, m, dfn, res)
+            sat = satisfied(m, res, a)
             target_kind = kind if kind in sat and len(pool[kind]) < target else None
             if target_kind is None:
                 for other in order:
@@ -407,6 +488,7 @@ def build() -> dict[str, Any]:
                     "attacker_id": att, "attacker": d.sp[att]["name"], "attacker_ability": att_ab,
                     "nature": NATURE[cat],
                     "move_id": m, "move": mv["name"], "move_category": cat, "move_basePower": mv["basePower"], "move_type": mv["type"],
+                    "move_final_type": d.final_type(att, att_ab, m),
                     "defender_id": dfn, "defender": d.sp[dfn]["name"], "defender_ability": dfn_ab,
                     "hp": res["hp"], "rolls": rolls, "min_roll": min(rolls), "max_roll": max(rolls),
                     "rolls_ko_of_16": sum(r >= res["hp"] for r in rolls),
@@ -416,6 +498,7 @@ def build() -> dict[str, Any]:
                 }
             )
     entries = sorted((e for lst in pool.values() for e in lst), key=lambda e: (e["kind"], e["attacker_id"], e["move_id"], e["defender_id"]))
+    shortfalls = {k: QUOTAS[k] * POOL_MULTIPLE - len(v) for k, v in pool.items() if len(v) < QUOTAS[k] * POOL_MULTIPLE}
     pins = json.loads(PINS.read_text())
     by_path = {p["path"]: p for p in pins["pins"]}
     return {
@@ -428,6 +511,7 @@ def build() -> dict[str, Any]:
             "rng_seed": SEED,
             "pool_multiple": POOL_MULTIPLE,
             "quotas_per_battery": QUOTAS,
+            "shortfalls": shortfalls,
             "fixed_conditions": {
                 "level": LEVEL, "nature_by_category": NATURE, "attacker_sp": f"{ATTACKER_SP} in the offensive stat, 0 elsewhere",
                 "defender": f"{DEFENDER_NATURE} nature, {DEFENDER_HP_SP} HP SP, 0 Def/SpD SP", "items": "none",
@@ -441,11 +525,18 @@ def build() -> dict[str, Any]:
                 "t1_margin_max": T1_MARGIN_MAX, "t2_margin_min": T2_MARGIN_MIN, "near_miss_max_over_hp": list(NEAR_MISS),
                 "rolls_ko_buckets": {"low": f"<={ROLLS_LOW_MAX}", "mid": f"{ROLLS_LOW_MAX + 1}-{ROLLS_MID_MAX}", "high": f"{ROLLS_MID_MAX + 1}-15"},
             },
-            "exclusions": pre,
+            "exclusions": {
+                **pre,
+                "species_not_in_calc": sorted(d.gap_species),
+                "calc_dex_gap_moves": sorted(d.gap_moves),
+                "defender_abilities_unmodeled_by_calc_rolls": unmodeled_species,
+                "defenders_left_without_a_usable_ability": excluded_defenders,
+            },
             "steering_immunity_abilities": {k: sorted(v) for k, v in STEERING_IMMUNITY.items()},
             "pins": [{"path": p, "git_blob_sha": by_path[p]["git_blob_sha"]} for p in BLOBS],
             "stone_map_sha256": hashlib.sha256(STONE_MAP.read_bytes()).hexdigest(),
             "type_chart_sha256": hashlib.sha256(TYPE_CHART.read_bytes()).hexdigest(),
+            "calc_rules_sha256": hashlib.sha256(CALC_RULES.read_bytes()).hexdigest(),
             "build_stats": {k: dict(v) for k, v in stats.items()},
             "pool_sizes": {k: len(v) for k, v in pool.items()},
         },
@@ -471,7 +562,7 @@ def main() -> int:
         return 0
     args.out.write_text(text)
     d = json.loads(text)
-    print(f"wrote {args.out}: sizes {d['meta']['pool_sizes']}")
+    print(f"wrote {args.out}: sizes {d['meta']['pool_sizes']}; shortfalls {d['meta']['shortfalls']}")
     return 0
 
 
