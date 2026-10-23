@@ -387,6 +387,12 @@
    "expected": "legal",
    "source": "vu_confirmed",
    "reason": "listed by Vu as usable in Champions"
+  },
+  {
+   "item": "Metronome",
+   "expected": "legal",
+   "source": "vu_confirmed",
+   "reason": "listed by Vu: item legal, same-named move not legal"
   }
  ]
 }

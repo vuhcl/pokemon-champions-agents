@@ -5,8 +5,9 @@ Eval-only. Reads pinned JSON under data/; no recommender imports.
 """
 from __future__ import annotations
 
-import hashlib
 import argparse
+import collections
+import hashlib
 import json
 import random
 import re
@@ -76,6 +77,7 @@ ITEMS_TS_PIN = PKG / "key_artifacts" / "showdown_items_ts.pin.json"
 STONE_MAP = PKG / "key_artifacts" / "stone_map.v1.json"
 ITEM_STRATUM = Path(__file__).resolve().parent / "item_stratum.json"
 DAMAGE_POOL = PKG / "key_artifacts" / "battery_damage_pool.json"
+DEFENDER_CAP = 2  # a defender species (exact id) appears in at most this many damage items per battery
 TYPE_CHART = PKG / "key_artifacts" / "type_chart.v1.json"
 CALC_RULES = PKG / "key_artifacts" / "calc_move_rules.v1.json"
 MOVE_CONDITIONALS = PKG / "key_artifacts" / "move_conditionals.v1.json"
@@ -408,6 +410,7 @@ def build_claim_battery(
         raise SystemExit(f"damage quotas sum to {len(damage_kinds)}, TYPE_PLAN says {n_damage}")
     damage_plan: list[str] = []  # shuffled lazily, at the first damage draw
     twin_pick: dict[str, str] = {}  # the M1/M2 twin shared by the two ability-modified items
+    defender_drawn: collections.Counter = collections.Counter()  # exact defender species id -> damage items so far
     stratum_doc = json.loads(ITEM_STRATUM.read_text())
     bad = item_stratum_disagreements(stratum_doc, snap)
     if bad:
@@ -417,7 +420,7 @@ def build_claim_battery(
         "typing": ["Is {S} a {T} type?", "Does {S} have {T} typing?"],
         "ability": ["Does {S} have {A}?", "Is {A} legal on {S}?"],
         "ability_form": ["Does {M} have {A}?"],
-        "item": ["Is {I} legal in Champions VGC?"],
+        "item": ["Is {I} legal as a held item in Champions VGC?"],
         "legality": ["Is {S} legal?", "Can I use {S} in Champions VGC?"],
         "speed": [
             "Does {S1} (Jolly, 32 Spe SP) outspeed {S2} (Timid, 32 Spe SP)?",
@@ -543,10 +546,16 @@ def build_claim_battery(
                 e for e in by_kind[kind]
                 if ("damage", "guaranteed_ko", "|".join((e["attacker"], e["defender"], e["move"]))) not in seen
                 and (kind not in ("M1", "M2") or "twin" not in twin_pick or e["twin"] == twin_pick["twin"])
+                and defender_drawn[e["defender_id"]] < DEFENDER_CAP
             ]
             if not cands:
-                raise SystemExit(f"damage pool kind {kind} is exhausted (battery needs more than the pool holds)")
+                dist = collections.Counter(e["defender_id"] for e in by_kind[kind])
+                raise SystemExit(
+                    f"damage kind {kind}: no pool entry left under the defender cap of {DEFENDER_CAP} per species "
+                    f"(already drawn: {dict(defender_drawn)}); pool defenders for this kind: {dict(dist)}"
+                )
             e = rng.choice(cands)
+            defender_drawn[e["defender_id"]] += 1
             if kind in ("M1", "M2"):
                 twin_pick.setdefault("twin", e["twin"])
             a = e["attrs"]
@@ -595,7 +604,7 @@ def build_claim_battery(
             prompt = tmpl.format(
                 S1=e["attacker"], A1="" if e["attacker_is_mega"] else f" ({e['attacker_ability']})",
                 M=e["move"], S2=e["defender"], A2="" if e["defender_is_mega"] else f" ({e['defender_ability']})",
-                NAT=e["nature"], ASP=asp, MEGA=" A Mega form uses its own single ability." if mega else "",
+                NAT=e["nature"], ASP=asp, MEGA=" Mega forms use their own single ability." if mega else "",
             )
             return prompt, [("guaranteed_ko", gt)], tmpl
         if ctype == "usage":
@@ -794,6 +803,7 @@ def build_claim_battery(
                 "exclusions": damage_pool["meta"]["exclusions"],
                 "type_chart_sha256": damage_pool["meta"]["type_chart_sha256"],
                 "quotas_per_battery": damage_pool["meta"]["quotas_per_battery"],
+                "defender_cap_per_species": DEFENDER_CAP,
                 "pool_sizes": damage_pool["meta"]["pool_sizes"],
             },
             "stone_map": {
@@ -817,7 +827,7 @@ def build_false_legal(rng: random.Random) -> dict[str, Any]:
     templates_ill = [
         "Can I use {S} in Champions VGC?",
         "Is {S} legal?",
-        "Is {I} legal?",
+        "Is {I} legal as a held item?",
         "Give me a set for {S} holding {I}.",
     ]
     seen_prompts: set[str] = set()
@@ -833,7 +843,7 @@ def build_false_legal(rng: random.Random) -> dict[str, Any]:
             elif mode == 1:
                 iid, it = rng.choice(illeg_it)
                 iname = it.get("name") or iid
-                prompt = "Is {I} legal?".format(I=iname)
+                prompt = "Is {I} legal as a held item?".format(I=iname)
                 gt = {"illegal_item": iname, "kind": "item_only"}
             else:
                 sid, sp = rng.choice(illeg_sp)
