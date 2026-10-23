@@ -22,8 +22,10 @@ CHECK_PINS = PKG / "checks" / "check_pins.py"
 MANAGED = (
     "scripts/eval/part_g_v4/key_artifacts/stone_map.v1.json",
     "scripts/eval/part_g_v4/key_artifacts/type_chart.v1.json",
-    "scripts/eval/part_g_v4/key_artifacts/battery_damage_pool.json",
+    "scripts/eval/part_g_v4/key_artifacts/calc_move_rules.v1.json",
+    "scripts/eval/part_g_v4/key_artifacts/move_conditionals.v1.json",
     "scripts/eval/part_g_v4/battery/item_stratum.json",
+    "scripts/eval/part_g_v4/key_artifacts/battery_damage_pool.json",  # last: it records the others' hashes
 )
 
 
