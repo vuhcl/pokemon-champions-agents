@@ -25,7 +25,7 @@ EXPECTED_BLOB = {
     "scripts/eval/part_g_v4/key_artifacts/type_chart.v1.json": "94a38c1d5be098cb6f7799af572c0f8f064b3d63",
     "scripts/eval/part_g_v4/key_artifacts/calc_move_rules.v1.json": "ae1bff1317adc0cd7c4bf081b86af2dd5017d232",
     "scripts/eval/part_g_v4/key_artifacts/move_conditionals.v1.json": "e8947088efaa7f2d1db5838028564b00aceabe07",
-    "scripts/eval/part_g_v4/battery/item_stratum.json": "38d4da8d4a5d3edec9403bd0467535bc099e7349",
+    "scripts/eval/part_g_v4/battery/item_stratum.json": "5bb95181c8f700bd7965f7fdcc77f46e3dd5629f",
     "scripts/eval/part_g_v4/key_artifacts/battery_damage_pool.json": "6f7af4ba218a13496e9fe3d3043e22e9ad77c0d5",
 }
 

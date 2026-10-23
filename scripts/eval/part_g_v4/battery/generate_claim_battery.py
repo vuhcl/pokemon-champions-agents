@@ -77,7 +77,7 @@ ITEMS_TS_PIN = PKG / "key_artifacts" / "showdown_items_ts.pin.json"
 STONE_MAP = PKG / "key_artifacts" / "stone_map.v1.json"
 ITEM_STRATUM = Path(__file__).resolve().parent / "item_stratum.json"
 DAMAGE_POOL = PKG / "key_artifacts" / "battery_damage_pool.json"
-DEFENDER_CAP = 2  # a defender species (exact id) appears in at most this many damage items per battery
+DEFENDER_CAP = 2  # a defensive-equivalence group (identical types and base stats) appears in at most this many damage items per battery
 TYPE_CHART = PKG / "key_artifacts" / "type_chart.v1.json"
 CALC_RULES = PKG / "key_artifacts" / "calc_move_rules.v1.json"
 MOVE_CONDITIONALS = PKG / "key_artifacts" / "move_conditionals.v1.json"
@@ -410,7 +410,13 @@ def build_claim_battery(
         raise SystemExit(f"damage quotas sum to {len(damage_kinds)}, TYPE_PLAN says {n_damage}")
     damage_plan: list[str] = []  # shuffled lazily, at the first damage draw
     twin_pick: dict[str, str] = {}  # the M1/M2 twin shared by the two ability-modified items
-    defender_drawn: collections.Counter = collections.Counter()  # exact defender species id -> damage items so far
+    def defense_group(sid: str) -> tuple:
+        """Defensive equivalence: identical types and base stats (so Squawkabilly colors are one group, a Mega form is not)."""
+        sp = snap["species"][sid]
+        return (tuple(sorted(sp["types"])), tuple(sorted(sp["base_stats"].items())))
+
+    defender_drawn: collections.Counter = collections.Counter()  # defense group -> damage items so far
+    defender_ids: list[str] = []
     stratum_doc = json.loads(ITEM_STRATUM.read_text())
     bad = item_stratum_disagreements(stratum_doc, snap)
     if bad:
@@ -546,16 +552,17 @@ def build_claim_battery(
                 e for e in by_kind[kind]
                 if ("damage", "guaranteed_ko", "|".join((e["attacker"], e["defender"], e["move"]))) not in seen
                 and (kind not in ("M1", "M2") or "twin" not in twin_pick or e["twin"] == twin_pick["twin"])
-                and defender_drawn[e["defender_id"]] < DEFENDER_CAP
+                and defender_drawn[defense_group(e["defender_id"])] < DEFENDER_CAP
             ]
             if not cands:
                 dist = collections.Counter(e["defender_id"] for e in by_kind[kind])
                 raise SystemExit(
-                    f"damage kind {kind}: no pool entry left under the defender cap of {DEFENDER_CAP} per species "
-                    f"(already drawn: {dict(defender_drawn)}); pool defenders for this kind: {dict(dist)}"
+                    f"damage kind {kind}: no pool entry left under the defender cap of {DEFENDER_CAP} per defensive group "
+                    f"(already drawn: {dict(collections.Counter(defender_ids))}); pool defenders for this kind: {dict(dist)}"
                 )
             e = rng.choice(cands)
-            defender_drawn[e["defender_id"]] += 1
+            defender_drawn[defense_group(e["defender_id"])] += 1
+            defender_ids.append(e["defender_id"])
             if kind in ("M1", "M2"):
                 twin_pick.setdefault("twin", e["twin"])
             a = e["attrs"]
@@ -779,7 +786,6 @@ def build_claim_battery(
             "item_stratum": {
                 "file": "battery/item_stratum.json",
                 "sha256": hashlib.sha256(ITEM_STRATUM.read_bytes()).hexdigest(),
-                "author": stratum_doc["author"],
                 "date": stratum_doc["date"],
                 "entries": len(stratum_doc["entries"]),
                 "legal": sum(1 for e in stratum_doc["entries"] if e["expected"] == "legal"),
@@ -803,7 +809,16 @@ def build_claim_battery(
                 "exclusions": damage_pool["meta"]["exclusions"],
                 "type_chart_sha256": damage_pool["meta"]["type_chart_sha256"],
                 "quotas_per_battery": damage_pool["meta"]["quotas_per_battery"],
-                "defender_cap_per_species": DEFENDER_CAP,
+                "defender_cap_per_group": DEFENDER_CAP,
+                "defender_cap_group_key": "identical types and base stats",
+                "defender_counts": {
+                    "by_exact_species_id": dict(sorted(collections.Counter(defender_ids).items())),
+                    "by_base_species_id": dict(sorted(collections.Counter(snap["species"][s].get("base_species_id") or s for s in defender_ids).items())),
+                    "by_defense_group": {
+                        "|".join(sorted(s for s in set(defender_ids) if defense_group(s) == grp)): n
+                        for grp, n in sorted(defender_drawn.items(), key=lambda kv: sorted(s for s in set(defender_ids) if defense_group(s) == kv[0]))
+                    },
+                },
                 "pool_sizes": damage_pool["meta"]["pool_sizes"],
             },
             "stone_map": {

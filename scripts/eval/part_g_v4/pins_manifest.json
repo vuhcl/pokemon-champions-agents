@@ -77,8 +77,8 @@
       "path": "scripts/eval/part_g_v4/key_artifacts/move_conditionals.v1.json"
     },
     {
-      "content_sha256": "2db8d00e9dd1277002fa6eee8fdab5b18ec10242695ffcb485d70bb79cc53644",
-      "git_blob_sha": "38d4da8d4a5d3edec9403bd0467535bc099e7349",
+      "content_sha256": "94bd1b1ea22c9e461b827ab0d525263b28c85639b369d231bdf1768db06fa5f8",
+      "git_blob_sha": "5bb95181c8f700bd7965f7fdcc77f46e3dd5629f",
       "path": "scripts/eval/part_g_v4/battery/item_stratum.json"
     },
     {

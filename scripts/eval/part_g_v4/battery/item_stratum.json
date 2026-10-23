@@ -1,398 +1,397 @@
 {
  "schema": "part_g_v4_item_stratum",
- "author": "Vu",
  "date": "2026-10-22",
- "note": "Hand-written held-item legality stratum. Expected statuses come from Vu (in-game knowledge); the generator and checks/check_item_stratum.py assert every entry against the pinned legality blob and never edit this file.",
+ "note": "Statuses were approved by Vu from his own knowledge of the game, without reference to the pinned legality blob, and then asserted against the blob by check_item_stratum.py. Agreement is evidence for both; a disagreement would indicate a stale blob or a wrong entry.",
  "entries": [
   {
    "item": "Choice Band",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Choice Specs",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Assault Vest",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Booster Energy",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Covert Cloak",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Clear Amulet",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Eviolite",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Mirror Herb",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Heavy-Duty Boots",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Safety Goggles",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Throat Spray",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Weakness Policy",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Loaded Dice",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Toxic Orb",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Flame Orb",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Black Sludge",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Destiny Knot",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Punching Glove",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Eject Pack",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Blunder Policy",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Room Service",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Utility Umbrella",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Ability Shield",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Sticky Barb",
    "expected": "illegal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as not usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Power Herb",
    "expected": "illegal",
-   "source": "assistant_proposed_vu_approved",
-   "reason": "proposed by assistant, approved by Vu 2026-10-22"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Absorb Bulb",
    "expected": "illegal",
-   "source": "assistant_proposed_vu_approved",
-   "reason": "proposed by assistant, approved by Vu 2026-10-22"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Cell Battery",
    "expected": "illegal",
-   "source": "assistant_proposed_vu_approved",
-   "reason": "proposed by assistant, approved by Vu 2026-10-22"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Luminous Moss",
    "expected": "illegal",
-   "source": "assistant_proposed_vu_approved",
-   "reason": "proposed by assistant, approved by Vu 2026-10-22"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Snowball",
    "expected": "illegal",
-   "source": "assistant_proposed_vu_approved",
-   "reason": "proposed by assistant, approved by Vu 2026-10-22"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Adrenaline Orb",
    "expected": "illegal",
-   "source": "assistant_proposed_vu_approved",
-   "reason": "proposed by assistant, approved by Vu 2026-10-22"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Protective Pads",
    "expected": "illegal",
-   "source": "assistant_proposed_vu_approved",
-   "reason": "proposed by assistant, approved by Vu 2026-10-22"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Ring Target",
    "expected": "illegal",
-   "source": "assistant_proposed_vu_approved",
-   "reason": "proposed by assistant, approved by Vu 2026-10-22"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Choice Scarf",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Life Orb",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Leftovers",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Focus Sash",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Sitrus Berry",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Rocky Helmet",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Expert Belt",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Muscle Band",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Wise Glasses",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Air Balloon",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Charcoal",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Mystic Water",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Black Glasses",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Spell Tag",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Dragon Fang",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Silk Scarf",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Metal Coat",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Fairy Feather",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Occa Berry",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Chople Berry",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Shuca Berry",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Roseli Berry",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Scope Lens",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "King's Rock",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Mental Herb",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "White Herb",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Lum Berry",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Psychic Seed",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Grassy Seed",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Eject Button",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Red Card",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Binding Band",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu as usable in Champions"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   },
   {
    "item": "Metronome",
    "expected": "legal",
-   "source": "vu_confirmed",
-   "reason": "listed by Vu: item legal, same-named move not legal"
+   "source": "vu_approved",
+   "reason": "approved by Vu 2026-10-22"
   }
  ]
 }
