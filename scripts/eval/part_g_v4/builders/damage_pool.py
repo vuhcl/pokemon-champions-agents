@@ -555,6 +555,22 @@ def build() -> dict[str, Any]:
             return "Scrappy"
         return "Raging Bull" if m == "ragingbull" else ab
 
+    # metadata only: where each conversion family dropped out (counts of attacker/ability/move triples)
+    family_funnel: dict[str, collections.Counter] = collections.defaultdict(collections.Counter)
+    for x in ok_species:
+        for ab in d.ability_list(x):
+            for m in learn[x]:
+                if not converting(x, ab, m):
+                    continue
+                c_ = family_funnel[family(ab, m)]
+                c_["converting_triples"] += 1
+                if (x, ab, d.moves[m]["category"]) in echo:
+                    c_["rejected_ability_echo"] += 1
+                elif d.moves[m]["basePower"] < bp_q3:
+                    c_["rejected_base_power_below_q3"] += 1
+                else:
+                    c_["passed_filters"] += 1
+
     by_family: dict[str, list[tuple[str, str, str]]] = collections.defaultdict(list)
     for t_ in triples:
         by_family[family(t_[1], t_[2])].append(t_)
@@ -568,12 +584,14 @@ def build() -> dict[str, Any]:
     twin_stats = collections.Counter()
     target_pairs = QUOTAS["M1"] * POOL_MULTIPLE
     done_families: set[str] = set()
+    tried_families: set[str] = set()
     for att, ab, m in ordered_triples:
         if len(twin_log) >= target_pairs:
             break
         if family(ab, m) in done_families:
             continue
         twin_stats["triples_tried"] += 1
+        tried_families.add(family(ab, m))
         cat = d.moves[m]["category"]
         up, down = [], []
         for y in def_species:
@@ -621,6 +639,17 @@ def build() -> dict[str, Any]:
                          "listed_type": d.moves[m]["type"], "final_type": d.final_type(att, ab, m)})
     twin_stats["families_available"] = len(families)
 
+    def family_status(f_: str) -> str:
+        if f_ in done_families:
+            return "built"
+        if f_ in tried_families:
+            return "tried_no_twin_found"
+        if f_ in by_family:
+            return "passed_filters_not_tried_pair_target_reached"
+        return "dropped_by_filters"
+
+    twin_families = {f_: {**dict(c_), "status": family_status(f_)} for f_, c_ in sorted(family_funnel.items())}
+
     entries = sorted((e for lst in pool.values() for e in lst), key=lambda e: (e["kind"], e["attacker_id"], e["move_id"], e["defender_id"]))
     shortfalls = {k: QUOTAS[k] * POOL_MULTIPLE - len(v) for k, v in pool.items() if len(v) < QUOTAS[k] * POOL_MULTIPLE}
     pins = json.loads(PINS.read_text())
@@ -639,7 +668,7 @@ def build() -> dict[str, Any]:
             "fixed_conditions": {
                 "level": LEVEL, "nature_by_category": NATURE, "attacker_sp": f"{ATTACKER_SP} in the offensive stat, 0 elsewhere",
                 "defender": f"{DEFENDER_NATURE} nature, {DEFENDER_HP_SP} HP SP, 0 Def/SpD SP", "items": "none",
-                "field": "no weather, terrain or screens; single target; no critical hit; full HP; no stat stages or status",
+                "field": "no weather, terrain, screens or other field effects; single target; no critical hit; full HP; no stat stages or status",
                 "calc_field": FIELD,
             },
             "cutoffs": {
@@ -664,6 +693,7 @@ def build() -> dict[str, Any]:
             "calc_rules_sha256": hashlib.sha256(CALC_RULES.read_bytes()).hexdigest(),
             "build_stats": {**{k: dict(v) for k, v in stats.items()}, "M1_M2_twins": dict(twin_stats)},
             "twins": twin_log,
+            "twin_families": twin_families,
             "resisted_but_guaranteed_ko_pairs_found": resisted_ko_found,
             "usable_moves_below_100_accuracy": {d.moves[m]["name"]: d.accuracy[m] for m in usable if d.accuracy.get(m) is not True and (d.accuracy.get(m) or 100) < 100},
             "move_conditionals_sha256": hashlib.sha256(CONDITIONALS.read_bytes()).hexdigest(),
