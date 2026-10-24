@@ -17,7 +17,8 @@ import scorer as sc  # noqa: E402
 
 T, F = sc.Verdict.TRUE, sc.Verdict.FALSE
 GATE = {"false": 2, "scored": 300, "cp_upper_bound": sc.cp_upper(2, 300), "max_false_tolerated_at_n": sc.max_false_tolerated(300), "passes_gate": True}
-CLAIMS = {"i1": [("speed is 100", T), ("hp 99", F)], "i2": [("alpha", T)], "i3": [("beta", F)], "i4": [("dup", T), ("dup", T)]}
+CLAIMS = {"i1": [("speed is 100", T, True), ("hp 99", F, True)], "i2": [("alpha", T, True)], "i3": [("beta", F, True)], "i4": [("dup", T, True), ("dup", T, True)],
+          "i5": [("42% usage", T, False)], "i6": [("one of its abilities", None, False)], "i7": [("mix", T, True), ("mix", T, False)]}
 CAN = [{"item_id": "c_1", "canary_type": "missed_claim", "target_claim_text": "canary text"}]
 
 
@@ -62,6 +63,15 @@ def test_wrong_rows_flip_in_both_directions_and_leave_n_alone():
 def test_wrong_rows_unprefixed_unmatched_or_ambiguous_refuse(bad):
     r = adj([bad])
     assert list(r) == ["refused"] and r["refused"][0]["row"] == bad
+
+
+def test_rows_matching_only_non_gated_claims_are_listed_not_refused_or_scored():
+    rows = [row("i5", "wrong_verdict", "about 42% usage", "NOW FALSE: 40%"), row("i6", "wrong_extraction", "one of its abilities", "NOW TRUE: ok")]
+    r = adj(rows)
+    assert r["non_gating_rows_not_scored"] == rows and r["adjusted"]["false"] == 2 and r["wrong_rows_matched"] == 0
+    assert adj([row("i5", "wrong_verdict", "about 42% usage", "bad prefix")])["refused"]  # the prefix is still required
+    assert adj([row("i7", "wrong_verdict", "mix", "NOW FALSE: x")])["adjusted"]["false"] == 3  # one gated match among non-gated ones is a normal match
+    assert adj([row("i5", "wrong_verdict", "no such text", "NOW FALSE: x")])["refused"]  # a row that matches no claim at all stays refused
 
 
 def test_two_rows_cannot_claim_the_same_claim_but_can_claim_two_duplicates():
@@ -109,5 +119,5 @@ def test_refuses_without_a_gate_block_or_when_the_reextraction_disagrees(tmp_pat
     with pytest.raises(SystemExit, match="re-extraction gives"):
         run_main(monkeypatch, tmp_path, GATE, CLAIMS)
     ok = {"false": 1, "scored": 2, "cp_upper_bound": sc.cp_upper(1, 2), "max_false_tolerated_at_n": -1, "passes_gate": False}
-    assert run_main(monkeypatch, tmp_path, ok, {"i1": [("a", T), ("b", F)]}) == 0
-    assert run_main(monkeypatch, tmp_path, ok, {"i1": [("a", T), ("b", F)]}, [row("i1", "missed_claim", "z", "oops")]) == 1  # a refusal exits non-zero
+    assert run_main(monkeypatch, tmp_path, ok, {"i1": [("a", T, True), ("b", F, True)]}) == 0
+    assert run_main(monkeypatch, tmp_path, ok, {"i1": [("a", T, True), ("b", F, True)]}, [row("i1", "missed_claim", "z", "oops")]) == 1  # a refusal exits non-zero

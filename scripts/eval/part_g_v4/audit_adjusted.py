@@ -8,6 +8,8 @@ Notes are read case-insensitively after stripping whitespace.
   wrong_verdict / wrong_extraction: note "NOW FALSE:" or "NOW TRUE:" = the correct verdict of the claim, matched to a scored gated claim by item_id and
                    claim_text (the row text contains the claim's answer span as whole tokens). Scorer TRUE now FALSE adds one false; scorer FALSE now TRUE
                    removes one; n is unchanged.
+                   A row that matches only claims that cannot move the gate (usage percentages, ability_plural, chance_nhko, hedges, ...) is listed
+                   as "non-gating, not scored"; a row matching no claim at all, or more than one gated claim, is refused.
   other:           listed, never scored.
 It fails closed: an unprefixed note, an unmatched or ambiguous wrong_* row, or a scorer-gate count that the re-extraction does not reproduce gives no
 verdict, only the list of offending rows. The adjusted bound is the scorer's one-sided 95% Clopper-Pearson upper bound, printed beside the scorer-only numbers.
@@ -36,12 +38,12 @@ def _note(r: dict) -> str:
     return " ".join((r.get("note") or "").split()).upper()
 
 
-def adjust(gate: dict, rows: list[dict], canaries: list[dict], claims: dict[str, list[tuple[str, scorer.Verdict]]]) -> dict:
-    """claims: item_id -> [(answer span text, scorer verdict)] of the scored gated claims. Returns a verdict dict, or {"refused": [...]} with the rows."""
+def adjust(gate: dict, rows: list[dict], canaries: list[dict], claims: dict[str, list[tuple[str, scorer.Verdict | None, bool]]]) -> dict:
+    """claims: item_id -> [(answer span text, scorer verdict, gated)] of every extracted claim; gated = scored on the gate unit. Returns a verdict dict, or {"refused": [...]} with the rows."""
     exc = [r for r in rows if r["exception_type"]]
     _, used = chk.match(canaries, exc)
     live = [r for i, r in enumerate(exc) if i not in used]
-    refused, other = [], [r for r in live if r["exception_type"] == "other"]
+    refused, other, nongating = [], [r for r in live if r["exception_type"] == "other"], []
     mf = mt = 0
     flips: dict[tuple[str, int], str] = {}  # (item, claim index) -> the audit's verdict
     for r in live:
@@ -55,9 +57,14 @@ def adjust(gate: dict, rows: list[dict], canaries: list[dict], claims: dict[str,
         elif t == "missed_claim":
             mf, mt = mf + n.startswith("FALSE:"), mt + n.startswith("TRUE:")
         else:
-            cand = [i for i, (span, _) in enumerate(claims.get(r["item_id"], [])) if (r["item_id"], i) not in flips and chk.contains_target(r["claim_text"], span)]
-            if len(cand) != 1:
-                refused.append({"row": r, "why": f"{len(cand)} scored gated claims match item_id and claim_text (need exactly 1)"})
+            hit = [(i, g) for i, (span, _, g) in enumerate(claims.get(r["item_id"], [])) if chk.contains_target(r["claim_text"], span)]
+            cand = [i for i, g in hit if g and (r["item_id"], i) not in flips]
+            if not hit:
+                refused.append({"row": r, "why": "no claim matches item_id and claim_text"})
+            elif not any(g for _, g in hit):
+                nongating.append(r)  # only claims outside the gate unit match: it cannot move the gate
+            elif len(cand) != 1:
+                refused.append({"row": r, "why": f"{len(cand)} unused scored gated claims match item_id and claim_text (need exactly 1)"})
             else:
                 flips[(r["item_id"], cand[0])] = n.removeprefix("NOW ").split(":")[0]  # "FALSE" or "TRUE"
     if refused:
@@ -69,7 +76,7 @@ def adjust(gate: dict, rows: list[dict], canaries: list[dict], claims: dict[str,
     return {"scorer_only": {k: gate[k] for k in ("false", "scored", "cp_upper_bound", "max_false_tolerated_at_n", "passes_gate")},
             "adjusted": {"false": false, "scored": scored, "cp_upper_bound": ub, "max_false_tolerated_at_n": scorer.max_false_tolerated(scored), "passes_gate": scored > 0 and ub <= scorer.GATE_RATE},
             "missed_noted_false": mf, "missed_noted_true": mt, "wrong_rows_matched": len(flips), "scorer_true_now_false": to_false, "scorer_false_now_true": to_true,
-            "canary_rows_excluded": len(used), "other_rows_listed_not_scored": other}
+            "canary_rows_excluded": len(used), "other_rows_listed_not_scored": other, "non_gating_rows_not_scored": nongating}
 
 
 def scored_claims(answers: Path, battery: Path, half: str | None, split_file: Path | None) -> dict[str, list[tuple[str, scorer.Verdict]]]:
@@ -82,8 +89,8 @@ def scored_claims(answers: Path, battery: Path, half: str | None, split_file: Pa
     out = {}
     for r in map(json.loads, answers.read_text().splitlines()):
         if r["id"] in items:
-            out[r["id"]] = [(r["final_text"][c.span[0]:c.span[1]] if c.span else "", c.verdict) for c in extractors.extract_item(items[r["id"]], r)
-                            if c.line in GATED and c.verdict in (scorer.Verdict.TRUE, scorer.Verdict.FALSE)]
+            out[r["id"]] = [(r["final_text"][c.span[0]:c.span[1]] if c.span else "", c.verdict, c.line in GATED and c.verdict in (scorer.Verdict.TRUE, scorer.Verdict.FALSE))
+                            for c in extractors.extract_item(items[r["id"]], r)]
     return out
 
 
@@ -106,7 +113,7 @@ def main() -> int:
     if not gate:
         raise SystemExit("refused: the scorer output has no gate block (run the scorer with the committed, hashed exception log)")
     claims = scored_claims(args.answers, args.battery, args.half, args.split_file)
-    got = [v for cs in claims.values() for _, v in cs]
+    got = [v for cs in claims.values() for _, v, g in cs if g]
     if (got.count(scorer.Verdict.FALSE), len(got)) != (gate["false"], gate["scored"]):
         raise SystemExit(f"refused: re-extraction gives {got.count(scorer.Verdict.FALSE)} false of {len(got)} scored, the scorer output {gate['false']} of {gate['scored']}")
     rows = list(csv.DictReader(args.exceptions.open(newline="")))
