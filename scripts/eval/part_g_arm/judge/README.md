@@ -24,3 +24,13 @@ On v3 every annotated claim is recovered (hand comparison, 15 of 15 items; `tuni
 ## Test set
 
 Vu releases the 10-item test set once. Run it once with `run_judge.py`, with no retries or prompt edits. Pass bar (arbitrary, set by Vu): recall at least 90% on the test claims, every known-false claim recovered, JSON parses without repair. Failing the bar drops the judge. Not run yet.
+
+## Test-set result (run once, 2026-10-23)
+
+Run once with `run_judge.py` on Vu's 10 test items (built from the dev2 records; annotations in `test_annotations_vu.txt`, verbatim), prompt sha256 `3c510e80a9480457badc3487ffe8f8b32d0985a892f9eeadc2a191c6a9688bcd`, digest as above, sampler as above, `ollama ps` empty before the run and after. No retries, no prompt edits. Output: `test_run.jsonl`.
+
+- **Parsing:** 10 of 10 outputs parsed and fit the schema without repair.
+- **Recall:** 41 of 41 annotated claims recovered (hand comparison: a claim counts when a tuple carries the same subject and value; list members counted one by one, for example the five items with percents, the five teammates and the rank-only note in usage_018).
+- **Known-false claims:** both recovered: the KO threshold 93 in damage_040 (tuples "KO | required_damage | 93" and "rolls of 93 and higher | guarantees_ko | KO"), and the three shifted percentages in usage_showdown_009 (Raichu-Mega-Y 21.08, Milotic 18.12, Wigglytuff 17.68).
+- **Against the pass bar** (recall at least 90%, every known-false claim recovered, all parsed): met on all three. The judge stays, non-gating.
+- **Not measured:** precision (extra or oddly shaped tuples such as "is_guaranteed | No | F" and duplicate restatements were not counted against it).

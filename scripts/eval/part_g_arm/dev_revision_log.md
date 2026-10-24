@@ -104,3 +104,10 @@ What changed, and why:
 - Extractors (`scripts/eval/part_g_v4/extractors.py`) were built on dev half P only, from the shipped-config run (`runs/dev3b`), with dev2 text used for the seven annotated P items. They are not frozen. Before the split existed, the dev1, dev2 and dev3 analyses read answers from all 350 items, so the author has seen T answers; no rule was tuned on T after the split.
 - Audit view and the exception-log gate: the headline is withheld until the exception log is committed and its sha256 stated.
 - Judge: gemma4:12b prompt v3 tuned on Vu's 15 annotated items only (v1, v2, v3 hashes in `judge/README.md`); the 10-item test set has not been released or run.
+
+## Disclosures (2026-10-23)
+
+- **Half T is not unseen.** Before the P/T split existed, the dev1, dev2 and dev3 analyses read the answers of all 350 items, so the author has seen T answers. Since the split no extractor rule was tuned on T. The extractors were run over T for counts only, once alone and once inside an all-items count (identical counts).
+- **Scorer rules 1-8 and the 0.1-point percent-of-HP tolerance were set after reading dev answers.** The rules came from Vu's note, which was written after reading dev3; the 0.1 tolerance was chosen because the calc truncates (154/177 = 87.01 shows as 87), which was seen in dev text; the audit patterns were written to flag the dev3 slips.
+- **The claim count is dominated by list members and copied values.** On half P (`runs/dev3b`), 41% of the scored claims are list members, 64% are copied_unchanged, and usage items carry about 15 scored claims each (median) against about 1 for typing, item and legality.
+- **Gate-unit definition.** The design document defines the gate's denominator as "scored claims the arm actually authors", not designed claim slots, and treats a named member of a set-valued answer not in the key as a false claim; its sizing table assumed about 1 claim per item (usage 2.0). Half P has 626 scored claims against 194 designed slots; that is allowed by the definition and far outside the sizing assumption.
