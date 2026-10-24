@@ -100,6 +100,7 @@ def _names_in(phrase: str) -> list[str]:
     out = []
     for part in re.split(r",|\band\b|\bor\b|/|;", phrase):
         name = re.sub(r"^(?:the|a|an|its|three|two|only|also|either|abilities|ability|along with|together with|as well as|plus|including)\s+", "", part.strip(" .:'\"\u2019"), flags=re.I).strip()
+        name = re.sub(r"\s+as\s+(?:an?\s+|its\s+|their\s+|one of (?:its|their|the)\s+)?abilit(?:y|ies)$", "", name, flags=re.I).strip()  # "X as an ability"
         if name and re.match(r"^[A-Z][\w'\u2019\-]*(?:\s+[A-Za-z][\w'\u2019\-]*){0,3}$", name):
             out.append(name)
     return out

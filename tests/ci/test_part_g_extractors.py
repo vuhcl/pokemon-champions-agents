@@ -253,3 +253,14 @@ def test_label_lines_are_not_list_entries_but_real_entries_are():
     assert [k for k in b if k[0] == "teammates"] == [("teammates", "Rillaboom"), ("teammates", "Garchomp")]
     unmarked = by(run(it, "Teammates:\nRillaboom: 31.5%\nSomeone Else: 12.0%"))  # short "Name: value" lines are entries
     assert unmarked[("teammates", "Someone Else")] == F  # a real list entry that is not in the key still scores FALSE
+
+
+def test_trailing_as_an_ability_is_not_part_of_a_list_member_name():
+    gt = {"species": "Mimikyu-Mega", "form": "Mimikyu-Mega", "form_id": "mimikyumega", "asked_ability": "Disguise", "has_ability": True, "form_abilities": ["Disguise"]}
+    it = item("ability_form", "has_ability", gt)
+    b = by(run(it, "Yes, Mimikyu-Mega has Disguise. According to the data, Mimikyu-Mega can have Disguise as an ability and Pressure as one of its abilities."))
+    assert ("ability_list_member", "Pressure") in b and b[("ability_list_member", "Pressure")] == F
+    assert not any(k[1].lower().endswith(("as an ability", "as one of its abilities")) for k in b)
+    only = by(run(item("ability", "has_ability", {"species": "X", "asked_ability": "Static", "has_ability": False, "abilities": ["Keen Eye"]}),
+                  "No, X does not have Static. According to the data, X can have Keen Eye as its ability."))
+    assert only[("ability_list_member", "Keen Eye")] == T  # "as its ability" is trimmed too
