@@ -134,3 +134,11 @@ What changed, and why:
 ## Blind recall round 2 (2026-10-23 night)
 
 20 fresh half-P items (seed 20261027), annotated by Claude (Project chat) from dev3b prompt and final_text; export byte-identical to the dev3b records. Extractors at `6a5c2fb`, unchanged for the diff. Strict 92 of 93 units (98.9%), lenient 93 of 93; asked claim 46 of 46, added claims 46 of 47 strict; 19 of 20 items complete (the one strict miss is a restatement of the asked ability in `ability_008`). No spurious claims. Round 1 was 92 of 99 before the fixes; the round-2 items are now burned for recall too. Report: `blind_recall_round2_report.md`.
+
+## After blind recall round 2 (2026-10-23 night)
+
+- **Correction:** the fixes entry above says the new `guaranteed 1HKO` claims appeared on "25 items". The count is 22 (13 on half P, 9 on half T): damage_001, 003, 004, 006, 007, 008, 009, 012, 013, 014, 021, 022, 025, 026, 028, 030, 035, 036, 038, 043, 048, 051. The earlier figure was a miscount.
+- **Double counting (not applied):** in those 22 answers the scorer sees three claims about one proposition: `guaranteed_ko yes`, `ko_count 16 of 16 rolls KO` and `nhko guaranteed 1HKO`. `dedupe` keys on (kind, subject, proposition), so they are distinct claims. Smallest deduplication proposed, not applied: map `nhko` "guaranteed 1HKO" to the `guaranteed_ko` "yes" key in `dedupe` (their truth values are identical: min roll at or above HP). `ko_count` 16 of 16 is equivalent too; mapping it as well would leave one claim per answer.
+- **Extractor fix:** a trailing "as an ability" / "as one of its abilities" is trimmed from list-member names (`ability_024`); only that item's claims changed.
+- **Extended artifact scan (every FALSE or UNVERIFIABLE claim on halves P and T of dev3b):** one artifact, `damage_040`: the span "half of 186" produced a second `ko_needed` claim (93) for one statement ("at least 94 damage (half of 186)"); the arm stated 94, and 93 is the extractor's own halving. Not fixed.
+- **Item-level line:** added to the dev-only headline (`item_level`): items with at least one FALSE gated claim over items with at least one scored gated claim, same exact Clopper-Pearson table, per type; printed with the list-members and list-as-one lines under `--show-dev-headline` only.

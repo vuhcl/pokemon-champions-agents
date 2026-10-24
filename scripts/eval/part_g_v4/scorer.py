@@ -483,10 +483,30 @@ def _headline_line(claims: list[Claim], slots: int) -> dict[str, Any]:
             "min_claims_for_this_many_false": min_scored_for(false), "false_rate_by_type": per_type, "slots": slots}
 
 
+def item_level(by_item: dict[str, list[Claim]]) -> dict[str, Any]:
+    """Items with at least one FALSE gated claim, over items with at least one scored (TRUE or FALSE) gated claim, with the same exact
+    Clopper-Pearson table and the same per-type split (the type is the item id's prefix). The two claim units agree here: a list is FALSE
+    iff one of its members is."""
+    scored, false = {}, {}
+    for iid, cs in by_item.items():
+        g = [c for c in cs if c.line in _HEADLINE_LINES and c.verdict in (Verdict.TRUE, Verdict.FALSE)]
+        if g:
+            scored[iid], false[iid] = True, any(c.verdict == Verdict.FALSE for c in g)
+
+    def line(ids: list[str]) -> dict[str, Any]:
+        n, f = len(ids), sum(1 for i in ids if false[i])
+        return {"items_scored": n, "items_with_false": f, "false_rate": f / n if n else None, "cp_upper_bound": cp_upper(f, n),
+                "passes": n > 0 and cp_upper(f, n) <= GATE_RATE}
+    ids = sorted(scored)
+    types = sorted({i.rsplit("_", 1)[0] for i in ids})
+    return {**line(ids), "by_type": {t: {k: v for k, v in line([i for i in ids if i.rsplit("_", 1)[0] == t]).items() if k != "passes"} for t in types}}
+
+
 def dev_headline(by_item: dict[str, list[Claim]], slots: int) -> dict[str, Any]:
     """Both headline units side by side with the same Clopper-Pearson table: list members as claims (the existing unit) and list-as-one."""
     every = [c for cs in by_item.values() for c in cs]
     return {"list_members_as_claims": _headline_line(every, slots), "list_as_one": _headline_line(list_as_one(by_item), slots),
+            "item_level": item_level(by_item),
             "note": "dev-run only, non-gating; no verdict rule differs between the two lines"}
 
 

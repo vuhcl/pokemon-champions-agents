@@ -362,3 +362,42 @@ def test_dev_headline_refusals(tmp_path):
 def _write(path, doc):
     path.write_text(json.dumps(doc))
     return path
+
+
+def test_item_level_line_counts_items_with_a_false_gated_claim_over_items_with_a_scored_claim():
+    by_item = {
+        "typing_001": [_mk("has_type", "True", T, "typing"), _mk("type_list_member", "Fire", F, "typing")],  # scored, one FALSE
+        "typing_002": [_mk("has_type", "True", T, "typing")],  # scored, none FALSE
+        "damage_001": [_mk("guaranteed_ko", "yes", T, "damage"), _mk("ko_count", "16 of 16", F, "damage", line="ko_chance")],  # the KO line is in the unit
+        "damage_002": [_mk("chance_nhko", "x", U, "damage", line="chance_nhko_unverifiable"), _mk("guaranteed_ko", "hedge", None, "damage")],  # no scored claim
+        "usage_001": [_mk("teammates", "a", T), _mk("common_items", "b", F, line="usage_pct")],  # the usage_pct line is outside the unit by default
+    }
+    il = sc.item_level(by_item)
+    assert (il["items_scored"], il["items_with_false"]) == (4, 2)  # typing_001, damage_001 are the FALSE items; damage_002 has no scored claim
+    assert il["by_type"]["typing"]["items_scored"] == 2 and il["by_type"]["typing"]["items_with_false"] == 1
+    assert il["by_type"]["usage"]["items_with_false"] == 0 and "damage_002" not in str(il)
+    assert il["cp_upper_bound"] == sc.cp_upper(2, 4) and il["passes"] is False
+    d = sc.dev_headline(by_item, slots=5)
+    assert d["item_level"] == il and set(d) == {"list_members_as_claims", "list_as_one", "item_level", "note"}
+    assert "item_level" not in sc.gate_summary([c for cs in by_item.values() for c in cs], 5)  # not part of the plain summary
+
+
+def test_dev_headline_flag_prints_all_lines_for_half_p_and_nothing_without_it(tmp_path):
+    import hashlib
+    import subprocess
+
+    it = {"id": "typing_000", "claim_type": "typing", "prompt": "q", "n_claims": 1, "claims": [{"kind": "has_type", "ground_truth":
+          {"species": "A", "asked_type": "Fairy", "has_type": True, "types": ["Fairy"]}}]}
+    bat, ans, split, rp = tmp_path / "b.json", tmp_path / "a.jsonl", tmp_path / "split.json", tmp_path / "run_params.json"
+    bat.write_text(json.dumps({"seed": 1, "items": [it]}))
+    ans.write_text(json.dumps({"id": "typing_000", "final_text": "Yes, A has Fairy typing.", "tool_calls": []}) + "\n")
+    split.write_text(json.dumps({"P": {"typing": ["typing_000"]}, "T": {}}))
+    rec = {"schema": "run_parameter_record_v1", "allow_live": False, "arm_config": {"allow_live": False}}
+    rec["record_sha256"] = hashlib.sha256(json.dumps(rec, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    rp.write_text(json.dumps(rec))
+    run = lambda *extra: subprocess.run([sys.executable, str(SCRIPT), "--answers", str(ans), "--battery", str(bat), "--split-file", str(split), "--half", "P", *extra],  # noqa: E731
+                                        capture_output=True, text=True)
+    with_flag = run("--show-dev-headline", "--run-params", str(rp))
+    assert with_flag.returncode == 0 and all(k in with_flag.stdout for k in ("list_members_as_claims", "list_as_one", "item_level", "false_rate_by_type"))
+    without = run()
+    assert without.returncode == 0 and "item_level" not in without.stdout and "withheld" in without.stdout
