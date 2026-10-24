@@ -1,0 +1,19 @@
+Tuning set (15):
+
+typing_006: Beedrill-Mega | is_type Poison | T; Beedrill-Mega | types | Bug, Poison
+typing_001: Slowbro-Galar | has_type Fire | F-polarity (arm says no); Slowbro-Galar | types | Poison, Psychic
+ability_000: Poison Point | legal_on Scolipede | T; Scolipede | abilities | Poison Point, Swarm, Speed Boost
+ability_006 (arm false): Weak Armor | legal_as_held_item | F
+ability_form_007: Golisopod-Mega | has_ability Emergency Exit | F; Golisopod-Mega | ability | Tough Claws
+ability_005: Libero | legal_on Machamp | F; Machamp-Libero | legal_species | F
+item_002: Crabominite | legal_as_held_item | T
+legality_005: Ivysaur | legal | F
+speed_000: Ninetales-Alola | speed | 177; Sylveon | speed | 123; Ninetales-Alola | outspeeds Sylveon | T
+damage_002: guaranteed_ko | F; damage range | 22-26; percent range | 10.1-11.9%; rolls_that_ko | 1 (arm false); other rolls | 15 do not KO; ko_text | possible 9HKO
+damage_000: guaranteed_ko | F; range | 154-183; percent range | 87-103.3%; “max damage 183 < HP 177” (arm false); rolls_that_ko | 4; KO chance | 25%
+usage_000: Hydreigon in-game top-5 items | Choice Scarf 48.9, Focus Sash 15.5, Life Orb 15.4, Haban Berry 4.7, Chople Berry 2.7; teammates | Sneasler, Rillaboom, Indeedee-F, Metagross, Charizard
+usage_003: Squawkabilly-Yellow items (five, with percents), tie note Sitrus Berry = White Herb at 0.4; teammates (five); caveat | “ambiguous attribution” ~
+usage_showdown_005: Golurk teammates with percents Farigiraf 30.17, Rillaboom 19.11, Indeedee-F 17.75, Whimsicott 17.91, Golisopod-Mega 17.11 (two percents swapped vs tool)
+move_static_028: Life Dew | base_power | 0; Life Dew | category | Status; Life Dew | heals team 1/8 each turn | ~ (unscorable)
+
+(Written by Vu against the dev2 final_text, runs/dev2 answers.jsonl, commit 9bccbd27. Stored verbatim; not edited.)
