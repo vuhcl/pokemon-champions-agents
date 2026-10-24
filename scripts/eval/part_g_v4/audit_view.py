@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import audit_canaries  # noqa: E402
 import extractors  # noqa: E402
 import scorer  # noqa: E402
 
@@ -177,7 +178,12 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--split-file", type=Path, default=None)
     ap.add_argument("--half", choices=("P", "T"), default=None)
+    ap.add_argument("--canaries", action="store_true", help="seed 20 canary errors into the displayed claims (7 wrong_verdict, 7 wrong_extraction, 6 missed_claim)")
+    ap.add_argument("--canary-seed", type=int, default=None, help="seed for the canary choice (required with --canaries)")
+    ap.add_argument("--canary-out", type=Path, default=None, help="where to write the canary list; it is never printed (required with --canaries)")
     args = ap.parse_args()
+    if args.canaries and (args.canary_seed is None or args.canary_out is None):
+        raise SystemExit("--canaries needs --canary-seed and --canary-out")
     items = {i["id"]: i for i in json.loads(args.battery.read_text())["items"] if i.get("gated", True)}
     if args.half:
         keep = {i for v in json.loads(args.split_file.read_text())[args.half].values() for i in v}
@@ -193,13 +199,19 @@ def main() -> int:
     else:
         raise SystemExit("give --size or --ids-file")
     args.out.mkdir(parents=True, exist_ok=True)
+    by_item = {i: extractors.extract_item(items[i], answers[i]) for i in ids}  # what the scorer would see
+    shown = by_item
+    if args.canaries:  # the display only: the scorer and the gate never see these
+        canaries = audit_canaries.choose_canaries(by_item, answers, args.canary_seed)
+        shown = audit_canaries.apply_canaries(by_item, canaries)
+        digest = audit_canaries.write_canary_list(args.canary_out, canaries, args.canary_seed)
+        print(f"canaries: N={len(canaries)} sha256={digest}")
     body = []
     with (args.out / "audit.csv").open("w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(CSV_COLUMNS)
         for i in ids:
-            claims = extractors.extract_item(items[i], answers[i])
-            body.append(render_item(items[i], answers[i], claims))
+            body.append(render_item(items[i], answers[i], shown[i]))
             w.writerow([i, "n", "", "", ""])  # one row per sampled item to start; the reviewer adds a row per exception
     sample_sha = hashlib.sha256("\n".join(ids).encode()).hexdigest()
     origin = "ids from a committed list" if args.ids_file else f"seed {args.seed}"
