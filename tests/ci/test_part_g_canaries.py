@@ -126,21 +126,34 @@ def _git(repo, *a):
     subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t", *a], check=True, capture_output=True)
 
 
+def test_target_matching_is_whole_tokens_in_one_direction():
+    assert chk.contains_target("Flying, Ghost", "Flying") and chk.contains_target("It is a Fire/Flying type.", "Flying")  # a target inside a longer claim_text
+    assert chk.contains_target("Beta5 speed=125", "125") and chk.contains_target("RILLABOOM 32.411%", "rillaboom 32 411")
+    assert not chk.contains_target("1", "125")  # no reverse containment
+    assert not chk.contains_target("Fi", "Fire") and not chk.contains_target("Fire", "Fi")
+    assert not chk.contains_target("1250", "125") and not chk.contains_target("speed 125x", "125")  # a prefix or suffix of a token is not the token
+    assert not chk.contains_target("Fire", "It is a Fire/Flying type")  # a shorter claim_text does not contain a longer target
+    assert not chk.contains_target("anything", "") and not chk.contains_target("", "Fire")
+
+
 def test_detection_script_on_a_synthetic_audit_csv(tmp_path):
     canaries = [
         {"item_id": "i1", "canary_type": "wrong_verdict", "target_claim_text": "Rillaboom 32.411%", "displayed_claim": "teammates | Rillaboom=32.411", "claim_index": 0},
-        {"item_id": "i2", "canary_type": "wrong_extraction", "target_claim_text": "speed stat of 177", "displayed_claim": "speed_stat | Foo speed=177", "altered_claim": "speed_stat | Foo speed=178", "claim_index": 1},
-        {"item_id": "i3", "canary_type": "missed_claim", "target_claim_text": "It is a Fire/Flying type", "displayed_claim": "type_list_member | Fire", "claim_index": 2},
-        {"item_id": "i4", "canary_type": "missed_claim", "target_claim_text": "Chople Berry (4.0%)", "displayed_claim": "common_items | Chople Berry", "claim_index": 0},
+        {"item_id": "i2", "canary_type": "wrong_extraction", "target_claim_text": "177", "displayed_claim": "speed_stat | Foo speed=177", "altered_claim": "speed_stat | Foo speed=178", "claim_index": 1},
+        {"item_id": "i3", "canary_type": "missed_claim", "target_claim_text": "Flying", "displayed_claim": "type_list_member | Flying", "claim_index": 2},
+        {"item_id": "i4", "canary_type": "missed_claim", "target_claim_text": "Chople Berry", "displayed_claim": "common_items | Chople Berry", "claim_index": 0},
+        {"item_id": "i7", "canary_type": "wrong_verdict", "target_claim_text": "125", "displayed_claim": "speed_stat | Beta5 speed=125", "claim_index": 0},
     ]
     rows = [
-        ["i1", "y", "wrong_verdict", "Rillaboom 32.411%", "found it"],  # detected and type-matched
-        ["i2", "y", "wrong_verdict", "177", "right place, wrong type"],  # detected, not type-matched
-        ["i3", "y", "missed_claim", "unrelated words", ""],  # same item, no overlap: a real exception
+        ["i1", "y", "wrong_verdict", "Rillaboom 32.411% and more", "found it"],  # detected and type-matched (the target sits inside a longer claim_text)
+        ["i2", "y", "wrong_verdict", "speed 177", "right place, wrong type"],  # detected, not type-matched
+        ["i3", "y", "missed_claim", "Flying, Ghost", ""],  # target inside a longer claim_text: detected
+        ["i3", "y", "other", "unrelated words", "another row on a canary item: real"],
         ["i5", "y", "other", "something real", ""],  # real exception on a non-canary item
         ["i6", "y", "", "", ""],  # a reviewed clean answer: not an exception
-        ["i4", "y", "missed_claim", "chople berry", ""],  # matched
-        ["i4", "y", "missed_claim", "Chople Berry 4.0", "second row on the same canary item: real"],
+        ["i4", "y", "missed_claim", "Chople", "a prefix of the target is not the target: real"],
+        ["i4", "y", "missed_claim", "Chople Berry", "matched"],
+        ["i7", "y", "wrong_verdict", "1", "reverse containment must not match"],
     ]
     log = tmp_path / "log.csv"
     with log.open("w", newline="") as fh:
@@ -148,10 +161,15 @@ def test_detection_script_on_a_synthetic_audit_csv(tmp_path):
         w.writerow(["item_id", "reviewed", "exception_type", "claim_text", "note"])
         w.writerows(rows)
     res = chk.check(canaries, list(csv.DictReader(log.open(newline=""))))
-    assert (res["canaries"], res["detected"], res["type_matched"]) == (4, 3, 2) and res["canary_rows_removed"] == 3
-    assert res["real_exceptions_after_removal"] == 3 and res["real_exceptions_by_type"] == {"missed_claim": 2, "other": 1}  # i3's row, i4's second row, i5
-    assert res["by_type"]["missed_claim"] == {"canaries": 2, "detected": 1, "type_matched": 1}
-    assert res["detected_lower_bound_95"] == chk.cp_lower(3, 4) and res["type_matched_lower_bound_95"] == chk.cp_lower(2, 4)
+    assert (res["canaries"], res["detected"], res["type_matched"]) == (5, 4, 3) and res["canary_rows_removed"] == 4
+    assert res["real_exceptions_after_removal"] == 4 and res["real_exceptions_by_type"] == {"missed_claim": 1, "other": 2, "wrong_verdict": 1}
+    assert res["real_exception_rows_on_canary_items"] == [  # every other exception on a canary item stays real and is listed, with its row
+        {"item_id": "i3", "exception_type": "other", "claim_text": "unrelated words", "note": "another row on a canary item: real"},
+        {"item_id": "i4", "exception_type": "missed_claim", "claim_text": "Chople", "note": "a prefix of the target is not the target: real"},
+        {"item_id": "i7", "exception_type": "wrong_verdict", "claim_text": "1", "note": "reverse containment must not match"}]
+    assert res["by_type"]["missed_claim"] == {"canaries": 2, "detected": 2, "type_matched": 2}
+    assert res["by_type"]["wrong_verdict"] == {"canaries": 2, "detected": 1, "type_matched": 1}  # i7's "1" did not detect the "125" canary
+    assert res["detected_lower_bound_95"] == chk.cp_lower(4, 5) and res["type_matched_lower_bound_95"] == chk.cp_lower(3, 5)
     # the script refuses until the log is committed and hashed, and never prints the list
     cfile = tmp_path / "canaries.json"
     cfile.write_text(json.dumps({"canaries": canaries}))
@@ -164,5 +182,5 @@ def test_detection_script_on_a_synthetic_audit_csv(tmp_path):
     _git(tmp_path, "add", "log.csv")
     _git(tmp_path, "commit", "-qm", "log")
     late = run()
-    assert late.returncode == 0 and json.loads(late.stdout)["detected"] == 3
+    assert late.returncode == 0 and json.loads(late.stdout)["detected"] == 4
     assert "Rillaboom" not in late.stdout and "target_claim_text" not in late.stdout
