@@ -20,7 +20,7 @@ V4, ARM = "scripts/eval/part_g_v4/", "scripts/eval/part_g_arm/"
 FILES = [
     # extractors, scorer and the audit tools
     V4 + "extractors.py", V4 + "copied_lines.py", V4 + "copied_unchanged_lines.md", V4 + "scorer.py", V4 + "audit_view.py", V4 + "audit_canaries.py",
-    V4 + "audit_canary_check.py", V4 + "freeze_manifest.py",
+    V4 + "audit_canary_check.py", V4 + "audit_adjusted.py", V4 + "freeze_manifest.py",
     # config, split, system prompt (rev 3) and the run-parameter record builders
     ARM + "config.py", ARM + "dev_split.json", ARM + "system_prompt.md", "scripts/eval/run_params.py", ARM + "run_battery.py",
     # judge: prompt, schema/sampler/pinned digest (extract.py) and the digest record (README)

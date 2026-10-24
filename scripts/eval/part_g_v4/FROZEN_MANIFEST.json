@@ -7,16 +7,17 @@
   "scripts/eval/part_g_arm/judge/extract_prompt.md": "3c510e80a9480457badc3487ffe8f8b32d0985a892f9eeadc2a191c6a9688bcd",
   "scripts/eval/part_g_arm/run_battery.py": "696d74461814e57aecb882cef8e018ddd1f36209ca2637024d70bf3777ad2083",
   "scripts/eval/part_g_arm/system_prompt.md": "4087d7db7c366eb91be41a22d19cabc096b691022613c48835f988320e628c99",
+  "scripts/eval/part_g_v4/audit_adjusted.py": "5eb8fdc862968d3aa983223030890d42d3a410430f7883c8abbd42712cff4436",
   "scripts/eval/part_g_v4/audit_canaries.py": "343676b424fc83cfcbdebf49bf64773052bd3e67104cc800079bf3729b69374a",
   "scripts/eval/part_g_v4/audit_canary_check.py": "9bff7026886cfa429d92f780f0efa7e85c884829f476b6b298950cf2e7265b29",
   "scripts/eval/part_g_v4/audit_view.py": "864f5b64bfc42cdfc971f7c022740759300a8184f8d8d1beb82bdadffd49a4f1",
   "scripts/eval/part_g_v4/copied_lines.py": "10dd30919a976171064af9c58101e175c1955b4f0e4c47956cdde0bc9e52b5df",
   "scripts/eval/part_g_v4/copied_unchanged_lines.md": "e74b1219473701851fd42917fb94ea4283e1fe9c255be57dfdf210c0f11b8fc8",
   "scripts/eval/part_g_v4/extractors.py": "ca9828754ba5b5ea68d9ac8403f7e2c9d3a63456c9db492fb63e21c78a5e749d",
-  "scripts/eval/part_g_v4/freeze_manifest.py": "8888a0463b85f58a5a55f20d37f53c474166b151682c3e50cba14ccfd449cb4a",
+  "scripts/eval/part_g_v4/freeze_manifest.py": "2692b1a71ce8e8e940919daaefa9f972ec95265ce7b11bbe841b0911d9a7d4f6",
   "scripts/eval/part_g_v4/scorer.py": "193e091ff2425d1f8aeb6cfba20b0792eeeb64bf9cedcc9e2c2e2cdd7c3747ba",
   "scripts/eval/run_params.py": "9da88177a0946bb0ce0793faeded4bfe88e8de2b6a1ce5cccbd61cf4c67552c9"
  },
- "manifest_sha256": "385488ff4417b62266c121658d7d3fcaf7f70d8589ccae26515682fb9222cd07",
+ "manifest_sha256": "fb3ae0789077612a220cea0240ba6702095a1579f0ec814f2867728bd0222e5a",
  "schema": "part_g_frozen_manifest_v1"
 }

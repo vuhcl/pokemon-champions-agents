@@ -14,7 +14,7 @@ def test_manifest_matches_every_listed_file_and_its_own_hash():
     assert fm.differences() == []
     doc = json.loads(fm.MANIFEST.read_text())
     assert doc["manifest_sha256"] == fm.manifest_sha256(doc["files"]) and set(doc["files"]) == set(fm.FILES)
-    for needed in ("extractors.py", "scorer.py", "audit_view.py", "audit_canaries.py", "audit_canary_check.py", "dev_split.json", "system_prompt.md", "extract_prompt.md", "run_params.py"):
+    for needed in ("extractors.py", "scorer.py", "audit_view.py", "audit_canaries.py", "audit_canary_check.py", "audit_adjusted.py", "dev_split.json", "system_prompt.md", "extract_prompt.md", "run_params.py"):
         assert any(rel.endswith(needed) for rel in doc["files"]), needed
 
 
