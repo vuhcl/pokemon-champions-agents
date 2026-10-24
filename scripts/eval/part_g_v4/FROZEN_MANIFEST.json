@@ -12,11 +12,11 @@
   "scripts/eval/part_g_v4/audit_view.py": "864f5b64bfc42cdfc971f7c022740759300a8184f8d8d1beb82bdadffd49a4f1",
   "scripts/eval/part_g_v4/copied_lines.py": "10dd30919a976171064af9c58101e175c1955b4f0e4c47956cdde0bc9e52b5df",
   "scripts/eval/part_g_v4/copied_unchanged_lines.md": "e74b1219473701851fd42917fb94ea4283e1fe9c255be57dfdf210c0f11b8fc8",
-  "scripts/eval/part_g_v4/extractors.py": "6a842c7df47d11d07f69001653fd52321b0663c3ddfd2ac0760c153d41c04c25",
+  "scripts/eval/part_g_v4/extractors.py": "ca9828754ba5b5ea68d9ac8403f7e2c9d3a63456c9db492fb63e21c78a5e749d",
   "scripts/eval/part_g_v4/freeze_manifest.py": "8888a0463b85f58a5a55f20d37f53c474166b151682c3e50cba14ccfd449cb4a",
   "scripts/eval/part_g_v4/scorer.py": "193e091ff2425d1f8aeb6cfba20b0792eeeb64bf9cedcc9e2c2e2cdd7c3747ba",
   "scripts/eval/run_params.py": "9da88177a0946bb0ce0793faeded4bfe88e8de2b6a1ce5cccbd61cf4c67552c9"
  },
- "manifest_sha256": "fd2ad4f098650d8cdf8f3b0577cd0a1721240b17cb0a6b3f57fa5b30c2837bcd",
+ "manifest_sha256": "385488ff4417b62266c121658d7d3fcaf7f70d8589ccae26515682fb9222cd07",
  "schema": "part_g_frozen_manifest_v1"
 }

@@ -436,3 +436,25 @@ def test_audit_view_shows_ability_plural_in_a_labelled_non_gating_group():
     assert "ability_plural" not in gating_table.split("</table>")[0]  # not in the gating claims table
     assert f'background:{av.NONGATING_COLOR}' in page.split('class="text"')[1].split("</div>")[0]  # its highlight uses the non-gating colour
     assert 'class="nongating"' not in av.render_item(it, {"final_text": "Yes, Gyarados-Mega has Mold Breaker.", "tool_calls": []}, run(it, "Yes, Gyarados-Mega has Mold Breaker."))
+
+
+def test_roll_descriptor_ko_statements():
+    gt = {**DMG, "hp": 186, "min_roll": 84, "max_roll": 100}  # synthetic key; the roll list is the DMG one
+    it = item("damage", "guaranteed_ko", gt)
+    rolls = lambda t: {k: v for k, v in by(run(it, t)).items() if k[0] == "hp_arithmetic"}  # noqa: E731
+    wrong = rolls("No. The maximum damage roll is 100, which would KO, but the minimum is 84, which would not.")
+    assert list(wrong.values()) == [F] and "max_roll=100 >= hp=186" in next(iter(wrong))[1]  # 100 < 186 so "would KO" is false
+    neg = rolls("The highest roll (100) does not KO the defender.")
+    assert list(neg.values()) == [T]  # 100 < 186, "does not KO" holds
+    assert list(rolls("The lowest roll of 84 would not knock out the defender.").values()) == [T]
+    assert list(rolls("The lowest roll of 99 will KO.").values()) == [F]  # stated roll differs from the key's min_roll
+    assert rolls("The maximum roll is 100.") == {}  # no KO relation stated: no claim
+
+
+def test_rolls_above_n_ko_uses_the_threshold_rule():
+    it = item("damage", "guaranteed_ko", DMG)
+    hp = DMG["hp"]
+    cs = {k: v for k, v in by(run(it, f"Rolls above {hp - 1} would KO.")).items() if k[0] == "ko_threshold"}
+    assert list(cs.values()) == [T]  # N+1 = hp: same rolls as the HP threshold
+    cs = {k: v for k, v in by(run(it, f"Rolls above {hp + 20} would KO.")).items() if k[0] == "ko_threshold"}
+    assert list(cs.values()) == [F]

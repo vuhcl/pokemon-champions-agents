@@ -347,6 +347,13 @@ def x_damage(it, a):
         lab = "max_roll" if m.group(1).lower() in ("maximum", "max", "highest") else "min_roll"
         op = "<" if m.group(3).lower() in ("less", "lower", "below") else ">"
         claims.append(at_m(sc.score_hp_arithmetic(gt, (lab, float(m.group(2))), op, ("hp", float(m.group(4)))), m))
+    # "the maximum/highest/lowest/minimum roll (of N / is N), which would (not) KO": the labelled roll against the key's HP, by the roll-list comparison above
+    for m in re.finditer(rf"(maximum|max|highest|top|minimum|min|lowest|bottom)\s*(?:damage\s*)?roll\s*(?:\(\s*|is\s*|of\s*|=\s*|:\s*)?{NUM}\)?\s*[,;]?\s*(?:which\s*|and\s*|so\s*|that\s*)?(?:would|will|does|do|can|could)\s*(not\s*|n't\s*)?(?:ko|knock)", text, re.I):
+        lab = "max_roll" if m.group(1).lower() in ("maximum", "max", "highest", "top") else "min_roll"
+        if "hp" in gt:  # the HP is the key's own, so only the stated roll and the KO relation are tested
+            claims.append(at_m(sc.score_hp_arithmetic(gt, (lab, float(m.group(2))), "<" if m.group(3) else ">=", ("hp", float(gt["hp"]))), m))
+    for m in re.finditer(rf"rolls?\s*(?:of\s*)?(?:above|over|greater than|higher than)\s*{NUM}\s*[,;]?\s*(?:would|will|do|does)\s*(?:all\s*)?(?:ko|knock)", low):
+        claims.append(at_m(sc.score_ko_threshold(gt, float(m.group(1)) + 1), m))  # "rolls above N KO" = "N+1 or higher KO"
     for m in re.finditer(rf"(?:deals?|damage range (?:is|of)?|range (?:is|of))\s*{NUM}\s*(?:-|to)\s*{NUM}(?!\s*%)", text, re.I):
         claims.append(at_m(sc.score_damage_range(gt, float(m.group(1)), float(m.group(2))), m))
     for m in re.finditer(rf"rolls?\s*\(\s*(?:(?:ranging |ranges )?from\s*)?{NUM}\s*(?:-|to)\s*{NUM}\s*\)|rolls?\s*\((?:ranging|from)\s*{NUM}\s*to\s*{NUM}", text, re.I):
