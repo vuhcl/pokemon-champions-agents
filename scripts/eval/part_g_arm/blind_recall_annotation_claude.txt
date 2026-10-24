@@ -1,0 +1,23 @@
+Blind recall annotation (Claude, from runs/dev3b prompt + final_text only). Claims only, no verdicts.
+ability_004: Sheer Force | legal_on Steelix | yes; Steelix | abilities | Sheer Force, Rock Head, Sturdy
+ability_026: Alcremie | has_ability Sweet Veil | yes; Alcremie | abilities | Sweet Veil, Aroma Veil
+ability_form_005: Falinks-Mega | has_ability Battle Armor | no; Falinks-Mega | ability | Defiant (only ability)
+ability_form_011: Garchomp-Mega | has_ability Sand Veil | no; Garchomp-Mega | ability | Sand Force (only ability)
+damage_030: guaranteed_ko | yes; rolls that KO | 16 of 16; guaranteed OHKO (nHKO = 1)
+damage_051: guaranteed_ko | yes; rolls that KO | 16 of 16; damage range | 186-218; percent range | 102.1-119.7%; defender HP | 182; guaranteed OHKO (nHKO = 1)
+item_026: Absolite | legal_as_held_item | yes
+item_038: Chesto Berry | legal_as_held_item | yes
+legality_001: Fezandipiti | legal | no
+legality_006: Infernape | legal | yes
+move_static_023: Revival Blessing | category | Status
+move_static_024: Metal Sound | type | Steel
+speed_011: Annihilape | speed | 156; Garchomp | speed | 169; Garchomp | outspeeds Annihilape | yes
+speed_025: Lucario | speed | 156; Gengar | speed | 178; Lucario | outspeeds Gengar | no; margin | 22 (Gengar faster)
+typing_041: Oranguru | has_type Fire | no; Oranguru | types | Normal, Psychic
+typing_042: Vivillon-Fancy | has_type Bug | yes; Vivillon-Fancy | types | Bug, Flying
+usage_013: Gogoat in-game items | Grassy Seed 22.8, Leftovers 19.9, Miracle Seed 12.2, Quick Claw 10.4, Sitrus Berry 8.5; teammates | Rillaboom, Archaludon, Politoed, Pelipper, Garchomp, with explicit ranks 1-5 stated
+usage_015: Swalot in-game items | Leftovers 29.7, Sitrus Berry 20.3, Rocky Helmet 13.8, Wide Lens 10.3, Focus Band 6.0; teammates | Farigiraf, Rillaboom, Audino, Incineroar, Armarouge, with explicit ranks 1-5 stated; caveat "teammate list carries rank only, no percentages" ~; "some entries have ambiguous attribution status" ~
+usage_showdown_003: Venusaur Showdown teammates | Charizard-Mega-Y 74.996, Archaludon 27.962, Pelipper 26.009, Indeedee-F 22.241, Grimmsnarl 20.63 (numbered list, no explicit rank wording); explanation of "conditional percentage" ~
+usage_showdown_009: Chesnaught Showdown teammates | Rillaboom 32.411, Incineroar 25.552, Raichu-Mega-Y 22.624, Milotic 21.079, Wigglytuff 18.117 (numbered list, no explicit rank wording); explanation of "conditional percentage" ~
+
+(Annotated by Claude (Project chat) from blind_recall_export.jsonl; checked byte-for-byte against runs/dev3b. Stored verbatim; not edited.)

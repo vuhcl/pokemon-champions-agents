@@ -118,3 +118,7 @@ What changed, and why:
 - **Measured shares** (runs/dev3b, scored claims in the gate unit): half P 167 of 626 (26.7%), half T 160 of 639 (25.0%). By type on P: ability 61%, ability_form 31%, damage 9%, item 0%, legality 0%, move_static 79%, speed 0%, typing 55%, usage 36%, usage_showdown 0%. The earlier 64% (verbatim values) is superseded.
 - **What drives the share:** one-word lines. Type and ability names, and in-game teammate names (rendered as the name alone) are lines, so any answer that mentions them contains the line; integers (Speed stats, base power, damage range and HP) are never lines, and percentages only count when the whole `"{name} {pct}"` line appears.
 - The extractors were run over half T for counts once more for this recount (third time, counts only; nothing was tuned on T).
+
+## Blind recall check (2026-10-23 night)
+
+20 half-P items (2 per type, seed 20261026, excluding the 7 annotated items), annotated by Claude (Project chat) from prompt and final_text only. Extractors unchanged (commit `3226491`). Recall 92 of 99 units (92.9%; 94 of 99 counting asked-ability list members), 15 of 20 items complete; 7 misses (list phrasing "has two abilities:" and "(along with X and Y)", "OHKO" not read as nHKO = 1, "HP (N)" not read as a stated HP) and one spurious FALSE claim (`usage_015`, a "Note:" line read as a teammate). Report: `blind_recall_report.md`. No change to the extractors or the annotation.
