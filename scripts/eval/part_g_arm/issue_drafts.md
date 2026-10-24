@@ -2,22 +2,22 @@
 
 Evidence labels follow CLAUDE.md: "sim-only" means the pinned Showdown/calc reading with no in-game observation.
 
-## 1. calc_damage ignores Sturdy and Disguise, and does not say which ability it applied when none is sent
+## 1. calc_damage ignores Sturdy and Disguise; and the omitted-ability default is unreported
 
 **What happens (verified 2026-10-23 on the arm tool, calc service from this worktree).** Garchomp (Adamant, 32 SP Atk) Earthquake into Bastiodon (32 SP HP, 167 HP), with the defender ability omitted, "Sturdy" or "Soundproof": range 180-216, `ko_text` "guaranteed OHKO", `guaranteed_ko` true in all three. Bastiodon's first ability in the calc species table is Sturdy; with Sturdy the sim leaves a full-HP target at 1 HP, so a "guaranteed OHKO" is not the result for that defender (sim-only; not observed in game). Mimikyu (Disguise) gives range 84-100 and "guaranteed 2HKO" with no mention of Disguise.
 
 **Why it matters.** The Part G damage pool excludes defenders with Sturdy or Disguise for this reason (`part3_claim_battery_design_v4.md`), so the battery does not exercise it, but the arm tool is the product tool and will answer such questions.
 
-**Second gap.** When the ability is omitted for a non-Mega side, the calc applies the first ability in its species table and `abilityResolution` does not report it (`shouldRecord` is true only for Mega, request and override). In dev2/dev3 the applied default differed from the stated ability on 7 of 12 omitted sides (for example Bastiodon: Sturdy applied, Soundproof stated; Goodra: Sap Sipper applied, Gooey stated). The arm then states conditions the calc did not use.
+**Omitted-ability default (a separate defect from the Sturdy/Disguise gap).** When the arm omits the ability for a non-Mega side, the calc applies the first ability in its species table, and the result does not report it (`abilityResolution` is recorded only for Mega, request and override sources: `shouldRecord` in `services/calc/handlers.ts`). In dev2 and dev3 the applied default differed from the stated ability on 7 of 12 omitted sides (for example Bastiodon: Sturdy applied, Soundproof stated; Goodra: Sap Sipper applied, Gooey stated), and the arm then states conditions the calc did not use. The numbers matched the key on all 53 damage items, so no outcome changed.
 
-**Proposed scope.** (a) Return the applied ability for every side, not only Mega/request/override. (b) When the applied defender ability is Sturdy or Disguise, add a `caveat` field to the tool result instead of changing the numbers. (c) Do not change the vendored calc. Decision needed from Vu: whether (b) is a tool-result field only or also a prompt line; the rev-3 prompt is frozen.
+**Proposed scope.** (a) Return the applied ability for every side, not only Mega/request/override (fixes the omitted-ability paragraph). (b) When the applied defender ability is Sturdy or Disguise, add a `caveat` field to the tool result instead of changing the numbers. (c) Do not change the vendored calc. Decision needed from Vu: whether (b) is a tool-result field only or also a prompt line; the rev-3 prompt is frozen.
 
-## 2. Floette / Floette-Eternal: illegal base id, two legal forms, ability table mismatch
+## 2. mega_capable_base_ids returns `floette` (illegal) instead of `floetteeternal`
 
-**What I verified (blob `data/legality/champions.v1.json`, usage files, vendored calc).**
-- `floette`: `is_nonstandard` "Past", tier Illegal. `floetteeternal` (Floette-Eternal) and `floettemega` (Floette-Mega) are legal and both have `base_species_id` `floette`, so the legal Mega's base id is an illegal species.
-- Abilities: the blob lists Floette-Eternal as Flower Veil (slot 0) and Symbiosis (hidden); the vendored calc species table has only Flower Veil for Floette-Eternal, and `Floette` is not in the calc table at all ("unknown Champions species").
-- Usage: in-game has only `floetteeternal` (rank 30); Showdown has `floettemega` and `floetteeternal`. Commit 943eab2 ("never emit a row for an illegal Mega-collapse base (floette); pin floetteeternal behavior") already touches the Mega-collapse side.
-- Effect seen in dev: `damage_029` states Symbiosis for Floette-Eternal; with the ability omitted the calc applied Flower Veil. The key was built with Symbiosis passed explicitly.
+**What happens (verified 2026-10-23: `recommender/species_forms.mega_capable_base_ids(snap)` against `scripts/eval/part_g_v4/key_artifacts/stone_map.v1.json`).** The function collects `base_species_id` of every legal Mega form. Floette-Mega's `base_species_id` is `floette`, so `floette` is returned and `floetteeternal` is not. Counting holders of legal Mega formes in the stone map gives 77 distinct ids; the function returns 76. The set difference is: only in the function, `floette`; only in the stone map, `floetteeternal` and `meowsticf`. `meowsticf` is the same cause (`meowsticfmega` has base `meowstic`); the Part G generator already works around it with `INGAME_EXCLUDE_EXTRA`. The stone map comes from the pinned Showdown source (sim-only reading, not observed in game).
 
-**What I could not establish.** Which of these Vu counts as "the floette/floetteeternal defect" (the illegal base id behind a legal Mega, the missing hidden ability in the calc table, or the user-input name "Eternal Floette" that `docs/empty_team_bootstrap_discovery_and_design_2026-08-08.md` leaves unresolved). The draft should be narrowed once that is stated.
+**Effect.** Callers that treat `mega_capable_base_ids` as "species whose in-game usage row blends Mega-stone holders" (`ingame_excluded_species_ids`, `arm_teammates.mega_capable_base_ids`, the in-game caveat) cover an illegal species and miss Floette-Eternal.
+
+**Not affected.** #303.
+
+**Proposed fix (not decided).** Derive the holder from the stone map (or from the Mega form's `item` mapping) instead of `base_species_id`; add a test that the function equals the stone map's legal-Mega holders. Out of scope for this branch.
