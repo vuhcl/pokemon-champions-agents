@@ -238,19 +238,35 @@ def score_hp_arithmetic(gt: dict[str, Any], lhs: tuple[str, float], op: str, rhs
                  reason="; ".join(wrong) or ("" if holds else "comparison is false"))
 
 
-def score_usage_pct(kind: str, subject: str, stated: dict[str, float], key_pcts: dict[str, float], tol: float = 0.05) -> list[Claim]:
-    """Stated usage percentages against key values, within `tol` points (the tool returns 3 decimals). A name the key does not
-    list is FALSE. The mismatching value is recorded in `reason`. On the "usage_pct" line, gated only by --gate-usage-pct."""
-    kp = {norm(n): v for n, v in key_pcts.items()}
+def _tool_pct_rows(tool_calls: list[dict[str, Any]]) -> dict[str, list[float]]:
+    """name -> every percentage the item's own tool results give for that name (conditional_pct, else pct)."""
+    rows: dict[str, list[float]] = {}
+    for call in tool_calls:
+        res = call.get("result") or {}
+        for lst in (v for v in res.values() if isinstance(v, list)):
+            for row in lst:
+                if isinstance(row, dict) and "name" in row:
+                    pct = row.get("conditional_pct", row.get("pct"))
+                    if isinstance(pct, (int, float)) and not isinstance(pct, bool):
+                        rows.setdefault(norm(row["name"]), []).append(float(pct))
+    return rows
+
+
+def score_usage_pct(kind: str, subject: str, stated: dict[str, float], tool_calls: list[dict[str, Any]], tol: float = 0.05) -> list[Claim]:
+    """Stated usage percentages against the item's own tool results (answers.jsonl), not the frozen keys or the pinned data.
+    A stated percentage next to a name is FALSE if that name has no row in the tool results, or if no row for it is within
+    `tol` points (the tool returns 3 decimals); the mismatch is recorded in `reason`. On the "usage_pct" line, gated only by
+    --gate-usage-pct. The scorer reads the values the tool returned and never computes a percentage itself."""
+    rows = _tool_pct_rows(tool_calls)
     out = []
     for name, val in stated.items():
-        want = kp.get(norm(name))
-        if want is None:
-            out.append(Claim(kind, subject, f"{name}={val:g}", Verdict.FALSE, line="usage_pct", reason="name not in the key", ctype="usage"))
-        else:
-            ok = abs(val - want) <= tol + 1e-9
-            out.append(Claim(kind, subject, f"{name}={val:g}", Verdict.TRUE if ok else Verdict.FALSE, line="usage_pct",
-                             reason="" if ok else f"stated {val:g} vs key {want:g}", ctype="usage"))
+        have = rows.get(norm(name))
+        if not have:
+            out.append(Claim(kind, subject, f"{name}={val:g}", Verdict.FALSE, line="usage_pct", reason="no row for this name in the tool results", ctype="usage"))
+            continue
+        ok = any(abs(val - v) <= tol + 1e-9 for v in have)
+        out.append(Claim(kind, subject, f"{name}={val:g}", Verdict.TRUE if ok else Verdict.FALSE, line="usage_pct", ctype="usage",
+                         reason="" if ok else f"stated {val:g} vs tool {', '.join(f'{v:g}' for v in have)}"))
     return dedupe(out)
 
 

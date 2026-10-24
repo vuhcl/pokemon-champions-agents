@@ -171,14 +171,46 @@ def test_hp_arithmetic_claims():
     assert s["threshold_arith_unverifiable_line"]["count"] == 1 and s["scored"] == 1
 
 
-def test_usage_pct_line_is_off_by_default_lists_mismatches_and_uses_a_point_05_tolerance():
-    key = {"Indeedee-F": 17.906, "Whimsicott": 17.749, "Farigiraf": 30.171}
-    cs = sc.score_usage_pct("teammates", "Golurk", {"Farigiraf": 30.17, "Indeedee-F": 17.75, "Whimsicott": 17.91, "Empoleon": 13.2}, key)
-    assert [c.verdict for c in cs] == [T, F, F, F]  # 17.75 vs 17.906 and 17.91 vs 17.749 are swapped; Empoleon is not in the key
-    assert sc.score_usage_pct("teammates", "G", {"Farigiraf": 30.171 + 0.05}, key)[0].verdict == T  # edge inclusive
-    assert sc.score_usage_pct("teammates", "G", {"Farigiraf": 30.171 + 0.06}, key)[0].verdict == F
-    off = sc.gate_summary(cs, slots=4)
-    assert off["scored"] == 0 and off["usage_pct_line"]["false"] == 3 and not off["usage_pct_line"]["gating"]
-    assert ("usage", "Golurk", "Indeedee-F=17.75", "stated 17.75 vs key 17.906") in off["usage_pct_line"]["mismatches"]
-    on = sc.gate_summary(cs, slots=4, gate_usage_pct=True)
-    assert on["scored"] == 4 and on["false"] == 3 and on["usage_pct_line"]["gating"]
+TRANSCRIPT = [  # synthetic tool results shaped like the arm's usage tools (built by hand, not arm output)
+    {"name": "get_usage_teammates", "result": {"status": "served", "rows": [
+        {"name": "Farigiraf", "conditional_pct": 30.171, "rank": 1}, {"name": "Rillaboom", "conditional_pct": 19.11, "rank": 2},
+        {"name": "Indeedee-F", "conditional_pct": 17.906, "rank": 3}, {"name": "Whimsicott", "conditional_pct": 17.749, "rank": 4},
+        {"name": "Sneasler", "conditional_pct": None, "rank": 5}]}},
+    {"name": "get_usage_items", "result": {"status": "ok", "items": [{"name": "Choice Scarf", "pct": 48.9}, {"name": "Life Orb", "pct": 15.4}]}},
+    {"name": "calc_damage", "result": {"status": "ok", "damage_range": [1, 2]}},
+]
+
+
+def test_usage_pct_scored_against_the_items_own_tool_results():
+    stated = {"Farigiraf": 30.17, "Indeedee-F": 17.75, "Whimsicott": 17.91, "Choice Scarf": 48.9, "Empoleon": 13.2, "Sneasler": 5.0}
+    cs = {c.proposition.split("=")[0]: c for c in sc.score_usage_pct("teammates", "Golurk", stated, TRANSCRIPT)}
+    assert cs["Farigiraf"].verdict == T and cs["Choice Scarf"].verdict == T  # rows from both result shapes
+    assert cs["Indeedee-F"].verdict == F and cs["Indeedee-F"].reason == "stated 17.75 vs tool 17.906"  # swapped pair
+    assert cs["Whimsicott"].verdict == F and cs["Whimsicott"].reason == "stated 17.91 vs tool 17.749"
+    assert cs["Empoleon"].verdict == F and cs["Empoleon"].reason == "no row for this name in the tool results"
+    assert cs["Sneasler"].verdict == F  # a row without a percentage (in-game teammates) gives nothing to match
+    assert all(c.line == "usage_pct" and c.ctype == "usage" for c in cs.values())
+
+
+def test_usage_pct_tolerance_edge_and_duplicate_rows():
+    edge = lambda v: sc.score_usage_pct("t", "S", {"Farigiraf": v}, TRANSCRIPT)[0].verdict  # noqa: E731
+    assert edge(30.171 + 0.05) == T and edge(30.171 - 0.05) == T and edge(30.171 + 0.06) == F
+    twice = TRANSCRIPT + [{"name": "get_usage_teammates", "result": {"rows": [{"name": "Farigiraf", "conditional_pct": 12.0}]}}]
+    assert sc.score_usage_pct("t", "S", {"Farigiraf": 12.0}, twice)[0].verdict == T  # any row for the name within tolerance
+    assert sc.score_usage_pct("t", "S", {"Farigiraf": 1.0}, twice)[0].reason == "stated 1 vs tool 30.171, 12"
+    assert sc.score_usage_pct("t", "S", {"Farigiraf": 1.0}, [{"name": "x", "result": None}])[0].verdict == F  # no usable result
+
+
+def test_usage_pct_line_is_off_by_default_lists_every_mismatch_and_switches_on():
+    cs = sc.score_usage_pct("teammates", "Golurk", {"Farigiraf": 30.17, "Indeedee-F": 17.75, "Whimsicott": 17.91}, TRANSCRIPT)
+    off = sc.gate_summary(cs, slots=3)
+    assert off["scored"] == 0 and off["usage_pct_line"]["false"] == 2 and not off["usage_pct_line"]["gating"]
+    assert [m[2:] for m in off["usage_pct_line"]["mismatches"]] == [("Indeedee-F=17.75", "stated 17.75 vs tool 17.906"),
+                                                                    ("Whimsicott=17.91", "stated 17.91 vs tool 17.749")]
+    on = sc.gate_summary(cs, slots=3, gate_usage_pct=True)
+    assert on["scored"] == 3 and on["false"] == 2 and on["usage_pct_line"]["gating"]
+
+
+def test_scorer_source_does_not_import_the_recommender_or_compute_percentages():
+    src = SCRIPT.read_text()
+    assert "from recommender" not in src and "import recommender" not in src and "chaos_weight" not in src
