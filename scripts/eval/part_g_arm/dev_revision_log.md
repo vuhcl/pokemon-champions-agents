@@ -97,3 +97,10 @@ What changed, and why:
 - **Workflows:** `usage-showdown-rollover.yml` is disabled (Vu, 2026-10-23); `usage-refresh-mc.yml` stays enabled. Neither is touched here.
 - **damage_013 (no fix):** in `runs/dev3b` the arm sent ability "Mold Breaker" for Salamence-Mega; the calc replaced it with Aerilate (`ability_resolution.attacker`: applied "Aerilate", source "dex", supplied "Mold Breaker"), and the final text states no ability. The result equals the key.
 - **Dev split:** `dev_split.json` (committed, seed 20261024, type-stratified random, P 177 items for parser building, T 173 items for the 50-answer timing sample only; sha256 `a1c8bb7f16d7a451cf838b192d6e3e690cccdf3b3a3d918f5c2345a4bc92dba6`). Not edited later; parsers are built and tuned on P only.
+
+## Scorer, extractors, audit view and judge (2026-10-23, after dev3)
+
+- Scorer rules added from Vu's note: unit slips and labelled values, KO-needed equals HP, roll-list rule for "rolls at or above X", speed stats and margins, damage range, percent of HP, guaranteed/possible nHKO, chance-based nHKO unverifiable on its own line, KO counts and percents tied to an HKO chance, the copied_unchanged sensitivity line (never decides), per-type false rate beside the headline. `--gate-ko-chance` is on by default; `--gate-usage-pct` is off and scores against the item's own tool results.
+- Extractors (`scripts/eval/part_g_v4/extractors.py`) were built on dev half P only, from the shipped-config run (`runs/dev3b`), with dev2 text used for the seven annotated P items. They are not frozen. Before the split existed, the dev1, dev2 and dev3 analyses read answers from all 350 items, so the author has seen T answers; no rule was tuned on T after the split.
+- Audit view and the exception-log gate: the headline is withheld until the exception log is committed and its sha256 stated.
+- Judge: gemma4:12b prompt v3 tuned on Vu's 15 annotated items only (v1, v2, v3 hashes in `judge/README.md`); the 10-item test set has not been released or run.
