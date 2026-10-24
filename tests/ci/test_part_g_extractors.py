@@ -134,7 +134,7 @@ def test_copied_unchanged_needs_verbatim_values_and_no_relation():
     us = run(item("usage", "common_items", {"species": "H", "common_items": ["Choice Scarf", "Life Orb"], "teammates": [], "source": "in-game"}),
              "Top 5 Held Items:\n1. Choice Scarf (48.9%)\n2. Life Orb (15.0%)", calls)
     flags = {c.proposition: c.copied_unchanged for c in us}
-    assert flags["Choice Scarf=48.9"] is True and flags["Life Orb=15.0"] is False and flags["Choice Scarf"] is True  # 15.0 is not the tool's 15.4
+    assert flags["Choice Scarf=48.9"] is True and flags["Life Orb=15"] is False and flags["Choice Scarf"] is True  # 15.0 is not the tool's 15.4
     spd = run(item("speed", "outspeed", SPD), "Yes, Ninetales-Alola outspeeds Sylveon. Ninetales-Alola has a Speed stat of 177.",
               [{"name": "get_speed", "result": {"speed": 177}}])
     flg = {(c.kind): c.copied_unchanged for c in spd}
