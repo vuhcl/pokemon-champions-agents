@@ -78,8 +78,9 @@ class Claim:
     subject: str
     proposition: str
     verdict: Result
-    line: str = "gate"
-    reason: str = ""  # e.g. "different_source": the answer named a source other than the prompt's
+    line: str = "gate"  # "gate" | "ko_chance" (KO counts and percents) | "usage_pct" | "threshold_arith_unverifiable"
+    reason: str = ""  # e.g. "different_source", or "stated 17.75 vs key 17.906" on a usage_pct claim
+    ctype: str = ""  # battery claim type of the item (typing, damage, ...), for the per-type false rate
 
 
 def dedupe(claims: list[Claim]) -> list[Claim]:
@@ -96,23 +97,39 @@ def _counts(claims: list[Claim]) -> tuple[int, int, int, int]:
     return c[Verdict.TRUE], c[Verdict.FALSE], c[Verdict.UNVERIFIABLE], c[None]
 
 
-def gate_summary(claims: list[Claim], slots: int, floor: int = DESIGN_FLOOR, gate_ko_chance: bool = False) -> dict[str, Any]:
-    """Headline over line "gate" claims (plus "ko_chance" ones only when gate_ko_chance); the KO-chance line is always reported."""
-    chance = [c for c in claims if c.line == "ko_chance"]
-    gated = [c for c in claims if c.line == "gate" or gate_ko_chance]
+def _line(claims: list[Claim]) -> dict[str, Any]:
+    t, f, u, n = _counts(claims)
+    return {"true": t, "false": f, "unverifiable": u, "no_verdict": n, "cp_upper_bound": cp_upper(f, t + f)}
+
+
+def gate_summary(claims: list[Claim], slots: int, floor: int = DESIGN_FLOOR, gate_ko_chance: bool = True,
+                 gate_usage_pct: bool = False) -> dict[str, Any]:
+    """Headline over line "gate" claims, plus the KO-number line ("ko_chance": KO counts and KO percents) unless
+    gate_ko_chance is off, plus the usage-percentage line only when gate_usage_pct is on. Every line is also reported on
+    its own; the usage line lists each mismatched value, and the per-type false rate sits beside the headline."""
+    included = {"gate"} | ({"ko_chance"} if gate_ko_chance else set()) | ({"usage_pct"} if gate_usage_pct else set())
+    gated = [c for c in claims if c.line in included]
     true, false, unver, none = _counts(gated)
     scored = true + false
     ucb = cp_upper(false, scored)
-    ct, cf, cu, cn = _counts(chance)
+    per_type: dict[str, dict[str, Any]] = {}
+    for ct in sorted({c.ctype for c in gated}):
+        t, f, *_ = _counts([c for c in gated if c.ctype == ct])
+        per_type[ct or "(untyped)"] = {"false": f, "scored": t + f, "false_rate": f / (t + f) if t + f else None}
+    by = lambda ln: [c for c in claims if c.line == ln]  # noqa: E731
     return {
         "false": false, "true": true, "scored": scored, "slots": slots,
         "answer_rate": scored / slots if slots else None,
         "scored_vs_design_floor": {"floor": floor, "meets": scored >= floor},
         "no_verdict": none,
         "cp_upper_bound": ucb, "gate_rate": GATE_RATE, "passes_gate": scored > 0 and ucb <= GATE_RATE,
+        "false_rate_by_type": per_type,
         "unverifiable": {"count": unver, "share_of_typed": unver / (scored + unver) if scored + unver else None},
-        "ko_chance_line": {"gating": gate_ko_chance, "true": ct, "false": cf, "unverifiable": cu, "no_verdict": cn,
-                           "cp_upper_bound": cp_upper(cf, ct + cf)},
+        "ko_chance_line": {"gating": gate_ko_chance, **_line(by("ko_chance"))},
+        "usage_pct_line": {"gating": gate_usage_pct, **_line(by("usage_pct")),
+                           "mismatches": [(c.ctype, c.subject, c.proposition, c.reason) for c in by("usage_pct") if c.verdict == Verdict.FALSE]},
+        "threshold_arith_unverifiable_line": {"count": len(by("threshold_arith_unverifiable")),
+                                              "claims": [(c.subject, c.proposition, c.reason) for c in by("threshold_arith_unverifiable")]},
     }
 
 
@@ -156,12 +173,14 @@ class KoAnswer:
     chance_pct: float | None
     conditions_match: bool  # the stated conditions equal the prompt's
     stated_form_abilities: dict[str, str] | None = None  # side -> ability the answer gave for a Mega side
+    ko_count: int | None = None  # "k of the 16 rolls KO"
 
 
 def score_guaranteed_ko(ans: KoAnswer, gt: dict[str, Any]) -> list[Claim]:
-    """gt is the damage claim's ground_truth. Yes/no is scored against guaranteed_ko; a chance is TRUE iff within
-    chance_tolerance_points of 100*k/16 and sits on its own line. If a Mega form's stated ability differs from the
-    form's single ability, the ability claim is FALSE and the damage claims are UNVERIFIABLE."""
+    """gt is the damage claim's ground_truth. Yes/no is scored against guaranteed_ko. A stated KO count is TRUE iff it equals
+    rolls_ko_of_16 exactly; a stated KO percent is TRUE iff within chance_tolerance_points of 100*k/16. Counts and percents sit on
+    the "ko_chance" line (gated by default). If a Mega form's stated ability differs from the form's single ability, the ability
+    claim is FALSE and the damage claims are UNVERIFIABLE."""
     subj = f"{gt['attacker']} {gt['move']} {gt['defender']}"
     out: list[Claim] = []
     form_key = (gt.get("scoring") or {}).get("form_ability_used_by_key") or {}
@@ -170,19 +189,69 @@ def score_guaranteed_ko(ans: KoAnswer, gt: dict[str, Any]) -> list[Claim]:
         want = form_key.get(side)
         if want and norm(stated) != norm(want):
             wrong_ability = True
-            out.append(Claim("has_ability", gt[side], stated, Verdict.FALSE))
+            out.append(Claim("has_ability", gt[side], stated, Verdict.FALSE, ctype="damage"))
+    k = gt["rolls_ko_of_16"]
     if wrong_ability or not ans.conditions_match:
-        bad = Verdict.UNVERIFIABLE
-        yn, ch = (bad if ans.yes_no is not None else None), (bad if ans.chance_pct is not None else None)
+        v = lambda present: Verdict.UNVERIFIABLE if present else None  # noqa: E731
+        yn, ch, cnt = v(ans.yes_no is not None), v(ans.chance_pct is not None), v(ans.ko_count is not None)
     else:
         yn = None if ans.yes_no is None else (Verdict.TRUE if ans.yes_no == gt["guaranteed_ko"] else Verdict.FALSE)
-        ch = None
-        if ans.chance_pct is not None:
-            ok = abs(ans.chance_pct - 100 * gt["rolls_ko_of_16"] / 16) <= gt["scoring"]["chance_tolerance_points"]
-            ch = Verdict.TRUE if ok else Verdict.FALSE
-    out.append(Claim("guaranteed_ko", subj, {None: "hedge", True: "yes", False: "no"}[ans.yes_no], yn))
-    out.append(Claim("ko_chance", subj, f"{ans.chance_pct}", ch, line="ko_chance"))
+        ch = None if ans.chance_pct is None else (
+            Verdict.TRUE if abs(ans.chance_pct - 100 * k / 16) <= gt["scoring"]["chance_tolerance_points"] else Verdict.FALSE)
+        cnt = None if ans.ko_count is None else (Verdict.TRUE if ans.ko_count == k else Verdict.FALSE)
+    out.append(Claim("guaranteed_ko", subj, {None: "hedge", True: "yes", False: "no"}[ans.yes_no], yn, ctype="damage"))
+    out.append(Claim("ko_chance", subj, f"{ans.chance_pct}", ch, line="ko_chance", ctype="damage"))
+    if ans.ko_count is not None:
+        out.append(Claim("ko_count", subj, f"{ans.ko_count}", cnt, line="ko_chance", ctype="damage"))
     return out
+
+
+# Quantities a damage key holds: the roll list, the defender's HP and the min and max roll.
+KEYED = {"hp": "hp", "max_roll": "max_roll", "min_roll": "min_roll"}
+
+
+def _key_has_arith_data(gt: dict[str, Any]) -> bool:
+    return all(f in gt for f in ("rolls", "hp"))
+
+
+def score_ko_threshold(gt: dict[str, Any], threshold: float) -> Claim:
+    """"Rolls of `threshold` or higher KO": TRUE iff the rolls at or above the threshold are exactly the rolls at or above the
+    defender's HP. UNVERIFIABLE (own line) if the key lacks the roll list or the HP."""
+    subj, prop = f"{gt.get('attacker')} {gt.get('move')} {gt.get('defender')}", f"KO at {threshold:g} or higher"
+    if not _key_has_arith_data(gt):
+        return Claim("ko_threshold", subj, prop, Verdict.UNVERIFIABLE, line="threshold_arith_unverifiable", reason="key lacks rolls or hp", ctype="damage")
+    same = {r for r in gt["rolls"] if r >= threshold} == {r for r in gt["rolls"] if r >= gt["hp"]}
+    return Claim("ko_threshold", subj, prop, Verdict.TRUE if same else Verdict.FALSE, ctype="damage",
+                 reason="" if same else f"defender hp {gt['hp']}")
+
+
+def score_hp_arithmetic(gt: dict[str, Any], lhs: tuple[str, float], op: str, rhs: tuple[str, float]) -> Claim:
+    """A comparison between two labelled quantities, e.g. ("max_roll", 183) "<" ("hp", 177). FALSE if a labelled value differs from the
+    key or the comparison is arithmetically false; UNVERIFIABLE (own line) if a label is not keyed or the key lacks the data."""
+    subj, prop = f"{gt.get('attacker')} {gt.get('move')} {gt.get('defender')}", f"{lhs[0]}={lhs[1]:g} {op} {rhs[0]}={rhs[1]:g}"
+    if not _key_has_arith_data(gt) or any(lbl not in KEYED for lbl, _ in (lhs, rhs)) or any(KEYED[lbl] not in gt for lbl, _ in (lhs, rhs)):
+        return Claim("hp_arithmetic", subj, prop, Verdict.UNVERIFIABLE, line="threshold_arith_unverifiable", reason="label or key data missing", ctype="damage")
+    wrong = [f"{lbl} {val:g} vs key {gt[KEYED[lbl]]}" for lbl, val in (lhs, rhs) if val != gt[KEYED[lbl]]]
+    holds = {"<": lhs[1] < rhs[1], ">": lhs[1] > rhs[1], "<=": lhs[1] <= rhs[1], ">=": lhs[1] >= rhs[1]}[op]
+    ok = not wrong and holds
+    return Claim("hp_arithmetic", subj, prop, Verdict.TRUE if ok else Verdict.FALSE, ctype="damage",
+                 reason="; ".join(wrong) or ("" if holds else "comparison is false"))
+
+
+def score_usage_pct(kind: str, subject: str, stated: dict[str, float], key_pcts: dict[str, float], tol: float = 0.05) -> list[Claim]:
+    """Stated usage percentages against key values, within `tol` points (the tool returns 3 decimals). A name the key does not
+    list is FALSE. The mismatching value is recorded in `reason`. On the "usage_pct" line, gated only by --gate-usage-pct."""
+    kp = {norm(n): v for n, v in key_pcts.items()}
+    out = []
+    for name, val in stated.items():
+        want = kp.get(norm(name))
+        if want is None:
+            out.append(Claim(kind, subject, f"{name}={val:g}", Verdict.FALSE, line="usage_pct", reason="name not in the key", ctype="usage"))
+        else:
+            ok = abs(val - want) <= tol + 1e-9
+            out.append(Claim(kind, subject, f"{name}={val:g}", Verdict.TRUE if ok else Verdict.FALSE, line="usage_pct",
+                             reason="" if ok else f"stated {val:g} vs key {want:g}", ctype="usage"))
+    return dedupe(out)
 
 
 def score_equal(kind: str, subject: str, stated: Any, key: Any) -> Claim:
@@ -249,7 +318,9 @@ def main() -> int:
     ap.add_argument("--claims", type=Path, help="JSONL {id, claims:[[kind,subject,proposition,verdict|null,line,reason]]} from an extractor")
     ap.add_argument("--audit-size", type=int, default=None)
     ap.add_argument("--audit-seed", type=int, default=0)
-    ap.add_argument("--gate-ko-chance", action="store_true", help="count the numeric KO chance in the headline (pending the owner's decision)")
+    ap.add_argument("--gate-ko-chance", action=argparse.BooleanOptionalAction, default=True,
+                    help="KO counts and KO percents are gated claims (default on); --no-gate-ko-chance reports them on their own line")
+    ap.add_argument("--gate-usage-pct", action="store_true", help="gate stated usage percentages (default off; reported on their own line)")
     args = ap.parse_args()
     items = {i["id"]: i for i in json.loads(args.battery.read_text())["items"] if i.get("gated", True)}
     slots = sum(i["n_claims"] for i in items.values())
@@ -261,7 +332,7 @@ def main() -> int:
     by_item = {r["id"]: [Claim(k, s_, p, Verdict(v) if v else None, ln, *rest) for k, s_, p, v, ln, *rest in r["claims"]]
                for r in map(json.loads, args.claims.read_text().splitlines())}
     print(json.dumps({"pilot": pilot_report(by_item, len(items), slots),
-                      "gate": gate_summary([c for cs in by_item.values() for c in cs], slots, gate_ko_chance=args.gate_ko_chance)},
+                      "gate": gate_summary([c for cs in by_item.values() for c in cs], slots, gate_ko_chance=args.gate_ko_chance, gate_usage_pct=args.gate_usage_pct)},
                      indent=1, default=str))
     return 0
 

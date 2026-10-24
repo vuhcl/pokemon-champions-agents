@@ -42,11 +42,18 @@ def test_gate_excludes_unverifiable_and_no_verdict():
     assert sc.gate_summary([C(T)] * 235 + [C(F)], slots=384)["passes_gate"]  # 236 scored, 1 false
 
 
-def test_ko_chance_line_is_non_gating_by_default_and_switchable():
+def test_ko_number_line_gates_by_default_and_can_be_switched_off():
     cs = [C(T)] * 149 + [C(F, "ko_chance")]
     s = sc.gate_summary(cs, slots=384)
-    assert s["passes_gate"] and s["scored"] == 149 and s["ko_chance_line"]["false"] == 1 and not s["ko_chance_line"]["gating"]
-    assert not sc.gate_summary(cs, slots=384, gate_ko_chance=True)["passes_gate"]  # 150 scored, 1 false
+    assert s["ko_chance_line"]["gating"] and s["scored"] == 150 and s["false"] == 1 and not s["passes_gate"]  # gated by default
+    off = sc.gate_summary(cs, slots=384, gate_ko_chance=False)
+    assert off["passes_gate"] and off["scored"] == 149 and off["ko_chance_line"]["false"] == 1 and not off["ko_chance_line"]["gating"]
+
+
+def test_per_type_false_rate_sits_beside_the_headline():
+    cs = [sc.Claim("k", "a", "p", T, ctype="typing")] * 3 + [sc.Claim("k", "b", "p", F, ctype="damage"), sc.Claim("k", "c", "p", T, ctype="damage")]
+    r = sc.gate_summary(cs, slots=5)["false_rate_by_type"]
+    assert r == {"damage": {"false": 1, "scored": 2, "false_rate": 0.5}, "typing": {"false": 0, "scored": 3, "false_rate": 0.0}}
 
 
 def test_dedupe_one_claim_per_kind_subject_proposition():
@@ -77,8 +84,9 @@ def test_rank_assertions_and_key_ranks():
     assert [(c.kind, c.verdict) for c in cs] == [("common_items", T), ("common_items", T), ("common_items_rank", T), ("common_items_rank", F)]
 
 
+ROLLS = [154, 156, 159, 160, 162, 163, 166, 168, 169, 171, 172, 175, 177, 178, 180, 183]  # built by hand, not arm output
 GT = {"attacker": "Hydrapple", "defender": "Castform-Snowy", "move": "Draco Meteor", "guaranteed_ko": False,
-      "rolls_ko_of_16": 4, "scoring": {"chance_tolerance_points": 3.125, "form_ability_used_by_key": {"attacker": None, "defender": None}}}
+      "rolls_ko_of_16": 4, "rolls": ROLLS, "hp": 177, "min_roll": 154, "max_roll": 183, "scoring": {"chance_tolerance_points": 3.125, "form_ability_used_by_key": {"attacker": None, "defender": None}}}
 GT_MEGA = {**GT, "attacker": "Charizard-Mega-X", "scoring": {**GT["scoring"], "form_ability_used_by_key": {"attacker": "Tough Claws", "defender": None}}}
 
 
@@ -127,3 +135,50 @@ def test_pilot_report_counts_and_different_source():
     assert r["answer_names_different_source"] == 2 and r["unverifiable_share_overall"] == pytest.approx(2 / 4)
     assert r["unverifiable_by_kind"]["teammates"] == {"unverifiable": 2, "typed": 2, "share": 1.0}
     assert r["unverifiable_by_kind"]["common_items"]["share"] == 0.0
+
+
+def test_ko_count_is_exact_and_gated_with_the_chance_line():
+    ok = by(sc.score_guaranteed_ko(sc.KoAnswer(False, None, True, ko_count=4), GT))
+    assert ok == {"guaranteed_ko": T, "ko_chance": None, "ko_count": T}
+    assert by(sc.score_guaranteed_ko(sc.KoAnswer(False, None, True, ko_count=5), GT))["ko_count"] == F  # not within one
+    assert by(sc.score_guaranteed_ko(sc.KoAnswer(False, None, True, ko_count=3), GT))["ko_count"] == F
+    cs = sc.score_guaranteed_ko(sc.KoAnswer(False, 25.0, True, ko_count=4), GT)
+    assert {c.line for c in cs if c.kind in ("ko_count", "ko_chance")} == {"ko_chance"}
+    assert by(sc.score_guaranteed_ko(sc.KoAnswer(False, 25.0, False, ko_count=4), GT))["ko_count"] == U  # conditions differ
+
+
+def test_ko_threshold_uses_the_roll_list_and_hp():
+    hp186 = {**GT, "hp": 186, "rolls": [84, 85, 87, 87, 88, 90, 90, 91, 93, 93, 94, 96, 96, 97, 99, 100], "rolls_ko_of_16": 0}
+    assert sc.score_ko_threshold(hp186, 93).verdict == F  # "93 or higher KO" while HP is 186
+    assert sc.score_ko_threshold(hp186, 186).verdict == T
+    assert sc.score_ko_threshold(hp186, 101).verdict == T  # same (empty) set of rolls as at HP 186: nothing reaches either bound
+    hp197 = {**GT, "hp": 197, "rolls": [182, 186, 194, 198, 200, 216]}
+    assert sc.score_ko_threshold(hp197, 198).verdict == T  # no roll equals 197, so "198 or more" names the same rolls
+    assert sc.score_ko_threshold(hp197, 194).verdict == F
+    nokey = sc.score_ko_threshold({"attacker": "A", "move": "M", "defender": "D"}, 93)
+    assert nokey.verdict == U and nokey.line == "threshold_arith_unverifiable"
+
+
+def test_hp_arithmetic_claims():
+    assert sc.score_hp_arithmetic(GT, ("max_roll", 183), "<", ("hp", 177)).verdict == F  # "183 less than 177"
+    assert sc.score_hp_arithmetic(GT, ("max_roll", 183), ">", ("hp", 177)).verdict == T
+    wrong = sc.score_hp_arithmetic(GT, ("max_roll", 150), "<", ("hp", 177))  # true comparison, wrong labelled value
+    assert wrong.verdict == F and "max_roll 150 vs key 183" in wrong.reason
+    other = sc.score_hp_arithmetic(GT, ("hp", 177), ">", ("sp_cap", 32))
+    assert other.verdict == U and other.line == "threshold_arith_unverifiable"
+    assert sc.score_hp_arithmetic({"attacker": "A", "move": "M", "defender": "D"}, ("hp", 1), ">", ("min_roll", 0)).verdict == U
+    s = sc.gate_summary([sc.score_hp_arithmetic(GT, ("hp", 177), ">", ("sp_cap", 32)), sc.score_ko_threshold(GT, 177)], slots=2)
+    assert s["threshold_arith_unverifiable_line"]["count"] == 1 and s["scored"] == 1
+
+
+def test_usage_pct_line_is_off_by_default_lists_mismatches_and_uses_a_point_05_tolerance():
+    key = {"Indeedee-F": 17.906, "Whimsicott": 17.749, "Farigiraf": 30.171}
+    cs = sc.score_usage_pct("teammates", "Golurk", {"Farigiraf": 30.17, "Indeedee-F": 17.75, "Whimsicott": 17.91, "Empoleon": 13.2}, key)
+    assert [c.verdict for c in cs] == [T, F, F, F]  # 17.75 vs 17.906 and 17.91 vs 17.749 are swapped; Empoleon is not in the key
+    assert sc.score_usage_pct("teammates", "G", {"Farigiraf": 30.171 + 0.05}, key)[0].verdict == T  # edge inclusive
+    assert sc.score_usage_pct("teammates", "G", {"Farigiraf": 30.171 + 0.06}, key)[0].verdict == F
+    off = sc.gate_summary(cs, slots=4)
+    assert off["scored"] == 0 and off["usage_pct_line"]["false"] == 3 and not off["usage_pct_line"]["gating"]
+    assert ("usage", "Golurk", "Indeedee-F=17.75", "stated 17.75 vs key 17.906") in off["usage_pct_line"]["mismatches"]
+    on = sc.gate_summary(cs, slots=4, gate_usage_pct=True)
+    assert on["scored"] == 4 and on["false"] == 3 and on["usage_pct_line"]["gating"]
