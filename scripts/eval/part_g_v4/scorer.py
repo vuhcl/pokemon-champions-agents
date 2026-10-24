@@ -420,34 +420,63 @@ def audit_sample(ids: list[str], size: int, seed: int) -> list[str]:
 
 # --- pilot report ------------------------------------------------------------------------------
 
-def pilot_report(by_item: dict[str, list[Claim]], n_items: int, slots: int) -> dict[str, Any]:
-    """Counts only (no gate verdict): scored claims in the gate unit, items with a scored claim, UNVERIFIABLE share
-    overall and by kind, and how many claims were UNVERIFIABLE because the answer named a different source."""
-    gated = [c for cs in by_item.values() for c in cs if c.line == "gate"]
+def pilot_report(by_item: dict[str, list[Claim]], n_items: int, slots: int, gate_ko_chance: bool = True, gate_usage_pct: bool = False) -> dict[str, Any]:
+    """Counts only (no false counts, no gate verdict): scored claims in the gate's unit (the same lines the headline uses), items with a
+    scored claim, UNVERIFIABLE share overall and by kind (every line, including the separate unverifiable lines), and how many claims were
+    UNVERIFIABLE because the answer named a different source."""
+    included = {"gate"} | ({"ko_chance"} if gate_ko_chance else set()) | ({"usage_pct"} if gate_usage_pct else set())
+    every = [c for cs in by_item.values() for c in cs]
+    gated = [c for c in every if c.line in included]
     scored = [c for c in gated if c.verdict in (Verdict.TRUE, Verdict.FALSE)]
-    unver = [c for c in gated if c.verdict == Verdict.UNVERIFIABLE]
+    unver = [c for c in every if c.verdict == Verdict.UNVERIFIABLE]
     by_kind: dict[str, dict[str, Any]] = {}
-    for kind in sorted({c.kind for c in gated}):
+    for kind in sorted({c.kind for c in every}):
         u = sum(1 for c in unver if c.kind == kind)
         t = u + sum(1 for c in scored if c.kind == kind)
         by_kind[kind] = {"unverifiable": u, "typed": t, "share": u / t if t else None}
     return {
-        "scored_claims_gate_unit": len(scored), "slots": slots,
-        "items_with_scored_claim": sum(1 for cs in by_item.values() if any(c.line == "gate" and c.verdict in (Verdict.TRUE, Verdict.FALSE) for c in cs)),
+        "scored_claims_gate_unit": len(scored), "slots": slots, "lines_in_the_gate_unit": sorted(included),
+        "items_with_scored_claim": sum(1 for cs in by_item.values() if any(c.line in included and c.verdict in (Verdict.TRUE, Verdict.FALSE) for c in cs)),
         "items": n_items,
         "unverifiable_share_overall": len(unver) / (len(unver) + len(scored)) if unver or scored else None,
         "unverifiable_by_kind": by_kind,
-        "answer_names_different_source": sum(1 for c in gated if c.reason == "different_source"),
+        "answer_names_different_source": sum(1 for c in every if c.reason == "different_source"),
     }
+
+
+# --- exception-log gate ------------------------------------------------------------------------
+
+def exception_log_verified(path: Path | None, expected_sha256: str | None, repo: Path | None = None) -> tuple[bool, str]:
+    """The headline false rate is printed only once the audit exception log is committed and hashed: the file exists, its sha256 equals the
+    stated hash, git tracks it, and it has no uncommitted changes."""
+    import hashlib
+    import subprocess
+    if path is None or not expected_sha256:
+        return False, "no exception log and hash given"
+    if not path.is_file():
+        return False, f"{path} does not exist"
+    if hashlib.sha256(path.read_bytes()).hexdigest() != expected_sha256.lower():
+        return False, "exception log sha256 differs from the stated hash"
+    cwd = repo or path.resolve().parent
+    run = lambda *a: subprocess.run(["git", "-C", str(cwd), *a], capture_output=True, text=True)  # noqa: E731
+    if run("ls-files", "--error-unmatch", str(path.resolve())).returncode != 0:
+        return False, "exception log is not committed (git does not track it)"
+    if run("diff", "--quiet", "HEAD", "--", str(path.resolve())).returncode != 0:
+        return False, "exception log has uncommitted changes"
+    return True, "ok"
 
 
 # --- CLI ---------------------------------------------------------------------------------------
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--answers", type=Path, help="answers JSONL (for the audit sample ids)")
+    ap.add_argument("--answers", type=Path, required=True)
     ap.add_argument("--battery", type=Path, required=True)
-    ap.add_argument("--claims", type=Path, help="JSONL {id, claims:[[kind,subject,proposition,verdict|null,line,reason]]} from an extractor")
+    ap.add_argument("--half", choices=("P", "T"), default=None, help="score one half of the dev split (needs --split-file); P is for parser building")
+    ap.add_argument("--split-file", type=Path, default=None)
+    ap.add_argument("--claims", type=Path, help="JSONL {id, claims:[[kind,subject,proposition,verdict|null,line,reason]]} instead of the extractors")
+    ap.add_argument("--exception-log", type=Path, default=None, help="the committed audit exception log")
+    ap.add_argument("--exception-log-sha256", default=None, help="its sha256, as recorded when it was committed")
     ap.add_argument("--audit-size", type=int, default=None)
     ap.add_argument("--audit-seed", type=int, default=0)
     ap.add_argument("--gate-ko-chance", action=argparse.BooleanOptionalAction, default=True,
@@ -455,17 +484,28 @@ def main() -> int:
     ap.add_argument("--gate-usage-pct", action="store_true", help="gate stated usage percentages (default off; reported on their own line)")
     args = ap.parse_args()
     items = {i["id"]: i for i in json.loads(args.battery.read_text())["items"] if i.get("gated", True)}
+    if args.half:
+        if not args.split_file:
+            raise SystemExit("--half needs --split-file")
+        keep = {i for v in json.loads(args.split_file.read_text())[args.half].values() for i in v}
+        items = {k: v for k, v in items.items() if k in keep}
+    answers = {r["id"]: r for r in map(json.loads, args.answers.read_text().splitlines()) if r["id"] in items}
     slots = sum(i["n_claims"] for i in items.values())
-    if args.audit_size and args.answers:
-        ids = [json.loads(line)["id"] for line in args.answers.read_text().splitlines()]
-        print(json.dumps({"audit_ids": audit_sample(ids, args.audit_size, args.audit_seed)}))
-    if not args.claims:
-        raise SystemExit("no --claims: the per-template extractors are stubs until dev outputs are reviewed")
-    by_item = {r["id"]: [Claim(k, s_, p, Verdict(v) if v else None, ln, *rest) for k, s_, p, v, ln, *rest in r["claims"]]
-               for r in map(json.loads, args.claims.read_text().splitlines())}
-    print(json.dumps({"pilot": pilot_report(by_item, len(items), slots),
-                      "gate": gate_summary([c for cs in by_item.values() for c in cs], slots, gate_ko_chance=args.gate_ko_chance, gate_usage_pct=args.gate_usage_pct)},
-                     indent=1, default=str))
+    if args.audit_size:
+        print(json.dumps({"audit_ids": audit_sample(sorted(answers), args.audit_size, args.audit_seed)}))
+    if args.claims:
+        by_item = {r["id"]: [Claim(k, s_, p, Verdict(v) if v else None, ln, *rest) for k, s_, p, v, ln, *rest in r["claims"]]
+                   for r in map(json.loads, args.claims.read_text().splitlines()) if r["id"] in items}
+    else:
+        import extractors
+        by_item = {i: extractors.extract_item(items[i], a) for i, a in answers.items()}
+    out: dict[str, Any] = {"pilot": pilot_report(by_item, len(items), slots, args.gate_ko_chance, args.gate_usage_pct)}
+    ok, why = exception_log_verified(args.exception_log, args.exception_log_sha256)
+    if ok:
+        out["gate"] = gate_summary([c for cs in by_item.values() for c in cs], slots, gate_ko_chance=args.gate_ko_chance, gate_usage_pct=args.gate_usage_pct)
+    else:
+        out["headline"] = f"withheld until the audit exception log is committed and hashed ({why})"
+    print(json.dumps(out, indent=1, default=str))
     return 0
 
 

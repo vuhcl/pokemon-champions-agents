@@ -148,3 +148,50 @@ def test_every_claim_has_a_span_inside_the_text(text, kind):
     it = item("typing", "has_type", {"species": "Aromatisse", "asked_type": "Fairy", "has_type": True, "types": ["Fairy"]})
     for c in run(it, text):
         assert c.span is not None and 0 <= c.span[0] < c.span[1] <= len(text)
+
+
+def test_audit_view_highlights_spans_writes_the_csv_columns_and_prints_no_rate(tmp_path):
+    import csv
+    import json
+    import subprocess
+
+    import audit_view as av
+
+    it = {"id": "typing_x", "claim_type": "typing", "prompt": "Does Aromatisse have Fairy typing?",
+          "claims": [{"kind": "has_type", "ground_truth": {"species": "Aromatisse", "asked_type": "Fairy", "has_type": True, "types": ["Fairy"]}}], "n_claims": 1}
+    ans = {"id": "typing_x", "final_text": "Yes, Aromatisse has Fairy typing.", "tool_calls": [{"name": "get_typing", "args": {"species": "Aromatisse"}, "result": {"types": ["Fairy"]}}]}
+    bat, answers = tmp_path / "b.json", tmp_path / "a.jsonl"
+    bat.write_text(json.dumps({"items": [it]}))
+    answers.write_text(json.dumps(ans) + "\n")
+    cp = subprocess.run([sys.executable, str(Path(av.__file__)), "--answers", str(answers), "--battery", str(bat), "--out", str(tmp_path / "o"), "--size", "5"],
+                        capture_output=True, text=True)
+    assert cp.returncode == 0 and "false rate" not in cp.stdout.lower()
+    page = (tmp_path / "o/audit.html").read_text()
+    assert '<mark style="background:#cfe8cf"' in page and ">Yes, Aromatisse has Fairy typing.</mark>" in page  # the TRUE verdict colours the span
+    assert "<details><summary>get_typing" in page and "key values" in page and "false rate" not in page.lower()
+    assert list(csv.reader((tmp_path / "o/audit.csv").open()))[0] == av.CSV_COLUMNS
+    assert av.EXCEPTION_TYPES == ("missed_claim", "wrong_extraction", "wrong_verdict", "other")
+
+
+def test_headline_is_withheld_until_the_exception_log_is_committed_and_hashed(tmp_path):
+    import hashlib
+    import subprocess
+
+    repo = tmp_path / "r"
+    repo.mkdir()
+    git = lambda *a: subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t", *a], check=True, capture_output=True)  # noqa: E731
+    git("init", "-q")
+    log = repo / "exceptions.csv"
+    log.write_text("item_id,reviewed\nx,y\n")
+    sha = hashlib.sha256(log.read_bytes()).hexdigest()
+    ok = lambda p, h: sc.exception_log_verified(p, h, repo)[0]  # noqa: E731
+    assert not ok(None, None) and not ok(log, None)  # nothing given
+    assert not ok(log, sha)  # exists and hashes right, but git does not track it
+    git("add", "exceptions.csv")
+    assert not ok(log, sha)  # staged is not committed
+    git("commit", "-qm", "log")
+    assert ok(log, sha)
+    assert not ok(log, "0" * 64)  # wrong hash
+    log.write_text("changed\n")
+    assert not ok(log, hashlib.sha256(log.read_bytes()).hexdigest())  # an uncommitted edit
+    assert not ok(repo / "missing.csv", sha)

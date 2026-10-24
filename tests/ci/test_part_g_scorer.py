@@ -131,8 +131,10 @@ def test_pilot_report_counts_and_different_source():
         "d": [sc.Claim("ko_chance", "A", "25", T, line="ko_chance")],  # own line, not in the gate unit
     }
     r = sc.pilot_report(by_item, n_items=4, slots=10)
-    assert (r["scored_claims_gate_unit"], r["items_with_scored_claim"], r["items"]) == (2, 1, 4)
-    assert r["answer_names_different_source"] == 2 and r["unverifiable_share_overall"] == pytest.approx(2 / 4)
+    assert (r["scored_claims_gate_unit"], r["items_with_scored_claim"], r["items"]) == (3, 2, 4)  # the KO line is in the gate unit by default
+    off = sc.pilot_report(by_item, n_items=4, slots=10, gate_ko_chance=False)
+    assert (off["scored_claims_gate_unit"], off["items_with_scored_claim"]) == (2, 1)
+    assert r["answer_names_different_source"] == 2 and r["unverifiable_share_overall"] == pytest.approx(2 / 5)
     assert r["unverifiable_by_kind"]["teammates"] == {"unverifiable": 2, "typed": 2, "share": 1.0}
     assert r["unverifiable_by_kind"]["common_items"]["share"] == 0.0
 
