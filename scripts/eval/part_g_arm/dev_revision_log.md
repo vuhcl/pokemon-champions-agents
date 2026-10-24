@@ -142,3 +142,13 @@ What changed, and why:
 - **Extractor fix:** a trailing "as an ability" / "as one of its abilities" is trimmed from list-member names (`ability_024`); only that item's claims changed.
 - **Extended artifact scan (every FALSE or UNVERIFIABLE claim on halves P and T of dev3b):** one artifact, `damage_040`: the span "half of 186" produced a second `ko_needed` claim (93) for one statement ("at least 94 damage (half of 186)"); the arm stated 94, and 93 is the extractor's own halving. Not fixed.
 - **Item-level line:** added to the dev-only headline (`item_level`): items with at least one FALSE gated claim over items with at least one scored gated claim, same exact Clopper-Pearson table, per type; printed with the list-members and list-as-one lines under `--show-dev-headline` only.
+
+## Dedupe, half-of-N, comparison and the proportional timing sample (2026-10-23 night)
+
+- **Dedupe (Vu-approved):** `dedupe` now keys `nhko` "guaranteed 1HKO" and `ko_count` "16 of 16 rolls KO" onto the `guaranteed_ko` "yes" key and keeps the `guaranteed_ko` claim, in any order. "12 of 16", other partial counts, chance statements, "possible 1HKO" and a contradictory `guaranteed_ko` "no" are not collapsed. Commit `be71d8a`.
+- **half-of-N:** a "half of N" phrase takes the figure the arm stated in the same sentence ("at least 94 damage (half of 186)") and does not compute N/2; with no stated figure it yields the existing needed-damage claim (N/2). "needs half of 186 HP" no longer reads 186 as a stated damage figure.
+- **Old vs new over all 350 dev3b items (extractors at `1585728` vs `be71d8a`):** 27 items changed, all by the three causes below; no claim was added and nothing else was removed. 49 claims removed: half P 27 (13 `nhko`, 14 `ko_count`; 14 items), half T 22 (9 `nhko`, 12 `ko_count`, 1 `ko_needed`; 13 items).
+  - nhko "guaranteed 1HKO" folded into `guaranteed_ko` yes: 22 claims, 22 items (damage_001, 003, 004, 006, 007, 008, 009, 012, 013, 014, 021, 022, 025, 026, 028, 030, 035, 036, 038, 043, 048, 051).
+  - ko_count "16 of 16" folded into `guaranteed_ko` yes: 26 claims, 26 items (damage_001, 003, 004, 006, 007, 008, 009, 012, 013, 014, 015, 018, 021, 022, 025, 026, 028, 030, 035, 036, 038, 042, 043, 048, 051, 052).
+  - half-of-N: 1 claim, damage_040.
+- **Timing sample:** `timing_sample_T_proportional.json` (seed 20261028, 50 items from half T, proportional by claim type: ability 5, ability_form 2, damage 8, item 6, legality 5, move_static 5, speed 7, typing 6, usage 5, usage_showdown 1). It supersedes `timing_sample_T.json`. Rendered to `runs/timing_practice2/` (untracked) with the headline withheld; the practice CSV is not the audit log.
