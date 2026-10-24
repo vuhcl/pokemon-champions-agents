@@ -1,0 +1,14 @@
+Test set (10):
+
+- typing_024: Froslass-Mega | has_type Ice | T; Froslass-Mega | types | Ice, Ghost
+- ability_029: Chlorophyll | legal_on Avalugg | F; Avalugg | abilities | Own Tempo, Ice Body, Sturdy
+- ability_form_011: Garchomp-Mega | has_ability Sand Veil | F; Garchomp-Mega | ability | Sand Force
+- legality_026: Farigiraf | legal | T
+- speed_049: Corviknight | speed | 130; Armarouge | speed | 139; Corviknight | outspeeds Armarouge | F; margin | 9
+- damage_044: guaranteed_ko | F; range | 50-59; percent range | 27.7-32.7%; defender HP | 180; "lowest roll leaves 130 HP"
+- damage_040: guaranteed_ko | F; range | 84-100; percent range | 45.1-53.7%; defender HP | 186; KO threshold | 93 (arm false); rolls 84-92 | do not KO
+- usage_showdown_009: Chesnaught teammates and percents Rillaboom 32.41, Incineroar 25.55, Raichu-Mega-Y 21.08, Milotic 18.12, Wigglytuff 17.68 (three shifted vs tool)
+- move_static_019: Noble Roar | base_power | 0; | type | Normal; | category | Status
+- usage_018: Incineroar in-game items, five with percents; teammates, five, with "rank only" note ~
+
+(Written by Vu against the dev2 final_text, runs/dev2 answers.jsonl, commit 9bccbd27. Stored verbatim; not edited.)
