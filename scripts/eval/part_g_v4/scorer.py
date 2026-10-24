@@ -149,6 +149,8 @@ def gate_summary(claims: list[Claim], slots: int, floor: int = DESIGN_FLOOR, gat
         # Sensitivity only: the same headline without claims the extractor flagged copied_unchanged. It never decides pass or fail.
         "sensitivity_excluding_copied_unchanged": {"false": kf, "scored": kt + kf, "cp_upper_bound": cp_upper(kf, kt + kf), "decides_pass_fail": False,
                                                    "claims_excluded": len(gated) - len(kept)},
+        # Non-gating: implied plural abilities for a Mega form. In no denominator, headline, list-as-one, item-level line or per-type rate.
+        "ability_plural_line": {"count": len(by("ability_plural"))},
         "chance_nhko_unverifiable_line": {"count": len(by("chance_nhko_unverifiable")),
                                           "claims": [(c.subject, c.proposition, c.reason) for c in by("chance_nhko_unverifiable")]},
         "threshold_arith_unverifiable_line": {"count": len(by("threshold_arith_unverifiable")),
@@ -455,6 +457,8 @@ def pilot_report(by_item: dict[str, list[Claim]], n_items: int, slots: int, gate
         "unverifiable_share_overall": len(unver) / (len(unver) + len(scored)) if unver or scored else None,
         "unverifiable_by_kind": by_kind,
         "answer_names_different_source": sum(1 for c in every if c.reason == "different_source"),
+        "ability_plural_line": {"count": sum(1 for c in every if c.line == "ability_plural"),
+                                "ids": sorted(i for i, cs in by_item.items() if any(c.line == "ability_plural" for c in cs))},
     }
 
 

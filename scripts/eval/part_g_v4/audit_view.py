@@ -27,6 +27,8 @@ import scorer  # noqa: E402
 EXCEPTION_TYPES = ("missed_claim", "wrong_extraction", "wrong_verdict", "other")
 CSV_COLUMNS = ["item_id", "reviewed", "exception_type", "claim_text", "note"]
 COLORS = {"TRUE": "#cfe8cf", "FALSE": "#f4c7c3", "UNVERIFIABLE": "#fde9b6", "None": "#ddd"}
+NONGATING_LINES = {"ability_plural"}  # shown in their own labelled group; never in the gate
+NONGATING_COLOR = "#dfe3f0"
 
 # The CSV export logic lives in JavaScript (the page has no server). It is kept as pure functions in this string so a test can run them under node.
 EXPORT_JS = r"""
@@ -128,19 +130,30 @@ def highlight(text: str, claims) -> str:
         if lo < pos:
             continue
         out.append(html.escape(text[pos:lo]))
-        verdicts = {str(c.verdict.value if c.verdict else None) for c in claims if c.span == (lo, hi)}
-        colour = COLORS[sorted(verdicts)[0]] if len(verdicts) == 1 else "#e3d4f0"
+        here = [c for c in claims if c.span == (lo, hi)]
+        verdicts = {str(c.verdict.value if c.verdict else None) for c in here}
+        colour = NONGATING_COLOR if all(c.line in NONGATING_LINES for c in here) else COLORS[sorted(verdicts)[0]] if len(verdicts) == 1 else "#e3d4f0"
         out.append(f'<mark class="hl" style="background:{colour}" title="{html.escape(", ".join(sorted(verdicts)))}">{html.escape(text[lo:hi])}</mark>')
         pos = hi
     out.append(html.escape(text[pos:]))
     return "".join(out).replace("\n", "<br>")
 
 
-def render_item(item: dict, answer: dict, claims) -> str:
-    rows = "".join(
+def _rows(claims) -> str:
+    return "".join(
         f"<tr><td>{html.escape(c.kind)}</td><td>{html.escape(c.proposition)}</td><td style=\"background:{COLORS[str(c.verdict.value if c.verdict else None)]}\">"
         f"{c.verdict.value if c.verdict else 'no verdict'}</td><td>{html.escape(c.line)}</td><td>{'copied' if c.copied_unchanged else ''}</td><td>{html.escape(c.reason)}</td></tr>"
         for c in claims)
+
+
+def render_item(item: dict, answer: dict, claims) -> str:
+    gating = [c for c in claims if c.line not in NONGATING_LINES]
+    nongating = [c for c in claims if c.line in NONGATING_LINES]
+    rows = _rows(gating)
+    table = f'<table><tr><th>kind</th><th>claim</th><th>verdict</th><th>line</th><th>flag</th><th>reason</th></tr>{rows}</table>'
+    if nongating:
+        table += (f'<table class="nongating" style="margin-top:.4em;background:{NONGATING_COLOR}"><caption style="text-align:left"><b>Non-gating</b> (not in the gate: '
+                  f'implied plural abilities for a Mega form)</caption><tr><th>kind</th><th>claim</th><th>verdict</th><th>line</th><th>flag</th><th>reason</th></tr>{_rows(nongating)}</table>')
     tools = "".join(
         f"<details><summary>{html.escape(t['name'])} {html.escape(json.dumps(t['args'], ensure_ascii=False)[:90])}</summary>"
         f"<pre>{html.escape(json.dumps(t['result'], indent=1, ensure_ascii=False))}</pre></details>" for t in answer.get("tool_calls") or [])
@@ -150,7 +163,7 @@ def render_item(item: dict, answer: dict, claims) -> str:
             f'<div class="review" data-id="{html.escape(item["id"])}"><label><input type="checkbox" class="rev"> reviewed</label> '
             f'<button type="button" class="addex">add exception</button> <span class="picked" title="the last highlighted span clicked or text selected in this answer"></span>'
             f'<div class="exlist"></div></div>'
-            f'<table><tr><th>kind</th><th>claim</th><th>verdict</th><th>line</th><th>flag</th><th>reason</th></tr>{rows}</table>'
+            f'{table}'
             f'<details><summary>key values</summary><pre>{html.escape(keys)}</pre></details><h4>Tool output</h4>{tools}</section>')
 
 

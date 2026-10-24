@@ -373,3 +373,66 @@ def test_audit_page_has_the_input_controls_autosave_key_and_no_figure(tmp_path):
     low = page.lower()
     assert "false rate" not in low and "passes" not in low and "cp_upper" not in low and "headline figure" in low  # only the sentence saying none is shown
     assert page.count('<mark class="hl"') >= 2  # the highlight layout is unchanged and clickable
+
+
+# --- ability_plural (non-gating) -------------------------------------------------------------------
+
+def _mega(asked="Mold Breaker", form="Gyarados-Mega", key=("Mold Breaker",), has=True):
+    return item("ability_form", "has_ability", {"form": form, "form_id": form.lower().replace("-", ""), "asked_ability": asked, "form_abilities": list(key), "has_ability": has})
+
+
+def test_ability_plural_fires_for_a_mega_form_on_one_of_and_among_phrasing():
+    for text in ("Yes, Mold Breaker is one of Gyarados-Mega's abilities.",
+                 "Yes, Gyarados-Mega has Mold Breaker. Mold Breaker is one of the abilities Gyarados-Mega can have.",
+                 "Yes. Mold Breaker is among Gyarados-Mega's abilities.",
+                 "Yes. Mold Breaker is one of its possible abilities."):
+        cs = run(_mega(), text)
+        plural = [c for c in cs if c.kind == "ability_plural"]
+        assert len(plural) == 1 and plural[0].line == "ability_plural" and plural[0].verdict == F, text
+        assert text[plural[0].span[0]:plural[0].span[1]].lower().startswith(("one of", "among"))
+        assert any(c.kind == "has_ability" and c.verdict == T for c in cs)  # the has_ability claim is unaffected
+        assert not plural[0].copied_unchanged
+
+
+def test_ability_plural_does_not_fire_for_non_mega_subjects_or_other_phrasing():
+    scrafty = item("ability", "has_ability", {"species": "Scrafty", "asked_ability": "Intimidate", "has_ability": True, "abilities": ["Shed Skin", "Moxie", "Intimidate"]})
+    assert not [c for c in run(scrafty, "Yes, Intimidate is one of Scrafty's abilities.") if c.kind == "ability_plural"]
+    multi = _mega(key=("Mold Breaker", "Sheer Force"))  # a Mega form whose key lists two abilities is not a single-ability subject
+    assert not [c for c in run(multi, "Yes. Mold Breaker is one of Gyarados-Mega's abilities.") if c.kind == "ability_plural"]
+    for text in ("Yes, Gyarados-Mega has Mold Breaker.", "Yes. Gyarados-Mega's only ability is Mold Breaker.", "Yes. Gyarados-Mega can have Mold Breaker as an ability.",
+                 "No. It cannot have any other abilities."):
+        assert not [c for c in run(_mega(), text) if c.kind == "ability_plural"], text
+    assert len([c for c in run(_mega(), "Mold Breaker is one of the abilities it can have. Mold Breaker is among its abilities.") if c.kind == "ability_plural"]) == 1  # one claim per item
+
+
+def test_ability_plural_sits_outside_every_gate_denominator_and_line():
+    import scorer as scorer_mod
+
+    base = [sc.Claim("has_ability", "G", "True", T, ctype="ability_form")]
+    plural = sc.Claim("ability_plural", "G", "Mold Breaker among several abilities", F, line="ability_plural", ctype="ability_form")
+    by_item = {"ability_form_010": base + [plural], "ability_form_011": base}
+    without = {"ability_form_010": base, "ability_form_011": base}
+    g1, g0 = sc.gate_summary(base + [plural] + base, 2), sc.gate_summary(base + base, 2)
+    for key in ("false", "true", "scored", "cp_upper_bound", "false_rate_by_type", "unverifiable", "no_verdict"):
+        assert g1[key] == g0[key], key
+    assert g1["ability_plural_line"] == {"count": 1} and g0["ability_plural_line"] == {"count": 0}
+    assert sc.dev_headline(by_item, 2) == sc.dev_headline(without, 2)  # headline, list-as-one, item-level and per-type are identical
+    assert sc.item_level(by_item) == sc.item_level(without) and sc.list_as_one(by_item) == sc.list_as_one(without)
+    pr, p0 = sc.pilot_report(by_item, 2, 2), sc.pilot_report(without, 2, 2)
+    assert pr["ability_plural_line"] == {"count": 1, "ids": ["ability_form_010"]} and p0["ability_plural_line"] == {"count": 0, "ids": []}
+    for key in ("scored_claims_gate_unit", "items_with_scored_claim", "unverifiable_share_overall", "unverifiable_by_kind"):
+        assert pr[key] == p0[key] if key != "unverifiable_by_kind" else {k: v for k, v in pr[key].items() if k != "ability_plural"} == p0[key]
+
+
+def test_audit_view_shows_ability_plural_in_a_labelled_non_gating_group():
+    import audit_view as av
+
+    it = _mega()
+    it.update({"id": "ability_form_010", "prompt": "Does Gyarados-Mega have Mold Breaker?", "n_claims": 1})
+    ans = {"final_text": "Yes. Mold Breaker is one of Gyarados-Mega's abilities.", "tool_calls": []}
+    page = av.render_item(it, ans, run(it, ans["final_text"]))
+    assert 'class="nongating"' in page and "<b>Non-gating</b>" in page and page.count("ability_plural") >= 2
+    gating_table = page.split('<table class="nongating"')[0]
+    assert "ability_plural" not in gating_table.split("</table>")[0]  # not in the gating claims table
+    assert f'background:{av.NONGATING_COLOR}' in page.split('class="text"')[1].split("</div>")[0]  # its highlight uses the non-gating colour
+    assert 'class="nongating"' not in av.render_item(it, {"final_text": "Yes, Gyarados-Mega has Mold Breaker.", "tool_calls": []}, run(it, "Yes, Gyarados-Mega has Mold Breaker."))

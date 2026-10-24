@@ -161,6 +161,23 @@ def x_typing(it, a):
     return sc.dedupe(claims)
 
 
+_OWNER = r"(?:its|their|the|[A-Za-z][\w\-']*(?:\s[\w\-']+)?['\u2019]s)"
+_PLURAL_ABILITY = re.compile(rf"\b(?:one of|among)\s+{_OWNER}\s+(?:possible\s+|available\s+|legal\s+)?abilit(?:y|ies)\b", re.I)
+
+
+def _plural_ability_claims(text: str, subject: str, key_list: list[str], asked: str, ctype: str) -> list[Claim]:
+    """Non-gating: for a Mega-form subject (the key lists a single ability), a statement that the asked ability is "one of" or "among" its abilities
+    asserts several abilities. Kind ability_plural, on its own line; the has_ability claim is unaffected. Non-Mega subjects get no claim."""
+    if len(key_list) != 1 or not re.search(r"mega", subject, re.I):
+        return []
+    for s, off in sents_pos(text):
+        m = _PLURAL_ABILITY.search(s)
+        if m:
+            return [Claim("ability_plural", subject, f"{asked} among several abilities", Verdict.FALSE, line="ability_plural", ctype=ctype,
+                          span=(off + m.start(), off + m.end()))]
+    return []
+
+
 def x_ability(it, a):
     gt = it["claims"][0]["ground_truth"]
     key_list = gt.get("form_abilities") or gt["abilities"]
@@ -169,6 +186,7 @@ def x_ability(it, a):
     claims = [at(replace(sc.score_equal("has_ability", subj, polarity(text), gt["has_ability"]), ctype=it["claim_type"]), first_span(text))]
     extras = _list_claims(text, "ability_list_member", subj, key_list, it["claim_type"], skip_first=True)
     claims += [c for c in extras if sc.norm(c.proposition) != sc.norm(gt["asked_ability"]) or c.kind.endswith("_exact")]
+    claims += _plural_ability_claims(text, subj, key_list, gt["asked_ability"], it["claim_type"])
     return sc.dedupe(claims)
 
 
