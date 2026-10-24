@@ -444,6 +444,75 @@ def pilot_report(by_item: dict[str, list[Claim]], n_items: int, slots: int, gate
     }
 
 
+# --- gate-unit variants (non-gating, dev runs only) ---------------------------------------------
+
+# Kinds whose claims are the members of a set-valued answer (a list the answer gives): usage lists, ability lists, type lists.
+SET_VALUED_KINDS = {"common_items", "teammates", "ability_list_member", "type_list_member"}
+_HEADLINE_LINES = {"gate", "ko_chance"}  # the lines in the gate unit by default
+
+
+def list_as_one(by_item: dict[str, list[Claim]]) -> list[Claim]:
+    """The variant gate unit: every set-valued answer is one claim per item and kind. FALSE if any stated member is FALSE; TRUE if at least one
+    member is stated and none is FALSE; no verdict if no member is stated. Other claims in the gate unit stay individual. No verdict rule changes."""
+    out: list[Claim] = []
+    for iid, cs in by_item.items():
+        groups: dict[str, list[Claim]] = {}
+        for c in cs:
+            if c.line not in _HEADLINE_LINES:
+                continue
+            if c.kind in SET_VALUED_KINDS:
+                groups.setdefault(c.kind, []).append(c)
+            else:
+                out.append(c)
+        for kind, members in groups.items():
+            stated = [m for m in members if m.verdict in (Verdict.TRUE, Verdict.FALSE)]
+            verdict = None if not stated else (Verdict.FALSE if any(m.verdict == Verdict.FALSE for m in stated) else Verdict.TRUE)
+            out.append(Claim(f"set:{kind}", iid, f"{len(stated)} members", verdict, ctype=members[0].ctype,
+                             reason="" if verdict != Verdict.FALSE else "; ".join(m.proposition for m in stated if m.verdict == Verdict.FALSE)))
+    return out
+
+
+def _headline_line(claims: list[Claim], slots: int) -> dict[str, Any]:
+    true, false, _, _ = _counts([c for c in claims if c.line in _HEADLINE_LINES])
+    per_type: dict[str, dict[str, Any]] = {}
+    for ct in sorted({c.ctype for c in claims}):
+        t, f, *_ = _counts([c for c in claims if c.ctype == ct and c.line in _HEADLINE_LINES])
+        per_type[ct or "(untyped)"] = {"claims": t + f, "false": f, "false_rate": f / (t + f) if t + f else None}
+    n = true + false
+    return {"claims": n, "false": false, "cp_upper_bound": cp_upper(false, n), "passes_gate": n > 0 and cp_upper(false, n) <= GATE_RATE,
+            "min_claims_for_this_many_false": min_scored_for(false), "false_rate_by_type": per_type, "slots": slots}
+
+
+def dev_headline(by_item: dict[str, list[Claim]], slots: int) -> dict[str, Any]:
+    """Both headline units side by side with the same Clopper-Pearson table: list members as claims (the existing unit) and list-as-one."""
+    every = [c for cs in by_item.values() for c in cs]
+    return {"list_members_as_claims": _headline_line(every, slots), "list_as_one": _headline_line(list_as_one(by_item), slots),
+            "note": "dev-run only, non-gating; no verdict rule differs between the two lines"}
+
+
+def dev_headline_allowed(battery: Path, half: str | None, run_params: Path | None) -> tuple[bool, str]:
+    """--show-dev-headline is for dev runs on half P only: refused for a seed-0 battery, for any other half, and for a run without a run_params
+    record whose hash is intact. (The full run_params verify is for gate runs: it needs a clean tree, which a dev run does not have.)"""
+    import hashlib
+    try:
+        doc = json.loads(battery.read_text())
+    except (OSError, json.JSONDecodeError):
+        return False, f"cannot read the battery {battery}"
+    if doc.get("seed") == 0 or "part_g_v4/battery" in str(battery.resolve()):
+        return False, "refused: seed 0 is held out"
+    if half != "P":
+        return False, "refused: the dev headline is for half P only"
+    if run_params is None or not run_params.is_file():
+        return False, "refused: no run_params.json for this run"
+    rec = json.loads(run_params.read_text())
+    body = {k: v for k, v in rec.items() if k != "record_sha256"}
+    if rec.get("record_sha256") != hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest():
+        return False, "refused: the run_params record was edited after it was written"
+    if rec.get("schema") != "run_parameter_record_v1" or rec.get("allow_live") is not False or (rec.get("arm_config") or {}).get("allow_live") is not False:
+        return False, "refused: run_params does not describe an offline arm run"
+    return True, "ok"
+
+
 # --- exception-log gate ------------------------------------------------------------------------
 
 def exception_log_verified(path: Path | None, expected_sha256: str | None, repo: Path | None = None) -> tuple[bool, str]:
@@ -477,6 +546,8 @@ def main() -> int:
     ap.add_argument("--claims", type=Path, help="JSONL {id, claims:[[kind,subject,proposition,verdict|null,line,reason]]} instead of the extractors")
     ap.add_argument("--exception-log", type=Path, default=None, help="the committed audit exception log")
     ap.add_argument("--exception-log-sha256", default=None, help="its sha256, as recorded when it was committed")
+    ap.add_argument("--show-dev-headline", action="store_true", help="dev runs on half P only: print the list-members and list-as-one headlines (non-gating)")
+    ap.add_argument("--run-params", type=Path, default=None, help="the run's run_params.json (default: next to --answers)")
     ap.add_argument("--audit-size", type=int, default=None)
     ap.add_argument("--audit-seed", type=int, default=0)
     ap.add_argument("--gate-ko-chance", action=argparse.BooleanOptionalAction, default=True,
@@ -500,6 +571,11 @@ def main() -> int:
         import extractors
         by_item = {i: extractors.extract_item(items[i], a) for i, a in answers.items()}
     out: dict[str, Any] = {"pilot": pilot_report(by_item, len(items), slots, args.gate_ko_chance, args.gate_usage_pct)}
+    if args.show_dev_headline:
+        okd, whyd = dev_headline_allowed(args.battery, args.half, args.run_params or args.answers.parent / "run_params.json")
+        if not okd:
+            raise SystemExit(whyd)
+        out["dev_headline"] = dev_headline(by_item, slots)
     ok, why = exception_log_verified(args.exception_log, args.exception_log_sha256)
     if ok:
         out["gate"] = gate_summary([c for cs in by_item.values() for c in cs], slots, gate_ko_chance=args.gate_ko_chance, gate_usage_pct=args.gate_usage_pct)

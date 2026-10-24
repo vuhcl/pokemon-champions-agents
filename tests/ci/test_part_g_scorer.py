@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -299,3 +300,65 @@ def test_sensitivity_line_excludes_copied_unchanged_claims_and_never_decides():
     assert (sens["scored"], sens["false"], sens["claims_excluded"], sens["decides_pass_fail"]) == (1, 1, 149, False)
     assert sens["cp_upper_bound"] == 1.0 and s["scored"] == 150 and s["false"] == 1
     assert s["passes_gate"] is False  # the headline decides: 150 scored with 1 false
+
+
+def _mk(kind, prop, v, ctype="usage", line="gate"):
+    return sc.Claim(kind, "S", prop, v, line=line, ctype=ctype)
+
+
+def test_list_as_one_aggregation_on_synthetic_verdicts():
+    by_item = {
+        "u1": [_mk("teammates", f"m{i}", T) for i in range(5)] + [_mk("common_items", "a", T), _mk("common_items", "b", F)],
+        "u2": [_mk("teammates", "x", None), _mk("common_items", "y", U)],  # no member stated -> no verdict (and no claim counted)
+        "t1": [_mk("has_type", "True", T, "typing"), _mk("type_list_member", "Fire", T, "typing"), _mk("type_list_member", "Ice", T, "typing")],
+        "d1": [_mk("guaranteed_ko", "no", F, "damage"), _mk("ko_count", "4 of 16", T, "damage", line="ko_chance"), _mk("usage_pct_x", "p", F, "usage", line="usage_pct")],
+    }
+    one = sc.list_as_one(by_item)
+    by = {(c.ctype, c.kind, c.subject): c.verdict for c in one}
+    assert by[("usage", "set:teammates", "u1")] == T and by[("usage", "set:common_items", "u1")] == F  # any FALSE member makes the list FALSE
+    assert by[("usage", "set:teammates", "u2")] is None and by[("usage", "set:common_items", "u2")] is None
+    assert by[("typing", "set:type_list_member", "t1")] == T and ("typing", "has_type", "S") in by  # a non-set claim stays individual
+    assert by[("damage", "ko_count", "S")] == T and not any(c.line == "usage_pct" for c in one)  # the KO line stays in; the usage_pct line stays out
+    d = sc.dev_headline(by_item, slots=10)
+    assert d["list_members_as_claims"]["claims"] == 5 + 2 + 3 + 2 and d["list_members_as_claims"]["false"] == 1 + 1
+    assert d["list_as_one"]["claims"] == 6 and d["list_as_one"]["false"] == 2  # u1 teammates and items, t1 set, t1 has_type, d1 verdict and KO count
+    assert d["list_as_one"]["false_rate_by_type"]["usage"] == {"claims": 2, "false": 1, "false_rate": 0.5}
+    assert d["list_as_one"]["min_claims_for_this_many_false"] == 313 and d["list_members_as_claims"]["min_claims_for_this_many_false"] == 313  # the same CP table
+
+
+def test_list_as_one_leaves_every_verdict_rule_alone():
+    members = [_mk("teammates", f"m{i}", T) for i in range(4)] + [_mk("teammates", "bad", F)]
+    flat = [c.verdict for c in members]
+    sc.list_as_one({"i": members})
+    assert [c.verdict for c in members] == flat  # inputs are not modified
+    assert sc.list_as_one({"i": []}) == []
+
+
+def test_dev_headline_refusals(tmp_path):
+    import hashlib
+
+    def record(**over):
+        rec = {"schema": "run_parameter_record_v1", "allow_live": False, "arm_config": {"allow_live": False}, **over}
+        rec["record_sha256"] = hashlib.sha256(json.dumps({k: v for k, v in rec.items() if k != "record_sha256"}, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        return rec
+
+    bat = tmp_path / "dev.json"
+    bat.write_text(json.dumps({"seed": 1, "items": []}))
+    rp = tmp_path / "run_params.json"
+    rp.write_text(json.dumps(record()))
+    assert sc.dev_headline_allowed(bat, "P", rp) == (True, "ok")
+    assert "held out" in sc.dev_headline_allowed(_write(tmp_path / "s0.json", {"seed": 0, "items": []}), "P", rp)[1]
+    assert "half P only" in sc.dev_headline_allowed(bat, "T", rp)[1] and "half P only" in sc.dev_headline_allowed(bat, None, rp)[1]
+    assert "no run_params" in sc.dev_headline_allowed(bat, "P", None)[1] and "no run_params" in sc.dev_headline_allowed(bat, "P", tmp_path / "missing.json")[1]
+    tampered = json.loads(rp.read_text())
+    tampered["allow_live"] = True
+    rp.write_text(json.dumps(tampered))
+    assert "edited" in sc.dev_headline_allowed(bat, "P", rp)[1]
+    rp.write_text(json.dumps(record(allow_live=True)))
+    assert "offline arm run" in sc.dev_headline_allowed(bat, "P", rp)[1]
+    assert "held out" in sc.dev_headline_allowed(Path(sc.__file__).resolve().parent / "battery" / "claim_battery_v4.json", "P", rp)[1]
+
+
+def _write(path, doc):
+    path.write_text(json.dumps(doc))
+    return path
