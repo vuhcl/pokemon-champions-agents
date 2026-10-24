@@ -7,7 +7,7 @@
   "scripts/eval/part_g_arm/judge/extract_prompt.md": "3c510e80a9480457badc3487ffe8f8b32d0985a892f9eeadc2a191c6a9688bcd",
   "scripts/eval/part_g_arm/run_battery.py": "696d74461814e57aecb882cef8e018ddd1f36209ca2637024d70bf3777ad2083",
   "scripts/eval/part_g_arm/system_prompt.md": "4087d7db7c366eb91be41a22d19cabc096b691022613c48835f988320e628c99",
-  "scripts/eval/part_g_v4/audit_adjusted.py": "5eb8fdc862968d3aa983223030890d42d3a410430f7883c8abbd42712cff4436",
+  "scripts/eval/part_g_v4/audit_adjusted.py": "a6decdd1f7a58267d0bca4d698632e7470fdfeeaec9097dcdceffd6a6ff7a031",
   "scripts/eval/part_g_v4/audit_canaries.py": "343676b424fc83cfcbdebf49bf64773052bd3e67104cc800079bf3729b69374a",
   "scripts/eval/part_g_v4/audit_canary_check.py": "9bff7026886cfa429d92f780f0efa7e85c884829f476b6b298950cf2e7265b29",
   "scripts/eval/part_g_v4/audit_view.py": "864f5b64bfc42cdfc971f7c022740759300a8184f8d8d1beb82bdadffd49a4f1",
@@ -18,6 +18,6 @@
   "scripts/eval/part_g_v4/scorer.py": "193e091ff2425d1f8aeb6cfba20b0792eeeb64bf9cedcc9e2c2e2cdd7c3747ba",
   "scripts/eval/run_params.py": "9da88177a0946bb0ce0793faeded4bfe88e8de2b6a1ce5cccbd61cf4c67552c9"
  },
- "manifest_sha256": "fb3ae0789077612a220cea0240ba6702095a1579f0ec814f2867728bd0222e5a",
+ "manifest_sha256": "33422c4ebd58e59d2b69281b091947d4a2a2e497bdbf39dd08e34311861df771",
  "schema": "part_g_frozen_manifest_v1"
 }
