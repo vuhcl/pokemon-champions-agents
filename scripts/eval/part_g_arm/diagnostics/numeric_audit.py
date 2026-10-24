@@ -26,7 +26,7 @@ def check_damage(iid, r, res):
         low = s.lower(); hit = False
         def bad(msg): out.append((iid, msg, s[:170]))
         # roll counts
-        for m in re.finditer(rf'(?<!every )(?<!each )(\d+|\b(?:one|two|three|four|five|six|seven|eight|nine|ten|none|all)\b)\s*(?:out of|of)\s*(?:the\s*)?(?:\w+\s+)?(?:possible\s*)?(?:16)\b', low):
+        for m in re.finditer(rf'(?<!every )(?<!each )(?<!single )(\d+|\b(?:one|two|three|four|five|six|seven|eight|nine|ten|none|all)\b)\s*(?:out of|of)\s*(?:the\s*)?(?:\w+\s+)?(?:possible\s*)?(?:16)\b', low):
             n = int(m.group(1)) if m.group(1).isdigit() else W[m.group(1)]; hit = True
             if KO.search(s) and n != k and 'not' not in low[:m.start()][-20:] and not re.search(r'(?:do|would|will)\s*not|wouldn.t|not\b', low[m.end():m.end() + 40]):
                 bad(f'roll count {n} vs rolls_that_ko {k}')
@@ -36,11 +36,31 @@ def check_damage(iid, r, res):
         if re.search(r'\bnone of the (?:16 )?(?:damage )?rolls|\bno (?:damage )?rolls?\b', low) and KO.search(s):
             hit = True
             if k != 0: bad(f'"no roll KOs" vs rolls_that_ko {k}')
-        # KO thresholds
+        # KO thresholds: "rolls at or above X" uses the roll-list rule; "need/require/at least X damage", "X+" and "half of N HP" must equal the HP
+        gtk = K[iid]['claims'][0]['ground_truth']
         for m in re.finditer(rf'{NUM}\s*(?:or|and)\s*(?:higher|more|above|greater|up)|at least {NUM}|(?:need|needs|require|requires|threshold of|would need)[^.\d]{{0,30}}{NUM}|{NUM}\+', low):
             x = float([g for g in m.groups() if g][0]); hit = True
-            if KO.search(s) and not re.match(r'\s*-?\s*(?:hit|hko)', low[m.end():]) and x != hp and not re.search(r'\bhp|\bsp\b', low[m.end():m.end() + 6] or '') :
-                bad(f'KO threshold {x:g} vs defender_hp {hp}')
+            if not KO.search(s) or re.match(r'\s*-?\s*(?:hit|hko)', low[m.end():]): continue
+            if re.search(r'or\s*(?:higher|more|above|greater|up)', m.group(0)):
+                same = {r for r in gtk['rolls'] if r >= x} == {r for r in gtk['rolls'] if r >= hp}
+                if not same: bad(f'rolls at or above {x:g} are not the KO rolls (hp {hp})')
+            elif x != hp:
+                bad(f'KO needs {x:g} vs defender_hp {hp}')
+        for m in re.finditer(rf'half of {NUM}\s*(?:HP)?', low):
+            hit = True
+            if KO.search(s): bad(f'half of {m.group(1)} used as a KO threshold (KO needs the full HP {hp})')
+        # "N out of 10 rolls" and a chance to nHKO read as a single-hit KO share
+        for m in re.finditer(r'(\d+|\b(?:one|two|three|four|five|six|seven|eight|nine)\b)\s*out of\s*(?:the\s*)?(\d+)\s*(?:damage\s*)?rolls', low):
+            n = int(m.group(1)) if m.group(1).isdigit() else W[m.group(1)]; den = int(m.group(2)); hit = True
+            if den != 16 and abs(100 * n / den - 100 * k / 16) > 3.125: bad(f'"{n} out of {den} rolls" vs rolls_that_ko {k} of 16')
+        if re.search(rf'{NUM}\s*%\s*chance to \d+\s*hko', low) and re.search(r'(?:meaning|means|which means|so)\b[^.]{0,80}(?:single|one hit|in one|rolls?|of the time)', low):
+            hit = True
+            if k == 0 or not re.search(r'hko', low[low.find('meaning'):] if 'meaning' in low else ''): bad(f'chance to nHKO read as a single-hit KO share (rolls_that_ko {k})')
+        if re.search(r'\bonly some\b[^.]{0,40}rolls[^.]{0,40}(?:would|could|will)?\s*(?:KO|knock)', low, re.I) and k == 0:
+            hit = True; bad('"only some rolls KO" but rolls_that_ko is 0')
+        for m in re.finditer(rf'out of {NUM}\s*total HP', low):
+            hit = True
+            if int(float(m.group(1))) != hp: bad(f'"total HP {m.group(1)}" vs defender_hp {hp}')
         # comparisons
         for m in re.finditer(rf'{NUM}\)?\s*(?:damage\s*)?(?:is|are)?\s*(less|lower|smaller|below|greater|higher|more|above|exceeds?)(?: than)?\s*(?:the\s*)?(?:defender.s\s*|its\s*)?(?:full\s*|max\w*\s*)?(?:HP\s*)?\(?{NUM}', s, re.I):
             a, op, b = float(m.group(1)), m.group(2).lower(), float(m.group(3)); hit = True
