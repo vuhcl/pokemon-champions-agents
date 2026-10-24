@@ -65,3 +65,12 @@ What changed, and why:
 - **Tool:** new `check_species_ability(species, ability)` (returns the boolean, the species' ability list and the source label), described as the tool for "Does S have A?" and "Is A legal on S?". `get_abilities` is kept. `check_item_legal` keeps `legal_as_held_item` false for a name that is not in the snapshot (keys unchanged) and adds a note saying no item with that name exists and which tool to use if the name is an ability, move or species.
 - **Prompt** (`system_prompt.md`; `system_prompt_rev2.md` keeps revision 2): ability questions use `check_species_ability`; the number of the 16 rolls that KO is stated only from `rolls_that_ko`, with no KO thresholds or roll counts worked out from the roll list; usage percentages are quoted exactly as returned, row by row. sha256 (default config): `4087d7db7c366eb91be41a22d19cabc096b691022613c48835f988320e628c99`.
 - Any change to the prompt, tools or loop after dev3 needs a new decision.
+
+## Replay before dev3 (not a revision): chance-stating damage items
+
+- Items: damage_000 damage_002 damage_011 damage_016 damage_023 damage_029 damage_040 damage_045 (the dev2 answers that stated a chance), one run each at temperature 0 under the revision-3 prompt (hash `4087d7db7c366eb91be41a22d19cabc096b691022613c48835f988320e628c99`): V1 = default `calc_damage` result, V2 = same with `damage_rolls` left out (`damage_range`, `defender_hp`, `rolls_that_ko`, `guaranteed_ko` kept). Code at commit `c5991b6`; driver `diagnostics/replay_damage.py`.
+- Every yes/no answer matched the key in both variants (8 of 8), and every stated roll count matched `rolls_that_ko` except V1 `damage_011`.
+- False statements against the keys and tool results, read by hand:
+  - V1 (5 statements, 4 items): `damage_000` "those dealing 175-183" (175 does not KO HP 177); `damage_002` "the defender has 32 HP, less than half of its full HP" (HP is 217; 32 is SP); `damage_011` "168 or more damage" (HP is 167) and "6 of the 16 rolls reaching KO" (0 do); `damage_016` "lower damage rolls (142-165) would not be sufficient" (165 KOs HP 157).
+  - V2 (3 statements, 2 items): `damage_002` the same "32 HP" slip; `damage_040` "at least 94 damage (half of 186) to KO" and "the maximum damage roll is 100, which would KO" (HP is 186, `rolls_that_ko` 0).
+- V2 had fewer false statements than V1 on this 8-item set, so the "prefer V1 on a tie" rule does not apply. The set is in-sample (chosen for dev2 failures), single-run, and hand-read; nothing is adopted until Vu decides.
