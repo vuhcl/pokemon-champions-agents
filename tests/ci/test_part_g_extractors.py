@@ -166,7 +166,7 @@ def test_audit_view_highlights_spans_writes_the_csv_columns_and_prints_no_rate(t
                         capture_output=True, text=True)
     assert cp.returncode == 0 and "false rate" not in cp.stdout.lower()
     page = (tmp_path / "o/audit.html").read_text()
-    assert '<mark style="background:#cfe8cf"' in page and ">Yes, Aromatisse has Fairy typing.</mark>" in page  # the TRUE verdict colours the span
+    assert '<mark class="hl" style="background:#cfe8cf"' in page and ">Yes, Aromatisse has Fairy typing.</mark>" in page  # the TRUE verdict colours the span
     assert "<details><summary>get_typing" in page and "key values" in page and "false rate" not in page.lower()
     assert list(csv.reader((tmp_path / "o/audit.csv").open()))[0] == av.CSV_COLUMNS
     assert av.EXCEPTION_TYPES == ("missed_claim", "wrong_extraction", "wrong_verdict", "other")
@@ -302,3 +302,74 @@ def test_dedupe_equivalence_prefers_the_guaranteed_ko_claim_in_any_order():
         assert sc.dedupe(order) == [g]
     other = sc.Claim("ko_count", "A M D", "15 of 16 rolls KO", T, line="ko_chance", ctype="damage")
     assert len(sc.dedupe([g, n, other])) == 2 and len(sc.dedupe([n, k])) == 1  # without a guaranteed_ko claim the first equivalent one stands
+
+
+# --- audit view input controls -------------------------------------------------------------------
+
+def _node(js: str) -> str:
+    import shutil
+    import subprocess
+
+    if shutil.which("node") is None:
+        pytest.skip("node is not installed")
+    return subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout
+
+
+def test_audit_csv_export_logic_matches_python_csv_for_awkward_fields():
+    import csv
+    import io
+    import json
+
+    import audit_view as av
+
+    ids = ["a_1", "a_2", "a_3", "a_4", "a_5"]
+    state = {"reviewed": {"a_1": True, "a_2": True, "a_3": False, "a_5": True},
+             "exceptions": {"a_2": [{"type": "missed_claim", "claim": 'He said "Yes", then left', "note": "line one\nline two, with comma"},
+                                    {"type": "wrong_verdict", "claim": "Rillaboom 32.411%", "note": ""}],
+                            "a_3": [{"type": "other", "claim": "Pokémon ✓", "note": "unreviewed answer with an exception"}],
+                            "a_4": []}}
+    out = _node(av.EXPORT_JS + f"process.stdout.write(JSON.stringify(toCsv(buildRows({json.dumps(ids)}, {json.dumps(state)}))));")
+    got = json.loads(out)
+    rows = [["a_1", "y", "", "", ""],  # reviewed and clean: one row
+            ["a_2", "y", "missed_claim", 'He said "Yes", then left', "line one\nline two, with comma"],  # one row per exception
+            ["a_2", "y", "wrong_verdict", "Rillaboom 32.411%", ""],
+            ["a_3", "n", "other", "Pokémon ✓", "unreviewed answer with an exception"],  # an exception is exported even if the box is unchecked
+            ["a_5", "y", "", "", ""]]  # a_4 is not reviewed and has no exception: no row
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(av.CSV_COLUMNS)
+    w.writerows(rows)
+    assert got == buf.getvalue()  # byte-for-byte what Python's csv module writes (CRLF, RFC 4180 quoting)
+    parsed = list(csv.reader(io.StringIO(got, newline="")))
+    assert parsed[0] == av.CSV_COLUMNS and parsed[1:] == rows  # and it round-trips, newline inside a field included
+    empty = _node(av.EXPORT_JS + "process.stdout.write(JSON.stringify(toCsv(buildRows(['x'], {}))));")
+    assert json.loads(empty) == ",".join(av.CSV_COLUMNS) + "\r\n"  # nothing reviewed: header only
+
+
+def test_audit_page_has_the_input_controls_autosave_key_and_no_figure(tmp_path):
+    import hashlib
+    import json
+    import re
+    import subprocess
+
+    import audit_view as av
+
+    items = [{"id": f"typing_{n}", "claim_type": "typing", "prompt": "q", "n_claims": 1,
+              "claims": [{"kind": "has_type", "ground_truth": {"species": "A", "asked_type": "Fairy", "has_type": True, "types": ["Fairy"]}}]} for n in (1, 2)]
+    bat, ans, ids = tmp_path / "b.json", tmp_path / "a.jsonl", tmp_path / "ids.json"
+    bat.write_text(json.dumps({"items": items}))
+    ans.write_text("".join(json.dumps({"id": i["id"], "final_text": "Yes, A has Fairy typing. It is a Fairy type.", "tool_calls": []}) + "\n" for i in items))
+    ids.write_text(json.dumps({"ids": ["typing_1", "typing_2"]}))
+    cp = subprocess.run([sys.executable, str(Path(av.__file__)), "--answers", str(ans), "--battery", str(bat), "--out", str(tmp_path / "o"), "--ids-file", str(ids)],
+                        capture_output=True, text=True)
+    assert cp.returncode == 0
+    page = (tmp_path / "o/audit.html").read_text()
+    assert page.count('<input type="checkbox" class="rev">') == 2 and page.count('class="addex"') == 2 and page.count('class="exlist"') == 2
+    assert all(f'"{t}"' in page for t in av.EXCEPTION_TYPES) and 'id="exportcsv"' in page and 'id="clearall"' in page and "confirm(" in page  # Clear asks first
+    assert json.dumps(hashlib.sha256("typing_1\ntyping_2".encode()).hexdigest()) in page  # the autosave key is the sample id list's sha256
+    for m in re.finditer(r"localStorage\.(?:getItem|setItem)", page):  # every storage call sits inside a try block
+        assert "try {" in page[max(0, m.start() - 200):m.start()]
+    assert 'id="status"' in page and "'unsaved'" in page and "'saved'" in page
+    low = page.lower()
+    assert "false rate" not in low and "passes" not in low and "cp_upper" not in low and "headline figure" in low  # only the sentence saying none is shown
+    assert page.count('<mark class="hl"') >= 2  # the highlight layout is unchanged and clickable
