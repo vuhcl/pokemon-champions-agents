@@ -3,9 +3,9 @@
 
 extract_item(item, answer) -> list[Claim]: typed claims already scored by the scorer's rules. Built and tuned on dev half P only
 (dev_split.json); half T is untouched. Claims about facts the key does not hold are not extracted (they are not typed claims).
-Negation is resolved into the proposition, a hedge is a claim with no verdict, and every claim carries copied_unchanged: its value
-string is verbatim in the item's tool results and it states no relation (difference, comparison, count, threshold, verdict).
-The scorer reads that flag; it is computed here, from the transcript, never in the scorer.
+Negation is resolved into the proposition, a hedge is a claim with no verdict, and every claim carries copied_unchanged: the final_text contains
+the whole tool-result line that carries the claim (see copied_unchanged_lines.md). The scorer reads that flag; it is computed here, from the
+transcript, never in the scorer.
 """
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import copied_lines as cl  # noqa: E402
 import scorer as sc  # noqa: E402
 from scorer import Claim, Verdict  # noqa: E402
 
@@ -24,8 +25,6 @@ TYPES = "Normal Fire Water Electric Grass Ice Fighting Poison Ground Flying Psyc
 NUM = r"(\d+(?:\.\d+)?)"
 WORDNUM = {"zero": 0, "none": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
            "all": 16}
-RELATION_KINDS = {"guaranteed_ko", "ko_count", "ko_needed", "ko_threshold", "hp_arithmetic", "nhko", "outspeed", "faster", "speed_margin",
-                  "has_type", "has_ability", "item_legal", "species_legal"}  # verdicts, counts, thresholds, comparisons, differences
 
 
 def clean(t: str) -> str:
@@ -88,25 +87,10 @@ def polarity(text: str) -> bool | None:
 
 # --- copied_unchanged ---------------------------------------------------------------------------
 
-def _results_text(answer: dict[str, Any]) -> str:
-    return " ".join(json.dumps(c.get("result"), ensure_ascii=False) for c in answer.get("tool_calls") or [])
-
-
-def _verbatim(value: str, hay: str) -> bool:
-    return bool(value) and re.search(r"(?<![\w.])" + re.escape(value) + r"(?![\w.])", hay) is not None
-
-
-def flag(claims: list[Claim], answer: dict[str, Any], values: dict[tuple[str, str], list[str]] | None = None) -> list[Claim]:
-    """Set copied_unchanged: no relation, and every value string is verbatim in the item's tool results."""
-    hay = _results_text(answer)
-    out = []
-    for c in claims:
-        if c.kind in RELATION_KINDS or c.verdict is None:
-            out.append(c)
-            continue
-        vals = (values or {}).get((c.kind, c.proposition)) or [c.proposition.split("=")[-1]]
-        out.append(replace(c, copied_unchanged=all(_verbatim(v, hay) for v in vals)))
-    return out
+def flag(claims: list[Claim], answer: dict[str, Any]) -> list[Claim]:
+    """Set copied_unchanged per copied_unchanged_lines.md: the final_text contains the whole tool-result line that carries the claim."""
+    calls, text = answer.get("tool_calls") or [], answer.get("final_text") or ""
+    return [replace(c, copied_unchanged=cl.is_copied_unchanged(c.kind, c.proposition, c.line, calls, text)) if c.verdict is not None else c for c in claims]
 
 
 # --- shared pieces -----------------------------------------------------------------------------

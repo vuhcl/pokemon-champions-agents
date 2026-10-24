@@ -125,22 +125,20 @@ def test_usage_lists_percentages_ranks_and_other_source():
     assert b[("common_items", "Choice Scarf")] == T and b[("teammates_rank", "Sneasler=1")] == T and b[("teammates_rank", "Rillaboom=3")] == F
 
 
-def test_copied_unchanged_needs_verbatim_values_and_no_relation():
+def test_copied_unchanged_means_the_whole_carrier_line_is_in_the_final_text():
     calls = [{"name": "get_move_static", "result": {"base_power": 75, "category": "Physical", "type": "Fighting"}},
              {"name": "get_usage_items", "result": {"items": [{"name": "Choice Scarf", "pct": 48.9}, {"name": "Life Orb", "pct": 15.4}]}}]
     ms = run(item("move_static", "base_power", {"move": "Brick Break", "basePower": 75, "category": "Physical", "type": "Fighting"}),
              "Brick Break has a base power of 75 and is a Physical, Fighting-type move.", calls)
-    assert all(c.copied_unchanged for c in ms)
-    us = run(item("usage", "common_items", {"species": "H", "common_items": ["Choice Scarf", "Life Orb"], "teammates": [], "source": "in-game"}),
-             "Top 5 Held Items:\n1. Choice Scarf (48.9%)\n2. Life Orb (15.0%)", calls)
-    flags = {c.proposition: c.copied_unchanged for c in us}
-    assert flags["Choice Scarf=48.9"] is True and flags["Life Orb=15"] is False and flags["Choice Scarf"] is True  # 15.0 is not the tool's 15.4
-    spd = run(item("speed", "outspeed", SPD), "Yes, Ninetales-Alola outspeeds Sylveon. Ninetales-Alola has a Speed stat of 177.",
-              [{"name": "get_speed", "result": {"speed": 177}}])
-    flg = {(c.kind): c.copied_unchanged for c in spd}
-    assert flg["outspeed"] is False and flg["speed_stat"] is True  # a verdict is a relation; the stat is copied
+    flags = {c.kind: c.copied_unchanged for c in ms}
+    assert flags == {"category": True, "move_type": True, "base_power": False}  # category and type are string lines; base power is an integer
+    it = item("usage", "common_items", {"species": "H", "common_items": ["Choice Scarf", "Life Orb"], "teammates": [], "source": "in-game"})
+    verbatim = {c.proposition: c.copied_unchanged for c in run(it, "Top 5 Held Items:\n1. Choice Scarf (48.9%)\n2. Life Orb (15.4%)\nNote: choice scarf   48.9 is the top row.", calls)}
+    assert verbatim["Choice Scarf=48.9"] is True and verbatim["Life Orb=15.4"] is False  # the whole line "choice scarf 48.9" is in the text; "life orb 15.4" is not
+    spd = run(item("speed", "outspeed", SPD), "Yes, Ninetales-Alola outspeeds Sylveon. Ninetales-Alola has a Speed stat of 177.", [{"name": "get_speed", "result": {"speed": 177}}])
+    assert not any(c.copied_unchanged for c in spd)  # the stat is an integer field; the verdict has no value string
     dmg = run(item("damage", "guaranteed_ko", DMG), "No. Only 4 of the 16 rolls KO.", [{"name": "calc_damage", "result": {"rolls_that_ko": 4}}])
-    assert not any(c.copied_unchanged for c in dmg)  # counts and verdicts state a relation even when the number is in the result
+    assert not any(c.copied_unchanged for c in dmg)  # counts and verdicts are never carried by a line
 
 
 @pytest.mark.parametrize("text,kind", [("Yes, Aromatisse has Fairy typing. It is a Fairy type.", "typing"), ("No, Pinsir has Bug typing? no", "typing")])
