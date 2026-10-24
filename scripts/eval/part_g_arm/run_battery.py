@@ -118,6 +118,8 @@ def main() -> int:
     ap.add_argument("--ids", nargs="+", default=None)
     ap.add_argument("--run-params", type=Path, default=None)
     ap.add_argument("--registration-commit", default=None)
+    ap.add_argument("--damage-rolls", choices=("true", "false"), default="true",
+                    help="false leaves damage_rolls out of calc_damage results (recorded in run_params arm_config)")
     ap.add_argument("--fixed-now", default=None, help="RECOMMENDER_FIXED_NOW_UTC; unset is recorded as pending_at_run")
     args = ap.parse_args()
     seed0_gate(args.battery, args.run_params, args.registration_commit)
@@ -125,7 +127,7 @@ def main() -> int:
     from scripts.eval.part_g_arm.loop import ArmLoop  # after the gate: nothing heavy loads for a refusal
 
     fixed = args.fixed_now or os.environ.get("RECOMMENDER_FIXED_NOW_UTC")
-    cfg = dataclasses.replace(ArmConfig(), fixed_now_utc=fixed)
+    cfg = dataclasses.replace(ArmConfig(), fixed_now_utc=fixed, damage_rolls_in_result=args.damage_rolls == "true")
     items = json.loads(args.battery.read_text())["items"]
     if args.ids:
         items = [i for i in items if i["id"] in set(args.ids)]
