@@ -1,0 +1,38 @@
+{
+ "seed": 20261026,
+ "method": "per claim type in sorted order: random.Random(seed).sample(sorted half-P ids minus the 7 annotated items, 2)",
+ "source_run": "runs/dev3b",
+ "half": "P",
+ "excluded_annotated": [
+  "ability_005",
+  "ability_form_007",
+  "item_002",
+  "legality_005",
+  "move_static_028",
+  "usage_000",
+  "usage_showdown_005"
+ ],
+ "split_sha256": "a1c8bb7f16d7a451cf838b192d6e3e690cccdf3b3a3d918f5c2345a4bc92dba6",
+ "ids": [
+  "ability_004",
+  "ability_026",
+  "ability_form_005",
+  "ability_form_011",
+  "damage_030",
+  "damage_051",
+  "item_026",
+  "item_038",
+  "legality_001",
+  "legality_006",
+  "move_static_023",
+  "move_static_024",
+  "speed_011",
+  "speed_025",
+  "typing_041",
+  "typing_042",
+  "usage_013",
+  "usage_015",
+  "usage_showdown_003",
+  "usage_showdown_009"
+ ]
+}
