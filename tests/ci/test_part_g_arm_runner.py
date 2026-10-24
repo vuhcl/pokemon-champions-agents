@@ -170,3 +170,16 @@ def test_shipped_config_leaves_damage_rolls_out_of_the_result():
     assert ArmConfig().damage_rolls_in_result is False
     assert ArmLoop(ArmConfig(), llm=_Scripted([])).tools.include_damage_rolls is False  # builds its own tools from the config
     assert ArmLoop(ArmConfig(damage_rolls_in_result=True), llm=_Scripted([])).tools.include_damage_rolls is True
+
+
+def test_dev_split_is_frozen_disjoint_and_stratified():
+    import hashlib
+    from scripts.eval.part_g_arm import make_dev_split as ms
+
+    committed = (ROOT / "scripts/eval/part_g_arm/dev_split.json").read_text()
+    assert committed == json.dumps(ms.build(), indent=1, sort_keys=True) + "\n"  # a rebuild reproduces the committed file
+    d = json.loads(committed)
+    p, t = {i for v in d["P"].values() for i in v}, {i for v in d["T"].values() for i in v}
+    assert not (p & t) and len(p) + len(t) == 350 and d["counts"] == {"P": len(p), "T": len(t)}
+    assert all(abs(len(d["P"][k]) - len(d["T"][k])) <= 1 for k in d["P"])
+    assert hashlib.sha256(ms.BATTERY.read_bytes()).hexdigest() == d["battery_sha256"]
