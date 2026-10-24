@@ -210,3 +210,46 @@ def test_audit_view_takes_a_committed_id_list_and_refuses_ids_outside_the_answer
     assert run(ids).returncode == 0 and (tmp_path / "o/audit.html").read_text().count("<section") == 1
     ids.write_text(json.dumps({"ids": ["typing_nope"]}))
     assert run(ids).returncode != 0
+
+
+def test_ability_list_leads_has_n_abilities_and_along_with_parenthetical():
+    gt = {"species": "Pikachu", "asked_ability": "Static", "has_ability": True, "abilities": ["Static", "Lightning Rod", "Surge Surfer"]}
+    it = item("ability", "has_ability", gt)
+    b = by(run(it, "Yes, Pikachu has Static. According to the data, Pikachu has three abilities: Static, Lightning Rod and Levitate."))
+    assert b[("ability_list_member", "Lightning Rod")] == T and b[("ability_list_member", "Levitate")] == F
+    two = by(run(item("ability", "has_ability", {"species": "Eevee", "asked_ability": "Run Away", "has_ability": True, "abilities": ["Run Away", "Adaptability", "Anticipation"]}),
+                 "Yes, Eevee has Run Away. According to the data, Eevee can have Run Away as one of its abilities (along with Adaptability and Anticipation)."))
+    assert two[("ability_list_member", "Adaptability")] == T and two[("ability_list_member", "Anticipation")] == T
+    assert not any(k[1].lower().startswith("along") for k in two)  # the connective is not part of a name
+    mixed = by(run(item("ability", "has_ability", {"species": "Eevee", "asked_ability": "Run Away", "has_ability": True, "abilities": ["Run Away", "Adaptability"]}),
+                   "Yes, Eevee has Run Away. Eevee can have Run Away (plus Adaptability and Guts)."))
+    assert mixed[("ability_list_member", "Guts")] == F and mixed[("ability_list_member", "Adaptability")] == T
+
+
+DMG2 = {"attacker": "A", "defender": "D", "move": "M", "hp": 182, "min_roll": 186, "max_roll": 218, "guaranteed_ko": True, "rolls_ko_of_16": 16,
+        "rolls": [186] * 16, "scoring": {"chance_tolerance_points": 3.125}}
+
+
+def test_ohko_and_digit_hko_forms_and_hp_in_parentheses():
+    it = item("damage", "guaranteed_ko", DMG2)
+    b = by(run(it, "Yes. It is a guaranteed OHKO against a target with full HP (182)."))
+    assert b[("nhko", "guaranteed 1HKO")] == T and b[("labelled_value", "hp=182")] == T
+    wrong = by(run(it, "Yes. It is a possible 2HKO and a guaranteed 3hko. The defender's HP (150) is low."))
+    assert wrong[("nhko", "possible 2HKO")] == F and wrong[("nhko", "guaranteed 3HKO")] == F and wrong[("labelled_value", "hp=150")] == F
+    low = item("damage", "guaranteed_ko", {**DMG2, "min_roll": 100, "max_roll": 190, "guaranteed_ko": False, "rolls_ko_of_16": 3})
+    assert by(run(low, "No. It is a possible OHKO."))[("nhko", "possible 1HKO")] == T  # max roll 190 >= HP 182
+    assert by(run(low, "No. It is a guaranteed OHKO."))[("nhko", "guaranteed 1HKO")] == F  # min roll 100 < HP 182
+
+
+def test_label_lines_are_not_list_entries_but_real_entries_are():
+    gt = {"species": "S", "common_items": ["Leftovers"], "teammates": ["Rillaboom", "Garchomp"], "source": "in-game"}
+    it = item("usage", "teammates", gt)
+    txt = ("Top 5 teammates:\n1. Rillaboom (rank 1)\n2. Garchomp (rank 2)\n\n"
+           "Note: the teammate list carries rank only, without percentages.\nCaveat: attribution may be ambiguous for some rows.\n"
+           "Source: in-game usage ladder\nSummary - these are the most common partners\nWarning:")
+    b = by(run(it, txt))
+    assert b[("teammates", "Rillaboom")] == T and b[("teammates", "Garchomp")] == T
+    assert not any(k[1].startswith(("Note", "Caveat", "Source", "Summary", "Warning")) for k in b)  # no claim from a label line
+    assert [k for k in b if k[0] == "teammates"] == [("teammates", "Rillaboom"), ("teammates", "Garchomp")]
+    unmarked = by(run(it, "Teammates:\nRillaboom: 31.5%\nSomeone Else: 12.0%"))  # short "Name: value" lines are entries
+    assert unmarked[("teammates", "Someone Else")] == F  # a real list entry that is not in the key still scores FALSE

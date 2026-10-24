@@ -99,13 +99,13 @@ def _names_in(phrase: str) -> list[str]:
     phrase = re.sub(r"\((?:or|also)?\s*([^)]*?)(?:\s+for [^)]*)?\)", r", \1", phrase)
     out = []
     for part in re.split(r",|\band\b|\bor\b|/|;", phrase):
-        name = re.sub(r"^(?:the|a|an|its|three|two|only|also|either|abilities|ability)\s+", "", part.strip(" .:'\"\u2019"), flags=re.I).strip()
+        name = re.sub(r"^(?:the|a|an|its|three|two|only|also|either|abilities|ability|along with|together with|as well as|plus|including)\s+", "", part.strip(" .:'\"\u2019"), flags=re.I).strip()
         if name and re.match(r"^[A-Z][\w'\u2019\-]*(?:\s+[A-Za-z][\w'\u2019\-]*){0,3}$", name):
             out.append(name)
     return out
 
 
-_LIST_LEAD = (r"(?:abilities (?:are|include)|abilit(?:y|ies) (?:is|are)|its only abilit(?:y|ies) (?:is|are)|can have|has the abilit(?:y|ies)|"
+_LIST_LEAD = (r"(?:abilities (?:are|include)|has (?:\d+|one|two|three|four|five|six|seven|eight) abilit(?:y|ies)|abilit(?:y|ies) (?:is|are)|its only abilit(?:y|ies) (?:is|are)|can have|has the abilit(?:y|ies)|"
               r"one of its abilities|(?:full )?typing is|(?:is|are) (?:a |an )?(?:dual[- ]typed? )?(?:pok\u00e9mon )?(?:of )?)")
 
 
@@ -304,6 +304,8 @@ def x_damage(it, a):
         v = m.group(1) or m.group(2)
         if float(v) >= 100:
             claims.append(at_m(sc.score_labelled(gt, "hp", float(v)), m))
+    for m in re.finditer(r"\bHP\s*\(\s*(\d+)\s*\)", text, re.I):
+        claims.append(at_m(sc.score_labelled(gt, "hp", float(m.group(1))), m))
     for m in re.finditer(rf"out of {NUM}\s*total HP", text, re.I):
         claims.append(at_m(sc.score_labelled(gt, "hp", float(m.group(1))), m))
     for m in re.finditer(rf"(?:needs?|requires?|would need|would require|at least)[^.\d]{{0,30}}?{NUM}\s*(?:or more\s*)?(?:damage|HP)?", low):
@@ -326,8 +328,8 @@ def x_damage(it, a):
     for m in re.finditer(rf"{NUM}\s*%?\s*(?:-|to|and)\s*{NUM}\s*%", text):
         if re.search(r"hp|health", text[m.end():m.end() + 40], re.I) or re.search(r"which is|corresponds|between|deals|\(\s*$", text[max(0, m.start() - 40):m.start()], re.I):
             claims.append(at_m(sc.score_percent_of_hp(gt, float(m.group(1)), float(m.group(2))), m))
-    for m in re.finditer(r"(guaranteed|possible)\s*(\d+)\s*-?\s*hko", low):
-        claims.append(at_m(sc.score_nhko(gt, m.group(1), int(m.group(2))), m))
+    for m in re.finditer(r"(guaranteed|possible)\s*(\d+|o)\s*-?\s*hko", low):  # OHKO is n = 1
+        claims.append(at_m(sc.score_nhko(gt, m.group(1), 1 if m.group(2) == "o" else int(m.group(2))), m))
     for m in re.finditer(rf"{NUM}\s*%\s*chance to\s*(\d+)\s*-?\s*hko", low):
         if int(m.group(2)) > 1:
             claims.append(at_m(sc.score_chance_nhko(gt, float(m.group(1)), int(m.group(2))), m))
@@ -359,12 +361,25 @@ def _sections(text: str) -> dict[str, list[tuple[str, int]]]:
     return out
 
 
+_LABEL = re.compile(r"\s*(?:note|notes|caveat|caveats|warning|tip|source|sources|disclaimer|remark|reminder|important|summary|conclusion|answer|result|results|explanation|legend|key)\b", re.I)
+
+
+def _is_label_line(line: str) -> bool:
+    """A label, heading or note line is never a list entry: a leading label word, or an unmarked line "Head: <text>" whose text is empty or runs on."""
+    if _LABEL.match(line):
+        return True
+    if re.match(r"\s*(?:\d+\.|[-\u2022*])", line):
+        return False
+    _, sep, rest = line.partition(":")
+    return bool(sep) and (not rest.strip() or len(rest.split()) >= 4)
+
+
 def _entry_names(lines: list[tuple[str, int]]) -> list[tuple[str, float | None, int | None, tuple[int, int]]]:
     """(name, percent, asserted rank, span) from list lines such as "1. Choice Scarf (48.9%)" or "Farigiraf (rank 1)"."""
     out = []
     for line, off in lines:
         m = re.match(rf"\s*(?:\d+\.|[-\u2022*])?\s*([A-Z][\w'\u2019\-\. ]*?[\w\)])\s*(?:\s[-\u2013:]\s|\(|:|$)", line)
-        if not m or re.match(r"\s*(?:top|here|these|based|the)\b", line, re.I):
+        if not m or re.match(r"\s*(?:top|here|these|based|the)\b", line, re.I) or _is_label_line(line):
             continue
         pct = re.search(rf"{NUM}\s*%", line)
         rank = re.search(r"\brank\s*(\d+)\b", line, re.I)
