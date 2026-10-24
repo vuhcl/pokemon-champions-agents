@@ -148,3 +148,24 @@ def test_no_lookup_needed_records_reason_and_category(tools):
     r = tools.call("no_lookup_needed", {"reason": "asks about strategy", "category": "conceptual"})
     assert r["status"] == "ok" and r["recorded"] and r["category"] == "conceptual" and r["reason"] == "asks about strategy"
     assert tools.call("no_lookup_needed", {"reason": "x", "category": "other"})["error_kind"] == "bad_arguments"
+
+
+def test_check_species_ability(tools):
+    r = tools.call("check_species_ability", {"species": "Dragapult", "ability": "Clear Body"})
+    assert r["status"] == "ok" and r["species_can_have_ability"] is True
+    assert r["species_abilities"] == ["Clear Body", "Infiltrator", "Cursed Body"] and r["source"].startswith("legality snapshot")
+    assert tools.call("check_species_ability", {"species": "Dragapult", "ability": "clear body"})["species_can_have_ability"] is True
+    assert tools.call("check_species_ability", {"species": "Dragapult", "ability": "Libero"})["species_can_have_ability"] is False
+    assert tools.call("check_species_ability", {"species": "Gardevoir-Mega", "ability": "Pixilate"})["species_abilities"] == ["Pixilate"]
+    assert tools.call("check_species_ability", {"species": "Notamon", "ability": "Static"})["status"] == "not_found"
+    assert json.loads(dumps(r)) == r  # serializer: plain JSON with sorted keys survives a round trip
+    assert dumps(r) == json.dumps(r, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    assert tools.call("get_abilities", {"species": "Dragapult"})["abilities"] == r["species_abilities"]  # get_abilities is kept
+
+
+def test_unknown_item_name_notes_where_to_look_but_stays_illegal(tools):
+    r = tools.check_item_legal("Weak Armor")
+    assert r["in_snapshot"] is False and r["legal_as_held_item"] is False
+    assert "use the matching tool" in r["note"] and "check_species_ability" in r["note"]
+    known = tools.check_item_legal("Heat Rock")
+    assert known["in_snapshot"] is True and "note" not in known

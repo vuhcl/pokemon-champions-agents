@@ -79,6 +79,14 @@ class ArmTools:
             return {"status": "not_found", "query": species, "source": LEGALITY_SOURCE}
         return {"status": "ok", "species": self.snap["species"][to_id(species)]["name"], "abilities": abilities, "source": LEGALITY_SOURCE}
 
+    def check_species_ability(self, species: str, ability: str) -> dict[str, Any]:
+        abilities = legality.species_abilities(self.snap, species)
+        if abilities is None:
+            return {"status": "not_found", "query": species, "source": LEGALITY_SOURCE}
+        return {"status": "ok", "species": self.snap["species"][to_id(species)]["name"], "ability": ability,
+                "species_can_have_ability": legality.species_can_have_ability(self.snap, species, ability),
+                "species_abilities": abilities, "source": LEGALITY_SOURCE}
+
     def check_species_legal(self, species: str) -> dict[str, Any]:
         known = to_id(species) in self.snap["species"]
         return {"status": "ok", "query": species, "in_snapshot": known,
@@ -86,8 +94,12 @@ class ArmTools:
 
     def check_item_legal(self, item: str) -> dict[str, Any]:
         known = to_id(item) in self.snap["items"]
-        return {"status": "ok", "query": item, "in_snapshot": known, "legal_as_held_item": legality.is_item_legal(self.snap, item),
-                "source": LEGALITY_SOURCE}
+        out = {"status": "ok", "query": item, "in_snapshot": known, "legal_as_held_item": legality.is_item_legal(self.snap, item),
+               "source": LEGALITY_SOURCE}
+        if not known:
+            out["note"] = ("no item with this name exists in the snapshot; if the name is an ability, move or species, "
+                           "use the matching tool (check_species_ability, get_move_static, check_species_legal)")
+        return out
 
     def get_move_static(self, move: str) -> dict[str, Any]:
         m = (self.snap.get("moves") or {}).get(to_id(move))
@@ -223,6 +235,8 @@ TOOL_SPECS: list[dict[str, Any]] = [
           reason=dict(_S), category={"type": "string", "enum": list(NO_LOOKUP_CATEGORIES)}),
     _spec("get_typing", "Types of a species or form id (e.g. 'Glalie-Mega').", species=dict(_S)),
     _spec("get_abilities", "Abilities of a species or form id; a Mega form lists its single ability.", species=dict(_S)),
+    _spec("check_species_ability", "Whether a species or form id can have an ability, with the species' full ability list. Use it for "
+          "\"Does S have A?\" and \"Is A legal on S?\".", species=dict(_S), ability=dict(_S)),
     _spec("check_species_legal", "Whether a species or form id is legal in Champions VGC.", species=dict(_S)),
     _spec("check_item_legal", "Whether an item is legal as a held item in Champions VGC.", item=dict(_S)),
     _spec("get_move_static", "Type, category and base power of a move.", move=dict(_S)),
