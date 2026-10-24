@@ -164,3 +164,9 @@ def test_prompt_text_drops_the_stub_line_when_the_tool_is_off(tmp_path, monkeypa
     off = ArmConfig(prompt_file="p.md", no_lookup_tool=False, enforce_first_turn_tool=False)
     assert "no_lookup_needed" in on.prompt_text() and off.prompt_text() == "- a\n- b\n"
     assert on.prompt_hash() != off.prompt_hash()
+
+
+def test_shipped_config_leaves_damage_rolls_out_of_the_result():
+    assert ArmConfig().damage_rolls_in_result is False
+    assert ArmLoop(ArmConfig(), llm=_Scripted([])).tools.include_damage_rolls is False  # builds its own tools from the config
+    assert ArmLoop(ArmConfig(damage_rolls_in_result=True), llm=_Scripted([])).tools.include_damage_rolls is True

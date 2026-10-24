@@ -29,7 +29,7 @@ class ArmConfig:
     calc_base_url: str = "http://127.0.0.1:4173"
     prompt_file: str = "system_prompt.md"  # a file next to this module
     no_lookup_tool: bool = True  # bind no_lookup_needed (and keep the prompt's line about it)
-    damage_rolls_in_result: bool = True  # False drops damage_rolls from calc_damage results (replay variant)
+    damage_rolls_in_result: bool = False  # shipped config (dev3 decision, V2): calc_damage results do not carry the roll list
     enforce_first_turn_tool: bool = True  # a first turn without a tool call is rejected once and re-asked
 
     def __post_init__(self) -> None:
