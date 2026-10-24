@@ -85,12 +85,26 @@ class Claim:
     copied_unchanged: bool = False  # set by the extractor: the value string is verbatim in the item's tool results and states no relation
 
 
+# Logically equivalent claims about one fact (guaranteed KO): "guaranteed 1HKO" and "16 of 16 rolls KO" say what guaranteed_ko "yes" says, and their
+# verdicts are identical (every roll reaches the HP). Counts like "12 of 16", partial counts and chance statements are not equivalent.
+_EQUIVALENT_TO_GUARANTEED_KO_YES = {("nhko", "guaranteed1hko"), ("ko_count", "16of16rollsko")}  # as norm() writes them
+
+
+def _claim_key(c: "Claim") -> tuple[str, str, str]:
+    if (c.kind, norm(c.proposition)) in _EQUIVALENT_TO_GUARANTEED_KO_YES:
+        return ("guaranteed_ko", norm(c.subject), "yes")
+    return (c.kind, norm(c.subject), norm(c.proposition))
+
+
 def dedupe(claims: list[Claim]) -> list[Claim]:
-    """One claim per distinct (kind, subject, proposition) per item; negation is already resolved by the extractor
-    into the proposition (a bool or a value), and a hedge is a claim with verdict None."""
+    """One claim per distinct (kind, subject, proposition) per item; negation is already resolved by the extractor into the proposition (a bool or
+    a value), and a hedge is a claim with verdict None. Claims equivalent to guaranteed_ko "yes" collapse onto it, and the guaranteed_ko claim is the
+    one kept."""
     seen: dict[tuple[str, str, str], Claim] = {}
     for c in claims:
-        seen.setdefault((c.kind, norm(c.subject), norm(c.proposition)), c)
+        k = _claim_key(c)
+        if k not in seen or (c.kind == k[0] and seen[k].kind != k[0]):
+            seen[k] = c
     return list(seen.values())
 
 

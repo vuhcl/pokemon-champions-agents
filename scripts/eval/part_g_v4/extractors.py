@@ -309,14 +309,22 @@ def x_damage(it, a):
         claims.append(at_m(sc.score_labelled(gt, "hp", float(m.group(1))), m))
     for m in re.finditer(rf"out of {NUM}\s*total HP", text, re.I):
         claims.append(at_m(sc.score_labelled(gt, "hp", float(m.group(1))), m))
+    stated_need_at: list[int] = []  # where the arm itself stated a damage-needed figure
     for m in re.finditer(rf"(?:needs?|requires?|would need|would require|at least)[^.\d]{{0,30}}?{NUM}\s*(?:or more\s*)?(?:damage|HP)?", low):
+        if low[:m.start(1)].rstrip().endswith("half of"):
+            continue  # "needs half of 186 HP": 186 is the HP, not a damage figure the arm stated (the half-of rule below handles it)
         if re.search(r"\b(?:ko|knock)", low[max(0, m.start() - 80):m.end() + 60]) and not re.match(r"\s*(?:hit|hko)", low[m.end(1):m.end(1) + 6]):
             claims.append(at_m(sc.score_ko_needed(gt, float(m.group(1))), m))
+            stated_need_at.append(m.start())
     for m in re.finditer(rf"{NUM}\s*(?:or|and)\s*(?:higher|more|above|greater)", low):
         if re.search(r"\b(?:ko|knock)", low[max(0, m.start() - 80):m.end() + 60]):
             claims.append(at_m(sc.score_ko_threshold(gt, float(m.group(1))), m))
+    spans = [(off, off + len(sen)) for sen, off in sents_pos(text)]
+    same_sentence = lambda a, b: any(lo <= a < hi and lo <= b < hi for lo, hi in spans)  # noqa: E731
     for m in re.finditer(rf"half of {NUM}\s*(?:HP)?", low):
-        claims.append(at_m(sc.score_ko_needed(gt, float(m.group(1)) / 2), m))
+        if any(same_sentence(m.start(), at) for at in stated_need_at):
+            continue  # the arm stated its own figure ("at least 94 damage (half of 186)"); the extractor does not compute N/2 for it
+        claims.append(at_m(sc.score_ko_needed(gt, float(m.group(1)) / 2), m))  # no stated figure: "half of N HP" is itself the needed-damage claim
     for m in re.finditer(rf"(maximum|max|highest|minimum|min|lowest)\s*(?:damage|roll)?\s*(?:roll\s*)?\(?\s*{NUM}\)?\s*(?:is|are)?\s*(less|lower|greater|higher|more|above|below|exceeds?)(?: than)?\s*(?:the\s*)?(?:defender.s\s*)?(?:full\s*)?(?:HP\s*)?\(?{NUM}", text, re.I):
         lab = "max_roll" if m.group(1).lower() in ("maximum", "max", "highest") else "min_roll"
         op = "<" if m.group(3).lower() in ("less", "lower", "below") else ">"

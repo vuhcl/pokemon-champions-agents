@@ -97,7 +97,8 @@ def test_damage_counts_percent_thresholds_and_labelled_values():
     assert bad[("labelled_value", "hp=32")] == F and bad[("ko_needed", "damage needed to KO = 197")] == F
     assert bad[("ko_count", "1 of 16 rolls KO")] == F and bad[("ko_count", "6 of 10 rolls KO")] == F
     assert any(k[0] == "hp_arithmetic" and v == F for k, v in bad.items())
-    assert by(run(it, "Yes, every one of the 16 rolls knocks the defender out."))[("ko_count", "16 of 16 rolls KO")] == F  # and the verdict is wrong too
+    every = by(run(it, "Yes, every one of the 16 rolls knocks the defender out."))
+    assert every == {("guaranteed_ko", "yes"): F}  # "16 of 16" collapses onto the guaranteed_ko claim, which is wrong against this key
 
 
 def test_damage_nhko_statements():
@@ -233,7 +234,7 @@ DMG2 = {"attacker": "A", "defender": "D", "move": "M", "hp": 182, "min_roll": 18
 def test_ohko_and_digit_hko_forms_and_hp_in_parentheses():
     it = item("damage", "guaranteed_ko", DMG2)
     b = by(run(it, "Yes. It is a guaranteed OHKO against a target with full HP (182)."))
-    assert b[("nhko", "guaranteed 1HKO")] == T and b[("labelled_value", "hp=182")] == T
+    assert b[("guaranteed_ko", "yes")] == T and ("nhko", "guaranteed 1HKO") not in b and b[("labelled_value", "hp=182")] == T  # OHKO collapses onto "yes"
     wrong = by(run(it, "Yes. It is a possible 2HKO and a guaranteed 3hko. The defender's HP (150) is low."))
     assert wrong[("nhko", "possible 2HKO")] == F and wrong[("nhko", "guaranteed 3HKO")] == F and wrong[("labelled_value", "hp=150")] == F
     low = item("damage", "guaranteed_ko", {**DMG2, "min_roll": 100, "max_roll": 190, "guaranteed_ko": False, "rolls_ko_of_16": 3})
@@ -264,3 +265,40 @@ def test_trailing_as_an_ability_is_not_part_of_a_list_member_name():
     only = by(run(item("ability", "has_ability", {"species": "X", "asked_ability": "Static", "has_ability": False, "abilities": ["Keen Eye"]}),
                   "No, X does not have Static. According to the data, X can have Keen Eye as its ability."))
     assert only[("ability_list_member", "Keen Eye")] == T  # "as its ability" is trimmed too
+
+
+GK = {"attacker": "A", "defender": "D", "move": "M", "hp": 186, "min_roll": 84, "max_roll": 100, "guaranteed_ko": False, "rolls_ko_of_16": 0,
+      "rolls": [84] * 15 + [100], "scoring": {"chance_tolerance_points": 3.125}}
+
+
+def test_half_of_n_uses_the_figure_the_arm_stated_and_never_halves_it_itself():
+    it = item("damage", "guaranteed_ko", GK)
+    stated = [(k, v) for k, v in by(run(it, "No. Since the defender has 186 HP, the move would need to deal at least 94 damage (half of 186) to KO it.")).items() if k[0] == "ko_needed"]
+    assert stated == [(("ko_needed", "damage needed to KO = 94"), F)]  # one claim, the arm's 94; no 93
+    bare = [(k, v) for k, v in by(run(it, "No. A KO needs half of 186 HP.")).items() if k[0] == "ko_needed"]
+    assert bare == [(("ko_needed", "damage needed to KO = 93"), F)]  # no stated figure: the half-of-HP claim itself
+    split = by(run(it, "No. The move would need at least 186 damage to KO. Separately, half of 186 is a common benchmark; a KO needs half of 186 HP."))
+    assert split[("ko_needed", "damage needed to KO = 186")] == T and split[("ko_needed", "damage needed to KO = 93")] == F  # a later sentence with no figure keeps its claim
+
+
+def test_guaranteed_one_hko_and_sixteen_of_sixteen_collapse_onto_guaranteed_ko_yes():
+    full = {**GK, "guaranteed_ko": True, "rolls_ko_of_16": 16, "min_roll": 190, "max_roll": 220, "rolls": [190] * 16}
+    it = item("damage", "guaranteed_ko", full)
+    cs = run(it, "Yes, this guarantees a KO. Every one of the 16 damage rolls knocks the defender out, a guaranteed OHKO.")
+    assert [(c.kind, c.proposition) for c in cs] == [("guaranteed_ko", "yes")]  # three statements, one claim; guaranteed_ko is the one kept
+    part = item("damage", "guaranteed_ko", {**full, "guaranteed_ko": False, "rolls_ko_of_16": 12, "min_roll": 150})
+    cs = run(part, "No. 12 of the 16 rolls knock it out, with a 75% chance to OHKO and a possible OHKO.")
+    kinds = [(c.kind, c.proposition) for c in cs]
+    assert ("ko_count", "12 of 16 rolls KO") in kinds and ("ko_chance", "75%") in kinds and ("nhko", "possible 1HKO") in kinds  # partial counts, chances and possible OHKO stay
+    contradict = [(c.kind, c.proposition) for c in run(it, "No, this does not guarantee a KO. Every one of the 16 rolls knocks it out.")]
+    assert ("guaranteed_ko", "no") in contradict and ("ko_count", "16 of 16 rolls KO") in contradict  # a contradiction is not collapsed
+
+
+def test_dedupe_equivalence_prefers_the_guaranteed_ko_claim_in_any_order():
+    g = sc.Claim("guaranteed_ko", "A M D", "yes", T, ctype="damage")
+    n = sc.Claim("nhko", "A M D", "guaranteed 1HKO", T, ctype="damage")
+    k = sc.Claim("ko_count", "a m d", "16 of 16 rolls KO", T, line="ko_chance", ctype="damage")
+    for order in ([g, n, k], [n, k, g], [k, g, n]):
+        assert sc.dedupe(order) == [g]
+    other = sc.Claim("ko_count", "A M D", "15 of 16 rolls KO", T, line="ko_chance", ctype="damage")
+    assert len(sc.dedupe([g, n, other])) == 2 and len(sc.dedupe([n, k])) == 1  # without a guaranteed_ko claim the first equivalent one stands
