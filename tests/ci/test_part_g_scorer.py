@@ -214,3 +214,86 @@ def test_usage_pct_line_is_off_by_default_lists_every_mismatch_and_switches_on()
 def test_scorer_source_does_not_import_the_recommender_or_compute_percentages():
     src = SCRIPT.read_text()
     assert "from recommender" not in src and "import recommender" not in src and "chaos_weight" not in src
+
+
+# Ground-truth-shaped keys built by hand (never arm output).
+DMG = {"attacker": "Thievul", "defender": "Typhlosion-Hisui", "move": "Psychic", "hp": 196, "min_roll": 54, "max_roll": 64,
+       "rolls": [54, 55, 56, 58, 59, 60, 60, 61, 62, 62, 63, 63, 64, 64, 64, 64], "rolls_ko_of_16": 0, "guaranteed_ko": False,
+       "scoring": {"chance_tolerance_points": 3.125}}
+SPD = {"s1": "Ninetales-Alola", "s2": "Sylveon", "spe1_jolly32": 177, "spe2_timid32": 123}
+
+
+def test_labelled_value_unit_slips_are_false():
+    assert sc.score_labelled(DMG, "hp", 196).verdict == T
+    slip = sc.score_labelled(DMG, "hp", 32)  # "the defender has 32 HP"
+    assert slip.verdict == F and slip.reason == "labelled hp 32 vs key 196"
+    assert sc.score_labelled(DMG, "hp", 608).verdict == F  # "32 SP out of 608 total HP"
+    assert sc.score_labelled(DMG, "max_roll", 64).verdict == T and sc.score_labelled(DMG, "max_roll", 63).verdict == F
+    other = sc.score_labelled(DMG, "sp_cap", 32)
+    assert other.verdict == U and other.line == "threshold_arith_unverifiable"
+
+
+def test_ko_needed_must_equal_hp_and_roll_threshold_uses_the_roll_list():
+    assert sc.score_ko_needed(DMG, 196).verdict == T
+    assert sc.score_ko_needed(DMG, 197).verdict == F  # "197 needed" for HP 196
+    assert sc.score_ko_needed(DMG, 98).verdict == F  # "half of HP"
+    assert sc.score_ko_threshold(DMG, 197).verdict == T  # "rolls at or above 197 KO": no roll reaches 196 either
+    assert sc.score_ko_threshold({**DMG, "rolls": [190, 196, 200], "hp": 196}, 197).verdict == F  # 196 itself KOs
+    assert sc.score_ko_needed({"attacker": "A", "move": "M", "defender": "D"}, 5).verdict == U
+
+
+def test_speed_stat_and_margin_are_exact_against_the_key():
+    assert sc.score_speed_stat(SPD, "Ninetales-Alola", 177).verdict == T and sc.score_speed_stat(SPD, "sylveon", 123).verdict == T
+    bad = sc.score_speed_stat(SPD, "Sylveon", 124)
+    assert bad.verdict == F and bad.reason == "stated 124 vs key 123"
+    assert sc.score_speed_stat(SPD, "Garchomp", 169).verdict == U
+    assert sc.score_speed_margin(SPD, "Ninetales-Alola", "Sylveon", 54).verdict == T  # 177 - 123
+    assert sc.score_speed_margin(SPD, "Sylveon", "Ninetales-Alola", 54).verdict == T  # an absolute margin
+    assert sc.score_speed_margin(SPD, "Ninetales-Alola", "Sylveon", 53).verdict == F
+    assert sc.score_speed_margin(SPD, "Ninetales-Alola", "Garchomp", 8).verdict == U
+
+
+def test_damage_range_and_percent_of_hp():
+    assert sc.score_damage_range(DMG, 54, 64).verdict == T and sc.score_damage_range(DMG, 54, 65).verdict == F
+    # 54/196 = 27.55 and 64/196 = 32.65: the calc truncates, so 27.5 and 32.6 are within rounding
+    assert sc.score_percent_of_hp(DMG, 27.5, 32.6).verdict == T
+    assert sc.score_percent_of_hp(DMG, 27.6, 32.7).verdict == T
+    assert sc.score_percent_of_hp(DMG, 27.8, 32.6).verdict == F
+    gt = {**DMG, "hp": 177, "min_roll": 154, "max_roll": 183}  # the calc text "87 - 103.3%"
+    assert sc.score_percent_of_hp(gt, 87, 103.3).verdict == T
+
+
+def test_nhko_guaranteed_and_possible_from_min_and_max_roll():
+    gt = {**DMG, "hp": 162, "min_roll": 106, "max_roll": 126}  # calc: "guaranteed 2HKO"
+    assert sc.score_nhko(gt, "guaranteed", 2).verdict == T and sc.score_nhko(gt, "guaranteed", 3).verdict == F
+    assert sc.score_nhko(gt, "possible", 2).verdict == T  # ceil(162 / 126)
+    gt2 = {**DMG, "hp": 217, "min_roll": 22, "max_roll": 26}  # calc: "possible 9HKO"
+    assert sc.score_nhko(gt2, "possible", 9).verdict == T and sc.score_nhko(gt2, "possible", 8).verdict == F
+    assert sc.score_nhko(gt2, "guaranteed", 10).verdict == T  # ceil(217 / 22)
+    assert sc.score_nhko(gt2, "sometimes", 9).verdict == U
+
+
+def test_chance_based_nhko_is_unverifiable_on_its_own_line():
+    c = sc.score_chance_nhko(DMG, 99.8, 3)
+    assert c.verdict == U and c.line == "chance_nhko_unverifiable"
+    s = sc.gate_summary([c, sc.score_labelled(DMG, "hp", 196)], slots=2)
+    assert s["chance_nhko_unverifiable_line"]["count"] == 1 and s["scored"] == 1
+
+
+def test_ko_ratio_tied_to_an_hko_chance_is_scored_against_rolls_ko_of_16():
+    # "about 6 out of 10 rolls would KO" read off "59.4% chance to 4HKO"; the key has 0 of 16 KO rolls
+    assert sc.score_ko_ratio(DMG, 6, 10).verdict == F
+    assert sc.score_ko_ratio(DMG, 0, 10).verdict == T
+    assert sc.score_ko_ratio({**DMG, "rolls_ko_of_16": 4}, 25, 100).verdict == T  # 25% of rolls = 4 of 16
+    assert sc.score_ko_ratio({**DMG, "rolls_ko_of_16": 4}, 4, 16).verdict == T and sc.score_ko_ratio({**DMG, "rolls_ko_of_16": 4}, 5, 16).verdict == F
+    assert sc.score_ko_ratio(DMG, 6, 10).line == "ko_chance"  # gated with the KO numbers by default
+
+
+def test_sensitivity_line_excludes_copied_unchanged_claims_and_never_decides():
+    cs = [sc.Claim("k", f"s{i}", "p", T, copied_unchanged=True, ctype="usage") for i in range(149)]
+    cs += [sc.Claim("k", "x", "p", F, ctype="usage")]
+    s = sc.gate_summary(cs, slots=150)
+    sens = s["sensitivity_excluding_copied_unchanged"]
+    assert (sens["scored"], sens["false"], sens["claims_excluded"], sens["decides_pass_fail"]) == (1, 1, 149, False)
+    assert sens["cp_upper_bound"] == 1.0 and s["scored"] == 150 and s["false"] == 1
+    assert s["passes_gate"] is False  # the headline decides: 150 scored with 1 false

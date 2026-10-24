@@ -78,9 +78,10 @@ class Claim:
     subject: str
     proposition: str
     verdict: Result
-    line: str = "gate"  # "gate" | "ko_chance" (KO counts and percents) | "usage_pct" | "threshold_arith_unverifiable"
+    line: str = "gate"  # "gate" | "ko_chance" (KO counts and percents) | "usage_pct" | "threshold_arith_unverifiable" | "chance_nhko_unverifiable"
     reason: str = ""  # e.g. "different_source", or "stated 17.75 vs key 17.906" on a usage_pct claim
     ctype: str = ""  # battery claim type of the item (typing, damage, ...), for the per-type false rate
+    copied_unchanged: bool = False  # set by the extractor: the value string is verbatim in the item's tool results and states no relation
 
 
 def dedupe(claims: list[Claim]) -> list[Claim]:
@@ -117,6 +118,8 @@ def gate_summary(claims: list[Claim], slots: int, floor: int = DESIGN_FLOOR, gat
         t, f, *_ = _counts([c for c in gated if c.ctype == ct])
         per_type[ct or "(untyped)"] = {"false": f, "scored": t + f, "false_rate": f / (t + f) if t + f else None}
     by = lambda ln: [c for c in claims if c.line == ln]  # noqa: E731
+    kept = [c for c in gated if not c.copied_unchanged]
+    kt, kf, *_ = _counts(kept)
     return {
         "false": false, "true": true, "scored": scored, "slots": slots,
         "answer_rate": scored / slots if slots else None,
@@ -128,6 +131,11 @@ def gate_summary(claims: list[Claim], slots: int, floor: int = DESIGN_FLOOR, gat
         "ko_chance_line": {"gating": gate_ko_chance, **_line(by("ko_chance"))},
         "usage_pct_line": {"gating": gate_usage_pct, **_line(by("usage_pct")),
                            "mismatches": [(c.ctype, c.subject, c.proposition, c.reason) for c in by("usage_pct") if c.verdict == Verdict.FALSE]},
+        # Sensitivity only: the same headline without claims the extractor flagged copied_unchanged. It never decides pass or fail.
+        "sensitivity_excluding_copied_unchanged": {"false": kf, "scored": kt + kf, "cp_upper_bound": cp_upper(kf, kt + kf), "decides_pass_fail": False,
+                                                   "claims_excluded": len(gated) - len(kept)},
+        "chance_nhko_unverifiable_line": {"count": len(by("chance_nhko_unverifiable")),
+                                          "claims": [(c.subject, c.proposition, c.reason) for c in by("chance_nhko_unverifiable")]},
         "threshold_arith_unverifiable_line": {"count": len(by("threshold_arith_unverifiable")),
                                               "claims": [(c.subject, c.proposition, c.reason) for c in by("threshold_arith_unverifiable")]},
     }
@@ -236,6 +244,113 @@ def score_hp_arithmetic(gt: dict[str, Any], lhs: tuple[str, float], op: str, rhs
     ok = not wrong and holds
     return Claim("hp_arithmetic", subj, prop, Verdict.TRUE if ok else Verdict.FALSE, ctype="damage",
                  reason="; ".join(wrong) or ("" if holds else "comparison is false"))
+
+
+def _subj(gt: dict[str, Any]) -> str:
+    return f"{gt.get('attacker')} {gt.get('move')} {gt.get('defender')}"
+
+
+def _unverifiable(kind: str, subj: str, prop: str, why: str, line: str = "threshold_arith_unverifiable", ctype: str = "damage") -> Claim:
+    return Claim(kind, subj, prop, Verdict.UNVERIFIABLE, line=line, reason=why, ctype=ctype)
+
+
+def score_labelled(gt: dict[str, Any], label: str, value: float) -> Claim:
+    """A labelled value ("the defender has 32 HP", "32 SP out of 608 total HP" = hp 608) is FALSE if it differs from the key.
+    A label the key does not hold is UNVERIFIABLE on its own line."""
+    subj, prop = _subj(gt), f"{label}={value:g}"
+    if label not in KEYED or KEYED[label] not in gt:
+        return _unverifiable("labelled_value", subj, prop, f"no key field for label {label!r}")
+    want = gt[KEYED[label]]
+    return Claim("labelled_value", subj, prop, Verdict.TRUE if value == want else Verdict.FALSE, ctype="damage",
+                 reason="" if value == want else f"labelled {label} {value:g} vs key {want}")
+
+
+def score_ko_needed(gt: dict[str, Any], needed: float) -> Claim:
+    """"Damage needed to KO" must equal the defender's HP exactly; 197 for HP 196 and "half of HP" are FALSE."""
+    subj, prop = _subj(gt), f"damage needed to KO = {needed:g}"
+    if "hp" not in gt:
+        return _unverifiable("ko_needed", subj, prop, "key lacks hp")
+    ok = needed == gt["hp"]
+    return Claim("ko_needed", subj, prop, Verdict.TRUE if ok else Verdict.FALSE, ctype="damage", reason="" if ok else f"defender hp {gt['hp']}")
+
+
+def _speed_of(gt: dict[str, Any], species: str) -> int | None:
+    for sp, stat in (("s1", "spe1_jolly32"), ("s2", "spe2_timid32")):
+        if gt.get(sp) is not None and norm(gt[sp]) == norm(species) and stat in gt:
+            return gt[stat]
+    return None
+
+
+def score_speed_stat(gt: dict[str, Any], species: str, value: float) -> Claim:
+    """A stated Speed stat is exact against the key's stat for that species. A species the key does not hold is UNVERIFIABLE."""
+    subj, prop = f"{gt.get('s1')}|{gt.get('s2')}", f"{species} speed={value:g}"
+    want = _speed_of(gt, species)
+    if want is None:
+        return _unverifiable("speed_stat", subj, prop, "species not in the key's pair", ctype="speed")
+    return Claim("speed_stat", subj, prop, Verdict.TRUE if value == want else Verdict.FALSE, ctype="speed",
+                 reason="" if value == want else f"stated {value:g} vs key {want}")
+
+
+def score_speed_margin(gt: dict[str, Any], a: str, b: str, margin: float) -> Claim:
+    """A stated margin ("faster by 54 points") is the absolute difference of the key's two stats."""
+    subj, prop = f"{gt.get('s1')}|{gt.get('s2')}", f"|{a} - {b}| speed margin={margin:g}"
+    sa, sb = _speed_of(gt, a), _speed_of(gt, b)
+    if sa is None or sb is None or norm(a) == norm(b):
+        return _unverifiable("speed_margin", subj, prop, "species not both in the key's pair", ctype="speed")
+    want = abs(sa - sb)
+    return Claim("speed_margin", subj, prop, Verdict.TRUE if margin == want else Verdict.FALSE, ctype="speed",
+                 reason="" if margin == want else f"stated {margin:g} vs key {want}")
+
+
+def score_damage_range(gt: dict[str, Any], lo: float, hi: float) -> Claim:
+    """A stated damage range is exact against the key's min and max roll."""
+    subj, prop = _subj(gt), f"damage range {lo:g}-{hi:g}"
+    if "min_roll" not in gt or "max_roll" not in gt:
+        return _unverifiable("damage_range", subj, prop, "key lacks min_roll or max_roll")
+    ok = (lo, hi) == (gt["min_roll"], gt["max_roll"])
+    return Claim("damage_range", subj, prop, Verdict.TRUE if ok else Verdict.FALSE, ctype="damage",
+                 reason="" if ok else f"key {gt['min_roll']}-{gt['max_roll']}")
+
+
+PCT_ROUNDING_POINTS = 0.1  # the calc truncates to one decimal (154/177 = 87.01 -> 87; 183/177 = 103.39 -> 103.3)
+
+
+def score_percent_of_hp(gt: dict[str, Any], lo_pct: float, hi_pct: float, tol: float = PCT_ROUNDING_POINTS) -> Claim:
+    """A stated damage-as-percent-of-HP range against 100*min_roll/hp and 100*max_roll/hp, within rounding."""
+    subj, prop = _subj(gt), f"percent of HP {lo_pct:g}-{hi_pct:g}"
+    if not all(f in gt for f in ("min_roll", "max_roll", "hp")):
+        return _unverifiable("percent_of_hp", subj, prop, "key lacks min_roll, max_roll or hp")
+    exp = (100 * gt["min_roll"] / gt["hp"], 100 * gt["max_roll"] / gt["hp"])
+    ok = abs(lo_pct - exp[0]) <= tol + 1e-9 and abs(hi_pct - exp[1]) <= tol + 1e-9
+    return Claim("percent_of_hp", subj, prop, Verdict.TRUE if ok else Verdict.FALSE, ctype="damage",
+                 reason="" if ok else f"key {exp[0]:.2f}-{exp[1]:.2f}")
+
+
+def score_nhko(gt: dict[str, Any], kind: str, n: int) -> Claim:
+    """"Guaranteed nHKO": n == ceil(hp / min_roll). "Possible nHKO": n == ceil(hp / max_roll). Both from the key's min and max roll."""
+    subj, prop = _subj(gt), f"{kind} {n}HKO"
+    if kind not in ("guaranteed", "possible") or not all(f in gt for f in ("min_roll", "max_roll", "hp")):
+        return _unverifiable("nhko", subj, prop, "unknown kind or key lacks min_roll, max_roll or hp")
+    want = -(-gt["hp"] // (gt["min_roll"] if kind == "guaranteed" else gt["max_roll"]))
+    return Claim("nhko", subj, prop, Verdict.TRUE if n == want else Verdict.FALSE, ctype="damage", reason="" if n == want else f"key {want}HKO")
+
+
+def score_chance_nhko(gt: dict[str, Any], chance_pct: float, n: int) -> Claim:
+    """A chance-based nHKO ("99.8% chance to 3HKO") has no key value: UNVERIFIABLE, reported on its own line."""
+    return _unverifiable("chance_nhko", _subj(gt), f"{chance_pct:g}% chance to {n}HKO", "chance-based nHKO has no key value", line="chance_nhko_unverifiable")
+
+
+def score_ko_ratio(gt: dict[str, Any], num: float, den: float) -> Claim:
+    """"k out of d rolls would KO" (also when it is read off an HKO chance): scored against rolls_ko_of_16. Out of 16 the count is
+    exact; out of any other d it is compared as a percent, within chance_tolerance_points of 100*k/16."""
+    subj, prop = _subj(gt), f"{num:g} of {den:g} rolls KO"
+    k = gt["rolls_ko_of_16"]
+    if den == 16:
+        ok = num == k
+    else:
+        ok = abs(100 * num / den - 100 * k / 16) <= (gt.get("scoring") or {}).get("chance_tolerance_points", 3.125)
+    return Claim("ko_count", subj, prop, Verdict.TRUE if ok else Verdict.FALSE, line="ko_chance", ctype="damage",
+                 reason="" if ok else f"key {k} of 16")
 
 
 def _tool_pct_rows(tool_calls: list[dict[str, Any]]) -> dict[str, list[float]]:
