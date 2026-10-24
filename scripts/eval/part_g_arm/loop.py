@@ -50,7 +50,8 @@ class ArmLoop:
         if cfg.fixed_now_utc:
             os.environ["RECOMMENDER_FIXED_NOW_UTC"] = cfg.fixed_now_utc
         self.cfg = cfg
-        self.tools = tools or ArmTools(regulation=cfg.regulation, allow_live=cfg.allow_live, calc=CalcClient(cfg.calc_base_url))
+        self.tools = tools or ArmTools(regulation=cfg.regulation, allow_live=cfg.allow_live, calc=CalcClient(cfg.calc_base_url),
+                                          include_damage_rolls=cfg.damage_rolls_in_result)
         specs = [t for t in TOOL_SPECS if cfg.no_lookup_tool or t["function"]["name"] != "no_lookup_needed"]
         self.llm = (llm or build_llm(cfg)).bind_tools(specs)
         self.system = SystemMessage(cfg.prompt_text())

@@ -55,3 +55,13 @@ def test_derived_ko_fields_agree_with_calc_kochance_and_key_on_all_seed1_damage_
                 or r["rolls_that_ko"] != gt["rolls_ko_of_16"]:
             disagree.append((it["id"], r["guaranteed_ko"], r["rolls_that_ko"], kc, gt["guaranteed_ko"], gt["rolls_ko_of_16"]))
     assert disagree == []
+
+
+def test_oracle_scores_abilities_through_check_species_ability():
+    gt = {"form": "Gardevoir-Mega", "form_id": "gardevoirmega", "asked_ability": "Pixilate", "form_abilities": ["Pixilate"], "has_ability": True}
+    it = {"claim_type": "ability_form", "claims": [{"kind": "has_ability", "ground_truth": gt}]}
+    calls, claims, diffs = oracle.run_item(TOOLS, it)
+    assert [c["name"] for c in calls] == ["get_abilities", "check_species_ability"] and diffs == []
+    assert [c.verdict.value for c in claims] == ["TRUE"]
+    it["claims"][0]["ground_truth"] = {**gt, "has_ability": False}
+    assert [c.verdict.value for c in oracle.run_item(TOOLS, it)[1]] == ["FALSE"]

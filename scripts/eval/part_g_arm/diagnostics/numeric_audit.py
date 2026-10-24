@@ -22,7 +22,7 @@ def cmp_ok(a, op, b):
 
 
 def check_damage(iid, r, res):
-    hp, lo, hi, k, rolls = res['defender_hp'], res['damage_range'][0], res['damage_range'][1], res['rolls_that_ko'], res['damage_rolls']
+    hp, lo, hi, k, rolls = res['defender_hp'], res['damage_range'][0], res['damage_range'][1], res['rolls_that_ko'], res.get('damage_rolls')
     out, unchecked = [], []
     for s in sents(r['final_text']):
         low = s.lower(); hit = False
@@ -82,7 +82,8 @@ def check_damage(iid, r, res):
         m = re.search(r'\[(\d+(?:,\s*\d+){3,})\]', s)
         if m:
             hit = True
-            if [int(x) for x in m.group(1).split(',')] != rolls: bad('quoted roll list differs from damage_rolls')
+            if rolls is None: bad('quotes a roll list the result did not contain')
+            elif [int(x) for x in m.group(1).split(',')] != rolls: bad('quoted roll list differs from damage_rolls')
         if not hit and re.search(r'\d', s) and not re.search(r'level 50|HKO', s): unchecked.append((iid, s[:170]))
     return out, unchecked
 

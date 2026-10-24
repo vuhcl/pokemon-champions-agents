@@ -59,8 +59,10 @@ def top_n_with_ties(entries: list[dict[str, Any]], n: int) -> list[dict[str, Any
 
 
 class ArmTools:
-    def __init__(self, *, regulation: str, allow_live: bool, calc: CalcClient | None = None) -> None:
+    def __init__(self, *, regulation: str, allow_live: bool, calc: CalcClient | None = None,
+                 include_damage_rolls: bool = True) -> None:
         assert allow_live is False, "arm tools run offline only (ADR-014)"
+        self.include_damage_rolls = include_damage_rolls
         self.regulation = regulation
         self.allow_live = allow_live
         self.calc = calc or CalcClient()
@@ -136,7 +138,7 @@ class ArmTools:
         flat = isinstance(rolls, list) and bool(rolls) and all(isinstance(x, int) for x in rolls)
         ko = sum(x >= hp for x in rolls) if flat else None
         return {"status": "ok", "move": move, "request": {"attacker": req_a, "defender": req_d, "field": req_f},
-                "damage_rolls": raw.get("damage"), "damage_range": r["damageRange"],
+                **({"damage_rolls": raw.get("damage")} if self.include_damage_rolls else {}), "damage_range": r["damageRange"],
                 "defender_hp": hp, "rolls_that_ko": ko, "guaranteed_ko": None if ko is None else ko == len(rolls),
                 "ko_text": r["koChance"], "kochance": raw.get("kochance"),
                 "calc_desc": raw.get("desc"), "ability_resolution": r.get("abilityResolution"), "source": CALC_SOURCE}

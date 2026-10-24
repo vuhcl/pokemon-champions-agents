@@ -169,3 +169,14 @@ def test_unknown_item_name_notes_where_to_look_but_stays_illegal(tools):
     assert "use the matching tool" in r["note"] and "check_species_ability" in r["note"]
     known = tools.check_item_legal("Heat Rock")
     assert known["in_snapshot"] is True and "note" not in known
+
+
+@pytest.mark.skipif(os.environ.get("CALC_LIVE") != "1", reason="needs live calc service")
+def test_damage_rolls_can_be_left_out_of_the_result_keeping_the_derived_fields():
+    args = {"attacker": {"species": "Garchomp", "nature": "Jolly", "sp": {"atk": 32}}, "defender": {"species": "Gengar", "sp": {"hp": 32}},
+            "move": "Earthquake"}
+    full = ArmTools(regulation="champions", allow_live=False).call("calc_damage", args)
+    lean = ArmTools(regulation="champions", allow_live=False, include_damage_rolls=False).call("calc_damage", args)
+    assert "damage_rolls" in full and "damage_rolls" not in lean
+    assert {k: v for k, v in full.items() if k != "damage_rolls"} == lean
+    assert lean["rolls_that_ko"] == sum(x >= lean["defender_hp"] for x in full["damage_rolls"])

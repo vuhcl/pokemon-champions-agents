@@ -77,7 +77,10 @@ def run_item(tools: ArmTools, it: dict) -> tuple[list[dict], list, list[dict]]:
         name = gt.get("form_id") or gt["species"]
         r = call("get_abilities", species=name)
         diff("abilities", r.get("abilities"), gt.get("form_abilities") or gt["abilities"])
-        return calls, [sc.score_equal("has_ability", name, gt["asked_ability"] in (r.get("abilities") or []), gt["has_ability"])], diffs
+        c = call("check_species_ability", species=name, ability=gt["asked_ability"])
+        diff("check_species_ability list", c.get("species_abilities"), gt.get("form_abilities") or gt["abilities"])
+        diff("check_species_ability boolean", c.get("species_can_have_ability"), gt["has_ability"])
+        return calls, [sc.score_equal("has_ability", name, c.get("species_can_have_ability"), gt["has_ability"])], diffs
     if t == "item":
         r = call("check_item_legal", item=gt["item"])
         return calls, [sc.score_equal("item_legal", gt["item"], r.get("legal_as_held_item"), gt["legal"])], diffs
