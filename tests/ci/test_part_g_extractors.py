@@ -415,7 +415,7 @@ def test_ability_plural_sits_outside_every_gate_denominator_and_line():
     g1, g0 = sc.gate_summary(base + [plural] + base, 2), sc.gate_summary(base + base, 2)
     for key in ("false", "true", "scored", "cp_upper_bound", "false_rate_by_type", "unverifiable", "no_verdict"):
         assert g1[key] == g0[key], key
-    assert g1["ability_plural_line"] == {"count": 1} and g0["ability_plural_line"] == {"count": 0}
+    assert g1["ability_plural_line"]["count"] == 1 and g0["ability_plural_line"]["count"] == 0 and g1["ability_plural_line"]["non_gating"] is True
     assert sc.dev_headline(by_item, 2) == sc.dev_headline(without, 2)  # headline, list-as-one, item-level and per-type are identical
     assert sc.item_level(by_item) == sc.item_level(without) and sc.list_as_one(by_item) == sc.list_as_one(without)
     pr, p0 = sc.pilot_report(by_item, 2, 2), sc.pilot_report(without, 2, 2)

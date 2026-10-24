@@ -54,7 +54,8 @@ def test_ko_number_line_gates_by_default_and_can_be_switched_off():
 def test_per_type_false_rate_sits_beside_the_headline():
     cs = [sc.Claim("k", "a", "p", T, ctype="typing")] * 3 + [sc.Claim("k", "b", "p", F, ctype="damage"), sc.Claim("k", "c", "p", T, ctype="damage")]
     r = sc.gate_summary(cs, slots=5)["false_rate_by_type"]
-    assert r == {"damage": {"false": 1, "scored": 2, "false_rate": 0.5}, "typing": {"false": 0, "scored": 3, "false_rate": 0.0}}
+    assert {k: (v["false"], v["scored"], v["false_rate"]) for k, v in r.items()} == {"damage": (1, 2, 0.5), "typing": (0, 3, 0.0)}
+    assert r["damage"]["cp_upper_bound"] == sc.cp_upper(1, 2) and r["damage"]["max_false_tolerated_at_n"] == -1  # a bound and the tolerance sit beside every rate
 
 
 def test_dedupe_one_claim_per_kind_subject_proposition():
@@ -322,7 +323,7 @@ def test_list_as_one_aggregation_on_synthetic_verdicts():
     d = sc.dev_headline(by_item, slots=10)
     assert d["list_members_as_claims"]["claims"] == 5 + 2 + 3 + 2 and d["list_members_as_claims"]["false"] == 1 + 1
     assert d["list_as_one"]["claims"] == 6 and d["list_as_one"]["false"] == 2  # u1 teammates and items, t1 set, t1 has_type, d1 verdict and KO count
-    assert d["list_as_one"]["false_rate_by_type"]["usage"] == {"claims": 2, "false": 1, "false_rate": 0.5}
+    assert {k: d["list_as_one"]["false_rate_by_type"]["usage"][k] for k in ("claims", "false", "false_rate")} == {"claims": 2, "false": 1, "false_rate": 0.5}
     assert d["list_as_one"]["min_claims_for_this_many_false"] == 313 and d["list_members_as_claims"]["min_claims_for_this_many_false"] == 313  # the same CP table
 
 
@@ -348,7 +349,8 @@ def test_dev_headline_refusals(tmp_path):
     rp.write_text(json.dumps(record()))
     assert sc.dev_headline_allowed(bat, "P", rp) == (True, "ok")
     assert "held out" in sc.dev_headline_allowed(_write(tmp_path / "s0.json", {"seed": 0, "items": []}), "P", rp)[1]
-    assert "half P only" in sc.dev_headline_allowed(bat, "T", rp)[1] and "half P only" in sc.dev_headline_allowed(bat, None, rp)[1]
+    assert sc.dev_headline_allowed(bat, "T", rp) == (True, "ok") and sc.dev_headline_allowed(bat, "ALL", rp) == (True, "ok")  # the dev halves, per Vu (2026-10-24)
+    assert "dev halves only" in sc.dev_headline_allowed(bat, None, rp)[1] and "dev halves only" in sc.dev_headline_allowed(bat, "X", rp)[1]
     assert "no run_params" in sc.dev_headline_allowed(bat, "P", None)[1] and "no run_params" in sc.dev_headline_allowed(bat, "P", tmp_path / "missing.json")[1]
     tampered = json.loads(rp.read_text())
     tampered["allow_live"] = True
@@ -401,3 +403,36 @@ def test_dev_headline_flag_prints_all_lines_for_half_p_and_nothing_without_it(tm
     assert with_flag.returncode == 0 and all(k in with_flag.stdout for k in ("list_members_as_claims", "list_as_one", "item_level", "false_rate_by_type"))
     without = run()
     assert without.returncode == 0 and "item_level" not in without.stdout and "withheld" in without.stdout
+
+
+def test_max_false_tolerated_matches_the_exact_table_and_sits_beside_every_bound():
+    table = {148: -1, 149: 0, 235: 0, 236: 1, 312: 1, 313: 2, 385: 2, 386: 3}  # 0 -> 149, 1 -> 236, 2 -> 313, 3 -> 386 scored claims
+    assert {n: sc.max_false_tolerated(n) for n in table} == table
+    assert sc.max_false_tolerated(0) == -1
+    s = sc.gate_summary([C(T, n=i) for i in range(236)] + [C(F)], slots=300)
+    assert s["max_false_tolerated_at_n"] == sc.max_false_tolerated(237) == 1 and s["sensitivity_excluding_copied_unchanged"]["max_false_tolerated_at_n"] == 1
+    d = sc.dev_headline({f"typing_{i:03d}": [sc.Claim("has_type", "S", "True", T, ctype="typing")] for i in range(149)}, 149)
+    assert d["list_members_as_claims"]["max_false_tolerated_at_n"] == 0 and d["item_level"]["max_false_tolerated_at_n"] == 0
+    assert d["item_level"]["by_type"]["typing"]["max_false_tolerated_at_n"] == 0 and d["list_as_one"]["false_rate_by_type"]["typing"]["max_false_tolerated_at_n"] == 0
+
+
+def test_dev_headline_cli_prints_gate_summary_and_labels_for_all_halves(tmp_path):
+    import hashlib
+    import subprocess
+
+    its = [{"id": f"typing_{k:03d}", "claim_type": "typing", "prompt": "q", "n_claims": 1, "claims": [{"kind": "has_type", "ground_truth":
+            {"species": "A", "asked_type": "Fairy", "has_type": True, "types": ["Fairy"]}}]} for k in range(2)]
+    bat, ans, split, rp = tmp_path / "b.json", tmp_path / "a.jsonl", tmp_path / "split.json", tmp_path / "run_params.json"
+    bat.write_text(json.dumps({"seed": 1, "items": its}))
+    ans.write_text("".join(json.dumps({"id": i["id"], "final_text": "Yes, A has Fairy typing.", "tool_calls": []}) + "\n" for i in its))
+    split.write_text(json.dumps({"P": {"typing": ["typing_000"]}, "T": {"typing": ["typing_001"]}}))
+    rec = {"schema": "run_parameter_record_v1", "allow_live": False, "arm_config": {"allow_live": False}}
+    rec["record_sha256"] = hashlib.sha256(json.dumps(rec, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    rp.write_text(json.dumps(rec))
+    for half, n in (("P", 1), ("T", 1), ("ALL", 2)):
+        cp = subprocess.run([sys.executable, str(SCRIPT), "--answers", str(ans), "--battery", str(bat), "--split-file", str(split), "--half", half, "--show-dev-headline", "--run-params", str(rp)],
+                            capture_output=True, text=True)
+        assert cp.returncode == 0, cp.stderr
+        out = json.loads(cp.stdout)
+        assert out["dev_gate_summary"]["scored"] == n and out["pilot"]["items"] == n and "IN-SAMPLE" in out["dev_headline"]["label"] == out["dev_gate_summary"]["label"] == out["pilot"]["label"]
+        assert {"list_members_as_claims", "list_as_one", "item_level"} <= set(out["dev_headline"]) and "withheld" in out["headline"]  # the exception-log headline stays withheld

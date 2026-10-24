@@ -115,7 +115,15 @@ def _counts(claims: list[Claim]) -> tuple[int, int, int, int]:
 
 def _line(claims: list[Claim]) -> dict[str, Any]:
     t, f, u, n = _counts(claims)
-    return {"true": t, "false": f, "unverifiable": u, "no_verdict": n, "cp_upper_bound": cp_upper(f, t + f)}
+    return {"true": t, "false": f, "unverifiable": u, "no_verdict": n, "cp_upper_bound": cp_upper(f, t + f), "max_false_tolerated_at_n": max_false_tolerated(t + f)}
+
+
+def max_false_tolerated(n: int, rate: float = GATE_RATE) -> int:
+    """The largest false count whose one-sided 95% Clopper-Pearson upper bound is still at most `rate` at n scored claims; -1 when even 0 false fails."""
+    k = -1
+    while cp_upper(k + 1, n) <= rate and k + 1 <= n:
+        k += 1
+    return k
 
 
 def gate_summary(claims: list[Claim], slots: int, floor: int = DESIGN_FLOOR, gate_ko_chance: bool = True,
@@ -131,7 +139,8 @@ def gate_summary(claims: list[Claim], slots: int, floor: int = DESIGN_FLOOR, gat
     per_type: dict[str, dict[str, Any]] = {}
     for ct in sorted({c.ctype for c in gated}):
         t, f, *_ = _counts([c for c in gated if c.ctype == ct])
-        per_type[ct or "(untyped)"] = {"false": f, "scored": t + f, "false_rate": f / (t + f) if t + f else None}
+        per_type[ct or "(untyped)"] = {"false": f, "scored": t + f, "false_rate": f / (t + f) if t + f else None, "cp_upper_bound": cp_upper(f, t + f),
+                                       "max_false_tolerated_at_n": max_false_tolerated(t + f)}
     by = lambda ln: [c for c in claims if c.line == ln]  # noqa: E731
     kept = [c for c in gated if not c.copied_unchanged]
     kt, kf, *_ = _counts(kept)
@@ -140,18 +149,19 @@ def gate_summary(claims: list[Claim], slots: int, floor: int = DESIGN_FLOOR, gat
         "answer_rate": scored / slots if slots else None,
         "scored_vs_design_floor": {"floor": floor, "meets": scored >= floor},
         "no_verdict": none,
-        "cp_upper_bound": ucb, "gate_rate": GATE_RATE, "passes_gate": scored > 0 and ucb <= GATE_RATE,
+        "cp_upper_bound": ucb, "gate_rate": GATE_RATE, "passes_gate": scored > 0 and ucb <= GATE_RATE, "max_false_tolerated_at_n": max_false_tolerated(scored),
         "false_rate_by_type": per_type,
         "unverifiable": {"count": unver, "share_of_typed": unver / (scored + unver) if scored + unver else None},
         "ko_chance_line": {"gating": gate_ko_chance, **_line(by("ko_chance"))},
         "usage_pct_line": {"gating": gate_usage_pct, **_line(by("usage_pct")),
                            "mismatches": [(c.ctype, c.subject, c.proposition, c.reason) for c in by("usage_pct") if c.verdict == Verdict.FALSE]},
         # Sensitivity only: the same headline without claims the extractor flagged copied_unchanged. It never decides pass or fail.
-        "sensitivity_excluding_copied_unchanged": {"false": kf, "scored": kt + kf, "cp_upper_bound": cp_upper(kf, kt + kf), "decides_pass_fail": False,
+        "sensitivity_excluding_copied_unchanged": {"false": kf, "scored": kt + kf, "cp_upper_bound": cp_upper(kf, kt + kf), "max_false_tolerated_at_n": max_false_tolerated(kt + kf), "decides_pass_fail": False,
                                                    "claims_excluded": len(gated) - len(kept)},
         # Non-gating: implied plural abilities for a Mega form. In no denominator, headline, list-as-one, item-level line or per-type rate.
-        "ability_plural_line": {"count": len(by("ability_plural"))},
-        "chance_nhko_unverifiable_line": {"count": len(by("chance_nhko_unverifiable")),
+        "ability_plural_line": {"non_gating": True, **{k: v for k, v in _line(by("ability_plural")).items() if k in ("false", "cp_upper_bound", "max_false_tolerated_at_n")},
+                                "count": len(by("ability_plural"))},
+        "chance_nhko_unverifiable_line": {"count": len(by("chance_nhko_unverifiable")), "scored": 0, "cp_upper_bound": cp_upper(0, 0), "max_false_tolerated_at_n": max_false_tolerated(0),
                                           "claims": [(c.subject, c.proposition, c.reason) for c in by("chance_nhko_unverifiable")]},
         "threshold_arith_unverifiable_line": {"count": len(by("threshold_arith_unverifiable")),
                                               "claims": [(c.subject, c.proposition, c.reason) for c in by("threshold_arith_unverifiable")]},
@@ -495,9 +505,10 @@ def _headline_line(claims: list[Claim], slots: int) -> dict[str, Any]:
     per_type: dict[str, dict[str, Any]] = {}
     for ct in sorted({c.ctype for c in claims}):
         t, f, *_ = _counts([c for c in claims if c.ctype == ct and c.line in _HEADLINE_LINES])
-        per_type[ct or "(untyped)"] = {"claims": t + f, "false": f, "false_rate": f / (t + f) if t + f else None}
+        per_type[ct or "(untyped)"] = {"claims": t + f, "false": f, "false_rate": f / (t + f) if t + f else None, "cp_upper_bound": cp_upper(f, t + f),
+                                       "max_false_tolerated_at_n": max_false_tolerated(t + f)}
     n = true + false
-    return {"claims": n, "false": false, "cp_upper_bound": cp_upper(false, n), "passes_gate": n > 0 and cp_upper(false, n) <= GATE_RATE,
+    return {"claims": n, "false": false, "cp_upper_bound": cp_upper(false, n), "max_false_tolerated_at_n": max_false_tolerated(n), "passes_gate": n > 0 and cp_upper(false, n) <= GATE_RATE,
             "min_claims_for_this_many_false": min_scored_for(false), "false_rate_by_type": per_type, "slots": slots}
 
 
@@ -513,7 +524,7 @@ def item_level(by_item: dict[str, list[Claim]]) -> dict[str, Any]:
 
     def line(ids: list[str]) -> dict[str, Any]:
         n, f = len(ids), sum(1 for i in ids if false[i])
-        return {"items_scored": n, "items_with_false": f, "false_rate": f / n if n else None, "cp_upper_bound": cp_upper(f, n),
+        return {"items_scored": n, "items_with_false": f, "false_rate": f / n if n else None, "cp_upper_bound": cp_upper(f, n), "max_false_tolerated_at_n": max_false_tolerated(n),
                 "passes": n > 0 and cp_upper(f, n) <= GATE_RATE}
     ids = sorted(scored)
     types = sorted({i.rsplit("_", 1)[0] for i in ids})
@@ -529,7 +540,7 @@ def dev_headline(by_item: dict[str, list[Claim]], slots: int) -> dict[str, Any]:
 
 
 def dev_headline_allowed(battery: Path, half: str | None, run_params: Path | None) -> tuple[bool, str]:
-    """--show-dev-headline is for dev runs on half P only: refused for a seed-0 battery, for any other half, and for a run without a run_params
+    """--show-dev-headline is for dev runs on the dev halves (P, T or both): refused for a seed-0 battery, for no half, and for a run without a run_params
     record whose hash is intact. (The full run_params verify is for gate runs: it needs a clean tree, which a dev run does not have.)"""
     import hashlib
     try:
@@ -538,8 +549,8 @@ def dev_headline_allowed(battery: Path, half: str | None, run_params: Path | Non
         return False, f"cannot read the battery {battery}"
     if doc.get("seed") == 0 or "part_g_v4/battery" in str(battery.resolve()):
         return False, "refused: seed 0 is held out"
-    if half != "P":
-        return False, "refused: the dev headline is for half P only"
+    if half not in ("P", "T", "ALL"):
+        return False, "refused: the dev headline is for the dev halves only (P, T or ALL), never a held-out run"
     if run_params is None or not run_params.is_file():
         return False, "refused: no run_params.json for this run"
     rec = json.loads(run_params.read_text())
@@ -579,7 +590,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--answers", type=Path, required=True)
     ap.add_argument("--battery", type=Path, required=True)
-    ap.add_argument("--half", choices=("P", "T"), default=None, help="score one half of the dev split (needs --split-file); P is for parser building")
+    ap.add_argument("--half", choices=("P", "T", "ALL"), default=None, help="score one half of the dev split, or both with ALL (needs --split-file); P is for parser building")
     ap.add_argument("--split-file", type=Path, default=None)
     ap.add_argument("--claims", type=Path, help="JSONL {id, claims:[[kind,subject,proposition,verdict|null,line,reason]]} instead of the extractors")
     ap.add_argument("--exception-log", type=Path, default=None, help="the committed audit exception log")
@@ -596,7 +607,8 @@ def main() -> int:
     if args.half:
         if not args.split_file:
             raise SystemExit("--half needs --split-file")
-        keep = {i for v in json.loads(args.split_file.read_text())[args.half].values() for i in v}
+        split = json.loads(args.split_file.read_text())
+        keep = {i for h in (("P", "T") if args.half == "ALL" else (args.half,)) for v in split[h].values() for i in v}
         items = {k: v for k, v in items.items() if k in keep}
     answers = {r["id"]: r for r in map(json.loads, args.answers.read_text().splitlines()) if r["id"] in items}
     slots = sum(i["n_claims"] for i in items.values())
@@ -613,7 +625,10 @@ def main() -> int:
         okd, whyd = dev_headline_allowed(args.battery, args.half, args.run_params or args.answers.parent / "run_params.json")
         if not okd:
             raise SystemExit(whyd)
-        out["dev_headline"] = dev_headline(by_item, slots)
+        label = "IN-SAMPLE: dev3b; the extractors were built on half P, and rules and tolerances were set after reading dev answers"
+        out["dev_headline"] = {"label": label, **dev_headline(by_item, slots)}
+        out["dev_gate_summary"] = {"label": label, **gate_summary([c for cs in by_item.values() for c in cs], slots, gate_ko_chance=args.gate_ko_chance, gate_usage_pct=args.gate_usage_pct)}
+        out["pilot"] = {"label": label, **out["pilot"]}
     ok, why = exception_log_verified(args.exception_log, args.exception_log_sha256)
     if ok:
         out["gate"] = gate_summary([c for cs in by_item.values() for c in cs], slots, gate_ko_chance=args.gate_ko_chance, gate_usage_pct=args.gate_usage_pct)
