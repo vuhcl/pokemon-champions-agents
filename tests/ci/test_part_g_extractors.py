@@ -195,3 +195,20 @@ def test_headline_is_withheld_until_the_exception_log_is_committed_and_hashed(tm
     log.write_text("changed\n")
     assert not ok(log, hashlib.sha256(log.read_bytes()).hexdigest())  # an uncommitted edit
     assert not ok(repo / "missing.csv", sha)
+
+
+def test_audit_view_takes_a_committed_id_list_and_refuses_ids_outside_the_answers(tmp_path):
+    import json
+    import subprocess
+
+    it = {"id": "typing_x", "claim_type": "typing", "prompt": "q", "n_claims": 1,
+          "claims": [{"kind": "has_type", "ground_truth": {"species": "A", "asked_type": "Fairy", "has_type": True, "types": ["Fairy"]}}]}
+    bat, ans, ids = tmp_path / "b.json", tmp_path / "a.jsonl", tmp_path / "ids.json"
+    bat.write_text(json.dumps({"items": [it]}))
+    ans.write_text(json.dumps({"id": "typing_x", "final_text": "Yes, A is Fairy type.", "tool_calls": []}) + "\n")
+    ids.write_text(json.dumps({"ids": ["typing_x"]}))
+    run = lambda f: subprocess.run([sys.executable, str(Path(__file__).resolve().parents[2] / "scripts/eval/part_g_v4/audit_view.py"), "--answers", str(ans),  # noqa: E731
+                                    "--battery", str(bat), "--out", str(tmp_path / "o"), "--ids-file", str(f)], capture_output=True, text=True)
+    assert run(ids).returncode == 0 and (tmp_path / "o/audit.html").read_text().count("<section") == 1
+    ids.write_text(json.dumps({"ids": ["typing_nope"]}))
+    assert run(ids).returncode != 0

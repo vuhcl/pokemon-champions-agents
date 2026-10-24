@@ -6,7 +6,7 @@ and the item's tool output collapsed. Writes audit.html and an empty-to-fill aud
 exception_type is one of missed_claim | wrong_extraction | wrong_verdict | other). It prints no headline figure: the false rate stays withheld until
 the exception log is committed and hashed (see scorer.py).
 
-    python scripts/eval/part_g_v4/audit_view.py --answers answers.jsonl --battery claim_battery.json --out DIR --size 100 --seed 0 [--split-file F --half P]
+    python scripts/eval/part_g_v4/audit_view.py --answers answers.jsonl --battery claim_battery.json --out DIR (--size 100 --seed 0 | --ids-file F) [--split-file F --half P]
 """
 from __future__ import annotations
 
@@ -62,7 +62,8 @@ def main() -> int:
     ap.add_argument("--answers", type=Path, required=True)
     ap.add_argument("--battery", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--size", type=int, required=True)
+    ap.add_argument("--size", type=int, default=None, help="sample size (fixed-seed sample of the answered items)")
+    ap.add_argument("--ids-file", type=Path, default=None, help='JSON {"ids": [...]} instead of a sample (a committed id list)')
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--split-file", type=Path, default=None)
     ap.add_argument("--half", choices=("P", "T"), default=None)
@@ -72,7 +73,15 @@ def main() -> int:
         keep = {i for v in json.loads(args.split_file.read_text())[args.half].values() for i in v}
         items = {k: v for k, v in items.items() if k in keep}
     answers = {r["id"]: r for r in map(json.loads, args.answers.read_text().splitlines()) if r["id"] in items}
-    ids = scorer.audit_sample(sorted(answers), args.size, args.seed)
+    if args.ids_file:
+        ids = json.loads(args.ids_file.read_text())["ids"]
+        missing = [i for i in ids if i not in answers]
+        if missing:
+            raise SystemExit(f"ids not in the answers (or outside the chosen half): {missing[:5]}")
+    elif args.size:
+        ids = scorer.audit_sample(sorted(answers), args.size, args.seed)
+    else:
+        raise SystemExit("give --size or --ids-file")
     args.out.mkdir(parents=True, exist_ok=True)
     body = []
     with (args.out / "audit.csv").open("w", newline="") as fh:
