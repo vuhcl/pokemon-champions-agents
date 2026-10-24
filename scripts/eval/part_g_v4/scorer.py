@@ -81,6 +81,7 @@ class Claim:
     line: str = "gate"  # "gate" | "ko_chance" (KO counts and percents) | "usage_pct" | "threshold_arith_unverifiable" | "chance_nhko_unverifiable"
     reason: str = ""  # e.g. "different_source", or "stated 17.75 vs key 17.906" on a usage_pct claim
     ctype: str = ""  # battery claim type of the item (typing, damage, ...), for the per-type false rate
+    span: tuple[int, int] | None = None  # character offsets of the evidence in the answer's final_text (audit view only)
     copied_unchanged: bool = False  # set by the extractor: the value string is verbatim in the item's tool results and states no relation
 
 
