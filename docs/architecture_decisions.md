@@ -11938,6 +11938,22 @@ Context (c) said the L470 and L472 text fixes would fold into the request-set cu
 
 ---
 
+### ADR-078 Amendment 2026-10-24a — the battery is 350 items; sizing restated from measured dev numbers; the scorer and audit layer now exist; where the damage-item rule lives
+
+Context: Decision 1 was written for a 300-item battery: about 267 scored claims tolerating 1 false, about 227 scored items tolerating 0 false at item level, about 101 rows at row level. Those figures predate the v5 key cuts and the arm. The claim battery is now 350 items (battery/claim_battery_v4.json, sha256 6e6c6be4351240629416f1e279bbf495bbf4670d79aaaa7d083a2c62c6d67443, last changed by cc70d1c on 2026-10-22, on origin/main since the merge of PR #309, 18a3e62). The earlier 300-item hash (13d082440e62...) is superseded.
+
+Sizing, restated from a measurement and an extrapolation. The dev battery (seed 1, 350 items, in-sample, tool configuration V2) gave 1,236 scored claims, about 3.5 per item, because each list member and numeric sub-claim is a claim. The held-out count is not yet measured; at about 1,200 scored claims the 2% line tolerates 15 false claims (16 at 1,236). At about 350 scored items the item-level line tolerates 2 false items. The reference table n >= 149/236/313/386 for 0/1/2/3 false is unchanged, and so is the 240-claim stop/extend floor. Claims cluster inside items, so the claim-level bound is optimistic relative to the item-level view. The item-level line is expected to fail even if the claim-level line passes (dev3b: 4 of 350 items had a false claim, item-level bound 2.6%, against a claim-level bound of 0.85%); only the claim-level line gates.
+
+R5 is out of date. R5 ("Scorer not built") in scripts/eval/part_g_v4/gate_scorer_requirements.md was true when written. The frozen per-template extractors, the scorer, the audit view and tools, and the audit-adjusted verdict script now exist and are listed with sha256 in FROZEN_MANIFEST.json at 92c03cbc5db551ffcd9f4579646a0dce9c227dca, manifest sha256 0972060c0d0b208c6a9669b079ab483bc82e855fcc8956d92fac63c0c780458a. That file stays frozen at R1-R10; this amendment supersedes R5 only. The rules added after reading dev answers, before any held-out run, are recorded in the PRE-MD-CLAIM registration section, not here.
+
+One change to how Decision 1 is read. The registered verdict uses audit-adjusted counts: scorer FALSE plus audit-found false missed claims, corrected for wrong_verdict and wrong_extraction rows, with the scorer-only numbers reported beside it. UNVERIFIABLE stays out of the denominator (R8), with a 10% flag, a sensitivity line counting it FALSE, and a stated tripwire if that line exceeds 2% while the primary bound passes.
+
+The damage-item scoring rule has no R-number. Working notes called it "R11"; it is not in gate_scorer_requirements.md. It lives in the PRE-MD-CLAIM section (damage_item_scoring) and the master-log entry, and R9 applies: each damage key's ground_truth.scoring governs.
+
+Not changed: the claim-level gate, the one-sided 95% Clopper-Pearson bound of at most 2%, battery-only scoring, request-set rows not pooled, and the keys.
+
+---
+
 ## ADR-079: Damage-fraction recoil HP operator and timing for the arm (supersedes the "game rule floor(damage/3)" wording in ADR-078 / R-rules)
 
 **Date:** 2026-10-13
@@ -12113,3 +12129,37 @@ The known-limits line "Multi-attribute forme pooling (Toxtricity, Squawkabilly) 
 - MetaRoll's empirical matchup tables are not used and are outside v1 (#304).
 - Unexplained: Swampert's in-game item list includes Venusaurite.
 - Not verified: MetaRoll's behavior under load (the documentation states no key, sign-up or quota, and asks clients to honor Cache-Control max-age=300 and fetch all.json once; the extractor makes one request); megas.json and the ladder endpoints; the upstream scraper's mechanism for the forme loss; whether MetaRoll and MunchStats read the same underlying data.
+
+---
+
+## ADR-083: The Part G arm answers in free prose, and the gate scores that prose with the real system prompt
+
+**Date:** 2026-10-24 (decision made 2026-10-22)
+**Status:** Accepted, landing with the PRE-MD-CLAIM registration. Reverses the direction ADR-071 deferred to ("closed-set claim objects") for the arm.
+
+**Context:** ADR-071 (fail-closed unmatched clarify) rejected broad claim verification for the v1 CLI path as "the v2 model-driven arm's job (closed-set claim objects)". ADR-002 says legality is a tool call, never an LLM assertion; ADR-078 gates the arm's false-claim rate on the held-out battery. The arm will sit behind a web chat UI, so what it says is prose.
+
+**Decision:**
+1. The arm is a headless, message-in/message-out tool-calling loop (qwen3.5:latest via Ollama in the gate run, temperature 0, think off). It answers in free prose. The UI is not built before the gate.
+2. The gate scores that prose with the real system prompt (rev3, final). No eval-only format instruction is added.
+3. Claims are extracted from the answer text by frozen per-template parsers, built on the dev battery (seed 1) and frozen before the held-out run. A different-family LLM (gemma4:12b) is a non-gating extraction cross-check only. Vu audits every answer, and the verdict uses audit-adjusted counts (PRE-MD-CLAIM).
+4. Tools run offline against pinned data. calc_damage omits the 16-roll list from its default result (recorded in run_params).
+
+**Why:** The gate has to measure the artifact that ships. A closed-set output format imposed only for the eval would measure compliance with that format, and the errors seen in dev come from the arm's own prose: unit slips ("32 HP" for 32 SP), restated counts ("6 out of 10 rolls") and derived arithmetic ("94 needed" against HP 186). A structured format would hide exactly that surface.
+
+**Alternatives considered:**
+- *Closed-set claim objects for the arm (the ADR-071 direction):* rejected for the gate. Different artifact from the shipped chat answer; it would remove the paraphrase surface where the false claims occur.
+- *LLM judge as the primary extractor:* rejected. Judge errors would be unmeasured and non-deterministic. It stays as a cross-check (recall 41/41 on its test set; precision not measured).
+- *Claude API for the gate run:* not used; there is no Claude API key for this run (decision of 2026-10-22), and the local model is the development target.
+
+**Evidence (dev, in-sample):** dev3b gave 1,236 scored claims on 350 items with 5 FALSE, all in damage answers, none copied unchanged from a tool line. Blind recall on a fresh 20-item round was 98.9% strict (92.9% before the fixes).
+
+**Costs, accepted:**
+- Extraction and scoring complexity: per-template parsers, a dedupe rule, and an audit of all 350 held-out answers.
+- Some claim families are not extracted (bullet echo lines, negated roll-count prose, "does not guarantee" restatements, chance ranges, a second contradictory yes/no statement); the audit-adjusted count is the check.
+- Verbosity is not gated. Damage answers paraphrase tool output (median 45 words, max 115 on dev3b); a tighter prompt is a follow-up that needs its own dev pass and registration.
+- Dropping damage rolls from the default tool output was a product-config choice made partly for the gate; it removed surface, not fabrication.
+
+**Not changed:** ADR-071's fail-closed path on the deterministic gap-fill route; ADR-002; the gate definition in ADR-078.
+
+**Status:** Accepted with the PRE-MD-CLAIM registration (2026-10-24).
