@@ -1,0 +1,255 @@
+"""The arm's lookup tools: each takes plain arguments and returns a JSON-safe dict with an explicit ``source``.
+
+Legality, typing, abilities and move statics come from the extracted legality snapshot; Speed and damage
+come from the calc service (``@smogon/calc``); usage comes from the offline usage files. Nothing here
+searches the web (``allow_live`` is pinned False at construction). Failures come back as
+``{"status": "error", ...}`` so a tool-using loop can record them instead of crashing.
+"""
+
+from __future__ import annotations
+
+import dataclasses
+import json
+import re
+from typing import Any, get_args
+
+from recommender import legality
+from recommender.arm_teammates import arm_query_teammates, mega_capable_base_ids
+from recommender.calc_client import CalcClient, CalcClientError, SideWeather
+from recommender.ids import to_id
+from recommender.usage_data import ingame_ladder_species_map, showdown_species_map
+
+LEGALITY_SOURCE = "legality snapshot (Showdown Champions mod extract)"
+CALC_SOURCE = "@smogon/calc via calc service"
+USAGE_SOURCES = ("ingame", "showdown")
+NO_LOOKUP_CATEGORIES = ("lookup_not_required", "conceptual", "mutation_or_state", "cannot_answer")
+# Speed is read from the calc's own final stats; this move/opponent only make the call valid.
+SPEED_FILLER = {"move": "Tackle", "opponent": {"species": "Pikachu", "nature": "Hardy"}}
+_MON_KEYS = {"species", "nature", "sp", "item", "ability", "boosts"}
+_FIELD_KEYS = {"gameType", "weather", "terrain", "isGravity", "isMagicRoom", "isWonderRoom", "attackerSide", "defenderSide"}
+
+
+def to_jsonable(obj: Any) -> Any:
+    """Frozen dataclasses -> dicts, tuples -> lists, recursively. Unknown types raise instead of being str()'d."""
+    if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
+        return {f.name: to_jsonable(getattr(obj, f.name)) for f in dataclasses.fields(obj)}
+    if isinstance(obj, dict):
+        return {str(k): to_jsonable(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [to_jsonable(v) for v in obj]
+    if obj is None or isinstance(obj, (str, int, float, bool)):
+        return obj
+    raise TypeError(f"not JSON-serializable: {type(obj).__name__}")
+
+
+def dumps(obj: Any) -> str:
+    return json.dumps(to_jsonable(obj), sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+
+
+def _err(kind: str, message: str, **extra: Any) -> dict[str, Any]:
+    return {"status": "error", "error_kind": kind, "message": message, **extra}
+
+
+def top_n_with_ties(entries: list[dict[str, Any]], n: int) -> list[dict[str, Any]]:
+    """First n of a pct-descending list plus every later entry tied with the n-th."""
+    k = min(n, len(entries))
+    while 0 < k < len(entries) and entries[k]["pct"] == entries[n - 1]["pct"]:
+        k += 1
+    return entries[:k]
+
+
+class ArmTools:
+    def __init__(self, *, regulation: str, allow_live: bool, calc: CalcClient | None = None,
+                 include_damage_rolls: bool = True) -> None:
+        assert allow_live is False, "arm tools run offline only (ADR-014)"
+        self.include_damage_rolls = include_damage_rolls
+        self.regulation = regulation
+        self.allow_live = allow_live
+        self.calc = calc or CalcClient()
+        self.snap = legality.load_snapshot()
+
+    # -- snapshot lookups ---------------------------------------------------
+    def get_typing(self, species: str) -> dict[str, Any]:
+        types = legality.species_types(self.snap, species)
+        if types is None:
+            return {"status": "not_found", "query": species, "source": LEGALITY_SOURCE}
+        return {"status": "ok", "species": self.snap["species"][to_id(species)]["name"], "types": types, "source": LEGALITY_SOURCE}
+
+    def get_abilities(self, species: str) -> dict[str, Any]:
+        abilities = legality.species_abilities(self.snap, species)
+        if abilities is None:
+            return {"status": "not_found", "query": species, "source": LEGALITY_SOURCE}
+        return {"status": "ok", "species": self.snap["species"][to_id(species)]["name"], "abilities": abilities, "source": LEGALITY_SOURCE}
+
+    def check_species_ability(self, species: str, ability: str) -> dict[str, Any]:
+        abilities = legality.species_abilities(self.snap, species)
+        if abilities is None:
+            return {"status": "not_found", "query": species, "source": LEGALITY_SOURCE}
+        return {"status": "ok", "species": self.snap["species"][to_id(species)]["name"], "ability": ability,
+                "species_can_have_ability": legality.species_can_have_ability(self.snap, species, ability),
+                "species_abilities": abilities, "source": LEGALITY_SOURCE}
+
+    def check_species_legal(self, species: str) -> dict[str, Any]:
+        known = to_id(species) in self.snap["species"]
+        return {"status": "ok", "query": species, "in_snapshot": known,
+                "legal": legality.is_species_legal(self.snap, species), "source": LEGALITY_SOURCE}
+
+    def check_item_legal(self, item: str) -> dict[str, Any]:
+        known = to_id(item) in self.snap["items"]
+        out = {"status": "ok", "query": item, "in_snapshot": known, "legal_as_held_item": legality.is_item_legal(self.snap, item),
+               "source": LEGALITY_SOURCE}
+        if not known:
+            out["note"] = ("no item with this name exists in the snapshot; if the name is an ability, move or species, "
+                           "use the matching tool (check_species_ability, get_move_static, check_species_legal)")
+        return out
+
+    def get_move_static(self, move: str) -> dict[str, Any]:
+        m = (self.snap.get("moves") or {}).get(to_id(move))
+        if m is None:
+            return {"status": "not_found", "query": move, "source": LEGALITY_SOURCE}
+        return {"status": "ok", "move": m["name"], "type": m.get("type"), "category": m.get("category"),
+                "base_power": m.get("basePower"), "source": LEGALITY_SOURCE}
+
+    # -- calc-backed --------------------------------------------------------
+    def get_speed(self, species: str, nature: str, speed_sp: int) -> dict[str, Any]:
+        spec = {"species": species, "nature": nature, "evs": {"spe": speed_sp}, "level": 50}
+        try:
+            r = self.calc.calculate(spec, dict(SPEED_FILLER["opponent"], level=50), SPEED_FILLER["move"])
+        except CalcClientError as exc:
+            return self._calc_error(exc)
+        return {"status": "ok", "species": species, "nature": nature, "speed_sp": speed_sp,
+                "speed": r["raw"]["stats"]["attacker"]["spe"],
+                "note": "final Speed stat from calc; no item, stat stage, weather, terrain or Tailwind applied",
+                "source": CALC_SOURCE}
+
+    def calc_damage(self, attacker: dict[str, Any], defender: dict[str, Any], move: str,
+                    field: dict[str, Any] | None = None) -> dict[str, Any]:
+        try:
+            req_a, req_d = _mon(attacker), _mon(defender)
+            req_f = _field(field)
+        except ValueError as exc:
+            return _err("bad_arguments", str(exc))
+        try:
+            r = self.calc.calculate(req_a, req_d, move, req_f)
+        except CalcClientError as exc:
+            return self._calc_error(exc)
+        raw = r["raw"]
+        rolls, hp = raw.get("damage"), raw["stats"]["defender"]["hp"]
+        flat = isinstance(rolls, list) and bool(rolls) and all(isinstance(x, int) for x in rolls)
+        ko = sum(x >= hp for x in rolls) if flat else None
+        return {"status": "ok", "move": move, "request": {"attacker": req_a, "defender": req_d, "field": req_f},
+                **({"damage_rolls": raw.get("damage")} if self.include_damage_rolls else {}), "damage_range": r["damageRange"],
+                "defender_hp": hp, "rolls_that_ko": ko, "guaranteed_ko": None if ko is None else ko == len(rolls),
+                "ko_text": r["koChance"], "kochance": raw.get("kochance"),
+                "calc_desc": raw.get("desc"), "ability_resolution": r.get("abilityResolution"), "source": CALC_SOURCE}
+
+    def _calc_error(self, exc: CalcClientError) -> dict[str, Any]:
+        """Calc failure as a tool error; an unknown-species failure says what is wrong with the name."""
+        body = exc.body.get("error") if isinstance(exc.body, dict) else exc.body
+        m = re.match(r"unknown Champions species: (.+)$", str(body))
+        if not m:
+            return _err("calc_error", str(exc.body), source=CALC_SOURCE)
+        name = m.group(1)
+        for i in (j for j, ch in enumerate(name) if ch == "-"):
+            base, suffix = name[:i], name[i + 1:]
+            if any(to_id(suffix) == to_id(a) for a in legality.species_abilities(self.snap, base) or []):
+                msg = (f"{name!r} is not a species name: {suffix!r} is an ability of {base}, and species names never include an "
+                       f"ability. Did you mean the species {base!r}? Pass the ability separately.")
+                return _err("calc_error", msg, source=CALC_SOURCE, calc_message=str(body))
+        if to_id(name) in self.snap["species"]:
+            return _err("calc_error", f"the calc does not recognise the species name {name!r}, though it is in the legality snapshot",
+                        source=CALC_SOURCE, calc_message=str(body))
+        return _err("calc_error", f"{name!r} is not a species name", source=CALC_SOURCE, calc_message=str(body))
+
+    # -- usage --------------------------------------------------------------
+    def get_usage_items(self, species: str, source: str, n: int = 5) -> dict[str, Any]:
+        if source not in USAGE_SOURCES:
+            return _err("invalid_source", "source must be 'ingame' or 'showdown'")
+        rows = ingame_ladder_species_map(self.regulation) if source == "ingame" else showdown_species_map(self.regulation)
+        row = rows.get(to_id(species))
+        label = "in-game usage ladder (offline snapshot)" if source == "ingame" else "Showdown usage (offline snapshot)"
+        if row is None:
+            return {"status": "not_found", "query": species, "requested_source": source, "source": label}
+        items = [{"name": x["name"], "pct": x["pct"]} for x in row.get("common_items") or []]
+        out = {"status": "ok", "species": row["name"], "source": label, "n_requested": n,
+               "listed_count": len(items), "items": top_n_with_ties(items, n)}
+        if source == "ingame" and to_id(species) in mega_capable_base_ids():
+            out["caveat"] = "in-game usage for a Mega-capable base species mixes base-form and Mega-form usage"
+        return out
+
+    def get_usage_teammates(self, species: str, source: str) -> dict[str, Any]:
+        res = arm_query_teammates(species, source=source, regulation=self.regulation, allow_live=self.allow_live)
+        return {"source": f"{source} usage (offline snapshot)", **to_jsonable(res)}
+
+    def no_lookup_needed(self, reason: str, category: str) -> dict[str, Any]:
+        """Stub that makes an abstention visible; it looks nothing up."""
+        if category not in NO_LOOKUP_CATEGORIES:
+            return _err("bad_arguments", f"category must be one of {list(NO_LOOKUP_CATEGORIES)}")
+        return {"status": "ok", "recorded": True, "category": category, "reason": reason,
+                "note": "No lookup was performed; answer the request now.", "source": "none (abstention stub)"}
+
+    def call(self, name: str, args: dict[str, Any]) -> dict[str, Any]:
+        """Dispatch by tool name; bad names/arguments and unexpected exceptions come back as error results."""
+        fn = getattr(self, name, None)
+        if name not in TOOL_NAMES or fn is None:
+            return _err("unknown_tool", f"no tool named {name!r}")
+        try:
+            return fn(**args)
+        except TypeError as exc:
+            return _err("bad_arguments", str(exc))
+        except Exception as exc:  # noqa: BLE001 - the loop records the failure rather than dying
+            return _err("unexpected_failure", f"{type(exc).__name__}: {exc}")
+
+
+def _mon(spec: dict[str, Any]) -> dict[str, Any]:
+    extra = set(spec) - _MON_KEYS
+    if extra or "species" not in spec:
+        raise ValueError(f"pokemon needs 'species' and only {sorted(_MON_KEYS)}; got extra {sorted(extra)}")
+    out = {k: v for k, v in spec.items() if k != "sp" and v is not None}
+    if spec.get("sp") is not None:
+        out["evs"] = spec["sp"]
+    out["level"] = 50
+    return out
+
+
+def _field(field: dict[str, Any] | None) -> dict[str, Any]:
+    """Champions VGC is doubles, so gameType defaults to Doubles (the battery key's setting); callers may override."""
+    extra = set(field or {}) - _FIELD_KEYS
+    if extra:
+        raise ValueError(f"field keys must be among {sorted(_FIELD_KEYS)}; got {sorted(extra)}")
+    weather = (field or {}).get("weather")
+    if weather is not None and weather not in get_args(SideWeather):
+        raise ValueError(f"field.weather {weather!r} is not a weather value; valid values: {list(get_args(SideWeather))}")
+    return {"gameType": "Doubles", **(field or {})}
+
+
+def _spec(name: str, description: str, **props: Any) -> dict[str, Any]:
+    required = [k for k, v in props.items() if not v.pop("optional", False)]
+    return {"type": "function", "function": {"name": name, "description": description,
+            "parameters": {"type": "object", "properties": props, "required": required}}}
+
+
+_S = {"type": "string"}
+_MON_SCHEMA = {"type": "object", "description": "species, nature, sp (dict hp/atk/def/spa/spd/spe -> Champions SP 0-32), item, ability, boosts"}
+TOOL_SPECS: list[dict[str, Any]] = [
+    _spec("no_lookup_needed", "Call this instead of a lookup tool when the request needs no lookup. It looks nothing up and only records "
+          "why. category is one of: lookup_not_required, conceptual, mutation_or_state, cannot_answer.",
+          reason=dict(_S), category={"type": "string", "enum": list(NO_LOOKUP_CATEGORIES)}),
+    _spec("get_typing", "Types of a species or form id (e.g. 'Glalie-Mega').", species=dict(_S)),
+    _spec("get_abilities", "Abilities of a species or form id; a Mega form lists its single ability.", species=dict(_S)),
+    _spec("check_species_ability", "Whether a species or form id can have an ability, with the species' full ability list. Use it for "
+          "\"Does S have A?\" and \"Is A legal on S?\".", species=dict(_S), ability=dict(_S)),
+    _spec("check_species_legal", "Whether a species or form id is legal in Champions VGC.", species=dict(_S)),
+    _spec("check_item_legal", "Whether an item is legal as a held item in Champions VGC.", item=dict(_S)),
+    _spec("get_move_static", "Type, category and base power of a move.", move=dict(_S)),
+    _spec("get_speed", "Final Speed stat from the calc for a species, nature and Speed SP (no item or field effects). Species names never include an ability.",
+          species=dict(_S), nature=dict(_S), speed_sp={"type": "integer"}),
+    _spec("calc_damage", "Damage calc for one move. Returns the calc's rolls, range, defender HP and KO text. Level is always 50; "
+          "critical hits are not supported. Species names never include an ability: pass the ability in the pokemon's ability field. field may set gameType (default Doubles), weather, terrain, attackerSide, defenderSide.",
+          attacker=dict(_MON_SCHEMA), defender=dict(_MON_SCHEMA), move=dict(_S), field={"type": "object", "optional": True}),
+    _spec("get_usage_items", "Most-used held items for a species from one usage source, with percentages, plus any entries tied at rank n.",
+          species=dict(_S), source={"type": "string", "enum": list(USAGE_SOURCES)}, n={"type": "integer", "optional": True}),
+    _spec("get_usage_teammates", "Teammate list for a species from one usage source (in-game lists carry rank only).",
+          species=dict(_S), source={"type": "string", "enum": list(USAGE_SOURCES)}),
+]
+TOOL_NAMES = frozenset(s["function"]["name"] for s in TOOL_SPECS)

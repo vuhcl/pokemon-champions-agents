@@ -1,0 +1,23 @@
+{
+ "files": {
+  "scripts/eval/part_g_arm/config.py": "137c7954caac36e4dedbf9fa29f1373f628ace8abf54f2b10b01ddecce90a33d",
+  "scripts/eval/part_g_arm/dev_split.json": "a1c8bb7f16d7a451cf838b192d6e3e690cccdf3b3a3d918f5c2345a4bc92dba6",
+  "scripts/eval/part_g_arm/judge/README.md": "ffcc62a432ac0586676411d1981c57f84dc61a0da9f695ed16c39cda0f40dc07",
+  "scripts/eval/part_g_arm/judge/extract.py": "4fa191aa3e4fb32dc03d7af5cf432037ed9058ae4d76e075eeca3fc70ea7366b",
+  "scripts/eval/part_g_arm/judge/extract_prompt.md": "3c510e80a9480457badc3487ffe8f8b32d0985a892f9eeadc2a191c6a9688bcd",
+  "scripts/eval/part_g_arm/run_battery.py": "696d74461814e57aecb882cef8e018ddd1f36209ca2637024d70bf3777ad2083",
+  "scripts/eval/part_g_arm/system_prompt.md": "4087d7db7c366eb91be41a22d19cabc096b691022613c48835f988320e628c99",
+  "scripts/eval/part_g_v4/audit_adjusted.py": "9dfe264db9589624d26db80fb7b9f9d71910987c027e47da3ab936411f673592",
+  "scripts/eval/part_g_v4/audit_canaries.py": "343676b424fc83cfcbdebf49bf64773052bd3e67104cc800079bf3729b69374a",
+  "scripts/eval/part_g_v4/audit_canary_check.py": "9bff7026886cfa429d92f780f0efa7e85c884829f476b6b298950cf2e7265b29",
+  "scripts/eval/part_g_v4/audit_view.py": "864f5b64bfc42cdfc971f7c022740759300a8184f8d8d1beb82bdadffd49a4f1",
+  "scripts/eval/part_g_v4/copied_lines.py": "10dd30919a976171064af9c58101e175c1955b4f0e4c47956cdde0bc9e52b5df",
+  "scripts/eval/part_g_v4/copied_unchanged_lines.md": "e74b1219473701851fd42917fb94ea4283e1fe9c255be57dfdf210c0f11b8fc8",
+  "scripts/eval/part_g_v4/extractors.py": "ca9828754ba5b5ea68d9ac8403f7e2c9d3a63456c9db492fb63e21c78a5e749d",
+  "scripts/eval/part_g_v4/freeze_manifest.py": "2692b1a71ce8e8e940919daaefa9f972ec95265ce7b11bbe841b0911d9a7d4f6",
+  "scripts/eval/part_g_v4/scorer.py": "193e091ff2425d1f8aeb6cfba20b0792eeeb64bf9cedcc9e2c2e2cdd7c3747ba",
+  "scripts/eval/run_params.py": "9da88177a0946bb0ce0793faeded4bfe88e8de2b6a1ce5cccbd61cf4c67552c9"
+ },
+ "manifest_sha256": "0972060c0d0b208c6a9669b079ab483bc82e855fcc8956d92fac63c0c780458a",
+ "schema": "part_g_frozen_manifest_v1"
+}

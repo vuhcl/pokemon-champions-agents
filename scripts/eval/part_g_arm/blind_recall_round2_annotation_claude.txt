@@ -1,0 +1,23 @@
+Blind recall round 2 annotation (Claude, from runs/dev3b prompt + final_text only). Claims only, no verdicts; "~" = unscorable or source label.
+ability_003: Golurk | has_ability Telepathy | no; Golurk | abilities | Iron Fist, Klutz, No Guard
+ability_008: Mega Launcher | legal_on Clawitzer | yes; Clawitzer | has_ability Mega Launcher | yes; source label "legality snapshot from Showdown Champions mod extract" ~
+ability_form_003: Barbaracle-Mega | has_ability Pickpocket | no; Barbaracle-Mega | ability | Tough Claws (only ability)
+ability_form_010: Gyarados-Mega | has_ability Mold Breaker | yes; "Mold Breaker is one of the abilities Gyarados-Mega can have" ~ (implies several abilities, vague)
+damage_014: guaranteed_ko | yes; rolls that KO | 16 of 16; guaranteed OHKO (nHKO = 1)
+damage_041: guaranteed_ko | no; damage range | 108-128; percent range | 52.9-62.7%; guaranteed 2HKO (nHKO = 2); rolls that KO | 0 of 16
+item_005: Love Sweet | legal_as_held_item | no
+item_029: Rowap Berry | legal_as_held_item | no
+legality_004: Maushold-Four | legal | yes
+legality_015: Ogerpon-Cornerstone | legal | no; source label "legality snapshot from Showdown Champions mod extract" ~
+move_static_001: Ice Hammer | type | Ice
+move_static_016: Fire Blast | category | Special
+speed_031: Avalugg | speed | 88; Castform | speed | 134; Castform | faster than Avalugg | yes
+speed_038: Orthworm | speed | 128; Ariados | speed | 101; Orthworm | faster than Ariados | yes
+typing_004: Pinsir | has_type Bug | yes
+typing_007: Vivillon | has_type Electric | no; Vivillon | types | Bug, Flying
+usage_012: Indeedee in-game items | Focus Sash 41.6, Choice Scarf 40.9, Psychic Seed 4.4, Twisted Spoon 2.8, Colbur Berry 2.6; teammates | Sneasler, Charizard, Garchomp, Whimsicott, Tyranitar, with explicit ranks 1-5 stated
+usage_029: Diggersby in-game items | Choice Scarf 32.4, Focus Sash 15.1, Life Orb 15.1, Expert Belt 5.9, Chople Berry 4.0; teammates | Rillaboom, Froslass, Talonflame, Whimsicott, Gholdengo, with explicit ranks 1-5 stated; caveats "rank only, no percentages" ~ and "ambiguous attribution status" ~
+usage_showdown_000: Venusaur-Mega Showdown teammates | Pelipper 28.261, Archaludon 28.029, Incineroar 21.795, Grimmsnarl 16.251, Farigiraf 15.413 (numbered list, no explicit rank wording); explanation of "conditional percentage" ~
+usage_showdown_002: Audino-Mega Showdown teammates | Indeedee-F 43.139, Overqwil 35.704, Dragapult 28.506, Incineroar 21.199, Rillaboom 20.114 (numbered list, no explicit rank wording); explanation of "conditional percentage" ~
+
+(Annotated by Claude (Project chat) from blind_recall_round2_export.jsonl, from runs/dev3b. Stored verbatim; not edited.)

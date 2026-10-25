@@ -27,6 +27,7 @@ DEFAULT_PORT = 4173
 ENV_FIXED_NOW = "RECOMMENDER_FIXED_NOW_UTC"
 RUN_TIME_FIELDS = (
     "model_digest", "decoding_parameters", "seed", "think_setting", "system_prompt_hash", "max_turns", "timeouts",
+    "num_ctx", "num_predict", "calc_process", "fixed_now_utc", "damage_rolls_in_result",
 )
 # Env variables outside the code that can change a run; names are read from the source, not hardcoded.
 EXTRA_ENV = ("RECOMMENDER_TOOL_LOG", "POKEMON_CHAMPIONS_CHECKPOINT_DB", "XDG_DATA_HOME")
