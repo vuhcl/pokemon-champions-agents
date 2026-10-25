@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT))
 from recommender.arm_tools import ArmTools  # noqa: E402
 from scripts.eval.part_g_arm import run_battery  # noqa: E402
 from scripts.eval.part_g_arm.config import ArmConfig  # noqa: E402
+pytest.importorskip("langchain_ollama")
 from scripts.eval.part_g_arm.loop import ArmLoop  # noqa: E402
 
 
