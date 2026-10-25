@@ -1,0 +1,104 @@
+{
+ "allow_live": false,
+ "arm_config": {
+  "allow_live": false,
+  "calc_base_url": "http://127.0.0.1:4173",
+  "call_timeout_s": 120.0,
+  "damage_rolls_in_result": false,
+  "enforce_first_turn_tool": true,
+  "fixed_now_utc": "2026-10-25T01:43:47Z",
+  "item_timeout_s": 300.0,
+  "max_turns": 8,
+  "model": "qwen3.5:latest",
+  "model_digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
+  "no_lookup_tool": true,
+  "num_ctx": 16384,
+  "num_predict": 2048,
+  "prompt_file": "system_prompt.md",
+  "regulation": "champions",
+  "run_timeout_s": 14400.0,
+  "temperature": 0.0,
+  "think": false
+ },
+ "calc_build": {
+  "pins_manifest_version": "0.11.0-champions.5d5bf43",
+  "vendor_dirty": false,
+  "vendor_package_version": "0.11.0-champions.5d5bf43",
+  "vendor_tree": "3d832853933bade4431bef136a425fd8cebbec9d"
+ },
+ "date": {
+  "fixed_now_utc": "2026-10-25T01:43:47Z"
+ },
+ "env": {
+  "ANTHROPIC_API_KEY": null,
+  "BOOTSTRAP_ANTHROPIC_MODEL": null,
+  "BOOTSTRAP_OLLAMA_MODEL": null,
+  "POKEMON_CHAMPIONS_CHECKPOINT_DB": null,
+  "POKEMON_CHAMPIONS_LLM_PROVIDER": null,
+  "RECOMMENDER_TOOL_LOG": null,
+  "XDG_DATA_HOME": null
+ },
+ "lockfiles": {
+  "package-lock.json": "e24f07b6e0cbc450e15ade8f147a1ca2d913cff9d35d4d74a8ca125192d0a509",
+  "uv.lock": "f0a88ab1b89da2751e2590e70ebdd9ecd1c65572c6bd60222a027b84a98a245b"
+ },
+ "node_modules_vs_lockfile": {
+  "checked": 17,
+  "mismatched": [],
+  "missing": []
+ },
+ "port": {
+  "command": "/opt/homebrew/Cellar/node/26.12.1/bin/node --require /Users/nowaki027/part-g-seed0-worktree/node_modules/tsx/dist/preflight.cjs --import file:///Users/nowaki027/part-g-seed0-worktree/node_modules/tsx/dist/loader.mjs services/calc/server.ts",
+  "cwd": "/Users/nowaki027/part-g-seed0-worktree",
+  "listening": true,
+  "owner_toplevel": "/Users/nowaki027/part-g-seed0-worktree",
+  "pid": 56539,
+  "port": 4173,
+  "same_worktree": true
+ },
+ "record_sha256": "36f0dbe70d0ebc563f783e1a1f96ba66cd6f2e79b47484c74657c59ac036739a",
+ "run_time": {
+  "calc_process": {
+   "command": "/opt/homebrew/Cellar/node/26.12.1/bin/node --require /Users/nowaki027/part-g-seed0-worktree/node_modules/tsx/dist/preflight.cjs --import file:///Users/nowaki027/part-g-seed0-worktree/node_modules/tsx/dist/loader.mjs services/calc/server.ts",
+   "cwd": "/Users/nowaki027/part-g-seed0-worktree",
+   "owner_toplevel": "/Users/nowaki027/part-g-seed0-worktree",
+   "pid": 56539,
+   "same_worktree": true,
+   "source_sha256": {
+    "handlers.ts": "e4329a9ac84631afa2b222067ada0cc81f5e630f1bc9b1f20760b594fe52a0c7",
+    "recoil.ts": "5d78b142ead6c0fc0c707a3a3aaf3d725c12527c4b1c57dc0796411f3ec0058f",
+    "server.ts": "c37231c34e9f32ca38a6ba6b6e3d24d3b1aa5fbed14841c7a57ec0f64e445fed"
+   }
+  },
+  "damage_rolls_in_result": false,
+  "decoding_parameters": {
+   "modelfile_defaults_left_as_is": "presence_penalty               1.5\ntemperature                    1\ntop_k                          20\ntop_p                          0.95",
+   "num_ctx": 16384,
+   "num_predict": 2048,
+   "temperature": 0.0
+  },
+  "fixed_now_utc": "2026-10-25T01:43:47Z",
+  "max_turns": 8,
+  "model_digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
+  "num_ctx": 16384,
+  "num_predict": 2048,
+  "seed": null,
+  "system_prompt_hash": "4087d7db7c366eb91be41a22d19cabc096b691022613c48835f988320e628c99",
+  "think_setting": false,
+  "timeouts": {
+   "call_s": 120.0,
+   "item_s": 300.0,
+   "run_s": 14400.0
+  }
+ },
+ "runtimes": {
+  "node": "v26.12.1",
+  "python": "3.12.12"
+ },
+ "schema": "run_parameter_record_v1",
+ "worktree": {
+  "clean": true,
+  "commit": "2a0c3cc2913dab659614fb2a6f61dfea0315eb15",
+  "toplevel": "/Users/nowaki027/part-g-seed0-worktree"
+ }
+}
