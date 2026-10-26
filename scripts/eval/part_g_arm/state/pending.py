@@ -14,7 +14,7 @@ from typing import Any
 
 from recommender.ids import to_id
 from recommender.legality import legal_moves_for, load_snapshot
-from recommender.nodes import apply_lock, commit_full_slot
+from recommender.nodes import apply_lock
 from recommender.nodes_classify import classify_pending
 from recommender.slot_fill import SlotFillContext, annotate_overlap, run_slot_fill_terminal
 from recommender.state import (
@@ -214,30 +214,33 @@ def probe_fixture(path_or_id: str | Path) -> dict[str, Any]:
     except Exception as exc:  # noqa: BLE001 - validity report, not a crash
         return {"fixture": fixture_id, "loaded": False, "accepted": "no", "node": None, "error": f"{type(exc).__name__}: {exc}"}
     kind = (state.get("pending_presentation") or {}).get("kind")
-    if kind == "full_build_confirmation":
-        node = "commit_full_slot"
-        patch = commit_full_slot(state)
-        err = patch.get("slot_commit_error")
-        accepted = "no" if err else "yes"
-        return {"fixture": fixture_id, "loaded": loaded, "accepted": accepted, "node": node, "error": err}
-    if kind == "candidate_selection":
-        node = "classify_pending"
+    # Binding rows: classify_pending is the consumer (FBC affirm/defer/option ids,
+    # CS ordinal/label/affirm). commit_full_slot is only for a live FBC with provisional.
+    if kind in {"full_build_confirmation", "candidate_selection"}:
         reply = doc.get("reply") or ""
         result = classify_pending(reply, state["pending_presentation"], turn_intent_parser=None)
         intent = result.get("turn_intent")
-        # "yes" = binder returned a typed intent without the LLM. "unknown" = gap-fill /
-        # pending_response (needs parser). Not a product pass/fail for the OL row.
-        accepted = "yes" if intent in {"slot_candidate_selected", "deferred", "rejection"} else "unknown"
-        detail = f"turn_intent={intent!r}"
+        bound = None
         if intent == "slot_candidate_selected":
-            detail += f" species={result.get('selected_option', {}).get('species')!r}"
+            bound = (result.get("selected_option") or {}).get("species")
+        elif intent == "select_build_option":
+            bound = (result.get("turn_payload") or {}).get("option_ids")
+        needs_parser = intent == "pending_response"
+        typed = intent in {
+            "slot_candidate_selected", "select_build_option", "full_slot_confirmed",
+            "deferred", "build_abandoned", "rejection",
+        }
         return {
             "fixture": fixture_id,
+            "kind": kind,
             "loaded": loaded,
-            "accepted": accepted,
-            "node": node,
-            "error": None if accepted == "yes" else detail,
-            "detail": detail,
+            "node": "classify_pending",
+            "turn_intent": intent,
+            "bound": bound,
+            "needs_parser": needs_parser,
+            "accepted": "yes" if typed else "unknown",
+            "detail": f"turn_intent={intent!r} bound={bound!r}",
+            "error": None if typed else f"turn_intent={intent!r}",
         }
     return {"fixture": fixture_id, "loaded": loaded, "accepted": "unknown", "node": None, "error": f"kind={kind!r}"}
 
