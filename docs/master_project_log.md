@@ -2777,51 +2777,6 @@ independent of the vocabulary gap); checkpointer choice (still blocks msgpack al
 breadth-versus-severity aggregate ranking policy (from the multi-locked task, still open);
 move/ability conditional mechanics (Electro Shot -> Rain, Liquid Voice, Freeze-Dry, Phantom
 Force).
-
-**Backlog item — tier-3 no-usage moveset fallback: confirmed incomplete for Hatterene/
-Mimikyu-shaped roles, not just a residual risk**
-
-**Status:** Confirmed bug, not a hypothetical limitation. Found during roster role-structure
-grouping's confirmation pass (2026-08-10) while verifying two test failures were genuinely
-pre-existing and unrelated — they were, but investigating them surfaced a real, reproducible
-defect in tier-3's own shipped move-synthesis path.
-
-**What's broken:** `assemble_moveset_fallback`'s preferred-move-id pools
-(`_ROLE_PREF_MOVES`) are incomplete for at least two real role/species combinations under the
-no-usage-data path:
-- `trick_room_setter` (Hatterene-shaped): only Trick Room itself is keyed, so the fallback
-  can only fill 2 of 4 required moves (Trick Room + Protect) before running out of
-  preferences, leaving `moves` in `unresolved_fields` alongside `ability`.
-- `fast_attacker` (Mimikyu-shaped): **zero** preferred moves are keyed for this role at all
-  (only `support_speed_control`/`trick_room_sweeper` have entries) — the fallback can only
-  fill Protect, leaving the build entirely unable to reach `ProvisionalSlot` completion
-  no-usage, regardless of species.
-
-**Why this wasn't caught at tier-3's original ship:** both are tier-3's own named acceptance
-tests (`test_no_usage_hatterene_fills_kit_but_leaves_ability_unresolved`,
-`test_no_usage_mimikyu_refines_to_provisional_slot`), but a separately-introduced broken
-import (`WEATHER_SETTING_MOVES`, condition resilience's uncommitted export) made
-`test_propose.py` uncollectible on every commit since tier-3 shipped until roster grouping's
-prerequisite fix landed. Tier-3's "659 passed" close-out count was true only because these
-tests were silently never exercised, not because they passed — confirmed via direct
-bisection across three trees, byte-identical failures on all of them, ruling out any
-connection to roster grouping's own code.
-
-**Scope for the eventual fix (not scoped in detail here — flag for its own discovery/design
-pass, don't patch reactively):**
-1. Expand `_ROLE_PREF_MOVES` coverage for `trick_room_setter` beyond the setter move itself
-   (utility moves appropriate to a Trick Room support role).
-2. Add real preferred-move entries for `fast_attacker` (currently the only vocabulary-tier
-   `RoleArchetype` value with zero keyed preferences) — post the three-axis vocabulary
-   redesign, confirm which of the nine offense archetypes actually need dedicated pools
-   versus which can share a common physical/special offense pool.
-3. Check whether this is representative of a broader gap — audit whether any other
-   `RoleArchetype`/`TargetRoleId` value has similarly sparse or empty `_ROLE_PREF_MOVES`
-   coverage, rather than fixing only the two cases these specific tests happened to catch.
-
-**Not yet triaged for priority** — raised here as a confirmed, reproducible defect for the
-backlog, not assessed against other open items yet.
-
 ### 2026-08-10 (cont.): tier-3 no-usage moveset fallback — fixed, closing the bug
 confirmed during roster role-structure grouping's confirmation pass
 
@@ -6357,6 +6312,41 @@ Open:
 
 **Open.** #287 (the two questions above); whether the committed calc artifacts should be refreshed in a later cut, decided only if (1) or (2) turns out to matter.
 
+### 2026-10-25: Part G v4 gate (PRE-MD-CLAIM) run once on seed 0: PASS on the registered criterion, with caveats
+
+**Result.** The prose arm (qwen3.5:latest, temp 0, think off, prompt rev3 hash 4087d7db...) answered the seed-0 held-out battery once (350 gated items; 415 in the file, the other 65 are `item_stratum`, never scored or audited). Vu audited all 350 answers. Audit-adjusted: **10 false of 1273 scored claims, one-sided 95% Clopper-Pearson upper bound 1.33% (0.013288), registered limit 2%: PASS.** Scorer-only: 9 of 1232 (1.27%). Recall 1232/1273 = 96.8% (floor 90%); 0 of 350 items with no usable answer (limit 5%); scored claims 1273 (floor 240). Sensitivity with copied-unchanged claims removed: 9 of 908, bound 1.72%, not decisive. UNVERIFIABLE count 0, so the tripwire did not apply. The permitted statement is the narrow one in the registration: on this battery, model, temperature, tools and prompt rev3, the claim-level false rate has a 95% upper bound <= 2%, FALSE meaning contradicts the frozen key. It does not carry over to a changed prompt, and the word "reliable" is not used.
+
+**Why this is a bounded claim, not a quality claim.** The margin is 7 claims: at n = 1273 up to 17 false would still pass. Reasons not to read more into it:
+- The audit is imperfect. Canary miss rate (report-only) was 4 of 20: wrong_verdict 0/7, wrong_extraction 1/7, missed_claim 3/6. By judgment, two were real misses (typing_013 and item_006, blank rows), one was a detector-strictness artifact (ability_002: row logged, but its text omitted the planted "Yes, " prefix), and one was half-caught (usage_020: anomaly noticed, row anchored on the wrong line). The registered rule stays 4/20. The unmatched rows had no effect on the false count (the usage_020 row hit a claim the scorer had already scored TRUE) and added one duplicate claim to n (bound 0.013299 vs 0.013288). So the adjusted false count is a lower bound. My own unregistered sensitivity: a 20% miss on the 10 found false claims implies roughly 2-3 hidden, inside the margin; if the audit finds only half of missed claims, recall falls to about 93.8%, still above 90%.
+- The gate measures the arm against the tool and the frozen key, not the tool against the game. The calc service does not apply self-debuffs (e.g. Superpower) across multiple hits, so n-hit KO claims can agree with the key and still be wrong in-game (damage_052, logged `KEY?`). Fix needs its own dev pass and registration.
+- The extractor has known gap families, which the audit exists to catch: ability phrases saying only/pure/single/sole, lost negation ("not guaranteed that every one of the 16 rolls..." read as the positive), hedge verdicts on plain assertions, and mis-extracted numbers (speed stats off by one, HP 178 for 177). The 10 false claims fall into five families: ko_needed stated as HP+1 (3, one in each of three items), "32 HP" unit slip (2), guaranteed-hit count one too low (2), wrong lookup answers against the key (ability_016, typing_032) (2), and one spurious extractor claim (damage_002 "all 16 rolls KO", kept in the count by the pre-verdict policy; without it 9/1272, bound 1.23%). They cluster: 8 of 350 items hold at least one (2.3%, unregistered descriptive view, upper bound about 4.1%), and damage_002 alone holds 3. EXTRA/NOANSWER rows (5 and 1) are not scored.
+- Dev showed 5 FALSE in 1,236 scored claims; held-out shows 10 in 1,273. Dev was in-sample and had no audit.
+
+**Process facts worth keeping.** The first exception log (commit 22e469df, sha256 d14bd7a7...) was refused by `audit_adjusted.py` for one row (`usage_020` span matched no claim); no verdict was produced; the corrected log is commit 22898ac1 (sha256 734e9ac2...). Scorer output and audit view commit e64338ec is unchanged (identical bytes). Registration commit 2a0c3cc2 (PR #312); run commits dede9f8f and c005d636 on run/part-g-seed0. A parse-only pre-check was not possible (the tool refuses without a committed, hashed log and a gate block), so the real run served as the refusal check; allowed because no verdict had been seen. The non-gating gemma4:12b judge cross-check parsed 350/350 items (1,339 claims, 0 failures); its output is outside the repo (sha256 5e55ff99...), not committed, not part of the verdict.
+
+**What this settles and does not.** "v1" here means the first version of the model-driven arm. Per the ledger (Vu, 2026-10-23) only a PASS allows calling it done, and the gate passed, so on the recorded criteria v1 is done (Vu confirmed 2026-10-25 that the 134 request-set rows are an eval of the arm and come after v1; ADR-078 already scores them by class, not pooled, and descriptive). The claim stays narrow: the PASS wording in the registration. Not settled: the request-set eval itself (needs a state-capable arm and has known CLI-reference gaps), Claude API validation (blocked on a key, TBD in eval_results.md), canonical name/form resolution (last logged as the remaining structural gap). Phase 2 (Showdown eval) and phase 3 remain out of scope. Follow-ups, none blocking: extractor gaps above; the calc self-debuff gap; tool-call concatenation (quantify from answers.jsonl after the gate); AGENTS.md PR decision; usage-refresh-mc decision before Nov 4; Nov 1-2 run-list check of the disabled rollover workflow; resync of Project copies of eval_results.md and the architecture docs after the repo merge. Full numbers and the exact commit list are in `claude/part_g_v4_result_2026-10-25.md`.
+
+### 2026-10-25 (cont.): Request-set eval of the stateful arm planned; time-boxed build with a checkpoint
+
+Decided with Vu after the gate result. The 134 request-set rows are an eval of the arm and come after v1; Vu wants to try them on the current pins, so the plan is a build with a checkpoint on Oct 29, not a commitment to the run. Cursor's inventory changed the picture I had: no runner, class scorer or registration exists, the arm loop is stateless with lookup tools only, and a stateful arm is a different configuration that does not inherit the rev3 PASS. The real pin risk is about Nov 4 (usage-refresh-mc on M-8 day 0), because the Showdown rollover is already disabled. Decisions: 1-based slot numbers shown to users and used in tool arguments (a CLI parse path stores the user's number as the internal index, found while reviewing, fixed in its own PR first); hypotheticals never write; state tools wrap the validated lock nodes; the answer key's per-turn classes govern where it disagrees with the class cell; the covered set (97 of 134) is an upper bound listed explicitly with a drop rule; not-covered rows are reported as not built, not scorable, hard counterpart or hand audit. I recommended against running only the lookup rows earlier and changed that after the exclusion became a pre-declared build-effort list. Full plan, lists and disclosures: `claude/request_set_eval_plan_2026-10-25.md`. Open: Nov 3 pin decision; a fresh-seed battery gate if the stateful arm ships.
+
+
+### 2026-10-26: Slot numbers are 1-based for the user and converted once in the extractor (#315, closes #314)
+
+Where it landed: PR #315 is merged. The convention is in ADR-081 Amendment 2026-10-26a. Main after merge: 4745 passed, 17 skipped; npm 119 passed.
+
+How it started: the Part G request-set plan needed arm tools that take slot numbers, and the CLI's `turn_intent.slot_index` had no stated base. A recorded parse stored 2 for "Lock Garchomp in slot 2", which the nodes read as the third slot. Characterization tests first (c12718e) recorded the old behavior: 2 wrote the third slot, 0 wrote the first, 7 was refused, True and 1.5 were rejected by the schema.
+
+What changed: `recommender/slot_index.py` converts once in the extractor, before lock, unlock, restore, reject and revise (repick uses the same conversion). Nodes stay 0-based. Display of a team slot goes through `display_slot`. `record_rejection` now refuses a bad index instead of using it as a Python index (a negative one would have written the last slot). "Slot 0" is now refused.
+
+What worked: writing the characterization tests before the change; mutation checks (removing the subtraction failed 23 tests, leaving the display 0-based failed 3); asking Cursor for a sweep of every consumer of an extracted slot number and every display, instead of fixing the five nodes that came up in discussion. The sweep found no second path, but did find two stale expectations in the unrun Claude API scenarios (`ti_revise_locked_slot`, `ti_repick_locked_slot`) and a 0-based roster string in `ti_lock`; all fixed in the PR.
+
+What it does not do: it does not detect a wrong but valid number from the model. The Laya spike data keeps its old 0-based roster string (closed spike, not graded on the slot, measured dataset left unedited).
+
+Decided: ADR-081 Amendment 2026-10-26a. Claude API validation (blocked on a key) will need a re-read of its slot expectations only if the scenarios change again.
+
+Open: Work 2 (arm state tools) starts from main; Oct 29 checkpoint and stop rule unchanged. No request-set row has been run.
+
 ---
 
 ## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
@@ -6788,43 +6778,6 @@ display-name mismatches stay deferred); roster role-structure grouping's own imp
 (design already reviewed and approved, now unblocked to proceed against a substantially more
 accurate classifier than when it was first designed).
 
----
-
-## TOOLS & RESOURCES
-
-- **Pokémon Showdown** — battle simulator and reference data source. Formats: `[Champions] BSS Reg M-B` (singles), `[Champions] VGC 2026 Reg M-B` (doubles). Note regulation letter will update over time — do not hardcode "M-B" assumptions deep into the architecture; treat regulation as a parameter.
-- **Original RL project** — reference only, for lessons learned on state representation and reward design, not for reuse of the trained artifact.
-
----
-
-## DEEP TECHNICAL DETAILS (interview talking points — not resume bullets)
-
-*(To be populated as the project develops — mirrors the structure of the VinylIQ master resume's Deep Technical Details section. Capture: why the legality-checking approach was designed the way it was, what regulation-versioning approach was chosen and why, any case where the agent's recommendation was wrong and what that revealed, RL training details once retrained, and any eval surprises once Showdown simulation work starts.)*
-
-### Domain knowledge: weather/phase-order mechanics (2026-07-27)
-
-- **Simultaneous automatic (switch-in) weather-setters resolve in Speed order, and the
-  slower one's effect persists** — since weather-setting simply overwrites whatever's
-  currently active, being the *slower* of two simultaneously-triggering automatic setters is
-  the actual advantage for guaranteeing your weather sticks, the reverse of the usual
-  faster-is-better instinct.
-- **Champions' phase order is strict and sequential, not speed-contested, across switch-in
-  effects → Mega Evolution → moves.** A same-turn Mega Evolution's weather-setting ability
-  (e.g. Mega Charizard Y's Drought) always resolves after any automatic switch-in
-  weather-setter (e.g. Pelipper's Drizzle), regardless of either Pokémon's Speed stat — this
-  is a phase-structure guarantee, not a race. Correctly explains why the Mega Charizard Y
-  weather-flip threat (flagged earlier this session) works the way it does.
-- **A fast weather-re-setting move's real value is "before any attacker acts this turn,"
-  not "faster than the opponent's setter."** E.g. Alolan Ninetales using a weather move isn't
-  racing another setter — it's re-establishing weather after a mid-turn change (a switch-in
-  or Mega Evolution) before either side's attacks resolve that turn, which is a broader and
-  more accurate threat model than a setter-vs-setter framing.
-
-These are concrete mechanics the still-open team-wide threat-coverage and single-point-of-
-failure checks (flagged 2026-07-27, not yet designed) will need to reason about correctly
-once built.
-
-**Design implication:** Failure modes #1–#3 all point to the same root fix — legality (species + item + format + regulation) must be **checked programmatically against real Champions/regulation data**, never inferred or assumed by an LLM from general training knowledge. Failure mode #4 points to a second required fix — any mechanical claim (speed comparison, damage calc, matchup assessment) must be backed by an actual calculation/simulation call, not a generated assertion. These two fixes are the real "agentic" core of the project: tool-grounded legality checks + tool-grounded mechanical verification, not just a chat wrapper around Pokémon knowledge.
 ### 2026-08-09 (cont.): condition classification and redundancy/fallback checks —
 implemented, closing the last remaining "Highest priority" item from the original discovery
 report

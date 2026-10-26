@@ -12054,6 +12054,44 @@ The known-limits line "Multi-attribute forme pooling (Toxtricity, Squawkabilly) 
 
 ---
 
+### ADR-081 Amendment 2026-10-26a — Slot numbers are 1-based for the user and converted once in the extractor; the undefined-convention limit is closed
+
+**Context:** ADR-081's known limits recorded that the slot-index convention was undefined. The prompt was silent, user text is 1-based, tests mixed conventions, and one recorded parse stored 2 for "Lock Garchomp in slot 2". `apply_lock` used the extracted number as an internal 0-based index, so that parse wrote Garchomp to the third slot and left the second empty. Measured before the change (characterization tests, commit c12718e, green before the conversion): 2 wrote internal index 2; 0 wrote the first slot; 7 was refused ("I couldn't tell which slot to lock.") and wrote nothing; True and 1.5 never reached the node (the schema rejected them). The same field feeds `unlock_locked_slot`, `restore_superseded`, `record_rejection` and `revise_locked_slot`.
+
+**Decision:**
+1. Every slot number shown to the user is 1-based. The model is told in the extraction prompt that `slot_index` counts from 1 and must not be subtracted.
+2. `recommender/slot_index.py` holds the two conversions: user slot to internal index (user slot 1 is internal 0) and internal index to display number. On a six-slot team, 0 and 7 raise, as do booleans and non-integers.
+3. The conversion runs once, in the extractor (`turn_intent.py`), before `apply_lock`, `unlock_locked_slot`, `restore_superseded`, `record_rejection` and `revise_locked_slot`. `repick_locked_slot` takes the same extracted number and goes through the same conversion. Nodes, state and stored ids stay 0-based. A refused number becomes an index the nodes already reject, so nothing is written.
+4. `record_rejection` now refuses a bad index. Before, it used the number as a Python index, so a negative one would have written the last slot.
+5. Display goes through `display_slot`: `present_text` roster and build headers, `_slot_label`, and the Species Clause and Item Clause strings in `team_validation.py` ("slot 1" for a holder at internal 0). The `quick_pick` bring-list fallback ("bring N") is a bring position, not a team slot, and is unchanged.
+
+**Why (alternatives rejected):**
+- Prompt instruction alone: the model is the source of the bad value, and a prompt is guidance it can ignore (ADR-031 Amendment 2026-08-16a, cited in ADR-081's own reasoning). The prompt now states the base, and the code enforces it.
+- Making the nodes 1-based: state, the direct node tests and stored ids (for example `anchor:{id}:slot:{internal}`) are all internal 0-based, so a 1-based node would need conversion at every caller and in stored data. One conversion at the edge where the model's number enters is the smaller surface.
+- Converting in each node: five nodes would each subtract, and a node called with an already-internal number (tests, the closed-set reject path) would be converted twice.
+
+**Two paths that must not be converted again:** the closed-set reject path in `nodes_classify.py` takes its slot from the pending screen (already internal) and subtracts 1 only for an option index ("reject 2"). Numbered candidate, move and preference lists (`enumerate(..., start=1)` in `present_text`) are option numbers, not team slots.
+
+**Behavior change:** "slot 0" is now refused. Before it wrote the first slot. A bare "7" on a six-slot team was already refused and still is.
+
+**Tests and measurement:**
+- Mutation check 1: removing the subtraction failed 23 tests (2535 passed, 1 skipped, in the affected files).
+- Mutation check 2: leaving the display 0-based failed 3 (`test_display_of_internal_0_is_1`, the clause-string test, `test_format_team_review_gaps_and_spofs`).
+- Tests that sent a 0-based number through the extractor were updated (`pending_harness.py` LOCK_GARCHOMP, `test_refusal_preserves_state.py`, `test_pending_characterization.py`, `test_commit_refusal_escape.py`, `test_cli_repl.py`, `test_turn_intent.py`, `test_slot_index_parse.py`). Direct node tests stay 0-based.
+- Review sweep (Cursor, before merge): no other extraction schema carries a team-slot number (`EditPayload` acts on `provisional.slot_index`; bootstrap and claim_correction carry none), and no display of a team slot still adds 1 itself.
+- Two non-frozen expectations in `scripts/eval/scenarios_claude.py` were stale and are fixed in the same PR: `ti_revise_locked_slot` (expected 1, now 0) and `ti_repick_locked_slot` (expected 5, now 4), plus the `ti_lock` roster context (now "slot 1 empty; slot 2 empty"). The Claude API validation has not been run, so no measured result changed.
+- Full suite on main after merge: 4745 passed, 17 skipped; `npm test` 119 passed.
+
+**Known limits:**
+- This fixes the base, not the model's choice. A parse that picks the wrong slot but a valid number is still not detected (ADR-081 limit, unchanged). The conversion only guarantees that a correct 1-based parse lands on the right internal slot.
+- The Laya spike data still carries the old roster string "slot0 empty; slot1 empty" (`scripts/eval/data/laya_turn_intent/_rows.py` and `held_out.jsonl`, row `held_out_pair_lock_1`). It was left unedited because the spike is closed (Reject verdict, 2026-09-28), the Laya rows do not grade the slot number, and editing `held_out.jsonl` would change a measured dataset.
+- No request-set row was run. The class-cell rule and the pin decision were not touched. Prompt rev3, `FROZEN_MANIFEST.json`, `derived_keys.json` and the request set are unchanged (diff against main empty).
+- This supersedes the ADR-081 known-limits line "The slot-index convention is undefined and unchanged."
+
+**Status:** Implemented and merged (PR #315, closes #314).
+
+---
+
 ## ADR-082: The in-game ladder snapshot is sourced from MetaRoll (offline, pinned), replacing MunchStats champions-data
 
 **Date:** 2026-10-20
