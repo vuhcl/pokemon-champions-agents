@@ -106,7 +106,7 @@ def build_scenarios() -> list[ClaudeScenario]:
             doc="lock species on idle (test_parse_turn_intent_lock_payload shape)",
             user_text="lock Pelipper as the rain setter in slot 1",
             pending_kind="none",
-            roster_summary="slot0 empty; slot1 empty",
+            roster_summary="slot 1 empty; slot 2 empty",
             expected_intent="lock",
             expected_payload={"attr": "species", "value": "Pelipper"},
             payload_keys=("attr", "value"),
@@ -165,7 +165,7 @@ def build_scenarios() -> list[ClaudeScenario]:
             ),
             expected_intent="revise_locked_slot",
             expected_payload={
-                "slot_index": 1,
+                "slot_index": 0,
                 "field": "item",
                 "value": "Focus Sash",
                 "scope": "field_only",
@@ -180,7 +180,7 @@ def build_scenarios() -> list[ClaudeScenario]:
             pending_kind="none",
             roster_summary="slot5 Sinistcha locked",
             expected_intent="repick_locked_slot",
-            expected_payload={"slot_index": 5},
+            expected_payload={"slot_index": 4},
             payload_keys=("slot_index",),
         ),
         ClaudeScenario(
