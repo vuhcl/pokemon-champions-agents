@@ -22,6 +22,7 @@ from scripts.eval.part_g_arm.state.fixtures import empty_team
 from scripts.eval.part_g_arm.state.pending import build_fbc_pending, build_fully_locked_slot
 from scripts.eval.part_g_arm.state.tools import (
     STATE_TOOL_NAMES,
+    check_hypothetical,
     combined_specs,
     commit_slot,
     lock_slot,
@@ -70,6 +71,8 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         return commit_slot(state)
     if name == "read_team":
         return state, read_team(state)
+    if name == "check_hypothetical":
+        return state, check_hypothetical(state, args.get("placements"))
     return state, arm.call(name, args or {})
 
 
@@ -195,6 +198,12 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
             expect = keys["species"][spec["species"]]["types"]
             if result.get("types") != expect:
                 failures.append(f"{row_id}: types {result.get('types')!r} != {expect!r}")
+    if row_id.startswith("dev-hyp-"):
+        before, after = turns[0]["state_before"], turns[0]["state_after"]
+        if before["slots"] != after["slots"]:
+            failures.append(f"{row_id}: team_draft changed")
+        if before.get("pending_presentation") != after.get("pending_presentation"):
+            failures.append(f"{row_id}: pending changed")
     return failures
 
 

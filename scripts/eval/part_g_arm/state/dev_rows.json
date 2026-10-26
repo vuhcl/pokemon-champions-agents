@@ -43,6 +43,30 @@
       "turns": [
         "Commit this build."
       ]
+    },
+    {
+      "id": "dev-hyp-item-clause",
+      "turns": [
+        "What if Venusaur and Blastoise both held Wide Lens?"
+      ]
+    },
+    {
+      "id": "dev-hyp-species-clause",
+      "turns": [
+        "Could I put both Venusaur and Venusaur-Mega on this team?"
+      ]
+    },
+    {
+      "id": "dev-hyp-unknown-species",
+      "turns": [
+        "What if I locked Bulbasaur into a free slot?"
+      ]
+    },
+    {
+      "id": "dev-hyp-legal",
+      "turns": [
+        "What if Venusaur held Wide Lens?"
+      ]
     }
   ]
 }

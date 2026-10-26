@@ -10,6 +10,7 @@ from scripts.eval.part_g_arm.config import ArmConfig
 from scripts.eval.part_g_arm.state.fixtures import dev_key_document, empty_team, one_locked_slot
 from scripts.eval.part_g_arm.state.harness import grade_row, snapshot
 from scripts.eval.part_g_arm.state.tools import (
+    check_hypothetical,
     combined_specs,
     commit_slot,
     draft_signature,
@@ -90,7 +91,7 @@ def test_lookup_only_class_and_spec_list_is_a_copy():
     n = len(TOOL_SPECS)
     specs = combined_specs()
     assert len(TOOL_SPECS) == n
-    assert len(specs) == n + 5
+    assert len(specs) == n + 6
 
 
 def test_non_species_field_change_is_wrote():
@@ -197,3 +198,32 @@ def test_fully_locked_unlock_and_fbc_commit_write():
     assert committed["team_draft"][0].ability.locked is True
     assert committed["pending_presentation"] is None
     assert mechanical_class(snapshot(fbc), snapshot(committed), [{"name": "commit_slot", "result": commit_patch}]) == "wrote"
+
+
+def test_check_hypothetical_never_writes_and_reports_clauses():
+    empty = empty_team()
+    empty["pending_presentation"] = {"kind": "planted"}
+    item = check_hypothetical(
+        empty,
+        [{"species": "Venusaur", "item": "Wide Lens"},
+         {"species": "Blastoise", "item": "Wide Lens"}],
+    )
+    assert item["verdict"] == "item_clause"
+    assert item["conflicts_with_slot"] == 1
+    assert empty["team_draft"][0].species.value is None
+    assert empty["pending_presentation"]["kind"] == "planted"
+
+    species = check_hypothetical(
+        empty_team(),
+        [{"species": "Venusaur"}, {"species": "Venusaur-Mega"}],
+    )
+    assert species["verdict"] == "species_clause"
+
+    unknown = check_hypothetical(empty_team(), [{"species": "Bulbasaur"}])
+    assert unknown["verdict"] in {"illegal_species", "unknown_species"}
+
+    ok = check_hypothetical(empty_team(), [{"species": "Venusaur", "item": "Wide Lens"}])
+    assert ok["verdict"] == "ok"
+    assert mechanical_class(
+        empty, empty, [{"name": "check_hypothetical", "result": ok}]
+    ) == "lookup only"

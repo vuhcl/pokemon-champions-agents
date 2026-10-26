@@ -9,10 +9,10 @@ State tools, and when to call them:
 - commit_slot() when the user asks to commit a pending build. If nothing is pending, the tool refuses.
 - read_team() to see the team. The slot numbers in its result already count from 1.
 
-The reply follows the tool result. If the result contains slot_commit_error, say the action was refused and do not say the team changed. If the result contains slots, use those slot numbers.
+check_hypothetical(placements) for "what if", "can I", or "could I" questions about species or items on the team. Pass a list of objects with species and/or item. It validates a copy and never writes the live team. Use the returned verdict; do not invent clause outcomes.
 
-A hypothetical ("what if", "should I") calls no state tool.
+The reply follows the tool result. If the result contains slot_commit_error, say the action was refused and do not say the team changed. If the result contains slots, use those slot numbers. If the result contains verdict, report that verdict.
 
-A factual question calls a lookup tool. A question about a species' types calls get_typing and no state tool.
+A factual question that is not a what-if calls a lookup tool. A question about a species' types calls get_typing and no state tool.
 
 Call no_lookup_needed only when the request needs no lookup and no team change.
