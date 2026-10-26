@@ -7,11 +7,13 @@ A node refusal is merged by copying only the keys the node returned.
 
 from __future__ import annotations
 
+from dataclasses import fields
 from typing import Any
 
-from recommender.arm_tools import TOOL_SPECS
+from recommender.arm_tools import TOOL_SPECS, to_jsonable
 from recommender.nodes import apply_lock, commit_full_slot, reset_team, unlock_locked_slot
 from recommender.slot_index import SlotIndexError, display_slot, user_slot_to_index
+from recommender.state import Attr, Slot
 
 STATE_TOOL_NAMES = frozenset({"lock_slot", "unlock_slot", "reset_team", "commit_slot", "read_team"})
 LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
@@ -49,6 +51,18 @@ def _refuse(message: str) -> dict[str, Any]:
     return {"slot_commit_error": message}
 
 
+def slot_signature(slot: Slot) -> tuple[Any, ...]:
+    """Every Slot field: Attr fields as (name, value, locked), other fields as (name, value)."""
+    out: list[Any] = []
+    for field in fields(Slot):
+        value = getattr(slot, field.name)
+        if isinstance(value, Attr):
+            out.append((field.name, to_jsonable(value.value), value.locked))
+        else:
+            out.append((field.name, to_jsonable(value)))
+    return tuple(out)
+
+
 def read_team(state: dict[str, Any]) -> dict[str, Any]:
     slots = []
     for index, slot in enumerate(state["team_draft"]):
@@ -56,6 +70,7 @@ def read_team(state: dict[str, Any]) -> dict[str, Any]:
             "slot": display_slot(index),
             "species": slot.species.value,
             "species_locked": slot.species.locked,
+            "attrs": slot_signature(slot),
         })
     return {"slots": slots}
 
@@ -90,9 +105,11 @@ def commit_slot(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     return _merge(state, patch), patch
 
 
-def draft_signature(state: dict[str, Any]) -> tuple[tuple[str, object, bool], ...]:
-    rows = state["slots"] if "team_draft" not in state else read_team(state)["slots"]
-    return tuple((row["slot"], row["species"], row["species_locked"]) for row in rows)
+def draft_signature(state: dict[str, Any]) -> tuple[Any, ...]:
+    """Whole-team write detector. Prefers team_draft; snapshots carry attrs from read_team."""
+    if "team_draft" in state:
+        return tuple(slot_signature(slot) for slot in state["team_draft"])
+    return tuple(tuple(row["attrs"]) for row in state.get("slots") or ())
 
 
 def mechanical_class(before: dict[str, Any], after: dict[str, Any], tool_calls: list[dict[str, Any]]) -> str:

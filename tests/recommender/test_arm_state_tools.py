@@ -1,15 +1,18 @@
 """Checkpoint tests for the stateful arm wrappers. No model calls."""
 
 import json
+from dataclasses import replace
 
 from recommender.arm_tools import TOOL_SPECS
 from recommender.nodes import REPICK_REQUIRES_LOCKED_MSG
+from recommender.state import Attr
 from scripts.eval.part_g_arm.config import ArmConfig
 from scripts.eval.part_g_arm.state.fixtures import dev_key_document, empty_team, one_locked_slot
 from scripts.eval.part_g_arm.state.harness import grade_row, snapshot
 from scripts.eval.part_g_arm.state.tools import (
     combined_specs,
     commit_slot,
+    draft_signature,
     lock_slot,
     mechanical_class,
     read_team,
@@ -88,6 +91,41 @@ def test_lookup_only_class_and_spec_list_is_a_copy():
     specs = combined_specs()
     assert len(TOOL_SPECS) == n
     assert len(specs) == n + 5
+
+
+def test_non_species_field_change_is_wrote():
+    before = one_locked_slot(LEGAL, user_slot=1)
+    after = {
+        **before,
+        "team_draft": [
+            replace(before["team_draft"][0], ability=Attr(value="Overgrow", locked=True)),
+            *before["team_draft"][1:],
+        ],
+    }
+    assert before["team_draft"][0].species.value == after["team_draft"][0].species.value
+    assert mechanical_class(snapshot(before), snapshot(after), [{"name": "commit_slot", "result": {}}]) == "wrote"
+
+
+def test_lock_flag_change_alone_is_wrote():
+    before = one_locked_slot(LEGAL, user_slot=1)
+    after = {
+        **before,
+        "team_draft": [
+            replace(before["team_draft"][0], ability=Attr(value=None, locked=True)),
+            *before["team_draft"][1:],
+        ],
+    }
+    assert before["team_draft"][0].ability.value == after["team_draft"][0].ability.value
+    assert before["team_draft"][0].ability.locked is False
+    assert after["team_draft"][0].ability.locked is True
+    assert mechanical_class(snapshot(before), snapshot(after), []) == "wrote"
+
+
+def test_identical_states_are_not_wrote():
+    state = one_locked_slot(LEGAL, user_slot=1)
+    assert draft_signature(state) == draft_signature(snapshot(state))
+    assert mechanical_class(snapshot(state), snapshot(state), []) == "no change"
+    assert mechanical_class(state, state, [{"name": "get_typing", "result": {}}]) == "lookup only"
 
 
 def test_dev_keys_match_the_snapshot_and_the_prompt_path():
