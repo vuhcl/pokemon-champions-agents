@@ -1229,6 +1229,12 @@ def record_rejection(state: RecommenderState) -> dict:
     slot_index = payload.get("slot_index")
     if slot_index is not None and entry["species"]:
         draft = list(state["team_draft"])
+        if (
+            isinstance(slot_index, bool)
+            or not isinstance(slot_index, int)
+            or not 0 <= slot_index < len(draft)
+        ):
+            return _full_slot_error(LOCK_BAD_SLOT_MSG)
         slot = draft[slot_index]
         if not slot.species.locked:
             draft[slot_index] = replace(slot, species=Attr())

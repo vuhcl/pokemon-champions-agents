@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from recommender.ids import to_id
+from recommender.slot_index import display_slot
 from recommender.legality import is_item_legal, is_species_legal, load_snapshot, team_item_ids
 from recommender.species_resolve import lookup_species_id
 from recommender.state import Slot
@@ -102,7 +103,7 @@ def validate_team_value(
             if dex_id(str(other), snap) == mine:
                 return _refuse(
                     "species_clause", attr, value,
-                    f"Species Clause: {name} clashes with {other} in slot {i + 1}. "
+                    f"Species Clause: {name} clashes with {other} in slot {display_slot(i)}. "
                     "One of each Pokémon, forms included.",
                     i,
                 )
@@ -128,7 +129,7 @@ def validate_team_value(
         )
         return _refuse(
             "item_clause", attr, value,
-            f"Item Clause: {name} is already held in slot {holder + 1}. "
+            f"Item Clause: {name} is already held in slot {display_slot(holder)}. "
             "Each item can be used only once.",
             holder,
         )

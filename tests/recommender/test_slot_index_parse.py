@@ -1,8 +1,6 @@
-"""What the lock node does with the recorded "Lock Garchomp in slot 2" parse.
+"""Lock Garchomp in slot 2: the extractor's number is converted before apply_lock.
 
-The parser sample stored slot_index 2. These tests were committed green before
-the conversion, against that pass-through. The follow-up commit changes the
-assertions to the 1-based contract.
+Before the conversion, the recorded parse (slot_index 2) wrote the third slot.
 """
 
 from __future__ import annotations
@@ -29,28 +27,23 @@ def _apply(payload: dict) -> dict:
     return apply_lock({"team_draft": draft, "turn_payload": payload, "turn": 0})
 
 
-def test_lock_garchomp_slot_2_parse_writes_internal_index_2():
+def test_lock_garchomp_in_user_slot_2_writes_internal_index_1():
     payload = _lock(2)
-    assert payload["slot_index"] == 2
+    assert payload["slot_index"] == 1
     out = _apply(payload)
     assert not out.get("slot_commit_error")
-    assert out["team_draft"][2].species.value == "Garchomp"
-    assert out["team_draft"][2].species.locked
-    assert out["team_draft"][1].species.value is None
+    assert out["team_draft"][1].species.value == "Garchomp"
+    assert out["team_draft"][1].species.locked
+    assert out["team_draft"][2].species.value is None
 
 
-def test_extracted_slot_0_locks_internal_index_0():
-    payload = _lock(0)
-    assert payload["slot_index"] == 0
-    out = _apply(payload)
-    assert not out.get("slot_commit_error")
-    assert out["team_draft"][0].species.value == "Garchomp"
-    assert out["team_draft"][1].species.value is None
+def test_user_slot_0_is_refused_and_writes_nothing():
+    out = _apply(_lock(0))
+    assert out.get("slot_commit_error") == LOCK_BAD_SLOT_MSG
+    assert "team_draft" not in out
 
 
-def test_extracted_slot_7_is_passed_through_and_refused():
-    payload = _lock(7)
-    assert payload["slot_index"] == 7
-    out = _apply(payload)
+def test_user_slot_7_on_a_six_slot_team_is_refused_and_writes_nothing():
+    out = _apply(_lock(7))
     assert out.get("slot_commit_error") == LOCK_BAD_SLOT_MSG
     assert "team_draft" not in out

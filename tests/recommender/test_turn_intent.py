@@ -630,13 +630,14 @@ def test_parse_turn_intent_lock_payload():
     parser = RunnableLambda(
         lambda _: {
             "turn_intent": "lock",
-            "slot_index": 0,
+            "slot_index": 1,
             "attr": "species",
             "value": "Pelipper",
         }
     )
     result = parse_turn_intent(parser, user_text="lock Pelipper", had_pending=False)
     assert result["turn_intent"] == "lock"
+    assert result["turn_payload"]["slot_index"] == 0
     assert result["turn_payload"]["attr"] == "species"
     assert result["turn_payload"]["value"] == "Pelipper"
 
@@ -1008,7 +1009,7 @@ def _lock_parser():
     return RunnableLambda(
         lambda _: {
             "turn_intent": "lock",
-            "slot_index": 0,
+            "slot_index": 1,
             "attr": "species",
             "value": "Farigiraf",
         }
@@ -1135,6 +1136,7 @@ def test_lock_on_candidate_selection_still_classifies():
         turn_intent_parser=_lock_parser(),
     )
     assert result["turn_intent"] == "lock"
+    assert result["turn_payload"]["slot_index"] == 0
     assert result["turn_payload"]["value"] == "Farigiraf"
 
 
@@ -2074,7 +2076,7 @@ def test_repick_locked_slot_payload_and_validator():
 
     from recommender.turn_intent import TurnIntentExtraction, _payload_for
 
-    extraction = TurnIntentExtraction(turn_intent="repick_locked_slot", slot_index=5)
+    extraction = TurnIntentExtraction(turn_intent="repick_locked_slot", slot_index=6)
     payload = _payload_for(extraction)
     assert payload == {"slot_index": 5}
 
@@ -2092,11 +2094,12 @@ def test_revise_locked_slot_payload_still_requires_field():
 
     extraction = TurnIntentExtraction(
         turn_intent="revise_locked_slot",
-        slot_index=0,
+        slot_index=1,
         field="item",
         value_text="Focus Sash",
         edit_scope="field_only",
     )
     payload = _payload_for(extraction)
     assert payload is not None
+    assert payload["slot_index"] == 0  # type: ignore[index]
     assert payload["field"] == "item"  # type: ignore[index]
