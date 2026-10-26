@@ -1,0 +1,52 @@
+{
+  "species": {
+    "Venusaur": {
+      "canonical": "Venusaur",
+      "legal": true,
+      "in_request_set": false,
+      "types": [
+        "Grass",
+        "Poison"
+      ]
+    },
+    "Bulbasaur": {
+      "canonical": "Bulbasaur",
+      "legal": false,
+      "in_request_set": false,
+      "types": [
+        "Grass",
+        "Poison"
+      ]
+    }
+  },
+  "rows": {
+    "dev-lock": {
+      "classes": [
+        "wrote",
+        "refused"
+      ],
+      "user_slot": 2,
+      "species_after": [
+        "Venusaur",
+        "Venusaur"
+      ]
+    },
+    "dev-unlock": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-commit": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-lookup": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "get_typing",
+      "species": "Venusaur"
+    }
+  }
+}

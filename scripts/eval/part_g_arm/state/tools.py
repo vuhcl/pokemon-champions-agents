@@ -1,0 +1,107 @@
+"""State tools for the Part G arm. Each wrapper calls one existing node.
+
+Slot arguments are the user's number. Conversion happens once, here, through
+user_slot_to_index. A bad slot does not call the node and does not change state.
+A node refusal is merged by copying only the keys the node returned.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from recommender.arm_tools import TOOL_SPECS
+from recommender.nodes import apply_lock, commit_full_slot, reset_team, unlock_locked_slot
+from recommender.slot_index import SlotIndexError, display_slot, user_slot_to_index
+
+STATE_TOOL_NAMES = frozenset({"lock_slot", "unlock_slot", "reset_team", "commit_slot", "read_team"})
+LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
+
+
+def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
+    return {"type": "function", "function": {"name": name, "description": description,
+            "parameters": {"type": "object", "properties": properties, "required": required}}}
+
+
+_INT = {"type": "integer"}
+_STR = {"type": "string"}
+
+STATE_TOOL_SPECS: list[dict[str, Any]] = [
+    _spec("lock_slot", "Lock a species into a team slot. slot counts from 1.",
+          {"slot": dict(_INT), "species": dict(_STR)}, ["slot", "species"]),
+    _spec("unlock_slot", "Clear a fully locked team slot. slot counts from 1.",
+          {"slot": dict(_INT)}, ["slot"]),
+    _spec("reset_team", "Clear the whole team.", {}, []),
+    _spec("commit_slot", "Confirm the pending build. Refuses when nothing is pending.", {}, []),
+    _spec("read_team", "Read the current team. Slot numbers in the result count from 1.", {}, []),
+]
+
+
+def combined_specs() -> list[dict[str, Any]]:
+    """A new list. Does not append to TOOL_SPECS."""
+    return [*TOOL_SPECS, *STATE_TOOL_SPECS]
+
+
+def _merge(state: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
+    return {**state, **patch}
+
+
+def _refuse(message: str) -> dict[str, Any]:
+    return {"slot_commit_error": message}
+
+
+def read_team(state: dict[str, Any]) -> dict[str, Any]:
+    slots = []
+    for index, slot in enumerate(state["team_draft"]):
+        slots.append({
+            "slot": display_slot(index),
+            "species": slot.species.value,
+            "species_locked": slot.species.locked,
+        })
+    return {"slots": slots}
+
+
+def lock_slot(state: dict[str, Any], user_slot: object, species: object) -> tuple[dict[str, Any], dict[str, Any]]:
+    if not isinstance(species, str) or not species:
+        return state, _refuse("species is required")
+    try:
+        index = user_slot_to_index(user_slot, team_size=len(state["team_draft"]))
+    except SlotIndexError as exc:
+        return state, _refuse(str(exc))
+    patch = apply_lock({**state, "turn_payload": {"slot_index": index, "attr": "species", "value": species}})
+    return _merge(state, patch), patch
+
+
+def unlock_slot(state: dict[str, Any], user_slot: object) -> tuple[dict[str, Any], dict[str, Any]]:
+    try:
+        index = user_slot_to_index(user_slot, team_size=len(state["team_draft"]))
+    except SlotIndexError as exc:
+        return state, _refuse(str(exc))
+    patch = unlock_locked_slot({**state, "turn_payload": {"slot_index": index}})
+    return _merge(state, patch), patch
+
+
+def reset_team_state(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    patch = reset_team({**state, "turn_payload": {}})
+    return _merge(state, patch), patch
+
+
+def commit_slot(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    patch = commit_full_slot(state)
+    return _merge(state, patch), patch
+
+
+def draft_signature(state: dict[str, Any]) -> tuple[tuple[str, object, bool], ...]:
+    rows = state["slots"] if "team_draft" not in state else read_team(state)["slots"]
+    return tuple((row["slot"], row["species"], row["species_locked"]) for row in rows)
+
+
+def mechanical_class(before: dict[str, Any], after: dict[str, Any], tool_calls: list[dict[str, Any]]) -> str:
+    """wrote, then refused, then lookup only, then no change."""
+    if draft_signature(before) != draft_signature(after):
+        return "wrote"
+    for call in tool_calls:
+        if call["name"] in STATE_TOOL_NAMES and (call.get("result") or {}).get("slot_commit_error"):
+            return "refused"
+    if tool_calls and all(call["name"] in LOOKUP_TOOL_NAMES for call in tool_calls):
+        return "lookup only"
+    return "no change"

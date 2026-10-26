@@ -1,0 +1,231 @@
+"""Multi-turn harness for the stateful arm. This file owns the model loop.
+
+It does not edit ArmLoop or TOOL_SPECS. Lookups go through ArmTools.call.
+Transcripts and the run record are written to the directory passed on the CLI,
+which is outside the repo.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+import time
+from pathlib import Path
+from typing import Any
+
+from recommender.arm_tools import dumps, to_jsonable
+from recommender.calc_client import CalcClient
+
+from scripts.eval.part_g_arm.config import ArmConfig
+from scripts.eval.part_g_arm.state.fixtures import empty_team
+from scripts.eval.part_g_arm.state.tools import (
+    STATE_TOOL_NAMES,
+    combined_specs,
+    commit_slot,
+    lock_slot,
+    mechanical_class,
+    read_team,
+    reset_team_state,
+    unlock_slot,
+)
+
+HERE = Path(__file__).resolve().parent
+NON_INHERITANCE = "This configuration does not inherit the rev3 PASS."
+REASK = ("Call a tool before answering. Use a state tool when the user asks to lock, unlock, reset, or commit. "
+         "Use a lookup tool for a factual question.")
+
+
+def _sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _jsonable_result(patch: dict[str, Any]) -> dict[str, Any]:
+    out: dict[str, Any] = {}
+    for key, value in patch.items():
+        if key == "team_draft":
+            out[key] = read_team({"team_draft": value})["slots"]
+        else:
+            out[key] = to_jsonable(value)
+    return out
+
+
+def snapshot(state: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "slots": read_team(state)["slots"],
+        "pending_presentation": state.get("pending_presentation") is not None,
+        "slot_commit_error": state.get("slot_commit_error"),
+    }
+
+
+def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    if name == "lock_slot":
+        return lock_slot(state, args.get("slot"), args.get("species"))
+    if name == "unlock_slot":
+        return unlock_slot(state, args.get("slot"))
+    if name == "reset_team":
+        return reset_team_state(state)
+    if name == "commit_slot":
+        return commit_slot(state)
+    if name == "read_team":
+        return state, read_team(state)
+    return state, arm.call(name, args or {})
+
+
+def _text(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for part in content:
+            if isinstance(part, str):
+                parts.append(part)
+            elif isinstance(part, dict):
+                parts.append(str(part.get("text") or ""))
+        return "".join(parts)
+    return "" if content is None else str(content)
+
+
+def run_turn(cfg: ArmConfig, llm: Any, arm: Any, state: dict[str, Any], user_text: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+
+    messages: list[Any] = [SystemMessage(cfg.prompt_text()), HumanMessage(user_text)]
+    calls: list[dict[str, Any]] = []
+    before = snapshot(state)
+    deadline = time.monotonic() + cfg.item_timeout_s
+    final_text = ""
+    errors: list[str] = []
+    reasked = False
+    for turn_index in range(cfg.max_turns):
+        if time.monotonic() > deadline:
+            errors.append("item_timeout")
+            break
+        try:
+            ai = llm.invoke(messages)
+        except Exception as exc:  # noqa: BLE001 - recorded, not raised
+            errors.append(f"{type(exc).__name__}: {exc}")
+            break
+        if cfg.enforce_first_turn_tool and turn_index == 0 and not ai.tool_calls and not reasked:
+            reasked = True
+            messages.append(HumanMessage(REASK))
+            continue
+        messages.append(ai)
+        if not ai.tool_calls:
+            final_text = _text(ai.content)
+            break
+        for call in ai.tool_calls:
+            state, patch = dispatch(state, arm, call["name"], call.get("args") or {})
+            recorded = _jsonable_result(patch)
+            calls.append({"name": call["name"], "args": call.get("args") or {}, "result": recorded})
+            messages.append(ToolMessage(dumps(recorded), tool_call_id=call["id"]))
+        if turn_index + 1 >= cfg.max_turns:
+            errors.append("max_turns")
+    after = snapshot(state)
+    record = {
+        "user": user_text,
+        "tool_calls": calls,
+        "state_before": before,
+        "state_after": after,
+        "final_text": final_text,
+        "mechanical_class": mechanical_class(before, after, calls),
+        "errors": errors,
+        "reasked": reasked,
+    }
+    return state, record
+
+
+def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) -> list[str]:
+    spec = keys["rows"][row_id]
+    failures: list[str] = []
+    if [turn["mechanical_class"] for turn in turns] != spec["classes"]:
+        failures.append(f"{row_id}: classes {[t['mechanical_class'] for t in turns]} != {spec['classes']}")
+    if row_id == "dev-lock":
+        slot = str(spec["user_slot"])
+        for turn, species in zip(turns, spec["species_after"], strict=True):
+            got = next(row["species"] for row in turn["state_after"]["slots"] if row["slot"] == slot)
+            if got != species:
+                failures.append(f"{row_id}: slot {slot} species {got!r} != {species!r}")
+        if turns[1]["state_after"]["slots"] != turns[0]["state_after"]["slots"]:
+            failures.append(f"{row_id}: second turn changed the draft")
+    if row_id in ("dev-unlock", "dev-commit"):
+        if any(row["species"] for row in turns[0]["state_after"]["slots"]):
+            failures.append(f"{row_id}: draft was written")
+    if row_id == "dev-lookup":
+        names = [call["name"] for call in turns[0]["tool_calls"]]
+        if any(name in STATE_TOOL_NAMES for name in names):
+            failures.append(f"{row_id}: a state tool ran")
+        typing = [call for call in turns[0]["tool_calls"] if call["name"] == spec["tool"]]
+        if not typing:
+            failures.append(f"{row_id}: {spec['tool']} was not called")
+        else:
+            result = typing[-1]["result"]
+            expect = keys["species"][spec["species"]]["types"]
+            if result.get("types") != expect:
+                failures.append(f"{row_id}: types {result.get('types')!r} != {expect!r}")
+    return failures
+
+
+def run_record(cfg: ArmConfig, facts: dict[str, Any]) -> dict[str, Any]:
+    specs = combined_specs()
+    return {
+        "non_inheritance": NON_INHERITANCE,
+        "prompt_file": cfg.prompt_file,
+        "prompt_sha256": cfg.prompt_hash(),
+        "tool_schema_sha256": _sha256_bytes(json.dumps(specs, sort_keys=True).encode()),
+        "fixture_manifest_sha256": _sha256_bytes((HERE / "fixtures.py").read_bytes()),
+        "model": cfg.model,
+        "model_digest": facts.get("digest"),
+        "allow_live": cfg.allow_live,
+    }
+
+
+def run_dev(out_dir: Path, cfg: ArmConfig | None = None) -> int:
+    from recommender.arm_tools import ArmTools
+    from langchain_ollama import ChatOllama
+    from scripts.eval.part_g_arm.run_battery import model_facts
+
+    cfg = cfg or ArmConfig(prompt_file="state/prompt.md")
+    rows = json.loads((HERE / "dev_rows.json").read_text(encoding="utf-8"))["rows"]
+    keys = json.loads((HERE / "dev_keys.json").read_text(encoding="utf-8"))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        facts = model_facts(cfg)
+    except (Exception, SystemExit) as exc:  # noqa: BLE001 - the checkpoint records the failure and stops
+        (out_dir / "run_record.json").write_text(json.dumps({"non_inheritance": NON_INHERITANCE, "error": f"{type(exc).__name__}: {exc}"}, indent=2) + "\n")
+        print(f"checkpoint failed before the rows: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return 1
+    arm = ArmTools(regulation=cfg.regulation, allow_live=False, calc=CalcClient(cfg.calc_base_url),
+                   include_damage_rolls=cfg.damage_rolls_in_result)
+    llm = ChatOllama(
+        model=cfg.model, temperature=cfg.temperature, reasoning=cfg.think, num_ctx=cfg.num_ctx,
+        num_predict=cfg.num_predict, client_kwargs={"timeout": cfg.call_timeout_s},
+    ).bind_tools(combined_specs())
+    transcript = []
+    failures: list[str] = []
+    for row in rows:
+        state = empty_team()
+        turns = []
+        for user_text in row["turns"]:
+            state, record = run_turn(cfg, llm, arm, state, user_text)
+            turns.append(record)
+        failures.extend(grade_row(row["id"], turns, keys))
+        transcript.append({"id": row["id"], "turns": turns, "pass": not any(item.startswith(row["id"] + ":") for item in failures)})
+    record = run_record(cfg, facts)
+    record["failures"] = failures
+    (out_dir / "transcript.json").write_text(json.dumps(transcript, indent=2) + "\n", encoding="utf-8")
+    (out_dir / "run_record.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+    if failures:
+        print("\n".join(failures), file=sys.stderr)
+        return 1
+    return 0
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) != 2:
+        print("usage: python -m scripts.eval.part_g_arm.state.harness OUT_DIR", file=sys.stderr)
+        return 2
+    return run_dev(Path(argv[1]))
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))

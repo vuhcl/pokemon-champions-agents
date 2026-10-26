@@ -1,0 +1,29 @@
+{
+  "rows": [
+    {
+      "id": "dev-lock",
+      "turns": [
+        "Lock Venusaur into slot 2.",
+        "Lock Bulbasaur into slot 2."
+      ]
+    },
+    {
+      "id": "dev-unlock",
+      "turns": [
+        "Unlock slot 1."
+      ]
+    },
+    {
+      "id": "dev-commit",
+      "turns": [
+        "Commit the pending build."
+      ]
+    },
+    {
+      "id": "dev-lookup",
+      "turns": [
+        "What types does Venusaur have?"
+      ]
+    }
+  ]
+}
