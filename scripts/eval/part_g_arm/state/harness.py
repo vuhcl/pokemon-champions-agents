@@ -19,6 +19,7 @@ from recommender.calc_client import CalcClient
 
 from scripts.eval.part_g_arm.config import ArmConfig
 from scripts.eval.part_g_arm.state.fixtures import empty_team
+from scripts.eval.part_g_arm.state.pending import build_fbc_pending, build_fully_locked_slot
 from scripts.eval.part_g_arm.state.tools import (
     STATE_TOOL_NAMES,
     combined_specs,
@@ -134,6 +135,15 @@ def run_turn(cfg: ArmConfig, llm: Any, arm: Any, state: dict[str, Any], user_tex
     return state, record
 
 
+def start_state(row: dict[str, Any]) -> dict[str, Any]:
+    kind = row.get("start")
+    if kind == "fully_locked":
+        return build_fully_locked_slot(row["species"], user_slot=int(row["user_slot"]))
+    if kind == "fbc":
+        return build_fbc_pending(row["species"], slot_index=int(row["slot_index"]))
+    return empty_team()
+
+
 def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) -> list[str]:
     spec = keys["rows"][row_id]
     failures: list[str] = []
@@ -150,6 +160,29 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
     if row_id in ("dev-unlock", "dev-commit"):
         if any(row["species"] for row in turns[0]["state_after"]["slots"]):
             failures.append(f"{row_id}: draft was written")
+    if row_id == "dev-unlock-ok":
+        slot = str(spec["user_slot"])
+        after = next(row for row in turns[0]["state_after"]["slots"] if row["slot"] == slot)
+        if after["species"] is not None or after["species_locked"]:
+            failures.append(f"{row_id}: slot {slot} was not cleared")
+        if turns[0]["state_after"]["pending_presentation"]:
+            failures.append(f"{row_id}: pending screen was not cleared by the node dict")
+    if row_id == "dev-commit-ok":
+        slot = str(spec["user_slot"])
+        after = next(row for row in turns[0]["state_after"]["slots"] if row["slot"] == slot)
+        if after["species"] != spec["species"] or not after["species_locked"]:
+            failures.append(f"{row_id}: slot {slot} species {after['species']!r} not locked as {spec['species']}")
+        attrs = {
+            entry[0]: (entry[1], entry[2])
+            for entry in after["attrs"]
+            if len(entry) == 3 and entry[0] in spec["fields"]
+        }
+        for field in spec["fields"]:
+            value, locked = attrs[field]
+            if not locked or value in (None, [], {}):
+                failures.append(f"{row_id}: field {field} not committed ({value!r}, locked={locked})")
+        if turns[0]["state_after"]["pending_presentation"]:
+            failures.append(f"{row_id}: pending screen was not cleared by the node dict")
     if row_id == "dev-lookup":
         names = [call["name"] for call in turns[0]["tool_calls"]]
         if any(name in STATE_TOOL_NAMES for name in names):
@@ -203,7 +236,7 @@ def run_dev(out_dir: Path, cfg: ArmConfig | None = None) -> int:
     transcript = []
     failures: list[str] = []
     for row in rows:
-        state = empty_team()
+        state = start_state(row)
         turns = []
         for user_text in row["turns"]:
             state, record = run_turn(cfg, llm, arm, state, user_text)

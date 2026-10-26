@@ -139,3 +139,61 @@ def test_grade_row_flags_a_state_tool_on_the_lookup_row():
     turn = {"mechanical_class": "lookup only", "state_after": {"slots": []},
             "tool_calls": [{"name": "lock_slot", "result": {}}, {"name": "get_typing", "result": {"types": KEYS["species"]["Venusaur"]["types"]}}]}
     assert grade_row("dev-lookup", [turn], KEYS)
+
+
+def test_ol_fixture_loads_without_converting_slot_numbers():
+    from scripts.eval.part_g_arm.state.pending import load_fixture
+
+    state = load_fixture("OL10a")
+    assert state["team_draft"][0].species.value == "Rillaboom"
+    assert state["team_draft"][0].species.locked is True
+    assert state["pending_presentation"]["kind"] == "candidate_selection"
+    assert state["pending_presentation"]["slot_index"] == 1
+
+
+def test_h27_builds_candidate_selection_through_present_candidates():
+    from scripts.eval.part_g_arm.state.pending import load_fixture
+
+    state = load_fixture("H27")
+    pending = state["pending_presentation"]
+    assert pending["kind"] == "candidate_selection"
+    assert pending["slot_index"] == 2
+    names = [opt["species"] for opt in pending["options"]]
+    assert names[:3] == ["Garchomp", "Incineroar", "Rillaboom"]
+
+
+def test_refused_tools_leave_a_loaded_pending_screen():
+    from scripts.eval.part_g_arm.state.pending import load_fixture
+
+    planted = load_fixture("OL1")
+    pending = planted["pending_presentation"]
+    for call in (
+        lambda: lock_slot(planted, 0, LEGAL),
+        lambda: unlock_slot(planted, 1),
+        lambda: commit_slot(planted),
+    ):
+        new, patch = call()
+        assert new["pending_presentation"] is pending
+        assert "pending_presentation" not in patch
+        assert patch.get("slot_commit_error")
+
+
+def test_fully_locked_unlock_and_fbc_commit_write():
+    from scripts.eval.part_g_arm.state.pending import build_fbc_pending, build_fully_locked_slot
+    from recommender.state import all_locked
+
+    locked = build_fully_locked_slot(LEGAL, user_slot=1)
+    assert all_locked(locked["team_draft"][0])
+    unlocked, patch = unlock_slot(locked, 1)
+    assert patch.get("slot_commit_error") is None
+    assert unlocked["team_draft"][0].species.value is None
+    assert unlocked["pending_presentation"] is None
+    assert mechanical_class(snapshot(locked), snapshot(unlocked), [{"name": "unlock_slot", "result": patch}]) == "wrote"
+
+    fbc = build_fbc_pending(LEGAL, slot_index=0)
+    committed, commit_patch = commit_slot(fbc)
+    assert commit_patch.get("slot_commit_error") is None
+    assert committed["team_draft"][0].species.value == LEGAL
+    assert committed["team_draft"][0].ability.locked is True
+    assert committed["pending_presentation"] is None
+    assert mechanical_class(snapshot(fbc), snapshot(committed), [{"name": "commit_slot", "result": commit_patch}]) == "wrote"

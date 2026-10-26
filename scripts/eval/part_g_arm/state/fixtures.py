@@ -60,6 +60,13 @@ def dev_key_document() -> dict[str, Any]:
             "dev-unlock": {"classes": ["refused"]},
             "dev-commit": {"classes": ["refused"]},
             "dev-lookup": {"classes": ["lookup only"], "tool": "get_typing", "species": "Venusaur"},
+            "dev-unlock-ok": {"classes": ["wrote"], "user_slot": 1, "species_after": None},
+            "dev-commit-ok": {
+                "classes": ["wrote"],
+                "user_slot": 1,
+                "species": "Venusaur",
+                "fields": ["role", "species", "ability", "item", "moveset", "spread", "nature"],
+            },
         },
     }
 

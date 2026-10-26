@@ -48,6 +48,29 @@
       ],
       "tool": "get_typing",
       "species": "Venusaur"
+    },
+    "dev-unlock-ok": {
+      "classes": [
+        "wrote"
+      ],
+      "user_slot": 1,
+      "species_after": null
+    },
+    "dev-commit-ok": {
+      "classes": [
+        "wrote"
+      ],
+      "user_slot": 1,
+      "species": "Venusaur",
+      "fields": [
+        "role",
+        "species",
+        "ability",
+        "item",
+        "moveset",
+        "spread",
+        "nature"
+      ]
     }
   }
 }

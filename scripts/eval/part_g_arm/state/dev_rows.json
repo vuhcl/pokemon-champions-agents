@@ -25,6 +25,24 @@
       "turns": [
         "What types does Venusaur have?"
       ]
+    },
+    {
+      "id": "dev-unlock-ok",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Unlock slot 1."
+      ]
+    },
+    {
+      "id": "dev-commit-ok",
+      "start": "fbc",
+      "species": "Venusaur",
+      "slot_index": 0,
+      "turns": [
+        "Commit this build."
+      ]
     }
   ]
 }
