@@ -91,7 +91,7 @@ def test_exit_continue_then_confirm_abandons_the_build(scenario):
 @pytest.mark.parametrize("scenario", SCENARIOS, ids=[s[0] for s in SCENARIOS])
 def test_exit_rejection_is_a_normal_turn(scenario):
     species = scenario[1]()["provisional_slot"].species
-    intent = {"turn_intent": "rejection", "species": species, "slot_index": 1, "reason": "no"}
+    intent = {"turn_intent": "rejection", "species": species, "slot_index": 2, "reason": "no"}
     h, before, _ = _refused(intent, scenario)
     out = h.turn("no thanks")
     assert out["turn_intent"] == "rejection" and not out.get("slot_commit_error")

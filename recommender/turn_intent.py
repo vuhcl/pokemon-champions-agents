@@ -11,6 +11,7 @@ from langchain_core.runnables import Runnable
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from recommender.ids import to_id
+from recommender.slot_index import SlotIndexError, user_slot_to_index
 from recommender.llm_invoke import LLMInvokeTimeout, invoke_with_timeout
 from recommender.state import (
     ArchetypeChangePayload,
@@ -86,6 +87,8 @@ Allowed turn_intent values only:
   revise_locked_slot, repick_locked_slot, claim_correction
 
 Rules:
+- slot_index is the slot number the user said, counting from 1. The first team
+  slot is 1 and the sixth is 6. Copy that number; do not subtract 1.
 - When pending_kind is none and the user revises a build attribute on an already-locked
   roster slot (names slot index or species plus field and value), emit revise_locked_slot
   with slot_index, field, the matching value_* slot, and edit_scope. Never use edit or
@@ -918,6 +921,14 @@ def _edit_value(extraction: TurnIntentExtraction) -> object:
     return extraction.value_spread
 
 
+def _internal_slot(raw: object) -> int:
+    """User slot from the extractor. A refusal is an index every node already rejects."""
+    try:
+        return user_slot_to_index(raw)
+    except SlotIndexError:
+        return -1
+
+
 def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
     intent = extraction.turn_intent
     if intent == "pending_response":
@@ -937,7 +948,7 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
         return EditPayload(**payload)  # type: ignore[typeddict-item]
     if intent == "revise_locked_slot":
         revise_payload: dict[str, Any] = {
-            "slot_index": extraction.slot_index,  # type: ignore[typeddict-item]
+            "slot_index": _internal_slot(extraction.slot_index),
             "field": extraction.field,
             "value": _edit_value(extraction),
             "scope": extraction.edit_scope,
@@ -948,7 +959,7 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
         return ReviseLockedSlotPayload(**revise_payload)  # type: ignore[typeddict-item]
     if intent == "repick_locked_slot":
         return RepickLockedSlotPayload(
-            slot_index=extraction.slot_index,  # type: ignore[typeddict-item]
+            slot_index=_internal_slot(extraction.slot_index),
         )
     if intent == "select_build_option":
         select_payload: dict[str, Any] = {
@@ -984,7 +995,7 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
     if intent == "rejection":
         payload: RejectionPayload = {"species": extraction.species}  # type: ignore[typeddict-item]
         if extraction.slot_index is not None:
-            payload["slot_index"] = extraction.slot_index
+            payload["slot_index"] = _internal_slot(extraction.slot_index)
         if extraction.reason is not None:
             payload["reason"] = extraction.reason
         return payload
@@ -997,7 +1008,7 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
         }
         return payload_cc
     if intent == "lock":
-        payload_lock: LockPayload = {"slot_index": extraction.slot_index}  # type: ignore[typeddict-item]
+        payload_lock: LockPayload = {"slot_index": _internal_slot(extraction.slot_index)}
         if extraction.locks:
             payload_lock["locks"] = extraction.locks
         else:
@@ -1015,7 +1026,7 @@ def _payload_for(extraction: TurnIntentExtraction) -> dict[str, Any] | None:
         return payload_reset or None
     if intent == "restore":
         return RestorePayload(
-            slot_index=extraction.slot_index,  # type: ignore[arg-type]
+            slot_index=_internal_slot(extraction.slot_index),
             attr=extraction.attr,  # type: ignore[arg-type]
         )
     if intent == "restore_constraint":

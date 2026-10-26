@@ -127,7 +127,8 @@ def changed_keys(before: dict, after: dict) -> set[str]:
 
 
 PENDING_KEYS = ("pending_presentation", "pending_slot_intent", "provisional_slot", "provisional_refinement")
-LOCK_GARCHOMP = {"turn_intent": "lock", "slot_index": 1, "attr": "species", "value": "Garchomp"}
+# User slot 2. The extractor copies it; _payload_for converts to internal 1.
+LOCK_GARCHOMP = {"turn_intent": "lock", "slot_index": 2, "attr": "species", "value": "Garchomp"}
 
 
 # Keys a refusal turn may change (PR B, plan section D): bookkeeping written by classify_input

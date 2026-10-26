@@ -60,7 +60,7 @@ def _full_slot_draft() -> list[Slot]:
     return d
 
 
-def _lock(attr: str, value: str, slot_index: int = 1) -> dict:
+def _lock(attr: str, value: str, slot_index: int = 2) -> dict:
     return {"turn_intent": "lock", "slot_index": slot_index, "attr": attr, "value": value}
 
 
@@ -106,7 +106,7 @@ def test_refused_lock_changes_nothing_but_the_listed_keys(case, kind):
         assert not after.get("slot_commit_error")  # stopped before the handler
 
 
-REPICK = {"turn_intent": "repick_locked_slot", "slot_index": 1}
+REPICK = {"turn_intent": "repick_locked_slot", "slot_index": 2}  # user slot 2 → internal 1
 
 
 @pytest.mark.parametrize("kind", ALL_KINDS)
@@ -120,7 +120,7 @@ def test_refused_repick_with_nothing_locked_changes_nothing(kind):
         assert after["slot_commit_error"] == REPICK_REQUIRES_LOCKED_MSG
 
 
-RESTORE = {"turn_intent": "restore", "slot_index": 1, "attr": "species"}
+RESTORE = {"turn_intent": "restore", "slot_index": 2, "attr": "species"}  # user slot 2 → internal 1
 
 
 @pytest.mark.parametrize("kind", ALL_KINDS)

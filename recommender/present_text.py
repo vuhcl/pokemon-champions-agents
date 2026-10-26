@@ -17,6 +17,7 @@ from recommender.discovery_error import (
     CALC_UNAVAILABLE_MSG,
     DISCOVERY_CALC_MESSAGE_ALLOWLIST,
 )
+from recommender.slot_index import display_slot
 from recommender.state import (
     CandidateDiscoveryError,
     CandidateEvidence,
@@ -181,7 +182,7 @@ def format_builds(state: Mapping[str, Any]) -> str:
         if not all_locked(slot):
             continue
         species, role, ability, item, nature, moves, spread = _locked_slot_build_fields(slot)
-        header = f"{index + 1}. {species}"
+        header = f"{display_slot(index)}. {species}"
         if role:
             header = f"{header} ({role})"
         blocks.append(f"{header}:")
@@ -203,8 +204,8 @@ def _slot_label(team_draft: Sequence[Slot], index: int) -> str:
     if 0 <= index < len(team_draft):
         species = getattr(team_draft[index].species, "value", None)
         if species:
-            return f"{index + 1}. {species}"
-    return f"slot {index + 1}"
+            return f"{display_slot(index)}. {species}"
+    return f"slot {display_slot(index)}"
 
 
 def _threat_species(threat: object) -> str:
@@ -390,7 +391,7 @@ def format_roster(state: Mapping[str, Any]) -> str:
             continue
         species = getattr(slot.species, "value", None) or "?"
         role = getattr(slot.role, "value", None)
-        label = f"{index + 1}. {species}"
+        label = f"{display_slot(index)}. {species}"
         if role:
             label = f"{label} ({role})"
         lines.append(label)

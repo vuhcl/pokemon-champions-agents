@@ -26,7 +26,7 @@ from pending_harness import (
     slot_intent,
 )
 
-RESTORE = {"turn_intent": "restore", "slot_index": 1, "attr": "species"}
+RESTORE = {"turn_intent": "restore", "slot_index": 2, "attr": "species"}  # user slot 2 → internal 1
 SUPERSEDED = [{"slot_index": 1, "attr": "species", "value": "Rillaboom", "reason": "x", "turn_removed": 1}]
 
 
@@ -63,7 +63,7 @@ def test_accepted_restore_clears_all_pending_keys(kind):
 
 
 def test_pick_by_lock_clears_candidate_selection():
-    h = Harness({"turn_intent": "lock", "slot_index": 1, "attr": "species", "value": "Farigiraf"})
+    h = Harness({"turn_intent": "lock", "slot_index": 2, "attr": "species", "value": "Farigiraf"})
     _seed_live(h, "candidate_selection", anchor_draft())
     out = h.turn()
     assert out["team_draft"][1].species.value == "Farigiraf" and out["team_draft"][1].species.locked

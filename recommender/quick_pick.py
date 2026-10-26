@@ -119,7 +119,7 @@ def quick_pick(
             best_score = score
             best_combo = combo
             best_notes = [
-                slot_best.get(i, (0, f"slot {combo[i]}"))[1] for i in range(4)
+                slot_best.get(i, (0, f"bring {i + 1}"))[1] for i in range(4)
             ]
 
     return {

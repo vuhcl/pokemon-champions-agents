@@ -513,7 +513,7 @@ def test_handle_line_idle_lock_on_fully_locked_slot_rejected():
     parser = RunnableLambda(
         lambda _: {
             "turn_intent": "lock",
-            "slot_index": 1,
+            "slot_index": 2,  # user text says slot 2; converted to internal 1
             "attr": "species",
             "value": "Kingambit",
         }
