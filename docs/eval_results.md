@@ -832,3 +832,25 @@ Appended; nothing above this heading is edited. For the v5 battery this section 
 **Sizing (arithmetic on an assumed answer rate, not a measurement).** Gated slots 384: at 62% expected scored 238.1 (below the 240 floor), at 65% 249.6, at 70% 268.8. The 313 line is not reached at any of these rates. The item stratum is outside the gate denominator and is reported separately. Item-level expected scored items at 70%: 252.14, from the committed manifest (`gate.cluster_aware`): the sum over the 350 gated items of 1 − (1 − 0.7)^n, where n is the item's claim-slot count and each slot is assumed answered independently.
 
 **Pins and checks.** 14 pins (adds `calc_move_rules.v1.json` and `move_conditionals.v1.json`). `run_all_checks.py` on a clean checkout of the committed cut (`cc70d1c`, calc service started from that worktree): exit 0, 12 checks, including `check_pins` (14), `check_battery_hash` (now regenerates into a temp directory and never writes to `battery/`), `check_move_conditionals_source` and `extract_calc_rules --check`. Full suites on the main tree at the same code: `uv run pytest` 4,608 passed and 11 skipped (exit 0); `npm test` 119 passed (exit 0).
+
+## PRE-MD-CLAIM seed-0 (2026-10-25)
+
+Part G v4, seed-0 held-out, qwen3.5:latest, rev3, temp 0: adjusted false 10/1273, upper bound 0.013288, PASS. Scorer-only 9/1232 (0.012713). Recall 0.9678. Unusable 0/350. Copied-unchanged-removed sensitivity 9/908 (0.017233). Canary misses 4/20. Judge: 1339 claims, 350/350 parsed. Judge output is not committed; sha256 `5e55ff99376c6ac6d2b3d34c5196ccad2173ea58addad3bcdbc054a9fe49ff4d`.
+
+Caveats from the audit. The registered verdict is unchanged.
+
+- The 10 false claims: ko_needed stated as HP+1 (3, in damage_002, damage_009, damage_032); "32 HP" unit slip, SP read as HP (2, damage_013, damage_045); guaranteed-hit count one too low, 3 vs 4 (2, damage_002, damage_036); wrong lookup answers against the key (2, ability_016 Dragonize, typing_032 Abomasnow Grass); one spurious extractor claim (damage_002 "all 16 rolls KO", from a sentence that only states what is being checked). 7 are scorer FALSE claims left in place, 3 are audit-found missed_claim FALSE rows; 2 other scorer FALSE claims were flipped to TRUE by wrong_extraction rows (damage_031, damage_040).
+- The spurious claim stays in the count (convention fixed before the verdict). Without it: 9 of 1272, upper bound 0.012314 (computed afterwards, not a registered line). Vu's judgment is that it is not an assertion by the arm.
+- Clustering (descriptive, not the registered statistic): 8 of 350 items contain at least one false claim (2.3%; one-sided 95% Clopper-Pearson upper bound about 4.1%); damage_002 holds 3 of the 10. The claim-level bound treats claims as independent.
+- Canaries (report-only): 4 of 20 not detected; wrong_verdict 0/7, wrong_extraction 1/7, missed_claim 3/6. typing_013 and item_006 were real misses; ability_002 was logged but the text omitted the planted "Yes, " prefix (detector strictness); usage_020 was noticed but the row named the wrong line. The adjusted false count is therefore a lower bound.
+- Margin: at n = 1273 up to 17 false claims would still pass.
+- The gate measures the arm against the tool and the frozen key. The calc service does not apply self-debuffs (e.g. Superpower) across multiple hits, so n-hit KO claims can agree with the key and still differ in game (damage_052, logged KEY?).
+- The rev3 PASS covers the lookup tools and prompt rev3 only. A changed prompt or tool set needs its own run.
+
+Commits:
+
+- `2a0c3cc2913dab659614fb2a6f61dfea0315eb15` — registration
+- `dede9f8f0246fd400628e8faffeec37fcadcd96e` — run (answers, run_params, canary N and sha256)
+- `c005d636e80659083888b72fa5222c376da53061` — run.log
+- `22898ac1581ccc9f98905a561be5efb63672da28` — exception log (sha256 `734e9ac2b0996022e2ab5be927c253df7f38982d47e1b8d9b3b540af2f902936`). The first log `22e469df82364f3b245ae2bc12d3456612fcd5e3` (sha256 `d14bd7a7d7a6d5f30911fc12e29318eff6f5618eaea150a8dee7eea8ecfa87a8`) was refused for one row and produced no verdict.
+- `e64338ecd41025af8ed2b66a3a5847e00e35f528` — scorer output and audit view
