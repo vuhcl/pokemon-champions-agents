@@ -837,6 +837,16 @@ Appended; nothing above this heading is edited. For the v5 battery this section 
 
 Part G v4, seed-0 held-out, qwen3.5:latest, rev3, temp 0: adjusted false 10/1273, upper bound 0.013288, PASS. Scorer-only 9/1232 (0.012713). Recall 0.9678. Unusable 0/350. Copied-unchanged-removed sensitivity 9/908 (0.017233). Canary misses 4/20. Judge: 1339 claims, 350/350 parsed. Judge output is not committed; sha256 `5e55ff99376c6ac6d2b3d34c5196ccad2173ea58addad3bcdbc054a9fe49ff4d`.
 
+Caveats from the audit. The registered verdict is unchanged.
+
+- The 10 false claims: ko_needed stated as HP+1 (3, in damage_002, damage_009, damage_032); "32 HP" unit slip, SP read as HP (2, damage_013, damage_045); guaranteed-hit count one too low, 3 vs 4 (2, damage_002, damage_036); wrong lookup answers against the key (2, ability_016 Dragonize, typing_032 Abomasnow Grass); one spurious extractor claim (damage_002 "all 16 rolls KO", from a sentence that only states what is being checked). 7 are scorer FALSE claims left in place, 3 are audit-found missed_claim FALSE rows; 2 other scorer FALSE claims were flipped to TRUE by wrong_extraction rows (damage_031, damage_040).
+- The spurious claim stays in the count (convention fixed before the verdict). Without it: 9 of 1272, upper bound 0.012314 (computed afterwards, not a registered line). Vu's judgment is that it is not an assertion by the arm.
+- Clustering (descriptive, not the registered statistic): 8 of 350 items contain at least one false claim (2.3%; one-sided 95% Clopper-Pearson upper bound about 4.1%); damage_002 holds 3 of the 10. The claim-level bound treats claims as independent.
+- Canaries (report-only): 4 of 20 not detected; wrong_verdict 0/7, wrong_extraction 1/7, missed_claim 3/6. typing_013 and item_006 were real misses; ability_002 was logged but the text omitted the planted "Yes, " prefix (detector strictness); usage_020 was noticed but the row named the wrong line. The adjusted false count is therefore a lower bound.
+- Margin: at n = 1273 up to 17 false claims would still pass.
+- The gate measures the arm against the tool and the frozen key. The calc service does not apply self-debuffs (e.g. Superpower) across multiple hits, so n-hit KO claims can agree with the key and still differ in game (damage_052, logged KEY?).
+- The rev3 PASS covers the lookup tools and prompt rev3 only. A changed prompt or tool set needs its own run.
+
 Commits:
 
 - `2a0c3cc2913dab659614fb2a6f61dfea0315eb15` — registration
