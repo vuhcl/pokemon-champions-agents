@@ -1,4 +1,5 @@
 {
+  "provenance": "load_snapshot(), the same data validate_team_value reads. Wiring check only, not a legality measurement (ADR-060).",
   "species": {
     "Venusaur": {
       "canonical": "Venusaur",

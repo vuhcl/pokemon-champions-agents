@@ -53,6 +53,7 @@ def dev_key_document() -> dict[str, Any]:
     if species["Bulbasaur"]["legal"] or species["Bulbasaur"]["in_request_set"]:
         raise RuntimeError("Bulbasaur is not a usable illegal dev species")
     return {
+        "provenance": "load_snapshot(), the same data validate_team_value reads. Wiring check only, not a legality measurement (ADR-060).",
         "species": species,
         "rows": {
             "dev-lock": {"classes": ["wrote", "refused"], "user_slot": 2, "species_after": ["Venusaur", "Venusaur"]},

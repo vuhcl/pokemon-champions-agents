@@ -1,4 +1,5 @@
 {
+  "grading": "The mechanical class is what the row grades. Refusal wording is not graded. Unlock on an empty slot returns the node's message \"Species repick requires a fully locked slot.\" Commit with nothing pending returns \"missing or unsupported full-slot confirmation state.\" Those strings are not changed and are not scored.",
   "rows": [
     {
       "id": "dev-lock",
