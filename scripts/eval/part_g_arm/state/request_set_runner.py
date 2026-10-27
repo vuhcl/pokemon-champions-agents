@@ -35,6 +35,20 @@ from scripts.eval.part_g_arm.state.tools import combined_specs
 HERE = Path(__file__).resolve().parent
 V4 = HERE.parents[1] / "part_g_v4"
 
+# Fixed run-model identity (Part 2). Same as Part G gate / out-final4. Do not vary per row.
+FIXED_RUN_SETTINGS: dict[str, Any] = {
+    "model_id": "qwen3.5:latest",
+    "model_digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
+    "quantization": "Q4_K_M",
+    "parameter_size": "9.7B",
+    "temperature": 0.0,
+    "think": False,
+    "num_ctx": 16384,
+    "num_predict": 2048,
+    "seed": None,  # not pinned; Ollama default
+    "prompt_sha256": FROZEN_PROMPT_SHA256,
+}
+
 
 def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -106,16 +120,21 @@ def run_row(
 
 def build_run_parameters(cfg: ArmConfig, facts: dict[str, Any]) -> dict[str, Any]:
     specs = combined_specs()
+    digest = facts.get("digest") or FIXED_RUN_SETTINGS["model_digest"]
     return {
         "non_inheritance": NON_INHERITANCE,
         "run_params": RUN_PARAMS,
-        "model_id": cfg.model,
-        "model_digest": facts.get("digest"),
-        "temperature": cfg.temperature,
-        "seed": getattr(cfg, "seed", None),
+        "fixed_run_settings": FIXED_RUN_SETTINGS,
+        "model_id": FIXED_RUN_SETTINGS["model_id"],
+        "model_digest": digest,
+        "temperature": FIXED_RUN_SETTINGS["temperature"],
+        "think": FIXED_RUN_SETTINGS["think"],
+        "num_ctx": FIXED_RUN_SETTINGS["num_ctx"],
+        "num_predict": FIXED_RUN_SETTINGS["num_predict"],
+        "seed": FIXED_RUN_SETTINGS["seed"],
         "prompt_sha256": cfg.prompt_hash(),
         "frozen_prompt_sha256": FROZEN_PROMPT_SHA256,
-        "tool_set": [s["name"] for s in specs],
+        "tool_set": [s["function"]["name"] for s in specs],
         "tool_schema_sha256": hashlib.sha256(
             json.dumps(specs, sort_keys=True).encode()
         ).hexdigest(),
