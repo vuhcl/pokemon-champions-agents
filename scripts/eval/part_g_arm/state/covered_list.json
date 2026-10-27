@@ -1,0 +1,31 @@
+{
+  "source": "claude/request_set_eval_plan_2026-10-25.md via transcript (97 of 134 upper bound)",
+  "frozen": false,
+  "note": "Proposed list for Vu approval before registration. Not a FROZEN_MANIFEST entry.",
+  "not_covered": [
+    "H12", "H17", "H18", "H21", "H22", "H25", "H26", "H27",
+    "MT7", "MT8", "AR1", "AR2", "AR3", "MS5",
+    "SC1", "SC2", "SC3", "TS1", "GS1", "GT1", "LZ1", "TB2",
+    "MM1", "MM2", "RB1",
+    "IX1", "IX2", "IX3", "IX4", "IX5", "IX6", "IX7",
+    "DM5", "OL7a", "OL7b", "OL10a", "OL10b"
+  ],
+  "covered": [
+    "H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H11", "H13", "H14", "H15", "H16",
+    "H18b", "H19", "H20",
+    "HF1", "HF2", "HN1", "HN2", "HN2b", "HN2c", "HN2d", "HN3", "HN4",
+    "HP1", "HP2", "HP3", "HU1", "HU2", "HU2b", "HU3", "HU4",
+    "HC1", "HC2", "HD1",
+    "DM1", "DM2", "DM3", "DM4", "DM6", "DM7",
+    "IS1", "IS2", "IS3", "IS4",
+    "MV1", "MV2", "MV3",
+    "MS1", "MS2", "MS3", "MS4", "MS6", "MS7", "MS8",
+    "MR1", "MR2", "MR3", "MR4", "MR5", "MR6", "MR7", "MR8", "MRB1",
+    "MU1", "MU2", "MU3", "MU4", "MU5", "MU6", "MU7", "MU8",
+    "MW1", "MW2", "MW3", "MW4",
+    "Q9", "Q10",
+    "OL1", "OL2a", "OL2b", "OL3", "OL4", "OL5", "OL6", "OL8", "OL9",
+    "MT1", "MT2", "MT3", "MT4", "MT5", "MT6",
+    "IC1", "TB1", "MC1"
+  ]
+}
