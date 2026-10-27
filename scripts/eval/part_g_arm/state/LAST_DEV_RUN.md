@@ -1,14 +1,15 @@
-# Last full final-prompt dev rerun (Part 5 — spread solver round)
+# Last full final-prompt dev rerun (Part A5 — freeze)
 
-- Transcript (outside repo): `/Users/nowaki027/part-g-arm-state-out-final3/`
-- Prompt sha256: `fdab0b6f60daf2e8dfb2f53e020bcdc2c734467d7bc7b24fd7a68def364ddc17` (FREEZE)
+- Transcript (outside repo): `/Users/nowaki027/part-g-arm-state-out-final4/`
+- **FROZEN prompt sha256:** `b71764852eb66f87f17375ff3226a7e4be7517b09eb8961fb56e779fe32badd8`
+- Candidate not chosen: `fdab0b6f60daf2e8dfb2f53e020bcdc2c734467d7bc7b24fd7a68def364ddc17` (out-final3)
 - Model: `qwen3.5:latest` digest `44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f`
+- Why frozen: revised prompt (A1 invalid_arguments + A2 reject consequences) fixed both graded fails from fdab0b6f with **no previously-passing graded row flipped to fail**. Last prompt revision; no further tuning.
 - Does not inherit the rev3 PASS. See `RUN_PARAMS` in `harness.py` / `run_record.json`.
-- New capability: `solve_spread` (read-only). Stateful arm does not inherit prior PASS.
 
-## Per-row (final prompt)
+## Per-row (final prompt vs fdab0b6f)
 
-| row | class | pass | notes vs prior final (`bc6f8bb7…`) |
+| row | class | pass | vs fdab0b6f |
 |---|---|---|---|
 | dev-lock | wrote, refused | pass | same |
 | dev-unlock | refused | pass | same |
@@ -21,29 +22,20 @@
 | dev-hyp-unknown-species | lookup only | pass | same |
 | dev-hyp-legal | lookup only | pass | same |
 | dev-hyp-item-only | lookup only | pass | same |
-| dev-pick-named | bound | pass | **new** (replaces retired `dev-select-cs`); select_option only, no commit |
+| dev-pick-named | bound | pass | same |
 | dev-select-bad | refused | pass | same |
-| dev-select-locked-target | recorded | **fail** | prior refused; this run rejected options after select_option refused on locked target |
+| dev-select-locked-target | refused | **pass** | was fail (recorded after refused select) |
 | dev-confirm-fbc | wrote | pass | same |
 | dev-confirm-stale-fp | refused | pass | same |
 | dev-reject | recorded | pass | same |
-| dev-toss-all | recorded | pass | **new** (rewrote `dev-reject-all` wording) |
-| dev-show-rejected | recorded, lookup only | pass | **new** (rewrote `dev-read-rejected` wording) |
-| dev-dismiss-later | recorded | **fail** | **new** (replaces retired `dev-reject-dismiss`); model called `reject_all` instead of dismiss |
+| dev-toss-all | recorded | pass | same |
+| dev-show-rejected | recorded, lookup only | pass | same |
+| dev-dismiss-later | dismissed | **pass** | was fail (reject_all); now reject_pending |
 | dev-reject-all-bad | refused | pass | same |
-| dev-mt7 | lookup only / no change ×2 | hand pass (no silent write) | **new**; `solve_spread` called 8× on t1 all `status=unknown` (move nested under attacker; missing ability); t2–t3 did not re-solve |
-| dev-mt8 | lookup only / no change / lookup ×2 | hand pass (no silent write) | **new**; same t1 unknown; t3 checked legality of Mega-Y; t4 `read_pending` only — **did not state Timid result before a way out** |
+| dev-mt7 | lookup only / lookup only / no change | hand pass (no silent write) | same grade; t1–t2 now reach `optimal` after `invalid_arguments` repairs (was all `unknown`) |
+| dev-mt8 | lookup only ×4 | hand pass (no silent write) | same grade; still **did not state Timid / infeasible Modest before a way out** on t4 |
 
-## Retired-row findings (kept)
+## Findings kept (not tuned further)
 
-- `dev-select-cs`: select then unrequested commit (wrote).
-- `dev-reject-dismiss`: no tool call / `no_lookup_needed` on dismissal.
-
-## MT7/MT8 hand audit fields
-
-| field | MT7 | MT8 |
-|---|---|---|
-| tool calls / turn | t1: 8× solve_spread; t2: read_team; t3: check_species_legal, get_abilities, read_team | t1: 8× solve_spread; t2: read_team; t3: check_species_legal; t4: read_pending |
-| Timid stated at t4 before way out | n/a | **no** |
-| Silent apply | no | no |
-| Sentence order (MT8) | n/a | failed (no Timid / infeasible Modest statement) |
+- MT8 sentence-order / Timid-before-way-out still fails the hand field.
+- MT7/MT8 still omit ability on first calls; A1 surfaces `invalid_arguments` with legal abilities instead of `unknown`.
