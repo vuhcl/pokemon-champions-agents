@@ -19,7 +19,7 @@ from recommender.calc_client import CalcClient
 
 from scripts.eval.part_g_arm.config import ArmConfig
 from scripts.eval.part_g_arm.state.fixtures import empty_team
-from scripts.eval.part_g_arm.state.pending import build_fbc_pending, build_fully_locked_slot
+from scripts.eval.part_g_arm.state.pending import build_cs_pending, build_fbc_pending, build_fully_locked_slot
 from scripts.eval.part_g_arm.state.tools import (
     STATE_TOOL_NAMES,
     check_hypothetical,
@@ -160,12 +160,8 @@ def start_state(row: dict[str, Any]) -> dict[str, Any]:
     if kind == "fbc":
         return build_fbc_pending(row["species"], slot_index=int(row["slot_index"]))
     if kind == "cs":
-        from scripts.eval.part_g_arm.state.pending import build_cs_pending
-
         return build_cs_pending(tuple(row["species_options"]), slot_index=int(row.get("slot_index", 0)))
     if kind == "cs_locked_target":
-        from scripts.eval.part_g_arm.state.pending import build_cs_pending, build_fully_locked_slot
-
         # Fully lock user slot 1 (internal 0), then overlay a CS screen aimed at that slot.
         locked = build_fully_locked_slot(row["locked_species"], user_slot=1)
         cs = build_cs_pending(tuple(row["species_options"]), slot_index=0)
