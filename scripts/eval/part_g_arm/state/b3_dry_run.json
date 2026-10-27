@@ -181,20 +181,23 @@
   },
   {
     "row": "MT3",
-    "loaded": false,
-    "complete": false,
-    "source": null,
-    "error": "multi-turn seed 'after t1' not built (prior turn not replayed)",
-    "readback": null,
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/mt3_after_t1",
+    "seed": "mt3_after_t1",
+    "justification": "MT3 t1 'No Intimidate.' \u2192 judgment-only hard constraint predicate no_intimidate (no mechanical ban-ability kind); runner plays t2\u2013t3 only.",
+    "error": null,
     "expected_readback": null
   },
   {
     "row": "MT4",
-    "loaded": false,
-    "complete": false,
-    "source": null,
-    "error": "pending start 'CS pending' needs a named OL/v4 fixture; not invented",
-    "readback": null,
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/cs_pending",
+    "seed": "cs_pending",
+    "justification": "MT4/MS7 need a CS screen with option 2; Pelipper/Toxapex/Corviknight/Garchomp are legal doubles staples with source=threat via present_candidates (H27 route).",
+    "error": null,
+    "not_covered_note": "CS seed loads, but MT4 t2 'Show candidates' has no arm tool (no present/show_candidates); row stays not-covered for the run.",
     "expected_readback": null
   },
   {
@@ -244,20 +247,22 @@
   },
   {
     "row": "HC2",
-    "loaded": false,
-    "complete": false,
-    "source": null,
-    "error": "multi-turn seed 'after t1' not built (prior turn not replayed)",
-    "readback": null,
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/hc2_after_t1",
+    "seed": "hc2_after_t1",
+    "justification": "HC2 t1 'No weather.' \u2192 judgment-only hard constraint no_weather_ability (same groundedness as H18b fixture tags); runner plays t2 only.",
+    "error": null,
     "expected_readback": null
   },
   {
     "row": "HD1",
-    "loaded": false,
-    "complete": false,
-    "source": null,
-    "error": "multi-turn seed 'after H1 claim Poison/Water' not built (prior turn not replayed)",
-    "readback": null,
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/hd1_history",
+    "seed": "hd1_history",
+    "justification": "HD1 after H1: prior user 'What type is Toxapex?' + assistant Poison/Water claim; no team state; runner plays only the correction turn with that history.",
+    "error": null,
     "expected_readback": null
   },
   {
@@ -388,11 +393,12 @@
   },
   {
     "row": "MS4",
-    "loaded": false,
-    "complete": false,
-    "source": null,
-    "error": "pending start 'FBC pending valid' needs a named OL/v4 fixture; not invented",
-    "readback": null,
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/fbc_pending",
+    "seed": "fbc_pending",
+    "justification": "MS4/MU7 need a valid FBC for one complete build; Garchomp + Sand Veil + Sitrus Berry + four legal moves is a full provisional the commit node can accept.",
+    "error": null,
     "expected_readback": null
   },
   {
@@ -406,11 +412,12 @@
   },
   {
     "row": "MS7",
-    "loaded": false,
-    "complete": false,
-    "source": null,
-    "error": "pending start 'CS pending' needs a named OL/v4 fixture; not invented",
-    "readback": null,
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/cs_pending",
+    "seed": "cs_pending",
+    "justification": "MT4/MS7 need a CS screen with option 2; Pelipper/Toxapex/Corviknight/Garchomp are legal doubles staples with source=threat via present_candidates (H27 route).",
+    "error": null,
     "expected_readback": null
   },
   {
@@ -550,11 +557,12 @@
   },
   {
     "row": "MU7",
-    "loaded": false,
-    "complete": false,
-    "source": null,
-    "error": "pending start 'FBC pending' needs a named OL/v4 fixture; not invented",
-    "readback": null,
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/fbc_pending",
+    "seed": "fbc_pending",
+    "justification": "MS4/MU7 need a valid FBC for one complete build; Garchomp + Sand Veil + Sitrus Berry + four legal moves is a full provisional the commit node can accept.",
+    "error": null,
     "expected_readback": null
   },
   {

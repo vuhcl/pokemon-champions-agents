@@ -27,8 +27,8 @@ from scripts.eval.part_g_arm.state.request_set_rows import (
     FROZEN_PROMPT_SHA256,
     load_covered_ids,
     load_request_rows,
-    parse_user_turns,
     resolve_start_state,
+    turns_for_row,
 )
 from scripts.eval.part_g_arm.state.tools import combined_specs
 
@@ -107,8 +107,11 @@ def run_row(
             "turns": [],
         }
     turns_out: list[dict[str, Any]] = []
-    for user_text in parse_user_turns(row["prompt"]):
-        state, record = run_turn(cfg, llm, arm, state, user_text)
+    prior = list(state.get("_message_history") or [])
+    for i, user_text in enumerate(turns_for_row(row, state)):
+        # History is consumed on the first played turn only (HD1).
+        use_prior = prior if i == 0 else []
+        state, record = run_turn(cfg, llm, arm, state, user_text, prior_messages=use_prior)
         turns_out.append(record)
     return {
         "id": row["id"],

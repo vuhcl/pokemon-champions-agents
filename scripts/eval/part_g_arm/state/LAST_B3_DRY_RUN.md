@@ -22,15 +22,15 @@
 | H20 | True | True | empty_team |  |
 | MT1 | True | True | empty_team |  |
 | MT2 | True | True | empty_team |  |
-| MT3 | False | False | None | multi-turn seed 'after t1' not built (prior turn not replayed) |
-| MT4 | False | False | None | pending start 'CS pending' needs a named OL/v4 fixture; not invented |
+| MT3 | True | True | seeds/mt3_after_t1 |  |
+| MT4 | True | True | seeds/cs_pending |  |
 | MT5 | True | True | empty_team |  |
 | MT6 | True | True | empty_team |  |
 | HF1 | True | True | empty_team |  |
 | HF2 | True | True | empty_team |  |
 | HC1 | True | True | empty_team |  |
-| HC2 | False | False | None | multi-turn seed 'after t1' not built (prior turn not replayed) |
-| HD1 | False | False | None | multi-turn seed 'after H1 claim Poison/Water' not built (prior turn not replayed) |
+| HC2 | True | True | seeds/hc2_after_t1 |  |
+| HD1 | True | True | seeds/hd1_history |  |
 | HU1 | True | True | empty_team |  |
 | HU2 | True | True | empty_team |  |
 | HU3 | True | True | empty_team |  |
@@ -45,9 +45,9 @@
 | MS1 | True | True | empty_team |  |
 | MS2 | True | True | empty_team |  |
 | MS3 | True | True | empty_team |  |
-| MS4 | False | False | None | pending start 'FBC pending valid' needs a named OL/v4 fixture; not invented |
+| MS4 | True | True | seeds/fbc_pending |  |
 | MS6 | True | True | empty_team |  |
-| MS7 | False | False | None | pending start 'CS pending' needs a named OL/v4 fixture; not invented |
+| MS7 | True | True | seeds/cs_pending |  |
 | MS8 | True | True | empty_team |  |
 | MR1 | True | True | empty_team |  |
 | MR2 | True | True | empty_team |  |
@@ -63,7 +63,7 @@
 | MU4 | True | False | load_fixture('MU4') | slot 1: skipped unlocked 'Pelipper' |
 | MU5 | True | True | empty_team |  |
 | MU6 | True | True | empty_team |  |
-| MU7 | False | False | None | pending start 'FBC pending' needs a named OL/v4 fixture; not invented |
+| MU7 | True | True | seeds/fbc_pending |  |
 | MU8 | True | True | empty_team |  |
 | MW1 | True | True | empty_team |  |
 | MW2 | True | True | empty_team |  |

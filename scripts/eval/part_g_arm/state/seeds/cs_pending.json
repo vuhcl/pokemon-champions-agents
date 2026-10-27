@@ -1,0 +1,461 @@
+{
+  "justification": "MT4/MS7 need a CS screen with option 2; Pelipper/Toxapex/Corviknight/Garchomp are legal doubles staples with source=threat via present_candidates (H27 route).",
+  "rows": [
+    "MS7",
+    "MT4"
+  ],
+  "seed": "cs_pending",
+  "state": {
+    "pending_presentation": {
+      "kind": "candidate_selection",
+      "notices": [],
+      "options": [
+        {
+          "evidence": [
+            {
+              "basis": "usage_backed",
+              "branch": null,
+              "confidence": "high",
+              "evidence": [
+                "verified_score:5.0",
+                "threats_countered:seed",
+                "build_source:ingame",
+                "usage_rank:1",
+                "showdown_usage_pct:None"
+              ],
+              "origin_anchor_id": null,
+              "origin_slot_index": null,
+              "producer_name": "query_threat_counters",
+              "subject_id": null
+            }
+          ],
+          "source": "threat",
+          "species": "Pelipper",
+          "species_primary_role": "rain_setter",
+          "target_role_decision": {
+            "ambiguity": [],
+            "confidence": "medium",
+            "evidence": [
+              "kit_role:support_speed_control"
+            ],
+            "needed_constraints": [
+              "role:support_speed_control"
+            ],
+            "producer_name": "slot_fill_kit_role_policy",
+            "provenance": [
+              "anchor_role:kit_role"
+            ],
+            "role_id": "support_speed_control",
+            "source": "other",
+            "wanted_constraints": []
+          }
+        },
+        {
+          "evidence": [
+            {
+              "basis": "usage_backed",
+              "branch": null,
+              "confidence": "high",
+              "evidence": [
+                "verified_score:4.0",
+                "threats_countered:seed",
+                "build_source:ingame",
+                "usage_rank:2",
+                "showdown_usage_pct:None"
+              ],
+              "origin_anchor_id": null,
+              "origin_slot_index": null,
+              "producer_name": "query_threat_counters",
+              "subject_id": null
+            }
+          ],
+          "source": "threat",
+          "species": "Toxapex",
+          "species_primary_role": "bulky_special_attacker",
+          "target_role_decision": {
+            "ambiguity": [],
+            "confidence": "medium",
+            "evidence": [
+              "kit_role:bulky_special_attacker"
+            ],
+            "needed_constraints": [
+              "role:bulky_special_attacker"
+            ],
+            "producer_name": "slot_fill_kit_role_policy",
+            "provenance": [
+              "anchor_role:kit_role"
+            ],
+            "role_id": "bulky_special_attacker",
+            "source": "other",
+            "wanted_constraints": []
+          }
+        },
+        {
+          "evidence": [
+            {
+              "basis": "usage_backed",
+              "branch": null,
+              "confidence": "high",
+              "evidence": [
+                "verified_score:3.0",
+                "threats_countered:seed",
+                "build_source:ingame",
+                "usage_rank:3",
+                "showdown_usage_pct:None"
+              ],
+              "origin_anchor_id": null,
+              "origin_slot_index": null,
+              "producer_name": "query_threat_counters",
+              "subject_id": null
+            }
+          ],
+          "source": "threat",
+          "species": "Corviknight",
+          "species_primary_role": "bulk_up_attacker",
+          "target_role_decision": {
+            "ambiguity": [],
+            "confidence": "medium",
+            "evidence": [
+              "kit_role:standard_physical_attacker"
+            ],
+            "needed_constraints": [
+              "role:standard_physical_attacker"
+            ],
+            "producer_name": "slot_fill_kit_role_policy",
+            "provenance": [
+              "anchor_role:kit_role"
+            ],
+            "role_id": "standard_physical_attacker",
+            "source": "other",
+            "wanted_constraints": []
+          }
+        }
+      ],
+      "schema_version": 1,
+      "slot_index": 1
+    },
+    "pending_slot_intent": null,
+    "provisional_refinement": null,
+    "provisional_slot": null,
+    "team_draft": [
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      }
+    ]
+  }
+}

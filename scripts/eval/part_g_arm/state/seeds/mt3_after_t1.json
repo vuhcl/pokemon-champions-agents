@@ -1,0 +1,344 @@
+{
+  "justification": "MT3 t1 'No Intimidate.' \u2192 judgment-only hard constraint predicate no_intimidate (no mechanical ban-ability kind); runner plays t2\u2013t3 only.",
+  "rows": [
+    "MT3"
+  ],
+  "seed": "mt3_after_t1",
+  "state": {
+    "constraints": [
+      {
+        "groundedness": "judgment-only",
+        "mechanical": null,
+        "predicate": "no_intimidate",
+        "scope": "team_wide",
+        "source_turn": 1,
+        "still_active": true,
+        "type": "hard"
+      }
+    ],
+    "pending_presentation": null,
+    "pending_slot_intent": null,
+    "provisional_refinement": null,
+    "provisional_slot": null,
+    "team_draft": [
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      }
+    ]
+  }
+}

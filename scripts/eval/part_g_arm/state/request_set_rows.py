@@ -46,6 +46,19 @@ def parse_user_turns(prompt: str) -> list[str]:
     return [text]
 
 
+def turns_for_row(row: dict[str, Any], state: dict[str, Any] | None) -> list[str]:
+    """User turns the runner actually plays (seeds may skip already-applied t1)."""
+    if state and state.get("_runner_turns"):
+        return list(state["_runner_turns"])
+    turns = parse_user_turns(row.get("prompt") or "")
+    rid = row.get("id")
+    if rid == "MT3" and len(turns) >= 3:
+        return turns[1:]  # t1 applied as seed constraint
+    if rid == "HC2" and len(turns) >= 2:
+        return turns[1:]  # t1 applied as seed constraint
+    return turns
+
+
 def resolve_start_state(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dict[str, Any]]:
     """Return (state|None, meta). meta has loaded/complete/error/source/readback."""
     rid = row["id"]
@@ -57,6 +70,12 @@ def resolve_start_state(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dic
         "error": None,
         "readback": None,
     }
+    # Part 3 seeds for previously unloaded rows (MT3/MT4/MS4/MS7/MU7/HC2/HD1).
+    from scripts.eval.part_g_arm.state.seeds import SEED_FOR_ROW, load_seed_state
+
+    if rid in SEED_FOR_ROW:
+        return load_seed_state(rid)
+
     if rid == "MRB1":
         state = build_mrb1_start()
         from recommender.slot_index import user_slot_to_index

@@ -155,10 +155,33 @@ def _text(content: Any) -> str:
     return "" if content is None else str(content)
 
 
-def run_turn(cfg: ArmConfig, llm: Any, arm: Any, state: dict[str, Any], user_text: str) -> tuple[dict[str, Any], dict[str, Any]]:
-    from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+def run_turn(
+    cfg: ArmConfig,
+    llm: Any,
+    arm: Any,
+    state: dict[str, Any],
+    user_text: str,
+    *,
+    prior_messages: list[dict[str, str]] | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
-    messages: list[Any] = [SystemMessage(cfg.prompt_text()), HumanMessage(user_text)]
+    messages: list[Any] = [SystemMessage(cfg.prompt_text())]
+    # Optional prior turns (HD1 seed): same roles as a normal multi-turn chat.
+    # prior_messages=None → fall back to state; prior_messages=[] → none.
+    history = (
+        prior_messages
+        if prior_messages is not None
+        else (state.get("_message_history") or [])
+    )
+    for prior in history:
+        role = prior.get("role")
+        content = prior.get("content") or ""
+        if role == "user":
+            messages.append(HumanMessage(content))
+        elif role == "assistant":
+            messages.append(AIMessage(content))
+    messages.append(HumanMessage(user_text))
     calls: list[dict[str, Any]] = []
     before = snapshot(state)
     deadline = time.monotonic() + cfg.item_timeout_s
