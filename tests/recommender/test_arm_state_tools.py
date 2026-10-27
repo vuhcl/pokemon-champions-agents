@@ -394,7 +394,8 @@ def test_v4_fixture_loader_bases_ic1_mrb1_moveset():
 
     mrb1 = build_mrb1_start()
     assert mrb1["team_draft"][2].species.value == "Torkoal"
-    assert mrb1["team_draft"][2].item.value is None
+    assert mrb1["team_draft"][2].item.value == "Charcoal"
+    assert mrb1["team_draft"][2].ability.value == "Drought"
 
     cs = build_cs_pending(["Venusaur", "Blastoise"], slot_index=0)
     assert cs["pending_presentation"]["kind"] == "candidate_selection"
