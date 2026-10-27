@@ -251,6 +251,35 @@ def test_check_hypothetical_never_writes_and_reports_clauses():
     ) == "lookup only"
 
 
+def test_select_option_pending_slot_intent_matches_classify_input():
+    """Parity: tool-built intent equals classify_input after a typed CS selection."""
+    from unittest.mock import patch
+
+    from recommender.nodes import classify_input
+    from scripts.eval.part_g_arm.state.pending import build_cs_pending
+
+    cs = build_cs_pending(["Venusaur", "Blastoise"])
+    option = cs["pending_presentation"]["options"][1]
+    assert option.get("source") is not None
+    assert option.get("target_role_decision") is not None
+
+    _, tool_patch = select_option(cs, 2)
+    tool_intent = tool_patch["pending_slot_intent"]
+
+    fake = {"turn_intent": "slot_candidate_selected", "selected_option": option}
+    with patch("recommender.nodes.classify_pending", return_value=fake):
+        classified = classify_input({**cs, "pending_input": "2"})
+    node_intent = classified["pending_slot_intent"]
+
+    assert tool_intent.schema_version == node_intent.schema_version
+    assert tool_intent.slot_index == node_intent.slot_index
+    assert tool_intent.species == node_intent.species
+    assert tool_intent.target_role_decision == node_intent.target_role_decision
+    assert tool_intent.source == node_intent.source
+    assert tool_intent.evidence == node_intent.evidence
+    assert tool_intent.base_slot_fingerprint == node_intent.base_slot_fingerprint
+
+
 def test_pending_select_confirm_and_reject_tools():
     from scripts.eval.part_g_arm.state.pending import build_cs_pending, build_fbc_pending, build_fully_locked_slot
 
