@@ -1,0 +1,48 @@
+{
+  "source": "claude/request_set_errata_draft_2026-10-26.md (draft not present in worktree; cells taken from request-set acceptance text + Vu task brief)",
+  "note": "Class-cell corrections and loader substitutions only. Never edit part3_request_set_v4.md or derived_keys.json.",
+  "class_cells": {
+    "H15": {
+      "turns": ["ASSUME-STATE"],
+      "note": "Single-turn idle; class cell ASSUME-STATE. Acceptance SERVED wording is the outcome under stated Modest top joint, not a second class atom."
+    },
+    "DM1": {
+      "turns": ["ASSUME-STATE"],
+      "note": "Single-turn; class cell ASSUME-STATE. Acceptance SERVED when stated sides match dm_outputs.dm1."
+    },
+    "DM3": {
+      "turns": ["ASSUME-STATE"],
+      "note": "Single-turn; class cell ASSUME-STATE. Doubles Rock Slide Intimidate on/off cases in acceptance."
+    },
+    "IC1": {
+      "turns": ["SERVED", "MUTATION-OK"],
+      "note": "Class cell says SERVED; per-turn key is t1 SERVED, t2 MUTATION-OK (errata overrides cell for scoring)."
+    },
+    "IS2": {
+      "turns": ["PARTIAL+ASSUME-STATE"],
+      "note": "Class cell ASSUME-STATE; acceptance PARTIAL+ASSUME-STATE (errata)."
+    }
+  },
+  "substitutions": {
+    "MRB1": {
+      "user_slot": 3,
+      "species": "Torkoal",
+      "ability": "Drought",
+      "item": "Charcoal",
+      "expected_readback": ["Torkoal", "Drought", "Charcoal"],
+      "applied_by": "loader",
+      "edit_fixture": false
+    },
+    "H25": {
+      "user_slot": 2,
+      "from_species": "Barraskewda",
+      "species": "Basculegion",
+      "ability": "Swift Swim",
+      "item": "Life Orb",
+      "applied_by": "loader",
+      "edit_fixture": false,
+      "note": "H25 remains plan not-covered; substitution still applied when the fixture is loaded."
+    }
+  },
+  "stale_pin_rows": ["MT2", "H6"]
+}

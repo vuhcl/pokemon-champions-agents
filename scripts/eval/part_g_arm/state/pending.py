@@ -334,6 +334,8 @@ def load_fixture(path_or_id: str | Path) -> dict[str, Any]:
         "ms5_rain_conflict.json", "ic1_corviknight_item_clause.json", "is2_basculegion.json",
         "h25_team.json", "h26_torkoal_locked.json",
     }:
+        if path.name == "h25_team.json":
+            doc = _substitute_h25_doc(doc)
         return _load_v4_team_fixture(doc, path=path)
     return _load_ol(doc)
 
@@ -401,13 +403,47 @@ def build_fully_locked_slot(species: str, *, user_slot: int = 1) -> dict[str, An
 
 
 def build_mrb1_start() -> dict[str, Any]:
-    """MRB1 start: Torkoal in user slot 3 via apply_lock.
+    """MRB1 start: Torkoal locked at user slot 3 with Drought + Charcoal.
 
-    Request-set start cell names only ``Torkoal`` and slot 3 (``Torkoal s3 exact
-    item/ability``). No item/ability strings appear in that cell or in
-    derived_keys for MRB1 — species only; item/ability left unlocked.
+    Errata (state/errata.json): expected read-back strings are exactly
+    Torkoal / Drought / Charcoal. Applied by the loader; no fixture file.
     """
-    return _lock_internal(empty_team(), user_slot_to_index(3), "species", "Torkoal")
+    index = user_slot_to_index(3)
+    state = empty_team()
+    for attr, value in (
+        ("species", "Torkoal"),
+        ("role", "bulky_offense"),
+        ("ability", "Drought"),
+        ("item", "Charcoal"),
+    ):
+        state = _lock_internal(state, index, attr, value)
+    return state
+
+
+def _substitute_h25_doc(doc: dict[str, Any]) -> dict[str, Any]:
+    """In-memory errata: slot 2 Barraskewda → Basculegion (Swift Swim, Life Orb).
+
+    Does not write h25_team.json.
+    """
+    out = dict(doc)
+    slots = []
+    for row in list(doc.get("slots") or []):
+        if not isinstance(row, dict):
+            slots.append(row)
+            continue
+        if int(row.get("slot") or 0) == 2 and row.get("species") == "Barraskewda":
+            slots.append(
+                {
+                    **row,
+                    "species": "Basculegion",
+                    "ability": "Swift Swim",
+                    "item": "Life Orb",
+                }
+            )
+        else:
+            slots.append(row)
+    out["slots"] = slots
+    return out
 
 
 def fixture_coverage_table() -> list[dict[str, Any]]:
@@ -420,15 +456,17 @@ def fixture_coverage_table() -> list[dict[str, Any]]:
             rows_out.append(
                 {
                     "row": row_id,
-                    "source": "build_mrb1_start (request-set cell: Torkoal s3)",
+                    "source": "build_mrb1_start (errata: Torkoal/Drought/Charcoal @ user slot 3)",
                     "loaded": True,
                     "complete_moves": False,
-                    "complete_constraints": False,
-                    "open_reason": (
-                        "item/ability strings not named in request-set start cell "
-                        "or derived_keys; species-only lock"
-                    ),
+                    "complete_constraints": True,
+                    "open_reason": None,
                     "species_at": {3: slot.species.value},
+                    "readback": {
+                        "species": slot.species.value,
+                        "ability": slot.ability.value,
+                        "item": slot.item.value,
+                    },
                 }
             )
             continue
