@@ -31,10 +31,13 @@ from recommender.turn_intent import _clear_pending_keys
 STATE_TOOL_NAMES = frozenset({
     "lock_slot", "unlock_slot", "reset_team", "commit_slot", "read_team",
     "select_option", "confirm_build", "reject_pending", "reject_option",
+    "reject_all", "read_rejected",
 })
 LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
-# Read-only against live state (hyp copies then discards; read_pending does not write).
-READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {"check_hypothetical", "read_pending"}
+# Read-only against live state (hyp copies then discards; read_* do not write).
+READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
+    "check_hypothetical", "read_pending", "read_rejected",
+}
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
     return {"type": "function", "function": {"name": name, "description": description,
@@ -76,7 +79,7 @@ STATE_TOOL_SPECS: list[dict[str, Any]] = [
     ),
     _spec(
         "reject_pending",
-        "Abandon or dismiss the pending screen without selecting an option.",
+        "Dismiss the pending screen without recording any rejection.",
         {},
         [],
     ),
@@ -85,6 +88,19 @@ STATE_TOOL_SPECS: list[dict[str, Any]] = [
         "Reject one candidate_selection option by its 1-based option number.",
         {"option": dict(_INT)},
         ["option"],
+    ),
+    _spec(
+        "reject_all",
+        "Reject every candidate_selection option, then clear the pending screen once. "
+        "Atomic: if any record fails, writes nothing. Refuses without a candidate_selection screen.",
+        {},
+        [],
+    ),
+    _spec(
+        "read_rejected",
+        "Read the rejected list (species, reason, turn). Does not change state.",
+        {},
+        [],
     ),
 ]
 
@@ -310,8 +326,58 @@ def reject_option(state: dict[str, Any], option: object) -> tuple[dict[str, Any]
     if patch.get("slot_commit_error"):
         return state, patch
     # record_rejection does not clear pending; shared helper does (gate 2).
+    # Clears after the first option — cannot reject the rest; use reject_all.
     patch = {**patch, **_clear_pending_keys()}
     return _merge(state, patch), patch
+
+
+def read_rejected(state: dict[str, Any]) -> dict[str, Any]:
+    """Read-only rejected list. Same fields the snapshot grades."""
+    rows = []
+    for entry in state.get("rejected") or []:
+        if isinstance(entry, dict):
+            rows.append(
+                {
+                    "species": entry.get("species"),
+                    "reason": entry.get("reason"),
+                    "turn": entry.get("turn"),
+                }
+            )
+    return {"rejected": rows}
+
+
+def reject_all(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Record every CS option, then clear pending once. Atomic on any refusal.
+
+    reject_option cannot do this: it clears the screen after the first call.
+    """
+    pending = state.get("pending_presentation")
+    if not isinstance(pending, dict):
+        return state, _refuse("no pending screen")
+    if pending.get("kind") != "candidate_selection":
+        return state, _refuse("reject_all requires a candidate_selection screen")
+    rows = _pending_options(pending)
+    if not rows:
+        return state, _refuse("candidate_selection screen has no options")
+    slot_index = int(pending.get("slot_index", 0))
+    working = state
+    for row in rows:
+        species = row.get("species")
+        if not isinstance(species, str) or not species:
+            return state, _refuse("an option has no species")
+        patch = record_rejection({
+            **working,
+            "turn_payload": {
+                "species": species,
+                "reason": "user_reject",
+                "slot_index": slot_index,
+            },
+        })
+        if patch.get("slot_commit_error"):
+            return state, patch
+        working = {**working, **patch}
+    final = {"rejected": working.get("rejected") or [], **_clear_pending_keys()}
+    return _merge(state, final), final
 
 
 def _first_species_free(draft: list[Slot]) -> int | None:

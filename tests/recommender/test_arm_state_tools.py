@@ -10,6 +10,7 @@ from scripts.eval.part_g_arm.config import ArmConfig
 from scripts.eval.part_g_arm.state.fixtures import dev_key_document, empty_team, one_locked_slot
 from scripts.eval.part_g_arm.state.harness import grade_row, snapshot
 from scripts.eval.part_g_arm.state.tools import (
+    READONLY_TOOL_NAMES,
     check_hypothetical,
     combined_specs,
     commit_slot,
@@ -113,7 +114,35 @@ def test_mechanical_class_transitions():
     n = len(TOOL_SPECS)
     specs = combined_specs()
     assert len(TOOL_SPECS) == n
-    assert len(specs) == n + 11
+    assert len(specs) == n + 13
+
+
+def test_reject_all_and_read_rejected():
+    from scripts.eval.part_g_arm.state.pending import build_cs_pending
+    from scripts.eval.part_g_arm.state.tools import read_rejected, reject_all
+
+    cs = build_cs_pending(["Venusaur", "Blastoise", "Beedrill"])
+    after, patch = reject_all(cs)
+    assert patch.get("slot_commit_error") is None
+    assert after["pending_presentation"] is None
+    names = [e["species"] for e in after["rejected"]]
+    assert names == ["Venusaur", "Blastoise", "Beedrill"]
+    assert mechanical_class(snapshot(cs), snapshot(after), [{"name": "reject_all", "result": patch}]) == "recorded"
+    assert all(e["reason"] == "user_reject" for e in after["rejected"])
+
+    # reject_option would clear after the first; reject_all records all first.
+    one, _ = reject_option(cs, 1)
+    assert one["pending_presentation"] is None
+    assert [e["species"] for e in one["rejected"]] == ["Venusaur"]
+
+    bad, bpatch = reject_all(empty_team())
+    assert bpatch.get("slot_commit_error")
+    assert bad.get("rejected") in (None, [])
+    assert mechanical_class(snapshot(empty_team()), snapshot(bad), [{"name": "reject_all", "result": bpatch}]) == "refused"
+
+    got = read_rejected(after)
+    assert [e["species"] for e in got["rejected"]] == names
+    assert "read_rejected" in READONLY_TOOL_NAMES
 
 
 def test_non_species_field_change_is_wrote():

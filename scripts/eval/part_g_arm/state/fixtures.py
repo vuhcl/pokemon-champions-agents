@@ -115,6 +115,20 @@ def dev_key_document() -> dict[str, Any]:
                 "expect_rejected_species": "Venusaur",
                 "expect_pending_cleared": True,
             },
+            "dev-reject-all": {
+                "classes": ["recorded"],
+                "expect_rejected_species": ["Venusaur", "Blastoise", "Beedrill"],
+                "expect_pending_cleared": True,
+            },
+            "dev-read-rejected": {
+                "classes": ["recorded", "lookup only"],
+                "expect_rejected_species": "Venusaur",
+            },
+            "dev-reject-dismiss": {
+                "classes": ["dismissed"],
+                "expect_pending_cleared": True,
+            },
+            "dev-reject-all-bad": {"classes": ["refused"]},
         },
     }
 

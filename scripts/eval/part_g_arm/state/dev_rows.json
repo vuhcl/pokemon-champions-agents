@@ -127,6 +127,40 @@
       "turns": [
         "Reject the first option."
       ]
+    },
+    {
+      "id": "dev-reject-all",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise", "Beedrill"],
+      "slot_index": 0,
+      "turns": [
+        "Reject all of these options."
+      ]
+    },
+    {
+      "id": "dev-read-rejected",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise"],
+      "slot_index": 0,
+      "turns": [
+        "Reject the first option.",
+        "What species have I rejected?"
+      ]
+    },
+    {
+      "id": "dev-reject-dismiss",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise"],
+      "slot_index": 0,
+      "turns": [
+        "None of these for now."
+      ]
+    },
+    {
+      "id": "dev-reject-all-bad",
+      "turns": [
+        "Reject all of these options."
+      ]
     }
   ]
 }

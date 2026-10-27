@@ -29,7 +29,9 @@ from scripts.eval.part_g_arm.state.tools import (
     lock_slot,
     mechanical_class,
     read_pending,
+    read_rejected,
     read_team,
+    reject_all,
     reject_option,
     reject_pending,
     reset_team_state,
@@ -104,6 +106,10 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         return reject_pending(state)
     if name == "reject_option":
         return reject_option(state, args.get("option"))
+    if name == "reject_all":
+        return reject_all(state)
+    if name == "read_rejected":
+        return state, read_rejected(state)
     if name == "check_hypothetical":
         return state, check_hypothetical(state, args.get("placements"))
     return state, arm.call(name, args or {})
@@ -283,6 +289,49 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
         names = [e.get("species") for e in after.get("rejected") or [] if isinstance(e, dict)]
         if want and want not in names:
             failures.append(f"{row_id}: rejected {names!r} missing {want!r}")
+    if row_id == "dev-reject-all":
+        after = turns[0]["state_after"]
+        if after.get("pending_presentation"):
+            failures.append(f"{row_id}: pending was not cleared")
+        if any(row["species"] for row in after["slots"]):
+            failures.append(f"{row_id}: draft was written")
+        names = [e.get("species") for e in after.get("rejected") or [] if isinstance(e, dict)]
+        for want in spec.get("expect_rejected_species") or []:
+            if want not in names:
+                failures.append(f"{row_id}: rejected {names!r} missing {want!r}")
+        if len(names) < len(spec.get("expect_rejected_species") or []):
+            failures.append(f"{row_id}: rejected grew by {len(names)}, expected more")
+    if row_id == "dev-read-rejected":
+        after = turns[-1]["state_after"]
+        want = spec.get("expect_rejected_species")
+        names = [e.get("species") for e in after.get("rejected") or [] if isinstance(e, dict)]
+        if want and want not in names:
+            failures.append(f"{row_id}: rejected {names!r} missing {want!r}")
+        read_calls = [
+            call for call in turns[-1]["tool_calls"] if call["name"] == "read_rejected"
+        ]
+        if not read_calls:
+            failures.append(f"{row_id}: read_rejected was not called")
+        else:
+            got = [
+                e.get("species")
+                for e in (read_calls[-1]["result"] or {}).get("rejected") or []
+            ]
+            if want and want not in got:
+                failures.append(f"{row_id}: read_rejected {got!r} missing {want!r}")
+    if row_id == "dev-reject-dismiss":
+        before, after = turns[0]["state_before"], turns[0]["state_after"]
+        if after.get("pending_presentation"):
+            failures.append(f"{row_id}: pending was not cleared")
+        if before.get("rejected") != after.get("rejected"):
+            failures.append(f"{row_id}: rejected list changed on dismiss")
+    if row_id == "dev-reject-all-bad":
+        if turns[0]["state_after"].get("pending_presentation"):
+            failures.append(f"{row_id}: pending appeared on refusal")
+        if turns[0]["state_before"]["slots"] != turns[0]["state_after"]["slots"]:
+            failures.append(f"{row_id}: draft changed on refusal")
+        if turns[0]["state_before"].get("rejected") != turns[0]["state_after"].get("rejected"):
+            failures.append(f"{row_id}: rejected changed on refusal")
     return failures
 
 
