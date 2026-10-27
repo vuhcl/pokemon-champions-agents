@@ -79,19 +79,24 @@ STATE_TOOL_SPECS: list[dict[str, Any]] = [
     ),
     _spec(
         "reject_pending",
-        "Dismiss the pending screen without recording any rejection.",
+        "Close the pending screen and record nothing. The same options can be offered again. "
+        "Does not add species to the rejected list.",
         {},
         [],
     ),
     _spec(
         "reject_option",
-        "Reject one candidate_selection option by its 1-based option number.",
+        "Reject one candidate_selection option by its 1-based option number. "
+        "The species is recorded as rejected, stays filtered out for the rest of the "
+        "session and after a reset, and there is no undo.",
         {"option": dict(_INT)},
         ["option"],
     ),
     _spec(
         "reject_all",
         "Reject every candidate_selection option, then clear the pending screen once. "
+        "Each species is recorded as rejected, stays filtered out for the rest of the "
+        "session and after a reset, and there is no undo. "
         "Atomic: if any record fails, writes nothing. Refuses without a candidate_selection screen.",
         {},
         [],

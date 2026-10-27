@@ -10,9 +10,9 @@ State tools, and when to call them:
 - read_team() to see the team. The slot numbers in its result already count from 1.
 - read_pending() to see a pending screen. Option numbers in the result count from 1 and are not slot numbers.
 - select_option(option) to pick one pending option by that option number from read_pending. Call read_pending first when a screen is up and the user names an option. Do not treat option numbers as slot numbers.
-- reject_pending() to dismiss the pending screen without recording any rejection.
-- reject_option(option) to reject one candidate_selection option by its option number from read_pending.
-- reject_all() to reject every candidate_selection option and clear the pending screen. Requires a candidate_selection screen.
+- reject_pending() closes the pending screen and records nothing; the same options can be offered again.
+- reject_option(option) rejects one candidate_selection option by its option number from read_pending. The species is recorded as rejected, stays filtered out for the rest of the session and after a reset, and there is no undo.
+- reject_all() rejects every candidate_selection option and clears the pending screen. Each species is recorded as rejected, stays filtered out for the rest of the session and after a reset, and there is no undo. Requires a candidate_selection screen.
 - read_rejected() to read the rejected list (species, reason, turn). Does not change state.
 
 check_hypothetical(placements) for "what if", "can I", or "could I" questions about species or items on the team. Pass a list of objects with species and/or item. It validates a copy and never writes the live team. Use the returned verdict; do not invent clause outcomes.
