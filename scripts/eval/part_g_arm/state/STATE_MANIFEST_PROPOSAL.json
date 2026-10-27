@@ -1,0 +1,52 @@
+{
+  "schema": "state_arm_manifest_proposal_v0",
+  "frozen": false,
+  "note": "Proposal only. Freeze after Vu approval. Does not edit FROZEN_MANIFEST.json.",
+  "model": {
+    "id": "qwen3.5:latest",
+    "digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
+    "quantization": "Q4_K_M",
+    "temperature": 0.0,
+    "think": false,
+    "num_ctx": 16384,
+    "num_predict": 2048,
+    "seed": null
+  },
+  "judge": {
+    "id": "gemma4:12b",
+    "temperature": 0.0,
+    "prompt": "scripts/eval/part_g_arm/state/judge_prompt.md",
+    "prompt_sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87"
+  },
+  "failure_policy": {
+    "per_turn_timeout_s": 300.0,
+    "max_tool_calls_per_turn": 16,
+    "on_no_answer_or_error": "record as 'no usable answer'; no silent retry",
+    "resume": "progress.json finished ids; skip without rewrite"
+  },
+  "frozen_prompt_sha256": "b71764852eb66f87f17375ff3226a7e4be7517b09eb8961fb56e779fe32badd8",
+  "files": [
+    {"path": "scripts/eval/part_g_arm/state/request_set_runner.py", "sha256": "8d8c43290b931380520cf0b09af008df7bbed6e45f5520b45b578032caec773b"},
+    {"path": "scripts/eval/part_g_arm/state/class_scorer.py", "sha256": "f4be0e1f97c83020c2fda807d133c0fa80af311e443c7ed6b62b6251a8774cfc"},
+    {"path": "scripts/eval/part_g_arm/state/errata.json", "sha256": "c22375bad2ee0375e6a6a7b675c90191a337712397daabbdc91e094084dcdcfb"},
+    {"path": "scripts/eval/part_g_arm/state/tools.py", "sha256": "7da41674d4d763c33989004f37949ece5c95b1c4c3438957ee946523418aeb4b"},
+    {"path": "scripts/eval/part_g_arm/state/spread_solve.py", "sha256": "f396bfa97c37762ea52eed72e4f06fa93fc74721788b0a43212cffdd0b03c12b"},
+    {"path": "scripts/eval/part_g_arm/state/prompt.md", "sha256": "b71764852eb66f87f17375ff3226a7e4be7517b09eb8961fb56e779fe32badd8"},
+    {"path": "scripts/eval/part_g_arm/state/judge_prompt.md", "sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87"},
+    {"path": "scripts/eval/part_g_arm/state/covered_list.json", "sha256": "b107c4920e641bbb1e51f12503712628660b4b11ea47a03467bd73088596ea73"},
+    {"path": "scripts/eval/part_g_v4/key_artifacts/derived_keys.json", "sha256": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a"},
+    {"path": "scripts/eval/part_g_v4/part3_request_set_v4.md", "sha256": "7fb9510cb50e8f1f320ac1cf6bced41e8dcd12f4245ed2abb03a42254a60afdb"},
+    {"path": "scripts/eval/part_g_arm/state/seeds/cs_pending.json", "sha256": "76b7c19ff34281139d9c326024fc0aafeb9952214efb19ad985a67fa7d06e9e5"},
+    {"path": "scripts/eval/part_g_arm/state/seeds/fbc_pending.json", "sha256": "4337ddd0dc15d319bbef0bc1ea8cbc9f978c45fa9de1768534b291df3de50af6"},
+    {"path": "scripts/eval/part_g_arm/state/seeds/mt3_after_t1.json", "sha256": "88c0f9038416e4d87e0e8739ab86901354700e85d716ea5f56fd0c4dc9da44bb"},
+    {"path": "scripts/eval/part_g_arm/state/seeds/hc2_after_t1.json", "sha256": "cc4a8657a7af73a1214d55e0bc5419e0b139023393e7ff8acb54c31d5c474f1d"},
+    {"path": "scripts/eval/part_g_arm/state/seeds/hd1_history.json", "sha256": "331da9c022897b7294549b01643ee7f6201cc82ad2ba4a8c74cde670606dd7c7"}
+  ],
+  "proposed_covered_counts": {
+    "mechanical": 42,
+    "hand_audit": 54,
+    "covered_total_excluding_MT4": 96,
+    "not_covered": 38,
+    "MT4_drop_reason": "no show-candidates tool"
+  }
+}
