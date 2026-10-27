@@ -14,16 +14,27 @@ from dataclasses import fields, replace
 from typing import Any
 
 from recommender.arm_tools import TOOL_SPECS, to_jsonable
-from recommender.nodes import apply_lock, commit_full_slot, reset_team, unlock_locked_slot
+from recommender.nodes import (
+    apply_lock,
+    apply_provisional_option,
+    commit_full_slot,
+    record_rejection,
+    refine_provisional_slot,
+    reset_team,
+    unlock_locked_slot,
+)
 from recommender.slot_index import SlotIndexError, display_slot, user_slot_to_index
-from recommender.state import Attr, Slot
+from recommender.state import Attr, PendingSlotIntent, Slot, all_locked, slot_fingerprint
 from recommender.team_validation import validate_team_value
+from recommender.turn_intent import _clear_pending_keys
 
-STATE_TOOL_NAMES = frozenset({"lock_slot", "unlock_slot", "reset_team", "commit_slot", "read_team"})
+STATE_TOOL_NAMES = frozenset({
+    "lock_slot", "unlock_slot", "reset_team", "commit_slot", "read_team",
+    "select_option", "confirm_build", "reject_pending", "reject_option",
+})
 LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
-# Read-only against live state (hyp copies then discards).
-READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {"check_hypothetical"}
-
+# Read-only against live state (hyp copies then discards; read_pending does not write).
+READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {"check_hypothetical", "read_pending"}
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
     return {"type": "function", "function": {"name": name, "description": description,
@@ -41,6 +52,40 @@ STATE_TOOL_SPECS: list[dict[str, Any]] = [
     _spec("reset_team", "Clear the whole team.", {}, []),
     _spec("commit_slot", "Confirm the pending build. Refuses when nothing is pending.", {}, []),
     _spec("read_team", "Read the current team. Slot numbers in the result count from 1.", {}, []),
+    _spec(
+        "read_pending",
+        "Read the pending screen. Option numbers count from 1 and are not slot numbers.",
+        {},
+        [],
+    ),
+    _spec(
+        "select_option",
+        "Select a pending option by its 1-based option number from read_pending. "
+        "Option numbers are not slot numbers. Partial stale gate: refuses if the target "
+        "slot is fully locked or the option fails team validation; does not detect a "
+        "candidate list built for an earlier team.",
+        {"option": dict(_INT)},
+        ["option"],
+    ),
+    _spec(
+        "confirm_build",
+        "Confirm the pending full build (same commit path as commit_slot). "
+        "Partial stale gate plus commit_full_slot fingerprint check.",
+        {},
+        [],
+    ),
+    _spec(
+        "reject_pending",
+        "Abandon or dismiss the pending screen without selecting an option.",
+        {},
+        [],
+    ),
+    _spec(
+        "reject_option",
+        "Reject one candidate_selection option by its 1-based option number.",
+        {"option": dict(_INT)},
+        ["option"],
+    ),
 ]
 
 _PLACEMENT = {
@@ -122,6 +167,150 @@ def reset_team_state(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, A
 
 def commit_slot(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     patch = commit_full_slot(state)
+    return _merge(state, patch), patch
+
+
+def confirm_build(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    """FBC affirm. Same node as commit_slot (commit_full_slot); commit_slot unchanged."""
+    return commit_slot(state)
+
+
+def _pending_options(pending: dict[str, Any]) -> list[dict[str, Any]]:
+    """Flatten pending options with 1-based display numbers (not slot numbers)."""
+    kind = pending.get("kind")
+    rows: list[dict[str, Any]] = []
+    if kind == "candidate_selection":
+        for i, opt in enumerate(pending.get("options") or []):
+            rows.append({
+                "number": i + 1,
+                "id": opt.get("species"),
+                "label": opt.get("species"),
+                "species": opt.get("species"),
+                "_raw": opt,
+            })
+    elif kind == "full_build_confirmation":
+        n = 0
+        for group in pending.get("build_option_groups") or []:
+            for opt in group.get("options") or []:
+                n += 1
+                oid = opt.get("option_id") or opt.get("id")
+                rows.append({
+                    "number": n,
+                    "id": oid,
+                    "label": opt.get("label"),
+                    "species": None,
+                    "_raw": opt,
+                })
+    return rows
+
+
+def read_pending(state: dict[str, Any]) -> dict[str, Any]:
+    pending = state.get("pending_presentation")
+    if not isinstance(pending, dict):
+        return {"kind": None, "options": []}
+    options = [
+        {"number": row["number"], "id": row["id"], "label": row["label"], "species": row["species"]}
+        for row in _pending_options(pending)
+    ]
+    return {"kind": pending.get("kind"), "options": options}
+
+
+def _option_number_ok(option: object, count: int) -> str | None:
+    if isinstance(option, bool) or not isinstance(option, int):
+        return f"option must be an integer, got {option!r}"
+    if not 1 <= option <= count:
+        return f"option {option} is outside 1..{count}"
+    return None
+
+
+def select_option(state: dict[str, Any], option: object) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Select by read_pending's 1-based option number. Partial stale gate (see docstring).
+
+    Partial stale gate: no pending / bad number / target slot fully locked / chosen
+    species fails validate_team_value. Does NOT detect a CS list built for an earlier
+    team (OL10a). FBC also relies on apply_provisional_option / later commit fingerprint.
+    """
+    pending = state.get("pending_presentation")
+    if not isinstance(pending, dict):
+        return state, _refuse("no pending screen")
+    rows = _pending_options(pending)
+    err = _option_number_ok(option, len(rows))
+    if err:
+        return state, _refuse(err)
+    assert isinstance(option, int)
+    chosen = rows[option - 1]
+    slot_index = int(pending.get("slot_index", 0))
+    draft = state["team_draft"]
+    if not 0 <= slot_index < len(draft):
+        return state, _refuse("pending slot_index is out of range")
+    if all_locked(draft[slot_index]):
+        return state, _refuse("target slot is already fully locked")
+
+    kind = pending.get("kind")
+    if kind == "candidate_selection":
+        species = chosen.get("species")
+        if not isinstance(species, str) or not species:
+            return state, _refuse("selected option has no species")
+        verdict = validate_team_value("species", species, slot_index=slot_index, team_draft=draft)
+        if verdict.refusal is not None:
+            return state, _refuse(verdict.refusal.message)
+        raw = chosen["_raw"]
+        intent = PendingSlotIntent(
+            schema_version=1,
+            slot_index=slot_index,
+            species=str(verdict.canonical or species),
+            target_role_decision=raw.get("target_role_decision"),
+            source=raw.get("source") or "threat",
+            evidence=tuple(raw.get("evidence") or ()),
+            base_slot_fingerprint=slot_fingerprint(draft[slot_index]),
+        )
+        # Refine's returned dict replaces CS with FBC (clear via node return, ADR-031).
+        patch = refine_provisional_slot({**state, "pending_slot_intent": intent})
+        return _merge(state, patch), patch
+
+    if kind == "full_build_confirmation":
+        oid = chosen.get("id")
+        if not oid:
+            return state, _refuse("selected build option has no option_id")
+        patch = apply_provisional_option({
+            **state,
+            "turn_payload": {"option_ids": (str(oid),)},
+        })
+        return _merge(state, patch), patch
+
+    return state, _refuse(f"select_option does not support pending kind {kind!r}")
+
+
+def reject_pending(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    pending = state.get("pending_presentation")
+    if not isinstance(pending, dict):
+        return state, _refuse("no pending screen")
+    # Shared helper used by nodes; clears the four pending keys (gate 2).
+    patch = _clear_pending_keys()
+    return _merge(state, patch), patch
+
+
+def reject_option(state: dict[str, Any], option: object) -> tuple[dict[str, Any], dict[str, Any]]:
+    pending = state.get("pending_presentation")
+    if not isinstance(pending, dict) or pending.get("kind") != "candidate_selection":
+        return state, _refuse("reject_option requires a candidate_selection screen")
+    rows = _pending_options(pending)
+    err = _option_number_ok(option, len(rows))
+    if err:
+        return state, _refuse(err)
+    assert isinstance(option, int)
+    species = rows[option - 1].get("species")
+    if not isinstance(species, str) or not species:
+        return state, _refuse("selected option has no species")
+    slot_index = int(pending.get("slot_index", 0))
+    patch = record_rejection({
+        **state,
+        "turn_payload": {"species": species, "reason": "user_reject", "slot_index": slot_index},
+    })
+    if patch.get("slot_commit_error"):
+        return state, patch
+    # record_rejection does not clear pending; shared helper does (gate 2).
+    patch = {**patch, **_clear_pending_keys()}
     return _merge(state, patch), patch
 
 

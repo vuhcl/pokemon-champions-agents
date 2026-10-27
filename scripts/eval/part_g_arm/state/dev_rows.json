@@ -73,6 +73,60 @@
       "turns": [
         "Could I run two Wide Lens on this team?"
       ]
+    },
+    {
+      "id": "dev-select-cs",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise"],
+      "slot_index": 0,
+      "turns": [
+        "I'll take the second one."
+      ]
+    },
+    {
+      "id": "dev-select-bad",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise", "Beedrill"],
+      "slot_index": 0,
+      "turns": [
+        "Select option 7."
+      ]
+    },
+    {
+      "id": "dev-select-locked-target",
+      "start": "cs_locked_target",
+      "locked_species": "Venusaur",
+      "species_options": ["Blastoise", "Beedrill"],
+      "turns": [
+        "I'll take the first one."
+      ]
+    },
+    {
+      "id": "dev-confirm-fbc",
+      "start": "fbc",
+      "species": "Venusaur",
+      "slot_index": 0,
+      "turns": [
+        "Yes, confirm this build."
+      ]
+    },
+    {
+      "id": "dev-confirm-stale-fp",
+      "start": "fbc_stale_fp",
+      "species": "Venusaur",
+      "slot_index": 0,
+      "turns": [
+        "Yes, confirm this build."
+      ]
+    },
+    {
+      "id": "dev-reject",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise"],
+      "slot_index": 0,
+      "turns": [
+        "Never mind, dismiss the pending screen."
+      ]
     }
   ]
 }

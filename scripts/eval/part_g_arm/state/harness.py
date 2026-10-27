@@ -25,10 +25,15 @@ from scripts.eval.part_g_arm.state.tools import (
     check_hypothetical,
     combined_specs,
     commit_slot,
+    confirm_build,
     lock_slot,
     mechanical_class,
+    read_pending,
     read_team,
+    reject_option,
+    reject_pending,
     reset_team_state,
+    select_option,
     unlock_slot,
 )
 
@@ -69,8 +74,18 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         return reset_team_state(state)
     if name == "commit_slot":
         return commit_slot(state)
+    if name == "confirm_build":
+        return confirm_build(state)
     if name == "read_team":
         return state, read_team(state)
+    if name == "read_pending":
+        return state, read_pending(state)
+    if name == "select_option":
+        return select_option(state, args.get("option"))
+    if name == "reject_pending":
+        return reject_pending(state)
+    if name == "reject_option":
+        return reject_option(state, args.get("option"))
     if name == "check_hypothetical":
         return state, check_hypothetical(state, args.get("placements"))
     return state, arm.call(name, args or {})
@@ -144,8 +159,23 @@ def start_state(row: dict[str, Any]) -> dict[str, Any]:
         return build_fully_locked_slot(row["species"], user_slot=int(row["user_slot"]))
     if kind == "fbc":
         return build_fbc_pending(row["species"], slot_index=int(row["slot_index"]))
-    return empty_team()
+    if kind == "cs":
+        from scripts.eval.part_g_arm.state.pending import build_cs_pending
 
+        return build_cs_pending(tuple(row["species_options"]), slot_index=int(row.get("slot_index", 0)))
+    if kind == "cs_locked_target":
+        from scripts.eval.part_g_arm.state.pending import build_cs_pending, build_fully_locked_slot
+
+        # Fully lock user slot 1 (internal 0), then overlay a CS screen aimed at that slot.
+        locked = build_fully_locked_slot(row["locked_species"], user_slot=1)
+        cs = build_cs_pending(tuple(row["species_options"]), slot_index=0)
+        return {**locked, "pending_presentation": cs["pending_presentation"]}
+    if kind == "fbc_stale_fp":
+        state = build_fbc_pending(row["species"], slot_index=int(row["slot_index"]))
+        pending = dict(state["pending_presentation"] or {})
+        pending["provisional_fingerprint"] = "stale-wrong-fp"
+        return {**state, "pending_presentation": pending}
+    return empty_team()
 
 def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) -> list[str]:
     spec = keys["rows"][row_id]
@@ -204,6 +234,48 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
             failures.append(f"{row_id}: team_draft changed")
         if before.get("pending_presentation") != after.get("pending_presentation"):
             failures.append(f"{row_id}: pending changed")
+    if row_id == "dev-select-cs":
+        after = turns[0]["state_after"]
+        if after.get("pending_presentation") is not True and after.get("pending_presentation") is not False:
+            # snapshot stores bool
+            pass
+        # After a successful CS select the screen should be FBC (pending still live).
+        if not after.get("pending_presentation"):
+            failures.append(f"{row_id}: pending cleared instead of FBC")
+        calls = turns[0]["tool_calls"]
+        if not any(c["name"] == "select_option" for c in calls):
+            failures.append(f"{row_id}: select_option was not called")
+        else:
+            sel = [c for c in calls if c["name"] == "select_option"][-1]
+            if (sel.get("result") or {}).get("slot_commit_error"):
+                failures.append(f"{row_id}: select_option refused")
+            species = spec.get("expect_species")
+            # Observable: provisional/intent species in tool result when present.
+            result = sel.get("result") or {}
+            got = None
+            if isinstance(result.get("pending_slot_intent"), dict):
+                got = result["pending_slot_intent"].get("species")
+            elif isinstance(result.get("provisional_slot"), dict):
+                got = result["provisional_slot"].get("species")
+            if species and got not in (None, species):
+                failures.append(f"{row_id}: bound species {got!r} != {species!r}")
+    if row_id in ("dev-select-bad", "dev-select-locked-target", "dev-confirm-stale-fp"):
+        if turns[0]["state_after"].get("pending_presentation") is not True:
+            # pending must remain (snapshot bool)
+            if not turns[0]["state_after"].get("pending_presentation"):
+                failures.append(f"{row_id}: pending was cleared on refusal")
+        if turns[0]["state_before"]["slots"] != turns[0]["state_after"]["slots"]:
+            failures.append(f"{row_id}: draft changed on refusal")
+    if row_id == "dev-confirm-fbc":
+        slot = str(spec["user_slot"])
+        after = next(row for row in turns[0]["state_after"]["slots"] if row["slot"] == slot)
+        if after["species"] != spec["species"] or not after["species_locked"]:
+            failures.append(f"{row_id}: slot {slot} not locked as {spec['species']}")
+        if turns[0]["state_after"]["pending_presentation"]:
+            failures.append(f"{row_id}: pending screen was not cleared")
+    if row_id == "dev-reject":
+        if turns[0]["state_after"].get("pending_presentation"):
+            failures.append(f"{row_id}: pending was not cleared")
     return failures
 
 

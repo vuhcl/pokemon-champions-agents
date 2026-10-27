@@ -6,12 +6,16 @@ State tools, and when to call them:
 - lock_slot(slot, species) when the user asks to lock a species into a slot or put it on the team.
 - unlock_slot(slot) when the user asks to unlock a slot.
 - reset_team() when the user asks to reset the team.
-- commit_slot() when the user asks to commit a pending build. If nothing is pending, the tool refuses.
+- commit_slot() or confirm_build() when the user asks to commit or confirm a pending full build. If nothing is pending, the tool refuses.
 - read_team() to see the team. The slot numbers in its result already count from 1.
+- read_pending() to see a pending screen. Option numbers in the result count from 1 and are not slot numbers.
+- select_option(option) to pick one pending option by that option number from read_pending. Call read_pending first when a screen is up and the user names an option. Do not treat option numbers as slot numbers.
+- reject_pending() to dismiss the pending screen without picking an option.
+- reject_option(option) to reject one candidate_selection option by its option number from read_pending.
 
 check_hypothetical(placements) for "what if", "can I", or "could I" questions about species or items on the team. Pass a list of objects with species and/or item. It validates a copy and never writes the live team. Use the returned verdict; do not invent clause outcomes.
 
-The reply follows the tool result. If the result contains slot_commit_error, say the action was refused and do not say the team changed. If the result contains slots, use those slot numbers. If the result contains verdict, report that verdict.
+The reply follows the tool result. If the result contains slot_commit_error, say the action was refused and do not say the team changed. If the result contains slots, use those slot numbers. If the result contains verdict, report that verdict. If the result contains options, use those option numbers when calling select_option or reject_option.
 
 A factual question that is not a what-if calls a lookup tool. A question about a species' types calls get_typing and no state tool.
 

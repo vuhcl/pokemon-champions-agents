@@ -13,11 +13,15 @@ from scripts.eval.part_g_arm.state.tools import (
     check_hypothetical,
     combined_specs,
     commit_slot,
+    confirm_build,
     draft_signature,
     lock_slot,
     mechanical_class,
+    read_pending,
     read_team,
+    reject_pending,
     reset_team_state,
+    select_option,
     unlock_slot,
 )
 
@@ -91,7 +95,7 @@ def test_lookup_only_class_and_spec_list_is_a_copy():
     n = len(TOOL_SPECS)
     specs = combined_specs()
     assert len(TOOL_SPECS) == n
-    assert len(specs) == n + 6
+    assert len(specs) == n + 11
 
 
 def test_non_species_field_change_is_wrote():
@@ -227,6 +231,39 @@ def test_check_hypothetical_never_writes_and_reports_clauses():
     assert mechanical_class(
         empty, empty, [{"name": "check_hypothetical", "result": ok}]
     ) == "lookup only"
+
+
+def test_pending_select_confirm_and_reject_tools():
+    from scripts.eval.part_g_arm.state.pending import build_cs_pending, build_fbc_pending, build_fully_locked_slot
+
+    cs = build_cs_pending(["Venusaur", "Blastoise"])
+    assert read_pending(cs)["options"][1]["number"] == 2
+    selected, patch = select_option(cs, 2)
+    assert patch.get("slot_commit_error") is None
+    assert selected["pending_presentation"]["kind"] == "full_build_confirmation"
+    assert selected["provisional_slot"].species == "Blastoise"
+    refused, bad = select_option(cs, 7)
+    assert refused is cs
+    assert "outside" in bad["slot_commit_error"]
+
+    locked = build_fully_locked_slot("Venusaur", user_slot=1)
+    planted = {**locked, "pending_presentation": build_cs_pending(["Blastoise", "Beedrill"])["pending_presentation"]}
+    same, err = select_option(planted, 1)
+    assert same["pending_presentation"] is planted["pending_presentation"]
+    assert "fully locked" in err["slot_commit_error"]
+
+    fbc = build_fbc_pending("Venusaur")
+    committed, cpatch = confirm_build(fbc)
+    assert cpatch.get("slot_commit_error") is None
+    assert committed["team_draft"][0].species.value == "Venusaur"
+    assert committed["pending_presentation"] is None
+    stale = {**fbc, "pending_presentation": {**fbc["pending_presentation"], "provisional_fingerprint": "bad"}}
+    _, stale_patch = confirm_build(stale)
+    assert "stale" in stale_patch["slot_commit_error"]
+
+    cleared, rpatch = reject_pending(cs)
+    assert cleared["pending_presentation"] is None
+    assert "pending_presentation" in rpatch
 
 
 def test_v4_fixture_loader_internal_slots_and_one_based_refuse():

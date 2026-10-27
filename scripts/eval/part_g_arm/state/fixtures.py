@@ -15,7 +15,7 @@ from scripts.eval.part_g_arm.state.tools import lock_slot
 
 HERE = Path(__file__).resolve().parent
 REQUEST_SET = HERE.parents[1] / "part_g_v4" / "part3_request_set_v4.md"
-DEV_SPECIES = ("Venusaur", "Venusaur-Mega", "Blastoise", "Bulbasaur")
+DEV_SPECIES = ("Venusaur", "Venusaur-Mega", "Blastoise", "Beedrill", "Bulbasaur")
 DEV_ITEMS = ("Wide Lens",)
 CHECKPOINT_PROMPT_SHA256 = "e74a80f424d0506ec86eb6cb554a3e401a347380233595494c34726d708aae7a"
 
@@ -71,6 +71,8 @@ def dev_key_document() -> dict[str, Any]:
         raise RuntimeError("Venusaur-Mega is not a usable legal mega form")
     if not species["Blastoise"]["legal"] or species["Blastoise"]["in_request_set"]:
         raise RuntimeError("Blastoise is not a usable legal partner")
+    if not species["Beedrill"]["legal"] or species["Beedrill"]["in_request_set"]:
+        raise RuntimeError("Beedrill is not a usable legal partner")
     if not items["Wide Lens"]["legal"] or items["Wide Lens"]["in_request_set"]:
         raise RuntimeError("Wide Lens is not a usable legal dev item")
     return {
@@ -95,6 +97,16 @@ def dev_key_document() -> dict[str, Any]:
             "dev-hyp-unknown-species": {"classes": ["lookup only"]},
             "dev-hyp-legal": {"classes": ["lookup only"]},
             "dev-hyp-item-only": {"classes": ["lookup only"]},
+            "dev-select-cs": {"classes": ["no change"], "expect_species": "Blastoise"},
+            "dev-select-bad": {"classes": ["refused"]},
+            "dev-select-locked-target": {"classes": ["refused"]},
+            "dev-confirm-fbc": {
+                "classes": ["wrote"],
+                "user_slot": 1,
+                "species": "Venusaur",
+            },
+            "dev-confirm-stale-fp": {"classes": ["refused"]},
+            "dev-reject": {"classes": ["no change"]},
         },
     }
 

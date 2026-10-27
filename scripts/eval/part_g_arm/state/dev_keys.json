@@ -21,6 +21,11 @@
       "legal": true,
       "in_request_set": false
     },
+    "Beedrill": {
+      "canonical": "Beedrill",
+      "legal": true,
+      "in_request_set": false
+    },
     "Bulbasaur": {
       "canonical": "Bulbasaur",
       "legal": false,
@@ -113,6 +118,39 @@
     "dev-hyp-item-only": {
       "classes": [
         "lookup only"
+      ]
+    },
+    "dev-select-cs": {
+      "classes": [
+        "no change"
+      ],
+      "expect_species": "Blastoise"
+    },
+    "dev-select-bad": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-select-locked-target": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-confirm-fbc": {
+      "classes": [
+        "wrote"
+      ],
+      "user_slot": 1,
+      "species": "Venusaur"
+    },
+    "dev-confirm-stale-fp": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-reject": {
+      "classes": [
+        "no change"
       ]
     }
   }
