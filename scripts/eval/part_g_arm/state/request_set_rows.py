@@ -96,46 +96,47 @@ def resolve_start_state(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dic
             )
             return state, meta
 
-    # Idle / empty / bootstrap → empty team (still a valid start).
-    state_cell = (row.get("state") or "").strip().lower()
-    idle_tokens = (
-        "idle",
-        "empty",
-        "bootstrap",
-        "—",
-        "-",
-        "none",
-        "any",
-        "nonempty",
-        "occupied",
-        "ambiguous",
-        "mid-build",
-        "after",
-        "one locked",
-        "two slots",
-        "2 locked",
-        "≥1 locked",
-        "multi options",
-        "slot1 locked",
-        "incineroar locked",
-        "tyranitar",
-    )
-    if any(state_cell.startswith(t) or t in state_cell for t in ("idle", "empty", "bootstrap")) or state_cell in {
-        "—",
-        "-",
-        "any",
-        "nonempty",
-        "occupied",
-        "ambiguous",
-        "none locked",
-        "one locked",
-        "two slots",
-        "2 locked",
-        "≥1 locked",
-        "multi options",
-        "slot1 locked",
-        "mid-build",
-    }:
+    state_cell = (row.get("state") or "").strip()
+    state_l = state_cell.lower()
+
+    # Named locked-species starts that are not fixture files.
+    if state_l == "incineroar locked" or rid == "DM2":
+        from scripts.eval.part_g_arm.state.pending import build_fully_locked_slot
+
+        meta.update({"loaded": True, "complete": True, "source": "build_fully_locked_slot(Incineroar)"})
+        return build_fully_locked_slot("Incineroar", user_slot=1), meta
+    if "tyranitar" in state_l or rid == "DM3":
+        meta.update({"loaded": True, "complete": True, "source": "empty_team (ASSUME-STATE sides from pin)"})
+        return empty_team(), meta
+
+    # Pending screens without a named OL/v4 fixture are not invented here.
+    if "cs pending" in state_l or "fbc pending" in state_l:
+        meta["error"] = f"pending start {state_cell!r} needs a named OL/v4 fixture; not invented"
+        return None, meta
+    if state_l.startswith("after ") or state_l.startswith("after\t"):
+        meta["error"] = f"multi-turn seed {state_cell!r} not built (prior turn not replayed)"
+        return None, meta
+
+    # Idle / empty / bootstrap / generic non-fixture labels → empty team.
+    if (
+        any(tok in state_l for tok in ("idle", "empty", "bootstrap", "mid-build"))
+        or state_l in {
+            "—",
+            "-",
+            "any",
+            "nonempty",
+            "occupied",
+            "ambiguous",
+            "none locked",
+            "one locked",
+            "two slots",
+            "2 locked",
+            "≥1 locked",
+            "multi options",
+            "slot1 locked",
+        }
+        or not state_cell
+    ):
         meta.update({"loaded": True, "complete": True, "source": "empty_team"})
         return empty_team(), meta
 
