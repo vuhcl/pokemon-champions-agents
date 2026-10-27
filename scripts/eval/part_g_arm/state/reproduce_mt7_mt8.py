@@ -2,6 +2,9 @@
 
 Membership = calc-feasible under the same survive/outspeed conditions as the key.
 Does not call search_conditions (which persists examples). Does not edit frozen files.
+
+Shares solve_spread's feasibility predicate (_parse_constraints / _feasible / _survives)
+for membership only — not the frontier search, L1 fill, or nature-set ranking.
 """
 
 from __future__ import annotations
