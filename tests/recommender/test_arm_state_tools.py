@@ -313,25 +313,59 @@ def test_pending_select_confirm_and_reject_tools():
     assert "pending_presentation" in rpatch
 
 
-def test_v4_fixture_loader_internal_slots_and_one_based_refuse():
-    from scripts.eval.part_g_arm.state.pending import build_cs_pending, load_fixture, try_load_fixture
+def test_v4_fixture_loader_bases_ic1_mrb1_moveset():
+    from scripts.eval.part_g_arm.state.pending import (
+        build_cs_pending,
+        build_mrb1_start,
+        load_fixture,
+    )
 
     hn2c = load_fixture("HN2c")
     assert hn2c["team_draft"][0].species.value == "Annihilape"
     assert hn2c["team_draft"][0].nature.value == "Jolly"
     assert hn2c["team_draft"][0].spread.value["spe"] == 32
+    assert hn2c["team_draft"][0].item.value == "Choice Scarf"
+    # Choice Scarf + Protect → reconcile wipe; moves skipped, species kept.
+    assert hn2c["team_draft"][0].moveset.value is None
+    assert any("moves skipped" in x for x in hn2c.get("_fixture_incomplete") or [])
+
+    hn2d = load_fixture("HN2d")
+    assert hn2d["team_draft"][0].species.value == "Blaziken-Mega"
+    assert hn2d["team_draft"][0].moveset.value  # non-Choice item keeps moves
 
     is2 = load_fixture("IS2")
     assert is2["team_draft"][0].species.value == "Basculegion"
     assert is2["team_draft"][0].item.value == "Choice Scarf"
 
-    refused = try_load_fixture("H18b")
-    assert refused["loaded"] is False
-    assert "1-based" in (refused["error"] or "")
+    # user-base: slot 1 → internal 0, slot 3 → internal 2; open slot 2 skipped
+    mu2 = load_fixture("MU2")
+    assert mu2["team_draft"][0].species.value == "Garchomp"
+    assert mu2["team_draft"][1].species.value is None
+    assert mu2["team_draft"][2].species.value == "Incineroar"
 
-    ic1 = try_load_fixture("IC1")
-    assert ic1["loaded"] is False
-    assert "no slot fields" in (ic1["error"] or "")
+    h18b = load_fixture("H18b")
+    assert h18b["team_draft"][0].species.value == "Garchomp"
+    assert h18b["team_draft"][0].nature.value == "Jolly"
+    assert h18b["team_draft"][0].spread.value["atk"] == 32
+    # Tags load as judgment-only predicates; not mechanical SP/weather specs.
+    assert len(h18b.get("constraints") or []) == 2
+    assert all(c.groundedness == "judgment-only" for c in h18b["constraints"])
+
+    # MU4: unlocked Pelipper skipped; Torkoal at user slot 1
+    mu4 = load_fixture("MU4")
+    assert mu4["team_draft"][0].species.value == "Torkoal"
+    assert mu4["team_draft"][1].species.value is None
+
+    # IC1 loader rule: first free slots in list order
+    ic1 = load_fixture("IC1")
+    assert ic1["team_draft"][0].species.value == "Sneasler"
+    assert ic1["team_draft"][0].item.value == "Psychic Seed"
+    assert ic1["team_draft"][1].species.value == "Indeedee-F"
+    assert ic1["team_draft"][1].item.value == "Rocky Helmet"
+
+    mrb1 = build_mrb1_start()
+    assert mrb1["team_draft"][2].species.value == "Torkoal"
+    assert mrb1["team_draft"][2].item.value is None
 
     cs = build_cs_pending(["Venusaur", "Blastoise"], slot_index=0)
     assert cs["pending_presentation"]["kind"] == "candidate_selection"

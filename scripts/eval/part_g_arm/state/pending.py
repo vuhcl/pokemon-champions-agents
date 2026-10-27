@@ -1,8 +1,8 @@
-"""Load OL/H27 fixtures into arm state without inventing reachable screens.
+"""Load OL/H27/v4 fixtures into arm state without inventing reachable screens.
 
-Team rows go through apply_lock with the fixture's INTERNAL slot index (no
-user_slot_to_index). OL pending screens are placed from the fixture dict
-verbatim (binding rows, not commit). H27 builds candidate_selection through
+Per-file slot bases are declared in `_SLOT_BASE` (internal | user | first_free).
+User-base files convert through `user_slot_to_index`. OL pending screens are
+placed from the fixture dict verbatim. H27 builds candidate_selection through
 present_candidates / run_slot_fill_terminal.
 """
 
@@ -10,13 +10,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from recommender.ids import to_id
 from recommender.legality import legal_moves_for, load_snapshot
-from recommender.nodes import apply_lock
+from recommender.nodes import apply_lock, record_constraint
 from recommender.nodes_classify import classify_pending
 from recommender.slot_fill import SlotFillContext, annotate_overlap, run_slot_fill_terminal
+from recommender.slot_index import user_slot_to_index
 from recommender.state import (
     PendingSlotIntent,
     ProvisionalSlot,
@@ -37,7 +38,7 @@ FIX_DIR = V4 / "fixtures"
 H27_PATH = V4 / "h27_candidate_fixture.json"
 _DEV_ROLE = TargetRoleDecision(role_id="bulky_offense", source="user_choice")
 _LOCK_ATTRS = ("species", "role", "ability", "item", "moveset", "nature", "spread")
-# Request-set row id → fixtures/*.json stem. Only files with INTERNAL slot indices load.
+# Request-set row id → fixtures/*.json stem.
 _ROW_FIXTURE = {
     "HN2c": "hn2c_team",
     "HN2d": "hn2d_team",
@@ -50,6 +51,39 @@ _ROW_FIXTURE = {
     "IS2": "is2_basculegion",
     "H25": "h25_team",
     "H26": "h26_torkoal_locked",
+    "MRB1": None,  # generic builder, not a fixtures/*.json file
+}
+
+SlotBase = Literal["internal", "user", "first_free"]
+
+# Per-file declared base. Evidence strings are for the Part 3 report, not parsed.
+_SLOT_BASE: dict[str, SlotBase] = {
+    "hn2c_team.json": "internal",
+    "hn2d_team.json": "internal",
+    "is2_basculegion.json": "internal",
+    "mu2_mu3_team.json": "user",
+    "h18b_hyper_offense.json": "user",
+    "mu4_pelipper.json": "user",
+    "ms5_rain_conflict.json": "user",
+    "h25_team.json": "user",
+    "h26_torkoal_locked.json": "user",
+    "ic1_corviknight_item_clause.json": "first_free",
+}
+
+_SLOT_BASE_EVIDENCE: dict[str, str] = {
+    "hn2c_team.json": "team[].slot is 0; Spe-fixed speed row",
+    "hn2d_team.json": "team[].slot is 0; Mega Blaziken speed row",
+    "is2_basculegion.json": "top-level species, no slot field → internal 0",
+    "mu2_mu3_team.json": 'note "slot 2 open"; slots numbered 1,2,3; request-set "slot 2"',
+    "h18b_hyper_offense.json": "slots 1,2; request-set seeded slots for H18b",
+    "mu4_pelipper.json": "slots 1,2; note names Pelipper unlocked on slot 2",
+    "ms5_rain_conflict.json": "slots 1,2; request-set rain-conflict fixture",
+    "h25_team.json": "slots 1,2,3; request-set H25 seeded 3-member team",
+    "h26_torkoal_locked.json": "slot 1; request-set H26 Torkoal locked",
+    "ic1_corviknight_item_clause.json": (
+        "no slot fields; loader rule: first free slots in list order "
+        "(Item Clause does not depend on slot)"
+    ),
 }
 
 
@@ -64,12 +98,15 @@ def _resolve_path(path_or_id: str | Path) -> Path:
     key = str(path_or_id)
     if key.upper() == "H27":
         return H27_PATH
+    if key.upper() == "MRB1":
+        raise FileNotFoundError("MRB1 has no fixture file; use build_mrb1_start()")
     ol = OL_DIR / f"{key}.json"
     if ol.is_file():
         return ol
     stem = _ROW_FIXTURE.get(key.upper() if key.upper() in _ROW_FIXTURE else key, key)
-    # strip trailing .json if passed
-    stem = stem.removesuffix(".json")
+    if stem is None:
+        raise FileNotFoundError(f"no fixture for {path_or_id!r}")
+    stem = str(stem).removesuffix(".json")
     fix = FIX_DIR / f"{stem}.json"
     if fix.is_file():
         return fix
@@ -83,26 +120,59 @@ def _lock_internal(state: dict[str, Any], slot_index: int, attr: str, value: obj
     return {**state, **patch}
 
 
-def _apply_team_row(state: dict[str, Any], row: dict[str, Any]) -> dict[str, Any]:
-    """Fixture slot numbers are internal. Species and optional attrs via apply_lock."""
-    index = int(row["slot"])
+def _lock_moveset_safe(
+    state: dict[str, Any], slot_index: int, moves: list[str]
+) -> tuple[dict[str, Any], bool]:
+    """Lock moveset; revert if reconcile wipes species (Choice + status move).
+
+    Returns (state, moves_kept). Locking moveset first does not avoid the wipe:
+    locking Choice item afterward clears species/ability/moveset the same way.
+    """
+    before = state
+    species_before = state["team_draft"][slot_index].species.value
+    state = _lock_internal(state, slot_index, "moveset", moves)
+    if species_before and state["team_draft"][slot_index].species.value is None:
+        return before, False
+    return state, True
+
+
+def _apply_team_row(
+    state: dict[str, Any],
+    row: dict[str, Any],
+    *,
+    index: int,
+    incomplete: list[str] | None = None,
+) -> dict[str, Any]:
+    """Lock species and optional attrs at an already-resolved internal index."""
     species = row.get("species")
     if not species:
         return state
     if row.get("locked") is False:
-        raise FixtureLoadError(
-            f"slot {index}: species {species!r} is unlocked; apply_lock always locks"
-        )
+        # apply_lock always locks; leave the slot empty so "unlocked" stays honest.
+        if incomplete is not None:
+            incomplete.append(f"slot {index}: skipped unlocked {species!r}")
+        return state
     state = _lock_internal(state, index, "species", species)
-    # shortcut: apply_lock(moveset) currently replaces the slot and drops sibling
-    # Attrs (species/item/…); skip moves here. Upgrade: fix apply_lock in nodes.py.
-    mapping = {
-        "ability": row.get("ability"),
-        "item": row.get("item"),
-        "nature": row.get("nature"),
-        "spread": row.get("spread") or row.get("evs"),
-    }
-    for attr, value in mapping.items():
+    # Order matches build_fully_locked_slot for non-conflicting sets: item before
+    # moveset, nature/spread after. Choice + status-move still wipes via reconcile.
+    for attr, value in (
+        ("ability", row.get("ability")),
+        ("item", row.get("item")),
+    ):
+        if value:
+            state = _lock_internal(state, index, attr, value)
+    moves = row.get("moves") or row.get("moveset")
+    if moves:
+        state, kept = _lock_moveset_safe(state, index, list(moves))
+        if not kept and incomplete is not None:
+            incomplete.append(
+                f"slot {index}: moves skipped (apply_lock moveset wiped siblings; "
+                "Choice item + non-damaging move)"
+            )
+    for attr, value in (
+        ("nature", row.get("nature")),
+        ("spread", row.get("spread") or row.get("evs")),
+    ):
         if value:
             state = _lock_internal(state, index, attr, value)
     return state
@@ -116,15 +186,18 @@ def _team_rows(doc: dict[str, Any]) -> list[dict[str, Any]] | None:
     return None
 
 
-def _uses_one_based_slots(rows: list[dict[str, Any]]) -> bool:
-    nums = [int(r["slot"]) for r in rows if isinstance(r, dict) and "slot" in r]
-    return bool(nums) and 0 not in nums and min(nums) >= 1
+def _first_free_index(state: dict[str, Any]) -> int:
+    for i, slot in enumerate(state["team_draft"]):
+        if not slot.species.value:
+            return i
+    raise FixtureLoadError("no free slot for first_free placement")
 
 
 def _load_ol(doc: dict[str, Any]) -> dict[str, Any]:
     state = empty_team()
     for row in doc.get("team") or []:
-        state = _apply_team_row(state, row)
+        # OL team rows use internal indices as written.
+        state = _apply_team_row(state, row, index=int(row["slot"]))
     # Binding fixtures: pending dict is placed as written. They do not carry
     # provisional_slot / pending_slot_intent, so commit_full_slot will refuse.
     state["pending_presentation"] = dict(doc["pending"])
@@ -132,29 +205,80 @@ def _load_ol(doc: dict[str, Any]) -> dict[str, Any]:
 
 
 def _load_v4_team_fixture(doc: dict[str, Any], *, path: Path) -> dict[str, Any]:
-    """Load fixtures/*.json team/slots. Slot numbers must be INTERNAL (0-based)."""
+    """Load fixtures/*.json via the per-file declared slot base."""
+    base = _SLOT_BASE.get(path.name)
+    if base is None:
+        raise FixtureLoadError(
+            f"{path.name}: no declared slot base in _SLOT_BASE; refusing to guess"
+        )
+    incomplete: list[str] = []
     rows = _team_rows(doc)
     if rows is None:
-        # Singleton shape (IS2): species at top level, no slot field → internal 0.
-        if doc.get("species"):
-            return _apply_team_row(empty_team(), {**doc, "slot": 0})
+        if doc.get("species") and base == "internal":
+            state = _apply_team_row(
+                empty_team(), {**doc, "slot": 0}, index=0, incomplete=incomplete
+            )
+            if incomplete:
+                state["_fixture_incomplete"] = incomplete
+            return state
         raise FixtureLoadError(f"{path.name}: no team/slots and no top-level species")
+
+    if base == "first_free":
+        # Loader rule (not a file fact): place teammates in first free slots in list order.
+        state = empty_team()
+        for row in rows:
+            if not isinstance(row, dict) or not row.get("species"):
+                continue
+            state = _apply_team_row(
+                state, row, index=_first_free_index(state), incomplete=incomplete
+            )
+        if incomplete:
+            state["_fixture_incomplete"] = incomplete
+        return state
+
     if not any("slot" in r for r in rows if isinstance(r, dict)):
         raise FixtureLoadError(
-            f"{path.name}: team rows have no slot fields; refusing to invent indices"
+            f"{path.name}: team rows have no slot fields under base={base!r}"
         )
-    if _uses_one_based_slots(rows):
-        raise FixtureLoadError(
-            f"{path.name}: slot numbers look 1-based { [r.get('slot') for r in rows] }; "
-            "not loaded (no conversion without a stated base)"
-        )
+
     state = empty_team()
     for row in rows:
         if not isinstance(row, dict):
             continue
         if row.get("open") or not row.get("species"):
             continue
-        state = _apply_team_row(state, row)
+        raw_slot = int(row["slot"])
+        if base == "user":
+            index = user_slot_to_index(raw_slot)
+        else:
+            index = raw_slot
+        state = _apply_team_row(state, row, index=index, incomplete=incomplete)
+    # Fixture constraint tags → judgment-only predicates (no mechanical_kind).
+    # They are not type|ability|item|no_duplicate_items specs; SP/weather rules stay unenforced.
+    for tag in doc.get("constraints") or []:
+        if not isinstance(tag, str) or not tag:
+            continue
+        patch = record_constraint(
+            {
+                **state,
+                "turn_payload": {
+                    "type": "hard",
+                    "predicate": tag,
+                    "scope": "team_wide",
+                    "groundedness": "judgment-only",
+                },
+            }
+        )
+        if patch.get("slot_commit_error"):
+            incomplete.append(f"constraint {tag!r}: {patch['slot_commit_error']}")
+            continue
+        state = {**state, **patch}
+        incomplete.append(
+            f"constraint {tag!r} loaded as judgment-only predicate only "
+            "(no mechanical_kind; not enforceable as SP/weather rule)"
+        )
+    if incomplete:
+        state["_fixture_incomplete"] = incomplete
     return state
 
 
@@ -257,8 +381,6 @@ def build_cs_pending(
 
 def build_fully_locked_slot(species: str, *, user_slot: int = 1) -> dict[str, Any]:
     """Every Attr locked via apply_lock. user_slot is converted once here."""
-    from recommender.slot_index import user_slot_to_index
-
     snap = load_snapshot()
     ability = next(iter(snap["species"][to_id(species)]["abilities"].values()))
     moves = list(legal_moves_for(species)[:4])
@@ -276,6 +398,87 @@ def build_fully_locked_slot(species: str, *, user_slot: int = 1) -> dict[str, An
     for attr in _LOCK_ATTRS:
         state = _lock_internal(state, index, attr, values[attr])
     return state
+
+
+def build_mrb1_start() -> dict[str, Any]:
+    """MRB1 start: Torkoal in user slot 3 via apply_lock.
+
+    Request-set start cell names only ``Torkoal`` and slot 3 (``Torkoal s3 exact
+    item/ability``). No item/ability strings appear in that cell or in
+    derived_keys for MRB1 — species only; item/ability left unlocked.
+    """
+    return _lock_internal(empty_team(), user_slot_to_index(3), "species", "Torkoal")
+
+
+def fixture_coverage_table() -> list[dict[str, Any]]:
+    """Per covered request-set row: load status, completeness, open reasons."""
+    rows_out: list[dict[str, Any]] = []
+    for row_id, stem in _ROW_FIXTURE.items():
+        if stem is None:
+            state = build_mrb1_start()
+            slot = state["team_draft"][user_slot_to_index(3)]
+            rows_out.append(
+                {
+                    "row": row_id,
+                    "source": "build_mrb1_start (request-set cell: Torkoal s3)",
+                    "loaded": True,
+                    "complete_moves": False,
+                    "complete_constraints": False,
+                    "open_reason": (
+                        "item/ability strings not named in request-set start cell "
+                        "or derived_keys; species-only lock"
+                    ),
+                    "species_at": {3: slot.species.value},
+                }
+            )
+            continue
+        path = FIX_DIR / f"{stem}.json"
+        base = _SLOT_BASE.get(path.name)
+        result = try_load_fixture(row_id)
+        entry: dict[str, Any] = {
+            "row": row_id,
+            "source": f"fixtures/{path.name} base={base}",
+            "evidence": _SLOT_BASE_EVIDENCE.get(path.name),
+            "loaded": result["loaded"],
+            "complete_moves": False,
+            "complete_constraints": False,
+            "open_reason": result["error"],
+        }
+        if not result["loaded"] or result["state"] is None:
+            rows_out.append(entry)
+            continue
+        state = result["state"]
+        incomplete = list(state.get("_fixture_incomplete") or [])
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        expected_moves = False
+        for r in _team_rows(doc) or ([doc] if doc.get("species") else []):
+            if isinstance(r, dict) and (r.get("moves") or r.get("moveset")):
+                expected_moves = True
+        kept_moves = any(
+            slot.moveset.value for slot in state["team_draft"] if slot.species.value
+        )
+        entry["complete_moves"] = (not expected_moves) or (
+            kept_moves and not any("moves skipped" in x for x in incomplete)
+        )
+        tags = doc.get("constraints") or []
+        recorded = state.get("constraints") or []
+        # Complete only when every tag is recorded AND none are judgment-only stubs.
+        mech_ok = bool(recorded) and all(
+            getattr(c, "groundedness", None) == "mechanically-checkable"
+            or (isinstance(c, dict) and c.get("groundedness") == "mechanically-checkable")
+            for c in recorded
+        )
+        entry["complete_constraints"] = (not tags) or mech_ok
+        if incomplete:
+            entry["open_reason"] = "; ".join(incomplete)
+        else:
+            entry["open_reason"] = None
+        entry["species"] = [
+            s.species.value for s in state["team_draft"] if s.species.value
+        ]
+        entry["constraints_n"] = len(recorded)
+        rows_out.append(entry)
+    return rows_out
 
 
 def build_fbc_pending(species: str, *, slot_index: int = 0) -> dict[str, Any]:
