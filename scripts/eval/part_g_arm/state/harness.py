@@ -36,6 +36,7 @@ from scripts.eval.part_g_arm.state.tools import (
     reject_pending,
     reset_team_state,
     select_option,
+    solve_spread_tool,
     steering_signature,
     unlock_slot,
 )
@@ -129,6 +130,14 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         return state, read_rejected(state)
     if name == "check_hypothetical":
         return state, check_hypothetical(state, args.get("placements"))
+    if name == "solve_spread":
+        return state, solve_spread_tool(
+            state,
+            args.get("species"),
+            args.get("constraints"),
+            ability=args.get("ability"),
+            item=args.get("item"),
+        )
     return state, arm.call(name, args or {})
 
 

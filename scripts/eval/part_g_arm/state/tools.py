@@ -36,7 +36,7 @@ STATE_TOOL_NAMES = frozenset({
 LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
 # Read-only against live state (hyp copies then discards; read_* do not write).
 READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
-    "check_hypothetical", "read_pending", "read_rejected",
+    "check_hypothetical", "read_pending", "read_rejected", "solve_spread",
 }
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -118,10 +118,38 @@ HYP_TOOL_SPECS: list[dict[str, Any]] = [
     ),
 ]
 
+_CONSTRAINT = {
+    "type": "object",
+    "description": (
+        "Monotone only: type=survive|outspeed|ko. "
+        "survive: attacker{species,nature,ability,item?,sp/evs}, move, field?. "
+        "outspeed: target_spe (int Spe stat) or species+nature+spe_sp. "
+        "ko: defender{...}, move, field?. "
+        "Refuses underspeed, Trick Room, exact stats."
+    ),
+}
+SPREAD_TOOL_SPECS: list[dict[str, Any]] = [
+    _spec(
+        "solve_spread",
+        "Find one 66-SP spread for monotone survive/outspeed/ko constraints, "
+        "closest in L1 to a 66-SP Showdown joint reference. Read-only: does not "
+        "lock or write team/pending. Returns status, spread, matched rank/distance, "
+        "and calc-verified constraint results. Say 'no solution' only when status "
+        "is infeasible.",
+        {
+            "species": dict(_STR),
+            "constraints": {"type": "array", "items": _CONSTRAINT},
+            "ability": dict(_STR),
+            "item": dict(_STR),
+        },
+        ["species", "constraints"],
+    ),
+]
+
 
 def combined_specs() -> list[dict[str, Any]]:
     """A new list. Does not append to TOOL_SPECS."""
-    return [*TOOL_SPECS, *STATE_TOOL_SPECS, *HYP_TOOL_SPECS]
+    return [*TOOL_SPECS, *STATE_TOOL_SPECS, *HYP_TOOL_SPECS, *SPREAD_TOOL_SPECS]
 
 
 def _merge(state: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
@@ -401,6 +429,30 @@ def _slot_for_species(draft: list[Slot], species: str) -> int | None:
         if slot.species.value and str(slot.species.value).casefold() == want:
             return index
     return None
+
+
+def solve_spread_tool(
+    state: dict[str, Any],
+    species: object,
+    constraints: object,
+    ability: object = None,
+    item: object = None,
+) -> dict[str, Any]:
+    """Read-only spread solve. Never writes team_draft or pending."""
+    from scripts.eval.part_g_arm.state.spread_solve import solve_spread
+
+    if not isinstance(species, str) or not species.strip():
+        return {"status": "unknown", "error": "species is required", "no_reference": False}
+    if not isinstance(constraints, list):
+        return {"status": "unknown", "error": "constraints must be a list", "no_reference": False}
+    kwargs: dict[str, Any] = {}
+    if isinstance(ability, str) and ability.strip():
+        kwargs["ability"] = ability
+    if isinstance(item, str):
+        kwargs["item"] = item
+    # state is unused on purpose — keeps the tool read-only against live state.
+    _ = state
+    return solve_spread(species.strip(), constraints, **kwargs)
 
 
 def check_hypothetical(state: dict[str, Any], placements: object) -> dict[str, Any]:
