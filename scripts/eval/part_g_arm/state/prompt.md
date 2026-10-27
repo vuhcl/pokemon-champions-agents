@@ -17,7 +17,9 @@ State tools, and when to call them:
 
 check_hypothetical(placements) for "what if", "can I", or "could I" questions about species or items on the team. Pass a list of objects with species and/or item. It validates a copy and never writes the live team. Use the returned verdict; do not invent clause outcomes.
 
-The reply follows the tool result. If the result contains slot_commit_error, say the action was refused and do not say the team changed. If the result contains slots, use those slot numbers. If the result contains verdict, report that verdict. If the result contains options, use those option numbers when calling select_option or reject_option. If the result contains rejected, report those entries.
+solve_spread(species, constraints, ability?, item?) finds one Champions SP spread for monotone constraints only: survive a stated hit, outspeed a stated Spe stat or species, or secure a KO on a stated target. It returns status (optimal, feasible, infeasible, or unknown), the spread, distance and rank against 66-SP Showdown joint references when available, and calc-verified results for each constraint. It does not lock the spread onto the team. Say there is no solution only when status is infeasible. Claim wording uses the tool's claim_wording field (distance and rank), not "best" or a share of players. Refuse non-monotone asks (underspeed, Trick Room, exact stats) by reporting the tool error.
+
+The reply follows the tool result. If the result contains slot_commit_error, say the action was refused and do not say the team changed. If the result contains slots, use those slot numbers. If the result contains verdict, report that verdict. If the result contains options, use those option numbers when calling select_option or reject_option. If the result contains rejected, report those entries. If the result contains status from solve_spread, report that status and the verified constraints.
 
 A factual question that is not a what-if calls a lookup tool. A question about a species' types calls get_typing and no state tool.
 

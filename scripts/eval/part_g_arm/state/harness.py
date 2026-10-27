@@ -226,6 +226,12 @@ def start_state(row: dict[str, Any]) -> dict[str, Any]:
 def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) -> list[str]:
     spec = keys["rows"][row_id]
     failures: list[str] = []
+    if spec.get("hand_grade"):
+        # Hand audit only (MT7/MT8). Still enforce: never write team_draft.
+        for i, turn in enumerate(turns):
+            if turn["state_before"]["slots"] != turn["state_after"]["slots"]:
+                failures.append(f"{row_id}: t{i+1} wrote team_draft (silent apply)")
+        return failures
     if [turn["mechanical_class"] for turn in turns] != spec["classes"]:
         failures.append(f"{row_id}: classes {[t['mechanical_class'] for t in turns]} != {spec['classes']}")
     if row_id == "dev-lock":
@@ -280,7 +286,7 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
             failures.append(f"{row_id}: team_draft changed")
         if before.get("pending_presentation") != after.get("pending_presentation"):
             failures.append(f"{row_id}: pending changed")
-    if row_id == "dev-select-cs":
+    if row_id == "dev-pick-named":
         before, after = turns[0]["state_before"], turns[0]["state_after"]
         if before["slots"] != after["slots"]:
             failures.append(f"{row_id}: team_draft changed")
@@ -295,6 +301,10 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
             failures.append(
                 f"{row_id}: pending_slot_intent_species {after.get('pending_slot_intent_species')!r} != {species!r}"
             )
+        if spec.get("must_not_commit"):
+            names = [c["name"] for c in turns[0]["tool_calls"]]
+            if "commit_slot" in names or "confirm_build" in names:
+                failures.append(f"{row_id}: commit/confirm ran (must not commit on pick)")
     if row_id in ("dev-select-bad", "dev-select-locked-target", "dev-confirm-stale-fp"):
         if not turns[0]["state_after"].get("pending_presentation"):
             failures.append(f"{row_id}: pending was cleared on refusal")
@@ -315,7 +325,7 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
         names = [e.get("species") for e in after.get("rejected") or [] if isinstance(e, dict)]
         if want and want not in names:
             failures.append(f"{row_id}: rejected {names!r} missing {want!r}")
-    if row_id == "dev-reject-all":
+    if row_id == "dev-toss-all":
         after = turns[0]["state_after"]
         if after.get("pending_presentation"):
             failures.append(f"{row_id}: pending was not cleared")
@@ -327,7 +337,7 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
                 failures.append(f"{row_id}: rejected {names!r} missing {want!r}")
         if len(names) < len(spec.get("expect_rejected_species") or []):
             failures.append(f"{row_id}: rejected grew by {len(names)}, expected more")
-    if row_id == "dev-read-rejected":
+    if row_id == "dev-show-rejected":
         after = turns[-1]["state_after"]
         want = spec.get("expect_rejected_species")
         names = [e.get("species") for e in after.get("rejected") or [] if isinstance(e, dict)]
@@ -345,7 +355,7 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
             ]
             if want and want not in got:
                 failures.append(f"{row_id}: read_rejected {got!r} missing {want!r}")
-    if row_id == "dev-reject-dismiss":
+    if row_id == "dev-dismiss-later":
         before, after = turns[0]["state_before"], turns[0]["state_after"]
         if after.get("pending_presentation"):
             failures.append(f"{row_id}: pending was not cleared")

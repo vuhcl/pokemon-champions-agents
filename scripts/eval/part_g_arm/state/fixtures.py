@@ -17,7 +17,7 @@ HERE = Path(__file__).resolve().parent
 REQUEST_SET = HERE.parents[1] / "part_g_v4" / "part3_request_set_v4.md"
 DEV_SPECIES = ("Venusaur", "Venusaur-Mega", "Blastoise", "Beedrill", "Bulbasaur")
 DEV_ITEMS = ("Wide Lens",)
-CHECKPOINT_PROMPT_SHA256 = "e74a80f424d0506ec86eb6cb554a3e401a347380233595494c34726d708aae7a"
+CHECKPOINT_PROMPT_SHA256 = "fdab0b6f60daf2e8dfb2f53e020bcdc2c734467d7bc7b24fd7a68def364ddc17"
 
 
 def empty_team() -> dict[str, Any]:
@@ -76,8 +76,22 @@ def dev_key_document() -> dict[str, Any]:
     if not items["Wide Lens"]["legal"] or items["Wide Lens"]["in_request_set"]:
         raise RuntimeError("Wide Lens is not a usable legal dev item")
     return {
-        "provenance": "load_snapshot(), the same data validate_team_value reads. Wiring check only, not a legality measurement (ADR-060).",
+        "provenance": (
+            "load_snapshot(), the same data validate_team_value reads. Wiring check only, "
+            "not a legality measurement (ADR-060). MT7/MT8 hand-grade against "
+            "key_artifacts/derived_keys.json mt7_mt8_ar (no class scorer yet)."
+        ),
         "checkpoint_prompt_sha256": CHECKPOINT_PROMPT_SHA256,
+        "retired_row_findings": {
+            "dev-select-cs": (
+                "Observed: select then unrequested commit (wrote). "
+                "Wording paraphrased graded pick phrasing."
+            ),
+            "dev-reject-dismiss": (
+                "Observed: no tool call / no_lookup_needed on dismissal "
+                "(lookup only fail; pending uncleared)."
+            ),
+        },
         "species": species,
         "items": items,
         "rows": {
@@ -97,10 +111,11 @@ def dev_key_document() -> dict[str, Any]:
             "dev-hyp-unknown-species": {"classes": ["lookup only"]},
             "dev-hyp-legal": {"classes": ["lookup only"]},
             "dev-hyp-item-only": {"classes": ["lookup only"]},
-            "dev-select-cs": {
+            "dev-pick-named": {
                 "classes": ["bound"],
                 "expect_species": "Blastoise",
                 "expect_pending_kind": "full_build_confirmation",
+                "must_not_commit": True,
             },
             "dev-select-bad": {"classes": ["refused"]},
             "dev-select-locked-target": {"classes": ["refused"]},
@@ -115,20 +130,42 @@ def dev_key_document() -> dict[str, Any]:
                 "expect_rejected_species": "Venusaur",
                 "expect_pending_cleared": True,
             },
-            "dev-reject-all": {
+            "dev-toss-all": {
                 "classes": ["recorded"],
                 "expect_rejected_species": ["Venusaur", "Blastoise", "Beedrill"],
                 "expect_pending_cleared": True,
             },
-            "dev-read-rejected": {
+            "dev-show-rejected": {
                 "classes": ["recorded", "lookup only"],
                 "expect_rejected_species": "Venusaur",
             },
-            "dev-reject-dismiss": {
+            "dev-dismiss-later": {
                 "classes": ["dismissed"],
                 "expect_pending_cleared": True,
             },
             "dev-reject-all-bad": {"classes": ["refused"]},
+            "dev-mt7": {
+                "hand_grade": True,
+                "key_path": "mt7_mt8_ar",
+                "classes": None,
+                "audit": [
+                    "tool calls per turn",
+                    "spreads calc-feasible vs mt7_t1/t2/t3 keys",
+                    "nothing applied silently to team_draft",
+                ],
+            },
+            "dev-mt8": {
+                "hand_grade": True,
+                "key_path": "mt7_mt8_ar",
+                "classes": None,
+                "audit": [
+                    "tool calls per turn",
+                    "t3 Modest Weather Ball → infeasible stated",
+                    "t4 states Timid result before any way out",
+                    "sentence order hand audit",
+                    "nothing applied silently to team_draft",
+                ],
+            },
         },
     }
 

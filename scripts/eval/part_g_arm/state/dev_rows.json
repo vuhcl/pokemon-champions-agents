@@ -1,5 +1,5 @@
 {
-  "grading": "The mechanical class is what the row grades. Refusal wording is not graded. Unlock on an empty slot returns the node's message \"Species repick requires a fully locked slot.\" Commit with nothing pending returns \"missing or unsupported full-slot confirmation state.\" Those strings are not changed and are not scored.",
+  "grading": "The mechanical class is what the row grades. Refusal wording is not graded. Unlock on an empty slot returns the node's message \"Species repick requires a fully locked slot.\" Commit with nothing pending returns \"missing or unsupported full-slot confirmation state.\" Those strings are not changed and are not scored. MT7 and MT8 are hand-graded against derived_keys (no class scorer yet). Prior paraphrasing rows dev-select-cs and dev-reject-dismiss are retired; their observed findings stay in LAST_DEV_RUN notes.",
   "rows": [
     {
       "id": "dev-lock",
@@ -75,12 +75,12 @@
       ]
     },
     {
-      "id": "dev-select-cs",
+      "id": "dev-pick-named",
       "start": "cs",
       "species_options": ["Venusaur", "Blastoise"],
       "slot_index": 0,
       "turns": [
-        "I'll take the second one."
+        "Put Blastoise on the provisional build from this candidate screen."
       ]
     },
     {
@@ -129,37 +129,56 @@
       ]
     },
     {
-      "id": "dev-reject-all",
+      "id": "dev-toss-all",
       "start": "cs",
       "species_options": ["Venusaur", "Blastoise", "Beedrill"],
       "slot_index": 0,
       "turns": [
-        "Reject all of these options."
+        "Throw out every candidate on this screen."
       ]
     },
     {
-      "id": "dev-read-rejected",
+      "id": "dev-show-rejected",
       "start": "cs",
       "species_options": ["Venusaur", "Blastoise"],
       "slot_index": 0,
       "turns": [
         "Reject the first option.",
-        "What species have I rejected?"
+        "List the species on my rejected list."
       ]
     },
     {
-      "id": "dev-reject-dismiss",
+      "id": "dev-dismiss-later",
       "start": "cs",
       "species_options": ["Venusaur", "Blastoise"],
       "slot_index": 0,
       "turns": [
-        "None of these for now."
+        "Not now — leave the candidates and clear this screen."
       ]
     },
     {
       "id": "dev-reject-all-bad",
       "turns": [
         "Reject all of these options."
+      ]
+    },
+    {
+      "id": "dev-mt7",
+      "hand_grade": true,
+      "turns": [
+        "Give me an Archaludon spread that avoids OHKO from Jolly Sneasler's Close Combat and outspeeds the mirror match.",
+        "Make it avoid Adamant Sneasler instead.",
+        "Also avoid max-SpA Mega Charizard Y's Flamethrower."
+      ]
+    },
+    {
+      "id": "dev-mt8",
+      "hand_grade": true,
+      "turns": [
+        "Give me an Archaludon spread that avoids OHKO from Jolly Sneasler's Close Combat and outspeeds the mirror match.",
+        "Make it avoid Adamant Sneasler instead.",
+        "Also avoid max-SpA Mega Charizard Y's Weather Ball.",
+        "What are my options if that does not work?"
       ]
     }
   ]

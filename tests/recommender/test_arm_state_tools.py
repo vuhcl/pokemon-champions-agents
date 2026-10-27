@@ -114,7 +114,7 @@ def test_mechanical_class_transitions():
     n = len(TOOL_SPECS)
     specs = combined_specs()
     assert len(TOOL_SPECS) == n
-    assert len(specs) == n + 13
+    assert len(specs) == n + 14
 
 
 def test_reject_all_and_read_rejected():
