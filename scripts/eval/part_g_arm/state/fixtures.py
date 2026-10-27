@@ -94,6 +94,7 @@ def dev_key_document() -> dict[str, Any]:
             "dev-hyp-species-clause": {"classes": ["lookup only"]},
             "dev-hyp-unknown-species": {"classes": ["lookup only"]},
             "dev-hyp-legal": {"classes": ["lookup only"]},
+            "dev-hyp-item-only": {"classes": ["lookup only"]},
         },
     }
 

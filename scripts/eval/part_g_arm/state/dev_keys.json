@@ -109,6 +109,11 @@
       "classes": [
         "lookup only"
       ]
+    },
+    "dev-hyp-item-only": {
+      "classes": [
+        "lookup only"
+      ]
     }
   }
 }

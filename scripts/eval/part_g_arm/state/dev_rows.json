@@ -67,6 +67,12 @@
       "turns": [
         "What if Venusaur held Wide Lens?"
       ]
+    },
+    {
+      "id": "dev-hyp-item-only",
+      "turns": [
+        "Could I run two Wide Lens on this team?"
+      ]
     }
   ]
 }

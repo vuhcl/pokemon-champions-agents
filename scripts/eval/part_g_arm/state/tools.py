@@ -125,9 +125,17 @@ def commit_slot(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     return _merge(state, patch), patch
 
 
-def _first_free(draft: list[Slot]) -> int | None:
+def _first_species_free(draft: list[Slot]) -> int | None:
     for index, slot in enumerate(draft):
         if not slot.species.value:
+            return index
+    return None
+
+
+def _first_item_only_free(draft: list[Slot]) -> int | None:
+    """Item-only placements need a slot with neither species nor item (used-index tracking)."""
+    for index, slot in enumerate(draft):
+        if not slot.species.value and not slot.item.value:
             return index
     return None
 
@@ -145,9 +153,10 @@ def check_hypothetical(state: dict[str, Any], placements: object) -> dict[str, A
 
     Decision (C2): the validator assumes every species value on the draft is locked.
     Species named in a placement but absent from the live team are written onto the
-    first free slot of the COPY (ascending index), locked=True, then discarded with
-    the copy. Item-only placements use the first free slot. No free slot → refuse.
-    Live team_draft and pending are never written.
+    first species-free slot of the COPY (ascending index), locked=True, then discarded
+    with the copy. Item-only placements use the first slot with neither species nor
+    item (so two identical items hit Item Clause instead of overwriting one slot).
+    No free slot → refuse. Live team_draft and pending are never written.
     """
     if not isinstance(placements, list) or not placements:
         return {"verdict": "bad_value", "conflicts_with_slot": None,
@@ -167,7 +176,7 @@ def check_hypothetical(state: dict[str, Any], placements: object) -> dict[str, A
         if isinstance(species, str) and species.strip():
             index = _slot_for_species(draft, species)
             if index is None:
-                index = _first_free(draft)
+                index = _first_species_free(draft)
                 if index is None:
                     return {"verdict": "bad_slot_index", "conflicts_with_slot": None,
                             "message": "no free slot on the copy for a species not on the team"}
@@ -183,7 +192,7 @@ def check_hypothetical(state: dict[str, Any], placements: object) -> dict[str, A
                     draft[index], species=Attr(value=verdict.canonical, locked=True)
                 )
         else:
-            index = _first_free(draft)
+            index = _first_item_only_free(draft)
             if index is None:
                 return {"verdict": "bad_slot_index", "conflicts_with_slot": None,
                         "message": "no free slot on the copy for an item-only placement"}

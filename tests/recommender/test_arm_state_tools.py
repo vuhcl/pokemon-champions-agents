@@ -227,3 +227,26 @@ def test_check_hypothetical_never_writes_and_reports_clauses():
     assert mechanical_class(
         empty, empty, [{"name": "check_hypothetical", "result": ok}]
     ) == "lookup only"
+
+
+def test_check_hypothetical_item_only_placements_use_distinct_slots():
+    same = check_hypothetical(empty_team(), [{"item": "Wide Lens"}, {"item": "Wide Lens"}])
+    assert same["verdict"] == "item_clause"
+    assert same["conflicts_with_slot"] == 1
+
+    distinct = check_hypothetical(empty_team(), [{"item": "Wide Lens"}, {"item": "Zoom Lens"}])
+    assert distinct["verdict"] == "ok"
+
+    three = check_hypothetical(
+        empty_team(),
+        [{"item": "Wide Lens"}, {"item": "Zoom Lens"}, {"item": "Scope Lens"}],
+    )
+    assert three["verdict"] == "ok"
+
+    full = empty_team()
+    for index in range(6):
+        full["team_draft"][index] = replace(
+            full["team_draft"][index], item=Attr(value="Wide Lens", locked=True)
+        )
+    jammed = check_hypothetical(full, [{"item": "Zoom Lens"}])
+    assert jammed["verdict"] == "bad_slot_index"
