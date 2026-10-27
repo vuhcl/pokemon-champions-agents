@@ -168,15 +168,74 @@ def _mon(
     }
 
 
-def _refuse_non_monotone(constraints: list[dict[str, Any]]) -> str | None:
-    for c in constraints:
+def _invalid(field: str, expected: str, message: str) -> dict[str, Any]:
+    return {
+        "status": "invalid_arguments",
+        "field": field,
+        "expected": expected,
+        "error": message,
+        "no_reference": False,
+    }
+
+
+def _legal_abilities(species: str) -> list[str]:
+    snap = load_legality()
+    entry = snap["species"].get(to_id(species))
+    if not entry:
+        return []
+    return [v for v in (entry.get("abilities") or {}).values() if isinstance(v, str)]
+
+
+def _resolve_ability(
+    species: str,
+    provided: object,
+    *,
+    field: str,
+) -> tuple[str | None, str | None, dict[str, Any] | None]:
+    """Return (ability, from_data_note, invalid_response)."""
+    legal = _legal_abilities(species)
+    if not legal:
+        return None, None, _invalid(
+            field,
+            "a legal ability name for this species",
+            f"species {species!r} has no abilities in the snapshot",
+        )
+    if isinstance(provided, str) and provided.strip():
+        name = provided.strip()
+        if not any(a.casefold() == name.casefold() for a in legal):
+            return None, None, _invalid(
+                field,
+                f"one of {legal}",
+                f"{field} {name!r} is not legal on {species}; legal: {legal}",
+            )
+        canon = next(a for a in legal if a.casefold() == name.casefold())
+        return canon, None, None
+    if len(legal) == 1:
+        return legal[0], f"ability: {legal[0]} (from data)", None
+    return None, None, _invalid(
+        field,
+        f"one of {legal} (species has multiple legal abilities)",
+        f"{field} is required for {species}; legal abilities: {legal}",
+    )
+
+
+def _refuse_non_monotone(constraints: list[dict[str, Any]]) -> dict[str, Any] | None:
+    for i, c in enumerate(constraints):
         if not isinstance(c, dict):
-            return "each constraint must be an object"
+            return _invalid(
+                f"constraints[{i}]",
+                "object with type=survive|outspeed|ko",
+                "each constraint must be an object",
+            )
         ctype = str(c.get("type") or "").strip().lower()
         if ctype in REFUSED_HINTS or ctype not in MONOTONE_TYPES:
-            return (
-                f"refused non-monotone or unknown constraint type {ctype!r}; "
-                "v1 accepts only survive, outspeed, and ko"
+            return _invalid(
+                f"constraints[{i}].type",
+                "survive | outspeed | ko",
+                (
+                    f"refused non-monotone or unknown constraint type {ctype!r}; "
+                    "v1 accepts only survive, outspeed, and ko"
+                ),
             )
     return None
 
@@ -186,27 +245,56 @@ def _parse_constraints(
     ability: str,
     item: str,
     constraints: list[dict[str, Any]],
-) -> tuple[list[Callable[[str, dict[str, int]], bool]], list[dict[str, Any]], str | None]:
-    """Return (predicates, normalized_meta, error)."""
+) -> tuple[
+    list[Callable[[str, dict[str, int]], bool]],
+    list[dict[str, Any]],
+    list[str],
+    dict[str, Any] | None,
+]:
+    """Return (predicates, normalized_meta, ability_notes, invalid_response)."""
     preds: list[Callable[[str, dict[str, int]], bool]] = []
     meta: list[dict[str, Any]] = []
+    notes: list[str] = []
     snap = load_legality()
     base_spe = snap["species"][to_id(species)]["base_stats"]["spe"]
 
-    for c in constraints:
+    for i, c in enumerate(constraints):
         ctype = str(c.get("type") or "").strip().lower()
+        prefix = f"constraints[{i}]"
         if ctype == "outspeed":
             if "target_spe" in c:
-                target = int(c["target_spe"])
+                try:
+                    target = int(c["target_spe"])
+                except (TypeError, ValueError):
+                    return [], [], [], _invalid(
+                        f"{prefix}.target_spe",
+                        "integer Spe stat",
+                        "target_spe must be an integer",
+                    )
             elif "species" in c:
                 opp = snap["species"].get(to_id(str(c["species"])))
                 if not opp:
-                    return [], [], f"outspeed opponent species not found: {c.get('species')!r}"
+                    return [], [], [], _invalid(
+                        f"{prefix}.species",
+                        "a legal species name",
+                        f"outspeed opponent species not found: {c.get('species')!r}",
+                    )
                 opp_nat = str(c.get("nature") or "Serious")
-                opp_sp = int(c.get("spe_sp") or 0)
+                try:
+                    opp_sp = int(c.get("spe_sp") or 0)
+                except (TypeError, ValueError):
+                    return [], [], [], _invalid(
+                        f"{prefix}.spe_sp",
+                        "integer 0..32",
+                        "spe_sp must be an integer",
+                    )
                 target = champions_spe(opp["base_stats"]["spe"], opp_sp, opp_nat)
             else:
-                return [], [], "outspeed needs target_spe or species (+ nature, spe_sp)"
+                return [], [], [], _invalid(
+                    prefix,
+                    "target_spe (int) or species (+ nature, spe_sp)",
+                    "outspeed needs target_spe or species (+ nature, spe_sp)",
+                )
             meta.append({"type": "outspeed", "target_spe": target})
 
             def pred(nature: str, sp: dict[str, int], _t=target, _b=base_spe) -> bool:
@@ -218,18 +306,50 @@ def _parse_constraints(
         if ctype == "survive":
             att = c.get("attacker")
             move = c.get("move")
-            if not isinstance(att, dict) or not move:
-                return [], [], "survive needs attacker object and move"
-            for key in ("species", "ability"):
-                if not att.get(key):
-                    return [], [], f"survive attacker missing {key}"
+            # Transcript malformation: move nested under attacker, top-level move absent.
+            if isinstance(att, dict) and not move and att.get("move"):
+                return [], [], [], _invalid(
+                    f"{prefix}.move",
+                    "top-level string move (not nested under attacker)",
+                    (
+                        "survive.move must be a sibling of attacker; "
+                        f"found move nested under attacker as {att.get('move')!r}"
+                    ),
+                )
+            if not isinstance(att, dict):
+                return [], [], [], _invalid(
+                    f"{prefix}.attacker",
+                    "{species, nature, ability?, item?, sp|evs?}",
+                    "survive needs an attacker object",
+                )
+            if not move or not isinstance(move, str):
+                return [], [], [], _invalid(
+                    f"{prefix}.move",
+                    "string move name at the constraint top level",
+                    "survive needs a top-level move string",
+                )
+            if not att.get("species"):
+                return [], [], [], _invalid(
+                    f"{prefix}.attacker.species",
+                    "species name string",
+                    "survive attacker missing species",
+                )
+            att_species = str(att["species"])
+            att_ab, att_note, att_bad = _resolve_ability(
+                att_species, att.get("ability"), field=f"{prefix}.attacker.ability"
+            )
+            if att_bad:
+                return [], [], [], att_bad
+            assert att_ab is not None
+            if att_note:
+                notes.append(f"constraints[{i}] attacker {att_note}")
             field = c.get("field") if isinstance(c.get("field"), dict) else {"gameType": "Doubles"}
             att_sp = _sp_dict(att.get("sp") or att.get("evs"))
             att_mon = _mon(
-                str(att["species"]),
+                att_species,
                 str(att.get("nature") or "Serious"),
                 att_sp,
-                ability=str(att["ability"]),
+                ability=att_ab,
                 item=str(att.get("item") or ""),
             )
             meta.append(
@@ -238,6 +358,7 @@ def _parse_constraints(
                     "move": move,
                     "attacker": att_mon["species"],
                     "attacker_nature": att_mon["nature"],
+                    "attacker_ability": att_ab,
                 }
             )
 
@@ -260,22 +381,61 @@ def _parse_constraints(
         if ctype == "ko":
             de = c.get("defender")
             move = c.get("move")
-            if not isinstance(de, dict) or not move:
-                return [], [], "ko needs defender object and move"
-            for key in ("species", "ability"):
-                if not de.get(key):
-                    return [], [], f"ko defender missing {key}"
+            if isinstance(de, dict) and not move and de.get("move"):
+                return [], [], [], _invalid(
+                    f"{prefix}.move",
+                    "top-level string move (not nested under defender)",
+                    (
+                        "ko.move must be a sibling of defender; "
+                        f"found move nested under defender as {de.get('move')!r}"
+                    ),
+                )
+            if not isinstance(de, dict):
+                return [], [], [], _invalid(
+                    f"{prefix}.defender",
+                    "{species, nature, ability?, item?, sp|evs?}",
+                    "ko needs a defender object",
+                )
+            if not move or not isinstance(move, str):
+                return [], [], [], _invalid(
+                    f"{prefix}.move",
+                    "string move name at the constraint top level",
+                    "ko needs a top-level move string",
+                )
+            if not de.get("species"):
+                return [], [], [], _invalid(
+                    f"{prefix}.defender.species",
+                    "species name string",
+                    "ko defender missing species",
+                )
+            de_species = str(de["species"])
+            de_ab, de_note, de_bad = _resolve_ability(
+                de_species, de.get("ability"), field=f"{prefix}.defender.ability"
+            )
+            if de_bad:
+                return [], [], [], de_bad
+            assert de_ab is not None
+            if de_note:
+                notes.append(f"constraints[{i}] defender {de_note}")
             field = c.get("field") if isinstance(c.get("field"), dict) else {"gameType": "Doubles"}
             de_sp = _sp_dict(de.get("sp") or de.get("evs"))
             de_mon = _mon(
-                str(de["species"]),
+                de_species,
                 str(de.get("nature") or "Serious"),
                 de_sp,
-                ability=str(de["ability"]),
+                ability=de_ab,
                 item=str(de.get("item") or ""),
             )
             cat = _move_category(str(move))
-            meta.append({"type": "ko", "move": move, "defender": de_mon["species"], "category": cat})
+            meta.append(
+                {
+                    "type": "ko",
+                    "move": move,
+                    "defender": de_mon["species"],
+                    "category": cat,
+                    "defender_ability": de_ab,
+                }
+            )
 
             def pred(
                 nature: str,
@@ -293,9 +453,13 @@ def _parse_constraints(
             preds.append(pred)
             continue
 
-        return [], [], f"unknown constraint type {ctype!r}"
+        return [], [], [], _invalid(
+            f"{prefix}.type",
+            "survive | outspeed | ko",
+            f"unknown constraint type {ctype!r}",
+        )
 
-    return preds, meta, None
+    return preds, meta, notes, None
 
 
 def _feasible(preds: list[Callable[[str, dict[str, int]], bool]], nature: str, sp: dict[str, int]) -> bool:
@@ -543,11 +707,17 @@ def _verify_constraints(
             out.append({"type": "outspeed", "ok": ok, "spe_stat": got, "target_spe": target})
         elif ctype == "survive":
             att = c["attacker"]
+            att_ab, _, bad = _resolve_ability(
+                str(att["species"]), att.get("ability"), field="attacker.ability"
+            )
+            if bad or att_ab is None:
+                out.append({"type": "survive", "ok": False, "error": "attacker ability unresolved"})
+                continue
             att_mon = _mon(
                 str(att["species"]),
                 str(att.get("nature") or "Serious"),
                 _sp_dict(att.get("sp") or att.get("evs")),
-                ability=str(att["ability"]),
+                ability=att_ab,
                 item=str(att.get("item") or ""),
             )
             defn = _mon(species, nature, sp, ability=ability, item=item)
@@ -556,11 +726,17 @@ def _verify_constraints(
             out.append({"type": "survive", "ok": ok, "move": c["move"], "attacker": att_mon["species"]})
         elif ctype == "ko":
             de = c["defender"]
+            de_ab, _, bad = _resolve_ability(
+                str(de["species"]), de.get("ability"), field="defender.ability"
+            )
+            if bad or de_ab is None:
+                out.append({"type": "ko", "ok": False, "error": "defender ability unresolved"})
+                continue
             de_mon = _mon(
                 str(de["species"]),
                 str(de.get("nature") or "Serious"),
                 _sp_dict(de.get("sp") or de.get("evs")),
-                ability=str(de["ability"]),
+                ability=de_ab,
                 item=str(de.get("item") or ""),
             )
             att = _mon(species, nature, sp, ability=ability, item=item)
@@ -581,33 +757,41 @@ def solve_spread(
 ) -> dict[str, Any]:
     """Find one good 66-SP spread for monotone constraints.
 
-    status: optimal | feasible | infeasible | unknown
+    status: optimal | feasible | infeasible | unknown | invalid_arguments
+    unknown = search budget/time exhausted (not bad input).
     """
     if not isinstance(constraints, list) or not constraints:
-        return {
-            "status": "unknown",
-            "error": "constraints must be a non-empty list",
-            "no_reference": False,
-        }
+        return _invalid(
+            "constraints",
+            "non-empty list of {type, ...} objects",
+            "constraints must be a non-empty list",
+        )
     refused = _refuse_non_monotone(constraints)
     if refused:
-        return {"status": "unknown", "error": refused, "refused": True, "no_reference": False}
+        return refused
 
     snap = load_legality()
     sp_entry = snap["species"].get(to_id(species))
     if not sp_entry:
-        return {"status": "unknown", "error": f"species not found: {species!r}", "no_reference": False}
-    if ability is None:
-        abs_ = sp_entry.get("abilities") or {}
-        ability = abs_.get("0") or abs_.get("1") or abs_.get("H")
-        if not ability:
-            return {"status": "unknown", "error": "species has no ability in snapshot", "no_reference": False}
-    ability = str(ability)
+        return _invalid(
+            "species",
+            "a Champions-legal species name",
+            f"species not found: {species!r}",
+        )
+    ability_notes: list[str] = []
+    resolved, note, bad = _resolve_ability(species, ability, field="ability")
+    if bad:
+        return bad
+    assert resolved is not None
+    ability = resolved
+    if note:
+        ability_notes.append(note)
     item = str(item or "")
 
-    preds, meta, err = _parse_constraints(species, ability, item, constraints)
+    preds, meta, side_notes, err = _parse_constraints(species, ability, item, constraints)
     if err:
-        return {"status": "unknown", "error": err, "no_reference": False}
+        return err
+    ability_notes.extend(side_notes)
 
     refs, n_dropped = joint_refs_66(species)
     no_reference = refs == []
@@ -769,6 +953,8 @@ def solve_spread(
         return {
             "status": "feasible" if hit_limit else "optimal",
             "spread": {"nature": best_min["nature"], **best_min["sp"]},
+            "ability": ability,
+            "ability_notes": ability_notes,
             "objective": objective,
             "matched_entry": None,
             "rank": None,
@@ -843,6 +1029,8 @@ def solve_spread(
     return {
         "status": "feasible" if limit else "optimal",
         "spread": {"nature": hit["nature"], **hit["sp"]},
+        "ability": ability,
+        "ability_notes": ability_notes,
         "objective": objective,
         "matched_entry": {
             "filtered_rank": rank,

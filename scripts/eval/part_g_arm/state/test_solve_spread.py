@@ -34,8 +34,9 @@ def test_refuse_non_monotone():
         ability="Stamina",
         time_budget_s=5,
     )
-    assert out.get("refused") or out["status"] == "unknown"
-    assert "monotone" in (out.get("error") or "").lower() or "refused" in (out.get("error") or "").lower()
+    assert out["status"] == "invalid_arguments"
+    assert out["field"] == "constraints[0].type"
+    assert "monotone" in (out.get("error") or "").lower() or "survive" in (out.get("expected") or "")
 
 
 def test_trick_room_refused():
@@ -45,8 +46,8 @@ def test_trick_room_refused():
         ability="Stamina",
         time_budget_s=5,
     )
-    assert out["status"] == "unknown"
-    assert out.get("refused")
+    assert out["status"] == "invalid_arguments"
+    assert out["field"] == "constraints[0].type"
 
 
 def test_fill_toward_reaches_budget_and_respects_frontier():
@@ -100,13 +101,14 @@ def test_tie_break_prefers_higher_weight_at_equal_l1(monkeypatch):
         cell_budget=0,
     )
     # With cell_budget=0 frontier stops immediately; distance-0 fast path still runs.
-    assert out["status"] in {"optimal", "feasible"}
+    assert out["status"] in {"optimal", "feasible"}, out
     assert out["rank"] == 2
     assert out["weight"] == 99.0
 
 
 def test_no_reference_species():
     # Legal without Showdown joints (from discovery: 39 such).
+    from scripts.eval.part_g_arm.state.spread_solve import _legal_abilities
     from scripts.eval.part_g_v4.builders._lib import is_legal_species, load_legality, load_showdown
 
     snap = load_legality()
@@ -117,10 +119,14 @@ def test_no_reference_species():
         if is_legal_species(sp) and sid not in joint
     )
     name = snap["species"][sid]["name"]
+    legal = _legal_abilities(name)
+    kwargs = {"time_budget_s": 10}
+    if len(legal) != 1:
+        kwargs["ability"] = legal[0]
     out = solve_spread(
         name,
         [{"type": "outspeed", "target_spe": 1}],
-        time_budget_s=10,
+        **kwargs,
     )
     assert out.get("no_reference") is True
     assert out["status"] in {"optimal", "feasible"}
@@ -153,9 +159,13 @@ def test_filtered_rank_after_drop(monkeypatch):
         "scripts.eval.part_g_arm.state.spread_solve._feasible",
         lambda preds, nature, sp: nature == "Timid" and sp == synthetic[0]["sp"],
     )
+    from scripts.eval.part_g_arm.state.spread_solve import _legal_abilities
+
+    legal = _legal_abilities("Whimsicott")
     out = solve_spread(
         "Whimsicott",
         [{"type": "outspeed", "target_spe": 1}],
+        ability=legal[0] if legal else "Prankster",
         time_budget_s=5,
         cell_budget=0,
     )
@@ -187,7 +197,7 @@ def test_brute_force_matches_solver_small_grid():
         },
         {"type": "outspeed", "target_spe": 110},
     ]
-    preds, _, err = _parse_constraints(species, ability, item, constraints)
+    preds, _, _notes, err = _parse_constraints(species, ability, item, constraints)
     assert err is None
     nature = "Bold"
     # Brute: Spe=5 only, minimize L1 to Bold rank-2-ish joint
@@ -249,5 +259,101 @@ def test_dispatch_does_not_write_state():
     )
     assert [s.species.value for s in new["team_draft"]] == before
     assert new.get("pending_presentation") is state.get("pending_presentation")
-    assert result.get("status") in {"optimal", "feasible", "infeasible", "unknown"}
+    assert result.get("status") in {
+        "optimal",
+        "feasible",
+        "infeasible",
+        "unknown",
+        "invalid_arguments",
+    }
     assert all(v.get("ok") for v in (result.get("constraint_results") or []) if "ok" in v)
+
+
+def test_malformed_nested_move_is_invalid_arguments():
+    """Transcript shape: move nested under attacker, top-level move missing."""
+    out = solve_spread(
+        "Venusaur-Mega",
+        [
+            {
+                "type": "survive",
+                "attacker": {
+                    "species": "Beedrill-Mega",
+                    "nature": "Jolly",
+                    "move": "U-turn",
+                    "sp": {"hp": 0, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32},
+                },
+            },
+            {"type": "outspeed", "target_spe": 100},
+        ],
+        time_budget_s=5,
+    )
+    assert out["status"] == "invalid_arguments"
+    assert out["field"] == "constraints[0].move"
+    assert "sibling" in (out.get("error") or "").lower() or "nested" in (out.get("error") or "").lower()
+
+
+def test_malformed_missing_attacker_ability_multi_is_invalid():
+    """Multi-ability attacker without ability → invalid_arguments naming legal list."""
+    out = solve_spread(
+        "Venusaur-Mega",
+        [
+            {
+                "type": "survive",
+                "attacker": {
+                    "species": "Blastoise",
+                    "nature": "Modest",
+                    "sp": {"hp": 0, "atk": 0, "def": 0, "spa": 32, "spd": 0, "spe": 32},
+                },
+                "move": "Water Pulse",
+            }
+        ],
+        time_budget_s=5,
+    )
+    assert out["status"] == "invalid_arguments"
+    assert out["field"] == "constraints[0].attacker.ability"
+    assert "Torrent" in (out.get("error") or "") or "Torrent" in (out.get("expected") or "")
+
+
+def test_user_species_multi_ability_requires_ability():
+    out = solve_spread(
+        "Blastoise",
+        [{"type": "outspeed", "target_spe": 1}],
+        time_budget_s=5,
+    )
+    assert out["status"] == "invalid_arguments"
+    assert out["field"] == "ability"
+    assert "Torrent" in (out.get("error") or "") or "Rain Dish" in (out.get("error") or "")
+
+
+def test_single_ability_filled_from_data():
+    out = solve_spread(
+        "Venusaur-Mega",
+        [{"type": "outspeed", "target_spe": 1}],
+        time_budget_s=10,
+    )
+    assert out["status"] in {"optimal", "feasible"}
+    assert out["ability"] == "Thick Fat"
+    assert any("Thick Fat" in n and "from data" in n for n in (out.get("ability_notes") or []))
+
+
+def test_attacker_single_ability_filled_from_data():
+    out = solve_spread(
+        "Venusaur-Mega",
+        [
+            {
+                "type": "survive",
+                "attacker": {
+                    "species": "Beedrill-Mega",
+                    "nature": "Jolly",
+                    "sp": {"hp": 0, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32},
+                },
+                "move": "U-turn",
+                "field": {"gameType": "Doubles"},
+            },
+            {"type": "outspeed", "target_spe": 80},
+        ],
+        time_budget_s=30,
+    )
+    assert out["status"] in {"optimal", "feasible", "infeasible", "unknown"}
+    if out["status"] in {"optimal", "feasible"}:
+        assert any("Adaptability" in n for n in (out.get("ability_notes") or []))

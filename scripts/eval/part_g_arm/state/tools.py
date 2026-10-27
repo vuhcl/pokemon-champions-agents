@@ -122,9 +122,11 @@ _CONSTRAINT = {
     "type": "object",
     "description": (
         "Monotone only: type=survive|outspeed|ko. "
-        "survive: attacker{species,nature,ability,item?,sp/evs}, move, field?. "
+        "survive: attacker{species,nature,ability?,item?,sp|evs?} AND top-level move "
+        "(move is a sibling of attacker, never nested inside it), field?. "
         "outspeed: target_spe (int Spe stat) or species+nature+spe_sp. "
-        "ko: defender{...}, move, field?. "
+        "ko: defender{...} AND top-level move, field?. "
+        "Ability may be omitted only when the species has exactly one legal ability. "
         "Refuses underspeed, Trick Room, exact stats."
     ),
 }
@@ -133,9 +135,18 @@ SPREAD_TOOL_SPECS: list[dict[str, Any]] = [
         "solve_spread",
         "Find one 66-SP spread for monotone survive/outspeed/ko constraints, "
         "closest in L1 to a 66-SP Showdown joint reference. Read-only: does not "
-        "lock or write team/pending. Returns status, spread, matched rank/distance, "
-        "and calc-verified constraint results. Say 'no solution' only when status "
-        "is infeasible.",
+        "lock or write team/pending. Returns status "
+        "(optimal | feasible | infeasible | unknown | invalid_arguments), "
+        "spread, matched rank/distance, and calc-verified constraint results. "
+        "invalid_arguments means bad input (wrong field or shape); unknown means "
+        "the search hit its budget or time limit. Say 'no solution' only when "
+        "status is infeasible. Example (dev species): "
+        '{"species":"Venusaur-Mega","constraints":['
+        '{"type":"survive","attacker":{"species":"Beedrill-Mega","nature":"Jolly",'
+        '"sp":{"hp":0,"atk":32,"def":0,"spa":0,"spd":0,"spe":32}},'
+        '"move":"U-turn","field":{"gameType":"Doubles"}},'
+        '{"type":"outspeed","target_spe":100}]} '
+        "(Thick Fat / Adaptability filled from data when omitted — single legal ability).",
         {
             "species": dict(_STR),
             "constraints": {"type": "array", "items": _CONSTRAINT},
