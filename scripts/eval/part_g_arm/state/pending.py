@@ -33,9 +33,28 @@ from scripts.eval.part_g_arm.state.fixtures import empty_team
 HERE = Path(__file__).resolve().parent
 V4 = HERE.parents[1] / "part_g_v4"
 OL_DIR = V4 / "ol_fixtures"
+FIX_DIR = V4 / "fixtures"
 H27_PATH = V4 / "h27_candidate_fixture.json"
 _DEV_ROLE = TargetRoleDecision(role_id="bulky_offense", source="user_choice")
 _LOCK_ATTRS = ("species", "role", "ability", "item", "moveset", "nature", "spread")
+# Request-set row id → fixtures/*.json stem. Only files with INTERNAL slot indices load.
+_ROW_FIXTURE = {
+    "HN2c": "hn2c_team",
+    "HN2d": "hn2d_team",
+    "H18b": "h18b_hyper_offense",
+    "MU2": "mu2_mu3_team",
+    "MU3": "mu2_mu3_team",
+    "MU4": "mu4_pelipper",
+    "MS5": "ms5_rain_conflict",
+    "IC1": "ic1_corviknight_item_clause",
+    "IS2": "is2_basculegion",
+    "H25": "h25_team",
+    "H26": "h26_torkoal_locked",
+}
+
+
+class FixtureLoadError(ValueError):
+    """Named fixture could not be loaded through apply_lock without guessing."""
 
 
 def _resolve_path(path_or_id: str | Path) -> Path:
@@ -48,6 +67,12 @@ def _resolve_path(path_or_id: str | Path) -> Path:
     ol = OL_DIR / f"{key}.json"
     if ol.is_file():
         return ol
+    stem = _ROW_FIXTURE.get(key.upper() if key.upper() in _ROW_FIXTURE else key, key)
+    # strip trailing .json if passed
+    stem = stem.removesuffix(".json")
+    fix = FIX_DIR / f"{stem}.json"
+    if fix.is_file():
+        return fix
     raise FileNotFoundError(f"no fixture for {path_or_id!r}")
 
 
@@ -59,16 +84,41 @@ def _lock_internal(state: dict[str, Any], slot_index: int, attr: str, value: obj
 
 
 def _apply_team_row(state: dict[str, Any], row: dict[str, Any]) -> dict[str, Any]:
-    """Fixture slot numbers are internal. Species (and optional ability/item) via apply_lock."""
+    """Fixture slot numbers are internal. Species and optional attrs via apply_lock."""
     index = int(row["slot"])
     species = row.get("species")
     if not species:
         return state
+    if row.get("locked") is False:
+        raise FixtureLoadError(
+            f"slot {index}: species {species!r} is unlocked; apply_lock always locks"
+        )
     state = _lock_internal(state, index, "species", species)
-    for attr in ("ability", "item"):
-        if row.get(attr):
-            state = _lock_internal(state, index, attr, row[attr])
+    # shortcut: apply_lock(moveset) currently replaces the slot and drops sibling
+    # Attrs (species/item/…); skip moves here. Upgrade: fix apply_lock in nodes.py.
+    mapping = {
+        "ability": row.get("ability"),
+        "item": row.get("item"),
+        "nature": row.get("nature"),
+        "spread": row.get("spread") or row.get("evs"),
+    }
+    for attr, value in mapping.items():
+        if value:
+            state = _lock_internal(state, index, attr, value)
     return state
+
+
+def _team_rows(doc: dict[str, Any]) -> list[dict[str, Any]] | None:
+    if isinstance(doc.get("team"), list):
+        return list(doc["team"])
+    if isinstance(doc.get("slots"), list):
+        return list(doc["slots"])
+    return None
+
+
+def _uses_one_based_slots(rows: list[dict[str, Any]]) -> bool:
+    nums = [int(r["slot"]) for r in rows if isinstance(r, dict) and "slot" in r]
+    return bool(nums) and 0 not in nums and min(nums) >= 1
 
 
 def _load_ol(doc: dict[str, Any]) -> dict[str, Any]:
@@ -78,6 +128,33 @@ def _load_ol(doc: dict[str, Any]) -> dict[str, Any]:
     # Binding fixtures: pending dict is placed as written. They do not carry
     # provisional_slot / pending_slot_intent, so commit_full_slot will refuse.
     state["pending_presentation"] = dict(doc["pending"])
+    return state
+
+
+def _load_v4_team_fixture(doc: dict[str, Any], *, path: Path) -> dict[str, Any]:
+    """Load fixtures/*.json team/slots. Slot numbers must be INTERNAL (0-based)."""
+    rows = _team_rows(doc)
+    if rows is None:
+        # Singleton shape (IS2): species at top level, no slot field → internal 0.
+        if doc.get("species"):
+            return _apply_team_row(empty_team(), {**doc, "slot": 0})
+        raise FixtureLoadError(f"{path.name}: no team/slots and no top-level species")
+    if not any("slot" in r for r in rows if isinstance(r, dict)):
+        raise FixtureLoadError(
+            f"{path.name}: team rows have no slot fields; refusing to invent indices"
+        )
+    if _uses_one_based_slots(rows):
+        raise FixtureLoadError(
+            f"{path.name}: slot numbers look 1-based { [r.get('slot') for r in rows] }; "
+            "not loaded (no conversion without a stated base)"
+        )
+    state = empty_team()
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        if row.get("open") or not row.get("species"):
+            continue
+        state = _apply_team_row(state, row)
     return state
 
 
@@ -128,7 +205,54 @@ def load_fixture(path_or_id: str | Path) -> dict[str, Any]:
     doc = json.loads(path.read_text(encoding="utf-8"))
     if path.name == "h27_candidate_fixture.json" or doc.get("id") == "H27":
         return _load_h27(doc)
+    if path.parent.resolve() == FIX_DIR.resolve() or path.name.endswith("_team.json") or path.name in {
+        "h18b_hyper_offense.json", "mu2_mu3_team.json", "mu4_pelipper.json",
+        "ms5_rain_conflict.json", "ic1_corviknight_item_clause.json", "is2_basculegion.json",
+        "h25_team.json", "h26_torkoal_locked.json",
+    }:
+        return _load_v4_team_fixture(doc, path=path)
     return _load_ol(doc)
+
+
+def try_load_fixture(path_or_id: str | Path) -> dict[str, Any]:
+    """Like load_fixture, but returns {loaded, state|None, error|None} for the matrix."""
+    try:
+        state = load_fixture(path_or_id)
+        return {"loaded": True, "state": state, "error": None}
+    except Exception as exc:  # noqa: BLE001 - matrix report
+        return {"loaded": False, "state": None, "error": f"{type(exc).__name__}: {exc}"}
+
+
+def build_cs_pending(
+    species: tuple[str, ...] | list[str],
+    *,
+    slot_index: int = 0,
+) -> dict[str, Any]:
+    """Dev candidate_selection via present_candidates (same route as H27). Dev species only."""
+    from recommender.regulation_registry import REGULATIONS, active_regulation
+
+    names = list(species)
+    if len(names) < 2:
+        raise ValueError("build_cs_pending needs at least two species")
+    mod = REGULATIONS[active_regulation()]["mod"]
+    ctx = SlotFillContext(
+        anchor={"species": names[0]},
+        role_shape_context=RoleShapeContext(
+            primary_function="offense",
+            tankiness="unknown",
+            requires_setup_turn=False,
+        ),
+        threat_counter_results=[
+            _threat_counter(name, usage_rank=i + 1, verified_score=float(5 - i))
+            for i, name in enumerate(names)
+        ],
+        support_needs=[],
+        regulation=mod,
+    )
+    annotate_overlap(ctx)
+    state = empty_team()
+    terminal = run_slot_fill_terminal(ctx, state, slot_index=slot_index)
+    return {**state, **terminal.state_updates}
 
 
 def build_fully_locked_slot(species: str, *, user_slot: int = 1) -> dict[str, Any]:

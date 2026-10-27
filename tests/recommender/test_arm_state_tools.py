@@ -229,6 +229,31 @@ def test_check_hypothetical_never_writes_and_reports_clauses():
     ) == "lookup only"
 
 
+def test_v4_fixture_loader_internal_slots_and_one_based_refuse():
+    from scripts.eval.part_g_arm.state.pending import build_cs_pending, load_fixture, try_load_fixture
+
+    hn2c = load_fixture("HN2c")
+    assert hn2c["team_draft"][0].species.value == "Annihilape"
+    assert hn2c["team_draft"][0].nature.value == "Jolly"
+    assert hn2c["team_draft"][0].spread.value["spe"] == 32
+
+    is2 = load_fixture("IS2")
+    assert is2["team_draft"][0].species.value == "Basculegion"
+    assert is2["team_draft"][0].item.value == "Choice Scarf"
+
+    refused = try_load_fixture("H18b")
+    assert refused["loaded"] is False
+    assert "1-based" in (refused["error"] or "")
+
+    ic1 = try_load_fixture("IC1")
+    assert ic1["loaded"] is False
+    assert "no slot fields" in (ic1["error"] or "")
+
+    cs = build_cs_pending(["Venusaur", "Blastoise"], slot_index=0)
+    assert cs["pending_presentation"]["kind"] == "candidate_selection"
+    assert [o["species"] for o in cs["pending_presentation"]["options"]] == ["Venusaur", "Blastoise"]
+
+
 def test_check_hypothetical_item_only_placements_use_distinct_slots():
     same = check_hypothetical(empty_team(), [{"item": "Wide Lens"}, {"item": "Wide Lens"}])
     assert same["verdict"] == "item_clause"
