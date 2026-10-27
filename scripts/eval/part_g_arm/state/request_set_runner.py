@@ -49,6 +49,17 @@ FIXED_RUN_SETTINGS: dict[str, Any] = {
     "prompt_sha256": FROZEN_PROMPT_SHA256,
 }
 
+# Fixed BEFORE any covered run (Part 4). No silent retry.
+FAILURE_POLICY: dict[str, Any] = {
+    "per_turn_timeout_s": 300.0,
+    "max_tool_calls_per_turn": 16,
+    "on_no_answer_or_error": "record as 'no usable answer'; no silent retry",
+    "resume": (
+        "progress.json lists finished row ids; resume skips them and must not rewrite "
+        "their transcript entries"
+    ),
+}
+
 
 def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -97,8 +108,12 @@ def run_row(
     cfg: ArmConfig,
     llm: Any,
     arm: ArmTools,
+    resolve_fn: Any = None,
+    turns_fn: Any = None,
 ) -> dict[str, Any]:
-    state, meta = resolve_start_state(row)
+    resolve = resolve_fn or resolve_start_state
+    turns_fn = turns_fn or turns_for_row
+    state, meta = resolve(row)
     if state is None:
         return {
             "id": row["id"],
@@ -108,10 +123,30 @@ def run_row(
         }
     turns_out: list[dict[str, Any]] = []
     prior = list(state.get("_message_history") or [])
-    for i, user_text in enumerate(turns_for_row(row, state)):
-        # History is consumed on the first played turn only (HD1).
+    # Apply failure-policy timeouts onto a shallow cfg copy when possible.
+    turn_timeout = float(FAILURE_POLICY["per_turn_timeout_s"])
+    max_tools = int(FAILURE_POLICY["max_tool_calls_per_turn"])
+    for i, user_text in enumerate(turns_fn(row, state)):
         use_prior = prior if i == 0 else []
-        state, record = run_turn(cfg, llm, arm, state, user_text, prior_messages=use_prior)
+        # Cap model invocations via item_timeout / max_turns without mutating frozen ArmConfig.
+        capped = cfg
+        if hasattr(cfg, "item_timeout_s") and cfg.item_timeout_s != turn_timeout:
+            from dataclasses import replace
+
+            capped = replace(
+                cfg,
+                item_timeout_s=turn_timeout,
+                max_turns=min(cfg.max_turns, max_tools),
+            )
+        state, record = run_turn(capped, llm, arm, state, user_text, prior_messages=use_prior)
+        n_tools = len(record.get("tool_calls") or [])
+        if n_tools > max_tools:
+            record["errors"] = list(record.get("errors") or []) + ["max_tool_calls"]
+        if not (record.get("final_text") or "").strip() or record.get("errors"):
+            # No silent retry — stamp the policy outcome.
+            if not (record.get("final_text") or "").strip():
+                record["final_text"] = "no usable answer"
+            record["no_usable_answer"] = True
         turns_out.append(record)
     return {
         "id": row["id"],
@@ -149,7 +184,71 @@ def build_run_parameters(cfg: ArmConfig, facts: dict[str, Any]) -> dict[str, Any
             "solve_spread": "read-only solve_spread tool (L1-to-joint)",
         },
         "allow_live": cfg.allow_live,
+        "failure_policy": FAILURE_POLICY,
     }
+
+
+def _load_progress(out_dir: Path) -> dict[str, Any]:
+    path = out_dir / "progress.json"
+    if not path.is_file():
+        return {"finished": [], "transcript_by_id": {}}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _save_progress(out_dir: Path, progress: dict[str, Any]) -> None:
+    (out_dir / "progress.json").write_text(json.dumps(progress, indent=2) + "\n", encoding="utf-8")
+
+
+def run_batch(
+    *,
+    out_dir: Path,
+    wanted: list[str],
+    cfg: ArmConfig,
+    llm: Any,
+    arm: ArmTools,
+    facts: dict[str, Any],
+    rows_by_id: dict[str, dict[str, Any]],
+    stop_after: int | None = None,
+    resolve_fn: Any = None,
+    turns_fn: Any = None,
+) -> int:
+    """Run rows with resume. stop_after limits newly completed rows (kill-resume tests)."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    progress = _load_progress(out_dir)
+    finished = list(progress.get("finished") or [])
+    by_id: dict[str, Any] = dict(progress.get("transcript_by_id") or {})
+    newly = 0
+    for rid in wanted:
+        if rid in by_id and rid in finished:
+            print(f"skip finished {rid}", file=sys.stderr)
+            continue
+        print(f"running {rid}", file=sys.stderr)
+        entry = run_row(
+            rows_by_id[rid],
+            cfg=cfg,
+            llm=llm,
+            arm=arm,
+            resolve_fn=resolve_fn,
+            turns_fn=turns_fn,
+        )
+        # Freeze finished results: never overwrite an existing finished entry.
+        if rid in finished and rid in by_id:
+            raise SystemExit(f"refusing to rewrite finished row {rid}")
+        by_id[rid] = entry
+        finished.append(rid)
+        progress = {"finished": finished, "transcript_by_id": by_id}
+        _save_progress(out_dir, progress)
+        newly += 1
+        if stop_after is not None and newly >= stop_after:
+            print(f"stop_after={stop_after} hit", file=sys.stderr)
+            break
+
+    transcript = [by_id[rid] for rid in wanted if rid in by_id]
+    record = build_run_parameters(cfg, facts)
+    (out_dir / "transcript.json").write_text(json.dumps(transcript, indent=2) + "\n", encoding="utf-8")
+    (out_dir / "run_record.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+    print(f"wrote {out_dir} ({len(transcript)} rows)", file=sys.stderr)
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -158,6 +257,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--row", action="append", default=[], help="row id to run (repeatable)")
     parser.add_argument("--dev", action="store_true", help="allow non-frozen prompt / non-covered rows")
     parser.add_argument("--list-covered", action="store_true", help="print covered ids and exit")
+    parser.add_argument("--stub", action="store_true", help="use StubLLM (no Ollama)")
+    parser.add_argument("--stop-after", type=int, default=None, help="stop after N new rows (resume test)")
+    parser.add_argument("--dev-rows-file", type=Path, default=None, help="run harness-style dev_rows.json via --dev")
     args = parser.parse_args(argv)
 
     covered = load_covered_ids()
@@ -169,25 +271,30 @@ def main(argv: list[str] | None = None) -> int:
     assert_frozen_prompt(cfg, allow_dev=args.dev)
 
     rows_by_id = {r["id"]: r for r in load_request_rows()}
-    wanted = args.row or sorted(covered)
+    if args.dev_rows_file:
+        dev_doc = json.loads(args.dev_rows_file.read_text(encoding="utf-8"))
+        all_dev = [r["id"] for r in dev_doc["rows"]]
+        wanted = args.row if args.row else all_dev
+        for r in dev_doc["rows"]:
+            rows_by_id[r["id"]] = {
+                "id": r["id"],
+                "prompt": " | ".join(r["turns"]),
+                "state": "dev",
+                "class": "DEV",
+                "acceptance": "",
+                "claim_types": "",
+                "raw": "",
+                "_dev_row": r,
+            }
+    else:
+        wanted = args.row or sorted(covered)
     for rid in wanted:
-        assert_row_allowed(rid, allow_dev=args.dev, covered=covered)
+        assert_row_allowed(rid, allow_dev=args.dev or bool(args.dev_rows_file), covered=covered)
         if rid not in rows_by_id:
             raise SystemExit(f"unknown row id {rid!r}")
 
     out_dir: Path = args.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
-
-    from scripts.eval.part_g_arm.run_battery import model_facts
-    from langchain_ollama import ChatOllama
-
-    try:
-        facts = model_facts(cfg)
-    except (Exception, SystemExit) as exc:  # noqa: BLE001
-        (out_dir / "run_record.json").write_text(
-            json.dumps({"error": f"{type(exc).__name__}: {exc}"}, indent=2) + "\n"
-        )
-        return 1
 
     arm = ArmTools(
         regulation=cfg.regulation,
@@ -195,25 +302,68 @@ def main(argv: list[str] | None = None) -> int:
         calc=CalcClient(cfg.calc_base_url),
         include_damage_rolls=cfg.damage_rolls_in_result,
     )
-    llm = ChatOllama(
-        model=cfg.model,
-        temperature=cfg.temperature,
-        reasoning=cfg.think,
-        num_ctx=cfg.num_ctx,
-        num_predict=cfg.num_predict,
-        client_kwargs={"timeout": cfg.call_timeout_s},
-    ).bind_tools(combined_specs())
 
-    transcript = []
-    for rid in wanted:
-        print(f"running {rid}", file=sys.stderr)
-        transcript.append(run_row(rows_by_id[rid], cfg=cfg, llm=llm, arm=arm))
+    if args.stub:
+        from scripts.eval.part_g_arm.state.stub_llm import StubLLM
 
-    record = build_run_parameters(cfg, facts)
-    (out_dir / "transcript.json").write_text(json.dumps(transcript, indent=2) + "\n", encoding="utf-8")
-    (out_dir / "run_record.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
-    print(f"wrote {out_dir}", file=sys.stderr)
-    return 0
+        llm: Any = StubLLM()
+        facts: dict[str, Any] = {"digest": FIXED_RUN_SETTINGS["model_digest"], "stub": True}
+    else:
+        from scripts.eval.part_g_arm.run_battery import model_facts
+        from langchain_ollama import ChatOllama
+
+        try:
+            facts = model_facts(cfg)
+        except (Exception, SystemExit) as exc:  # noqa: BLE001
+            (out_dir / "run_record.json").write_text(
+                json.dumps({"error": f"{type(exc).__name__}: {exc}"}, indent=2) + "\n"
+            )
+            return 1
+        llm = ChatOllama(
+            model=cfg.model,
+            temperature=cfg.temperature,
+            reasoning=cfg.think,
+            num_ctx=cfg.num_ctx,
+            num_predict=cfg.num_predict,
+            client_kwargs={"timeout": cfg.call_timeout_s},
+        ).bind_tools(combined_specs())
+
+    resolve_fn = None
+    turns_fn = None
+    if args.dev_rows_file:
+        from scripts.eval.part_g_arm.state.harness import start_state as harness_start
+
+        def _resolve_dev(row: dict[str, Any]) -> tuple[dict[str, Any] | None, dict[str, Any]]:
+            if row.get("_dev_row"):
+                st = harness_start(row["_dev_row"])
+                return st, {
+                    "row": row["id"],
+                    "loaded": True,
+                    "complete": True,
+                    "source": "harness.start_state",
+                }
+            return resolve_start_state(row)
+
+        def _turns_dev(row: dict[str, Any], state: dict[str, Any] | None) -> list[str]:
+            if row.get("_dev_row"):
+                return list(row["_dev_row"]["turns"])
+            return turns_for_row(row, state)
+
+        resolve_fn = _resolve_dev
+        turns_fn = _turns_dev
+
+    return run_batch(
+        out_dir=out_dir,
+        wanted=wanted,
+        cfg=cfg,
+        llm=llm,
+        arm=arm,
+        facts=facts,
+        rows_by_id=rows_by_id,
+        stop_after=args.stop_after,
+        resolve_fn=resolve_fn,
+        turns_fn=turns_fn,
+    )
 
 
 if __name__ == "__main__":
