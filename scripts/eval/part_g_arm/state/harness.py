@@ -42,6 +42,23 @@ from scripts.eval.part_g_arm.state.tools import (
 
 HERE = Path(__file__).resolve().parent
 NON_INHERITANCE = "This configuration does not inherit the rev3 PASS."
+# Standing disclosures for every stateful-arm run record (not a scoring claim).
+RUN_PARAMS = {
+    "primitive_tools": (
+        "State tools call apply_lock / refine / commit / record_rejection nodes "
+        "directly; they do not wrap the CLI binder path."
+    ),
+    "partial_cs_stale_gate": (
+        "select_option refuses a fully locked target slot and validate_team_value "
+        "failures; it does not detect a candidate list built for an earlier team "
+        "(D8 / OL10a open)."
+    ),
+    "select_option_source_default": (
+        "select_option uses raw.get('source') or 'threat'. classify_input reads "
+        "option['source'] and KeyErrors when OL fixtures omit source (OL8 options "
+        "are species-only). Arm-side default; CLI would not process those fixtures."
+    ),
+}
 REASK = ("Call a tool before answering. Use a state tool when the user asks to lock, unlock, reset, or commit. "
          "Use a lookup tool for a factual question.")
 
@@ -339,6 +356,7 @@ def run_record(cfg: ArmConfig, facts: dict[str, Any]) -> dict[str, Any]:
     specs = combined_specs()
     return {
         "non_inheritance": NON_INHERITANCE,
+        "run_params": RUN_PARAMS,
         "prompt_file": cfg.prompt_file,
         "prompt_sha256": cfg.prompt_hash(),
         "tool_schema_sha256": _sha256_bytes(json.dumps(specs, sort_keys=True).encode()),
