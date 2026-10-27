@@ -409,10 +409,105 @@ def draft_signature(state: dict[str, Any]) -> tuple[Any, ...]:
     return tuple(tuple(row["attrs"]) for row in state.get("slots") or ())
 
 
+def _pending_signature(pending: object) -> tuple[Any, ...] | None:
+    if not isinstance(pending, dict):
+        return None
+    options: list[Any] = []
+    kind = pending.get("kind")
+    if kind == "candidate_selection":
+        for opt in pending.get("options") or []:
+            options.append(opt.get("species") or opt.get("id"))
+    elif kind == "full_build_confirmation":
+        for group in pending.get("build_option_groups") or []:
+            for opt in group.get("options") or []:
+                options.append(opt.get("option_id") or opt.get("id") or opt.get("label"))
+    return (
+        pending.get("kind"),
+        pending.get("slot_index"),
+        tuple(options),
+        pending.get("provisional_fingerprint"),
+    )
+
+
+def _intent_signature(intent: object) -> tuple[Any, ...] | None:
+    if intent is None:
+        return None
+    if isinstance(intent, dict):
+        return (intent.get("species"), intent.get("slot_index"))
+    return (getattr(intent, "species", None), getattr(intent, "slot_index", None))
+
+
+def _provisional_signature(prov: object) -> tuple[Any, ...] | None:
+    if prov is None:
+        return None
+    if isinstance(prov, dict):
+        return (
+            prov.get("species"),
+            prov.get("fingerprint") or prov.get("option_id"),
+            to_jsonable(prov.get("overrides")),
+        )
+    return (
+        getattr(prov, "species", None),
+        getattr(prov, "fingerprint", None),
+        None,
+    )
+
+
+def _rejected_signature(rejected: object) -> tuple[Any, ...]:
+    rows = rejected or ()
+    out: list[tuple[Any, ...]] = []
+    for entry in rows:
+        if isinstance(entry, dict):
+            out.append((entry.get("species"), entry.get("reason"), entry.get("turn")))
+        else:
+            out.append((to_jsonable(entry),))
+    return tuple(out)
+
+
+def _constraints_signature(constraints: object) -> tuple[Any, ...]:
+    return tuple(to_jsonable(c) for c in (constraints or ()))
+
+
+def steering_signature(state: dict[str, Any]) -> tuple[Any, ...]:
+    """Pending / intent / provisional / rejected / constraints. Snapshots embed this under steering."""
+    embedded = state.get("steering")
+    if embedded is not None and "team_draft" not in state:
+        return tuple(embedded)
+    return (
+        _pending_signature(state.get("pending_presentation")),
+        _intent_signature(state.get("pending_slot_intent")),
+        _provisional_signature(state.get("provisional_slot")),
+        _rejected_signature(state.get("rejected")),
+        _constraints_signature(state.get("constraints")),
+    )
+
+
 def mechanical_class(before: dict[str, Any], after: dict[str, Any], tool_calls: list[dict[str, Any]]) -> str:
-    """wrote, then refused, then lookup only, then no change."""
+    """wrote > bound > recorded > dismissed > refused > lookup only > no change."""
     if draft_signature(before) != draft_signature(after):
         return "wrote"
+    b_pending, b_intent, b_prov, b_rej, b_cons = steering_signature(before)
+    a_pending, a_intent, a_prov, a_rej, a_cons = steering_signature(after)
+    rejected_grew = len(a_rej) > len(b_rej)
+    pending_cleared = b_pending is not None and a_pending is None
+    # Bound: screen replaced/advanced (still present with a new sig), or intent/provisional set.
+    bound = (
+        (b_pending != a_pending and a_pending is not None)
+        or (b_intent != a_intent and a_intent is not None)
+        or (b_prov != a_prov and a_prov is not None)
+    )
+    if bound:
+        return "bound"
+    if rejected_grew:
+        return "recorded"
+    if (
+        pending_cleared
+        and a_intent is None
+        and a_prov is None
+        and a_rej == b_rej
+        and a_cons == b_cons
+    ):
+        return "dismissed"
     for call in tool_calls:
         if call["name"] in STATE_TOOL_NAMES and (call.get("result") or {}).get("slot_commit_error"):
             return "refused"

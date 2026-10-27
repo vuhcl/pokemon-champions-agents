@@ -34,6 +34,7 @@ from scripts.eval.part_g_arm.state.tools import (
     reject_pending,
     reset_team_state,
     select_option,
+    steering_signature,
     unlock_slot,
 )
 
@@ -58,9 +59,26 @@ def _jsonable_result(patch: dict[str, Any]) -> dict[str, Any]:
 
 
 def snapshot(state: dict[str, Any]) -> dict[str, Any]:
+    pending = state.get("pending_presentation")
+    intent = state.get("pending_slot_intent")
+    prov = state.get("provisional_slot")
+    rejected = state.get("rejected") or []
     return {
         "slots": read_team(state)["slots"],
-        "pending_presentation": state.get("pending_presentation") is not None,
+        "pending_presentation": pending is not None,
+        "pending_kind": pending.get("kind") if isinstance(pending, dict) else None,
+        "pending_slot_intent_species": (
+            intent.get("species") if isinstance(intent, dict) else getattr(intent, "species", None)
+        ),
+        "provisional_species": (
+            prov.get("species") if isinstance(prov, dict) else getattr(prov, "species", None)
+        ),
+        "rejected": [
+            {"species": e.get("species"), "reason": e.get("reason"), "turn": e.get("turn")}
+            if isinstance(e, dict) else e
+            for e in rejected
+        ],
+        "steering": list(steering_signature(state)),
         "slot_commit_error": state.get("slot_commit_error"),
     }
 
@@ -231,35 +249,23 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
         if before.get("pending_presentation") != after.get("pending_presentation"):
             failures.append(f"{row_id}: pending changed")
     if row_id == "dev-select-cs":
-        after = turns[0]["state_after"]
-        if after.get("pending_presentation") is not True and after.get("pending_presentation") is not False:
-            # snapshot stores bool
-            pass
-        # After a successful CS select the screen should be FBC (pending still live).
-        if not after.get("pending_presentation"):
-            failures.append(f"{row_id}: pending cleared instead of FBC")
-        calls = turns[0]["tool_calls"]
-        if not any(c["name"] == "select_option" for c in calls):
-            failures.append(f"{row_id}: select_option was not called")
-        else:
-            sel = [c for c in calls if c["name"] == "select_option"][-1]
-            if (sel.get("result") or {}).get("slot_commit_error"):
-                failures.append(f"{row_id}: select_option refused")
-            species = spec.get("expect_species")
-            # Observable: provisional/intent species in tool result when present.
-            result = sel.get("result") or {}
-            got = None
-            if isinstance(result.get("pending_slot_intent"), dict):
-                got = result["pending_slot_intent"].get("species")
-            elif isinstance(result.get("provisional_slot"), dict):
-                got = result["provisional_slot"].get("species")
-            if species and got not in (None, species):
-                failures.append(f"{row_id}: bound species {got!r} != {species!r}")
+        before, after = turns[0]["state_before"], turns[0]["state_after"]
+        if before["slots"] != after["slots"]:
+            failures.append(f"{row_id}: team_draft changed")
+        if after.get("pending_kind") != spec.get("expect_pending_kind"):
+            failures.append(
+                f"{row_id}: pending_kind {after.get('pending_kind')!r} != {spec.get('expect_pending_kind')!r}"
+            )
+        species = spec.get("expect_species")
+        if after.get("provisional_species") != species:
+            failures.append(f"{row_id}: provisional_species {after.get('provisional_species')!r} != {species!r}")
+        if after.get("pending_slot_intent_species") != species:
+            failures.append(
+                f"{row_id}: pending_slot_intent_species {after.get('pending_slot_intent_species')!r} != {species!r}"
+            )
     if row_id in ("dev-select-bad", "dev-select-locked-target", "dev-confirm-stale-fp"):
-        if turns[0]["state_after"].get("pending_presentation") is not True:
-            # pending must remain (snapshot bool)
-            if not turns[0]["state_after"].get("pending_presentation"):
-                failures.append(f"{row_id}: pending was cleared on refusal")
+        if not turns[0]["state_after"].get("pending_presentation"):
+            failures.append(f"{row_id}: pending was cleared on refusal")
         if turns[0]["state_before"]["slots"] != turns[0]["state_after"]["slots"]:
             failures.append(f"{row_id}: draft changed on refusal")
     if row_id == "dev-confirm-fbc":
@@ -270,8 +276,13 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
         if turns[0]["state_after"]["pending_presentation"]:
             failures.append(f"{row_id}: pending screen was not cleared")
     if row_id == "dev-reject":
-        if turns[0]["state_after"].get("pending_presentation"):
+        after = turns[0]["state_after"]
+        if after.get("pending_presentation"):
             failures.append(f"{row_id}: pending was not cleared")
+        want = spec.get("expect_rejected_species")
+        names = [e.get("species") for e in after.get("rejected") or [] if isinstance(e, dict)]
+        if want and want not in names:
+            failures.append(f"{row_id}: rejected {names!r} missing {want!r}")
     return failures
 
 

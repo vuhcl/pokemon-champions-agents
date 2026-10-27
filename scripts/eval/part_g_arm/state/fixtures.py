@@ -97,7 +97,11 @@ def dev_key_document() -> dict[str, Any]:
             "dev-hyp-unknown-species": {"classes": ["lookup only"]},
             "dev-hyp-legal": {"classes": ["lookup only"]},
             "dev-hyp-item-only": {"classes": ["lookup only"]},
-            "dev-select-cs": {"classes": ["no change"], "expect_species": "Blastoise"},
+            "dev-select-cs": {
+                "classes": ["bound"],
+                "expect_species": "Blastoise",
+                "expect_pending_kind": "full_build_confirmation",
+            },
             "dev-select-bad": {"classes": ["refused"]},
             "dev-select-locked-target": {"classes": ["refused"]},
             "dev-confirm-fbc": {
@@ -106,7 +110,11 @@ def dev_key_document() -> dict[str, Any]:
                 "species": "Venusaur",
             },
             "dev-confirm-stale-fp": {"classes": ["refused"]},
-            "dev-reject": {"classes": ["no change"]},
+            "dev-reject": {
+                "classes": ["recorded"],
+                "expect_rejected_species": "Venusaur",
+                "expect_pending_cleared": True,
+            },
         },
     }
 

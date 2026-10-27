@@ -19,6 +19,7 @@ from scripts.eval.part_g_arm.state.tools import (
     mechanical_class,
     read_pending,
     read_team,
+    reject_option,
     reject_pending,
     reset_team_state,
     select_option,
@@ -84,7 +85,9 @@ def test_reset_replaces_the_draft_from_the_node_dict():
     assert all(slot.species.value is None for slot in new["team_draft"])
 
 
-def test_lookup_only_class_and_spec_list_is_a_copy():
+def test_mechanical_class_transitions():
+    from scripts.eval.part_g_arm.state.pending import build_cs_pending
+
     before = empty_team()
     calls = [{"name": "get_typing", "result": {"status": "ok"}}]
     assert mechanical_class(before, before, calls) == "lookup only"
@@ -92,6 +95,21 @@ def test_lookup_only_class_and_spec_list_is_a_copy():
     wrote, _ = lock_slot(before, 2, LEGAL)
     assert mechanical_class(snapshot(before), snapshot(wrote), [{"name": "lock_slot", "result": {}}]) == "wrote"
     assert mechanical_class(before, before, [{"name": "lock_slot", "result": {"slot_commit_error": "no"}}]) == "refused"
+    assert mechanical_class(before, before, []) == "no change"
+
+    cs = build_cs_pending(["Venusaur", "Blastoise"])
+    bound, bpatch = select_option(cs, 2)
+    assert mechanical_class(snapshot(cs), snapshot(bound), [{"name": "select_option", "result": bpatch}]) == "bound"
+
+    recorded, rpatch = reject_option(cs, 1)
+    assert mechanical_class(snapshot(cs), snapshot(recorded), [{"name": "reject_option", "result": rpatch}]) == "recorded"
+    assert recorded["pending_presentation"] is None
+    assert any(e["species"] == "Venusaur" for e in recorded["rejected"])
+
+    dismissed, dpatch = reject_pending(cs)
+    assert mechanical_class(snapshot(cs), snapshot(dismissed), [{"name": "reject_pending", "result": dpatch}]) == "dismissed"
+    assert dismissed.get("rejected") in (None, [])
+
     n = len(TOOL_SPECS)
     specs = combined_specs()
     assert len(TOOL_SPECS) == n

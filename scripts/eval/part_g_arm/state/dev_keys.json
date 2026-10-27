@@ -122,9 +122,10 @@
     },
     "dev-select-cs": {
       "classes": [
-        "no change"
+        "bound"
       ],
-      "expect_species": "Blastoise"
+      "expect_species": "Blastoise",
+      "expect_pending_kind": "full_build_confirmation"
     },
     "dev-select-bad": {
       "classes": [
@@ -150,8 +151,10 @@
     },
     "dev-reject": {
       "classes": [
-        "no change"
-      ]
+        "recorded"
+      ],
+      "expect_rejected_species": "Venusaur",
+      "expect_pending_cleared": true
     }
   }
 }
