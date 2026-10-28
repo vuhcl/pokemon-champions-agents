@@ -242,6 +242,9 @@ def run_batch(
     role: str | None = None,
 ) -> int:
     """Run rows with resume. stop_after limits newly completed rows (kill-resume tests)."""
+    from scripts.eval.part_g_arm.state.exploratory_runner import assert_not_exploratory_dir
+
+    assert_not_exploratory_dir(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     progress = _load_progress(out_dir)
     if run_id is not None:

@@ -29,6 +29,7 @@ FILES = [
     STATE + "errata.json",
     STATE + "errata_read.py",
     STATE + "request_set_runner.py",
+    STATE + "exploratory_runner.py",
     STATE + "class_scorer.py",
     STATE + "compare_runs.py",
     STATE + "hand_audit_form.py",
