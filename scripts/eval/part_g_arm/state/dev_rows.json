@@ -163,6 +163,112 @@
       ]
     },
     {
+      "id": "dev-edit-item-ok",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Change slot 1's item to Life Orb."
+      ]
+    },
+    {
+      "id": "dev-edit-item-refuse",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Set slot 1's item to Choice Specs."
+      ]
+    },
+    {
+      "id": "dev-edit-choice-consequence",
+      "start": "fully_locked_protect",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Change slot 1's item to Choice Scarf."
+      ]
+    },
+    {
+      "id": "dev-ms6-water",
+      "turns": [
+        "Add a constraint: slot 1 must be Water type."
+      ]
+    },
+    {
+      "id": "dev-mt3-intimidate",
+      "turns": [
+        "Add a constraint: no Intimidate on this team."
+      ]
+    },
+    {
+      "id": "dev-restore-type",
+      "turns": [
+        "Add a constraint that slot 1 is Fire type.",
+        "Now change that: slot 1 must be Water type.",
+        "Restore the previous constraint."
+      ]
+    },
+    {
+      "id": "dev-show-open",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Show me candidates for slot 2."
+      ]
+    },
+    {
+      "id": "dev-show-reject",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Show candidates for slot 2.",
+        "Reject option 1.",
+        "Show candidates for slot 2 again."
+      ]
+    },
+    {
+      "id": "dev-show-empty",
+      "turns": [
+        "Show me candidates for slot 1."
+      ]
+    },
+    {
+      "id": "dev-show-locked",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Show candidates for slot 1."
+      ]
+    },
+    {
+      "id": "dev-learnset-yes",
+      "turns": [
+        "Does Venusaur learn Sludge Bomb?"
+      ]
+    },
+    {
+      "id": "dev-learnset-no",
+      "turns": [
+        "Does Venusaur learn Surf?"
+      ]
+    },
+    {
+      "id": "dev-archetype-rain",
+      "turns": [
+        "Change the team archetype to rain offense."
+      ]
+    },
+    {
+      "id": "dev-move-priority",
+      "turns": [
+        "What priority does Follow Me have?"
+      ]
+    },
+    {
       "id": "dev-mt7",
       "hand_grade": true,
       "turns": [

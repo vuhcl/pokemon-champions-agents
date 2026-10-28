@@ -1,25 +1,9 @@
 {
   "mechanical": {
-    "mechanical_n": 42,
+    "mechanical_n": 39,
     "passed": 39,
     "failed": 0,
-    "capability_gaps": [
-      {
-        "row": "OL1",
-        "gap": "OL FBC fixture has options but no provisional_slot; select_option cannot bind",
-        "needs": "FBC provisional wire in pending loader (or product apply path)"
-      },
-      {
-        "row": "OL2a",
-        "gap": "OL FBC fixture lacks provisional_slot; also CLI maps bare '2' to id suffix not ordinal",
-        "needs": "FBC provisional wire + suffix/label select"
-      },
-      {
-        "row": "OL3",
-        "gap": "label bind; FBC lacks provisional_slot",
-        "needs": "label-select + FBC provisional wire"
-      }
-    ],
+    "capability_gaps": [],
     "rows": [
       {
         "row": "H13",
@@ -517,26 +501,6 @@
         }
       },
       {
-        "row": "OL1",
-        "trajectory": null,
-        "observed_class": null,
-        "key_class": "MUTATION-OK",
-        "pass": false,
-        "capability_gap": true,
-        "needs": "FBC provisional wire in pending loader (or product apply path)",
-        "gap": "OL FBC fixture has options but no provisional_slot; select_option cannot bind"
-      },
-      {
-        "row": "OL2a",
-        "trajectory": null,
-        "observed_class": null,
-        "key_class": "MUTATION-OK",
-        "pass": false,
-        "capability_gap": true,
-        "needs": "FBC provisional wire + suffix/label select",
-        "gap": "OL FBC fixture lacks provisional_slot; also CLI maps bare '2' to id suffix not ordinal"
-      },
-      {
         "row": "OL2b",
         "trajectory": [
           "select_option({'option': 2})"
@@ -550,16 +514,6 @@
           "match": true,
           "state_expectation_met": true
         }
-      },
-      {
-        "row": "OL3",
-        "trajectory": null,
-        "observed_class": null,
-        "key_class": "MUTATION-OK",
-        "pass": false,
-        "capability_gap": true,
-        "needs": "label-select + FBC provisional wire",
-        "gap": "label bind; FBC lacks provisional_slot"
       },
       {
         "row": "OL4",
@@ -736,8 +690,8 @@
     },
     {
       "row": "MT5",
-      "tools": "GAP: no change_archetype / read_archetype (4f)",
-      "fact_unreachable": true
+      "tools": "change_archetype + read_archetype (4f)",
+      "fact_unreachable": false
     },
     {
       "row": "MT6",
@@ -886,8 +840,8 @@
     },
     {
       "row": "MV1",
-      "tools": "GAP: get_move_static omits priority (4h)",
-      "fact_unreachable": true
+      "tools": "get_move_static \u2192 priority (4h enrichment from static.v1.json); Follow Me=2",
+      "fact_unreachable": false
     },
     {
       "row": "MV2",
@@ -901,13 +855,13 @@
     },
     {
       "row": "IC1",
-      "tools": "get_usage_items + Item Clause; t2 GAP edit_slot_field(4a) for Sitrus",
-      "fact_unreachable": true
+      "tools": "get_usage_items + Item Clause; t2 edit_slot_field(item, Sitrus Berry) (4a)",
+      "fact_unreachable": false
     },
     {
       "row": "TB1",
-      "tools": "GAP: type-boost consequence needs edit/build path + TYPE_BOOST data",
-      "fact_unreachable": true
+      "tools": "edit_slot_field moveset/item + consequences type_boost_* from TYPE_BOOST data (4a)",
+      "fact_unreachable": false
     },
     {
       "row": "MC1",
@@ -920,23 +874,7 @@
       "fact_unreachable": false
     }
   ],
-  "needs_tool": [
-    {
-      "row": "OL1",
-      "gap": "OL FBC fixture has options but no provisional_slot; select_option cannot bind",
-      "needs": "FBC provisional wire in pending loader (or product apply path)"
-    },
-    {
-      "row": "OL2a",
-      "gap": "OL FBC fixture lacks provisional_slot; also CLI maps bare '2' to id suffix not ordinal",
-      "needs": "FBC provisional wire + suffix/label select"
-    },
-    {
-      "row": "OL3",
-      "gap": "label bind; FBC lacks provisional_slot",
-      "needs": "label-select + FBC provisional wire"
-    }
-  ],
+  "needs_tool": [],
   "hand_unreachable": [
     {
       "row": "H11",
@@ -954,28 +892,8 @@
       "fact_unreachable": true
     },
     {
-      "row": "MT5",
-      "tools": "GAP: no change_archetype / read_archetype (4f)",
-      "fact_unreachable": true
-    },
-    {
       "row": "HU1",
       "tools": "GAP: bulk formula scan over legal Fire types \u2014 no set enumeration tool",
-      "fact_unreachable": true
-    },
-    {
-      "row": "MV1",
-      "tools": "GAP: get_move_static omits priority (4h)",
-      "fact_unreachable": true
-    },
-    {
-      "row": "IC1",
-      "tools": "get_usage_items + Item Clause; t2 GAP edit_slot_field(4a) for Sitrus",
-      "fact_unreachable": true
-    },
-    {
-      "row": "TB1",
-      "tools": "GAP: type-boost consequence needs edit/build path + TYPE_BOOST data",
       "fact_unreachable": true
     }
   ]

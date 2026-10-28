@@ -18,7 +18,7 @@ HERE = Path(__file__).resolve().parent
 V4 = HERE.parents[1] / "part_g_v4"
 REQUEST_SET = V4 / "part3_request_set_v4.md"
 COVERED_LIST = HERE / "covered_list.json"
-FROZEN_PROMPT_SHA256 = "b71764852eb66f87f17375ff3226a7e4be7517b09eb8961fb56e779fe32badd8"
+FROZEN_PROMPT_SHA256 = "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b"
 
 _TURN_SPLIT = re.compile(r"\(t\d+\)\s*", re.IGNORECASE)
 

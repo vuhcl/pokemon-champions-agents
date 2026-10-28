@@ -1,6 +1,6 @@
 {
   "provenance": "load_snapshot(), the same data validate_team_value reads. Wiring check only, not a legality measurement (ADR-060). MT7/MT8 hand-grade against key_artifacts/derived_keys.json mt7_mt8_ar (no class scorer yet).",
-  "checkpoint_prompt_sha256": "b71764852eb66f87f17375ff3226a7e4be7517b09eb8961fb56e779fe32badd8",
+  "checkpoint_prompt_sha256": "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b",
   "retired_row_findings": {
     "dev-select-cs": "Observed: select then unrequested commit (wrote). Wording paraphrased graded pick phrasing.",
     "dev-reject-dismiss": "Observed: no tool call / no_lookup_needed on dismissal (lookup only fail; pending uncleared)."
@@ -189,6 +189,89 @@
       "classes": [
         "refused"
       ]
+    },
+    "dev-edit-item-ok": {
+      "classes": [
+        "wrote"
+      ],
+      "expect_item": "Life Orb"
+    },
+    "dev-edit-item-refuse": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-edit-choice-consequence": {
+      "classes": [
+        "wrote"
+      ],
+      "expect_item": "Choice Scarf",
+      "expect_consequence_kind": "choice_lock_status"
+    },
+    "dev-ms6-water": {
+      "classes": [
+        "recorded"
+      ]
+    },
+    "dev-mt3-intimidate": {
+      "classes": [
+        "recorded"
+      ]
+    },
+    "dev-restore-type": {
+      "classes": [
+        "recorded",
+        "recorded",
+        "recorded"
+      ]
+    },
+    "dev-show-open": {
+      "classes": [
+        "bound"
+      ]
+    },
+    "dev-show-reject": {
+      "classes": [
+        "bound",
+        "recorded",
+        "bound"
+      ]
+    },
+    "dev-show-empty": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-show-locked": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-learnset-yes": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "check_learnset",
+      "expect_learns": true
+    },
+    "dev-learnset-no": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "check_learnset",
+      "expect_learns": false
+    },
+    "dev-archetype-rain": {
+      "classes": [
+        "wrote"
+      ]
+    },
+    "dev-move-priority": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "get_move_static",
+      "expect_priority": 2
     },
     "dev-mt7": {
       "hand_grade": true,

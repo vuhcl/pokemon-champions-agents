@@ -276,8 +276,23 @@ SPREAD_TOOL_SPECS: list[dict[str, Any]] = [
 
 
 def combined_specs() -> list[dict[str, Any]]:
-    """A new list. Does not append to TOOL_SPECS."""
-    return [*TOOL_SPECS, *STATE_TOOL_SPECS, *HYP_TOOL_SPECS, *SPREAD_TOOL_SPECS]
+    """A new list. Does not append to TOOL_SPECS.
+
+    State-side: get_move_static description notes priority (4h enrichment); arm_tools
+    schema text is otherwise unchanged.
+    """
+    lookups: list[dict[str, Any]] = []
+    for spec in TOOL_SPECS:
+        if spec["function"]["name"] == "get_move_static":
+            fn = dict(spec["function"])
+            fn["description"] = (
+                "Type, category, base power and priority of a move "
+                "(priority from data/moves/static.v1.json)."
+            )
+            lookups.append({**spec, "function": fn})
+        else:
+            lookups.append(spec)
+    return [*lookups, *STATE_TOOL_SPECS, *HYP_TOOL_SPECS, *SPREAD_TOOL_SPECS]
 
 
 def _merge(state: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
@@ -1290,6 +1305,24 @@ def _constraints_signature(constraints: object) -> tuple[Any, ...]:
     return tuple(to_jsonable(c) for c in (constraints or ()))
 
 
+def archetype_signature(state: dict[str, Any]) -> tuple[Any, ...] | None:
+    """Components + locked for Attr or snapshot dict. None when unset."""
+    # Snapshots carry archetype_sig (may be None); live state carries archetype Attr.
+    if "team_draft" not in state and "archetype" not in state and "archetype_sig" in state:
+        emb = state["archetype_sig"]
+        return tuple(emb) if emb is not None else None
+    arch = state.get("archetype")
+    if arch is None:
+        return None
+    if isinstance(arch, Attr):
+        comps = arch.value or []
+        return (tuple(comps), bool(arch.locked))
+    if isinstance(arch, dict):
+        comps = arch.get("components") or arch.get("value") or []
+        return (tuple(comps), bool(arch.get("locked")))
+    return (to_jsonable(arch),)
+
+
 def steering_signature(state: dict[str, Any]) -> tuple[Any, ...]:
     """Pending / intent / provisional / rejected / constraints. Snapshots embed this under steering."""
     embedded = state.get("steering")
@@ -1307,6 +1340,8 @@ def steering_signature(state: dict[str, Any]) -> tuple[Any, ...]:
 def mechanical_class(before: dict[str, Any], after: dict[str, Any], tool_calls: list[dict[str, Any]]) -> str:
     """wrote > bound > recorded > dismissed > refused > lookup only > no change."""
     if draft_signature(before) != draft_signature(after):
+        return "wrote"
+    if archetype_signature(before) != archetype_signature(after):
         return "wrote"
     b_pending, b_intent, b_prov, b_rej, b_cons = steering_signature(before)
     a_pending, a_intent, a_prov, a_rej, a_cons = steering_signature(after)

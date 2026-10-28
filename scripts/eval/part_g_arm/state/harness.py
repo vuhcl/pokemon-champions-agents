@@ -40,6 +40,7 @@ from scripts.eval.part_g_arm.state.tools import (
     reset_team_state,
     restore_constraint_tool,
     select_option,
+    archetype_signature,
     change_archetype,
     check_learnset,
     read_archetype,
@@ -92,6 +93,7 @@ def snapshot(state: dict[str, Any]) -> dict[str, Any]:
     intent = state.get("pending_slot_intent")
     prov = state.get("provisional_slot")
     rejected = state.get("rejected") or []
+    arch_sig = archetype_signature(state)
     return {
         "slots": read_team(state)["slots"],
         "pending_presentation": pending is not None,
@@ -108,6 +110,7 @@ def snapshot(state: dict[str, Any]) -> dict[str, Any]:
             for e in rejected
         ],
         "steering": list(steering_signature(state)),
+        "archetype_sig": list(arch_sig) if arch_sig is not None else None,
         "slot_commit_error": state.get("slot_commit_error"),
     }
 
@@ -268,6 +271,26 @@ def start_state(row: dict[str, Any]) -> dict[str, Any]:
     kind = row.get("start")
     if kind == "fully_locked":
         return build_fully_locked_slot(row["species"], user_slot=int(row["user_slot"]))
+    if kind == "fully_locked_protect":
+        # Venusaur (or row species) with Life Orb + Protect for Choice-lock consequence rows.
+        from dataclasses import replace
+
+        from recommender.state import Attr
+
+        state = build_fully_locked_slot(row["species"], user_slot=int(row["user_slot"]))
+        slot = state["team_draft"][0]
+        moves = list(row.get("moveset") or ["Sludge Bomb", "Giga Drain", "Protect", "Earth Power"])
+        return {
+            **state,
+            "team_draft": [
+                replace(
+                    slot,
+                    item=Attr("Life Orb", locked=True),
+                    moveset=Attr(moves, locked=True),
+                ),
+                *state["team_draft"][1:],
+            ],
+        }
     if kind == "fbc":
         return build_fbc_pending(row["species"], slot_index=int(row["slot_index"]))
     if kind == "cs":
@@ -429,6 +452,73 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
             failures.append(f"{row_id}: draft changed on refusal")
         if turns[0]["state_before"].get("rejected") != turns[0]["state_after"].get("rejected"):
             failures.append(f"{row_id}: rejected changed on refusal")
+    if row_id in ("dev-edit-item-ok", "dev-edit-choice-consequence"):
+        if turns[0]["state_before"]["slots"] == turns[0]["state_after"]["slots"]:
+            failures.append(f"{row_id}: draft unchanged after edit")
+        want_item = spec.get("expect_item")
+        if want_item:
+            slot = next(s for s in turns[0]["state_after"]["slots"] if s["slot"] == "1")
+            item_val = next((a[1] for a in slot["attrs"] if a[0] == "item"), None)
+            if item_val != want_item:
+                failures.append(f"{row_id}: item {item_val!r} != {want_item!r}")
+        kind = spec.get("expect_consequence_kind")
+        if kind:
+            cons_calls = [
+                c for c in turns[0]["tool_calls"] if c["name"] == "edit_slot_field"
+            ]
+            if not cons_calls:
+                failures.append(f"{row_id}: edit_slot_field not called")
+            else:
+                kinds = {x.get("kind") for x in (cons_calls[-1]["result"] or {}).get("consequences") or []}
+                if kind not in kinds:
+                    failures.append(f"{row_id}: consequences {kinds!r} missing {kind!r}")
+    if row_id == "dev-edit-item-refuse":
+        if turns[0]["state_before"]["slots"] != turns[0]["state_after"]["slots"]:
+            failures.append(f"{row_id}: draft changed on refuse")
+    if row_id in ("dev-show-open", "dev-show-reject"):
+        if turns[0]["state_before"]["slots"] != turns[0]["state_after"]["slots"]:
+            failures.append(f"{row_id}: draft written on show_candidates")
+        if not turns[0]["state_after"].get("pending_presentation"):
+            failures.append(f"{row_id}: no pending after show")
+    if row_id == "dev-show-reject" and len(turns) >= 3:
+        # Species rejected on t2 must not reappear unlabeled on t3 options.
+        rej_names = [
+            e.get("species")
+            for e in (turns[1]["state_after"].get("rejected") or [])
+            if isinstance(e, dict)
+        ]
+        show_calls = [c for c in turns[2]["tool_calls"] if c["name"] == "show_candidates"]
+        if show_calls and rej_names:
+            opts = (show_calls[-1]["result"] or {}).get("options") or []
+            shown = {o.get("species") for o in opts if isinstance(o, dict)}
+            for name in rej_names:
+                if name in shown:
+                    failures.append(f"{row_id}: rejected {name!r} reappeared in options")
+    if row_id in ("dev-show-empty", "dev-show-locked"):
+        if turns[0]["state_before"]["slots"] != turns[0]["state_after"]["slots"]:
+            failures.append(f"{row_id}: draft changed on refuse")
+        if turns[0]["state_after"].get("pending_presentation"):
+            failures.append(f"{row_id}: pending appeared on refuse")
+    if row_id in ("dev-learnset-yes", "dev-learnset-no", "dev-move-priority"):
+        names = [c["name"] for c in turns[0]["tool_calls"]]
+        tool = spec.get("tool")
+        if tool and tool not in names:
+            failures.append(f"{row_id}: {tool} was not called")
+        hits = [c for c in turns[0]["tool_calls"] if c["name"] == tool]
+        if hits and "expect_learns" in spec:
+            if hits[-1]["result"].get("learns") is not spec["expect_learns"]:
+                failures.append(
+                    f"{row_id}: learns {hits[-1]['result'].get('learns')!r} != {spec['expect_learns']!r}"
+                )
+        if hits and "expect_priority" in spec:
+            if hits[-1]["result"].get("priority") != spec["expect_priority"]:
+                failures.append(
+                    f"{row_id}: priority {hits[-1]['result'].get('priority')!r} != {spec['expect_priority']!r}"
+                )
+    if row_id == "dev-archetype-rain":
+        sig = turns[0]["state_after"].get("archetype_sig")
+        if not sig or not sig[0]:
+            failures.append(f"{row_id}: archetype not set")
     return failures
 
 
