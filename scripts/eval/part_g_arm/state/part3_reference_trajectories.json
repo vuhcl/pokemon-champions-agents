@@ -645,8 +645,8 @@
     },
     {
       "row": "H11",
-      "tools": "GAP: no legal-learners-by-type+move search tool (get_typing/get_move_static insufficient for set)",
-      "fact_unreachable": true
+      "tools": "find_species(types=[Water], learns_move=Hurricane); set-scoring",
+      "fact_unreachable": false
     },
     {
       "row": "H15",
@@ -660,13 +660,13 @@
     },
     {
       "row": "H19",
-      "tools": "GAP: no Trick-Room learnset scan tool (check_learnset 4e helps per-species only)",
-      "fact_unreachable": true
+      "tools": "find_species(learns_move=Trick Room) for learnset set; compendium-role TR setters remain hand/checklist if not learnset-equivalent",
+      "fact_unreachable": false
     },
     {
       "row": "H20",
-      "tools": "GAP: no monotype candidate producer without show_candidates+type filter",
-      "fact_unreachable": true
+      "tools": "find_species(types=[\u2026]) for monotype legal pool; show_candidates still for ranked offers",
+      "fact_unreachable": false
     },
     {
       "row": "MT1",
@@ -681,11 +681,6 @@
     {
       "row": "MT3",
       "tools": "seed+history; t2 suggest needs show_candidates(4c); t3 get_abilities",
-      "fact_unreachable": false
-    },
-    {
-      "row": "MT4",
-      "tools": "t1 reject_option(2); t2 show_candidates blocked \u2014 CS seed has no locked anchor (producer needs \u22651 all_locked); rejection filter verified on producer path in test_show_candidates",
       "fact_unreachable": false
     },
     {
@@ -715,8 +710,8 @@
     },
     {
       "row": "HU1",
-      "tools": "GAP: bulk formula scan over legal Fire types \u2014 no set enumeration tool",
-      "fact_unreachable": true
+      "tools": "find_species(types=[Fire], stat_formula=2*hp+def+spd>=350, include_formes=false)",
+      "fact_unreachable": false
     },
     {
       "row": "HU2",
@@ -875,26 +870,5 @@
     }
   ],
   "needs_tool": [],
-  "hand_unreachable": [
-    {
-      "row": "H11",
-      "tools": "GAP: no legal-learners-by-type+move search tool (get_typing/get_move_static insufficient for set)",
-      "fact_unreachable": true
-    },
-    {
-      "row": "H19",
-      "tools": "GAP: no Trick-Room learnset scan tool (check_learnset 4e helps per-species only)",
-      "fact_unreachable": true
-    },
-    {
-      "row": "H20",
-      "tools": "GAP: no monotype candidate producer without show_candidates+type filter",
-      "fact_unreachable": true
-    },
-    {
-      "row": "HU1",
-      "tools": "GAP: bulk formula scan over legal Fire types \u2014 no set enumeration tool",
-      "fact_unreachable": true
-    }
-  ]
+  "hand_unreachable": []
 }

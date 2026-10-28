@@ -43,6 +43,7 @@ from scripts.eval.part_g_arm.state.tools import (
     archetype_signature,
     change_archetype,
     check_learnset,
+    find_species,
     read_archetype,
     show_candidates,
     solve_spread_tool,
@@ -162,6 +163,16 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         return show_candidates(state, args.get("slot"), n=args.get("n"))
     if name == "check_learnset":
         return state, check_learnset(state, args.get("species"), args.get("move"))
+    if name == "find_species":
+        return state, find_species(
+            state,
+            types=args.get("types"),
+            learns_move=args.get("learns_move"),
+            ability=args.get("ability"),
+            stat_formula=args.get("stat_formula"),
+            include_formes=args.get("include_formes", True),
+            n=args.get("n"),
+        )
     if name == "change_archetype":
         return change_archetype(state, args.get("components"))
     if name == "read_archetype":
@@ -499,7 +510,14 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
             failures.append(f"{row_id}: draft changed on refuse")
         if turns[0]["state_after"].get("pending_presentation"):
             failures.append(f"{row_id}: pending appeared on refuse")
-    if row_id in ("dev-learnset-yes", "dev-learnset-no", "dev-move-priority"):
+    if row_id in (
+        "dev-learnset-yes",
+        "dev-learnset-no",
+        "dev-move-priority",
+        "dev-fs-types-move",
+        "dev-fs-stat-bulk",
+        "dev-fs-formes",
+    ):
         names = [c["name"] for c in turns[0]["tool_calls"]]
         tool = spec.get("tool")
         if tool and tool not in names:
@@ -515,10 +533,101 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
                 failures.append(
                     f"{row_id}: priority {hits[-1]['result'].get('priority')!r} != {spec['expect_priority']!r}"
                 )
+    if row_id == "dev-fs-prankster-weather":
+        failures.extend(_grade_prankster_weather(row_id, turns, spec))
     if row_id == "dev-archetype-rain":
         sig = turns[0]["state_after"].get("archetype_sig")
         if not sig or not sig[0]:
             failures.append(f"{row_id}: archetype not set")
+    return failures
+
+
+def _legal_species_names() -> list[str]:
+    from recommender.legality import is_species_legal, load_snapshot
+
+    snap = load_snapshot()
+    names: list[str] = []
+    for sid, entry in (snap.get("species") or {}).items():
+        name = str(entry.get("name") or sid)
+        if is_species_legal(snap, name):
+            names.append(name)
+    return names
+
+
+def _species_named_in_text(text: str, universe: list[str]) -> set[str]:
+    """Longest-first substring match so Banette-Mega wins over Banette."""
+    if not text:
+        return set()
+    remaining = text
+    found: set[str] = set()
+    for name in sorted(universe, key=len, reverse=True):
+        idx = remaining.casefold().find(name.casefold())
+        if idx < 0:
+            continue
+        found.add(name)
+        remaining = remaining[:idx] + (" " * len(name)) + remaining[idx + len(name) :]
+    return found
+
+
+def _grade_prankster_weather(
+    row_id: str, turns: list[dict[str, Any]], spec: dict[str, Any]
+) -> list[str]:
+    """Two-layer grade: class (caller) + set equality vs key artifact."""
+    import json
+    from pathlib import Path
+
+    failures: list[str] = []
+    turn = turns[0]
+    if turn["state_before"]["slots"] != turn["state_after"]["slots"]:
+        failures.append(f"{row_id}: wrote team_draft")
+    artifact_name = spec.get("key_artifact") or "dev_keys_prankster_weather.json"
+    artifact = json.loads((Path(__file__).resolve().parent / artifact_name).read_text(encoding="utf-8"))
+    key_set = set(artifact["species_set"])
+    weather_ids = [m["id"] for m in artifact["weather_moves"]]
+    id_to_name = {m["id"]: m["name"] for m in artifact["weather_moves"]}
+
+    fs_calls = [c for c in turn["tool_calls"] if c["name"] == "find_species"]
+    if not fs_calls:
+        failures.append(f"{row_id}: find_species was not called")
+
+    tool_species: set[str] = set()
+    queried_moves: set[str] = set()
+    for call in fs_calls:
+        args = call.get("args") or call.get("arguments") or {}
+        move = args.get("learns_move")
+        if isinstance(move, str) and move.strip():
+            from recommender.ids import to_id
+
+            queried_moves.add(to_id(move))
+        result = call.get("result") or {}
+        for name in result.get("species") or []:
+            if isinstance(name, str):
+                tool_species.add(name)
+
+    omitted = [mid for mid in weather_ids if mid not in queried_moves]
+    named = _species_named_in_text(turn.get("final_text") or "", _legal_species_names())
+    if named != key_set:
+        failures.append(
+            f"{row_id}: set {sorted(named)!r} != key {sorted(key_set)!r}"
+        )
+    for name in named:
+        if name not in tool_species:
+            failures.append(f"{row_id}: {name!r} named without find_species hit")
+    n_calls = len(turn.get("tool_calls") or [])
+    if n_calls > 16:
+        failures.append(f"{row_id}: {n_calls} tool calls exceeds 16")
+    # Omitted weather moves are a recorded finding, not a class fail; set uses full key.
+    turn.setdefault("grading_notes", {})
+    turn["grading_notes"]["prankster_weather"] = {
+        "tool_call_count": n_calls,
+        "find_species_calls": len(fs_calls),
+        "queried_move_ids": sorted(queried_moves),
+        "omitted_weather_move_ids": omitted,
+        "omitted_weather_move_names": [id_to_name.get(m, m) for m in omitted],
+        "named": sorted(named),
+        "key_count": len(key_set),
+        "set_equal": named == key_set,
+    }
     return failures
 
 

@@ -269,6 +269,30 @@
       ]
     },
     {
+      "id": "dev-fs-types-move",
+      "turns": [
+        "Which legal Water-type Pokemon learn Hurricane?"
+      ]
+    },
+    {
+      "id": "dev-fs-stat-bulk",
+      "turns": [
+        "Which legal Fire-type Pokemon have 2*hp+def+spd at least 350, excluding Mega formes?"
+      ]
+    },
+    {
+      "id": "dev-fs-formes",
+      "turns": [
+        "List legal Water types that learn Hurricane, including Mega formes if any."
+      ]
+    },
+    {
+      "id": "dev-fs-prankster-weather",
+      "turns": [
+        "Which Pokemon can have Prankster and learn a move that sets weather?"
+      ]
+    },
+    {
       "id": "dev-mt7",
       "hand_grade": true,
       "turns": [

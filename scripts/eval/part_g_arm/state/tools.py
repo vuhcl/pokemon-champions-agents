@@ -44,7 +44,7 @@ LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
 # Read-only against live state (hyp copies then discards; read_* do not write).
 READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
     "check_hypothetical", "read_pending", "read_rejected", "read_constraints",
-    "read_archetype", "solve_spread", "check_learnset",
+    "read_archetype", "solve_spread", "check_learnset", "find_species",
 }
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -217,6 +217,31 @@ STATE_TOOL_SPECS: list[dict[str, Any]] = [
         "read_archetype",
         "Read the current archetype Attr (components, locked). Does not change state.",
         {},
+        [],
+    ),
+    _spec(
+        "find_species",
+        "Read-only search over legal Champions species. Optional AND filters: "
+        "types (species must have every listed type), learns_move, ability, "
+        "stat_formula ({expr, op, value} over base_stats hp|atk|def|spa|spd|spe, "
+        "e.g. expr 2*hp+def+spd op >= value 350), include_formes (default true; "
+        "false drops Mega formes), optional n cap after name sort. Returns "
+        "canonical species names. Does not write state.",
+        {
+            "types": {"type": "array", "items": dict(_STR)},
+            "learns_move": dict(_STR),
+            "ability": dict(_STR),
+            "stat_formula": {
+                "type": "object",
+                "properties": {
+                    "expr": dict(_STR),
+                    "op": dict(_STR),
+                    "value": {"type": "number"},
+                },
+            },
+            "include_formes": {"type": "boolean"},
+            "n": dict(_INT),
+        },
         [],
     ),
 ]
@@ -908,6 +933,172 @@ def with_move_priority(result: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(entry, dict) or "priority" not in entry:
         return result
     return {**result, "priority": entry["priority"]}
+
+
+_STAT_NAMES = frozenset({"hp", "atk", "def", "spa", "spd", "spe"})
+_STAT_OPS = {
+    ">=": lambda a, b: a >= b,
+    "<=": lambda a, b: a <= b,
+    ">": lambda a, b: a > b,
+    "<": lambda a, b: a < b,
+    "==": lambda a, b: a == b,
+}
+
+
+def _eval_stat_expr(expr: str, stats: dict[str, int]) -> int | None:
+    """Evaluate a closed expr over hp|atk|def|spa|spd|spe with + * and integers.
+
+    ``def`` is a Python keyword, so it is rewritten to STAT_DEF before ast.parse.
+    """
+    import ast
+
+    rewritten = re.sub(r"\bdef\b", "STAT_DEF", expr.strip(), flags=re.IGNORECASE)
+
+    def walk(node: ast.AST) -> int:
+        if isinstance(node, ast.Expression):
+            return walk(node.body)
+        if isinstance(node, ast.Name):
+            key = "def" if node.id.casefold() == "stat_def" else node.id.casefold()
+            if key not in _STAT_NAMES:
+                raise ValueError(f"unknown stat {node.id!r}")
+            return int(stats[key])
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+            return int(node.value)
+        if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Mult)):
+            left, right = walk(node.left), walk(node.right)
+            return left + right if isinstance(node.op, ast.Add) else left * right
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
+            return -walk(node.operand)
+        raise ValueError("stat_formula expr allows only hp|atk|def|spa|spd|spe, +, *, integers")
+
+    try:
+        return walk(ast.parse(rewritten, mode="eval"))
+    except (ValueError, SyntaxError, KeyError, TypeError):
+        return None
+
+
+def find_species(
+    state: dict[str, Any],
+    *,
+    types: object = None,
+    learns_move: object = None,
+    ability: object = None,
+    stat_formula: object = None,
+    include_formes: object = True,
+    n: object = None,
+) -> dict[str, Any]:
+    """Read-only legal-species search. AND filters. Never writes state."""
+    from recommender.arm_teammates import is_mega_forme
+    from recommender.ids import to_id
+    from recommender.legality import (
+        is_species_legal,
+        legal_moves_for,
+        load_snapshot,
+        species_can_have_ability,
+        species_types,
+    )
+
+    _ = state
+    snap = load_snapshot()
+    type_need: list[str] = []
+    if types is not None:
+        if not isinstance(types, list) or not all(isinstance(t, str) and t.strip() for t in types):
+            return {"status": "error", "message": "types must be a list of strings", "species": [], "count": 0}
+        type_need = [t.strip() for t in types]
+    move_id: str | None = None
+    if learns_move is not None:
+        if not isinstance(learns_move, str) or not learns_move.strip():
+            return {"status": "error", "message": "learns_move must be a nonempty string", "species": [], "count": 0}
+        move_id = to_id(learns_move)
+    ability_s: str | None = None
+    if ability is not None:
+        if not isinstance(ability, str) or not ability.strip():
+            return {"status": "error", "message": "ability must be a nonempty string", "species": [], "count": 0}
+        ability_s = ability.strip()
+    formula: dict[str, Any] | None = None
+    if stat_formula is not None:
+        if not isinstance(stat_formula, dict):
+            return {"status": "error", "message": "stat_formula must be an object", "species": [], "count": 0}
+        expr, op, value = stat_formula.get("expr"), stat_formula.get("op"), stat_formula.get("value")
+        if not isinstance(expr, str) or not isinstance(op, str) or not isinstance(value, (int, float)):
+            return {
+                "status": "error",
+                "message": "stat_formula needs expr (str), op (>=|<=|>|<|==), value (number)",
+                "species": [],
+                "count": 0,
+            }
+        if op not in _STAT_OPS:
+            return {"status": "error", "message": f"unsupported op {op!r}", "species": [], "count": 0}
+        formula = {"expr": expr, "op": op, "value": float(value)}
+    keep_formes = True if include_formes is None else bool(include_formes)
+    cap: int | None = None
+    if n is not None:
+        if not isinstance(n, int) or n < 1:
+            return {"status": "error", "message": "n must be a positive integer", "species": [], "count": 0}
+        cap = n
+
+    if not type_need and move_id is None and ability_s is None and formula is None:
+        return {
+            "status": "error",
+            "message": "at least one of types, learns_move, ability, stat_formula is required",
+            "species": [],
+            "count": 0,
+        }
+
+    names: list[str] = []
+    for sid, entry in (snap.get("species") or {}).items():
+        name = str(entry.get("name") or sid)
+        if not is_species_legal(snap, name):
+            continue
+        if not keep_formes and is_mega_forme(name):
+            continue
+        if type_need:
+            got = {t.casefold() for t in (species_types(snap, name) or [])}
+            if not all(t.casefold() in got for t in type_need):
+                continue
+        if ability_s is not None and not species_can_have_ability(snap, name, ability_s):
+            continue
+        if move_id is not None:
+            legal = {to_id(m) for m in legal_moves_for(name, snap)}
+            if move_id not in legal:
+                continue
+        if formula is not None:
+            raw = entry.get("base_stats") or entry.get("baseStats") or {}
+            stats = {k: int(raw.get(k) or 0) for k in _STAT_NAMES}
+            scored = _eval_stat_expr(formula["expr"], stats)
+            if scored is None:
+                return {
+                    "status": "error",
+                    "message": f"invalid stat_formula.expr {formula['expr']!r}",
+                    "species": [],
+                    "count": 0,
+                }
+            if not _STAT_OPS[formula["op"]](scored, formula["value"]):
+                continue
+        names.append(name)
+
+    names = sorted(set(names), key=lambda s: s.casefold())
+    if cap is not None:
+        names = names[:cap]
+    filters: dict[str, Any] = {}
+    if type_need:
+        filters["types"] = type_need
+    if learns_move is not None:
+        filters["learns_move"] = learns_move
+    if ability_s is not None:
+        filters["ability"] = ability_s
+    if formula is not None:
+        filters["stat_formula"] = formula
+    filters["include_formes"] = keep_formes
+    if cap is not None:
+        filters["n"] = cap
+    return {
+        "status": "ok",
+        "species": names,
+        "count": len(names),
+        "filters_applied": filters,
+        "source": "legality snapshot (Showdown Champions mod extract)",
+    }
 
 
 def read_archetype(state: dict[str, Any]) -> dict[str, Any]:
