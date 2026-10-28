@@ -1,0 +1,1012 @@
+{
+  "mechanical": {
+    "mechanical_n": 42,
+    "passed": 36,
+    "failed": 0,
+    "capability_gaps": [
+      {
+        "row": "MS6",
+        "gap": "cannot record constraint",
+        "needs": "add_constraint (4b)"
+      },
+      {
+        "row": "MR2",
+        "gap": "cannot lock item Choice Specs",
+        "needs": "edit_slot_field (4a)"
+      },
+      {
+        "row": "MR4",
+        "gap": "cannot lock Choice Scarf on two slots",
+        "needs": "edit_slot_field (4a)"
+      },
+      {
+        "row": "OL1",
+        "gap": "OL FBC fixture has options but no provisional_slot; select_option cannot bind",
+        "needs": "FBC provisional wire in pending loader (or product apply path)"
+      },
+      {
+        "row": "OL2a",
+        "gap": "OL FBC fixture lacks provisional_slot; also CLI maps bare '2' to id suffix not ordinal",
+        "needs": "FBC provisional wire + suffix/label select"
+      },
+      {
+        "row": "OL3",
+        "gap": "label bind; FBC lacks provisional_slot",
+        "needs": "label-select + FBC provisional wire"
+      }
+    ],
+    "rows": [
+      {
+        "row": "H13",
+        "trajectory": [
+          "no_lookup_needed({'reason': 'no per-team win-rate data', 'category': 'unavailable'})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "FAIL-CLOSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "H14",
+        "trajectory": [
+          "no_lookup_needed({'reason': 'out of format scope', 'category': 'unavailable'})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "FAIL-CLOSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "H16",
+        "trajectory": [
+          "no_lookup_needed({'reason': 'no prior pick history', 'category': 'unavailable'})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "FAIL-CLOSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "HC1",
+        "trajectory": [
+          "no_lookup_needed({'reason': 'unsatisfiable Water\u2227Fire', 'category': 'unavailable'})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "FAIL-CLOSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "HC2",
+        "trajectory": [
+          "no_lookup_needed({'reason': 'ask which request to honor', 'category': 'other'})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "HP3",
+        "trajectory": [
+          "lock_slot({'slot': 1, 'species': 'Koraidon'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS1",
+        "trajectory": [
+          "lock_slot({'slot': 2, 'species': 'Garchomp'})"
+        ],
+        "observed_class": "wrote",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS2",
+        "trajectory": [
+          "unlock_slot({'slot': 1})"
+        ],
+        "observed_class": "wrote",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS3",
+        "trajectory": [
+          "reset_team({})"
+        ],
+        "observed_class": "wrote",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS4",
+        "trajectory": [
+          "commit_slot({})"
+        ],
+        "observed_class": "wrote",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS6",
+        "trajectory": null,
+        "observed_class": null,
+        "key_class": "MUTATION-OK",
+        "pass": false,
+        "capability_gap": true,
+        "needs": "add_constraint (4b)",
+        "gap": "cannot record constraint"
+      },
+      {
+        "row": "MS7",
+        "trajectory": [
+          "reject_option({'option': 2})"
+        ],
+        "observed_class": "recorded",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "recorded",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS8",
+        "trajectory": [
+          "lock_slot({'slot': 1, 'species': 'Pelipper'})"
+        ],
+        "observed_class": "wrote",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR1",
+        "trajectory": [
+          "lock_slot({'slot': 1, 'species': 'Flutter Mane'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR2",
+        "trajectory": null,
+        "observed_class": null,
+        "key_class": "MUTATION-REFUSED",
+        "pass": false,
+        "capability_gap": true,
+        "needs": "edit_slot_field (4a)",
+        "gap": "cannot lock item Choice Specs"
+      },
+      {
+        "row": "MR3",
+        "trajectory": [
+          "lock_slot({'slot': 2, 'species': 'Incineroar'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR4",
+        "trajectory": null,
+        "observed_class": null,
+        "key_class": "MUTATION-REFUSED",
+        "pass": false,
+        "capability_gap": true,
+        "needs": "edit_slot_field (4a)",
+        "gap": "cannot lock Choice Scarf on two slots"
+      },
+      {
+        "row": "MR5",
+        "trajectory": [
+          "lock_slot({'slot': 2, 'species': 'Garchomp'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR6",
+        "trajectory": [
+          "unlock_slot({'slot': 2})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR7",
+        "trajectory": [
+          "commit_slot({})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR8",
+        "trajectory": [
+          "lock_slot({'slot': 1, 'species': 'Koraidon'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU1",
+        "trajectory": [
+          "check_hypothetical({'placements': [{'species': 'Garchomp', 'item': 'Choice Scarf'}, {'species': 'Jolteon', 'item': 'Choice Scarf'}]})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU2",
+        "trajectory": [
+          "check_hypothetical({'placements': [{'species': 'Pelipper'}]})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU3",
+        "trajectory": [
+          "check_hypothetical({'placements': [{'species': 'Garchomp'}]})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU4",
+        "trajectory": [
+          "read_team({})"
+        ],
+        "observed_class": "no change",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU5",
+        "trajectory": [
+          "check_hypothetical({'placements': [{'species': 'Garchomp', 'item': 'Life Orb'}, {'species': 'Jolteon', 'item': 'Life Orb'}]})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU6",
+        "trajectory": [
+          "read_team({})"
+        ],
+        "observed_class": "no change",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU7",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU8",
+        "trajectory": [
+          "read_team({})"
+        ],
+        "observed_class": "no change",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MW1",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MW2",
+        "trajectory": [
+          "read_team({})"
+        ],
+        "observed_class": "no change",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MW3",
+        "trajectory": [
+          "read_team({})"
+        ],
+        "observed_class": "no change",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MW4",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL1",
+        "trajectory": null,
+        "observed_class": null,
+        "key_class": "MUTATION-OK",
+        "pass": false,
+        "capability_gap": true,
+        "needs": "FBC provisional wire in pending loader (or product apply path)",
+        "gap": "OL FBC fixture has options but no provisional_slot; select_option cannot bind"
+      },
+      {
+        "row": "OL2a",
+        "trajectory": null,
+        "observed_class": null,
+        "key_class": "MUTATION-OK",
+        "pass": false,
+        "capability_gap": true,
+        "needs": "FBC provisional wire + suffix/label select",
+        "gap": "OL FBC fixture lacks provisional_slot; also CLI maps bare '2' to id suffix not ordinal"
+      },
+      {
+        "row": "OL2b",
+        "trajectory": [
+          "select_option({'option': 2})"
+        ],
+        "observed_class": "bound",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "bound",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL3",
+        "trajectory": null,
+        "observed_class": null,
+        "key_class": "MUTATION-OK",
+        "pass": false,
+        "capability_gap": true,
+        "needs": "label-select + FBC provisional wire",
+        "gap": "label bind; FBC lacks provisional_slot"
+      },
+      {
+        "row": "OL4",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL5",
+        "trajectory": [
+          "select_option({'option': 1})"
+        ],
+        "observed_class": "bound",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "bound",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL6",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL8",
+        "trajectory": [
+          "reject_all({})"
+        ],
+        "observed_class": "recorded",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "recorded",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL9",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      }
+    ]
+  },
+  "hand_audit": [
+    {
+      "row": "H1",
+      "tools": "get_typing \u2192 Poison/Water",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H2",
+      "tools": "check_species_ability / get_abilities \u2192 Unaware",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H3",
+      "tools": "check_item_legal \u2192 Life Orb on Dragonite",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H4",
+      "tools": "get_speed \u00d72 \u2192 Spe compare",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H5",
+      "tools": "calc_damage under stated sides (ASSUME-STATE)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H6",
+      "tools": "get_usage_teammates (ingame) \u2192 partner set",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H7",
+      "tools": "get_move_static \u2192 category + base_power",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H8",
+      "tools": "check_hypothetical Item Clause / check_item_legal",
+      "fact_unreachable": false
+    },
+    {
+      "row": "Q9",
+      "tools": "check_species_legal + Species Clause via lock refuse or hyp",
+      "fact_unreachable": false
+    },
+    {
+      "row": "Q10",
+      "tools": "unlock_slot on empty \u2192 refuse message / read_team",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H11",
+      "tools": "GAP: no legal-learners-by-type+move search tool (get_typing/get_move_static insufficient for set)",
+      "fact_unreachable": true
+    },
+    {
+      "row": "H15",
+      "tools": "usage joint via get_usage_* + get_speed (ASSUME-STATE)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H18b",
+      "tools": "fixture + solve_spread / usage; HO constraint judgment-only in fixture",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H19",
+      "tools": "GAP: no Trick-Room learnset scan tool (check_learnset 4e helps per-species only)",
+      "fact_unreachable": true
+    },
+    {
+      "row": "H20",
+      "tools": "GAP: no monotype candidate producer without show_candidates+type filter",
+      "fact_unreachable": true
+    },
+    {
+      "row": "MT1",
+      "tools": "GAP until 4b: constraints not readable; t3 read-back needs read_constraints",
+      "fact_unreachable": true
+    },
+    {
+      "row": "MT2",
+      "tools": "stale pin \u2014 excluded",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT3",
+      "tools": "seed+history; t2 suggest needs show_candidates(4c); t3 get_abilities",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT4",
+      "tools": "unmapped \u2014 inspect request-set claim types",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT5",
+      "tools": "GAP: no change_archetype / read_archetype (4f)",
+      "fact_unreachable": true
+    },
+    {
+      "row": "MT6",
+      "tools": "GAP: add_constraint (4b) for Water-only resolve",
+      "fact_unreachable": true
+    },
+    {
+      "row": "HF1",
+      "tools": "get_typing",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HF2",
+      "tools": "get_abilities / check_species_ability",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HD1",
+      "tools": "get_typing + history",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HU1",
+      "tools": "GAP: bulk formula scan over legal Fire types \u2014 no set enumeration tool",
+      "fact_unreachable": true
+    },
+    {
+      "row": "HU2",
+      "tools": "get_speed + get_usage_teammates/threats (ingame)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HU3",
+      "tools": "GAP: show_candidates(4c) for Fire options",
+      "fact_unreachable": true
+    },
+    {
+      "row": "HU4",
+      "tools": "get_speed + usage (ASSUME-STATE)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN1",
+      "tools": "get_abilities",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN2",
+      "tools": "get_speed \u00d72",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN3",
+      "tools": "get_usage_items (ingame)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN4",
+      "tools": "get_move_static",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HP1",
+      "tools": "check_species_legal / check_item_legal + calc_damage labeled hyp",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HP2",
+      "tools": "check_species_legal + check_item_legal (question, no lock)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MRB1",
+      "tools": "read_team",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HU2b",
+      "tools": "get_speed + usage ASSUME-STATE",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN2b",
+      "tools": "get_speed ASSUME-STATE grid",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN2c",
+      "tools": "get_speed + locked Spe from read_team",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN2d",
+      "tools": "get_speed (+1 stage claim narrative; tool gives bare Spe)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IS1",
+      "tools": "get_speed / solve_spread outspeed",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IS2",
+      "tools": "solve_spread / get_speed + fixture",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IS3",
+      "tools": "get_speed + get_usage_items (no Scarf in list)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IS4",
+      "tools": "get_speed unreachable",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM1",
+      "tools": "calc_damage ASSUME-STATE",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM2",
+      "tools": "calc_damage grid + locked Incineroar",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM3",
+      "tools": "calc_damage doubles",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM4",
+      "tools": "calc_damage min Atk search",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM6",
+      "tools": "calc_damage Mega Gallade",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM7",
+      "tools": "calc_damage Annihilape Defiant",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MV1",
+      "tools": "GAP: get_move_static omits priority (4h)",
+      "fact_unreachable": true
+    },
+    {
+      "row": "MV2",
+      "tools": "get_move_static pp",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MV3",
+      "tools": "get_move_static target; accuracy from pin/data",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IC1",
+      "tools": "get_usage_items + Item Clause; t2 GAP edit_slot_field(4a) for Sitrus",
+      "fact_unreachable": true
+    },
+    {
+      "row": "TB1",
+      "tools": "GAP: type-boost consequence needs edit/build path + TYPE_BOOST data",
+      "fact_unreachable": true
+    },
+    {
+      "row": "MC1",
+      "tools": "ASK form or ASSUME-STATE Y \u2014 get_usage_*; no lock required for ASK",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MC1",
+      "tools": "ASK form or ASSUME-STATE Y \u2014 get_usage_*; no lock required for ASK",
+      "fact_unreachable": false
+    }
+  ],
+  "needs_tool": [
+    {
+      "row": "MS6",
+      "gap": "cannot record constraint",
+      "needs": "add_constraint (4b)"
+    },
+    {
+      "row": "MR2",
+      "gap": "cannot lock item Choice Specs",
+      "needs": "edit_slot_field (4a)"
+    },
+    {
+      "row": "MR4",
+      "gap": "cannot lock Choice Scarf on two slots",
+      "needs": "edit_slot_field (4a)"
+    },
+    {
+      "row": "OL1",
+      "gap": "OL FBC fixture has options but no provisional_slot; select_option cannot bind",
+      "needs": "FBC provisional wire in pending loader (or product apply path)"
+    },
+    {
+      "row": "OL2a",
+      "gap": "OL FBC fixture lacks provisional_slot; also CLI maps bare '2' to id suffix not ordinal",
+      "needs": "FBC provisional wire + suffix/label select"
+    },
+    {
+      "row": "OL3",
+      "gap": "label bind; FBC lacks provisional_slot",
+      "needs": "label-select + FBC provisional wire"
+    }
+  ],
+  "hand_unreachable": [
+    {
+      "row": "H11",
+      "tools": "GAP: no legal-learners-by-type+move search tool (get_typing/get_move_static insufficient for set)",
+      "fact_unreachable": true
+    },
+    {
+      "row": "H19",
+      "tools": "GAP: no Trick-Room learnset scan tool (check_learnset 4e helps per-species only)",
+      "fact_unreachable": true
+    },
+    {
+      "row": "H20",
+      "tools": "GAP: no monotype candidate producer without show_candidates+type filter",
+      "fact_unreachable": true
+    },
+    {
+      "row": "MT1",
+      "tools": "GAP until 4b: constraints not readable; t3 read-back needs read_constraints",
+      "fact_unreachable": true
+    },
+    {
+      "row": "MT5",
+      "tools": "GAP: no change_archetype / read_archetype (4f)",
+      "fact_unreachable": true
+    },
+    {
+      "row": "MT6",
+      "tools": "GAP: add_constraint (4b) for Water-only resolve",
+      "fact_unreachable": true
+    },
+    {
+      "row": "HU1",
+      "tools": "GAP: bulk formula scan over legal Fire types \u2014 no set enumeration tool",
+      "fact_unreachable": true
+    },
+    {
+      "row": "HU3",
+      "tools": "GAP: show_candidates(4c) for Fire options",
+      "fact_unreachable": true
+    },
+    {
+      "row": "MV1",
+      "tools": "GAP: get_move_static omits priority (4h)",
+      "fact_unreachable": true
+    },
+    {
+      "row": "IC1",
+      "tools": "get_usage_items + Item Clause; t2 GAP edit_slot_field(4a) for Sitrus",
+      "fact_unreachable": true
+    },
+    {
+      "row": "TB1",
+      "tools": "GAP: type-boost consequence needs edit/build path + TYPE_BOOST data",
+      "fact_unreachable": true
+    }
+  ]
+}

@@ -20,7 +20,8 @@ DISCOVERY = HERE / "b1_discovery.json"
 
 # Request-set class atom → allowed mechanical_class values (state-only).
 _CLASS_TO_MECH: dict[str, set[str]] = {
-    "MUTATION-OK": {"wrote", "bound"},
+    # recorded = reject_option / reject_all (MS7, OL8); dismissed alone is not MUTATION-OK.
+    "MUTATION-OK": {"wrote", "bound", "recorded"},
     "MUTATION-REFUSED": {"refused", "no change", "lookup only"},
     "NO-MUTATION": {"lookup only", "no change"},
     "FAIL-CLOSED": {"refused", "no change", "lookup only"},
@@ -57,7 +58,7 @@ def score_turn(
     match = observed_mech in allowed if allowed else False
     # State expectation: mutation classes may change; others must not write draft.
     if expected_key_class in {"MUTATION-OK"}:
-        state_ok = observed_mech in {"wrote", "bound"}
+        state_ok = observed_mech in {"wrote", "bound", "recorded"}
     elif expected_key_class in {"MUTATION-REFUSED", "NO-MUTATION", "FAIL-CLOSED", "ASK",
                                  "SERVED", "ASSUME-STATE", "PARTIAL", "PARTIAL+ASSUME-STATE",
                                  "ASK|ASSUME-STATE"}:
