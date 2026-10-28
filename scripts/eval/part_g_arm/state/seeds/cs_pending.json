@@ -1,5 +1,5 @@
 {
-  "justification": "MT4/MS7 need a CS screen with option 2; Pelipper/Toxapex/Corviknight from present_candidates (H27 route). Option evidence emptied so the model cannot repeat hand-written seed scores (read_pending already omits evidence).",
+  "justification": "MS7 (covered) needs a CS screen with option 2; Pelipper/Toxapex/Corviknight from present_candidates (H27 route). MT4 remains mapped for dry-run only (not covered \u2014 no show-candidates tool). Option evidence emptied so the model cannot repeat hand-written seed scores (read_pending already omits evidence).",
   "rows": [
     "MS7",
     "MT4"

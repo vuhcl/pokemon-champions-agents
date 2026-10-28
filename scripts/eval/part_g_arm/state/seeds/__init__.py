@@ -17,7 +17,7 @@ HERE = Path(__file__).resolve().parent
 # Row id → seed builder name (MT4 shares CS with MS7 but is not-covered: no show-candidates tool).
 SEED_FOR_ROW: dict[str, str] = {
     "MS7": "cs_pending",
-    "MT4": "cs_pending",  # loads for dry-run; eval coverage dropped — see LAST_PART3_SEEDS.md
+    "MT4": "cs_pending",  # dry-run only; not covered — see LAST_PART3_SEEDS.md / cs_pending justification
     "MS4": "fbc_pending",
     "MU7": "fbc_pending",
     "MT3": "mt3_after_t1",

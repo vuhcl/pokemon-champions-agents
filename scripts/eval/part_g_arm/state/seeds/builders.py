@@ -23,8 +23,9 @@ from scripts.eval.part_g_arm.state.fixtures import empty_team
 
 JUSTIFICATIONS: dict[str, str] = {
     "cs_pending": (
-        "MT4/MS7 need a CS screen with option 2; Pelipper/Toxapex/Corviknight "
-        "from present_candidates (H27 route). Option evidence emptied so the model "
+        "MS7 (covered) needs a CS screen with option 2; Pelipper/Toxapex/Corviknight "
+        "from present_candidates (H27 route). MT4 remains mapped for dry-run only "
+        "(not covered — no show-candidates tool). Option evidence emptied so the model "
         "cannot repeat hand-written seed scores (read_pending already omits evidence)."
     ),
     "fbc_pending": (
