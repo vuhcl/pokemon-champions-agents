@@ -1,0 +1,98 @@
+{
+  "source": "claude/request_set_errata_draft_2026-10-26.md (draft not present in worktree; cells taken from request-set acceptance text + Vu task brief)",
+  "note": "Class-cell corrections and loader substitutions only. Never edit part3_request_set_v4.md or derived_keys.json.",
+  "class_cells": {
+    "H15": {
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "note": "Single-turn idle; class cell ASSUME-STATE. Acceptance SERVED wording is the outcome under stated Modest top joint, not a second class atom."
+    },
+    "DM1": {
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "note": "Single-turn; class cell ASSUME-STATE. Acceptance SERVED when stated sides match dm_outputs.dm1."
+    },
+    "DM3": {
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "note": "Single-turn; class cell ASSUME-STATE. Doubles Rock Slide Intimidate on/off cases in acceptance."
+    },
+    "IC1": {
+      "turns": [
+        "SERVED",
+        "MUTATION-OK"
+      ],
+      "note": "Class cell says SERVED; per-turn key is t1 SERVED, t2 MUTATION-OK (errata overrides cell for scoring)."
+    },
+    "IS2": {
+      "turns": [
+        "PARTIAL+ASSUME-STATE"
+      ],
+      "note": "Class cell ASSUME-STATE; acceptance PARTIAL+ASSUME-STATE (errata)."
+    }
+  },
+  "outcome_sets": {
+    "OL7a": {
+      "accepted": [
+        {"kind": "bind", "species": "Jolteon"},
+        {"kind": "ask"}
+      ],
+      "other_bind": "fail",
+      "note": "Request-set key `{bind Jolteon, ask}`; other bind=fail. Cell PARTIAL is not plainly wrong — it encodes this accepted set. Spe 200 identifies the correct bind target (not a separate stated-claim hand point)."
+    }
+  },
+  "substitutions": {
+    "MRB1": {
+      "user_slot": 3,
+      "species": "Torkoal",
+      "ability": "Drought",
+      "item": "Charcoal",
+      "expected_readback": [
+        "Torkoal",
+        "Drought",
+        "Charcoal"
+      ],
+      "applied_by": "loader",
+      "edit_fixture": false
+    },
+    "H25": {
+      "user_slot": 2,
+      "from_species": "Barraskewda",
+      "species": "Basculegion",
+      "ability": "Swift Swim",
+      "item": "Life Orb",
+      "applied_by": "loader",
+      "edit_fixture": false,
+      "note": "H25 remains plan not-covered; substitution still applied when the fixture is loaded."
+    }
+  },
+  "stale_pin_rows": [],
+  "set_answer": {
+    "H11": {
+      "frozen_key_set": [
+        "Gyarados",
+        "Pelipper",
+        "Quaquaval"
+      ],
+      "frozen_key_note": "Own learnset only; no base_species walk. Naming Mega Gyarados (empty Mega learnset) = deliberate false positive.",
+      "product_resolver": "resolve_learnset / legal_moves_for / find_species / check_learnset walk base_species_id when the Mega's own learnset key is missing or empty; Gyarados-Mega resolves to Gyarados's learnset and learns Hurricane.",
+      "scoring_rule": "allowed_not_required",
+      "allowed_not_required": [
+        "Gyarados-Mega"
+      ],
+      "meaning": "Naming Gyarados-Mega is not a false claim; omitting it is not incomplete. Required members remain {Gyarados, Pelipper, Quaquaval}.",
+      "vu": "2026-10-27 \u2014 do not edit derived_keys.json; do not change find_species; errata only.",
+      "registration_disclosure": "H11 key scope stays the raw learnset (keys sha unchanged). Errata changes only the treatment of Gyarados-Mega for arm scoring/hand audit."
+    }
+  },
+  "notes": [
+    "MT3 seed predicate no_intimidate is hand-written judgment-only. mechanical_kind=ability means must-have that ability; there is no ban-ability kind, so the real record_constraint path from 'No Intimidate.' is also judgment-only (predicate text may differ: 'no Intimidate' vs no_intimidate).",
+    "HC2 seed predicate no_weather_ability is hand-written judgment-only (same tag family as H18b fixture). No mechanical kind bans weather setters; real path from 'No weather.' is judgment-only.",
+    "read_team does not echo constraints; MT3/HC2 expose t1 via _message_history only (same pattern as hd1_history).",
+    "cs_pending option evidence strings are emptied in the builder; read_pending never surfaces evidence.",
+    "2026-10-28 Vu: removed MT2/H6 from stale_pin_rows \u2014 not content-stale at current pins (unordered sets match live ingame teammates). Registration still states keys go stale on the next in-game refresh (Nov 4); a run after that refresh needs new keys."
+  ]
+}

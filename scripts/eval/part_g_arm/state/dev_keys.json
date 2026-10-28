@@ -1,0 +1,369 @@
+{
+  "provenance": "load_snapshot(), the same data validate_team_value reads. Wiring check only, not a legality measurement (ADR-060). MT7/MT8 hand-grade against key_artifacts/derived_keys.json mt7_mt8_ar (no class scorer yet).",
+  "checkpoint_prompt_sha256": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
+  "retired_row_findings": {
+    "dev-select-cs": "Observed: select then unrequested commit (wrote). Wording paraphrased graded pick phrasing.",
+    "dev-reject-dismiss": "Observed: no tool call / no_lookup_needed on dismissal (lookup only fail; pending uncleared)."
+  },
+  "species": {
+    "Venusaur": {
+      "canonical": "Venusaur",
+      "legal": true,
+      "in_request_set": false,
+      "types": [
+        "Grass",
+        "Poison"
+      ]
+    },
+    "Venusaur-Mega": {
+      "canonical": "Venusaur-Mega",
+      "legal": true,
+      "in_request_set": false
+    },
+    "Blastoise": {
+      "canonical": "Blastoise",
+      "legal": true,
+      "in_request_set": false
+    },
+    "Beedrill": {
+      "canonical": "Beedrill",
+      "legal": true,
+      "in_request_set": false
+    },
+    "Bulbasaur": {
+      "canonical": "Bulbasaur",
+      "legal": false,
+      "in_request_set": false,
+      "types": [
+        "Grass",
+        "Poison"
+      ]
+    },
+    "Kangaskhan-Mega": {
+      "canonical": "Kangaskhan-Mega",
+      "legal": true,
+      "in_request_set": false
+    },
+    "Kangaskhan": {
+      "canonical": "Kangaskhan",
+      "legal": true,
+      "in_request_set": false
+    }
+  },
+  "items": {
+    "Wide Lens": {
+      "canonical": "Wide Lens",
+      "legal": true,
+      "in_request_set": false
+    },
+    "Kangaskhanite": {
+      "canonical": "Kangaskhanite",
+      "legal": true,
+      "in_request_set": false
+    }
+  },
+  "rows": {
+    "dev-lock": {
+      "classes": [
+        "wrote",
+        "refused"
+      ],
+      "user_slot": 2,
+      "species_after": [
+        "Venusaur",
+        "Venusaur"
+      ]
+    },
+    "dev-unlock": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-commit": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-lookup": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "get_typing",
+      "species": "Venusaur"
+    },
+    "dev-unlock-ok": {
+      "classes": [
+        "wrote"
+      ],
+      "user_slot": 1,
+      "species_after": null
+    },
+    "dev-commit-ok": {
+      "classes": [
+        "wrote"
+      ],
+      "user_slot": 1,
+      "species": "Venusaur",
+      "fields": [
+        "role",
+        "species",
+        "ability",
+        "item",
+        "moveset",
+        "spread",
+        "nature"
+      ]
+    },
+    "dev-hyp-item-clause": {
+      "classes": [
+        "lookup only"
+      ]
+    },
+    "dev-hyp-species-clause": {
+      "classes": [
+        "lookup only"
+      ]
+    },
+    "dev-hyp-unknown-species": {
+      "classes": [
+        "lookup only"
+      ]
+    },
+    "dev-hyp-legal": {
+      "classes": [
+        "lookup only"
+      ]
+    },
+    "dev-hyp-item-only": {
+      "classes": [
+        "lookup only"
+      ]
+    },
+    "dev-pick-named": {
+      "classes": [
+        "bound"
+      ],
+      "expect_species": "Blastoise",
+      "expect_pending_kind": "full_build_confirmation",
+      "must_not_commit": true
+    },
+    "dev-select-bad": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-select-locked-target": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-confirm-fbc": {
+      "classes": [
+        "wrote"
+      ],
+      "user_slot": 1,
+      "species": "Venusaur"
+    },
+    "dev-confirm-stale-fp": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-reject": {
+      "classes": [
+        "recorded"
+      ],
+      "expect_rejected_species": "Venusaur",
+      "expect_pending_cleared": true
+    },
+    "dev-toss-all": {
+      "classes": [
+        "recorded"
+      ],
+      "expect_rejected_species": [
+        "Venusaur",
+        "Blastoise",
+        "Beedrill"
+      ],
+      "expect_pending_cleared": true
+    },
+    "dev-show-rejected": {
+      "classes": [
+        "recorded",
+        "lookup only"
+      ],
+      "expect_rejected_species": "Venusaur"
+    },
+    "dev-dismiss-later": {
+      "classes": [
+        "dismissed"
+      ],
+      "expect_pending_cleared": true
+    },
+    "dev-reject-all-bad": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-edit-item-ok": {
+      "classes": [
+        "wrote"
+      ],
+      "expect_item": "Life Orb"
+    },
+    "dev-edit-item-refuse": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-edit-choice-consequence": {
+      "classes": [
+        "wrote"
+      ],
+      "expect_item": "Choice Scarf",
+      "expect_consequence_kind": "choice_lock_status"
+    },
+    "dev-ms6-water": {
+      "classes": [
+        "recorded"
+      ]
+    },
+    "dev-mt3-intimidate": {
+      "classes": [
+        "recorded"
+      ]
+    },
+    "dev-restore-type": {
+      "classes": [
+        "recorded",
+        "recorded",
+        "recorded"
+      ]
+    },
+    "dev-show-open": {
+      "classes": [
+        "bound"
+      ]
+    },
+    "dev-show-reject": {
+      "classes": [
+        "bound",
+        "recorded",
+        "bound"
+      ]
+    },
+    "dev-show-empty": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-show-locked": {
+      "classes": [
+        "refused"
+      ]
+    },
+    "dev-learnset-yes": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "check_learnset",
+      "expect_learns": true
+    },
+    "dev-learnset-no": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "check_learnset",
+      "expect_learns": false
+    },
+    "dev-archetype-rain": {
+      "classes": [
+        "wrote"
+      ]
+    },
+    "dev-move-priority": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "get_move_static",
+      "expect_priority": 2
+    },
+    "dev-fs-types-move": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "find_species"
+    },
+    "dev-fs-stat-bulk": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "find_species"
+    },
+    "dev-fs-formes": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "find_species"
+    },
+    "dev-fs-prankster-weather": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "find_species",
+      "set_scoring": true,
+      "key_artifact": "dev_keys_prankster_weather.json"
+    },
+    "dev-mt7": {
+      "hand_grade": true,
+      "key_path": "mt7_mt8_ar",
+      "classes": null,
+      "audit": [
+        "tool calls per turn",
+        "spreads calc-feasible vs mt7_t1/t2/t3 keys",
+        "nothing applied silently to team_draft"
+      ]
+    },
+    "dev-mt8": {
+      "hand_grade": true,
+      "key_path": "mt7_mt8_ar",
+      "classes": null,
+      "audit": [
+        "tool calls per turn",
+        "t3 Modest Weather Ball \u2192 infeasible stated",
+        "t4 states Timid result before any way out",
+        "sentence order hand audit",
+        "nothing applied silently to team_draft"
+      ]
+    },
+    "dev-mega-bare-hyp": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "check_hypothetical",
+      "expect_verdict": "mega_stone",
+      "expect_stone": "Kangaskhanite",
+      "justification": "check_hypothetical on a bare Mega returns verdict mega_stone naming the mapped stone (fact from tool; draft unchanged).",
+      "key_text": "Class lookup only. Must call check_hypothetical; final verdict mega_stone. Message must state the Kangaskhanite requirement from the tool (not a flat refusal, not an invented rule). Team draft and pending unchanged."
+    },
+    "dev-mega-edit-refuse": {
+      "classes": [
+        "refused"
+      ],
+      "expect_species": "Kangaskhan-Mega",
+      "expect_item": "Kangaskhanite",
+      "justification": "edit_slot_field item→non-stone on a Mega+stone slot refuses via mega_stone; species and item stay put.",
+      "key_text": "Class refused. Slot 1 remains Kangaskhan-Mega holding Kangaskhanite (no silent species/item change). Tool refusal offers keep-stone or base+Leftovers; model must not invent a different rule."
+    },
+    "dev-mega-lock-ok": {
+      "classes": [
+        "wrote",
+        "wrote"
+      ],
+      "expect_species": "Kangaskhan-Mega",
+      "expect_item": "Kangaskhanite",
+      "justification": "item-first edit_slot_field(Kangaskhanite) then lock_slot(Kangaskhan-Mega) writes both; product allows Mega when the stone is already held.",
+      "key_text": "Classes wrote then wrote. After turn 2, slot 1 is species-locked Kangaskhan-Mega with item Kangaskhanite. No mega_stone refusal text on the successful path."
+    }
+  }
+}

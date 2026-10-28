@@ -1,0 +1,191 @@
+"""Team fixtures for the stateful arm. Locked slots come from apply_lock."""
+
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+from typing import Any
+
+from recommender.ids import to_id
+from recommender.legality import is_item_legal, is_species_legal, load_snapshot, species_types
+from recommender.state import empty_slot
+
+from scripts.eval.part_g_arm.state.tools import lock_slot
+
+HERE = Path(__file__).resolve().parent
+REQUEST_SET = HERE.parents[1] / "part_g_v4" / "part3_request_set_v4.md"
+DEV_SPECIES = (
+    "Venusaur",
+    "Venusaur-Mega",
+    "Blastoise",
+    "Beedrill",
+    "Bulbasaur",
+    "Kangaskhan-Mega",
+    "Kangaskhan",
+)
+DEV_ITEMS = ("Wide Lens", "Kangaskhanite")
+CHECKPOINT_PROMPT_SHA256 = "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86"
+
+
+def empty_team() -> dict[str, Any]:
+    return {
+        "team_draft": [empty_slot() for _ in range(6)],
+        "pending_presentation": None,
+        "pending_slot_intent": None,
+        "provisional_slot": None,
+        "provisional_refinement": None,
+    }
+
+
+def one_locked_slot(species: str = "Venusaur", user_slot: int = 1) -> dict[str, Any]:
+    state, patch = lock_slot(empty_team(), user_slot, species)
+    if patch.get("slot_commit_error"):
+        raise RuntimeError(patch["slot_commit_error"])
+    return state
+
+
+def _in_request_set(name: str, text: str) -> bool:
+    return re.search(rf"\b{re.escape(name)}\b", text) is not None
+
+
+def dev_key_document() -> dict[str, Any]:
+    """Legality from the snapshot. Expected classes are the checkpoint contract."""
+    snap = load_snapshot()
+    text = REQUEST_SET.read_text(encoding="utf-8")
+    species: dict[str, Any] = {}
+    for name in DEV_SPECIES:
+        canonical = snap["species"][to_id(name)]["name"]
+        entry: dict[str, Any] = {
+            "canonical": canonical,
+            "legal": is_species_legal(snap, name),
+            "in_request_set": _in_request_set(name, text),
+        }
+        if name in ("Venusaur", "Bulbasaur"):
+            entry["types"] = species_types(snap, name)
+        species[name] = entry
+    items: dict[str, Any] = {}
+    for name in DEV_ITEMS:
+        items[name] = {
+            "canonical": name,
+            "legal": is_item_legal(snap, to_id(name)),
+            "in_request_set": _in_request_set(name, text),
+        }
+    if not species["Venusaur"]["legal"] or species["Venusaur"]["in_request_set"]:
+        raise RuntimeError("Venusaur is not a usable legal dev species")
+    if species["Bulbasaur"]["legal"] or species["Bulbasaur"]["in_request_set"]:
+        raise RuntimeError("Bulbasaur is not a usable illegal dev species")
+    if not species["Venusaur-Mega"]["legal"] or species["Venusaur-Mega"]["in_request_set"]:
+        raise RuntimeError("Venusaur-Mega is not a usable legal mega form")
+    if not species["Blastoise"]["legal"] or species["Blastoise"]["in_request_set"]:
+        raise RuntimeError("Blastoise is not a usable legal partner")
+    if not species["Beedrill"]["legal"] or species["Beedrill"]["in_request_set"]:
+        raise RuntimeError("Beedrill is not a usable legal partner")
+    if not items["Wide Lens"]["legal"] or items["Wide Lens"]["in_request_set"]:
+        raise RuntimeError("Wide Lens is not a usable legal eev item")
+    if not species["Kangaskhan-Mega"]["legal"] or species["Kangaskhan-Mega"]["in_request_set"]:
+        raise RuntimeError("Kangaskhan-Mega is not a usable legal eev Mega")
+    if not species["Kangaskhan"]["legal"] or species["Kangaskhan"]["in_request_set"]:
+        raise RuntimeError("Kangaskhan is not a usable legal eev base")
+    if not items["Kangaskhanite"]["legal"] or items["Kangaskhanite"]["in_request_set"]:
+        raise RuntimeError("Kangaskhanite is not a usable legal eev stone")
+    return {
+        "provenance": (
+            "load_snapshot(), the same data validate_team_value reads. Wiring check only, "
+            "not a legality measurement (ADR-060). MT7/MT8 hand-grade against "
+            "key_artifacts/derived_keys.json mt7_mt8_ar (no class scorer yet)."
+        ),
+        "checkpoint_prompt_sha256": CHECKPOINT_PROMPT_SHA256,
+        "retired_row_findings": {
+            "dev-select-cs": (
+                "Observed: select then unrequested commit (wrote). "
+                "Wording paraphrased graded pick phrasing."
+            ),
+            "dev-reject-dismiss": (
+                "Observed: no tool call / no_lookup_needed on dismissal "
+                "(lookup only fail; pending uncleared)."
+            ),
+        },
+        "species": species,
+        "items": items,
+        "rows": {
+            "dev-lock": {"classes": ["wrote", "refused"], "user_slot": 2, "species_after": ["Venusaur", "Venusaur"]},
+            "dev-unlock": {"classes": ["refused"]},
+            "dev-commit": {"classes": ["refused"]},
+            "dev-lookup": {"classes": ["lookup only"], "tool": "get_typing", "species": "Venusaur"},
+            "dev-unlock-ok": {"classes": ["wrote"], "user_slot": 1, "species_after": None},
+            "dev-commit-ok": {
+                "classes": ["wrote"],
+                "user_slot": 1,
+                "species": "Venusaur",
+                "fields": ["role", "species", "ability", "item", "moveset", "spread", "nature"],
+            },
+            "dev-hyp-item-clause": {"classes": ["lookup only"]},
+            "dev-hyp-species-clause": {"classes": ["lookup only"]},
+            "dev-hyp-unknown-species": {"classes": ["lookup only"]},
+            "dev-hyp-legal": {"classes": ["lookup only"]},
+            "dev-hyp-item-only": {"classes": ["lookup only"]},
+            "dev-pick-named": {
+                "classes": ["bound"],
+                "expect_species": "Blastoise",
+                "expect_pending_kind": "full_build_confirmation",
+                "must_not_commit": True,
+            },
+            "dev-select-bad": {"classes": ["refused"]},
+            "dev-select-locked-target": {"classes": ["refused"]},
+            "dev-confirm-fbc": {
+                "classes": ["wrote"],
+                "user_slot": 1,
+                "species": "Venusaur",
+            },
+            "dev-confirm-stale-fp": {"classes": ["refused"]},
+            "dev-reject": {
+                "classes": ["recorded"],
+                "expect_rejected_species": "Venusaur",
+                "expect_pending_cleared": True,
+            },
+            "dev-toss-all": {
+                "classes": ["recorded"],
+                "expect_rejected_species": ["Venusaur", "Blastoise", "Beedrill"],
+                "expect_pending_cleared": True,
+            },
+            "dev-show-rejected": {
+                "classes": ["recorded", "lookup only"],
+                "expect_rejected_species": "Venusaur",
+            },
+            "dev-dismiss-later": {
+                "classes": ["dismissed"],
+                "expect_pending_cleared": True,
+            },
+            "dev-reject-all-bad": {"classes": ["refused"]},
+            "dev-mt7": {
+                "hand_grade": True,
+                "key_path": "mt7_mt8_ar",
+                "classes": None,
+                "audit": [
+                    "tool calls per turn",
+                    "spreads calc-feasible vs mt7_t1/t2/t3 keys",
+                    "nothing applied silently to team_draft",
+                ],
+            },
+            "dev-mt8": {
+                "hand_grade": True,
+                "key_path": "mt7_mt8_ar",
+                "classes": None,
+                "audit": [
+                    "tool calls per turn",
+                    "t3 Modest Weather Ball → infeasible stated",
+                    "t4 states Timid result before any way out",
+                    "sentence order hand audit",
+                    "nothing applied silently to team_draft",
+                ],
+            },
+        },
+    }
+
+
+def write_dev_keys(path: Path | None = None) -> dict[str, Any]:
+    doc = dev_key_document()
+    target = path or (HERE / "dev_keys.json")
+    target.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+    return doc

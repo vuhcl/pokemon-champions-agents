@@ -1,0 +1,891 @@
+[
+  {
+    "row": "H1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H2",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H3",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H4",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H5",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H6",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H7",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H8",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "Q9",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "Q10",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H11",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H13",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H14",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H15",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H16",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H18b",
+    "loaded": true,
+    "complete": false,
+    "source": "load_fixture('H18b')",
+    "error": "constraint 'hyper_offense_32_atk_or_spa' loaded as judgment-only predicate only (no mechanical_kind; not enforceable as SP/weather rule); constraint 'no_weather_ability' loaded as judgment-only predicate only (no mechanical_kind; not enforceable as SP/weather rule)",
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H19",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "H20",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MT1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MT2",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MT3",
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/mt3_after_t1",
+    "seed": "mt3_after_t1",
+    "justification": "MT3 t1 'No Intimidate.' \u2192 judgment-only hard constraint predicate no_intimidate (no mechanical ban-ability kind); runner plays t2\u2013t3 only.",
+    "error": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MT4",
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/cs_pending",
+    "seed": "cs_pending",
+    "justification": "MT4/MS7 need a CS screen with option 2; Pelipper/Toxapex/Corviknight/Garchomp are legal doubles staples with source=threat via present_candidates (H27 route).",
+    "error": null,
+    "not_covered_note": "CS seed loads, but MT4 t2 'Show candidates' has no arm tool (no present/show_candidates); row stays not-covered for the run.",
+    "expected_readback": null
+  },
+  {
+    "row": "MT5",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MT6",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HF1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HF2",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HC1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HC2",
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/hc2_after_t1",
+    "seed": "hc2_after_t1",
+    "justification": "HC2 t1 'No weather.' \u2192 judgment-only hard constraint no_weather_ability (same groundedness as H18b fixture tags); runner plays t2 only.",
+    "error": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HD1",
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/hd1_history",
+    "seed": "hd1_history",
+    "justification": "HD1 after H1: prior user 'What type is Toxapex?' + assistant Poison/Water claim; no team state; runner plays only the correction turn with that history.",
+    "error": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HU1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HU2",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HU3",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HU4",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HN1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HN2",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HN3",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HN4",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HP1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HP2",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HP3",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MS1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MS2",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MS3",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MS4",
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/fbc_pending",
+    "seed": "fbc_pending",
+    "justification": "MS4/MU7 need a valid FBC for one complete build; Garchomp + Sand Veil + Sitrus Berry + four legal moves is a full provisional the commit node can accept.",
+    "error": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MS6",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MS7",
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/cs_pending",
+    "seed": "cs_pending",
+    "justification": "MT4/MS7 need a CS screen with option 2; Pelipper/Toxapex/Corviknight/Garchomp are legal doubles staples with source=threat via present_candidates (H27 route).",
+    "error": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MS8",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MR1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MR2",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MR3",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MR4",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MR5",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MR6",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MR7",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MR8",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MU1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MU2",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('MU2')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MU3",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('MU3')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MU4",
+    "loaded": true,
+    "complete": false,
+    "source": "load_fixture('MU4')",
+    "error": "slot 1: skipped unlocked 'Pelipper'",
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MU5",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MU6",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MU7",
+    "loaded": true,
+    "complete": true,
+    "source": "seeds/fbc_pending",
+    "seed": "fbc_pending",
+    "justification": "MS4/MU7 need a valid FBC for one complete build; Garchomp + Sand Veil + Sitrus Berry + four legal moves is a full provisional the commit node can accept.",
+    "error": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MU8",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MW1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MW2",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MW3",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MW4",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MRB1",
+    "loaded": true,
+    "complete": true,
+    "source": "build_mrb1_start",
+    "error": null,
+    "readback": {
+      "species": "Torkoal",
+      "ability": "Drought",
+      "item": "Charcoal"
+    },
+    "expected_readback": {
+      "species": "Torkoal",
+      "ability": "Drought",
+      "item": "Charcoal"
+    }
+  },
+  {
+    "row": "OL1",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('OL1')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "OL2a",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('OL2a')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "OL2b",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('OL2b')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "OL3",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('OL3')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "OL4",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('OL4')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "OL5",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('OL5')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "OL6",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('OL6')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "OL8",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('OL8')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "OL9",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('OL9')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HU2b",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HN2b",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HN2c",
+    "loaded": true,
+    "complete": false,
+    "source": "load_fixture('HN2c')",
+    "error": "slot 0: moves skipped (apply_lock moveset wiped siblings; Choice item + non-damaging move)",
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "HN2d",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('HN2d')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "IS1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "IS2",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('IS2')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "IS3",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "IS4",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "DM1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "DM2",
+    "loaded": true,
+    "complete": true,
+    "source": "build_fully_locked_slot(Incineroar)",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "DM3",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team (ASSUME-STATE sides from pin)",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "DM4",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "DM6",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "DM7",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MV1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MV2",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MV3",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "IC1",
+    "loaded": true,
+    "complete": true,
+    "source": "load_fixture('IC1')",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "TB1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  },
+  {
+    "row": "MC1",
+    "loaded": true,
+    "complete": true,
+    "source": "empty_team",
+    "error": null,
+    "readback": null,
+    "expected_readback": null
+  }
+]

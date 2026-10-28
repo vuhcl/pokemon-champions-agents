@@ -1,0 +1,276 @@
+{
+  "schema": "state_arm_manifest_proposal_v0",
+  "frozen": false,
+  "note": "Proposal only. Freeze after Vu approval. 2026-10-28: covered 103; OL7a outcome_sets; exploratory_runner (unscored not-covered mode, stub-tested); stale_pin cleared. frozen:false.",
+  "model": {
+    "id": "qwen3.5:latest",
+    "digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
+    "quantization": "Q4_K_M",
+    "temperature": 0.0,
+    "think": false,
+    "num_ctx": 16384,
+    "num_predict": 2048,
+    "seed": null,
+    "num_predict_vs_part_g_gate": "equals Part G arm config default num_predict=2048 (scripts/eval/part_g_arm/config.py)"
+  },
+  "judge": {
+    "id": "gemma4:12b",
+    "digest": "sha256:c7597fc90b86aff6965317f37dd5465402284e26382d9b4bf2dfe3ef1491f4b6",
+    "quantization": "nvfp4",
+    "temperature": 0.0,
+    "think": false,
+    "num_ctx": null,
+    "num_predict": null,
+    "num_ctx_num_predict_note": "hand_audit_judge.py uses ChatOllama(model, temperature=0, reasoning=False); does not set num_ctx/num_predict (library defaults).",
+    "prompt": "scripts/eval/part_g_arm/state/judge_prompt.md",
+    "prompt_sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87",
+    "rubric_source": "row key / calibration rubric text only; never another model's verdict"
+  },
+  "pins_read": {
+    "calc_package": "@smogon/calc",
+    "calc_version": "0.11.0-champions.5d5bf43",
+    "calc_vendor_path": "vendor/smogon-calc",
+    "calc_repo_commit_note": "vendor from github:smogon/damage-calc#5d5bf4323990a32d2099ebd7fb50fec06ad2b501 (calc/)",
+    "showdown_joint_spread_blob": {
+      "path": "data/usage/champions-reg-mc.showdown_doubles.v1.json",
+      "sha1_prefix_check_pins": "63bcefe4512a202d75b62e79f2ccc5436527b46e"
+    },
+    "ingame_blob": {
+      "path": "data/usage/champions-reg-mc.ingame_doubles.v1.json",
+      "sha1_prefix_check_pins": "31af0801235dc4158c6206363c70ae8cc2b6417b"
+    },
+    "legality_snapshot": {
+      "path": "data/legality/champions.v1.json",
+      "sha1_prefix_check_pins": "ca5bb8181448765875396ce3b02561923c3e4694"
+    },
+    "keys_sha256": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a"
+  },
+  "loader_and_helpers": {
+    "note": "Git commit sha of a CLEAN tree at freeze pins the rest of the recommender nodes these wrap.",
+    "paths": [
+      "scripts/eval/part_g_arm/state/pending.py",
+      "scripts/eval/part_g_arm/state/fixtures.py",
+      "scripts/eval/part_g_arm/state/harness.py",
+      "scripts/eval/part_g_arm/state/seeds/builders.py",
+      "recommender/slot_index.py",
+      "recommender/nodes.py",
+      "recommender/team_validation.py",
+      "recommender/constraint_enforcement.py",
+      "recommender/slot_fill.py",
+      "recommender/threat_counters.py",
+      "recommender/arm_tools.py",
+      "recommender/item_conditions.py",
+      "recommender/reconcile.py"
+    ]
+  },
+  "failure_policy": {
+    "per_turn_timeout_s": 300.0,
+    "max_tool_calls_per_turn": 16,
+    "on_no_answer_or_error": "record as 'no usable answer'; no silent retry",
+    "resume": "progress.json finished ids; skip without rewrite",
+    "exploratory": "exploratory_runner.py: separate exploratory root + exploratory_progress.json; README mark 'exploratory, unscored'; no class scoring; registered run_batch refuses exploratory dirs"
+  },
+  "frozen_prompt_sha256": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
+  "files": [
+    {
+      "path": "scripts/eval/part_g_arm/state/request_set_runner.py",
+      "sha256": "eca6dd7498c39dfc0fa6d974d4d875393e0d45cf34ed4362ee981d0b347ca70a"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/exploratory_runner.py",
+      "sha256": "24d5f2f2ba0287c8f94cf1277dd709de712e1c0b9696a6efa3c9c8a07ef545c0"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/class_scorer.py",
+      "sha256": "8f97b299a5392eef8237df7fda757af2dedfb04067e25eeec367554f0e31a8f4"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/errata.json",
+      "sha256": "2d8133d8e67b86e20b8f490e3f4a54b6f2840104667a9709c10f4cb0b9ca1d5a"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/tools.py",
+      "sha256": "e5dd309e0a6ce4afb9eeddc0b2bb2172ea79086feda8e7ff07a3158ae4dd5d42"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/spread_solve.py",
+      "sha256": "f396bfa97c37762ea52eed72e4f06fa93fc74721788b0a43212cffdd0b03c12b"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/prompt.md",
+      "sha256": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/judge_prompt.md",
+      "sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/covered_list.json",
+      "sha256": "ebde0d0ad9acdd51d477b7aeab039e6494bf3081b96b22c666fedf313243c4c1"
+    },
+    {
+      "path": "scripts/eval/part_g_v4/key_artifacts/derived_keys.json",
+      "sha256": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a"
+    },
+    {
+      "path": "scripts/eval/part_g_v4/part3_request_set_v4.md",
+      "sha256": "7fb9510cb50e8f1f320ac1cf6bced41e8dcd12f4245ed2abb03a42254a60afdb"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/seeds/cs_pending.json",
+      "sha256": "34495be395c0f53e38319fd438c9bbbfc0e5174691d6d13bcb3be02e1999b6eb"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/seeds/fbc_pending.json",
+      "sha256": "4337ddd0dc15d319bbef0bc1ea8cbc9f978c45fa9de1768534b291df3de50af6"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/seeds/mt3_after_t1.json",
+      "sha256": "0f6d61eb95dd6678301bdc91a3a746af2c8096f196e85b813f381e7d3f7720b2"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/seeds/hc2_after_t1.json",
+      "sha256": "9d67bd3b7cc38cc7ad5c41fde9be130cdafdaceeb85bcb2f3dff8b34bbfab4f9"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/seeds/hd1_history.json",
+      "sha256": "331da9c022897b7294549b01643ee7f6201cc82ad2ba4a8c74cde670606dd7c7"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/pending.py",
+      "sha256": "2e76fa51d1b33e974b7d52e68f72e1b7bac7b0705470a2f1e6484aba5e535e5f"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/fixtures.py",
+      "sha256": "f3ad8f8bdfb78a74c0f00b30ac05792e64c96cd6a77ad3f16fcd8c9a2d522c75"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/harness.py",
+      "sha256": "24cb4bd7c575353deef3bf36a5c24d4f145454bc2e791da24b2521dfe50c4dfa"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/seeds/builders.py",
+      "sha256": "a39e820783f4bce1ea43f22b13f475607961ab8c2a33dd812e3347781ae3baf3"
+    },
+    {
+      "path": "recommender/slot_index.py",
+      "sha256": "8255baea9f51c34899af12f26280b00b1c3e6b6d13402d31789e0edb9eb10024"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/b1_discovery.json",
+      "sha256": "3034581aa3a04030c90ea35a44434a40a1823ff4037cc0ddb012b31dde08fcff"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/errata_read.py",
+      "sha256": "f7527166179be8c20e73b4bedca55cce4d33bacb9fd5fb006efc84852bd88f55"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/freeze_manifest_arm_state.py",
+      "sha256": "971f2ae868f38b4598350861d4110fbeceb93e6ff33cfd5e7acbdb6b05800857"
+    }
+  ],
+  "proposed_covered_counts": {
+    "covered": 103,
+    "not_covered": 31,
+    "mechanical_only": 41,
+    "hand_audit_only": 59,
+    "dual": 3,
+    "audit_form_sections": 74,
+    "audit_form_cells": 242,
+    "ol7a_on_form": false
+  },
+  "prompt_choice": {
+    "chosen": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
+    "prior_part5": "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b",
+    "prior_frozen": "b71764852eb66f87f17375ff3226a7e4be7517b09eb8961fb56e779fe32badd8",
+    "rejected_first_draft": "c58e3ce8499d3c579899bed84ec7a450f55e0e9da83dedb7bca6582c3cd4dd18",
+    "why": "Final-tools eev 40/41 (same as find-species run); only fail remains dev-fs-prankster-weather. H11 via errata; MM1/MM2 covered. No prompt change.",
+    "dev_transcript": "/Users/nowaki027/part-g-arm-state-out-pre-freeze-r3/",
+    "prankster_weather_key_sha256": "6dba1caac2d45135779779f7867f6f442163bdb3fef35ca6270d7c76329fb543",
+    "prankster_weather_key_prior_circular_sha256": "cbef455d7ff1610152f64fc17ad5e33796e82fd05669a8fca93d8b0fa47652d3"
+  },
+  "freeze_checklist": {
+    "note": "scripts/eval/part_g_arm/state/LAST_FREEZE_CHECKLIST.md",
+    "mega_pr_318": "MERGED",
+    "covered_list_sha256": "ebeef244f370688b73e2fd6e94b01c55cdb07a6e8123c43156352255a8a6ed85",
+    "judge_prompt_sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87",
+    "seeds_sha256sums": "e7537618c1105aeeeb9273d8ed0045370bd8eecabcea5586f78f14a46f47b2ba",
+    "b1_covered_shortfall": [
+      "GS1",
+      "IX1",
+      "MS5",
+      "RB1",
+      "SC2",
+      "TB2"
+    ],
+    "h11_acceptance_drift": "Castform-Rainy in find_species Water+Hurricane set; not in acceptance"
+  },
+  "repeat_runs": {
+    "n": 3,
+    "primary": 1,
+    "determinism": [
+      2,
+      3
+    ],
+    "sequential_local_ollama": true,
+    "no_resume_across_runs": true,
+    "comparison_fields": [
+      "mechanical_class per turn",
+      "tool_calls (name, args) in order",
+      "sha256(final_text) per turn"
+    ],
+    "error_timeout_policy": "one-sided error/timeout \u2192 error_mismatch in differ list; not a pass; never averaged",
+    "planned_wall_time_per_run_min": "16-20",
+    "planned_wall_time_seconds_per_turn": 8.4,
+    "planned_wall_time_three_runs_min": "48-60",
+    "planned_disk_per_run_mb": "2-4",
+    "planned_disk_three_runs_mb": "6-12",
+    "freeze_target": "2026-10-29 or 2026-10-30",
+    "covered_run_date": "2026-11-02",
+    "usage_refresh_mc_decision_date": "2026-11-01",
+    "design_note": "scripts/eval/part_g_arm/state/LAST_REPEAT_RUN_DESIGN.md",
+    "compare_helper": "scripts/eval/part_g_arm/state/compare_runs.py"
+  },
+  "clean_tree_commit_sha": "",
+  "hand_audit_form": {
+    "generator": "scripts/eval/part_g_arm/state/hand_audit_form.py",
+    "based_on": "scripts/eval/part_g_v4/audit_view.py",
+    "export_csv_name": "hand_audit_export.csv",
+    "csv_columns": [
+      "row_id",
+      "turn",
+      "rubric_point_id",
+      "verdict",
+      "overall",
+      "note"
+    ],
+    "shows_gemma_verdict": false,
+    "shows_scorer_verdict": false,
+    "sample_out_dir": "/Users/nowaki027/part-g-arm-state-out-audit/",
+    "sample_html_sha256": "bb2042515cdfec9f5ee68be3dae97c91375554f56125b0048d9a1efc9f5647ca",
+    "note": "scripts/eval/part_g_arm/state/LAST_HAND_AUDIT_FORM.md",
+    "sections": 74,
+    "rubric_cells": 242
+  },
+  "covered_list_sha256": "ebde0d0ad9acdd51d477b7aeab039e6494bf3081b96b22c666fedf313243c4c1",
+  "tools_py_sha256": "e5dd309e0a6ce4afb9eeddc0b2bb2172ea79086feda8e7ff07a3158ae4dd5d42",
+  "note_b1": "B1 after MM1/MM2: covered 99; not_covered 35; mech-only 40; hand-only 56; dual MS5/RB1/TB2; audit sections 71 / rubric cells 232. H11 errata allowed_not_required.",
+  "note_post_merge_318": "step3: check_hypothetical sibling-stage for Mega+stone; mega_stone refusals on bare Mega hyp/select",
+  "merged_main_commit_sha": "6f909b0eb668de98d97357bbb16a3576c34e7e2a",
+  "note_merged_tree": "main #318 merge commit 707642b; arm merge commit 6f909b0; clean_tree_commit_sha stays empty until Vu freezes",
+  "keys_sha_run_all_checks": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a",
+  "suites": {
+    "pytest": "4785 passed, 14 skipped",
+    "npm_test": "119 passed",
+    "run_all_checks": "PASS",
+    "keys_sha": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a",
+    "battery_claim": "6e6c6be4351240629416f1e279bbf495bbf4670d79aaaa7d083a2c62c6d67443",
+    "battery_false_legal": "3025138427391e57a92e1862a87b0074d44a51b290836077abf094af92c4bdec"
+  },
+  "dev_results_sha256": "7a86cc0cb631771fb5cd77335134534d060d3903d862182dd990a43d120c38b5",
+  "dev_run_record_sha256": "070038c73862d8f40d7b98faf243c8a8f5b01ff08ca51c32643520d8a40ad935",
+  "dev_row_count": 44,
+  "dev_keys_sha256": "aa0e9169b45a20ece32376ac67a826b0d4898442c698c9860d87a0866b4a8e06",
+  "dev_rows_sha256": "b7e31f60ae2af645d6275774a518c1abc0a93990663c4603de571dc9e827a311",
+  "note_mega_dev": "FINDING: dev-mega-bare-hyp fail (check_species_legal, no check_hypothetical); edit-refuse and lock-ok pass. Stop \u2014 no prompt/tool edit. Vu decides."
+}

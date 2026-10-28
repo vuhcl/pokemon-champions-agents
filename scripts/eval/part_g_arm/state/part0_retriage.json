@@ -1,0 +1,275 @@
+{
+  "as_of": "2026-10-27",
+  "note": "Re-triage of 38 not-covered rows after state tools, pending loader, solve_spread, seeds. Coverable-now rows are listed only — not added to covered_list.",
+  "seed_fixes_manifest": "cursor_seed_fixes_manifest.md NOT FOUND — see LAST_SEED_FIXES.md",
+  "rows": [
+    {
+      "id": "H12",
+      "coverable_now": true,
+      "needs": "nothing (calc_damage + stated ASSUME-STATE sides; no new tool)",
+      "scorable": "hand audit",
+      "reason": "Attacker pool and Calm/Bold variants are key-derived; arm already has calc_damage. Large hand-audit claim surface."
+    },
+    {
+      "id": "H17",
+      "coverable_now": false,
+      "needs": "tool (T4 archetype/bootstrap + T6 candidates)",
+      "scorable": "hand audit",
+      "reason": "Needs rain-oriented bootstrap/candidates progress; handle_archetype_change exists in product but no arm tool; bootstrap intake is LLM; no show-candidates."
+    },
+    {
+      "id": "H18",
+      "coverable_now": false,
+      "needs": "tool (T4 + T6) plus constraint read-back for SP-rule definition",
+      "scorable": "hand audit",
+      "reason": "ASSUME-STATE definition + candidate/locks under HO rule; no archetype or candidate arm tool."
+    },
+    {
+      "id": "H21",
+      "coverable_now": true,
+      "needs": "nothing (ASSUME-STATE membership; no mutation required)",
+      "scorable": "hand audit",
+      "reason": "State a monkey-membership assumption and confirm/proceed; no specialized tool. Slot unchanged until selection."
+    },
+    {
+      "id": "H22",
+      "coverable_now": true,
+      "needs": "nothing (ASSUME-STATE aesthetic; optional confirm options)",
+      "scorable": "hand audit",
+      "reason": "Checklist is assumption-labeled membership; no verified aesthetic data file exists by design."
+    },
+    {
+      "id": "H25",
+      "coverable_now": false,
+      "needs": "tool (T6 candidate discovery) + calc path for Kingambit threat",
+      "scorable": "hand audit",
+      "reason": "Fixture loads (h25_team); checklist requires recommender-returned candidates and calc-backed threat — no present_candidates arm tool."
+    },
+    {
+      "id": "H26",
+      "coverable_now": false,
+      "needs": "tool (T6) + support/compendium read",
+      "scorable": "hand audit",
+      "reason": "Fixture loads (h26_torkoal_locked); needs recommender candidates related to Hatterene, not just Torkoal."
+    },
+    {
+      "id": "H27",
+      "coverable_now": true,
+      "needs": "nothing (pending loader + read_pending + get_typing)",
+      "scorable": "hand audit",
+      "reason": "SPECIAL: pending loader builds CS via present_candidates; options Garchomp/Incineroar/Rillaboom; top Ground = Garchomp via get_typing. Do not add to covered list this round."
+    },
+    {
+      "id": "AR1",
+      "coverable_now": false,
+      "needs": "nothing for coverage policy — keep out (dev duplicate)",
+      "scorable": "hand audit",
+      "reason": "SPECIAL: derived_keys mt7_mt8_ar.ar1 example/solutions identical to mt7_t1_jolly_cc. Near-duplicate of permanent-DEV MT7 t1. Recommend stay out of covered."
+    },
+    {
+      "id": "AR2",
+      "coverable_now": false,
+      "needs": "nothing for coverage policy — keep out (dev duplicate)",
+      "scorable": "hand audit",
+      "reason": "SPECIAL: keys ar2_pareto_hp_def_by_class; Adamant-CC Pareto sibling of MT7 t2 path. Recommend stay out; MT7 remains the graded multi-turn control."
+    },
+    {
+      "id": "AR3",
+      "coverable_now": false,
+      "needs": "tool (moveset/item edit + mega build path) + heavy multi-turn fixtures",
+      "scorable": "hand audit",
+      "reason": "Six-turn PARTIAL compound; Belly Drum Mega-X, Flame Charge lock, OHKO/survivability, Spe Pareto. Far beyond current arm surface."
+    },
+    {
+      "id": "MS5",
+      "coverable_now": false,
+      "needs": "tool (T4 archetype change + conflict audit)",
+      "scorable": "mechanical",
+      "reason": "Fixture loads; needs apply archetype + audit Drought/Solar Beam vs rain without editing locks. No arm archetype tool."
+    },
+    {
+      "id": "SC1",
+      "coverable_now": false,
+      "needs": "tool (T2 draft slot-condition) + fixture route (sc1_* not in _SLOT_BASE)",
+      "scorable": "mechanical",
+      "reason": "Draft condition on future Archaludon (Snarl); fixtures exist but loader has no slot base. No draft-condition state tool."
+    },
+    {
+      "id": "SC2",
+      "coverable_now": false,
+      "needs": "tool (learnset/legality check for moves) — refusal through legality",
+      "scorable": "mechanical",
+      "reason": "SPECIAL: Soak not learned (script false). No arm learnset tool today; get_move_static/check_species_legal do not gate moves. Cannot refuse through legality without new surface."
+    },
+    {
+      "id": "SC3",
+      "coverable_now": false,
+      "needs": "tool (T2 slot-scoped draft conditions + read-back)",
+      "scorable": "mechanical",
+      "reason": "Condition must stick to slot 2 only; slot 4 spread must not inherit. sc3_two_slots.json not wired in _SLOT_BASE."
+    },
+    {
+      "id": "TS1",
+      "coverable_now": false,
+      "needs": "tool (draft/topic-switch retain) + fixture route (ts1_sequence)",
+      "scorable": "mechanical",
+      "reason": "Keep draft across topic switch; return intact. No draft-retain arm tool; sequence fixture unwired."
+    },
+    {
+      "id": "GS1",
+      "coverable_now": false,
+      "needs": "tool (T5 edit-consequence + item/moveset lock)",
+      "scorable": "hand audit",
+      "reason": "t2 Scarf lock must name status moves unusable; arm lock_slot is species-only."
+    },
+    {
+      "id": "GT1",
+      "coverable_now": false,
+      "needs": "data/tool surface for VGCPastes Trick sets (open in request-set)",
+      "scorable": "hand audit",
+      "reason": "Requires Trick+Scarf from n=2 VGCPastes builds; no pastes moves tool on arm."
+    },
+    {
+      "id": "LZ1",
+      "coverable_now": false,
+      "needs": "tool (usage moves/build presentation) + mega form lock",
+      "scorable": "hand audit",
+      "reason": "Mega Lucario Z build from usage; get_usage_items only — no common_moves tool."
+    },
+    {
+      "id": "TB2",
+      "coverable_now": false,
+      "needs": "tool (T5 moveset edit + type-boost consequence) + fixture route (tb2 not in _SLOT_BASE)",
+      "scorable": "mechanical",
+      "reason": "Four-move list survives read_team when fully locked (plan decision 8). No moveset edit tool; Charcoal consequence from TYPE_BOOST_ITEMS."
+    },
+    {
+      "id": "MM1",
+      "coverable_now": false,
+      "needs": "validator rule (T1) in team_validation/legality + ADR-002 amendment",
+      "scorable": "hand audit",
+      "reason": "validate_team_value today accepts Salamence+Leftovers and does not require stone for Mega. Stone map at runtime via item_conditions.mega_stones_by_item_id() (calc items.js); stone_map.v1.json is key artifact only."
+    },
+    {
+      "id": "MM2",
+      "coverable_now": false,
+      "needs": "validator rule (T1) refuse stone→Leftovers on Mega",
+      "scorable": "mechanical",
+      "reason": "Fixture mm2 exists unwired; apply_lock/validate_team_value allow Leftovers on Mega today → must refuse + offer form change only."
+    },
+    {
+      "id": "RB1",
+      "coverable_now": false,
+      "needs": "tool (T5 moveset edit + stat_boosts.v1.json consequence)",
+      "scorable": "mechanical",
+      "reason": "Fixture has 3 moves (4th empty); add Nasty Plot with CM+NP SpA conflict offer. No moveset edit tool."
+    },
+    {
+      "id": "IX1",
+      "coverable_now": false,
+      "needs": "data exposure (priority on get_move_static or new lookup) — NOT answerable from current tools",
+      "scorable": "hand audit",
+      "reason": "SPECIAL: priority lives in data/moves/static.v1.json but snap moves and get_move_static omit priority. Cannot compare Fake Out 3 vs Follow Me 2 via tools today."
+    },
+    {
+      "id": "IX2",
+      "coverable_now": false,
+      "needs": "data file / pinned Showdown source tool (not in arm lookups)",
+      "scorable": "hand audit",
+      "reason": "Key grounded in Showdown moves.ts/abilities.ts; pinned ability description disagrees. No tool returns that interaction."
+    },
+    {
+      "id": "IX3",
+      "coverable_now": false,
+      "needs": "data exposure (flags.v1 slicing via lookup tool)",
+      "scorable": "hand audit",
+      "reason": "SPECIAL: Dire Claw has slicing in flags.v1; get_move_static does not return flags."
+    },
+    {
+      "id": "IX4",
+      "coverable_now": false,
+      "needs": "learnset + ability-interaction tool surface",
+      "scorable": "hand audit",
+      "reason": "Per-step learnset / Good as Gold / Mold Breaker path; no learnset tool."
+    },
+    {
+      "id": "IX5",
+      "coverable_now": false,
+      "needs": "ability-holder search tool — NOT answerable from current lookups",
+      "scorable": "hand audit",
+      "reason": "SPECIAL: check_species_ability is per-species only; no 'who has ability X' scan. Cannot build punish buckets from tools alone."
+    },
+    {
+      "id": "IX6",
+      "coverable_now": false,
+      "needs": "ability+item interaction data (Unburden/White Herb) beyond lookups",
+      "scorable": "hand audit",
+      "reason": "Conditional Unburden; item mechanics prose unverifiable per request-set."
+    },
+    {
+      "id": "IX7",
+      "coverable_now": false,
+      "needs": "ability-holder + typing search — partial typing only today",
+      "scorable": "hand audit",
+      "reason": "SPECIAL: get_typing covers Flying; Levitate/Telepathy/Earth Eater holders need a scan tool that does not exist."
+    },
+    {
+      "id": "DM5",
+      "coverable_now": false,
+      "needs": "fixture route (dm5_working_draft.json not in _SLOT_BASE)",
+      "scorable": "hand audit",
+      "reason": "Working draft SP; arm must state defender then recompute. File exists; loader refuses without declared slot base."
+    },
+    {
+      "id": "OL7a",
+      "coverable_now": true,
+      "needs": "nothing (pending loader + get_speed + select_option|ask)",
+      "scorable": "mechanical",
+      "reason": "SPECIAL: pending loader works; verifiably faster=Jolteon. Model compares Spe then binds or asks. Do not add to covered this round."
+    },
+    {
+      "id": "OL7b",
+      "coverable_now": true,
+      "needs": "nothing (pending loader + FBC option Spe labels)",
+      "scorable": "mechanical",
+      "reason": "SPECIAL: synthetic-spe plumbing; faster=Fast sweeper. Loader places pending. Do not add to covered this round."
+    },
+    {
+      "id": "OL10a",
+      "coverable_now": false,
+      "needs": "cannot cover with frozen fixture alone — no presentation-time team/fingerprint in file",
+      "scorable": "not scorable",
+      "reason": "SPECIAL: fixture = pending + current team only. CS select_option has no team-staleness gate. Node change cannot invent the missing presentation fingerprint from frozen bytes."
+    },
+    {
+      "id": "OL10b",
+      "coverable_now": false,
+      "needs": "fixture route: wire provisional_slot from provisional_fingerprint vs provisional_fingerprint_now",
+      "scorable": "mechanical",
+      "reason": "SPECIAL: commit_full_slot fingerprint check exists, but _load_ol leaves provisional_slot null → refuse is 'missing' not stale. Not coverable now; loader wiring (state/) could flip without product validator change."
+    },
+    {
+      "id": "MT4",
+      "coverable_now": false,
+      "needs": "tool (T6 show-candidates / present_candidates)",
+      "scorable": "mechanical",
+      "reason": "CS seed loads; reject_option works; t2 'show candidates' has no arm tool (Part 3 drop reason)."
+    },
+    {
+      "id": "MT7",
+      "coverable_now": false,
+      "needs": "nothing — permanent DEV",
+      "scorable": "hand audit",
+      "reason": "Dev control for spread solver; not a covered graded row."
+    },
+    {
+      "id": "MT8",
+      "coverable_now": false,
+      "needs": "nothing — permanent DEV",
+      "scorable": "hand audit",
+      "reason": "Dev control; not a covered graded row."
+    }
+  ],
+  "coverable_now_ids": ["H12", "H21", "H22", "H27", "OL7a", "OL7b"],
+  "coverable_now_note": "Listed only; not added to covered_list.json."
+}

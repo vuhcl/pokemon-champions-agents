@@ -1,0 +1,556 @@
+"""Part 3 — scripted reference trajectories for mechanical covered rows (no model).
+
+Each trajectory is the tool calls a correct arm would make. CAPABILITY_GAP rows
+name the missing tool. Re-run after Part 4 builds to close gaps.
+"""
+
+from __future__ import annotations
+
+import copy
+import json
+from pathlib import Path
+from typing import Any, Callable
+
+from scripts.eval.part_g_arm.state.class_scorer import score_turn
+from scripts.eval.part_g_arm.state.errata_read import expected_turns
+from scripts.eval.part_g_arm.state.request_set_rows import (
+    load_covered_ids,
+    load_request_rows,
+    resolve_start_state,
+)
+from scripts.eval.part_g_arm.state.tools import (
+    add_constraint,
+    check_hypothetical,
+    commit_slot,
+    confirm_build,
+    draft_signature,
+    edit_slot_field,
+    lock_slot,
+    mechanical_class,
+    read_constraints,
+    read_pending,
+    read_rejected,
+    read_team,
+    reject_all,
+    reject_option,
+    reject_pending,
+    reset_team_state,
+    restore_constraint_tool,
+    select_option,
+    steering_signature,
+    unlock_slot,
+)
+
+HERE = Path(__file__).resolve().parent
+DISCOVERY = HERE / "b1_discovery.json"
+
+# (tool_name, kwargs) — kwargs use user-facing 1-based slots where applicable.
+Call = tuple[str, dict[str, Any]]
+Gap = dict[str, str]  # {"gap": "...", "needs": "tool X"}
+
+
+def _mech_ids() -> list[str]:
+    doc = json.loads(DISCOVERY.read_text(encoding="utf-8"))
+    covered = load_covered_ids()
+    out = []
+    for row in doc["covered"]:
+        if row["row"] in covered and row["bucket"] == "scorable-mechanical":
+            out.append(row["row"])
+    return out
+
+
+def _hand_ids() -> list[str]:
+    doc = json.loads(DISCOVERY.read_text(encoding="utf-8"))
+    covered = load_covered_ids()
+    out = []
+    for row in doc["covered"]:
+        if row["row"] in covered and row["bucket"] == "hand audit":
+            out.append(row["row"])
+        if row["row"] in covered and row["row"] == "MC1":
+            out.append(row["row"])
+    return out
+
+
+def _snap(state: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "slots": draft_signature(state),
+        "steering": steering_signature(state),
+    }
+
+
+def _dispatch(state: dict[str, Any], name: str, kwargs: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Run one state/hyp tool. Lookups go through ArmTools when needed."""
+    if name == "lock_slot":
+        return lock_slot(state, kwargs["slot"], kwargs["species"])
+    if name == "edit_slot_field":
+        return edit_slot_field(
+            state, kwargs["slot"], kwargs["field"], kwargs["value"]
+        )
+    if name == "add_constraint":
+        return add_constraint(
+            state,
+            kwargs.get("predicate"),
+            kwargs.get("scope"),
+            kwargs.get("groundedness"),
+            slot=kwargs.get("slot"),
+            mechanical_kind=kwargs.get("mechanical_kind"),
+            value=kwargs.get("value"),
+        )
+    if name == "read_constraints":
+        return state, read_constraints(state)
+    if name == "restore_constraint":
+        return restore_constraint_tool(state)
+    if name == "unlock_slot":
+        return unlock_slot(state, kwargs["slot"])
+    if name == "reset_team":
+        return reset_team_state(state)
+    if name == "commit_slot":
+        return commit_slot(state)
+    if name == "confirm_build":
+        return confirm_build(state)
+    if name == "select_option":
+        return select_option(state, kwargs["option"])
+    if name == "reject_option":
+        return reject_option(state, kwargs["option"])
+    if name == "reject_pending":
+        return reject_pending(state)
+    if name == "reject_all":
+        return reject_all(state)
+    if name == "read_team":
+        return state, read_team(state)
+    if name == "read_pending":
+        return state, read_pending(state)
+    if name == "read_rejected":
+        return state, read_rejected(state)
+    if name == "check_hypothetical":
+        return state, check_hypothetical(state, kwargs["placements"])
+    if name == "no_lookup_needed":
+        from recommender.arm_tools import ArmTools
+        from recommender.regulation_registry import active_regulation
+
+        arm = ArmTools(regulation=active_regulation(), allow_live=False)
+        return state, arm.no_lookup_needed(
+            kwargs.get("reason", "no tool needed for this turn"),
+            kwargs.get("category", "other"),
+        )
+    if name in {
+        "get_typing",
+        "get_abilities",
+        "check_species_legal",
+        "check_item_legal",
+        "check_species_ability",
+        "get_move_static",
+    }:
+        from recommender.arm_tools import ArmTools
+        from recommender.regulation_registry import active_regulation
+
+        arm = ArmTools(regulation=active_regulation(), allow_live=False)
+        fn = getattr(arm, name)
+        return state, fn(**kwargs)
+    raise KeyError(f"unknown tool {name}")
+
+
+def run_calls(
+    state: dict[str, Any], calls: list[Call]
+) -> tuple[dict[str, Any], list[dict[str, Any]], str]:
+    before = state
+    after = copy.deepcopy(state)
+    tool_calls: list[dict[str, Any]] = []
+    for name, kwargs in calls:
+        after, result = _dispatch(after, name, kwargs)
+        tool_calls.append({"name": name, "arguments": kwargs, "result": result})
+    cls = mechanical_class(before, after, tool_calls)
+    return after, tool_calls, cls
+
+
+# --- trajectory definitions -------------------------------------------------
+
+def _traj_lock(slot: int, species: str) -> list[Call]:
+    return [("lock_slot", {"slot": slot, "species": species})]
+
+
+def _traj_refuse_lock(slot: int, species: str) -> list[Call]:
+    return [("lock_slot", {"slot": slot, "species": species})]
+
+
+def _ol_select(option: int) -> list[Call]:
+    return [("select_option", {"option": option})]
+
+
+def trajectories() -> dict[str, list[Call] | Gap]:
+    """Mechanical covered rows → calls or capability gap."""
+    return {
+        # Fail-closed / ask / no-mutation: no write
+        "H13": [("no_lookup_needed", {"reason": "no per-team win-rate data", "category": "unavailable"})],
+        "H14": [("no_lookup_needed", {"reason": "out of format scope", "category": "unavailable"})],
+        "H16": [("no_lookup_needed", {"reason": "no prior pick history", "category": "unavailable"})],
+        "HC1": [("no_lookup_needed", {"reason": "unsatisfiable Water∧Fire", "category": "unavailable"})],
+        "HC2": [("no_lookup_needed", {"reason": "ask which request to honor", "category": "other"})],
+        "HP3": _traj_refuse_lock(1, "Koraidon"),
+        "MU1": [
+            (
+                "check_hypothetical",
+                {
+                    "placements": [
+                        {"species": "Garchomp", "item": "Choice Scarf"},
+                        {"species": "Jolteon", "item": "Choice Scarf"},
+                    ]
+                },
+            )
+        ],
+        "MU2": [("check_hypothetical", {"placements": [{"species": "Pelipper"}]})],
+        "MU3": [("check_hypothetical", {"placements": [{"species": "Garchomp"}]})],
+        "MU4": [("read_team", {})],
+        "MU5": [("check_hypothetical", {"placements": [
+            {"species": "Garchomp", "item": "Life Orb"},
+            {"species": "Jolteon", "item": "Life Orb"},
+        ]})],
+        "MU6": [("read_team", {})],  # must NOT call reset_team
+        "MU7": [("read_pending", {})],  # must NOT commit
+        "MU8": [("read_team", {})],  # must NOT change archetype
+        "MW1": [("read_pending", {})],
+        "MW2": [("read_team", {})],
+        "MW3": [("read_team", {})],
+        "MW4": [("read_pending", {})],
+        # Mutations
+        "MS1": _traj_lock(2, "Garchomp"),
+        "MS2": [("unlock_slot", {"slot": 1})],
+        "MS3": [("reset_team", {})],
+        "MS4": [("commit_slot", {})],
+        "MS6": [
+            (
+                "add_constraint",
+                {
+                    "predicate": "Water",
+                    "scope": "per_slot",
+                    "groundedness": "mechanically-checkable",
+                    "slot": 1,
+                    "mechanical_kind": "type",
+                    "value": "Water",
+                },
+            ),
+        ],
+        "MS7": [("reject_option", {"option": 2})],
+        "MS8": _traj_lock(1, "Pelipper"),
+        # Refusals
+        "MR1": _traj_refuse_lock(1, "Flutter Mane"),
+        "MR2": [
+            ("edit_slot_field", {"slot": 1, "field": "item", "value": "Choice Specs"}),
+        ],
+        "MR3": _traj_refuse_lock(2, "Incineroar"),  # after one Incineroar locked
+        "MR4": [
+            ("edit_slot_field", {"slot": 2, "field": "item", "value": "Choice Scarf"}),
+        ],
+        "MR5": _traj_refuse_lock(2, "Garchomp"),  # occupied — start must have slot2 locked
+        "MR6": [("unlock_slot", {"slot": 2})],
+        "MR7": [("commit_slot", {})],
+        "MR8": _traj_refuse_lock(1, "Koraidon"),
+        # OL — FBC fixtures ship pending options without provisional_slot; select_option refuses.
+        "OL1": {
+            "gap": "OL FBC fixture has options but no provisional_slot; select_option cannot bind",
+            "needs": "FBC provisional wire in pending loader (or product apply path)",
+        },
+        "OL2a": {
+            "gap": "OL FBC fixture lacks provisional_slot; also CLI maps bare '2' to id suffix not ordinal",
+            "needs": "FBC provisional wire + suffix/label select",
+        },
+        "OL2b": [("select_option", {"option": 2})],  # Incineroar
+        "OL3": {
+            "gap": "label bind; FBC lacks provisional_slot",
+            "needs": "label-select + FBC provisional wire",
+        },
+        "OL4": [("read_pending", {})],  # ASK — do not select
+        "OL5": [("select_option", {"option": 1})],
+        "OL6": [("read_pending", {})],  # ASK
+        "OL7a": [
+            ("read_pending", {}),
+            ("select_option", {"option": 3}),  # Jolteon (faster; Spe 200)
+        ],
+        "OL8": [("reject_all", {})],  # neither → reject every option, no lock
+        "OL9": [("read_pending", {})],  # ASK
+        # Mega stone (#318): MM1 is hand-audit (stated correction); MM2 mechanical refuse.
+        "MM2": [
+            ("edit_slot_field", {"slot": 1, "field": "item", "value": "Leftovers"}),
+        ],
+    }
+
+
+def _prepare_start(rid: str, state: dict[str, Any]) -> dict[str, Any]:
+    """Fill starts that the request-set labels but loader leaves empty."""
+    from scripts.eval.part_g_arm.state.fixtures import empty_team
+    from scripts.eval.part_g_arm.state.pending import build_fully_locked_slot
+
+    if rid == "MS2":
+        # slot1 locked
+        return build_fully_locked_slot("Garchomp", user_slot=1)
+    if rid == "MS3":
+        st = build_fully_locked_slot("Garchomp", user_slot=1)
+        return {**st, **lock_slot(st, 2, "Pelipper")[0]} if False else _two_locked()
+    if rid == "MR2":
+        st, _ = lock_slot(empty_team(), 1, "Garchomp")
+        return st
+    if rid == "MR3":
+        return build_fully_locked_slot("Incineroar", user_slot=1)
+    if rid == "MR4":
+        st, _ = lock_slot(empty_team(), 1, "Garchomp")
+        st, _ = edit_slot_field(st, 1, "item", "Choice Scarf")
+        st, _ = lock_slot(st, 2, "Jolteon")
+        return st
+    if rid == "MR5":
+        return build_fully_locked_slot("Pelipper", user_slot=2)
+    if rid == "MU6":
+        return build_fully_locked_slot("Garchomp", user_slot=1)
+    if rid == "MW2":
+        return build_fully_locked_slot("Garchomp", user_slot=1)
+    if rid == "MM2":
+        # Fixture: Salamence-Mega + Salamencite fully locked (same as spot-check).
+        st, _ = edit_slot_field(empty_team(), 1, "item", "Salamencite")
+        st, patch = lock_slot(st, 1, "Salamence-Mega")
+        if patch.get("slot_commit_error"):
+            raise RuntimeError(patch["slot_commit_error"])
+        for field, val in (
+            ("ability", "Aerilate"),
+            ("nature", "Jolly"),
+            ("spread", "0/32/0/0/0/32"),
+            ("moveset", ["Double-Edge", "Earthquake", "Protect", "Dragon Dance"]),
+        ):
+            st, _ = edit_slot_field(st, 1, field, val)
+        return st
+    return state
+
+
+def _two_locked() -> dict[str, Any]:
+    from scripts.eval.part_g_arm.state.pending import build_fully_locked_slot
+
+    st = build_fully_locked_slot("Garchomp", user_slot=1)
+    st2, _ = lock_slot(st, 2, "Pelipper")
+    # Pelipper may not be fully locked (species only) — enough for reset
+    return st2
+
+
+def run_all_mechanical() -> dict[str, Any]:
+    rows_by_id = {r["id"]: r for r in load_request_rows()}
+    trajs = trajectories()
+    results: list[dict[str, Any]] = []
+    gaps: list[dict[str, Any]] = []
+
+    for rid in _mech_ids():
+        row = rows_by_id[rid]
+        key_class = expected_turns(rid, row.get("class") or "")[0]
+
+        spec = trajs.get(rid)
+        if spec is None:
+            gaps.append({"row": rid, "needs": "trajectory not defined", "gap": "missing traj"})
+            results.append({
+                "row": rid,
+                "trajectory": None,
+                "observed_class": None,
+                "key_class": key_class,
+                "pass": False,
+                "capability_gap": True,
+                "needs": "trajectory not defined",
+            })
+            continue
+        if isinstance(spec, dict) and "gap" in spec:
+            gaps.append({"row": rid, **spec})
+            results.append({
+                "row": rid,
+                "trajectory": None,
+                "observed_class": None,
+                "key_class": key_class,
+                "pass": False,
+                "capability_gap": True,
+                "needs": spec["needs"],
+                "gap": spec["gap"],
+            })
+            continue
+
+        state, meta = resolve_start_state(row)
+        if state is None:
+            results.append({
+                "row": rid,
+                "trajectory": [f"{n}({a})" for n, a in spec],
+                "observed_class": None,
+                "key_class": key_class,
+                "pass": False,
+                "error": meta.get("error"),
+            })
+            continue
+        state = _prepare_start(rid, state)
+        before_snap = _snap(state)
+        try:
+            after, tool_calls, obs = run_calls(state, spec)
+        except Exception as exc:  # noqa: BLE001
+            results.append({
+                "row": rid,
+                "trajectory": [f"{n}({a})" for n, a in spec],
+                "observed_class": None,
+                "key_class": key_class,
+                "pass": False,
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            continue
+        after_snap = _snap(after)
+        from recommender.arm_tools import to_jsonable
+
+        turn = {
+            "mechanical_class": obs,
+            "state_before": before_snap,
+            "state_after": after_snap,
+            # Keep results for outcome_sets (bind species from select_option).
+            "tool_calls": [
+                {
+                    "name": c["name"],
+                    "arguments": c.get("arguments"),
+                    "result": to_jsonable(c.get("result")),
+                }
+                for c in tool_calls
+            ],
+        }
+        scored = score_turn(
+            observed_mech=obs,
+            expected_key_class=key_class,
+            turn=turn,
+            row_id=rid,
+        )
+        ok = bool(scored["match"] and scored["state_expectation_met"])
+        results.append({
+            "row": rid,
+            "trajectory": [f"{c['name']}({c['arguments']})" for c in tool_calls],
+            "observed_class": obs,
+            "key_class": key_class,
+            "pass": ok,
+            "score": scored,
+        })
+
+    return {
+        "mechanical_n": len(results),
+        "passed": sum(1 for r in results if r.get("pass")),
+        "failed": sum(1 for r in results if r.get("pass") is False and not r.get("capability_gap")),
+        "capability_gaps": gaps,
+        "rows": results,
+    }
+
+
+def hand_audit_tool_map() -> list[dict[str, Any]]:
+    """One line per hand-audit covered row: which tools supply rubric facts."""
+    # Compact map from request-set claim types — readiness only, no model.
+    MAP: dict[str, str] = {
+        "H1": "get_typing → Poison/Water",
+        "H2": "check_species_ability / get_abilities → Unaware",
+        "H3": "check_item_legal → Life Orb on Dragonite",
+        "H4": "get_speed ×2 → Spe compare",
+        "H5": "calc_damage under stated sides (ASSUME-STATE)",
+        "H6": "get_usage_teammates (ingame) → partner set",
+        "H7": "get_move_static → category + base_power",
+        "H8": "check_hypothetical Item Clause / check_item_legal",
+        "Q9": "check_species_legal + Species Clause via lock refuse or hyp",
+        "Q10": "unlock_slot on empty → refuse message / read_team",
+        "H11": "find_species(types=[Water], learns_move=Hurricane); set-scoring",
+        "H15": "usage joint via get_usage_* + get_speed (ASSUME-STATE)",
+        "H18b": "fixture + solve_spread / usage; HO constraint judgment-only in fixture",
+        "H19": (
+            "GAP: bootstrap empty — checklist item 1 needs TR-setter candidates/locks; "
+            "show_candidates refuses empty team (same as H17/H18). find_species pool ≠ presentation"
+        ),
+        "H20": (
+            "GAP: bootstrap empty — checklist item 1 needs presented/locked Electric slots; "
+            "show_candidates refuses empty team (same as H17/H18)"
+        ),
+        "MT1": "add_constraint + read_constraints (4b); t1 Water type, t2 judgment-only no Intimidate, t3 read_constraints",
+        "MT2": "get_usage_teammates multi (ingame) → shared partners; set-scoring (no longer stale_pin)",
+        "H27": "read_pending CS options + get_typing → top Ground = Garchomp (hand)",
+        "IX5": "find_species(ability=…) buckets under ASSUME-STATE punish definition (hand)",
+        "IX7": "find_species Flying/Levitate/Telepathy/Earth Eater under stated safe definition (hand)",
+        "MT3": "seed+history; t2 suggest needs show_candidates(4c); t3 get_abilities",
+        "MT4": (
+            "t1 reject_option(2); t2 show_candidates blocked — CS seed has no "
+            "locked anchor (producer needs ≥1 all_locked); rejection filter "
+            "verified on producer path in test_show_candidates"
+        ),
+        "MT5": "change_archetype + read_archetype (4f)",
+        "MS5": "change_archetype([rain,offense]) + conflict audit (Drought, Solar Beam); Pelipper clean",
+        "MT6": "t1 HC1 fail-closed (no record); t2 add_constraint Water team_wide; t3 read_constraints",
+        "H25": (
+            "show_candidates blocked: fixture slots lock species/ability/item only; "
+            "producer requires all_locked (moveset+spread+nature). No fixture edit outside state/"
+        ),
+        "H26": (
+            "show_candidates blocked: Torkoal fixture not all_locked (same as H25). "
+            "Producer path verified on fully locked Venusaur in test_show_candidates"
+        ),
+        "H17": "blocked: empty team — show_candidates needs locked anchor; bootstrap out of scope",
+        "H18": "blocked: empty team — show_candidates needs locked anchor; bootstrap out of scope",
+        "HF1": "get_typing",
+        "HF2": "get_abilities / check_species_ability",
+        "HD1": "get_typing + history",
+        "HU1": "find_species(types=[Fire], stat_formula=2*hp+def+spd>=350, include_formes=false)",
+        "HU2": "get_speed + get_usage_teammates/threats (ingame)",
+        "HU3": "show_candidates(4c) after Fire lock; hand-audit Fire filter still model/prompt",
+        "HU4": "get_speed + usage (ASSUME-STATE)",
+        "HN1": "get_abilities",
+        "HN2": "get_speed ×2",
+        "HN3": "get_usage_items (ingame)",
+        "HN4": "get_move_static",
+        "HP1": "check_species_legal / check_item_legal + calc_damage labeled hyp",
+        "HP2": "check_species_legal + check_item_legal (question, no lock)",
+        "MRB1": "read_team",
+        "HU2b": "get_speed + usage ASSUME-STATE",
+        "HN2b": "get_speed ASSUME-STATE grid",
+        "HN2c": "get_speed + locked Spe from read_team",
+        "HN2d": "get_speed (+1 stage claim narrative; tool gives bare Spe)",
+        "IS1": "get_speed / solve_spread outspeed",
+        "IS2": "solve_spread / get_speed + fixture",
+        "IS3": "get_speed + get_usage_items (no Scarf in list)",
+        "IS4": "get_speed unreachable",
+        "DM1": "calc_damage ASSUME-STATE",
+        "DM2": "calc_damage grid + locked Incineroar",
+        "DM3": "calc_damage doubles",
+        "DM4": "calc_damage min Atk search",
+        "DM6": "calc_damage Mega Gallade",
+        "DM7": "calc_damage Annihilape Defiant",
+        "MV1": "get_move_static → priority (4h enrichment from static.v1.json); Follow Me=2",
+        "MV2": "get_move_static pp",
+        "MV3": "get_move_static target; accuracy from pin/data",
+        "IC1": "get_usage_items + Item Clause; t2 edit_slot_field(item, Sitrus Berry) (4a)",
+        "TB1": "edit_slot_field moveset/item + consequences type_boost_* from TYPE_BOOST data (4a)",
+        "MC1": "ASK form or ASSUME-STATE Y — get_usage_*; no lock required for ASK",
+        "MM1": (
+            "check_hypothetical([{Salamence-Mega, Leftovers}]) → mega_stone; "
+            "stated keep stone or base+Leftovers (hand). Tool unchanged."
+        ),
+        "GS1": "usage modal + edit_slot_field Choice Scarf; status moves named (hand)",
+        "IX1": "get_move_static priority Fake Out vs Follow Me (hand)",
+        "SC2": "check_learnset(Archaludon, Soak) false (hand)",
+        "RB1": "edit_slot_field moveset + consequences status_self_boost_overlap (dual)",
+        "TB2": "edit_slot_field moveset + consequences type_boost_inactive (dual)",
+        "H6_dup": "",
+    }
+    out = []
+    for rid in _hand_ids():
+        line = MAP.get(rid, "unmapped — inspect request-set claim types")
+        gap = "GAP" in line or "gap" in line.lower()
+        out.append({"row": rid, "tools": line, "fact_unreachable": gap})
+    return out
+
+
+def main() -> None:
+    mech = run_all_mechanical()
+    hand = hand_audit_tool_map()
+    out = {
+        "mechanical": mech,
+        "hand_audit": hand,
+        "needs_tool": mech["capability_gaps"],
+        "hand_unreachable": [h for h in hand if h["fact_unreachable"]],
+    }
+    path = HERE / "part3_reference_trajectories.json"
+    path.write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
+    print(
+        f"mechanical pass={mech['passed']}/{mech['mechanical_n']} "
+        f"gaps={len(mech['capability_gaps'])} "
+        f"hand_unreachable={len(out['hand_unreachable'])} → {path}"
+    )
+
+
+if __name__ == "__main__":
+    main()

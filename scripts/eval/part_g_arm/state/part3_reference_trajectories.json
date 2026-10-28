@@ -1,0 +1,932 @@
+{
+  "mechanical": {
+    "mechanical_n": 41,
+    "passed": 41,
+    "failed": 0,
+    "capability_gaps": [],
+    "rows": [
+      {
+        "row": "H13",
+        "trajectory": [
+          "no_lookup_needed({'reason': 'no per-team win-rate data', 'category': 'unavailable'})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "FAIL-CLOSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "H14",
+        "trajectory": [
+          "no_lookup_needed({'reason': 'out of format scope', 'category': 'unavailable'})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "FAIL-CLOSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "H16",
+        "trajectory": [
+          "no_lookup_needed({'reason': 'no prior pick history', 'category': 'unavailable'})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "FAIL-CLOSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "HP3",
+        "trajectory": [
+          "lock_slot({'slot': 1, 'species': 'Koraidon'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "HC1",
+        "trajectory": [
+          "no_lookup_needed({'reason': 'unsatisfiable Water\u2227Fire', 'category': 'unavailable'})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "FAIL-CLOSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "FAIL-CLOSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "HC2",
+        "trajectory": [
+          "no_lookup_needed({'reason': 'ask which request to honor', 'category': 'other'})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS1",
+        "trajectory": [
+          "lock_slot({'slot': 2, 'species': 'Garchomp'})"
+        ],
+        "observed_class": "wrote",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS2",
+        "trajectory": [
+          "unlock_slot({'slot': 1})"
+        ],
+        "observed_class": "wrote",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS3",
+        "trajectory": [
+          "reset_team({})"
+        ],
+        "observed_class": "wrote",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS4",
+        "trajectory": [
+          "commit_slot({})"
+        ],
+        "observed_class": "wrote",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS6",
+        "trajectory": [
+          "add_constraint({'predicate': 'Water', 'scope': 'per_slot', 'groundedness': 'mechanically-checkable', 'slot': 1, 'mechanical_kind': 'type', 'value': 'Water'})"
+        ],
+        "observed_class": "recorded",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "recorded",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS7",
+        "trajectory": [
+          "reject_option({'option': 2})"
+        ],
+        "observed_class": "recorded",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "recorded",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MS8",
+        "trajectory": [
+          "lock_slot({'slot': 1, 'species': 'Pelipper'})"
+        ],
+        "observed_class": "wrote",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "wrote",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR1",
+        "trajectory": [
+          "lock_slot({'slot': 1, 'species': 'Flutter Mane'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR2",
+        "trajectory": [
+          "edit_slot_field({'slot': 1, 'field': 'item', 'value': 'Choice Specs'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR3",
+        "trajectory": [
+          "lock_slot({'slot': 2, 'species': 'Incineroar'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR4",
+        "trajectory": [
+          "edit_slot_field({'slot': 2, 'field': 'item', 'value': 'Choice Scarf'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR5",
+        "trajectory": [
+          "lock_slot({'slot': 2, 'species': 'Garchomp'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR6",
+        "trajectory": [
+          "unlock_slot({'slot': 2})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR7",
+        "trajectory": [
+          "commit_slot({})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MR8",
+        "trajectory": [
+          "lock_slot({'slot': 1, 'species': 'Koraidon'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU1",
+        "trajectory": [
+          "check_hypothetical({'placements': [{'species': 'Garchomp', 'item': 'Choice Scarf'}, {'species': 'Jolteon', 'item': 'Choice Scarf'}]})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU2",
+        "trajectory": [
+          "check_hypothetical({'placements': [{'species': 'Pelipper'}]})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU3",
+        "trajectory": [
+          "check_hypothetical({'placements': [{'species': 'Garchomp'}]})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU4",
+        "trajectory": [
+          "read_team({})"
+        ],
+        "observed_class": "no change",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU5",
+        "trajectory": [
+          "check_hypothetical({'placements': [{'species': 'Garchomp', 'item': 'Life Orb'}, {'species': 'Jolteon', 'item': 'Life Orb'}]})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU6",
+        "trajectory": [
+          "read_team({})"
+        ],
+        "observed_class": "no change",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU7",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MU8",
+        "trajectory": [
+          "read_team({})"
+        ],
+        "observed_class": "no change",
+        "key_class": "NO-MUTATION",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "NO-MUTATION",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MW1",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MW2",
+        "trajectory": [
+          "read_team({})"
+        ],
+        "observed_class": "no change",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MW3",
+        "trajectory": [
+          "read_team({})"
+        ],
+        "observed_class": "no change",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "no change",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MW4",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL2b",
+        "trajectory": [
+          "select_option({'option': 2})"
+        ],
+        "observed_class": "bound",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "bound",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL4",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL5",
+        "trajectory": [
+          "select_option({'option': 1})"
+        ],
+        "observed_class": "bound",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "bound",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL6",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL8",
+        "trajectory": [
+          "reject_all({})"
+        ],
+        "observed_class": "recorded",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "recorded",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL9",
+        "trajectory": [
+          "read_pending({})"
+        ],
+        "observed_class": "lookup only",
+        "key_class": "ASK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "lookup only",
+          "key_class_expected": "ASK",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "MM2",
+        "trajectory": [
+          "edit_slot_field({'slot': 1, 'field': 'item', 'value': 'Leftovers'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
+        "row": "OL7a",
+        "trajectory": [
+          "read_pending({})",
+          "select_option({'option': 3})"
+        ],
+        "observed_class": "bound",
+        "key_class": "PARTIAL",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "bound",
+          "key_class_expected": "MUTATION-OK",
+          "outcome_matched": "bind",
+          "bound_species": "Jolteon",
+          "match": true,
+          "state_expectation_met": true
+        }
+      }
+    ]
+  },
+  "hand_audit": [
+    {
+      "row": "H1",
+      "tools": "get_typing \u2192 Poison/Water",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H2",
+      "tools": "check_species_ability / get_abilities \u2192 Unaware",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H3",
+      "tools": "check_item_legal \u2192 Life Orb on Dragonite",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H4",
+      "tools": "get_speed \u00d72 \u2192 Spe compare",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H5",
+      "tools": "calc_damage under stated sides (ASSUME-STATE)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H6",
+      "tools": "get_usage_teammates (ingame) \u2192 partner set",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H7",
+      "tools": "get_move_static \u2192 category + base_power",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H8",
+      "tools": "check_hypothetical Item Clause / check_item_legal",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H11",
+      "tools": "find_species(types=[Water], learns_move=Hurricane); set-scoring",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H15",
+      "tools": "usage joint via get_usage_* + get_speed (ASSUME-STATE)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H18b",
+      "tools": "fixture + solve_spread / usage; HO constraint judgment-only in fixture",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HF1",
+      "tools": "get_typing",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HF2",
+      "tools": "get_abilities / check_species_ability",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN1",
+      "tools": "get_abilities",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN2",
+      "tools": "get_speed \u00d72",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN2b",
+      "tools": "get_speed ASSUME-STATE grid",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN2c",
+      "tools": "get_speed + locked Spe from read_team",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN2d",
+      "tools": "get_speed (+1 stage claim narrative; tool gives bare Spe)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN3",
+      "tools": "get_usage_items (ingame)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN4",
+      "tools": "get_move_static",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HP1",
+      "tools": "check_species_legal / check_item_legal + calc_damage labeled hyp",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HP2",
+      "tools": "check_species_legal + check_item_legal (question, no lock)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HU1",
+      "tools": "find_species(types=[Fire], stat_formula=2*hp+def+spd>=350, include_formes=false)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HU2",
+      "tools": "get_speed + get_usage_teammates/threats (ingame)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HU2b",
+      "tools": "get_speed + usage ASSUME-STATE",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HU3",
+      "tools": "show_candidates(4c) after Fire lock; hand-audit Fire filter still model/prompt",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HU4",
+      "tools": "get_speed + usage (ASSUME-STATE)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HD1",
+      "tools": "get_typing + history",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM1",
+      "tools": "calc_damage ASSUME-STATE",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM2",
+      "tools": "calc_damage grid + locked Incineroar",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM3",
+      "tools": "calc_damage doubles",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM4",
+      "tools": "calc_damage min Atk search",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM6",
+      "tools": "calc_damage Mega Gallade",
+      "fact_unreachable": false
+    },
+    {
+      "row": "DM7",
+      "tools": "calc_damage Annihilape Defiant",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IS1",
+      "tools": "get_speed / solve_spread outspeed",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IS2",
+      "tools": "solve_spread / get_speed + fixture",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IS3",
+      "tools": "get_speed + get_usage_items (no Scarf in list)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IS4",
+      "tools": "get_speed unreachable",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MV1",
+      "tools": "get_move_static \u2192 priority (4h enrichment from static.v1.json); Follow Me=2",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MV2",
+      "tools": "get_move_static pp",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MV3",
+      "tools": "get_move_static target; accuracy from pin/data",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MRB1",
+      "tools": "read_team",
+      "fact_unreachable": false
+    },
+    {
+      "row": "Q9",
+      "tools": "check_species_legal + Species Clause via lock refuse or hyp",
+      "fact_unreachable": false
+    },
+    {
+      "row": "Q10",
+      "tools": "unlock_slot on empty \u2192 refuse message / read_team",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT1",
+      "tools": "add_constraint + read_constraints (4b); t1 Water type, t2 judgment-only no Intimidate, t3 read_constraints",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT2",
+      "tools": "get_usage_teammates multi (ingame) \u2192 shared partners; set-scoring (no longer stale_pin)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT3",
+      "tools": "seed+history; t2 suggest needs show_candidates(4c); t3 get_abilities",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT5",
+      "tools": "change_archetype + read_archetype (4f)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT6",
+      "tools": "t1 HC1 fail-closed (no record); t2 add_constraint Water team_wide; t3 read_constraints",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IC1",
+      "tools": "get_usage_items + Item Clause; t2 edit_slot_field(item, Sitrus Berry) (4a)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "TB1",
+      "tools": "edit_slot_field moveset/item + consequences type_boost_* from TYPE_BOOST data (4a)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MC1",
+      "tools": "ASK form or ASSUME-STATE Y \u2014 get_usage_*; no lock required for ASK",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MC1",
+      "tools": "ASK form or ASSUME-STATE Y \u2014 get_usage_*; no lock required for ASK",
+      "fact_unreachable": false
+    },
+    {
+      "row": "SC2",
+      "tools": "check_learnset(Archaludon, Soak) false (hand)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "GS1",
+      "tools": "usage modal + edit_slot_field Choice Scarf; status moves named (hand)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IX1",
+      "tools": "get_move_static priority Fake Out vs Follow Me (hand)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MM1",
+      "tools": "check_hypothetical([{Salamence-Mega, Leftovers}]) \u2192 mega_stone; stated keep stone or base+Leftovers (hand). Tool unchanged.",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H27",
+      "tools": "read_pending CS options + get_typing \u2192 top Ground = Garchomp (hand)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IX5",
+      "tools": "find_species(ability=\u2026) buckets under ASSUME-STATE punish definition (hand)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IX7",
+      "tools": "find_species Flying/Levitate/Telepathy/Earth Eater under stated safe definition (hand)",
+      "fact_unreachable": false
+    }
+  ],
+  "needs_tool": [],
+  "hand_unreachable": []
+}

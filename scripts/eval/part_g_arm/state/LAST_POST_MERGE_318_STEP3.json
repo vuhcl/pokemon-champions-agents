@@ -1,0 +1,137 @@
+{
+  "covered_mega_touched": [
+    "DM6",
+    "H11",
+    "HN2d",
+    "HU1",
+    "HU2b",
+    "IS4",
+    "MC1",
+    "MS5",
+    "RB1"
+  ],
+  "traj_cmp": [
+    {
+      "row": "DM6",
+      "status": "no_mechanical_traj_at_88ec1e0_or_now",
+      "in_old": false,
+      "in_new": false
+    },
+    {
+      "row": "H11",
+      "status": "no_mechanical_traj_at_88ec1e0_or_now",
+      "in_old": false,
+      "in_new": false
+    },
+    {
+      "row": "HN2d",
+      "status": "no_mechanical_traj_at_88ec1e0_or_now",
+      "in_old": false,
+      "in_new": false
+    },
+    {
+      "row": "HU1",
+      "status": "no_mechanical_traj_at_88ec1e0_or_now",
+      "in_old": false,
+      "in_new": false
+    },
+    {
+      "row": "HU2b",
+      "status": "no_mechanical_traj_at_88ec1e0_or_now",
+      "in_old": false,
+      "in_new": false
+    },
+    {
+      "row": "IS4",
+      "status": "no_mechanical_traj_at_88ec1e0_or_now",
+      "in_old": false,
+      "in_new": false
+    },
+    {
+      "row": "MC1",
+      "status": "no_mechanical_traj_at_88ec1e0_or_now",
+      "in_old": false,
+      "in_new": false
+    },
+    {
+      "row": "MS5",
+      "status": "no_mechanical_traj_at_88ec1e0_or_now",
+      "in_old": false,
+      "in_new": false
+    },
+    {
+      "row": "RB1",
+      "status": "no_mechanical_traj_at_88ec1e0_or_now",
+      "in_old": false,
+      "in_new": false
+    }
+  ],
+  "probes": [
+    {
+      "id": "hyp_mega_no_item",
+      "before": "ok (no mega_stone rule at 88ec1e0)",
+      "after": {
+        "verdict": "mega_stone",
+        "conflicts_with_slot": null,
+        "message": "A Mega forme must hold Salamencite. Keep Salamencite, or use the base form (Salamence) with that item (form change is an offer only)."
+      },
+      "status": "changed"
+    },
+    {
+      "id": "hyp_mega_with_stone",
+      "before": "ok",
+      "after": {
+        "verdict": "ok",
+        "conflicts_with_slot": null,
+        "message": null
+      },
+      "status": "unchanged (ok; arm sibling-stage fix matches batch)"
+    },
+    {
+      "id": "hyp_mega_leftovers",
+      "before": "ok",
+      "after": {
+        "verdict": "mega_stone",
+        "conflicts_with_slot": null,
+        "message": "A Mega forme must hold Salamencite. Keep Salamencite, or use the base form (Salamence) with Leftovers (form change is an offer only)."
+      },
+      "status": "changed"
+    },
+    {
+      "id": "hyp_charizard_x_no_item",
+      "before": "ok",
+      "after": {
+        "verdict": "mega_stone",
+        "conflicts_with_slot": null,
+        "message": "A Mega forme must hold Charizardite X. Keep Charizardite X, or use the base form (Charizard) with that item (form change is an offer only)."
+      },
+      "status": "changed"
+    },
+    {
+      "id": "select_option_mega_bare",
+      "before": "would lock Venusaur-Mega",
+      "after": "A Mega forme must hold Venusaurite. Keep Venusaurite, or use the base form (Venusaur) with that item (form change is an offer only).",
+      "status": "changed"
+    },
+    {
+      "id": "select_option_mega_with_stone",
+      "after": {
+        "err": null,
+        "species": null,
+        "item": "Venusaurite"
+      },
+      "status": "ok path"
+    },
+    {
+      "id": "restore_superseded_mega",
+      "after": "There is nothing to restore for that slot.",
+      "superseded": false,
+      "status": "unchanged (nothing to restore \u2014 unlock clears without superseded stack entry for this path)"
+    }
+  ],
+  "mechanical_now": {
+    "passed": 39,
+    "n": 39
+  },
+  "prompt_eev": "skip \u2014 prompt does not describe mega_stone verdicts; only \"use returned verdict\""
+}

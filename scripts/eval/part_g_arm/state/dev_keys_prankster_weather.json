@@ -1,0 +1,152 @@
+{
+  "class_target": "SERVED",
+  "count": 6,
+  "harness_class": "lookup only",
+  "independence": "no find_species import; legality + WEATHER_SETTING_MOVES only",
+  "per_move_prankster_counts": {
+    "chillyreception": 0,
+    "raindance": 5,
+    "sandstorm": 1,
+    "snowscape": 0,
+    "sunnyday": 6
+  },
+  "per_move_species": {
+    "chillyreception": [],
+    "raindance": [
+      "Banette-Mega",
+      "Klefki",
+      "Liepard",
+      "Meowstic",
+      "Sableye"
+    ],
+    "sandstorm": [
+      "Klefki"
+    ],
+    "snowscape": [],
+    "sunnyday": [
+      "Banette-Mega",
+      "Klefki",
+      "Liepard",
+      "Meowstic",
+      "Sableye",
+      "Whimsicott"
+    ]
+  },
+  "row_id": "dev-fs-prankster-weather",
+  "scoring": "set-scoring; script-derived; same style as H11",
+  "species": [
+    {
+      "forme_label": "mega",
+      "species": "Banette-Mega",
+      "weather_moves": [
+        "raindance",
+        "sunnyday"
+      ]
+    },
+    {
+      "forme_label": "base",
+      "species": "Klefki",
+      "weather_moves": [
+        "raindance",
+        "sunnyday",
+        "sandstorm"
+      ]
+    },
+    {
+      "forme_label": "base",
+      "species": "Liepard",
+      "weather_moves": [
+        "raindance",
+        "sunnyday"
+      ]
+    },
+    {
+      "forme_label": "base",
+      "species": "Meowstic",
+      "weather_moves": [
+        "raindance",
+        "sunnyday"
+      ]
+    },
+    {
+      "forme_label": "base",
+      "species": "Sableye",
+      "weather_moves": [
+        "raindance",
+        "sunnyday"
+      ]
+    },
+    {
+      "forme_label": "base",
+      "species": "Whimsicott",
+      "weather_moves": [
+        "sunnyday"
+      ]
+    }
+  ],
+  "species_set": [
+    "Banette-Mega",
+    "Klefki",
+    "Liepard",
+    "Meowstic",
+    "Sableye",
+    "Whimsicott"
+  ],
+  "user_text": "Which Pokemon can have Prankster and learn a move that sets weather?",
+  "weather_list_source": {
+    "alias_of": "_WEATHER_MANUAL",
+    "conditional_setters_included": false,
+    "excluded_examples": [
+      "Aurora Veil (requires Snow; does not set weather)"
+    ],
+    "note": "Python constant, not a JSON pin field. Snapshot moves and data/moves/static.v1.json have no weather field. Key species set derived from legality snapshot + ability/learnset helpers; does not import find_species.",
+    "path": "recommender/move_narrowing.py",
+    "scope": "all entries in WEATHER_SETTING_MOVES (sets weather when used)",
+    "status_only": true,
+    "symbol": "WEATHER_SETTING_MOVES",
+    "weather_ids": [
+      "chillyreception",
+      "raindance",
+      "sandstorm",
+      "snowscape",
+      "sunnyday"
+    ]
+  },
+  "weather_moves": [
+    {
+      "category": "Status",
+      "conditional": false,
+      "id": "raindance",
+      "name": "Rain Dance",
+      "weather_label": "Rain"
+    },
+    {
+      "category": "Status",
+      "conditional": false,
+      "id": "sunnyday",
+      "name": "Sunny Day",
+      "weather_label": "Sun"
+    },
+    {
+      "category": "Status",
+      "conditional": false,
+      "id": "sandstorm",
+      "name": "Sandstorm",
+      "weather_label": "Sand"
+    },
+    {
+      "category": "Status",
+      "conditional": false,
+      "id": "snowscape",
+      "name": "Snowscape",
+      "weather_label": "Snow"
+    },
+    {
+      "category": "Status",
+      "conditional": false,
+      "id": "chillyreception",
+      "name": "Chilly Reception",
+      "weather_label": "Snow"
+    }
+  ]
+}

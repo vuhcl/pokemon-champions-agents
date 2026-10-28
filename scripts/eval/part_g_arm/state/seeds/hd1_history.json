@@ -1,0 +1,356 @@
+{
+  "justification": "HD1 after H1: prior user 'What type is Toxapex?' + assistant Poison/Water claim; no team state; runner plays only the correction turn with that history.",
+  "message_history": [
+    {
+      "content": "What type is Toxapex?",
+      "role": "user"
+    },
+    {
+      "content": "Toxapex is Poison/Water.",
+      "role": "assistant"
+    }
+  ],
+  "rows": [
+    "HD1"
+  ],
+  "seed": "hd1_history",
+  "state": {
+    "_message_history": [
+      {
+        "content": "What type is Toxapex?",
+        "role": "user"
+      },
+      {
+        "content": "Toxapex is Poison/Water.",
+        "role": "assistant"
+      }
+    ],
+    "_runner_turns": [
+      "No, Toxapex is not Water/Poison"
+    ],
+    "pending_presentation": null,
+    "pending_slot_intent": null,
+    "provisional_refinement": null,
+    "provisional_slot": null,
+    "team_draft": [
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      },
+      {
+        "ability": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "item": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "moveset": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "nature": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "rationale": "",
+        "role": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "species": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "spread": {
+          "exempt_from_theme": false,
+          "locked": false,
+          "reason": null,
+          "still_active": true,
+          "value": null
+        },
+        "verification": []
+      }
+    ]
+  }
+}

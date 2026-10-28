@@ -1,0 +1,338 @@
+{
+  "grading": "The mechanical class is what the row grades. Refusal wording is not graded. Unlock on an empty slot returns the node's message \"Species repick requires a fully locked slot.\" Commit with nothing pending returns \"missing or unsupported full-slot confirmation state.\" Those strings are not changed and are not scored. MT7 and MT8 are hand-graded against derived_keys (no class scorer yet). Prior paraphrasing rows dev-select-cs and dev-reject-dismiss are retired; their observed findings stay in LAST_DEV_RUN notes. Mega rows (dev-mega-*) use Kangaskhan-Mega / Kangaskhanite only — not Salamence, Charizard, or any covered-row species.",
+  "rows": [
+    {
+      "id": "dev-lock",
+      "turns": [
+        "Lock Venusaur into slot 2.",
+        "Lock Bulbasaur into slot 2."
+      ]
+    },
+    {
+      "id": "dev-unlock",
+      "turns": [
+        "Unlock slot 1."
+      ]
+    },
+    {
+      "id": "dev-commit",
+      "turns": [
+        "Commit the pending build."
+      ]
+    },
+    {
+      "id": "dev-lookup",
+      "turns": [
+        "What types does Venusaur have?"
+      ]
+    },
+    {
+      "id": "dev-unlock-ok",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Unlock slot 1."
+      ]
+    },
+    {
+      "id": "dev-commit-ok",
+      "start": "fbc",
+      "species": "Venusaur",
+      "slot_index": 0,
+      "turns": [
+        "Commit this build."
+      ]
+    },
+    {
+      "id": "dev-hyp-item-clause",
+      "turns": [
+        "What if Venusaur and Blastoise both held Wide Lens?"
+      ]
+    },
+    {
+      "id": "dev-hyp-species-clause",
+      "turns": [
+        "Could I put both Venusaur and Venusaur-Mega on this team?"
+      ]
+    },
+    {
+      "id": "dev-hyp-unknown-species",
+      "turns": [
+        "What if I locked Bulbasaur into a free slot?"
+      ]
+    },
+    {
+      "id": "dev-hyp-legal",
+      "turns": [
+        "What if Venusaur held Wide Lens?"
+      ]
+    },
+    {
+      "id": "dev-hyp-item-only",
+      "turns": [
+        "Could I run two Wide Lens on this team?"
+      ]
+    },
+    {
+      "id": "dev-pick-named",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise"],
+      "slot_index": 0,
+      "turns": [
+        "Put Blastoise on the provisional build from this candidate screen."
+      ]
+    },
+    {
+      "id": "dev-select-bad",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise", "Beedrill"],
+      "slot_index": 0,
+      "turns": [
+        "Select option 7."
+      ]
+    },
+    {
+      "id": "dev-select-locked-target",
+      "start": "cs_locked_target",
+      "locked_species": "Venusaur",
+      "species_options": ["Blastoise", "Beedrill"],
+      "turns": [
+        "I'll take the first one."
+      ]
+    },
+    {
+      "id": "dev-confirm-fbc",
+      "start": "fbc",
+      "species": "Venusaur",
+      "slot_index": 0,
+      "turns": [
+        "Yes, confirm this build."
+      ]
+    },
+    {
+      "id": "dev-confirm-stale-fp",
+      "start": "fbc_stale_fp",
+      "species": "Venusaur",
+      "slot_index": 0,
+      "turns": [
+        "Yes, confirm this build."
+      ]
+    },
+    {
+      "id": "dev-reject",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise"],
+      "slot_index": 0,
+      "turns": [
+        "Reject the first option."
+      ]
+    },
+    {
+      "id": "dev-toss-all",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise", "Beedrill"],
+      "slot_index": 0,
+      "turns": [
+        "Throw out every candidate on this screen."
+      ]
+    },
+    {
+      "id": "dev-show-rejected",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise"],
+      "slot_index": 0,
+      "turns": [
+        "Reject the first option.",
+        "List the species on my rejected list."
+      ]
+    },
+    {
+      "id": "dev-dismiss-later",
+      "start": "cs",
+      "species_options": ["Venusaur", "Blastoise"],
+      "slot_index": 0,
+      "turns": [
+        "Not now — leave the candidates and clear this screen."
+      ]
+    },
+    {
+      "id": "dev-reject-all-bad",
+      "turns": [
+        "Reject all of these options."
+      ]
+    },
+    {
+      "id": "dev-edit-item-ok",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Change slot 1's item to Life Orb."
+      ]
+    },
+    {
+      "id": "dev-edit-item-refuse",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Set slot 1's item to Choice Specs."
+      ]
+    },
+    {
+      "id": "dev-edit-choice-consequence",
+      "start": "fully_locked_protect",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Change slot 1's item to Choice Scarf."
+      ]
+    },
+    {
+      "id": "dev-ms6-water",
+      "turns": [
+        "Add a constraint: slot 1 must be Water type."
+      ]
+    },
+    {
+      "id": "dev-mt3-intimidate",
+      "turns": [
+        "Add a constraint: no Intimidate on this team."
+      ]
+    },
+    {
+      "id": "dev-restore-type",
+      "turns": [
+        "Add a constraint that slot 1 is Fire type.",
+        "Now change that: slot 1 must be Water type.",
+        "Restore the previous constraint."
+      ]
+    },
+    {
+      "id": "dev-show-open",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Show me candidates for slot 2."
+      ]
+    },
+    {
+      "id": "dev-show-reject",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Show candidates for slot 2.",
+        "Reject option 1.",
+        "Show candidates for slot 2 again."
+      ]
+    },
+    {
+      "id": "dev-show-empty",
+      "turns": [
+        "Show me candidates for slot 1."
+      ]
+    },
+    {
+      "id": "dev-show-locked",
+      "start": "fully_locked",
+      "species": "Venusaur",
+      "user_slot": 1,
+      "turns": [
+        "Show candidates for slot 1."
+      ]
+    },
+    {
+      "id": "dev-learnset-yes",
+      "turns": [
+        "Does Venusaur learn Sludge Bomb?"
+      ]
+    },
+    {
+      "id": "dev-learnset-no",
+      "turns": [
+        "Does Venusaur learn Surf?"
+      ]
+    },
+    {
+      "id": "dev-archetype-rain",
+      "turns": [
+        "Change the team archetype to rain offense."
+      ]
+    },
+    {
+      "id": "dev-move-priority",
+      "turns": [
+        "What priority does Follow Me have?"
+      ]
+    },
+    {
+      "id": "dev-fs-types-move",
+      "turns": [
+        "Which legal Water-type Pokemon learn Hurricane?"
+      ]
+    },
+    {
+      "id": "dev-fs-stat-bulk",
+      "turns": [
+        "Which legal Fire-type Pokemon have 2*hp+def+spd at least 350, excluding Mega formes?"
+      ]
+    },
+    {
+      "id": "dev-fs-formes",
+      "turns": [
+        "List legal Water types that learn Hurricane, including Mega formes if any."
+      ]
+    },
+    {
+      "id": "dev-fs-prankster-weather",
+      "turns": [
+        "Which Pokemon can have Prankster and learn a move that sets weather?"
+      ]
+    },
+    {
+      "id": "dev-mt7",
+      "hand_grade": true,
+      "turns": [
+        "Give me an Archaludon spread that avoids OHKO from Jolly Sneasler's Close Combat and outspeeds the mirror match.",
+        "Make it avoid Adamant Sneasler instead.",
+        "Also avoid max-SpA Mega Charizard Y's Flamethrower."
+      ]
+    },
+    {
+      "id": "dev-mt8",
+      "hand_grade": true,
+      "turns": [
+        "Give me an Archaludon spread that avoids OHKO from Jolly Sneasler's Close Combat and outspeeds the mirror match.",
+        "Make it avoid Adamant Sneasler instead.",
+        "Also avoid max-SpA Mega Charizard Y's Weather Ball.",
+        "What are my options if that does not work?"
+      ]
+    },
+    {
+      "id": "dev-mega-bare-hyp",
+      "turns": [
+        "Could I put Kangaskhan-Mega on my team?"
+      ]
+    },
+    {
+      "id": "dev-mega-edit-refuse",
+      "start": "fully_locked_mega",
+      "species": "Kangaskhan-Mega",
+      "item": "Kangaskhanite",
+      "user_slot": 1,
+      "turns": [
+        "Change slot 1's item to Leftovers."
+      ]
+    },
+    {
+      "id": "dev-mega-lock-ok",
+      "turns": [
+        "Set slot 1's item to Kangaskhanite.",
+        "Lock Kangaskhan-Mega into slot 1."
+      ]
+    }
+  ]
+}
