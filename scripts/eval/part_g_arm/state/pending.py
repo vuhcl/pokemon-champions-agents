@@ -152,15 +152,33 @@ def _apply_team_row(
         if incomplete is not None:
             incomplete.append(f"slot {index}: skipped unlocked {species!r}")
         return state
-    state = _lock_internal(state, index, "species", species)
-    # Order matches build_fully_locked_slot for non-conflicting sets: item before
-    # moveset, nature/spread after. Choice + status-move still wipes via reconcile.
-    for attr, value in (
-        ("ability", row.get("ability")),
-        ("item", row.get("item")),
-    ):
-        if value:
-            state = _lock_internal(state, index, attr, value)
+    # Mega Stone rule: species+item from the same fixture row must be visible
+    # together (same as apply_lock batch). Item-only then species also works.
+    item = row.get("item")
+    if item:
+        patch = apply_lock(
+            {
+                **state,
+                "turn_payload": {
+                    "slot_index": index,
+                    "locks": [
+                        {"attr": "species", "value": species},
+                        {"attr": "item", "value": item},
+                    ],
+                },
+            }
+        )
+        if patch.get("slot_commit_error"):
+            raise RuntimeError(
+                f"apply_lock batch species+item@{index}: {patch['slot_commit_error']}"
+            )
+        state = {**state, **patch}
+    else:
+        state = _lock_internal(state, index, "species", species)
+    # Ability after species/item. Choice + status-move still wipes via reconcile.
+    ability = row.get("ability")
+    if ability:
+        state = _lock_internal(state, index, "ability", ability)
     moves = row.get("moves") or row.get("moveset")
     if moves:
         state, kept = _lock_moveset_safe(state, index, list(moves))
