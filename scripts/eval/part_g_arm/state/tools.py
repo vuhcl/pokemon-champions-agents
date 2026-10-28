@@ -12,6 +12,7 @@ from __future__ import annotations
 import re
 from copy import deepcopy
 from dataclasses import fields, replace
+from pathlib import Path
 from typing import Any
 
 from recommender.arm_tools import TOOL_SPECS, to_jsonable
@@ -859,6 +860,39 @@ def check_learnset(state: dict[str, Any], species: object, move: object) -> dict
         "move_id": mid,
         "learns": learns,
     }
+
+
+_STATIC_MOVES_PATH = Path(__file__).resolve().parents[4] / "data" / "moves" / "static.v1.json"
+_static_moves_cache: dict[str, Any] | None = None
+
+
+def _static_moves() -> dict[str, Any]:
+    global _static_moves_cache
+    if _static_moves_cache is None:
+        import json
+
+        doc = json.loads(_STATIC_MOVES_PATH.read_text(encoding="utf-8"))
+        _static_moves_cache = doc.get("moves") or {}
+    return _static_moves_cache
+
+
+def with_move_priority(result: dict[str, Any]) -> dict[str, Any]:
+    """Attach priority from data/moves/static.v1.json onto a get_move_static result.
+
+    ArmTools.get_move_static omits priority; the static blob has it. State-side
+    enrichment only — does not edit recommender/arm_tools.py.
+    """
+    from recommender.ids import to_id
+
+    if result.get("status") != "ok":
+        return result
+    move = result.get("move")
+    if not isinstance(move, str):
+        return result
+    entry = _static_moves().get(to_id(move))
+    if not isinstance(entry, dict) or "priority" not in entry:
+        return result
+    return {**result, "priority": entry["priority"]}
 
 
 def read_archetype(state: dict[str, Any]) -> dict[str, Any]:

@@ -47,6 +47,7 @@ from scripts.eval.part_g_arm.state.tools import (
     solve_spread_tool,
     steering_signature,
     unlock_slot,
+    with_move_priority,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -172,7 +173,10 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
             ability=args.get("ability"),
             item=args.get("item"),
         )
-    return state, arm.call(name, args or {})
+    result = arm.call(name, args or {})
+    if name == "get_move_static":
+        result = with_move_priority(result)
+    return state, result
 
 
 def _text(content: Any) -> str:
