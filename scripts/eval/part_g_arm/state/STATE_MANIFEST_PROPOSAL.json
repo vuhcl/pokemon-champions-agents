@@ -1,7 +1,7 @@
 {
   "schema": "state_arm_manifest_proposal_v0",
   "frozen": false,
-  "note": "Proposal only. Freeze after Vu approval. Does not edit FROZEN_MANIFEST.json.",
+  "note": "Proposal only. Freeze after Vu approval. Does not edit FROZEN_MANIFEST.json. Extended 2026-10-27 Part 2.",
   "model": {
     "id": "qwen3.5:latest",
     "digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
@@ -10,13 +10,58 @@
     "think": false,
     "num_ctx": 16384,
     "num_predict": 2048,
-    "seed": null
+    "seed": null,
+    "num_predict_vs_part_g_gate": "equals Part G arm config default num_predict=2048 (scripts/eval/part_g_arm/config.py)"
   },
   "judge": {
     "id": "gemma4:12b",
+    "digest": "sha256:c7597fc90b86aff6965317f37dd5465402284e26382d9b4bf2dfe3ef1491f4b6",
+    "quantization": "nvfp4",
     "temperature": 0.0,
+    "think": false,
+    "num_ctx": null,
+    "num_predict": null,
+    "num_ctx_num_predict_note": "hand_audit_judge.py uses ChatOllama(model, temperature=0, reasoning=False); does not set num_ctx/num_predict (library defaults).",
     "prompt": "scripts/eval/part_g_arm/state/judge_prompt.md",
-    "prompt_sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87"
+    "prompt_sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87",
+    "rubric_source": "row key / calibration rubric text only; never another model's verdict"
+  },
+  "pins_read": {
+    "calc_package": "@smogon/calc",
+    "calc_version": "0.11.0-champions.5d5bf43",
+    "calc_vendor_path": "vendor/smogon-calc",
+    "calc_repo_commit_note": "vendor from github:smogon/damage-calc#5d5bf4323990a32d2099ebd7fb50fec06ad2b501 (calc/)",
+    "showdown_joint_spread_blob": {
+      "path": "data/usage/champions-reg-mc.showdown_doubles.v1.json",
+      "sha1_prefix_check_pins": "63bcefe4512a202d75b62e79f2ccc5436527b46e"
+    },
+    "ingame_blob": {
+      "path": "data/usage/champions-reg-mc.ingame_doubles.v1.json",
+      "sha1_prefix_check_pins": "31af0801235dc4158c6206363c70ae8cc2b6417b"
+    },
+    "legality_snapshot": {
+      "path": "data/legality/champions.v1.json",
+      "sha1_prefix_check_pins": "ca5bb8181448765875396ce3b02561923c3e4694"
+    },
+    "keys_sha256": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a"
+  },
+  "loader_and_helpers": {
+    "note": "Git commit sha of a CLEAN tree at freeze pins the rest of the recommender nodes these wrap.",
+    "paths": [
+      "scripts/eval/part_g_arm/state/pending.py",
+      "scripts/eval/part_g_arm/state/fixtures.py",
+      "scripts/eval/part_g_arm/state/harness.py",
+      "scripts/eval/part_g_arm/state/seeds/builders.py",
+      "recommender/slot_index.py",
+      "recommender/nodes.py",
+      "recommender/team_validation.py",
+      "recommender/constraint_enforcement.py",
+      "recommender/slot_fill.py",
+      "recommender/threat_counters.py",
+      "recommender/arm_tools.py",
+      "recommender/item_conditions.py",
+      "recommender/reconcile.py"
+    ]
   },
   "failure_policy": {
     "per_turn_timeout_s": 300.0,
@@ -28,7 +73,7 @@
   "files": [
     {"path": "scripts/eval/part_g_arm/state/request_set_runner.py", "sha256": "8d8c43290b931380520cf0b09af008df7bbed6e45f5520b45b578032caec773b"},
     {"path": "scripts/eval/part_g_arm/state/class_scorer.py", "sha256": "f4be0e1f97c83020c2fda807d133c0fa80af311e443c7ed6b62b6251a8774cfc"},
-    {"path": "scripts/eval/part_g_arm/state/errata.json", "sha256": "c22375bad2ee0375e6a6a7b675c90191a337712397daabbdc91e094084dcdcfb"},
+    {"path": "scripts/eval/part_g_arm/state/errata.json", "sha256": "7a006768db18f3c6d5729df626975d8c5ca88aa823b0f548be886b3f54199284"},
     {"path": "scripts/eval/part_g_arm/state/tools.py", "sha256": "7da41674d4d763c33989004f37949ece5c95b1c4c3438957ee946523418aeb4b"},
     {"path": "scripts/eval/part_g_arm/state/spread_solve.py", "sha256": "f396bfa97c37762ea52eed72e4f06fa93fc74721788b0a43212cffdd0b03c12b"},
     {"path": "scripts/eval/part_g_arm/state/prompt.md", "sha256": "b71764852eb66f87f17375ff3226a7e4be7517b09eb8961fb56e779fe32badd8"},
@@ -36,17 +81,22 @@
     {"path": "scripts/eval/part_g_arm/state/covered_list.json", "sha256": "b107c4920e641bbb1e51f12503712628660b4b11ea47a03467bd73088596ea73"},
     {"path": "scripts/eval/part_g_v4/key_artifacts/derived_keys.json", "sha256": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a"},
     {"path": "scripts/eval/part_g_v4/part3_request_set_v4.md", "sha256": "7fb9510cb50e8f1f320ac1cf6bced41e8dcd12f4245ed2abb03a42254a60afdb"},
-    {"path": "scripts/eval/part_g_arm/state/seeds/cs_pending.json", "sha256": "76b7c19ff34281139d9c326024fc0aafeb9952214efb19ad985a67fa7d06e9e5"},
+    {"path": "scripts/eval/part_g_arm/state/seeds/cs_pending.json", "sha256": "49d760e40cc7b2e2dc4a4051a96f89cef421211d23cd0586916fca2f071dbaac"},
     {"path": "scripts/eval/part_g_arm/state/seeds/fbc_pending.json", "sha256": "4337ddd0dc15d319bbef0bc1ea8cbc9f978c45fa9de1768534b291df3de50af6"},
-    {"path": "scripts/eval/part_g_arm/state/seeds/mt3_after_t1.json", "sha256": "88c0f9038416e4d87e0e8739ab86901354700e85d716ea5f56fd0c4dc9da44bb"},
-    {"path": "scripts/eval/part_g_arm/state/seeds/hc2_after_t1.json", "sha256": "cc4a8657a7af73a1214d55e0bc5419e0b139023393e7ff8acb54c31d5c474f1d"},
-    {"path": "scripts/eval/part_g_arm/state/seeds/hd1_history.json", "sha256": "331da9c022897b7294549b01643ee7f6201cc82ad2ba4a8c74cde670606dd7c7"}
+    {"path": "scripts/eval/part_g_arm/state/seeds/mt3_after_t1.json", "sha256": "0f6d61eb95dd6678301bdc91a3a746af2c8096f196e85b813f381e7d3f7720b2"},
+    {"path": "scripts/eval/part_g_arm/state/seeds/hc2_after_t1.json", "sha256": "9d67bd3b7cc38cc7ad5c41fde9be130cdafdaceeb85bcb2f3dff8b34bbfab4f9"},
+    {"path": "scripts/eval/part_g_arm/state/seeds/hd1_history.json", "sha256": "331da9c022897b7294549b01643ee7f6201cc82ad2ba4a8c74cde670606dd7c7"},
+    {"path": "scripts/eval/part_g_arm/state/pending.py", "sha256": "fe4c64a68ef2f22154c1f2159978ff90c25cc2575aa312de05cd42cd055e4581"},
+    {"path": "scripts/eval/part_g_arm/state/fixtures.py", "sha256": "f4d89047b338edf461ccbecc5dabb5ad5b20359b587db4102c8fa6b2711e4e6b"},
+    {"path": "scripts/eval/part_g_arm/state/harness.py", "sha256": "dfb5506566c5e51ca0a16a11dcb65eb00fcb184dbcb675d1f682a24270356bfa"},
+    {"path": "scripts/eval/part_g_arm/state/seeds/builders.py", "sha256": "eea8dc0383e1ffee2114d0a303048e5fb1beb674b94fd3fc8bfde6809302c81d"},
+    {"path": "recommender/slot_index.py", "sha256": "8255baea9f51c34899af12f26280b00b1c3e6b6d13402d31789e0edb9eb10024"}
   ],
   "proposed_covered_counts": {
     "mechanical": 42,
     "hand_audit": 54,
     "covered_total_excluding_MT4": 96,
     "not_covered": 38,
-    "MT4_drop_reason": "no show-candidates tool"
+    "MT4_drop_reason": "no show-candidates tool (pending 4c)"
   }
 }
