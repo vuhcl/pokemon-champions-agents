@@ -153,11 +153,19 @@
     }
   ],
   "proposed_covered_counts": {
-    "mechanical": 39,
-    "hand_audit": 54,
-    "covered_total": 99,
-    "not_covered": 35,
-    "MT4_drop_reason": "CS seed has no all_locked anchor for show_candidates t2"
+    "covered": 97,
+    "not_covered": 37,
+    "b1_mechanical_incl_dual": 42,
+    "b1_hand_incl_dual": 58,
+    "b1_dual": 3,
+    "b1_dual_rows": [
+      "MS5",
+      "RB1",
+      "TB2"
+    ],
+    "audit_form_sections": 70,
+    "audit_rubric_cells": 228,
+    "mm1_mm2": "not_covered; trajectories pass; readiness 99 if added"
   },
   "prompt_choice": {
     "chosen": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
@@ -233,5 +241,16 @@
   "covered_list_sha256": "5dfa19f8ab9bbf225ef6e7b92ab1423ee60f88790be0a46a9a7bfa20fe77e543",
   "tools_py_sha256": "e5dd309e0a6ce4afb9eeddc0b2bb2172ea79086feda8e7ff07a3158ae4dd5d42",
   "note_b1": "B1 refresh 2026-10-27: covered 97; mech-only 39; hand-only 55; dual MS5/RB1/TB2; audit sections 70 / rubric cells 228. H19/H20 not_covered.",
-  "note_post_merge_318": "step3: check_hypothetical sibling-stage for Mega+stone; mega_stone refusals on bare Mega hyp/select"
+  "note_post_merge_318": "step3: check_hypothetical sibling-stage for Mega+stone; mega_stone refusals on bare Mega hyp/select",
+  "merged_main_commit_sha": "6f909b0eb668de98d97357bbb16a3576c34e7e2a",
+  "note_merged_tree": "main #318 merge commit 707642b; arm merge commit 6f909b0; clean_tree_commit_sha stays empty until Vu freezes",
+  "keys_sha_run_all_checks": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a",
+  "suites": {
+    "pytest": "4785 passed, 14 skipped",
+    "npm_test": "119 passed",
+    "run_all_checks": "PASS",
+    "keys_sha": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a",
+    "battery_claim": "6e6c6be4351240629416f1e279bbf495bbf4670d79aaaa7d083a2c62c6d67443",
+    "battery_false_legal": "3025138427391e57a92e1862a87b0074d44a51b290836077abf094af92c4bdec"
+  }
 }
