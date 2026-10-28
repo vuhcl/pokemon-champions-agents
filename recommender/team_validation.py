@@ -4,15 +4,18 @@
 team: legality of a bare species/item value, the Species Clause and the Item
 Clause, all against the *other* slots only. Species identity is the snapshot's
 ``base_species_id`` (any two forms of one dex entry clash; evolution relatives
-are different species). Not enforced here: the Mega Stone rule.
+are different species). Mega formes must hold their mapped Mega Stone
+(``item_conditions.mega_stones_by_item_id``).
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Any, Literal
 
 from recommender.ids import to_id
+from recommender.item_conditions import mega_stones_by_item_id
 from recommender.slot_index import display_slot
 from recommender.legality import is_item_legal, is_species_legal, load_snapshot, team_item_ids
 from recommender.species_resolve import lookup_species_id
@@ -27,9 +30,32 @@ RefusalKind = Literal[
     "illegal_item",
     "species_clause",
     "item_clause",
+    "mega_stone",
     "bad_slot_index",
     "bad_value",
 ]
+
+
+@lru_cache(maxsize=1)
+def _mega_forme_to_stone() -> dict[str, tuple[str, str, str]]:
+    """mega forme to_id → (stone_id, stone_display, base_display)."""
+    out: dict[str, tuple[str, str, str]] = {}
+    snap = load_snapshot()
+    items = snap.get("items") or {}
+    for stone_id, pairs in mega_stones_by_item_id().items():
+        stone_name = str((items.get(stone_id) or {}).get("name") or stone_id)
+        for base_display, mega_display in pairs:
+            out[to_id(mega_display)] = (stone_id, stone_name, base_display)
+    return out
+
+
+def _mega_stone_message(stone_name: str, base_display: str, other_item: str | None) -> str:
+    alt = other_item or "that item"
+    return (
+        f"A Mega forme must hold {stone_name}. "
+        f"Keep {stone_name}, or use the base form ({base_display}) with {alt} "
+        f"(form change is an offer only)."
+    )
 
 
 @dataclass(frozen=True)
@@ -107,6 +133,18 @@ def validate_team_value(
                     "One of each Pokémon, forms included.",
                     i,
                 )
+        stone = _mega_forme_to_stone().get(sid)
+        if stone is not None:
+            stone_id, stone_name, base_display = stone
+            held = team_draft[slot_index].item.value
+            if not held or to_id(str(held)) != stone_id:
+                other = str(held) if held else None
+                return _refuse(
+                    "mega_stone",
+                    attr,
+                    value,
+                    _mega_stone_message(stone_name, base_display, other),
+                )
         return TeamValueVerdict(None, name)
 
     iid = to_id(value)
@@ -133,4 +171,17 @@ def validate_team_value(
             "Each item can be used only once.",
             holder,
         )
+    species_val = team_draft[slot_index].species.value
+    if species_val:
+        sp_sid = lookup_species_id(str(species_val), snap) or to_id(str(species_val))
+        stone = _mega_forme_to_stone().get(sp_sid)
+        if stone is not None:
+            stone_id, stone_name, base_display = stone
+            if iid != stone_id:
+                return _refuse(
+                    "mega_stone",
+                    attr,
+                    value,
+                    _mega_stone_message(stone_name, base_display, name),
+                )
     return TeamValueVerdict(None, name)

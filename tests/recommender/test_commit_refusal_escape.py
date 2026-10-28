@@ -31,7 +31,8 @@ def _clash_draft():
 SCENARIOS = [
     (
         "species-clause",
-        lambda: commit_seed(_clash_draft(), "Charizard-Mega-X"),
+        # Charizardite X so Mega Stone validation passes and Species Clause is the refusal.
+        lambda: commit_seed(_clash_draft(), "Charizard-Mega-X", item="Charizardite X"),
         "Species Clause",
         None,  # no field edit can fix a species clash; exits are defer/continue/reject
     ),
@@ -139,7 +140,9 @@ def test_confirming_again_repeats_the_refusal_but_exits_stay_available(scenario)
 OPTION_SCENARIOS = [
     (
         "species-clause",
-        lambda: commit_seed(_clash_draft(), "Charizard-Mega-X", with_options=True),
+        lambda: commit_seed(
+            _clash_draft(), "Charizard-Mega-X", item="Charizardite X", with_options=True
+        ),
         "Species Clause",
     ),
     (

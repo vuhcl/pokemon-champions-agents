@@ -858,11 +858,25 @@ def commit_full_slot(state: RecommenderState) -> dict:
             "illegal provisional slot: "
             + "; ".join(f"{failure.kind}:{failure.element}" for failure in legality.failures)
         )
+    # Mega Stone: species+item must be judged together (provisional holds both).
+    commit_slot = replace(
+        current,
+        species=Attr(value=provisional.species, locked=True),
+        item=Attr(value=provisional.item, locked=True),
+    )
+    commit_draft = list(state["team_draft"])
+    commit_draft[index] = commit_slot
+    commit_state = {**state, "team_draft": commit_draft}
     _, species_refusal = _validated_team_value(
-        state, "species", provisional.species, index
+        commit_state, "species", provisional.species, index
     )
     if species_refusal:
         return _full_slot_error(species_refusal)
+    _, item_refusal = _validated_team_value(
+        commit_state, "item", provisional.item, index
+    )
+    if item_refusal:
+        return _full_slot_error(item_refusal)
     unsupported_hard = commit_unsupported_hard_predicates(state.get("constraints", []))
     if unsupported_hard:
         return _full_slot_error(
@@ -1024,11 +1038,30 @@ def _apply_locks_batch(state: RecommenderState, payload: LockPayload) -> dict:
             return _full_slot_error(
                 f"I got {attr} more than once in one request; nothing was locked."
             )
-        value = entry["value"]
-        if attr in TEAM_ATTRS:
-            value, refusal = _validated_team_value(state, attr, value, slot_index)
-            if refusal:
-                return _full_slot_error(refusal)
+        incoming[attr] = entry["value"]
+
+    # Mega Stone rule needs species+item siblings from the same batch visible
+    # to validate_team_value (single-attr validation alone would refuse a
+    # stone-less Mega even when the stone is in this same locks list).
+    sibling_slot = slot
+    for attr in TEAM_ATTRS:
+        if attr not in incoming:
+            continue
+        sibling_slot = replace(
+            sibling_slot,
+            **{attr: Attr(value=incoming[attr], locked=True)},
+        )
+    sibling_draft = list(draft)
+    sibling_draft[slot_index] = sibling_slot
+    sibling_state = {**state, "team_draft": sibling_draft}
+    for attr in list(incoming):
+        if attr not in TEAM_ATTRS:
+            continue
+        value, refusal = _validated_team_value(
+            sibling_state, attr, incoming[attr], slot_index
+        )
+        if refusal:
+            return _full_slot_error(refusal)
         incoming[attr] = value
 
     # Provisional: all incoming as locked (detection only).
