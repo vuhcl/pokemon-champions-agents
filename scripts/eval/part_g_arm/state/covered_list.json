@@ -1,7 +1,7 @@
 {
   "source": "claude/request_set_eval_plan_2026-10-25.md; Part 5 readiness; MT4 dropped 2026-10-27 (no all_locked CS anchor for show_candidates t2)",
-  "frozen": false,
-  "note": "Proposed list for Vu approval before registration. Readiness and scorability only. Not a FROZEN_MANIFEST entry. 2026-10-28 Vu: add OL7a (mech), H27/IX5/IX7 (hand); keep H12/H19/H20/H21/H22 out; MT2/H6 scored (stale_pin removed). OL1/OL2a/OL3/MT4 capability gaps; H25/H26 need all_locked fixtures.",
+  "frozen": true,
+  "note": "FROZEN 2026-10-28 (registration v5). Covered 103 by readiness/scorability only. OL7a mech; H27/IX5/IX7 hand; H12/H19/H20/H21/H22 out; MT2/H6 scored (stale_pin empty).",
   "not_covered": [
     "H12",
     "H17",

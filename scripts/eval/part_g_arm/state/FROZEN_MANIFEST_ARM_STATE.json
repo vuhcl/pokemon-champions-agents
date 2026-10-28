@@ -1,12 +1,12 @@
 {
- "covered_list_sha256": "ebde0d0ad9acdd51d477b7aeab039e6494bf3081b96b22c666fedf313243c4c1",
+ "covered_list_sha256": "007ee2e91c2d87c689fab1e364bcb9dd0f4e1dd61c03b853db5003bb50943316",
  "files": {
   "scripts/eval/part_g_arm/config.py": "137c7954caac36e4dedbf9fa29f1373f628ace8abf54f2b10b01ddecce90a33d",
   "scripts/eval/part_g_arm/state/b1_discovery.json": "3034581aa3a04030c90ea35a44434a40a1823ff4037cc0ddb012b31dde08fcff",
   "scripts/eval/part_g_arm/state/class_scorer.py": "8f97b299a5392eef8237df7fda757af2dedfb04067e25eeec367554f0e31a8f4",
   "scripts/eval/part_g_arm/state/clopper_pearson.py": "ceae2c5efd5f3b9b552d438b9916bdfc35c6dd51943193b3c58d654195a3d1e4",
   "scripts/eval/part_g_arm/state/compare_runs.py": "2ae62010fd6aee73cfa122d691cc49ada2657d0de14d429a507c3caf6a2df6e4",
-  "scripts/eval/part_g_arm/state/covered_list.json": "ebde0d0ad9acdd51d477b7aeab039e6494bf3081b96b22c666fedf313243c4c1",
+  "scripts/eval/part_g_arm/state/covered_list.json": "007ee2e91c2d87c689fab1e364bcb9dd0f4e1dd61c03b853db5003bb50943316",
   "scripts/eval/part_g_arm/state/dev_keys.json": "aa0e9169b45a20ece32376ac67a826b0d4898442c698c9860d87a0866b4a8e06",
   "scripts/eval/part_g_arm/state/dev_keys_prankster_weather.json": "6dba1caac2d45135779779f7867f6f442163bdb3fef35ca6270d7c76329fb543",
   "scripts/eval/part_g_arm/state/dev_rows.json": "b7e31f60ae2af645d6275774a518c1abc0a93990663c4603de571dc9e827a311",
@@ -31,7 +31,7 @@
   "scripts/eval/run_params.py": "9da88177a0946bb0ce0793faeded4bfe88e8de2b6a1ce5cccbd61cf4c67552c9"
  },
  "keys_sha256": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a",
- "manifest_sha256": "6146a2eb53524047748aaa6c0f278b1cda3c5ad2e89ff099a2f3fce93e0e7f2e",
+ "manifest_sha256": "112e3b9de30c980bac315b8c6dcdd081486ad6e6d7f4756d9be041a3c1bbe4d0",
  "model": {
   "digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
   "id": "qwen3.5:latest",
@@ -40,9 +40,9 @@
   "temperature": 0.0,
   "think": false
  },
- "note": "DRAFT only \u2014 Vu must approve before treating as frozen. verify requires a clean git tree. Do not set status=frozen until then.",
+ "note": "FROZEN 2026-10-28 \u2014 Vu approved registration v5. verify requires a clean git tree. Do not edit listed files without a new registration.",
  "prompt_sha256": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
  "schema": "part_g_arm_state_frozen_manifest_v0",
- "status": "draft",
+ "status": "frozen",
  "tools_py_sha256": "e5dd309e0a6ce4afb9eeddc0b2bb2172ea79086feda8e7ff07a3158ae4dd5d42"
 }
