@@ -18,3 +18,7 @@ Species: **Kangaskhan-Mega** / stone **Kangaskhanite** (legal; not Salamence/Cha
 | `dev-mega-lock-ok` | wrote / wrote | Classes wrote then wrote. After turn 2, slot 1 is species-locked Kangaskhan-Mega with item Kangaskhanite. No mega_stone refusal text on the successful path. | item-first edit_slot_field(Kangaskhanite) then lock_slot(Kangaskhan-Mega) writes both; product allows Mega when the stone is already held. |
 
 Model run: not started when this note was written.
+
+## Post-run key metadata align (no key_text change)
+
+After the gate run, species/item blocks were aligned to `dev_key_document()` (dropped free-form `stone`/`note` fields; added Kangaskhan* to `DEV_SPECIES`). Row `key_text` / classes unchanged. New `dev_keys.json` sha256: `aa0e9169b45a20ece32376ac67a826b0d4898442c698c9860d87a0866b4a8e06`.

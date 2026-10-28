@@ -42,9 +42,7 @@
     "Kangaskhan-Mega": {
       "canonical": "Kangaskhan-Mega",
       "legal": true,
-      "in_request_set": false,
-      "stone": "Kangaskhanite",
-      "note": "eev Mega rows only; not in covered request-set prompts/fixtures/seeds"
+      "in_request_set": false
     },
     "Kangaskhan": {
       "canonical": "Kangaskhan",
@@ -60,12 +58,6 @@
     },
     "Kangaskhanite": {
       "canonical": "Kangaskhanite",
-      "legal": true,
-      "in_request_set": false,
-      "mega_for": "Kangaskhan-Mega"
-    },
-    "Leftovers": {
-      "canonical": "Leftovers",
       "legal": true,
       "in_request_set": false
     }

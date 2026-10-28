@@ -29,3 +29,7 @@ Run record sha256: `0b7dd43c49ba46d33109da3c80861e0e80ea0c6078b605fba5c0a85a9b61
 ## Registration note (fingerprint)
 
 `commit_full_slot` **compares** `pending["provisional_fingerprint"]` to `provisional.fingerprint` (two stored strings); it does **not** recompute the fingerprint. The FBC seed uses the hand-written string `seed-fbc-garchomp-v1`.
+
+## Note
+
+`dev_keys` post-align sha `aa0e9169b45a20ece32376ac67a826b0d4898442c698c9860d87a0866b4a8e06` (metadata only; graded key_text unchanged). Finding stands.

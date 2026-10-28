@@ -15,8 +15,16 @@ from scripts.eval.part_g_arm.state.tools import lock_slot
 
 HERE = Path(__file__).resolve().parent
 REQUEST_SET = HERE.parents[1] / "part_g_v4" / "part3_request_set_v4.md"
-DEV_SPECIES = ("Venusaur", "Venusaur-Mega", "Blastoise", "Beedrill", "Bulbasaur")
-DEV_ITEMS = ("Wide Lens",)
+DEV_SPECIES = (
+    "Venusaur",
+    "Venusaur-Mega",
+    "Blastoise",
+    "Beedrill",
+    "Bulbasaur",
+    "Kangaskhan-Mega",
+    "Kangaskhan",
+)
+DEV_ITEMS = ("Wide Lens", "Kangaskhanite")
 CHECKPOINT_PROMPT_SHA256 = "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86"
 
 
@@ -74,7 +82,13 @@ def dev_key_document() -> dict[str, Any]:
     if not species["Beedrill"]["legal"] or species["Beedrill"]["in_request_set"]:
         raise RuntimeError("Beedrill is not a usable legal partner")
     if not items["Wide Lens"]["legal"] or items["Wide Lens"]["in_request_set"]:
-        raise RuntimeError("Wide Lens is not a usable legal dev item")
+        raise RuntimeError("Wide Lens is not a usable legal eev item")
+    if not species["Kangaskhan-Mega"]["legal"] or species["Kangaskhan-Mega"]["in_request_set"]:
+        raise RuntimeError("Kangaskhan-Mega is not a usable legal eev Mega")
+    if not species["Kangaskhan"]["legal"] or species["Kangaskhan"]["in_request_set"]:
+        raise RuntimeError("Kangaskhan is not a usable legal eev base")
+    if not items["Kangaskhanite"]["legal"] or items["Kangaskhanite"]["in_request_set"]:
+        raise RuntimeError("Kangaskhanite is not a usable legal eev stone")
     return {
         "provenance": (
             "load_snapshot(), the same data validate_team_value reads. Wiring check only, "
