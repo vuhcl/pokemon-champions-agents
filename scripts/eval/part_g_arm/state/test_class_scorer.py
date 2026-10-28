@@ -36,7 +36,8 @@ def test_score_turn_mutation_refused():
     assert sc["match"] is True
 
 
-def test_score_transcript_stale_excluded():
+def test_score_transcript_mt2_h6_hand_audit_not_stale():
+    """2026-10-28 Vu: stale_pin_rows cleared; MT2/H6 are hand-audit (not content-stale)."""
     out = score_transcript(
         [
             {"id": "MT2", "turns": [_turn("wrote", wrote=True)]},
@@ -44,8 +45,10 @@ def test_score_transcript_stale_excluded():
         ]
     )
     by = {r["row"]: r for r in out["per_row"]}
-    assert by["MT2"]["excluded"] == "stale_pin"
-    assert by["H6"]["excluded"] == "stale_pin"
+    assert by["MT2"]["excluded"] == "hand audit"
+    assert by["H6"]["excluded"] == "hand audit"
+    assert by["MT2"].get("stale") is not True
+    assert by["H6"].get("stale") is not True
 
 
 def test_score_transcript_per_class_not_pooled():

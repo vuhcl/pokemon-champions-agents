@@ -262,6 +262,10 @@ def trajectories() -> dict[str, list[Call] | Gap]:
         "OL4": [("read_pending", {})],  # ASK — do not select
         "OL5": [("select_option", {"option": 1})],
         "OL6": [("read_pending", {})],  # ASK
+        "OL7a": [
+            ("read_pending", {}),
+            ("select_option", {"option": 3}),  # Jolteon (faster; Spe 200)
+        ],
         "OL8": [("reject_all", {})],  # neither → reject every option, no lock
         "OL9": [("read_pending", {})],  # ASK
         # Mega stone (#318): MM1 is hand-audit (stated correction); MM2 mechanical refuse.
@@ -439,7 +443,10 @@ def hand_audit_tool_map() -> list[dict[str, Any]]:
             "show_candidates refuses empty team (same as H17/H18)"
         ),
         "MT1": "add_constraint + read_constraints (4b); t1 Water type, t2 judgment-only no Intimidate, t3 read_constraints",
-        "MT2": "stale pin — excluded",
+        "MT2": "get_usage_teammates multi (ingame) → shared partners; set-scoring (no longer stale_pin)",
+        "H27": "read_pending CS options + get_typing → top Ground = Garchomp (hand)",
+        "IX5": "find_species(ability=…) buckets under ASSUME-STATE punish definition (hand)",
+        "IX7": "find_species Flying/Levitate/Telepathy/Earth Eater under stated safe definition (hand)",
         "MT3": "seed+history; t2 suggest needs show_candidates(4c); t3 get_abilities",
         "MT4": (
             "t1 reject_option(2); t2 show_candidates blocked — CS seed has no "

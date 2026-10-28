@@ -55,13 +55,13 @@ def main(argv: list[str] | None = None) -> int:
     scored = score_transcript(transcript)
     (out / "scorer.json").write_text(json.dumps(scored, indent=2) + "\n", encoding="utf-8")
     by = {r["row"]: r for r in scored["per_row"]}
-    assert by["MT2"].get("excluded") == "stale_pin"
-    assert by["H6"].get("excluded") == "stale_pin"
+    assert by["MT2"].get("excluded") == "hand audit"
+    assert by["H6"].get("excluded") == "hand audit"
     hand = [r for r in scored["per_row"] if r.get("excluded") == "hand audit"]
     assert hand, "expected hand-audit exclusions"
     print(
         f"stub ok rows={len(transcript)} hand_audit={len(hand)} "
-        f"stale=MT2,H6 out={out}",
+        f"MT2/H6=hand_audit out={out}",
         file=sys.stderr,
     )
     return 0

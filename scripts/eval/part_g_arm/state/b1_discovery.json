@@ -1,5 +1,5 @@
 {
-  "note": "B1 after MM1/MM2 add + H11 errata. MM1 hand; MM2 mechanical. Dual still MS5/RB1/TB2.",
+  "note": "B1 after Vu 2026-10-28 covered add: OL7a mechanical; H27/IX5/IX7 hand. MM1 hand; MM2 mechanical. Dual still MS5/RB1/TB2. MT2/H6 hand (no longer stale_pin).",
   "covered": [
     {
       "row": "H1",
@@ -908,6 +908,42 @@
       "bucket": "scorable-mechanical",
       "reason": "MUTATION-REFUSED write refused + draft unchanged; state signature + tool outcome suffice. Form-change offer text is in the validator message (not a separate hand statement).",
       "mechanical": "refused (state equals start)"
+    },
+    {
+      "row": "OL7a",
+      "turns": [
+        "PARTIAL"
+      ],
+      "bucket": "scorable-mechanical",
+      "reason": "CS select faster=Jolteon; select_option binds provisional; state signature + tool outcome suffice",
+      "mechanical": "bound (CS\u2192FBC)"
+    },
+    {
+      "row": "H27",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "top Ground among recommender candidates = Garchomp; explanation is a stated fact",
+      "mechanical": "lookup only / pending read; state unchanged on explain"
+    },
+    {
+      "row": "IX5",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "ASSUME-STATE punish buckets + set-scoring; find_species supplies holders, auditor checks definition",
+      "mechanical": "lookup only (find_species); state unchanged"
+    },
+    {
+      "row": "IX7",
+      "turns": [
+        "ASSUME-STATE"
+      ],
+      "bucket": "hand audit",
+      "reason": "ASSUME-STATE EQ-safe set; find_species supplies Flying/Levitate/Telepathy/Earth Eater",
+      "mechanical": "lookup only (find_species); state unchanged"
     }
   ],
   "not_state_only_property": [
@@ -969,6 +1005,9 @@
     "RB1",
     "SC2",
     "TB1",
-    "TB2"
+    "TB2",
+    "H27",
+    "IX5",
+    "IX7"
   ]
 }
