@@ -6,15 +6,16 @@ from scripts.eval.part_g_arm.state.fixtures import empty_team
 from scripts.eval.part_g_arm.state.tools import find_species
 
 
-def test_h11_water_hurricane_includes_core_and_reports_castform_drift():
+def test_h11_water_hurricane_matches_key_excludes_castform_rainy():
     r = find_species(empty_team(), types=["Water"], learns_move="Hurricane")
     assert r["status"] == "ok"
     names = set(r["species"])
     # Acceptance core (request-set); Mega = deliberate FP in acceptance note.
     assert {"Gyarados", "Pelipper", "Quaquaval"} <= names
     assert "Gyarados-Mega" in names
-    # Freeze finding: Castform-Rainy is legal Water+Hurricane but not in acceptance set.
-    assert "Castform-Rainy" in names
+    # Battle-only transient formes excluded via slot_fill._is_battle_only_transient_forme.
+    assert "Castform-Rainy" not in names
+    assert names == {"Gyarados", "Gyarados-Mega", "Pelipper", "Quaquaval"}
 
 
 def test_h19_trick_room_learners_nonempty():

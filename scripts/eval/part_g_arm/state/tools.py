@@ -987,7 +987,12 @@ def find_species(
     include_formes: object = True,
     n: object = None,
 ) -> dict[str, Any]:
-    """Read-only legal-species search. AND filters. Never writes state."""
+    """Read-only legal-species search. AND filters. Never writes state.
+
+    Excludes battle-only transient formes via the same helper as slot_fill
+    (``_is_battle_only_transient_forme``): Castform weather formes,
+    Terapagos-Stellar, Zygarde-Complete — not independent team-building choices.
+    """
     from recommender.arm_teammates import is_mega_forme
     from recommender.ids import to_id
     from recommender.legality import (
@@ -997,9 +1002,12 @@ def find_species(
         species_can_have_ability,
         species_types,
     )
+    from recommender.regulation_registry import active_regulation
+    from recommender.slot_fill import _is_battle_only_transient_forme
 
     _ = state
     snap = load_snapshot()
+    regulation = active_regulation()
     type_need: list[str] = []
     if types is not None:
         if not isinstance(types, list) or not all(isinstance(t, str) and t.strip() for t in types):
@@ -1049,6 +1057,8 @@ def find_species(
     for sid, entry in (snap.get("species") or {}).items():
         name = str(entry.get("name") or sid)
         if not is_species_legal(snap, name):
+            continue
+        if _is_battle_only_transient_forme(sid, entry, regulation):
             continue
         if not keep_formes and is_mega_forme(name):
             continue
