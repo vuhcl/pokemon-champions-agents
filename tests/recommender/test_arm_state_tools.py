@@ -111,10 +111,16 @@ def test_mechanical_class_transitions():
     assert mechanical_class(snapshot(cs), snapshot(dismissed), [{"name": "reject_pending", "result": dpatch}]) == "dismissed"
     assert dismissed.get("rejected") in (None, [])
 
+    from scripts.eval.part_g_arm.state.tools import (
+        HYP_TOOL_SPECS,
+        SPREAD_TOOL_SPECS,
+        STATE_TOOL_SPECS,
+    )
+
     n = len(TOOL_SPECS)
     specs = combined_specs()
     assert len(TOOL_SPECS) == n
-    assert len(specs) == n + 14
+    assert len(specs) == n + len(STATE_TOOL_SPECS) + len(HYP_TOOL_SPECS) + len(SPREAD_TOOL_SPECS)
 
 
 def test_reject_all_and_read_rejected():
