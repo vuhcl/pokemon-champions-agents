@@ -1,7 +1,7 @@
 {
   "mechanical": {
-    "mechanical_n": 40,
-    "passed": 40,
+    "mechanical_n": 41,
+    "passed": 41,
     "failed": 0,
     "capability_gaps": [],
     "rows": [
@@ -604,6 +604,22 @@
           "match": true,
           "state_expectation_met": true
         }
+      },
+      {
+        "row": "OL7a",
+        "trajectory": [
+          "read_pending({})",
+          "select_option({'option': 3})"
+        ],
+        "observed_class": "bound",
+        "key_class": "MUTATION-OK",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "bound",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
       }
     ]
   },
@@ -835,7 +851,7 @@
     },
     {
       "row": "MT2",
-      "tools": "stale pin \u2014 excluded",
+      "tools": "get_usage_teammates multi (ingame) \u2192 shared partners; set-scoring (no longer stale_pin)",
       "fact_unreachable": false
     },
     {
@@ -891,6 +907,21 @@
     {
       "row": "MM1",
       "tools": "check_hypothetical([{Salamence-Mega, Leftovers}]) \u2192 mega_stone; stated keep stone or base+Leftovers (hand). Tool unchanged.",
+      "fact_unreachable": false
+    },
+    {
+      "row": "H27",
+      "tools": "read_pending CS options + get_typing \u2192 top Ground = Garchomp (hand)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IX5",
+      "tools": "find_species(ability=\u2026) buckets under ASSUME-STATE punish definition (hand)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IX7",
+      "tools": "find_species Flying/Levitate/Telepathy/Earth Eater under stated safe definition (hand)",
       "fact_unreachable": false
     }
   ],

@@ -912,10 +912,10 @@
     {
       "row": "OL7a",
       "turns": [
-        "PARTIAL"
+        "MUTATION-OK"
       ],
       "bucket": "scorable-mechanical",
-      "reason": "CS select faster=Jolteon; select_option binds provisional; state signature + tool outcome suffice",
+      "reason": "CS select faster=Jolteon; select_option binds; class cell PARTIAL overridden to MUTATION-OK via errata",
       "mechanical": "bound (CS\u2192FBC)"
     },
     {

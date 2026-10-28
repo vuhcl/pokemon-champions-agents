@@ -32,6 +32,12 @@
         "PARTIAL+ASSUME-STATE"
       ],
       "note": "Class cell ASSUME-STATE; acceptance PARTIAL+ASSUME-STATE (errata)."
+    },
+    "OL7a": {
+      "turns": [
+        "MUTATION-OK"
+      ],
+      "note": "Class cell PARTIAL (Spe claim partial/synthetic context); selecting the faster CS option is MUTATION-OK bind (same family as OL2b/OL5). Errata overrides cell for scoring."
     }
   },
   "substitutions": {

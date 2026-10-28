@@ -2,8 +2,8 @@
 
 Reads the request set and derived_keys.json read-only, plus state/errata.json.
 Scores mechanical class + state expectation only. Does not invent claim rules.
-Stale-pin rows (MT2, H6) are reported as stale, not failed.
 Hand-audit / not-scorable rows are excluded.
+stale_pin_rows may be empty (2026-10-28: MT2/H6 cleared — not content-stale at current pins).
 """
 
 from __future__ import annotations

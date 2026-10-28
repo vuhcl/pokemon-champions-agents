@@ -33,16 +33,16 @@ H12 (19-cell claim surface; vacuous `no_lookup_needed`), H19/H20 (bootstrap empt
 
 ## Errata
 
-`stale_pin_rows`: **[]** (MT2/H6 removed). H25 substitution left. sha256 `905f66de16fdfa4c3062750e6f0851f1427c8e1888dc76903afc06423eb6ae02`.
+`stale_pin_rows`: **[]** (MT2/H6 removed). H25 substitution left. **OL7a** `class_cells` → `MUTATION-OK` (cell was PARTIAL; select-bind is MUTATION-OK like OL2b/OL5). sha256 `cb0e5505e8f8e7912feb4ed4259c7f795312e91f3fb907f1b25dcd31f334a212`.
 
 ## Changed-file shas
 
 | file | sha256 |
 |---|---|
 | `covered_list.json` | `ebde0d0ad9acdd51d477b7aeab039e6494bf3081b96b22c666fedf313243c4c1` |
-| `errata.json` | `905f66de16fdfa4c3062750e6f0851f1427c8e1888dc76903afc06423eb6ae02` |
-| `b1_discovery.json` | `ea95a6cef2068450ba4bf3c59a60d48b2730d095cf7788407a515ce6f09db52f` |
-| `part0_retriage_final.json` | (see git; H19/H20 restored) |
+| `errata.json` | `cb0e5505e8f8e7912feb4ed4259c7f795312e91f3fb907f1b25dcd31f334a212` |
+| `b1_discovery.json` | `6787755b0ead19d5bf40319d0863028e1f168260f59c7b57348af544edd1db29` |
+| `part0_retriage_final.json` | (H19/H20 restored; see git) |
 
 ## Not-covered reasons (31)
 
