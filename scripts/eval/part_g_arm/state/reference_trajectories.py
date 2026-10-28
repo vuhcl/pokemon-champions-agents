@@ -422,7 +422,8 @@ def hand_audit_tool_map() -> list[dict[str, Any]]:
             "locked anchor (producer needs ≥1 all_locked); rejection filter "
             "verified on producer path in test_show_candidates"
         ),
-        "MT5": "GAP: no change_archetype / read_archetype (4f)",
+        "MT5": "change_archetype + read_archetype (4f)",
+        "MS5": "change_archetype([rain,offense]) + conflict audit (Drought, Solar Beam); Pelipper clean",
         "MT6": "t1 HC1 fail-closed (no record); t2 add_constraint Water team_wide; t3 read_constraints",
         "H25": (
             "show_candidates blocked: fixture slots lock species/ability/item only; "

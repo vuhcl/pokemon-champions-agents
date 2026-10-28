@@ -19,6 +19,7 @@ from recommender.nodes import (
     apply_lock,
     apply_provisional_option,
     commit_full_slot,
+    handle_archetype_change,
     record_constraint,
     record_rejection,
     refine_provisional_slot,
@@ -36,13 +37,13 @@ STATE_TOOL_NAMES = frozenset({
     "select_option", "confirm_build", "reject_pending", "reject_option",
     "reject_all", "read_rejected", "edit_slot_field",
     "add_constraint", "read_constraints", "restore_constraint",
-    "show_candidates",
+    "show_candidates", "change_archetype", "read_archetype",
 })
 LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
 # Read-only against live state (hyp copies then discards; read_* do not write).
 READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
     "check_hypothetical", "read_pending", "read_rejected", "read_constraints",
-    "solve_spread", "check_learnset",
+    "read_archetype", "solve_spread", "check_learnset",
 }
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -201,6 +202,21 @@ STATE_TOOL_SPECS: list[dict[str, Any]] = [
         "learns=true|false and the species/move canonical ids used.",
         {"species": dict(_STR), "move": dict(_STR)},
         ["species", "move"],
+    ),
+    _spec(
+        "change_archetype",
+        "Set the team archetype from component strings (e.g. rain, offense) via "
+        "handle_archetype_change. Does not clear locked slots; returns conflict "
+        "audit for rain themes (non-rain weather abilities; sun charge moves like "
+        "Solar Beam). Calc may be used by reconcile for fit checks (localhost).",
+        {"components": {"type": "array", "items": dict(_STR)}},
+        ["components"],
+    ),
+    _spec(
+        "read_archetype",
+        "Read the current archetype Attr (components, locked). Does not change state.",
+        {},
+        [],
     ),
 ]
 
@@ -842,6 +858,92 @@ def check_learnset(state: dict[str, Any], species: object, move: object) -> dict
         "move": move.strip(),
         "move_id": mid,
         "learns": learns,
+    }
+
+
+def read_archetype(state: dict[str, Any]) -> dict[str, Any]:
+    arch = state.get("archetype") or Attr()
+    return {
+        "components": list(arch.value or []) if arch.value is not None else [],
+        "locked": bool(arch.locked),
+    }
+
+
+def _rain_conflict_audit(state: dict[str, Any], components: list[str]) -> list[dict[str, Any]]:
+    """MS5 surface: non-rain weather abilities + sun charge moves on locked slots.
+
+    Uses ABILITY_TO_FIELD and CHARGE_INSTANT_WEATHER. Pelipper/Drizzle (Rain) not flagged.
+    """
+    from recommender.coverage import ABILITY_TO_FIELD
+    from recommender.ids import to_id
+    from recommender.matchup import CHARGE_INSTANT_WEATHER
+
+    lowered = {c.casefold() for c in components}
+    if "rain" not in lowered:
+        return []
+    rain_labels = frozenset({"Rain", "Heavy Rain"})
+    sun_labels = frozenset({"Sun", "Harsh Sunshine"})
+    conflicts: list[dict[str, Any]] = []
+    for index, slot in enumerate(state["team_draft"]):
+        if not slot.species.value:
+            continue
+        ability = slot.ability.value
+        if isinstance(ability, str) and ability.strip():
+            field = ABILITY_TO_FIELD.get(to_id(ability)) or {}
+            weather = field.get("weather")
+            if weather and weather not in rain_labels:
+                conflicts.append(
+                    {
+                        "slot": display_slot(index),
+                        "species": slot.species.value,
+                        "kind": "non_rain_weather_ability",
+                        "ability": ability,
+                        "weather": weather,
+                        "reason": f"{ability} sets {weather}, not Rain",
+                    }
+                )
+        moves = slot.moveset.value or []
+        for move in moves:
+            mid = to_id(str(move))
+            weathers = CHARGE_INSTANT_WEATHER.get(mid)
+            if weathers and (weathers & sun_labels) and not (weathers & rain_labels):
+                conflicts.append(
+                    {
+                        "slot": display_slot(index),
+                        "species": slot.species.value,
+                        "kind": "rain_reduced_move",
+                        "move": move,
+                        "reason": f"{move} is sun-charged / rain-penalized on a rain team",
+                    }
+                )
+    return conflicts
+
+
+def change_archetype(
+    state: dict[str, Any], components: object
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Wrap handle_archetype_change; surface rain conflict audit; keep locked slots."""
+    if not isinstance(components, list) or not components:
+        return state, _refuse("components must be a non-empty list of strings")
+    if not all(isinstance(c, str) and c.strip() for c in components):
+        return state, _refuse("each component must be a nonempty string")
+    comps = [c.strip() for c in components]
+    before_draft = draft_signature(state)
+    patch = handle_archetype_change(
+        {**state, "turn_payload": {"components": comps}}
+    )
+    after = _merge(state, patch)
+    # Spec: locked slots untouched — if reconcile mutated draft, refuse and revert.
+    if draft_signature(after) != before_draft:
+        return state, _refuse(
+            "archetype reconcile would edit locked slots; refusing to keep locks intact"
+        )
+    conflicts = _rain_conflict_audit(after, comps)
+    return after, {
+        "ok": True,
+        "archetype": read_archetype(after),
+        "conflicts": conflicts,
+        "pending_flags": to_jsonable(after.get("pending_flags") or []),
     }
 
 
