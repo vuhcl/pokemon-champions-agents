@@ -188,6 +188,33 @@ def build_run_parameters(cfg: ArmConfig, facts: dict[str, Any]) -> dict[str, Any
     }
 
 
+def run_role(run_id: int) -> str:
+    """run 1 = primary result; runs 2 and 3 = determinism checks (never averaged)."""
+    if run_id == 1:
+        return "primary"
+    if run_id in (2, 3):
+        return "determinism"
+    raise ValueError(f"run_id must be 1, 2, or 3; got {run_id}")
+
+
+def resolve_out_dir(*, out_dir: Path | None, runs_root: Path | None, run_id: int | None) -> tuple[Path, int | None, str | None]:
+    """Map CLI out_dir / --runs-root + --run-id to a single run directory.
+
+    --runs-root DIR with --run-id N → DIR/run_N/ (isolated progress; no resume across runs).
+    Plain out_dir alone leaves run_id unset (legacy single-run).
+    """
+    if runs_root is not None:
+        if run_id is None:
+            raise SystemExit("--runs-root requires --run-id {1|2|3}")
+        role = run_role(run_id)
+        return runs_root / f"run_{run_id}", run_id, role
+    if out_dir is None:
+        raise SystemExit("out_dir or --runs-root is required")
+    if run_id is not None:
+        return out_dir, run_id, run_role(run_id)
+    return out_dir, None, None
+
+
 def _load_progress(out_dir: Path) -> dict[str, Any]:
     path = out_dir / "progress.json"
     if not path.is_file():
@@ -211,10 +238,15 @@ def run_batch(
     stop_after: int | None = None,
     resolve_fn: Any = None,
     turns_fn: Any = None,
+    run_id: int | None = None,
+    role: str | None = None,
 ) -> int:
     """Run rows with resume. stop_after limits newly completed rows (kill-resume tests)."""
     out_dir.mkdir(parents=True, exist_ok=True)
     progress = _load_progress(out_dir)
+    if run_id is not None:
+        progress["run_id"] = run_id
+        progress["role"] = role or run_role(run_id)
     finished = list(progress.get("finished") or [])
     by_id: dict[str, Any] = dict(progress.get("transcript_by_id") or {})
     newly = 0
@@ -231,12 +263,18 @@ def run_batch(
             resolve_fn=resolve_fn,
             turns_fn=turns_fn,
         )
+        if run_id is not None:
+            entry["run_id"] = run_id
+            entry["role"] = role or run_role(run_id)
         # Freeze finished results: never overwrite an existing finished entry.
         if rid in finished and rid in by_id:
             raise SystemExit(f"refusing to rewrite finished row {rid}")
         by_id[rid] = entry
         finished.append(rid)
         progress = {"finished": finished, "transcript_by_id": by_id}
+        if run_id is not None:
+            progress["run_id"] = run_id
+            progress["role"] = role or run_role(run_id)
         _save_progress(out_dir, progress)
         newly += 1
         if stop_after is not None and newly >= stop_after:
@@ -245,6 +283,14 @@ def run_batch(
 
     transcript = [by_id[rid] for rid in wanted if rid in by_id]
     record = build_run_parameters(cfg, facts)
+    if run_id is not None:
+        record["run_id"] = run_id
+        record["role"] = role or run_role(run_id)
+    progress = {"finished": finished, "transcript_by_id": by_id}
+    if run_id is not None:
+        progress["run_id"] = run_id
+        progress["role"] = role or run_role(run_id)
+    _save_progress(out_dir, progress)
     (out_dir / "transcript.json").write_text(json.dumps(transcript, indent=2) + "\n", encoding="utf-8")
     (out_dir / "run_record.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {out_dir} ({len(transcript)} rows)", file=sys.stderr)
@@ -253,7 +299,26 @@ def run_batch(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("out_dir", type=Path, help="transcript directory (outside the repo)")
+    parser.add_argument(
+        "out_dir",
+        type=Path,
+        nargs="?",
+        default=None,
+        help="transcript directory (outside the repo); omit when using --runs-root",
+    )
+    parser.add_argument(
+        "--runs-root",
+        type=Path,
+        default=None,
+        help="parent dir for three-run layout; with --run-id N writes to ROOT/run_N/",
+    )
+    parser.add_argument(
+        "--run-id",
+        type=int,
+        choices=(1, 2, 3),
+        default=None,
+        help="1=primary, 2|3=determinism checks; stamps run_id/role on every record",
+    )
     parser.add_argument("--row", action="append", default=[], help="row id to run (repeatable)")
     parser.add_argument("--dev", action="store_true", help="allow non-frozen prompt / non-covered rows")
     parser.add_argument("--list-covered", action="store_true", help="print covered ids and exit")
@@ -293,7 +358,9 @@ def main(argv: list[str] | None = None) -> int:
         if rid not in rows_by_id:
             raise SystemExit(f"unknown row id {rid!r}")
 
-    out_dir: Path = args.out_dir
+    out_dir, run_id, role = resolve_out_dir(
+        out_dir=args.out_dir, runs_root=args.runs_root, run_id=args.run_id
+    )
     out_dir.mkdir(parents=True, exist_ok=True)
 
     arm = ArmTools(
@@ -315,9 +382,11 @@ def main(argv: list[str] | None = None) -> int:
         try:
             facts = model_facts(cfg)
         except (Exception, SystemExit) as exc:  # noqa: BLE001
-            (out_dir / "run_record.json").write_text(
-                json.dumps({"error": f"{type(exc).__name__}: {exc}"}, indent=2) + "\n"
-            )
+            err_rec: dict[str, Any] = {"error": f"{type(exc).__name__}: {exc}"}
+            if run_id is not None:
+                err_rec["run_id"] = run_id
+                err_rec["role"] = role
+            (out_dir / "run_record.json").write_text(json.dumps(err_rec, indent=2) + "\n")
             return 1
         llm = ChatOllama(
             model=cfg.model,
@@ -363,6 +432,8 @@ def main(argv: list[str] | None = None) -> int:
         stop_after=args.stop_after,
         resolve_fn=resolve_fn,
         turns_fn=turns_fn,
+        run_id=run_id,
+        role=role,
     )
 
 
