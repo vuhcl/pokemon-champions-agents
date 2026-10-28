@@ -1,5 +1,5 @@
 {
-  "note": "B1 refresh 2026-10-27 after H19/H20 not_covered + six-row bucket assign. Dual rows (MS5/RB1/TB2): mechanical class + hand-audited stated facts.",
+  "note": "B1 after MM1/MM2 add + H11 errata. MM1 hand; MM2 mechanical. Dual still MS5/RB1/TB2.",
   "covered": [
     {
       "row": "H1",
@@ -887,6 +887,27 @@
       "bucket": "hand audit",
       "reason": "priority claim (Fake Out 3 > Follow Me/Rage Powder 2) needs hand/claim check",
       "mechanical": "lookup only / no change (stated conditions + facts; state unchanged)"
+    },
+    {
+      "row": "MM1",
+      "turns": [
+        "SERVED"
+      ],
+      "bucket": "hand audit",
+      "reason": "SERVED with stated mega-stone correction; class alone insufficient",
+      "mechanical": "lookup only / no change (stated correction; state unchanged)",
+      "stated_facts": [
+        "mega cannot hold other item; offer keep stone or base+Leftovers"
+      ]
+    },
+    {
+      "row": "MM2",
+      "turns": [
+        "MUTATION-REFUSED"
+      ],
+      "bucket": "scorable-mechanical",
+      "reason": "MUTATION-REFUSED write refused + draft unchanged; state signature + tool outcome suffice. Form-change offer text is in the validator message (not a separate hand statement).",
+      "mechanical": "refused (state equals start)"
     }
   ],
   "not_state_only_property": [
@@ -932,6 +953,7 @@
     "IS4",
     "IX1",
     "MC1",
+    "MM1",
     "MRB1",
     "MS5",
     "MT1",

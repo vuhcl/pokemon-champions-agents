@@ -264,6 +264,10 @@ def trajectories() -> dict[str, list[Call] | Gap]:
         "OL6": [("read_pending", {})],  # ASK
         "OL8": [("reject_all", {})],  # neither → reject every option, no lock
         "OL9": [("read_pending", {})],  # ASK
+        # Mega stone (#318): MM1 is hand-audit (stated correction); MM2 mechanical refuse.
+        "MM2": [
+            ("edit_slot_field", {"slot": 1, "field": "item", "value": "Leftovers"}),
+        ],
     }
 
 
@@ -294,6 +298,20 @@ def _prepare_start(rid: str, state: dict[str, Any]) -> dict[str, Any]:
         return build_fully_locked_slot("Garchomp", user_slot=1)
     if rid == "MW2":
         return build_fully_locked_slot("Garchomp", user_slot=1)
+    if rid == "MM2":
+        # Fixture: Salamence-Mega + Salamencite fully locked (same as spot-check).
+        st, _ = edit_slot_field(empty_team(), 1, "item", "Salamencite")
+        st, patch = lock_slot(st, 1, "Salamence-Mega")
+        if patch.get("slot_commit_error"):
+            raise RuntimeError(patch["slot_commit_error"])
+        for field, val in (
+            ("ability", "Aerilate"),
+            ("nature", "Jolly"),
+            ("spread", "0/32/0/0/0/32"),
+            ("moveset", ["Double-Edge", "Earthquake", "Protect", "Dragon Dance"]),
+        ):
+            st, _ = edit_slot_field(st, 1, field, val)
+        return st
     return state
 
 
@@ -475,6 +493,15 @@ def hand_audit_tool_map() -> list[dict[str, Any]]:
         "IC1": "get_usage_items + Item Clause; t2 edit_slot_field(item, Sitrus Berry) (4a)",
         "TB1": "edit_slot_field moveset/item + consequences type_boost_* from TYPE_BOOST data (4a)",
         "MC1": "ASK form or ASSUME-STATE Y — get_usage_*; no lock required for ASK",
+        "MM1": (
+            "check_hypothetical([{Salamence-Mega, Leftovers}]) → mega_stone; "
+            "stated keep stone or base+Leftovers (hand). Tool unchanged."
+        ),
+        "GS1": "usage modal + edit_slot_field Choice Scarf; status moves named (hand)",
+        "IX1": "get_move_static priority Fake Out vs Follow Me (hand)",
+        "SC2": "check_learnset(Archaludon, Soak) false (hand)",
+        "RB1": "edit_slot_field moveset + consequences status_self_boost_overlap (dual)",
+        "TB2": "edit_slot_field moveset + consequences type_boost_inactive (dual)",
         "H6_dup": "",
     }
     out = []

@@ -1,8 +1,8 @@
 {
   "mechanical": {
-    "mechanical_n": 39,
+    "mechanical_n": 40,
     "passed": 39,
-    "failed": 0,
+    "failed": 1,
     "capability_gaps": [],
     "rows": [
       {
@@ -51,6 +51,21 @@
         }
       },
       {
+        "row": "HP3",
+        "trajectory": [
+          "lock_slot({'slot': 1, 'species': 'Koraidon'})"
+        ],
+        "observed_class": "refused",
+        "key_class": "MUTATION-REFUSED",
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
+      },
+      {
         "row": "HC1",
         "trajectory": [
           "no_lookup_needed({'reason': 'unsatisfiable Water\u2227Fire', 'category': 'unavailable'})"
@@ -76,21 +91,6 @@
         "score": {
           "mechanical_class_observed": "lookup only",
           "key_class_expected": "ASK",
-          "match": true,
-          "state_expectation_met": true
-        }
-      },
-      {
-        "row": "HP3",
-        "trajectory": [
-          "lock_slot({'slot': 1, 'species': 'Koraidon'})"
-        ],
-        "observed_class": "refused",
-        "key_class": "MUTATION-REFUSED",
-        "pass": true,
-        "score": {
-          "mechanical_class_observed": "refused",
-          "key_class_expected": "MUTATION-REFUSED",
           "match": true,
           "state_expectation_met": true
         }
@@ -589,6 +589,16 @@
           "match": true,
           "state_expectation_met": true
         }
+      },
+      {
+        "row": "MM2",
+        "trajectory": [
+          "edit_slot_field({'slot': 1, 'field': 'item', 'value': 'Leftovers'})"
+        ],
+        "observed_class": null,
+        "key_class": "MUTATION-REFUSED",
+        "pass": false,
+        "error": "FixtureLoadError: mm2_salamence_mega.json: no declared slot base in _SLOT_BASE; refusing to guess"
       }
     ]
   },
@@ -634,16 +644,6 @@
       "fact_unreachable": false
     },
     {
-      "row": "Q9",
-      "tools": "check_species_legal + Species Clause via lock refuse or hyp",
-      "fact_unreachable": false
-    },
-    {
-      "row": "Q10",
-      "tools": "unlock_slot on empty \u2192 refuse message / read_team",
-      "fact_unreachable": false
-    },
-    {
       "row": "H11",
       "tools": "find_species(types=[Water], learns_move=Hurricane); set-scoring",
       "fact_unreachable": false
@@ -659,31 +659,6 @@
       "fact_unreachable": false
     },
     {
-      "row": "MT1",
-      "tools": "add_constraint + read_constraints (4b); t1 Water type, t2 judgment-only no Intimidate, t3 read_constraints",
-      "fact_unreachable": false
-    },
-    {
-      "row": "MT2",
-      "tools": "stale pin \u2014 excluded",
-      "fact_unreachable": false
-    },
-    {
-      "row": "MT3",
-      "tools": "seed+history; t2 suggest needs show_candidates(4c); t3 get_abilities",
-      "fact_unreachable": false
-    },
-    {
-      "row": "MT5",
-      "tools": "change_archetype + read_archetype (4f)",
-      "fact_unreachable": false
-    },
-    {
-      "row": "MT6",
-      "tools": "t1 HC1 fail-closed (no record); t2 add_constraint Water team_wide; t3 read_constraints",
-      "fact_unreachable": false
-    },
-    {
       "row": "HF1",
       "tools": "get_typing",
       "fact_unreachable": false
@@ -694,31 +669,6 @@
       "fact_unreachable": false
     },
     {
-      "row": "HD1",
-      "tools": "get_typing + history",
-      "fact_unreachable": false
-    },
-    {
-      "row": "HU1",
-      "tools": "find_species(types=[Fire], stat_formula=2*hp+def+spd>=350, include_formes=false)",
-      "fact_unreachable": false
-    },
-    {
-      "row": "HU2",
-      "tools": "get_speed + get_usage_teammates/threats (ingame)",
-      "fact_unreachable": false
-    },
-    {
-      "row": "HU3",
-      "tools": "show_candidates(4c) after Fire lock; hand-audit Fire filter still model/prompt",
-      "fact_unreachable": false
-    },
-    {
-      "row": "HU4",
-      "tools": "get_speed + usage (ASSUME-STATE)",
-      "fact_unreachable": false
-    },
-    {
       "row": "HN1",
       "tools": "get_abilities",
       "fact_unreachable": false
@@ -726,6 +676,21 @@
     {
       "row": "HN2",
       "tools": "get_speed \u00d72",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN2b",
+      "tools": "get_speed ASSUME-STATE grid",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN2c",
+      "tools": "get_speed + locked Spe from read_team",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HN2d",
+      "tools": "get_speed (+1 stage claim narrative; tool gives bare Spe)",
       "fact_unreachable": false
     },
     {
@@ -749,8 +714,13 @@
       "fact_unreachable": false
     },
     {
-      "row": "MRB1",
-      "tools": "read_team",
+      "row": "HU1",
+      "tools": "find_species(types=[Fire], stat_formula=2*hp+def+spd>=350, include_formes=false)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "HU2",
+      "tools": "get_speed + get_usage_teammates/threats (ingame)",
       "fact_unreachable": false
     },
     {
@@ -759,38 +729,18 @@
       "fact_unreachable": false
     },
     {
-      "row": "HN2b",
-      "tools": "get_speed ASSUME-STATE grid",
+      "row": "HU3",
+      "tools": "show_candidates(4c) after Fire lock; hand-audit Fire filter still model/prompt",
       "fact_unreachable": false
     },
     {
-      "row": "HN2c",
-      "tools": "get_speed + locked Spe from read_team",
+      "row": "HU4",
+      "tools": "get_speed + usage (ASSUME-STATE)",
       "fact_unreachable": false
     },
     {
-      "row": "HN2d",
-      "tools": "get_speed (+1 stage claim narrative; tool gives bare Spe)",
-      "fact_unreachable": false
-    },
-    {
-      "row": "IS1",
-      "tools": "get_speed / solve_spread outspeed",
-      "fact_unreachable": false
-    },
-    {
-      "row": "IS2",
-      "tools": "solve_spread / get_speed + fixture",
-      "fact_unreachable": false
-    },
-    {
-      "row": "IS3",
-      "tools": "get_speed + get_usage_items (no Scarf in list)",
-      "fact_unreachable": false
-    },
-    {
-      "row": "IS4",
-      "tools": "get_speed unreachable",
+      "row": "HD1",
+      "tools": "get_typing + history",
       "fact_unreachable": false
     },
     {
@@ -824,6 +774,26 @@
       "fact_unreachable": false
     },
     {
+      "row": "IS1",
+      "tools": "get_speed / solve_spread outspeed",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IS2",
+      "tools": "solve_spread / get_speed + fixture",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IS3",
+      "tools": "get_speed + get_usage_items (no Scarf in list)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IS4",
+      "tools": "get_speed unreachable",
+      "fact_unreachable": false
+    },
+    {
       "row": "MV1",
       "tools": "get_move_static \u2192 priority (4h enrichment from static.v1.json); Follow Me=2",
       "fact_unreachable": false
@@ -836,6 +806,46 @@
     {
       "row": "MV3",
       "tools": "get_move_static target; accuracy from pin/data",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MRB1",
+      "tools": "read_team",
+      "fact_unreachable": false
+    },
+    {
+      "row": "Q9",
+      "tools": "check_species_legal + Species Clause via lock refuse or hyp",
+      "fact_unreachable": false
+    },
+    {
+      "row": "Q10",
+      "tools": "unlock_slot on empty \u2192 refuse message / read_team",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT1",
+      "tools": "add_constraint + read_constraints (4b); t1 Water type, t2 judgment-only no Intimidate, t3 read_constraints",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT2",
+      "tools": "stale pin \u2014 excluded",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT3",
+      "tools": "seed+history; t2 suggest needs show_candidates(4c); t3 get_abilities",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT5",
+      "tools": "change_archetype + read_archetype (4f)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MT6",
+      "tools": "t1 HC1 fail-closed (no record); t2 add_constraint Water team_wide; t3 read_constraints",
       "fact_unreachable": false
     },
     {
@@ -856,6 +866,26 @@
     {
       "row": "MC1",
       "tools": "ASK form or ASSUME-STATE Y \u2014 get_usage_*; no lock required for ASK",
+      "fact_unreachable": false
+    },
+    {
+      "row": "SC2",
+      "tools": "check_learnset(Archaludon, Soak) false (hand)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "GS1",
+      "tools": "usage modal + edit_slot_field Choice Scarf; status moves named (hand)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "IX1",
+      "tools": "get_move_static priority Fake Out vs Follow Me (hand)",
+      "fact_unreachable": false
+    },
+    {
+      "row": "MM1",
+      "tools": "check_hypothetical([{Salamence-Mega, Leftovers}]) \u2192 mega_stone; stated keep stone or base+Leftovers (hand). Tool unchanged.",
       "fact_unreachable": false
     }
   ],
