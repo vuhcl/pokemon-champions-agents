@@ -12,7 +12,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-from scripts.eval.part_g_arm.state.errata_read import expected_turns, load_errata, stale_pin_rows
+from scripts.eval.part_g_arm.state.errata_read import (
+    expected_turns,
+    load_errata,
+    outcome_set,
+    stale_pin_rows,
+)
 from scripts.eval.part_g_arm.state.request_set_rows import load_covered_ids, load_request_rows
 
 HERE = Path(__file__).resolve().parent
@@ -33,6 +38,10 @@ _CLASS_TO_MECH: dict[str, set[str]] = {
     "ASK|ASSUME-STATE": {"no change", "lookup only"},
 }
 
+_ASK_MECHS = _CLASS_TO_MECH["ASK"]
+_BIND_MECHS = _CLASS_TO_MECH["MUTATION-OK"]
+
+
 
 def _discovery_bucket(row_id: str) -> str:
     doc = json.loads(DISCOVERY.read_text(encoding="utf-8"))
@@ -48,12 +57,82 @@ def _state_unchanged(turn: dict[str, Any]) -> bool:
     return before.get("slots") == after.get("slots") and before.get("steering") == after.get("steering")
 
 
+def _bound_species(turn: dict[str, Any]) -> str | None:
+    """Species selected via select_option (provisional / pending intent), if any."""
+    for t in turn.get("tool_calls") or []:
+        if (t.get("name") or "") != "select_option":
+            continue
+        res = t.get("result")
+        if not isinstance(res, dict):
+            continue
+        for key in ("provisional_slot", "pending_slot_intent"):
+            obj = res.get(key)
+            if isinstance(obj, dict) and obj.get("species"):
+                return str(obj["species"])
+            species = getattr(obj, "species", None)
+            if isinstance(species, str) and species:
+                return species
+    return None
+
+
+def score_outcome_set(
+    spec: dict[str, Any],
+    *,
+    observed_mech: str,
+    turn: dict[str, Any],
+) -> dict[str, Any]:
+    """Score against errata outcome_sets (accepted bind species and/or ask)."""
+    accepted = list(spec.get("accepted") or [])
+    bound = _bound_species(turn)
+    matched_kind: str | None = None
+    matched_class: str | None = None
+
+    if observed_mech in _BIND_MECHS and bound:
+        for item in accepted:
+            if not isinstance(item, dict) or item.get("kind") != "bind":
+                continue
+            want = item.get("species")
+            if isinstance(want, str) and want.casefold() == bound.casefold():
+                matched_kind = "bind"
+                matched_class = "MUTATION-OK"
+                break
+        if matched_kind is None and (spec.get("other_bind") or "fail") == "fail":
+            return {
+                "mechanical_class_observed": observed_mech,
+                "key_class_expected": "outcome_set",
+                "outcome_matched": None,
+                "bound_species": bound,
+                "match": False,
+                "state_expectation_met": False,
+            }
+    elif observed_mech in _ASK_MECHS and _state_unchanged(turn) and bound is None:
+        if any(isinstance(i, dict) and i.get("kind") == "ask" for i in accepted):
+            matched_kind = "ask"
+            matched_class = "ASK"
+
+    ok = matched_kind is not None
+    return {
+        "mechanical_class_observed": observed_mech,
+        "key_class_expected": matched_class or "outcome_set",
+        "outcome_matched": matched_kind,
+        "bound_species": bound,
+        "match": ok,
+        "state_expectation_met": ok,
+    }
+
+
 def score_turn(
     *,
     observed_mech: str,
     expected_key_class: str,
     turn: dict[str, Any],
+    row_id: str | None = None,
 ) -> dict[str, Any]:
+    if row_id:
+        oset = outcome_set(row_id)
+        if oset:
+            return score_outcome_set(oset, observed_mech=observed_mech, turn=turn)
+
     allowed = _CLASS_TO_MECH.get(expected_key_class, set())
     match = observed_mech in allowed if allowed else False
     # State expectation: mutation classes may change; others must not write draft.
@@ -116,10 +195,16 @@ def score_transcript(
         for i, turn in enumerate(turns_obs):
             exp = turns_expected[i] if i < len(turns_expected) else turns_expected[-1]
             observed = turn.get("mechanical_class") or "no change"
-            sc = score_turn(observed_mech=observed, expected_key_class=exp, turn=turn)
+            sc = score_turn(
+                observed_mech=observed,
+                expected_key_class=exp,
+                turn=turn,
+                row_id=rid,
+            )
             turn_scores.append(sc)
             if excluded is None:
-                bucket_c = by_class.setdefault(exp, {"n": 0, "match": 0, "state_ok": 0})
+                rate_key = sc.get("key_class_expected") or exp
+                bucket_c = by_class.setdefault(rate_key, {"n": 0, "match": 0, "state_ok": 0})
                 bucket_c["n"] += 1
                 bucket_c["match"] += int(sc["match"])
                 bucket_c["state_ok"] += int(sc["state_expectation_met"])

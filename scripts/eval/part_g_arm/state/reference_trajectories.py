@@ -391,13 +391,28 @@ def run_all_mechanical() -> dict[str, Any]:
             })
             continue
         after_snap = _snap(after)
+        from recommender.arm_tools import to_jsonable
+
         turn = {
             "mechanical_class": obs,
             "state_before": before_snap,
             "state_after": after_snap,
-            "tool_calls": [{"name": c["name"]} for c in tool_calls],
+            # Keep results for outcome_sets (bind species from select_option).
+            "tool_calls": [
+                {
+                    "name": c["name"],
+                    "arguments": c.get("arguments"),
+                    "result": to_jsonable(c.get("result")),
+                }
+                for c in tool_calls
+            ],
         }
-        scored = score_turn(observed_mech=obs, expected_key_class=key_class, turn=turn)
+        scored = score_turn(
+            observed_mech=obs,
+            expected_key_class=key_class,
+            turn=turn,
+            row_id=rid,
+        )
         ok = bool(scored["match"] and scored["state_expectation_met"])
         results.append({
             "row": rid,

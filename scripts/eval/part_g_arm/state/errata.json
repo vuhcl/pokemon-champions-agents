@@ -32,12 +32,16 @@
         "PARTIAL+ASSUME-STATE"
       ],
       "note": "Class cell ASSUME-STATE; acceptance PARTIAL+ASSUME-STATE (errata)."
-    },
+    }
+  },
+  "outcome_sets": {
     "OL7a": {
-      "turns": [
-        "MUTATION-OK"
+      "accepted": [
+        {"kind": "bind", "species": "Jolteon"},
+        {"kind": "ask"}
       ],
-      "note": "Class cell PARTIAL (Spe claim partial/synthetic context); selecting the faster CS option is MUTATION-OK bind (same family as OL2b/OL5). Errata overrides cell for scoring."
+      "other_bind": "fail",
+      "note": "Request-set key `{bind Jolteon, ask}`; other bind=fail. Cell PARTIAL is not plainly wrong — it encodes this accepted set. Spe 200 identifies the correct bind target (not a separate stated-claim hand point)."
     }
   },
   "substitutions": {

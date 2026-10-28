@@ -912,11 +912,11 @@
     {
       "row": "OL7a",
       "turns": [
-        "MUTATION-OK"
+        "PARTIAL"
       ],
       "bucket": "scorable-mechanical",
-      "reason": "CS select faster=Jolteon; select_option binds; class cell PARTIAL overridden to MUTATION-OK via errata",
-      "mechanical": "bound (CS\u2192FBC)"
+      "reason": "outcome_sets errata: {bind Jolteon, ask}; other bind=fail. Cell PARTIAL kept; Spe 200 identifies bind target (not dual hand point).",
+      "mechanical": "bound (Jolteon) or ask (no mutate)"
     },
     {
       "row": "H27",

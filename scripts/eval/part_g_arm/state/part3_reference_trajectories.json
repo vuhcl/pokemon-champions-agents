@@ -612,11 +612,13 @@
           "select_option({'option': 3})"
         ],
         "observed_class": "bound",
-        "key_class": "MUTATION-OK",
+        "key_class": "PARTIAL",
         "pass": true,
         "score": {
           "mechanical_class_observed": "bound",
           "key_class_expected": "MUTATION-OK",
+          "outcome_matched": "bind",
+          "bound_species": "Jolteon",
           "match": true,
           "state_expectation_met": true
         }

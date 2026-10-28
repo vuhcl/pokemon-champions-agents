@@ -59,3 +59,12 @@ def set_answer_hand_note(row_id: str) -> str | None:
     rule = entry.get("scoring_rule") or "allowed_not_required"
     meaning = entry.get("meaning") or ""
     return f"ERRATA set_answer ({rule}): {members}. {meaning}".strip()
+
+
+def outcome_set(row_id: str) -> dict[str, Any] | None:
+    """Accepted outcome set for a row (e.g. OL7a `{bind Jolteon, ask}`).
+
+    When present, class_scorer scores against this set instead of a single class atom.
+    """
+    entry = (load_errata().get("outcome_sets") or {}).get(row_id)
+    return dict(entry) if isinstance(entry, dict) else None
