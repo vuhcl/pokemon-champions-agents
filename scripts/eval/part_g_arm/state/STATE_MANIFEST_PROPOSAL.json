@@ -1,7 +1,7 @@
 {
   "schema": "state_arm_manifest_proposal_v0",
   "frozen": false,
-  "note": "Proposal only. Freeze after Vu approval. find_species prompt revision 2026-10-27 (bd2b69cd\u2026); prior Part 5 08a0917a\u2026. Does not edit FROZEN_MANIFEST.json.",
+  "note": "Proposal only. Freeze after Vu approval. Final tools/errata/MM covered 2026-10-27. frozen:false; clean_tree_commit_sha empty.",
   "model": {
     "id": "qwen3.5:latest",
     "digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
@@ -73,7 +73,7 @@
   "files": [
     {
       "path": "scripts/eval/part_g_arm/state/request_set_runner.py",
-      "sha256": "8d8c43290b931380520cf0b09af008df7bbed6e45f5520b45b578032caec773b"
+      "sha256": "3e66c2034ff617a46eefb42bc41fce7b615d1d578cd367f4cd897fefa6e7f3ed"
     },
     {
       "path": "scripts/eval/part_g_arm/state/class_scorer.py",
@@ -81,11 +81,11 @@
     },
     {
       "path": "scripts/eval/part_g_arm/state/errata.json",
-      "sha256": "7a006768db18f3c6d5729df626975d8c5ca88aa823b0f548be886b3f54199284"
+      "sha256": "b08146bb89de9ea25b56a032a99b5faede36895e4c77e902e8e5ec5e1f0414b7"
     },
     {
       "path": "scripts/eval/part_g_arm/state/tools.py",
-      "sha256": "f34cb4650ab8a96e7f3482abec6bcaf5a3e2a15186f66c7b089b227860d59250"
+      "sha256": "e5dd309e0a6ce4afb9eeddc0b2bb2172ea79086feda8e7ff07a3158ae4dd5d42"
     },
     {
       "path": "scripts/eval/part_g_arm/state/spread_solve.py",
@@ -101,7 +101,7 @@
     },
     {
       "path": "scripts/eval/part_g_arm/state/covered_list.json",
-      "sha256": "25b6a1cf42dfb305a0bb66e60c7b9a012fbc855281d6013d770afd84a2ba1ffa"
+      "sha256": "ebeef244f370688b73e2fd6e94b01c55cdb07a6e8123c43156352255a8a6ed85"
     },
     {
       "path": "scripts/eval/part_g_v4/key_artifacts/derived_keys.json",
@@ -133,15 +133,15 @@
     },
     {
       "path": "scripts/eval/part_g_arm/state/pending.py",
-      "sha256": "fe4c64a68ef2f22154c1f2159978ff90c25cc2575aa312de05cd42cd055e4581"
+      "sha256": "438993fb934461a4c91ba03b0ba0def7d650afed8487c628b5d26fa94ef18e83"
     },
     {
       "path": "scripts/eval/part_g_arm/state/fixtures.py",
-      "sha256": "f4d89047b338edf461ccbecc5dabb5ad5b20359b587db4102c8fa6b2711e4e6b"
+      "sha256": "8a83dc6d79e668b35a2d48859fbc238938939f3cac95de1cd269919f9769af3c"
     },
     {
       "path": "scripts/eval/part_g_arm/state/harness.py",
-      "sha256": "5b293c9bb96fa7e1b3760dcae21fef1ae3f318b56516356b5579fdf773a84230"
+      "sha256": "89292d90affc02259b8cf08b911e5614040b2f5b89ee3b88e0461fc4c7469ddb"
     },
     {
       "path": "scripts/eval/part_g_arm/state/seeds/builders.py",
@@ -153,34 +153,37 @@
     }
   ],
   "proposed_covered_counts": {
-    "covered": 97,
-    "not_covered": 37,
-    "b1_mechanical_incl_dual": 42,
-    "b1_hand_incl_dual": 58,
+    "covered": 99,
+    "not_covered": 35,
+    "b1_mechanical_only": 40,
+    "b1_hand_only": 56,
     "b1_dual": 3,
     "b1_dual_rows": [
       "MS5",
       "RB1",
       "TB2"
     ],
-    "audit_form_sections": 70,
-    "audit_rubric_cells": 228,
-    "mm1_mm2": "not_covered; trajectories pass; readiness 99 if added"
+    "b1_mechanical_incl_dual": 43,
+    "b1_hand_incl_dual": 59,
+    "audit_form_sections": 71,
+    "audit_rubric_cells": 232,
+    "mm1": "hand_audit",
+    "mm2": "scorable-mechanical"
   },
   "prompt_choice": {
     "chosen": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
     "prior_part5": "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b",
     "prior_frozen": "b71764852eb66f87f17375ff3226a7e4be7517b09eb8961fb56e779fe32badd8",
     "rejected_first_draft": "c58e3ce8499d3c579899bed84ec7a450f55e0e9da83dedb7bca6582c3cd4dd18",
-    "why": "Adds factual find_species tool description (no weather-move list). 40/41 eev: all prior Part 5 rows + three ordinary find_species rows pass; dev-fs-prankster-weather set-fails (model listed Prankster holders then check_learnset; never queried weather moves via find_species; 25 calls >16). Finding only \u2014 no further prompt tune without Vu.",
-    "dev_transcript": "/Users/nowaki027/part-g-arm-state-out-find-species/",
+    "why": "Final-tools eev 40/41 (same as find-species run); only fail remains dev-fs-prankster-weather. H11 via errata; MM1/MM2 covered. No prompt change.",
+    "dev_transcript": "/Users/nowaki027/part-g-arm-state-out-pre-freeze-r3/",
     "prankster_weather_key_sha256": "6dba1caac2d45135779779f7867f6f442163bdb3fef35ca6270d7c76329fb543",
     "prankster_weather_key_prior_circular_sha256": "cbef455d7ff1610152f64fc17ad5e33796e82fd05669a8fca93d8b0fa47652d3"
   },
   "freeze_checklist": {
     "note": "scripts/eval/part_g_arm/state/LAST_FREEZE_CHECKLIST.md",
-    "mega_pr_318": "OPEN",
-    "covered_list_sha256": "25b6a1cf42dfb305a0bb66e60c7b9a012fbc855281d6013d770afd84a2ba1ffa",
+    "mega_pr_318": "MERGED",
+    "covered_list_sha256": "ebeef244f370688b73e2fd6e94b01c55cdb07a6e8123c43156352255a8a6ed85",
     "judge_prompt_sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87",
     "seeds_sha256sums": "9e8cc64f6265eab5758fc7e7d97bd3416a3758c5c32b7a56ea748bbfe8df0d63",
     "b1_covered_shortfall": [
@@ -238,9 +241,9 @@
     "sample_html_sha256": "bb2042515cdfec9f5ee68be3dae97c91375554f56125b0048d9a1efc9f5647ca",
     "note": "scripts/eval/part_g_arm/state/LAST_HAND_AUDIT_FORM.md"
   },
-  "covered_list_sha256": "5dfa19f8ab9bbf225ef6e7b92ab1423ee60f88790be0a46a9a7bfa20fe77e543",
+  "covered_list_sha256": "ebeef244f370688b73e2fd6e94b01c55cdb07a6e8123c43156352255a8a6ed85",
   "tools_py_sha256": "e5dd309e0a6ce4afb9eeddc0b2bb2172ea79086feda8e7ff07a3158ae4dd5d42",
-  "note_b1": "B1 refresh 2026-10-27: covered 97; mech-only 39; hand-only 55; dual MS5/RB1/TB2; audit sections 70 / rubric cells 228. H19/H20 not_covered.",
+  "note_b1": "B1 after MM1/MM2: covered 99; not_covered 35; mech-only 40; hand-only 56; dual MS5/RB1/TB2; audit sections 71 / rubric cells 232. H11 errata allowed_not_required.",
   "note_post_merge_318": "step3: check_hypothetical sibling-stage for Mega+stone; mega_stone refusals on bare Mega hyp/select",
   "merged_main_commit_sha": "6f909b0eb668de98d97357bbb16a3576c34e7e2a",
   "note_merged_tree": "main #318 merge commit 707642b; arm merge commit 6f909b0; clean_tree_commit_sha stays empty until Vu freezes",
@@ -251,6 +254,10 @@
     "run_all_checks": "PASS",
     "keys_sha": "e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a",
     "battery_claim": "6e6c6be4351240629416f1e279bbf495bbf4670d79aaaa7d083a2c62c6d67443",
-    "battery_false_legal": "3025138427391e57a92e1862a87b0074d44a51b290836077abf094af92c4bdec"
-  }
+    "battery_false_legal": "3025138427391e57a92e1862a87b0074d44a51b290836077abf094af92c4bdec",
+    "calc_health_before": "{\"status\":\"ok\"}",
+    "calc_health_after": "{\"status\":\"ok\"}"
+  },
+  "dev_results_sha256": "074e6f275c98b605846e9a16e60fd39ff413e0f68dc92ac12abc60ece930c942",
+  "dev_run_record_sha256": "070038c73862d8f40d7b98faf243c8a8f5b01ff08ca51c32643520d8a40ad935"
 }

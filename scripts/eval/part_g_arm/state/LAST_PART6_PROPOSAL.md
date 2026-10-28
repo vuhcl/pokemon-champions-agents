@@ -1,33 +1,27 @@
-# Part 6 — covered list + state manifest proposal (NOT frozen)
+# Manifest proposal (pre-freeze round 3 item 4)
 
-Regenerated 2026-10-27 after find_species, repeat-run design, hand-audit form, and freeze checklist. Freeze target **2026-10-29 / 2026-10-30**. Covered three-run **2026-11-02**.
+`STATE_MANIFEST_PROPOSAL.json`: `frozen: false`; `clean_tree_commit_sha: ""`.
 
-## Final covered list (proposed)
-
-| bucket | count | notes |
-|---|---|---|
-| scorable-mechanical (B1∩covered) | 39 | +3 proposed if B1 refreshed for MS5/RB1/TB2 → 42 |
-| hand audit (B1∩covered) | 54 | +3 proposed if B1 refreshed for GS1/IX1/SC2 → 57 |
-| B1∩covered | 93 | |
-| covered but absent from B1 | 6 | GS1, IX1, MS5, RB1, SC2, TB2 — see `LAST_FREEZE_CHECKLIST.md` §c |
-| **covered total** | **99** | `covered_list.json` |
-| not covered | 35 | includes MT4, H25/H26, H17/H18, OL1/OL2a/OL3, MM1/MM2, SC1/SC3, … |
-
-H11 / H19 (learnset) / H20 / HU1 are tool-reachable via `find_species`. H11 acceptance vs tool set drift (`Castform-Rainy`) reported in freeze checklist. H19 compendium-role TR setters may still need hand/checklist when not learnset-equivalent.
-
-Stale-pin rows MT2/H6 stay covered but scored as stale, not failed.
-
-## Still out (readiness)
-
-| rows | reason |
+| field | value |
 |---|---|
-| MT4 | CS seed has no all_locked anchor for `show_candidates` t2 |
-| H25 / H26 | fixtures not all_locked (outside `state/`) |
-| H17 / H18 | empty; bootstrap out of scope |
-| MM1 / MM2 | mega-stone PR #318 not merged |
-| SC1 / SC3 | draft-condition store not built |
-| OL1 / OL2a / OL3 | FBC provisional wire gap |
+| covered_list sha256 | `ebeef244f370688b73e2fd6e94b01c55cdb07a6e8123c43156352255a8a6ed85` |
+| tools.py sha256 | `e5dd309e0a6ce4afb9eeddc0b2bb2172ea79086feda8e7ff07a3158ae4dd5d42` |
+| eev transcript sha256 | `074e6f275c98b605846e9a16e60fd39ff413e0f68dc92ac12abc60ece930c942` |
+| prompt | `bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86` |
+| covered / not_covered | **99 / 35** |
+| audit sections / rubric cells | **71 / 232** |
+| MM1 / MM2 | hand audit / mechanical |
 
-## Manifest proposal
+## Suites
 
-See `STATE_MANIFEST_PROPOSAL.json` (`frozen: false`). Proposed prompt: `bd2b69cd…` (40/41 eev; Prankster-weather set fail as finding). Prankster key (independent): `6dba1caa…`. Freeze after Vu approval; Claude reviews seeds against row text first.
+| suite | result |
+|---|---|
+| calc health before/after | ok |
+| `uv run pytest` | **4785 passed, 14 skipped** |
+| `npm test` | **119 passed** |
+| `run_all_checks.py` | **PASS** |
+| keys sha | `e70672541b5215e7bfff7eccb34dc321b2bde3a4b9cf08d1f5a6419be1d2309a` |
+| claim battery | `6e6c6be4351240629416f1e279bbf495bbf4670d79aaaa7d083a2c62c6d67443` |
+| false_legal | `3025138427391e57a92e1862a87b0074d44a51b290836077abf094af92c4bdec` |
+
+`LAST_CHECK.json` / `calc_coverage.json` restored (not committed).
