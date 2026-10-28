@@ -1,0 +1,206 @@
+{
+  "as_of": "2026-10-28",
+  "coverable_now_ids": [
+    "H12",
+    "H19",
+    "H20",
+    "H21",
+    "H22",
+    "H27",
+    "IX5",
+    "IX7",
+    "OL7a"
+  ],
+  "results": [
+    {
+      "row": "H12",
+      "trajectory": [
+        "no_lookup_needed({\"category\": \"conceptual\", \"reason\": \"ASSUME-STATE Sinistcha Calm/Bold vs Showdown attacker pool; calc_damage per stated sides\"})"
+      ],
+      "observed_mechanical_class": "lookup only",
+      "key_class_expected": "ASSUME-STATE",
+      "scorer_excluded": "not_covered",
+      "turn_score": null,
+      "pass": true,
+      "seed_needed": "H12 seed: state cell 'attackers undefined' \u2192 empty_team (row text only; not written to seeds/)",
+      "form": {
+        "acceptance_points": 19,
+        "sections_if_added": 1,
+        "cells_if_added": 19,
+        "claim_surface_rubric_cells": 19,
+        "note": "H12 acceptance ';'-splits to 19 points \u00d7 1 turn(s)"
+      },
+      "loader": "seed:empty_team"
+    },
+    {
+      "row": "H19",
+      "trajectory": [
+        "find_species({\"learns_move\": \"Trick Room\"})"
+      ],
+      "observed_mechanical_class": "lookup only",
+      "key_class_expected": "SERVED",
+      "scorer_excluded": "not_covered",
+      "turn_score": null,
+      "pass": true,
+      "seed_needed": null,
+      "form": {
+        "acceptance_points": 2,
+        "sections_if_added": 1,
+        "cells_if_added": 2,
+        "frozen_checklist": true,
+        "note": "binary checklist H19 in request set; form cells from acceptance ';'-split"
+      },
+      "loader": "empty_team"
+    },
+    {
+      "row": "H20",
+      "trajectory": [
+        "find_species({\"types\": [\"Electric\"]})",
+        "add_constraint({\"groundedness\": \"mechanically-checkable\", \"mechanical_kind\": \"type\", \"predicate\": \"Electric only\", \"scope\": \"team_wide\", \"value\": \"Electric\"})"
+      ],
+      "observed_mechanical_class": "recorded",
+      "key_class_expected": "SERVED",
+      "scorer_excluded": "not_covered",
+      "turn_score": null,
+      "pass": true,
+      "seed_needed": null,
+      "form": {
+        "acceptance_points": 1,
+        "sections_if_added": 1,
+        "cells_if_added": 1,
+        "frozen_checklist": true,
+        "note": "binary checklist H20 in request set; form cells from acceptance ';'-split"
+      },
+      "loader": "empty_team"
+    },
+    {
+      "row": "H21",
+      "trajectory": [
+        "no_lookup_needed({\"category\": \"conceptual\", \"reason\": \"ASSUME-STATE: membership = species name contains 'monkey' / dex category; confirm or proceed\"})"
+      ],
+      "observed_mechanical_class": "lookup only",
+      "key_class_expected": "ASSUME-STATE",
+      "scorer_excluded": "not_covered",
+      "turn_score": null,
+      "pass": true,
+      "seed_needed": null,
+      "form": {
+        "acceptance_points": 3,
+        "sections_if_added": 1,
+        "cells_if_added": 3,
+        "frozen_checklist": false,
+        "note": "acceptance explicitly: No frozen checklist"
+      },
+      "loader": "empty_team"
+    },
+    {
+      "row": "H22",
+      "trajectory": [
+        "no_lookup_needed({\"category\": \"conceptual\", \"reason\": \"ASSUME-STATE aesthetic membership; offer confirm/reject under stated assumption (checklist H22)\"})"
+      ],
+      "observed_mechanical_class": "lookup only",
+      "key_class_expected": "ASSUME-STATE",
+      "scorer_excluded": "not_covered",
+      "turn_score": null,
+      "pass": true,
+      "seed_needed": null,
+      "form": {
+        "acceptance_points": 1,
+        "sections_if_added": 1,
+        "cells_if_added": 1,
+        "frozen_checklist": true,
+        "checklist_items": 4,
+        "note": "form generator uses acceptance ';'-split (1 point); frozen checklist H22 has 4 rubric items in part3_request_set_v4.md"
+      },
+      "loader": "empty_team"
+    },
+    {
+      "row": "H27",
+      "trajectory": [
+        "read_pending({})",
+        "get_typing({\"species\": \"Garchomp\"})",
+        "get_typing({\"species\": \"Incineroar\"})",
+        "get_typing({\"species\": \"Rillaboom\"})"
+      ],
+      "observed_mechanical_class": "lookup only",
+      "key_class_expected": "SERVED",
+      "scorer_excluded": "not_covered",
+      "turn_score": null,
+      "pass": true,
+      "seed_needed": null,
+      "form": {
+        "acceptance_points": 1,
+        "sections_if_added": 1,
+        "cells_if_added": 1
+      },
+      "loader": "load_fixture('H27')"
+    },
+    {
+      "row": "IX5",
+      "trajectory": [
+        "find_species({\"ability\": \"Inner Focus\"})",
+        "find_species({\"ability\": \"Own Tempo\"})",
+        "find_species({\"ability\": \"Oblivious\"})",
+        "find_species({\"ability\": \"Scrappy\"})"
+      ],
+      "observed_mechanical_class": "lookup only",
+      "key_class_expected": "ASSUME-STATE",
+      "scorer_excluded": "not_covered",
+      "turn_score": null,
+      "pass": true,
+      "seed_needed": null,
+      "form": {
+        "acceptance_points": 5,
+        "sections_if_added": 1,
+        "cells_if_added": 5
+      },
+      "loader": "empty_team"
+    },
+    {
+      "row": "IX7",
+      "trajectory": [
+        "find_species({\"types\": [\"Flying\"]})",
+        "find_species({\"ability\": \"Levitate\"})",
+        "find_species({\"ability\": \"Telepathy\"})",
+        "find_species({\"ability\": \"Earth Eater\"})"
+      ],
+      "observed_mechanical_class": "lookup only",
+      "key_class_expected": "ASSUME-STATE",
+      "scorer_excluded": "not_covered",
+      "turn_score": null,
+      "pass": true,
+      "seed_needed": null,
+      "form": {
+        "acceptance_points": 4,
+        "sections_if_added": 1,
+        "cells_if_added": 4
+      },
+      "loader": "empty_team"
+    },
+    {
+      "row": "OL7a",
+      "trajectory": [
+        "read_pending({})",
+        "select_option({\"option\": 3})"
+      ],
+      "observed_mechanical_class": "bound",
+      "key_class_expected": "PARTIAL",
+      "scorer_excluded": "not_covered",
+      "turn_score": null,
+      "pass": true,
+      "seed_needed": null,
+      "form": {
+        "acceptance_points": 1,
+        "sections_if_added": 1,
+        "cells_if_added": 1
+      },
+      "loader": "load_fixture('OL7a')"
+    }
+  ],
+  "form_cost_if_all_added": {
+    "rows": 9,
+    "sections": 9,
+    "cells": 37,
+    "note": "acceptance ';'-split method (same as LAST_B1 / freeze confirm). H22 checklist has 4 items but acceptance cell count is 1."
+  }
+}
