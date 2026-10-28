@@ -9,6 +9,7 @@ check_hypothetical copies the draft, validates on the copy, and discards it.
 
 from __future__ import annotations
 
+import re
 from copy import deepcopy
 from dataclasses import fields, replace
 from typing import Any
@@ -18,9 +19,11 @@ from recommender.nodes import (
     apply_lock,
     apply_provisional_option,
     commit_full_slot,
+    record_constraint,
     record_rejection,
     refine_provisional_slot,
     reset_team,
+    restore_constraint,
     unlock_locked_slot,
 )
 from recommender.slot_index import SlotIndexError, display_slot, user_slot_to_index
@@ -32,11 +35,13 @@ STATE_TOOL_NAMES = frozenset({
     "lock_slot", "unlock_slot", "reset_team", "commit_slot", "read_team",
     "select_option", "confirm_build", "reject_pending", "reject_option",
     "reject_all", "read_rejected", "edit_slot_field",
+    "add_constraint", "read_constraints", "restore_constraint",
 })
 LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
 # Read-only against live state (hyp copies then discards; read_* do not write).
 READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
-    "check_hypothetical", "read_pending", "read_rejected", "solve_spread",
+    "check_hypothetical", "read_pending", "read_rejected", "read_constraints",
+    "solve_spread",
 }
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -129,6 +134,52 @@ STATE_TOOL_SPECS: list[dict[str, Any]] = [
             },
         },
         ["slot", "field", "value"],
+    ),
+    _spec(
+        "add_constraint",
+        "Record a team constraint via build_constraint + record_constraint. "
+        "predicate and scope are required. groundedness is "
+        "mechanically-checkable | enumerable-but-uncoded | judgment-only. "
+        "For type/ability/item must-haves pass mechanical_kind and value "
+        "(maps to mechanical_value). mechanical_kind=type exists for MS6 Water. "
+        "Ban-ability / ban-weather have no mechanical kind — use judgment-only "
+        "(e.g. No Intimidate / No weather). Optional slot (1-based) is echoed in "
+        "the predicate and read-back; product Constraint has no slot_index field. "
+        "Does not build a draft-condition store.",
+        {
+            "predicate": dict(_STR),
+            "scope": {
+                "type": "string",
+                "description": "per_slot | team_wide",
+            },
+            "groundedness": {
+                "type": "string",
+                "description": (
+                    "mechanically-checkable | enumerable-but-uncoded | judgment-only"
+                ),
+            },
+            "slot": dict(_INT),
+            "mechanical_kind": {
+                "type": "string",
+                "description": "type | ability | item | no_duplicate_items",
+            },
+            "value": dict(_STR),
+        },
+        ["predicate", "scope", "groundedness"],
+    ),
+    _spec(
+        "read_constraints",
+        "Read active and inactive constraints (predicate, scope, groundedness, "
+        "mechanical kind/value, still_active, optional slot echo). Does not change state.",
+        {},
+        [],
+    ),
+    _spec(
+        "restore_constraint",
+        "True-swap restore of the most recent constraints_superseded entry "
+        "(newest-wins undo). Writes nothing when the log is empty.",
+        {},
+        [],
     ),
 ]
 
@@ -541,6 +592,143 @@ def read_rejected(state: dict[str, Any]) -> dict[str, Any]:
     return {"rejected": rows}
 
 
+_SLOT_PRED_RE = re.compile(r"^slot\s+(\d+)\b", re.I)
+_GROUND = frozenset(
+    {"mechanically-checkable", "enumerable-but-uncoded", "judgment-only"}
+)
+_SCOPES = frozenset({"per_slot", "team_wide"})
+_MECH_KINDS = frozenset({"type", "ability", "item", "no_duplicate_items"})
+
+
+def _constraint_row(c: Any) -> dict[str, Any]:
+    """JSON row for one Constraint (dataclass or already-dict)."""
+    if hasattr(c, "predicate"):
+        pred = str(c.predicate or "")
+        mech = getattr(c, "mechanical", None)
+        row: dict[str, Any] = {
+            "predicate": pred,
+            "type": getattr(c, "type", None),
+            "scope": getattr(c, "scope", None),
+            "groundedness": getattr(c, "groundedness", None),
+            "still_active": getattr(c, "still_active", True),
+            "source_turn": getattr(c, "source_turn", None),
+            "mechanical_kind": getattr(mech, "kind", None) if mech else None,
+            "mechanical_value": getattr(mech, "value", None) if mech else None,
+        }
+    else:
+        mech = (c or {}).get("mechanical") or {}
+        pred = str((c or {}).get("predicate") or "")
+        row = {
+            "predicate": pred,
+            "type": (c or {}).get("type"),
+            "scope": (c or {}).get("scope"),
+            "groundedness": (c or {}).get("groundedness"),
+            "still_active": (c or {}).get("still_active", True),
+            "source_turn": (c or {}).get("source_turn"),
+            "mechanical_kind": mech.get("kind") if isinstance(mech, dict) else None,
+            "mechanical_value": mech.get("value") if isinstance(mech, dict) else None,
+        }
+    m = _SLOT_PRED_RE.match(pred)
+    if m:
+        row["slot"] = int(m.group(1))
+    return row
+
+
+def read_constraints(state: dict[str, Any]) -> dict[str, Any]:
+    """Read-only constraint list. Slot echo comes from predicate prefix when present."""
+    return {"constraints": [_constraint_row(c) for c in state.get("constraints") or []]}
+
+
+def add_constraint(
+    state: dict[str, Any],
+    predicate: object,
+    scope: object,
+    groundedness: object,
+    *,
+    slot: object = None,
+    mechanical_kind: object = None,
+    value: object = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Wrap record_constraint with structured args. No draft-condition store."""
+    if not isinstance(predicate, str) or not predicate.strip():
+        return state, _refuse("predicate is required")
+    if scope not in _SCOPES:
+        return state, _refuse("scope must be per_slot | team_wide")
+    if groundedness not in _GROUND:
+        return state, _refuse(
+            "groundedness must be mechanically-checkable | "
+            "enumerable-but-uncoded | judgment-only"
+        )
+    pred = predicate.strip()
+    slot_echo: int | None = None
+    if slot is not None:
+        try:
+            index = user_slot_to_index(slot, team_size=len(state["team_draft"]))
+        except SlotIndexError as exc:
+            return state, _refuse(str(exc))
+        slot_echo = index + 1  # 1-based int (display_slot is str; options use ints)
+        if not _SLOT_PRED_RE.match(pred):
+            pred = f"slot {slot_echo} {pred}"
+
+    payload: dict[str, Any] = {
+        "type": "hard",
+        "predicate": pred,
+        "scope": scope,
+        "groundedness": groundedness,
+    }
+    if groundedness == "judgment-only":
+        if mechanical_kind is not None or (isinstance(value, str) and value.strip()):
+            return state, _refuse(
+                "judgment-only constraints must omit mechanical_kind/value"
+            )
+    else:
+        if mechanical_kind is not None:
+            if mechanical_kind not in _MECH_KINDS:
+                return state, _refuse(
+                    "mechanical_kind must be type | ability | item | no_duplicate_items"
+                )
+            payload["mechanical_kind"] = mechanical_kind
+            if mechanical_kind != "no_duplicate_items":
+                if not isinstance(value, str) or not value.strip():
+                    return state, _refuse(
+                        "mechanical_kind requires nonempty value"
+                    )
+                payload["mechanical_value"] = value.strip()
+
+    patch = record_constraint(
+        {**state, "turn_payload": payload, "turn": state.get("turn", 0)}
+    )
+    if patch.get("slot_commit_error"):
+        return state, _refuse(str(patch["slot_commit_error"]))
+    after = _merge(state, patch)
+    latest = (after.get("constraints") or [])[-1]
+    result = {
+        "ok": True,
+        "constraint": _constraint_row(latest),
+        "constraints": [_constraint_row(c) for c in after.get("constraints") or []],
+    }
+    if slot_echo is not None:
+        result["slot"] = slot_echo
+    return after, result
+
+
+def restore_constraint_tool(
+    state: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Pop newest constraints_superseded entry (true-swap). Empty log → refuse."""
+    if not state.get("constraints_superseded"):
+        return state, _refuse("no superseded constraint to restore")
+    before_sig = _constraints_signature(state.get("constraints"))
+    patch = restore_constraint(state)
+    after = _merge(state, patch)
+    if _constraints_signature(after.get("constraints")) == before_sig and not patch:
+        return state, _refuse("restore_constraint could not apply (stale log entry)")
+    return after, {
+        "ok": True,
+        "constraints": [_constraint_row(c) for c in after.get("constraints") or []],
+    }
+
+
 def reject_all(state: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     """Record every CS option, then clear pending once. Atomic on any refusal.
 
@@ -783,7 +971,8 @@ def mechanical_class(before: dict[str, Any], after: dict[str, Any], tool_calls: 
     )
     if bound:
         return "bound"
-    if rejected_grew:
+    if rejected_grew or a_cons != b_cons:
+        # recorded: reject list grew OR constraints list changed (add/restore).
         return "recorded"
     if (
         pending_cleared

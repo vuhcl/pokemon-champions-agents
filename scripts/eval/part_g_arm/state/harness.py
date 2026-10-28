@@ -22,6 +22,7 @@ from scripts.eval.part_g_arm.state.fixtures import empty_team
 from scripts.eval.part_g_arm.state.pending import build_cs_pending, build_fbc_pending, build_fully_locked_slot
 from scripts.eval.part_g_arm.state.tools import (
     STATE_TOOL_NAMES,
+    add_constraint,
     check_hypothetical,
     combined_specs,
     commit_slot,
@@ -29,6 +30,7 @@ from scripts.eval.part_g_arm.state.tools import (
     edit_slot_field,
     lock_slot,
     mechanical_class,
+    read_constraints,
     read_pending,
     read_rejected,
     read_team,
@@ -36,6 +38,7 @@ from scripts.eval.part_g_arm.state.tools import (
     reject_option,
     reject_pending,
     reset_team_state,
+    restore_constraint_tool,
     select_option,
     solve_spread_tool,
     steering_signature,
@@ -133,6 +136,20 @@ def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -
         return reject_all(state)
     if name == "read_rejected":
         return state, read_rejected(state)
+    if name == "add_constraint":
+        return add_constraint(
+            state,
+            args.get("predicate"),
+            args.get("scope"),
+            args.get("groundedness"),
+            slot=args.get("slot"),
+            mechanical_kind=args.get("mechanical_kind"),
+            value=args.get("value"),
+        )
+    if name == "read_constraints":
+        return state, read_constraints(state)
+    if name == "restore_constraint":
+        return restore_constraint_tool(state)
     if name == "check_hypothetical":
         return state, check_hypothetical(state, args.get("placements"))
     if name == "solve_spread":

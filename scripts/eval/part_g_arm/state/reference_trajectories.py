@@ -19,6 +19,7 @@ from scripts.eval.part_g_arm.state.request_set_rows import (
     resolve_start_state,
 )
 from scripts.eval.part_g_arm.state.tools import (
+    add_constraint,
     check_hypothetical,
     commit_slot,
     confirm_build,
@@ -26,6 +27,7 @@ from scripts.eval.part_g_arm.state.tools import (
     edit_slot_field,
     lock_slot,
     mechanical_class,
+    read_constraints,
     read_pending,
     read_rejected,
     read_team,
@@ -33,6 +35,7 @@ from scripts.eval.part_g_arm.state.tools import (
     reject_option,
     reject_pending,
     reset_team_state,
+    restore_constraint_tool,
     select_option,
     steering_signature,
     unlock_slot,
@@ -80,11 +83,23 @@ def _dispatch(state: dict[str, Any], name: str, kwargs: dict[str, Any]) -> tuple
     if name == "lock_slot":
         return lock_slot(state, kwargs["slot"], kwargs["species"])
     if name == "edit_slot_field":
-        from scripts.eval.part_g_arm.state.tools import edit_slot_field
-
         return edit_slot_field(
             state, kwargs["slot"], kwargs["field"], kwargs["value"]
         )
+    if name == "add_constraint":
+        return add_constraint(
+            state,
+            kwargs.get("predicate"),
+            kwargs.get("scope"),
+            kwargs.get("groundedness"),
+            slot=kwargs.get("slot"),
+            mechanical_kind=kwargs.get("mechanical_kind"),
+            value=kwargs.get("value"),
+        )
+    if name == "read_constraints":
+        return state, read_constraints(state)
+    if name == "restore_constraint":
+        return restore_constraint_tool(state)
     if name == "unlock_slot":
         return unlock_slot(state, kwargs["slot"])
     if name == "reset_team":
@@ -202,7 +217,19 @@ def trajectories() -> dict[str, list[Call] | Gap]:
         "MS2": [("unlock_slot", {"slot": 1})],
         "MS3": [("reset_team", {})],
         "MS4": [("commit_slot", {})],
-        "MS6": {"gap": "cannot record constraint", "needs": "add_constraint (4b)"},
+        "MS6": [
+            (
+                "add_constraint",
+                {
+                    "predicate": "Water",
+                    "scope": "per_slot",
+                    "groundedness": "mechanically-checkable",
+                    "slot": 1,
+                    "mechanical_kind": "type",
+                    "value": "Water",
+                },
+            ),
+        ],
         "MS7": [("reject_option", {"option": 2})],
         "MS8": _traj_lock(1, "Pelipper"),
         # Refusals
@@ -387,11 +414,11 @@ def hand_audit_tool_map() -> list[dict[str, Any]]:
         "H18b": "fixture + solve_spread / usage; HO constraint judgment-only in fixture",
         "H19": "GAP: no Trick-Room learnset scan tool (check_learnset 4e helps per-species only)",
         "H20": "GAP: no monotype candidate producer without show_candidates+type filter",
-        "MT1": "GAP until 4b: constraints not readable; t3 read-back needs read_constraints",
+        "MT1": "add_constraint + read_constraints (4b); t1 Water type, t2 judgment-only no Intimidate, t3 read_constraints",
         "MT2": "stale pin — excluded",
         "MT3": "seed+history; t2 suggest needs show_candidates(4c); t3 get_abilities",
         "MT5": "GAP: no change_archetype / read_archetype (4f)",
-        "MT6": "GAP: add_constraint (4b) for Water-only resolve",
+        "MT6": "t1 HC1 fail-closed (no record); t2 add_constraint Water team_wide; t3 read_constraints",
         "HF1": "get_typing",
         "HF2": "get_abilities / check_species_ability",
         "HD1": "get_typing + history",

@@ -1,14 +1,9 @@
 {
   "mechanical": {
     "mechanical_n": 42,
-    "passed": 38,
+    "passed": 39,
     "failed": 0,
     "capability_gaps": [
-      {
-        "row": "MS6",
-        "gap": "cannot record constraint",
-        "needs": "add_constraint (4b)"
-      },
       {
         "row": "OL1",
         "gap": "OL FBC fixture has options but no provisional_slot; select_option cannot bind",
@@ -178,13 +173,18 @@
       },
       {
         "row": "MS6",
-        "trajectory": null,
-        "observed_class": null,
+        "trajectory": [
+          "add_constraint({'predicate': 'Water', 'scope': 'per_slot', 'groundedness': 'mechanically-checkable', 'slot': 1, 'mechanical_kind': 'type', 'value': 'Water'})"
+        ],
+        "observed_class": "recorded",
         "key_class": "MUTATION-OK",
-        "pass": false,
-        "capability_gap": true,
-        "needs": "add_constraint (4b)",
-        "gap": "cannot record constraint"
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "recorded",
+          "key_class_expected": "MUTATION-OK",
+          "match": true,
+          "state_expectation_met": true
+        }
       },
       {
         "row": "MS7",
@@ -716,8 +716,8 @@
     },
     {
       "row": "MT1",
-      "tools": "GAP until 4b: constraints not readable; t3 read-back needs read_constraints",
-      "fact_unreachable": true
+      "tools": "add_constraint + read_constraints (4b); t1 Water type, t2 judgment-only no Intimidate, t3 read_constraints",
+      "fact_unreachable": false
     },
     {
       "row": "MT2",
@@ -741,8 +741,8 @@
     },
     {
       "row": "MT6",
-      "tools": "GAP: add_constraint (4b) for Water-only resolve",
-      "fact_unreachable": true
+      "tools": "t1 HC1 fail-closed (no record); t2 add_constraint Water team_wide; t3 read_constraints",
+      "fact_unreachable": false
     },
     {
       "row": "HF1",
@@ -922,11 +922,6 @@
   ],
   "needs_tool": [
     {
-      "row": "MS6",
-      "gap": "cannot record constraint",
-      "needs": "add_constraint (4b)"
-    },
-    {
       "row": "OL1",
       "gap": "OL FBC fixture has options but no provisional_slot; select_option cannot bind",
       "needs": "FBC provisional wire in pending loader (or product apply path)"
@@ -959,18 +954,8 @@
       "fact_unreachable": true
     },
     {
-      "row": "MT1",
-      "tools": "GAP until 4b: constraints not readable; t3 read-back needs read_constraints",
-      "fact_unreachable": true
-    },
-    {
       "row": "MT5",
       "tools": "GAP: no change_archetype / read_archetype (4f)",
-      "fact_unreachable": true
-    },
-    {
-      "row": "MT6",
-      "tools": "GAP: add_constraint (4b) for Water-only resolve",
       "fact_unreachable": true
     },
     {
