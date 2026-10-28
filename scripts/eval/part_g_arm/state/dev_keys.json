@@ -1,6 +1,6 @@
 {
   "provenance": "load_snapshot(), the same data validate_team_value reads. Wiring check only, not a legality measurement (ADR-060). MT7/MT8 hand-grade against key_artifacts/derived_keys.json mt7_mt8_ar (no class scorer yet).",
-  "checkpoint_prompt_sha256": "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b",
+  "checkpoint_prompt_sha256": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
   "retired_row_findings": {
     "dev-select-cs": "Observed: select then unrequested commit (wrote). Wording paraphrased graded pick phrasing.",
     "dev-reject-dismiss": "Observed: no tool call / no_lookup_needed on dismissal (lookup only fail; pending uncleared)."

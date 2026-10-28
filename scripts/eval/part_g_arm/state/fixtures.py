@@ -17,7 +17,7 @@ HERE = Path(__file__).resolve().parent
 REQUEST_SET = HERE.parents[1] / "part_g_v4" / "part3_request_set_v4.md"
 DEV_SPECIES = ("Venusaur", "Venusaur-Mega", "Blastoise", "Beedrill", "Bulbasaur")
 DEV_ITEMS = ("Wide Lens",)
-CHECKPOINT_PROMPT_SHA256 = "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b"
+CHECKPOINT_PROMPT_SHA256 = "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86"
 
 
 def empty_team() -> dict[str, Any]:

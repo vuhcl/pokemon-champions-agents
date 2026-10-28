@@ -11,7 +11,7 @@ Regenerated 2026-10-27 after Part 4/5 tools and MT4 drop. Supersedes the stale �
 | **covered total** | **99** | `covered_list.json` |
 | not covered | 35 | includes MT4, H25/H26, H17/H18, OL1/OL2a/OL3, MM1/MM2, SC1/SC3, … |
 
-Hand-unreachable facts until `find_species`: H11, H19, H20, HU1.
+H11 / H19 (learnset) / H20 / HU1 are tool-reachable via `find_species` (hand-map GAPs cleared). H19 compendium-role TR setters may still need hand/checklist when not learnset-equivalent.
 
 Stale-pin rows MT2/H6 stay covered but scored as stale, not failed.
 
@@ -32,4 +32,4 @@ Stale-pin rows MT2/H6 stay covered but scored as stale, not failed.
 
 ## Manifest proposal
 
-See `STATE_MANIFEST_PROPOSAL.json` (`frozen: false`). Proposed prompt after Part 5: `08a0917a…` until the find_species prompt revision. Freeze after Vu approval; Claude reviews seeds against row text first.
+See `STATE_MANIFEST_PROPOSAL.json` (`frozen: false`). Proposed prompt after find_species: `bd2b69cd…` (40/41 eev; Prankster-weather set fail as finding). Prior Part 5: `08a0917a…`. Freeze after Vu approval; Claude reviews seeds against row text first.

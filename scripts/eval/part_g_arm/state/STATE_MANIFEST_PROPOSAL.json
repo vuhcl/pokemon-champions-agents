@@ -1,7 +1,7 @@
 {
   "schema": "state_arm_manifest_proposal_v0",
   "frozen": false,
-  "note": "Proposal only. Freeze after Vu approval. Part 5 prompt revision 2026-10-27; chosen sha below. Does not edit FROZEN_MANIFEST.json.",
+  "note": "Proposal only. Freeze after Vu approval. find_species prompt revision 2026-10-27 (bd2b69cd…); prior Part 5 08a0917a…. Does not edit FROZEN_MANIFEST.json.",
   "model": {
     "id": "qwen3.5:latest",
     "digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
@@ -69,7 +69,7 @@
     "on_no_answer_or_error": "record as 'no usable answer'; no silent retry",
     "resume": "progress.json finished ids; skip without rewrite"
   },
-  "frozen_prompt_sha256": "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b",
+  "frozen_prompt_sha256": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
   "files": [
     {
       "path": "scripts/eval/part_g_arm/state/request_set_runner.py",
@@ -85,7 +85,7 @@
     },
     {
       "path": "scripts/eval/part_g_arm/state/tools.py",
-      "sha256": "3b790e3e84fc62094e00eb69f39a0e3f1c087a449aadae5d0904a13b32f49174"
+      "sha256": "f34cb4650ab8a96e7f3482abec6bcaf5a3e2a15186f66c7b089b227860d59250"
     },
     {
       "path": "scripts/eval/part_g_arm/state/spread_solve.py",
@@ -93,15 +93,15 @@
     },
     {
       "path": "scripts/eval/part_g_arm/state/prompt.md",
-      "sha256": "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b"
+      "sha256": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86"
     },
     {
       "path": "scripts/eval/part_g_arm/state/judge_prompt.md",
-      "sha256": "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b"
+      "sha256": "89b9900570368074fd45a1ce44981e57fcd6e3da8f3c46f4dbcbb0fc437e5d87"
     },
     {
       "path": "scripts/eval/part_g_arm/state/covered_list.json",
-      "sha256": "d56da1afdb629622cf6c191caa0cda91df6566cf483f56d595248ddbf293bd2c"
+      "sha256": "25b6a1cf42dfb305a0bb66e60c7b9a012fbc855281d6013d770afd84a2ba1ffa"
     },
     {
       "path": "scripts/eval/part_g_v4/key_artifacts/derived_keys.json",
@@ -153,17 +153,19 @@
     }
   ],
   "proposed_covered_counts": {
-    "mechanical": 42,
+    "mechanical": 39,
     "hand_audit": 54,
-    "covered_total_excluding_MT4": 96,
-    "not_covered": 38,
-    "MT4_drop_reason": "no show-candidates tool (pending 4c)"
+    "covered_total": 99,
+    "not_covered": 35,
+    "MT4_drop_reason": "CS seed has no all_locked anchor for show_candidates t2"
   },
   "prompt_choice": {
-    "chosen": "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b",
+    "chosen": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
+    "prior_part5": "08a0917a3eb30977752858b1a86f84f0c6ad8f2cd02217d98d6c9865f872b86b",
     "prior_frozen": "b71764852eb66f87f17375ff3226a7e4be7517b09eb8961fb56e779fe32badd8",
     "rejected_first_draft": "c58e3ce8499d3c579899bed84ec7a450f55e0e9da83dedb7bca6582c3cd4dd18",
-    "why": "New prompt describes Part 4 tools; after one eev-tuned line (solve_spread non-mutating unless user asks to change team), all 37 eev rows pass including MT7/MT8 silent-apply gate. Prior prompt cannot bind new tools. First draft failed MT7/MT8 via edit_slot_field.",
-    "dev_transcript": "/Users/nowaki027/part-g-arm-state-out-part5b/"
+    "why": "Adds factual find_species tool description (no weather-move list). 40/41 eev: all prior Part 5 rows + three ordinary find_species rows pass; dev-fs-prankster-weather set-fails (model listed Prankster holders then check_learnset; never queried weather moves via find_species; 25 calls >16). Finding only — no further prompt tune without Vu.",
+    "dev_transcript": "/Users/nowaki027/part-g-arm-state-out-find-species/",
+    "prankster_weather_key_sha256": "cbef455d7ff1610152f64fc17ad5e33796e82fd05669a8fca93d8b0fa47652d3"
   }
 }

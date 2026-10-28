@@ -27,6 +27,23 @@ Five `find_species(ability=Prankster, learns_move=<Name>)` calls → union == ke
 
 H11 / H19 (learnset half) / H20 / HU1 GAP lines cleared in `reference_trajectories.py`. H19 compendium-role TR setters remain hand/checklist when not learnset-equivalent.
 
-## Prompt / eev
+## Prompt / eev (after key sha on disk)
 
-Prompt revision (factual `find_species` blurb only — **no** weather-move list) and full eev are a **later** commit after this key sha is on disk.
+| field | value |
+|---|---|
+| prompt sha256 | `bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86` |
+| transcript | `/Users/nowaki027/part-g-arm-state-out-find-species/` |
+| eev | **40/41** |
+
+Ordinary rows `dev-fs-types-move`, `dev-fs-stat-bulk`, `dev-fs-formes`: pass (class + tool called).
+
+### `dev-fs-prankster-weather` finding (not a prompt tune)
+
+- **Class:** `lookup only` (pass).
+- **Set:** fail. Named `{Banette, Banette-Mega, Grimmsnarl, Klefki, Liepard, Meowstic, Sableye, Whimsicott}` ≠ key of 6. Banette (base) and Grimmsnarl are out-of-key; Banette also lacked a `find_species` hit.
+- **Calls:** 25 (>16 limit). One `find_species(ability=Prankster)` with no `learns_move`, then 24× `check_learnset`. **Omitted all five** weather moves on `find_species` (omission note; set still full-key).
+- Model did not derive the weather-move list from tools alone. Per plan: report as eev finding; **no** weather list in prompt and **no** weather-enum tool without Vu.
+
+## Prompt / eev (historical)
+
+Key sha was committed in `f1aa0ec` before this prompt revision.
