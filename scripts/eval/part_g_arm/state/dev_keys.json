@@ -38,11 +38,34 @@
         "Grass",
         "Poison"
       ]
+    },
+    "Kangaskhan-Mega": {
+      "canonical": "Kangaskhan-Mega",
+      "legal": true,
+      "in_request_set": false,
+      "stone": "Kangaskhanite",
+      "note": "eev Mega rows only; not in covered request-set prompts/fixtures/seeds"
+    },
+    "Kangaskhan": {
+      "canonical": "Kangaskhan",
+      "legal": true,
+      "in_request_set": false
     }
   },
   "items": {
     "Wide Lens": {
       "canonical": "Wide Lens",
+      "legal": true,
+      "in_request_set": false
+    },
+    "Kangaskhanite": {
+      "canonical": "Kangaskhanite",
+      "legal": true,
+      "in_request_set": false,
+      "mega_for": "Kangaskhan-Mega"
+    },
+    "Leftovers": {
+      "canonical": "Leftovers",
       "legal": true,
       "in_request_set": false
     }
@@ -320,6 +343,35 @@
         "sentence order hand audit",
         "nothing applied silently to team_draft"
       ]
+    },
+    "dev-mega-bare-hyp": {
+      "classes": [
+        "lookup only"
+      ],
+      "tool": "check_hypothetical",
+      "expect_verdict": "mega_stone",
+      "expect_stone": "Kangaskhanite",
+      "justification": "check_hypothetical on a bare Mega returns verdict mega_stone naming the mapped stone (fact from tool; draft unchanged).",
+      "key_text": "Class lookup only. Must call check_hypothetical; final verdict mega_stone. Message must state the Kangaskhanite requirement from the tool (not a flat refusal, not an invented rule). Team draft and pending unchanged."
+    },
+    "dev-mega-edit-refuse": {
+      "classes": [
+        "refused"
+      ],
+      "expect_species": "Kangaskhan-Mega",
+      "expect_item": "Kangaskhanite",
+      "justification": "edit_slot_field item→non-stone on a Mega+stone slot refuses via mega_stone; species and item stay put.",
+      "key_text": "Class refused. Slot 1 remains Kangaskhan-Mega holding Kangaskhanite (no silent species/item change). Tool refusal offers keep-stone or base+Leftovers; model must not invent a different rule."
+    },
+    "dev-mega-lock-ok": {
+      "classes": [
+        "wrote",
+        "wrote"
+      ],
+      "expect_species": "Kangaskhan-Mega",
+      "expect_item": "Kangaskhanite",
+      "justification": "item-first edit_slot_field(Kangaskhanite) then lock_slot(Kangaskhan-Mega) writes both; product allows Mega when the stone is already held.",
+      "key_text": "Classes wrote then wrote. After turn 2, slot 1 is species-locked Kangaskhan-Mega with item Kangaskhanite. No mega_stone refusal text on the successful path."
     }
   }
 }

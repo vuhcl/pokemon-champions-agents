@@ -19,7 +19,12 @@ from recommender.calc_client import CalcClient
 
 from scripts.eval.part_g_arm.config import ArmConfig
 from scripts.eval.part_g_arm.state.fixtures import empty_team
-from scripts.eval.part_g_arm.state.pending import build_cs_pending, build_fbc_pending, build_fully_locked_slot
+from scripts.eval.part_g_arm.state.pending import (
+    build_cs_pending,
+    build_fbc_pending,
+    build_fully_locked_mega,
+    build_fully_locked_slot,
+)
 from scripts.eval.part_g_arm.state.tools import (
     STATE_TOOL_NAMES,
     add_constraint,
@@ -282,6 +287,10 @@ def start_state(row: dict[str, Any]) -> dict[str, Any]:
     kind = row.get("start")
     if kind == "fully_locked":
         return build_fully_locked_slot(row["species"], user_slot=int(row["user_slot"]))
+    if kind == "fully_locked_mega":
+        return build_fully_locked_mega(
+            row["species"], row["item"], user_slot=int(row["user_slot"])
+        )
     if kind == "fully_locked_protect":
         # Venusaur (or row species) with Life Orb + Protect for Choice-lock consequence rows.
         from dataclasses import replace
@@ -375,12 +384,49 @@ def grade_row(row_id: str, turns: list[dict[str, Any]], keys: dict[str, Any]) ->
             expect = keys["species"][spec["species"]]["types"]
             if result.get("types") != expect:
                 failures.append(f"{row_id}: types {result.get('types')!r} != {expect!r}")
-    if row_id.startswith("dev-hyp-"):
+    if row_id.startswith("dev-hyp-") or row_id == "dev-mega-bare-hyp":
         before, after = turns[0]["state_before"], turns[0]["state_after"]
         if before["slots"] != after["slots"]:
             failures.append(f"{row_id}: team_draft changed")
         if before.get("pending_presentation") != after.get("pending_presentation"):
             failures.append(f"{row_id}: pending changed")
+    if row_id == "dev-mega-bare-hyp":
+        hyps = [c for c in turns[0]["tool_calls"] if c["name"] == "check_hypothetical"]
+        if not hyps:
+            failures.append(f"{row_id}: check_hypothetical was not called")
+        else:
+            verdict = (hyps[-1]["result"] or {}).get("verdict")
+            want = spec.get("expect_verdict")
+            if want and verdict != want:
+                failures.append(f"{row_id}: verdict {verdict!r} != {want!r}")
+    if row_id == "dev-mega-edit-refuse":
+        if turns[0]["state_before"]["slots"] != turns[0]["state_after"]["slots"]:
+            failures.append(f"{row_id}: draft changed on refuse")
+        want_item = spec.get("expect_item")
+        if want_item:
+            slot = next(s for s in turns[0]["state_after"]["slots"] if s["slot"] == "1")
+            item_val = next((a[1] for a in slot["attrs"] if a[0] == "item"), None)
+            if item_val != want_item:
+                failures.append(f"{row_id}: item {item_val!r} != {want_item!r}")
+        want_sp = spec.get("expect_species")
+        if want_sp:
+            slot = next(s for s in turns[0]["state_after"]["slots"] if s["slot"] == "1")
+            if slot["species"] != want_sp:
+                failures.append(f"{row_id}: species {slot['species']!r} != {want_sp!r}")
+    if row_id == "dev-mega-lock-ok":
+        if len(turns) < 2:
+            failures.append(f"{row_id}: expected two turns")
+        else:
+            slot = next(s for s in turns[-1]["state_after"]["slots"] if s["slot"] == "1")
+            if slot["species"] != spec.get("expect_species"):
+                failures.append(
+                    f"{row_id}: species {slot['species']!r} != {spec.get('expect_species')!r}"
+                )
+            item_val = next((a[1] for a in slot["attrs"] if a[0] == "item"), None)
+            if item_val != spec.get("expect_item"):
+                failures.append(f"{row_id}: item {item_val!r} != {spec.get('expect_item')!r}")
+            if not slot.get("species_locked"):
+                failures.append(f"{row_id}: species not locked")
     if row_id == "dev-pick-named":
         before, after = turns[0]["state_before"], turns[0]["state_after"]
         if before["slots"] != after["slots"]:
@@ -646,13 +692,24 @@ def run_record(cfg: ArmConfig, facts: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def run_dev(out_dir: Path, cfg: ArmConfig | None = None) -> int:
+def run_dev(
+    out_dir: Path,
+    cfg: ArmConfig | None = None,
+    *,
+    only_ids: frozenset[str] | None = None,
+) -> int:
     from recommender.arm_tools import ArmTools
     from langchain_ollama import ChatOllama
     from scripts.eval.part_g_arm.run_battery import model_facts
 
     cfg = cfg or ArmConfig(prompt_file="state/prompt.md")
     rows = json.loads((HERE / "dev_rows.json").read_text(encoding="utf-8"))["rows"]
+    if only_ids is not None:
+        rows = [row for row in rows if row["id"] in only_ids]
+        missing = only_ids - {row["id"] for row in rows}
+        if missing:
+            print(f"unknown row ids: {sorted(missing)}", file=sys.stderr)
+            return 2
     keys = json.loads((HERE / "dev_keys.json").read_text(encoding="utf-8"))
     out_dir.mkdir(parents=True, exist_ok=True)
     try:
@@ -679,6 +736,8 @@ def run_dev(out_dir: Path, cfg: ArmConfig | None = None) -> int:
         transcript.append({"id": row["id"], "turns": turns, "pass": not any(item.startswith(row["id"] + ":") for item in failures)})
     record = run_record(cfg, facts)
     record["failures"] = failures
+    if only_ids is not None:
+        record["only_ids"] = sorted(only_ids)
     (out_dir / "transcript.json").write_text(json.dumps(transcript, indent=2) + "\n", encoding="utf-8")
     (out_dir / "run_record.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
     if failures:
@@ -688,10 +747,14 @@ def run_dev(out_dir: Path, cfg: ArmConfig | None = None) -> int:
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) != 2:
-        print("usage: python -m scripts.eval.part_g_arm.state.harness OUT_DIR", file=sys.stderr)
+    if len(argv) < 2:
+        print(
+            "usage: python -m scripts.eval.part_g_arm.state.harness OUT_DIR [row_id ...]",
+            file=sys.stderr,
+        )
         return 2
-    return run_dev(Path(argv[1]))
+    only = frozenset(argv[2:]) if len(argv) > 2 else None
+    return run_dev(Path(argv[1]), only_ids=only)
 
 
 if __name__ == "__main__":

@@ -422,6 +422,31 @@ def build_fully_locked_slot(species: str, *, user_slot: int = 1) -> dict[str, An
     return state
 
 
+def build_fully_locked_mega(
+    species: str, item: str, *, user_slot: int = 1
+) -> dict[str, Any]:
+    """Fully lock a Mega forme with its mapped stone (species+item batch, then the rest)."""
+    snap = load_snapshot()
+    ability = next(iter(snap["species"][to_id(species)]["abilities"].values()))
+    moves = list(legal_moves_for(species)[:4])
+    index = user_slot_to_index(user_slot)
+    state = _apply_team_row(
+        empty_team(),
+        {
+            "species": species,
+            "item": item,
+            "ability": ability,
+            "moveset": moves,
+            "nature": "Adamant",
+            "spread": {"hp": 32, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        },
+        index=index,
+    )
+    if not state["team_draft"][index].role.locked:
+        state = _lock_internal(state, index, "role", "bulky_offense")
+    return state
+
+
 def build_mrb1_start() -> dict[str, Any]:
     """MRB1 start: Torkoal locked at user slot 3 with Drought + Charcoal.
 

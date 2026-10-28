@@ -1,5 +1,5 @@
 {
-  "grading": "The mechanical class is what the row grades. Refusal wording is not graded. Unlock on an empty slot returns the node's message \"Species repick requires a fully locked slot.\" Commit with nothing pending returns \"missing or unsupported full-slot confirmation state.\" Those strings are not changed and are not scored. MT7 and MT8 are hand-graded against derived_keys (no class scorer yet). Prior paraphrasing rows dev-select-cs and dev-reject-dismiss are retired; their observed findings stay in LAST_DEV_RUN notes.",
+  "grading": "The mechanical class is what the row grades. Refusal wording is not graded. Unlock on an empty slot returns the node's message \"Species repick requires a fully locked slot.\" Commit with nothing pending returns \"missing or unsupported full-slot confirmation state.\" Those strings are not changed and are not scored. MT7 and MT8 are hand-graded against derived_keys (no class scorer yet). Prior paraphrasing rows dev-select-cs and dev-reject-dismiss are retired; their observed findings stay in LAST_DEV_RUN notes. Mega rows (dev-mega-*) use Kangaskhan-Mega / Kangaskhanite only — not Salamence, Charizard, or any covered-row species.",
   "rows": [
     {
       "id": "dev-lock",
@@ -309,6 +309,29 @@
         "Make it avoid Adamant Sneasler instead.",
         "Also avoid max-SpA Mega Charizard Y's Weather Ball.",
         "What are my options if that does not work?"
+      ]
+    },
+    {
+      "id": "dev-mega-bare-hyp",
+      "turns": [
+        "Could I put Kangaskhan-Mega on my team?"
+      ]
+    },
+    {
+      "id": "dev-mega-edit-refuse",
+      "start": "fully_locked_mega",
+      "species": "Kangaskhan-Mega",
+      "item": "Kangaskhanite",
+      "user_slot": 1,
+      "turns": [
+        "Change slot 1's item to Leftovers."
+      ]
+    },
+    {
+      "id": "dev-mega-lock-ok",
+      "turns": [
+        "Set slot 1's item to Kangaskhanite.",
+        "Lock Kangaskhan-Mega into slot 1."
       ]
     }
   ]
