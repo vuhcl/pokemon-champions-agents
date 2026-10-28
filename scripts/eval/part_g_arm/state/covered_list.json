@@ -1,9 +1,9 @@
 {
   "source": "claude/request_set_eval_plan_2026-10-25.md; Part 5 readiness; MT4 dropped 2026-10-27 (no all_locked CS anchor for show_candidates t2)",
   "frozen": false,
-  "note": "Proposed list for Vu approval before registration. Readiness and scorability only. Not a FROZEN_MANIFEST entry. OL1/OL2a/OL3 and MT4 are capability gaps. MM1/MM2 wait on mega-stone PR #318. H25/H26 need all_locked fixtures (outside state/).",
+  "note": "Proposed list for Vu approval before registration. Readiness and scorability only. Not a FROZEN_MANIFEST entry. OL1/OL2a/OL3 and MT4 are capability gaps. H19/H20 dropped 2026-10-27 (bootstrap empty; no show_candidates without locked anchor — same as H17/H18). MM1/MM2 wait on mega-stone merge follow-up. H25/H26 need all_locked fixtures (outside state/).",
   "not_covered": [
-    "H12", "H17", "H18", "H21", "H22", "H25", "H26", "H27",
+    "H12", "H17", "H18", "H19", "H20", "H21", "H22", "H25", "H26", "H27",
     "MT4", "MT7", "MT8", "AR1", "AR2", "AR3",
     "SC1", "SC3", "TS1", "GT1", "LZ1",
     "MM1", "MM2",
@@ -13,7 +13,7 @@
   ],
   "covered": [
     "H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H11", "H13", "H14", "H15", "H16",
-    "H18b", "H19", "H20",
+    "H18b",
     "HF1", "HF2", "HN1", "HN2", "HN2b", "HN2c", "HN2d", "HN3", "HN4",
     "HP1", "HP2", "HP3", "HU1", "HU2", "HU2b", "HU3", "HU4",
     "HC1", "HC2", "HD1",

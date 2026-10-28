@@ -659,16 +659,6 @@
       "fact_unreachable": false
     },
     {
-      "row": "H19",
-      "tools": "find_species(learns_move=Trick Room) for learnset set; compendium-role TR setters remain hand/checklist if not learnset-equivalent",
-      "fact_unreachable": false
-    },
-    {
-      "row": "H20",
-      "tools": "find_species(types=[\u2026]) for monotype legal pool; show_candidates still for ranked offers",
-      "fact_unreachable": false
-    },
-    {
       "row": "MT1",
       "tools": "add_constraint + read_constraints (4b); t1 Water type, t2 judgment-only no Intimidate, t3 read_constraints",
       "fact_unreachable": false

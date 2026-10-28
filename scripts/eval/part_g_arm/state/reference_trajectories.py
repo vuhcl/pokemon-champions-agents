@@ -413,10 +413,13 @@ def hand_audit_tool_map() -> list[dict[str, Any]]:
         "H15": "usage joint via get_usage_* + get_speed (ASSUME-STATE)",
         "H18b": "fixture + solve_spread / usage; HO constraint judgment-only in fixture",
         "H19": (
-            "find_species(learns_move=Trick Room) for learnset set; "
-            "compendium-role TR setters remain hand/checklist if not learnset-equivalent"
+            "GAP: bootstrap empty — checklist item 1 needs TR-setter candidates/locks; "
+            "show_candidates refuses empty team (same as H17/H18). find_species pool ≠ presentation"
         ),
-        "H20": "find_species(types=[…]) for monotype legal pool; show_candidates still for ranked offers",
+        "H20": (
+            "GAP: bootstrap empty — checklist item 1 needs presented/locked Electric slots; "
+            "show_candidates refuses empty team (same as H17/H18)"
+        ),
         "MT1": "add_constraint + read_constraints (4b); t1 Water type, t2 judgment-only no Intimidate, t3 read_constraints",
         "MT2": "stale pin — excluded",
         "MT3": "seed+history; t2 suggest needs show_candidates(4c); t3 get_abilities",
