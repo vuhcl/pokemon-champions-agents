@@ -31,7 +31,7 @@ from recommender.turn_intent import _clear_pending_keys
 STATE_TOOL_NAMES = frozenset({
     "lock_slot", "unlock_slot", "reset_team", "commit_slot", "read_team",
     "select_option", "confirm_build", "reject_pending", "reject_option",
-    "reject_all", "read_rejected",
+    "reject_all", "read_rejected", "edit_slot_field",
 })
 LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
 # Read-only against live state (hyp copies then discards; read_* do not write).
@@ -106,6 +106,29 @@ STATE_TOOL_SPECS: list[dict[str, Any]] = [
         "Read the rejected list (species, reason, turn). Does not change state.",
         {},
         [],
+    ),
+    _spec(
+        "edit_slot_field",
+        "Change one locked field on a team slot (item, ability, nature, spread, or "
+        "moveset). slot counts from 1. Uses the same validators as apply_lock / "
+        "provisional edit; refusal writes nothing and keeps the pending screen. "
+        "Does not silently edit other fields. Result includes consequences computed "
+        "from data (type-boost vs remaining damaging moves of that type; Choice-lock "
+        "vs status moves except Trick/Switcheroo; Status self-boosters sharing a stat).",
+        {
+            "slot": dict(_INT),
+            "field": {
+                "type": "string",
+                "description": "item | ability | nature | spread | moveset",
+            },
+            "value": {
+                "description": (
+                    "New value: string for item/ability/nature; object of six SP ints "
+                    "for spread; array of four move names for moveset."
+                )
+            },
+        },
+        ["slot", "field", "value"],
     ),
 ]
 
@@ -209,6 +232,134 @@ def lock_slot(state: dict[str, Any], user_slot: object, species: object) -> tupl
         return state, _refuse(str(exc))
     patch = apply_lock({**state, "turn_payload": {"slot_index": index, "attr": "species", "value": species}})
     return _merge(state, patch), patch
+
+
+_EDIT_FIELDS = frozenset({"item", "ability", "nature", "spread", "moveset", "moves"})
+
+
+def edit_slot_field(
+    state: dict[str, Any], user_slot: object, field: object, value: object
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Replace one field using the same validators as apply_lock; no silent sibling edits.
+
+    Incomplete slots go through apply_lock. Fully locked slots cannot use apply_lock
+    (product refuses revise-via-lock); they take the same Attr write +
+    reconcile_on_sibling_change path apply_lock_single uses after validation.
+    """
+    from recommender.legality import check_set, load_snapshot, species_can_have_ability
+    from recommender.reconcile import reconcile_on_sibling_change
+    from scripts.eval.part_g_arm.state.edit_consequences import consequences_after_edit
+
+    if not isinstance(field, str) or field not in _EDIT_FIELDS:
+        return state, _refuse("field must be item|ability|nature|spread|moveset")
+    attr = "moveset" if field == "moves" else field
+    try:
+        index = user_slot_to_index(user_slot, team_size=len(state["team_draft"]))
+    except SlotIndexError as exc:
+        return state, _refuse(str(exc))
+
+    slot = state["team_draft"][index]
+    pending_kept = state.get("pending_presentation")
+
+    if not all_locked(slot):
+        patch = apply_lock(
+            {
+                **state,
+                "turn_payload": {"slot_index": index, "attr": attr, "value": value},
+            }
+        )
+        if patch.get("slot_commit_error"):
+            return state, _refuse(str(patch["slot_commit_error"]))
+        after = _merge(state, patch)
+    else:
+        # Validate then write one Attr (lock_attr semantics without the all_locked gate).
+        snap = load_snapshot()
+        write_value: object = value
+        if attr in {"species", "item"}:
+            verdict = validate_team_value(
+                attr, value, slot_index=index, team_draft=state["team_draft"], snap=snap
+            )
+            if verdict.refusal is not None:
+                return state, _refuse(verdict.refusal.message)
+            write_value = verdict.canonical
+        elif attr == "ability":
+            if not isinstance(value, str) or not value.strip():
+                return state, _refuse("ability is required")
+            sp = slot.species.value
+            if not sp or not species_can_have_ability(snap, sp, value):
+                return state, _refuse(f"{value!r} is not a legal ability for {sp}")
+            write_value = value
+        elif attr == "moveset":
+            if not isinstance(value, (list, tuple)) or len(value) != 4:
+                return state, _refuse("moveset requires exactly four moves")
+            sp = slot.species.value
+            if not sp:
+                return state, _refuse("species must be locked before editing moveset")
+            legality = check_set(
+                sp,
+                list(value),
+                slot.item.value,
+                ability=slot.ability.value,
+                team_draft=state["team_draft"],
+                exclude_slot=index,
+            )
+            if not legality.ok:
+                detail = "; ".join(
+                    f"{f.kind}:{f.element}" for f in legality.failures
+                )
+                return state, _refuse(f"illegal moveset: {detail}")
+            write_value = list(value)
+        elif attr == "nature":
+            if not isinstance(value, str) or not value.strip():
+                return state, _refuse("nature is required")
+            write_value = value
+        elif attr == "spread":
+            if not isinstance(value, dict):
+                return state, _refuse("spread must be an object of six SP ints")
+            write_value = value
+        else:
+            return state, _refuse(f"unsupported field {attr}")
+
+        new_attr = Attr(
+            value=write_value,
+            locked=True,
+            reason=getattr(getattr(slot, attr), "reason", None),
+            exempt_from_theme=getattr(getattr(slot, attr), "exempt_from_theme", False),
+        )
+        # Write only the edited field (no silent sibling clears — GS1/TB2/RB1).
+        new_slot = replace(slot, **{attr: new_attr})
+        components = (state.get("archetype") or Attr()).value
+        # Reconcile for reporting only; discard slot mutations that would clear siblings.
+        _probed, superseded, pending_flags = reconcile_on_sibling_change(
+            new_slot,
+            attr,
+            slot_index=index,
+            turn=state.get("turn", 0),
+            components=components,
+        )
+        draft = list(state["team_draft"])
+        draft[index] = new_slot
+        after = {
+            **state,
+            "team_draft": draft,
+            "slot_commit_error": None,
+            "pending_presentation": pending_kept,
+        }
+        if superseded:
+            after["superseded"] = [*state.get("superseded", []), *superseded]
+        if pending_flags:
+            after["pending_flags"] = [*state.get("pending_flags", []), *pending_flags]
+
+    facts = consequences_after_edit(after["team_draft"][index], changed_field=attr)
+    result = {
+        "ok": True,
+        "slot": display_slot(index),
+        "field": attr,
+        "consequences": facts,
+        "reconcile_pending_flags": list(after.get("pending_flags") or []),
+        "superseded": list(after.get("superseded") or []),
+    }
+    return after, result
 
 
 def unlock_slot(state: dict[str, Any], user_slot: object) -> tuple[dict[str, Any], dict[str, Any]]:

@@ -1,23 +1,13 @@
 {
   "mechanical": {
     "mechanical_n": 42,
-    "passed": 36,
+    "passed": 38,
     "failed": 0,
     "capability_gaps": [
       {
         "row": "MS6",
         "gap": "cannot record constraint",
         "needs": "add_constraint (4b)"
-      },
-      {
-        "row": "MR2",
-        "gap": "cannot lock item Choice Specs",
-        "needs": "edit_slot_field (4a)"
-      },
-      {
-        "row": "MR4",
-        "gap": "cannot lock Choice Scarf on two slots",
-        "needs": "edit_slot_field (4a)"
       },
       {
         "row": "OL1",
@@ -243,13 +233,18 @@
       },
       {
         "row": "MR2",
-        "trajectory": null,
-        "observed_class": null,
+        "trajectory": [
+          "edit_slot_field({'slot': 1, 'field': 'item', 'value': 'Choice Specs'})"
+        ],
+        "observed_class": "refused",
         "key_class": "MUTATION-REFUSED",
-        "pass": false,
-        "capability_gap": true,
-        "needs": "edit_slot_field (4a)",
-        "gap": "cannot lock item Choice Specs"
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
       },
       {
         "row": "MR3",
@@ -268,13 +263,18 @@
       },
       {
         "row": "MR4",
-        "trajectory": null,
-        "observed_class": null,
+        "trajectory": [
+          "edit_slot_field({'slot': 2, 'field': 'item', 'value': 'Choice Scarf'})"
+        ],
+        "observed_class": "refused",
         "key_class": "MUTATION-REFUSED",
-        "pass": false,
-        "capability_gap": true,
-        "needs": "edit_slot_field (4a)",
-        "gap": "cannot lock Choice Scarf on two slots"
+        "pass": true,
+        "score": {
+          "mechanical_class_observed": "refused",
+          "key_class_expected": "MUTATION-REFUSED",
+          "match": true,
+          "state_expectation_met": true
+        }
       },
       {
         "row": "MR5",
@@ -925,16 +925,6 @@
       "row": "MS6",
       "gap": "cannot record constraint",
       "needs": "add_constraint (4b)"
-    },
-    {
-      "row": "MR2",
-      "gap": "cannot lock item Choice Specs",
-      "needs": "edit_slot_field (4a)"
-    },
-    {
-      "row": "MR4",
-      "gap": "cannot lock Choice Scarf on two slots",
-      "needs": "edit_slot_field (4a)"
     },
     {
       "row": "OL1",

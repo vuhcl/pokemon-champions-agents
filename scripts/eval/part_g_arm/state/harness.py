@@ -26,6 +26,7 @@ from scripts.eval.part_g_arm.state.tools import (
     combined_specs,
     commit_slot,
     confirm_build,
+    edit_slot_field,
     lock_slot,
     mechanical_class,
     read_pending,
@@ -106,6 +107,10 @@ def snapshot(state: dict[str, Any]) -> dict[str, Any]:
 def dispatch(state: dict[str, Any], arm: Any, name: str, args: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     if name == "lock_slot":
         return lock_slot(state, args.get("slot"), args.get("species"))
+    if name == "edit_slot_field":
+        return edit_slot_field(
+            state, args.get("slot"), args.get("field"), args.get("value")
+        )
     if name == "unlock_slot":
         return unlock_slot(state, args.get("slot"))
     if name == "reset_team":

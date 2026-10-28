@@ -19,9 +19,11 @@ from scripts.eval.part_g_arm.state.request_set_rows import (
     resolve_start_state,
 )
 from scripts.eval.part_g_arm.state.tools import (
+    check_hypothetical,
     commit_slot,
     confirm_build,
     draft_signature,
+    edit_slot_field,
     lock_slot,
     mechanical_class,
     read_pending,
@@ -34,7 +36,6 @@ from scripts.eval.part_g_arm.state.tools import (
     select_option,
     steering_signature,
     unlock_slot,
-    check_hypothetical,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -78,6 +79,12 @@ def _dispatch(state: dict[str, Any], name: str, kwargs: dict[str, Any]) -> tuple
     """Run one state/hyp tool. Lookups go through ArmTools when needed."""
     if name == "lock_slot":
         return lock_slot(state, kwargs["slot"], kwargs["species"])
+    if name == "edit_slot_field":
+        from scripts.eval.part_g_arm.state.tools import edit_slot_field
+
+        return edit_slot_field(
+            state, kwargs["slot"], kwargs["field"], kwargs["value"]
+        )
     if name == "unlock_slot":
         return unlock_slot(state, kwargs["slot"])
     if name == "reset_team":
@@ -200,15 +207,13 @@ def trajectories() -> dict[str, list[Call] | Gap]:
         "MS8": _traj_lock(1, "Pelipper"),
         # Refusals
         "MR1": _traj_refuse_lock(1, "Flutter Mane"),
-        "MR2": {
-            "gap": "cannot lock item Choice Specs",
-            "needs": "edit_slot_field (4a)",
-        },
+        "MR2": [
+            ("edit_slot_field", {"slot": 1, "field": "item", "value": "Choice Specs"}),
+        ],
         "MR3": _traj_refuse_lock(2, "Incineroar"),  # after one Incineroar locked
-        "MR4": {
-            "gap": "cannot lock Choice Scarf on two slots",
-            "needs": "edit_slot_field (4a)",
-        },
+        "MR4": [
+            ("edit_slot_field", {"slot": 2, "field": "item", "value": "Choice Scarf"}),
+        ],
         "MR5": _traj_refuse_lock(2, "Garchomp"),  # occupied — start must have slot2 locked
         "MR6": [("unlock_slot", {"slot": 2})],
         "MR7": [("commit_slot", {})],
@@ -238,7 +243,7 @@ def trajectories() -> dict[str, list[Call] | Gap]:
 def _prepare_start(rid: str, state: dict[str, Any]) -> dict[str, Any]:
     """Fill starts that the request-set labels but loader leaves empty."""
     from scripts.eval.part_g_arm.state.fixtures import empty_team
-    from scripts.eval.part_g_arm.state.pending import build_fully_locked_slot, _lock_internal
+    from scripts.eval.part_g_arm.state.pending import build_fully_locked_slot
 
     if rid == "MS2":
         # slot1 locked
@@ -246,8 +251,16 @@ def _prepare_start(rid: str, state: dict[str, Any]) -> dict[str, Any]:
     if rid == "MS3":
         st = build_fully_locked_slot("Garchomp", user_slot=1)
         return {**st, **lock_slot(st, 2, "Pelipper")[0]} if False else _two_locked()
+    if rid == "MR2":
+        st, _ = lock_slot(empty_team(), 1, "Garchomp")
+        return st
     if rid == "MR3":
         return build_fully_locked_slot("Incineroar", user_slot=1)
+    if rid == "MR4":
+        st, _ = lock_slot(empty_team(), 1, "Garchomp")
+        st, _ = edit_slot_field(st, 1, "item", "Choice Scarf")
+        st, _ = lock_slot(st, 2, "Jolteon")
+        return st
     if rid == "MR5":
         return build_fully_locked_slot("Pelipper", user_slot=2)
     if rid == "MU6":
