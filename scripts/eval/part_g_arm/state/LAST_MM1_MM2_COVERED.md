@@ -18,3 +18,5 @@
 | MM2 | scorable-mechanical |
 
 H11 hand-audit gains +1 rubric point from set_answer errata (`allowed_not_required`).
+
+Reference trajectories: mechanical **40/40** (MM2 after declaring `mm2_salamence_mega.json` in `_SLOT_BASE` / `_ROW_FIXTURE`).

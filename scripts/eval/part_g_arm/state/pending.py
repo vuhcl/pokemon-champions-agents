@@ -51,6 +51,7 @@ _ROW_FIXTURE = {
     "IS2": "is2_basculegion",
     "H25": "h25_team",
     "H26": "h26_torkoal_locked",
+    "MM2": "mm2_salamence_mega",
     "MRB1": None,  # generic builder, not a fixtures/*.json file
 }
 
@@ -68,6 +69,7 @@ _SLOT_BASE: dict[str, SlotBase] = {
     "h25_team.json": "user",
     "h26_torkoal_locked.json": "user",
     "ic1_corviknight_item_clause.json": "first_free",
+    "mm2_salamence_mega.json": "internal",
 }
 
 _SLOT_BASE_EVIDENCE: dict[str, str] = {
