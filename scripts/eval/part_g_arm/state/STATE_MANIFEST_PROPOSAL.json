@@ -1,7 +1,7 @@
 {
   "schema": "state_arm_manifest_proposal_v0",
   "frozen": false,
-  "note": "Proposal only. Freeze after Vu approval. 2026-10-28 Vu covered 103 (+OL7a/H27/IX5/IX7); stale_pin cleared; H22 keep-out. frozen:false.",
+  "note": "Proposal only. Freeze after Vu approval. 2026-10-28: covered 103; OL7a outcome_sets (bind Jolteon|ask); stale_pin cleared. frozen:false.",
   "model": {
     "id": "qwen3.5:latest",
     "digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
@@ -77,11 +77,11 @@
     },
     {
       "path": "scripts/eval/part_g_arm/state/class_scorer.py",
-      "sha256": "93567e19ffe8102de4e7ffc53dfd30c85128df512aeec2d17cbda205c35dddaa"
+      "sha256": "8f97b299a5392eef8237df7fda757af2dedfb04067e25eeec367554f0e31a8f4"
     },
     {
       "path": "scripts/eval/part_g_arm/state/errata.json",
-      "sha256": "cb0e5505e8f8e7912feb4ed4259c7f795312e91f3fb907f1b25dcd31f334a212"
+      "sha256": "2d8133d8e67b86e20b8f490e3f4a54b6f2840104667a9709c10f4cb0b9ca1d5a"
     },
     {
       "path": "scripts/eval/part_g_arm/state/tools.py",
@@ -153,7 +153,11 @@
     },
     {
       "path": "scripts/eval/part_g_arm/state/b1_discovery.json",
-      "sha256": "6787755b0ead19d5bf40319d0863028e1f168260f59c7b57348af544edd1db29"
+      "sha256": "3034581aa3a04030c90ea35a44434a40a1823ff4037cc0ddb012b31dde08fcff"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/errata_read.py",
+      "sha256": "f7527166179be8c20e73b4bedca55cce4d33bacb9fd5fb006efc84852bd88f55"
     }
   ],
   "proposed_covered_counts": {
