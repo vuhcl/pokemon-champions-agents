@@ -1,7 +1,7 @@
 {
   "schema": "state_arm_manifest_proposal_v0",
   "frozen": false,
-  "note": "Proposal only. Freeze after Vu approval. 2026-10-28: covered 103; OL7a outcome_sets (bind Jolteon|ask); stale_pin cleared. frozen:false.",
+  "note": "Proposal only. Freeze after Vu approval. 2026-10-28: covered 103; OL7a outcome_sets; exploratory_runner (unscored not-covered mode, stub-tested); stale_pin cleared. frozen:false.",
   "model": {
     "id": "qwen3.5:latest",
     "digest": "44a38603922e14f1e3ae68c5d900cc39f2a925a9749d12ab6d268d75a01a399f",
@@ -67,13 +67,18 @@
     "per_turn_timeout_s": 300.0,
     "max_tool_calls_per_turn": 16,
     "on_no_answer_or_error": "record as 'no usable answer'; no silent retry",
-    "resume": "progress.json finished ids; skip without rewrite"
+    "resume": "progress.json finished ids; skip without rewrite",
+    "exploratory": "exploratory_runner.py: separate exploratory root + exploratory_progress.json; README mark 'exploratory, unscored'; no class scoring; registered run_batch refuses exploratory dirs"
   },
   "frozen_prompt_sha256": "bd2b69cde151fdb4dd2431c294ca46f4fbc251f54cebd82a13844d4eba0aaf86",
   "files": [
     {
       "path": "scripts/eval/part_g_arm/state/request_set_runner.py",
-      "sha256": "3e66c2034ff617a46eefb42bc41fce7b615d1d578cd367f4cd897fefa6e7f3ed"
+      "sha256": "eca6dd7498c39dfc0fa6d974d4d875393e0d45cf34ed4362ee981d0b347ca70a"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/exploratory_runner.py",
+      "sha256": "24d5f2f2ba0287c8f94cf1277dd709de712e1c0b9696a6efa3c9c8a07ef545c0"
     },
     {
       "path": "scripts/eval/part_g_arm/state/class_scorer.py",
@@ -158,6 +163,10 @@
     {
       "path": "scripts/eval/part_g_arm/state/errata_read.py",
       "sha256": "f7527166179be8c20e73b4bedca55cce4d33bacb9fd5fb006efc84852bd88f55"
+    },
+    {
+      "path": "scripts/eval/part_g_arm/state/freeze_manifest_arm_state.py",
+      "sha256": "971f2ae868f38b4598350861d4110fbeceb93e6ff33cfd5e7acbdb6b05800857"
     }
   ],
   "proposed_covered_counts": {
