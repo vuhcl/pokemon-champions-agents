@@ -583,7 +583,6 @@ def test_nn_role_transfer_clean_bootstrap(species, role_id, neighbor):
 @pytest.mark.parametrize(
     "species,role_id,neighbor",
     [
-        ("Absol-Mega-Z", "swords_dance_attacker", "Scolipede"),
         ("Persian", "fast_pivot", "Morpeko"),
         ("Sirfetch’d", "swords_dance_attacker", "Scizor"),
         ("Swalot", "swords_dance_attacker", "Scizor"),
@@ -633,6 +632,32 @@ def test_nn_transfer_select_refine_and_lock(species, role_id, neighbor):
     assert slot.role.value == role_id
     assert len(slot.moveset.value) == 4
     assert slot.ability.value
+
+
+def test_nn_transfer_mega_without_stone_refuses_commit():
+    """Usage may seed Life Orb on Absol-Mega-Z; Mega Stone rule refuses the commit."""
+    from recommender.present_text import format_turn
+
+    species = "Absol-Mega-Z"
+    role_id = "swords_dance_attacker"
+    neighbor = "Scolipede"
+    state = _record(
+        _state(),
+        _payload(anchor=species, pool=(), delegated=False),
+    )
+    presented = bootstrap_direction(state)
+    selected = classify_input({**state, **presented, "pending_input": "1"})
+    selected_state = {**state, **presented, **selected}
+    refined = refine_provisional_slot(selected_state)
+    provisional = refined["provisional_slot"]
+    assert provisional is not None
+    assert provisional.species == species
+    assert provisional.target_role_decision.role_id == role_id
+    text = format_turn({**selected_state, **refined})
+    assert "similar to" in text and neighbor in text
+    committed = commit_full_slot({**selected_state, **refined})
+    assert "team_draft" not in committed
+    assert "Absolite Z" in (committed.get("slot_commit_error") or "")
 
 
 def test_nn_transfer_incomplete_seeds_fail_closed():

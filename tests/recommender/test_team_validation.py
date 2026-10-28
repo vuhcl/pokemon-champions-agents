@@ -321,8 +321,15 @@ def test_batch_clean_payload_stores_canonical_values():
 
 def test_restore_refused_when_later_lock_clashes_and_stack_unchanged():
     state = _state([empty_slot() for _ in range(6)])
-    # slot 1 held Charizard, was superseded; user then locked Charizard-Mega-X in slot 0
-    locked = _lock(state, 0, "species", "Charizard-Mega-X")
+    # slot 1 held Charizard, was superseded; user then locked Charizard-Mega-X + stone in slot 0
+    locked = _lock_batch(
+        state,
+        0,
+        [
+            {"attr": "species", "value": "Charizard-Mega-X"},
+            {"attr": "item", "value": "Charizardite X"},
+        ],
+    )
     entry = {"slot_index": 1, "attr": "species", "value": "Charizard", "reason": "x", "turn_removed": 1}
     s2 = {**state, **locked, "superseded": [entry]}
     before = copy.deepcopy(s2["team_draft"])
@@ -335,8 +342,18 @@ def test_restore_refused_when_later_lock_clashes_and_stack_unchanged():
 
 def test_canonical_storage_for_species_and_item():
     state = _state([empty_slot() for _ in range(6)])
-    assert _lock(state, 0, "species", "charizardmegax")["team_draft"][0].species.value == "Charizard-Mega-X"
-    assert _lock(state, 0, "item", "sitrusberry")["team_draft"][0].item.value == "Sitrus Berry"
+    out = _lock_batch(
+        state,
+        0,
+        [
+            {"attr": "species", "value": "charizardmegax"},
+            {"attr": "item", "value": "charizarditex"},
+        ],
+    )
+    assert out["team_draft"][0].species.value == "Charizard-Mega-X"
+    assert out["team_draft"][0].item.value == "Charizardite X"
+    state2 = _state([empty_slot() for _ in range(6)])
+    assert _lock(state2, 0, "item", "sitrusberry")["team_draft"][0].item.value == "Sitrus Berry"
 
 
 @pytest.mark.parametrize("iid", LEGAL_ITEMS)
@@ -351,11 +368,67 @@ def test_rejection_and_lineage_comparisons_work_on_canonical_values():
         [empty_slot() for _ in range(6)],
         rejected=[{"species": "charizardmegax", "reason": "", "turn": 1}],
     )
-    out = _lock(state, 0, "species", "charizardmegax")  # stored as Charizard-Mega-X
+    out = _lock_batch(
+        state,
+        0,
+        [
+            {"attr": "species", "value": "charizardmegax"},
+            {"attr": "item", "value": "charizarditex"},
+        ],
+    )
     assert out["team_draft"][0].species.value == "Charizard-Mega-X"
     cleared = _clear_rejected_for_newly_locked_species(state, out)
     assert cleared["rejected"] == []
     assert {"charizard", "charizardmegax", "charizardmegay"} <= set(lineage_ids("Charizard-Mega-X"))
+
+
+# ---- Mega Stone rule -----------------------------------------------------------------
+
+def test_refuse_mega_species_without_stone():
+    state = _state([empty_slot() for _ in range(6)])
+    before = copy.deepcopy(state["team_draft"])
+    out = _lock(state, 0, "species", "Salamence-Mega")
+    _assert_refused(out, state, before, "Salamencite")
+    assert "base form" in out["slot_commit_error"].lower() or "Salamence" in out["slot_commit_error"]
+
+
+def test_refuse_non_stone_item_on_mega():
+    state = _state(
+        _draft_with(0, species="Salamence-Mega", item="Salamencite")
+    )
+    before = copy.deepcopy(state["team_draft"])
+    out = _lock(state, 0, "item", "Leftovers")
+    _assert_refused(out, state, before, "Salamencite")
+    assert state["team_draft"][0].item.value == "Salamencite"
+
+
+def test_batch_mega_with_correct_stone_ok():
+    state = _state([empty_slot() for _ in range(6)])
+    out = _lock_batch(
+        state,
+        0,
+        [
+            {"attr": "species", "value": "Salamence-Mega"},
+            {"attr": "item", "value": "Salamencite"},
+        ],
+    )
+    assert out.get("slot_commit_error") is None
+    assert out["team_draft"][0].species.value == "Salamence-Mega"
+    assert out["team_draft"][0].item.value == "Salamencite"
+
+
+def test_batch_mega_with_wrong_item_refused():
+    state = _state([empty_slot() for _ in range(6)])
+    before = copy.deepcopy(state["team_draft"])
+    out = _lock_batch(
+        state,
+        0,
+        [
+            {"attr": "species", "value": "Salamence-Mega"},
+            {"attr": "item", "value": "Leftovers"},
+        ],
+    )
+    _assert_refused(out, state, before, "Salamencite")
 
 
 # ---- drift: validator grouping == lineage_ids ---------------------------------------
