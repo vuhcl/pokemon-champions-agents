@@ -42,7 +42,7 @@ LOOKUP_TOOL_NAMES = frozenset(spec["function"]["name"] for spec in TOOL_SPECS)
 # Read-only against live state (hyp copies then discards; read_* do not write).
 READONLY_TOOL_NAMES = LOOKUP_TOOL_NAMES | {
     "check_hypothetical", "read_pending", "read_rejected", "read_constraints",
-    "solve_spread",
+    "solve_spread", "check_learnset",
 }
 
 def _spec(name: str, description: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
@@ -193,6 +193,14 @@ STATE_TOOL_SPECS: list[dict[str, Any]] = [
         "(no locked anchor) refuses — bootstrap is out of scope. allow_live=False.",
         {"slot": dict(_INT), "n": dict(_INT)},
         ["slot"],
+    ),
+    _spec(
+        "check_learnset",
+        "Read-only: whether a species learns a move in the Champions learnset "
+        "(legal_moves_for / resolve_learnset). Not a new rule. Returns "
+        "learns=true|false and the species/move canonical ids used.",
+        {"species": dict(_STR), "move": dict(_STR)},
+        ["species", "move"],
     ),
 ]
 
@@ -801,6 +809,40 @@ def _option_rows(pending: dict[str, Any]) -> list[dict[str, Any]]:
             }
         )
     return rows
+
+
+def check_learnset(state: dict[str, Any], species: object, move: object) -> dict[str, Any]:
+    """Read-only learnset check via legality.legal_moves_for. Never writes state."""
+    from recommender.ids import to_id
+    from recommender.legality import legal_moves_for, load_snapshot
+    from recommender.species_resolve import lookup_species_id
+
+    _ = state
+    if not isinstance(species, str) or not species.strip():
+        return {"status": "error", "message": "species is required", "learns": None}
+    if not isinstance(move, str) or not move.strip():
+        return {"status": "error", "message": "move is required", "learns": None}
+    snap = load_snapshot()
+    sid = lookup_species_id(species, snap)
+    if sid is None:
+        return {
+            "status": "not_found",
+            "species": species,
+            "move": move,
+            "learns": False,
+            "message": f"unknown species {species!r}",
+        }
+    name = str(snap["species"][sid].get("name") or species)
+    legal = {to_id(m) for m in legal_moves_for(name, snap)}
+    mid = to_id(move)
+    learns = mid in legal
+    return {
+        "status": "ok",
+        "species": name,
+        "move": move.strip(),
+        "move_id": mid,
+        "learns": learns,
+    }
 
 
 def show_candidates(
